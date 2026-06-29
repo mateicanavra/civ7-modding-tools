@@ -5,14 +5,12 @@ import {
 } from "@swooper/mapgen-core/authoring";
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCiv7MapSizePreset } from "../features/browserRunner/mapSizes";
-import { capturePinnedSelection } from "../features/browserRunner/retention";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { fetchCiv7SetupConfig, requestCiv7Autoplay } from "../features/civ7Setup/api";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
 import {
   formatCiv7StudioSeedError,
   parseCiv7StudioSeed,
-  randomCiv7StudioSeed,
 } from "../features/civ7Setup/seedPolicy";
 import {
   type Civ7SetupSnapshotLike,
@@ -31,7 +29,6 @@ import {
   mergeSelectOptions,
   setupCatalogOptions,
 } from "../features/civ7Setup/setupOptions";
-import { migratePipelineConfig } from "../features/configMigrations/pipelineConfig";
 import {
   type AppliedPresetSnapshot,
   applyPresetConfig,
@@ -133,10 +130,11 @@ import type {
   StepOption,
   VariantOption,
 } from "../ui/types";
-import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "../ui/utils/config";
+import { configsEqual } from "../ui/utils/config";
 import { formatStageName } from "../ui/utils/formatting";
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";
+import { useBrowserRun } from "./hooks/useBrowserRun";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
@@ -244,9 +242,6 @@ export function StudioShell(props: StudioShellProps) {
   const setStageView = useViewStore((s) => s.setStageView);
   const pipelineSelectedStageId = useViewStore((s) => s.pipelineSelectedStageId);
   const setPipelineSelectedStageId = useViewStore((s) => s.setPipelineSelectedStageId);
-  const [autoRunEnabled, setAutoRunEnabled] = useState(false);
-  const autoRunTimerRef = useRef<number | null>(null);
-  const autoRunPendingRef = useRef(false);
 
   // Coordination layer (init FIRST): owns the runInGame/saveDeploy operation
   // state + the single-owner error channel, and derives the busy booleans
@@ -803,124 +798,21 @@ export function StudioShell(props: StudioShellProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStepId]);
 
-  const startBrowserRun = useCallback(
-    (overrides?: { seed?: string }) => {
-      setLocalError(null);
-
-      const seedStr = overrides?.seed ?? recipeSettings.seed;
-      const seedPolicy = parseCiv7StudioSeed(seedStr);
-      if (!seedPolicy.ok) {
-        const message = formatCiv7StudioSeedError(seedPolicy);
-        setLocalError(message);
-        toast(message, { variant: "error" });
-        return;
-      }
-      const seed = seedPolicy.value;
-      const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      const runPipelineConfig = migratePipelineConfig(pipelineConfig);
-
-      const pinned = capturePinnedSelection({
-        selectedStepId: viz.selectedStepId,
-        selectedLayerKey: viz.selectedLayerKey,
-      });
-      viz.clearStream();
-      if (!pinned.retainStep) viz.setSelectedStepId(null);
-      if (!pinned.retainLayer) viz.setSelectedLayerKey(null);
-
-      browserRunner.actions.clearError();
-
-      setLastRunSnapshot({
-        worldSettings,
-        recipeSettings: { ...recipeSettings, seed: seedStr },
-        pipelineConfig: runPipelineConfig,
-      });
-
-      browserRunner.actions.start({
-        recipeId: recipeSettings.recipe,
-        seed,
-        mapSizeId: mapSize.id,
-        dimensions: mapSize.dimensions,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-        playerCount: worldSettings.playerCount,
-        resourcesMode: worldSettings.resources,
-        configOverrides: overridesDisabled ? undefined : (runPipelineConfig as unknown),
-      });
-    },
-    [
-      browserRunner.actions,
-      overridesDisabled,
-      pipelineConfig,
-      recipeSettings,
-      toast,
-      worldSettings,
-      viz,
-    ]
-  );
-
-  useEffect(() => {
-    if (!autoRunEnabled) {
-      autoRunPendingRef.current = false;
-      if (autoRunTimerRef.current) {
-        window.clearTimeout(autoRunTimerRef.current);
-        autoRunTimerRef.current = null;
-      }
-    }
-  }, [autoRunEnabled]);
-
-  useEffect(() => {
-    if (!autoRunEnabled) return;
-    if (overridesDisabled) return;
-    if (runInGameRunning || saveDeployRunning) return;
-
-    if (browserRunning) {
-      autoRunPendingRef.current = true;
-      return;
-    }
-
-    if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
-
-    if (autoRunTimerRef.current) window.clearTimeout(autoRunTimerRef.current);
-    autoRunTimerRef.current = window.setTimeout(() => {
-      autoRunTimerRef.current = null;
-      startBrowserRun();
-    }, 300);
-
-    return () => {
-      if (!autoRunTimerRef.current) return;
-      window.clearTimeout(autoRunTimerRef.current);
-      autoRunTimerRef.current = null;
-    };
-  }, [
-    autoRunEnabled,
+  // Browser-run command + auto-run orchestration (slice 2.6). The runner
+  // instance + `browserRunning` derivation + `vizIngestRef` sink wiring stay in
+  // host render scope above (they must straddle the host-owned `viz` call, which
+  // reads `browserRunning`); the command surface — `startBrowserRun`, the atomic
+  // auto-run trio, `reroll`/`triggerRun`, and `isDirty` — lives in the hook. Busy
+  // flags are threaded from `useStudioOperations` (never re-derived here).
+  const { reroll, triggerRun, isDirty, autoRunEnabled, setAutoRunEnabled } = useBrowserRun({
+    runnerActions: browserRunner.actions,
     browserRunning,
-    lastRunSnapshot,
-    overridesDisabled,
-    pipelineConfig,
+    viz,
     runInGameRunning,
     saveDeployRunning,
-    startBrowserRun,
-  ]);
-
-  useEffect(() => {
-    if (!autoRunEnabled) return;
-    if (overridesDisabled) return;
-    if (browserRunning) return;
-    if (runInGameRunning || saveDeployRunning) return;
-    if (!autoRunPendingRef.current) return;
-
-    autoRunPendingRef.current = false;
-    if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
-    startBrowserRun();
-  }, [
-    autoRunEnabled,
-    browserRunning,
-    lastRunSnapshot,
-    overridesDisabled,
-    pipelineConfig,
-    runInGameRunning,
-    saveDeployRunning,
-    startBrowserRun,
-  ]);
+    toast,
+    setLocalError,
+  });
 
   const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
     setSaveDialogState({
@@ -1343,34 +1235,7 @@ export function StudioShell(props: StudioShellProps) {
 
   const cancelImportSwitch = useCallback(() => setPendingImport(null), []);
 
-  const reroll = useCallback(() => {
-    if (runInGameRunning || saveDeployRunning) {
-      toast("Finish the current Studio operation before rerolling.", { variant: "info" });
-      return;
-    }
-    const next = randomCiv7StudioSeed();
-    setRecipeSettings((prev) => ({ ...prev, seed: next }));
-    startBrowserRun({ seed: next });
-  }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
-
-  const triggerRun = useCallback(() => {
-    if (runInGameRunning || saveDeployRunning) {
-      toast("Finish the current Studio operation before running.", { variant: "info" });
-      return;
-    }
-    startBrowserRun();
-  }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
-
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
-
-  const isDirty = useMemo(() => {
-    if (!lastRunSnapshot) return true;
-    return (
-      !worldSettingsEqual(lastRunSnapshot.worldSettings, worldSettings) ||
-      !recipeSettingsEqual(lastRunSnapshot.recipeSettings, recipeSettings) ||
-      !configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)
-    );
-  }, [lastRunSnapshot, pipelineConfig, recipeSettings, worldSettings]);
 
   const runInGameMaterializationMode = useMemo<"durable" | "disposable">(() => {
     const parsed = parsePresetKey(recipeSettings.preset);
