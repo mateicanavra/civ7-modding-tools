@@ -4,7 +4,7 @@
   "title": "Prohibit Retired Domain Root Catalogs",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "_self",
+    "blueprint": "domain",
     "category": "structure",
     "artifactKind": "check"
   },
@@ -23,15 +23,17 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_retired_domain_root_catalogs/baseline.json"
+    "baseline": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_retired_domain_root_catalogs/pattern.md"
+      "pattern": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md"
     },
     "patternName": "prohibit_retired_domain_root_catalogs"
   }

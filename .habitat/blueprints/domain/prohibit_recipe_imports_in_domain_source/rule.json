@@ -4,7 +4,7 @@
   "title": "Prohibit Recipe Imports In Domain Source",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "domain-public-surface",
+    "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/prohibit_recipe_imports_in_domain_source/baseline.json"
+    "baseline": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/prohibit_recipe_imports_in_domain_source/pattern.md"
+      "pattern": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md"
     },
     "patternName": "prohibit_recipe_imports_in_domain_source"
   }

@@ -4,7 +4,7 @@
   "title": "Prohibit Relative Domain Reaches From Recipes And Maps",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "domain-public-surface",
+    "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -25,15 +25,18 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/prohibit_relative_domain_reaches_from_recipes_and_maps/baseline.json"
+    "baseline": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
+      "pattern": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
     },
     "patternName": "prohibit_relative_domain_reaches_from_recipes_and_maps"
   }

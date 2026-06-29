@@ -99,6 +99,7 @@ Affirmed blueprint examples include:
 - `blueprints/recipe`
 - `blueprints/recipe-stage`
 - `blueprints/recipe-step`
+- `blueprints/domain`
 - `blueprints/domain-operation`
 
 Candidate blueprint-shaped examples include:
@@ -108,7 +109,6 @@ Candidate blueprint-shaped examples include:
 - `habitat/toolkit/_blueprints/service-module`
 - `civ7/platform/_blueprints/civ7-adapter`
 - `civ7/resources/_blueprints/civ7-map-policy`
-- `civ7/mapgen/domain/_blueprints/domain-public-surface`
 - `civ7/mapgen/map-output/_blueprints/map-projection`
 
 Known transitional misfits, not blueprint exemplars:

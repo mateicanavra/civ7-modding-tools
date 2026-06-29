@@ -3,8 +3,8 @@
   "id": "prohibit_milestone_prefixed_standard_recipe_tag_catalog_names",
   "title": "Prohibit Milestone Prefixed Standard Recipe Tag Catalog Names",
   "placement": {
-    "niche": "civ7/mapgen/domain",
-    "blueprint": "domain-config-surface",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/_blueprints/domain-config-surface/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/_blueprints/domain-config-surface/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md"
     },
     "patternName": "prohibit_milestone_prefixed_standard_recipe_tag_catalog_names"
   }

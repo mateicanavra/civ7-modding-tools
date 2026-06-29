@@ -37,6 +37,8 @@ This is not a final machine-readable ontology, and it is not evidence that runti
   labels into ontology.
 - `AUTHORITY-DOMAIN-OPERATION-SLICE.md`: completed-slice reference for the
   Domain Operation Kind Pocket slice selected after the Recipe Kind Pocket.
+- `AUTHORITY-DOMAIN-KIND-SLICE.md`: completed-slice reference for the Domain
+  Kind Pocket slice that affirmed `domain` above public/config surface facets.
 - `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
 - `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.

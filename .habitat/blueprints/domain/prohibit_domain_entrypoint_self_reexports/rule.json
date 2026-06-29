@@ -4,7 +4,7 @@
   "title": "Prohibit Domain Entrypoint Self Reexports",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "_self",
+    "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,7 +17,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/*/index.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/*/index.ts"
+      ]
     }
   ],
   "scanRoots": [
@@ -31,12 +33,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_domain_entrypoint_self_reexports/baseline.json"
+    "baseline": ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_domain_entrypoint_self_reexports/pattern.md"
+      "pattern": ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md"
     },
     "patternName": "prohibit_domain_entrypoint_self_reexports"
   }

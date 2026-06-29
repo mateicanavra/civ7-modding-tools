@@ -4,7 +4,7 @@
   "title": "Require Public Domain Surfaces In Tests",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "domain-public-surface",
+    "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -26,14 +26,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_tests/baseline.json"
+    "baseline": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "node",
     "files": {
-      "script": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_tests/check.mjs"
+      "script": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs"
     }
   }
 }

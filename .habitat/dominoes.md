@@ -14,9 +14,9 @@ Use this source order when selecting or judging the next domino:
 2. `.habitat/DOMINO-FRAME.md`.
 3. `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, and
    niche concepts.
-4. `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md` for the next bounded Domain
-   Kind Pocket's input boundaries and slice-specific movement decisions.
-5. `.habitat/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
+4. `.habitat/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
+5. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
+   as precedent and evidence, not as the next active selector.
 6. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
    `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
@@ -110,60 +110,12 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 21. Move the Domain Operation Kind Pocket | The misplaced map projection/effect dependency guard moved into `domain-operation`; foundation strategy rows stayed contextual with consolidation pressure instead of becoming blueprints by path inheritance. |
 | 22. Unnest Rule Packet Paths | Category and artifact-kind directories were removed from live packet paths, leaving location-independent manifests in flatter blueprint/context lanes. |
 | 23. Split Affirmed Blueprints From Candidates | Affirmed Recipe and Domain Operation pockets moved to top-level `.habitat/blueprints/`; not-yet-affirmed niche-local blueprint-shaped inventories were renamed `_blueprints/` so they no longer visually claim blueprint authority. |
+| 24. Move the Domain Kind Pocket | Domain public-surface and direct domain-root rules moved into affirmed `.habitat/blueprints/domain/`; the mixed config validator stayed contextual, and the standard-recipe tag cleanup moved to the standard-recipe context instead of becoming domain authority. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
-
-### 24. Move The Domain Kind Pocket
-
-Purpose: establish `domain` as the parent constructible kind above the already
-affirmed `domain-operation` kind, and demote public/config surface labels from
-candidate blueprint authority into domain evidence unless source proves
-otherwise.
-
-Done Means:
-
-- `.habitat/blueprints/domain/` exists for rules that genuinely govern the
-  domain kind.
-- Primary `domain-public-surface`, `domain-config-surface`, and direct domain
-  rule inputs are moved, left contextual, or explicitly dispositioned against
-  `AUTHORITY-DOMAIN-KIND-SLICE.md`.
-- `domain-operation` remains an affirmed adjacent child kind and is not
-  re-opened broadly.
-- Concrete domain labels such as foundation, morphology, and ecology remain
-  instances or contexts unless rules directly prove all-domain governance.
-- No `domain-public-surface`, `domain-config-surface`, or concrete domain label
-  is promoted to blueprint by folder inheritance.
-
-Moves It Forward:
-
-- Collapses misleading surface-shaped candidate blueprints into a parent kind
-  frame.
-- Clarifies the `recipe -> domain -> domain-operation` dependency chain.
-- Makes later concrete-domain, map-projection, and capability questions easier
-  because the parent domain kind is visible.
-- Provides the next state-changing read instead of another broad corpus
-  snapshot.
-
-Dependencies:
-
-- Domino 21 affirmed the first `domain-operation` rule move.
-- Domino 22 removed category/artifact-kind physical nesting.
-- Domino 23 separated affirmed blueprint authority from candidate
-  blueprint-shaped inventory.
-- `AUTHORITY-DOMAIN-KIND-SLICE.md` is the normative frame for this domino.
-
-Proof:
-
-- Focused source inspection supports `domain` as constructible kind.
-- Every primary input named by `AUTHORITY-DOMAIN-KIND-SLICE.md` has a recorded
-  disposition: moved, left contextual, explicitly excluded, or stopped by a
-  falsifier.
-- Focused `habitat check --rule <id> --json` proof passes for moved rules.
-- Manifest path proof shows moved runner and baseline references exist.
-- Static scans show moved manifests do not contain stale old file references.
 
 ### 25. Repeat Bounded Kind-Family Slices
 

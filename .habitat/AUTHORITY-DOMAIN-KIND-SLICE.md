@@ -1,6 +1,6 @@
 # Domain Kind Pocket Slice
 
-Status: normative frame for the next bounded Habitat authority slice
+Status: completed-slice frame and reference
 
 Built: 2026-06-29
 
@@ -11,7 +11,7 @@ Domain Kind Pocket.
 
 ## Scope And Provenance
 
-This frame governs the next bounded slice after Recipe and Domain Operation.
+This frame governed the bounded slice after Recipe and Domain Operation.
 Use it with `AUTHORITY-SLICE-FRAME.md`, not instead of it. The generic slice
 frame defines the method; this document defines the specific pocket, evidence
 surface, and selection pressure for `domain`.
@@ -172,14 +172,13 @@ Primary source evidence:
 - `mods/mod-swooper-maps/src/domain/*/ops/index.ts`
 - `mods/mod-swooper-maps/src/domain/*/config.ts`
 
-Primary rule inputs:
+Original primary rule inputs were the then-live `domain-public-surface` and
+`domain-config-surface` candidate pockets plus four direct domain rules:
 
-- `.habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/**`
-- `.habitat/civ7/mapgen/domain/_blueprints/domain-config-surface/**`
-- `.habitat/civ7/mapgen/domain/rules/prohibit_domain_entrypoint_self_reexports`
-- `.habitat/civ7/mapgen/domain/rules/prohibit_domain_tag_artifact_shim_imports`
-- `.habitat/civ7/mapgen/domain/rules/prohibit_retired_domain_root_catalogs`
-- `.habitat/civ7/mapgen/domain/rules/prohibit_unknown_bag_config_usage`
+- `prohibit_domain_entrypoint_self_reexports`
+- `prohibit_domain_tag_artifact_shim_imports`
+- `prohibit_retired_domain_root_catalogs`
+- `prohibit_unknown_bag_config_usage`
 
 Secondary review inputs, not automatic moves:
 
@@ -232,20 +231,49 @@ Mark cleanup pressure, without performing cleanup, when:
 - the rule mixes domain kind governance with instance-specific transition
   cleanup.
 
-## Expected Movement Shape
+## Slice Dispositions
 
-The likely destination for affirmed domain-kind rules is:
+Moved to `.habitat/blueprints/domain/`:
+
+- `prohibit_domain_artifacts_modules`
+- `prohibit_recipe_imports_in_domain_source`
+- `prohibit_relative_domain_reaches_from_recipes_and_maps`
+- `require_public_domain_surfaces_in_recipes_and_maps`
+- `require_public_domain_surfaces_in_tests`
+- `restrict_recipes_to_public_domain_surfaces`
+- `prohibit_domain_entrypoint_self_reexports`
+- `prohibit_domain_tag_artifact_shim_imports`
+- `prohibit_retired_domain_root_catalogs`
+- `prohibit_unknown_bag_config_usage`
+
+Left contextual:
+
+- `require_owned_domain_config_catalog_surfaces` moved to
+  `.habitat/civ7/mapgen/domain/rules/require_owned_domain_config_catalog_surfaces`
+  because it mixes a morphology config facade assertion with standard recipe
+  tag-catalog evidence. That mix is real cleanup pressure, not proof of a
+  separate `domain-config-surface` blueprint.
+
+Explicitly excluded from the Domain Kind Pocket:
+
+- `prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` moved to
+  `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names`
+  because its whole path coverage is current standard-recipe tag catalog
+  cleanup, not domain-kind governance.
+
+## Movement Shape
+
+Affirmed domain-kind rules landed at:
 
 ```text
 .habitat/blueprints/domain/<rule-id>/
 ```
 
 This is a working placement for this slice, not final proof of every future
-domain layout. Moved manifests must preserve rule `id`, behavior, explicit
+domain layout. Moved manifests preserved rule `id`, behavior, explicit
 `runner.files`, and `artifacts.baseline` references. `placement.blueprint`
-should become `domain` for rules moved to the parent kind. Rules that remain
-contextual should stay in the smallest honest context and carry only the
-minimal note needed for later reassessment.
+became `domain` for rules moved to the parent kind. Rules that remained
+contextual stayed in the smallest honest context for later reassessment.
 
 ## Falsifiers
 
@@ -264,34 +292,29 @@ Degeneration trigger: if two consecutive domain-slice decisions promote
 surface labels or concrete domain labels instead of the parent constructible
 kind, pause and rerun the slice frame before moving more files.
 
-## Review Plan
+## Review Result
 
-Run two lightweight review lanes before implementation:
+Two lightweight review lanes were run during implementation:
 
 - Ontology review: check that the frame does not smuggle public/config surface
   labels or concrete domain names into blueprint authority.
 - Workstream review: check source order, input boundaries, falsifiers, and
-  proof expectations for the next implementation turn.
+  proof expectations.
 
-Accepted P1/P2 findings block implementation until repaired or explicitly
-dispositioned.
+Accepted P1/P2 findings were repaired or dispositioned before closure.
 
-## Implementation Handoff
+## Closure Notes
 
-The next implementation turn should:
+This completed slice:
 
-- reground in this document, `dominoes.md`, `AUTHORITY-SLICE-FRAME.md`, and
-  `AUTHORITY-ONTOLOGY.md`;
-- inspect the primary source and rule inputs before selecting moves;
-- record a disposition for every primary rule input: moved, left contextual,
-  explicitly excluded, or stopped by a falsifier;
-- move only rules whose whole meaning fits `domain`, `domain-operation`, or one
-  coarse context;
-- preserve rule IDs and runtime behavior;
-- update manifest paths for moved files;
-- run focused `bun habitat check --rule <id> --json` proof for moved rules; and
-- update this document only if the slice teaches a general rule future agents
-  need.
+- affirmed `domain` as the constructible parent kind for the moved rules;
+- demoted `domain-public-surface` and `domain-config-surface` from candidate
+  blueprint labels into facet evidence;
+- kept concrete domain contexts such as foundation, morphology, and ecology
+  out of blueprint authority; and
+- exposed mixed config/catalog cleanup pressure without solving it in this
+  branch.
 
 Do not use this frame as permission to classify the whole MapGen domain tree.
-Its purpose is to make the next state-changing slice natural and bounded.
+Its purpose is to preserve the completed Domain Kind Pocket decision and make
+the next state-changing slice natural and bounded.

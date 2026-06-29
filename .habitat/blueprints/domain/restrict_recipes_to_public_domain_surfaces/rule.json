@@ -4,7 +4,7 @@
   "title": "Restrict Recipes To Public Domain Surfaces",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "domain-public-surface",
+    "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/restrict_recipes_to_public_domain_surfaces/baseline.json"
+    "baseline": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/restrict_recipes_to_public_domain_surfaces/pattern.md"
+      "pattern": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
     },
     "patternName": "restrict_recipes_to_public_domain_surfaces"
   }

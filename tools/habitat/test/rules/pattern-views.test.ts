@@ -131,11 +131,11 @@ describe("pattern management views", () => {
         expect.objectContaining({
           patternId: "deep-import-to-public-surface",
           manifestPath:
-            ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
+            ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
           dryRunCommands: [
             expect.objectContaining({
               patternPath:
-                ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
+                ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
               roots: ["mods/mod-swooper-maps/src/maps", "mods/mod-swooper-maps/src/recipes"],
             }),
           ],
@@ -166,7 +166,7 @@ describe("pattern management views", () => {
     expect(
       Value.Check(
         ApplyPatternPathSchema,
-        ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
       )
     ).toBe(true);
     expect(

@@ -4,7 +4,7 @@
   "title": "Prohibit Domain Tag Artifact Shim Imports",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "_self",
+    "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,7 +17,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/**/*.ts"
+      ]
     }
   ],
   "scanRoots": [
@@ -27,12 +29,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_domain_tag_artifact_shim_imports/baseline.json"
+    "baseline": ".habitat/blueprints/domain/prohibit_domain_tag_artifact_shim_imports/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_domain_tag_artifact_shim_imports/pattern.md"
+      "pattern": ".habitat/blueprints/domain/prohibit_domain_tag_artifact_shim_imports/pattern.md"
     },
     "patternName": "prohibit_domain_tag_artifact_shim_imports"
   }

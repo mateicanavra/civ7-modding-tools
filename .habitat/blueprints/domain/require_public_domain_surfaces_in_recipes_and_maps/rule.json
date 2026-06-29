@@ -4,7 +4,7 @@
   "title": "Require Public Domain Surfaces In Recipes And Maps",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "domain-public-surface",
+    "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -25,16 +25,19 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/baseline.json"
+    "baseline": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-      "applyPattern": ".habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
+      "pattern": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
+      "applyPattern": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
     },
     "patternName": "require_public_domain_surfaces_in_recipes_and_maps"
   }

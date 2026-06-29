@@ -6,7 +6,7 @@ import {
   modRoot,
   read,
   srcRoot,
-} from "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
+} from "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const findings = [];
 const morphologyConfig = path.join(srcRoot, "domain/morphology/config.ts");

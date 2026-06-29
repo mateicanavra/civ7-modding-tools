@@ -4,7 +4,7 @@
   "title": "Prohibit Unknown Bag Config Usage",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "_self",
+    "blueprint": "domain",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_unknown_bag_config_usage/baseline.json"
+    "baseline": ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_unknown_bag_config_usage/pattern.md"
+      "pattern": ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/pattern.md"
     },
     "patternName": "prohibit_unknown_bag_config_usage"
   }
