@@ -4,7 +4,7 @@
   "title": "Prohibit Runtime Continent Step Tokens",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "morphology-domain",
+    "blueprint": "_remainder",
     "category": "execution",
     "artifactKind": "check"
   },
@@ -23,15 +23,17 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_runtime_continent_step_tokens/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_runtime_continent_step_tokens/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_runtime_continent_step_tokens/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_runtime_continent_step_tokens/pattern.md"
     },
     "patternName": "prohibit_runtime_continent_step_tokens"
   }

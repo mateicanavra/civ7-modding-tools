@@ -4,7 +4,7 @@
   "title": "Prohibit Legacy Plate Driver And Plot Mountains Dependencies",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "morphology-domain",
+    "blueprint": "_remainder",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -31,12 +31,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_legacy_plate_driver_and_plot_mountains_dependencies/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_legacy_plate_driver_and_plot_mountains_dependencies/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_legacy_plate_driver_and_plot_mountains_dependencies/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_legacy_plate_driver_and_plot_mountains_dependencies/pattern.md"
     },
     "patternName": "prohibit_legacy_plate_driver_and_plot_mountains_dependencies"
   }

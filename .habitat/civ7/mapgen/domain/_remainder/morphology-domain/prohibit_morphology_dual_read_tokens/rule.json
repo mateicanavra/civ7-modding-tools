@@ -4,7 +4,7 @@
   "title": "Prohibit Morphology Dual Read Tokens",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "morphology-domain",
+    "blueprint": "_remainder",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -22,15 +22,17 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_morphology_dual_read_tokens/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_morphology_dual_read_tokens/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_morphology_dual_read_tokens/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_morphology_dual_read_tokens/pattern.md"
     },
     "patternName": "prohibit_morphology_dual_read_tokens"
   }

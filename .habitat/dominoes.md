@@ -114,64 +114,84 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 23. Split Affirmed Blueprints From Candidates | Affirmed Recipe and Domain Operation pockets moved to top-level `.habitat/blueprints/`; not-yet-affirmed niche-local blueprint-shaped inventories were renamed `_blueprints/` so they no longer visually claim blueprint authority. |
 | 24. Move the Domain Kind Pocket | Domain public-surface and direct domain-root rules moved into affirmed `.habitat/blueprints/domain/`; the mixed config validator stayed contextual, and the standard-recipe tag cleanup moved to the standard-recipe context instead of becoming domain authority. |
 | 25. Frame contextual remainder slices | `AUTHORITY-REMAINDER-SLICE-FRAME.md` now governs how to reassess concrete-context remainders after parent kinds have moved, with morphology selected as the first method seed. |
+| 26. Move the Morphology Remainder Pocket | All twelve morphology-domain primary rows were reviewed and physically moved to `.habitat/civ7/mapgen/domain/_remainder/morphology-domain/`; their manifests now mark `placement.blueprint` as `_remainder`, none fit `domain` or `domain-operation` as whole-rule authority, and none remained honest intentional `rules/morphology-domain` authority. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
+## Domino 26 Disposition Receipt
+
+This table is a receipt for physical sorting, not a second authority surface.
+Every row below now lives under
+`.habitat/civ7/mapgen/domain/_remainder/morphology-domain/` and uses
+`placement.blueprint: "_remainder"` so the manifest does not continue claiming
+`morphology-domain` as blueprint authority.
+
+| Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
+| --- | --- | --- | --- | --- | --- | --- |
+| `preserve_morphology_contracts_and_overlay_ownership` | cleanup/consolidation/split pressure | `_remainder/morphology-domain` | `check.mjs` checks morphology recipe contracts plus global HOTSPOTS publisher ownership. | The rule mixes recipe-stage contract assertions with narrative overlay ownership; it is not whole-rule `domain`, `domain-operation`, or honest morphology-domain context authority. | selected-rule Habitat script proof passed; path refs exist | Mixed contract-plus-owner guards should move to `_remainder` until split or projected. |
+| `prohibit_legacy_morphology_config_keys` | cleanup/consolidation/retirement pressure | `_remainder/morphology-domain` | `pattern.md` scans `src/maps/**` and `test/standard-run.test.ts` for retired config keys. | This is map/test legacy-token cleanup, not morphology-domain constructible authority. | selected-rule Grit proof passed; path refs exist | Retired map/test config tokens are cleanup pressure, not concrete-domain context authority. |
+| `prohibit_legacy_morphology_effect_gating_tokens` | cleanup/consolidation/retirement pressure | `_remainder/morphology-domain` | `pattern.md` scans standard recipe morphology stages and `tags.ts`. | The rule protects a standard-recipe cutover surface from retired effect gates; it does not govern valid domains or operations generally. | selected-rule Grit proof passed; path refs exist | Recipe-stage effect-gate cleanup should not remain in a concrete-domain context lane. |
+| `prohibit_legacy_morphology_module_imports` | missing positive kind governance | `_remainder/morphology-domain` | `pattern.md` scans all mod source for retired `@mapgen/domain/morphology/<legacy>` import paths. | The real invariant is a positive domain public-surface/import contract; the current rule is morphology-specific retired-path cleanup. | selected-rule Grit proof passed; path refs exist | Retired-path forbids can point to a future positive public-surface rule without being admitted as-is. |
+| `prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | cleanup/consolidation/split pressure | `_remainder/morphology-domain` | `pattern.md` scans exact standard recipe contract and map-morphology step files. | The rule combines recipe contract dependencies and one plot-mountains implementation cleanup row, so no affirmed blueprint owns the whole predicate. | selected-rule Grit proof passed; path refs exist | Exact recipe callsite cleanup should defer until recipe-step or projection ownership is clearer. |
+| `prohibit_morphology_dual_read_tokens` | cleanup/consolidation/retirement pressure | `_remainder/morphology-domain` | `pattern.md` scans morphology-coasts recipe step files for dual-read tokens. | This is a transitional dual-read cleanup guard for one recipe-stage pocket, not morphology-domain authority. | selected-rule Grit proof passed; path refs exist | Dual-read migration guards belong in `_remainder` after review unless the owning migration surface exists. |
+| `prohibit_morphology_hotspot_overlay_publishers` | external enforcement-surface pressure | `_remainder/morphology-domain` | `pattern.md` scans morphology recipe stages; narrative source owns HOTSPOTS publishing. | The real ownership boundary is narrative/story-overlay publication versus morphology stage code, not `domain` or `domain-operation`. | selected-rule Grit proof passed; path refs exist | Cross-owner overlay publication rules need a future narrative/overlay or recipe-stage boundary owner. |
+| `prohibit_morphology_overlay_implementation_reads` | missing positive kind governance | `_remainder/morphology-domain` | `pattern.md` scans morphology recipe step implementations and exempts contracts. | The likely invariant is recipe-step implementation/contract separation, not morphology-domain ownership. | selected-rule Grit proof passed; path refs exist | Step implementation reads are better treated as missing recipe-step governance than domain context. |
+| `prohibit_morphology_stage_config_bag_imports` | missing positive kind governance | `_remainder/morphology-domain` | `pattern.md` scans morphology recipe stage files for `@mapgen/domain/config`. | The likely invariant is consumer-side domain config facade usage, but this rule is morphology-stage-scoped and too narrow to move as `domain`. | selected-rule Grit proof passed; path refs exist | Narrow consumer config-bag forbids should defer until the positive consumer contract is named. |
+| `prohibit_morphology_story_overlay_contract_artifact` | external enforcement-surface pressure | `_remainder/morphology-domain` | `pattern.md` scans morphology recipe step contracts for story overlay artifact dependencies. | The real boundary is story overlay ownership versus recipe-step contract dependencies; no affirmed domain blueprint owns the whole rule. | selected-rule Grit proof passed; path refs exist | Story/narrative artifact boundaries should not be hidden under concrete-domain labels. |
+| `prohibit_runtime_continent_contract_tokens` | missing positive kind governance | `_remainder/morphology-domain` | `pattern.md` scans morphology recipe contract/artifact files for runtime continent identifiers. | The rule is a negative proxy for recipe-step contract-vs-runtime artifact separation. | selected-rule Grit proof passed; path refs exist | Runtime-token forbids in contracts should become positive contract-surface rules later. |
+| `prohibit_runtime_continent_step_tokens` | cleanup/consolidation/split pressure | `_remainder/morphology-domain` | `pattern.md` scans morphology and hydrology recipe implementation files. | The rule is mixed across morphology and hydrology implementation cleanup, so it cannot remain honest morphology-domain context authority. | selected-rule Grit proof passed; path refs exist | Cross-domain implementation cleanup should move to `_remainder` unless split into true owners. |
+
 ## Remaining Dominoes
 
-### 26. Move The Morphology Remainder Pocket
+### 27. Move The Foundation Remainder Pocket
 
-Purpose: use the new contextual-remainder method on the first concrete-domain
-remainder pocket after `domain` and `domain-operation` have moved.
+Purpose: apply the now-proven remainder method to the heavier foundation
+context without promoting foundation labels, strategy files, or legacy cleanup
+into blueprint authority.
 
 Done Means:
 
-- Every primary morphology-domain rule receives an explicit disposition:
-  moved to an existing blueprint, left in honest context, marked as missing
-  positive kind governance, marked as external enforcement-surface pressure,
-  marked for cleanup/consolidation/split/retirement, or stopped by falsifier.
-- The disposition table required by
-  `.habitat/AUTHORITY-REMAINDER-SLICE-FRAME.md` covers every primary input,
-  including rules that do not move, and matches the physical tree.
-- Rules whose whole meaning belongs to `domain` or `domain-operation` are
-  physically moved while preserving rule identity and behavior.
-- Honest morphology context stays in `rules/` intentionally instead of becoming
-  a blueprint by label inheritance.
-- Sorted-but-deferred morphology leftovers move to
-  `.habitat/civ7/mapgen/domain/_remainder/morphology-domain/` instead of
-  remaining ambiguously under `rules/morphology-domain/`.
-- Lessons that should control foundation or ecology remainder work are added
-  to `.habitat/AUTHORITY-REMAINDER-SLICE-FRAME.md`.
+- Every primary `foundation-domain` rule receives an explicit disposition:
+  moved to an existing blueprint, left in honest foundation context, moved to
+  `_remainder/foundation-domain`, explicitly excluded, or stopped by falsifier.
+- Strategy-file rows are judged against existing `domain-operation` authority
+  without creating an `operation-strategy` blueprint by path grammar.
+- Legacy aggregate, plate-kinematics, profile-config, projection-motion, and
+  shim cleanup rows either stay as honest foundation context or move to
+  `_remainder/foundation-domain` with a named future destination or trigger.
+- The slice is allowed to produce zero blueprint moves if source evidence says
+  the pocket is sorted-but-deferred pressure rather than whole-rule `domain` or
+  `domain-operation` authority.
+- The disposition table matches the physical tree.
 
 Moves It Forward:
 
-- Tests the remainder method on a pocket with enough variety to be meaningful:
-  contracts, overlays, config facades, operation boundaries, legacy tokens, and
-  runtime/consumer pressure.
-- Separates true `domain` and `domain-operation` authority from concrete
-  morphology transition state.
-- Makes sorted-but-deferred leftovers visually distinct from intentional
-  context authority.
-- Makes the heavier foundation remainder pocket easier to handle next.
+- Burns down the largest remaining domain-context tangle after morphology.
+- Tests whether the method still holds when strategy files and legacy
+  foundation topology are much more entangled.
+- Separates strategy-file, aggregate cleanup, retired-token, import-law, and
+  execution-boundary pressure from intentional foundation context before those
+  labels can be mistaken for ontology.
+- Makes ecology and the remaining direct domain rules easier to read after the
+  biggest contextual remainder is separated.
 
 Dependencies:
 
-- Domino 24 affirmed the parent `domain` kind.
-- Domino 25 recorded the contextual-remainder decision criteria.
+- Domino 26 proved `_remainder/<source-context>` as a real physical lane.
+- Domain and domain-operation are affirmed, but concrete domain labels remain
+  contexts until source proves otherwise.
 
 Proof:
 
-- Focused `habitat check --rule <id> --json` proof for every moved rule.
-- Disposition-table review proof covers every primary input and matches the
-  final physical lane.
+- Focused selected-rule proof for every moved rule where applicable.
 - Static scans prove moved manifests no longer point at stale paths.
-- Static scans prove no sorted-but-deferred morphology rows remain under
-  `rules/morphology-domain/`.
-- Review pass confirms no concrete-domain label was promoted to blueprint
-  authority by folder inheritance.
+- Static scans prove sorted-but-deferred foundation rows do not remain under
+  `rules/foundation-domain/`.
+- Review pass confirms no strategy-file or foundation label was promoted to
+  blueprint authority by folder inheritance.
 
-### 27. Build Narrow Projection From Moved Authority
+### 28. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.

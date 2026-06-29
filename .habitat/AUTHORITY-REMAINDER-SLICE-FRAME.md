@@ -339,12 +339,13 @@ rules need review proof that they still belong in `rules/`. Deferred rows need
 path proof that they moved to `_remainder/<source-context>/`, plus a named next
 mechanical destination or trigger.
 
-## First Candidate: Morphology Remainder Pocket
+## First Method Seed: Morphology Remainder Pocket
 
-The current best next candidate is the Morphology Remainder Pocket:
+The first method seed was the Morphology Remainder Pocket:
 
 ```text
-.habitat/civ7/mapgen/domain/rules/morphology-domain/**
+.habitat/civ7/mapgen/domain/rules/morphology-domain/**   # starting pocket
+.habitat/civ7/mapgen/domain/_remainder/morphology-domain/** # sorted result
 mods/mod-swooper-maps/src/domain/morphology/**
 ```
 
@@ -358,10 +359,29 @@ Why morphology first:
 - It sits directly under the already affirmed `domain` and `domain-operation`
   pressure, so many dispositions can be tested without inventing a new
   taxonomy.
-- It has obvious possible outcomes: some rows may move to `domain`, some to
-  `domain-operation`, some stay in morphology context, and some become missing
+- It had obvious possible outcomes: rows could move to `domain`, move to
+  `domain-operation`, stay in morphology context, or become missing
   positive-rule, external enforcement-surface, or cleanup pressure under
   `_remainder/morphology-domain`.
+
+Resulting reusable lesson:
+
+- A remainder slice can complete with zero blueprint moves. That is not a
+  failed slice when every primary row has been reviewed, the physical tree now
+  separates sorted leftovers from intentional `rules/` authority, and the
+  receipts name what future movement, projection, split, consolidation, or
+  retirement would make the row final.
+- Strategy-file rules, aggregate cleanup, retired-token cleanup, cross-owner
+  import law, and build/Nx boundary pressure are disposition outcomes, not
+  automatic blueprint candidates. Do not create a blueprint or force a move
+  merely to make the slice look more productive.
+- When a concrete-domain remainder packet mostly scans recipe-stage, map/test,
+  hydrology, narrative overlay, or retired-token surfaces, the domain word in
+  the rule id is not enough to keep it under `rules/<domain-context>`. If the
+  whole rule does not fit affirmed `domain` or `domain-operation` authority,
+  and it is not intentionally owned by the current concrete domain context,
+  move it to `_remainder/<source-context>` with a named future destination or
+  trigger.
 
 Foundation remains a likely next pocket after morphology because it has a
 larger legacy/strategy tangle. Ecology is useful later but currently looks too

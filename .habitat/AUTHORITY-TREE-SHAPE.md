@@ -131,9 +131,13 @@ Known transitional misfits, not blueprint exemplars:
   recipe evidence. Treat it as instance/context material until the rule is
   generalized under a recipe, recipe-stage, or recipe-step blueprint.
 - `civ7/mapgen/domain/rules/foundation-domain`,
-  `civ7/mapgen/domain/rules/morphology-domain`, and
-  `civ7/mapgen/domain/rules/ecology-domain` are current domain contexts, not
-  accepted blueprints by label inheritance.
+  `civ7/mapgen/domain/rules/ecology-domain`, and any later intentional
+  concrete-domain context rules are current domain contexts, not accepted
+  blueprints by label inheritance.
+- `civ7/mapgen/domain/_remainder/morphology-domain` is the first reviewed
+  concrete-domain remainder. Its packets have been sorted out of intentional
+  `rules/` authority but are not final owners; treat them as visible debt for
+  later movement, split, consolidation, projection, or retirement.
 - `civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe`
   is a check/defect-shaped slug. Treat it as a pruning target to decompose
   under the appropriate constructible blueprint, package-local proof, or

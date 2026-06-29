@@ -4,7 +4,7 @@
   "title": "Prohibit Legacy Morphology Effect Gating Tokens",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "morphology-domain",
+    "blueprint": "_remainder",
     "category": "execution",
     "artifactKind": "check"
   },
@@ -29,12 +29,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_legacy_morphology_effect_gating_tokens/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_legacy_morphology_effect_gating_tokens/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_legacy_morphology_effect_gating_tokens/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_legacy_morphology_effect_gating_tokens/pattern.md"
     },
     "patternName": "prohibit_legacy_morphology_effect_gating_tokens"
   }

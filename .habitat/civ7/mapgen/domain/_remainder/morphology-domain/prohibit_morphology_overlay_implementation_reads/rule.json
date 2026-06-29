@@ -4,7 +4,7 @@
   "title": "Prohibit Morphology Overlay Implementation Reads",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "morphology-domain",
+    "blueprint": "_remainder",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_morphology_overlay_implementation_reads/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_morphology_overlay_implementation_reads/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_morphology_overlay_implementation_reads/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_morphology_overlay_implementation_reads/pattern.md"
     },
     "patternName": "prohibit_morphology_overlay_implementation_reads"
   }

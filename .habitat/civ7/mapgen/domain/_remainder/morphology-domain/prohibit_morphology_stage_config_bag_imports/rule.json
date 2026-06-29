@@ -4,7 +4,7 @@
   "title": "Prohibit Morphology Stage Config Bag Imports",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "morphology-domain",
+    "blueprint": "_remainder",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_morphology_stage_config_bag_imports/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_morphology_stage_config_bag_imports/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/morphology-domain/prohibit_morphology_stage_config_bag_imports/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/_remainder/morphology-domain/prohibit_morphology_stage_config_bag_imports/pattern.md"
     },
     "patternName": "prohibit_morphology_stage_config_bag_imports"
   }
