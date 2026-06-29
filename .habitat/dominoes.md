@@ -12,14 +12,17 @@ Use this source order when selecting or judging the next domino:
 
 1. Direct user decisions and current repo instructions.
 2. `.habitat/DOMINO-FRAME.md`.
-3. `.habitat/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
-4. `.habitat/AUTHORITY-ONTOLOGY.md`.
-5. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
+3. `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, and
+   niche concepts.
+4. `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md` for the next bounded Domain
+   Kind Pocket's input boundaries and slice-specific movement decisions.
+5. `.habitat/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
+6. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
    `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
-6. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
+7. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
    and fresh command evidence.
-7. Historical branch, PR, and session context as discovery material only.
+8. Historical branch, PR, and session context as discovery material only.
 
 The center of gravity has moved. Package-script cleanup is not the active
 driver anymore. Source-check retirement and mixed command-check extraction are
@@ -113,7 +116,56 @@ changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
 
-### 24. Repeat Bounded Kind-Family Slices
+### 24. Move The Domain Kind Pocket
+
+Purpose: establish `domain` as the parent constructible kind above the already
+affirmed `domain-operation` kind, and demote public/config surface labels from
+candidate blueprint authority into domain evidence unless source proves
+otherwise.
+
+Done Means:
+
+- `.habitat/blueprints/domain/` exists for rules that genuinely govern the
+  domain kind.
+- Primary `domain-public-surface`, `domain-config-surface`, and direct domain
+  rule inputs are moved, left contextual, or explicitly dispositioned against
+  `AUTHORITY-DOMAIN-KIND-SLICE.md`.
+- `domain-operation` remains an affirmed adjacent child kind and is not
+  re-opened broadly.
+- Concrete domain labels such as foundation, morphology, and ecology remain
+  instances or contexts unless rules directly prove all-domain governance.
+- No `domain-public-surface`, `domain-config-surface`, or concrete domain label
+  is promoted to blueprint by folder inheritance.
+
+Moves It Forward:
+
+- Collapses misleading surface-shaped candidate blueprints into a parent kind
+  frame.
+- Clarifies the `recipe -> domain -> domain-operation` dependency chain.
+- Makes later concrete-domain, map-projection, and capability questions easier
+  because the parent domain kind is visible.
+- Provides the next state-changing read instead of another broad corpus
+  snapshot.
+
+Dependencies:
+
+- Domino 21 affirmed the first `domain-operation` rule move.
+- Domino 22 removed category/artifact-kind physical nesting.
+- Domino 23 separated affirmed blueprint authority from candidate
+  blueprint-shaped inventory.
+- `AUTHORITY-DOMAIN-KIND-SLICE.md` is the normative frame for this domino.
+
+Proof:
+
+- Focused source inspection supports `domain` as constructible kind.
+- Every primary input named by `AUTHORITY-DOMAIN-KIND-SLICE.md` has a recorded
+  disposition: moved, left contextual, explicitly excluded, or stopped by a
+  falsifier.
+- Focused `habitat check --rule <id> --json` proof passes for moved rules.
+- Manifest path proof shows moved runner and baseline references exist.
+- Static scans show moved manifests do not contain stale old file references.
+
+### 25. Repeat Bounded Kind-Family Slices
 
 Purpose: continue the same method across adjacent kind families.
 
@@ -140,7 +192,7 @@ Proof:
 - Each slice has focused proof and leaves a clearer owner map than it started
   with.
 
-### 25. Build Narrow Projection From Moved Authority
+### 26. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -163,7 +215,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 24 has repeated bounded slices enough to expose projection needs.
+- Bounded kind-family slices have repeated enough to expose projection needs.
 
 Proof:
 
@@ -171,7 +223,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 26. Prune Transitional Packet Metadata For Moved Slices
+### 27. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -193,7 +245,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 24 proved projection can run from moved authority.
+- Narrow projection from moved authority has proved the projection can run.
 - Duplicated facts have been identified before deletion.
 
 Proof:
@@ -202,7 +254,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 26. Repeat Activation Slices
+### 28. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -224,7 +276,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 25 pruned transitional metadata for moved slices.
+- Transitional packet metadata has been pruned for moved slices.
 - The first moved slices have a clear copyable pattern or named failure mode.
 
 Proof:
@@ -233,7 +285,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 27. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 29. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.
@@ -256,7 +308,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 26 proves the activation model across multiple slices.
+- Repeated activation slices prove the activation model across multiple slices.
 - There is enough admitted authority to define default discovery honestly.
 
 Proof:
