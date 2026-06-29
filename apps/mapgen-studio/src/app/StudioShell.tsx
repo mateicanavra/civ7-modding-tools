@@ -2,17 +2,15 @@ import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCiv7MapSizePreset } from "../features/browserRunner/mapSizes";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
-import { fetchCiv7SetupConfig, requestCiv7Autoplay } from "../features/civ7Setup/api";
+import { requestCiv7Autoplay } from "../features/civ7Setup/api";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
 import { formatCiv7StudioSeedError, parseCiv7StudioSeed } from "../features/civ7Setup/seedPolicy";
 import {
-  type Civ7SetupSnapshotLike,
   type Civ7StudioSetupConfig,
   clearStudioSetupSavedConfig,
   getLocalPlayerSetup,
   normalizeStudioSetupConfig,
   optionRowsFromParameter,
-  studioSetupConfigFromLiveSnapshot,
   studioSetupConfigFromSavedConfigFile,
   studioSetupDriftsFromSavedConfig,
 } from "../features/civ7Setup/setupConfig";
@@ -23,18 +21,7 @@ import {
   setupCatalogOptions,
 } from "../features/civ7Setup/setupOptions";
 import { buildDefaultConfig, isPlainObject } from "../features/configOverrides/configBuilders";
-import {
-  buildLiveRuntimeSetupRequestKey,
-  buildLiveRuntimeSnapshotRequest,
-  buildLiveRuntimeSnapshotState,
-  buildLiveRuntimeSuggestionRecords,
-  type LiveRuntimeSnapshotRequest,
-  type LiveRuntimeSnapshotState,
-  type LiveRuntimeStatusState,
-  type LiveRuntimeSuggestionRecord,
-  shouldCommitLiveRuntimeSetup,
-  shouldCommitLiveRuntimeSnapshot,
-} from "../features/liveRuntime/model";
+import { buildLiveRuntimeSuggestionRecords } from "../features/liveRuntime/model";
 import {
   PresetConfirmDialog,
   PresetErrorDialog,
@@ -58,7 +45,6 @@ import {
 import { liveControlPort } from "../lib/control/liveControlPort";
 import { orpcClient } from "../lib/orpc";
 import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
-import { isAbortLikeError } from "../shared/async";
 import type { VizEvent } from "../shared/vizEvents";
 import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
@@ -76,6 +62,7 @@ import { ErrorBanner } from "./ErrorBanner";
 import { useBrowserRun } from "./hooks/useBrowserRun";
 import { useDeckAutofit } from "./hooks/useDeckAutofit";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useLiveRuntime } from "./hooks/useLiveRuntime";
 import { usePresetLifecycle } from "./hooks/usePresetLifecycle";
 import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
 import { useSaveDeploy } from "./hooks/useSaveDeploy";
@@ -310,37 +297,6 @@ export function StudioShell(props: StudioShellProps) {
   const lastSaveDeployConfig = useRunStore((s) => s.lastSaveDeployConfig);
   const setLastSaveDeployConfig = useRunStore((s) => s.setLastSaveDeployConfig);
   const lastRunInGameToastRef = useRef<string | null>(null);
-  const liveSnapshotFailureCountRef = useRef(0);
-  const activeLiveSnapshotRequestKeyRef = useRef<string | null>(null);
-  const activeLiveSetupRequestKeyRef = useRef<string | null>(null);
-  const liveSnapshotAbortRef = useRef<AbortController | null>(null);
-  const liveSetupAbortRef = useRef<AbortController | null>(null);
-  const liveRuntimeMountedRef = useRef(true);
-  const [liveRuntime, setLiveRuntime] = useState<LiveRuntimeStatusState>({
-    status: "idle",
-    snapshotStatus: "idle",
-    bindingStatus: "unbound-runtime",
-    failureCount: 0,
-  });
-  const [, setLiveRuntimeSnapshot] = useState<LiveRuntimeSnapshotState | null>(null);
-  const [liveRuntimeSuggestions, setLiveRuntimeSuggestions] = useState<
-    ReadonlyArray<LiveRuntimeSuggestionRecord>
-  >([]);
-  const [liveSetup, setLiveSetup] = useState<{
-    status: "idle" | "ok" | "error";
-    setup?: Civ7SetupSnapshotLike;
-    updatedAt?: string;
-    error?: string;
-  }>({ status: "idle" });
-
-  useEffect(() => {
-    liveRuntimeMountedRef.current = true;
-    return () => {
-      liveRuntimeMountedRef.current = false;
-      liveSnapshotAbortRef.current?.abort();
-      liveSetupAbortRef.current?.abort();
-    };
-  }, []);
 
   // Saved configs + setup catalog are READ through oRPC-native TanStack Query
   // (architecture/10 §2). The query layer owns retry + refetch-on-focus (query client
@@ -393,171 +349,6 @@ export function StudioShell(props: StudioShellProps) {
   const { handleFitView } = useDeckAutofit({ deckApiRef, viewportSize, deckApiReadyTick, viz });
 
   const error = localError ?? browserRunner.state.error;
-
-  const readLiveRuntimeSnapshot = useCallback(async (request: LiveRuntimeSnapshotRequest) => {
-    liveSnapshotAbortRef.current?.abort();
-    const snapshotAbortController = new AbortController();
-    liveSnapshotAbortRef.current = snapshotAbortController;
-    activeLiveSnapshotRequestKeyRef.current = request.key;
-
-    try {
-      // Snapshot remains request/response. The event stream tells us when live
-      // status changed; the existing request-key guard still owns stale result
-      // rejection.
-      let body: unknown;
-      try {
-        body = await orpcClient.civ7.live.snapshot(
-          {
-            x: request.bounds.x,
-            y: request.bounds.y,
-            width: request.bounds.width,
-            height: request.bounds.height,
-            fields: request.fields.join(","),
-            maxPlots: request.maxPlots,
-            ...(request.playerId === undefined ? {} : { playerId: request.playerId }),
-          },
-          { signal: snapshotAbortController.signal }
-        );
-      } catch (snapshotErr) {
-        if (!liveRuntimeMountedRef.current || isAbortLikeError(snapshotErr)) throw snapshotErr;
-        body = {
-          ok: false,
-          error: snapshotErr instanceof Error ? snapshotErr.message : "Live snapshot unavailable",
-        };
-      }
-      if (!liveRuntimeMountedRef.current) return;
-      if (
-        !shouldCommitLiveRuntimeSnapshot({
-          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
-          resultRequestKey: request.key,
-          aborted: snapshotAbortController.signal.aborted,
-        })
-      ) {
-        return;
-      }
-      const snapshotState = buildLiveRuntimeSnapshotState({
-        request,
-        body,
-        observedAtFallback: new Date().toISOString(),
-      });
-      liveSnapshotFailureCountRef.current =
-        snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
-      setLiveRuntimeSnapshot(snapshotState);
-      setLiveRuntime((current) => ({
-        ...current,
-        snapshotStatus: snapshotState.status,
-        snapshotHash: snapshotState.snapshotHash ?? current.snapshotHash,
-        bindingStatus: snapshotState.status === "ok" ? current.bindingStatus : "partial",
-        failureCount: Math.max(current.failureCount ?? 0, liveSnapshotFailureCountRef.current),
-        error: snapshotState.status === "ok" ? current.error : snapshotState.error,
-      }));
-    } catch (err) {
-      if (!liveRuntimeMountedRef.current || isAbortLikeError(err)) return;
-      if (
-        !shouldCommitLiveRuntimeSnapshot({
-          activeRequestKey: activeLiveSnapshotRequestKeyRef.current,
-          resultRequestKey: request.key,
-        })
-      ) {
-        return;
-      }
-      liveSnapshotFailureCountRef.current += 1;
-      const snapshotState: LiveRuntimeSnapshotState = {
-        status: "error",
-        requestKey: request.key,
-        error: err instanceof Error ? err.message : "Live snapshot unavailable",
-      };
-      setLiveRuntimeSnapshot(snapshotState);
-      setLiveRuntime((current) => ({
-        ...current,
-        snapshotStatus: "error",
-        bindingStatus: "partial",
-        failureCount: Math.max(current.failureCount ?? 0, liveSnapshotFailureCountRef.current),
-        error: snapshotState.error,
-      }));
-    }
-  }, []);
-
-  const refreshLiveSetupFromEvent = useCallback(async (statusState: LiveRuntimeStatusState) => {
-    liveSetupAbortRef.current?.abort();
-    const setupAbortController = new AbortController();
-    liveSetupAbortRef.current = setupAbortController;
-    const setupRequestKey = buildLiveRuntimeSetupRequestKey(statusState);
-    activeLiveSetupRequestKeyRef.current = setupRequestKey;
-    const shouldCommitSetup = () =>
-      liveRuntimeMountedRef.current &&
-      shouldCommitLiveRuntimeSetup({
-        activeRequestKey: activeLiveSetupRequestKeyRef.current,
-        resultRequestKey: setupRequestKey,
-        aborted: setupAbortController.signal.aborted,
-      });
-
-    try {
-      const setup = await fetchCiv7SetupConfig({ signal: setupAbortController.signal });
-      if (!shouldCommitSetup()) return;
-      const suggestedSetupConfig = setup.ok
-        ? normalizeStudioSetupConfig(studioSetupConfigFromLiveSnapshot(setup.setup))
-        : undefined;
-      if (setup.ok) {
-        setLiveSetup({ status: "ok", setup: setup.setup, updatedAt: setup.observedAt });
-      } else {
-        setLiveSetup({
-          status: "error",
-          error: setup.error,
-          updatedAt: setup.observedAt ?? new Date().toISOString(),
-        });
-      }
-      setLiveRuntimeSuggestions(
-        buildLiveRuntimeSuggestionRecords({
-          sourceSnapshotId: statusState.snapshotId,
-          seed: statusState.seed,
-          setupConfig: suggestedSetupConfig,
-          provedStudioRun: false,
-        })
-      );
-    } catch (err) {
-      if (!liveRuntimeMountedRef.current || isAbortLikeError(err)) return;
-      if (!shouldCommitSetup()) return;
-      const observedAt = new Date().toISOString();
-      setLiveSetup({
-        status: "error",
-        error: err instanceof Error ? err.message : "Live setup unavailable",
-        updatedAt: observedAt,
-      });
-      setLiveRuntimeSuggestions(
-        buildLiveRuntimeSuggestionRecords({
-          sourceSnapshotId: statusState.snapshotId,
-          seed: statusState.seed,
-          provedStudioRun: false,
-          now: () => new Date(observedAt),
-        })
-      );
-    }
-  }, []);
-
-  const applyLiveGameState = useCallback(
-    (statusState: LiveRuntimeStatusState) => {
-      const snapshotRequest = buildLiveRuntimeSnapshotRequest({ status: statusState });
-      if (!snapshotRequest) {
-        activeLiveSnapshotRequestKeyRef.current = null;
-        liveSnapshotAbortRef.current?.abort();
-      }
-
-      setLiveRuntime((current) => ({
-        ...statusState,
-        snapshotStatus:
-          snapshotRequest === null
-            ? statusState.snapshotStatus
-            : current.snapshotId === statusState.snapshotId && current.snapshotStatus === "ok"
-              ? current.snapshotStatus
-              : "loading",
-        failureCount: Math.max(statusState.failureCount ?? 0, liveSnapshotFailureCountRef.current),
-      }));
-      void refreshLiveSetupFromEvent(statusState);
-      if (snapshotRequest) void readLiveRuntimeSnapshot(snapshotRequest);
-    },
-    [readLiveRuntimeSnapshot, refreshLiveSetupFromEvent]
-  );
 
   // Saved configs + setup catalog now load via `useSetupDataQueries` (TanStack Query);
   // the prior hand-rolled load/retry/focus-refetch effect is replaced by the query
@@ -625,6 +416,19 @@ export function StudioShell(props: StudioShellProps) {
     setLastSaveDeployConfig,
     toast,
   });
+
+  // Live-runtime snapshot/setup staleness machine (slice 2.10): the abort/mounted
+  // lifecycle refs travel WITH the mount lifecycle and the three event-driven read
+  // functions into one hook (atomic mount-lifecycle group). `applyLiveGameState` is
+  // wired into `useStudioEvents`; `setLiveRuntime` feeds the autoplay toggle (2.12)
+  // and run-in-game sync-back (2.11). The host still reads `liveRuntime.status/seed`,
+  // `liveSetup.setup`, and `liveRuntimeSuggestions` from the returned outputs. The
+  // `orpcClient` is threaded IN so the abort/staleness contracts are renderHook-testable.
+  // Initialized BEFORE `useRunInGame`'s territory / the operation-adoption effect (§5)
+  // because adoption needs the run-in-game + save-deploy setters and run-in-game inits
+  // after this hook.
+  const { liveRuntime, setLiveRuntime, liveRuntimeSuggestions, liveSetup, applyLiveGameState } =
+    useLiveRuntime({ orpcClient });
 
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
