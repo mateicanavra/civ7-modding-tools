@@ -194,6 +194,7 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
     const resolved = resolvePreset(nextKey);
     if (!resolved) {
       toast("Preset not found", { variant: "error" });
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- This effect applies the selected preset: it resolves the preset, validates it, surfaces toasts, and on failure records the error. The interleaved side effects (toast, resolvePreset, applyPresetConfig) make it genuinely effect-shaped, not render-derivable.
       setPresetError({
         title: "Preset not found",
         message: "The selected preset could not be resolved for this recipe.",
