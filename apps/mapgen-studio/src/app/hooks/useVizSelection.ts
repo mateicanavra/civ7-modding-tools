@@ -182,12 +182,12 @@ export function useVizSelection({
     setSelectedStepId((prev) => (steps.some((s) => s.value === prev) ? prev : steps[0]!.value));
   }, [steps]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional one-directional resync (external selectedStepId -> viz). Depending on viz.selectedStepId would re-run the effect on viz changes and defeat the equality guard below.
   useEffect(() => {
     if (!selectedStepId) return;
     if (viz.selectedStepId === selectedStepId) return;
     viz.setSelectedStepId(selectedStepId);
     viz.setSelectedLayerKey(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStepId]);
 
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
@@ -204,6 +204,7 @@ export function useVizSelection({
     [viz.manifest]
   );
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- The React Compiler is not wired into this app's build (no babel-plugin-react-compiler), so this is advisory only. The manual memo is intentional and correct; this documents the bail until/unless the compiler is adopted (checkback: biomejs/biome#10710).
   const selection = useMemo(() => {
     if (!dataTypeModel) return null;
     for (const dt of dataTypeModel.dataTypes) {
