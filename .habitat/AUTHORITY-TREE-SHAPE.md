@@ -46,6 +46,9 @@ Current pruning shape:
       <packet>/
       <context>/
         <packet>/
+    _remainder/
+      <source-context>/
+        <packet>/
 ```
 
 Top-level `blueprints/` is the physical lane for affirmed constructible kind
@@ -62,6 +65,16 @@ Category names are single-word universal purpose categories: `boundary`,
 Artifact kinds are mutability classes: `check`, `fix`, `generate`, `migrate`,
 and `triage`. Category and artifact kind live in manifest placement metadata,
 not path directories.
+
+`_remainder/` is the physical lane for sorted-but-deferred packets after a
+remainder slice has reviewed them. It is visual debt, not a niche, blueprint,
+capability, or final ontology plane. Use `_remainder/<source-context>/<packet>/`
+when a packet has been inspected, does not truthfully belong under affirmed
+blueprint authority or intentional niche/context `rules/`, and needs a later
+mechanical destination such as a positive kind rule, external enforcement
+surface, split, consolidation, or retirement. The underscore is intentional
+visual friction: future agents should see that these packets are already
+sorted and still unresolved.
 
 ## Concepts
 
@@ -129,13 +142,37 @@ Known transitional misfits, not blueprint exemplars:
 ### Rules Lane
 
 `rules/` is the current physical lane for authority about the niche as a whole
-or a coarse current context. It prevents niche-wide and current-context packets
-from being mixed with child blueprint names while the final manifest model is
-still being designed.
+or an intentional coarse current context. It prevents niche-wide and
+current-context packets from being mixed with child blueprint names while the
+final manifest model is still being designed.
 
 Use `rules/<packet>/` for niche-wide packets. Use `rules/<context>/<packet>/`
-only when a named context such as `foundation-domain` is necessary to keep a
-current semantic remainder navigable without calling it a blueprint.
+only when a named context such as `foundation-domain` is intentionally the
+current owner after slice review. Do not leave sorted-but-deferred leftovers in
+`rules/`; move them to `_remainder/<source-context>/`.
+
+### Remainder Lane
+
+`_remainder/` is a transitional lane for packets that have already been
+reviewed by a bounded slice but cannot yet move to their final owner without
+future work. It keeps sorted leftovers visible in the tree instead of hiding
+them inside `rules/` or in a separate classification document.
+
+Use `_remainder/<source-context>/<packet>/` for deferred leftovers from a
+specific context. The `source-context` preserves navigability; it does not
+create a niche, blueprint, capability, or semantic category.
+
+Typical reasons a packet belongs in `_remainder/`:
+
+- the current negative rule is evidence for a missing positive kind rule;
+- the rule belongs to a projected enforcement surface such as Nx boundaries,
+  package graph, import law, or build/test orchestration, but that destination
+  is not part of the current branch;
+- the rule needs a source-obvious split, consolidation, or retirement later;
+- the rule is sorted and intentionally deferred, not silently unexamined.
+
+Do not put intentionally owned niche/context rules in `_remainder/`. They stay
+under `rules/`.
 
 ### Category
 
@@ -173,13 +210,15 @@ generic role names such as `rule.json`, `baseline.json`, `pattern.md`,
 ## Current Classification Rule
 
 Classify each packet by authority lane first: affirmed blueprint authority,
-candidate blueprint-shaped niche inventory, or niche/context `rules`
-inventory. If a packet is about an affirmed constructible kind, place it under
-top-level `blueprints/<blueprint>/<packet>/`. If it is blueprint-shaped but
-not yet affirmed by a slice, keep it under
+candidate blueprint-shaped niche inventory, intentional niche/context `rules`
+inventory, or sorted `_remainder` inventory. If a packet is about an affirmed
+constructible kind, place it under top-level
+`blueprints/<blueprint>/<packet>/`. If it is blueprint-shaped but not yet
+affirmed by a slice, keep it under
 `<niche>/_blueprints/<candidate>/<packet>/`. If a packet is about the niche
-overall, place it under `rules/<packet>/`. If a packet is about a current
-context that is not an accepted blueprint, place it under
-`rules/<context>/<packet>/`. If a packet is mixed or unclear, choose the
-best-fit current placement and preserve the same facts in the manifest
-`placement` field. Do not add a second packet-local classification file.
+overall, place it under `rules/<packet>/`. If a packet is about an intentional
+current context that is not an accepted blueprint, place it under
+`rules/<context>/<packet>/`. If a reviewed packet is mixed, deferred, or
+waiting on a future destination, place it under
+`_remainder/<source-context>/<packet>/`. Do not add a second packet-local
+classification file.

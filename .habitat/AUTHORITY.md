@@ -15,21 +15,26 @@ frames apply to the current repository tree.
 
 `.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
 
-The current physical hierarchy has three packet lanes:
+The current physical hierarchy has four packet lanes:
 
 ```text
 .habitat/blueprints/<blueprint>/<packet>/
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
 .habitat/<niche>/rules/<context>/<packet>/
+.habitat/<niche>/_remainder/<source-context>/<packet>/
 ```
 
 Top-level `blueprints/` is affirmed constructible kind authority. Niches are
 authored jurisdictions. Niche-local `_blueprints/` is candidate blueprint-shaped
 inventory that has not yet been affirmed as blueprint authority. The `rules`
 lane is transitional inventory for niche-wide or current-context rules that
-must not be smuggled into blueprint authority. Categories and artifact kinds
-are manifest placement facts, not physical grouping directories.
+must not be smuggled into blueprint authority. The `_remainder` lane is
+transitional visual debt for packets that a slice has reviewed and sorted but
+cannot yet move to a final owner. It is not a niche, blueprint, capability, or
+final ontology plane; sorted-but-deferred packets must not stay in `rules/` as
+if they were intentional current-context authority. Categories and artifact
+kinds are manifest placement facts, not physical grouping directories.
 
 Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
 
@@ -107,8 +112,10 @@ referenced files into better blueprint, capability, or niche locations without
 changing rule identity or behavior. The current physical tree intentionally
 splits affirmed constructible kind authority into top-level
 `.habitat/blueprints/`, marks not-yet-affirmed niche-local candidates as
-`_blueprints/`, and keeps `rules/` for niche-wide and explicitly contextual
-inventory. Future layout and registry changes should use
+`_blueprints/`, keeps `rules/` for niche-wide and explicitly contextual
+inventory, and uses `_remainder/` for reviewed deferred packets that still need
+later movement, split, projection, consolidation, or retirement. Future layout
+and registry changes should use
 `AUTHORITY-ONTOLOGY.md` as the concept source for distinguishing blueprint kind
 authority, instance facts, capability facets, and niche governance.
 

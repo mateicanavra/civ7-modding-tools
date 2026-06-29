@@ -15,14 +15,16 @@ Use this source order when selecting or judging the next domino:
 3. `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, and
    niche concepts.
 4. `.habitat/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
-5. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
-   as precedent and evidence, not as the next active selector.
+5. `.habitat/AUTHORITY-REMAINDER-SLICE-FRAME.md` for contextual remainder
+   slices after parent kinds have moved.
 6. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
    `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
-7. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
+7. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
+   as precedent and evidence, not as the next active selector.
+8. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
    and fresh command evidence.
-8. Historical branch, PR, and session context as discovery material only.
+9. Historical branch, PR, and session context as discovery material only.
 
 The center of gravity has moved. Package-script cleanup is not the active
 driver anymore. Source-check retirement and mixed command-check extraction are
@@ -111,40 +113,65 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 22. Unnest Rule Packet Paths | Category and artifact-kind directories were removed from live packet paths, leaving location-independent manifests in flatter blueprint/context lanes. |
 | 23. Split Affirmed Blueprints From Candidates | Affirmed Recipe and Domain Operation pockets moved to top-level `.habitat/blueprints/`; not-yet-affirmed niche-local blueprint-shaped inventories were renamed `_blueprints/` so they no longer visually claim blueprint authority. |
 | 24. Move the Domain Kind Pocket | Domain public-surface and direct domain-root rules moved into affirmed `.habitat/blueprints/domain/`; the mixed config validator stayed contextual, and the standard-recipe tag cleanup moved to the standard-recipe context instead of becoming domain authority. |
+| 25. Frame contextual remainder slices | `AUTHORITY-REMAINDER-SLICE-FRAME.md` now governs how to reassess concrete-context remainders after parent kinds have moved, with morphology selected as the first method seed. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
 
-### 25. Repeat Bounded Kind-Family Slices
+### 26. Move The Morphology Remainder Pocket
 
-Purpose: continue the same method across adjacent kind families.
+Purpose: use the new contextual-remainder method on the first concrete-domain
+remainder pocket after `domain` and `domain-operation` have moved.
 
 Done Means:
 
-- At least two additional slices repeat the bounded state-change loop.
-- Each slice starts from an identified kind family or coarse remainder context.
-- Capabilities and niches are introduced only when a moved slice proves they
-  are needed.
+- Every primary morphology-domain rule receives an explicit disposition:
+  moved to an existing blueprint, left in honest context, marked as missing
+  positive kind governance, marked as external enforcement-surface pressure,
+  marked for cleanup/consolidation/split/retirement, or stopped by falsifier.
+- The disposition table required by
+  `.habitat/AUTHORITY-REMAINDER-SLICE-FRAME.md` covers every primary input,
+  including rules that do not move, and matches the physical tree.
+- Rules whose whole meaning belongs to `domain` or `domain-operation` are
+  physically moved while preserving rule identity and behavior.
+- Honest morphology context stays in `rules/` intentionally instead of becoming
+  a blueprint by label inheritance.
+- Sorted-but-deferred morphology leftovers move to
+  `.habitat/civ7/mapgen/domain/_remainder/morphology-domain/` instead of
+  remaining ambiguously under `rules/morphology-domain/`.
+- Lessons that should control foundation or ecology remainder work are added
+  to `.habitat/AUTHORITY-REMAINDER-SLICE-FRAME.md`.
 
 Moves It Forward:
 
-- Builds enough admitted authority to justify projection and runner discovery.
-- Keeps ontology pressure grounded in changed structure.
+- Tests the remainder method on a pocket with enough variety to be meaningful:
+  contracts, overlays, config facades, operation boundaries, legacy tokens, and
+  runtime/consumer pressure.
+- Separates true `domain` and `domain-operation` authority from concrete
+  morphology transition state.
+- Makes sorted-but-deferred leftovers visually distinct from intentional
+  context authority.
+- Makes the heavier foundation remainder pocket easier to handle next.
 
 Dependencies:
 
-- Domino 22 removed category/artifact-kind physical nesting.
-- Domino 23 separated affirmed blueprint authority from candidate
-  blueprint-shaped inventory.
+- Domino 24 affirmed the parent `domain` kind.
+- Domino 25 recorded the contextual-remainder decision criteria.
 
 Proof:
 
-- Each slice has focused proof and leaves a clearer owner map than it started
-  with.
+- Focused `habitat check --rule <id> --json` proof for every moved rule.
+- Disposition-table review proof covers every primary input and matches the
+  final physical lane.
+- Static scans prove moved manifests no longer point at stale paths.
+- Static scans prove no sorted-but-deferred morphology rows remain under
+  `rules/morphology-domain/`.
+- Review pass confirms no concrete-domain label was promoted to blueprint
+  authority by folder inheritance.
 
-### 26. Build Narrow Projection From Moved Authority
+### 27. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -175,7 +202,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 27. Prune Transitional Packet Metadata For Moved Slices
+### 28. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -206,7 +233,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 28. Repeat Activation Slices
+### 29. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -237,7 +264,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 29. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 30. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.

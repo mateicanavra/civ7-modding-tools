@@ -86,6 +86,7 @@ The current pruning target tree is:
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
 .habitat/<niche>/rules/<context>/<packet>/
+.habitat/<niche>/_remainder/<source-context>/<packet>/
 ```
 
 This tree is intentionally decomposed for the current gathered packet corpus:
@@ -96,6 +97,8 @@ This tree is intentionally decomposed for the current gathered packet corpus:
   blueprint authority;
 - rules: transitional niche-wide or current-context inventory, not blueprint
   authority;
+- _remainder: reviewed and sorted deferred inventory, not niche, blueprint,
+  capability, or final ontology;
 - category: universal engineering-purpose class in `rule.json`;
 - kind: mutability and execution intent in `rule.json`;
 - packet: current artifact bundle or authority unit.
@@ -104,6 +107,10 @@ The durable ontology is narrower than this physical decomposition. Habitat,
 blueprint, instance, capability, and niche are conceptual authority types.
 Category, kind, and packet are current pruning axes and may change when typed
 blueprint, capability, niche, and instance manifests are designed.
+`_remainder` is visual debt for packets already reviewed by a bounded slice
+but not yet moved to a final owner; sorted-but-deferred packets must not remain
+under `rules/` where future agents would read them as intentional context
+authority.
 
 ## WHY
 

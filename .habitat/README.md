@@ -2,13 +2,14 @@
 
 This directory is the repository's authority tree for Habitat enforcement. The Habitat SDK code under `tools/habitat` manages, validates, and executes these artifacts, but package source, root scripts, tests, CI, hooks, and tool configs are not independent sources of enforcement truth.
 
-The current layout has three packet lanes:
+The current layout has four packet lanes:
 
 ```text
 .habitat/blueprints/<blueprint>/<packet>/
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
 .habitat/<niche>/rules/<context>/<packet>/
+.habitat/<niche>/_remainder/<source-context>/<packet>/
 ```
 
 - Top-level `blueprints/` contains affirmed constructible kind authority.
@@ -19,7 +20,12 @@ The current layout has three packet lanes:
 - `rules/` is transitional rule inventory for niche-wide or current-context
   rules that must not be represented as blueprint authority.
 - `<context>` is a current-context grouping such as `foundation-domain` when
-  the slice frame says that label is not an accepted blueprint.
+  the slice frame says that label is not an accepted blueprint and the rule is
+  intentionally still owned by that context.
+- `_remainder/` is sorted-but-deferred inventory after slice review. It is not
+  a niche, blueprint, capability, or final ontology lane.
+- `<source-context>` preserves where the deferred packet came from, such as
+  `morphology-domain`; it is not a semantic owner.
 - Category and artifact kind live in `rule.json` placement metadata, not in
   physical directories.
 - `<packet>` is the current gathered authority packet.
@@ -35,6 +41,10 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `AUTHORITY-SLICE-FRAME.md`: normative frame for bounded authority-slice
   work, including how to classify current rules without promoting packet
   labels into ontology.
+- `AUTHORITY-REMAINDER-SLICE-FRAME.md`: normative frame for contextual
+  remainder slices after parent kinds have moved, including decision criteria
+  for blueprint movement, honest context, missing positive kind rules,
+  external enforcement-surface pressure, and cleanup candidates.
 - `AUTHORITY-DOMAIN-OPERATION-SLICE.md`: completed-slice reference for the
   Domain Operation Kind Pocket slice selected after the Recipe Kind Pocket.
 - `AUTHORITY-DOMAIN-KIND-SLICE.md`: completed-slice reference for the Domain
