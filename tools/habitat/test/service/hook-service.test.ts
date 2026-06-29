@@ -282,7 +282,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPath =
-      ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/rule.json";
+      ".habitat/civ7/mapgen/pipeline/blueprints/recipe/execution/check/require_runtime_domain_op_bundle_imports/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -359,7 +359,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPaths = [
-      ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/rule.json",
+      ".habitat/civ7/mapgen/pipeline/blueprints/recipe/execution/check/require_runtime_domain_op_bundle_imports/rule.json",
       ".habitat/global/workspace/blueprints/project-boundary-model/boundary/check/enforce_workspace_import_boundaries/rule.json",
     ];
 

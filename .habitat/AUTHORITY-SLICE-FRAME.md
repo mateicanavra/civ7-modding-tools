@@ -234,6 +234,14 @@ Do not produce a broad corpus ledger unless it directly drives the current
 slice movement. A ledger that does not change structure is not a completed
 slice.
 
+Two placement rules from the first slice now govern future slices:
+
+- Concrete instance topology, exact order, and artifact parity stay in a
+  coarse current-context bucket until they are generalized into kind rules.
+- Rules that mix a candidate kind with adjacent domain or runtime concerns
+  stay under the coarse owning context until a later slice can split the
+  rule cleanly.
+
 ## First Working Example: Recipe Kind Pocket
 
 The first bounded input group is the Recipe Kind Pocket.
@@ -309,24 +317,32 @@ become a generic remainder label.
 
 ### Rough Rule Organization Plan
 
-Likely `recipe` blueprint governance:
+Moved `recipe` blueprint governance:
 
-- declared stage keys;
-- runtime stage order against the contract manifest;
-- public authoring surface;
-- recipe artifact relationship to source stages;
 - recipe-level runtime domain operation bundle imports.
 
-Likely `recipe-stage` blueprint governance:
+Moved `recipe-stage` blueprint governance:
 
-- stage topology and path invariants;
-- full profile stage root requirements;
 - sibling stage private step import boundaries;
 - stage surface requirements that apply to all valid stages.
 
-Likely `recipe-step` blueprint governance:
+Moved `recipe-step` blueprint governance:
 
 - typed dependency and effect tags;
+- direct recipe-step contract roots.
+
+Moved to `swooper-maps-standard-recipe` transitional context:
+
+- declared stage keys;
+- runtime stage order against the current contract manifest;
+- public authoring surface;
+- recipe artifact relationship to current source stages;
+- stage topology and path invariants;
+- full profile stage root requirements;
+- migrated consumer effect gating tokens.
+
+Moved to coarse `mapgen-pipeline` context until a later split:
+
 - no bare value export-all from contract surfaces;
 - no empty object defaults in contract schemas;
 - no runtime validation/compiler imports;
@@ -338,7 +354,6 @@ Likely transitional context or later cleanup:
 - legacy stage aliases and cutover shims;
 - wrapper-only advanced config;
 - ecology fudge terms and legacy generator surface prohibitions;
-- migrated consumer effect gating tokens;
 - rules that only exist because the current standard recipe is mid-migration.
 
 Potential later adjacent slice, not first:

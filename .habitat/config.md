@@ -28,17 +28,28 @@ The current `.habitat` tree groups authority packets by niche, then by blueprint
     mapgen
       pipeline
         blueprints
-          standard-recipe
+          recipe
+            execution
+              check
+                require_runtime_domain_op_bundle_imports
+          recipe-stage
             boundary
               check
                 prohibit_sibling_stage_private_step_imports
-            execution
+          recipe-step
+            contract
               check
-                prohibit_runtime_calls_to_runvalidated
+                require_typed_dependency_and_effect_tag_constants
           _self
             policy
               check
                 prohibit_ambient_rng_in_authored_generation
+        swooper-maps-standard-recipe
+          blueprints
+            _self
+              structure
+                check
+                  preserve_standard_stage_topology_and_path_invariants
 ```
 
 Niches are authored jurisdictions. Blueprints are constructible kinds or

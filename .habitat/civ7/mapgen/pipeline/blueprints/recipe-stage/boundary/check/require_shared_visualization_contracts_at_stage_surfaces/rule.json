@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "require_shared_visualization_contracts_at_stage_surfaces",
+  "title": "Require Shared Visualization Contracts At Stage Surfaces",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-stage",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "shared steps/viz.ts hubs or cross-step private viz imports",
+  "why": "Stable/shared visualization contracts are stage surfaces; step-private viz stays private.",
+  "remediate": null,
+  "message": "Use stages/<stage>/viz.ts for shared visualization contracts.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/recipe-stage/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/blueprints/recipe-stage/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/pattern.md"
+    },
+    "patternName": "require_shared_visualization_contracts_at_stage_surfaces"
+  }
+}

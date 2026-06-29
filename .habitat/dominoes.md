@@ -102,45 +102,12 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 16. Normalize packet role metadata | Child files use generic role names, `rule.json` stopped carrying owner-tool/detect/scope duplication, and packet `category.md` files are gone. |
 | 17. Make rule manifests location independent | `rule.json` now owns stable rule identity, current placement inventory facts, explicit runner file references, and explicit artifact references; Toolkit discovery no longer depends on the packet path grammar. |
 | 18. Frame bounded authority slice work | `AUTHORITY-SLICE-FRAME.md` now governs bounded kind-family slices, supersedes broad pilot-corpus selection, and sets the Recipe Kind Pocket as the first working example. |
+| 19. Move the Recipe Kind Pocket | Standard-recipe evidence was physically moved into `recipe`, `recipe-stage`, `recipe-step`, `swooper-maps-standard-recipe`, and coarse `mapgen-pipeline` contexts while preserving rule IDs and execution behavior. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
-
-### 19. Move The Recipe Kind Pocket
-
-Purpose: use current standard-recipe evidence to move rules toward the
-`recipe`, `recipe-stage`, and `recipe-step` blueprint kinds without promoting
-`standard recipe` to a blueprint.
-
-Done Means:
-
-- Rules in the bounded Recipe Kind Pocket are moved into the correct-most
-  enclosing owner for the slice.
-- `standard recipe` is represented only as current evidence, instance/context
-  material, or transitional niche material.
-- Rule identities remain stable and explicit runner/artifact references are
-  updated.
-- Obvious cleanup candidates are marked or deleted only when the slice makes
-  the decision mechanical.
-
-Moves It Forward:
-
-- Establish the first real recipe/stage/step authority shape.
-- Reveal which current rules genuinely remain context or niche governance.
-- Make later consolidation of weak negative rules cheaper.
-
-Dependencies:
-
-- Domino 18 is complete.
-- The location-independent manifest model remains stable.
-
-Proof:
-
-- Focused Habitat checks still pass for the touched manifests.
-- A reviewer can distinguish recipe kind rules from standard-recipe context
-  rules without reading the old packet history.
 
 ### 20. Re-Read The Changed Recipe Slice
 
@@ -325,9 +292,9 @@ Proof:
 
 Reorder the sequence if any of these become true:
 
-- The Recipe Kind Pocket cannot place most current standard-recipe evidence
-  under `recipe`, `recipe-stage`, `recipe-step`, or one coarse transitional
-  context without inventing a broad replacement taxonomy.
+- A future bounded pocket cannot place most current evidence under a small set
+  of kind blueprints or one coarse transitional context without inventing a
+  broad replacement taxonomy.
 - A bounded slice creates more new capability or niche buckets than
   blueprint-owned rules.
 - A named variant such as `standard recipe` has to be treated as a blueprint

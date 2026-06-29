@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "verify_runtime_stage_order_matches_contract_manifest",
+  "title": "Verify Runtime Stage Order Matches Contract Manifest",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "structure",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "runtime standard stages and the Studio recipe-DAG contract manifest drifting apart",
+  "why": "The contract manifest is the structural order source shared by runtime stages and Studio recipe-DAG metadata.",
+  "remediate": "Update the standard contract manifest and runtime stages together.",
+  "message": "Standard recipe contract manifest drifted from runtime stages.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/blueprints/_self/structure/check/verify_runtime_stage_order_matches_contract_manifest/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/blueprints/_self/structure/check/verify_runtime_stage_order_matches_contract_manifest/check.ts"
+    }
+  }
+}

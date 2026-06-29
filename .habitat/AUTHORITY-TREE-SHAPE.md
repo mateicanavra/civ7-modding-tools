@@ -79,11 +79,17 @@ Current blueprint examples include:
 - `civ7/platform/blueprints/civ7-adapter`
 - `civ7/resources/blueprints/civ7-map-policy`
 - `civ7/mapgen/domain/blueprints/domain-public-surface`
-- `civ7/mapgen/pipeline/blueprints/standard-recipe`
+- `civ7/mapgen/pipeline/blueprints/recipe`
+- `civ7/mapgen/pipeline/blueprints/recipe-stage`
+- `civ7/mapgen/pipeline/blueprints/recipe-step`
 - `civ7/mapgen/map-output/blueprints/map-projection`
 
 Known transitional misfit, not a blueprint exemplar:
 
+- `civ7/mapgen/pipeline/swooper-maps-standard-recipe/blueprints/_self`
+  is the bounded current-recipe context for concrete Swooper Maps standard
+  recipe evidence. Treat it as instance/context material until the rule is
+  generalized under a recipe, recipe-stage, or recipe-step blueprint.
 - `civ7/mapgen/studio/blueprints/ensure_studio_worker_bundle_is_browser_safe`
   is a check/defect-shaped slug. Treat it as a pruning target to decompose
   under the appropriate constructible blueprint, package-local proof, or
