@@ -137,13 +137,68 @@ Values consumed across clusters → hooks are a DAG, not islands. Owner → cons
 - Where do the busy booleans want to live (host vs a tiny shared hook)? Avoid a second source of truth.
 - Confirm no `any` regressions; arch §6 strict flags (`noUncheckedIndexedAccess` etc.) status.
 
-**Test harness (RESOLVED 2026-06-28):** runner = **vitest** (root `vitest.config.ts`, project `mapgen-studio`; run `vitest run --config ../../vitest.config.ts --project mapgen-studio`). ~30 tests live under `apps/mapgen-studio/test/` (mirrors `src/`, NOT colocated). Harness supports **pure-logic, hook (`renderHook`), and component (RTL/DOM `.tsx`) tests** — patterns to copy:
-- hook test → `test/config/useConfigCollapse.test.ts`
-- component test → `test/ui/AppHeader.test.tsx`
-- parity-critical already pinned → `test/studioEvents/operationAdoption.test.ts`, `test/viz/{eraSelection,dataTypeModel,overlaySuggestions,inspectorSelection}.test.ts`, `test/mapConfigSave/status.test.ts`
-⇒ Behavior CAN be pinned at the hook level → **improve-slices are viable** (find the test, then improve). Much parity-critical logic is *already* pure functions in `features/*` (e.g. `shouldCommitLiveRuntimeSnapshot`, `buildRunInGameFingerprint`, `relationForRunInGameOperation`, `studioSetupDriftsFromSavedConfig`, `parsePresetKey`) — extraction must preserve *call order/timing* around them, which hook tests can assert.
+**Test harness (CORRECTED 2026-06-28 — earlier note was wrong):** runner = **vitest** (root `vitest.config.ts`, project `mapgen-studio`; run `vitest run --config ../../vitest.config.ts --project mapgen-studio`). ~30 tests under `apps/mapgen-studio/test/` (mirrors `src/`). **Environment is `node` — there is NO jsdom/happy-dom and `@testing-library/react` is NOT a dependency.** The existing tests are **pure-function** tests (e.g. `test/config/useConfigCollapse.test.ts` tests `computeActiveChain`/`pointerPrefixes`, NOT `renderHook`) and **`renderToStaticMarkup`** SSR-string assertions (`test/ui/AppHeader.test.tsx`). `renderHook` is NOT available today.
+- **Primary strategy:** pure / pure-state-machine extraction (extract effect logic → deterministic functions, drive with fake timers) — pins every Tier-A ordering + busy-gate-race hazard with zero new deps. Plus gated **source-text** assertions for render-phase-vs-effect timing invariants React can't expose in node.
+- **DECISION (user, 2026-06-28): add scoped jsdom + `@testing-library/react`** as the FIRST Phase-8 slice, scoped via `environmentMatchGlobs: [['test/controllers/**','jsdom']]` so existing node tests are untouched. This enables true `renderHook` proof for the ~18 lifecycle-bound contracts (`markPresetApplied` `===` identity, 548→558 waiter order, adoption→waiter, effect 410→435 order, mount/unmount).
+- Parity-critical logic is *already* pure in `features/*` (`shouldCommitLiveRuntimeSnapshot`, `buildRunInGameFingerprint`, `relationForRunInGameOperation`, `studioSetupDriftsFromSavedConfig`, `parsePresetKey`, `studioBusyGateMessage`, …) + already-pinned by 15 existing tests — extraction must keep CALLING them in order, which the pure/hook gating tests assert. ⇒ **improve-slices are viable.**
 
 ---
+
+## 6b. OpenSpec format cheat-sheet (for Phase 7 — verified against repo examples)
+
+Repo OpenSpec: `@fission-ai/openspec@^1.3.1`, `schema: spec-driven`. Validate: `bun run openspec -- validate <id> --strict` (or `openspec validate --all --strict`). Repo-local guide skill: `.agents/skills/civ7-open-spec-workstream`.
+
+Change set `openspec/changes/<id>/`:
+- **proposal.md** — `## Why` · `## What Changes` · `## What Does Not Change` · `## Affected Owners` · `## Verification Gates` · `## Stop Conditions`. (config.yaml rules: cite target authority refs — for me architecture/10 §4 + the analysis docs; name Requires/Enables; owners/forbidden-owners/write-set; consumer impact.)
+- **specs/`<capability>`/spec.md** — `## ADDED Requirements` (also MODIFIED/REMOVED) → `### Requirement: <name>` (SHALL/MUST, behavior/process only — NO impl detail) → `#### Scenario: <name>` with `- **WHEN** … / **THEN** … / **AND** …`. **Every requirement needs ≥1 Scenario.** My capability id: likely `mapgen-studio-shell` (new).
+- **design.md** — explicit target-shape decisions (no maybe/optional/fallback language), name owners, **review lanes** required before impl.
+- **tasks.md** — numbered `- [ ]` sections (Opening / Implementation / Verification), implementation steps not design questions; end with repo gates + `openspec validate --strict`.
+- optional `.openspec.yaml`, `workstream/phase-record.md`.
+
+Existing capabilities in `openspec/specs/`: `change-management`, `mapgen-normalization-workstreams`. My change is a Studio CLIENT refactor — a **new** capability (`mapgen-studio-shell`), behavior/parity requirements per slice.
+
+## 9. Target structure & hook interfaces (staged for Phase 7 — from INVESTIGATION-FINDINGS §7.8)
+
+> Names chosen to **reduce the space of illegal states**: `controllers/` signals orchestration (distinct from the small utility hooks in `hooks/`); one file per hook; coordination state owned high. Tests mirror under `test/controllers/`.
+
+```
+apps/mapgen-studio/src/app/
+  StudioShell.tsx              # HOST only: layout + error-boundary + shortcuts host + the coordination wiring (target ~200-300 lines)
+  controllers/
+    useStudioOperations.ts     # COORD (init 1st): runInGameOperation+saveDeployOperation+localError state;
+                               #   derives busy booleans + error + status SYNCHRONOUSLY (§7.3/§7.4)
+    useViewportLayout.ts       # viewport/ResizeObserver, deckApiRef (single owner), panel geometry,
+                               #   recipeDag query+prune, deck-autofit pair (§7.7), backgroundGrid
+    useBrowserRun.ts           # browserRunner wiring, startBrowserRun/reroll/triggerRun, auto-run trio (atomic), isDirty/status
+    useVizSelection.ts         # useVizState + FULL stage/step/dataType/space/mode/variant/era/overlay cascade
+                               #   (absorbs old Layer+Era+StageStep — §7.1/§7.2); navigateTo(stage,step)
+    usePresetLifecycle.ts      # catalog/local presets, resolvePreset/presetActions, preset-apply effects,
+                               #   lastAppliedPresetRef OWNER + markPresetApplied() + applyAuthoringSnapshot() (§7.5)
+    useSaveDeploy.ts           # saveRepoBackedConfigWithState, waiter map/effects (calls markPresetApplied)
+    useRunInGame.ts            # fingerprint/relation/materialization, handleRunInGame, syncStudioFromLiveGame
+                               #   (calls applyAuthoringSnapshot), copyDiagnostics
+    useLiveRuntime.ts          # snapshot/setup staleness+abort+mounted, applyLiveGameState, relation memos
+    useSetupControls.ts        # setupControlOptions, drift→Custom, autoplay/explore live actions
+    useKeyboardShortcuts.ts    # shortcutsRef (via useLatestRef) + global keydown
+  hooks/
+    useLatestRef.ts            # NEW — formalizes the render-phase latest-value ref pattern (invariant a)
+    useStudioEvents.ts · useSetupDataQueries.ts · useToast.ts · useRunInGameTerminalToast.ts   # existing
+features/mapConfigSave/status.ts   # P0: move isSaveDeployTerminal + saveDeployResultFromTerminalStatus here (co-locate w/ status logic)
+```
+
+**Interface sketch (params ← / returns →; full TS signatures finalized in design.md):**
+- `useStudioOperations()` → `{ runInGameOperation, setRunInGameOperation, saveDeployOperation, setSaveDeployOperation, localError, setLocalError, clearLocalErrorIfCurrent, busy: {browserRunning?, runInGameRunning, saveDeployRunning}, error, status }`. (browserRunning comes from useBrowserRun → threaded back into the composite, OR `error`/`status` derived in host from both — finalize in design: keep ALL synchronous.)
+- `useViewportLayout({ stageView, vizRead: {activeBounds, manifest, effectiveLayerSpaceId, effectiveLayerMeta}, showGrid, recipe })` → `{ containerRef, viewportSize, deckApiRef, deckApiReadyTick, handleDeckApiReady, panelTop, panelBottom, handleHeaderHeightChange, backgroundGridEnabled, recipeDag, pipelineExpanded*, handlePipelineStageToggle }`.
+- `useBrowserRun({ recipeSettings, worldSettings, pipelineConfig, overridesDisabled, busy:{runInGameRunning,saveDeployRunning}, lastRunSnapshot, setLastRunSnapshot, viz, setLocalError, toast })` → `{ browserRunning, startBrowserRun, triggerRun, reroll, autoRunEnabled, setAutoRunEnabled, isDirty, status, handleVizEvent }`.
+- `useVizSelection({ recipeArtifacts, recipe, overlaySuggestions, deckApiRef, viewportSize, deckApiReadyTick, browserRunning })` → `{ viz, selection, dataTypeOptions, *Options, era*, overlay*, selectLayerFor, navigateTo, handle*Change, stages, steps, selectedStageId, selectedStepId, riverLakeInspectorSummary, handleRiverLakeInspectorLayerSelect, overlayDataTypeKey }`. (overlayDataTypeKey + useVizState internal — resolves the circular dep internally.)
+- `usePresetLifecycle({ recipeSettings, repoBackedOverrides, provedRunInGameSource, store setters, toast })` → `{ presetOptions, resolvePreset, presetActions, builtInPresets, recipeArtifacts, isLocalPresetSelected, handle{Save*,Delete,Import,Export}*, openSaveDialog, markPresetApplied, applyAuthoringSnapshot, presetError, saveDialogState, pendingImport }`.
+- `useSaveDeploy({ busy, pipelineConfig, recipeSettings, resolvePreset, presetActions, rememberRepoBackedConfig, markPresetApplied, builtInPresets, setSaveDeployOperation, saveDeployOperation, store setters, toast })` → `{ saveRepoBackedConfigWithState, handleSaveDialogConfirm, handleSaveToCurrent, waitForSaveDeployTerminalEvent }`.
+- `useRunInGame({ authoring state, resolvePreset, busy, runInGameOperation, setRunInGameOperation, setSaveDeployOperation, liveRuntime+suggestions, applyAuthoringSnapshot, markPresetApplied, run-store setters, toast })` → `{ runInGameRunning, handleRunInGame, syncStudioFromLiveGame, copyRunInGameDiagnostics, runInGameCurrentRelation, liveGameStudioRelation, provedRunInGameSource, runInGameMaterializationMode }`.
+- `useLiveRuntime({ orpcClient, setLiveRuntime? })` → `{ liveRuntime, setLiveRuntime, liveRuntimeSuggestions, liveSetup, applyLiveGameState }`.
+- `useSetupControls({ liveSetup, liveRuntime, setLiveRuntime, savedSetupConfigs, setupCatalog, setupConfig, setSetupConfig, setRecipeSettings, busy, toast })` → `{ setupControlOptions, savedSetupConfigModified, handleSavedSetupConfigChange, handleToggleAutoplay, handleExplore, autoplayActionRunning, exploreActionRunning }`.
+- `useKeyboardShortcuts(ctx)` → registers global keydown (no return).
+
+**Open design decisions for Phase 7 (resolve explicitly, no "maybe"):** (1) does `useStudioOperations` also hold `browserRunning` (i.e. own browserRunner) or receive it — keep error/status/busy all synchronous either way; (2) exact home of `provedRunInGameSource`/`livePresets`/`displayedPresetOptions`/`materializationMode` host-vs-hook (§7.6 says host); (3) whether `useVizSelection` is one hook or one hook + extracted pure `selectFromModel`/era/overlay helpers (prefer pure helpers for testability).
 
 ## 7. Reusable precedent (Pass 2 review machinery)
 
