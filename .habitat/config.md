@@ -13,33 +13,40 @@ Do not introduce a separate `.habitat` tooling config just to map operations to 
 
 ## Provisional Niche/Blueprint/Rules Hierarchy
 
-The current `.habitat` tree groups authority packets by niche, then by either
-blueprint owner or transitional `rules` inventory. Category and artifact kind
-are manifest placement facts, not physical directories. This is a provisional
+The current `.habitat` tree groups authority packets by affirmed blueprint,
+niche, or transient niche-local lanes. Category and artifact kind are manifest
+placement facts, not physical directories. This is a provisional
 classification layout, not a parseable manifest and not a completed runtime
 migration.
 
 ```text
 .habitat
+  blueprints
+    <affirmed-blueprint>
+      <artifact-packet>
   <niche>
-    blueprints
-      <blueprint>
+    _blueprints
+      <candidate>
         <artifact-packet>
     rules
       <artifact-packet>
-      <context>
+    _remainder
+      <artifact-packet>
+    <child-niche>
+      rules
+        <artifact-packet>
+      _remainder
         <artifact-packet>
 
   civ7
     mapgen
+      domain
+        foundation
+          rules
+            preserve_decomposed_foundation_contract_surfaces
+          _remainder
+            prohibit_foundation_contract_config_bags
       pipeline
-        blueprints
-          recipe
-            require_runtime_domain_op_bundle_imports
-          recipe-stage
-            prohibit_sibling_stage_private_step_imports
-          recipe-step
-            require_typed_dependency_and_effect_tag_constants
         rules
           prohibit_ambient_rng_in_authored_generation
         swooper-maps-standard-recipe
@@ -47,9 +54,12 @@ migration.
             preserve_standard_stage_topology_and_path_invariants
 ```
 
-Niches are authored jurisdictions. Blueprints are constructible kinds or
-lifecycle-owned shapes inside those jurisdictions. `rules` holds niche-wide or
-current-context rule inventory that must not be called blueprint authority.
+Niches are authored jurisdictions and may nest when a current context becomes a
+clearer child jurisdiction. Top-level `blueprints/` holds affirmed
+constructible kind authority. Niche-local `_blueprints/` holds candidate
+blueprint-shaped inventory that must not yet be called blueprint authority.
+`rules` holds niche-local inventory, and `_remainder` holds reviewed deferred
+inventory inside the smallest honest niche.
 Neither niches nor blueprints should encode a runner, file type, current
 defect, or narrow maintenance task. Categories describe universal engineering
 purpose; artifact kinds define mutability.

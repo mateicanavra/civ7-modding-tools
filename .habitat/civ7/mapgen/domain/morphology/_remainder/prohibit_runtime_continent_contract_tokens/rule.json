@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_runtime_continent_contract_tokens",
+  "title": "Prohibit Runtime Continent Contract Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/domain/morphology",
+    "blueprint": "_remainder",
+    "category": "contract",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "runtime continent identifiers in morphology contract files",
+  "why": "Morphology contracts describe typed stage dependencies; runtime continent identifiers belong in implementation artifacts, not contract boundaries.",
+  "remediate": null,
+  "message": "Keep runtime continent identifiers out of morphology contract files.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*contract.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*artifacts.ts"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/morphology/_remainder/prohibit_runtime_continent_contract_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/morphology/_remainder/prohibit_runtime_continent_contract_tokens/pattern.md"
+    },
+    "patternName": "prohibit_runtime_continent_contract_tokens"
+  }
+}

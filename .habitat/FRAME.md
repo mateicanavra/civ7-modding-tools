@@ -85,8 +85,8 @@ The current pruning target tree is:
 .habitat/blueprints/<blueprint>/<packet>/
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
-.habitat/<niche>/rules/<context>/<packet>/
-.habitat/<niche>/_remainder/<source-context>/<packet>/
+.habitat/<niche>/_remainder/<packet>/
+.habitat/<niche>/<child-niche>/...
 ```
 
 This tree is intentionally decomposed for the current gathered packet corpus:
@@ -95,8 +95,7 @@ This tree is intentionally decomposed for the current gathered packet corpus:
 - blueprint: affirmed constructible kind authority at top level;
 - _blueprints: niche-local candidate/likeness grouping, not affirmed
   blueprint authority;
-- rules: transitional niche-wide or current-context inventory, not blueprint
-  authority;
+- rules: transitional niche-local inventory, not blueprint authority;
 - _remainder: reviewed and sorted deferred inventory, not niche, blueprint,
   capability, or final ontology;
 - category: universal engineering-purpose class in `rule.json`;

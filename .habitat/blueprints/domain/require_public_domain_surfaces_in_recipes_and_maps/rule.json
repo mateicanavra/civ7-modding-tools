@@ -25,10 +25,7 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
   "hookCheck": true,
   "artifacts": {
     "baseline": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/baseline.json"

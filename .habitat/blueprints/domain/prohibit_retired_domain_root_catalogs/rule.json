@@ -23,9 +23,7 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "artifacts": {
     "baseline": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/baseline.json"

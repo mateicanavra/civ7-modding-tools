@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_legacy_morphology_module_imports",
+  "title": "Prohibit Legacy Morphology Module Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domain/morphology",
+    "blueprint": "_remainder",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "imports or source references to retired morphology module paths",
+  "why": "Retired morphology module paths must stay removed after morphology contracts moved to canonical public surfaces.",
+  "remediate": null,
+  "message": "Use current morphology public surfaces instead of retired morphology module paths.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/morphology/_remainder/prohibit_legacy_morphology_module_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md"
+    },
+    "patternName": "prohibit_legacy_morphology_module_imports"
+  }
+}

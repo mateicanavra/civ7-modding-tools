@@ -17,14 +17,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/**/*.ts"]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
   "hookCheck": true,
   "artifacts": {
     "baseline": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/baseline.json"

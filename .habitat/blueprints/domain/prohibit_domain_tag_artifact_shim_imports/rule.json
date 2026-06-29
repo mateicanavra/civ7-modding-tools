@@ -17,9 +17,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/**/*.ts"]
     }
   ],
   "scanRoots": [

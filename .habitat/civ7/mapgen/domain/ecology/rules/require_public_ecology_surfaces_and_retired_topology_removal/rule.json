@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "require_public_ecology_surfaces_and_retired_topology_removal",
+  "title": "Require Public Ecology Surfaces And Retired Topology Removal",
+  "placement": {
+    "niche": "civ7/mapgen/domain/ecology",
+    "blueprint": "_self",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "active ecology recipe stages importing/exporting ecology ops or rules internals, plus files under retired ecology stage directories",
+  "why": "Ecology recipe stages compose public domain surfaces; retired wrapper topology must not re-enter active source.",
+  "remediate": null,
+  "message": "Use public ecology domain surfaces and keep retired ecology topology out of active source.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features-score/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-ice/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-reefs/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-wetlands/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-vegetation/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/pattern.md"
+    },
+    "patternName": "require_public_ecology_surfaces_and_retired_topology_removal"
+  }
+}

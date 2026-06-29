@@ -15,9 +15,11 @@ Habitat has three separate concerns that must not be collapsed:
 The current tree shape co-locates packet role files at
 `.habitat/blueprints/<blueprint>/<packet>/` for affirmed blueprint-owned
 packets, `.habitat/**/_blueprints/<candidate>/<packet>/` for niche-local
-candidate blueprint-shaped packets, and `.habitat/**/rules/<packet>/` or
-`.habitat/**/rules/<context>/<packet>/` for niche/context inventory. Category
-and artifact kind are manifest placement facts, not directories.
+candidate blueprint-shaped packets, `.habitat/**/rules/<packet>/` for
+niche-local rule inventory, and `.habitat/**/_remainder/<packet>/` for
+reviewed deferred inventory. Nested contexts are represented as child niches,
+not as folders under `rules/`. Category and artifact kind are manifest
+placement facts, not directories.
 
 ## Kinds
 

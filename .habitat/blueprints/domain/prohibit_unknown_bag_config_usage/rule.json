@@ -17,14 +17,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/*.ts"]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "artifacts": {
     "baseline": ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/baseline.json"

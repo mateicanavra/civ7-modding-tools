@@ -8,8 +8,8 @@ The current layout has four packet lanes:
 .habitat/blueprints/<blueprint>/<packet>/
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
-.habitat/<niche>/rules/<context>/<packet>/
-.habitat/<niche>/_remainder/<source-context>/<packet>/
+.habitat/<niche>/_remainder/<packet>/
+.habitat/<niche>/<child-niche>/...
 ```
 
 - Top-level `blueprints/` contains affirmed constructible kind authority.
@@ -19,13 +19,11 @@ The current layout has four packet lanes:
   blueprint authority.
 - `rules/` is transitional rule inventory for niche-wide or current-context
   rules that must not be represented as blueprint authority.
-- `<context>` is a current-context grouping such as `foundation-domain` when
-  the slice frame says that label is not an accepted blueprint and the rule is
-  intentionally still owned by that context.
 - `_remainder/` is sorted-but-deferred inventory after slice review. It is not
   a niche, blueprint, capability, or final ontology lane.
-- `<source-context>` preserves where the deferred packet came from, such as
-  `morphology-domain`; it is not a semantic owner.
+- `<child-niche>` is a narrower jurisdiction nested inside its parent, such as
+  `civ7/mapgen/domain/foundation`. A child niche may have its own `rules/`,
+  `_blueprints/`, `_remainder/`, and further child niches.
 - Category and artifact kind live in `rule.json` placement metadata, not in
   physical directories.
 - `<packet>` is the current gathered authority packet.

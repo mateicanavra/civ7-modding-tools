@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_legacy_morphology_effect_gating_tokens",
+  "title": "Prohibit Legacy Morphology Effect Gating Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/domain/morphology",
+    "blueprint": "_remainder",
+    "category": "execution",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "old landmassApplied and coastlinesApplied effect gating tokens in morphology stages and standard tags",
+  "why": "Morphology stages should use current typed effect gates rather than retired engine landmass/coastline gates.",
+  "remediate": null,
+  "message": "Remove legacy morphology effect gating tokens.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/tags.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages",
+    "mods/mod-swooper-maps/src/recipes/standard/tags.ts"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/morphology/_remainder/prohibit_legacy_morphology_effect_gating_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/morphology/_remainder/prohibit_legacy_morphology_effect_gating_tokens/pattern.md"
+    },
+    "patternName": "prohibit_legacy_morphology_effect_gating_tokens"
+  }
+}

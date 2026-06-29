@@ -44,7 +44,8 @@ The current physical hierarchy is:
 .habitat/blueprints/<blueprint>/<packet>/
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
-.habitat/<niche>/rules/<context>/<packet>/
+.habitat/<niche>/_remainder/<packet>/
+.habitat/<niche>/<child-niche>/...
 ```
 
 The manifest owns these facts under `placement` so rule inventory remains

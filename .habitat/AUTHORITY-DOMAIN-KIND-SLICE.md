@@ -183,9 +183,10 @@ Original primary rule inputs were the then-live `domain-public-surface` and
 Secondary review inputs, not automatic moves:
 
 - `.habitat/blueprints/domain-operation/**`
-- `.habitat/civ7/mapgen/domain/rules/ecology-domain/**`
-- `.habitat/civ7/mapgen/domain/rules/foundation-domain/**`
-- `.habitat/civ7/mapgen/domain/rules/morphology-domain/**`
+- `.habitat/civ7/mapgen/domain/ecology/rules/**`
+- `.habitat/civ7/mapgen/domain/foundation/rules/**`
+- `.habitat/civ7/mapgen/domain/foundation/_remainder/**`
+- `.habitat/civ7/mapgen/domain/morphology/_remainder/**`
 - `.habitat/civ7/mapgen/domain/rules/prohibit_rng_callback_state_in_ops`
 - Any other immediate `.habitat/civ7/mapgen/domain/rules/*` row not named in
   the primary rule inputs above.

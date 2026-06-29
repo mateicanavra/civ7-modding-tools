@@ -177,8 +177,8 @@ Protective belt:
   can truthfully own.
 - Exact future paths may change; manifest identity and runner/artifact
   references remain the stability contract during movement.
-- `_remainder/<source-context>/` is transitional and may disappear once later
-  branches move, split, consolidate, project, or retire those packets.
+- `_remainder/` inside a child niche is transitional and may disappear once
+  later branches move, split, consolidate, project, or retire those packets.
 
 ## Decision Criteria
 
@@ -225,12 +225,13 @@ Leave contextual when:
 - the rule mixes context and kind concerns, no source-obvious split exists, and
   the whole mixed rule still intentionally governs the current context.
 
-Use the smallest honest current context. Do not rename context as a niche
-unless niche admission facts actually exist. Do not leave a rule in
-`rules/<context>/` merely because it came from that context; if the row is
-sorted but deferred, move it to `_remainder/<source-context>/`.
+Use the smallest honest current context. A context may be represented as a
+child niche when that improves tree truth without claiming admitted membership
+semantics. Do not leave a rule in a context's `rules/` merely because it came
+from that context; if the row is sorted but deferred, move it to that child
+niche's `_remainder/`.
 If a reviewed mixed rule cannot truthfully remain intentional context
-authority, move it to `_remainder/<source-context>/` rather than preserving it
+authority, move it to the child niche's `_remainder/` rather than preserving it
 in `rules/` as an ambiguous leftover.
 
 ### 4. External Enforcement-Surface Pressure
@@ -253,7 +254,7 @@ Each disposition must name both sides:
 
 Only call the rule truly outside Habitat when there is no Habitat-owned
 structural policy to preserve. If the projected surface is not implemented in
-the current branch, move the packet to `_remainder/<source-context>/` rather
+the current branch, move the packet to the child niche's `_remainder/` rather
 than leaving it as intentional `rules/` authority.
 
 ### 5. Cleanup, Consolidation, Split, Or Retirement
@@ -268,7 +269,7 @@ Mark cleanup pressure when:
 
 Cleanup follows ownership clarity. Do not turn this frame into a cleanup-first
 workstream. If cleanup is not performed in the current branch, move the packet
-to `_remainder/<source-context>/` unless it is still an intentional
+to the child niche's `_remainder/` unless it is still an intentional
 context-owned rule.
 
 ## Slice Method
@@ -284,8 +285,8 @@ context-owned rule.
 6. Preserve every moved rule `id`; update `placement`, `runner.files`, and
    `artifacts.baseline`.
 7. Leave only intentional context authority in `rules/`.
-8. Move sorted-but-deferred leftovers to
-   `_remainder/<source-context>/<packet>/`.
+8. Move sorted-but-deferred leftovers to `_remainder/<packet>/` inside the
+   smallest honest niche.
 9. Record missing positive kind rules, external enforcement-surface pressure,
    and cleanup candidates as receipts for the physical lane choice, without
    doing broad cleanup.
@@ -300,10 +301,10 @@ After a remainder slice:
 
 - affirmed-kind rules live under `.habitat/blueprints/<blueprint>/<packet>/`;
 - intentional niche/context rules live under
-  `.habitat/<niche>/rules/<packet>/` or
-  `.habitat/<niche>/rules/<context>/<packet>/`;
+  `.habitat/<niche>/rules/<packet>/`, with concrete contexts represented as
+  child niches when needed;
 - sorted-but-deferred leftovers live under
-  `.habitat/<niche>/_remainder/<source-context>/<packet>/`.
+  `.habitat/<smallest-honest-niche>/_remainder/<packet>/`.
 
 `_remainder` means "reviewed and not final." It does not mean niche,
 capability, blueprint, or accepted ontology. It is a visible queue for later
@@ -327,7 +328,7 @@ Required columns:
 | `rule id` | Stable `rule.json.id`. |
 | `current path` | Path at the start of the slice. |
 | `bucket` | One of: existing blueprint authority, missing positive kind rule, honest context, external enforcement-surface pressure, cleanup/consolidation/split/retirement, explicit exclusion, falsified/blocked. |
-| `target or retained context` | Destination path/owner if moved, the smallest honest retained context if intentionally kept in `rules/`, or `_remainder/<source-context>` if sorted but deferred. |
+| `target or retained context` | Destination path/owner if moved, the smallest honest retained context if intentionally kept in `rules/`, or the child niche's `_remainder` lane if sorted but deferred. |
 | `source evidence` | Source files or manifest facts that justify the bucket. |
 | `reason` | One sentence naming why the whole rule does or does not fit the owner. |
 | `proof needed/run` | Focused `habitat check --rule`, path-reference proof, source inspection, or explicit no-move review proof. |
@@ -336,7 +337,7 @@ Required columns:
 Closure requires the table to cover every primary input and match the physical
 tree. Moved rows need runtime or selected-rule proof. Non-moved intentional
 rules need review proof that they still belong in `rules/`. Deferred rows need
-path proof that they moved to `_remainder/<source-context>/`, plus a named next
+path proof that they moved to the child niche's `_remainder/`, plus a named next
 mechanical destination or trigger.
 
 ## First Method Seed: Morphology Remainder Pocket
@@ -344,8 +345,8 @@ mechanical destination or trigger.
 The first method seed was the Morphology Remainder Pocket:
 
 ```text
-.habitat/civ7/mapgen/domain/rules/morphology-domain/**   # starting pocket
-.habitat/civ7/mapgen/domain/_remainder/morphology-domain/** # sorted result
+.habitat/civ7/mapgen/domain/morphology/rules/**       # starting pocket when intentional context exists
+.habitat/civ7/mapgen/domain/morphology/_remainder/**  # sorted result
 mods/mod-swooper-maps/src/domain/morphology/**
 ```
 
@@ -362,7 +363,7 @@ Why morphology first:
 - It had obvious possible outcomes: rows could move to `domain`, move to
   `domain-operation`, stay in morphology context, or become missing
   positive-rule, external enforcement-surface, or cleanup pressure under
-  `_remainder/morphology-domain`.
+  `morphology/_remainder`.
 
 Resulting reusable lesson:
 
@@ -380,7 +381,7 @@ Resulting reusable lesson:
   the rule id is not enough to keep it under `rules/<domain-context>`. If the
   whole rule does not fit affirmed `domain` or `domain-operation` authority,
   and it is not intentionally owned by the current concrete domain context,
-  move it to `_remainder/<source-context>` with a named future destination or
+  move it to the child niche's `_remainder/` with a named future destination or
   trigger.
 
 ## Second Method Seed: Foundation Remainder Pocket
@@ -388,9 +389,8 @@ Resulting reusable lesson:
 The second method seed was the Foundation Remainder Pocket:
 
 ```text
-.habitat/civ7/mapgen/domain/rules/foundation-domain/**        # starting pocket
-.habitat/civ7/mapgen/domain/rules/foundation-domain/**        # intentional context result
-.habitat/civ7/mapgen/domain/_remainder/foundation-domain/**   # sorted deferred result
+.habitat/civ7/mapgen/domain/foundation/rules/**        # intentional context result
+.habitat/civ7/mapgen/domain/foundation/_remainder/**   # sorted deferred result
 mods/mod-swooper-maps/src/domain/foundation/**
 ```
 
@@ -399,10 +399,10 @@ Resulting reusable lesson:
 - A remainder slice does not have to choose between moving everything to
   `_remainder` and preserving every current-context row. Some rules are
   intentionally concrete-context authority: currentness guards and retired-token
-  regression guards can remain in `rules/<context>` when the context owns that
+  regression guards can remain in the child niche's `rules/` when the context owns that
   migration history and another valid instance could differ without violating an
   affirmed kind.
-- `_remainder/<source-context>` is for reviewed rows that are not final
+- The child niche's `_remainder/` is for reviewed rows that are not final
   context authority: mixed recipe-step plus operation-contract predicates,
   projection implementation cleanup, duplicate split rows, strategy-file
   locality rows, and rules-index shim pressure.

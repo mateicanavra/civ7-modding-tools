@@ -660,15 +660,17 @@ The current authority tree still uses transitional physical concepts:
 .habitat/blueprints/<blueprint>/<packet>/
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
-.habitat/<niche>/rules/<context>/<packet>/
+.habitat/<niche>/_remainder/<packet>/
+.habitat/<niche>/<child-niche>/...
 ```
 
 Top-level `blueprints/` contains affirmed constructible kind authority.
 Niche-local `_blueprints/` contains blueprint-shaped candidate groupings that
-remain unaffirmed. Category and artifact kind are manifest placement facts in
-this transitional state. This ontology is the normative conceptual reference
-for deciding what that layout means and what future layouts should converge
-toward.
+remain unaffirmed. A child niche is a narrower current jurisdiction under its
+parent, not a blueprint claim. Category and artifact kind are manifest
+placement facts in this transitional state. This ontology is the normative
+conceptual reference for deciding what that layout means and what future
+layouts should converge toward.
 
 When this document conflicts with current packet mechanics, treat the current
 mechanics as transitional implementation state and this document as the

@@ -44,11 +44,10 @@ Current pruning shape:
         <packet>/
     rules/
       <packet>/
-      <context>/
-        <packet>/
     _remainder/
-      <source-context>/
-        <packet>/
+      <packet>/
+    <child-niche>/
+      ...
 ```
 
 Top-level `blueprints/` is the physical lane for affirmed constructible kind
@@ -68,13 +67,13 @@ not path directories.
 
 `_remainder/` is the physical lane for sorted-but-deferred packets after a
 remainder slice has reviewed them. It is visual debt, not a niche, blueprint,
-capability, or final ontology plane. Use `_remainder/<source-context>/<packet>/`
-when a packet has been inspected, does not truthfully belong under affirmed
-blueprint authority or intentional niche/context `rules/`, and needs a later
-mechanical destination such as a positive kind rule, external enforcement
-surface, split, consolidation, or retirement. The underscore is intentional
-visual friction: future agents should see that these packets are already
-sorted and still unresolved.
+capability, or final ontology plane. Use `_remainder/<packet>/` inside the
+smallest honest niche when a packet has been inspected, does not truthfully
+belong under affirmed blueprint authority or intentional niche `rules/`, and
+needs a later mechanical destination such as a positive kind rule, external
+enforcement surface, split, consolidation, or retirement. The underscore is
+intentional visual friction: future agents should see that these packets are
+already sorted and still unresolved.
 
 ## Concepts
 
@@ -87,8 +86,10 @@ Examples include `global/workspace`, `docs`, `habitat/toolkit`,
 `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
 
 Niches may nest when the language and authority become more specific. A niche
-is not itself assumed to be buildable. It may contain niche-wide `rules/`,
-current-context `rules/<context>/`, and `_blueprints/` candidates.
+is not itself assumed to be buildable. It may contain `rules/`, `_remainder/`,
+`_blueprints/` candidates, and child niches. Contexts should become child
+niches when keeping them under `rules/` would make the tree read as though the
+parent niche owned them as rule subcategories.
 
 ### Blueprint
 
@@ -130,19 +131,19 @@ Known transitional misfits, not blueprint exemplars:
   is the bounded current-recipe context for concrete Swooper Maps standard
   recipe evidence. Treat it as instance/context material until the rule is
   generalized under a recipe, recipe-stage, or recipe-step blueprint.
-- `civ7/mapgen/domain/rules/foundation-domain`,
-  `civ7/mapgen/domain/rules/ecology-domain`, and any later intentional
-  concrete-domain context rules are current domain contexts, not accepted
-  blueprints by label inheritance. Foundation currently has both intentional
-  context rules and sorted deferred packets; do not collapse those lanes.
-- `civ7/mapgen/domain/_remainder/morphology-domain` is the first reviewed
+- `civ7/mapgen/domain/foundation/rules` and
+  `civ7/mapgen/domain/ecology/rules` are current concrete-domain context
+  rules, not accepted blueprints by label inheritance. Foundation currently has
+  both intentional context rules and sorted deferred packets; do not collapse
+  those lanes.
+- `civ7/mapgen/domain/morphology/_remainder` is the first reviewed
   concrete-domain remainder. Its packets have been sorted out of intentional
   `rules/` authority but are not final owners; treat them as visible debt for
   later movement, split, consolidation, projection, or retirement.
-- `civ7/mapgen/domain/_remainder/foundation-domain` contains reviewed
-  foundation-domain packets that are not final context authority: mixed
-  recipe-step plus operation-contract predicates, projection implementation
-  cleanup, strategy-file locality pressure, and rules-index shim cleanup.
+- `civ7/mapgen/domain/foundation/_remainder` contains reviewed foundation
+  packets that are not final context authority: mixed recipe-step plus
+  operation-contract predicates, projection implementation cleanup,
+  strategy-file locality pressure, and rules-index shim cleanup.
 - `civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe`
   is a check/defect-shaped slug. Treat it as a pruning target to decompose
   under the appropriate constructible blueprint, package-local proof, or
@@ -150,15 +151,15 @@ Known transitional misfits, not blueprint exemplars:
 
 ### Rules Lane
 
-`rules/` is the current physical lane for authority about the niche as a whole
-or an intentional coarse current context. It prevents niche-wide and
-current-context packets from being mixed with child blueprint names while the
-final manifest model is still being designed.
+`rules/` is the current physical lane for authority about the niche as a whole.
+It prevents niche-local packets from being mixed with child blueprint names
+while the final manifest model is still being designed.
 
-Use `rules/<packet>/` for niche-wide packets. Use `rules/<context>/<packet>/`
-only when a named context such as `foundation-domain` is intentionally the
-current owner after slice review. Do not leave sorted-but-deferred leftovers in
-`rules/`; move them to `_remainder/<source-context>/`.
+Use `rules/<packet>/` for packets owned by the niche. When a named context such
+as `foundation` has its own rules or remainder, represent it as a child niche
+with its own `rules/` and `_remainder/` lanes. Do not leave
+sorted-but-deferred leftovers in `rules/`; move them to `_remainder/` inside
+the smallest honest niche.
 
 ### Remainder Lane
 
@@ -167,9 +168,9 @@ reviewed by a bounded slice but cannot yet move to their final owner without
 future work. It keeps sorted leftovers visible in the tree instead of hiding
 them inside `rules/` or in a separate classification document.
 
-Use `_remainder/<source-context>/<packet>/` for deferred leftovers from a
-specific context. The `source-context` preserves navigability; it does not
-create a niche, blueprint, capability, or semantic category.
+Use `_remainder/<packet>/` for deferred leftovers inside the smallest honest
+niche. The child-niche path preserves navigability; `_remainder` itself does
+not create a niche, blueprint, capability, or semantic category.
 
 Typical reasons a packet belongs in `_remainder/`:
 
@@ -219,15 +220,15 @@ generic role names such as `rule.json`, `baseline.json`, `pattern.md`,
 ## Current Classification Rule
 
 Classify each packet by authority lane first: affirmed blueprint authority,
-candidate blueprint-shaped niche inventory, intentional niche/context `rules`
+candidate blueprint-shaped niche inventory, intentional niche `rules`
 inventory, or sorted `_remainder` inventory. If a packet is about an affirmed
 constructible kind, place it under top-level
 `blueprints/<blueprint>/<packet>/`. If it is blueprint-shaped but not yet
 affirmed by a slice, keep it under
-`<niche>/_blueprints/<candidate>/<packet>/`. If a packet is about the niche
-overall, place it under `rules/<packet>/`. If a packet is about an intentional
-current context that is not an accepted blueprint, place it under
-`rules/<context>/<packet>/`. If a reviewed packet is mixed, deferred, or
-waiting on a future destination, place it under
-`_remainder/<source-context>/<packet>/`. Do not add a second packet-local
-classification file.
+`<niche>/_blueprints/<candidate>/<packet>/`. If a packet is about the niche,
+place it under `<niche>/rules/<packet>/`. If the rule belongs to a narrower
+context that should remain visible as a jurisdiction, make that context a child
+niche and place the packet under `<niche>/<child-niche>/rules/<packet>/`. If a
+reviewed packet is mixed, deferred, or waiting on a future destination, place
+it under `<smallest-honest-niche>/_remainder/<packet>/`. Do not add a second
+packet-local classification file.

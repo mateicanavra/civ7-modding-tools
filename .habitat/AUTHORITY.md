@@ -21,20 +21,20 @@ The current physical hierarchy has four packet lanes:
 .habitat/blueprints/<blueprint>/<packet>/
 .habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
-.habitat/<niche>/rules/<context>/<packet>/
-.habitat/<niche>/_remainder/<source-context>/<packet>/
+.habitat/<niche>/_remainder/<packet>/
+.habitat/<niche>/<child-niche>/...
 ```
 
 Top-level `blueprints/` is affirmed constructible kind authority. Niches are
-authored jurisdictions. Niche-local `_blueprints/` is candidate blueprint-shaped
-inventory that has not yet been affirmed as blueprint authority. The `rules`
-lane is transitional inventory for niche-wide or current-context rules that
-must not be smuggled into blueprint authority. The `_remainder` lane is
-transitional visual debt for packets that a slice has reviewed and sorted but
-cannot yet move to a final owner. It is not a niche, blueprint, capability, or
-final ontology plane; sorted-but-deferred packets must not stay in `rules/` as
-if they were intentional current-context authority. Categories and artifact
-kinds are manifest placement facts, not physical grouping directories.
+authored jurisdictions and may nest into child niches. Niche-local
+`_blueprints/` is candidate blueprint-shaped inventory that has not yet been
+affirmed as blueprint authority. The `rules` lane is transitional inventory for
+the niche itself. The `_remainder` lane is transitional visual debt for packets
+that a slice has reviewed and sorted but cannot yet move to a final owner. It
+is not a niche, blueprint, capability, or final ontology plane;
+sorted-but-deferred packets must not stay in `rules/` as if they were
+intentional current-context authority. Categories and artifact kinds are
+manifest placement facts, not physical grouping directories.
 
 Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
 
