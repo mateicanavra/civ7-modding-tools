@@ -1,11 +1,11 @@
 import {
+  type Dispatch,
+  type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type Dispatch,
-  type SetStateAction,
 } from "react";
 
 import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
@@ -31,7 +31,11 @@ import type { ToastFn } from "./useToast";
  */
 export type BrowserRunVizHandle = Pick<
   UseVizStateResult,
-  "selectedStepId" | "selectedLayerKey" | "clearStream" | "setSelectedStepId" | "setSelectedLayerKey"
+  | "selectedStepId"
+  | "selectedLayerKey"
+  | "clearStream"
+  | "setSelectedStepId"
+  | "setSelectedLayerKey"
 >;
 
 export type UseBrowserRunArgs = {
