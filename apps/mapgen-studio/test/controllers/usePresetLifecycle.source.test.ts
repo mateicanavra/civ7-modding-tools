@@ -1,12 +1,16 @@
 /// <reference types="vite/client" />
 import { describe, expect, it } from "vitest";
 import hookSource from "../../src/app/hooks/usePresetLifecycle.ts?raw";
+import saveDeploySource from "../../src/app/hooks/useSaveDeploy.ts?raw";
 import hostSource from "../../src/app/StudioShell.tsx?raw";
 
 // Strip comments so doc-comments (which legitimately name effects/refs/contracts)
 // don't trip the ordering matchers.
 const host = hostSource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 const hook = hookSource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+// The save handlers moved into `useSaveDeploy` (slice 2.9); the PL-7/PL-11
+// call-site ordering is now pinned against that hook's source.
+const saveDeploy = saveDeploySource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 
 describe("usePresetLifecycle source — Tier-A effects + sole-owner ref", () => {
   it("PL-3: the reseed effect (none-reset) is declared BEFORE the apply effect (Tier-A order)", () => {
@@ -78,8 +82,14 @@ describe("StudioShell source — 2.8 seam (preset lifecycle no longer host-owned
   });
 
   it("PL-7/PL-11: the save handlers call markPresetApplied BEFORE the key-flip setRecipeSettings", () => {
-    const markIdx = host.indexOf("markPresetApplied({ key: `builtin:${id}`, config: sanitized })");
-    const flipIdx = host.indexOf(
+    // The save handlers now live in `useSaveDeploy` (slice 2.9); the contract is
+    // unchanged — `markPresetApplied` (and `rememberRepoBackedConfig`) must precede
+    // the key-flip `setRecipeSettings` so the apply-effect resolver sees the just-
+    // recorded ref/override and skips a redundant re-apply.
+    const markIdx = saveDeploy.indexOf(
+      "markPresetApplied({ key: `builtin:${id}`, config: sanitized })"
+    );
+    const flipIdx = saveDeploy.indexOf(
       "setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }))"
     );
     expect(markIdx).toBeGreaterThan(-1);

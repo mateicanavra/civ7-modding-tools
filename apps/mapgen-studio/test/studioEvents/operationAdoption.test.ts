@@ -358,6 +358,12 @@ describe("Studio event operation adoption", () => {
       join(repoRoot, "apps/mapgen-studio/src/features/mapConfigSave/api.ts"),
       "utf8"
     );
+    // The save/deploy waiter machinery moved into `useSaveDeploy` (slice 2.9); the
+    // event-driven (no-polling) contract is now pinned against that hook's source.
+    const saveDeploySource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useSaveDeploy.ts"),
+      "utf8"
+    );
 
     expect(shellSource).toContain("void readAndAdoptStudioOperationsCurrent");
     expect(shellSource).toContain("useStudioEvents({");
@@ -377,7 +383,7 @@ describe("Studio event operation adoption", () => {
     const saveStartResponse = sourceSliceAround(saveApiSource, "args.onStatus?.(status)");
     expect(saveStartResponse).not.toMatch(/setTimeout|setInterval|sleep|while\s*\(/);
 
-    const eventWaiter = sourceSliceAround(shellSource, "waitForSaveDeployTerminalEvent");
+    const eventWaiter = sourceSliceAround(saveDeploySource, "waitForSaveDeployTerminalEvent");
     expect(eventWaiter).toContain("saveDeployWaitersRef");
     expect(eventWaiter).not.toMatch(/orpcClient|mapConfigs\.status|fetchSaveDeployStatus/);
   });
