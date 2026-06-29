@@ -3,7 +3,7 @@
   "id": "require_public_domain_surfaces_in_recipes_and_maps",
   "title": "Require Public Domain Surfaces In Recipes And Maps",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"

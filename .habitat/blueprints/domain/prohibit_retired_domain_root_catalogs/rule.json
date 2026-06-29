@@ -3,7 +3,7 @@
   "id": "prohibit_retired_domain_root_catalogs",
   "title": "Prohibit Retired Domain Root Catalogs",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
     "category": "structure",
     "artifactKind": "check"

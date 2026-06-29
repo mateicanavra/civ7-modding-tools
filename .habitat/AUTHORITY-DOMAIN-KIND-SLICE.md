@@ -35,7 +35,7 @@ In scope:
 - Candidate rule pockets currently named `domain-public-surface` and
   `domain-config-surface`.
 - The enumerated direct domain rule inputs in this document. Other immediate
-  `.habitat/civ7/mapgen/domain/rules/*` rows are secondary unless this frame
+  `.habitat/civ7/mapgen/domains/rules/*` rows are secondary unless this frame
   names them.
 - Source evidence for `defineDomain`, `createDomain`, domain entrypoints,
   domain ops registries, domain contracts, and domain config facades.
@@ -183,12 +183,12 @@ Original primary rule inputs were the then-live `domain-public-surface` and
 Secondary review inputs, not automatic moves:
 
 - `.habitat/blueprints/domain-operation/**`
-- `.habitat/civ7/mapgen/domain/ecology/rules/**`
-- `.habitat/civ7/mapgen/domain/foundation/rules/**`
-- `.habitat/civ7/mapgen/domain/foundation/_remainder/**`
-- `.habitat/civ7/mapgen/domain/morphology/_remainder/**`
-- `.habitat/civ7/mapgen/domain/rules/prohibit_rng_callback_state_in_ops`
-- Any other immediate `.habitat/civ7/mapgen/domain/rules/*` row not named in
+- `.habitat/civ7/mapgen/domains/ecology/rules/**`
+- `.habitat/civ7/mapgen/domains/foundation/rules/**`
+- `.habitat/civ7/mapgen/domains/foundation/_remainder/**`
+- `.habitat/civ7/mapgen/domains/morphology/_remainder/**`
+- `.habitat/civ7/mapgen/domains/rules/prohibit_rng_callback_state_in_ops`
+- Any other immediate `.habitat/civ7/mapgen/domains/rules/*` row not named in
   the primary rule inputs above.
 - Broad pipeline rules only when their whole rule meaning directly governs the
   domain kind.
@@ -250,7 +250,7 @@ Moved to `.habitat/blueprints/domain/`:
 Left contextual:
 
 - `require_owned_domain_config_catalog_surfaces` moved to
-  `.habitat/civ7/mapgen/domain/rules/require_owned_domain_config_catalog_surfaces`
+  `.habitat/civ7/mapgen/domains/rules/require_owned_domain_config_catalog_surfaces`
   because it mixes a morphology config facade assertion with standard recipe
   tag-catalog evidence. That mix is real cleanup pressure, not proof of a
   separate `domain-config-surface` blueprint.

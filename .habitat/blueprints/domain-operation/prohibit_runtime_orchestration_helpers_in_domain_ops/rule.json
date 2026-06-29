@@ -3,7 +3,7 @@
   "id": "prohibit_runtime_orchestration_helpers_in_domain_ops",
   "title": "Prohibit Runtime Orchestration Helpers In Domain Ops",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
     "category": "execution",
     "artifactKind": "check"

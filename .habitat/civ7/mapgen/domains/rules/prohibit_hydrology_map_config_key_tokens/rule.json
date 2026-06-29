@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_hydrology_map_config_key_tokens",
+  "title": "Prohibit Hydrology Map Config Key Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "_self",
+    "category": "contract",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "legacy hydrology climate, lakes, and rivers config keys in maps",
+  "why": "Hydrology map configuration should use the current step/public config shape rather than retired bag keys.",
+  "remediate": null,
+  "message": "Do not use legacy hydrology config key tokens in map source.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/maps/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/maps"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domains/rules/prohibit_hydrology_map_config_key_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domains/rules/prohibit_hydrology_map_config_key_tokens/pattern.md"
+    },
+    "patternName": "prohibit_hydrology_map_config_key_tokens"
+  }
+}

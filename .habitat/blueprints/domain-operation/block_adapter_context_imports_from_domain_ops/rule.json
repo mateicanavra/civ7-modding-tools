@@ -3,7 +3,7 @@
   "id": "block_adapter_context_imports_from_domain_ops",
   "title": "Block Adapter Context Imports From Domain Ops",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
     "category": "boundary",
     "artifactKind": "check"

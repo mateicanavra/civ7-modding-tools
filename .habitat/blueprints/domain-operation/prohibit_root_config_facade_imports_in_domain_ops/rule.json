@@ -3,7 +3,7 @@
   "id": "prohibit_root_config_facade_imports_in_domain_ops",
   "title": "Prohibit Root Config Facade Imports In Domain Ops",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
     "category": "execution",
     "artifactKind": "check"

@@ -3,7 +3,7 @@
   "id": "require_domain_ops_root_presence",
   "title": "Require Domain Ops Root Presence",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
     "category": "structure",
     "artifactKind": "check"

@@ -3,7 +3,7 @@
   "id": "prohibit_cross_op_runtime_calls",
   "title": "Prohibit Cross Op Runtime Calls",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
     "category": "execution",
     "artifactKind": "check"

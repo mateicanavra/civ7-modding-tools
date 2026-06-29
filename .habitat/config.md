@@ -98,7 +98,7 @@ Structural transition. A migrate operation answers how Habitat may move authored
 
 - Artifact kind names are verbs: `check`, `fix`, `generate`, `migrate`.
 - Category names are single-word universal purposes: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, `policy`.
-- Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
+- Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domains`.
 - Current blueprint placement labels are transitional evidence. Do not promote a
   label such as `standard-recipe`, `domain-public-surface`, `map-projection`,
   or `ensure_studio_worker_bundle_is_browser_safe` into an accepted blueprint

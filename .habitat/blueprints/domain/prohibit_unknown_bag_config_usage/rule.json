@@ -3,7 +3,7 @@
   "id": "prohibit_unknown_bag_config_usage",
   "title": "Prohibit Unknown Bag Config Usage",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
     "category": "contract",
     "artifactKind": "check"

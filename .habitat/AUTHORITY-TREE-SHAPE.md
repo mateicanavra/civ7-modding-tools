@@ -83,7 +83,9 @@ The path above `_blueprints/` or `rules/` is the authored jurisdiction. It
 answers where in this repository's governed ecosystem the candidate or
 remainder authority currently belongs.
 Examples include `global/workspace`, `docs`, `habitat/toolkit`,
-`civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
+`civ7/platform`, `civ7/resources`, and `civ7/mapgen/domains`.
+The plural `domains` lane is intentional: it is the MapGen domain-family niche,
+not the affirmed singular `domain` blueprint under top-level `blueprints/`.
 
 Niches may nest when the language and authority become more specific. A niche
 is not itself assumed to be buildable. It may contain `rules/`, `_remainder/`,
@@ -131,16 +133,16 @@ Known transitional misfits, not blueprint exemplars:
   is the bounded current-recipe context for concrete Swooper Maps standard
   recipe evidence. Treat it as instance/context material until the rule is
   generalized under a recipe, recipe-stage, or recipe-step blueprint.
-- `civ7/mapgen/domain/foundation/rules` and
-  `civ7/mapgen/domain/ecology/rules` are current concrete-domain context
+- `civ7/mapgen/domains/foundation/rules` and
+  `civ7/mapgen/domains/ecology/rules` are current concrete-domain context
   rules, not accepted blueprints by label inheritance. Foundation currently has
   both intentional context rules and sorted deferred packets; do not collapse
   those lanes.
-- `civ7/mapgen/domain/morphology/_remainder` is the first reviewed
+- `civ7/mapgen/domains/morphology/_remainder` is the first reviewed
   concrete-domain remainder. Its packets have been sorted out of intentional
   `rules/` authority but are not final owners; treat them as visible debt for
   later movement, split, consolidation, projection, or retirement.
-- `civ7/mapgen/domain/foundation/_remainder` contains reviewed foundation
+- `civ7/mapgen/domains/foundation/_remainder` contains reviewed foundation
   packets that are not final context authority: mixed recipe-step plus
   operation-contract predicates, projection implementation cleanup,
   strategy-file locality pressure, and rules-index shim cleanup.

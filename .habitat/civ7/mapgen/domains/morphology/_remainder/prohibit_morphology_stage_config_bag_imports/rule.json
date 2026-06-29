@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_morphology_stage_config_bag_imports",
+  "title": "Prohibit Morphology Stage Config Bag Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domains/morphology",
+    "blueprint": "_remainder",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "@mapgen/domain/config in morphology stage files",
+  "why": "Morphology stage source should consume typed contract and artifact surfaces instead of the legacy domain config bag.",
+  "remediate": null,
+  "message": "Do not import @mapgen/domain/config from morphology stage files.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_stage_config_bag_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_stage_config_bag_imports/pattern.md"
+    },
+    "patternName": "prohibit_morphology_stage_config_bag_imports"
+  }
+}

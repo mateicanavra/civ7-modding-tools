@@ -3,7 +3,7 @@
   "id": "restrict_recipes_to_public_domain_surfaces",
   "title": "Restrict Recipes To Public Domain Surfaces",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"

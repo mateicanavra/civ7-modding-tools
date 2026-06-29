@@ -13,7 +13,7 @@ The current layout has four packet lanes:
 ```
 
 - Top-level `blueprints/` contains affirmed constructible kind authority.
-- `<niche>` is the authored jurisdiction, such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, or `civ7/mapgen/domain`.
+- `<niche>` is the authored jurisdiction, such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, or `civ7/mapgen/domains`.
 - `_blueprints/` is a niche-local candidate/likeness container. It visually
   marks blueprint-shaped packets that have not yet been affirmed as real
   blueprint authority.
@@ -22,7 +22,7 @@ The current layout has four packet lanes:
 - `_remainder/` is sorted-but-deferred inventory after slice review. It is not
   a niche, blueprint, capability, or final ontology lane.
 - `<child-niche>` is a narrower jurisdiction nested inside its parent, such as
-  `civ7/mapgen/domain/foundation`. A child niche may have its own `rules/`,
+  `civ7/mapgen/domains/foundation`. A child niche may have its own `rules/`,
   `_blueprints/`, `_remainder/`, and further child niches.
 - Category and artifact kind live in `rule.json` placement metadata, not in
   physical directories.

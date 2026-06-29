@@ -3,7 +3,7 @@
   "id": "prohibit_recipe_imports_in_domain_source",
   "title": "Prohibit Recipe Imports In Domain Source",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"

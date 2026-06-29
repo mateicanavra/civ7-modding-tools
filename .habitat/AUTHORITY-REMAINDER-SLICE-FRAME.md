@@ -345,8 +345,8 @@ mechanical destination or trigger.
 The first method seed was the Morphology Remainder Pocket:
 
 ```text
-.habitat/civ7/mapgen/domain/morphology/rules/**       # starting pocket when intentional context exists
-.habitat/civ7/mapgen/domain/morphology/_remainder/**  # sorted result
+.habitat/civ7/mapgen/domains/morphology/rules/**       # starting pocket when intentional context exists
+.habitat/civ7/mapgen/domains/morphology/_remainder/**  # sorted result
 mods/mod-swooper-maps/src/domain/morphology/**
 ```
 
@@ -389,8 +389,8 @@ Resulting reusable lesson:
 The second method seed was the Foundation Remainder Pocket:
 
 ```text
-.habitat/civ7/mapgen/domain/foundation/rules/**        # intentional context result
-.habitat/civ7/mapgen/domain/foundation/_remainder/**   # sorted deferred result
+.habitat/civ7/mapgen/domains/foundation/rules/**        # intentional context result
+.habitat/civ7/mapgen/domains/foundation/_remainder/**   # sorted deferred result
 mods/mod-swooper-maps/src/domain/foundation/**
 ```
 

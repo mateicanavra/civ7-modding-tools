@@ -91,7 +91,7 @@ blueprint, category, artifact kind, or authored policy root.
 | `civ7/mapgen/core/**` | MapGen core library authority. |
 | `civ7/mapgen/sdk/**` | MapGen SDK entrypoint authority. |
 | `civ7/mapgen/visualization/**` | MapGen visualization/runtime dependency authority. |
-| `civ7/mapgen/domain/**` | MapGen domain model boundaries, contracts, and runtime capability discipline. |
+| `civ7/mapgen/domains/**` | MapGen domain model boundaries, contracts, and runtime capability discipline. |
 | `civ7/mapgen/pipeline/**` | Standard stage, recipe, runtime validation, and pipeline policy. |
 | `civ7/mapgen/map-output/**` | Map output contracts, generated entrypoints, projection callsites, and shipped catalogs. |
 | `civ7/mapgen/studio/**` | Studio integration, recipe artifacts, worker safety, and dev runner topology. |

@@ -46,7 +46,7 @@ when deciding what is a constructible kind.
 Domino 21 moved one rule packet:
 
 - `prohibit_domain_ops_projection_effect_dependencies` moved from
-  `civ7/mapgen/map-output` / `map-projection` to `civ7/mapgen/domain` /
+  `civ7/mapgen/map-output` / `map-projection` to `civ7/mapgen/domains` /
   `domain-operation`.
 
 The move preserves the rule `id`, runner behavior, pattern source, and
@@ -69,7 +69,7 @@ Moving them now would preserve foundation cleanup as operation-kind ontology.
 
 In:
 
-- `.habitat/civ7/mapgen/domain/**` rule manifests that are directly about
+- `.habitat/civ7/mapgen/domains/**` rule manifests that are directly about
   domain operation modules, operation-internal strategy files, or operation-local
   boundaries.
 - Narrow adjacent rows from `pipeline/_self` and `map-output/map-projection`
@@ -148,7 +148,7 @@ Corpus facts observed before this spec:
 - Some foundation operation modules lack `strategies/index.ts`; that is current
   topology evidence, not a reason to weaken the operation blueprint.
 
-Current `.habitat/civ7/mapgen/domain` manifest counts by placement:
+Current `.habitat/civ7/mapgen/domains` manifest counts by placement:
 
 ```text
 domain-operation: 7
@@ -228,7 +228,7 @@ It must not promote:
 
 ## Current Contexts To Preserve
 
-### `civ7/mapgen/domain`
+### `civ7/mapgen/domains`
 
 Use the domain niche as the coarse context for cross-domain or domain-wide
 rules that cannot truthfully be owned by one blueprint yet.

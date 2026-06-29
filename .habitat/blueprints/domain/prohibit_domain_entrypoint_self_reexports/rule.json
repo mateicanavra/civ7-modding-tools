@@ -3,7 +3,7 @@
   "id": "prohibit_domain_entrypoint_self_reexports",
   "title": "Prohibit Domain Entrypoint Self Reexports",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_hydrology_climate_intervention_tokens",
+  "title": "Prohibit Hydrology Climate Intervention Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "_self",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "climate.swatches and climate.story authored in hydrology surfaces",
+  "why": "Narrative intervention tokens do not belong in hydrology domain or hydrology runtime stage authority.",
+  "remediate": null,
+  "message": "Do not author narrative climate intervention tokens in hydrology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/hydrology/**",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-*"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/hydrology",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domains/rules/prohibit_hydrology_climate_intervention_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domains/rules/prohibit_hydrology_climate_intervention_tokens/pattern.md"
+    },
+    "patternName": "prohibit_hydrology_climate_intervention_tokens"
+  }
+}

@@ -3,7 +3,7 @@
   "id": "require_public_domain_surfaces_in_tests",
   "title": "Require Public Domain Surfaces In Tests",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
     "category": "boundary",
     "artifactKind": "check"

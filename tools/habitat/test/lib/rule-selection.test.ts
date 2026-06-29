@@ -285,13 +285,13 @@ describe("rule selector boundary", () => {
     await Effect.runPromise(
       executeCommandRulesEffect(
         [
-          fakeCommandRule("direct-bun", ".habitat/civ7/mapgen/domain/rules/direct/check.ts", "bun"),
+          fakeCommandRule("direct-bun", ".habitat/civ7/mapgen/domains/rules/direct/check.ts", "bun"),
           fakeCommandRule(
             "direct-js",
-            ".habitat/civ7/mapgen/domain/rules/direct/check.mjs",
+            ".habitat/civ7/mapgen/domains/rules/direct/check.mjs",
             "node"
           ),
-          fakeCommandRule("direct-sh", ".habitat/civ7/mapgen/domain/rules/direct/check.sh", "bash"),
+          fakeCommandRule("direct-sh", ".habitat/civ7/mapgen/domains/rules/direct/check.sh", "bash"),
         ],
         results,
         {
@@ -310,15 +310,15 @@ describe("rule selector boundary", () => {
     expect(requests).toEqual([
       {
         executable: "bun",
-        argv: [".habitat/civ7/mapgen/domain/rules/direct/check.ts"],
+        argv: [".habitat/civ7/mapgen/domains/rules/direct/check.ts"],
       },
       {
         executable: "node",
-        argv: [".habitat/civ7/mapgen/domain/rules/direct/check.mjs"],
+        argv: [".habitat/civ7/mapgen/domains/rules/direct/check.mjs"],
       },
       {
         executable: "bash",
-        argv: [".habitat/civ7/mapgen/domain/rules/direct/check.sh"],
+        argv: [".habitat/civ7/mapgen/domains/rules/direct/check.sh"],
       },
     ]);
     expect([...results.keys()].sort()).toEqual(["direct-bun", "direct-js", "direct-sh"]);

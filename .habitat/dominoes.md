@@ -114,10 +114,10 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 23. Split Affirmed Blueprints From Candidates | Affirmed Recipe and Domain Operation pockets moved to top-level `.habitat/blueprints/`; not-yet-affirmed niche-local blueprint-shaped inventories were renamed `_blueprints/` so they no longer visually claim blueprint authority. |
 | 24. Move the Domain Kind Pocket | Domain public-surface and direct domain-root rules moved into affirmed `.habitat/blueprints/domain/`; the mixed config validator stayed contextual, and the standard-recipe tag cleanup moved to the standard-recipe context instead of becoming domain authority. |
 | 25. Frame contextual remainder slices | `AUTHORITY-REMAINDER-SLICE-FRAME.md` now governs how to reassess concrete-context remainders after parent kinds have moved, with morphology selected as the first method seed. |
-| 26. Move the Morphology Remainder Pocket | All twelve morphology-domain primary rows were reviewed and physically moved to `.habitat/civ7/mapgen/domain/morphology/_remainder/`; their manifests now mark `placement.blueprint` as `_remainder`, none fit `domain` or `domain-operation` as whole-rule authority, and none remained honest intentional `morphology/rules` authority. |
-| 27. Move the Foundation Remainder Pocket | The foundation-domain pocket was reviewed against `domain` and `domain-operation`; six rules stayed as intentional foundation currentness or retired-token context, six rules moved to `.habitat/civ7/mapgen/domain/foundation/_remainder/`, and no foundation label, strategy-file row, or legacy cleanup row was promoted into blueprint authority. |
-| 28. Normalize Niche Child Context Lanes | Concrete domain contexts now live as child niches under `.habitat/civ7/mapgen/domain/`: `foundation/rules`, `foundation/_remainder`, `morphology/_remainder`, and `ecology/rules`. The move removes context directories from under `rules/` or root `_remainder/` without changing rule identity or behavior. |
-| 29. Sort Direct Foundation Domain Rows | The remaining direct `prohibit_foundation_*` rows under parent `.habitat/civ7/mapgen/domain/rules/` were reviewed and physically sorted: two moved to `.habitat/civ7/mapgen/domain/foundation/rules/`, six moved to `.habitat/civ7/mapgen/domain/foundation/_remainder/`, none stayed parent-domain authority, and none moved to `domain` or `domain-operation`. |
+| 26. Move the Morphology Remainder Pocket | All twelve morphology-domain primary rows were reviewed and physically moved to `.habitat/civ7/mapgen/domains/morphology/_remainder/`; their manifests now mark `placement.blueprint` as `_remainder`, none fit `domain` or `domain-operation` as whole-rule authority, and none remained honest intentional `morphology/rules` authority. |
+| 27. Move the Foundation Remainder Pocket | The foundation-domain pocket was reviewed against `domain` and `domain-operation`; six rules stayed as intentional foundation currentness or retired-token context, six rules moved to `.habitat/civ7/mapgen/domains/foundation/_remainder/`, and no foundation label, strategy-file row, or legacy cleanup row was promoted into blueprint authority. |
+| 28. Normalize Niche Child Context Lanes | Concrete domain contexts now live as child niches under `.habitat/civ7/mapgen/domains/`: `foundation/rules`, `foundation/_remainder`, `morphology/_remainder`, and `ecology/rules`. The move removes context directories from under `rules/` or root `_remainder/` without changing rule identity or behavior. |
+| 29. Sort Direct Foundation Domain Rows | The remaining direct `prohibit_foundation_*` rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: two moved to `.habitat/civ7/mapgen/domains/foundation/rules/`, six moved to `.habitat/civ7/mapgen/domains/foundation/_remainder/`, none stayed parent-domain authority, and none moved to `domain` or `domain-operation`. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -126,7 +126,7 @@ changed what the next agent should do; they are not the active plan.
 
 This table is a receipt for physical sorting, not a second authority surface.
 Every row below now lives under
-`.habitat/civ7/mapgen/domain/morphology/_remainder/` and uses
+`.habitat/civ7/mapgen/domains/morphology/_remainder/` and uses
 `placement.blueprint: "_remainder"` so the manifest does not continue claiming
 `morphology-domain` as blueprint authority.
 
@@ -148,9 +148,9 @@ Every row below now lives under
 ## Domino 27 Disposition Receipt
 
 This table is a receipt for physical sorting, not a second authority surface.
-Rows retained under `.habitat/civ7/mapgen/domain/foundation/rules/`
+Rows retained under `.habitat/civ7/mapgen/domains/foundation/rules/`
 are intentional foundation-context authority. Rows moved under
-`.habitat/civ7/mapgen/domain/foundation/_remainder/` use
+`.habitat/civ7/mapgen/domains/foundation/_remainder/` use
 `placement.blueprint: "_remainder"` so the manifest does not continue claiming
 final foundation-context ownership.
 
@@ -179,10 +179,10 @@ and points inside the row's physical lane.
 
 This table is a receipt for physical sorting, not a second authority surface.
 Every direct `prohibit_foundation_*` row that started under parent
-`.habitat/civ7/mapgen/domain/rules/` has now moved out of that parent lane.
-Rows retained under `.habitat/civ7/mapgen/domain/foundation/rules/` are
+`.habitat/civ7/mapgen/domains/rules/` has now moved out of that parent lane.
+Rows retained under `.habitat/civ7/mapgen/domains/foundation/rules/` are
 intentional foundation-context authority. Rows moved under
-`.habitat/civ7/mapgen/domain/foundation/_remainder/` use
+`.habitat/civ7/mapgen/domains/foundation/_remainder/` use
 `placement.blueprint: "_remainder"` and remain reviewed but not final.
 
 | Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
@@ -198,10 +198,10 @@ intentional foundation-context authority. Rows moved under
 
 ## Remaining Dominoes
 
-### 30. Sort Remaining Direct Domain Rows
+### 30. Sort Remaining Direct Domains-Lane Rows
 
 Purpose: reassess the remaining direct rows under
-`.habitat/civ7/mapgen/domain/rules/` now that foundation-specific rows no
+`.habitat/civ7/mapgen/domains/rules/` now that foundation-specific rows no
 longer obscure the parent lane.
 
 Done Means:

@@ -3,7 +3,7 @@
   "id": "prohibit_domain_ops_projection_effect_dependencies",
   "title": "Prohibit Domain Ops Projection Effect Dependencies",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
     "category": "boundary",
     "artifactKind": "check"
