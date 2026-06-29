@@ -103,41 +103,49 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 17. Make rule manifests location independent | `rule.json` now owns stable rule identity, current placement inventory facts, explicit runner file references, and explicit artifact references; Toolkit discovery no longer depends on the packet path grammar. |
 | 18. Frame bounded authority slice work | `AUTHORITY-SLICE-FRAME.md` now governs bounded kind-family slices, supersedes broad pilot-corpus selection, and sets the Recipe Kind Pocket as the first working example. |
 | 19. Move the Recipe Kind Pocket | Standard-recipe evidence was physically moved into `recipe`, `recipe-stage`, `recipe-step`, `swooper-maps-standard-recipe`, and coarse `mapgen-pipeline` contexts while preserving rule IDs and execution behavior. |
+| 20. Select the Domain Operation Kind Pocket | Re-reading the changed Recipe slice selected `domain-operation` and bounded strategy-file pressure as the next slice; `AUTHORITY-DOMAIN-OPERATION-SLICE.md` now specifies the implementation boundary. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
 
-### 20. Re-Read The Changed Recipe Slice
+### 21. Move The Domain Operation Kind Pocket
 
-Purpose: let the changed structure, not the old corpus, select the next
-bounded slice.
+Purpose: admit the next bounded kind family exposed by the Recipe Kind Pocket:
+domain operation modules, with strategy-file rules treated as operation-internal
+pressure unless the source order proves otherwise.
 
 Done Means:
 
-- The moved recipe slice is inspected for residual context, capability, niche,
-  or adjacent-kind pressure.
-- The next slice is selected from what the moved structure makes clearer.
-- Any general lesson is folded into `AUTHORITY-SLICE-FRAME.md`.
+- Existing `domain-operation` rules are preserved or corrected as operation
+  blueprint governance.
+- Misplaced adjacent rules named in `AUTHORITY-DOMAIN-OPERATION-SLICE.md` are
+  moved, rejected with evidence, or left contextual with explicit rationale.
+- Strategy-file rules are moved only as `domain-operation` subcomponent
+  governance or left contextual with consolidation pressure named.
+- Rule IDs, runner files, baselines, and behavior are preserved.
 
 Moves It Forward:
 
-- Prevents broad corpus snapshots from freezing old relationships.
-- Decides whether the next bounded pocket is domain operation, operation
-  strategy, map projection, generated map entrypoint, or recipe instance
-  admission.
+- Moves from the Recipe slice's adjacent dependency pressure into a second
+  constructible kind pocket.
+- Prevents foundation/morphology/ecology labels from becoming blueprints by
+  path inheritance.
+- Makes later recipe-step, map projection, and domain-context cleanup easier by
+  clarifying the operation boundary first.
 
 Dependencies:
 
-- Domino 19 moved and proved the recipe slice.
+- Domino 20 selected and specified the slice.
 
 Proof:
 
-- The next selected slice references concrete pressure from the changed recipe
-  structure, not a pre-existing all-rule ledger.
+- Focused moved-rule checks pass.
+- Static scans show moved manifests have no stale old file references.
+- Review finds no P1/P2 ontology drift or duplicate-authority residue.
 
-### 21. Repeat Bounded Kind-Family Slices
+### 22. Repeat Bounded Kind-Family Slices
 
 Purpose: continue the same method across adjacent kind families.
 
@@ -155,14 +163,14 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 20 selected the next bounded slice.
+- Domino 21 moved the Domain Operation Kind Pocket.
 
 Proof:
 
 - Each slice has focused proof and leaves a clearer owner map than it started
   with.
 
-### 22. Build Narrow Projection From Moved Authority
+### 23. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -185,7 +193,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 21 has repeated bounded slices enough to expose projection needs.
+- Domino 22 has repeated bounded slices enough to expose projection needs.
 
 Proof:
 
@@ -193,7 +201,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 23. Prune Transitional Packet Metadata For Moved Slices
+### 24. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -215,7 +223,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 22 proved projection can run from moved authority.
+- Domino 23 proved projection can run from moved authority.
 - Duplicated facts have been identified before deletion.
 
 Proof:
@@ -224,7 +232,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 24. Repeat Activation Slices
+### 25. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -246,8 +254,8 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 23 completed the first migrated slice.
-- The first moved slice has a clear copyable pattern or named failure mode.
+- Domino 24 pruned transitional metadata for moved slices.
+- The first moved slices have a clear copyable pattern or named failure mode.
 
 Proof:
 
@@ -255,7 +263,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 25. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 26. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.
@@ -278,7 +286,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 24 proves the activation model across multiple slices.
+- Domino 25 proves the activation model across multiple slices.
 - There is enough admitted authority to define default discovery honestly.
 
 Proof:
