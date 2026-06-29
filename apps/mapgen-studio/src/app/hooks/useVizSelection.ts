@@ -68,6 +68,8 @@ export type UseVizSelectionResult = {
   eraRange: { min: number; max: number } | null;
   eraDisplayValue: number;
   riverLakeInspectorSummary: ReturnType<typeof buildRiverLakeFloodplainInspectorSummary>;
+  /** Single-owner navigation facade (§7.2): select a stage + (explicit/first) step. */
+  navigateTo: (stageId: string, stepId?: string) => void;
   handleStageChange: (stageId: string) => void;
   handleStepChange: (stepId: string) => void;
   handleDataTypeChange: (next: string) => void;
@@ -409,17 +411,36 @@ export function useVizSelection({
     [dataTypeModel, viz]
   );
 
+  // `navigateTo` is the single-owner entry for STAGE navigation (§7.2): it selects a
+  // stage and coordinates its step — either an explicit step or the stage's first.
+  // The viz step/layer follow via the stage/step → viz-sync effect above.
+  // `handleStageChange` routes through it; a within-stage step change is a direct
+  // step write (handleStepChange) — it needs no stage coordination, and routing it
+  // here would add a redundant same-value `setSelectedStageId` notification.
+  const navigateTo = useCallback(
+    (stageId: string, stepId?: string) => {
+      setSelectedStageId(stageId);
+      if (stepId !== undefined) {
+        setSelectedStepId(stepId);
+        return;
+      }
+      const stageMeta = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === stageId);
+      setSelectedStepId(stageMeta?.steps[0]?.fullStepId ?? "");
+    },
+    [recipeArtifacts.uiMeta.stages]
+  );
+
   const handleStageChange = useCallback(
     (stageId: string) => {
-      setSelectedStageId(stageId);
-      const stage = stages.find((s) => s.value === stageId);
-      if (!stage) return;
-
-      const stageMeta = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === stageId);
-      const nextStep = stageMeta?.steps[0]?.fullStepId ?? "";
-      setSelectedStepId(nextStep);
+      // Preserve the original guard: an unknown stage still selects the stage but
+      // does NOT reset the step; only a valid stage takes the default-step path.
+      if (!stages.some((s) => s.value === stageId)) {
+        setSelectedStageId(stageId);
+        return;
+      }
+      navigateTo(stageId);
     },
-    [recipeArtifacts.uiMeta.stages, stages]
+    [navigateTo, stages]
   );
 
   const handleStepChange = useCallback((stepId: string) => setSelectedStepId(stepId), []);
@@ -546,6 +567,7 @@ export function useVizSelection({
     eraRange,
     eraDisplayValue,
     riverLakeInspectorSummary,
+    navigateTo,
     handleStageChange,
     handleStepChange,
     handleDataTypeChange,
