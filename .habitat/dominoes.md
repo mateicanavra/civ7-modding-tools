@@ -117,6 +117,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 26. Move the Morphology Remainder Pocket | All twelve morphology-domain primary rows were reviewed and physically moved to `.habitat/civ7/mapgen/domain/morphology/_remainder/`; their manifests now mark `placement.blueprint` as `_remainder`, none fit `domain` or `domain-operation` as whole-rule authority, and none remained honest intentional `morphology/rules` authority. |
 | 27. Move the Foundation Remainder Pocket | The foundation-domain pocket was reviewed against `domain` and `domain-operation`; six rules stayed as intentional foundation currentness or retired-token context, six rules moved to `.habitat/civ7/mapgen/domain/foundation/_remainder/`, and no foundation label, strategy-file row, or legacy cleanup row was promoted into blueprint authority. |
 | 28. Normalize Niche Child Context Lanes | Concrete domain contexts now live as child niches under `.habitat/civ7/mapgen/domain/`: `foundation/rules`, `foundation/_remainder`, `morphology/_remainder`, and `ecology/rules`. The move removes context directories from under `rules/` or root `_remainder/` without changing rule identity or behavior. |
+| 29. Sort Direct Foundation Domain Rows | The remaining direct `prohibit_foundation_*` rows under parent `.habitat/civ7/mapgen/domain/rules/` were reviewed and physically sorted: two moved to `.habitat/civ7/mapgen/domain/foundation/rules/`, six moved to `.habitat/civ7/mapgen/domain/foundation/_remainder/`, none stayed parent-domain authority, and none moved to `domain` or `domain-operation`. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -174,49 +175,70 @@ and points inside the row's physical lane.
 | `prohibit_removed_foundation_profile_config_tokens` | honest foundation context | `foundation/rules` | `pattern.md` scans foundation domain, foundation stages, and maps for retired profile/config token names. | The rule protects foundation's current transition vocabulary and is not a domain-wide config ontology. | selected-rule Grit proof passed; path refs exist | Retired config-token history can be honest context when the context owns that migration history. |
 | `prohibit_removed_foundation_wrap_polar_maturity_tokens` | honest foundation context | `foundation/rules` | `pattern.md` scans foundation domain, foundation stages, and maps for retired wrap, polar, and maturity token names. | The rule is a foundation-specific retired-token guard, not a reusable `domain` or `domain-operation` invariant. | selected-rule Grit proof passed; path refs exist | Do not move concrete-domain token history to a kind just because it scans operation files. |
 
+## Domino 29 Disposition Receipt
+
+This table is a receipt for physical sorting, not a second authority surface.
+Every direct `prohibit_foundation_*` row that started under parent
+`.habitat/civ7/mapgen/domain/rules/` has now moved out of that parent lane.
+Rows retained under `.habitat/civ7/mapgen/domain/foundation/rules/` are
+intentional foundation-context authority. Rows moved under
+`.habitat/civ7/mapgen/domain/foundation/_remainder/` use
+`placement.blueprint: "_remainder"` and remain reviewed but not final.
+
+| Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
+| --- | --- | --- | --- | --- | --- | --- |
+| `prohibit_foundation_decomposed_ops_legacy_internal_imports` | honest foundation context | `foundation/rules` | `pattern.md` scans decomposed foundation tectonics operation directories for legacy `compute-tectonic-history` internal imports. | The rule protects foundation's specific decomposed-operation migration history; it is not parent `domain` or reusable `domain-operation` authority as a whole. | selected-rule Grit proof passed; path refs exist | Foundation-specific decomposition currentness can stay contextual when the row guards one concrete migration history. |
+| `prohibit_foundation_legacy_aggregate_tectonic_op_surface` | honest foundation context | `foundation/rules` | `pattern.md` scans foundation `ops/contracts.ts` and `ops/index.ts` for the retired aggregate tectonic-history op surface. | The rule is a foundation op-registry companion to the existing aggregate-history context guard, not a domain-wide contract. | selected-rule Grit proof passed; path refs exist | A concrete context can own sharper companion guards around its retired public surfaces. |
+| `prohibit_foundation_duplicate_math_helper_redefinitions` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans selected foundation operation strategies, indexes, and projection helpers for duplicated clamp/math helper declarations. | The row is helper-surface consolidation pressure around canonical foundation math helpers, not final context authority or operation-kind law. | selected-rule Grit proof passed; path refs exist | Helper consolidation rows should defer until the positive helper/import surface is named. |
+| `prohibit_foundation_rules_tectonics_shim_reexports` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans decomposed foundation operation `rules/**/*.ts` for shared `lib/tectonics` re-export shims. | This is a stronger rules-index shim cleanup row overlapping existing foundation `_remainder`; moving it to `domain-operation` would promote operation-internal path grammar. | selected-rule Grit proof passed; path refs exist | Stronger duplicate rows can move to `_remainder` without pretending the final consolidation happened. |
+| `prohibit_foundation_stage_cast_merge_hacks` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans standard-recipe foundation stage indexes for wrapper-era cast/merge fallback fragments. | The row is foundation stage cleanup and overlaps existing advanced-cast remainder pressure; it does not govern valid domains or operations generally. | selected-rule Grit proof passed; path refs exist | Recipe-stage cleanup tied to one concrete domain should not stay in parent domain rules. |
+| `prohibit_foundation_stage_sentinel_passthrough` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans standard-recipe foundation stage indexes for retired Studio sentinel passthrough tokens. | The row is a subset of stage cleanup pressure and has no final owner until recipe-stage/studio projection cleanup is addressed. | selected-rule Grit proof passed; path refs exist | Sentinel/studio passthrough rows are projection cleanup pressure, not domain authority by label. |
+| `prohibit_foundation_strategy_nonlocal_imports` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans decomposed foundation operation strategies for imports outside authoring, local contract, and local rules. | Strategy locality is operation-internal pressure, but this foundation-specific row cannot become `domain-operation` without admitting `operation-strategy` or a positive import-law surface. | selected-rule Grit proof passed; path refs exist | Strategy-file locality rows remain `_remainder` unless source proves whole-rule operation-kind authority. |
+| `prohibit_foundation_strategy_shared_tectonics_lib_imports` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans decomposed foundation operation strategies for direct shared `lib/tectonics` imports. | This is a narrower strategy shim cleanup row overlapped by the nonlocal-import rule and existing strategy-shim remainder pressure. | selected-rule Grit proof passed; path refs exist | Duplicate strategy shim guards should sort physically before later consolidation or retirement. |
+
 ## Remaining Dominoes
 
-### 29. Sort Direct Foundation Domain Rows
+### 30. Sort Remaining Direct Domain Rows
 
-Purpose: handle the immediate direct `prohibit_foundation_*` rows left under
-`.habitat/civ7/mapgen/domain/rules/` now that the foundation pocket has been
-separated into child-niche intentional context and `_remainder`.
+Purpose: reassess the remaining direct rows under
+`.habitat/civ7/mapgen/domain/rules/` now that foundation-specific rows no
+longer obscure the parent lane.
 
 Done Means:
 
-- Every direct `prohibit_foundation_*` row under
-  `.habitat/civ7/mapgen/domain/rules/` receives a disposition.
-- Rows that are duplicates or stronger versions of `foundation/_remainder`
-  packets are consolidated, moved to `foundation/_remainder`, or left as
-  the intentional owner with the duplicate pressure named.
-- Strategy and rules-index rows are still not promoted into `domain-operation`
-  unless the whole rule can be stated as operation-kind authority without
-  foundation-specific cleanup.
-- The disposition table matches the physical tree.
+- Every remaining direct parent-domain row receives a disposition.
+- Rows that truly govern the parent `domain` niche or affirmed `domain`
+  blueprint stay or move to that owner.
+- Rows that are actually hydrology, narrative, ecology, recipe, RNG, config,
+  import-law, or orchestration pressure move into the smallest honest child
+  niche, affirmed blueprint, or `_remainder` lane.
+- No direct context-specific row remains under parent `domain/rules` unless
+  the receipt explains why it is genuinely parent-domain authority.
 
 Moves It Forward:
 
-- Resolves the duplication surfaced during Domino 27 instead of leaving two
-  foundation cleanup planes active.
-- Makes the later ecology and non-foundation direct domain rows easier to read.
-- Keeps strategy-file/import-law pressure out of blueprint authority while the
-  correct projection surface remains open.
+- Cleans the parent domain lane after the domain, domain-operation,
+  morphology, foundation, and ecology child-context moves.
+- Exposes whether the next pocket should be hydrology, narrative, RNG
+  operation hygiene, or domain config/public-surface cleanup.
+- Prevents new blueprint slices from starting from a noisy parent-domain
+  remainder.
 
 Dependencies:
 
-- Domino 27 physically sorted the foundation-domain pocket.
-- Domino 28 moved that sorted pocket into the `domain/foundation` child niche.
-- Domain and domain-operation are affirmed, but operation-internal strategy
-  policy is not yet a separate blueprint.
+- Dominoes 24, 26, 27, 28, and 29 have already separated the major domain
+  parent, operation, morphology, foundation, and ecology evidence.
+- Do not create new blueprints from remaining row labels unless source proves
+  constructibility.
 
 Proof:
 
-- Focused selected-rule proof for moved or consolidated rows where applicable.
+- Focused selected-rule proof for moved rows where applicable.
 - Static scans prove moved manifests no longer point at stale paths.
-- Review pass confirms no strategy-file or foundation label was promoted to
-  blueprint authority by folder inheritance.
+- Review pass confirms context labels, runner labels, and defect labels were
+  not promoted into ontology by folder inheritance.
 
-### 30. Build Narrow Projection From Moved Authority
+### 31. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -247,7 +269,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 31. Prune Transitional Packet Metadata For Moved Slices
+### 32. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.

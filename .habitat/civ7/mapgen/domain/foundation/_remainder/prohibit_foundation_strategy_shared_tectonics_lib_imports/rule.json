@@ -3,8 +3,8 @@
   "id": "prohibit_foundation_strategy_shared_tectonics_lib_imports",
   "title": "Prohibit Foundation Strategy Shared Tectonics Lib Imports",
   "placement": {
-    "niche": "civ7/mapgen/domain",
-    "blueprint": "_self",
+    "niche": "civ7/mapgen/domain/foundation",
+    "blueprint": "_remainder",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,7 +17,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/strategies/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/strategies/**/*.ts"
+      ]
     }
   ],
   "scanRoots": [
@@ -32,12 +34,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_foundation_strategy_shared_tectonics_lib_imports/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/foundation/_remainder/prohibit_foundation_strategy_shared_tectonics_lib_imports/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_foundation_strategy_shared_tectonics_lib_imports/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/foundation/_remainder/prohibit_foundation_strategy_shared_tectonics_lib_imports/pattern.md"
     },
     "patternName": "prohibit_foundation_strategy_shared_tectonics_lib_imports"
   }

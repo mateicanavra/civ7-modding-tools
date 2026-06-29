@@ -3,7 +3,7 @@
   "id": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
   "title": "Prohibit Foundation Decomposed Ops Legacy Internal Imports",
   "placement": {
-    "niche": "civ7/mapgen/domain",
+    "niche": "civ7/mapgen/domain/foundation",
     "blueprint": "_self",
     "category": "boundary",
     "artifactKind": "check"
@@ -17,7 +17,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*"
+      ]
     }
   ],
   "scanRoots": [
@@ -32,12 +34,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/pattern.md"
     },
     "patternName": "prohibit_foundation_decomposed_ops_legacy_internal_imports"
   }
