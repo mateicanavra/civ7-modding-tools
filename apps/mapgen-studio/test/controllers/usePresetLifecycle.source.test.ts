@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import { describe, expect, it } from "vitest";
 import hookSource from "../../src/app/hooks/usePresetLifecycle.ts?raw";
+import runInGameSource from "../../src/app/hooks/useRunInGame.ts?raw";
 import saveDeploySource from "../../src/app/hooks/useSaveDeploy.ts?raw";
 import hostSource from "../../src/app/StudioShell.tsx?raw";
 
@@ -11,6 +12,10 @@ const hook = hookSource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, ""
 // The save handlers moved into `useSaveDeploy` (slice 2.9); the PL-7/PL-11
 // call-site ordering is now pinned against that hook's source.
 const saveDeploy = saveDeploySource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+// `syncStudioFromLiveGame` (the `applyAuthoringSnapshot` caller) moved into
+// `useRunInGame` (slice 2.11); the routing-through-the-contract assertion is now
+// pinned against that hook's source.
+const runInGame = runInGameSource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 
 describe("usePresetLifecycle source — Tier-A effects + sole-owner ref", () => {
   it("PL-3: the reseed effect (none-reset) is declared BEFORE the apply effect (Tier-A order)", () => {
@@ -99,6 +104,10 @@ describe("StudioShell source — 2.8 seam (preset lifecycle no longer host-owned
   });
 
   it("syncStudioFromLiveGame routes through applyAuthoringSnapshot (no inline 5-setter block)", () => {
-    expect(host).toMatch(/applyAuthoringSnapshot\(\{/);
+    // `syncStudioFromLiveGame` moved into `useRunInGame` (slice 2.11); the host now
+    // only threads `applyAuthoringSnapshot` IN. The contract-routing (no inline
+    // 5-setter block) is pinned against the run-in-game hook's source.
+    expect(runInGame).toMatch(/applyAuthoringSnapshot\(\{/);
+    expect(host).not.toMatch(/applyAuthoringSnapshot\(\{/);
   });
 });
