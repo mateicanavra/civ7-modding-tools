@@ -628,7 +628,7 @@ function baseRuleManifestPath(
   if (layout === "relocated-manifest") {
     return `.habitat/future/rule-inventory/${id}/rule.json`;
   }
-  return `.habitat/global/workspace/blueprints/project-boundary-model/${id}/rule.json`;
+  return `.habitat/global/workspace/_blueprints/project-boundary-model/${id}/rule.json`;
 }
 
 function commandResult(
@@ -674,14 +674,14 @@ function baseRuleRecord(id: string) {
     message: "fixture baseline authority diagnostic",
     pathCoverage: [{ kind: "workspace-gate" }],
     artifacts: {
-      baseline: `.habitat/global/workspace/blueprints/project-boundary-model/${id}/baseline.json`,
+      baseline: `.habitat/global/workspace/_blueprints/project-boundary-model/${id}/baseline.json`,
     },
     runner: {
       name: "habitat",
       mode: "script",
       runtime: "node",
       files: {
-        script: `.habitat/global/workspace/blueprints/project-boundary-model/${id}/check.mjs`,
+        script: `.habitat/global/workspace/_blueprints/project-boundary-model/${id}/check.mjs`,
       },
     },
   };

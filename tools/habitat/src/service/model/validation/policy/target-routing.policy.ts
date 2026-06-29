@@ -119,7 +119,7 @@ function isStructuralTargetDeclarationPath(filePath: string): boolean {
 function isServiceModuleShapeToolingPath(filePath: string): boolean {
   return (
     filePath ===
-      ".habitat/habitat/toolkit/blueprints/service-module/validate_habitat_service_module_file_shape/check.ts" ||
+      ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.ts" ||
     filePath.startsWith("tools/habitat/src/service/modules/")
   );
 }

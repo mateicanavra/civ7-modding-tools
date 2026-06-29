@@ -2,17 +2,20 @@
 
 This directory is the repository's authority tree for Habitat enforcement. The Habitat SDK code under `tools/habitat` manages, validates, and executes these artifacts, but package source, root scripts, tests, CI, hooks, and tool configs are not independent sources of enforcement truth.
 
-The current layout is a niche authority tree with two packet lanes:
+The current layout has three packet lanes:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
 .habitat/<niche>/rules/<context>/<packet>/
 ```
 
+- Top-level `blueprints/` contains affirmed constructible kind authority.
 - `<niche>` is the authored jurisdiction, such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, or `civ7/mapgen/domain`.
-- `<blueprint>` is the constructible kind or lifecycle-owned shape inside that
-  niche.
+- `_blueprints/` is a niche-local candidate/likeness container. It visually
+  marks blueprint-shaped packets that have not yet been affirmed as real
+  blueprint authority.
 - `rules/` is transitional rule inventory for niche-wide or current-context
   rules that must not be represented as blueprint authority.
 - `<context>` is a current-context grouping such as `foundation-domain` when

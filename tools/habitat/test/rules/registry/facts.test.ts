@@ -132,7 +132,7 @@ describe("rule registry facts", () => {
       ruleBaselineFacts([
         baseRule({
           exceptionPath:
-            ".habitat/civ7/platform/blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
+            ".habitat/civ7/platform/_blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
           runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
           scanRoots: ["packages"],
           hookCheck: true,
@@ -144,7 +144,7 @@ describe("rule registry facts", () => {
         id: "sample-rule",
         baselinePath: ".habitat/fixtures/rules/sample-rule/baseline.json",
         exceptionPath:
-          ".habitat/civ7/platform/blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
+          ".habitat/civ7/platform/_blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
       },
     ]);
   });

@@ -257,10 +257,10 @@ Primary evidence input:
 Secondary evidence input, only when needed by a recipe/stage/step rule:
 
 - `.habitat/civ7/mapgen/pipeline/rules/**`
-- `.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/**`
+- `.habitat/civ7/mapgen/domain/_blueprints/domain-public-surface/**`
 - `.habitat/civ7/mapgen/domain/rules/*/**` rows that point
   directly at recipe stage or step contracts.
-- `.habitat/civ7/mapgen/map-output/blueprints/map-projection/**` rows that
+- `.habitat/civ7/mapgen/map-output/_blueprints/map-projection/**` rows that
   point directly at recipe projection steps.
 
 Do not include all MapGen domain, map-output, studio, SDK, visualization, or

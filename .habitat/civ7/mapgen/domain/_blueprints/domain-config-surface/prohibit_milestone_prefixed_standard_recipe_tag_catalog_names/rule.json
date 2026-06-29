@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_milestone_prefixed_standard_recipe_tag_catalog_names",
+  "title": "Prohibit Milestone Prefixed Standard Recipe Tag Catalog Names",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "domain-config-surface",
+    "category": "contract",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "M<number>_*TAGS and M<number>_CANONICAL_* catalog names in standard recipe source",
+  "why": "Standard recipe tag catalogs are owned by concern, not by migration milestone.",
+  "remediate": null,
+  "message": "Name standard recipe tag catalogs by owner concern, not by milestone.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/_blueprints/domain-config-surface/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/_blueprints/domain-config-surface/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md"
+    },
+    "patternName": "prohibit_milestone_prefixed_standard_recipe_tag_catalog_names"
+  }
+}

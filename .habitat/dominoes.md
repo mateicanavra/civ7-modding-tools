@@ -105,14 +105,15 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 19. Move the Recipe Kind Pocket | Standard-recipe evidence was physically moved into `recipe`, `recipe-stage`, `recipe-step`, `swooper-maps-standard-recipe`, and coarse `mapgen-pipeline` contexts while preserving rule IDs and execution behavior. |
 | 20. Select the Domain Operation Kind Pocket | Re-reading the changed Recipe slice selected `domain-operation` and bounded strategy-file pressure as the next slice; `AUTHORITY-DOMAIN-OPERATION-SLICE.md` now specifies the implementation boundary. |
 | 21. Move the Domain Operation Kind Pocket | The misplaced map projection/effect dependency guard moved into `domain-operation`; foundation strategy rows stayed contextual with consolidation pressure instead of becoming blueprints by path inheritance. |
-| 22. Unnest Rule Packet Paths | Category and artifact-kind directories were removed from live packet paths; real or still-plausible blueprint owners stayed under `blueprints/<owner>/<packet>`, while `_self` and explicit current-context inventories moved under `rules`. |
+| 22. Unnest Rule Packet Paths | Category and artifact-kind directories were removed from live packet paths, leaving location-independent manifests in flatter blueprint/context lanes. |
+| 23. Split Affirmed Blueprints From Candidates | Affirmed Recipe and Domain Operation pockets moved to top-level `.habitat/blueprints/`; not-yet-affirmed niche-local blueprint-shaped inventories were renamed `_blueprints/` so they no longer visually claim blueprint authority. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
 
-### 23. Repeat Bounded Kind-Family Slices
+### 24. Repeat Bounded Kind-Family Slices
 
 Purpose: continue the same method across adjacent kind families.
 
@@ -130,15 +131,16 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 22 removed category/artifact-kind physical nesting without demoting
-  actual blueprint pockets.
+- Domino 22 removed category/artifact-kind physical nesting.
+- Domino 23 separated affirmed blueprint authority from candidate
+  blueprint-shaped inventory.
 
 Proof:
 
 - Each slice has focused proof and leaves a clearer owner map than it started
   with.
 
-### 24. Build Narrow Projection From Moved Authority
+### 25. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -161,7 +163,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 23 has repeated bounded slices enough to expose projection needs.
+- Domino 24 has repeated bounded slices enough to expose projection needs.
 
 Proof:
 
@@ -169,7 +171,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 25. Prune Transitional Packet Metadata For Moved Slices
+### 26. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.

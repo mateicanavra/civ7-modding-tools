@@ -41,7 +41,8 @@ tools, artifact kinds, current defect names, or narrow product handles.
 The current physical hierarchy is:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
 .habitat/<niche>/rules/<context>/<packet>/
 ```

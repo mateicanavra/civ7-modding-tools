@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "validate_generated_map_entrypoint_contracts",
+  "title": "Validate Generated Map Entrypoint Contracts",
+  "placement": {
+    "niche": "civ7/mapgen/map-output",
+    "blueprint": "generated-map-entrypoint",
+    "category": "artifact",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "generated map entrypoints that drift from canonical public config envelopes or inline raw recipe operation envelopes",
+  "why": "Generated map entrypoints are a structural SDK surface and must remain tied to canonical config JSON inputs.",
+  "remediate": "Regenerate map entrypoints from canonical map configs and standard recipe artifacts.",
+  "message": "Generated map SDK entrypoint drifted from canonical config envelope shape.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/maps/configs/*.config.json",
+        "mods/mod-swooper-maps/src/maps/generated/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/map-output/_blueprints/generated-map-entrypoint/validate_generated_map_entrypoint_contracts/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/map-output/_blueprints/generated-map-entrypoint/validate_generated_map_entrypoint_contracts/check.ts"
+    }
+  }
+}

@@ -1,17 +1,18 @@
 # Habitat Authority Tree Shape
 
-Status: current transitional physical reference for the niche packet tree
+Status: current transitional physical reference for the authority packet tree
 
 This document defines the current physical packet shape for `.habitat`
-authority artifacts. It captures the transitional organization where niches are
-jurisdictions, real or still-plausible constructible owners keep `blueprints/`,
-and niche/context inventory uses `rules/` so it is not smuggled into blueprint
-authority. It is the active pruning and packet-placement reference, not the
-final blueprint-definition layout. The normative conceptual model for Habitat,
-blueprints, instances, capabilities, niches, admission, and authority activation
-lives in `AUTHORITY-ONTOLOGY.md`. This document does not define final resolver
-metadata, support-file ontology, cascade semantics, or typed blueprint
-manifests.
+authority artifacts. It captures the transitional organization where affirmed
+constructible kinds live under top-level `blueprints/`, niche-local
+blueprint-shaped candidates live under `_blueprints/`, and niche/context
+inventory uses `rules/` so it is not smuggled into blueprint authority. It is
+the active pruning and packet-placement reference, not the final
+blueprint-definition layout. The normative conceptual model for Habitat,
+blueprints, instances, capabilities, niches, admission, and authority
+activation lives in `AUTHORITY-ONTOLOGY.md`. This document does not define
+final resolver metadata, support-file ontology, cascade semantics, or typed
+blueprint manifests.
 
 `.habitat/_support/execution/` is a temporary execution-support bridge outside
 the authority hierarchy. It is not a niche and must not be used as a precedent
@@ -19,30 +20,38 @@ for new authored policy placement.
 
 ## Core Decision
 
-Habitat currently organizes gathered packets by niche first, then by either
-blueprint owner or transitional rule inventory. A niche is an authored
-jurisdiction: an area, domain, package family, or governed place. A blueprint
-is a constructible kind or lifecycle-owned shape inside that niche: a surface,
-package shape, service module, generated artifact shape, runtime boundary, or
-workflow object that has lifecycle artifacts. Enforcement attaches to that
-kind; being enforceable does not by itself make something a blueprint. Runtime
-boundaries and workflow objects qualify only when they are manifest-backed
-constructible kinds or lifecycle-owned shapes, not runner classes, commands, or
-current defect labels.
+Habitat currently separates affirmed blueprint authority from niche-local
+candidate/remainder inventory. A niche is an authored jurisdiction: an area,
+domain, package family, or governed place. A blueprint is an affirmed
+constructible kind or lifecycle-owned shape. Candidate blueprint-shaped packets
+stay colocated with their niche under `_blueprints/` until a slice affirms them
+or demotes them. Enforcement attaches to the constructible kind; being
+enforceable does not by itself make something a blueprint. Runtime boundaries
+and workflow objects qualify only when they are manifest-backed constructible
+kinds or lifecycle-owned shapes, not runner classes, commands, or current
+defect labels.
 
 Current pruning shape:
 
 ```text
 .habitat/
+  blueprints/
+    <blueprint>/
+      <packet>/
   <niche>/
-    blueprints/
-      <blueprint>/
+    _blueprints/
+      <candidate>/
         <packet>/
     rules/
       <packet>/
       <context>/
         <packet>/
 ```
+
+Top-level `blueprints/` is the physical lane for affirmed constructible kind
+authority. Niche-local `_blueprints/` is the physical lane for candidate
+blueprint-shaped groupings that have not yet been accepted as real blueprint
+authority. The underscore is intentional visual friction.
 
 `rules/` is the physical lane for packets that describe the niche itself or a
 current context that has not been accepted as a blueprint. It is transitional
@@ -58,20 +67,23 @@ not path directories.
 
 ### Niche
 
-The path above `blueprints/` or `rules/` is the authored jurisdiction. It
-answers where in this repository's governed ecosystem the authority belongs.
+The path above `_blueprints/` or `rules/` is the authored jurisdiction. It
+answers where in this repository's governed ecosystem the candidate or
+remainder authority currently belongs.
 Examples include `global/workspace`, `docs`, `habitat/toolkit`,
 `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
 
-Niches may nest when the language and authority become more specific. A niche is not itself assumed to be buildable. It may contain `_self` authority plus child blueprints.
+Niches may nest when the language and authority become more specific. A niche
+is not itself assumed to be buildable. It may contain niche-wide `rules/`,
+current-context `rules/<context>/`, and `_blueprints/` candidates.
 
 ### Blueprint
 
-A blueprint is the portable concept-level unit inside a niche. In the ontology,
-blueprints are encapsulated constructible definitions whose child blueprints
-monotonically specialize the parent kind. In this transitional physical tree,
+A blueprint is the portable concept-level unit. In the ontology, blueprints
+are encapsulated constructible definitions whose child blueprints monotonically
+specialize the parent kind. In this transitional physical tree, top-level
 blueprint directories hold gathered packets that define, enforce, generate,
-fix, or migrate the thing being authored.
+fix, or migrate the affirmed thing being authored.
 
 Blueprints are intentionally broader than individual rule subjects, but
 narrower than areas such as `workspace`, `documentation`, `toolkit`,
@@ -82,18 +94,22 @@ definition. They are current gathered authority packets while final typed
 blueprint manifests and cascade semantics remain open. Category and artifact
 kind are manifest facts for those packets.
 
-Current blueprint examples include:
+Affirmed blueprint examples include:
 
-- `global/workspace/blueprints/project-boundary-model`
-- `docs/blueprints/docs-site`
-- `habitat/toolkit/blueprints/service-module`
-- `civ7/platform/blueprints/civ7-adapter`
-- `civ7/resources/blueprints/civ7-map-policy`
-- `civ7/mapgen/domain/blueprints/domain-public-surface`
-- `civ7/mapgen/pipeline/blueprints/recipe`
-- `civ7/mapgen/pipeline/blueprints/recipe-stage`
-- `civ7/mapgen/pipeline/blueprints/recipe-step`
-- `civ7/mapgen/map-output/blueprints/map-projection`
+- `blueprints/recipe`
+- `blueprints/recipe-stage`
+- `blueprints/recipe-step`
+- `blueprints/domain-operation`
+
+Candidate blueprint-shaped examples include:
+
+- `global/workspace/_blueprints/project-boundary-model`
+- `docs/_blueprints/docs-site`
+- `habitat/toolkit/_blueprints/service-module`
+- `civ7/platform/_blueprints/civ7-adapter`
+- `civ7/resources/_blueprints/civ7-map-policy`
+- `civ7/mapgen/domain/_blueprints/domain-public-surface`
+- `civ7/mapgen/map-output/_blueprints/map-projection`
 
 Known transitional misfits, not blueprint exemplars:
 
@@ -105,7 +121,7 @@ Known transitional misfits, not blueprint exemplars:
   `civ7/mapgen/domain/rules/morphology-domain`, and
   `civ7/mapgen/domain/rules/ecology-domain` are current domain contexts, not
   accepted blueprints by label inheritance.
-- `civ7/mapgen/studio/blueprints/ensure_studio_worker_bundle_is_browser_safe`
+- `civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe`
   is a check/defect-shaped slug. Treat it as a pruning target to decompose
   under the appropriate constructible blueprint, package-local proof, or
   Nx-ordering owner before preserving it as Habitat authority.
@@ -156,10 +172,14 @@ generic role names such as `rule.json`, `baseline.json`, `pattern.md`,
 
 ## Current Classification Rule
 
-Classify each packet by niche first, then by blueprint owner or `rules`
-inventory, then by universal category and artifact kind in the manifest. If a
-packet is about the niche overall, place it under `rules/<packet>/`. If a
-packet is about a current context that is not an accepted blueprint, place it
-under `rules/<context>/<packet>/`. If a packet is mixed or unclear, choose the
+Classify each packet by authority lane first: affirmed blueprint authority,
+candidate blueprint-shaped niche inventory, or niche/context `rules`
+inventory. If a packet is about an affirmed constructible kind, place it under
+top-level `blueprints/<blueprint>/<packet>/`. If it is blueprint-shaped but
+not yet affirmed by a slice, keep it under
+`<niche>/_blueprints/<candidate>/<packet>/`. If a packet is about the niche
+overall, place it under `rules/<packet>/`. If a packet is about a current
+context that is not an accepted blueprint, place it under
+`rules/<context>/<packet>/`. If a packet is mixed or unclear, choose the
 best-fit current placement and preserve the same facts in the manifest
 `placement` field. Do not add a second packet-local classification file.

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "validate_habitat_service_module_root_topology",
+  "title": "Validate Habitat Service Module Root Topology",
+  "placement": {
+    "niche": "habitat/toolkit",
+    "blueprint": "service-module",
+    "category": "structure",
+    "artifactKind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "service module and service-model root children outside the admitted topology",
+  "why": "The Habitat Toolkit service layer should keep a predictable root file tree before deeper suffix validation runs.",
+  "remediate": "Move service files into the admitted module/model root tree.",
+  "message": "Habitat service module root topology validation failed.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["tools/habitat/src/service/modules/*", "tools/habitat/src/service/model/*"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "artifacts": {
+    "baseline": ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_root_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_root_topology/structure.toml"
+    }
+  }
+}

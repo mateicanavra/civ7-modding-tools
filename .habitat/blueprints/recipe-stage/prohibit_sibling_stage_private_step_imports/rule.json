@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_sibling_stage_private_step_imports",
+  "title": "Prohibit Sibling Stage Private Step Imports",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-stage",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "stage code importing another stage's steps implementation",
+  "why": "Stages compose through recipe/domain contracts, not sibling step internals.",
+  "remediate": null,
+  "message": "Do not import sibling stage steps; promote a contract or domain surface.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md"
+    },
+    "patternName": "prohibit_sibling_stage_private_step_imports"
+  }
+}

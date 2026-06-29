@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "validate_habitat_service_module_file_shape",
+  "title": "Validate Habitat Service Module File Shape",
+  "placement": {
+    "niche": "habitat/toolkit",
+    "blueprint": "service-module",
+    "category": "structure",
+    "artifactKind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "service module and service-model files with invalid suffixes or residual router shape drift",
+  "why": "The Habitat Toolkit must be its own golden example for recursive service module file naming.",
+  "remediate": "Use the accepted service file suffixes. Direct root topology is owned by validate_habitat_service_module_root_topology.",
+  "message": "Habitat service module shape validation failed.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["tools/habitat/src/service/modules/**", "tools/habitat/src/service/model/**"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "artifacts": {
+    "baseline": ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.ts"
+    }
+  }
+}

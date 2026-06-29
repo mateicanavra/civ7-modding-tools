@@ -82,7 +82,8 @@ not define the authority ontology.
 The current pruning target tree is:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
 .habitat/<niche>/rules/<context>/<packet>/
 ```
@@ -90,7 +91,9 @@ The current pruning target tree is:
 This tree is intentionally decomposed for the current gathered packet corpus:
 
 - niche: authored jurisdiction;
-- blueprint: the constructible kind or lifecycle-owned shape inside the niche;
+- blueprint: affirmed constructible kind authority at top level;
+- _blueprints: niche-local candidate/likeness grouping, not affirmed
+  blueprint authority;
 - rules: transitional niche-wide or current-context inventory, not blueprint
   authority;
 - category: universal engineering-purpose class in `rule.json`;

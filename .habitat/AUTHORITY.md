@@ -15,19 +15,21 @@ frames apply to the current repository tree.
 
 `.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
 
-The current physical hierarchy has two packet lanes:
+The current physical hierarchy has three packet lanes:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/_blueprints/<candidate>/<packet>/
 .habitat/<niche>/rules/<packet>/
 .habitat/<niche>/rules/<context>/<packet>/
 ```
 
-Niches are authored jurisdictions. Blueprints are constructible kinds or
-lifecycle-owned shapes inside those jurisdictions. The `rules` lane is
-transitional inventory for niche-wide or current-context rules that must not be
-smuggled into blueprint authority. Categories and artifact kinds are manifest
-placement facts, not physical grouping directories.
+Top-level `blueprints/` is affirmed constructible kind authority. Niches are
+authored jurisdictions. Niche-local `_blueprints/` is candidate blueprint-shaped
+inventory that has not yet been affirmed as blueprint authority. The `rules`
+lane is transitional inventory for niche-wide or current-context rules that
+must not be smuggled into blueprint authority. Categories and artifact kinds
+are manifest placement facts, not physical grouping directories.
 
 Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
 
@@ -37,8 +39,8 @@ blueprint, category, artifact kind, or authored policy root.
 
 ## Already True
 
-- Collected packets live under niche-local blueprint paths or niche/context
-  `rules` inventory paths.
+- Collected packets live under top-level affirmed `blueprints/`, niche-local
+  `_blueprints/` candidate paths, or niche/context `rules` inventory paths.
 - Niche-wide authority no longer uses `_self` as a physical blueprint path.
   Existing `_self` placement facts remain transitional manifest inventory only.
 - Rule manifests are discovered at `.habitat/**/rule.json`.
@@ -103,11 +105,12 @@ identity, current placement, runner entrypoints, and baselines are read from
 `rule.json`. Next consolidation work can physically move manifests and their
 referenced files into better blueprint, capability, or niche locations without
 changing rule identity or behavior. The current physical tree intentionally
-keeps real or still-plausible constructible owners under `blueprints/`, while
-using `rules/` for niche-wide and explicitly contextual inventory. Future
-layout and registry changes should use `AUTHORITY-ONTOLOGY.md` as the concept
-source for distinguishing blueprint kind authority, instance facts, capability
-facets, and niche governance.
+splits affirmed constructible kind authority into top-level
+`.habitat/blueprints/`, marks not-yet-affirmed niche-local candidates as
+`_blueprints/`, and keeps `rules/` for niche-wide and explicitly contextual
+inventory. Future layout and registry changes should use
+`AUTHORITY-ONTOLOGY.md` as the concept source for distinguishing blueprint kind
+authority, instance facts, capability facets, and niche governance.
 
 ## Stop Conditions
 

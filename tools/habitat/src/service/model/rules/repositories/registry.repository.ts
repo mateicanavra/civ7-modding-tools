@@ -377,7 +377,7 @@ function staleRuleRecordIssues(paths: readonly string[]): RuleRegistryIssue[] {
         code: "registry-schema-invalid",
         path: rulePath,
         message:
-          "Rule packets must not use category/artifact-kind path nesting; use blueprints/<owner>/<packet> or rules/<packet>.",
+          "Rule packets must not use category/artifact-kind path nesting; use .habitat/blueprints/<blueprint>/<packet>, _blueprints/<candidate>/<packet>, or rules/<packet>.",
       });
     }
     return issues;

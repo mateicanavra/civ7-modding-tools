@@ -276,8 +276,9 @@ Moved by Domino 21:
 
 Rationale: despite prior `map-projection` placement, the whole rule forbids
 domain ops from depending on map projection/effect artifact keys. That is a
-domain-operation boundary rule, so the packet now lives under
-`civ7/mapgen/domain/blueprints/domain-operation/boundary/check`.
+domain-operation boundary rule, so the packet now lives under the affirmed
+blueprint authority at
+`.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/`.
 
 ### Strategy-file Rules
 

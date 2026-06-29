@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "verify_visualization_runtime_build_artifacts",
+  "title": "Verify Visualization Runtime Build Artifacts",
+  "placement": {
+    "niche": "civ7/mapgen/visualization",
+    "blueprint": "runtime-dependencies",
+    "category": "artifact",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "running MapGen visualization or diagnostics without the required runtime dist artifacts",
+  "why": "The browser/diagnostic runtime imports built adapter, MapGen core, and viz packages; missing dist artifacts fail late unless preflight owns the capability.",
+  "remediate": "Run the preflight or build civ7-adapter, mapgen-viz, and mapgen-core.",
+  "message": "MapGen visualization runtime dependencies must exist before diagnostics or Studio worker use.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/civ7-adapter/src/**",
+        "packages/mapgen-core/src/**",
+        "packages/mapgen-viz/src/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/visualization/_blueprints/runtime-dependencies/verify_visualization_runtime_build_artifacts/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/visualization/_blueprints/runtime-dependencies/verify_visualization_runtime_build_artifacts/check.mjs"
+    }
+  }
+}
