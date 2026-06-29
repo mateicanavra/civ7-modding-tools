@@ -1,4 +1,4 @@
-import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-server";
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
 import {
   type StudioPresetExportFileV1,
   stripSchemaMetadataRoot,
@@ -141,6 +141,7 @@ import { ErrorBanner } from "./ErrorBanner";
 import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
 import { useStudioEvents } from "./hooks/useStudioEvents";
+import { useStudioOperations } from "./hooks/useStudioOperations";
 import { useToast } from "./hooks/useToast";
 import { useViewportLayout } from "./hooks/useViewportLayout";
 import { LeftDock } from "./LeftDock";
@@ -247,6 +248,25 @@ export function StudioShell(props: StudioShellProps) {
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
 
+  // Coordination layer (init FIRST): owns the runInGame/saveDeploy operation
+  // state + the single-owner error channel, and derives the busy booleans
+  // synchronously so they are stable from the first render and can be threaded
+  // (never republished) into the hooks below. `error`/`status` are completed in
+  // host render scope after `browserRunner` exists (architecture/10 §4; §7.3/§7.4).
+  const {
+    runInGameOperation,
+    setRunInGameOperation,
+    saveDeployOperation,
+    setSaveDeployOperation,
+    localError,
+    setLocalError,
+    clearLocalErrorIfCurrent,
+    runInGameRunning,
+    saveDeployRunning,
+    runInGameOperationRef,
+    saveDeployOperationCurrentRef,
+  } = useStudioOperations();
+
   // Viewport/layout chrome: deck canvas handle, measured viewport, docked-panel
   // geometry, and the recipe-DAG (pipeline view) read surface + expansion.
   // Initialized BEFORE `useVizState` so viz and deck-autofit can consume the
@@ -285,9 +305,6 @@ export function StudioShell(props: StudioShellProps) {
   // `studio.operations.current` instead.
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
-  const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(
-    null
-  );
 
   const overlaySuggestions = useMemo(
     () => getOverlaySuggestions(recipeSettings.recipe),
@@ -441,17 +458,6 @@ export function StudioShell(props: StudioShellProps) {
   });
 
   const browserRunning = browserRunner.state.running;
-  const [localError, setLocalError] = useState<string | null>(null);
-  const clearLocalErrorIfCurrent = useCallback((message: string) => {
-    setLocalError((current) => (current === message ? null : current));
-  }, []);
-  const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(
-    null
-  );
-  const runInGameOperationRef = useRef<RunInGameOperationStatus | null>(null);
-  const saveDeployOperationCurrentRef = useRef<MapConfigSaveDeployStatus | null>(null);
-  runInGameOperationRef.current = runInGameOperation;
-  saveDeployOperationCurrentRef.current = saveDeployOperation;
   const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
   // Run presentation state is session-only; cross-reload operation recovery is
@@ -536,8 +542,6 @@ export function StudioShell(props: StudioShellProps) {
   const { savedSetupConfigs, setupCatalog } = useSetupDataQueries();
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const [exploreActionRunning, setExploreActionRunning] = useState(false);
-  const saveDeployRunning = saveDeployOperation?.status === "running";
-  const runInGameRunning = runInGameOperation?.status === "running";
 
   const viz = useVizState({
     enabled: true,
