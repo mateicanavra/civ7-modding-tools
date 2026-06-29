@@ -54,6 +54,8 @@ import {
 import { saveRepoBackedConfig, toConfigId } from "../features/mapConfigSave/api";
 import {
   createMapConfigSaveDeployStatus,
+  isSaveDeployTerminal,
+  saveDeployResultFromTerminalStatus,
   updateMapConfigSaveDeployStatus,
 } from "../features/mapConfigSave/status";
 import type { PresetErrorState } from "../features/presets/dialogState";
@@ -167,41 +169,6 @@ type SaveDeployTerminalWaiter = Readonly<{
   reject(error: Error): void;
   timeoutId: ReturnType<typeof setTimeout>;
 }>;
-
-function isSaveDeployTerminal(status: MapConfigSaveDeployStatus): boolean {
-  return status.status !== "running";
-}
-
-function saveDeployResultFromTerminalStatus(
-  status: MapConfigSaveDeployStatus,
-  fallbackPath?: string
-):
-  | {
-      ok: true;
-      path?: string;
-      deploy?: MapConfigSaveDeployStatus["deploy"];
-      saved?: boolean;
-      deployed?: boolean;
-    }
-  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string } {
-  const path = status.path ?? fallbackPath;
-  if (!status.ok || status.status === "failed") {
-    return {
-      ok: false,
-      error: status.error ?? "Save/deploy failed",
-      saved: status.saved,
-      deployed: status.deployed,
-      path,
-    };
-  }
-  return {
-    ok: true,
-    path,
-    deploy: status.deploy,
-    saved: status.saved,
-    deployed: status.deployed,
-  };
-}
 
 /**
  * `StudioShell` — the layout + orchestration container (architecture/10 §4).
