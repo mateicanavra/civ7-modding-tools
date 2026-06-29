@@ -1,9 +1,6 @@
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
-import {
-  type StudioPresetExportFileV1,
-  stripSchemaMetadataRoot,
-} from "@swooper/mapgen-core/authoring";
-import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCiv7MapSizePreset } from "../features/browserRunner/mapSizes";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { fetchCiv7SetupConfig, requestCiv7Autoplay } from "../features/civ7Setup/api";
@@ -26,13 +23,7 @@ import {
   mergeSelectOptions,
   setupCatalogOptions,
 } from "../features/civ7Setup/setupOptions";
-import {
-  type AppliedPresetSnapshot,
-  applyPresetConfig,
-  buildDefaultConfig,
-  formatPresetErrors,
-  isPlainObject,
-} from "../features/configOverrides/configBuilders";
+import { buildDefaultConfig, isPlainObject } from "../features/configOverrides/configBuilders";
 import {
   buildLiveRuntimeSetupRequestKey,
   buildLiveRuntimeSnapshotRequest,
@@ -52,21 +43,13 @@ import {
   saveDeployResultFromTerminalStatus,
   updateMapConfigSaveDeployStatus,
 } from "../features/mapConfigSave/status";
-import type { PresetErrorState } from "../features/presets/dialogState";
-import {
-  buildPresetExportFile,
-  downloadPresetFile,
-  parsePresetExportFile,
-} from "../features/presets/importExport";
-import { resolveImportedPreset } from "../features/presets/importFlow";
 import {
   PresetConfirmDialog,
   PresetErrorDialog,
   PresetSaveDialog,
 } from "../features/presets/PresetDialogs";
-import { mergeBuiltInPresets, toRepoBackedPreset } from "../features/presets/repoBacked";
+import { toRepoBackedPreset } from "../features/presets/repoBacked";
 import { type PresetKey, parsePresetKey } from "../features/presets/types";
-import { usePresets } from "../features/presets/usePresets";
 import { PipelineStage } from "../features/recipeDag/PipelineStage";
 import { runCurrentConfigInGame } from "../features/runInGame/api";
 import {
@@ -83,12 +66,7 @@ import {
 } from "../features/runInGame/status";
 import { liveControlPort } from "../lib/control/liveControlPort";
 import { orpcClient } from "../lib/orpc";
-import {
-  type BuiltInPreset,
-  findRecipeArtifacts,
-  getRecipeArtifacts,
-  STUDIO_RECIPE_OPTIONS,
-} from "../recipes/catalog";
+import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
 import { isAbortLikeError } from "../shared/async";
 import type { VizEvent } from "../shared/vizEvents";
 import { useAuthoringStore } from "../stores/authoringStore";
@@ -107,6 +85,7 @@ import { ErrorBanner } from "./ErrorBanner";
 import { useBrowserRun } from "./hooks/useBrowserRun";
 import { useDeckAutofit } from "./hooks/useDeckAutofit";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { usePresetLifecycle } from "./hooks/usePresetLifecycle";
 import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
 import { useStudioEvents } from "./hooks/useStudioEvents";
@@ -250,7 +229,6 @@ export function StudioShell(props: StudioShellProps) {
     handlePipelineStageToggle,
   } = useViewportLayout({ recipe: recipeSettings.recipe, stageView });
 
-  const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
   const [saveDialogState, setSaveDialogState] = useState<{
     open: boolean;
     label: string;
@@ -260,29 +238,12 @@ export function StudioShell(props: StudioShellProps) {
     label: "",
     description: "",
   });
-  const [pendingImport, setPendingImport] = useState<StudioPresetExportFileV1 | null>(null);
-  const importInputRef = useRef<HTMLInputElement | null>(null);
-  const lastAppliedPresetRef = useRef<AppliedPresetSnapshot | null>(null);
-  const lastPresetKeyRef = useRef(recipeSettings.preset);
-  const lastRecipeIdRef = useRef(recipeSettings.recipe);
   // `lastRunInGameSource` is session-only UI state. S2.1 deleted the
   // browser-storage recovery bridge; daemon-retained operations are adopted from
   // `studio.operations.current` instead.
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
 
-  const recipeArtifacts = useMemo(
-    () => getRecipeArtifacts(recipeSettings.recipe),
-    [recipeSettings.recipe]
-  );
-  const builtInPresets = useMemo(
-    () =>
-      mergeBuiltInPresets(
-        recipeArtifacts.studioBuiltInPresets ?? [],
-        repoBackedPresetOverridesByRecipe[recipeSettings.recipe] ?? {}
-      ),
-    [recipeArtifacts.studioBuiltInPresets, recipeSettings.recipe, repoBackedPresetOverridesByRecipe]
-  );
   const provedRunInGameSource = useMemo(
     () =>
       lastRunInGameSource &&
@@ -313,94 +274,45 @@ export function StudioShell(props: StudioShellProps) {
         : [],
     [lastRunInGameSource, provedRunInGameSource, recipeSettings.recipe]
   );
-  const {
-    options: presetOptions,
-    resolvePreset,
-    actions: presetActions,
-    loadWarning,
-  } = usePresets({
-    recipeId: recipeSettings.recipe,
-    builtIns: builtInPresets,
-    livePresets,
-  });
-  const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
   // `lastRunSnapshot` is session-only run state owned by `runStore` (not persisted —
   // parity with the prior in-memory `useState`).
   const lastRunSnapshot = useRunStore((s) => s.lastRunSnapshot);
   const setLastRunSnapshot = useRunStore((s) => s.setLastRunSnapshot);
 
-  useEffect(() => {
-    const previousPreset = lastPresetKeyRef.current;
-    const previousRecipe = lastRecipeIdRef.current;
-    lastPresetKeyRef.current = recipeSettings.preset;
-    lastRecipeIdRef.current = recipeSettings.recipe;
-    if (parsePresetKey(recipeSettings.preset).kind !== "none") return;
-    if (previousPreset === recipeSettings.preset && previousRecipe === recipeSettings.recipe)
-      return;
-    const base = buildDefaultConfig(
-      recipeArtifacts.configSchema,
-      recipeArtifacts.uiMeta,
-      recipeArtifacts.defaultConfig
-    );
-    setPipelineConfig(base);
-    setOverridesDisabled(false);
-    setLastRunSnapshot(null);
-    lastAppliedPresetRef.current = null;
-  }, [
-    recipeArtifacts.configSchema,
-    recipeArtifacts.defaultConfig,
-    recipeArtifacts.uiMeta,
-    recipeSettings.recipe,
-    recipeSettings.preset,
-  ]);
-
-  useEffect(() => {
-    const nextKey = recipeSettings.preset as PresetKey;
-    const parsed = parsePresetKey(nextKey);
-    if (parsed.kind === "none") {
-      lastAppliedPresetRef.current = null;
-      return;
-    }
-    const resolved = resolvePreset(nextKey);
-    if (!resolved) {
-      toast("Preset not found", { variant: "error" });
-      setPresetError({
-        title: "Preset not found",
-        message: "The selected preset could not be resolved for this recipe.",
-      });
-      return;
-    }
-    const lastApplied = lastAppliedPresetRef.current;
-    if (lastApplied?.key === nextKey && lastApplied.config === resolved.config) return;
-    const applied = applyPresetConfig({
-      schema: recipeArtifacts.configSchema,
-      uiMeta: recipeArtifacts.uiMeta,
-      presetConfig: resolved.config,
-      label: resolved.label,
-    });
-    if (!applied.value) {
-      toast("Preset invalid", { variant: "error" });
-      setPresetError({
-        title: "Preset invalid",
-        message: "The selected preset failed schema validation.",
-        details: formatPresetErrors(applied.errors),
-      });
-      return;
-    }
-    setPipelineConfig(applied.value);
-    lastAppliedPresetRef.current = { key: nextKey, config: resolved.config };
-  }, [
+  const {
+    recipeArtifacts,
+    builtInPresets,
+    presetOptions,
     resolvePreset,
-    recipeArtifacts.configSchema,
-    recipeArtifacts.uiMeta,
-    recipeSettings.preset,
+    presetActions,
+    isLocalPresetSelected,
+    presetError,
+    setPresetError,
+    pendingImport,
+    importInputRef,
+    markPresetApplied,
+    applyAuthoringSnapshot,
+    rememberRepoBackedConfig,
+    handleDeletePreset,
+    handleExportPreset,
+    handleImportPreset,
+    handleImportFileChange,
+    confirmImportSwitch,
+    cancelImportSwitch,
+  } = usePresetLifecycle({
+    recipeSettings,
+    repoBackedPresetOverridesByRecipe,
+    livePresets,
+    pipelineConfig,
+    setWorldSettings,
+    setSetupConfig,
+    setPipelineConfig,
+    setOverridesDisabled,
+    setRecipeSettings,
+    setRepoBackedPresetOverridesByRecipe,
+    setLastRunSnapshot,
     toast,
-  ]);
-
-  useEffect(() => {
-    if (!loadWarning) return;
-    toast(loadWarning, { variant: "info" });
-  }, [loadWarning, toast]);
+  });
 
   // Authoring persistence is now driven by `authoringStore`'s `persist` middleware
   // (same serializer, same key, same schema) — the prior manual save effect is removed.
@@ -756,16 +668,6 @@ export function StudioShell(props: StudioShellProps) {
     setSaveDialogState((prev) => ({ ...prev, open: false }));
   }, []);
 
-  const rememberRepoBackedConfig = useCallback((recipeId: string, preset: BuiltInPreset) => {
-    setRepoBackedPresetOverridesByRecipe((prev) => ({
-      ...prev,
-      [recipeId]: {
-        ...(prev[recipeId] ?? {}),
-        [preset.id]: preset,
-      },
-    }));
-  }, []);
-
   const saveRepoBackedConfigWithState = useCallback(
     async (args: {
       id: string;
@@ -877,8 +779,8 @@ export function StudioShell(props: StudioShellProps) {
             config: sanitized,
           })
         );
+        markPresetApplied({ key: `builtin:${id}`, config: sanitized });
         setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
-        lastAppliedPresetRef.current = { key: `builtin:${id}`, config: sanitized };
         setPipelineConfig(sanitized as PipelineConfig);
       }
       if (!result.ok) {
@@ -941,10 +843,10 @@ export function StudioShell(props: StudioShellProps) {
             config: sanitized,
           })
         );
-        lastAppliedPresetRef.current = {
+        markPresetApplied({
           key: recipeSettings.preset as PresetKey,
           config: sanitized,
-        };
+        });
         setPipelineConfig(sanitized as PipelineConfig);
       }
       if (!result.ok) {
@@ -1012,8 +914,8 @@ export function StudioShell(props: StudioShellProps) {
           config: sanitized,
         })
       );
+      markPresetApplied({ key: `builtin:${id}`, config: sanitized });
       setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
-      lastAppliedPresetRef.current = { key: `builtin:${id}`, config: sanitized };
       setPipelineConfig(sanitized as PipelineConfig);
     }
     if (!repoResult.ok) {
@@ -1042,128 +944,6 @@ export function StudioShell(props: StudioShellProps) {
     saveRepoBackedConfigWithState,
     toast,
   ]);
-
-  const handleDeletePreset = useCallback(() => {
-    const parsed = parsePresetKey(recipeSettings.preset);
-    if (parsed.kind !== "local") {
-      toast("Select a scratch config to delete.", { variant: "info" });
-      return;
-    }
-    const result = presetActions.deleteLocal({
-      recipeId: recipeSettings.recipe,
-      presetId: parsed.id,
-    });
-    if (result.persistenceError) {
-      toast(`Scratch config deleted but could not persist: ${result.persistenceError}`, {
-        variant: "error",
-      });
-    } else {
-      toast("Scratch config deleted", { variant: "success" });
-    }
-    if (result.deleted) {
-      setRecipeSettings((prev) => ({ ...prev, preset: "none" }));
-    }
-  }, [presetActions, recipeSettings.preset, recipeSettings.recipe, toast]);
-
-  const handleExportPreset = useCallback(() => {
-    const key = recipeSettings.preset as PresetKey;
-    const resolved = resolvePreset(key);
-    const sanitizedConfig = resolved
-      ? stripSchemaMetadataRoot(resolved.config)
-      : stripSchemaMetadataRoot(pipelineConfig);
-    if (!isPlainObject(sanitizedConfig)) {
-      toast("Preset export failed: config must be an object", { variant: "error" });
-      return;
-    }
-    const payload = resolved
-      ? {
-          label: resolved.label,
-          description: resolved.description,
-          config: sanitizedConfig,
-        }
-      : {
-          label: "Current Config",
-          config: sanitizedConfig,
-        };
-    const built = buildPresetExportFile({ recipeId: recipeSettings.recipe, preset: payload });
-    downloadPresetFile(built.filename, built.json);
-    toast("Preset exported", { variant: "success" });
-  }, [pipelineConfig, recipeSettings.preset, recipeSettings.recipe, resolvePreset, toast]);
-
-  const importPresetValue = useCallback(
-    (presetFile: StudioPresetExportFileV1) => {
-      const resolved = resolveImportedPreset({
-        presetFile,
-        findRecipeArtifacts,
-      });
-      if (!resolved.ok) {
-        toast("Preset import failed", { variant: "error" });
-        setPresetError({
-          title: resolved.kind === "unknown-recipe" ? "Unknown recipe" : "Preset invalid",
-          message: resolved.message,
-          details: resolved.details,
-        });
-        return;
-      }
-      const result = presetActions.saveAsNew({
-        recipeId: resolved.recipeId,
-        label: resolved.label,
-        description: resolved.description,
-        config: resolved.config,
-      });
-      if (result.persistenceError) {
-        toast(`Preset imported but could not persist: ${result.persistenceError}`, {
-          variant: "error",
-        });
-      } else {
-        toast("Preset imported", { variant: "success" });
-      }
-      setRecipeSettings((prev) => ({
-        ...prev,
-        recipe: resolved.recipeId,
-        preset: `local:${result.preset.id}`,
-      }));
-    },
-    [presetActions, toast]
-  );
-
-  const handleImportPreset = useCallback(() => {
-    importInputRef.current?.click();
-  }, []);
-
-  const handleImportFileChange = useCallback(
-    async (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      event.target.value = "";
-      if (!file) return;
-      const text = await file.text();
-      const parsed = parsePresetExportFile(text);
-      if (!parsed.ok) {
-        toast("Preset import failed", { variant: "error" });
-        setPresetError({
-          title: "Preset import failed",
-          message: parsed.message,
-          details: parsed.details,
-        });
-        return;
-      }
-      if (parsed.value.recipeId !== recipeSettings.recipe) {
-        setPendingImport(parsed.value);
-        return;
-      }
-      importPresetValue(parsed.value);
-    },
-    [importPresetValue, recipeSettings.recipe, toast]
-  );
-
-  const confirmImportSwitch = useCallback(() => {
-    if (!pendingImport) return;
-    const next = pendingImport;
-    setPendingImport(null);
-    importPresetValue(next);
-  }, [importPresetValue, pendingImport]);
-
-  const cancelImportSwitch = useCallback(() => setPendingImport(null), []);
 
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
@@ -1621,18 +1401,16 @@ export function StudioShell(props: StudioShellProps) {
     const nextPreset =
       durablePresetKey && resolvePreset(durablePresetKey) ? durablePresetKey : LIVE_GAME_PRESET_KEY;
 
-    lastAppliedPresetRef.current = {
+    applyAuthoringSnapshot({
       key: nextPreset,
-      config: provedRunInGameSource.pipelineConfig,
-    };
-    setWorldSettings(provedRunInGameSource.worldSettings);
-    setPipelineConfig(provedRunInGameSource.pipelineConfig);
-    setSetupConfig(provedRunInGameSource.setupConfig);
-    setOverridesDisabled(false);
-    setRecipeSettings({
-      ...provedRunInGameSource.recipeSettings,
-      seed: liveSeed,
-      preset: nextPreset,
+      worldSettings: provedRunInGameSource.worldSettings,
+      pipelineConfig: provedRunInGameSource.pipelineConfig,
+      setupConfig: provedRunInGameSource.setupConfig,
+      recipeSettings: {
+        ...provedRunInGameSource.recipeSettings,
+        seed: liveSeed,
+        preset: nextPreset,
+      },
     });
     toast(
       nextPreset === LIVE_GAME_PRESET_KEY
