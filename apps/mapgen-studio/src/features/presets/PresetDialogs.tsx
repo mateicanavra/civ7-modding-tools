@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Dialog,
@@ -65,12 +65,24 @@ export function PresetSaveDialog(props: PresetSaveDialogProps) {
   const [label, setLabel] = useState(initialLabel ?? "");
   const [description, setDescription] = useState(initialDescription ?? "");
 
-  useEffect(() => {
+  // Re-sync the inputs to the incoming initials whenever the dialog opens or its
+  // initials change while open — done during render via the store-prev-value
+  // pattern instead of in an effect (react-hooks/set-state-in-effect). Parity:
+  // fires on the same dep transitions as the prior effect; mount is a no-op
+  // because the useState initializers above already seed label/description from
+  // the initials.
+  const [prevInitials, setPrevInitials] = useState({ open, initialLabel, initialDescription });
+  if (
+    prevInitials.open !== open ||
+    prevInitials.initialLabel !== initialLabel ||
+    prevInitials.initialDescription !== initialDescription
+  ) {
+    setPrevInitials({ open, initialLabel, initialDescription });
     if (open) {
       setLabel(initialLabel ?? "");
       setDescription(initialDescription ?? "");
     }
-  }, [open, initialLabel, initialDescription]);
+  }
 
   const canSave = label.trim().length > 0;
 

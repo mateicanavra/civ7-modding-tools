@@ -219,14 +219,22 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     }
   }, [dataTypeOptions, selectedDataType, onSelectedDataTypeChange]);
 
-  useEffect(() => {
-    if (!currentLayerGroup) return;
-    setGroupOpen((prev) => {
-      const current = prev[currentLayerGroup] ?? true;
-      if (current) return prev;
-      return { ...prev, [currentLayerGroup]: true };
-    });
-  }, [currentLayerGroup]);
+  // Auto-open the current layer's group when it changes — done during render via
+  // the store-prev-value pattern instead of in an effect
+  // (react-hooks/set-state-in-effect). Parity: fires on the same currentLayerGroup
+  // transition as the prior effect; mount is a no-op (groupOpen starts empty, so
+  // `?? true` treats every group as already open).
+  const [prevLayerGroup, setPrevLayerGroup] = useState(currentLayerGroup);
+  if (currentLayerGroup !== prevLayerGroup) {
+    setPrevLayerGroup(currentLayerGroup);
+    if (currentLayerGroup) {
+      setGroupOpen((prev) => {
+        const current = prev[currentLayerGroup] ?? true;
+        if (current) return prev;
+        return { ...prev, [currentLayerGroup]: true };
+      });
+    }
+  }
   // ==========================================================================
   // Handlers
   // ==========================================================================
