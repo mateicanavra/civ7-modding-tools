@@ -21,8 +21,21 @@ import {
   studioEventClearsStreamError,
 } from "../studioEventRecovery";
 
+/**
+ * The daemon event stream is a long-lived live query that must never give up:
+ * losing it silently means the shell stops adopting daemon-side operation/live-game
+ * changes. Infinite retry keeps it reconnecting across daemon restarts; the visible
+ * failure is surfaced as a recoverable banner (see `formatStudioEventStreamError`),
+ * not by tearing the subscription down. Exported so the retry contract is asserted
+ * directly in tests.
+ */
 export const STUDIO_EVENT_STREAM_RETRY_ATTEMPTS = Number.POSITIVE_INFINITY;
 
+/**
+ * The oRPC client context carrying the infinite-retry policy for the watch call.
+ * Split out from `studioEventsWatchLiveOptions` so the policy is independently
+ * inspectable in tests without standing up a live-query subscription.
+ */
 export function studioEventsWatchClientContext() {
   return {
     retry: STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
@@ -31,10 +44,23 @@ export function studioEventsWatchClientContext() {
 
 type StudioEventsWatchProcedure = Pick<typeof orpc.studio.events.watch, "experimental_liveOptions">;
 
+/**
+ * The live-query options consumed by the `useQuery` below — the real production
+ * call, bound to the shared `orpc.studio.events.watch` procedure.
+ */
 export function studioEventsWatchLiveOptions() {
   return studioEventsWatchLiveOptionsFor(orpc.studio.events.watch);
 }
 
+/**
+ * Builds the watch live-query options against an INJECTED watch procedure. The
+ * `watch`-as-parameter indirection exists purely so tests can pass a fake procedure
+ * and assert the exact options shape. The options pin the stream to be persistent:
+ * `retry: false` here defers reconnection to the client-context infinite retry (above),
+ * `refetchOnWindowFocus: false` + `staleTime: ∞` stop the cache machinery from
+ * re-subscribing on focus/staleness, and `gcTime: 0` drops the snapshot the instant
+ * the stream unmounts so a stale event can't replay on remount.
+ */
 export function studioEventsWatchLiveOptionsFor(watch: StudioEventsWatchProcedure) {
   return watch.experimental_liveOptions({
     input: {},
@@ -46,6 +72,28 @@ export function studioEventsWatchLiveOptionsFor(watch: StudioEventsWatchProcedur
   });
 }
 
+/**
+ * `useStudioEvents` — subscribes the shell to the daemon's single event stream and
+ * fans each event into the host's operation/live-game/error state. This is the live
+ * counterpart to the one-shot adoption effect in `StudioShell` (which reconciles
+ * `studio.operations.current` on mount): here the daemon PUSHES changes and the host
+ * stays in lockstep without polling.
+ *
+ * Event kinds are dispatched by a stable per-event key (`helloKey`/`operationKey`/
+ * `liveGameKey`) so each effect re-runs only when its own event actually changes:
+ * - `hello`: a daemon (re)start. Re-adopt `operations.current`, but ONLY if the
+ *   running daemon's identity matches the hello — a mismatch means the snapshot
+ *   belongs to a different daemon instance, surfaced as a recoverable banner.
+ * - `operation`: a run-in-game / save-deploy status push, applied to the op setters.
+ * - `live-game`: a live Civ7 runtime snapshot, applied via `applyLiveGameState`.
+ *
+ * The stream's own transport failure is mirrored into the shell error channel
+ * (`setLocalError`) and cleared the moment any well-formed event arrives, so a
+ * dropped daemon connection shows a banner that self-heals on reconnect rather than
+ * a dead stream. The `current*OperationRef` mirrors let the adoption path read the
+ * latest op state without making the hello effect depend on (and re-run for) every
+ * status change.
+ */
 export function useStudioEvents(
   args: StudioOperationAdoptionTargets & {
     applyLiveGameState(state: LiveRuntimeStatusState): void;
@@ -85,6 +133,9 @@ export function useStudioEvents(
       ? `${event.state.snapshotId ?? event.state.snapshotHash ?? event.state.status}:${event.observedAt}`
       : null;
 
+  // Stream-recovery error tracking. The ref remembers the message this hook
+  // raised so it can clear EXACTLY that message later (via `clearLocalError`) and
+  // not stomp an unrelated error some other writer put on the shared channel.
   const setEventRecoveryError = useCallback(
     (message: string) => {
       eventRecoveryErrorRef.current = message;

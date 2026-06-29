@@ -72,6 +72,43 @@ export type StudioShellProps = {
  * behavior (browserRunner gating, run-in-game fingerprint/relation/materialization,
  * live-runtime request-key staleness + adaptive backoff, localStorage schema) is
  * touched — see architecture/10 §7.
+ *
+ * ROLE AFTER DECOMPOSITION. Domain orchestration lives in the controller hooks
+ * (`usePresetLifecycle`, `useBrowserRun`, `useSaveDeploy`, `useLiveRuntime`,
+ * `useRunInGame`, `useSetupControls`, `useVizSelection`, …). The host owns only
+ * what cannot move: the store reads, the hook-wiring, the single error-recovery
+ * adoption effect, the cross-hook seam callbacks, the cycle-break derivations that
+ * must stay at render scope, and the JSX layout (header/footer/docks/canvas/
+ * dialogs + the a11y skip-link / live-region chrome). It holds essentially no logic
+ * of its own.
+ *
+ * HOOK INIT ORDER IS LOAD-BEARING. The hooks are called in a fixed sequence because
+ * LATER hooks consume EARLIER hooks' setters/outputs by value (never republished):
+ *   1. `useStudioOperations` FIRST — owns the op state + error channel and derives
+ *      the busy booleans synchronously, so they are stable from render 1 and can be
+ *      threaded down without an ordering cycle.
+ *   2. `useViewportLayout` before viz — viz + deck-autofit consume the deck handle /
+ *      viewport by reference.
+ *   3. `usePresetLifecycle` — the preset contracts (`markPresetApplied`,
+ *      `applyAuthoringSnapshot`, `resolvePreset`) the save + run-in-game owners drive.
+ *   4. `useBrowserRunner` → `browserRunning` → `useVizSelection` — viz reads
+ *      `browserRunning`, and its `viz` handle threads onward to deck-autofit and JSX.
+ *   5. `useSaveDeploy`, then `useLiveRuntime`, then `useRunInGame` — the operation-
+ *      adoption effect (§5) needs BOTH op setters, so save/live init before it, and
+ *      run-in-game's sync-back reads the live-runtime outputs.
+ *   6. `useSetupControls` LAST — its autoplay toggle reads live `liveRuntime` +
+ *      `setLiveRuntime`, and both live-game actions busy-gate on the threaded flags.
+ * Reordering any of these would force a hook to read a value before its owner exists.
+ *
+ * CYCLE-BREAK DERIVATIONS STAY HERE. A handful of memos are computed in host render
+ * scope rather than inside a hook because they straddle two hooks that would
+ * otherwise form an init cycle, or because deriving them via effect would be unsafe:
+ * `provedRunInGameSource`, `livePresets`, `displayedPresetOptions`,
+ * `studioMatchesProvedLiveSource`, `liveGameStudioRelation`, `backgroundGridEnabled`,
+ * `recipeOptions`, and `runInGameMaterializationMode`. The last is security-adjacent
+ * (it gates whether a config is materialized DURABLY vs disposably) and is therefore
+ * derived synchronously from current state, NEVER from an effect that could lag a
+ * render and let a stale "durable" decision through. Each is documented at its site.
  */
 export function StudioShell(props: StudioShellProps) {
   const toast = useToast();
@@ -176,6 +213,11 @@ export function StudioShell(props: StudioShellProps) {
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
 
+  // Cycle break (§7.6): the run-in-game source that was actually PROVED through to a
+  // completed operation — `lastRunInGameSource` is what the user last requested, but
+  // it only counts as proved once an operation with the SAME requestId reports
+  // `complete`. Computed here (not in `useRunInGame`) because both `usePresetLifecycle`
+  // (via `livePresets`) and `useRunInGame` consume it, and it must exist before either.
   const provedRunInGameSource = useMemo(
     () =>
       lastRunInGameSource &&
@@ -185,6 +227,11 @@ export function StudioShell(props: StudioShellProps) {
         : null,
     [lastRunInGameSource, runInGameOperation]
   );
+  // Cycle break (§7.6): the synthetic "Live Game" preset entry, surfaced only when the
+  // last run-in-game source matches the CURRENT recipe. Threaded INTO `usePresetLifecycle`
+  // so `resolvePreset(LIVE_GAME_PRESET_KEY).config` stays referentially the proved
+  // `lastRunInGameSource.pipelineConfig` (live-sync identity invariant, ADD-1b) — keeping
+  // it host-side avoids the preset hook reaching back into run-state.
   const livePresets = useMemo(
     () =>
       lastRunInGameSource && lastRunInGameSource.recipeSettings.recipe === recipeSettings.recipe
@@ -249,6 +296,11 @@ export function StudioShell(props: StudioShellProps) {
   // Authoring persistence is now driven by `authoringStore`'s `persist` middleware
   // (same serializer, same key, same schema) — the prior manual save effect is removed.
 
+  // Seam #1: the browser-runner → viz event sink. `useBrowserRunner` needs a STABLE
+  // `onVizEvent` at construction, but the real `viz.ingest` is produced by
+  // `useVizSelection` which runs LATER (it reads `browserRunning`, which depends on the
+  // runner). The ref breaks that cycle: the runner is handed this stable forwarder now,
+  // and `vizIngestRef.current` is pointed at `viz.ingest` in render scope once it exists.
   const vizIngestRef = useRef<(event: VizEvent) => void>(() => {});
   const handleVizEvent = useCallback((event: VizEvent) => {
     vizIngestRef.current?.(event);
@@ -331,6 +383,9 @@ export function StudioShell(props: StudioShellProps) {
   // `useVizSelection` (their sole writer).
   const setSelectedStepId = useViewStore((s) => s.setSelectedStepId);
 
+  // Static recipe dropdown options (`[]` deps — the catalog is build-time constant).
+  // A trivial host-render projection: too small to warrant a hook, and the recipe panel
+  // needs it synchronously.
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
     []
@@ -400,6 +455,13 @@ export function StudioShell(props: StudioShellProps) {
 
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
+  // Cycle break + SECURITY-ADJACENT (§7.6). Decides whether Run in Game writes the
+  // config to a DURABLE on-disk map script or a DISPOSABLE one. "durable" requires a
+  // built-in preset WITH a source path AND the current config still matching either the
+  // resolved preset config or the last save/deploy config — i.e. the bytes about to run
+  // are exactly the bytes already on disk. Derived synchronously here, never from an
+  // effect: an effect could lag a render and let an edited config inherit a stale
+  // "durable" verdict, deploying unintended bytes. Threaded INTO `useRunInGame`.
   const runInGameMaterializationMode = useMemo<"durable" | "disposable">(() => {
     const parsed = parsePresetKey(recipeSettings.preset);
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
@@ -462,6 +524,11 @@ export function StudioShell(props: StudioShellProps) {
     toast,
   });
 
+  // Cycle break (§7.6): how the LIVE Civ7 game relates to the current Studio authoring
+  // state — drives the GameConsole "current / stale / sync" affordance. Spans
+  // `useLiveRuntime` (status/seed) AND `provedRunInGameSource`, so it must sit after
+  // run-in-game inits but stay host-side to bridge both. Seed mismatch short-circuits to
+  // "stale"/"unknown" before the fuller field-by-field `liveSourceMatchesStudio` compare.
   const liveGameStudioRelation = useMemo<"current" | "stale" | "unknown">(() => {
     if (liveRuntime.status !== "ok") return "unknown";
     if (liveRuntime.seed !== undefined && String(liveRuntime.seed) !== recipeSettings.seed)
@@ -492,6 +559,10 @@ export function StudioShell(props: StudioShellProps) {
     worldSettings,
   ]);
 
+  // Cycle break (§7.6): does the current authoring state still match the proved live
+  // source, field for field? Feeds `displayedPresetOptions` (whether "None" is relabeled
+  // "Live / Live Game"). Distinct from `liveGameStudioRelation`: this ignores the live
+  // runtime's seed/status and asks only about the proved-source identity.
   const studioMatchesProvedLiveSource = useMemo(() => {
     if (!provedRunInGameSource) return false;
     return liveSourceMatchesStudio({
@@ -503,6 +574,11 @@ export function StudioShell(props: StudioShellProps) {
     });
   }, [pipelineConfig, provedRunInGameSource, recipeSettings, setupConfig, worldSettings]);
 
+  // Cycle break (§7.6): the preset dropdown options actually rendered. When the current
+  // authoring state IS the proved disposable live source, the standalone "Live Game" row
+  // is dropped and "None" is relabeled "Live / Live Game" — so the user sees one
+  // truthful entry instead of a duplicate. Derived host-side because it composes the
+  // preset hook's `presetOptions` with the host-only `studioMatchesProvedLiveSource`.
   const displayedPresetOptions = useMemo(() => {
     const relabelNoneAsLive =
       studioMatchesProvedLiveSource && provedRunInGameSource?.materializationMode === "disposable";
@@ -545,10 +621,23 @@ export function StudioShell(props: StudioShellProps) {
     toast,
   });
 
+  // Seam #2: the shared run-in-game toast-dedupe stamp. Both the adoption effect below
+  // and `useStudioEvents` call this to mark a requestId as already-toasted, so whichever
+  // observes a terminal run-in-game status first suppresses the other's toast (see
+  // `useRunInGameTerminalToast`). Stable identity (`[]`) so it can be threaded into the
+  // adoption effect's deps without re-triggering it.
   const markRunInGameToastHandled = useCallback((requestId: string) => {
     lastRunInGameToastRef.current = requestId;
   }, []);
 
+  // The SINGLE mount-time operation-adoption effect (§5). On load, reconcile the shell
+  // against `studio.operations.current` so a run-in-game / save-deploy that completed
+  // (or is still running) on the daemon while the tab was closed is re-attached: it
+  // restores both op states and stamps the toast guard so an already-finished operation
+  // is not re-toasted. Reads the live op state via the `*Ref` mirrors (not deps) so it
+  // runs ONCE; `markRunInGameToastHandled` is its only reactive dep (and is `[]`-stable).
+  // This is the live-stream's static counterpart — `useStudioEvents` keeps it current
+  // afterward. Initialized after save/live/run hooks so their setters exist here.
   useEffect(() => {
     let cancelled = false;
     void readAndAdoptStudioOperationsCurrent({
@@ -624,6 +713,9 @@ export function StudioShell(props: StudioShellProps) {
     },
   });
 
+  // Host-render derivation (§7.6): composes the view-store `showGrid` toggle with the
+  // by-value `viz` read-projection, so it lives where both are in scope rather than in a
+  // hook owning only one. Fed straight to `CanvasStage`.
   const backgroundGridEnabled = useMemo(() => {
     if (!showGrid) return false;
     // The graticule is CANVAS substrate, not layer furniture: once a manifest
