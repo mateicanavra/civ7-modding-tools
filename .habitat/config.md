@@ -83,7 +83,11 @@ Structural transition. A migrate operation answers how Habitat may move authored
 - Artifact kind names are verbs: `check`, `fix`, `generate`, `migrate`.
 - Category names are single-word universal purposes: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, `policy`.
 - Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
-- Blueprint names are constructible or enforceable things such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `ensure_studio_worker_bundle_is_browser_safe`.
+- Current blueprint placement labels are transitional evidence. Do not promote a
+  label such as `standard-recipe`, `domain-public-surface`, `map-projection`,
+  or `ensure_studio_worker_bundle_is_browser_safe` into an accepted blueprint
+  unless the bounded slice proves a constructible kind with its own lifecycle.
+  See `AUTHORITY-SLICE-FRAME.md` for the active slice criteria.
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
 - Rule IDs are stable registry handles, not ontology roots.
 - Narrow rule handles do not become blueprints unless a later domain pass proves a distinct authored concept with its own lifecycle.

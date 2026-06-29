@@ -12,23 +12,25 @@ Use this source order when selecting or judging the next domino:
 
 1. Direct user decisions and current repo instructions.
 2. `.habitat/DOMINO-FRAME.md`.
-3. `.habitat/AUTHORITY-ONTOLOGY.md`.
-4. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
+3. `.habitat/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
+4. `.habitat/AUTHORITY-ONTOLOGY.md`.
+5. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
    `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
-5. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
+6. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
    and fresh command evidence.
-6. Historical branch, PR, and session context as discovery material only.
+7. Historical branch, PR, and session context as discovery material only.
 
 The center of gravity has moved. Package-script cleanup is not the active
 driver anymore. Source-check retirement and mixed command-check extraction are
 landed enough to stop driving the plan. The full-suite runner rebuild moves
 later, after admitted authority exists and can project into execution.
 
-The next regime is not another cleanup pass. It is the point where the
-authority model starts operating vertically: blueprint authority, instance
-facts, capability attachment, niche admission, and execution projection become
-real for one narrow pilot before they are generalized.
+The next regime is not another cleanup pass and not a broad corpus snapshot.
+The authority model should now advance through bounded kind-family slices: pick
+one known dependency pocket, move its rules toward the correct blueprint or
+coarse remainder context, then re-read the changed structure before selecting
+the next slice.
 
 ## Target Regime: Authority Activation
 
@@ -54,9 +56,9 @@ start with one admitted instance, know its blueprint, capabilities, niche
 admission basis, and narrow execution projection, and then author or inspect the
 slice without reverse-engineering the old packet registry.
 
-That destination is not a final global schema. It is a vertical pilot that
-proves the activation stack end to end and gives the next pilot something real
-to copy, refine, or reject.
+That destination is not a final global schema. It is a series of bounded
+state-changing slices that teach the next slice what the current tree could not
+teach before movement.
 
 ## Domino Selection Rule
 
@@ -75,7 +77,7 @@ A scan, ledger, or design note only counts when it enables one of those moves
 inside the same branch or explicitly proves that the branch must stop before
 implementation.
 
-Avoid horizontal cleanup unless it is necessary for the active vertical pilot.
+Avoid horizontal cleanup unless it is necessary for the active bounded slice.
 Avoid runner rebuilding until admitted authority exists for it to discover.
 
 ## Completed Domino Index
@@ -99,204 +101,160 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 15. Polish authority ontology and frame | The ontology and operating frame now name Habitat, blueprint, instance, capability, niche, and proof-class separation as the governing model. |
 | 16. Normalize packet role metadata | Child files use generic role names, `rule.json` stopped carrying owner-tool/detect/scope duplication, and packet `category.md` files are gone. |
 | 17. Make rule manifests location independent | `rule.json` now owns stable rule identity, current placement inventory facts, explicit runner file references, and explicit artifact references; Toolkit discovery no longer depends on the packet path grammar. |
+| 18. Frame bounded authority slice work | `AUTHORITY-SLICE-FRAME.md` now governs bounded kind-family slices, supersedes broad pilot-corpus selection, and sets the Recipe Kind Pocket as the first working example. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
 
-### 18. Select One Vertical Activation Pilot Corpus
+### 19. Move The Recipe Kind Pocket
 
-Purpose: choose the narrow corpus that will prove Authority Activation end to
-end.
+Purpose: use current standard-recipe evidence to move rules toward the
+`recipe`, `recipe-stage`, and `recipe-step` blueprint kinds without promoting
+`standard recipe` to a blueprint.
 
 Done Means:
 
-- One pilot corpus is selected and justified against the selection rule.
-- The branch records why rejected candidate corpora are too broad, too runtime
-  heavy, or too weak to prove activation.
-- The selected slice has a concrete current packet or authority surface to
-  migrate.
+- Rules in the bounded Recipe Kind Pocket are moved into the correct-most
+  enclosing owner for the slice.
+- `standard recipe` is represented only as current evidence, instance/context
+  material, or transitional niche material.
+- Rule identities remain stable and explicit runner/artifact references are
+  updated.
+- Obvious cleanup candidates are marked or deleted only when the slice makes
+  the decision mechanical.
 
 Moves It Forward:
 
-- Compare `docs-site` and `habitat/toolkit/generator` first.
-- Prefer the candidate with one visible blueprint candidate, one plausible
-  instance, one narrow capability, and one niche admission rule.
-- Avoid MapGen runtime/product proof as the first pilot unless all smaller
-  candidates fail.
+- Establish the first real recipe/stage/step authority shape.
+- Reveal which current rules genuinely remain context or niche governance.
+- Make later consolidation of weak negative rules cheaper.
 
 Dependencies:
 
-- Domino 17 is landed.
-- Current `.habitat` authority docs are read as source, not rewritten as part
-  of pilot selection.
+- Domino 18 is complete.
+- The location-independent manifest model remains stable.
 
 Proof:
 
-- A short pilot-selection record exists in the owning authority tree location.
-- The selected corpus lists the existing packets, docs, and commands that will
-  be touched by the next domino.
-- The record names the proof classes that the pilot can and cannot exercise.
+- Focused Habitat checks still pass for the touched manifests.
+- A reviewer can distinguish recipe kind rules from standard-recipe context
+  rules without reading the old packet history.
 
-### 19. Admit One Pilot Blueprint Definition
+### 20. Re-Read The Changed Recipe Slice
 
-Purpose: make one blueprint a real authority definition instead of a path label.
+Purpose: let the changed structure, not the old corpus, select the next
+bounded slice.
 
 Done Means:
 
-- The pilot blueprint defines the constructible kind it governs.
-- It states required instance facts without designing the global schema.
-- It names allowed or expected capabilities for the pilot slice.
-- It identifies which existing packet metadata remains transitional.
+- The moved recipe slice is inspected for residual context, capability, niche,
+  or adjacent-kind pressure.
+- The next slice is selected from what the moved structure makes clearer.
+- Any general lesson is folded into `AUTHORITY-SLICE-FRAME.md`.
 
 Moves It Forward:
 
-- Author the smallest blueprint definition needed for the selected pilot.
-- Use current ontology terms exactly: blueprint, instance, capability, niche.
-- Reject path-derived facts that should belong to the instance or admission
-  rule.
-- Keep execution adapter concerns out of blueprint authority.
+- Prevents broad corpus snapshots from freezing old relationships.
+- Decides whether the next bounded pocket is domain operation, operation
+  strategy, map projection, generated map entrypoint, or recipe instance
+  admission.
 
 Dependencies:
 
-- Domino 18 selected a pilot with enough surface area to admit a blueprint.
-- Existing `.habitat/AUTHORITY-ONTOLOGY.md` remains the conceptual source.
+- Domino 19 moved and proved the recipe slice.
 
 Proof:
 
-- Adjacent authority docs or metadata show the blueprint as the source for the
-  pilot kind.
-- No broad schema is introduced beyond the facts needed by the pilot.
-- Review can point to one before/after conceptual owner change.
+- The next selected slice references concrete pressure from the changed recipe
+  structure, not a pre-existing all-rule ledger.
 
-### 20. Admit One Pilot Instance Plus One Capability
+### 21. Repeat Bounded Kind-Family Slices
 
-Purpose: prove that a concrete instance can declare facts and receive a
-capability under the pilot blueprint.
+Purpose: continue the same method across adjacent kind families.
 
 Done Means:
 
-- One concrete pilot instance exists as an admitted authority object.
-- The instance declares the facts needed by the pilot blueprint.
-- One capability attaches to the instance through an explicit allowed relation.
-- Transitional rule metadata for the same facts is either demoted or marked
-  for removal in Domino 22.
+- At least two additional slices repeat the bounded state-change loop.
+- Each slice starts from an identified kind family or coarse remainder context.
+- Capabilities and niches are introduced only when a moved slice proves they
+  are needed.
 
 Moves It Forward:
 
-- Choose the smallest instance that is already implied by the selected corpus.
-- Define only the capability needed to make the pilot useful.
-- Keep capability authority separate from execution implementation.
-- Record any fact that is still duplicated in legacy packet metadata.
+- Builds enough admitted authority to justify projection and runner discovery.
+- Keeps ontology pressure grounded in changed structure.
 
 Dependencies:
 
-- Domino 19 admitted the pilot blueprint.
-- The selected corpus has one concrete authority surface that can be treated as
-  an instance without inventing a fake object.
+- Domino 20 selected the next bounded slice.
 
 Proof:
 
-- The instance and capability can be inspected without reading the runner.
-- Capability attachment can be traced to blueprint permission and instance
-  facts.
-- Any duplicated transitional fact is explicitly listed for pruning.
+- Each slice has focused proof and leaves a clearer owner map than it started
+  with.
 
-### 21. Admit One Niche Selector Or Governance Rule
+### 22. Build Narrow Projection From Moved Authority
 
-Purpose: make niche admission real for the pilot.
-
-Done Means:
-
-- One niche selector or governance rule admits the pilot instance by accepted
-  facts.
-- The rule explains what facts matter for admission and which facts do not.
-- The niche stops being only a folder jurisdiction for the migrated slice.
-
-Moves It Forward:
-
-- Use the pilot instance facts from Domino 19.
-- Keep niche governance separate from blueprint definition and capability
-  attachment.
-- Prefer one admission rule over a general selector framework.
-- Record falsifiers that would force the pilot back to blueprint or instance
-  design.
-
-Dependencies:
-
-- Domino 20 admitted an instance with inspectable facts.
-- The selected niche is stable enough to govern one pilot slice.
-
-Proof:
-
-- The pilot instance can be explained as admitted, rejected, or out of scope by
-  the niche rule.
-- The rule does not rely on the old runner registry as authority.
-- Review can identify the exact admission basis.
-
-### 22. Build The Narrow Projection Adapter
-
-Purpose: let execution consume the admitted pilot authority without rebuilding
-the full runner.
+Purpose: let execution consume moved authority only after multiple slices give
+it something honest to discover.
 
 Done Means:
 
-- One narrow adapter projects the admitted pilot blueprint, instance,
-  capability, and niche admission into the existing execution surface needed by
-  the pilot.
+- One narrow adapter projects moved blueprint/context authority into the
+  existing execution surface needed by the touched slices.
 - The adapter is explicitly an adapter, not the authority source.
-- Existing selected-rule or local toolkit behavior still works for the pilot
-  slice.
+- Existing selected-rule or local Toolkit behavior still works for migrated and
+  unmigrated slices.
 
 Moves It Forward:
 
-- Build only the projection path needed by the pilot.
+- Build only the projection path needed by moved slices.
 - Preserve existing compatibility paths outside the migrated slice.
 - Add diagnostics that distinguish admission failure from execution failure if
-  the pilot surface can exercise that distinction.
+  the moved surface can exercise that distinction.
 - Stop if implementation requires finalizing the full global schema.
 
 Dependencies:
 
-- Domino 21 admitted the pilot through one niche rule.
-- There is a current execution surface worth projecting into for the pilot.
+- Domino 21 has repeated bounded slices enough to expose projection needs.
 
 Proof:
 
-- A focused command or local test exercises the pilot projection.
+- A focused command or local test exercises the slice projection.
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 23. Prune Transitional Packet Metadata For The Migrated Slice
+### 23. Prune Transitional Packet Metadata For Moved Slices
 
-Purpose: remove duplicated or misleading packet metadata once the pilot
-authority owns the facts.
+Purpose: remove duplicated or misleading packet metadata once moved authority
+owns the facts.
 
 Done Means:
 
-- Transitional metadata for the migrated slice is removed, demoted, or fenced.
+- Transitional metadata for moved slices is removed, demoted, or fenced.
 - Remaining `rule.json` metadata is limited to runner compatibility or
   documented transitional use.
-- The migrated slice no longer teaches future agents that packet metadata is
+- The moved slice no longer teaches future agents that packet metadata is
   the conceptual source.
 
 Moves It Forward:
 
-- Start from duplicated facts listed in Dominoes 18 and 19.
+- Start from duplicated facts exposed during bounded movement.
 - Delete facts now owned by blueprint, instance, capability, or niche authority.
 - Keep only metadata still needed by the narrow projection adapter.
 - Update local docs if a reader would otherwise infer the old ownership model.
 
 Dependencies:
 
-- Domino 22 proved the pilot projection can run from admitted authority.
+- Domino 22 proved projection can run from moved authority.
 - Duplicated facts have been identified before deletion.
 
 Proof:
 
 - Focused inspection shows migrated facts now have a single conceptual owner.
-- Focused command proof still passes for the pilot slice.
+- Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
 ### 24. Repeat Activation Slices
@@ -306,8 +264,8 @@ making it the default shape.
 
 Done Means:
 
-- At least two additional vertical slices repeat the blueprint, instance,
-  capability, niche, projection, and pruning loop.
+- At least two additional bounded kind-family slices repeat the movement,
+  projection, and pruning loop.
 - Differences between slices are recorded as model refinements or explicit
   rejected generalizations.
 - The authority model becomes easier to apply with each slice.
@@ -322,7 +280,7 @@ Moves It Forward:
 Dependencies:
 
 - Domino 23 completed the first migrated slice.
-- The first pilot has a clear copyable pattern or named failure mode.
+- The first moved slice has a clear copyable pattern or named failure mode.
 
 Proof:
 
@@ -367,14 +325,15 @@ Proof:
 
 Reorder the sequence if any of these become true:
 
-- Pilot selection proves both `docs-site` and `habitat/toolkit/generator` are
-  too weak to exercise blueprint, instance, capability, niche, and projection
-  together.
-- The selected pilot requires MapGen runtime/product proof before authority
-  activation can be observed.
-- Blueprint admission cannot be stated without first defining an instance fact
-  surface.
-- Instance or capability admission requires a niche governance decision first.
+- The Recipe Kind Pocket cannot place most current standard-recipe evidence
+  under `recipe`, `recipe-stage`, `recipe-step`, or one coarse transitional
+  context without inventing a broad replacement taxonomy.
+- A bounded slice creates more new capability or niche buckets than
+  blueprint-owned rules.
+- A named variant such as `standard recipe` has to be treated as a blueprint
+  for the slice to proceed.
+- A slice requires MapGen runtime/product proof before authority movement can
+  be observed.
 - The narrow projection adapter cannot be built without a full runner rebuild.
 - Two branches in a row add docs or ledgers without moving, admitting, pruning,
   deleting, demoting, or proving a concrete authority surface.

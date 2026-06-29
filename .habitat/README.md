@@ -25,6 +25,9 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `AUTHORITY-ONTOLOGY.md`: normative conceptual model for Habitat, blueprints, instances, capabilities, niches, admission, and authority activation.
 - `AUTHORITY-TREE-SHAPE.md`: the current niche/blueprint tree shape.
 - `DOMINO-FRAME.md`: operating frame for choosing and carrying authority-tree dominoes across branches, agents, and review loops.
+- `AUTHORITY-SLICE-FRAME.md`: normative frame for bounded authority-slice
+  work, including how to classify current rules without promoting packet
+  labels into ontology.
 - `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
 - `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.
