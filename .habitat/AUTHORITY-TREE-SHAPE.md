@@ -133,11 +133,16 @@ Known transitional misfits, not blueprint exemplars:
 - `civ7/mapgen/domain/rules/foundation-domain`,
   `civ7/mapgen/domain/rules/ecology-domain`, and any later intentional
   concrete-domain context rules are current domain contexts, not accepted
-  blueprints by label inheritance.
+  blueprints by label inheritance. Foundation currently has both intentional
+  context rules and sorted deferred packets; do not collapse those lanes.
 - `civ7/mapgen/domain/_remainder/morphology-domain` is the first reviewed
   concrete-domain remainder. Its packets have been sorted out of intentional
   `rules/` authority but are not final owners; treat them as visible debt for
   later movement, split, consolidation, projection, or retirement.
+- `civ7/mapgen/domain/_remainder/foundation-domain` contains reviewed
+  foundation-domain packets that are not final context authority: mixed
+  recipe-step plus operation-contract predicates, projection implementation
+  cleanup, strategy-file locality pressure, and rules-index shim cleanup.
 - `civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe`
   is a check/defect-shaped slug. Treat it as a pruning target to decompose
   under the appropriate constructible blueprint, package-local proof, or

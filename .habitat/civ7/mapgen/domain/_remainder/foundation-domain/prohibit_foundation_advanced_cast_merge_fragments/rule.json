@@ -4,7 +4,7 @@
   "title": "Prohibit Foundation Advanced Cast Merge Fragments",
   "placement": {
     "niche": "civ7/mapgen/domain",
-    "blueprint": "foundation-domain",
+    "blueprint": "_remainder",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -35,12 +35,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domain/rules/foundation-domain/prohibit_foundation_advanced_cast_merge_fragments/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/_remainder/foundation-domain/prohibit_foundation_advanced_cast_merge_fragments/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domain/rules/foundation-domain/prohibit_foundation_advanced_cast_merge_fragments/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/_remainder/foundation-domain/prohibit_foundation_advanced_cast_merge_fragments/pattern.md"
     },
     "patternName": "prohibit_foundation_advanced_cast_merge_fragments"
   }

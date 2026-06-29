@@ -383,9 +383,33 @@ Resulting reusable lesson:
   move it to `_remainder/<source-context>` with a named future destination or
   trigger.
 
-Foundation remains a likely next pocket after morphology because it has a
-larger legacy/strategy tangle. Ecology is useful later but currently looks too
-narrow to teach the remainder method by itself.
+## Second Method Seed: Foundation Remainder Pocket
+
+The second method seed was the Foundation Remainder Pocket:
+
+```text
+.habitat/civ7/mapgen/domain/rules/foundation-domain/**        # starting pocket
+.habitat/civ7/mapgen/domain/rules/foundation-domain/**        # intentional context result
+.habitat/civ7/mapgen/domain/_remainder/foundation-domain/**   # sorted deferred result
+mods/mod-swooper-maps/src/domain/foundation/**
+```
+
+Resulting reusable lesson:
+
+- A remainder slice does not have to choose between moving everything to
+  `_remainder` and preserving every current-context row. Some rules are
+  intentionally concrete-context authority: currentness guards and retired-token
+  regression guards can remain in `rules/<context>` when the context owns that
+  migration history and another valid instance could differ without violating an
+  affirmed kind.
+- `_remainder/<source-context>` is for reviewed rows that are not final
+  context authority: mixed recipe-step plus operation-contract predicates,
+  projection implementation cleanup, duplicate split rows, strategy-file
+  locality rows, and rules-index shim pressure.
+- Adjacent direct rows may become the next domino when a remainder slice
+  exposes duplicate or stronger versions outside the current context pocket. Do
+  not silently absorb those rows into the current slice unless they are primary
+  inputs or required to decide a primary row.
 
 ## Falsifiers
 
