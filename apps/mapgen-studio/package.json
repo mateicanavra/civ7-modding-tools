@@ -101,6 +101,7 @@
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "check:worker-bundle": "node scripts/check-worker-bundle.mjs",
     "check": "tsc --noEmit",
+    "lint:react-compiler": "node scripts/lint-react-compiler.mjs",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio",
     "build": "vite build",
     "preview": "vite preview",
