@@ -46,7 +46,10 @@
         "noUnsafeFinally": "error",
         "noUnsafeOptionalChaining": "error",
         "useIsNan": "error",
-        "useValidTypeof": "error"
+        "useValidTypeof": "error",
+        "useExhaustiveDependencies": "warn",
+        "useHookAtTopLevel": "error",
+        "useJsxKeyInIterable": "error"
       },
       "suspicious": {
         "noDebugger": "error",
