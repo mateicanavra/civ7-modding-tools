@@ -13,6 +13,10 @@ moves.
 
 Current frames:
 
+- `POST-DEPENDENCY-TAG-POSITION-FRAME.md`: use immediately after Domino 39 to
+  ground the next branch. It records what dependency-tag proved, what it did
+  not prove, and the decision gate between Artifact Blueprint Gathering,
+  garbage collection, and targeted `_blueprints` pruning.
 - `DESTINATION-SIMPLIFICATION-FRAME.md`: use when deciding the immediate
   big-swing destination sequence after several movement slices. It records the
   simplified destination set, the dependency-tag before artifact ordering,
