@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_foundation_strategy_nonlocal_imports",
   "title": "Prohibit Foundation Strategy Nonlocal Imports",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
     "blueprint": "_remainder",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -17,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/strategies/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/strategies/**/*.ts"]
     }
   ],
   "scanRoots": [
@@ -33,7 +33,7 @@
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_strategy_nonlocal_imports/baseline.json"
   },
   "runner": {

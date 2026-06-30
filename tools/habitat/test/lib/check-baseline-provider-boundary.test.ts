@@ -50,15 +50,15 @@ describe("check and baseline provider boundaries", () => {
           options.cwd,
           JSON.stringify(
             {
-              schemaVersion: 1,
+              schemaVersion: 2,
               id: "existing-rule",
               title: "Existing Rule",
               placement: {
                 niche: "global/workspace",
                 blueprint: "project-boundary-model",
                 category: "structure",
-                artifactKind: "check",
               },
+              operation: { kind: "check" },
               ownerProject: "habitat",
               lane: "enforced",
               runner: {

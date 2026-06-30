@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_rng_callback_state_in_ops",
   "title": "Prohibit Rng Callback State In Ops",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
-    "category": "execution",
-    "artifactKind": "check"
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -17,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/*/ops/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/*/ops/**/*.ts"]
     }
   ],
   "scanRoots": [
@@ -32,7 +32,7 @@
     "mods/mod-swooper-maps/src/domain/resources/ops"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/baseline.json"
   },
   "runner": {

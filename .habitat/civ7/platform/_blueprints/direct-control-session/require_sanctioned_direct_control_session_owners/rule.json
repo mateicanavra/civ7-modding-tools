@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_sanctioned_direct_control_session_owners",
   "title": "Require Sanctioned Direct Control Session Owners",
   "placement": {
     "niche": "civ7/platform",
     "blueprint": "direct-control-session",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["apps/mapgen-studio/src", "packages"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/platform/_blueprints/direct-control-session/require_sanctioned_direct_control_session_owners/baseline.json"
   },
   "runner": {

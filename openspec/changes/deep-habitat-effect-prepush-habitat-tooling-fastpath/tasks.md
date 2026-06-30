@@ -5,7 +5,7 @@
 - [x] 1.1 Add a pre-push target plan that separates owner-local Nx targets from affected targets.
 - [x] 1.2 Route Habitat tooling-only changes through `@internal/habitat-harness:check`.
 - [x] 1.3 Keep structural affected targets for Habitat tooling changes without generic `check`.
-- [x] 1.4 Preserve artifact-only and ordinary repo change behavior.
+- [x] 1.4 Preserve authority-only and ordinary repo change behavior.
 
 ## 2. Verification
 

@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "ensure_map_policy_dependency_independence",
   "title": "Ensure Map Policy Dependency Independence",
   "placement": {
     "niche": "civ7/resources",
     "blueprint": "civ7-map-policy",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "civ7-map-policy",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/baseline.json"
   },
   "runner": {

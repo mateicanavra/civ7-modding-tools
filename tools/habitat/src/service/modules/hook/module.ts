@@ -82,7 +82,7 @@ export const module: HabitatModule<"hook", HookModuleContext> = service.hook.use
             prePushTargetPlanForChangedPaths(
               changedPaths,
               hookContext.workspaceGraphTargetNames(),
-              hookContext.rules.artifactPath
+              hookContext.rules.authorityPath
             ),
         },
         time: {

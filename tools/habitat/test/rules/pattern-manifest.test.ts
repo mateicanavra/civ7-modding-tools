@@ -39,7 +39,7 @@ describe("pattern manifest validator", () => {
       openspecChangeId: "habitat-pattern-generator-metadata-repair",
       ownerProject: "habitat",
       patternRole: "diagnostic",
-      candidateArtifacts: {
+      candidateAuthorityFiles: {
         patternPath: ".habitat/patterns/candidates/candidate_probe.md",
         manifestPath: ".habitat/patterns/candidates/candidate-probe.json",
       },
@@ -104,7 +104,7 @@ describe("pattern manifest validator", () => {
     expect(issueReasons(result)).toContain("orphan-manifest");
   });
 
-  test("rejects registered manifests outside the canonical source-artifact path", () => {
+  test("rejects registered manifests outside the canonical source-authority path", () => {
     const manifest = registeredManifest();
     const result = validatePatternManifest(manifest, {
       manifestPath: ".habitat/patterns/candidates/registration-probe.json",

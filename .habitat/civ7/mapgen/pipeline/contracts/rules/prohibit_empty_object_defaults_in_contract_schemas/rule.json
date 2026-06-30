@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_empty_object_defaults_in_contract_schemas",
   "title": "Prohibit Empty Object Defaults In Contract Schemas",
   "placement": {
     "niche": "civ7/mapgen/pipeline/contracts",
     "blueprint": "_self",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -25,12 +27,9 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/baseline.json"
   },
   "runner": {

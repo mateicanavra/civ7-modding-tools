@@ -74,13 +74,13 @@ describe("protected zone file-layer execution", () => {
     expect(result.diagnostics[0]?.message).toContain("nx run mod-swooper-maps:gen:maps");
   });
 
-  test("refuses forbidden artifacts separately from generated surfaces", () => {
+  test("refuses forbidden files separately from generated surfaces", () => {
     const result = runFileLayerProtectedMutationRule(
       {
-        id: "file-layer-forbidden-artifact",
+        id: "file-layer-forbidden-file",
         lane: "enforced",
         runner: forbiddenFileRunner,
-        message: "pnpm artifacts are forbidden in this Bun-only repo.",
+        message: "pnpm files are forbidden in this Bun-only repo.",
         forbiddenFileNames: ["pnpm-lock.yaml"],
       },
       {
@@ -93,9 +93,9 @@ describe("protected zone file-layer execution", () => {
       exitCode: 1,
       diagnostics: [
         {
-          ruleId: "file-layer-forbidden-artifact",
+          ruleId: "file-layer-forbidden-file",
           path: "pnpm-lock.yaml",
-          message: "pnpm artifacts are forbidden in this Bun-only repo.",
+          message: "pnpm files are forbidden in this Bun-only repo.",
           severity: "error",
           baselined: false,
         },

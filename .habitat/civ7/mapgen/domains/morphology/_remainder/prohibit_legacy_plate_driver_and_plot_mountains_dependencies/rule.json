@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_legacy_plate_driver_and_plot_mountains_dependencies",
   "title": "Prohibit Legacy Plate Driver And Plot Mountains Dependencies",
   "placement": {
     "niche": "civ7/mapgen/domains/morphology",
     "blueprint": "_remainder",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -30,7 +32,7 @@
     "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_plate_driver_and_plot_mountains_dependencies/baseline.json"
   },
   "runner": {

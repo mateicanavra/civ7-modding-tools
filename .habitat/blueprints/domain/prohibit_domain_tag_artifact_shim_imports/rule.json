@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_domain_tag_artifact_shim_imports",
   "title": "Prohibit Domain Tag Artifact Shim Imports",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -26,7 +28,7 @@
     "mods/mod-swooper-maps/src/maps"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/domain/prohibit_domain_tag_artifact_shim_imports/baseline.json"
   },
   "runner": {

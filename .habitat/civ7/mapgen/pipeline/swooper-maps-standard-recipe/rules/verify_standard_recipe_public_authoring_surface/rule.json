@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "verify_standard_recipe_public_authoring_surface",
   "title": "Verify Standard Recipe Public Authoring Surface",
   "placement": {
     "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "_self",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -27,7 +29,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/baseline.json"
   },
   "runner": {

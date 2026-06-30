@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_migrated_consumer_effect_gating_tokens",
   "title": "Prohibit Migrated Consumer Effect Gating Tokens",
   "placement": {
     "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "_self",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -26,7 +28,7 @@
     "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_migrated_consumer_effect_gating_tokens/baseline.json"
   },
   "runner": {

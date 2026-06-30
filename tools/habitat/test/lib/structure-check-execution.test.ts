@@ -30,19 +30,19 @@ required = ["src"]
       ]),
     };
     const rules = ruleFactsCatalog({
-      schemaVersion: 1,
+      schemaVersion: 2,
       ownerRoots: { habitat: "tools/habitat" },
       rules: [
         {
           id: "sample-structure-rule",
-          schemaVersion: 1,
+          schemaVersion: 2,
           title: "Sample Structure Rule",
           placement: {
             niche: "fixtures",
             blueprint: "_self",
             category: "structure",
-            artifactKind: "check",
           },
+          operation: { kind: "check" },
           ownerProject: "habitat",
           lane: "enforced",
           forbids: "missing structure",

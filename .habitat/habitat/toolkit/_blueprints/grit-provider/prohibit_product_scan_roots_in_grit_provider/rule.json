@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_product_scan_roots_in_grit_provider",
   "title": "Prohibit Product Scan Roots In Grit Provider",
   "placement": {
     "niche": "habitat/toolkit",
     "blueprint": "grit-provider",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -25,7 +27,7 @@
   ],
   "scanRoots": ["tools/habitat/src/providers/grit"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/baseline.json"
   },
   "runner": {

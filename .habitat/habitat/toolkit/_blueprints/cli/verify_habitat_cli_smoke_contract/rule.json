@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "verify_habitat_cli_smoke_contract",
   "title": "Verify Habitat Cli Smoke Contract",
   "placement": {
     "niche": "habitat/toolkit",
     "blueprint": "cli",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/habitat/toolkit/_blueprints/cli/verify_habitat_cli_smoke_contract/baseline.json"
   },
   "runner": {

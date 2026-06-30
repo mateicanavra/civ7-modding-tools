@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_hydrology_climate_intervention_tokens",
   "title": "Prohibit Hydrology Climate Intervention Tokens",
   "placement": {
     "niche": "civ7/mapgen/domains/hydrology",
     "blueprint": "_self",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -30,7 +32,7 @@
     "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/baseline.json"
   },
   "runner": {

@@ -6,7 +6,7 @@ import {
 } from "@habitat/cli/generators/scaffold/model";
 import { type Tree, writeJson } from "@nx/devkit";
 import { Value } from "typebox/value";
-import { activePatternPathFor, candidateArtifactPaths } from "./paths.ts";
+import { activePatternPathFor, candidateAuthorityPaths } from "./paths.ts";
 import { type PatternGeneratorOptions, PatternGeneratorOptionsSchema } from "./schema.ts";
 
 export async function patternGenerator(
@@ -16,7 +16,7 @@ export async function patternGenerator(
   const options = Value.Parse(PatternGeneratorOptionsSchema, rawOptions);
   const decision = decidePatternScaffold(options, {
     activePatternPath: activePatternPathFor,
-    candidateArtifactPaths,
+    candidateAuthorityPaths,
     ruleManifestIdCollisionPath: ({ ruleId }) => ruleManifestIdCollisionPathFor(tree, ruleId),
     pathExists: (path) => tree.exists(path),
   });
@@ -30,7 +30,7 @@ export async function patternGenerator(
   writeJson(tree, decision.paths.manifestPath, candidateManifest(decision.options, decision.paths));
 }
 
-export { candidateArtifactPaths } from "./paths.ts";
+export { candidateAuthorityPaths } from "./paths.ts";
 
 export default patternGenerator;
 

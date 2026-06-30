@@ -10,7 +10,7 @@ package baseline directory.
 
 - **WHEN** Habitat loads the active rule registry
 - **THEN** it reads `.habitat/rules/index.json` and `.habitat/rules/<rule-id>/rule.json`
-- **AND** validates it through the `RuleRegistryDocumentV1` TypeBox schema
+- **AND** validates it through the `RuleRegistryDocument` TypeBox schema
 - **AND** projects consumer-specific facts from the parsed registry
 
 #### Scenario: Baselines are loaded or written

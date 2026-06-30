@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_retired_domain_root_catalogs",
   "title": "Prohibit Retired Domain Root Catalogs",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -25,7 +27,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/baseline.json"
   },
   "runner": {

@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_adapter_local_legacy_generator_logic",
   "title": "Prohibit Adapter Local Legacy Generator Logic",
   "placement": {
     "niche": "civ7/platform",
     "blueprint": "civ7-adapter",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "civ7-adapter",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/platform/_blueprints/civ7-adapter/prohibit_adapter_local_legacy_generator_logic/baseline.json"
   },
   "runner": {

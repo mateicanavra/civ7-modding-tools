@@ -283,7 +283,7 @@ context-owned rule.
 4. Disposition every primary rule into one of the decision buckets above.
 5. Physically move rules whose whole meaning has a truthful owner.
 6. Preserve every moved rule `id`; update `placement`, `runner.files`, and
-   `artifacts.baseline`.
+   `supportFiles.baseline`.
 7. Leave only intentional context authority in `rules/`.
 8. Move sorted-but-deferred leftovers to `_remainder/<packet>/` inside the
    smallest honest niche.

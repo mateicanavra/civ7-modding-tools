@@ -5,7 +5,7 @@ import { GitProvider } from "@habitat/cli/providers/git/index";
 import { GraphiteProvider } from "@habitat/cli/providers/graphite/index";
 import { GritProvider } from "@habitat/cli/providers/grit/index";
 import { NxProvider } from "@habitat/cli/providers/nx/index";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/artifact-paths";
+import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
 import { CommandRunner } from "@habitat/cli/resources/command/index";
 import { HabitatPlatform } from "@habitat/cli/resources/platform/index";
 import { silentHabitatReporter } from "@habitat/cli/resources/reporter/index";

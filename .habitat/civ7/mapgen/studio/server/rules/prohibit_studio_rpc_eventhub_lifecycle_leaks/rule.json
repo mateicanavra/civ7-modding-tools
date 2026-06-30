@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
   "title": "Prohibit Studio Rpc Eventhub Lifecycle Leaks",
   "placement": {
     "niche": "civ7/mapgen/studio/server",
     "blueprint": "_self",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
@@ -28,7 +30,7 @@
   ],
   "scanRoots": ["apps/mapgen-studio/src/server/daemon", "apps/mapgen-studio/src/server/studio"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/baseline.json"
   },
   "runner": {

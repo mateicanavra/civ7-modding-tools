@@ -32,7 +32,7 @@ export const MutationSurfaceKindSchema = Type.Union([
   Type.Literal("generated"),
   Type.Literal("protected"),
   Type.Literal("external-resource"),
-  Type.Literal("forbidden-artifact"),
+  Type.Literal("forbidden-file"),
 ]);
 
 export const ProtectedZoneRecoveryInstructionSchema = Type.Union([
@@ -40,7 +40,7 @@ export const ProtectedZoneRecoveryInstructionSchema = Type.Union([
   Type.Object(
     {
       ownerId: NonEmptyStringSchema,
-      actionKind: Type.Literal("remove-artifact"),
+      actionKind: Type.Literal("remove-file"),
       instruction: NonEmptyStringSchema,
     },
     { additionalProperties: false }
@@ -76,9 +76,9 @@ export const GeneratedSurfaceDeclarationSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const ForbiddenArtifactDeclarationSchema = Type.Object(
+export const ForbiddenFileDeclarationSchema = Type.Object(
   {
-    kind: Type.Literal("forbidden-artifact"),
+    kind: Type.Literal("forbidden-file"),
     declarationId: NonEmptyStringSchema,
     owner: ProtectedZoneOwnerSchema,
     fileNames: Type.Array(NonEmptyStringSchema, { minItems: 1 }),
@@ -106,7 +106,7 @@ export const DeclarationReadinessSchema = Type.Union([
       declaration: Type.Union([
         GeneratedSurfaceDeclarationSchema,
         ProtectedSurfaceDeclarationSchema,
-        ForbiddenArtifactDeclarationSchema,
+        ForbiddenFileDeclarationSchema,
       ]),
     },
     { additionalProperties: false }
@@ -165,7 +165,7 @@ export const ProtectedMutationDecisionSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("refused-forbidden-artifact"),
+      kind: Type.Literal("refused-forbidden-file"),
       path: RepoRelativePathSchema,
       action: MutationPathActionSchema,
       owner: ProtectedZoneOwnerSchema,
@@ -301,7 +301,7 @@ export type ProtectedZoneRecoveryInstruction = Static<
   typeof ProtectedZoneRecoveryInstructionSchema
 >;
 export type GeneratedSurfaceDeclaration = Static<typeof GeneratedSurfaceDeclarationSchema>;
-export type ForbiddenArtifactDeclaration = Static<typeof ForbiddenArtifactDeclarationSchema>;
+export type ForbiddenFileDeclaration = Static<typeof ForbiddenFileDeclarationSchema>;
 export type ProtectedSurfaceDeclaration = Static<typeof ProtectedSurfaceDeclarationSchema>;
 export type DeclarationReadiness = Static<typeof DeclarationReadinessSchema>;
 export type ProtectedMutationDecision = Static<typeof ProtectedMutationDecisionSchema>;

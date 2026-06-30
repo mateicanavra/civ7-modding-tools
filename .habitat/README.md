@@ -24,7 +24,7 @@ The current layout has four packet lanes:
 - `<child-niche>` is a narrower jurisdiction nested inside its parent, such as
   `civ7/mapgen/domains/foundation`. A child niche may have its own `rules/`,
   `_blueprints/`, `_remainder/`, and further child niches.
-- Category and artifact kind live in `rule.json` placement metadata, not in
+- Category lives in `rule.json` placement metadata and operation kind lives in `operation.kind`, not in
   physical directories.
 - `<packet>` is the current gathered authority packet.
 
@@ -53,7 +53,7 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `frames/BLUEPRINT-KIND-GATHERING-FRAME.md`: normative frame for affirming one
   constructible blueprint kind, then gathering bounded whole-rule authority
   into that kind while demoting non-fitting evidence.
-- `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
+- `RULE-OPERATION-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
 - `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.
 - `config.md`: human-readable operation model; not parsed as tool dispatch config.
@@ -63,12 +63,12 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 Habitat discovers rule manifests by finding `.habitat/**/rule.json`.
 The current niche/blueprint/rules path is inventory placement, not identity:
 moving a manifest does not change the rule when its `id`, `placement`,
-`runner`, and artifact references stay the same.
+`runner`, and support file references stay the same.
 
 Packet folders may contain:
 
 - `rule.json`: rule manifest with stable `id`, `title`, current `placement`,
-  policy/routing fields, explicit `runner`, and explicit artifact references.
+  policy/routing fields, explicit `runner`, and explicit support file references.
 - `baseline.json`: baseline, fixture, current-tree, or generated-artifact
   evidence referenced from `rule.json`.
 - `pattern.md`: primary authored pattern source referenced from `rule.json`.

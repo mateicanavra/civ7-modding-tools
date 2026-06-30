@@ -48,7 +48,7 @@ Out of scope:
 Source pointers:
 
 - `.habitat/AUTHORITY.md`
-- `.habitat/ARTIFACT-KINDS.md`
+- `.habitat/RULE-OPERATION-KINDS.md`
 - `.habitat/AUTHORITY-TREE-SHAPE.md`
 - `.habitat/dominoes.md`
 - `docs/projects/habitat-harness/hidden-test-authority/ledger.md`
@@ -249,7 +249,7 @@ Leave package-local when the assertion:
 
 Start with authority, then evidence:
 
-1. `.habitat/AUTHORITY.md`, `.habitat/ARTIFACT-KINDS.md`,
+1. `.habitat/AUTHORITY.md`, `.habitat/RULE-OPERATION-KINDS.md`,
    `.habitat/AUTHORITY-TREE-SHAPE.md`, and existing `.habitat/**/_self/**`
    packets.
 2. Current embedded migration dispositions:

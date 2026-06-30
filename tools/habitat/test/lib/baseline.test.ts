@@ -196,7 +196,7 @@ describe("Habitat baseline contract", () => {
     ]);
   });
 
-  test("compares baseline authority against pre-D14A authored artifact paths", async () => {
+  test("compares baseline authority against pre-D14A authored authority paths", async () => {
     const ctx = createBaselineContext({
       registry: [rule("existing-rule")],
       rulePackAtBase: JSON.stringify({
@@ -209,7 +209,7 @@ describe("Habitat baseline contract", () => {
         ],
       }),
       baselinesAtBase: new Map([["existing-rule", ["src/example.ts::diagnostic"]]]),
-      artifactLayoutAtBase: "pre-d14a",
+      authorityLayoutAtBase: "pre-d14a",
     });
     writeBaselineFile(ctx.baselinesDir, "existing-rule", ["src/example.ts::diagnostic"]);
 
@@ -221,7 +221,7 @@ describe("Habitat baseline contract", () => {
       registry: [rule("relocated-rule")],
       rulePackAtBase: ["relocated-rule"],
       baselinesAtBase: new Map([["relocated-rule", []]]),
-      artifactLayoutAtBase: "relocated-manifest",
+      authorityLayoutAtBase: "relocated-manifest",
     });
     writeBaselineFile(ctx.baselinesDir, "relocated-rule", []);
 
@@ -372,7 +372,7 @@ describe("Habitat baseline contract", () => {
       registry: [rule("existing-rule")],
       rulePackAtBase: "{",
       baselinesAtBase: new Map([["existing-rule", []]]),
-      artifactLayoutAtBase: "pre-d14a",
+      authorityLayoutAtBase: "pre-d14a",
     });
     writeBaselineFile(malformedBaseRules.baselinesDir, "existing-rule", []);
     expect(await integrityFindings("main", malformedBaseRules)).toEqual([
@@ -487,7 +487,7 @@ function createBaselineContext(options: {
   registry: BaselineRuleContractInput[];
   rulePackAtBase: string[] | string | null;
   baselinesAtBase: Map<string, string[] | string>;
-  artifactLayoutAtBase?: "current" | "pre-d14a" | "relocated-manifest";
+  authorityLayoutAtBase?: "current" | "pre-d14a" | "relocated-manifest";
   mergeBase?: string | null;
 }): BaselineTestContext {
   const repoRoot = mkdtempSync(path.join(tmpdir(), "habitat-baseline-test-"));
@@ -529,11 +529,11 @@ function lsTreeMock(
   options: {
     rulePackAtBase: string[] | string | null;
     baselinesAtBase: Map<string, string[] | string>;
-    artifactLayoutAtBase?: "current" | "pre-d14a" | "relocated-manifest";
+    authorityLayoutAtBase?: "current" | "pre-d14a" | "relocated-manifest";
     mergeBase?: string | null;
   }
 ) {
-  if (options.artifactLayoutAtBase === "pre-d14a") {
+  if (options.authorityLayoutAtBase === "pre-d14a") {
     return commandResult(argv, cwd, "", 1, "not found\n");
   }
   const comparisonSha = options.mergeBase ?? "merge-base-sha";
@@ -548,7 +548,7 @@ function lsTreeMock(
     argv,
     cwd,
     `${options.rulePackAtBase
-      .map((id) => baseRuleManifestPath(id, options.artifactLayoutAtBase))
+      .map((id) => baseRuleManifestPath(id, options.authorityLayoutAtBase))
       .join("\n")}\n`
   );
 }
@@ -559,13 +559,13 @@ function showMock(
   options: {
     rulePackAtBase: string[] | string | null;
     baselinesAtBase: Map<string, string[] | string>;
-    artifactLayoutAtBase?: "current" | "pre-d14a" | "relocated-manifest";
+    authorityLayoutAtBase?: "current" | "pre-d14a" | "relocated-manifest";
     mergeBase?: string | null;
   }
 ) {
   const comparisonSha = options.mergeBase ?? "merge-base-sha";
   const ruleRegistryAtBase =
-    options.artifactLayoutAtBase === "pre-d14a"
+    options.authorityLayoutAtBase === "pre-d14a"
       ? "tools/habitat/src/service/model/check/policy/rule-runtime/rules.json"
       : ".habitat/rules/index.json";
   if (spec === `${comparisonSha}:${ruleRegistryAtBase}`) {
@@ -579,7 +579,7 @@ function showMock(
       cwd,
       JSON.stringify(
         {
-          schemaVersion: 1,
+          schemaVersion: 2,
           ownerRoots: {
             habitat: "tools/habitat",
           },
@@ -597,14 +597,14 @@ function showMock(
   ) {
     const manifestPath = spec.slice(`${comparisonSha}:`.length);
     const ruleId = options.rulePackAtBase.find(
-      (candidate) => baseRuleManifestPath(candidate, options.artifactLayoutAtBase) === manifestPath
+      (candidate) => baseRuleManifestPath(candidate, options.authorityLayoutAtBase) === manifestPath
     );
     if (ruleId) {
       return commandResult(["show", spec], cwd, JSON.stringify(baseRuleRecord(ruleId), null, 2));
     }
   }
   const prefix =
-    options.artifactLayoutAtBase === "pre-d14a"
+    options.authorityLayoutAtBase === "pre-d14a"
       ? `${comparisonSha}:tools/habitat/baselines/`
       : `${comparisonSha}:.habitat/baselines/`;
   if (spec.startsWith(prefix) && spec.endsWith(".json")) {
@@ -657,15 +657,15 @@ function commandResult(
 
 function baseRuleRecord(id: string) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id,
     title: id,
     placement: {
       niche: "global/workspace",
       blueprint: "project-boundary-model",
       category: "structure",
-      artifactKind: "check",
     },
+    operation: { kind: "check" },
     ownerProject: "habitat",
     lane: "enforced",
     forbids: "fixture violation",
@@ -673,7 +673,7 @@ function baseRuleRecord(id: string) {
     remediate: null,
     message: "fixture baseline authority diagnostic",
     pathCoverage: [{ kind: "workspace-gate" }],
-    artifacts: {
+    supportFiles: {
       baseline: `.habitat/global/workspace/_blueprints/project-boundary-model/${id}/baseline.json`,
     },
     runner: {

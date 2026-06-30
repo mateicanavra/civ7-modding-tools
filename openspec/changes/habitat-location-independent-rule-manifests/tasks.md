@@ -19,7 +19,7 @@
 - [x] 2.3 Add tests for duplicate ids and missing referenced runner files.
 - [x] 2.4 Create the 124-row manifest migration ledger covering current path,
       current path-derived facts, sibling role files, proposed manifest facts,
-      runner file refs, baseline/artifact refs, and unresolved exceptions.
+      runner file refs, baseline/support file refs, and unresolved exceptions.
 - [x] 2.5 Add selector boundary tests proving only `grit`, `habitat`, and `nx`
       are public runner names.
 
@@ -28,7 +28,7 @@
 - [x] 3.1 Add `RuleManifestV1` / `RuleRunnerV1` schema.
 - [x] 3.2 Parse `rule.json` as the full rule manifest.
 - [x] 3.3 Validate explicit runner file references.
-- [x] 3.4 Validate explicit baseline/artifact references where current behavior
+- [x] 3.4 Validate explicit baseline/support file references where current behavior
       consumes them.
 - [x] 3.5 Remove live id/title/runner derivation from packet path and siblings.
 - [x] 3.6 Use exhaustive runner/runtime dispatch in execution consumers.
@@ -40,7 +40,7 @@
 - [x] 4.2 Preserve current policy/routing fields unless explicitly changed by
       this spec.
 - [x] 4.3 Verify every referenced runner file exists.
-- [x] 4.4 Add explicit baseline/artifact references or record the deliberate
+- [x] 4.4 Add explicit baseline/support file references or record the deliberate
       global id-based baseline contract.
 
 ## 5. Implementation Phase: Consumer Cutover
@@ -49,7 +49,7 @@
       discovery.
 - [x] 5.2 Replace Nx registry loader with the same manifest contract.
 - [x] 5.3 Replace baseline current-state id/path assumptions with manifest facts.
-- [x] 5.4 Replace Habitat artifact routing packet-id parsing with manifest and
+- [x] 5.4 Replace Habitat authority routing packet-id parsing with manifest and
       runner/artifact-file joins.
 - [x] 5.5 Update Nx inputs, hooks, reports, Grit, structure, script, file-layer,
       and generator consumers.

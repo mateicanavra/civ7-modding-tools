@@ -7,10 +7,10 @@ import {
   type NxRuleRegistryRecord,
 } from "./providers/nx/rule-registry-loader.ts";
 import {
-  habitatArtifactsProjectName,
-  habitatArtifactsRoot,
+  habitatAuthorityProjectName,
+  habitatAuthorityRoot,
   ruleRegistryRepoPath,
-} from "./resources/artifact-paths.ts";
+} from "./resources/authority-paths.ts";
 import { repoRoot } from "./resources/paths.ts";
 import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
@@ -98,8 +98,8 @@ function buildInferredProjects(input: {
   const ownerRoots = new Map(Object.entries(input.registry.ownerRoots));
   const recordsById = new Map(input.registry.rules.map((rule) => [rule.id, rule]));
   const projects: InferredProjects = {};
-  projects[habitatArtifactsRoot] = {
-    name: habitatArtifactsProjectName,
+  projects[habitatAuthorityRoot] = {
+    name: habitatAuthorityProjectName,
     tags: ["kind:tooling"],
     targets: {},
   };
@@ -260,7 +260,7 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
     ...covered.inputs,
   ]);
   if (rule.manifestFilePath) inputs.add(workspaceInput(rule.manifestFilePath));
-  if (rule.artifacts?.baseline) inputs.add(workspaceInput(rule.artifacts.baseline));
+  if (rule.supportFiles?.baseline) inputs.add(workspaceInput(rule.supportFiles.baseline));
   if (rule.ownerProject === "habitat") {
     inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }

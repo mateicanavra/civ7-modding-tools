@@ -75,7 +75,7 @@ The target session repeatedly reset the work around these control demands:
 - Architecture should be enforced through durable mechanisms such as Habitat
   rules, GritQL, Biome, Nx boundaries, project metadata, and generated checks,
   not brittle tests that merely guard an accidental implementation shape.
-- `.habitat` owns checked-in authored Habitat artifacts. Managing code remains
+- `.habitat` owns checked-in authored Habitat authority data. Managing code remains
   under `tools/habitat`. Executable native TypeScript rules or
   vendor-named directories inside `.habitat` violate the authored-artifact
   boundary unless a later accepted packet deliberately authorizes them.
@@ -336,13 +336,13 @@ Repair demand:
 - `.habitat` remains checked-in authored data, not managing SDK code.
 - Active Grit pattern placement is allowed only according to proven tool support
   and current D14A/D14 contracts.
-- Vendor names under `.habitat` must be justified as authored artifact format,
+- Vendor names under `.habitat` must be justified as authored authority data format,
   not as organizing language for Habitat's domain model.
 
 Proof gate:
 
 - Static checks enforce `.habitat` file kinds, executable-code refusal, and
-  approved authored artifact schema.
+  approved authored authority data schema.
 
 ### V9 - Generic Habitat Still Risks Host/Product Leakage
 

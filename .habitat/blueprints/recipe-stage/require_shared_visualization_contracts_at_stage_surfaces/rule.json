@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_shared_visualization_contracts_at_stage_surfaces",
   "title": "Require Shared Visualization Contracts At Stage Surfaces",
   "placement": {
     "niche": "civ7/mapgen/pipeline",
     "blueprint": "recipe-stage",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/baseline.json"
   },
   "runner": {

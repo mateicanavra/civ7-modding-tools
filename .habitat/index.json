@@ -1,6 +1,6 @@
 {
-  "$comment": "Root registry metadata for Habitat rule discovery. Habitat discovers .habitat/**/rule.json manifests. Each manifest owns stable rule identity, current placement inventory facts, explicit runner file references, and artifact references. Physical location is not rule identity. ownerProject = the workspace project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only.",
-  "schemaVersion": 1,
+  "$comment": "Root registry metadata for Habitat rule discovery. Habitat discovers .habitat/**/rule.json manifests. Each manifest owns stable rule identity, current placement inventory facts, operation kind, explicit runner file references, and support file references. Physical location is not rule identity. ownerProject = the workspace project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only.",
+  "schemaVersion": 2,
   "ownerRoots": {
     "control-orpc": "packages/civ7-control-orpc",
     "civ7-adapter": "packages/civ7-adapter",

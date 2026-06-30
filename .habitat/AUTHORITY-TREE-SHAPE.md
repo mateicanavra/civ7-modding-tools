@@ -61,8 +61,8 @@ rule inventory, not final niche admission. `_self` may still appear as a
 manifest placement value, but it is no longer a physical blueprint directory.
 Category names are single-word universal purpose categories: `boundary`,
 `structure`, `contract`, `execution`, `artifact`, `quality`, and `policy`.
-Artifact kinds are mutability classes: `check`, `fix`, `generate`, `migrate`,
-and `triage`. Category and artifact kind live in manifest placement metadata,
+Operation kinds are mutability classes: `check`, `fix`, `generate`, `migrate`,
+and `triage`. Category and operation kind live in manifest placement metadata,
 not path directories.
 
 `_remainder/` is the physical lane for sorted-but-deferred packets after a
@@ -202,10 +202,10 @@ The category model is defined in `SUBJECT-CATEGORIES.md`.
 
 ### Artifact Kind
 
-An artifact kind answers what Habitat is allowed to do: read-only evaluation,
-repair, generation, migration, or triage. Artifact kinds are manifest placement
+An operation kind answers what Habitat is allowed to do: read-only evaluation,
+repair, generation, migration, or triage. Operation kinds are manifest placement
 values, not packet directories. Mutability rules are defined in
-`ARTIFACT-KINDS.md`.
+`RULE-OPERATION-KINDS.md`.
 
 ### Packet
 
@@ -221,7 +221,7 @@ generic role names such as `rule.json`, `baseline.json`, `pattern.md`,
 
 - Do not promote niches, package areas, maintenance chores, runner names, or current defect names into blueprints.
 - Do not create categories from domain terms such as `mapgen`, `docs-site`, `source-check`, or `guardrail`.
-- Do not reintroduce category or artifact-kind directories; those facts belong
+- Do not reintroduce category or operation-kind directories; those facts belong
   in manifest placement metadata.
 - Do not classify mutating work as `check`.
 - Do not treat `triage` as admitted executable authority.

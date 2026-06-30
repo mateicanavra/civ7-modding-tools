@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "verify_runtime_stage_order_matches_contract_manifest",
   "title": "Verify Runtime Stage Order Matches Contract Manifest",
   "placement": {
     "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "_self",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -26,7 +28,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/baseline.json"
   },
   "runner": {

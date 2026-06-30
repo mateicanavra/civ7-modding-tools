@@ -3,7 +3,7 @@
 This directory is a temporary support island for Habitat execution machinery that
 must remain under `.habitat` during the authority-tree cleanup.
 
-It is not a niche, blueprint, category, artifact kind, or source of authored
+It is not a niche, blueprint, category, operation kind, or source of authored
 policy authority. Packet directories remain the authoring sites for rule
 metadata, patterns, baselines, command checks, and operation notes.
 

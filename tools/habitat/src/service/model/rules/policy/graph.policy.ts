@@ -4,10 +4,10 @@ import {
 } from "@habitat/cli/service/model/workspace/index";
 import type { Static } from "typebox";
 import { Value } from "typebox/value";
-import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../dto/registry.schema.js";
+import type { RuleGraphFacts, RuleRegistryRecord } from "../dto/registry.schema.js";
 
 export function ruleGraphFacts(
-  records: readonly RuleRegistryRecordV1[],
+  records: readonly RuleRegistryRecord[],
   ownerRoots: ReadonlyMap<string, string>,
   targetNames: RuleGraphTargetNames | WorkspaceGraphTargetNames
 ): RuleGraphFacts[] {
@@ -36,7 +36,7 @@ export function ruleGraphFacts(
 type RuleGraphTargetNames = Static<typeof RuleGraphTargetNamesSchema>;
 
 function ruleGraphAlias(
-  rule: RuleRegistryRecordV1,
+  rule: RuleRegistryRecord,
   targetNames: RuleGraphTargetNames
 ): RuleGraphFacts["alias"] {
   if (rule.id === "enforce_formatting_and_import_hygiene") {

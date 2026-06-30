@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_retired_studio_devlive_daemon_file",
   "title": "Prohibit Retired Studio Devlive Daemon File",
   "placement": {
     "niche": "civ7/mapgen/studio/devops",
     "blueprint": "_self",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/baseline.json"
   },
   "runner": {

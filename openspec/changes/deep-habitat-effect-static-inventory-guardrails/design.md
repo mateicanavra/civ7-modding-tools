@@ -40,7 +40,7 @@ No occurrence can remain unlabeled when an implementation packet starts.
 - Habitat file-layer/rules: `.habitat` file-kind and protected-zone policy.
 - Tests: behavior and fixtures for the guardrails, not sole structural owners.
 
-The owner and intended artifact path for each guardrail class is recorded in
+The owner and intended authority path for each guardrail class is recorded in
 `workstream/guardrail-owner-map.md`. This packet does not enable new blocking
 guardrails; each later enabling packet must add the guard, injected violation
 fixture, baseline decision, and current-tree proof together.
@@ -49,7 +49,7 @@ fixture, baseline decision, and current-tree proof together.
 
 This packet owns inventory, disposition, owner assignment, and any explicit
 pre-migration blocker checks needed before source movement. It does not own
-post-migration ratchets for authored artifacts, language fences, or public
+post-migration ratchets for authored authority data, language fences, or public
 surface narrowing. Those ratchets are owned by
 `deep-habitat-effect-artifact-language-enforcement` and
 `deep-habitat-effect-public-surface-guards`.

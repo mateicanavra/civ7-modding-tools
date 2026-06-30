@@ -110,7 +110,7 @@ Accepted:
 
 - D10 now defines a closed declaration/request/decision model with required owner, recovery, path/action, conflict, missing-host, missing-D0, and non-claim facts (`design.md:96-127`, `spec.md:159-173`).
 - D10 consumes D2 projections and G-HOST declarations instead of whole registry rows or host literals (`design.md:76-85`, `spec.md:22-49`).
-- D7, D9, D11, generated drift, scan-root, and forbidden-artifact consumers receive named projections rather than re-owning D10 path policy (`design.md:86-95`, `spec.md:97-145`).
+- D7, D9, D11, generated drift, scan-root, and forbidden-file consumers receive named projections rather than re-owning D10 path policy (`design.md:86-95`, `spec.md:97-145`).
 - D10 acceptance is explicitly design/specification only and not source implementation, generated freshness, hook safety, runtime/product proof, or D9 transaction success (`proposal.md:7`, `phase-record.md:78-84`, `closure-checklist.md:38-43`).
 
 Rejected as acceptance blockers:

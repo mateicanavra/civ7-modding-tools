@@ -1,5 +1,5 @@
 import path from "node:path";
-import { habitatCacheRepoPathPrefix } from "../../../../resources/artifact-paths.ts";
+import { habitatCacheRepoPathPrefix } from "../../../../resources/authority-paths.ts";
 import { decideScanRootProtection } from "../../host/index.ts";
 import type { RuleSourceFacts } from "../../rules/index.ts";
 

@@ -14,7 +14,7 @@ Do not introduce a separate `.habitat` tooling config just to map operations to 
 ## Provisional Niche/Blueprint/Rules Hierarchy
 
 The current `.habitat` tree groups authority packets by affirmed blueprint,
-niche, or transient niche-local lanes. Category and artifact kind are manifest
+niche, or transient niche-local lanes. Category and operation kind are manifest
 placement facts, not physical directories. This is a provisional
 classification layout, not a parseable manifest and not a completed runtime
 migration.
@@ -68,7 +68,7 @@ blueprint-shaped inventory that must not yet be called blueprint authority.
 inventory inside the smallest honest niche.
 Neither niches nor blueprints should encode a runner, file type, current
 defect, or narrow maintenance task. Categories describe universal engineering
-purpose; artifact kinds define mutability.
+purpose; operation kinds define mutability.
 
 Packet child files use generic role names:
 
@@ -80,7 +80,7 @@ Packet child files use generic role names:
 
 ## Domain Operations
 
-Habitat's current working artifact-kind vocabulary is defined in `ARTIFACT-KINDS.md`. The accepted executable kinds are `check`, `fix`, `generate`, and `migrate`; `triage` is a non-default holding area.
+Habitat's current working operation-kind vocabulary is defined in `RULE-OPERATION-KINDS.md`. The accepted executable kinds are `check`, `fix`, `generate`, and `migrate`; `triage` is a non-default holding area.
 
 This section is a human sketch only. It must not become parseable dispatch schema, and it must not encode support artifact types or implementation adapters.
 
@@ -102,7 +102,7 @@ Structural transition. A migrate operation answers how Habitat may move authored
 
 ## Naming Rules
 
-- Artifact kind names are verbs: `check`, `fix`, `generate`, `migrate`.
+- Operation kind names are verbs: `check`, `fix`, `generate`, `migrate`.
 - Category names are single-word universal purposes: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, `policy`.
 - Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domains`.
 - Current blueprint placement labels are transitional evidence. Do not promote a

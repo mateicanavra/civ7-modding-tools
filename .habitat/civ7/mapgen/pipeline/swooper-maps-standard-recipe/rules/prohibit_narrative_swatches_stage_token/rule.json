@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_narrative_swatches_stage_token",
   "title": "Prohibit Narrative Swatches Stage Token",
   "placement": {
     "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "_self",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -30,7 +32,7 @@
     "mods/mod-swooper-maps/test"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_narrative_swatches_stage_token/baseline.json"
   },
   "runner": {

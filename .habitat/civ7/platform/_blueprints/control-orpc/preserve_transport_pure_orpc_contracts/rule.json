@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "preserve_transport_pure_orpc_contracts",
   "title": "Preserve Transport Pure Orpc Contracts",
   "placement": {
     "niche": "civ7/platform",
     "blueprint": "control-orpc",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "control-orpc",
   "lane": "enforced",
@@ -25,7 +27,7 @@
   ],
   "scanRoots": ["packages/civ7-control-orpc/src"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/platform/_blueprints/control-orpc/preserve_transport_pure_orpc_contracts/baseline.json"
   },
   "runner": {

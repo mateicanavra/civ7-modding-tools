@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
   "title": "Prohibit Ecology Fudge Terms And Legacy Generator Surfaces",
   "placement": {
     "niche": "civ7/mapgen/pipeline/runtime",
     "blueprint": "_remainder",
-    "category": "policy",
-    "artifactKind": "check"
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -39,7 +41,7 @@
     "mods/mod-swooper-maps/src/recipes/standard/stages"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/baseline.json"
   },
   "runner": {

@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "enforce_workspace_import_boundaries",
   "title": "Enforce Workspace Import Boundaries",
   "placement": {
     "niche": "global/workspace",
     "blueprint": "project-boundary-model",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -26,7 +28,7 @@
     "project": "habitat",
     "target": "boundaries"
   },
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/baseline.json"
   },
   "runner": {

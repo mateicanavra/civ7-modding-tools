@@ -49,7 +49,7 @@ export function decisionDiagnostic(
         severity: "error",
         baselined: false,
       };
-    case "refused-forbidden-artifact":
+    case "refused-forbidden-file":
       return {
         ruleId: rule.id,
         path: decision.path,

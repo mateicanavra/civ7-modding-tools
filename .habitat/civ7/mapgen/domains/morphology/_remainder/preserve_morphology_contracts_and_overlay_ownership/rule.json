@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "preserve_morphology_contracts_and_overlay_ownership",
   "title": "Preserve Morphology Contracts And Overlay Ownership",
   "placement": {
     "niche": "civ7/mapgen/domains/morphology",
     "blueprint": "_remainder",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       ]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/morphology/_remainder/preserve_morphology_contracts_and_overlay_ownership/baseline.json"
   },
   "runner": {

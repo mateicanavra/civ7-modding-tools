@@ -14,7 +14,7 @@ import {
 } from "@habitat/cli/service/model/check/policy/structural/index";
 import type {
   RuleCommandExecutionFacts,
-  RuleRegistryRecordV1,
+  RuleRegistryRecord,
   RuleSourceFacts,
 } from "@habitat/cli/service/model/rules/index";
 import {
@@ -28,7 +28,7 @@ import {
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
-const fakeRules: RuleRegistryRecordV1[] = [
+const fakeRules: RuleRegistryRecord[] = [
   fakeRule("alpha-rule", "grit", "@scope/alpha"),
   fakeRule("beta-rule", "habitat", "@scope/beta"),
   fakeRule("gamma-rule", "grit", "@scope/gamma"),
@@ -285,13 +285,21 @@ describe("rule selector boundary", () => {
     await Effect.runPromise(
       executeCommandRulesEffect(
         [
-          fakeCommandRule("direct-bun", ".habitat/civ7/mapgen/domains/rules/direct/check.ts", "bun"),
+          fakeCommandRule(
+            "direct-bun",
+            ".habitat/civ7/mapgen/domains/rules/direct/check.ts",
+            "bun"
+          ),
           fakeCommandRule(
             "direct-js",
             ".habitat/civ7/mapgen/domains/rules/direct/check.mjs",
             "node"
           ),
-          fakeCommandRule("direct-sh", ".habitat/civ7/mapgen/domains/rules/direct/check.sh", "bash"),
+          fakeCommandRule(
+            "direct-sh",
+            ".habitat/civ7/mapgen/domains/rules/direct/check.sh",
+            "bash"
+          ),
         ],
         results,
         {
@@ -406,8 +414,8 @@ function fakeRule(
   id: string,
   runnerName: "grit" | "habitat" | "nx",
   ownerProject: string,
-  overrides: Partial<RuleRegistryRecordV1> = {}
-): RuleRegistryRecordV1 {
+  overrides: Partial<RuleRegistryRecord> = {}
+): RuleRegistryRecord {
   return {
     id,
     ownerProject,
@@ -475,7 +483,7 @@ function fakeCommandRule(
 function runnerFor(
   id: string,
   runnerName: "grit" | "habitat" | "nx"
-): RuleRegistryRecordV1["runner"] {
+): RuleRegistryRecord["runner"] {
   if (runnerName === "grit") {
     return {
       name: "grit",

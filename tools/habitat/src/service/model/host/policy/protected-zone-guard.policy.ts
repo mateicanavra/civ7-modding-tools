@@ -40,9 +40,9 @@ function decisionForMutation(
     });
   }
 
-  if (declaration.kind === "forbidden-artifact") {
+  if (declaration.kind === "forbidden-file") {
     return Value.Parse(ProtectedMutationDecisionSchema, {
-      kind: "refused-forbidden-artifact",
+      kind: "refused-forbidden-file",
       path: mutation.path,
       action: mutation.action,
       owner: declaration.owner,

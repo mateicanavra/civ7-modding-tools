@@ -1,6 +1,6 @@
 import { workspaceGraphTargetNames } from "@habitat/cli/service/model/workspace/index";
-import type { RuleRegistryDocumentV1 } from "../dto/registry.schema.js";
-import { ruleArtifactPathFacts } from "./artifact-paths.policy.js";
+import type { RuleRegistryDocument } from "../dto/registry.schema.js";
+import { ruleAuthorityPathFacts } from "./authority-paths.policy.js";
 import {
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
@@ -16,7 +16,7 @@ import {
 import { ruleGraphFacts } from "./graph.policy.js";
 
 export interface RuleFactsCatalog {
-  readonly artifactPath: ReturnType<typeof ruleArtifactPathFacts>;
+  readonly authorityPath: ReturnType<typeof ruleAuthorityPathFacts>;
   readonly selector: ReturnType<typeof ruleSelectorFacts>;
   readonly report: ReturnType<typeof ruleReportFacts>;
   readonly baseline: ReturnType<typeof ruleBaselineFacts>;
@@ -30,10 +30,10 @@ export interface RuleFactsCatalog {
   readonly graph: ReturnType<typeof ruleGraphFacts>;
 }
 
-export function ruleFactsCatalog(document: RuleRegistryDocumentV1): RuleFactsCatalog {
+export function ruleFactsCatalog(document: RuleRegistryDocument): RuleFactsCatalog {
   const records = document.rules;
   return {
-    artifactPath: ruleArtifactPathFacts(records),
+    authorityPath: ruleAuthorityPathFacts(records),
     selector: ruleSelectorFacts(records),
     report: ruleReportFacts(records),
     baseline: ruleBaselineFacts(records),

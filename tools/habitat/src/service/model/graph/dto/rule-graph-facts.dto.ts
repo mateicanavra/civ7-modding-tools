@@ -1,4 +1,4 @@
-import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../../rules/dto/registry.schema.ts";
+import type { RuleGraphFacts, RuleRegistryRecord } from "../../rules/dto/registry.schema.ts";
 import type { WorkspaceGraphTargetNames } from "../../workspace/index.ts";
 
 type RuleGraphTargetNames = Pick<
@@ -7,7 +7,7 @@ type RuleGraphTargetNames = Pick<
 >;
 
 export function ruleGraphFactsForNxPlugin(
-  records: readonly RuleRegistryRecordV1[],
+  records: readonly RuleRegistryRecord[],
   ownerRoots: ReadonlyMap<string, string>,
   targetNames: RuleGraphTargetNames
 ): RuleGraphFacts[] {
@@ -30,7 +30,7 @@ export function ruleGraphFactsForNxPlugin(
 }
 
 function ruleGraphAlias(
-  rule: RuleRegistryRecordV1,
+  rule: RuleRegistryRecord,
   targetNames: RuleGraphTargetNames
 ): RuleGraphFacts["alias"] {
   if (rule.id === "enforce_formatting_and_import_hygiene") {

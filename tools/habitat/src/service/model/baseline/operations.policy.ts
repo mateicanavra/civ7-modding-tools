@@ -1,5 +1,5 @@
 import path from "node:path";
-import { baselinesRepoPath, ruleRegistryRepoPath } from "@habitat/cli/resources/artifact-paths";
+import { baselinesRepoPath, ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
 import { renderHabitatError } from "@habitat/cli/resources/errors/index";
 import {
   loadRuleRegistryDocumentEffect,
@@ -32,7 +32,7 @@ interface RequiredBaselineAuthorityContext {
   >;
 }
 
-const preD14aAuthoredArtifactPaths = {
+const preD14aAuthoredAuthorityPaths = {
   ruleRegistry: "tools/habitat/src/service/model/check/policy/rule-runtime/rules.json",
   baseline(ruleId: string): string {
     return `tools/habitat/baselines/${ruleId}.json`;
@@ -403,7 +403,7 @@ function loadBaseRuleIdsEffect(
     const rulePackAtBase = yield* gitShowMovedAuthoredArtifactEffect(
       mb,
       `${registryPath}/rules.json`,
-      preD14aAuthoredArtifactPaths.ruleRegistry,
+      preD14aAuthoredAuthorityPaths.ruleRegistry,
       context
     );
     if (rulePackAtBase === null) {
@@ -491,7 +491,7 @@ function loadBaseBaselineKeysEffect(
     const beforeRaw = yield* gitShowMovedAuthoredArtifactEffect(
       mb,
       baselinePath,
-      preD14aAuthoredArtifactPaths.baseline(ruleId),
+      preD14aAuthoredAuthorityPaths.baseline(ruleId),
       context
     );
     if (beforeRaw === null) return { ok: true, keys: [] };

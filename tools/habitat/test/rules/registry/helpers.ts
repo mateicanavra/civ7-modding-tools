@@ -1,13 +1,13 @@
 import type {
   parseRuleRegistryDocument,
-  RuleRegistryRecordV1,
+  RuleRegistryRecord,
   RuleRunner,
 } from "@habitat/cli/service/model/rules/index";
 import { expect } from "vitest";
 
 export function registryDocument(rules: unknown[]): unknown {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     ownerRoots: {
       habitat: "tools/habitat",
       "mod-swooper-maps": "mods/mod-swooper-maps",
@@ -24,17 +24,17 @@ export function expectInvalid(
   if (!result.ok) expect(result.issues.some((issue) => issue.code === code)).toBe(true);
 }
 
-export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryRecordV1 {
+export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryRecord {
   const rule = {
     id: "sample-rule",
-    schemaVersion: 1,
+    schemaVersion: 2,
     title: "Sample Rule",
     placement: {
       niche: "fixtures",
       blueprint: "_self",
       category: "quality",
-      artifactKind: "check",
     },
+    operation: { kind: "check" },
     ownerProject: "habitat",
     lane: "enforced",
     forbids: "broken structure",
@@ -42,12 +42,12 @@ export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryR
     remediate: null,
     message: "Fix the structural issue.",
     pathCoverage: [{ kind: "project-owner" }],
-    artifacts: {
+    supportFiles: {
       baseline: ".habitat/fixtures/rules/sample-rule/baseline.json",
     },
     runner: habitatScriptRunner("sample-rule"),
-  } satisfies RuleRegistryRecordV1;
-  return { ...rule, ...overrides } as RuleRegistryRecordV1;
+  } satisfies RuleRegistryRecord;
+  return { ...rule, ...overrides } as RuleRegistryRecord;
 }
 
 export function habitatScriptRunner(

@@ -211,12 +211,12 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
 
-  test("propagates package-manager artifact file-layer failure before Biome, Grit, or publish commands", async () => {
+  test("propagates package-manager file-layer failure before Biome, Grit, or publish commands", async () => {
     const fake = makeFakeRuntime({
       fileLayerStdout: fileLayerCheckReport({
         ok: false,
         status: "fail",
-        diagnosticMessage: "package manager artifact",
+        diagnosticMessage: "package manager file",
       }),
       stagedPaths: ["pnpm-lock.yaml"],
     });
@@ -225,7 +225,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[file-layer staged check]");
-    expect(result.stdout).toContain("package manager artifact");
+    expect(result.stdout).toContain("package manager file");
     expect(fake.biomeRequests).toEqual([]);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
@@ -402,7 +402,7 @@ async function runPreCommitInTest(
   resourcePolicy: HookResourcePolicy | undefined = fake.resourcePolicy,
   reporterEvents?: HabitatReportEvent[]
 ): Promise<SpawnResult> {
-  useStructuralCheckPolicy(makeStructuralCheckPolicy(fake));
+  installStructuralCheckPolicy(makeStructuralCheckPolicy(fake));
   const layer = Layer.mergeAll(
     makeGitLayer(fake),
     makeFakeGraphiteProviderLayer(() => null),
@@ -491,7 +491,7 @@ function makeStructuralCheckPolicy(fake: FakeHookHarness): StructuralCheckPolicy
   };
 }
 
-function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
+function installStructuralCheckPolicy(policy: StructuralCheckPolicy) {
   mockCreateCheckReportEffect.mockImplementation(policy.createReport);
 }
 

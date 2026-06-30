@@ -1,10 +1,10 @@
-import { checkPatternRoot, patternCandidateRoot } from "@habitat/cli/resources/artifact-paths";
+import { checkPatternRoot, patternCandidateRoot } from "@habitat/cli/resources/authority-paths";
 
 export function activePatternPathFor(options: { readonly patternName: string }) {
   return `${checkPatternRoot}/${options.patternName}.md`;
 }
 
-export function candidateArtifactPaths(options: {
+export function candidateAuthorityPaths(options: {
   readonly ruleId: string;
   readonly patternName: string;
 }) {

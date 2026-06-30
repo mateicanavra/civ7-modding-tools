@@ -103,7 +103,7 @@ function validateKnownDirectory(directory: string, kind: string): void {
     if (kind === "dto" && !isDtoFile(relativeToKind)) {
       report(
         relativePath,
-        "dto/ files must be *.dto.ts, *.schema.ts, index.ts, or JSON schema artifacts."
+        "dto/ files must be *.dto.ts, *.schema.ts, index.ts, or JSON schema files."
       );
       continue;
     }
@@ -125,10 +125,7 @@ function validateKnownDirectory(directory: string, kind: string): void {
       !["router", "contract", "middleware", "generators"].includes(kind) &&
       !isSourceFile(basename)
     ) {
-      report(
-        relativePath,
-        `${kind}/ files must be TypeScript, JavaScript module, or JSON artifacts.`
-      );
+      report(relativePath, `${kind}/ files must be TypeScript, JavaScript module, or JSON files.`);
     }
   }
 }
@@ -169,7 +166,7 @@ function validateModelKindDirectory(
     if (kind === "dto" && !isDtoFile(relativeToKind)) {
       report(
         relativePath,
-        "model/dto files must be *.dto.ts, *.schema.ts, index.ts, or JSON schema artifacts."
+        "model/dto files must be *.dto.ts, *.schema.ts, index.ts, or JSON schema files."
       );
       continue;
     }
@@ -189,7 +186,7 @@ function validateModelKindDirectory(
     if (!["dto", "policy", "errors"].includes(kind) && !isSourceFile(basename)) {
       report(
         relativePath,
-        `model/${kind} files must be TypeScript, JavaScript module, or JSON artifacts.`
+        `model/${kind} files must be TypeScript, JavaScript module, or JSON files.`
       );
     }
   }

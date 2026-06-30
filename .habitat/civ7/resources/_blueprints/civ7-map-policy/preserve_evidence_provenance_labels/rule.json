@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "preserve_evidence_provenance_labels",
   "title": "Preserve Evidence Provenance Labels",
   "placement": {
     "niche": "civ7/resources",
     "blueprint": "civ7-map-policy",
-    "category": "artifact",
-    "artifactKind": "check"
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "civ7-map-policy",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/baseline.json"
   },
   "runner": {

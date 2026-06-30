@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "block_hand_edits_to_generated_civ7_types",
   "title": "Block Hand Edits To Generated Civ7 Types",
   "placement": {
     "niche": "civ7/resources",
     "blueprint": "civ7-types",
-    "category": "artifact",
-    "artifactKind": "check"
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -21,7 +23,7 @@
     }
   ],
   "generatedZone": "civ7-types-generated",
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/baseline.json"
   },
   "runner": {

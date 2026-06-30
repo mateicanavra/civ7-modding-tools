@@ -30,7 +30,7 @@ D2 source implementation is submitted after the D0/D1 implementation-start gates
 - [x] Concrete D0 `surface_id` citations are recorded in `workstream/implementation-start-inventory.md`.
 - [x] D1 malformed-metadata output-family citations are recorded in `workstream/implementation-start-inventory.md`.
 - [x] Current registry counts are refreshed from source: 53 rules, 33 Grit checks, 3 advisory rules, and 50 enforced rules.
-- [x] The source boundary is TypeBox-first: `RuleRegistryDocumentV1` schemas, derived TypeScript types, TypeBox validation for serialized registry data, and named consumer projections under `tools/habitat-harness/src/rules/`.
+- [x] The source boundary is TypeBox-first: `RuleRegistryDocument` schemas, derived TypeScript types, TypeBox validation for serialized registry data, and named consumer projections under `tools/habitat-harness/src/rules/`.
 - [x] Current D1 source topology is reflected: `rule-selection.ts`, `check-report.ts`, and `classify.ts` replace the deleted `command-engine.ts` as touched D2 consumer surfaces. `verify-receipt.ts` remains outside D2 scope.
 
 ## D2 Inventory Completion Gates

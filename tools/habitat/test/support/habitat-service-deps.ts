@@ -7,7 +7,7 @@ import {
   runManyArgv,
   runTargetArgv,
 } from "@habitat/cli/providers/nx/index";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/artifact-paths";
+import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
 import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import type { HabitatProcessRequest } from "@habitat/cli/resources/command/types";
 import { repoRoot } from "@habitat/cli/resources/paths";

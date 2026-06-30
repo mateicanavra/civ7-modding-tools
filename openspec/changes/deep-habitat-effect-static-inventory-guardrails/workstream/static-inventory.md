@@ -251,4 +251,4 @@ Disallowed future vocabulary:
 - Runtime implementation instructions under `.habitat/**`.
 - Managing TypeScript/JavaScript/shell code under `.habitat/**`.
 - Generic Habitat runtime files importing product parser semantics from
-  authored artifacts.
+  authored authority data.

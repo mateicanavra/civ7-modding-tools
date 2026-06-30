@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_runtime_domain_op_bundle_imports",
   "title": "Require Runtime Domain Op Bundle Imports",
   "placement": {
     "niche": "civ7/mapgen/pipeline",
     "blueprint": "recipe",
-    "category": "execution",
-    "artifactKind": "check"
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/baseline.json"
   },
   "runner": {

@@ -91,7 +91,7 @@ D10 source evidence has concrete current surfaces:
   `civ7-types-generated`, and `civ7-map-policy-tables` as generic constants.
 - `rules.json` has file-layer rules whose `generatedZone` facets reference
   those ids.
-- `check --staged --tool file-layer` invokes generated-zone/forbidden-artifact
+- `check --staged --tool file-layer` invokes generated-zone/forbidden-file
   checks.
 - hooks stop before Biome, Grit, or publish when file-layer staged checks fail.
 - `verify-generated-zones.mjs` performs a Swooper generated-drift check by
@@ -131,7 +131,7 @@ contracts. Required base set:
 ### P1: Target state model is absent
 
 The source packet explicitly asks for state-space reduction:
-generated, protected, forbidden artifact, missing host declaration, and typed
+generated, protected, forbidden file, missing host declaration, and typed
 variants that cannot lack remediation or host owner when command output needs
 them. The current design has no closed state model.
 
@@ -528,10 +528,10 @@ Scenarios:
 
 Scenarios:
 
-- package-manager artifacts are modeled as forbidden artifacts or explicitly
+- package-manager artifacts are modeled as forbidden files or explicitly
   moved out of D10 with an owner decision;
-- forbidden artifact refusal cannot be confused with generated-zone policy;
-- staged forbidden artifact has recovery instruction and D1 refusal shape.
+- forbidden file refusal cannot be confused with generated-zone policy;
+- staged forbidden file has recovery instruction and D1 refusal shape.
 
 ### Requirement: Public Surfaces Wait For D0 Rows
 

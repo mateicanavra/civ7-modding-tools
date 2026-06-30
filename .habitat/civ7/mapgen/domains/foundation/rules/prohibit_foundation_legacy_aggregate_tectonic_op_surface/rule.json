@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
   "title": "Prohibit Foundation Legacy Aggregate Tectonic Op Surface",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
     "blueprint": "_self",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -28,7 +30,7 @@
     "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/baseline.json"
   },
   "runner": {

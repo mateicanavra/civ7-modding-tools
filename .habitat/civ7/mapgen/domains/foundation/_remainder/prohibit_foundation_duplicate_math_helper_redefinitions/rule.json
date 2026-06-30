@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_foundation_duplicate_math_helper_redefinitions",
   "title": "Prohibit Foundation Duplicate Math Helper Redefinitions",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
     "blueprint": "_remainder",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -17,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/**"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/**"]
     }
   ],
   "scanRoots": [
@@ -37,7 +37,7 @@
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/baseline.json"
   },
   "runner": {

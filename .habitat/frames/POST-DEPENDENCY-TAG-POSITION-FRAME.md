@@ -155,7 +155,7 @@ Hard core:
 3. Artifact is a real blueprint kind only for artifact values/contracts:
    stable id, schema, publish/read behavior, immutable store semantics, and
    buffer exception. Artifact does not absorb dependency-tag governance,
-   generated-output hygiene, or manifest `artifactKind` metadata.
+   generated-output hygiene, or manifest `operation.kind` metadata.
 4. The next branch must choose between artifact, garbage, or `_blueprints`
    pruning from current tree evidence, not from the previous session's
    momentum.

@@ -44,9 +44,9 @@ execution from the current packet directory grammar.
 - Every live manifest now declares `schemaVersion`, `id`, `title`, `placement`,
   and explicit `runner` facts.
 - Service and Nx registry loading use the same manifest contract.
-- Baseline current-state resolution uses manifest `artifacts.baseline`; bounded
+- Baseline current-state resolution uses manifest `supportFiles.baseline`; bounded
   merge-base fallback exists only for historical pre-manifest baseline reads.
-- Artifact routing joins changed files to manifest, runner, and artifact refs
+- Artifact routing joins changed files to manifest, runner, and support file refs
   instead of packet path regexes.
 - Pattern apply admissions and docs apply diagnostics now use loaded grit rule
   facts and explicit manifest runner file references rather than hard-coded

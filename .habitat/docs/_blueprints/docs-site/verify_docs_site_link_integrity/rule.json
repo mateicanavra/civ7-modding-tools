@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "verify_docs_site_link_integrity",
   "title": "Verify Docs Site Link Integrity",
   "placement": {
     "niche": "docs",
     "blueprint": "docs-site",
-    "category": "quality",
-    "artifactKind": "check"
+    "category": "quality"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "civ7-docs",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/docs/_blueprints/docs-site/verify_docs_site_link_integrity/baseline.json"
   },
   "runner": {

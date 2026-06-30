@@ -14,7 +14,7 @@ domain decisions, not provider behavior.
 
 ## What Does Not Change
 
-- No `.habitat` authored artifact layout change.
+- No `.habitat` authored authority data layout change.
 - No check rule semantics change.
 
 ## Verification

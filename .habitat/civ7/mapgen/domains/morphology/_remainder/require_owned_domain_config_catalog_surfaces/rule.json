@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_owned_domain_config_catalog_surfaces",
   "title": "Require Owned Domain Config Catalog Surfaces",
   "placement": {
     "niche": "civ7/mapgen/domains/morphology",
     "blueprint": "_remainder",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       ]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/baseline.json"
   },
   "runner": {

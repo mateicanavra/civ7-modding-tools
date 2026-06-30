@@ -4,7 +4,7 @@
 
 - [x] 1.1 Move diagnostic catalog source into `src/domains/diagnostic-pattern-catalog/**`.
 - [x] 1.2 Move pattern validation/admission source into `src/domains/pattern-governance/**`.
-- [x] 1.3 Preserve D14A authored artifact validation.
+- [x] 1.3 Preserve D14A authored authority data validation.
 - [x] 1.4 Replace expected governance throws with typed refusals/errors.
 - [x] 1.5 Keep Grit provider raw-output ownership below domains by moving
       diagnostic acquisition projection into the Grit adapter.

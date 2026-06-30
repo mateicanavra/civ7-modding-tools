@@ -667,7 +667,7 @@ The current authority tree still uses transitional physical concepts:
 Top-level `blueprints/` contains affirmed constructible kind authority.
 Niche-local `_blueprints/` contains blueprint-shaped candidate groupings that
 remain unaffirmed. A child niche is a narrower current jurisdiction under its
-parent, not a blueprint claim. Category and artifact kind are manifest
+parent, not a blueprint claim. Category and operation kind are manifest
 placement facts in this transitional state. This ontology is the normative
 conceptual reference for deciding what that layout means and what future
 layouts should converge toward.

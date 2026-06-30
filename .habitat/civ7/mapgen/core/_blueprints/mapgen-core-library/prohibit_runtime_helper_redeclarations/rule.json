@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_runtime_helper_redeclarations",
   "title": "Prohibit Runtime Helper Redeclarations",
   "placement": {
     "niche": "civ7/mapgen/core",
     "blueprint": "mapgen-core-library",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -25,7 +27,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/core/_blueprints/mapgen-core-library/prohibit_runtime_helper_redeclarations/baseline.json"
   },
   "runner": {

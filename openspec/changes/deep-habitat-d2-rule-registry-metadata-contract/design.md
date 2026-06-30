@@ -95,7 +95,7 @@ Use standard engineering terms first. Attach special terms only where Habitat ow
 D2 chooses a versioned registry document parsed into closed rule states. Implementation uses TypeBox schemas as the source of truth for this serialized registry contract, derives TypeScript types from those schemas, and validates external/serialized registry data through TypeBox validation before any consumer receives projections:
 
 ```ts
-interface RuleRegistryDocumentV1 {
+interface RuleRegistryDocument {
   schemaVersion: 1;
   rules: readonly RuleRegistryRecord[];
 }

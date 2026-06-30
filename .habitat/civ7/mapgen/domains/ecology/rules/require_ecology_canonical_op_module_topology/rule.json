@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_ecology_canonical_op_module_topology",
   "title": "Require Ecology Canonical Op Module Topology",
   "placement": {
     "niche": "civ7/mapgen/domains/ecology",
     "blueprint": "_self",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -20,7 +22,7 @@
       "patterns": ["mods/mod-swooper-maps/src/domain/ecology/ops/*"]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/baseline.json"
   },
   "runner": {

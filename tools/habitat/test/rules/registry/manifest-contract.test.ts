@@ -1,6 +1,6 @@
 import path from "node:path";
 import {
-  habitatArtifactPathPlan,
+  habitatAuthorityPathPlan,
   loadRuleRegistryDocument,
   loadRuleRegistryDocumentEffect,
   type RuleRegistryDirectoryEntry,
@@ -28,7 +28,7 @@ describe("location-independent rule manifests", () => {
             runtime: "node",
             files: { script: scriptPath },
           },
-          artifacts: { baseline: baselinePath },
+          supportFiles: { baseline: baselinePath },
         })
       ),
       [path.join("/repo", scriptPath)]: "",
@@ -47,7 +47,6 @@ describe("location-independent rule manifests", () => {
           niche: "docs",
           blueprint: "docs-site",
           category: "quality",
-          artifactKind: "check",
         },
         runner: {
           name: "habitat",
@@ -55,7 +54,7 @@ describe("location-independent rule manifests", () => {
           runtime: "node",
           files: { script: scriptPath },
         },
-        artifacts: { baseline: baselinePath },
+        supportFiles: { baseline: baselinePath },
       }),
     ]);
   });
@@ -90,7 +89,7 @@ describe("location-independent rule manifests", () => {
     ]);
   });
 
-  test("rejects stale category and artifact-kind packet nesting", async () => {
+  test("rejects stale category and operation-kind packet nesting", async () => {
     const registryDir = "/repo/.habitat";
     const rulePath = path.join(
       registryDir,
@@ -115,7 +114,7 @@ describe("location-independent rule manifests", () => {
 
     await expect(
       Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))
-    ).rejects.toThrow(/must not use category\/artifact-kind path nesting/);
+    ).rejects.toThrow(/must not use category\/operation-kind path nesting/);
   });
 
   test("rejects duplicate manifest ids independent of physical location", async () => {
@@ -152,7 +151,7 @@ describe("location-independent rule manifests", () => {
             runtime: "node",
             files: { script: missingScriptPath },
           },
-          artifacts: { baseline: baselinePath },
+          supportFiles: { baseline: baselinePath },
         })
       ),
       [path.join("/repo", baselinePath)]: "[]\n",
@@ -160,10 +159,10 @@ describe("location-independent rule manifests", () => {
 
     await expect(
       Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))
-    ).rejects.toThrow(/missing-runner: referenced runner or artifact file does not exist/);
+    ).rejects.toThrow(/missing-runner: referenced runner or support file does not exist/);
   });
 
-  test("rejects missing explicit artifact references before execution", async () => {
+  test("rejects missing explicit support file references before execution", async () => {
     const registryDir = "/repo/.habitat";
     const rulePath = path.join(registryDir, "inventory/current/rules/missing-baseline/rule.json");
     const scriptPath = ".habitat/execution/rules/missing-baseline/check.mjs";
@@ -179,7 +178,7 @@ describe("location-independent rule manifests", () => {
             runtime: "node",
             files: { script: scriptPath },
           },
-          artifacts: { baseline: missingBaselinePath },
+          supportFiles: { baseline: missingBaselinePath },
         })
       ),
       [path.join("/repo", scriptPath)]: "",
@@ -187,7 +186,7 @@ describe("location-independent rule manifests", () => {
 
     await expect(
       Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))
-    ).rejects.toThrow(/missing-baseline: referenced runner or artifact file does not exist/);
+    ).rejects.toThrow(/missing-baseline: referenced runner or support file does not exist/);
   });
 
   test("classifies changed manifest, runner, and baseline files by manifest references", () => {
@@ -199,10 +198,10 @@ describe("location-independent rule manifests", () => {
         runtime: "node",
         files: { script: ".habitat/execution/rules/moved-rule/check.mjs" },
       },
-      artifacts: { baseline: ".habitat/execution/rules/moved-rule/baseline.json" },
+      supportFiles: { baseline: ".habitat/execution/rules/moved-rule/baseline.json" },
     });
 
-    const plan = habitatArtifactPathPlan(
+    const plan = habitatAuthorityPathPlan(
       [
         ".habitat/future/ontology/rules/moved/rule.json",
         ".habitat/execution/rules/moved-rule/check.mjs",
@@ -213,19 +212,19 @@ describe("location-independent rule manifests", () => {
           id: rule.id,
           manifestFilePath: ".habitat/future/ontology/rules/moved/rule.json",
           runner: rule.runner,
-          artifacts: rule.artifacts,
+          supportFiles: rule.supportFiles,
         },
       ]
     );
 
-    expect(plan.nonSourceCheckRuleArtifactIds).toEqual(["moved-rule"]);
-    expect(plan.hasUnclassifiedArtifact).toBe(false);
+    expect(plan.nonSourceCheckRuleIds).toEqual(["moved-rule"]);
+    expect(plan.hasUnclassifiedAuthorityFile).toBe(false);
   });
 });
 
 function rulePackIndex() {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     ownerRoots: {
       habitat: "tools/habitat",
     },
@@ -235,15 +234,15 @@ function rulePackIndex() {
 function ruleManifest(overrides: Record<string, unknown> = {}) {
   const id = String(overrides.id ?? "sample-rule");
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id,
     title: "Sample Rule",
     placement: {
       niche: "docs",
       blueprint: "docs-site",
       category: "quality",
-      artifactKind: "check",
     },
+    operation: { kind: "check" },
     ownerProject: "habitat",
     lane: "enforced",
     forbids: "fixture violation",

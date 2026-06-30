@@ -11,7 +11,7 @@
 
 ## Objective
 
-Implement D10 as the generic Protected Zone Authority for repo-local protected mutation decisions, generated-surface declarations, forbidden-artifact handling, host-owned surface consumption, scan-root protection, and downstream D7/D9/D11 projections without preserving the old generated-zone helper or stale drift script as parallel authority.
+Implement D10 as the generic Protected Zone Authority for repo-local protected mutation decisions, generated-surface declarations, forbidden-file handling, host-owned surface consumption, scan-root protection, and downstream D7/D9/D11 projections without preserving the old generated-zone helper or stale drift script as parallel authority.
 
 ## Current Gate
 

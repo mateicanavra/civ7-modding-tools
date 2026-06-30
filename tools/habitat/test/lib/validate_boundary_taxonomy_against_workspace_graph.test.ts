@@ -42,7 +42,7 @@ describe("boundary taxonomy verifier", () => {
       tags: ["kind:tooling", "habitat:service", "layer:service-model"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "habitat-artifacts",
+      name: "habitat-authority",
       root: ".habitat",
       tags: ["kind:tooling"],
     });
@@ -92,10 +92,10 @@ describe("boundary taxonomy verifier", () => {
       root: ".",
     });
     expect(audit.notes).toContainEqual({
-      reason: "nx-inferred-artifact-project",
+      reason: "nx-inferred-authority-project",
       message:
-        "The Habitat artifact root is an inferred Nx project-plane node, not a package manifest workspace.",
-      project: "habitat-artifacts",
+        "The Habitat authority root is an inferred Nx project-plane node, not a package manifest workspace.",
+      project: "habitat-authority",
       root: ".habitat",
     });
     expect(audit.notes).toContainEqual({

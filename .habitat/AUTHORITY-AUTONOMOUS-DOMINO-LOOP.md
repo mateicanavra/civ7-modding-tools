@@ -207,7 +207,7 @@ Use this loop for each eligible domino.
    pressure, `_remainder` as cleanup/split/consolidation/retirement pressure,
    explicit exclusion, or falsified/blocked.
 7. **Move physically.** Move packet directories, preserve `rule.json.id`, and
-   update `placement`, `runner.files`, `artifacts.baseline`, and active refs.
+   update `placement`, `runner.files`, `supportFiles.baseline`, and active refs.
 8. **Record receipt.** Update the domino ledger or the narrow authority doc
    with a disposition receipt that matches the final tree. The receipt is not
    a second authority surface.
@@ -340,7 +340,7 @@ A completed autonomous slice must provide:
 
 - `git diff --check`.
 - Manifest path proof that every moved `runner.files` and
-  `artifacts.baseline` path exists.
+  `supportFiles.baseline` path exists.
 - Focused `bun tools/habitat/bin/dev.ts check --rule <id> --json` proof for
   moved rows where applicable.
 - Static scans proving moved manifests do not contain stale old file refs.

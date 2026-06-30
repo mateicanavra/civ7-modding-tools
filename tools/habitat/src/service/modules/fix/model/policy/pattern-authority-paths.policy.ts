@@ -1,4 +1,4 @@
-import { patternCandidateRoot, patternManifestRoot } from "@habitat/cli/resources/artifact-paths";
+import { patternCandidateRoot, patternManifestRoot } from "@habitat/cli/resources/authority-paths";
 
 export { patternCandidateRoot, patternManifestRoot };
 

@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "validate_ecology_op_contract_quality",
   "title": "Validate Ecology Op Contract Quality",
   "placement": {
     "niche": "civ7/mapgen/domains/ecology",
     "blueprint": "_remainder",
-    "category": "quality",
-    "artifactKind": "check"
+    "category": "quality"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -26,7 +28,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/baseline.json"
   },
   "runner": {

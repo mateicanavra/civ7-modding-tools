@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "protect_generated_map_entrypoints_from_hand_edits",
   "title": "Protect Generated Map Entrypoints From Hand Edits",
   "placement": {
     "niche": "civ7/mapgen/map-output",
     "blueprint": "mod-map",
-    "category": "artifact",
-    "artifactKind": "check"
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -21,7 +23,7 @@
     }
   ],
   "generatedZone": "swooper-map-generated",
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/baseline.json"
   },
   "runner": {

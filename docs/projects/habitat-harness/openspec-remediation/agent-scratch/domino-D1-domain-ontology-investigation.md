@@ -67,7 +67,7 @@ The current source names map roughly as follows:
 | `AdapterProofArtifact` | `AdapterCommandArtifact` / `CommandCaptureArtifact`. |
 | `ProofArtifactWriter` | `CommandArtifactWriter` or narrower adapter-specific writer if it stays public only through compatibility. |
 | `proofId` | `artifactId`, `recordId`, or `receiptId` depending on family. |
-| `proofClass` / `AdapterProofClass` | `recordKind`, `artifactKind`, `captureKind`, `transactionStage`, or family-specific discriminant. |
+| `proofClass` / `AdapterProofClass` | `recordKind`, `operationKind`, `captureKind`, `transactionStage`, or family-specific discriminant. |
 | `VerifyProof` | Public compatibility name for a target `VerifyReceipt` / `VerificationReceipt`. |
 | `GritApplyTransactionProof` | Public compatibility name for target `ApplyTransactionRecord`. |
 | `GritApplyDiffEvidence` | Prefer `DiffObservation`, `DiffDigest`, or `ChangeDigest`; use `Evidence` only for reviewed source evidence, not accepted truth. |

@@ -17,7 +17,7 @@
 ## 3. Registry Model Slice
 
 - [x] 3.1 Introduce a canonical registry owner module under `tools/habitat-harness/src/rules/` that is the only TypeScript owner of raw `rules.json` parsing.
-- [x] 3.2 Add TypeBox-first `RuleRegistryDocumentV1` schemas with `schemaVersion: 1`, closed `ownerTool` vocabulary, closed `lane` vocabulary, and discriminated `RuleRegistryRecord` variants; derive TypeScript types from the schemas.
+- [x] 3.2 Add TypeBox-first `RuleRegistryDocument` schemas with `schemaVersion: 1`, closed `ownerTool` vocabulary, closed `lane` vocabulary, and discriminated `RuleRegistryRecord` variants; derive TypeScript types from the schemas.
 - [x] 3.3 Add TypeBox-backed parser failures for duplicate ids, unknown adapters, unsupported enforcement dispositions, missing identity facts, and contradicted variant fields.
 - [x] 3.4 Preserve any D0-required `HarnessRule`, `rules`, or `ruleById` public compatibility facade from canonical state, not from raw JSON authority.
 - [x] 3.5 Add registry parser tests using current 53 rules and malformed fixture rows.

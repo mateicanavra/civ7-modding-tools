@@ -8,12 +8,31 @@ const GraphTargetSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const RulePlacementV1Schema = Type.Object(
+const RulePlacementSchema = Type.Object(
   {
     niche: Type.String({ minLength: 1 }),
     blueprint: Type.String({ minLength: 1 }),
-    category: Type.String({ minLength: 1 }),
-    artifactKind: Type.String({ minLength: 1 }),
+    category: Type.Union([
+      Type.Literal("boundary"),
+      Type.Literal("contract"),
+      Type.Literal("execution"),
+      Type.Literal("output"),
+      Type.Literal("policy"),
+      Type.Literal("quality"),
+      Type.Literal("structure"),
+    ]),
+  },
+  { additionalProperties: false }
+);
+
+const RuleOperationSchema = Type.Object(
+  {
+    kind: Type.Union([
+      Type.Literal("check"),
+      Type.Literal("fix"),
+      Type.Literal("generate"),
+      Type.Literal("migrate"),
+    ]),
   },
   { additionalProperties: false }
 );
@@ -113,7 +132,7 @@ const RulePathCoverageSchema = Type.Array(
   { minItems: 1 }
 );
 
-const RuleArtifactRefsV1Schema = Type.Object(
+const RuleSupportFilesSchema = Type.Object(
   {
     baseline: Type.Optional(Type.String({ minLength: 1 })),
   },
@@ -121,10 +140,11 @@ const RuleArtifactRefsV1Schema = Type.Object(
 );
 
 const RuleManifestShape = {
-  schemaVersion: Type.Literal(1),
+  schemaVersion: Type.Literal(2),
   id: Type.String({ minLength: 1 }),
   title: Type.String({ minLength: 1 }),
-  placement: RulePlacementV1Schema,
+  placement: RulePlacementSchema,
+  operation: RuleOperationSchema,
   ownerProject: Type.String({ minLength: 1 }),
   lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
   forbids: Type.String({ minLength: 1 }),
@@ -141,15 +161,15 @@ const RuleManifestShape = {
   generatedZone: Type.Optional(Type.String({ minLength: 1 })),
   forbiddenFileNames: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
   hostSurfaceGuard: Type.Optional(Type.Literal(true)),
-  artifacts: Type.Optional(RuleArtifactRefsV1Schema),
+  supportFiles: Type.Optional(RuleSupportFilesSchema),
   runner: RuleRunnerSchema,
 };
 
-export const RuleRegistryRecordInputV1Schema = Type.Object(RuleManifestShape, {
+export const RuleRegistryRecordInputSchema = Type.Object(RuleManifestShape, {
   additionalProperties: false,
 });
 
-export const RuleRegistryRecordV1Schema = Type.Object(
+export const RuleRegistryRecordSchema = Type.Object(
   {
     ...RuleManifestShape,
     manifestFilePath: Type.Optional(Type.String({ minLength: 1 })),
@@ -157,22 +177,22 @@ export const RuleRegistryRecordV1Schema = Type.Object(
   { additionalProperties: false }
 );
 
-export const RuleRegistryDocumentV1Schema = Type.Object(
+export const RuleRegistryDocumentSchema = Type.Object(
   {
     $comment: Type.Optional(Type.String()),
-    schemaVersion: Type.Literal(1),
+    schemaVersion: Type.Literal(2),
     ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
       minProperties: 1,
     }),
-    rules: Type.Array(RuleRegistryRecordV1Schema),
+    rules: Type.Array(RuleRegistryRecordSchema),
   },
   { additionalProperties: false }
 );
 
-export const RuleRegistryIndexV1Schema = Type.Object(
+export const RuleRegistryIndexSchema = Type.Object(
   {
     $comment: Type.Optional(Type.String()),
-    schemaVersion: Type.Literal(1),
+    schemaVersion: Type.Literal(2),
     ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
       minProperties: 1,
     }),
@@ -309,12 +329,12 @@ export const RuleHookCheckFactsSchema = Type.Object(
 
 export type RuleRunner = Static<typeof RuleRunnerSchema>;
 export type RuleRunnerName = RuleRunner["name"];
-export type RulePlacementV1 = Static<typeof RulePlacementV1Schema>;
-export type RuleArtifactRefsV1 = Static<typeof RuleArtifactRefsV1Schema>;
-export type RuleRegistryRecordV1 = Static<typeof RuleRegistryRecordV1Schema>;
-export type RuleRegistryRecordInputV1 = Static<typeof RuleRegistryRecordInputV1Schema>;
-export type RuleRegistryDocumentV1 = Static<typeof RuleRegistryDocumentV1Schema>;
-export type RuleRegistryIndexV1 = Static<typeof RuleRegistryIndexV1Schema>;
+export type RulePlacement = Static<typeof RulePlacementSchema>;
+export type RuleSupportFiles = Static<typeof RuleSupportFilesSchema>;
+export type RuleRegistryRecord = Static<typeof RuleRegistryRecordSchema>;
+export type RuleRegistryRecordInput = Static<typeof RuleRegistryRecordInputSchema>;
+export type RuleRegistryDocument = Static<typeof RuleRegistryDocumentSchema>;
+export type RuleRegistryIndex = Static<typeof RuleRegistryIndexSchema>;
 export type RuleSelectorFacts = Static<typeof RuleSelectorFactsSchema>;
 export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
 export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;

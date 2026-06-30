@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
   "title": "Prohibit Cutover Shims Dual Paths And Legacy Stage Aliases",
   "placement": {
     "niche": "civ7/mapgen/pipeline/cutover",
     "blueprint": "_remainder",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -27,7 +29,7 @@
       ]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/cutover/_remainder/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/baseline.json"
   },
   "runner": {

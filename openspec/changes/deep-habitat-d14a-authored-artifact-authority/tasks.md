@@ -2,7 +2,7 @@
 
 ## 1. Source Boundary
 
-- [x] 1.1 Add `.habitat/` as checked-in authored artifact root.
+- [x] 1.1 Add `.habitat/` as checked-in authored authority data root.
 - [x] 1.2 Move active rule registry to `.habitat/rules/index.json` plus `.habitat/rules/<rule-id>/rule.json`.
 - [x] 1.3 Move explicit baselines to `.habitat/baselines/*.json`.
 - [x] 1.4 Add a central artifact-path module.

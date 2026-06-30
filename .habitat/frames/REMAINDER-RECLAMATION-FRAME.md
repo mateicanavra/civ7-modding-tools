@@ -154,7 +154,7 @@ Exterior:
 - Global classification of all `_remainder/` rows.
 - New destination creation unless another selected frame authorizes it first.
 - Rows that only share a broad keyword, current implementation path, or runner
-  artifact kind with the seed idea.
+  operation kind with the seed idea.
 - Cleanup, split, consolidation, or retirement that must change behavior before
   movement.
 - Durable metric reports that future agents must remember to consult.
@@ -218,8 +218,8 @@ Minimum inputs:
 
 - Live `.habitat/**/rule.json` manifests.
 - `placement.niche`, `placement.blueprint`, `placement.category`, and
-  `placement.artifactKind`.
-- `pathCoverage`, `scanRoots`, `runner.files`, and `artifacts.baseline`.
+  `operation.kind`.
+- `pathCoverage`, `scanRoots`, `runner.files`, and `supportFiles.baseline`.
 - Runner artifact text when manifest metadata is too coarse.
 - Current physical path, especially `_remainder/`, `rules/`, `_blueprints/`,
   and top-level `blueprints/`.
@@ -300,7 +300,7 @@ may now be reclaimable.
    - falsifier.
 10. Physically move packets only after the disposition model is coherent.
 11. Preserve `rule.json.id`; update `placement`, `runner.files`, and
-    `artifacts.baseline` for every moved packet.
+    `supportFiles.baseline` for every moved packet.
 12. Update active docs only where they govern the new durable state.
 13. Run focused selected-rule proofs, manifest path proof, stale-reference
     scans, `git diff --check`, and the Habitat toolkit check.

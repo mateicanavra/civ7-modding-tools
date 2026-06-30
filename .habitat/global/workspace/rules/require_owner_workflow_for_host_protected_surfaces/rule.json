@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_owner_workflow_for_host_protected_surfaces",
   "title": "Require Owner Workflow For Host Protected Surfaces",
   "placement": {
     "niche": "global/workspace",
     "blueprint": "_self",
-    "category": "artifact",
-    "artifactKind": "check"
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -20,7 +22,7 @@
     }
   ],
   "hostSurfaceGuard": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/global/workspace/rules/require_owner_workflow_for_host_protected_surfaces/baseline.json"
   },
   "runner": {

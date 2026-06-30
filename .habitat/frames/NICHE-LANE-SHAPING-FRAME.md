@@ -163,7 +163,7 @@ lanes. In that case, write the narrower surface frame first instead of making a
 holding-lane branch carry ontology it cannot prove.
 
 Also reframe if the only available child lane name is capability-shaped,
-projection-shaped, import-law-shaped, runner-shaped, artifact-kind-shaped,
+projection-shaped, import-law-shaped, runner-shaped, operation-kind-shaped,
 cleanup-only, or defect-token-shaped and the row does not prove intentional
 child context authority. Those rows should move to the smallest honest
 `_remainder/` or trigger a narrower surface frame.
@@ -184,7 +184,7 @@ Use this method when a parent niche lane is acting as a semantic junk drawer.
    - or a falsified lane that should not be created.
 7. Create only lanes used by the current slice.
 8. Physically move packets, preserving `rule.json.id` and updating
-   `placement`, `runner.files`, and `artifacts.baseline`.
+   `placement`, `runner.files`, and `supportFiles.baseline`.
 9. Record a disposition receipt that matches the final tree.
 10. Run focused proof for moved rows and stale-reference scans.
 11. Review for over-claimed ontology, parent-lane leftovers, and hidden
@@ -213,7 +213,7 @@ Reject child `rules/` lanes whose proposed names are only:
 - reusable behavior that looks like a capability;
 - projection, import-law, package-graph, build, or runner surfaces;
 - cleanup or migration phases;
-- artifact kinds such as check/fix/generate;
+- operation kinds such as check/fix/generate;
 - defect tokens or retired labels;
 - current packet slugs.
 
@@ -271,7 +271,7 @@ for (const manifestPath of manifests) {
   if (!movedRuleIds.includes(manifest.id)) continue;
   const refs = [
     ...Object.values(manifest.runner?.files ?? {}),
-    manifest.artifacts?.baseline,
+    manifest.supportFiles?.baseline,
   ].filter(Boolean);
   for (const ref of refs) {
     const absolute = path.join(repo, ref);

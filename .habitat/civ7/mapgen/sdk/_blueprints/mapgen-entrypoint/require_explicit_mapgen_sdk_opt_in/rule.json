@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_explicit_mapgen_sdk_opt_in",
   "title": "Require Explicit Mapgen Sdk Opt In",
   "placement": {
     "niche": "civ7/mapgen/sdk",
     "blueprint": "mapgen-entrypoint",
-    "category": "execution",
-    "artifactKind": "check"
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "civ7-sdk",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["packages/sdk/src"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/sdk/_blueprints/mapgen-entrypoint/require_explicit_mapgen_sdk_opt_in/baseline.json"
   },
   "runner": {

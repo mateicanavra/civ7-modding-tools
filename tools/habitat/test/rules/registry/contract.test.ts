@@ -1,5 +1,5 @@
 import path from "node:path";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/artifact-paths";
+import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import {
   isDirectorySync,
@@ -31,11 +31,11 @@ describe("rule registry contract", () => {
       readText: readTextSync,
     }).rules;
 
-    expect(rules).toHaveLength(124);
+    expect(rules).toHaveLength(126);
     expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(79);
     expect(
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
-    ).toHaveLength(31);
+    ).toHaveLength(33);
     expect(
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure")
     ).toHaveLength(8);
@@ -43,11 +43,12 @@ describe("rule registry contract", () => {
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer")
     ).toHaveLength(5);
     expect(rules.filter((rule) => rule.runner.name === "nx")).toHaveLength(1);
-    expect(rules.every((rule) => rule.schemaVersion === 1)).toBe(true);
+    expect(rules.every((rule) => rule.schemaVersion === 2)).toBe(true);
+    expect(rules.every((rule) => rule.operation.kind === "check")).toBe(true);
     expect(rules.every((rule) => rule.id && rule.title && rule.placement && rule.runner)).toBe(
       true
     );
-    expect(rules.every((rule) => rule.artifacts?.baseline)).toBe(true);
+    expect(rules.every((rule) => rule.supportFiles?.baseline)).toBe(true);
     expect(rules.every((rule) => rule.manifestFilePath?.endsWith("/rule.json"))).toBe(true);
   });
 

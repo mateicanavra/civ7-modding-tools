@@ -5,7 +5,7 @@ import type {
   RuleGritFacts,
   RuleHookCheckFacts,
   RuleManifestFacts,
-  RuleRegistryRecordV1,
+  RuleRegistryRecord,
   RuleReportFacts,
   RuleRoutingFacts,
   RuleSelectorFacts,
@@ -13,31 +13,31 @@ import type {
   RuleStructureFacts,
 } from "../dto/registry.schema.js";
 
-type SelectorRecordInput = Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "runner">;
+type SelectorRecordInput = Pick<RuleRegistryRecord, "id" | "ownerProject" | "runner">;
 type ReportRecordInput = Pick<
-  RuleRegistryRecordV1,
+  RuleRegistryRecord,
   "id" | "runner" | "lane" | "message" | "remediate"
 >;
 type RoutingRecordInput = Pick<
-  RuleRegistryRecordV1,
+  RuleRegistryRecord,
   "id" | "runner" | "ownerProject" | "pathCoverage"
 >;
-type BaselineRecordInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath" | "artifacts">;
-type GritRunner = Extract<RuleRegistryRecordV1["runner"], { name: "grit" }>;
+type BaselineRecordInput = Pick<RuleRegistryRecord, "id" | "exceptionPath" | "supportFiles">;
+type GritRunner = Extract<RuleRegistryRecord["runner"], { name: "grit" }>;
 type StructureRunner = Extract<
-  RuleRegistryRecordV1["runner"],
+  RuleRegistryRecord["runner"],
   { name: "habitat"; mode: "structure" }
 >;
-type ScriptRunner = Extract<RuleRegistryRecordV1["runner"], { name: "habitat"; mode: "script" }>;
+type ScriptRunner = Extract<RuleRegistryRecord["runner"], { name: "habitat"; mode: "script" }>;
 type FileLayerRunner = Extract<
-  RuleRegistryRecordV1["runner"],
+  RuleRegistryRecord["runner"],
   { name: "habitat"; mode: "file-layer" }
 >;
-type GritRecordInput = RuleRegistryRecordV1 & { runner: GritRunner; scanRoots: string[] };
-type StructureRecordInput = RuleRegistryRecordV1 & { runner: StructureRunner };
+type GritRecordInput = RuleRegistryRecord & { runner: GritRunner; scanRoots: string[] };
+type StructureRecordInput = RuleRegistryRecord & { runner: StructureRunner };
 type ManifestRecordInput = GritRecordInput & { manifestPath: string };
-type FileLayerRecordInput = RuleRegistryRecordV1 & { runner: FileLayerRunner };
-type CommandRecordInput = RuleRegistryRecordV1 & { runner: ScriptRunner };
+type FileLayerRecordInput = RuleRegistryRecord & { runner: FileLayerRunner };
+type CommandRecordInput = RuleRegistryRecord & { runner: ScriptRunner };
 type HookCheckRecordInput = GritRecordInput & { hookCheck: true };
 
 export function ruleSelectorFacts(records: readonly SelectorRecordInput[]): RuleSelectorFacts[] {
@@ -71,15 +71,15 @@ export function ruleBaselineFacts(records: readonly BaselineRecordInput[]): Rule
   return records.map((rule) => ({
     id: rule.id,
     ...(rule.exceptionPath ? { exceptionPath: rule.exceptionPath } : {}),
-    ...(rule.artifacts?.baseline ? { baselinePath: rule.artifacts.baseline } : {}),
+    ...(rule.supportFiles?.baseline ? { baselinePath: rule.supportFiles.baseline } : {}),
   }));
 }
 
-export function ruleSourceFacts(_records: readonly RuleRegistryRecordV1[]): RuleSourceFacts[] {
+export function ruleSourceFacts(_records: readonly RuleRegistryRecord[]): RuleSourceFacts[] {
   return [];
 }
 
-export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGritFacts[] {
+export function ruleGritFacts(records: readonly RuleRegistryRecord[]): RuleGritFacts[] {
   return records.filter(isGritRecord).map((rule) => ({
     id: rule.id,
     lane: rule.lane,
@@ -91,7 +91,7 @@ export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGri
   }));
 }
 
-export function ruleStructureFacts(records: readonly RuleRegistryRecordV1[]): RuleStructureFacts[] {
+export function ruleStructureFacts(records: readonly RuleRegistryRecord[]): RuleStructureFacts[] {
   return records.filter(isStructureRecord).map((rule) => ({
     id: rule.id,
     lane: rule.lane,
@@ -101,7 +101,7 @@ export function ruleStructureFacts(records: readonly RuleRegistryRecordV1[]): Ru
   }));
 }
 
-export function ruleManifestFacts(records: readonly RuleRegistryRecordV1[]): RuleManifestFacts[] {
+export function ruleManifestFacts(records: readonly RuleRegistryRecord[]): RuleManifestFacts[] {
   return records.filter(isManifestRecord).map((rule) => ({
     id: rule.id,
     lane: rule.lane,
@@ -111,7 +111,7 @@ export function ruleManifestFacts(records: readonly RuleRegistryRecordV1[]): Rul
 }
 
 export function ruleCommandExecutionFacts(
-  records: readonly RuleRegistryRecordV1[]
+  records: readonly RuleRegistryRecord[]
 ): RuleCommandExecutionFacts[] {
   return records.filter(isCommandRecord).map((rule) => ({
     id: rule.id,
@@ -121,7 +121,7 @@ export function ruleCommandExecutionFacts(
   }));
 }
 
-export function ruleFileLayerFacts(records: readonly RuleRegistryRecordV1[]): RuleFileLayerFacts[] {
+export function ruleFileLayerFacts(records: readonly RuleRegistryRecord[]): RuleFileLayerFacts[] {
   return records.filter(isFileLayerRecord).map((rule) => {
     const base = {
       id: rule.id,
@@ -137,42 +137,42 @@ export function ruleFileLayerFacts(records: readonly RuleRegistryRecordV1[]): Ru
   });
 }
 
-export function ruleHookCheckFacts(records: readonly RuleRegistryRecordV1[]): RuleHookCheckFacts[] {
+export function ruleHookCheckFacts(records: readonly RuleRegistryRecord[]): RuleHookCheckFacts[] {
   return records.filter(isHookCheckRecord).map((rule) => ({
     id: rule.id,
     hookCheck: true as const,
   }));
 }
 
-function isGritRecord(rule: RuleRegistryRecordV1): rule is GritRecordInput {
+function isGritRecord(rule: RuleRegistryRecord): rule is GritRecordInput {
   return rule.runner.name === "grit" && Array.isArray(rule.scanRoots);
 }
 
-function isStructureRecord(rule: RuleRegistryRecordV1): rule is StructureRecordInput {
+function isStructureRecord(rule: RuleRegistryRecord): rule is StructureRecordInput {
   return rule.runner.name === "habitat" && rule.runner.mode === "structure";
 }
 
-function isCommandRecord(rule: RuleRegistryRecordV1): rule is CommandRecordInput {
+function isCommandRecord(rule: RuleRegistryRecord): rule is CommandRecordInput {
   return rule.runner.name === "habitat" && rule.runner.mode === "script";
 }
 
-function isFileLayerRecord(rule: RuleRegistryRecordV1): rule is FileLayerRecordInput {
+function isFileLayerRecord(rule: RuleRegistryRecord): rule is FileLayerRecordInput {
   return rule.runner.name === "habitat" && rule.runner.mode === "file-layer";
 }
 
-function isManifestRecord(rule: RuleRegistryRecordV1): rule is ManifestRecordInput {
+function isManifestRecord(rule: RuleRegistryRecord): rule is ManifestRecordInput {
   return isGritRecord(rule) && typeof rule.manifestPath === "string";
 }
 
-function isHookCheckRecord(rule: RuleRegistryRecordV1): rule is HookCheckRecordInput {
+function isHookCheckRecord(rule: RuleRegistryRecord): rule is HookCheckRecordInput {
   return isGritRecord(rule) && rule.hookCheck === true;
 }
 
-function cloneRunner<T extends RuleRegistryRecordV1["runner"]>(runner: T): T {
+function cloneRunner<T extends RuleRegistryRecord["runner"]>(runner: T): T {
   return { ...runner } as T;
 }
 
-function clonePathCoverage<T extends RuleRegistryRecordV1["pathCoverage"]>(pathCoverage: T): T {
+function clonePathCoverage<T extends RuleRegistryRecord["pathCoverage"]>(pathCoverage: T): T {
   return pathCoverage.map((coverage) =>
     coverage.kind === "exact-path"
       ? { kind: coverage.kind, patterns: [...coverage.patterns] }

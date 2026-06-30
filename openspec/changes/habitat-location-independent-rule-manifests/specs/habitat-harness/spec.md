@@ -74,20 +74,20 @@ SHALL NOT derive live runner identity from sibling file presence.
 
 ### Requirement: Rule Manifests Declare Consumed Rule Artifacts
 
-Habitat SHALL locate current rule artifacts that affect behavior from manifest
+Habitat SHALL locate current rule authority files that affect behavior from manifest
 facts or from a deliberately global id-based contract. Subject-local artifact
 search by packet grammar SHALL NOT be required for current rules.
 
 #### Scenario: Baseline artifact is declared
 
 - **WHEN** a rule has a subject-local baseline artifact
-- **THEN** the manifest declares the baseline artifact path
+- **THEN** the manifest declares the baseline authority path
 - **AND** baseline integrity reads the current baseline through that declaration
 - **AND** moving the manifest does not disconnect the rule from its baseline
 
 #### Scenario: Baseline artifact is missing
 
-- **WHEN** a manifest declares a baseline artifact path that does not exist
+- **WHEN** a manifest declares a baseline authority path that does not exist
 - **THEN** Habitat refuses the registry or baseline projection before baseline
   comparison
 - **AND** the refusal names the manifest path and missing baseline path

@@ -63,7 +63,7 @@ it does not repeat local worktree paths or branch names.
 ## Traceability Convention
 
 The table below records the source packet filename and OpenSpec change slug.
-Resolve artifact paths through `$REMEDIATION_DIR/context.md` path templates:
+Resolve authority paths through `$REMEDIATION_DIR/context.md` path templates:
 source packets use `$PHASE2_PACKET_DIR/<source-packet-file>`, and OpenSpec
 artifacts use `$OPENSPEC_CHANGES/<change-slug>/...`.
 
@@ -83,7 +83,7 @@ artifacts use `$OPENSPEC_CHANGES/<change-slug>/...`.
 | D11 | `D11-hook-runtime.md` | `deep-habitat-d11-local-feedback` |
 | D12 | `D12-verify-handoff-command.md` | `deep-habitat-d12-verify-handoff-receipt` |
 | D13 | `D13-scaffolding-and-refusal-contracts.md` | `deep-habitat-d13-scaffolding-refusal-contracts` |
-| D14A | implementation-inserted authored artifacts packet | `deep-habitat-d14a-authored-artifact-authority` |
+| D14A | implementation-inserted authored authority data packet | `deep-habitat-d14a-authored-artifact-authority` |
 | D14 | `D14-authoring-topology-fence.md` | `deep-habitat-d14-authoring-topology-fence` |
 | D15 | `D15-execution-provenance-substrate-trigger.md` | `deep-habitat-d15-execution-provenance-trigger` |
 | G-HOST | `G-HOST-host-policy-boundary-gate.md` | `deep-habitat-host-policy-boundary-gate` |

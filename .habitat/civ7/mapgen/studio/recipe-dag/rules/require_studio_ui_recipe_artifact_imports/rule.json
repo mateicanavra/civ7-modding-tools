@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_studio_ui_recipe_artifact_imports",
   "title": "Require Studio Ui Recipe Artifact Imports",
   "placement": {
     "niche": "civ7/mapgen/studio/recipe-dag",
     "blueprint": "_self",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["apps/mapgen-studio/src"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/baseline.json"
   },
   "runner": {

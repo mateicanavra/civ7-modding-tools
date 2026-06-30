@@ -100,7 +100,7 @@ treatment without adding a concrete tag or constraint row.
 | mod-swooper-maps | `mods/mod-swooper-maps` | `kind:mod` |
 | mod-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
 | mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
-| habitat-artifacts | `.habitat` | `kind:tooling` |
+| habitat-authority | `.habitat` | `kind:tooling` |
 | habitat | `tools/habitat` | `kind:tooling` |
 | habitat-service | `tools/habitat/src/service` | `kind:tooling`, `habitat:service`, `layer:service-shell` |
 | habitat-service-model | `tools/habitat/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |

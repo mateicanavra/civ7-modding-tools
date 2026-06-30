@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "validate_boundary_taxonomy_against_workspace_graph",
   "title": "Validate Boundary Taxonomy Against Workspace Graph",
   "placement": {
     "niche": "global/workspace",
     "blueprint": "project-boundary-model",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -31,7 +33,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/global/workspace/_blueprints/project-boundary-model/validate_boundary_taxonomy_against_workspace_graph/baseline.json"
   },
   "runner": {

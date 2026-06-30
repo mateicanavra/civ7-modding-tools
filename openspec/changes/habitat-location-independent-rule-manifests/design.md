@@ -69,7 +69,7 @@ type RuleManifestV1 = {
   schemaVersion: 1;
   id: string;
   title: string;
-  placement: RulePlacementV1;
+  placement: RulePlacement;
   ownerProject: string;
   lane: "enforced" | "advisory";
   forbids: string;
@@ -85,15 +85,15 @@ type RuleManifestV1 = {
   generatedZone?: string;
   forbiddenFileNames?: string[];
   hostSurfaceGuard?: true;
-  artifacts?: RuleArtifactRefsV1;
+  artifacts?: RuleSupportFiles;
   runner: RuleRunnerV1;
 };
 
-type RulePlacementV1 = {
+type RulePlacement = {
   niche: string;
   blueprint: string;
   category: string;
-  artifactKind: "check" | "fix" | "generate" | "migrate" | "triage" | string;
+  operation: { kind: "check" | "fix" | "generate" | "migrate" };
 };
 
 type RuleRunnerV1 =
@@ -133,7 +133,7 @@ type RuleRunnerV1 =
       };
     };
 
-type RuleArtifactRefsV1 = {
+type RuleSupportFiles = {
   baseline?: string;
 };
 ```
@@ -166,10 +166,10 @@ metadata.
 
 ### Non-Runner Artifact Semantics
 
-Location independence also covers rule artifacts that affect behavior but are
+Location independence also covers rule authority files that affect behavior but are
 not execution entrypoints. The current important example is `baseline.json`.
 For any rule whose baseline is read from a subject-local `baseline.json`, the
-manifest must declare `artifacts.baseline`. Baseline shrink/growth policy stays
+manifest must declare `supportFiles.baseline`. Baseline shrink/growth policy stays
 owned by baseline code; this phase only removes hidden path discovery as the
 way to find the current baseline artifact.
 
@@ -199,9 +199,9 @@ This work deletes these live states:
 | Title from packet id | Human title cannot be reviewed or moved independently | `rule.json.title` |
 | Placement from packet path | Current belonging cannot move without changing file location | `rule.json.placement` |
 | Runner from sibling scan | Adding support files can accidentally affect execution shape | `rule.json.runner` |
-| Subject-local baseline lookup by `/<ruleId>/baseline.json` | Moving a rule can disconnect its baseline unless another search finds it | `rule.json.artifacts.baseline` or a deliberate global id-based baseline contract |
+| Subject-local baseline lookup by `/<ruleId>/baseline.json` | Moving a rule can disconnect its baseline unless another search finds it | `rule.json.supportFiles.baseline` or a deliberate global id-based baseline contract |
 | Service registry loader and Nx loader both doing packet enrichment | Two loaders must stay in sync | One shared manifest contract, with Nx consuming the same facts |
-| Artifact routing by `blueprints/.../<packet>` | Changed artifact path is mapped by grammar, not inventory | Artifact routing joins changed paths against manifest path and runner file references |
+| Artifact routing by `blueprints/.../<packet>` | Changed authority path is mapped by grammar, not inventory | Artifact routing joins changed paths against manifest path and runner file references |
 | Baseline historical id by packet regex | Baseline comparison treats path as id | Baseline reads current id from manifest; historical fallback is bounded to git history only |
 
 ## Current Evidence
@@ -223,11 +223,11 @@ branch:
 - `tools/habitat/src/service/model/baseline/operations.policy.ts` still has
   global and subject-local baseline path logic that must be converted into an
   explicit current contract plus bounded historical adapters.
-- `tools/habitat/src/service/model/rules/policy/artifact-paths.policy.ts` maps
-  changed Habitat artifact paths to ids through packet grammar.
+- `tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts` maps
+  changed Habitat authority paths to ids through packet grammar.
 - `tools/habitat/src/nx-plugin.ts` still uses `.habitat/**/${rule.id}/**` as a
   target input relation; that relation must be replaced by manifest and
-  declared artifact references.
+  declared support file references.
 - Hooks now expose `--runner`, but internal hook phases still use terms such as
   `source-check` and `file-layer`. The implementation must keep those private
   labels from becoming public selectors.
@@ -302,7 +302,7 @@ Done means every live `.habitat/**/rule.json` has:
 - stable `title`;
 - current `placement`;
 - explicit `runner`;
-- explicit `artifacts.baseline` when the rule has a subject-local baseline;
+- explicit `supportFiles.baseline` when the rule has a subject-local baseline;
 - existing policy/routing fields preserved unless this spec explicitly changes
   them.
 
@@ -311,7 +311,7 @@ Migration rules:
 - Use the current path only as one-time migration evidence.
 - Set `placement` to the current path-derived facts.
 - Set runner file paths to the current concrete generic role files.
-- Set baseline artifact paths from the current concrete baseline file or from a
+- Set baseline authority paths from the current concrete baseline file or from a
   deliberate global id-based baseline contract.
 - Keep `pathCoverage` and `scanRoots` unchanged.
 - Keep `manifestPath`, `patternName`, `exceptionPath`, file-layer facets, and
@@ -392,7 +392,7 @@ The registry loader owns:
 - schema validation;
 - duplicate id detection;
 - referenced runner file existence;
-- referenced rule artifact file existence;
+- referenced rule support file existence;
 - projection into existing consumer facts.
 
 The registry loader must not own:
@@ -452,7 +452,7 @@ Minimum focused tests:
 - artifact routing maps changed manifest/runner/artifact files without packet
   grammar;
 - Nx inputs use explicit runner file references;
-- baseline uses manifest ids and manifest artifact refs for current state, with
+- baseline uses manifest ids and manifest support file refs for current state, with
   bounded historical fallback only for old commits;
 - generator writes full manifests.
 

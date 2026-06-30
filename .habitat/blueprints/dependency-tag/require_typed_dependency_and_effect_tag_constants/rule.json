@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_typed_dependency_and_effect_tag_constants",
   "title": "Require Typed Dependency Tag Constants",
   "placement": {
     "niche": "civ7/mapgen/pipeline",
     "blueprint": "dependency-tag",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -25,7 +27,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/baseline.json"
   },
   "runner": {

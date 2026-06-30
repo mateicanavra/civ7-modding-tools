@@ -1,5 +1,5 @@
 import {
-  candidateArtifactPaths,
+  candidateAuthorityPaths,
   patternGenerator,
 } from "@habitat/cli/generators/scaffold/pattern/support/generator";
 import type { RegisteredPatternManifest } from "@habitat/cli/service/modules/fix/model/dto/index";
@@ -14,12 +14,12 @@ import { describe, expect, test } from "vitest";
 const indexPath = ".habitat/index.json";
 
 describe("Habitat pattern generator", () => {
-  test("creates candidate artifacts without registering active enforcement state", async () => {
+  test("creates candidate authority files without registering active enforcement state", async () => {
     const tree = createPatternTree();
 
     await patternGenerator(tree, { ruleId: "dra-metadata-probe" });
 
-    const candidatePaths = candidateArtifactPaths({
+    const candidatePaths = candidateAuthorityPaths({
       ruleId: "dra-metadata-probe",
       patternName: "dra_metadata_probe",
     });
@@ -28,7 +28,7 @@ describe("Habitat pattern generator", () => {
     expect(tree.exists(".habitat/patterns/checks/dra_metadata_probe.md")).toBe(false);
     expect(tree.exists(".habitat/docs/rules/dra-metadata-probe/rule.json")).toBe(false);
     expect(readJson(tree, indexPath)).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       ownerRoots: { habitat: "tools/habitat" },
     });
 
@@ -268,7 +268,7 @@ describe("Habitat pattern generator", () => {
       }),
     });
 
-    const candidatePaths = candidateArtifactPaths({
+    const candidatePaths = candidateAuthorityPaths({
       ruleId: "new-probe",
       patternName: "existing_probe",
     });
@@ -294,7 +294,7 @@ describe("Habitat pattern generator", () => {
       }),
     });
 
-    const candidatePaths = candidateArtifactPaths({
+    const candidatePaths = candidateAuthorityPaths({
       ruleId: "existing-baseline",
       patternName: "existing_baseline",
     });
@@ -313,7 +313,7 @@ function createPatternTree(
     indexPath,
     `${JSON.stringify(
       {
-        schemaVersion: 1,
+        schemaVersion: 2,
         ownerRoots: rulesJson.ownerRoots,
       },
       null,
@@ -330,7 +330,7 @@ function createPatternTree(
 
 function emptyRuleRegistryDocument(rules: unknown[] = []) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     ownerRoots: {
       habitat: "tools/habitat",
     },
@@ -340,15 +340,15 @@ function emptyRuleRegistryDocument(rules: unknown[] = []) {
 
 function existingRegistryRule(ruleId: string) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id: ruleId,
     title: ruleId,
     placement: {
       niche: "docs",
       blueprint: "_self",
       category: "quality",
-      artifactKind: "check",
     },
+    operation: { kind: "check" },
     ownerProject: "habitat",
     lane: "enforced",
     forbids: "test fixture",
@@ -356,7 +356,7 @@ function existingRegistryRule(ruleId: string) {
     remediate: null,
     message: "test fixture",
     pathCoverage: [{ kind: "project-owner" }],
-    artifacts: {
+    supportFiles: {
       baseline: `.habitat/docs/rules/${ruleId}/baseline.json`,
     },
     runner: {
@@ -376,7 +376,7 @@ function assertNoGeneratedArtifacts(
   patternName: string,
   beforeIndex: string | null
 ) {
-  const candidatePaths = candidateArtifactPaths({ ruleId, patternName });
+  const candidatePaths = candidateAuthorityPaths({ ruleId, patternName });
   expect(tree.exists(candidatePaths.patternPath)).toBe(false);
   expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
   expect(tree.exists(`.habitat/patterns/manifests/${ruleId}.json`)).toBe(false);
@@ -391,7 +391,7 @@ function assertNoPromotionWrites(
   manifestPath: string,
   beforeManifest: string | null
 ) {
-  const candidatePaths = candidateArtifactPaths({
+  const candidatePaths = candidateAuthorityPaths({
     ruleId: manifest.ruleId,
     patternName: manifest.patternName,
   });
@@ -416,7 +416,7 @@ function registeredManifest(
   overrides: Partial<RegisteredPatternManifest> = {}
 ): RegisteredPatternManifest {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     ruleId: "registration-probe",
     patternName: "registration_probe",
     lifecycle: "registered-advisory",

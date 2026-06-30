@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_runtime_local_config_default_merging",
   "title": "Prohibit Runtime Local Config Default Merging",
   "placement": {
     "niche": "civ7/mapgen/pipeline/runtime",
     "blueprint": "_remainder",
-    "category": "execution",
-    "artifactKind": "check"
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -23,12 +25,9 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/baseline.json"
   },
   "runner": {

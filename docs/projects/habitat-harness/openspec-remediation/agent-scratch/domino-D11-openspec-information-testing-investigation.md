@@ -112,7 +112,7 @@ Spec gaps:
   unavailable/refusal.
 - It has no normative scenario for D9 transaction projection unavailable or
   refused local feedback.
-- It has no normative scenario for D10 protected-zone/forbidden-artifact
+- It has no normative scenario for D10 protected-zone/forbidden-file
   refusals stopping the hook before Biome, Grit, generated publish, resource
   publish, or restaging.
 - It has no false-green refusal requirement. A hook pass is still representable
@@ -231,7 +231,7 @@ Scenarios:
 
 - D10-origin `ProtectedMutationGuardProjection` with
   `refused-direct-generated-edit`, `refused-direct-protected-edit`,
-  `refused-forbidden-artifact`, `blocked-missing-host-declaration`,
+  `refused-forbidden-file`, `blocked-missing-host-declaration`,
   `blocked-declaration-conflict`, malformed D2 projection, or unknown zone
   reference blocks pre-commit.
 - D11 does not match protected paths locally to decide policy.

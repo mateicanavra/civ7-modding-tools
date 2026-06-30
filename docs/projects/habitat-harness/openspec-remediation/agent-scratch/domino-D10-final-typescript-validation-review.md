@@ -90,9 +90,9 @@ The declaration, request, decision, projection, conflict, and recovery spaces ar
 - Declaration states include generated, protected, host-owned, forbidden, unknown-zone, missing-host, conflict, and D0-missing states.
 - Request states distinguish staged user edits, declared generator writes, transaction writes, and drift-check observations.
 - Decision states distinguish not-applicable, allowed generator/host/transaction writes, refused direct protected/generated/forbidden mutations, and blocked unknown/missing/conflict/D0 states.
-- Projections are consumer-specific for D7, D9, D11, scan-root, forbidden-artifact, and generated-drift consumers.
+- Projections are consumer-specific for D7, D9, D11, scan-root, forbidden-file, and generated-drift consumers.
 - Required non-empty facts must not be modeled as ordinary empty-capable arrays.
-- Recovery is not left as free text only; tasks require recovery variants for regeneration, host workflow, forbidden-artifact removal, declaration repair, and D0-row request.
+- Recovery is not left as free text only; tasks require recovery variants for regeneration, host workflow, forbidden-file removal, declaration repair, and D0-row request.
 
 Illegal states are either made unrepresentable by the target design or explicitly blocked before projection. The spec requires current optional-field/string-bag state to be removed, refuses/block states that lack owner or recovery, requires non-empty facts for conflicts and missing authority, and blocks drift results from authorizing staged or transaction mutation.
 

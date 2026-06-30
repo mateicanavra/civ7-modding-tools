@@ -335,7 +335,7 @@ Injected bad cases required for implementation:
 1. Add a vendor authority matrix to `design.md` covering Grit, Biome, Git, Nx, D2, G-HOST, D10,
    D11, and D9.
 2. Replace optional or generic zone state with a discriminated policy model:
-   `protected`, `generated`, `forbidden-artifact`, `missing-zone-declaration`,
+   `protected`, `generated`, `forbidden-file`, `missing-zone-declaration`,
    `missing-host-policy`, `authorized-generator-write`, `unauthorized-hand-edit`.
 3. Specify the D2/G-HOST/D10 join:
    D2 supplies file-layer rule references; G-HOST supplies host-policy declarations; D10 produces

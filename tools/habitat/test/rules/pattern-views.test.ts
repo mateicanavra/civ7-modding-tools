@@ -185,7 +185,7 @@ function candidateManifest() {
     openspecChangeId: "deep-habitat-d8-patterns",
     ownerProject: "habitat",
     patternRole: "diagnostic" as const,
-    candidateArtifacts: {
+    candidateAuthorityFiles: {
       patternPath: ".habitat/patterns/candidates/candidate_probe.md",
       manifestPath: ".habitat/patterns/candidates/candidate-probe.json",
     },

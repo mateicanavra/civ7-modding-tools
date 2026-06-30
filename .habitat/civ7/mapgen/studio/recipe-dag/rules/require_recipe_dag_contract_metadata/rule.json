@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_recipe_dag_contract_metadata",
   "title": "Require Recipe Dag Contract Metadata",
   "placement": {
     "niche": "civ7/mapgen/studio/recipe-dag",
     "blueprint": "_self",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
@@ -27,7 +29,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/baseline.json"
   },
   "runner": {

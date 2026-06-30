@@ -48,7 +48,7 @@ authority file:
     "niche": "civ7/mapgen/pipeline",
     "blueprint": "standard-recipe",
     "category": "structure",
-    "artifactKind": "check"
+    "operationKind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -60,7 +60,7 @@ authority file:
       "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**"]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/.../baseline.json"
   },
   "runner": {

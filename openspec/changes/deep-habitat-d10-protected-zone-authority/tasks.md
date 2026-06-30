@@ -12,15 +12,15 @@
 
 ## 2. Declaration And Projection Model
 
-- [x] 2.1 Implement a D10 declaration catalog with closed variants for generated surfaces, host-owned generated/external surfaces, forbidden artifacts, missing host declarations, and declaration conflicts. No touched surface has a missing D0 row in this layer.
+- [x] 2.1 Implement a D10 declaration catalog with closed variants for generated surfaces, host-owned generated/external surfaces, forbidden files, missing host declarations, and declaration conflicts. No touched surface has a missing D0 row in this layer.
 - [x] 2.2 Parse repo-relative staged paths and matchers at the boundary before guard evaluation.
 - [x] 2.3 Represent required non-empty facts for affected paths, missing declarations, forbidden filenames, recovery targets, and conflicts through TypeBox schemas and constructor parsing.
-- [x] 2.4 Implement recovery instruction variants for host regeneration/workflow, forbidden-artifact removal, and declaration repair.
+- [x] 2.4 Implement recovery instruction variants for host regeneration/workflow, forbidden-file removal, and declaration repair.
 - [x] 2.5 Delete the old generic `generated-zones.ts` state after D7 and Grit scan-root consumers compile against D10 declarations/projections.
 
 ## 3. D2 And G-HOST Consumption
 
-- [x] 3.1 Consume D2 `RuleFileLayerFacts` generated-zone and forbidden-artifact projections instead of whole `rules.json` rows or prose metadata.
+- [x] 3.1 Consume D2 `RuleFileLayerFacts` generated-zone and forbidden-file projections instead of whole `rules.json` rows or prose metadata.
 - [x] 3.2 Block missing, contradictory, or unknown generated-zone references before staged guard execution.
 - [x] 3.3 Consume G-HOST host declarations for host-owned paths, owners, regeneration/remediation actions, and missing-host-policy states.
 - [x] 3.4 Remove generic Habitat ownership of Civ7, MapGen, resource, or host-specific path truth from D10 code; host-specific path truth remains in G-HOST declarations.
@@ -31,7 +31,7 @@
 - [x] 4.2 Evaluate Git name-status records by path action for added, modified, deleted, renamed-from, renamed-to, copied-from, and copied-to paths.
 - [x] 4.3 Return closed `ProtectedMutationDecision` variants for not-applicable, refused, and blocked states used by this source layer; no allowed mutation lane is surfaced by D10 command output in this layer.
 - [x] 4.4 Project D10 decisions into D1-compatible D7 diagnostics without changing CheckReport schemaVersion 1 shape.
-- [x] 4.5 Model forbidden artifacts separately from generated/protected surfaces.
+- [x] 4.5 Model forbidden files separately from generated/protected surfaces.
 
 ## 5. Generated Drift Relation
 
@@ -51,7 +51,7 @@
 ## 7. Tests And Bad Cases
 
 - [x] 7.1 Add focused declaration/guard tests for generated, forbidden, unknown/missing-host, and clean states; G-HOST tests continue to cover host conflict states.
-- [x] 7.2 Add staged guard tests for prefix match, name-status rename/copy path actions, unknown zone id, forbidden artifact, and clean staged state.
+- [x] 7.2 Add staged guard tests for prefix match, name-status rename/copy path actions, unknown zone id, forbidden file, and clean staged state.
 - [x] 7.3 Add D1-compatible diagnostic projection assertions through refused/blocked diagnostic output with recovery and non-claim-bearing decisions.
 - [x] 7.4 Preserve Grit scan-root tests proving generated/protected roots are refused after scan-root behavior routes through D10 projection.
 - [x] 7.5 Preserve hook tests proving file-layer refusal stops before Biome, Grit, generated publish, resource publish, and restaging.

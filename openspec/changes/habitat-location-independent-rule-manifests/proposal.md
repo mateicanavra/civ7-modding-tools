@@ -68,9 +68,9 @@ tree readability. It is no longer the hidden database key.
 - Packet-path derivation: `tools/habitat/src/service/model/rules/policy/packet-derivation.policy.ts`.
 - Baseline rule-id and baseline-path resolution:
   `tools/habitat/src/service/model/baseline/operations.policy.ts`,
-  `tools/habitat/src/resources/artifact-paths.ts`.
-- Habitat artifact routing:
-  `tools/habitat/src/service/model/rules/policy/artifact-paths.policy.ts`.
+  `tools/habitat/src/resources/authority-paths.ts`.
+- Habitat authority routing:
+  `tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts`.
 - Nx target inputs: `tools/habitat/src/nx-plugin.ts`.
 - Authoring/generator surfaces under `tools/habitat/src/generators/**`.
 - Active `.habitat/**/rule.json` corpus.
@@ -138,4 +138,4 @@ tree readability. It is no longer the hidden database key.
 - no live code path deriving rule id from `/blueprints/.../<packet>/rule.json`;
 - no sibling role scan required to derive `runner`;
 - no `rule.json` missing `id`, `title`, `placement`, or `runner`;
-- no referenced runner or manifest-declared rule artifact file missing.
+- no referenced runner or manifest-declared rule support file missing.

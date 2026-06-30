@@ -18,4 +18,4 @@ Grit semantics.
 - **WHEN** active or candidate pattern metadata is evaluated
 - **THEN** pattern governance owns duplicate ids, manifests, admission states,
   and rule references
-- **AND** `.habitat` authored artifact boundaries remain enforced
+- **AND** `.habitat` authored authority data boundaries remain enforced

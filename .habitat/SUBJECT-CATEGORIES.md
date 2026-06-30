@@ -3,7 +3,7 @@
 Status: active category model and manifest placement contract
 
 This document defines the universal Habitat authority packet categories. It is
-not a runner config, artifact-kind schema, blueprint schema, per-packet ledger,
+not a runner config, operation-kind schema, blueprint schema, per-packet ledger,
 or replacement metadata plane.
 
 The category answers: what failure class is this packet trying to prevent, or
@@ -19,7 +19,7 @@ packet path segments in the current tree.
 | `structure` | File tree, module shape, project graph, ordering, topology, allowed placement, or required/forbidden layout. |
 | `contract` | Public API, schema, manifest, config, service, CLI, module, or authored surface shape. |
 | `execution` | Runtime, build, browser, server, client, authoring, or compile-time separation. |
-| `artifact` | Generated, projected, protected, currentness, provenance, or hand-edit protection. |
+| `output` | Generated, projected, protected, currentness, provenance, or hand-edit protection. |
 | `quality` | Formatting, docs hygiene, portability, links, or low-friction repo maintenance. |
 | `policy` | Deliberately enforced repo or domain semantic policy that is not reducible to the other categories. |
 
@@ -29,12 +29,12 @@ packet path segments in the current tree.
 - If it fails because shape, layout, order, or placement is wrong, choose `structure`.
 - If it fails because an exposed or canonical surface drifts, choose `contract`.
 - If it fails because work appears in the wrong runtime or lifecycle phase, choose `execution`.
-- If it fails because generated, protected, current, or provenance-bearing artifacts drift, choose `artifact`.
+- If it fails because generated, protected, current, or provenance-bearing outputs drift, choose `output`.
 - If it fails because the repo becomes harder to operate, navigate, or maintain, choose `quality`.
 - If it fails because a static domain meaning is violated and the failure is not reducible to the other categories, choose `policy`.
 
 Do not create categories from blueprint names, niches, runner names, owner
-tools, artifact kinds, current defect names, or narrow product handles.
+tools, operation kinds, current defect names, or narrow product handles.
 
 ## Placement Contract
 
@@ -54,14 +54,14 @@ location-independent while the tree is being reorganized:
 - niche;
 - blueprint;
 - category;
-- artifact kind.
+- operation kind, declared outside placement.
 
-Child filenames own artifact roles:
+Child filenames own support and execution roles:
 
 | Role filename | Meaning |
 | --- | --- |
-| `rule.json` | Location-independent rule manifest: stable identity, current placement, policy/routing facts, runner file refs, and artifact refs. |
-| `baseline.json` | Baseline, fixture, current-tree, or generated-artifact evidence. |
+| `rule.json` | Location-independent rule manifest: stable identity, current placement, operation kind, policy/routing facts, runner file refs, and support file refs. |
+| `baseline.json` | Baseline, fixture, current-tree, or generated-output evidence. |
 | `pattern.md` | Primary authored pattern source. |
 | `apply.pattern.md` | Secondary apply pattern source. |
 | `structure.toml` | Structure-check topology source. |
@@ -73,11 +73,11 @@ Child filenames own artifact roles:
 `rule.json` is the inventory source for current placement while the physical
 tree is still changing. Do not add `ownerTool`, `detect`, registry prose
 `scope`, packet-prefixed role filenames, or packet-local `category.md`.
-Runner entrypoints and baselines must be explicit manifest references.
+Runner entrypoints and support files must be explicit manifest references.
 
 ## Admission Reading
 
-Admission is inferred from artifact roles until the Authority Activation model
+Admission is inferred from role files until the Authority Activation model
 admits explicit blueprint, instance, capability, and niche governance objects:
 
 - `rule.json` means the packet is an admitted executable rule.

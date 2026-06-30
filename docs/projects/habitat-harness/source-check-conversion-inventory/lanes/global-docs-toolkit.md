@@ -9,7 +9,7 @@ Agent 5 inspected every assigned `.rule.json` under `.habitat/{global,docs,habit
 | Disposition | Count | Rules |
 | --- | ---: | --- |
 | `grit_pattern_authority` | 1 | `prohibit_product_scan_roots_in_grit_provider` |
-| `data_driven_import_path_rule` | 4 | `enforce_workspace_import_boundaries`, `prohibit_pnpm_artifacts_in_bun_workspace`, `require_owner_workflow_for_host_protected_surfaces`, `validate_habitat_service_module_file_shape` |
+| `data_driven_import_path_rule` | 4 | `enforce_workspace_import_boundaries`, `prohibit_pnpm_files_in_bun_workspace`, `require_owner_workflow_for_host_protected_surfaces`, `validate_habitat_service_module_file_shape` |
 | `package_local_test_or_validator` | 5 | `enforce_formatting_and_import_hygiene`, `validate_boundary_taxonomy_against_workspace_graph`, `validate_docs_site_config_inputs`, `verify_docs_site_link_integrity`, `verify_habitat_cli_smoke_contract` |
 | `needs_split` | 2 | `ensure_docs_checkout_paths_are_portable`, `validate_mapgen_docs_anchors_and_references` |
 | `delete_or_demote` | 0 | none |

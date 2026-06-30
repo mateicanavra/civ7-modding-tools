@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_recipe_dag_runtime_source_dependencies",
   "title": "Prohibit Recipe Dag Runtime Source Dependencies",
   "placement": {
     "niche": "civ7/mapgen/studio/recipe-dag",
     "blueprint": "_self",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
@@ -31,7 +33,7 @@
     "mods/mod-swooper-maps/src/recipes/studio-contracts"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/baseline.json"
   },
   "runner": {

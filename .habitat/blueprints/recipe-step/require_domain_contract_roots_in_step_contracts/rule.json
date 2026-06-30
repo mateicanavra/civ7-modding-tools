@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_domain_contract_roots_in_step_contracts",
   "title": "Require Domain Contract Roots In Step Contracts",
   "placement": {
     "niche": "civ7/mapgen/pipeline",
     "blueprint": "recipe-step",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -25,7 +27,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/baseline.json"
   },
   "runner": {

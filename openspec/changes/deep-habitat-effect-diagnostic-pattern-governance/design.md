@@ -21,7 +21,7 @@ tools/habitat-harness/src/rules/patterns/**       # drained by this packet
 ## Required State-Space Reductions
 
 - Diagnostic identity is domain data, not a vendor command side effect.
-- Pattern admissions distinguish authored artifact validity from Grit execution
+- Pattern admissions distinguish authored authority data validity from Grit execution
   validity.
 - Expected governance refusals are tagged domain errors or refusal records.
 

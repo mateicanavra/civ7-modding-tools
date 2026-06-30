@@ -112,7 +112,7 @@ Hard core:
    `domain-operation`; strategy-file rules default to operation-internal
    evidence or domain context unless existing source-order evidence proves an
    independent constructible kind.
-5. Rule `id`, runner behavior, and artifact references remain stable across
+5. Rule `id`, runner behavior, and support file references remain stable across
    movement.
 
 Falsifier:
@@ -376,7 +376,7 @@ For moved rules:
 - preserve the rule `id`;
 - update `rule.json` `placement`;
 - update `runner.files` paths;
-- update `artifacts.baseline` paths;
+- update `supportFiles.baseline` paths;
 - update any docs or tests that reference the old active path;
 - keep behavior unchanged.
 
@@ -405,10 +405,10 @@ Minimum proof:
 - focused `bun habitat -- check --rule <id> --json` proof for every moved
   rule
 - manifest path proof for every moved rule: each `runner.files` path and
-  `artifacts.baseline` path exists, and no manifest value contains the old
+  `supportFiles.baseline` path exists, and no manifest value contains the old
   packet directory
 - static scan showing moved manifests have no stale old `runner.files` or
-  `artifacts.baseline` references
+  `supportFiles.baseline` references
 - static scan showing no active docs/tests point to old moved paths; generated
   inventories, archived files, and explicitly historical prose are exempt
 

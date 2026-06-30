@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_realized_map_artifact_tags",
   "title": "Prohibit Realized Map Artifact Tags",
   "placement": {
     "niche": "civ7/mapgen/map-output",
     "blueprint": "_remainder",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -20,7 +22,7 @@
       "patterns": ["mods/mod-swooper-maps/src/**/*.ts", "packages/mapgen-core/src/**/*.ts"]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/baseline.json"
   },
   "runner": {

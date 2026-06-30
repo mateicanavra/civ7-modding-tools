@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "validate_habitat_service_module_file_shape",
   "title": "Validate Habitat Service Module File Shape",
   "placement": {
     "niche": "habitat/toolkit",
     "blueprint": "service-module",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/baseline.json"
   },
   "runner": {

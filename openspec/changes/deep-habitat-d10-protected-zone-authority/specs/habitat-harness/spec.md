@@ -104,7 +104,7 @@ D7 SHALL render D10 guard decisions into structural enforcement reports without 
 - **AND** `CheckReport.ok` and exit status cannot contradict the refused decision
 
 #### Scenario: Advisory lane cannot downgrade D10 refusal
-- **WHEN** a D10 decision is `refused-direct-protected-edit`, `refused-direct-generated-edit`, `refused-forbidden-artifact`, or a blocking state
+- **WHEN** a D10 decision is `refused-direct-protected-edit`, `refused-direct-generated-edit`, `refused-forbidden-file`, or a blocking state
 - **THEN** D7 cannot report that rule as a normal pass because the rule is advisory or because a baseline covers unrelated diagnostics
 
 ### Requirement: D9 Requires D10 Path Authority Before Writes
@@ -132,15 +132,15 @@ D11 SHALL consume D10/D7 local-feedback-safe output for staged protected mutatio
 
 ### Requirement: Forbidden Artifact State Is Explicit
 
-D10 SHALL model forbidden artifacts separately from generated and protected surfaces, or SHALL name another accepted owner before moving that behavior out of D10.
+D10 SHALL model forbidden files separately from generated and protected surfaces, or SHALL name another accepted owner before moving that behavior out of D10.
 
 #### Scenario: Forbidden package-manager artifact is staged
-- **WHEN** a staged path matches a declared forbidden artifact matcher
-- **THEN** D10 returns `refused-forbidden-artifact`
+- **WHEN** a staged path matches a declared forbidden file matcher
+- **THEN** D10 returns `refused-forbidden-file`
 - **AND** the decision includes removal or remediation instruction
 
 #### Scenario: Forbidden artifact is not generated surface
-- **WHEN** a forbidden artifact rule is evaluated
+- **WHEN** a forbidden file rule is evaluated
 - **THEN** D10 does not report it as generated drift, generator ownership, or generated-zone recovery
 
 ### Requirement: Public Surfaces Wait For D0 Rows

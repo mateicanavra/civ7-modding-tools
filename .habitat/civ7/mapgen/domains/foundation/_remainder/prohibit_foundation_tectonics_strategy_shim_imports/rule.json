@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_foundation_tectonics_strategy_shim_imports",
   "title": "Prohibit Foundation Tectonics Strategy Shim Imports",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
     "blueprint": "_remainder",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/domain/foundation/ops"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_tectonics_strategy_shim_imports/baseline.json"
   },
   "runner": {

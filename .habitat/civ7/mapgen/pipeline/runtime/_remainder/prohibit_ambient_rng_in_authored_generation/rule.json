@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_ambient_rng_in_authored_generation",
   "title": "Prohibit Ambient Rng In Authored Generation",
   "placement": {
     "niche": "civ7/mapgen/pipeline/runtime",
     "blueprint": "_remainder",
-    "category": "policy",
-    "artifactKind": "check"
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       ]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/baseline.json"
   },
   "runner": {

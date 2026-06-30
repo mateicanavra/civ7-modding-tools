@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_runtime_continent_step_tokens",
   "title": "Prohibit Runtime Continent Step Tokens",
   "placement": {
     "niche": "civ7/mapgen/domains/morphology",
     "blueprint": "_remainder",
-    "category": "execution",
-    "artifactKind": "check"
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -25,7 +27,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_runtime_continent_step_tokens/baseline.json"
   },
   "runner": {

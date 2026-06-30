@@ -58,7 +58,7 @@ find tools/habitat-harness/src -type f | sort
 | `src/rules/architecture.ts` | 1 | `src/domains/structural-check/**`, architecture guard package if split later | split | Rule execution facts join structural-check; static architecture guard ownership is named in guardrail packet. |
 | `src/lib/boundary-taxonomy.ts` | 1 | `src/domains/workspace-graph-integration/**`, future guardrail owner | split | Boundary taxonomy is classification/guard input, not a process helper. |
 | `src/lib/host-policy.ts`, `src/lib/host-policy/**` | 6 | `src/domains/protected-zone-authority/**`, `src/domains/command-contract/**` | move | Host policy remains generic Habitat domain language; no product parser semantics. |
-| `src/lib/artifact-paths.ts` | 1 | `src/config/paths.ts`, `src/domains/scaffolding/**` | split | Authored artifact paths remain config/domain constants, not hidden globals. |
+| `src/lib/authority-paths.ts` | 1 | `src/config/paths.ts`, `src/domains/scaffolding/**` | split | Authored authority paths remain config/domain constants, not hidden globals. |
 | `src/generators/project/**` | 6 | `src/generators/project/**`, `src/domains/scaffolding/project.ts`, `src/providers/fs/**`, `src/providers/nx/generators.ts` | split | Nx generator entrypoint stays; reusable decisions/writes move behind domain/provider boundaries. |
 | `src/generators/pattern/**` | 4 | `src/generators/pattern/**`, `src/domains/scaffolding/pattern.ts`, `src/domains/pattern-governance/**` | split | Pattern generator host entrypoint stays; manifest decisions use domain service. |
 | `src/generators/scaffolding/**` | 2 | `src/domains/scaffolding/refusals.ts` | move | Refusal data becomes domain output with typed errors/refusals. |

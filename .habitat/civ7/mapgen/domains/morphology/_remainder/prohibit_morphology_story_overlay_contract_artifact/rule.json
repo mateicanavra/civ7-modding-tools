@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_morphology_story_overlay_contract_artifact",
   "title": "Prohibit Morphology Story Overlay Contract Artifact",
   "placement": {
     "niche": "civ7/mapgen/domains/morphology",
     "blueprint": "_remainder",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -24,7 +26,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_story_overlay_contract_artifact/baseline.json"
   },
   "runner": {

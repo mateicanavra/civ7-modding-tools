@@ -1,7 +1,7 @@
 export * from "./dto/host-policy.schema.js";
 export type {
   DeclarationReadiness,
-  ForbiddenArtifactDeclaration,
+  ForbiddenFileDeclaration,
   GeneratedSurfaceDeclaration,
   MutationPathAction,
   ProtectedMutationDecision,

@@ -7,7 +7,7 @@ Habitat has two separate domains:
 | Domain | Owner | Responsibilities |
 | --- | --- | --- |
 | Habitat SDK/managing code | `tools/habitat-harness` | CLI commands, generators, registry loaders, TypeBox schemas, views, baseline engine, Nx plugin, command adapters. |
-| Authored Habitat artifacts | `.habitat` | Checked-in rule registry, explicit baselines, and active pattern records. |
+| Authored Habitat authority data | `.habitat` | Checked-in rule registry, explicit baselines, and active pattern records. |
 
 The SDK reads `.habitat` artifacts as external serialized input and validates
 them with TypeBox at the read edge. The SDK package no longer exports or
@@ -37,8 +37,8 @@ CLI. It does not own authored pattern content; its pattern path points back to
 
 ## Implementation Decisions
 
-- `tools/habitat-harness/src/lib/artifact-paths.ts` is the single code owner for
-  repo-relative authored artifact paths.
+- `tools/habitat-harness/src/lib/authority-paths.ts` is the single code owner for
+  repo-relative authored authority data paths.
 - `tools/habitat-harness/src/lib/paths.ts` derives absolute repo paths from that
   authored-artifact contract.
 - Registry loading, baseline integrity, the Nx plugin, and pattern candidate

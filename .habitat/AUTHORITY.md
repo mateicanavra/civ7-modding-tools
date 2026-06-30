@@ -33,14 +33,14 @@ the niche itself. The `_remainder` lane is transitional visual debt for packets
 that a slice has reviewed and sorted but cannot yet move to a final owner. It
 is not a niche, blueprint, capability, or final ontology plane;
 sorted-but-deferred packets must not stay in `rules/` as if they were
-intentional current-context authority. Categories and artifact kinds are
+intentional current-context authority. Categories and operation kinds are
 manifest placement facts, not physical grouping directories.
 
 Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
 
 Temporary execution support that cannot yet move into Toolkit source lives under
 `.habitat/_support/execution/`. That directory is a bridge, not a niche,
-blueprint, category, artifact kind, or authored policy root.
+blueprint, category, operation kind, or authored policy root.
 
 ## Already True
 
@@ -65,7 +65,7 @@ blueprint, category, artifact kind, or authored policy root.
 
 1. A structural check is admitted into the current inventory only by a
    `rule.json` manifest with stable identity, current placement, and explicit
-   runner/artifact references.
+   runner/support file references.
 2. A source-pattern rule is authored as a `grit` runner manifest pointing at
    its `pattern.md` file.
 3. Baseline/current-tree evidence is accepted only when referenced from the
@@ -73,7 +73,7 @@ blueprint, category, artifact kind, or authored policy root.
 4. A command-backed check is accepted only when its manifest points at a
    read-only `check.{sh,mjs,ts}` script.
 5. Current placement should match the best known niche, owner, category, and
-   artifact kind in `rule.json`, but moving the manifest is an inventory
+   operation kind in `rule.json`, but moving the manifest is an inventory
    operation, not an identity change.
 6. Habitat-owned fix/generate/migrate operations require explicit operation identity and must not be registered as read-only checks unless they are genuinely read-only.
 7. `triage` packets are excluded from default execution until admitted, split, renamed, or removed.

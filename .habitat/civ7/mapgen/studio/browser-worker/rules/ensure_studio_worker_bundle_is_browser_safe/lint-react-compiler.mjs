@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { existsSync } from "node:fs";
 /**
  * lint:react-compiler — run the OFFICIAL React Compiler / Rules-of-React lint
  * rules (eslint-plugin-react-hooks v7) that Biome currently has no equivalent
@@ -26,7 +27,6 @@
  */
 import path from "node:path";
 import process from "node:process";
-import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import tsParser from "@typescript-eslint/parser";
 import { ESLint } from "eslint";

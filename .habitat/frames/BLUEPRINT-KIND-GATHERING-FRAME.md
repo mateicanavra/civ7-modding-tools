@@ -201,7 +201,7 @@ Do not affirm a kind if its only evidence is:
 
 - a current `_blueprints/<label>/` folder;
 - one rule id or defect label;
-- a runner or artifact kind;
+- a runner or operation kind;
 - a generated file name;
 - a package or niche label with no constructible instance shape;
 - a concrete product, mod, app, or package instance with no separable kind;
@@ -284,7 +284,7 @@ destination may be the main source of ambiguity.
 10. Predeclare a disposition for every primary row: affirmed blueprint, honest
    niche rules, `_remainder`, explicit exclusion, or falsified.
 11. Physically move packets, preserving `rule.json.id` and updating
-   `placement`, `runner.files`, `artifacts.baseline`, and active references.
+   `placement`, `runner.files`, `supportFiles.baseline`, and active references.
 12. Record a receipt that matches the final tree.
 13. Run focused proof for moved rows and stale-reference scans.
 14. Re-read the changed tree before proposing the next candidate kind or

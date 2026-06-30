@@ -7,7 +7,7 @@ for managing TypeScript or executable rule code.
 
 #### Scenario: `.habitat` contains an executable source file
 
-- **WHEN** Habitat checks authored artifacts
+- **WHEN** Habitat checks authored authority data
 - **THEN** executable TypeScript or JavaScript under `.habitat` is refused
 - **AND** the diagnostic points to the managing-code boundary under
   `tools/habitat-harness`

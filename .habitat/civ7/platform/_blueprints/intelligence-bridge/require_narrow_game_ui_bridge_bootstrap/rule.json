@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_narrow_game_ui_bridge_bootstrap",
   "title": "Require Narrow Game Ui Bridge Bootstrap",
   "placement": {
     "niche": "civ7/platform",
     "blueprint": "intelligence-bridge",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-intelligence-bridge",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/platform/_blueprints/intelligence-bridge/require_narrow_game_ui_bridge_bootstrap/baseline.json"
   },
   "runner": {

@@ -154,24 +154,42 @@ interface RuleRecord {
 }
 
 const habitatSurfaceSuffixes = [
+  "/rule.json",
   ".rule.json",
   ".rule.mjs",
+  "/check.ts",
+  "/check.mjs",
+  "/check.js",
+  "/check.sh",
+  "/check.py",
   ".check.ts",
   ".check.mjs",
   ".check.js",
   ".check.sh",
   ".check.py",
+  "/fix.ts",
+  "/fix.mjs",
+  "/fix.js",
+  "/fix.sh",
   ".fix.ts",
   ".fix.mjs",
   ".fix.js",
   ".fix.sh",
+  "/generate.ts",
+  "/generate.mjs",
+  "/generate.js",
+  "/generate.sh",
   ".generate.ts",
   ".generate.mjs",
   ".generate.js",
   ".generate.sh",
+  "/operation.md",
   ".operation.md",
   ".apply.pattern.md",
-  ".pattern.md",
+  "/pattern.md",
+  "/apply.pattern.md",
+  "/support.pattern.md",
+  "/structure.toml",
   ".structure.toml",
 ] as const;
 
@@ -299,15 +317,19 @@ function isHabitatSurface(relPath: string): boolean {
 }
 
 function surfaceKindFor(relPath: string): SurfaceKind {
-  if (relPath.endsWith(".rule.json")) return "rule-json";
+  if (relPath.endsWith("/rule.json") || relPath.endsWith(".rule.json")) return "rule-json";
   if (relPath.endsWith(".rule.mjs")) return "rule-module";
-  if (/\.check\.[^.]+$/.test(relPath)) return "check-script";
-  if (/\.fix\.[^.]+$/.test(relPath)) return "fix-script";
-  if (/\.generate\.[^.]+$/.test(relPath)) return "generate-script";
-  if (relPath.endsWith(".operation.md")) return "operation-note";
-  if (relPath.endsWith(".apply.pattern.md")) return "apply-pattern";
-  if (relPath.endsWith(".pattern.md")) return "pattern";
-  if (relPath.endsWith(".structure.toml")) return "structure-spec";
+  if (/\/check\.[^.]+$/.test(relPath) || /\.check\.[^.]+$/.test(relPath)) return "check-script";
+  if (/\/fix\.[^.]+$/.test(relPath) || /\.fix\.[^.]+$/.test(relPath)) return "fix-script";
+  if (/\/generate\.[^.]+$/.test(relPath) || /\.generate\.[^.]+$/.test(relPath))
+    return "generate-script";
+  if (relPath.endsWith("/operation.md") || relPath.endsWith(".operation.md"))
+    return "operation-note";
+  if (relPath.endsWith("/apply.pattern.md") || relPath.endsWith(".apply.pattern.md"))
+    return "apply-pattern";
+  if (relPath.endsWith("/pattern.md") || relPath.endsWith("/support.pattern.md")) return "pattern";
+  if (relPath.endsWith("/structure.toml") || relPath.endsWith(".structure.toml"))
+    return "structure-spec";
   throw new Error(`Unsupported surface path: ${relPath}`);
 }
 
@@ -1398,7 +1420,7 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Sanity Assertions",
     "",
     report.summary.sanityAssertions.length === 0
-      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`.rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`.structure.toml\`, ${report.executionAnatomy.ruleModule.total} active source-check \`.rule.mjs\`, ${report.executionAnatomy.ruleModule.transitionalRuntimeImports} transitional runtime imports, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
+      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`structure.toml\`, ${report.executionAnatomy.ruleModule.total} active source-check \`.rule.mjs\`, ${report.executionAnatomy.ruleModule.transitionalRuntimeImports} transitional runtime imports, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
       : report.summary.sanityAssertions.map((issue) => `- ${issue}`).join("\n"),
     "",
     "## Surfaces By Kind",

@@ -8,7 +8,7 @@ import {
   type PatternValidationFailureReason,
   type PatternValidationIssue,
 } from "../dto/pattern-management.schema.js";
-import { patternCandidateRoot, patternManifestPath } from "./pattern-artifact-paths.policy.js";
+import { patternCandidateRoot, patternManifestPath } from "./pattern-authority-paths.policy.js";
 
 export interface PatternRulePackReferenceInput {
   id: string;
@@ -148,7 +148,7 @@ function checkManifestStorage(
         issue(
           "contradicted-manifest",
           "manifestPath",
-          "Candidate pattern manifests must be stored under the candidate artifact root."
+          "Candidate pattern manifests must be stored under the candidate authority root."
         )
       );
     }

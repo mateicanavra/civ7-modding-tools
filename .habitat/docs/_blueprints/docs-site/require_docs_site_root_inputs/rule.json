@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_docs_site_root_inputs",
   "title": "Require Docs Site Root Inputs",
   "placement": {
     "niche": "docs",
     "blueprint": "docs-site",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "civ7-docs",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/docs/_blueprints/docs-site/require_docs_site_root_inputs/baseline.json"
   },
   "runner": {

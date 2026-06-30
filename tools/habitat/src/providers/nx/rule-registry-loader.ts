@@ -3,13 +3,13 @@ import path from "node:path";
 import {
   loadRuleRegistryDocument,
   type RuleRegistryDirectoryEntry,
-  type RuleRegistryDocumentV1,
-  type RuleRegistryRecordV1,
+  type RuleRegistryDocument,
+  type RuleRegistryRecord,
   type RuleRegistrySyncFileSystem,
 } from "@habitat/cli/service/model/rules/index";
 
-export type NxRuleRegistryRecord = RuleRegistryRecordV1;
-export type NxRuleRegistryDocument = RuleRegistryDocumentV1;
+export type NxRuleRegistryRecord = RuleRegistryRecord;
+export type NxRuleRegistryDocument = RuleRegistryDocument;
 
 export function loadRuleRegistryDocumentForNxPlugin(registryPath: string): NxRuleRegistryDocument {
   return loadRuleRegistryDocument(registryPath, nodeRuleRegistryFileSystem);

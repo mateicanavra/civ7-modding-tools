@@ -22,7 +22,7 @@ is invalid without that ledger.
 | Nx plugin and generators | `src/plugin.ts`; `src/plugin/**`; `src/generators/**`; `generators.json`; package `generators` field | Domain extraction can break Nx generator contract, schema output, or plugin target metadata | generator tests, schema generation check, plugin metadata/typecheck |
 | Root scripts and Nx targets | `package.json` scripts; root AGENTS tooling defaults; package Nx targets | Provider command materialization can bypass repo-local pinned tools or dependency ordering | root script parity, local package script checks, Nx target proof where packet touches targets |
 | Grit checks/apply | `src/substrate/providers/grit/**`; `src/lib/pattern-apply/**`; `validate:grit-patterns` | Providerization can change scan-root admission, dry-run/apply output, or diagnostics parsing | Grit parser/scan-root/apply matrix and native pattern tests |
-| `.habitat` authored artifacts | `.habitat/rules/**`, `.habitat/baselines/**`, `.habitat/patterns/**`; D14A packet | Scaffolding/resource moves can put managing code or runtime topology under `.habitat` | authored-artifact guard and TypeBox read-edge validation |
+| `.habitat` authored authority data | `.habitat/rules/**`, `.habitat/baselines/**`, `.habitat/patterns/**`; D14A packet | Scaffolding/resource moves can put managing code or runtime topology under `.habitat` | authored-artifact guard and TypeBox read-edge validation |
 | Public docs/examples | `tools/habitat-harness/README.md`, `tools/habitat-harness/docs/**`, `docs/process/GRAPHITE.md`, root AGENTS | New architecture can make docs point at retired commands or stale paths | Adjacent docs update in packet that changes behavior or public contract |
 
 ## Compatibility Rule

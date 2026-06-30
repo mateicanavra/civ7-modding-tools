@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "enforce_adapter_only_base_standard_imports",
   "title": "Enforce Adapter Only Base Standard Imports",
   "placement": {
     "niche": "civ7/platform",
     "blueprint": "civ7-adapter",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["packages"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/platform/_blueprints/civ7-adapter/enforce_adapter_only_base_standard_imports/baseline.json"
   },
   "runner": {

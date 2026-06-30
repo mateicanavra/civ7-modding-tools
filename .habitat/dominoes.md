@@ -22,7 +22,7 @@ Use this source order when selecting or judging the next domino:
 7. `.habitat/frames/*.md` for reusable method frames selected by the current
    domino.
 8. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
-   `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
+   `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/RULE-OPERATION-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
 9. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
    as precedent and evidence, not as the next active selector.
@@ -100,7 +100,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 5. Normalize packet filenames | Rule packet files received consistent dot-pattern names for legibility. |
 | 6. Separate mutating operations from checks | Read-only checks, repair operations, and generate operations stopped sharing one execution meaning. |
 | 7. Migrate first MapGen static guardrails | Clear static architecture checks moved into Habitat-owned transitional packets. |
-| 8. Define artifact kinds | Check, fix, generate, and migrate were recorded as mutability and execution intent kinds. |
+| 8. Define operation kinds | Check, fix, generate, and migrate were recorded as mutability and execution intent kinds. |
 | 9. Define authority tree shape | The current transitional niche, blueprint, category, kind, and packet path was documented. |
 | 10. Flatten and correct the tree | Layer buckets collapsed into the current visible authority-tree projection. |
 | 11. Bridge selected package callers | Curated selected-rule execution proved package callers can route through Habitat without direct `.habitat` script paths. |
@@ -109,12 +109,12 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 14. Close triage/residual owner cleanup | Triage packets and residual owners were removed, moved, or retained honestly enough to expose the ontology problem. |
 | 15. Polish authority ontology and frame | The ontology and operating frame now name Habitat, blueprint, instance, capability, niche, and proof-class separation as the governing model. |
 | 16. Normalize packet role metadata | Child files use generic role names, `rule.json` stopped carrying owner-tool/detect/scope duplication, and packet `category.md` files are gone. |
-| 17. Make rule manifests location independent | `rule.json` now owns stable rule identity, current placement inventory facts, explicit runner file references, and explicit artifact references; Toolkit discovery no longer depends on the packet path grammar. |
+| 17. Make rule manifests location independent | `rule.json` now owns stable rule identity, current placement inventory facts, explicit runner file references, and explicit support file references; Toolkit discovery no longer depends on the packet path grammar. |
 | 18. Frame bounded authority slice work | `AUTHORITY-SLICE-FRAME.md` now governs bounded kind-family slices, supersedes broad pilot-corpus selection, and sets the Recipe Kind Pocket as the first working example. |
 | 19. Move the Recipe Kind Pocket | Standard-recipe evidence was physically moved into `recipe`, `recipe-stage`, `recipe-step`, `swooper-maps-standard-recipe`, and coarse `mapgen-pipeline` contexts while preserving rule IDs and execution behavior. |
 | 20. Select the Domain Operation Kind Pocket | Re-reading the changed Recipe slice selected `domain-operation` and bounded strategy-file pressure as the next slice; `AUTHORITY-DOMAIN-OPERATION-SLICE.md` now specifies the implementation boundary. |
 | 21. Move the Domain Operation Kind Pocket | The misplaced map projection/effect dependency guard moved into `domain-operation`; foundation strategy rows stayed contextual with consolidation pressure instead of becoming blueprints by path inheritance. |
-| 22. Unnest Rule Packet Paths | Category and artifact-kind directories were removed from live packet paths, leaving location-independent manifests in flatter blueprint/context lanes. |
+| 22. Unnest Rule Packet Paths | Category and operation-kind directories were removed from live packet paths, leaving location-independent manifests in flatter blueprint/context lanes. |
 | 23. Split Affirmed Blueprints From Candidates | Affirmed Recipe and Domain Operation pockets moved to top-level `.habitat/blueprints/`; not-yet-affirmed niche-local blueprint-shaped inventories were renamed `_blueprints/` so they no longer visually claim blueprint authority. |
 | 24. Move the Domain Kind Pocket | Domain public-surface and direct domain-root rules moved into affirmed `.habitat/blueprints/domain/`; the mixed config validator stayed contextual, and the standard-recipe tag cleanup moved to the standard-recipe context instead of becoming domain authority. |
 | 25. Frame contextual remainder slices | `AUTHORITY-REMAINDER-SLICE-FRAME.md` now governs how to reassess concrete-context remainders after parent kinds have moved, with morphology selected as the first method seed. |
@@ -172,7 +172,7 @@ final foundation-context ownership.
 Proof cells marked selected-rule proof passed mean
 `bun tools/habitat/bin/dev.ts check --rule <id> --json` returned `ok: true`
 and `status: "pass"` for that exact rule after the move. Path-reference proof
-means each manifest-owned `runner.files` and `artifacts.baseline` path exists
+means each manifest-owned `runner.files` and `supportFiles.baseline` path exists
 and points inside the row's physical lane.
 
 | Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
@@ -304,7 +304,7 @@ pipeline authority.
 Proof cells marked selected-rule proof passed mean
 `bun tools/habitat/bin/dev.ts check --rule <id> --json` returned `ok: true`
 and `status: "pass"` for that exact rule after the move. Path-reference proof
-means each manifest-owned `runner.files` and `artifacts.baseline` path exists
+means each manifest-owned `runner.files` and `supportFiles.baseline` path exists
 and points inside the row's physical lane.
 
 | Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |

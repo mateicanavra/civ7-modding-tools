@@ -274,7 +274,7 @@ Affirmed domain-kind rules landed at:
 
 This is a working placement for this slice, not final proof of every future
 domain layout. Moved manifests preserved rule `id`, behavior, explicit
-`runner.files`, and `artifacts.baseline` references. `placement.blueprint`
+`runner.files`, and `supportFiles.baseline` references. `placement.blueprint`
 became `domain` for rules moved to the parent kind. Rules that remained
 contextual stayed in the smallest honest context for later reassessment.
 

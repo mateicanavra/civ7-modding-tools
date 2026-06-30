@@ -18,7 +18,7 @@ Use this order when sources disagree:
 2. Root `AGENTS.md`, closest subtree `AGENTS.md`, and repo process docs.
 3. `.habitat/FRAME.md` for the current authority-tree lens.
 4. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
-   `.habitat/ARTIFACT-KINDS.md`, `.habitat/SUBJECT-CATEGORIES.md`,
+   `.habitat/RULE-OPERATION-KINDS.md`, `.habitat/SUBJECT-CATEGORIES.md`,
    `.habitat/dominoes.md`, and `.habitat/config.md`.
 5. `docs/projects/habitat-harness/FRAME.md`,
    `docs/projects/habitat-harness/dra-takeover-frame.md`, and current
@@ -138,7 +138,7 @@ Use this model when reading a packet:
   adapter support. It is now deleted: zero `ownerTool: source-check` records,
   zero central `.rule.mjs` adapters, and no `rule-runtime.policy.mjs` remain.
 - `.habitat/_support/execution/` is a temporary support island under the
-  authority tree. It is not a niche, blueprint, category, artifact kind, or
+  authority tree. It is not a niche, blueprint, category, operation kind, or
   final source of authored authority.
 - `pattern.md` is policy-pattern text. Grit examples or match/ignore blocks
   that are part of the pattern packet stay with the pattern unless a runner
@@ -266,7 +266,7 @@ been decomposed and labeled.
 
 Stage 1: inventory and decompose. Select one small suspect cluster and break
 each packet into assertion rows or operation rows. Record for each row the
-packet path, assertion text, current artifact kind, mutability, observed oracle,
+packet path, assertion text, current operation kind, mutability, observed oracle,
 current owner, candidate owner, proof class, and uncertainty. Do not remove or
 move authority in this stage unless the row is mechanically empty or already
 superseded by an adjacent row with identical owner and proof.

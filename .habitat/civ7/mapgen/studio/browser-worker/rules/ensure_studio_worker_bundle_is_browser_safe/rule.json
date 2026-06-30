@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "ensure_studio_worker_bundle_is_browser_safe",
   "title": "Ensure Studio Worker Bundle Is Browser Safe",
   "placement": {
     "niche": "civ7/mapgen/studio/browser-worker",
     "blueprint": "_self",
-    "category": "execution",
-    "artifactKind": "check"
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
@@ -23,7 +25,7 @@
       "kind": "project-owner"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/baseline.json"
   },
   "runner": {

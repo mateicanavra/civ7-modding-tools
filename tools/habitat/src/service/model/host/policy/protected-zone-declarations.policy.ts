@@ -5,8 +5,8 @@ import type { HostSurfaceDecision } from "../dto/host-policy.schema.js";
 import {
   type DeclarationReadiness,
   DeclarationReadinessSchema,
-  type ForbiddenArtifactDeclaration,
-  ForbiddenArtifactDeclarationSchema,
+  type ForbiddenFileDeclaration,
+  ForbiddenFileDeclarationSchema,
   type GeneratedSurfaceDeclaration,
   GeneratedSurfaceDeclarationSchema,
   type ProtectedSurfaceDeclaration,
@@ -56,13 +56,10 @@ export function declarationForHostSurfacePath(candidate: string): DeclarationRea
 }
 
 export function matchesDeclarationPath(
-  declaration:
-    | GeneratedSurfaceDeclaration
-    | ProtectedSurfaceDeclaration
-    | ForbiddenArtifactDeclaration,
+  declaration: GeneratedSurfaceDeclaration | ProtectedSurfaceDeclaration | ForbiddenFileDeclaration,
   candidate: string
 ): boolean {
-  if (declaration.kind === "forbidden-artifact") {
+  if (declaration.kind === "forbidden-file") {
     return declaration.fileNames.includes(path.posix.basename(candidate));
   }
   return declaration.matcher.kind === "exact"
@@ -129,8 +126,8 @@ function isForbiddenFileNameRule(rule: RuleFileLayerFacts): rule is ForbiddenFil
 function forbiddenArtifactDeclaration(rule: ForbiddenFileNameRule): DeclarationReadiness {
   return Value.Parse(DeclarationReadinessSchema, {
     kind: "ready",
-    declaration: Value.Parse(ForbiddenArtifactDeclarationSchema, {
-      kind: "forbidden-artifact",
+    declaration: Value.Parse(ForbiddenFileDeclarationSchema, {
+      kind: "forbidden-file",
       declarationId: rule.id,
       owner: {
         ownerId: "habitat-repo-policy",
@@ -140,7 +137,7 @@ function forbiddenArtifactDeclaration(rule: ForbiddenFileNameRule): DeclarationR
       fileNames: [...rule.forbiddenFileNames],
       recovery: {
         ownerId: "habitat-repo-policy",
-        actionKind: "remove-artifact",
+        actionKind: "remove-file",
         instruction: `Remove ${rule.forbiddenFileNames.join(", ")} and use the repository's declared package manager.`,
       },
     }),

@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import {
   habitatCacheRepoPath,
   habitatCacheRepoPathPrefix,
-} from "@habitat/cli/resources/artifact-paths";
+} from "@habitat/cli/resources/authority-paths";
 import type { HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import {

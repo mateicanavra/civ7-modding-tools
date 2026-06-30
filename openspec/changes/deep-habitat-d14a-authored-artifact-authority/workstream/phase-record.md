@@ -3,7 +3,7 @@
 ## Phase
 
 - Project: Habitat Harness
-- Phase: D14A authored artifact authority
+- Phase: D14A authored authority data
 - Owner: Habitat authored-artifact boundary
 - Source branch: `agent-DRA-d14a-authored-artifact-authority`
 - Current stack-tip review branch at record repair:
@@ -14,7 +14,7 @@
 
 ## Objective
 
-Separate checked-in Habitat authored artifacts from Habitat managing code.
+Separate checked-in Habitat authored authority data from Habitat managing code.
 
 ## Authority
 

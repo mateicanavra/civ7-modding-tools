@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_sibling_stage_private_step_imports",
   "title": "Prohibit Sibling Stage Private Step Imports",
   "placement": {
     "niche": "civ7/mapgen/pipeline",
     "blueprint": "recipe-stage",
-    "category": "boundary",
-    "artifactKind": "check"
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/baseline.json"
   },
   "runner": {

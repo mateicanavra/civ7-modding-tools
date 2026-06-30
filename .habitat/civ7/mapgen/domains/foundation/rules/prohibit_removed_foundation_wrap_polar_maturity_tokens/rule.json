@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_removed_foundation_wrap_polar_maturity_tokens",
   "title": "Prohibit Removed Foundation Wrap Polar Maturity Tokens",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
     "blueprint": "_self",
-    "category": "contract",
-    "artifactKind": "check"
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -41,7 +43,7 @@
     "mods/mod-swooper-maps/src/maps"
   ],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_removed_foundation_wrap_polar_maturity_tokens/baseline.json"
   },
   "runner": {

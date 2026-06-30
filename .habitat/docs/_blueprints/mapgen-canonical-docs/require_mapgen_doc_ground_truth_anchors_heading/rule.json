@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_mapgen_doc_ground_truth_anchors_heading",
   "title": "Require Mapgen Doc Ground Truth Anchors Heading",
   "placement": {
     "niche": "docs",
     "blueprint": "mapgen-canonical-docs",
-    "category": "quality",
-    "artifactKind": "check"
+    "category": "quality"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -21,7 +23,7 @@
     }
   ],
   "scanRoots": ["docs/system/libs/mapgen"],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/docs/_blueprints/mapgen-canonical-docs/require_mapgen_doc_ground_truth_anchors_heading/baseline.json"
   },
   "runner": {

@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "require_domain_ops_root_presence",
   "title": "Require Domain Ops Root Presence",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
-    "category": "structure",
-    "artifactKind": "check"
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -22,7 +24,7 @@
       ]
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/require_domain_ops_root_presence/baseline.json"
   },
   "runner": {

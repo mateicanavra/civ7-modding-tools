@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "prohibit_root_config_facade_imports_in_domain_ops",
   "title": "Prohibit Root Config Facade Imports In Domain Ops",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
-    "category": "execution",
-    "artifactKind": "check"
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -22,7 +24,7 @@
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/baseline.json"
   },
   "runner": {

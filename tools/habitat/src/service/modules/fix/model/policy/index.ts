@@ -17,7 +17,7 @@ export {
   patternManifestPath,
   patternManifestRoot,
   patternManifestSchemaVersion,
-} from "./pattern-artifact-paths.policy.js";
+} from "./pattern-authority-paths.policy.js";
 export { patternAdmissionRefusal } from "./pattern-refusal.policy.js";
 export { patternRuleReferenceFromRule } from "./pattern-rule-reference.policy.js";
 export {

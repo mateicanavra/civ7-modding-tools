@@ -1,12 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "enforce_formatting_and_import_hygiene",
   "title": "Enforce Formatting And Import Hygiene",
   "placement": {
     "niche": "global/workspace",
     "blueprint": "_self",
-    "category": "quality",
-    "artifactKind": "check"
+    "category": "quality"
+  },
+  "operation": {
+    "kind": "check"
   },
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -22,7 +24,7 @@
       "kind": "workspace-gate"
     }
   ],
-  "artifacts": {
+  "supportFiles": {
     "baseline": ".habitat/global/workspace/rules/enforce_formatting_and_import_hygiene/baseline.json"
   },
   "runner": {

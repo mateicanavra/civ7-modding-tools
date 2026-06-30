@@ -85,7 +85,7 @@ export const PatternManifestBaseSchema = Type.Object(
 const CandidatePatternManifestFieldsSchema = Type.Object(
   {
     lifecycle: Type.Literal("candidate"),
-    candidateArtifacts: Type.Object(
+    candidateAuthorityFiles: Type.Object(
       {
         patternPath: NonEmptyStringSchema,
         manifestPath: NonEmptyStringSchema,
@@ -215,7 +215,7 @@ export const PatternAdmissionRefusalReasonSchema = Type.Union([
   Type.Literal("current-tree-blocks-registration"),
   Type.Literal("apply-safety-missing"),
   Type.Literal("apply-safety-contradicted"),
-  Type.Literal("active-artifact-collision"),
+  Type.Literal("active-authority-collision"),
   Type.Literal("retired-pattern-referenced"),
   Type.Literal("public-contract-missing"),
 ]);

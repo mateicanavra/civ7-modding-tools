@@ -23,11 +23,11 @@ export type PatternScaffoldDecision =
   | {
       readonly kind: "write-pattern-candidate";
       readonly options: NormalizedPatternScaffoldOptions;
-      readonly paths: PatternCandidateArtifactPaths;
+      readonly paths: PatternCandidateAuthorityPaths;
       readonly writeSet: readonly string[];
     };
 
-export interface PatternCandidateArtifactPaths {
+export interface PatternCandidateAuthorityPaths {
   readonly patternPath: string;
   readonly manifestPath: string;
 }
@@ -40,9 +40,9 @@ export interface PatternScaffoldHostFacts {
   readonly ruleManifestIdCollisionPath: (
     options: Pick<NormalizedPatternScaffoldOptions, "ruleId">
   ) => string | null;
-  readonly candidateArtifactPaths: (
+  readonly candidateAuthorityPaths: (
     options: Pick<NormalizedPatternScaffoldOptions, "ruleId" | "patternName">
-  ) => PatternCandidateArtifactPaths;
+  ) => PatternCandidateAuthorityPaths;
 }
 
 export function decidePatternScaffold(
@@ -68,7 +68,7 @@ export function decidePatternScaffold(
     };
   }
 
-  const paths = facts.candidateArtifactPaths(options);
+  const paths = facts.candidateAuthorityPaths(options);
   const candidateCollisionDecision = firstCandidateCollision(paths, facts);
   if (candidateCollisionDecision) return candidateCollisionDecision;
 
@@ -98,7 +98,7 @@ export function normalizePatternScaffoldOptions(
 
 export function candidateManifest(
   options: NormalizedPatternScaffoldOptions,
-  paths: PatternCandidateArtifactPaths
+  paths: PatternCandidateAuthorityPaths
 ) {
   return {
     schemaVersion: 1,
@@ -108,7 +108,7 @@ export function candidateManifest(
     openspecChangeId: options.openspecChangeId,
     ownerProject: options.ownerProject,
     patternRole: "diagnostic",
-    candidateArtifacts: {
+    candidateAuthorityFiles: {
       patternPath: paths.patternPath,
       manifestPath: paths.manifestPath,
     },
@@ -147,7 +147,7 @@ function firstActiveCollision(
 }
 
 function firstCandidateCollision(
-  paths: PatternCandidateArtifactPaths,
+  paths: PatternCandidateAuthorityPaths,
   facts: PatternScaffoldHostFacts
 ): PatternScaffoldDecision | null {
   if (facts.pathExists(paths.patternPath)) return refuseCandidateCollision(paths.patternPath);
