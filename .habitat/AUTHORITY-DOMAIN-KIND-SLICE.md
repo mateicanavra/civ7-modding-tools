@@ -187,7 +187,7 @@ Secondary review inputs, not automatic moves:
 - `.habitat/civ7/mapgen/domains/foundation/rules/**`
 - `.habitat/civ7/mapgen/domains/foundation/_remainder/**`
 - `.habitat/civ7/mapgen/domains/morphology/_remainder/**`
-- `.habitat/civ7/mapgen/domains/rules/prohibit_rng_callback_state_in_ops`
+- `.habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops`
 - Any other immediate `.habitat/civ7/mapgen/domains/rules/*` row not named in
   the primary rule inputs above.
 - Broad pipeline rules only when their whole rule meaning directly governs the
@@ -247,13 +247,15 @@ Moved to `.habitat/blueprints/domain/`:
 - `prohibit_retired_domain_root_catalogs`
 - `prohibit_unknown_bag_config_usage`
 
-Left contextual:
+Left contextual during Domino 24, then sorted by later remainder work:
 
 - `require_owned_domain_config_catalog_surfaces` moved to
-  `.habitat/civ7/mapgen/domains/rules/require_owned_domain_config_catalog_surfaces`
+  `.habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces`
   because it mixes a morphology config facade assertion with standard recipe
   tag-catalog evidence. That mix is real cleanup pressure, not proof of a
-  separate `domain-config-surface` blueprint.
+  separate `domain-config-surface` blueprint. Domino 30 moved it into the
+  morphology `_remainder` lane so parent `domains/rules` no longer carries a
+  mixed concrete-context validator.
 
 Explicitly excluded from the Domain Kind Pocket:
 

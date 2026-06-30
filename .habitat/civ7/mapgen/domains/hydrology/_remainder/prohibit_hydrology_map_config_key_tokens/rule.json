@@ -3,8 +3,8 @@
   "id": "prohibit_hydrology_map_config_key_tokens",
   "title": "Prohibit Hydrology Map Config Key Tokens",
   "placement": {
-    "niche": "civ7/mapgen/domains",
-    "blueprint": "_self",
+    "niche": "civ7/mapgen/domains/hydrology",
+    "blueprint": "_remainder",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/maps/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/maps/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/maps"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/maps"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domains/rules/prohibit_hydrology_map_config_key_tokens/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_map_config_key_tokens/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domains/rules/prohibit_hydrology_map_config_key_tokens/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_map_config_key_tokens/pattern.md"
     },
     "patternName": "prohibit_hydrology_map_config_key_tokens"
   }

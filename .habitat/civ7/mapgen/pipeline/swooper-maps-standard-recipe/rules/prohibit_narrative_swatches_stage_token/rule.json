@@ -3,7 +3,7 @@
   "id": "prohibit_narrative_swatches_stage_token",
   "title": "Prohibit Narrative Swatches Stage Token",
   "placement": {
-    "niche": "civ7/mapgen/domains",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "_self",
     "category": "structure",
     "artifactKind": "check"
@@ -31,12 +31,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domains/rules/prohibit_narrative_swatches_stage_token/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_narrative_swatches_stage_token/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domains/rules/prohibit_narrative_swatches_stage_token/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_narrative_swatches_stage_token/pattern.md"
     },
     "patternName": "prohibit_narrative_swatches_stage_token"
   }

@@ -118,6 +118,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 27. Move the Foundation Remainder Pocket | The foundation-domain pocket was reviewed against `domain` and `domain-operation`; six rules stayed as intentional foundation currentness or retired-token context, six rules moved to `.habitat/civ7/mapgen/domains/foundation/_remainder/`, and no foundation label, strategy-file row, or legacy cleanup row was promoted into blueprint authority. |
 | 28. Normalize Niche Child Context Lanes | Concrete domain contexts now live as child niches under `.habitat/civ7/mapgen/domains/`: `foundation/rules`, `foundation/_remainder`, `morphology/_remainder`, and `ecology/rules`. The move removes context directories from under `rules/` or root `_remainder/` without changing rule identity or behavior. |
 | 29. Sort Direct Foundation Domain Rows | The remaining direct `prohibit_foundation_*` rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: two moved to `.habitat/civ7/mapgen/domains/foundation/rules/`, six moved to `.habitat/civ7/mapgen/domains/foundation/_remainder/`, none stayed parent-domain authority, and none moved to `domain` or `domain-operation`. |
+| 30. Sort Remaining Direct Domains-Lane Rows | The remaining direct rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: one moved to affirmed `domain-operation`, three hydrology rows moved to `.habitat/civ7/mapgen/domains/hydrology/_remainder/`, one mixed morphology/config validator moved to `.habitat/civ7/mapgen/domains/morphology/_remainder/`, and the retired narrative-swatches stage-token row moved out of the domains lane to the standard-recipe context. No row stayed under parent `domains/rules`. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -196,49 +197,67 @@ intentional foundation-context authority. Rows moved under
 | `prohibit_foundation_strategy_nonlocal_imports` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans decomposed foundation operation strategies for imports outside authoring, local contract, and local rules. | Strategy locality is operation-internal pressure, but this foundation-specific row cannot become `domain-operation` without admitting `operation-strategy` or a positive import-law surface. | selected-rule Grit proof passed; path refs exist | Strategy-file locality rows remain `_remainder` unless source proves whole-rule operation-kind authority. |
 | `prohibit_foundation_strategy_shared_tectonics_lib_imports` | cleanup/consolidation/split pressure | `foundation/_remainder` | `pattern.md` scans decomposed foundation operation strategies for direct shared `lib/tectonics` imports. | This is a narrower strategy shim cleanup row overlapped by the nonlocal-import rule and existing strategy-shim remainder pressure. | selected-rule Grit proof passed; path refs exist | Duplicate strategy shim guards should sort physically before later consolidation or retirement. |
 
+## Domino 30 Disposition Receipt
+
+This table is a receipt for physical sorting, not a second authority surface.
+Every direct row that started under parent
+`.habitat/civ7/mapgen/domains/rules/` has now moved out of that parent lane.
+Rows moved under `_remainder/` use `placement.blueprint: "_remainder"` and are
+reviewed but not final. The standard-recipe row intentionally left the domains
+lane because its whole rule meaning is recipe topology cleanup, not narrative
+domain authority.
+
+| Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
+| --- | --- | --- | --- | --- | --- | --- |
+| `prohibit_rng_callback_state_in_ops` | existing blueprint authority | `blueprints/domain-operation` | `pattern.md` scans `mods/mod-swooper-maps/src/domain/*/ops/**/*.ts`; hydrology operation contracts document RNG crossing the op boundary as `rngSeed` data. | The whole rule governs valid domain operations generally: domain ops should reject ambient RNG callback/state surfaces. | selected-rule Grit proof passed; path refs exist | Cross-domain operation runtime discipline should move to `domain-operation` when the predicate applies to every operation module. |
+| `prohibit_hydrology_climate_intervention_tokens` | external enforcement-surface pressure | `hydrology/_remainder` | `pattern.md` scans `src/domain/hydrology` plus standard recipe hydrology stages for `climate.swatches` and `climate.story`. | The row is a hydrology-plus-stage narrative intervention boundary guard; it is not parent domains authority and does not fit `domain-operation` because it also governs stage files. | selected-rule Grit proof passed; path refs exist | Hydrology rows that mix domain source and recipe stage source should defer until the hydrology context or recipe-stage owner is clearer. |
+| `prohibit_hydrology_map_config_key_tokens` | cleanup/consolidation/split pressure | `hydrology/_remainder` | `pattern.md` scans map config source for retired hydrology climate, lakes, and rivers config keys. | The row is retired hydrology map-config cleanup, not parent domains authority or a `domain` kind contract as written. | selected-rule Grit proof passed; path refs exist | Retired map config key forbids should not remain parent-domain authority merely because the keys are domain-shaped. |
+| `prohibit_hydrology_narrative_domain_imports` | missing positive kind governance | `hydrology/_remainder` | `pattern.md` scans hydrology domain and hydrology stage files for imports from `@mapgen/domain/narrative/*`. | The likely durable invariant is a positive public-surface/import boundary, but the current predicate is a narrow hydrology-to-narrative negative proxy. | selected-rule Grit proof passed; path refs exist | Cross-context import forbids should defer unless the whole rule can move to an affirmed import-law or public-surface owner. |
+| `prohibit_narrative_swatches_stage_token` | honest standard-recipe context | `pipeline/swooper-maps-standard-recipe/rules` | `pattern.md` scans standard recipe source, maps, and tests for the retired `narrative-swatches` stage token. | The row governs current standard recipe topology cleanup; it should not create a narrative child context or stay in parent domains merely because the retired token includes `narrative`. | selected-rule Grit proof passed; path refs exist | Token labels are not owners; when a retired token belongs to recipe topology, move the row to recipe context even if it came from a domain lane. |
+| `require_owned_domain_config_catalog_surfaces` | cleanup/consolidation/split pressure | `morphology/_remainder` | `check.mjs` verifies exact `src/domain/morphology/config.ts` facade exports and standard recipe tag-catalog tokens. | The rule mixes morphology config-facade currentness with standard recipe tag-catalog currentness, so no parent-domain or affirmed blueprint owner truthfully owns the whole predicate. | selected-rule Habitat script proof passed; path refs exist | Positive residual validators can still be `_remainder` when they mix two owners and should split later. |
+
 ## Remaining Dominoes
 
-### 30. Sort Remaining Direct Domains-Lane Rows
+### 31. Sort The Hydrology Remainder Pocket
 
-Purpose: reassess the remaining direct rows under
-`.habitat/civ7/mapgen/domains/rules/` now that foundation-specific rows no
-longer obscure the parent lane.
+Purpose: re-read the new hydrology child niche now that direct parent domains
+rows no longer hide the hydrology-specific pressure.
 
 Done Means:
 
-- Every remaining direct parent-domain row receives a disposition.
-- Rows that truly govern the parent `domain` niche or affirmed `domain`
-  blueprint stay or move to that owner.
-- Rows that are actually hydrology, narrative, ecology, recipe, RNG, config,
-  import-law, or orchestration pressure move into the smallest honest child
-  niche, affirmed blueprint, or `_remainder` lane.
-- No direct context-specific row remains under parent `domain/rules` unless
-  the receipt explains why it is genuinely parent-domain authority.
+- Every row under `.habitat/civ7/mapgen/domains/hydrology/_remainder/`
+  receives a disposition.
+- Rows that truly govern `domain`, `domain-operation`, recipe-stage, standard
+  recipe context, hydrology context, or import-law/public-surface pressure move
+  to the smallest honest owner.
+- Any remaining hydrology `_remainder` row names its later mechanical
+  destination or split trigger.
+- No hydrology packet is promoted to blueprint authority by label inheritance.
 
 Moves It Forward:
 
-- Cleans the parent domain lane after the domain, domain-operation,
-  morphology, foundation, and ecology child-context moves.
-- Exposes whether the next pocket should be hydrology, narrative, RNG
-  operation hygiene, or domain config/public-surface cleanup.
-- Prevents new blueprint slices from starting from a noisy parent-domain
-  remainder.
+- Tests the next child-context remainder after morphology and foundation, but
+  on a smaller and sharper pocket.
+- Separates hydrology context, hydrology recipe-stage pressure, map-config
+  cleanup, and narrative/import-boundary pressure before broader pipeline
+  projection work.
+- Helps decide whether the next larger pocket is hydrology context, recipe
+  public config, or import-law projection.
 
 Dependencies:
 
-- Dominoes 24, 26, 27, 28, and 29 have already separated the major domain
-  parent, operation, morphology, foundation, and ecology evidence.
-- Do not create new blueprints from remaining row labels unless source proves
-  constructibility.
+- Domino 30 created the hydrology child `_remainder` lane and moved all direct
+  hydrology rows out of parent `domains/rules`.
+- Do not create a hydrology blueprint or capability in this slice.
 
 Proof:
 
 - Focused selected-rule proof for moved rows where applicable.
 - Static scans prove moved manifests no longer point at stale paths.
-- Review pass confirms context labels, runner labels, and defect labels were
-  not promoted into ontology by folder inheritance.
+- Review pass confirms hydrology labels, stage labels, and narrative labels
+  were not promoted into ontology by folder inheritance.
 
-### 31. Build Narrow Projection From Moved Authority
+### 32. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.

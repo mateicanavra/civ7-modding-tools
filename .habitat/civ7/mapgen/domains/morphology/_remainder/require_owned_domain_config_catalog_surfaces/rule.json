@@ -3,8 +3,8 @@
   "id": "require_owned_domain_config_catalog_surfaces",
   "title": "Require Owned Domain Config Catalog Surfaces",
   "placement": {
-    "niche": "civ7/mapgen/domains",
-    "blueprint": "_self",
+    "niche": "civ7/mapgen/domains/morphology",
+    "blueprint": "_remainder",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -24,14 +24,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domains/rules/require_owned_domain_config_catalog_surfaces/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "node",
     "files": {
-      "script": ".habitat/civ7/mapgen/domains/rules/require_owned_domain_config_catalog_surfaces/check.mjs"
+      "script": ".habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/check.mjs"
     }
   }
 }
