@@ -20,6 +20,7 @@ import {
   identityFromStudioOperationsCurrent,
   studioEventClearsStreamError,
 } from "../studioEventRecovery";
+import { useLatestRef } from "./useLatestRef";
 
 /**
  * The daemon event stream is a long-lived live query that must never give up:
@@ -114,10 +115,13 @@ export function useStudioEvents(
     clearLocalError,
   } = args;
   const eventRecoveryErrorRef = useRef<string | null>(null);
-  const currentRunInGameOperationRef = useRef<RunInGameOperationStatus | null>(null);
-  const currentSaveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
-  currentRunInGameOperationRef.current = currentRunInGameOperation ?? null;
-  currentSaveDeployOperationRef.current = currentSaveDeployOperation ?? null;
+  // Mirror the latest operation status into refs so the long-lived getter
+  // closures below (`getCurrentRunInGameOperation` / `getCurrentSaveDeployOperation`)
+  // read fresh values without being recreated each change. `useLatestRef` owns the
+  // sanctioned render-phase ref write, so these sites no longer write `.current`
+  // during render directly (react-hooks/refs).
+  const currentRunInGameOperationRef = useLatestRef(currentRunInGameOperation ?? null);
+  const currentSaveDeployOperationRef = useLatestRef(currentSaveDeployOperation ?? null);
   const eventQuery = useQuery(studioEventsWatchLiveOptions());
   const event = eventQuery.data as StudioEvent | undefined;
   const helloKey =
