@@ -20,3 +20,7 @@ Current frames:
 - `NICHE-LANE-SHAPING-FRAME.md`: use when a parent niche `rules/` lane is
   acting as a semantic junk drawer and the next move is to shape honest child
   lanes before deeper blueprint, capability, projection, or cleanup work.
+- `REMAINDER-RECLAMATION-FRAME.md`: use when an initial idea suggests sorted
+  `_remainder/` rows may now be reclaimable into existing blueprint, context,
+  or smaller remainder destinations; includes analytics preflight, bounded
+  adjacent-slice selection, physical movement, proof, and adversarial review.
