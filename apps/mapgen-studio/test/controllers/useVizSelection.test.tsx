@@ -1,0 +1,325 @@
+// @vitest-environment jsdom
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { type UseVizSelectionArgs, useVizSelection } from "../../src/app/hooks/useVizSelection";
+import type { UseVizStateResult } from "../../src/features/viz/useVizState";
+import type { StudioRecipeId } from "../../src/recipes/catalog";
+import { useViewStore } from "../../src/stores/viewStore";
+import "./_setup";
+
+// `useVizState` is mocked to a controllable handle so the cascade can be driven
+// from a fixed `dataTypeModel`/`selectedLayerKey` and its viz writes observed.
+// `getOverlaySuggestions` is mocked so the overlay group (EO-3/EO-4) has a
+// deterministic, recipe-independent suggestion catalog.
+const vizMock = vi.hoisted(() => ({ handle: null as unknown as UseVizStateResult }));
+const overlayMock = vi.hoisted(() => ({
+  suggestions: [] as Array<{
+    id: string;
+    label: string;
+    primaryDataTypeKey: string;
+    overlayDataTypeKey: string;
+  }>,
+}));
+
+vi.mock("../../src/features/viz/useVizState", () => ({
+  useVizState: vi.fn(() => vizMock.handle),
+}));
+vi.mock("../../src/recipes/overlaySuggestions", () => ({
+  getOverlaySuggestions: vi.fn(() => overlayMock.suggestions),
+}));
+
+// ---- model fixture builders ----------------------------------------------
+function variant(variantId: string, layerKey: string, variantKey: string | null) {
+  return {
+    variantId,
+    label: variantId,
+    layerKey,
+    layer: { variantKey } as unknown as { variantKey: string | null },
+  };
+}
+function makeModel() {
+  return {
+    stepId: "stageA.a1",
+    dataTypes: [
+      {
+        dataTypeId: "terrain",
+        label: "Terrain",
+        visibility: "default",
+        spaces: [
+          {
+            spaceId: "tile.hexOddR",
+            label: "Tile",
+            renderModes: [
+              {
+                renderModeId: "grid",
+                label: "Grid",
+                variants: [
+                  variant("v3", "terrain.grid.e3", "era:3"),
+                  variant("v1", "terrain.grid.e1", "era:1"),
+                  variant("vp", "terrain.grid.plain", null),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        dataTypeId: "rivers",
+        label: "Rivers",
+        visibility: "default",
+        // Distinct spaceId from `terrain` so EO-4 exercises the space FALLBACK
+        // (`selection.spaceId` is absent from the overlay data-type's spaces).
+        spaces: [
+          {
+            spaceId: "world.xy",
+            label: "World",
+            renderModes: [
+              {
+                renderModeId: "grid",
+                label: "Grid",
+                variants: [
+                  variant("rv1", "rivers.grid.e1", "era:1"),
+                  variant("rv2", "rivers.grid.e2", "era:2"),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+}
+
+// `stageB` deliberately omits `stageLabel` so SS-5 also pins the
+// `formatStageName` label fallback.
+const recipeArtifacts = {
+  uiMeta: {
+    stages: [
+      {
+        stageId: "stageA",
+        stageLabel: "Stage A",
+        steps: [
+          { stepId: "a1", fullStepId: "stageA.a1", stepLabel: "A1" },
+          { stepId: "a2", fullStepId: "stageA.a2", stepLabel: "A2" },
+        ],
+      },
+      {
+        stageId: "stageB",
+        steps: [{ stepId: "b1", fullStepId: "stageB.b1", stepLabel: "B1" }],
+      },
+    ],
+  },
+} as unknown as UseVizSelectionArgs["recipeArtifacts"];
+
+function makeVizHandle(): UseVizStateResult {
+  return {
+    ingest: vi.fn(),
+    clearStream: vi.fn(),
+    selectedStepId: "stageA.a1",
+    setSelectedStepId: vi.fn(),
+    selectedLayerKey: null,
+    setSelectedLayerKey: vi.fn(),
+    showDebugLayers: false,
+    setShowDebugLayers: vi.fn(),
+    steps: [],
+    pipelineSteps: [],
+    pipelineStages: [],
+    dataTypeModel: makeModel(),
+    selectableLayers: [],
+    legend: null,
+    deck: { layers: [] },
+    effectiveLayer: null,
+    activeBounds: null,
+    manifest: null,
+  } as unknown as UseVizStateResult;
+}
+
+beforeEach(() => {
+  // Baseline view state: explore is on `stageA`/`stageA.a1`, era auto, no overlay.
+  useViewStore.setState({
+    selectedStageId: "stageA",
+    selectedStepId: "stageA.a1",
+    eraMode: "auto",
+    manualEra: 1,
+    overlaySelectionId: "",
+    overlayVariantKeyPreference: null,
+    overlayOpacity: 0.45,
+    showEdges: true,
+  });
+  vizMock.handle = makeVizHandle();
+  overlayMock.suggestions = [];
+});
+
+function render(overrides: Partial<UseVizSelectionArgs> = {}) {
+  const setLocalError = vi.fn();
+  let props: UseVizSelectionArgs = {
+    recipe: "test-recipe" as StudioRecipeId,
+    recipeArtifacts,
+    browserRunning: false,
+    setLocalError,
+    ...overrides,
+  };
+  const view = renderHook((p: UseVizSelectionArgs) => useVizSelection(p), { initialProps: props });
+  const rerender = (patch: Partial<UseVizSelectionArgs> = {}) => {
+    props = { ...props, ...patch };
+    act(() => view.rerender(props));
+  };
+  return { view, rerender, setLocalError };
+}
+
+const viz = () => vizMock.handle;
+const store = () => useViewStore.getState();
+
+describe("useVizSelection — Stage/Step cascade (SS)", () => {
+  it("SS-5: stages are 1-indexed StageOptions with formatStageName label fallback", () => {
+    const { view } = render();
+    const stages = view.result.current.stages;
+    expect(stages.map((s) => s.index)).toEqual([1, 2]);
+    expect(stages[0]!.label).toBe("Stage A"); // explicit stageLabel
+    expect(stages[1]!.label).not.toBe(""); // stageB had no label → formatStageName fallback
+    expect(stages[1]!.value).toBe("stageB");
+  });
+
+  it("SS-6: steps are derived ONLY from the selected stage", () => {
+    const { view, rerender } = render();
+    expect(view.result.current.steps.map((s) => s.value)).toEqual(["stageA.a1", "stageA.a2"]);
+
+    act(() => useViewStore.setState({ selectedStageId: "stageB" }));
+    rerender();
+    expect(view.result.current.steps.map((s) => s.value)).toEqual(["stageB.b1"]);
+
+    act(() => useViewStore.setState({ selectedStageId: "" }));
+    rerender();
+    expect(view.result.current.steps).toEqual([]);
+  });
+
+  it("SS-1: handleStageChange resets step to the new stage's first; viz syncs ONCE", () => {
+    const { view } = render();
+    viz().setSelectedStepId.mockClear();
+
+    act(() => view.result.current.handleStageChange("stageB"));
+
+    expect(store().selectedStageId).toBe("stageB");
+    expect(store().selectedStepId).toBe("stageB.b1");
+    // The viz-sync arm is the SOLE caller of viz.setSelectedStepId — exactly once,
+    // never doubled by handleStageChange itself.
+    expect(viz().setSelectedStepId).toHaveBeenCalledTimes(1);
+    expect(viz().setSelectedStepId).toHaveBeenCalledWith("stageB.b1");
+  });
+
+  it("SS-2: viz-sync clears the layer on a real step change, and is guarded when equal", () => {
+    const { view, rerender } = render();
+    viz().setSelectedLayerKey.mockClear();
+
+    // (a) real step change → one layer clear
+    act(() => useViewStore.setState({ selectedStepId: "stageA.a2" }));
+    rerender();
+    expect(viz().setSelectedLayerKey).toHaveBeenCalledTimes(1);
+    expect(viz().setSelectedLayerKey).toHaveBeenCalledWith(null);
+
+    // (b) the effect RE-RUNS (store step changes a2→a1) but viz is ALREADY at the
+    // new step → the dedupe guard must skip the clear (no layer clobber). This is
+    // the path the guard actually protects: a viz-led step move (e.g. the inspector)
+    // that the store then catches up to.
+    vizMock.handle.selectedStepId = "stageA.a1";
+    viz().setSelectedLayerKey.mockClear();
+    act(() => useViewStore.setState({ selectedStepId: "stageA.a1" }));
+    rerender();
+    expect(viz().setSelectedLayerKey).not.toHaveBeenCalled();
+  });
+
+  it("SS-4: viz-sync fires only on selectedStepId, not on unrelated viz rerenders", () => {
+    const { rerender } = render();
+    viz().setSelectedStepId.mockClear();
+
+    // A viz-internal change (new model) with selectedStepId unchanged must NOT
+    // re-run the sync arm (deps are [selectedStepId] only).
+    vizMock.handle.dataTypeModel = makeModel();
+    rerender({ browserRunning: true });
+    expect(viz().setSelectedStepId).not.toHaveBeenCalled();
+  });
+
+  it("SS-3: step-clamp RETAINS a step that is still valid in the (new) stage", () => {
+    // The clamp runs when `steps` changes (here, the mount transition []→[a1,a2]);
+    // a valid current step must be kept — the `some()` guard must not clobber it.
+    useViewStore.setState({ selectedStageId: "stageA", selectedStepId: "stageA.a2" });
+    render();
+    expect(store().selectedStepId).toBe("stageA.a2");
+  });
+
+  it("SS-3: step-clamp RESETS a foreign step to steps[0]", () => {
+    useViewStore.setState({ selectedStageId: "stageA", selectedStepId: "not-a-real-step" });
+    render();
+    expect(store().selectedStepId).toBe("stageA.a1");
+  });
+});
+
+describe("useVizSelection — Layer selection (LS)", () => {
+  it("LS-4: handleDataTypeChange applies era in fixed mode and bypasses it in auto", () => {
+    // auto → first variant of the target render mode (era ignored)
+    const auto = render();
+    viz().setSelectedLayerKey.mockClear();
+    act(() => auto.view.result.current.handleDataTypeChange("rivers"));
+    expect(viz().setSelectedLayerKey).toHaveBeenCalledWith("rivers.grid.e1");
+
+    // fixed, manualEra=2 → era-snapped variant (era:2)
+    useViewStore.setState({ eraMode: "fixed", manualEra: 2 });
+    const fixed = render();
+    viz().setSelectedLayerKey.mockClear();
+    act(() => fixed.view.result.current.handleDataTypeChange("rivers"));
+    expect(viz().setSelectedLayerKey).toHaveBeenCalledWith("rivers.grid.e2");
+  });
+
+  it("LS-5: handleVariantChange seeds manualEra for era variants; flips fixed→auto only for non-era", () => {
+    useViewStore.setState({ eraMode: "fixed", manualEra: 1 });
+    const { view } = render();
+
+    // era variant: set manualEra, KEEP fixed mode
+    act(() => view.result.current.handleVariantChange("v3"));
+    expect(store().manualEra).toBe(3);
+    expect(store().eraMode).toBe("fixed");
+    expect(viz().setSelectedLayerKey).toHaveBeenCalledWith("terrain.grid.e3");
+
+    // non-era variant in fixed mode: flip to auto
+    act(() => view.result.current.handleVariantChange("vp"));
+    expect(store().eraMode).toBe("auto");
+  });
+});
+
+describe("useVizSelection — Era / Overlay group (EO)", () => {
+  it("EO-5: handleEraModeChange('fixed') seeds manualEra from autoEra", () => {
+    // default selection variant is v3 (era:3) → autoEra=3
+    const { view } = render();
+    expect(store().manualEra).toBe(1);
+
+    act(() => view.result.current.handleEraModeChange("fixed"));
+    expect(store().eraMode).toBe("fixed");
+    expect(store().manualEra).toBe(3);
+  });
+
+  it("EO-6: handleEraValueChange clamps to range and activates fixed mode", () => {
+    const { view } = render();
+    // range is {min:1, max:3}; 7 clamps to 3
+    act(() => view.result.current.handleEraValueChange(7));
+    expect(store().manualEra).toBe(3);
+    expect(store().eraMode).toBe("fixed");
+  });
+
+  it("EO-3: overlay-prune clears a stale overlaySelectionId when no candidates exist", () => {
+    overlayMock.suggestions = []; // no candidates
+    useViewStore.setState({ overlaySelectionId: "stale" });
+    render();
+    expect(store().overlaySelectionId).toBe("");
+  });
+
+  it("EO-4: overlay-variant-pref era-snaps via the space fallback in fixed mode", () => {
+    overlayMock.suggestions = [
+      { id: "ov", label: "Ov", primaryDataTypeKey: "terrain", overlayDataTypeKey: "rivers" },
+    ];
+    useViewStore.setState({ overlaySelectionId: "ov", eraMode: "fixed", manualEra: 2 });
+    render();
+    // selection.spaceId ("tile.hexOddR") is absent from `rivers` → fallback to its
+    // first space ("world.xy"); manualEra=2 snaps to the era:2 variant key.
+    expect(store().overlayVariantKeyPreference).toBe("era:2");
+  });
+});

@@ -8,10 +8,7 @@ import { getCiv7MapSizePreset } from "../features/browserRunner/mapSizes";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { fetchCiv7SetupConfig, requestCiv7Autoplay } from "../features/civ7Setup/api";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
-import {
-  formatCiv7StudioSeedError,
-  parseCiv7StudioSeed,
-} from "../features/civ7Setup/seedPolicy";
+import { formatCiv7StudioSeedError, parseCiv7StudioSeed } from "../features/civ7Setup/seedPolicy";
 import {
   type Civ7SetupSnapshotLike,
   type Civ7StudioSetupConfig,
@@ -84,19 +81,6 @@ import {
   formatRunInGameDiagnostics,
   runInGameRequiresProcessRestart,
 } from "../features/runInGame/status";
-import {
-  findVariantIdForEra,
-  findVariantKeyForEra,
-  listEraVariants,
-  parseEraVariantKey,
-  resolveFixedEraUiValue,
-} from "../features/viz/era";
-import { applyRiverLakeInspectorSelection } from "../features/viz/inspectorSelection";
-import {
-  buildRiverLakeFloodplainInspectorSummary,
-  type RiverLakeInspectorLayerRef,
-} from "../features/viz/riverLakeInspector";
-import { useVizState } from "../features/viz/useVizState";
 import { liveControlPort } from "../lib/control/liveControlPort";
 import { orpcClient } from "../lib/orpc";
 import {
@@ -105,10 +89,7 @@ import {
   getRecipeArtifacts,
   STUDIO_RECIPE_OPTIONS,
 } from "../recipes/catalog";
-import { getOverlaySuggestions } from "../recipes/overlaySuggestions";
 import { isAbortLikeError } from "../shared/async";
-import { formatErrorForUi } from "../shared/errorFormat";
-import { clampNumber } from "../shared/number";
 import type { VizEvent } from "../shared/vizEvents";
 import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
@@ -119,19 +100,8 @@ import { ExplorePanel } from "../ui/components/ExplorePanel";
 import { GameConsole } from "../ui/components/GameConsole";
 import { RecipePanel } from "../ui/components/RecipePanel";
 import { StageViewTabs } from "../ui/components/StageViewTabs";
-import type {
-  DataTypeOption,
-  GenerationStatus,
-  OverlayOption,
-  PipelineConfig,
-  RenderModeOption,
-  SpaceOption,
-  StageOption,
-  StepOption,
-  VariantOption,
-} from "../ui/types";
+import type { GenerationStatus, PipelineConfig } from "../ui/types";
 import { configsEqual } from "../ui/utils/config";
-import { formatStageName } from "../ui/utils/formatting";
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";
 import { useBrowserRun } from "./hooks/useBrowserRun";
@@ -142,6 +112,7 @@ import { useStudioEvents } from "./hooks/useStudioEvents";
 import { useStudioOperations } from "./hooks/useStudioOperations";
 import { useToast } from "./hooks/useToast";
 import { useViewportLayout } from "./hooks/useViewportLayout";
+import { useVizSelection } from "./hooks/useVizSelection";
 import { LeftDock } from "./LeftDock";
 import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { RightDock } from "./RightDock";
@@ -220,12 +191,10 @@ export function StudioShell(props: StudioShellProps) {
   const setOverlaySelectionId = useViewStore((s) => s.setOverlaySelectionId);
   const overlayOpacity = useViewStore((s) => s.overlayOpacity);
   const setOverlayOpacity = useViewStore((s) => s.setOverlayOpacity);
-  const overlayVariantKeyPreference = useViewStore((s) => s.overlayVariantKeyPreference);
-  const setOverlayVariantKeyPreference = useViewStore((s) => s.setOverlayVariantKeyPreference);
+  // `eraMode` is read here for the explore-panel JSX; the era/overlay *write*
+  // surface (`manualEra`/`setManualEra`/`setEraMode`/`overlayVariantKeyPreference`)
+  // is owned by `useVizSelection`.
   const eraMode = useViewStore((s) => s.eraMode);
-  const setEraMode = useViewStore((s) => s.setEraMode);
-  const manualEra = useViewStore((s) => s.manualEra);
-  const setManualEra = useViewStore((s) => s.setManualEra);
   const recipeSectionCollapsed = useViewStore((s) => s.recipeSectionCollapsed);
   const setRecipeSectionCollapsed = useViewStore((s) => s.setRecipeSectionCollapsed);
   const configSectionCollapsed = useViewStore((s) => s.configSectionCollapsed);
@@ -300,13 +269,6 @@ export function StudioShell(props: StudioShellProps) {
   // `studio.operations.current` instead.
   const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
   const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
-
-  const overlaySuggestions = useMemo(
-    () => getOverlaySuggestions(recipeSettings.recipe),
-    [recipeSettings.recipe]
-  );
-  const overlaySelection = overlaySuggestions.find((opt) => opt.id === overlaySelectionId) ?? null;
-  const overlayDataTypeKey = overlaySelection?.overlayDataTypeKey ?? null;
 
   const recipeArtifacts = useMemo(
     () => getRecipeArtifacts(recipeSettings.recipe),
@@ -538,14 +500,41 @@ export function StudioShell(props: StudioShellProps) {
   const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const [exploreActionRunning, setExploreActionRunning] = useState(false);
 
-  const viz = useVizState({
-    enabled: true,
-    showEdgeOverlay: showEdges,
-    overlayDataTypeKey,
-    overlayVariantKeyPreference,
-    overlayOpacity,
-    allowPendingSelection: browserRunning,
-    onError: (e) => setLocalError(formatErrorForUi(e)),
+  // Viz selection/exploration fixpoint (slice 2.7): owns `useVizState` + the full
+  // stage/step/dataType/space/mode/variant/era/overlay cascade and is the sole
+  // writer of the selected stage/step + the mutable `viz` object. Called here
+  // (after `browserRunning` is derived — viz reads it via `allowPendingSelection`)
+  // so the host-owned `vizIngestRef` event sink can be wired in render scope below,
+  // and the whole `viz` handle threads onward to `useBrowserRun`, deck-autofit
+  // (slice 2.7b), `backgroundGridEnabled`, and the canvas/explore JSX BY VALUE.
+  const {
+    viz,
+    stages,
+    steps,
+    dataTypeOptions,
+    spaceOptions,
+    renderModeOptions,
+    variantOptions,
+    overlayOptions,
+    selection,
+    eraEnabled,
+    eraRange,
+    eraDisplayValue,
+    riverLakeInspectorSummary,
+    handleStageChange,
+    handleStepChange,
+    handleDataTypeChange,
+    handleSpaceChange,
+    handleRenderModeChange,
+    handleVariantChange,
+    handleEraModeChange,
+    handleEraValueChange,
+    handleRiverLakeInspectorLayerSelect,
+  } = useVizSelection({
+    recipe: recipeSettings.recipe,
+    recipeArtifacts,
+    browserRunning,
+    setLocalError,
   });
   vizIngestRef.current = viz.ingest;
   const hasEverSeenVizManifestRef = useRef(false);
@@ -744,59 +733,16 @@ export function StudioShell(props: StudioShellProps) {
   // Selected stage/step are part of the view surface — owned by `viewStore`
   // (single owner; no App-local mirror), per architecture/10 §3.
   const selectedStageId = useViewStore((s) => s.selectedStageId);
-  const setSelectedStageId = useViewStore((s) => s.setSelectedStageId);
   const selectedStepId = useViewStore((s) => s.selectedStepId);
+  // `setSelectedStepId` is still threaded into `useKeyboardShortcuts` here;
+  // `setSelectedStageId` and the stage/step memos + clamp effects moved into
+  // `useVizSelection` (their sole writer).
   const setSelectedStepId = useViewStore((s) => s.setSelectedStepId);
 
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
     []
   );
-
-  const stages: StageOption[] = useMemo(() => {
-    return recipeArtifacts.uiMeta.stages.map((stage, index) => ({
-      value: stage.stageId,
-      label: stage.stageLabel ?? formatStageName(stage.stageId),
-      index: index + 1,
-    }));
-  }, [recipeArtifacts.uiMeta.stages]);
-
-  const steps: StepOption[] = useMemo(() => {
-    if (!selectedStageId) return [];
-
-    const labelByFullStepId = new Map(
-      recipeArtifacts.uiMeta.stages.flatMap((stage) =>
-        stage.steps.map((step) => [step.fullStepId, step.stepLabel] as const)
-      )
-    );
-
-    const stage = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === selectedStageId);
-    return (
-      stage?.steps.map((step) => ({
-        value: step.fullStepId,
-        label: labelByFullStepId.get(step.fullStepId) ?? step.stepLabel ?? step.stepId,
-        category: selectedStageId,
-      })) ?? []
-    );
-  }, [recipeArtifacts.uiMeta.stages, selectedStageId]);
-
-  useEffect(() => {
-    if (stages.length === 0) return;
-    setSelectedStageId((prev) => (stages.some((s) => s.value === prev) ? prev : stages[0]!.value));
-  }, [stages]);
-
-  useEffect(() => {
-    if (steps.length === 0) return;
-    setSelectedStepId((prev) => (steps.some((s) => s.value === prev) ? prev : steps[0]!.value));
-  }, [steps]);
-
-  useEffect(() => {
-    if (!selectedStepId) return;
-    if (viz.selectedStepId === selectedStepId) return;
-    viz.setSelectedStepId(selectedStepId);
-    viz.setSelectedLayerKey(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedStepId]);
 
   // Browser-run command + auto-run orchestration (slice 2.6). The runner
   // instance + `browserRunning` derivation + `vizIngestRef` sink wiring stay in
@@ -1838,351 +1784,6 @@ export function StudioShell(props: StudioShellProps) {
     runInGameRunning,
     saveDeployRunning,
   });
-
-  const dataTypeModel = viz.dataTypeModel;
-  const dataTypeOptions: DataTypeOption[] = useMemo(() => {
-    if (!dataTypeModel) return [];
-    return dataTypeModel.dataTypes.map((dt) => ({
-      value: dt.dataTypeId,
-      label: dt.label,
-      group: dt.group,
-    }));
-  }, [dataTypeModel]);
-
-  const riverLakeInspectorSummary = useMemo(
-    () => buildRiverLakeFloodplainInspectorSummary(viz.manifest),
-    [viz.manifest]
-  );
-
-  const selection = useMemo(() => {
-    if (!dataTypeModel) return null;
-    for (const dt of dataTypeModel.dataTypes) {
-      for (const space of dt.spaces) {
-        for (const rm of space.renderModes) {
-          for (const variant of rm.variants) {
-            if (variant.layerKey === viz.selectedLayerKey) {
-              return {
-                dataTypeId: dt.dataTypeId,
-                spaceId: space.spaceId,
-                renderModeId: rm.renderModeId,
-                variantId: variant.variantId,
-              };
-            }
-          }
-        }
-      }
-    }
-    const firstDt = dataTypeModel.dataTypes[0];
-    const firstSpace = firstDt?.spaces[0];
-    const firstRm = firstSpace?.renderModes[0];
-    const firstVariant = firstRm?.variants[0];
-    if (!firstDt || !firstSpace || !firstRm || !firstVariant) return null;
-    return {
-      dataTypeId: firstDt.dataTypeId,
-      spaceId: firstSpace.spaceId,
-      renderModeId: firstRm.renderModeId,
-      variantId: firstVariant.variantId,
-    };
-  }, [dataTypeModel, viz.selectedLayerKey]);
-
-  const selectedDataType = useMemo(() => {
-    if (!dataTypeModel || !selection) return null;
-    return dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId) ?? null;
-  }, [dataTypeModel, selection]);
-
-  const selectedSpace = useMemo(() => {
-    if (!selectedDataType || !selection) return null;
-    return (
-      selectedDataType.spaces.find((s) => s.spaceId === selection.spaceId) ??
-      selectedDataType.spaces[0] ??
-      null
-    );
-  }, [selectedDataType, selection]);
-
-  const selectedRenderMode = useMemo(() => {
-    if (!selectedSpace || !selection) return null;
-    return (
-      selectedSpace.renderModes.find((rm) => rm.renderModeId === selection.renderModeId) ??
-      selectedSpace.renderModes[0] ??
-      null
-    );
-  }, [selectedSpace, selection]);
-
-  const selectedVariants = selectedRenderMode?.variants ?? [];
-  const selectedVariant = useMemo(() => {
-    if (!selection) return selectedVariants[0] ?? null;
-    return (
-      selectedVariants.find((v) => v.variantId === selection.variantId) ??
-      selectedVariants[0] ??
-      null
-    );
-  }, [selectedVariants, selection]);
-  const selectedVariantKey = selectedVariant?.layer.variantKey ?? null;
-
-  const spaceOptions: SpaceOption[] = useMemo(() => {
-    if (!selectedDataType) return [];
-    return selectedDataType.spaces.map((s) => ({ value: s.spaceId, label: s.label }));
-  }, [selectedDataType]);
-
-  const renderModeOptions: RenderModeOption[] = useMemo(() => {
-    if (!selectedSpace) return [];
-    return selectedSpace.renderModes.map((rm) => ({
-      value: rm.renderModeId,
-      label: rm.label,
-    }));
-  }, [selectedSpace]);
-
-  const variantOptions: VariantOption[] = useMemo(
-    () => selectedVariants.map((v) => ({ value: v.variantId, label: v.label })),
-    [selectedVariants]
-  );
-
-  const eraVariants = useMemo(() => listEraVariants(selectedVariants), [selectedVariants]);
-  const eraRange = useMemo(() => {
-    if (!eraVariants.length) return null;
-    const min = eraVariants[0]?.era ?? 1;
-    const max = eraVariants[eraVariants.length - 1]?.era ?? min;
-    return { min, max };
-  }, [eraVariants]);
-  const autoEra = useMemo(() => parseEraVariantKey(selectedVariantKey), [selectedVariantKey]);
-  const eraEnabled = Boolean(eraRange);
-  const fixedEraUiValue = useMemo(
-    () =>
-      resolveFixedEraUiValue({
-        variants: selectedVariants,
-        selectedVariantKey,
-        requestedEra: manualEra,
-      }),
-    [manualEra, selectedVariantKey, selectedVariants]
-  );
-  const eraDisplayValue = eraMode === "fixed" ? fixedEraUiValue : (autoEra ?? eraRange?.min ?? 1);
-
-  useEffect(() => {
-    if (!eraRange) return;
-    setManualEra((prev) => clampNumber(prev, eraRange.min, eraRange.max));
-  }, [eraRange]);
-
-  const overlayCandidates: OverlayOption[] = useMemo(() => {
-    if (!dataTypeModel || !selection) return [];
-    const out: OverlayOption[] = [];
-    for (const suggestion of overlaySuggestions) {
-      if (suggestion.primaryDataTypeKey !== selection.dataTypeId) continue;
-      const overlayDt = dataTypeModel.dataTypes.find(
-        (dt) => dt.dataTypeId === suggestion.overlayDataTypeKey
-      );
-      if (!overlayDt) continue;
-      out.push({ value: suggestion.id, label: suggestion.label });
-    }
-    return out;
-  }, [dataTypeModel, overlaySuggestions, selection]);
-
-  const overlayOptions: OverlayOption[] = useMemo(() => {
-    if (!overlayCandidates.length) return [];
-    return [{ value: "", label: "No overlay" }, ...overlayCandidates];
-  }, [overlayCandidates]);
-
-  useEffect(() => {
-    if (!overlayCandidates.length) {
-      if (overlaySelectionId) setOverlaySelectionId("");
-      return;
-    }
-    if (overlaySelectionId && !overlayCandidates.some((opt) => opt.value === overlaySelectionId)) {
-      setOverlaySelectionId("");
-    }
-  }, [overlayCandidates, overlaySelectionId]);
-
-  useEffect(() => {
-    if (eraMode !== "fixed" || !overlaySelection || !dataTypeModel || !selection) {
-      setOverlayVariantKeyPreference((prev) => (prev === null ? prev : null));
-      return;
-    }
-
-    const overlayDataType = dataTypeModel.dataTypes.find(
-      (dataType) => dataType.dataTypeId === overlaySelection.overlayDataTypeKey
-    );
-    if (!overlayDataType) {
-      setOverlayVariantKeyPreference((prev) => (prev === null ? prev : null));
-      return;
-    }
-
-    const preferredSpace =
-      overlayDataType.spaces.find((space) => space.spaceId === selection.spaceId) ??
-      overlayDataType.spaces[0] ??
-      null;
-    if (!preferredSpace) {
-      setOverlayVariantKeyPreference((prev) => (prev === null ? prev : null));
-      return;
-    }
-
-    const preferredRenderMode =
-      preferredSpace.renderModes.find(
-        (renderMode) => renderMode.renderModeId === selection.renderModeId
-      ) ??
-      preferredSpace.renderModes[0] ??
-      null;
-
-    const availableVariants = preferredRenderMode?.variants.length
-      ? preferredRenderMode.variants
-      : preferredSpace.renderModes.flatMap((renderMode) => renderMode.variants);
-    const resolvedVariantKey = findVariantKeyForEra(availableVariants, manualEra);
-    setOverlayVariantKeyPreference((prev) =>
-      prev === resolvedVariantKey ? prev : resolvedVariantKey
-    );
-  }, [dataTypeModel, eraMode, manualEra, overlaySelection, selection]);
-
-  const selectLayerFor = useCallback(
-    (
-      dataTypeId: string,
-      spaceId: string,
-      renderModeId: string,
-      opts?: { variantId?: string; variantKey?: string; era?: number }
-    ) => {
-      if (!dataTypeModel) return;
-      const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === dataTypeId);
-      const space = dt?.spaces.find((s) => s.spaceId === spaceId) ?? dt?.spaces[0];
-      const rm =
-        space?.renderModes.find((x) => x.renderModeId === renderModeId) ?? space?.renderModes[0];
-      if (!space || !rm) return;
-      let variant = opts?.variantId
-        ? (rm.variants.find((v) => v.variantId === opts.variantId) ?? null)
-        : null;
-      if (!variant && opts?.variantKey) {
-        variant = rm.variants.find((v) => v.layer.variantKey === opts.variantKey) ?? null;
-      }
-      if (!variant && opts?.era != null) {
-        const eraVariantId = findVariantIdForEra(rm.variants, opts.era);
-        variant = eraVariantId
-          ? (rm.variants.find((v) => v.variantId === eraVariantId) ?? null)
-          : null;
-      }
-      if (!variant) variant = rm.variants[0] ?? null;
-      viz.setSelectedLayerKey(variant?.layerKey ?? null);
-    },
-    [dataTypeModel, viz]
-  );
-
-  const handleStageChange = useCallback(
-    (stageId: string) => {
-      setSelectedStageId(stageId);
-      const stage = stages.find((s) => s.value === stageId);
-      if (!stage) return;
-
-      const stageMeta = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === stageId);
-      const nextStep = stageMeta?.steps[0]?.fullStepId ?? "";
-      setSelectedStepId(nextStep);
-    },
-    [recipeArtifacts.uiMeta.stages, stages]
-  );
-
-  const handleStepChange = useCallback((stepId: string) => setSelectedStepId(stepId), []);
-
-  const handleRiverLakeInspectorLayerSelect = useCallback(
-    (ref: RiverLakeInspectorLayerRef) => {
-      applyRiverLakeInspectorSelection(ref, {
-        stages: recipeArtifacts.uiMeta.stages,
-        setSelectedStageId,
-        setSelectedStepId,
-        setShowDebugLayers: viz.setShowDebugLayers,
-        setVizSelectedStepId: viz.setSelectedStepId,
-        setVizSelectedLayerKey: viz.setSelectedLayerKey,
-      });
-    },
-    [recipeArtifacts.uiMeta.stages, viz]
-  );
-
-  const handleDataTypeChange = useCallback(
-    (next: string) => {
-      if (!dataTypeModel) return;
-      const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === next);
-      const space = dt?.spaces[0];
-      const rm = space?.renderModes[0];
-      if (!space || !rm) return;
-      if (eraMode === "fixed") {
-        selectLayerFor(next, space.spaceId, rm.renderModeId, { era: manualEra });
-        return;
-      }
-      selectLayerFor(next, space.spaceId, rm.renderModeId);
-    },
-    [dataTypeModel, eraMode, manualEra, selectLayerFor]
-  );
-
-  const handleSpaceChange = useCallback(
-    (next: string) => {
-      if (!selection) return;
-      const dataTypeId = selection.dataTypeId;
-      if (!dataTypeModel) return;
-      const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === dataTypeId);
-      const space = dt?.spaces.find((s) => s.spaceId === next) ?? dt?.spaces[0];
-      const rm = space?.renderModes[0];
-      if (!space || !rm) return;
-      if (eraMode === "fixed") {
-        selectLayerFor(dataTypeId, space.spaceId, rm.renderModeId, { era: manualEra });
-        return;
-      }
-      selectLayerFor(dataTypeId, space.spaceId, rm.renderModeId);
-    },
-    [dataTypeModel, eraMode, manualEra, selectLayerFor, selection]
-  );
-
-  const handleRenderModeChange = useCallback(
-    (next: string) => {
-      if (!selection) return;
-      if (eraMode === "fixed") {
-        selectLayerFor(selection.dataTypeId, selection.spaceId, next, { era: manualEra });
-        return;
-      }
-      selectLayerFor(selection.dataTypeId, selection.spaceId, next);
-    },
-    [eraMode, manualEra, selectLayerFor, selection]
-  );
-
-  const handleVariantChange = useCallback(
-    (next: string) => {
-      if (!selection) return;
-      const variant = selectedVariants.find((v) => v.variantId === next) ?? null;
-      const parsedEra = parseEraVariantKey(variant?.layer.variantKey ?? null);
-      if (parsedEra != null) setManualEra(parsedEra);
-      if (parsedEra == null && eraMode === "fixed") setEraMode("auto");
-      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, {
-        variantId: next,
-      });
-    },
-    [eraMode, selectLayerFor, selection, selectedVariants]
-  );
-
-  const handleEraModeChange = useCallback(
-    (nextMode: "auto" | "fixed") => {
-      if (nextMode === "auto") {
-        setEraMode("auto");
-        return;
-      }
-      if (!selection || !eraRange) {
-        setEraMode("fixed");
-        return;
-      }
-      const seedEra = autoEra ?? manualEra ?? eraRange.min;
-      const clampedEra = clampNumber(seedEra, eraRange.min, eraRange.max);
-      setManualEra(clampedEra);
-      setEraMode("fixed");
-      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, {
-        era: clampedEra,
-      });
-    },
-    [autoEra, eraRange, manualEra, selectLayerFor, selection]
-  );
-
-  const handleEraValueChange = useCallback(
-    (nextEra: number) => {
-      if (!selection || !eraRange) return;
-      const clampedEra = clampNumber(nextEra, eraRange.min, eraRange.max);
-      setManualEra(clampedEra);
-      if (eraMode !== "fixed") setEraMode("fixed");
-      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, {
-        era: clampedEra,
-      });
-    },
-    [eraMode, eraRange, selectLayerFor, selection]
-  );
 
   useKeyboardShortcuts({
     stages,
