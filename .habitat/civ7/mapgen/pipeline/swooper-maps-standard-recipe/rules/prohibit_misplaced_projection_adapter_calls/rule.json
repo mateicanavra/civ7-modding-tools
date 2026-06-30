@@ -3,8 +3,8 @@
   "id": "prohibit_misplaced_projection_adapter_calls",
   "title": "Prohibit Misplaced Projection Adapter Calls",
   "placement": {
-    "niche": "civ7/mapgen/map-output",
-    "blueprint": "_remainder",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -17,18 +17,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_misplaced_projection_adapter_calls/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_misplaced_projection_adapter_calls/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_misplaced_projection_adapter_calls/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_misplaced_projection_adapter_calls/pattern.md"
     },
     "patternName": "prohibit_misplaced_projection_adapter_calls"
   }

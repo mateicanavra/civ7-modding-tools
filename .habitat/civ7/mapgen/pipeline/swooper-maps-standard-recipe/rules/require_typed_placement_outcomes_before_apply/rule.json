@@ -3,8 +3,8 @@
   "id": "require_typed_placement_outcomes_before_apply",
   "title": "Require Typed Placement Outcomes Before Apply",
   "placement": {
-    "niche": "civ7/mapgen/map-output",
-    "blueprint": "_remainder",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -22,15 +22,17 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/map-output/_remainder/require_typed_placement_outcomes_before_apply/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_typed_placement_outcomes_before_apply/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/map-output/_remainder/require_typed_placement_outcomes_before_apply/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_typed_placement_outcomes_before_apply/pattern.md"
     },
     "patternName": "require_typed_placement_outcomes_before_apply"
   }

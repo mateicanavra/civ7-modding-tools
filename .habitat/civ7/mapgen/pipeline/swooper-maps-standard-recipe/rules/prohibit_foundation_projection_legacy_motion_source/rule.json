@@ -3,8 +3,8 @@
   "id": "prohibit_foundation_projection_legacy_motion_source",
   "title": "Prohibit Foundation Projection Legacy Motion Source",
   "placement": {
-    "niche": "civ7/mapgen/domains/foundation",
-    "blueprint": "_remainder",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -27,12 +27,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_projection_legacy_motion_source/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_foundation_projection_legacy_motion_source/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_projection_legacy_motion_source/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_foundation_projection_legacy_motion_source/pattern.md"
     },
     "patternName": "prohibit_foundation_projection_legacy_motion_source"
   }
