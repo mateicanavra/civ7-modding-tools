@@ -130,10 +130,16 @@ Candidate blueprint-shaped examples include:
 
 Known transitional misfits, not blueprint exemplars:
 
-- `civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules`
-  is the bounded current-recipe context for concrete Swooper Maps standard
-  recipe evidence. Treat it as instance/context material until the rule is
-  generalized under a recipe, recipe-stage, or recipe-step blueprint.
+- `civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules`,
+  `civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/<prefix>/rules`,
+  and `civ7/mapgen/pipeline/swooper-maps-standard-recipe/**/_remainder`
+  are the bounded current-recipe context for concrete Swooper Maps standard
+  recipe evidence. Top-level `rules/` holds recipe-wide context; stage-prefix
+  `rules/` holds coherent context rules for a stage family; `_remainder`
+  means the predicate needs split, consolidation, or retirement before it can
+  be live context authority. Treat this whole lane as instance/context
+  material until a row is generalized under a recipe, recipe-stage, or
+  recipe-step blueprint.
 - `civ7/mapgen/domains/foundation/rules` and
   `civ7/mapgen/domains/ecology/rules` are current concrete-domain context
   rules, not accepted blueprints by label inheritance. Foundation currently has

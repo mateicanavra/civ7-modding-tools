@@ -133,6 +133,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 38. Frame Or Split The Projection Contract Remainder | The retained broad projection contract row was behavior-preservingly split: physics-stage contract leakage and map-effect naming moved to the standard-recipe context, while the realized-map artifact namespace check stayed under map-output `_remainder` with `PROJECTION-CONTRACT-SURFACE-FRAME.md` preserved as surface evidence instead of the next active domino. |
 | 39. Gather The Dependency-Tag Blueprint Kind | `dependency-tag` was affirmed as the constructible/governable kind for registered dependency-edge IDs. The whole-rule typed `requires`/`provides` constant guard moved to `.habitat/blueprints/dependency-tag/`; touched effect-tag, tag-catalog, projection-contract, config-surface, and artifact-contract labels were rejected as sibling blueprints for this slice, while context/projection/config/artifact-value rows stayed in their honest lanes. |
 | 40. Sort Studio Blueprint Candidates Into Operating Niches | The Studio `_blueprints` lane was removed. Its eight packets moved whole into child operating-area niches: `devops`, `browser-worker`, `recipe-dag`, and `server`. This was structural rehoming with manifest path repair, not content-level cleanup, retirement, split, or blueprint admission. |
+| 41. Sort The Standard Recipe Stage Context | The Swooper Maps standard-recipe lane was split into recipe-wide context `rules/`, stage-prefix context `stages/<prefix>/rules/`, and split-required `_remainder/`. Coherent context rules stayed live even when future generalization is needed; only predicates needing split/consolidation moved to `_remainder`. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -417,7 +418,45 @@ cleanup, retirement, and future blueprint-kind generalization remain deferred.
 | `enforce_studio_rpc_eventhub_topology` | `.habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/enforce_studio_rpc_eventhub_topology` | `.habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology` | Governs the Studio server daemon mounting RPC through runtime context; `rpc-daemon` is an implementation role, not the niche. | Revisit if Studio server runtime grows finer child niches for RPC, EventHub, or daemon lifecycle. |
 | `prohibit_studio_rpc_eventhub_lifecycle_leaks` | `.habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/prohibit_studio_rpc_eventhub_lifecycle_leaks` | `.habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks` | Governs EventHub lifecycle ownership inside the Studio server runtime context. | Split later if lifecycle ownership becomes a broader server-runtime capability rule. |
 
-### 41. Gather The Artifact Blueprint Kind
+## Domino 41 Disposition Receipt
+
+This table is a receipt for semantic sorting inside the concrete Swooper Maps
+standard-recipe context. It does not admit `standard recipe` as a blueprint.
+Rows that are coherent whole predicates moved into the most precise context
+`rules/` lane even if future cleanup, retirement, or generalization is still
+needed. Rows moved to `_remainder/` are there because the current predicate
+needs split/consolidation before it can be live context authority.
+
+| Rule id | Start path | Bucket | Target path | Reason | Pending action |
+| --- | --- | --- | --- | --- | --- |
+| `preserve_standard_stage_topology_and_path_invariants` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants` | recipe-wide standard-recipe context | unchanged | Whole-recipe stage-root topology is coherent current context authority. | Generalize only if a later recipe-stage topology kind is parameterized. |
+| `require_full_profile_domain_stage_roots` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_full_profile_domain_stage_roots` | recipe-wide standard-recipe context | unchanged | Full-profile stage presence is a whole standard recipe instance assertion. | Generalize only if profile composition becomes parameterized recipe authority. |
+| `verify_standard_recipe_declared_stage_keys` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys` | recipe-wide standard-recipe context | unchanged | Stage-key order is checked against the whole current recipe declaration. | Generalize only if order validation becomes manifest-driven recipe authority. |
+| `verify_runtime_stage_order_matches_contract_manifest` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest` | recipe-wide standard-recipe context | unchanged | Runtime/manifest parity spans the whole current recipe. | Parameterize before moving to recipe-kind authority. |
+| `verify_standard_recipe_public_authoring_surface` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface` | recipe-wide standard-recipe context | unchanged | Public authoring validation owns the whole current standard recipe public schema. | Parameterize before moving to recipe-stage or authoring-surface authority. |
+| `verify_standard_recipe_artifacts_match_source_stages` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages` | recipe-wide standard-recipe context | unchanged | Generated standard-recipe output parity spans the whole source recipe. | Revisit when projection/artifact authority is named and parameterized. |
+| `prohibit_map_projection_dependencies_in_physics_contracts` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts` | recipe-wide standard-recipe context | unchanged | The predicate spans multiple upstream physics stage prefixes, so `stages/map` would be misleading. | Revisit only if projection-surface authority can own the predicate generally. |
+| `require_standard_recipe_map_effect_name_suffixes` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes` | recipe-wide standard-recipe context | unchanged | The predicate governs `standard/tag-contracts.ts`, not a stage-prefix directory. | Revisit if map-effect naming becomes positive dependency-tag or projection-surface authority. |
+| `prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | recipe-wide standard-recipe context | unchanged | The predicate scans the standard recipe tag catalog surface as a whole. | Revisit if tag-catalog grammar becomes dependency-tag blueprint authority. |
+| `prohibit_narrative_swatches_stage_token` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_narrative_swatches_stage_token` | recipe-wide standard-recipe context | unchanged | The retired token guard spans standard recipe, maps, and tests rather than one stage prefix. | Retire when the retired token no longer needs protection. |
+| `prohibit_foundation_projection_legacy_motion_source` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_foundation_projection_legacy_motion_source` | foundation stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source` | The whole predicate is an exact standard foundation projection stage guard. | Revisit if later projection-step authority absorbs projection cleanup rows. |
+| `prohibit_foundation_stage_cast_merge_hacks` | `.habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_stage_cast_merge_hacks` | foundation stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_cast_merge_hacks` | The whole predicate scans standard foundation stage indexes for one coherent cast/merge guard. | Retire or consolidate if broader foundation stage cleanup absorbs it. |
+| `prohibit_foundation_stage_sentinel_passthrough` | `.habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_stage_sentinel_passthrough` | foundation stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_sentinel_passthrough` | The whole predicate scans standard foundation stage indexes for one coherent sentinel passthrough guard. | Retire or consolidate if broader foundation stage cleanup absorbs it. |
+| `prohibit_foundation_advanced_cast_merge_fragments` | `.habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_advanced_cast_merge_fragments` | foundation split remainder | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/_remainder/prohibit_foundation_advanced_cast_merge_fragments` | The predicate overlaps the narrower cast/merge and sentinel rows. | Split, consolidate, or retire after the narrower rows cover the separable predicates. |
+| `prohibit_migrated_consumer_effect_gating_tokens` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_migrated_consumer_effect_gating_tokens` | map stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_migrated_consumer_effect_gating_tokens` | The whole predicate is scoped to one standard map-hydrology consumer contract. | Revisit during cleanup or dependency-tag lifecycle work. |
+| `prohibit_misplaced_projection_adapter_calls` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_misplaced_projection_adapter_calls` | map stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls` | The whole predicate governs standard map-projection adapter callsite locality. | Revisit after projection-step or recipe-step callsite authority is parameterized. |
+| `require_projection_calls_in_projection_steps` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_projection_calls_in_projection_steps` | map stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps` | The runner checks exact standard map projection files as one coherent context guard. | Revisit after projection-step required-callsite governance is parameterized. |
+| `require_typed_placement_outcomes_before_apply` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_typed_placement_outcomes_before_apply` | placement stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply` | The whole predicate targets the standard placement apply step. | Revisit if the boundary becomes broader runtime, adapter, or step policy. |
+| `prohibit_legacy_morphology_effect_gating_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_effect_gating_tokens` | standard-recipe split remainder | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/_remainder/prohibit_legacy_morphology_effect_gating_tokens` | The predicate mixes morphology stage files with `standard/tags.ts`. | Split morphology-stage cleanup from tag-catalog cleanup, or retire when lifecycle rules exist. |
+| `prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | standard-recipe split remainder | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/_remainder/prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | The predicate mixes morphology contract dependency cleanup with one map-morphology implementation cleanup row. | Split contract cleanup from implementation cleanup before promoting either part. |
+| `prohibit_morphology_dual_read_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_dual_read_tokens` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_dual_read_tokens` | The whole predicate is a coherent morphology-stage dual-read guard. | Retire when the dual-read migration cleanup is obsolete. |
+| `prohibit_morphology_hotspot_overlay_publishers` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_hotspot_overlay_publishers` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers` | The current whole predicate guards morphology standard stage source from publishing HOTSPOTS overlays. | Revisit if story-overlay ownership becomes broader narrative or overlay authority. |
+| `prohibit_morphology_overlay_implementation_reads` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_overlay_implementation_reads` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads` | The current whole predicate guards morphology standard stage implementation files. | Revisit if recipe-step implementation/contract separation becomes positive authority. |
+| `prohibit_morphology_stage_config_bag_imports` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_stage_config_bag_imports` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports` | The whole predicate guards morphology standard stage files from config-bag imports. | Revisit when consumer-side config facade rules are named generally. |
+| `prohibit_morphology_story_overlay_contract_artifact` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_story_overlay_contract_artifact` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact` | The current whole predicate guards morphology standard step contracts. | Revisit if story/narrative artifact boundaries become positive authority. |
+| `prohibit_runtime_continent_contract_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_runtime_continent_contract_tokens` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens` | The whole predicate guards morphology standard contracts/artifact files from runtime continent identifiers. | Revisit when runtime-token forbids in contracts become positive contract-surface rules. |
+
+### 42. Gather The Artifact Blueprint Kind
 
 Purpose: admit artifact as the real immutable data-product kind after
 dependency-tag has separated tag-edge governance from artifact value
@@ -447,8 +486,8 @@ Moves It Forward:
 
 Dependencies:
 
-- Dependency-tag gathering has landed, or Domino 40 explicitly chose artifact
-  as the correct next move despite a documented dependency-tag limitation.
+- Dependency-tag gathering has landed, or a later explicit decision chooses
+  artifact despite a documented dependency-tag limitation.
 
 Proof:
 
@@ -457,7 +496,7 @@ Proof:
 - The final receipt distinguishes artifact value/contract authority from
   dependency-tag, projection, config, and garbage pressure.
 
-### 42. Run Targeted Garbage Or `_blueprints` Candidate Pruning
+### 43. Run Targeted Garbage Or `_blueprints` Candidate Pruning
 
 Purpose: delete, retire, demote, or fence misleading rows and candidate
 destinations once the real dependency-tag and artifact destinations have been
@@ -486,8 +525,8 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 40 chooses garbage or candidate pruning, or artifact gathering exposes
-  pruning as the next highest-leverage move.
+- Domino 42 exposes garbage or candidate pruning as the next highest-leverage
+  move.
 
 Proof:
 
@@ -496,7 +535,7 @@ Proof:
 - Static scans show touched fake destinations no longer appear as live
   `_blueprints` ambiguity.
 
-### 43. Resume Authority Activation Projection Work
+### 44. Resume Authority Activation Projection Work
 
 Purpose: return to narrow projection, metadata pruning, and runner discovery
 only after the next real destinations and major false destinations stop

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_morphology_overlay_implementation_reads",
+  "title": "Prohibit Morphology Overlay Implementation Reads",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "overlay implementation reads in morphology non-contract step files",
+  "why": "Morphology implementations should not depend on overlay implementation internals.",
+  "remediate": null,
+  "message": "Do not read overlay implementation modules from morphology step implementations.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/pattern.md"
+    },
+    "patternName": "prohibit_morphology_overlay_implementation_reads"
+  }
+}
