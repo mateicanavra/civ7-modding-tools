@@ -53,7 +53,7 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `frames/BLUEPRINT-KIND-GATHERING-FRAME.md`: normative frame for affirming one
   constructible blueprint kind, then gathering bounded whole-rule authority
   into that kind while demoting non-fitting evidence.
-- `RULE-OPERATION-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
+- `RULE-OPERATION-KINDS.md`: mutability rules for `check`, `fix`, `generate`, and `migrate`, plus the reserved triage holding state.
 - `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.
 - `config.md`: human-readable operation model; not parsed as tool dispatch config.

@@ -60,10 +60,10 @@ current context that has not been accepted as a blueprint. It is transitional
 rule inventory, not final niche admission. `_self` may still appear as a
 manifest placement value, but it is no longer a physical blueprint directory.
 Category names are single-word universal purpose categories: `boundary`,
-`structure`, `contract`, `execution`, `artifact`, `quality`, and `policy`.
-Operation kinds are mutability classes: `check`, `fix`, `generate`, `migrate`,
-and `triage`. Category and operation kind live in manifest placement metadata,
-not path directories.
+`structure`, `contract`, `execution`, `output`, `quality`, and `policy`.
+Operation kinds are mutability classes: `check`, `fix`, `generate`, and
+`migrate`. Category and operation kind live in manifest placement metadata, not
+path directories.
 
 `_remainder/` is the physical lane for sorted-but-deferred packets after a
 remainder slice has reviewed them. It is visual debt, not a niche, blueprint,
@@ -107,7 +107,7 @@ narrower than areas such as `workspace`, `documentation`, `toolkit`,
 
 The packet folders under a blueprint are not the final anatomy of a blueprint
 definition. They are current gathered authority packets while final typed
-blueprint manifests and cascade semantics remain open. Category and artifact
+blueprint manifests and cascade semantics remain open. Category and operation
 kind are manifest facts for those packets.
 
 Affirmed blueprint examples include:
@@ -119,6 +119,7 @@ Affirmed blueprint examples include:
 - `blueprints/domain-operation`
 - `blueprints/mod-map`
 - `blueprints/dependency-tag`
+- `blueprints/artifact`
 
 Candidate blueprint-shaped examples include:
 
@@ -206,16 +207,28 @@ Categories are manifest placement values, not packet directories.
 
 The category model is defined in `SUBJECT-CATEGORIES.md`.
 
-### Artifact Kind
+### Operation Kind
 
 An operation kind answers what Habitat is allowed to do: read-only evaluation,
-repair, generation, migration, or triage. Operation kinds are manifest placement
-values, not packet directories. Mutability rules are defined in
+repair, generation, or migration. Operation kinds are manifest placement values,
+not packet directories. Mutability rules are defined in
 `RULE-OPERATION-KINDS.md`.
+
+### Artifact Blueprint
+
+`blueprints/artifact` is affirmed product blueprint authority for MapGen
+artifact values and contracts: stable IDs, schemas, write-once publish/read
+behavior, producer/consumer contracts, value-store semantics, and the narrow
+buffer exception.
+
+It is not a generic Habitat term. Do not use `artifact` for rule categories,
+operation kinds, support files, generated build output, or Habitat packet role
+files. `artifact:*` remains dependency-tag vocabulary when a rule governs
+dependency edge IDs rather than artifact values.
 
 ### Packet
 
-The leaf folders are current artifact packets. They are gathered enforceable or
+The leaf folders are current authority packets. They are gathered enforceable or
 executable units, not necessarily final blueprint internals. The path is current
 inventory placement. Rule identity, current placement facts, runner file
 references, and baseline references are authored in `rule.json` so the same

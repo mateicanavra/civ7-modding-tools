@@ -246,7 +246,7 @@ Use the smallest assertion or operation as the unit of analysis.
 | --- | --- | --- |
 | Source shape, file tree, import/export legality, public surface structure, package ownership, protected generated placement, boundary reach | Keep, consolidate, or refine as Habitat authority | `.habitat` |
 | Runtime behavior, command output, API behavior, validation semantics, state transition, retry/reconnect, telemetry, live Civ7 or FireTuner behavior, generated runtime output correctness, product acceptance | Keep package-local; rename or split only for clarity | owning package |
-| Build ordering, generated artifact prerequisites, cache/output dependencies, consumer-before-producer ordering | Encode in Nx target graph; Habitat may only check separate structural meaning | Nx/project metadata |
+| Build ordering, generated-output prerequisites, cache/output dependencies, consumer-before-producer ordering | Encode in Nx target graph; Habitat may only check separate structural meaning | Nx/project metadata |
 | Mutating repair of authored files | Admit as `fix` only with idempotence and write-scope proof, or keep out of default authority | `.habitat` operation |
 | Materialization of generated/scaffolded outputs | Admit as `generate` with declared inputs/outputs, or keep with the consuming package | generator owner |
 | Transition from one accepted authored shape to another | Admit as `migrate` with source shape, target shape, review boundary, and stop condition | migration owner |
