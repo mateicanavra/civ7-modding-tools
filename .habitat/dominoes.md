@@ -19,14 +19,16 @@ Use this source order when selecting or judging the next domino:
    slices after parent kinds have moved.
 6. `.habitat/AUTHORITY-AUTONOMOUS-DOMINO-LOOP.md` for repeated bounded
    dominoes whose destinations already exist.
-7. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
+7. `.habitat/frames/*.md` for reusable method frames selected by the current
+   domino.
+8. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
    `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
-8. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
+9. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
    as precedent and evidence, not as the next active selector.
-9. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
+10. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
    and fresh command evidence.
-10. Historical branch, PR, and session context as discovery material only.
+11. Historical branch, PR, and session context as discovery material only.
 
 The center of gravity has moved. Package-script cleanup is not the active
 driver anymore. Source-check retirement and mixed command-check extraction are
@@ -124,6 +126,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 31. Sort the Hydrology Remainder Pocket | The hydrology remainder was re-read after the domains-lane sort: two narrative/hydrology boundary rows moved to `.habitat/civ7/mapgen/domains/hydrology/rules/` as honest hydrology context authority, while the map-config key row stayed under `.habitat/civ7/mapgen/domains/hydrology/_remainder/` as map-authoring/public-config cleanup pressure needing a later owner or split. |
 | 32. Sort the Ecology Context Pocket | The ecology context pocket was re-read against `domain`, `domain-operation`, and recipe-stage authority: two rows stayed under `.habitat/civ7/mapgen/domains/ecology/rules/` as honest ecology context authority, while the ecology op-contract quality validator moved to `.habitat/civ7/mapgen/domains/ecology/_remainder/` as missing positive domain-operation quality governance and stale context cleanup pressure. |
 | 33. Sort the Standard-Recipe Context Pocket | The standard-recipe context pocket was re-read against `recipe`, `recipe-stage`, and `recipe-step` authority: all nine rows stayed under `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/` as honest standard-recipe context authority, with future split/generalization pressure named for manifest/runtime parity, public authoring surface, generated artifact parity, and tag-catalog naming. |
+| 34. Frame Niche Lane Shaping | `.habitat/frames/NICHE-LANE-SHAPING-FRAME.md` now governs parent niche `rules/` lanes that need honest child holding lanes before deeper movement. The pipeline parent lane is the first target for the method. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -282,7 +285,77 @@ into blueprint law.
 
 ## Remaining Dominoes
 
-### 34. Build Narrow Projection From Moved Authority
+### 35. Shape The Pipeline Child Lanes
+
+Purpose: remove the parent `.habitat/civ7/mapgen/pipeline/rules/` junk-drawer
+lane by shaping only the child holding lanes needed for its current direct
+rows, then moving those rows into the smallest honest visible lane.
+
+This is not a normal autonomous-loop slice. The autonomous loop requires final
+lanes to already be known; this domino uses the Niche Lane Shaping frame to
+authorize only the child holding lanes proved by this specific parent-lane
+pocket.
+
+Done Means:
+
+- `.habitat/frames/NICHE-LANE-SHAPING-FRAME.md` is used as the governing
+  method frame.
+- Every direct row under `.habitat/civ7/mapgen/pipeline/rules/` receives a
+  disposition.
+- Child lanes are created only when the current rows prove they are needed.
+- Rows move to child `rules/`, child `_remainder/`, an existing authority lane,
+  or remain under parent `pipeline/rules/` only when they truly govern the
+  parent pipeline niche.
+- The branch does not create new blueprints, capabilities, admission records,
+  or projection surfaces.
+
+Moves It Forward:
+
+- Inspect the nine direct pipeline rows as one parent-lane pocket.
+- Test the likely lane hypotheses: runtime authoring/execution purity,
+  contract/schema surface, cutover cleanup, standard-recipe context, and
+  existing affirmed blueprint authority.
+- Physically move packets, preserving rule identity and runtime behavior.
+- Record a disposition receipt that matches the final tree.
+- Stop if the rows require a new surface frame before honest movement.
+
+Launch Inventory:
+
+| Rule id | Start path | Runner evidence | Starting lane hypothesis |
+| --- | --- | --- | --- |
+| `prohibit_ambient_rng_in_authored_generation` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_ambient_rng_in_authored_generation` | `check.mjs` | runtime authoring / execution purity |
+| `prohibit_bare_value_export_all_from_contract_surfaces` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_bare_value_export_all_from_contract_surfaces` | `pattern.md` | contract/public-surface pressure |
+| `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | `check.mjs` | cutover cleanup |
+| `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | `pattern.md` | ecology/hydrology/placement cleanup or child context pressure |
+| `prohibit_empty_object_defaults_in_contract_schemas` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_empty_object_defaults_in_contract_schemas` | `pattern.md` | contract/schema pressure |
+| `prohibit_runtime_calls_to_runvalidated` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_calls_to_runvalidated` | `pattern.md` | runtime authoring / execution purity |
+| `prohibit_runtime_local_config_default_merging` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_local_config_default_merging` | `pattern.md` | runtime config normalization pressure |
+| `prohibit_runtime_validation_and_compiler_imports` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_validation_and_compiler_imports` | `pattern.md` | runtime authoring / execution purity |
+| `prohibit_wrapper_only_advanced_config` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_wrapper_only_advanced_config` | `pattern.md` | cutover or map/recipe config cleanup |
+
+Dependencies:
+
+- Niche Lane Shaping frame has landed.
+- Standard-recipe, domain, domain-operation, and domain-context slices have
+  already clarified nearby authority.
+
+Proof:
+
+- `git diff --check`
+- `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-authority-tree-pruning-frame/tools/habitat check`
+- `bun tools/habitat/bin/dev.ts check --rule <primary-rule-id> --json` for
+  every moved or retained primary row.
+- Focused selected-rule proof for moved rows.
+- Manifest path proof for moved `runner.files` and `artifacts.baseline`.
+- Static scan proving parent `pipeline/rules/` contains only rows explicitly
+  retained as parent-pipeline authority.
+- Use the concrete manifest path proof, parent-lane residue scan, and
+  stale-reference scan command shapes in
+  `.habitat/frames/NICHE-LANE-SHAPING-FRAME.md`.
+- Review pass for over-claimed ontology, stale references, and hidden
+  classification state.
+
+### 36. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -313,7 +386,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 35. Prune Transitional Packet Metadata For Moved Slices
+### 37. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -344,7 +417,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 36. Repeat Activation Slices
+### 38. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -375,7 +448,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 37. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 39. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.
