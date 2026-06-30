@@ -24,7 +24,7 @@ import { createStudioOperationRuntimePorts } from "../studio/engines";
 // `/api/*` REST handlers are RETIRED — every non-`/rpc` API path is a 404.
 //
 // Executed with `bun src/server/daemon/daemon.ts` (never under node). In DEV
-// (`dev:server`) it runs under `bun --conditions bun-source --watch`: the
+// (`serve-daemon`) it runs under `bun --conditions bun-source --watch`: the
 // custom opt-in `bun-source` export condition resolves `@civ7/studio-server`
 // to its TypeScript SOURCE (not built `dist`), so editing the server package
 // hot-reloads this daemon with no build step or manual bounce. The condition

@@ -116,9 +116,7 @@ require_cmd bun
 require_cmd curl
 require_cmd lsof
 require_cmd tmux
-if [[ "$RUN_BUILD" == "1" ]]; then
-  require_cmd nx
-fi
+require_cmd nx
 
 cd "$ROOT"
 
@@ -133,13 +131,13 @@ kill_port_listeners "$FRONTEND_PORT"
 kill_port_listeners "$DAEMON_PORT"
 
 echo "Starting MapGen Studio tmux session '$SESSION'..."
-# Daemon runs via `dev:server` (bun --conditions bun-source --watch): it resolves
-# @civ7/studio-server to SOURCE and hot-reloads on server-package edits — no dist
-# build/skew, no manual bounce. One source of truth for the dev daemon invocation.
-tmux new-session -d -s "$SESSION" -n daemon -c "$APP_DIR" \
-  "STUDIO_DAEMON_PORT='$DAEMON_PORT' bun run dev:server"
+# Daemon runs via the Habitat-owned Nx target, whose command includes
+# `bun --conditions bun-source --watch`: it resolves @civ7/studio-server to
+# SOURCE and hot-reloads on server-package edits.
+tmux new-session -d -s "$SESSION" -n daemon -c "$ROOT" \
+  "STUDIO_DAEMON_PORT='$DAEMON_PORT' nx run mapgen-studio:serve-daemon"
 tmux new-window -t "$SESSION" -n vite -c "$APP_DIR" \
-  "STUDIO_DEV_PORT='$FRONTEND_PORT' STUDIO_DEV_RPC_TARGET='$RPC_TARGET' bun run dev:frontend"
+  "STUDIO_DEV_PORT='$FRONTEND_PORT' STUDIO_DEV_RPC_TARGET='$RPC_TARGET' bun vite"
 
 wait_for_frontend
 
