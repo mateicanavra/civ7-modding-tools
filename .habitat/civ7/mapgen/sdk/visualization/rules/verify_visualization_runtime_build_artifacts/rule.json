@@ -3,7 +3,7 @@
   "id": "verify_visualization_runtime_build_artifacts",
   "title": "Verify Visualization Runtime Build Artifacts",
   "placement": {
-    "niche": "civ7/mapgen/visualization",
+    "niche": "civ7/mapgen/sdk/visualization",
     "blueprint": "_self",
     "category": "output"
   },
@@ -30,14 +30,14 @@
     }
   ],
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/visualization/rules/verify_visualization_runtime_build_artifacts/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "node",
     "files": {
-      "script": ".habitat/civ7/mapgen/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs"
+      "script": ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs"
     }
   }
 }

@@ -139,8 +139,8 @@ _None._
 | .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts | check-script | git; node:child_process; node:crypto; node:fs; node:path; node:url |
 | .habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh | check-script | bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts | check-script | git; node:child_process; node:fs; node:path; node:url |
+| .habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs | check-script | git; node:child_process; node:fs; node:path |
 | .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | bun --watch; bun src/server/daemon/daemon.ts; git; node:child_process; node:fs; node:path; node:url |
-| .habitat/civ7/mapgen/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs | check-script | git; node:child_process; node:fs; node:path |
 
 ## Unknown Or Unclassified Surfaces Requiring Follow-Up
 
@@ -198,11 +198,6 @@ _None._
 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/rule.json | rule-json |  |
 | .habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md | pattern | ../@mapgen/domain/placement; mods/; mods/mod-swooper-maps/src/maps/standard/recipe.ts |
 | .habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md | pattern | build; packages/mapgen-core/src/.; packages/mapgen-core/src/adapter/demo.ts |
-| .habitat/civ7/mapgen/core/rules/preserve_mapgen_core_runtime_neutrality/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md | apply-pattern | >; mods/; mods/mod-swooper-maps/src/domain/hydrology/ops/demo/strategies/default.ts |
-| .habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/pattern.md | pattern | >; rm; mods/ |
-| .habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh | check-script | bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality; mods/mod-swooper-maps; bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality |
 | .habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json | rule-json |  |
@@ -331,6 +326,13 @@ _None._
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/pattern.md | pattern | generate; mods/mod-swooper-maps/mod/src/recipes/standard/stages/placement/steps/placement/apply.ts; mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-resources/apply.ts |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md | pattern | build; packages/mapgen-core/src/.; packages/mapgen-core/src/adapter/demo.ts |
+| .habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md | apply-pattern | >; mods/; mods/mod-swooper-maps/src/domain/hydrology/ops/demo/strategies/default.ts |
+| .habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md | pattern | >; rm; mods/ |
+| .habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; Run `bun run --cwd mods/mod-swooper-maps viz:runtime-deps` to build the package-local runtime deps.; node:child_process |
+| .habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
@@ -347,8 +349,8 @@ _None._
 | .habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md | pattern | apps/mapgen-studio/src/server/daemon/daemon; apps/mapgen-studio/src/server/daemon/daemon.ts; apps/mapgen-studio/src/server/studio/context |
 | .habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; Run `bun run --cwd mods/mod-swooper-maps viz:runtime-deps` to build the package-local runtime deps.; node:child_process |
-| .habitat/civ7/mapgen/visualization/rules/verify_visualization_runtime_build_artifacts/rule.json | rule-json |  |
+| .habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/pattern.md | pattern | build; ./authoring/index.js; ./builders |
+| .habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/rule.json | rule-json |  |
 | .habitat/civ7/platform/_blueprints/civ7-adapter/enforce_adapter_only_base_standard_imports/pattern.md | pattern | apps/example/src/demo.ts; packages/.; packages/civ7-adapter/ |
 | .habitat/civ7/platform/_blueprints/civ7-adapter/enforce_adapter_only_base_standard_imports/rule.json | rule-json |  |
 | .habitat/civ7/platform/_blueprints/civ7-adapter/prohibit_adapter_local_legacy_generator_logic/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
@@ -365,8 +367,6 @@ _None._
 | .habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/rule.json | rule-json |  |
 | .habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/rule.json | rule-json |  |
-| .habitat/civ7/sdk/rules/require_explicit_mapgen_sdk_opt_in/pattern.md | pattern | build; ./authoring/index.js; ./builders |
-| .habitat/civ7/sdk/rules/require_explicit_mapgen_sdk_opt_in/rule.json | rule-json |  |
 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/operation.md | operation-note | generate |
 | .habitat/docs/_blueprints/docs-site/require_docs_site_root_inputs/rule.json | rule-json |  |
 | .habitat/docs/_blueprints/docs-site/require_docs_site_root_inputs/structure.toml | structure-spec |  |

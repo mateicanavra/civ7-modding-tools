@@ -3,7 +3,7 @@
   "id": "prohibit_runtime_helper_redeclarations",
   "title": "Prohibit Runtime Helper Redeclarations",
   "placement": {
-    "niche": "civ7/mapgen/core",
+    "niche": "civ7/mapgen/sdk/core",
     "blueprint": "_self",
     "category": "boundary"
   },
@@ -31,13 +31,13 @@
   ],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/pattern.md",
-      "applyPattern": ".habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
+      "pattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md",
+      "applyPattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
     },
     "patternName": "prohibit_runtime_helper_redeclarations"
   }
