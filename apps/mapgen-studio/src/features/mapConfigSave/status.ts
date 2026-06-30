@@ -95,3 +95,43 @@ export function updateMapConfigSaveDeployStatus(
     ...(patch.recoveryActions === undefined ? {} : { recoveryActions: [...patch.recoveryActions] }),
   };
 }
+
+/** A save/deploy operation is terminal once it is no longer `running`. */
+export function isSaveDeployTerminal(status: MapConfigSaveDeployStatus): boolean {
+  return status.status !== "running";
+}
+
+/**
+ * Project a terminal save/deploy status into the `{ ok, ... }` result shape the
+ * save handlers consume. `fallbackPath` is used when the status carries no path.
+ */
+export function saveDeployResultFromTerminalStatus(
+  status: MapConfigSaveDeployStatus,
+  fallbackPath?: string
+):
+  | {
+      ok: true;
+      path?: string;
+      deploy?: MapConfigSaveDeployStatus["deploy"];
+      saved?: boolean;
+      deployed?: boolean;
+    }
+  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string } {
+  const path = status.path ?? fallbackPath;
+  if (!status.ok || status.status === "failed") {
+    return {
+      ok: false,
+      error: status.error ?? "Save/deploy failed",
+      saved: status.saved,
+      deployed: status.deployed,
+      path,
+    };
+  }
+  return {
+    ok: true,
+    path,
+    deploy: status.deploy,
+    saved: status.saved,
+    deployed: status.deployed,
+  };
+}
