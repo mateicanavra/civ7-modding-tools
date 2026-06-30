@@ -188,6 +188,7 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- This effect synchronizes an external resource: when the runner is disabled it aborts any in-flight worker generation via `cancel()`. The setState inside `cancel` is incidental to that teardown and has no render-derivable equivalent, so this is a legitimate effect.
     if (!enabled) cancel();
   }, [enabled, cancel]);
 

@@ -25,6 +25,7 @@ const useThemeFromClass = (): "light" | "dark" => {
     const root = document.documentElement;
     const observer = new MutationObserver(() => setTheme(getTheme()));
     observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Vendor-ish theme primitive (shadcn sonner wrapper). This setState seeds the initial theme right after subscribing the MutationObserver — the read-initial-value half of an external-store subscription. Suppressed rather than rewritten per the vendor-component policy. Follow-up: replace effect+state with `useSyncExternalStore` (subscribe = observe the `.dark` class mutation; getSnapshot = read the class), which removes the effect and the setState entirely.
     setTheme(getTheme());
     return () => observer.disconnect();
   }, [getTheme]);

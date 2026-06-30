@@ -284,6 +284,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     renderAbortRef.current = controller;
 
     if (!manifest || !effectiveLayer) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- This effect orchestrates async render work (AbortController + renderDeckLayers). The synchronous setState here clears stale layers when there is no manifest/layer to render; clearing as part of an external-render-sync effect is legitimate and cannot be derived during render (the work is async).
       setResolvedLayers((prev) => (prev.length ? [] : prev));
       setLayerStats((prev) => (prev ? null : prev));
       return;
