@@ -6,11 +6,11 @@
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "pattern": 82,
+      "check-script": 33,
       "rule-json": 126,
+      "pattern": 82,
       "structure-spec": 8,
       "apply-pattern": 2,
-      "check-script": 33,
       "generate-script": 2,
       "operation-note": 3,
       "fix-script": 1,
@@ -21,10 +21,10 @@
       "habitat-cli-source": 124
     },
     "surfacesByRole": {
-      "policy_pattern": 84,
-      "runner_metadata": 126,
-      "structure_authority": 8,
       "command_check_executor": 33,
+      "runner_metadata": 126,
+      "policy_pattern": 84,
+      "structure_authority": 8,
       "operation_surface": 6,
       "workspace_entrypoint": 203,
       "toolkit_runner": 124
@@ -37,9 +37,9 @@
       "habitat": 124
     },
     "surfacesByBucket": {
-      "nx_ordering_tie": 106,
       "package_boundary_tie": 101,
       "unknown_invocation": 255,
+      "nx_ordering_tie": 106,
       "mutation_surface": 116,
       "package_invoked": 205,
       "direct_script_invoked": 3,
@@ -49,10 +49,10 @@
   },
   "executionAnatomy": {
     "roleCounts": {
-      "policy-predicate": 92,
-      "adapter": 126,
-      "transient-dependency": 102,
       "fixture-support": 13,
+      "adapter": 126,
+      "policy-predicate": 92,
+      "transient-dependency": 102,
       "entrypoint": 205,
       "runner-runtime": 124
     },
@@ -2098,12 +2098,12 @@
       ]
     },
     {
-      "target": "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+      "target": "../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
       "targetClass": "relative",
       "references": 2,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/check.mjs"
+        ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs"
       ]
     },
     {
@@ -7800,7 +7800,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/check.mjs"
+        ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs"
       ]
     },
     {
@@ -9484,6 +9484,108 @@
     }
   ],
   "unknownUnclassifiedSurfaces": [
+    {
+      "id": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs",
+      "path": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs",
+      "surfaceKind": "check-script",
+      "surfaceRole": "command_check_executor",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+          "node:path"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "packages/mapgen-core/src"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "node:path"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "import",
+            "value": "../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/mapgen-core/src",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "fixture-support"
+        ],
+        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "supportSignals": [
+          "references fixture/support path"
+        ],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json",
+      "path": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
     {
       "id": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
       "path": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
@@ -15584,108 +15686,6 @@
     {
       "id": ".habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/rule.json",
       "path": ".habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/check.mjs",
-      "path": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:path"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "packages/mapgen-core/src"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "fixture-support"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/rule.json",
-      "path": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -24784,6 +24784,108 @@
   ],
   "surfaces": [
     {
+      "id": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs",
+      "path": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs",
+      "surfaceKind": "check-script",
+      "surfaceRole": "command_check_executor",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+          "node:path"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "packages/mapgen-core/src"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "node:path"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "import",
+            "value": "../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/mapgen-core/src",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "fixture-support"
+        ],
+        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "supportSignals": [
+          "references fixture/support path"
+        ],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json",
+      "path": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
       "id": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
       "path": ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
       "surfaceKind": "pattern",
@@ -30883,108 +30985,6 @@
     {
       "id": ".habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/rule.json",
       "path": ".habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/check.mjs",
-      "path": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:path"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "packages/mapgen-core/src"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "fixture-support"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/rule.json",
-      "path": ".habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

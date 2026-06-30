@@ -10,11 +10,11 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | kind | count |
 | --- | --- |
-| pattern | 82 |
+| check-script | 33 |
 | rule-json | 126 |
+| pattern | 82 |
 | structure-spec | 8 |
 | apply-pattern | 2 |
-| check-script | 33 |
 | generate-script | 2 |
 | operation-note | 3 |
 | fix-script | 1 |
@@ -28,10 +28,10 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | role | count |
 | --- | --- |
-| policy_pattern | 84 |
-| runner_metadata | 126 |
-| structure_authority | 8 |
 | command_check_executor | 33 |
+| runner_metadata | 126 |
+| policy_pattern | 84 |
+| structure_authority | 8 |
 | operation_surface | 6 |
 | workspace_entrypoint | 203 |
 | toolkit_runner | 124 |
@@ -40,10 +40,10 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | anatomy role | surface count |
 | --- | --- |
-| policy-predicate | 92 |
-| adapter | 126 |
-| transient-dependency | 102 |
 | fixture-support | 13 |
+| adapter | 126 |
+| policy-predicate | 92 |
+| transient-dependency | 102 |
 | entrypoint | 205 |
 | runner-runtime | 124 |
 
@@ -82,9 +82,9 @@ _None._
 
 | bucket | count |
 | --- | --- |
-| nx_ordering_tie | 106 |
 | package_boundary_tie | 101 |
 | unknown_invocation | 255 |
+| nx_ordering_tie | 106 |
 | mutation_surface | 116 |
 | package_invoked | 205 |
 | direct_script_invoked | 3 |
@@ -146,6 +146,8 @@ _None._
 
 | path | kind | sample ties |
 | --- | --- | --- |
+| .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs | check-script | ../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../_support/execution/command-check/mapgen-static-check-lib.mjs |
+| .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json | rule-json |  |
 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md | pattern | ../../../../tags.js; ../../hydrology-hydrography/artifacts.js; mods/mod-swooper-maps/src/recipes/standard/stages/. |
 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json | rule-json |  |
 | .habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md | pattern | mods/mod-swooper-maps/src/domain/.; mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts; mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts |
@@ -252,8 +254,6 @@ _None._
 | .habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_runtime_continent_step_tokens/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/check.mjs | check-script | ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs |
 | .habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/check.mjs | check-script | ../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs |
-| .habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md | pattern | generate; rm; generatedConfig |
 | .habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build; ../contract.js; ./builders |

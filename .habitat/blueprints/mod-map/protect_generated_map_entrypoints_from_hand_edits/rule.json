@@ -3,7 +3,7 @@
   "id": "protect_generated_map_entrypoints_from_hand_edits",
   "title": "Protect Generated Map Entrypoints From Hand Edits",
   "placement": {
-    "niche": "civ7/mapgen/map-output",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "mod-map",
     "category": "output"
   },

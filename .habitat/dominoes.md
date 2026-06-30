@@ -137,6 +137,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 42. Establish And Sweep The Artifact Blueprint Kind | `artifact` was affirmed as the immutable MapGen data-product blueprint kind and `.habitat/blueprints/artifact/` was created. The 24 artifact-vocabulary manifest rows were re-read: no existing row moved to live artifact authority, because each whole predicate was dependency-tag, domain, domain-operation, mod-map, standard-recipe context, Studio context, build-output, or unresolved projection/artifact debt. |
 | 43. Prune SDK/Core/Visualization False Blueprint Pockets | Source inspection confirmed Civ7 SDK, MapGen core, and MapGen visualization are separate package owners rather than an SDK parent with core/viz children. Four `_blueprints` packets were demoted into honest niche `rules/`: two MapGen core library rules, one Civ7 SDK mapgen subpath rule, and one MapGen visualization build-currentness rule. |
 | 44. Correct SDK Taxonomy Lanes | The Civ7 modding SDK niche was renamed to `civ7/mod-sdk`, while MapGen core and visualization moved under `civ7/mapgen/sdk/{core,visualization}` as MapGen SDK package-surface lanes. The correction preserves package ownership without making the mod SDK the owner of MapGen internals. |
+| 45. Close The Map-Output Niche | The stale `civ7/mapgen/map-output` niche was removed. `prohibit_realized_map_artifact_tags` moved into `blueprints/artifact` as artifact ID namespace authority, while the three mod-map generated/shipped output rows kept `blueprint=mod-map` and were contextualized by `civ7/mapgen/pipeline/swooper-maps-standard-recipe` instead of a renamed catch-all output niche. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -700,7 +701,45 @@ Residual scope:
   their manifest niche should be reassessed separately from the physical
   remainder row.
 
-### 45. Resume Authority Activation Projection Work
+## Domino 45 Disposition Receipt
+
+This receipt closes the stale `map-output` lane after the SDK taxonomy
+correction. It runs `PROJECTION-CONTRACT-SURFACE-FRAME.md` against the last
+physical map-output remainder and updates the three remaining `mod-map`
+manifests that still claimed `civ7/mapgen/map-output`.
+
+Source-backed structure:
+
+- `artifact:map.realized.*` is not a live projection surface. The canonical
+  Phase 2 projection spec says `artifact:map.*` may describe stable projection
+  or observation data products, `effect:map.*` describes execution guarantees,
+  and `artifact:map.realized.*` must not be introduced.
+- The realized namespace guard therefore belongs to the `artifact` blueprint
+  as artifact ID namespace authority. No `projection-contract`,
+  `artifact-contract`, `map-output`, or `map-projection` destination was
+  created.
+- The three `mod-map` rows still belong to the `mod-map` blueprint, but their
+  stale `map-output` niche metadata did not justify a replacement
+  `mod-integration` niche. The current predicates are tied to the Swooper Maps
+  standard recipe lane: canonical map configs, `STANDARD_STAGES`, generated map
+  entrypoints, and shipped catalog output.
+
+Moved or recontextualized packets:
+
+| Rule | From | To | Reason |
+| --- | --- | --- | --- |
+| `prohibit_realized_map_artifact_tags` | `civ7/mapgen/map-output/_remainder` | `blueprints/artifact` | The whole predicate governs an invalid artifact ID namespace. Positive projection semantics already live in the Phase 2 projection spec, so this does not need a new projection surface. |
+| `block_studio_config_leakage_into_shipped_catalog` | `placement.niche: civ7/mapgen/map-output` | `placement.niche: civ7/mapgen/pipeline/swooper-maps-standard-recipe` | The guard protects generated/shipped catalog output for the current Swooper Maps standard recipe lane; it is not a standalone output niche or mod-integration area. |
+| `protect_generated_map_entrypoints_from_hand_edits` | `placement.niche: civ7/mapgen/map-output` | `placement.niche: civ7/mapgen/pipeline/swooper-maps-standard-recipe` | Generated map entrypoints are produced from the current Swooper map config and standard recipe surface, while the reusable constructible kind remains `mod-map`. |
+| `validate_generated_map_entrypoint_contracts` | `placement.niche: civ7/mapgen/map-output` | `placement.niche: civ7/mapgen/pipeline/swooper-maps-standard-recipe` | The executable imports `STANDARD_STAGES`, validates canonical map configs, and checks generated entrypoints; that is current standard-recipe context, not a generic output bucket. |
+
+Residual scope:
+
+- The physical `.habitat/civ7/mapgen/map-output/` lane is gone.
+- Historical domino receipts may still mention map-output as the prior
+  provisional lane; live manifests and current authority docs no longer do.
+
+### 46. Resume Authority Activation Projection Work
 
 Purpose: return to narrow projection, metadata pruning, and runner discovery
 only after the next real destinations and major false destinations stop

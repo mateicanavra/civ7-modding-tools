@@ -1,6 +1,6 @@
 # Artifact Blueprint
 
-Status: affirmed constructible kind, no admitted live rule packets yet
+Status: affirmed constructible kind, with admitted namespace authority
 
 Owner: DRA Habitat authority-tree workstream
 
@@ -28,8 +28,14 @@ Current source-backed anchors:
 - `packages/mapgen-core/src/core/types.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/**/artifacts.ts`
 
-The current bounded artifact-vocabulary sweep found no existing Habitat rule
-packet whose whole predicate can be admitted as live artifact blueprint
-authority without a split, rewrite, or semantic inversion. Future artifact
-rules should be admitted here only when the whole rule applies to every valid
-artifact value or contract.
+The initial bounded artifact-vocabulary sweep found no existing Habitat rule
+packet whose whole predicate could be admitted as live artifact blueprint
+authority without a split, rewrite, or semantic inversion. Domino 45 later
+reprocessed the realized-map projection remainder and admitted the
+`artifact:map.realized.*` namespace ban as artifact ID authority after source
+evidence showed the canonical projection contract already provides the positive
+model: execution completion is represented by `effect:map.*`, while
+engine-derived observations use explicitly named `artifact:map.*` layers.
+
+Future artifact rules should be admitted here only when the whole rule applies
+to every valid artifact value or contract.

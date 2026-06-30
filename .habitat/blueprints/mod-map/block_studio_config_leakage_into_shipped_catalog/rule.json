@@ -3,7 +3,7 @@
   "id": "block_studio_config_leakage_into_shipped_catalog",
   "title": "Block Studio Config Leakage Into Shipped Catalog",
   "placement": {
-    "niche": "civ7/mapgen/map-output",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "mod-map",
     "category": "output"
   },

@@ -3,7 +3,7 @@
   "id": "validate_generated_map_entrypoint_contracts",
   "title": "Validate Generated Map Entrypoint Contracts",
   "placement": {
-    "niche": "civ7/mapgen/map-output",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "mod-map",
     "category": "output"
   },

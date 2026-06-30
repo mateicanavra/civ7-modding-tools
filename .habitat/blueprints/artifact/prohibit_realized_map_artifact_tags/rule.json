@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_realized_map_artifact_tags",
+  "title": "Prohibit Realized Map Artifact Tags",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "artifact",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "realized-map artifact namespace claims across mod and core source",
+  "why": "MapGen artifact IDs may describe stable projection or observation data products, but execution completion is represented by effect tags and engine-derived observations use explicitly named artifact layers rather than an artifact:map.realized.* namespace.",
+  "remediate": null,
+  "message": "Use effect:map.* execution guarantees or explicitly named artifact:map.* observation layers instead of artifact:map.realized.*.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/**/*.ts", "packages/mapgen-core/src/**/*.ts"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs"
+    }
+  }
+}

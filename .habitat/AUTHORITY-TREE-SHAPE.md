@@ -103,7 +103,7 @@ fix, or migrate the affirmed thing being authored.
 
 Blueprints are intentionally broader than individual rule subjects, but
 narrower than areas such as `workspace`, `documentation`, `toolkit`,
-`platform`, `resources`, `domain`, `pipeline`, `map-output`, or `studio`.
+`platform`, `resources`, `domain`, `pipeline`, or `studio`.
 
 The packet folders under a blueprint are not the final anatomy of a blueprint
 definition. They are current gathered authority packets while final typed
