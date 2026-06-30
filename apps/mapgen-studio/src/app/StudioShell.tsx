@@ -1,15 +1,12 @@
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getCiv7MapSizePreset } from "../features/browserRunner/mapSizes";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { requestCiv7Autoplay } from "../features/civ7Setup/api";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
 import { formatCiv7StudioSeedError, parseCiv7StudioSeed } from "../features/civ7Setup/seedPolicy";
 import {
-  type Civ7StudioSetupConfig,
   clearStudioSetupSavedConfig,
   getLocalPlayerSetup,
-  normalizeStudioSetupConfig,
   optionRowsFromParameter,
   studioSetupConfigFromSavedConfigFile,
   studioSetupDriftsFromSavedConfig,
@@ -20,8 +17,7 @@ import {
   mergeSelectOptions,
   setupCatalogOptions,
 } from "../features/civ7Setup/setupOptions";
-import { buildDefaultConfig, isPlainObject } from "../features/configOverrides/configBuilders";
-import { buildLiveRuntimeSuggestionRecords } from "../features/liveRuntime/model";
+import { buildDefaultConfig } from "../features/configOverrides/configBuilders";
 import {
   PresetConfirmDialog,
   PresetErrorDialog,
@@ -29,19 +25,8 @@ import {
 } from "../features/presets/PresetDialogs";
 import { type PresetKey, parsePresetKey } from "../features/presets/types";
 import { PipelineStage } from "../features/recipeDag/PipelineStage";
-import { runCurrentConfigInGame } from "../features/runInGame/api";
-import {
-  buildRunInGameClientSnapshot,
-  buildRunInGameFingerprint,
-  buildRunInGameSourceSnapshot,
-  type RunInGameCurrentRelation,
-  relationForRunInGameOperation,
-} from "../features/runInGame/clientState";
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
-import {
-  formatRunInGameDiagnostics,
-  runInGameRequiresProcessRestart,
-} from "../features/runInGame/status";
+import { runInGameRequiresProcessRestart } from "../features/runInGame/status";
 import { liveControlPort } from "../lib/control/liveControlPort";
 import { orpcClient } from "../lib/orpc";
 import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
@@ -64,7 +49,7 @@ import { useDeckAutofit } from "./hooks/useDeckAutofit";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useLiveRuntime } from "./hooks/useLiveRuntime";
 import { usePresetLifecycle } from "./hooks/usePresetLifecycle";
-import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
+import { useRunInGame } from "./hooks/useRunInGame";
 import { useSaveDeploy } from "./hooks/useSaveDeploy";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
 import { useStudioEvents } from "./hooks/useStudioEvents";
@@ -455,27 +440,44 @@ export function StudioShell(props: StudioShellProps) {
       : "disposable";
   }, [lastSaveDeployConfig, pipelineConfig, recipeSettings.preset, resolvePreset]);
 
-  const runInGameCurrentFingerprint = useMemo(
-    () =>
-      buildRunInGameFingerprint({
-        recipeSettings,
-        worldSettings,
-        pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
-        setupConfig,
-        materializationMode: runInGameMaterializationMode,
-      }),
-    [pipelineConfig, recipeSettings, runInGameMaterializationMode, setupConfig, worldSettings]
-  );
-
-  const runInGameCurrentRelation = useMemo<RunInGameCurrentRelation>(
-    () =>
-      relationForRunInGameOperation({
-        status: runInGameOperation,
-        snapshot: runInGameSnapshot,
-        currentFingerprint: runInGameCurrentFingerprint,
-      }),
-    [runInGameCurrentFingerprint, runInGameOperation, runInGameSnapshot]
-  );
+  // Run-in-game cluster (slice 2.11): the current fingerprint + relation memos,
+  // the launch + sync-back + diagnostics handlers, and the run-in-game terminal
+  // toast. Initialized AFTER `useLiveRuntime` and `useSaveDeploy` (§5): adoption
+  // needs both op setters, and sync-back reads the live-runtime outputs. The
+  // host-computed `provedRunInGameSource` + `runInGameMaterializationMode`
+  // (cycle break, §7.6) and the preset contracts (`resolvePreset`,
+  // `applyAuthoringSnapshot`) are threaded IN. `displayedPresetOptions`,
+  // `studioMatchesProvedLiveSource`, and `liveGameStudioRelation` stay host.
+  const {
+    runInGameCurrentRelation,
+    handleRunInGame,
+    syncStudioFromLiveGame,
+    copyRunInGameDiagnostics,
+  } = useRunInGame({
+    recipeSettings,
+    worldSettings,
+    pipelineConfig,
+    setupConfig,
+    setRecipeSettings,
+    setSetupConfig,
+    runInGameMaterializationMode,
+    provedRunInGameSource,
+    liveRuntime,
+    liveRuntimeSuggestions,
+    resolvePreset,
+    applyAuthoringSnapshot,
+    runInGameOperation,
+    setRunInGameOperation,
+    runInGameRunning,
+    saveDeployRunning,
+    browserRunning,
+    runInGameSnapshot,
+    setRunInGameSnapshot,
+    setLastRunInGameSource,
+    lastRunInGameToastRef,
+    setLocalError,
+    toast,
+  });
 
   const liveGameStudioRelation = useMemo<"current" | "stale" | "unknown">(() => {
     if (liveRuntime.status !== "ok") return "unknown";
@@ -674,250 +676,6 @@ export function StudioShell(props: StudioShellProps) {
     clearLocalError: clearLocalErrorIfCurrent,
   });
 
-  useRunInGameTerminalToast({
-    runInGameOperation,
-    lastRunInGameToastRef,
-    toast,
-  });
-
-  const handleRunInGame = useCallback(
-    async (options?: { restartCivProcess?: boolean }) => {
-      // Busy gate must never be silent — a click that does nothing is
-      // indistinguishable from a broken launch path.
-      if (runInGameRunning || saveDeployRunning) {
-        toast(
-          runInGameRunning
-            ? "Run in Game is already running — check the status chip in the Game bar."
-            : "Save & Deploy is in progress; wait for it to finish before launching.",
-          { variant: "info" }
-        );
-        return;
-      }
-      setLocalError(null);
-      const seedPolicy = parseCiv7StudioSeed(recipeSettings.seed);
-      if (!seedPolicy.ok) {
-        const message = formatCiv7StudioSeedError(seedPolicy);
-        setLocalError(message);
-        toast(message, { variant: "error" });
-        return;
-      }
-      const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
-      const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-      const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      const selectedConfig = resolved
-        ? {
-            id: resolved.id,
-            label: resolved.label,
-            description: resolved.description,
-            sourcePath: resolved.sourcePath,
-            sortIndex: resolved.sortIndex,
-            latitudeBounds: resolved.latitudeBounds,
-          }
-        : undefined;
-      const result = await runCurrentConfigInGame({
-        recipeId: "mod-swooper-maps/standard",
-        seed: recipeSettings.seed,
-        mapSize: mapSize.id,
-        playerCount: worldSettings.playerCount,
-        resources: worldSettings.resources,
-        setupConfig,
-        materializationMode: runInGameMaterializationMode,
-        restartCivProcess: options?.restartCivProcess,
-        selectedConfig,
-        config: sanitized,
-        sourceSnapshot: {
-          recipeSettings,
-          worldSettings,
-          pipelineConfig: sanitized,
-          setupConfig: normalizeStudioSetupConfig(setupConfig),
-          materializationMode: runInGameMaterializationMode,
-          selectedConfig,
-        },
-      });
-      if (!("requestId" in result)) {
-        toast(`Run in Game failed: ${result.error}`, { variant: "error" });
-        setRunInGameOperation({
-          ok: false,
-          requestId: `studio-run-in-game-client-error-${Date.now()}`,
-          phase: "failed",
-          status: "failed",
-          startedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          completedPhases: [],
-          error: result.error,
-          details: result.details,
-        });
-        return;
-      }
-      lastRunInGameToastRef.current = null;
-      setRunInGameOperation(result);
-      const snapshot = buildRunInGameClientSnapshot({
-        requestId: result.requestId,
-        recipeSettings,
-        worldSettings,
-        pipelineConfig: sanitized,
-        setupConfig,
-        materializationMode: runInGameMaterializationMode,
-      });
-      setRunInGameSnapshot(snapshot);
-      const sourceSnapshot = buildRunInGameSourceSnapshot({
-        requestId: result.requestId,
-        recipeSettings,
-        worldSettings,
-        pipelineConfig: sanitized,
-        setupConfig,
-        materializationMode: runInGameMaterializationMode,
-        selectedConfig,
-      });
-      setLastRunInGameSource(sourceSnapshot);
-      toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, {
-        variant: "info",
-      });
-    },
-    [
-      pipelineConfig,
-      recipeSettings.preset,
-      recipeSettings,
-      recipeSettings.seed,
-      resolvePreset,
-      runInGameMaterializationMode,
-      runInGameRunning,
-      saveDeployRunning,
-      setLastRunInGameSource,
-      setRunInGameSnapshot,
-      setupConfig,
-      toast,
-      worldSettings,
-      worldSettings.mapSize,
-      worldSettings.playerCount,
-      worldSettings.resources,
-    ]
-  );
-
-  const syncStudioFromLiveGame = useCallback(() => {
-    if (liveRuntime.status !== "ok") return;
-    if (browserRunning || runInGameRunning || saveDeployRunning) {
-      toast("Finish the current Studio operation before syncing from the live game.", {
-        variant: "info",
-      });
-      return;
-    }
-    const currentSnapshotSuggestions = liveRuntimeSuggestions.filter(
-      (record) =>
-        record.applyPath === "visible-studio-control" &&
-        record.sourceSnapshotId !== undefined &&
-        record.sourceSnapshotId === liveRuntime.snapshotId
-    );
-    const seedSuggestion = currentSnapshotSuggestions.find(
-      (record) => record.affectedConfigPath === "recipeSettings.seed"
-    );
-    const setupSuggestion = currentSnapshotSuggestions.find(
-      (record) => record.affectedConfigPath === "setupConfig"
-    );
-    const applySuggestedSeed = (value: unknown, source: string): boolean => {
-      const parsedSeed = parseCiv7StudioSeed(value);
-      if (!parsedSeed.ok) {
-        toast(`${source} seed ignored: ${formatCiv7StudioSeedError(parsedSeed)}`, {
-          variant: "info",
-        });
-        return false;
-      }
-      setRecipeSettings((prev) => ({ ...prev, seed: String(parsedSeed.value) }));
-      return true;
-    };
-    const applySuggestedSetup = (value: unknown): boolean => {
-      if (!isPlainObject(value)) return false;
-      setSetupConfig(normalizeStudioSetupConfig(value as Civ7StudioSetupConfig));
-      return true;
-    };
-
-    if (!provedRunInGameSource) {
-      if (currentSnapshotSuggestions.length === 0) {
-        toast("Live game suggestions are unavailable; wait for a fresh keyed live snapshot.", {
-          variant: "error",
-        });
-        return;
-      }
-      const didApplySeed = seedSuggestion
-        ? applySuggestedSeed(seedSuggestion.value, "Live runtime suggestion")
-        : false;
-      const didApplySetup = setupSuggestion ? applySuggestedSetup(setupSuggestion.value) : false;
-      if (!didApplySeed && !didApplySetup) {
-        toast("Live game suggestions did not include an applicable Studio seed or setup change.", {
-          variant: "error",
-        });
-        return;
-      }
-      toast(
-        didApplySetup
-          ? "Live runtime suggestion applied to Studio setup."
-          : "Live runtime seed suggestion applied.",
-        {
-          variant: "success",
-        }
-      );
-      return;
-    }
-    const liveSeed =
-      liveRuntime.seed === undefined
-        ? provedRunInGameSource.recipeSettings.seed
-        : String(liveRuntime.seed);
-    if (liveSeed !== provedRunInGameSource.recipeSettings.seed) {
-      toast("Live game seed no longer matches the last proved Studio run.", { variant: "error" });
-      return;
-    }
-    const provedSuggestions = buildLiveRuntimeSuggestionRecords({
-      sourceSnapshotId: liveRuntime.snapshotId ?? `proved:${provedRunInGameSource.requestId}`,
-      seed: Number(provedRunInGameSource.recipeSettings.seed),
-      setupConfig: provedRunInGameSource.setupConfig,
-      provedStudioRun: true,
-    });
-    if (provedSuggestions.length === 0) {
-      toast("The proved Studio run did not include an applicable restore suggestion.", {
-        variant: "error",
-      });
-      return;
-    }
-    const durablePresetKey =
-      provedRunInGameSource.materializationMode === "durable" &&
-      provedRunInGameSource.selectedConfig?.id
-        ? (`builtin:${provedRunInGameSource.selectedConfig.id}` as PresetKey)
-        : null;
-    const nextPreset =
-      durablePresetKey && resolvePreset(durablePresetKey) ? durablePresetKey : LIVE_GAME_PRESET_KEY;
-
-    applyAuthoringSnapshot({
-      key: nextPreset,
-      worldSettings: provedRunInGameSource.worldSettings,
-      pipelineConfig: provedRunInGameSource.pipelineConfig,
-      setupConfig: provedRunInGameSource.setupConfig,
-      recipeSettings: {
-        ...provedRunInGameSource.recipeSettings,
-        seed: liveSeed,
-        preset: nextPreset,
-      },
-    });
-    toast(
-      nextPreset === LIVE_GAME_PRESET_KEY
-        ? "Studio synced to live game config"
-        : "Studio synced to live game preset",
-      {
-        variant: "success",
-      }
-    );
-  }, [
-    browserRunning,
-    liveRuntime.seed,
-    liveRuntime.snapshotId,
-    liveRuntime.status,
-    liveRuntimeSuggestions,
-    provedRunInGameSource,
-    resolvePreset,
-    runInGameRunning,
-    saveDeployRunning,
-    toast,
-  ]);
-
   const handleToggleAutoplay = useCallback(async () => {
     if (autoplayActionRunning) {
       toast("Autoplay request is already in flight.", { variant: "info" });
@@ -1005,19 +763,6 @@ export function StudioShell(props: StudioShellProps) {
       setExploreActionRunning(false);
     }
   }, [browserRunning, exploreActionRunning, runInGameRunning, saveDeployRunning, toast]);
-
-  const copyRunInGameDiagnostics = useCallback(async () => {
-    if (!runInGameOperation) return;
-    try {
-      await navigator.clipboard.writeText(formatRunInGameDiagnostics(runInGameOperation));
-      toast("Run in Game diagnostics copied", { variant: "info" });
-    } catch (err) {
-      toast(
-        `Could not copy diagnostics: ${err instanceof Error ? err.message : "clipboard unavailable"}`,
-        { variant: "error" }
-      );
-    }
-  }, [runInGameOperation, toast]);
 
   const gameOperationBusyLabel = studioBusyGateMessage({
     subject: "Game controls",

@@ -425,6 +425,14 @@ describe("Studio event operation adoption", () => {
       join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
       "utf8"
     );
+    // `handleRunInGame` (which records the session-only snapshots) moved into
+    // `useRunInGame` (slice 2.11); the snapshot-write assertions are pinned against
+    // that hook's source. The host still owns the store-read declarations + the
+    // "session-only UI state" comment.
+    const runInGameHook = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useRunInGame.ts"),
+      "utf8"
+    );
     const clientState = readFileSync(
       join(repoRoot, "apps/mapgen-studio/src/features/runInGame/clientState.ts"),
       "utf8"
@@ -437,8 +445,8 @@ describe("Studio event operation adoption", () => {
     expect(runStore).toMatch(/session-only aids/);
     expect(runStore).not.toMatch(/localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\(/);
 
-    expect(studioShell).toContain("setRunInGameSnapshot(snapshot)");
-    expect(studioShell).toContain("setLastRunInGameSource(sourceSnapshot)");
+    expect(runInGameHook).toContain("setRunInGameSnapshot(snapshot)");
+    expect(runInGameHook).toContain("setLastRunInGameSource(sourceSnapshot)");
     expect(studioShell).toMatch(/session-only UI state/);
     expect(studioShell).not.toMatch(
       /runInGameSnapshot[\s\S]{0,240}(?:localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\()|lastRunInGameSource[\s\S]{0,240}(?:localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\()/
