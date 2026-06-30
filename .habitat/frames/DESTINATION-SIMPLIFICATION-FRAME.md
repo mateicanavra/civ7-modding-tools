@@ -34,9 +34,9 @@ In scope:
 - Real blueprint destinations that should now be admitted or gathered.
 - Candidate destination merges that reduce state space.
 - Explicit not-blueprint calls for surfaces that should not become ontology.
-- The next ordering decision: dependency-tag first, then artifact, garbage, or
-  targeted `_blueprints` pruning depending on what the dependency-tag slice
-  reveals.
+- The next ordering decision after dependency-tag gathering: artifact,
+  garbage, or targeted `_blueprints` pruning depending on what the changed
+  tree reveals.
 
 Out of scope:
 
@@ -149,9 +149,9 @@ Hard core:
    `effect:*` are tag kinds under it, not separate blueprint destinations.
 3. `config-surface`, `adapter-boundary`, generic `projection`, and
    `domain-operation-strategy` are not blueprints now.
-4. Dependency-tag gathering is the next move because it clarifies the edge
-   semantics that otherwise make artifact, effect, projection, and config rows
-   look more tangled than they are.
+4. Dependency-tag gathering was the correct first move because it clarified
+   edge semantics that otherwise made artifact, effect, projection, and config
+   rows look more tangled than they were.
 5. After dependency-tag, the next branch is selected by the changed tree:
    artifact gathering if artifact-value/schema/publication rows become clear,
    otherwise targeted garbage or `_blueprints` pruning.
@@ -225,7 +225,7 @@ owner, or a candidate destination is visibly demoted out of `_blueprints`.
 
 ## Immediate Domino Sequence
 
-### Next: Dependency Tag Blueprint Gathering
+### Landed: Dependency Tag Blueprint Gathering
 
 Affirm `.habitat/blueprints/dependency-tag/` and gather whole-rule authority
 about dependency tag IDs, tag prefixes, tag registries, `requires`/`provides`,

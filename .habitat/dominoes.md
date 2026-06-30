@@ -131,6 +131,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 36. Gather the Mod-Map Blueprint Kind | `mod-map` was affirmed as the map-producing mod variant kind, with Swooper Maps as the current concrete instance. Generated entrypoint and shipped catalog rows moved to `.habitat/blueprints/mod-map/`; projection and placement rows moved to `.habitat/civ7/mapgen/map-output/_remainder/` instead of becoming sibling blueprints by label affinity. |
 | 37. Reclaim Projection/Placement Remainders | The map-output projection/placement remainder was re-read with the Remainder Reclamation frame: three exact standard-recipe projection/placement rows and one foundation projection adjacent row moved to `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/`; the broad physics-to-map contract seam stayed under `.habitat/civ7/mapgen/map-output/_remainder/` as future split or projection-surface pressure. No `recipe-step`, `map-projection`, or `placement-outcome` authority was invented. |
 | 38. Frame Or Split The Projection Contract Remainder | The retained broad projection contract row was behavior-preservingly split: physics-stage contract leakage and map-effect naming moved to the standard-recipe context, while the realized-map artifact namespace check stayed under map-output `_remainder` with `PROJECTION-CONTRACT-SURFACE-FRAME.md` preserved as surface evidence instead of the next active domino. |
+| 39. Gather The Dependency-Tag Blueprint Kind | `dependency-tag` was affirmed as the constructible/governable kind for registered dependency-edge IDs. The whole-rule typed `requires`/`provides` constant guard moved to `.habitat/blueprints/dependency-tag/`; touched effect-tag, tag-catalog, projection-contract, config-surface, and artifact-contract labels were rejected as sibling blueprints for this slice, while context/projection/config/artifact-value rows stayed in their honest lanes. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -377,54 +378,25 @@ shows what was reclaimed and what still needs a new surface frame.
 | `require_standard_recipe_map_effect_name_suffixes` | `.habitat/civ7/mapgen/map-output/_remainder/preserve_physics_to_map_projection_contracts` | exact standard tag-contract file; script proof; tag-catalog naming predicate | honest standard-recipe context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes` | The predicate governs current standard recipe `effect:map.*` suffix families in `tag-contracts.ts`. It is tag-catalog context authority, not `mod-map` output authority and not every valid recipe step. | selected-rule proof passed; path refs exist | Revisit only if map effect tag naming becomes part of a broader projection contract surface. |
 | `prohibit_realized_map_artifact_tags` | `.habitat/civ7/mapgen/map-output/_remainder/preserve_physics_to_map_projection_contracts` | scans all mod source and `packages/mapgen-core/src`; high cross-source boundary signal | retained `_remainder` with frame | `.habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags` | The predicate forbids `artifact:map.realized.` across pure MapGen and mod source. No existing owner whole-fits that truth/projection boundary, so it stays visible debt rather than being smuggled into `recipe-step`, standard-recipe context, or `mod-map`. | selected-rule proof passed; path refs exist; baseline-integrity blocked by missing base registry `921075e9c` | Run `.habitat/frames/PROJECTION-CONTRACT-SURFACE-FRAME.md` to decide whether a narrow projection contract surface exists or this row becomes garbage-collection pressure. |
 
-## Remaining Dominoes
+## Domino 39 Disposition Receipt
 
-### 39. Gather The Dependency-Tag Blueprint Kind
+This table is a receipt for physical sorting, not a second authority surface.
+`dependency-tag` is now an affirmed blueprint lane for MapGen dependency-edge
+IDs. The slice moved only the row whose whole predicate governs dependency-tag
+usage in `requires` and `provides`; touched rows that merely mention tags stay
+in their current lanes until a later artifact, projection, config, or cleanup
+slice can own them honestly.
 
-Purpose: admit the real dependency-tag kind before artifact gathering so
-artifact, field, and effect edge semantics do not keep masquerading as
-separate blueprint or projection destinations.
-
-Done Means:
-
-- `.habitat/blueprints/dependency-tag/` exists as affirmed blueprint authority.
-- Whole-rule rows about dependency tag IDs, stable prefixes, tag registries,
-  `requires`, `provides`, and effect gating move there when they fit the whole
-  dependency-tag predicate.
-- `artifact:*`, `field:*`, and `effect:*` are treated as tag kinds under
-  `dependency-tag`, not as sibling blueprint destinations.
-- Touched sibling labels such as `effect-tag`, `tag-catalog`,
-  `projection-contract`, and `config-surface` are merged, rejected, demoted, or
-  explicitly excluded instead of becoming accidental blueprints.
-- Artifact value, schema, publish/read, and immutable store rules stay out of
-  dependency-tag unless their whole predicate is tag governance.
-
-Moves It Forward:
-
-- Use `.habitat/frames/DESTINATION-SIMPLIFICATION-FRAME.md` and
-  `.habitat/frames/BLUEPRINT-KIND-GATHERING-FRAME.md`.
-- Start from architecture-backed tag evidence in
-  `SPEC-architecture-overview.md`,
-  `DEPENDENCY-IDS-AND-REGISTRIES.md`, and
-  `packages/mapgen-core/src/engine/tags.ts`.
-- Inspect current `_remainder`, `_blueprints`, and standard-recipe/context rows
-  only where they mention tag prefixes, tag registries, `requires`,
-  `provides`, or effect gating.
-- Preserve current runtime behavior and rule IDs.
-
-Dependencies:
-
-- Destination Simplification frame is recorded.
-- Blueprint Kind Gathering frame includes the sibling/touched-row pass.
-
-Proof:
-
-- Focused rule checks pass for moved rows.
-- Manifest path proof shows moved runner and baseline references exist.
-- Static scans show touched rows do not leave accidental `effect-tag`,
-  `tag-catalog`, `projection-contract`, or `config-surface` blueprint claims.
-- The final receipt distinguishes dependency-tag authority from artifact
-  authority and garbage pressure.
+| Rule id | Start path | Signals | Bucket | Target path | Whole-rule reason | Proof run | Next trigger |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `require_typed_dependency_and_effect_tag_constants` | `.habitat/blueprints/recipe-step/require_typed_dependency_and_effect_tag_constants` | `requires`/`provides`; string literal `artifact:*`, `field:*`, and `effect:*` dependency keys; Grit proof | affirmed dependency-tag blueprint | `.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants` | The row forbids raw dependency-edge strings inside top-level step contract `requires` and `provides`. It governs dependency-tag use as a kind of edge ID, while preserving the artifact-contract-reference exception for artifact value authority. | selected-rule proof passed; path refs repaired | Generalize if dependency-tag rules later cover non-standard recipes or registry registration directly. |
+| `prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | tag catalog naming; `field:*`; `effect:*` | retained honest standard-recipe context | unchanged | The row governs current standard-recipe catalog variable names, not dependency-tag validity across every tag definition. `tag-catalog` was rejected as a sibling blueprint in this slice. | no-move review; selected-rule proof not required | Revisit if catalog-file grammar becomes a dependency-tag blueprint rule instead of standard-recipe currentness. |
+| `require_standard_recipe_map_effect_name_suffixes` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes` | `effect:map.*` suffix grammar in `tag-contracts.ts` | retained honest standard-recipe context | unchanged | The row governs current map-effect suffix families for the standard recipe. `effect:*` is a dependency-tag kind, but this predicate is current projection/tag-contract naming, not universal dependency-tag authority. | no-move review; selected-rule proof not required | Revisit if map effect naming becomes a positive dependency-tag naming rule or projection surface rule. |
+| `prohibit_migrated_consumer_effect_gating_tokens` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_migrated_consumer_effect_gating_tokens` | retired effect gates and one migrated lakes contract | retained honest standard-recipe context | unchanged | The row is exact migration/currentness pressure around one standard-recipe consumer contract, not dependency-tag kind governance. | no-move review; selected-rule proof not required | Revisit during cleanup or if retired effect gates are replaced by a positive dependency-tag lifecycle rule. |
+| `prohibit_legacy_morphology_effect_gating_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_effect_gating_tokens` | retired effect gates in morphology stages and standard tags | retained `_remainder` cleanup pressure | unchanged | The row is a negative migration cleanup guard for retired effect tokens. Moving it would turn concrete cutover history into blueprint authority. `effect-tag` was rejected as a sibling blueprint. | no-move review; selected-rule proof not required | Revisit during garbage collection or when positive dependency-tag lifecycle/deprecation rules exist. |
+| `prohibit_realized_map_artifact_tags` | `.habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags` | `artifact:map.realized.` namespace across mod and core source | retained `_remainder` projection/artifact pressure | unchanged | The row is unresolved realized-map truth/projection boundary pressure, not dependency-tag governance. `projection-contract` and `artifact-contract` were rejected as sibling blueprints in this slice. | no-move review; selected-rule proof not required | Revisit in artifact gathering or projection-surface/garbage decision. |
+| `require_owned_domain_config_catalog_surfaces` | `.habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces` | mixed morphology config facade and tag catalog checks | retained `_remainder` mixed-owner pressure | unchanged | The row mixes config-surface and tag-catalog assertions, so no whole-rule dependency-tag move is truthful. `config-surface` was rejected as a blueprint in this slice. | no-move review; selected-rule proof not required | Revisit when config cleanup or dependency-tag catalog grammar is split. |
+| `prohibit_domain_ops_projection_effect_dependencies` | `.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies` | `artifact:map.*` and `effect:map.*` inside domain ops | retained domain-operation authority | unchanged | The row governs operation purity: domain operations must not depend on map projection/effect tags. The owner is `domain-operation`, not dependency-tag. | no-move review; selected-rule proof not required | Revisit only if a future dependency-tag import/placement rule can absorb this without weakening operation authority. |
 
 ### 40. Re-read After Dependency Tags And Select Artifact, Garbage, Or Candidate Pruning
 

@@ -1,7 +1,7 @@
 ---
 level: error
 ---
-# Require Typed Dependency And Effect Tag Constants
+# Require Typed Dependency Tag Constants
 
 Standard recipe step contracts must use typed dependency tag constants in
 top-level `requires` and `provides`; string literal dependency keys drift from

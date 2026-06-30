@@ -118,6 +118,7 @@ Affirmed blueprint examples include:
 - `blueprints/domain`
 - `blueprints/domain-operation`
 - `blueprints/mod-map`
+- `blueprints/dependency-tag`
 
 Candidate blueprint-shaped examples include:
 
