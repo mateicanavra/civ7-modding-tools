@@ -147,10 +147,16 @@ Known transitional misfits, not blueprint exemplars:
   packets that are not final context authority: mixed recipe-step plus
   operation-contract predicates, projection implementation cleanup,
   strategy-file locality pressure, and rules-index shim cleanup.
-- `civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe`
-  is a check/defect-shaped slug. Treat it as a pruning target to decompose
-  under the appropriate constructible blueprint, package-local proof, or
-  Nx-ordering owner before preserving it as Habitat authority.
+- `civ7/mapgen/studio/devops/rules`,
+  `civ7/mapgen/studio/browser-worker/rules`,
+  `civ7/mapgen/studio/recipe-dag/rules`, and
+  `civ7/mapgen/studio/server/rules` are Studio child operating-area staging
+  lanes. `devops` is the development, delivery, and local-operator workflow
+  lane around the Studio subsystems, not a runtime subsystem itself. Their
+  current packets were moved whole out of the old Studio
+  `_blueprints` lane; treat the child niches as honest Studio subsystems, not
+  as proof that packet contents have already been split, generalized,
+  retired, or admitted as blueprint authority.
 
 ### Rules Lane
 

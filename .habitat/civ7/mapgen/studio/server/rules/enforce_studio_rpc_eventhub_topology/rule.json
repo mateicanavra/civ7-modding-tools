@@ -3,8 +3,8 @@
   "id": "enforce_studio_rpc_eventhub_topology",
   "title": "Enforce Studio Rpc Eventhub Topology",
   "placement": {
-    "niche": "civ7/mapgen/studio",
-    "blueprint": "rpc-daemon",
+    "niche": "civ7/mapgen/studio/server",
+    "blueprint": "_self",
     "category": "structure",
     "artifactKind": "check"
   },
@@ -24,14 +24,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/enforce_studio_rpc_eventhub_topology/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/enforce_studio_rpc_eventhub_topology/check.ts"
+      "script": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts"
     }
   }
 }

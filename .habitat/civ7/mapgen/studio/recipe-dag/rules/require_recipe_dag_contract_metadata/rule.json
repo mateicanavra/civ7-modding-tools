@@ -3,8 +3,8 @@
   "id": "require_recipe_dag_contract_metadata",
   "title": "Require Recipe Dag Contract Metadata",
   "placement": {
-    "niche": "civ7/mapgen/studio",
-    "blueprint": "recipe-dag-service",
+    "niche": "civ7/mapgen/studio/recipe-dag",
+    "blueprint": "_self",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -28,14 +28,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/studio/_blueprints/recipe-dag-service/require_recipe_dag_contract_metadata/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/mapgen/studio/_blueprints/recipe-dag-service/require_recipe_dag_contract_metadata/check.ts"
+      "script": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts"
     }
   }
 }

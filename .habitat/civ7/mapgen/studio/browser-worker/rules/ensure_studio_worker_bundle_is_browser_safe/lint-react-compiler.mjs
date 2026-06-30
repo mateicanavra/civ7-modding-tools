@@ -20,9 +20,9 @@
  * Remove once Biome ships React Compiler rule support (biomejs/biome#10710).
  *
  * Usage (from anywhere):
- *   node .habitat/civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs            # lint studio src
- *   node .habitat/civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs <paths...> # lint specific paths
- *   node .habitat/civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs --strict   # exit 1 on errors
+ *   node .habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs            # lint studio src
+ *   node .habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs <paths...> # lint specific paths
+ *   node .habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs --strict   # exit 1 on errors
  */
 import path from "node:path";
 import process from "node:process";

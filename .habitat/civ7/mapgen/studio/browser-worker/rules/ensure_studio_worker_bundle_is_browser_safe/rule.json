@@ -3,8 +3,8 @@
   "id": "ensure_studio_worker_bundle_is_browser_safe",
   "title": "Ensure Studio Worker Bundle Is Browser Safe",
   "placement": {
-    "niche": "civ7/mapgen/studio",
-    "blueprint": "worker-bundle",
+    "niche": "civ7/mapgen/studio/browser-worker",
+    "blueprint": "_self",
     "category": "execution",
     "artifactKind": "check"
   },
@@ -24,14 +24,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "node",
     "files": {
-      "script": ".habitat/civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe/check.mjs"
+      "script": ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs"
     }
   }
 }

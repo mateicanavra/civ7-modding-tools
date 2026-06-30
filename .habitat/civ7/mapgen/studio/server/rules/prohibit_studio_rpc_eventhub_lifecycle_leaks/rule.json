@@ -3,8 +3,8 @@
   "id": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
   "title": "Prohibit Studio Rpc Eventhub Lifecycle Leaks",
   "placement": {
-    "niche": "civ7/mapgen/studio",
-    "blueprint": "rpc-daemon",
+    "niche": "civ7/mapgen/studio/server",
+    "blueprint": "_self",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -29,12 +29,12 @@
   "scanRoots": ["apps/mapgen-studio/src/server/daemon", "apps/mapgen-studio/src/server/studio"],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/prohibit_studio_rpc_eventhub_lifecycle_leaks/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
     },
     "patternName": "prohibit_studio_rpc_eventhub_lifecycle_leaks"
   }

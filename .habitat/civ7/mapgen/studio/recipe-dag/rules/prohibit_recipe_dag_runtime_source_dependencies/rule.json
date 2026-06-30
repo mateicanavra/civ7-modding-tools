@@ -3,8 +3,8 @@
   "id": "prohibit_recipe_dag_runtime_source_dependencies",
   "title": "Prohibit Recipe Dag Runtime Source Dependencies",
   "placement": {
-    "niche": "civ7/mapgen/studio",
-    "blueprint": "recipe-dag-service",
+    "niche": "civ7/mapgen/studio/recipe-dag",
+    "blueprint": "_self",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -32,12 +32,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/studio/_blueprints/recipe-dag-service/prohibit_recipe_dag_runtime_source_dependencies/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/studio/_blueprints/recipe-dag-service/prohibit_recipe_dag_runtime_source_dependencies/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md"
     },
     "patternName": "prohibit_recipe_dag_runtime_source_dependencies"
   }

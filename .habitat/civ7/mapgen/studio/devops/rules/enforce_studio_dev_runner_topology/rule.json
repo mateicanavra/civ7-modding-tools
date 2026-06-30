@@ -3,8 +3,8 @@
   "id": "enforce_studio_dev_runner_topology",
   "title": "Enforce Studio Dev Runner Topology",
   "placement": {
-    "niche": "civ7/mapgen/studio",
-    "blueprint": "dev-runner",
+    "niche": "civ7/mapgen/studio/devops",
+    "blueprint": "_self",
     "category": "structure",
     "artifactKind": "check"
   },
@@ -30,14 +30,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/studio/_blueprints/dev-runner/enforce_studio_dev_runner_topology/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/mapgen/studio/_blueprints/dev-runner/enforce_studio_dev_runner_topology/check.ts"
+      "script": ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts"
     }
   }
 }

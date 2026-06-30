@@ -132,6 +132,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 37. Reclaim Projection/Placement Remainders | The map-output projection/placement remainder was re-read with the Remainder Reclamation frame: three exact standard-recipe projection/placement rows and one foundation projection adjacent row moved to `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/`; the broad physics-to-map contract seam stayed under `.habitat/civ7/mapgen/map-output/_remainder/` as future split or projection-surface pressure. No `recipe-step`, `map-projection`, or `placement-outcome` authority was invented. |
 | 38. Frame Or Split The Projection Contract Remainder | The retained broad projection contract row was behavior-preservingly split: physics-stage contract leakage and map-effect naming moved to the standard-recipe context, while the realized-map artifact namespace check stayed under map-output `_remainder` with `PROJECTION-CONTRACT-SURFACE-FRAME.md` preserved as surface evidence instead of the next active domino. |
 | 39. Gather The Dependency-Tag Blueprint Kind | `dependency-tag` was affirmed as the constructible/governable kind for registered dependency-edge IDs. The whole-rule typed `requires`/`provides` constant guard moved to `.habitat/blueprints/dependency-tag/`; touched effect-tag, tag-catalog, projection-contract, config-surface, and artifact-contract labels were rejected as sibling blueprints for this slice, while context/projection/config/artifact-value rows stayed in their honest lanes. |
+| 40. Sort Studio Blueprint Candidates Into Operating Niches | The Studio `_blueprints` lane was removed. Its eight packets moved whole into child operating-area niches: `devops`, `browser-worker`, `recipe-dag`, and `server`. This was structural rehoming with manifest path repair, not content-level cleanup, retirement, split, or blueprint admission. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -398,41 +399,23 @@ slice can own them honestly.
 | `require_owned_domain_config_catalog_surfaces` | `.habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces` | mixed morphology config facade and tag catalog checks | retained `_remainder` mixed-owner pressure | unchanged | The row mixes config-surface and tag-catalog assertions, so no whole-rule dependency-tag move is truthful. `config-surface` was rejected as a blueprint in this slice. | no-move review; selected-rule proof not required | Revisit when config cleanup or dependency-tag catalog grammar is split. |
 | `prohibit_domain_ops_projection_effect_dependencies` | `.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies` | `artifact:map.*` and `effect:map.*` inside domain ops | retained domain-operation authority | unchanged | The row governs operation purity: domain operations must not depend on map projection/effect tags. The owner is `domain-operation`, not dependency-tag. | no-move review; selected-rule proof not required | Revisit only if a future dependency-tag import/placement rule can absorb this without weakening operation authority. |
 
-### 40. Re-read After Dependency Tags And Select Artifact, Garbage, Or Candidate Pruning
+## Domino 40 Disposition Receipt
 
-Purpose: choose the next largest bounded move from the tree changed by
-dependency-tag gathering instead of pre-committing to artifact, garbage, or
-global `_blueprints` pruning too early.
+This table is a receipt for structural rehoming, not a second authority
+surface. The packets moved whole so the old Studio `_blueprints` labels no
+longer imply blueprint authority. Packet-level content sorting, split,
+cleanup, retirement, and future blueprint-kind generalization remain deferred.
 
-Done Means:
-
-- The dependency-tag slice has been re-read as changed structure, not as a
-  static corpus snapshot.
-- The next branch is selected as exactly one of: artifact blueprint gathering,
-  targeted garbage collection, targeted `_blueprints` pruning, or stop and
-  reframe if none of those is a fit.
-- The selection names the bounded input pocket and why it is higher leverage
-  than the alternatives.
-
-Moves It Forward:
-
-- If artifact rows now line up around value/schema/publish/read behavior, run
-  artifact gathering next.
-- If the remaining rows are mostly duplicate negative proxies, obsolete cleanup,
-  or superseded guards, run garbage collection next.
-- If false `_blueprints` still bias future work more than any real destination,
-  run a targeted candidate-pruning pass next.
-- Do not turn this gate into broad corpus documentation.
-
-Dependencies:
-
-- Dependency-tag gathering has landed and been validated.
-
-Proof:
-
-- The chosen next domino names its frame, bounded inputs, falsifier, and
-  expected physical movement.
-- The non-chosen paths are explicitly demoted with reasons, not forgotten.
+| Rule id | Start path | Target path | Placement reason | Deferred cleanup signal |
+| --- | --- | --- | --- | --- |
+| `enforce_studio_dev_runner_topology` | `.habitat/civ7/mapgen/studio/_blueprints/dev-runner/enforce_studio_dev_runner_topology` | `.habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology` | Governs Studio development execution topology: Nx dev/daemon targets, Vite watch boundaries, and retired package script surfaces. | Revisit if devops and server runtime need a shared or split positive operational contract. |
+| `prohibit_retired_studio_devlive_daemon_file` | `.habitat/civ7/mapgen/studio/_blueprints/dev-runner/prohibit_retired_studio_devlive_daemon_file` | `.habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file` | Guards retired Studio dev-live daemon surface as part of the devops lane. | Retire later if the positive devops topology check fully subsumes it. |
+| `ensure_studio_worker_bundle_is_browser_safe` | `.habitat/civ7/mapgen/studio/_blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe` | `.habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe` | Governs the MapGen Studio browser worker bundle as a Studio subsystem, not a generic worker blueprint. | Revisit if a future worker blueprint kind admits shared browser-worker requirements. |
+| `prohibit_recipe_dag_runtime_source_dependencies` | `.habitat/civ7/mapgen/studio/_blueprints/recipe-dag-service/prohibit_recipe_dag_runtime_source_dependencies` | `.habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies` | Governs Studio recipe-DAG service imports and contract-only metadata source use. | Revisit if recipe-DAG boundary rules split into service, contract-source, or artifact-consumption subrules. |
+| `require_recipe_dag_contract_metadata` | `.habitat/civ7/mapgen/studio/_blueprints/recipe-dag-service/require_recipe_dag_contract_metadata` | `.habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata` | Governs the Recipe DAG import graph and contract metadata requirements for the Studio subsystem. | Revisit when recipe contract metadata becomes positive blueprint or capability authority. |
+| `require_studio_ui_recipe_artifact_imports` | `.habitat/civ7/mapgen/studio/_blueprints/recipe-artifact-supply/require_studio_ui_recipe_artifact_imports` | `.habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports` | The UI consumes recipe artifacts from the same recipe-DAG contract/supply subsystem rather than runtime recipe modules. | Split later if UI artifact consumption becomes broader than the recipe-DAG lane. |
+| `enforce_studio_rpc_eventhub_topology` | `.habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/enforce_studio_rpc_eventhub_topology` | `.habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology` | Governs the Studio server daemon mounting RPC through runtime context; `rpc-daemon` is an implementation role, not the niche. | Revisit if Studio server runtime grows finer child niches for RPC, EventHub, or daemon lifecycle. |
+| `prohibit_studio_rpc_eventhub_lifecycle_leaks` | `.habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/prohibit_studio_rpc_eventhub_lifecycle_leaks` | `.habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks` | Governs EventHub lifecycle ownership inside the Studio server runtime context. | Split later if lifecycle ownership becomes a broader server-runtime capability rule. |
 
 ### 41. Gather The Artifact Blueprint Kind
 
