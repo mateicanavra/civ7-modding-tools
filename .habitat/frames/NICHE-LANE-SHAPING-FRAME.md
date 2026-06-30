@@ -305,44 +305,40 @@ rg -n "\\.habitat/civ7/mapgen/pipeline/rules/(<moved-rule-id>|<another-moved-rul
   /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-authority-tree-pruning-frame/mods
 ```
 
-## First Application Target: Pipeline Parent Lane
+## First Application Result: Pipeline Parent Lane
 
-The immediate target for this method is:
+The seed target for this method was:
 
 ```text
 .habitat/civ7/mapgen/pipeline/rules/**
 ```
 
-Current row groups suggest child holding lanes around:
+Domino 35 completed that seed application. The parent lane is now empty, and
+the row groups proved these child lanes:
 
-- runtime authoring / execution purity;
-- contract/schema/public contract surface;
-- cutover or migration cleanup;
-- standard recipe context, when the row is actually about
-  `swooper-maps-standard-recipe`;
-- existing domain, domain-operation, recipe, recipe-stage, or recipe-step
-  authority when the whole row fits an affirmed blueprint.
+- `civ7/mapgen/pipeline/runtime/rules` for narrow runtime/compile separation
+  rules whose whole predicate governs runtime implementation source.
+- `civ7/mapgen/pipeline/runtime/_remainder` for broader deterministic
+  generation and runtime/config pressure that is reviewed but not precise
+  enough for stable runtime authority.
+- `civ7/mapgen/pipeline/contracts/rules` for contract/public-source-surface
+  rules that intentionally span recipe-step and domain-operation contracts.
+  This is a source-surface jurisdiction, not a resurrection of physical
+  category directories.
+- `civ7/mapgen/pipeline/cutover/_remainder` for migration/cutover cleanup
+  pressure.
+- `civ7/mapgen/pipeline/config/_remainder` for reviewed map/recipe config
+  cleanup pressure that does not yet have a stable config authority surface.
 
-These are starting hypotheses, not pre-created lanes. The implementation slice
-must prove which lanes earn physical existence.
+Reusable lesson: if a proposed child `rules/` lane is named from a source
+surface such as runtime or contracts, the receipt must say which source surface
+earns that jurisdiction. If the row is broad, mixed, or cleanup-shaped, park it
+in the smallest honest `_remainder/` lane instead of making the child lane look
+more settled than it is.
 
-Initial primary rows:
-
-| Rule id | Start path | Runner evidence | Starting lane hypothesis |
-| --- | --- | --- | --- |
-| `prohibit_ambient_rng_in_authored_generation` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_ambient_rng_in_authored_generation` | `check.mjs` | runtime authoring / execution purity |
-| `prohibit_bare_value_export_all_from_contract_surfaces` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_bare_value_export_all_from_contract_surfaces` | `pattern.md` | contract/public-surface pressure |
-| `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | `check.mjs` | cutover cleanup |
-| `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | `pattern.md` | ecology/hydrology/placement cleanup or child context pressure |
-| `prohibit_empty_object_defaults_in_contract_schemas` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_empty_object_defaults_in_contract_schemas` | `pattern.md` | contract/schema pressure |
-| `prohibit_runtime_calls_to_runvalidated` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_calls_to_runvalidated` | `pattern.md` | runtime authoring / execution purity |
-| `prohibit_runtime_local_config_default_merging` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_local_config_default_merging` | `pattern.md` | runtime config normalization pressure |
-| `prohibit_runtime_validation_and_compiler_imports` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_validation_and_compiler_imports` | `pattern.md` | runtime authoring / execution purity |
-| `prohibit_wrapper_only_advanced_config` | `.habitat/civ7/mapgen/pipeline/rules/prohibit_wrapper_only_advanced_config` | `pattern.md` | cutover or map/recipe config cleanup |
-
-The starting lane hypothesis is not a disposition. It is an investigation
-prompt that must either earn a physical lane, collapse into an existing lane,
-move to `_remainder`, or falsify.
+The starting lane hypothesis was not a disposition. It earned authority only
+after row evidence and review. See `.habitat/dominoes.md` Domino 35 for the
+current receipt.
 
 ## Review Expectations
 

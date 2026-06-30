@@ -3,8 +3,8 @@
   "id": "prohibit_ambient_rng_in_authored_generation",
   "title": "Prohibit Ambient Rng In Authored Generation",
   "placement": {
-    "niche": "civ7/mapgen/pipeline",
-    "blueprint": "_self",
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_remainder",
     "category": "policy",
     "artifactKind": "check"
   },
@@ -24,14 +24,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/pipeline/rules/prohibit_ambient_rng_in_authored_generation/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "node",
     "files": {
-      "script": ".habitat/civ7/mapgen/pipeline/rules/prohibit_ambient_rng_in_authored_generation/check.mjs"
+      "script": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs"
     }
   }
 }

@@ -6,7 +6,7 @@ import {
   read,
   repoRel,
   walkFiles,
-} from "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
+} from "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const runtimeRoots = [
   path.join(modRoot, "src/domain"),

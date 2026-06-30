@@ -3,7 +3,7 @@
   "id": "prohibit_runtime_calls_to_runvalidated",
   "title": "Prohibit Runtime Calls To Runvalidated",
   "placement": {
-    "niche": "civ7/mapgen/pipeline",
+    "niche": "civ7/mapgen/pipeline/runtime",
     "blueprint": "_self",
     "category": "execution",
     "artifactKind": "check"
@@ -23,15 +23,18 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/domain"
+  ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_calls_to_runvalidated/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/pipeline/rules/prohibit_runtime_calls_to_runvalidated/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md"
     },
     "patternName": "prohibit_runtime_calls_to_runvalidated"
   }

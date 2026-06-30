@@ -47,8 +47,14 @@ migration.
           _remainder
             prohibit_foundation_contract_config_bags
       pipeline
-        rules
-          prohibit_ambient_rng_in_authored_generation
+        runtime
+          rules
+            prohibit_runtime_calls_to_runvalidated
+          _remainder
+            prohibit_ambient_rng_in_authored_generation
+        contracts
+          rules
+            prohibit_empty_object_defaults_in_contract_schemas
         swooper-maps-standard-recipe
           rules
             preserve_standard_stage_topology_and_path_invariants

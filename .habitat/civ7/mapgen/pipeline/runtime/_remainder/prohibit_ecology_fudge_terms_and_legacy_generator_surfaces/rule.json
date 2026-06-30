@@ -3,8 +3,8 @@
   "id": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
   "title": "Prohibit Ecology Fudge Terms And Legacy Generator Surfaces",
   "placement": {
-    "niche": "civ7/mapgen/pipeline",
-    "blueprint": "_self",
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_remainder",
     "category": "policy",
     "artifactKind": "check"
   },
@@ -40,12 +40,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/pipeline/rules/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/pipeline/rules/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/pattern.md"
     },
     "patternName": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces"
   }
