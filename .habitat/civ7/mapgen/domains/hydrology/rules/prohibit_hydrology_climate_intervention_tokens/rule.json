@@ -4,7 +4,7 @@
   "title": "Prohibit Hydrology Climate Intervention Tokens",
   "placement": {
     "niche": "civ7/mapgen/domains/hydrology",
-    "blueprint": "_remainder",
+    "blueprint": "_self",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -31,12 +31,12 @@
   ],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_climate_intervention_tokens/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_climate_intervention_tokens/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/pattern.md"
     },
     "patternName": "prohibit_hydrology_climate_intervention_tokens"
   }

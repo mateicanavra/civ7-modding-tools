@@ -121,6 +121,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 28. Normalize Niche Child Context Lanes | Concrete domain contexts now live as child niches under `.habitat/civ7/mapgen/domains/`: `foundation/rules`, `foundation/_remainder`, `morphology/_remainder`, and `ecology/rules`. The move removes context directories from under `rules/` or root `_remainder/` without changing rule identity or behavior. |
 | 29. Sort Direct Foundation Domain Rows | The remaining direct `prohibit_foundation_*` rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: two moved to `.habitat/civ7/mapgen/domains/foundation/rules/`, six moved to `.habitat/civ7/mapgen/domains/foundation/_remainder/`, none stayed parent-domain authority, and none moved to `domain` or `domain-operation`. |
 | 30. Sort Remaining Direct Domains-Lane Rows | The remaining direct rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: one moved to affirmed `domain-operation`, three hydrology rows moved to `.habitat/civ7/mapgen/domains/hydrology/_remainder/`, one mixed morphology/config validator moved to `.habitat/civ7/mapgen/domains/morphology/_remainder/`, and the retired narrative-swatches stage-token row moved out of the domains lane to the standard-recipe context. No row stayed under parent `domains/rules`. |
+| 31. Sort the Hydrology Remainder Pocket | The hydrology remainder was re-read after the domains-lane sort: two narrative/hydrology boundary rows moved to `.habitat/civ7/mapgen/domains/hydrology/rules/` as honest hydrology context authority, while the map-config key row stayed under `.habitat/civ7/mapgen/domains/hydrology/_remainder/` as map-authoring/public-config cleanup pressure needing a later owner or split. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -209,6 +210,13 @@ reviewed but not final. The standard-recipe row intentionally left the domains
 lane because its whole rule meaning is recipe topology cleanup, not narrative
 domain authority.
 
+Domino 31 supersedes the two hydrology rows in this receipt that were first
+parked under `hydrology/_remainder`: after the hydrology re-read,
+`prohibit_hydrology_climate_intervention_tokens` and
+`prohibit_hydrology_narrative_domain_imports` moved to `hydrology/rules` as
+honest hydrology context authority. Keep this table as the Domino 30
+parent-lane sorting receipt, not as the current hydrology final state.
+
 | Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
 | --- | --- | --- | --- | --- | --- | --- |
 | `prohibit_rng_callback_state_in_ops` | existing blueprint authority | `blueprints/domain-operation` | `pattern.md` scans `mods/mod-swooper-maps/src/domain/*/ops/**/*.ts`; hydrology operation contracts document RNG crossing the op boundary as `rngSeed` data. | The whole rule governs valid domain operations generally: domain ops should reject ambient RNG callback/state surfaces. | selected-rule Grit proof passed; path refs exist | Cross-domain operation runtime discipline should move to `domain-operation` when the predicate applies to every operation module. |
@@ -218,48 +226,66 @@ domain authority.
 | `prohibit_narrative_swatches_stage_token` | honest standard-recipe context | `pipeline/swooper-maps-standard-recipe/rules` | `pattern.md` scans standard recipe source, maps, and tests for the retired `narrative-swatches` stage token. | The row governs current standard recipe topology cleanup; it should not create a narrative child context or stay in parent domains merely because the retired token includes `narrative`. | selected-rule Grit proof passed; path refs exist | Token labels are not owners; when a retired token belongs to recipe topology, move the row to recipe context even if it came from a domain lane. |
 | `require_owned_domain_config_catalog_surfaces` | cleanup/consolidation/split pressure | `morphology/_remainder` | `check.mjs` verifies exact `src/domain/morphology/config.ts` facade exports and standard recipe tag-catalog tokens. | The rule mixes morphology config-facade currentness with standard recipe tag-catalog currentness, so no parent-domain or affirmed blueprint owner truthfully owns the whole predicate. | selected-rule Habitat script proof passed; path refs exist | Positive residual validators can still be `_remainder` when they mix two owners and should split later. |
 
+## Domino 31 Disposition Receipt
+
+This table is a receipt for physical sorting, not a second authority surface.
+The hydrology pocket now distinguishes intentional hydrology context authority
+from deferred map-authoring/public-config pressure. Rows under
+`.habitat/civ7/mapgen/domains/hydrology/rules/` use
+`placement.blueprint: "_self"` and remain concrete hydrology context rules.
+The remaining row under `.habitat/civ7/mapgen/domains/hydrology/_remainder/`
+uses `placement.blueprint: "_remainder"` and is reviewed but not final.
+
+| Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
+| --- | --- | --- | --- | --- | --- | --- |
+| `prohibit_hydrology_climate_intervention_tokens` | honest hydrology context | `hydrology/rules` | `pattern.md` scans `src/domain/hydrology` plus standard hydrology stages for `climate.swatches` and `climate.story`; hydrology stage contracts publish deterministic climate/hydrography artifacts rather than narrative interventions. | The whole rule is hydrology-specific narrative-boundary currentness. It does not fit `domain`, `domain-operation`, or `recipe-stage` as a universal rule, but leaving it in `_remainder` would hide intentional hydrology context authority. | selected-rule Grit proof passed; path refs exist | Mixed domain-plus-stage scans can still be honest context when the entire predicate protects one concrete context boundary. |
+| `prohibit_hydrology_narrative_domain_imports` | honest hydrology context | `hydrology/rules` | `pattern.md` scans hydrology domain and hydrology stage files for imports from `@mapgen/domain/narrative/*`; current hydrology stage contracts import hydrology and adjacent stage artifacts, not narrative internals. | The whole rule protects hydrology from narrative-domain coupling. Existing domain public-surface rules do not own this hydrology-to-narrative boundary, and promoting it to a blueprint would over-generalize. | selected-rule Grit proof passed; path refs exist | Cross-context import forbids may remain honest context when no affirmed import-law/public-surface owner exists and the rule is intentionally concrete. |
+| `prohibit_hydrology_map_config_key_tokens` | cleanup/consolidation/split pressure | `hydrology/_remainder` | `pattern.md` scans `src/maps/**/*.ts` for retired hydrology climate, lakes, and rivers config keys; source shows `lakes`, `rivers`, `climate-baseline`, and `climate-refine` are legitimate stage/public-config vocabulary outside the map-source scan shape. | The row is not hydrology context authority as a whole; it guards map-authoring/config text and likely needs a future public-config/map-config owner, split, or retirement. Moving it to `domain`, `recipe-stage`, or `hydrology/rules` would preserve the wrong owner. | selected-rule Grit proof passed; path refs exist | Map-config token cleanup should not be hidden under concrete-domain context after review unless the map/public-config owner is explicit. |
+
 ## Remaining Dominoes
 
-### 31. Sort The Hydrology Remainder Pocket
+### 32. Sort The Ecology Context Pocket
 
-Purpose: re-read the new hydrology child niche now that direct parent domains
-rows no longer hide the hydrology-specific pressure.
+Purpose: re-read the ecology child niche now that domains-lane and hydrology
+sorting clarified the difference between honest concrete-domain context,
+affirmed domain/domain-operation authority, and deferred enforcement or cleanup
+pressure.
 
 Done Means:
 
-- Every row under `.habitat/civ7/mapgen/domains/hydrology/_remainder/`
-  receives a disposition.
-- Rows that truly govern `domain`, `domain-operation`, recipe-stage, standard
-  recipe context, hydrology context, or import-law/public-surface pressure move
-  to the smallest honest owner.
-- Any remaining hydrology `_remainder` row names its later mechanical
-  destination or split trigger.
-- No hydrology packet is promoted to blueprint authority by label inheritance.
+- Every row under `.habitat/civ7/mapgen/domains/ecology/rules/` receives a
+  disposition.
+- Rows that truly govern `domain` or `domain-operation` move to the affirmed
+  blueprint lane.
+- Rows that intentionally govern current ecology context stay under
+  `ecology/rules`.
+- Reviewed-but-deferred ecology rows move to `ecology/_remainder/` with a
+  named later owner or split/cleanup trigger.
+- No ecology packet is promoted to blueprint authority by label inheritance.
 
 Moves It Forward:
 
-- Tests the next child-context remainder after morphology and foundation, but
-  on a smaller and sharper pocket.
-- Separates hydrology context, hydrology recipe-stage pressure, map-config
-  cleanup, and narrative/import-boundary pressure before broader pipeline
-  projection work.
-- Helps decide whether the next larger pocket is hydrology context, recipe
-  public config, or import-law projection.
+- Tests the same contextual sorting method on a pocket that currently still
+  presents itself as honest `rules/` authority rather than `_remainder`.
+- Separates ecology context currentness from operation topology, contract
+  quality, retired topology cleanup, and legacy-generator pressure.
+- Helps decide whether any additional domain-family row still needs a child
+  context lane before moving toward recipe or projection work.
 
 Dependencies:
 
-- Domino 30 created the hydrology child `_remainder` lane and moved all direct
-  hydrology rows out of parent `domains/rules`.
-- Do not create a hydrology blueprint or capability in this slice.
+- `domain`, `domain-operation`, and the prior morphology/foundation/hydrology
+  slices are the comparison set.
+- Do not create an ecology blueprint or capability in this slice.
 
 Proof:
 
 - Focused selected-rule proof for moved rows where applicable.
 - Static scans prove moved manifests no longer point at stale paths.
-- Review pass confirms hydrology labels, stage labels, and narrative labels
+- Review pass confirms ecology labels, operation labels, and cleanup labels
   were not promoted into ontology by folder inheritance.
 
-### 32. Build Narrow Projection From Moved Authority
+### 33. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
