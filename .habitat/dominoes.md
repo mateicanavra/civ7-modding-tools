@@ -122,6 +122,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 29. Sort Direct Foundation Domain Rows | The remaining direct `prohibit_foundation_*` rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: two moved to `.habitat/civ7/mapgen/domains/foundation/rules/`, six moved to `.habitat/civ7/mapgen/domains/foundation/_remainder/`, none stayed parent-domain authority, and none moved to `domain` or `domain-operation`. |
 | 30. Sort Remaining Direct Domains-Lane Rows | The remaining direct rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: one moved to affirmed `domain-operation`, three hydrology rows moved to `.habitat/civ7/mapgen/domains/hydrology/_remainder/`, one mixed morphology/config validator moved to `.habitat/civ7/mapgen/domains/morphology/_remainder/`, and the retired narrative-swatches stage-token row moved out of the domains lane to the standard-recipe context. No row stayed under parent `domains/rules`. |
 | 31. Sort the Hydrology Remainder Pocket | The hydrology remainder was re-read after the domains-lane sort: two narrative/hydrology boundary rows moved to `.habitat/civ7/mapgen/domains/hydrology/rules/` as honest hydrology context authority, while the map-config key row stayed under `.habitat/civ7/mapgen/domains/hydrology/_remainder/` as map-authoring/public-config cleanup pressure needing a later owner or split. |
+| 32. Sort the Ecology Context Pocket | The ecology context pocket was re-read against `domain`, `domain-operation`, and recipe-stage authority: two rows stayed under `.habitat/civ7/mapgen/domains/ecology/rules/` as honest ecology context authority, while the ecology op-contract quality validator moved to `.habitat/civ7/mapgen/domains/ecology/_remainder/` as missing positive domain-operation quality governance and stale context cleanup pressure. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -242,48 +243,21 @@ uses `placement.blueprint: "_remainder"` and is reviewed but not final.
 | `prohibit_hydrology_narrative_domain_imports` | honest hydrology context | `hydrology/rules` | `pattern.md` scans hydrology domain and hydrology stage files for imports from `@mapgen/domain/narrative/*`; current hydrology stage contracts import hydrology and adjacent stage artifacts, not narrative internals. | The whole rule protects hydrology from narrative-domain coupling. Existing domain public-surface rules do not own this hydrology-to-narrative boundary, and promoting it to a blueprint would over-generalize. | selected-rule Grit proof passed; path refs exist | Cross-context import forbids may remain honest context when no affirmed import-law/public-surface owner exists and the rule is intentionally concrete. |
 | `prohibit_hydrology_map_config_key_tokens` | cleanup/consolidation/split pressure | `hydrology/_remainder` | `pattern.md` scans `src/maps/**/*.ts` for retired hydrology climate, lakes, and rivers config keys; source shows `lakes`, `rivers`, `climate-baseline`, and `climate-refine` are legitimate stage/public-config vocabulary outside the map-source scan shape. | The row is not hydrology context authority as a whole; it guards map-authoring/config text and likely needs a future public-config/map-config owner, split, or retirement. Moving it to `domain`, `recipe-stage`, or `hydrology/rules` would preserve the wrong owner. | selected-rule Grit proof passed; path refs exist | Map-config token cleanup should not be hidden under concrete-domain context after review unless the map/public-config owner is explicit. |
 
+## Domino 32 Disposition Receipt
+
+This table is a receipt for physical sorting, not a second authority surface.
+Rows retained under `.habitat/civ7/mapgen/domains/ecology/rules/` are
+intentional ecology-context authority. Rows moved under
+`.habitat/civ7/mapgen/domains/ecology/_remainder/` use
+`placement.blueprint: "_remainder"` and are reviewed but not final.
+
+| Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
+| --- | --- | --- | --- | --- | --- | --- |
+| `require_ecology_canonical_op_module_topology` | honest ecology context | `ecology/rules` | `structure.toml` checks ecology op module roots, ecology op `rules/index.ts` where `rules/` exists, and ecology op `strategies/index.ts`; current non-ecology domains have different helper and strategy shapes. | The row is operation-shaped evidence, but the executable rule is ecology-specific and exempts ecology-specific support material. Moving it to `domain-operation` now would turn an exemplar into global law before other domains satisfy the same anatomy. | selected-rule Habitat structure proof passed; path refs exist | Exemplar topology checks can stay contextual until a positive kind rule is implemented generally. |
+| `require_public_ecology_surfaces_and_retired_topology_removal` | honest ecology context | `ecology/rules` | `pattern.md` checks active ecology recipe stages for direct ecology ops/rules imports and checks retired ecology stage directories stay empty. | The public-surface half overlaps domain boundary pressure, but the whole row is ecology-stage-specific and includes retired ecology topology cleanup. It is not truthful as a `domain`, `recipe-stage`, or `domain-operation` blueprint rule. | selected-rule Grit proof passed; path refs exist | Mixed public-surface plus retired-context cleanup can remain context authority when it protects one concrete migration state. |
+| `validate_ecology_op_contract_quality` | missing positive kind governance and cleanup pressure | `ecology/_remainder` | `check.sh` delegates to `mods/mod-swooper-maps/scripts/validate-ecology-op-contract-quality.ts`, which checks ecology op schema descriptions and exported-function JSDoc plus a stale `recipes/standard/stages/ecology/steps` root. | The real invariant is positive domain-operation contract-quality governance, but the current implementation is ecology-only and includes stale path coverage. Keeping it in `ecology/rules` would hide generic quality pressure under a concrete context; moving it to `domain-operation` would over-generalize. | selected-rule Habitat script proof passed; path refs exist | Positive quality validators should move to `_remainder` when they point at a missing kind rule but are not implemented generally yet. |
+
 ## Remaining Dominoes
-
-### 32. Sort The Ecology Context Pocket
-
-Purpose: re-read the ecology child niche now that domains-lane and hydrology
-sorting clarified the difference between honest concrete-domain context,
-affirmed domain/domain-operation authority, and deferred enforcement or cleanup
-pressure.
-
-Done Means:
-
-- Every row under `.habitat/civ7/mapgen/domains/ecology/rules/` receives a
-  disposition.
-- Rows that truly govern `domain` or `domain-operation` move to the affirmed
-  blueprint lane.
-- Rows that intentionally govern current ecology context stay under
-  `ecology/rules`.
-- Reviewed-but-deferred ecology rows move to `ecology/_remainder/` with a
-  named later owner or split/cleanup trigger.
-- No ecology packet is promoted to blueprint authority by label inheritance.
-
-Moves It Forward:
-
-- Tests the same contextual sorting method on a pocket that currently still
-  presents itself as honest `rules/` authority rather than `_remainder`.
-- Separates ecology context currentness from operation topology, contract
-  quality, retired topology cleanup, and legacy-generator pressure.
-- Helps decide whether any additional domain-family row still needs a child
-  context lane before moving toward recipe or projection work.
-
-Dependencies:
-
-- `domain`, `domain-operation`, and the prior morphology/foundation/hydrology
-  slices are the comparison set.
-- Do not create an ecology blueprint or capability in this slice.
-
-Proof:
-
-- Focused selected-rule proof for moved rows where applicable.
-- Static scans prove moved manifests no longer point at stale paths.
-- Review pass confirms ecology labels, operation labels, and cleanup labels
-  were not promoted into ontology by folder inheritance.
 
 ### 33. Build Narrow Projection From Moved Authority
 
@@ -316,7 +290,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 33. Prune Transitional Packet Metadata For Moved Slices
+### 34. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -347,7 +321,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 34. Repeat Activation Slices
+### 35. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -378,7 +352,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 35. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 36. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.
