@@ -203,7 +203,7 @@ Not blueprint destinations now:
 - `domain-operation-strategy`
 - `worker-bundle`
 - `dev-runner`
-- `runtime-dependencies`
+- `runtime-dependencies` (resolved for MapGen visualization by Domino 43)
 
 ## Garbage And Pruning Pressure
 

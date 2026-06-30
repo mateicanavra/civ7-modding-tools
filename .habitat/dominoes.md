@@ -135,6 +135,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 40. Sort Studio Blueprint Candidates Into Operating Niches | The Studio `_blueprints` lane was removed. Its eight packets moved whole into child operating-area niches: `devops`, `browser-worker`, `recipe-dag`, and `server`. This was structural rehoming with manifest path repair, not content-level cleanup, retirement, split, or blueprint admission. |
 | 41. Sort The Standard Recipe Stage Context | The Swooper Maps standard-recipe lane was split into recipe-wide context `rules/`, stage-prefix context `stages/<prefix>/rules/`, and split-required `_remainder/`. Coherent context rules stayed live even when future generalization is needed; only predicates needing split/consolidation moved to `_remainder`. |
 | 42. Establish And Sweep The Artifact Blueprint Kind | `artifact` was affirmed as the immutable MapGen data-product blueprint kind and `.habitat/blueprints/artifact/` was created. The 24 artifact-vocabulary manifest rows were re-read: no existing row moved to live artifact authority, because each whole predicate was dependency-tag, domain, domain-operation, mod-map, standard-recipe context, Studio context, build-output, or unresolved projection/artifact debt. |
+| 43. Prune SDK/Core/Visualization False Blueprint Pockets | Source inspection confirmed Civ7 SDK, MapGen core, and MapGen visualization are separate package owners rather than an SDK parent with core/viz children. Four `_blueprints` packets were demoted into honest niche `rules/`: two MapGen core library rules, one Civ7 SDK mapgen subpath rule, and one MapGen visualization build-currentness rule. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -585,7 +586,7 @@ Disposition receipt:
 | `prohibit_runtime_continent_contract_tokens` | retained morphology stage rules | Contract/runtime-token separation in morphology contracts and artifact files. | Revisit when runtime-token forbids become positive contract-surface rules. |
 | `ensure_studio_worker_bundle_is_browser_safe` | retained Studio browser-worker rules | Studio worker runtime safety; artifacts are allowed boundary text, not owner. | Revisit only if a future worker blueprint admits shared browser-worker requirements. |
 | `require_studio_ui_recipe_artifact_imports` | retained Studio recipe-DAG rules | Studio UI/recipe-DAG import boundary for recipe artifacts. | Split later if UI artifact consumption becomes broader than recipe-DAG. |
-| `verify_visualization_runtime_build_artifacts` | retained visualization `_blueprints` candidate | Required `dist` build outputs, not product artifact contracts. | Process in targeted `_blueprints`/runtime-dependencies candidate pruning. |
+| `verify_visualization_runtime_build_artifacts` | then-retained visualization `_blueprints` candidate; superseded by Domino 43 | Required `dist` build outputs, not product artifact contracts. | Process in targeted `_blueprints`/runtime-dependencies candidate pruning; completed by Domino 43 demotion to visualization `rules/`. |
 
 Review disposition:
 
@@ -634,6 +635,34 @@ Proof:
 - Focused checks prove no behavior regression for retained rows.
 - Static scans show touched fake destinations no longer appear as live
   `_blueprints` ambiguity.
+
+Disposition receipt:
+
+- Source-backed structure:
+  - `packages/sdk` owns the Civ7 SDK authoring API and the explicit runtime-bound
+    `@mateicanavra/civ7-sdk/mapgen` subpath.
+  - `packages/mapgen-core` owns pure MapGen engine/core authoring, execution,
+    helpers, artifacts, domains, recipes, compiler, and tracing.
+  - `packages/mapgen-viz` owns shared visualization contract types and helpers
+    consumed by MapGen Studio, dump tooling, and core/mod visualization emitters.
+- Rejected nesting: SDK is not the parent of MapGen core or visualization.
+  `@mateicanavra/civ7-sdk/mapgen` depends on MapGen core and the Civ7 adapter;
+  it does not contain the core library or visualization contract package.
+- Moved packets:
+
+| Rule | From | To | Reason |
+| --- | --- | --- | --- |
+| `preserve_mapgen_core_runtime_neutrality` | `civ7/mapgen/core/_blueprints/mapgen-core-library` | `civ7/mapgen/core/rules` | Whole predicate protects `packages/mapgen-core` runtime neutrality; `mapgen-core-library` is not an admitted blueprint kind. |
+| `prohibit_runtime_helper_redeclarations` | `civ7/mapgen/core/_blueprints/mapgen-core-library` | `civ7/mapgen/core/rules` | Whole predicate protects shared helpers exported by `@swooper/mapgen-core`; it is honest core-library niche authority. |
+| `require_explicit_mapgen_sdk_opt_in` | `civ7/mapgen/sdk/_blueprints/mapgen-entrypoint` | `civ7/sdk/rules` | Whole predicate protects the Civ7 SDK root-vs-mapgen-runtime subpath boundary; it belongs directly under the SDK niche, not under MapGen and not under an extra SDK child niche. |
+| `verify_visualization_runtime_build_artifacts` | `civ7/mapgen/visualization/_blueprints/runtime-dependencies` | `civ7/mapgen/visualization/rules` | Whole predicate checks visualization/runtime build-currentness; `runtime-dependencies` is not a blueprint kind. |
+
+Residual scope:
+
+- Platform, resources, docs, workspace, and toolkit `_blueprints` pockets remain
+  for later bounded pruning. This slice intentionally clears only the
+  SDK/core/visualization ambiguity and its directly dependent false blueprint
+  pockets.
 
 ### 44. Resume Authority Activation Projection Work
 

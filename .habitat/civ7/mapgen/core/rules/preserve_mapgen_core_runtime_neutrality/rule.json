@@ -4,7 +4,7 @@
   "title": "Preserve Mapgen Core Runtime Neutrality",
   "placement": {
     "niche": "civ7/mapgen/core",
-    "blueprint": "mapgen-core-library",
+    "blueprint": "_self",
     "category": "execution"
   },
   "operation": {
@@ -19,18 +19,22 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/mapgen-core/src/**/*.ts"]
+      "patterns": [
+        "packages/mapgen-core/src/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["packages/mapgen-core/src"],
+  "scanRoots": [
+    "packages/mapgen-core/src"
+  ],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/core/_blueprints/mapgen-core-library/preserve_mapgen_core_runtime_neutrality/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/core/rules/preserve_mapgen_core_runtime_neutrality/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/core/_blueprints/mapgen-core-library/preserve_mapgen_core_runtime_neutrality/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md"
     },
     "patternName": "preserve_mapgen_core_runtime_neutrality"
   }

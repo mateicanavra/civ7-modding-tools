@@ -4,7 +4,7 @@
   "title": "Prohibit Runtime Helper Redeclarations",
   "placement": {
     "niche": "civ7/mapgen/core",
-    "blueprint": "mapgen-core-library",
+    "blueprint": "_self",
     "category": "boundary"
   },
   "operation": {
@@ -25,16 +25,19 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/domain"
+  ],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/core/_blueprints/mapgen-core-library/prohibit_runtime_helper_redeclarations/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/core/_blueprints/mapgen-core-library/prohibit_runtime_helper_redeclarations/pattern.md",
-      "applyPattern": ".habitat/civ7/mapgen/core/_blueprints/mapgen-core-library/prohibit_runtime_helper_redeclarations/apply.pattern.md"
+      "pattern": ".habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/pattern.md",
+      "applyPattern": ".habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
     },
     "patternName": "prohibit_runtime_helper_redeclarations"
   }

@@ -14,25 +14,25 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | role | surface count |
 | --- | --- |
 | policy-predicate | 92 |
-| transient-dependency | 179 |
-| adapter | 124 |
-| entrypoint | 231 |
-| fixture-support | 11 |
+| adapter | 126 |
+| transient-dependency | 102 |
+| fixture-support | 13 |
+| entrypoint | 205 |
 | runner-runtime | 124 |
 
 ## Surface Families
 
 | family | count | sample read |
 | --- | --- | --- |
-| apply-pattern | 2 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/require_public_domain_surfaces_in_recipes_and_maps.apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
-| pattern | 82 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_entrypoint_self_reexports/prohibit_domain_entrypoint_self_reexports.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
-| rule-json | 124 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_entrypoint_self_reexports/prohibit_domain_entrypoint_self_reexports.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
-| check-script | 27 | .habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/require_owned_domain_config_catalog_surfaces/require_owned_domain_config_catalog_surfaces.check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/preserve_decomposed_foundation_contract_surfaces/preserve_decomposed_foundation_contract_surfaces.check.mjs: Command-check executable surface invoked through Habitat metadata or direct references. |
-| structure-spec | 8 | .habitat/civ7/mapgen/domain/blueprints/domain-operation/structure/check/require_domain_ops_root_presence/require_domain_ops_root_presence.structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/structure/check/prohibit_domain_artifacts_modules/prohibit_domain_artifacts_modules.structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/civ7/mapgen/domain/blueprints/ecology-domain/structure/check/require_ecology_canonical_op_module_topology/require_ecology_canonical_op_module_topology.structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner. |
-| fix-script | 1 | .habitat/docs/blueprints/_self/quality/fix/repair_docs_issue_links_and_dependency_metadata/repair_docs_issue_links_and_dependency_metadata.fix.mjs: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
-| operation-note | 3 | .habitat/docs/blueprints/_self/quality/fix/repair_docs_issue_links_and_dependency_metadata/repair_docs_issue_links_and_dependency_metadata.operation.md: Classified execution surface.<br>.habitat/docs/blueprints/docs-site/artifact/generate/generate_docs_sidebar_from_docs_tree/generate_docs_sidebar_from_docs_tree.operation.md: Classified execution surface.<br>.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md: Classified execution surface. |
-| generate-script | 2 | .habitat/docs/blueprints/docs-site/artifact/generate/generate_docs_sidebar_from_docs_tree/generate_docs_sidebar_from_docs_tree.generate.sh: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.<br>.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
-| package-script | 137 | apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work. |
+| pattern | 82 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
+| rule-json | 126 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
+| structure-spec | 8 | .habitat/blueprints/domain-operation/require_domain_ops_root_presence/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/blueprints/domain/prohibit_domain_artifacts_modules/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner. |
+| apply-pattern | 2 | .habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
+| check-script | 33 | .habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts: Command-check executable surface invoked through Habitat metadata or direct references. |
+| generate-script | 2 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.<br>.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
+| operation-note | 3 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/operation.md: Classified execution surface.<br>.habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/operation.md: Classified execution surface.<br>.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/operation.md: Classified execution surface. |
+| fix-script | 1 | .habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/fix.mjs: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
+| package-script | 138 | apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work. |
 | nx-target | 55 | apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work. |
 | nx-plugin | 1 | nx.json: Classified execution surface. |
 | nx-target-default | 9 | nx.json: Classified execution surface.<br>nx.json: Classified execution surface.<br>nx.json: Classified execution surface. |
@@ -51,56 +51,56 @@ _None._
 
 | path | kind | signals |
 | --- | --- | --- |
-| .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_entrypoint_self_reexports/prohibit_domain_entrypoint_self_reexports.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_tag_artifact_shim_imports/prohibit_domain_tag_artifact_shim_imports.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_decomposed_ops_legacy_internal_imports/prohibit_foundation_decomposed_ops_legacy_internal_imports.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_duplicate_math_helper_redefinitions/prohibit_foundation_duplicate_math_helper_redefinitions.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_rules_tectonics_shim_reexports/prohibit_foundation_rules_tectonics_shim_reexports.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_strategy_nonlocal_imports/prohibit_foundation_strategy_nonlocal_imports.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_strategy_shared_tectonics_lib_imports/prohibit_foundation_strategy_shared_tectonics_lib_imports.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_hydrology_climate_intervention_tokens/prohibit_hydrology_climate_intervention_tokens.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_hydrology_narrative_domain_imports/prohibit_hydrology_narrative_domain_imports.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/contract/check/prohibit_foundation_legacy_aggregate_tectonic_op_surface/prohibit_foundation_legacy_aggregate_tectonic_op_surface.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/contract/check/prohibit_foundation_stage_cast_merge_hacks/prohibit_foundation_stage_cast_merge_hacks.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/contract/check/prohibit_foundation_stage_sentinel_passthrough/prohibit_foundation_stage_sentinel_passthrough.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/contract/check/prohibit_hydrology_map_config_key_tokens/prohibit_hydrology_map_config_key_tokens.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/contract/check/prohibit_unknown_bag_config_usage/prohibit_unknown_bag_config_usage.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/execution/check/prohibit_rng_callback_state_in_ops/prohibit_rng_callback_state_in_ops.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_narrative_swatches_stage_token/prohibit_narrative_swatches_stage_token.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/require_owned_domain_config_catalog_surfaces/require_owned_domain_config_catalog_surfaces.check.mjs | check-script | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/block_adapter_context_imports_from_domain_ops/block_adapter_context_imports_from_domain_ops.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/block_engine_runtime_imports_from_domain_ops/block_engine_runtime_imports_from_domain_ops.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/prohibit_cross_op_runtime_calls.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_root_config_facade_imports_in_domain_ops/prohibit_root_config_facade_imports_in_domain_ops.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_runtime_orchestration_helpers_in_domain_ops/prohibit_runtime_orchestration_helpers_in_domain_ops.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_recipe_imports_in_domain_source/prohibit_recipe_imports_in_domain_source.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_relative_domain_reaches_from_recipes_and_maps/prohibit_relative_domain_reaches_from_recipes_and_maps.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_domain_contract_roots_in_step_contracts/require_domain_contract_roots_in_step_contracts.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/require_public_domain_surfaces_in_recipes_and_maps.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.check.mjs | check-script | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/restrict_recipes_to_public_domain_surfaces/restrict_recipes_to_public_domain_surfaces.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/ecology-domain/boundary/check/require_public_ecology_surfaces_and_retired_topology_removal/require_public_ecology_surfaces_and_retired_topology_removal.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/boundary/check/prohibit_foundation_tectonics_rules_reexport_shims/prohibit_foundation_tectonics_rules_reexport_shims.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/boundary/check/prohibit_foundation_tectonics_strategy_nonlocal_imports/prohibit_foundation_tectonics_strategy_nonlocal_imports.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/boundary/check/prohibit_foundation_tectonics_strategy_shim_imports/prohibit_foundation_tectonics_strategy_shim_imports.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_foundation_advanced_cast_merge_fragments/prohibit_foundation_advanced_cast_merge_fragments.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_foundation_contract_config_bags/prohibit_foundation_contract_config_bags.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_foundation_legacy_aggregate_tectonics/prohibit_foundation_legacy_aggregate_tectonics.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_foundation_legacy_plate_kinematics/prohibit_foundation_legacy_plate_kinematics.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_foundation_projection_legacy_motion_source/prohibit_foundation_projection_legacy_motion_source.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_legacy_compute_tectonics_token/prohibit_legacy_compute_tectonics_token.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_removed_foundation_profile_config_tokens/prohibit_removed_foundation_profile_config_tokens.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_removed_foundation_wrap_polar_maturity_tokens/prohibit_removed_foundation_wrap_polar_maturity_tokens.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/morphology-domain/boundary/check/prohibit_legacy_morphology_module_imports/prohibit_legacy_morphology_module_imports.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/morphology-domain/boundary/check/prohibit_morphology_hotspot_overlay_publishers/prohibit_morphology_hotspot_overlay_publishers.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/morphology-domain/boundary/check/prohibit_morphology_overlay_implementation_reads/prohibit_morphology_overlay_implementation_reads.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/morphology-domain/boundary/check/prohibit_morphology_stage_config_bag_imports/prohibit_morphology_stage_config_bag_imports.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/prohibit_legacy_morphology_config_keys/prohibit_legacy_morphology_config_keys.pattern.md | pattern | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/prohibit_legacy_plate_driver_and_plot_mountains_dependencies/prohibit_legacy_plate_driver_and_plot_mountains_dependencies.pattern.md | pattern | reaches package/app/mod boundary |
+| .habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts | check-script | build/currentness or ordering tie |
+| .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_strategy_shared_tectonics_lib_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_tectonics_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_tectonics_strategy_shim_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs | check-script | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts | check-script | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/check.mjs | check-script | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs | check-script | build/currentness or ordering tie |
+| .habitat/civ7/platform/_blueprints/control-orpc/preserve_transport_pure_orpc_contracts/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/sdk/rules/require_explicit_mapgen_sdk_opt_in/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh | generate-script | build/currentness or ordering tie |
+| apps/docs/project.json | nx-target | build/currentness or ordering tie |
+| apps/docs/project.json | nx-target | build/currentness or ordering tie |
+| apps/mapgen-studio/package.json | package-script | build/currentness or ordering tie |
+| apps/mapgen-studio/project.json | nx-target | build/currentness or ordering tie |
+| apps/mapgen-studio/project.json | nx-target | build/currentness or ordering tie |
+| apps/mapgen-studio/project.json | nx-target | build/currentness or ordering tie |
+| apps/mapgen-studio/project.json | nx-target | build/currentness or ordering tie |
+| apps/mapgen-studio/project.json | nx-target | build/currentness or ordering tie |
+| apps/mapgen-studio/project.json | nx-target | build/currentness or ordering tie |
+| apps/playground/package.json | package-script | build/currentness or ordering tie |
+| apps/playground/package.json | package-script | build/currentness or ordering tie |
+| mods/mod-civ7-intelligence-bridge/package.json | package-script | build/currentness or ordering tie |
+| mods/mod-civ7-intelligence-bridge/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-civ7-intelligence-bridge/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-civ7-intelligence-bridge/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-civ-dacia/package.json | package-script | build/currentness or ordering tie |
+| mods/mod-swooper-civ-dacia/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-civ-dacia/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
 
 ## Fixture/Support Files
 
