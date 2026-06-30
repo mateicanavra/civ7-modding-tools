@@ -36,9 +36,14 @@ describe("useVizSelection source — render-phase + atomic ordering invariants",
     // The dedupe guard reads viz.selectedStepId but it is excluded from the deps.
     expect(hook).toMatch(/if \(viz\.selectedStepId === selectedStepId\) return;/);
     // The suppression is intentional and load-bearing (RAW source — it IS a comment).
+    // Biome now owns exhaustive-deps (correctness.useExhaustiveDependencies), so the
+    // suppression is a biome-ignore directly above the effect rather than a (Biome-inert)
+    // eslint-disable before the deps array.
     expect(hookSource).toMatch(
-      /eslint-disable-next-line react-hooks\/exhaustive-deps\n\s*\}, \[selectedStepId\]\);/
+      /biome-ignore lint\/correctness\/useExhaustiveDependencies:[^\n]*\n\s*useEffect\(\(\) => \{/
     );
+    // …and the deps array stays pinned to [selectedStepId] (adding viz would loop).
+    expect(hookSource).toMatch(/viz\.setSelectedLayerKey\(null\);\n\s*\}, \[selectedStepId\]\);/);
   });
 
   it("EO-1: era/overlay atomic group keeps source order (manualEra-clamp → overlay-prune → overlay-variant-pref)", () => {
