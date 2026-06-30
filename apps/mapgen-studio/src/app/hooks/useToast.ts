@@ -2,8 +2,14 @@ import { useCallback } from "react";
 
 import { toast as sonnerToast } from "../../components/ui";
 
+/** The variant set the adapter maps to sonner methods (`success`/`error`/`info`). */
 export type ToastVariant = "default" | "success" | "error" | "info";
 
+/**
+ * The single toast contract every container/hook depends on. Threaded IN to the
+ * domain hooks (rather than re-importing sonner) so notification behavior has one
+ * owner and the call sites stay decoupled from the toast backend.
+ */
 export type ToastFn = (
   message: string,
   options?: { variant?: ToastVariant; duration?: number }

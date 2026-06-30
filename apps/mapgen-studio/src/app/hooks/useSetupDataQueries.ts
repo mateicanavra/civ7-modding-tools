@@ -29,6 +29,13 @@ import { orpc } from "../../lib/orpc";
  * oRPC extraction wrapper.
  */
 
+/**
+ * Reduced view of the saved-configs query consumed by `setupControlOptions` /
+ * `useSetupControls`. Mirrors the legacy `useState`-backed shape exactly so the
+ * shell's drift-detection and option building are unchanged: `status` is `"idle"`
+ * until the first settle, `error` carries only the message, and `updatedAt` falls
+ * back to "now" so a settled-but-bodyless response still timestamps.
+ */
 export type SavedSetupConfigsView = {
   status: "idle" | "ok" | "error";
   directory?: string;
@@ -37,6 +44,12 @@ export type SavedSetupConfigsView = {
   error?: string;
 };
 
+/**
+ * Reduced view of the setup-catalog query (civilizations/leaders/etc. the setup
+ * controls offer). Same `idle`/`ok`/`error` + message-only contract as
+ * {@link SavedSetupConfigsView}; consumed by `useSetupControls` to populate the
+ * setup dropdowns.
+ */
 export type SetupCatalogView = {
   status: "idle" | "ok" | "error";
   catalog?: Civ7SetupCatalog;
