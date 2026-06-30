@@ -27,7 +27,7 @@ Required repair: add a concrete G-HOST host declaration matrix for the current o
 
 The packet names "pattern-specific apply gates" but does not inventory the live gate topology. Current `grit-apply.ts` has host-coupled roots and validations:
 
-- Apply patterns are hard-coded as `.grit/patterns/habitat/apply/deep_import_to_public_surface.md` and `.grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md`.
+- Apply patterns are hard-coded as `.habitat/patterns/active/apply/deep_import_to_public_surface.md` and `.habitat/patterns/active/apply/docs_local_checkout_paths_rewrite.md`.
 - Source apply roots are discovered from `mods/*/src/{recipes,maps}`.
 - Docs apply roots are not `docs/`; they are Markdown files under `docs` whose text includes `/docs/`, `.md`, and an absolute Unix-style checkout prefix.
 - Post-apply validation parses `@mapgen/domain/<domain>/ops` imports and resolves public ops targets under `mods/mod-swooper-maps/src/domain/<domain>/ops.ts` or `mods/mod-swooper-maps/src/domain/<domain>/ops/index.ts`.
@@ -102,7 +102,7 @@ Current host-specific generated/protected set:
 | `packages/civ7-types/generated/` | `generated-zones.ts`, `rules.json`, `biome.json`, `.gritignore` | External Civ7 resources workflow; G-HOST must not invent regeneration in generic Habitat. |
 | `packages/civ7-map-policy/src/civ7-tables.gen.ts` | `generated-zones.ts`, `rules.json`, `biome.json`, `.gritignore`, `plugin.js` | Map-policy generated table; generator/verifier belongs to `@civ7/map-policy`, not generic Habitat. |
 | `mods/mod-swooper-maps/mod/config`, `mods/mod-swooper-maps/mod/swooper-maps.modinfo`, `mods/mod-swooper-maps/mod/text/en_us/MapText.xml` | `verify-generated-zones.mjs`, `plugin.js` inputs | Generated drift/freshness surfaces, not staged hand-edit zone rows yet. G-HOST/D10 must decide whether these become declarations or remain drift-only. |
-| `.civ7/`, `.git/`, `.grit/cache/`, `dist/`, `node_modules/`, `tools/habitat-harness/dist/` | `grit.ts` protected scan-root prefixes | Generic/protected infrastructure roots for Grit scan-root refusal; do not recast these as Civ7 host declarations except `.civ7/` where resource ownership is host-specific and already routed by docs/process. |
+| `.civ7/`, `.git/`, `.habitat/cache/patterns/`, `dist/`, `node_modules/`, `tools/habitat-harness/dist/` | `grit.ts` protected scan-root prefixes | Generic/protected infrastructure roots for Grit scan-root refusal; do not recast these as Civ7 host declarations except `.civ7/` where resource ownership is host-specific and already routed by docs/process. |
 | `pnpm-lock.yaml`, `pnpm-workspace.yaml` | `rules.json` `forbiddenFileNames` | File-layer forbidden artifact policy, not generated-zone or host-policy semantics. |
 
 Current host-coupled constants and consumers:

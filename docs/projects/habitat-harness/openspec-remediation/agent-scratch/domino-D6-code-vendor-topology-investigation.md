@@ -48,8 +48,8 @@ Code, pattern, and test sources read:
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/habitat-process.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/workspace-tools.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
-- All 32 files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.grit/patterns/habitat/checks`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md`
+- All 32 files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/checks`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/docs_local_checkout_paths_rewrite.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-adapter.test.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/grit/grit-patterns.test.ts`
@@ -167,7 +167,7 @@ should treat that as compatibility wording only if D0/D1 require it.
 - 1 advisory docs check, `docs-local-checkout-paths`, with
   `gritPattern: "docs_local_checkout_paths"`.
 
-The `.grit/patterns/habitat/checks` directory contains 32 Markdown pattern
+The `.habitat/patterns/active/checks` directory contains 32 Markdown pattern
 files. The source checks primarily use `language js(typescript)` and embedded
 positive/negative fixtures. `docs_local_checkout_paths.md` uses
 `language markdown`.
@@ -239,7 +239,7 @@ Allowed later D6 source/test candidates:
   materialization proof if D0/D1 require it
 - `tools/habitat-harness/src/rules/rules.json` only after live D2 Grit facts
   are the source of truth
-- `.grit/patterns/habitat/checks/**` only for diagnostic fixture/capability
+- `.habitat/patterns/active/checks/**` only for diagnostic fixture/capability
   repairs, not governance admission
 - `tools/habitat-harness/test/lib/grit-adapter.test.ts`
 - `tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
@@ -398,7 +398,7 @@ allowed, and required observation missing.
 
 ### P3: Pattern files are native fixture assets, not governance records
 
-The 32 Markdown files in `.grit/patterns/habitat/checks` match official Grit
+The 32 Markdown files in `.habitat/patterns/active/checks` match official Grit
 pattern-file conventions and are validated by native `grit patterns test`.
 Their existence and fixture success should not be treated as Pattern Governance
 admission, baseline acceptance, or hook eligibility.

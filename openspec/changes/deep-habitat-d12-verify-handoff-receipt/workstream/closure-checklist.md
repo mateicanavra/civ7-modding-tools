@@ -1,32 +1,36 @@
 # Closure Checklist: D12 Verify Handoff Receipt
 
-## Design Readiness
+## Source Implementation
 
-- [x] `$REMEDIATION_DIR/context.md` has a D12 variable fixture and active D12 branch.
-- [x] Proposal cites D0/D1/D3/D7 authority and D12 source packet through variables.
-- [x] Design names D12 owner, target ontology, closed states, write set, protected paths, and compatibility surfaces.
-- [x] Spec delta uses normative SHALL language with D12-specific scenarios.
-- [x] Tasks separate design closure from later implementation work.
-- [x] Downstream realignment names D0, D1, D3, D7, D14, docs, tests, and packet index handoffs.
-- [x] D12 affected non-execution language aligns to D1/D7 `skipped` / skipped-affected reason semantics.
-- [x] D11 local-feedback and hook trace observations are bounded as non-claims and do not complete verify handoff.
-- [x] First-wave D12 review findings from every lane are imported and dispositioned as repair input.
-- [x] Fresh final D12 rereviews record no unresolved P1/P2 findings.
-- [x] D12 strict OpenSpec validation passes.
-- [x] Full OpenSpec validation passes.
-- [x] D12 wording audit passes over `$D12_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, and `$AGENT_SCRATCH/domino-D12-*.md`.
-- [x] `git diff --check` passes.
-- [x] `$REMEDIATION_DIR/packet-index.md` is updated only after final rereview acceptance.
+- [x] Verify command remains a thin Oclif adapter.
+- [x] Verify module exposes a `src/lib/verify/index.ts` barrel and package root exports.
+- [x] Receipt schema and types are TypeBox-first.
+- [x] Receipt assembly is split into focused modules under `src/lib/verify/`.
+- [x] D7 check projection is consumed for selector state and affected-execution admission.
+- [x] D3 target plan is consumed for affected target selection and graph-refusal state.
+- [x] Affected execution distinguishes `executed`, `failed`, and `skipped`.
+- [x] Affected argv includes D3 target order, resolved base, `--head HEAD`, and `--outputStyle=static`.
+- [x] Raw stdout/stderr bodies are not serialized into receipts.
+- [x] Post-state observation is bounded and explicit.
+- [x] Runtime receipt shape contains no process-only fields.
 
-## Later Implementation Closure
+## Validation
 
-- [ ] Concrete D0 rows exist for every touched verify surface.
-- [ ] D1 live receipt/output-family mapping supports target `VerifyReceipt` and legacy compatibility surfaces.
-- [ ] D3 live verify target plan facts are available where D12 consumes them.
-- [ ] D7 live verify check summary projection is available where D12 consumes it.
-- [ ] Source changes stay inside the D12 approved write set.
-- [ ] Verify tests and command gates pass with scenario-specific expected status and oracle recorded.
-- [ ] Affected Nx argv is tested against the D12 command contract or a final accepted alternative contract.
-- [ ] Root `bun run verify` and diagnostic `bun run habitat verify` remain distinct in docs/help where touched.
-- [ ] Public-surface changes preserve, version, facade, deprecate, refuse, document, or generate exactly as D0 rows require.
-- [ ] Downstream docs/tests/specs are realigned without claiming D12 implementation-complete before source work lands.
+- [x] `bun run --cwd tools/habitat-harness check`
+- [x] `bun run --cwd tools/habitat-harness test -- test/lib/verify-receipt.test.ts test/commands/habitat-commands.test.ts`
+- [x] Active Habitat source/tests terminology audit is clean for removed process-era receipt vocabulary.
+- [x] `bun run habitat verify --help`
+- [x] `bun run habitat verify --json`
+- [x] `bun run openspec -- validate deep-habitat-d12-verify-handoff-receipt --strict`
+- [x] `bun run openspec:validate`
+- [x] `git diff --check`
+
+## Record Closure
+
+- [x] D0 matrix rows reflect current verify receipt JSON/help/export surfaces.
+- [x] D12 proposal, design, and spec match the implemented receipt boundary.
+- [x] D12 downstream realignment ledger names current D0/D1/D3/D7/D14 handoffs.
+- [x] Packet index reflects D12 implementation state.
+- [x] TODO/control artifacts are triaged before commit.
+- [x] Graphite stack status is broad-checked before and after commit/submit.
+- [x] Worktree is clean after Graphite submit.

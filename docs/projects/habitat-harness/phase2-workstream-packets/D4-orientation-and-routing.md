@@ -9,7 +9,7 @@ Habitat overclaiming precision.
 ## Product Scenario
 
 An agent receives a path or diff and needs to know the owning project, tags,
-applicable rules, runnable proof targets, unavailable targets, and unresolved
+applicable rules, runnable receipt targets, unavailable targets, and unresolved
 facts before making a change.
 
 ## Domain Owner
@@ -40,7 +40,7 @@ explicit variants:
 - graph error.
 
 Each variant states owner, scoped rules, targets, unavailable targets, unresolved
-facts, and non-claims where applicable.
+facts, and non-goals where applicable.
 
 ## Dependency Order
 
@@ -64,7 +64,7 @@ states. Rule scope is partly derived from prose.
 2. Consume graph target facts from D3 and rule routing projections from D2.
 3. Make malformed/pathless diff an explicit refusal-like state with next safe
    action.
-4. Preserve non-claims in both human and JSON output.
+4. Preserve non-goals in both human and JSON output.
 5. Add examples for path, diff, workspace fallback, unresolved owner, and graph
    failure.
 
@@ -81,17 +81,17 @@ interface. That would not remove invalid combinations.
 
 Likely affects `Classification` and `DiffClassification` JSON. D0 must version
 or preserve fields. Human output may change to include unresolved facts and
-non-claims.
+non-goals.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - current classify command examples;
 - DTO field inventory;
 - scenario examples from prep.
 
-Later implementation proof:
+Later implementation receipt:
 
 - classify unit tests for every variant;
 - command behavior tests for path and diff;
@@ -120,15 +120,15 @@ Update:
 - scenario corpus if new states appear;
 - D14 Authoring Topology fence examples.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js`:
-  expected exit 0; representative supported-path classification proof.
+  expected exit 0; representative supported-path classification receipt.
 - `bun run habitat classify docs/projects/habitat-harness/phase2-workstream-packets/README.md`:
-  expected exit 0; representative docs-path classification proof.
+  expected exit 0; representative docs-path classification receipt.
 - `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`:
-  expected exit 0; JSON and refusal contract proof.
-- Cache stance: classify command proof must be current process output, not only
+  expected exit 0; JSON and refusal contract receipt.
+- Cache stance: classify command receipt must be current process output, not only
   cached Nx metadata.
 - Injected bad case: include one unsupported path or malformed diff and prove
   the command refuses with a stable reason.

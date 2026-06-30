@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runGraph } from "../lib/command-engine.js";
+import { runGraph } from "../lib/graph.js";
 
 export default class Graph extends HabitatCommand {
   static override summary = "Emit the current Nx project graph";

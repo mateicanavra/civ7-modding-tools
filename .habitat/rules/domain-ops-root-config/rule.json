@@ -1,0 +1,35 @@
+{
+  "id": "domain-ops-root-config",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+  "forbids": "ops importing domain-root config facades via parent traversal",
+  "why": "Ops receive normalized config contracts; root config facades are composition surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Do not import domain-root config facades from ops.",
+  "exceptionPath": "none",
+  "patternName": "domain_ops_root_config",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
+      ]
+    }
+  ]
+}

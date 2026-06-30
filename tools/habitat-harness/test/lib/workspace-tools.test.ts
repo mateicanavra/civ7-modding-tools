@@ -12,27 +12,33 @@ describe("workspace tool command materialization", () => {
       argv: ["run", "--cwd", repoRoot, "grit", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeHabitatCommand("biome", ["--version"])).toMatchObject({
+    expect(materializeHabitatCommand("format-check", ["--version"])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
       argv: ["run", "--cwd", repoRoot, "biome", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeHabitatCommand("nx", ["--version"])).toMatchObject({
+    expect(materializeHabitatCommand("target-check", ["--version"])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
       argv: ["run", "--cwd", repoRoot, "nx", "--version"],
       executionPlane: "workspace-bun-run",
     });
-  });
-
-  test("routes script-colliding package binaries through local-only bunx", () => {
-    expect(materializeHabitatCommand("openspec", ["--version"])).toEqual({
-      requestedExecutable: "openspec",
+    expect(materializeHabitatCommand("import-boundaries", ["."])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
-      argv: ["x", "--no-install", "openspec", "--version"],
-      executionPlane: "workspace-bunx-binary",
+      argv: [
+        "run",
+        "--cwd",
+        repoRoot,
+        "eslint",
+        "--quiet",
+        "--config",
+        "eslint.boundaries.config.mjs",
+        "--no-config-lookup",
+        ".",
+      ],
+      executionPlane: "workspace-bun-run",
     });
   });
 
@@ -52,11 +58,4 @@ describe("workspace tool command materialization", () => {
     expect(result.stdout).toContain("grit");
   });
 
-  test("sync spawn helper executes script-colliding binaries from the repo root", () => {
-    const result = run(["openspec", "--version"], { cwd: "/tmp" });
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toMatch(/\d+\.\d+\.\d+/);
-    expect(result.stderr).not.toContain("Script not found");
-  });
 });

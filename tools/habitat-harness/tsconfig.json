@@ -10,7 +10,9 @@
     "declaration": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["test", "dist"]

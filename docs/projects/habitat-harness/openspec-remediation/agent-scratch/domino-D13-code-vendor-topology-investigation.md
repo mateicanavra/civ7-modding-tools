@@ -8,7 +8,7 @@ on branch `codex/d13-scaffolding-refusal-packet`.
 
 - Required skills read in full: Domain Design, Information Design, Solution Design, TypeScript Refactoring, and the requested TypeScript refactoring references.
 - Repo/OpenSpec routers read: root `AGENTS.md`, remediation frame, remediation context, packet index, source D13 packet, live D13 OpenSpec packet, and G-HOST packet enough to classify the host dependency.
-- Code/tests read: `tools/habitat-harness/generators.json`, project generator schema/implementation/tests, pattern generator schema/implementation/registration/tests, Pattern Authority Manifest validator/tests, command/export surfaces, Habitat generator docs, `.grit/grit.yaml`, and `biome.json`.
+- Code/tests read: `tools/habitat-harness/generators.json`, project generator schema/implementation/tests, pattern generator schema/implementation/registration/tests, Pattern Authority Manifest validator/tests, command/export surfaces, Habitat generator docs, `.habitat/grit.yaml`, and `biome.json`.
 - Vendor docs consulted:
   - Nx local generators and schema properties: https://nx.dev/docs/extending-nx/local-generators
   - Nx generator file creation and dry-run mechanics: https://nx.dev/docs/extending-nx/creating-files
@@ -74,7 +74,7 @@ Candidate lifecycle:
 Registered lifecycle:
 
 - `registered-advisory` and `registered-enforced` route into `promoteRegisteredPattern` (`generator.cjs:7-10`, `:59-74`).
-- Promotion requires `--manifestPath` (`registration.cjs:35-37`), validates a Pattern Authority Manifest with matching rule reference (`:39-62`), validates baseline contract and introduction manifest (`:64-65`, `:148-224`), refuses collisions (`:67-85`), then writes active `.grit/patterns/habitat/checks/<pattern>.md` and updates `tools/habitat-harness/src/rules/rules.json` (`:87-95`).
+- Promotion requires `--manifestPath` (`registration.cjs:35-37`), validates a Pattern Authority Manifest with matching rule reference (`:39-62`), validates baseline contract and introduction manifest (`:64-65`, `:148-224`), refuses collisions (`:67-85`), then writes active `.habitat/patterns/active/checks/<pattern>.md` and updates `tools/habitat-harness/src/rules/rules.json` (`:87-95`).
 - Hook scope is admitted only through manifest/invocation agreement (`registration.cjs:49-50`, `:122`; manifest validator checks at `manifest.ts:597-645`, `:741-756`).
 
 Pattern Authority Manifest:
@@ -120,12 +120,12 @@ D13 implications:
 
 ### Grit
 
-Official Grit docs recommend authoring patterns in `.md` files under `.grit/patterns`; Markdown pattern files combine documentation, GritQL, and source examples. Grit uses the file name as the pattern name, the first heading as title, the first non-heading paragraph as description, and the first fenced code block as the GritQL body. Grit configuration lives in `.grit/grit.yaml`; by default, `.grit/patterns` patterns are imported, and explicit `patterns` entries can import other files.
+Official Grit docs recommend authoring patterns in `.md` files under `.grit/patterns`; Markdown pattern files combine documentation, GritQL, and source examples. Grit uses the file name as the pattern name, the first heading as title, the first non-heading paragraph as description, and the first fenced code block as the GritQL body. Grit configuration lives in `.habitat/grit.yaml`; by default, `.grit/patterns` patterns are imported, and explicit `patterns` entries can import other files.
 
 D13 implications:
 
-- Candidate artifacts under `tools/habitat-harness/src/rules/pattern-authority/candidates` are intentionally not active Grit patterns by official import mechanics and current `.grit/grit.yaml` (`patterns: []`).
-- Active registration writes under `.grit/patterns/habitat/checks` are not "just scaffolding"; they enter the Grit pattern loading surface and therefore belong behind Pattern Authority/D8 gates.
+- Candidate artifacts under `tools/habitat-harness/src/rules/pattern-authority/candidates` are intentionally not active Grit patterns by official import mechanics and current `.habitat/grit.yaml` (`patterns: []`).
+- Active registration writes under `.habitat/patterns/active/checks` are not "just scaffolding"; they enter the Grit pattern loading surface and therefore belong behind Pattern Authority/D8 gates.
 - Grit frontmatter, Markdown prose, and generated pattern files must remain proof/example material, not Habitat authority. The manifest validator already encodes this.
 
 ### Biome
@@ -189,7 +189,7 @@ Proposed D13 write set:
 
 Protected paths unless a later accepted owner expands scope:
 
-- `.grit/patterns/habitat/checks/**` except through registered promotion tests or D8 implementation.
+- `.habitat/patterns/active/checks/**` except through registered promotion tests or D8 implementation.
 - `tools/habitat-harness/src/rules/rules.json` except through registered promotion tests or D8 implementation.
 - `tools/habitat-harness/baselines/**` except through D5/D8 baseline authority.
 - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts` unless D8 explicitly requests a manifest contract change.

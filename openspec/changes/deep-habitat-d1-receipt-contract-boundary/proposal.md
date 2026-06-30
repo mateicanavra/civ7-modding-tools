@@ -8,13 +8,14 @@ This is not a generic proof-artifact framework. It is the contract layer that pr
 
 ## Authority
 
-- Source domino packet: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D1-proof-contract-boundary.md`.
-- Accepted D0 design/specification packet: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/`.
+- Source domino packet: `docs/projects/habitat-harness/phase2-workstream-packets/D1-proof-contract-boundary.md`.
+- Accepted D0 OpenSpec packet: `openspec/changes/deep-habitat-d0-command-surface-inventory/`.
+- Concrete D0 matrix authority: `docs/projects/habitat-harness/public-surface-compatibility-matrix.md`.
 - D1 investigations:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-domain-ontology-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-code-topology-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-openspec-testing-investigation.md`
-- Remediation frame: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation-frame.md`.
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-domain-ontology-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-code-topology-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-openspec-testing-investigation.md`
+- Remediation frame: `docs/projects/habitat-harness/openspec-remediation-frame.md`.
 - Current Habitat source and tests as present-behavior evidence, not target domain authority.
 
 ## Product Scenario
@@ -35,14 +36,17 @@ A DRA owner and reviewer use Habitat during repo maintenance. Habitat command ou
 
 ## What Does Not Change
 
-- D1 does not implement source changes in this remediation pass.
+- D1 design acceptance did not implement source changes. The implementation
+  phase may make source changes only after this packet's D1 execution inventory
+  cites concrete D0 rows, records review disposition, and stays inside the
+  approved write set.
 - D1 does not redesign D6 diagnostics, D7 enforcement, D9 apply behavior, D11 hook behavior, D12 verify workflow, D8 pattern governance, or D13 scaffolding/refusal ownership.
 - D1 does not authorize broad terminology churn. Legacy proof/evidence names are compatibility facts until D0 rows and this packet choose a handling.
 - D1 does not create a shared artifact substrate or a `Proof<T>` abstraction.
 
 ## D0 Prerequisite
 
-D0 is accepted for design/specification, but the concrete compatibility matrix rows are still an implementation prerequisite. D1 implementation is blocked until every affected public or durable surface has a D0 `surface_id`, plane, compatibility handling, target owner, and downstream citation.
+D0 is complete enough to unblock this D1 preparation step: the concrete matrix at `docs/projects/habitat-harness/public-surface-compatibility-matrix.md` has stable rows for the D1 seed surfaces. D1 source implementation remains blocked until the D1 execution inventory expands each touched surface per D0 plane, cites concrete `surface_id` values, records D0 compatibility handling and downstream owner facts, and resolves implementation-start review findings.
 
 D1 may describe implementation strategy with terms such as compatibility wrapper or target rename, but the actual D0 compatibility handling value must be one of `preserve`, `version`, `facade`, `deprecate`, `refuse`, `document-only`, or `generated-only`.
 
@@ -51,13 +55,13 @@ Required D0 row classes:
 | Surface family | Required D0 planes | D1 target owner |
 | --- | --- | --- |
 | `CheckReport`, `RuleReport`, `HabitatDiagnostic`, `validateCheckReport` | package-export, command-json, docs-example | Check report / diagnostic boundary |
-| `VerifyProof`, `createVerifyProof`, `habitat verify --json` help and JSON output | command-json, human-output, command-behavior, docs-example | Verify receipt boundary |
+| `VerifyProof`, `createVerifyProof`, `habitat verify --json` help and JSON output | command-json, cli, human-output, docs-example | Verify receipt boundary |
 | `HookTrace`, `PreCommitTrace`, `PrePushTrace`, hook proof notice | hook, human-output, package-internal/package-export if exposed, docs-example | Local feedback trace boundary |
-| `GritApplyTransactionResult`, `GritApplyTransactionProof`, `habitat fix` output | package-export, command-behavior, docs-example | Apply transaction boundary |
-| `AdapterProofArtifact`, `ProofArtifactWriter`, `adapterProofArtifactPath` | package-export, generated/workstream-artifact, docs-example | Adapter command artifact compatibility |
+| `GritApplyTransactionResult`, `GritApplyTransactionProof`, `habitat fix` output | package-export, cli, human-output, docs-example | Apply transaction boundary |
+| `AdapterProofArtifact`, `ProofArtifactWriter`, `adapterProofArtifactPath` | package-export, docs-example | Adapter command artifact compatibility |
 | docs proof/evidence phrases in Habitat docs | docs-example | D1 terminology compatibility or downstream owner |
 
-Missing D0 rows stop D1 implementation. They do not stop this design packet from recording the required dependency.
+Any newly discovered affected public/durable surface without a D0 row still stops D1 source implementation. D1 must not invent D0 planes such as command-behavior or generated/workstream-artifact; command behavior is cited through D0 `cli` rows, and package-internal status is a D0 contract state on `package-export` rows.
 
 ## Affected Owners
 
@@ -71,25 +75,25 @@ Missing D0 rows stop D1 implementation. They do not stop this design packet from
 
 ## Expected Implementation Write Set
 
-D1 implementation may touch these paths only after D0 row citations exist:
+D1 implementation may touch these paths only after the execution inventory and implementation-start review clear:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/diagnostics.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-apply.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/proof-artifact.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/check.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/verify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/fix.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/hook.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts` only for D0-classified export compatibility.
-- Focused tests under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/`.
+- `tools/habitat-harness/src/lib/diagnostics.ts`
+- `tools/habitat-harness/src/lib/command-engine.ts`
+- `tools/habitat-harness/src/lib/hooks.ts`
+- `tools/habitat-harness/src/lib/grit-apply.ts`
+- `tools/habitat-harness/src/lib/proof-artifact.ts`
+- `tools/habitat-harness/src/commands/check.ts`
+- `tools/habitat-harness/src/commands/verify.ts`
+- `tools/habitat-harness/src/commands/fix.ts`
+- `tools/habitat-harness/src/commands/hook.ts`
+- `tools/habitat-harness/src/index.ts` only for D0-classified export compatibility.
+- Focused tests under `tools/habitat-harness/test/`.
 - Habitat docs examples only when D0 rows classify them and D1 changes target guidance.
 - This OpenSpec change path and the remediation packet index for status/citation updates.
 
 ## Protected Paths
 
-- Source domino packets under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/**`.
+- Source domino packets under `docs/projects/habitat-harness/phase2-workstream-packets/**`.
 - Accepted D0 packet files except read-only citation by D1.
 - Other domino OpenSpec packets except downstream ledger/index updates explicitly caused by D1 acceptance and the narrow D10 dependency metadata alignment required by D1 cross-domino review: D10 `Requires`, dependency-gate task, and refusal-vocabulary dependency line only. D1 does not authorize D10 behavior, design, spec, or validation repair.
 - Generated outputs, lockfiles, Nx cache, `dist/**`, `tools/habitat-harness/dist/**`, `oclif.manifest.json`, `mod/**`, generator outputs, and runtime Civ7 control packages.
@@ -101,7 +105,9 @@ D1 feeds D6, D7, D8, D9, D10, D11, D12, D13, and D14. D15 remains a conditional 
 
 ## Stop Conditions
 
-- Any implementation starts before affected D0 matrix rows exist.
+- Any source implementation starts before D1 has expanded its execution
+  inventory against affected D0 matrix rows and recorded implementation-start
+  review disposition.
 - A target code/type/spec name keeps proof/evidence language without being classified as target-retained for a concrete repo-maintenance scenario.
 - An implementation wrapper strategy is mistaken for a D0 compatibility handling action or becomes a new target domain model.
 - A report, receipt, trace, transaction, artifact, refusal, or handoff link can represent contradictory states.
@@ -110,4 +116,4 @@ D1 feeds D6, D7, D8, D9, D10, D11, D12, D13, and D14. D15 remains a conditional 
 
 ## Validation Gates
 
-The implementation phase must run the gates named in `tasks.md` and `workstream/phase-record.md`, including focused Habitat tests, `habitat check --json`, `habitat verify --json`, `habitat fix --dry-run`, `habitat hook --help`, strict D1 OpenSpec validation, full OpenSpec validation, `git diff --check`, and final git status. Each gate must record expected status, actual status, oracle, bad case, cache/freshness stance, and non-claims.
+The implementation phase must run the gates named in `tasks.md` and `workstream/phase-record.md`, including focused Habitat tests, `habitat check --json`, `habitat verify --json`, `habitat fix --dry-run`, the D0/D11-approved hook surface gate, strict D1 OpenSpec validation, full OpenSpec validation, `git diff --check`, and final git status. Each gate must record expected status, actual status, oracle, bad case, cache/freshness stance, and non-claims.

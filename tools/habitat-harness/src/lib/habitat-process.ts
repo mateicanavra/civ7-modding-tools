@@ -6,15 +6,20 @@ import type { PlatformError } from "@effect/platform/Error";
 import { Chunk, Context, Effect, Layer, Stream } from "effect";
 import { type HabitatCommandGitState, readGitState, unknownGitState } from "./git-state.js";
 import { type GritAdapterFailureTag, GritToolUnavailable } from "./grit-failures.js";
-import { type HabitatToolExecutionPlane, materializeHabitatCommand } from "./workspace-tools.js";
+import {
+  type HabitatToolExecutionPlane,
+  materializeWorkspaceToolCommand,
+  type WorkspaceToolProvider,
+  WorkspaceToolProviderLive,
+} from "./workspace-tools.js";
 
 export type HabitatCommandKind =
-  | "grit-check"
-  | "grit-apply"
-  | "grit-pattern-test"
+  | "pattern-check"
+  | "pattern-apply"
+  | "pattern-test"
   | "biome-handoff"
-  | "git-proof"
-  | "platform-parity";
+  | "git-state"
+  | "workspace-tool";
 
 export type GritParseStatus =
   | "unparsed"
@@ -33,7 +38,6 @@ export interface HabitatProcessRequest {
   env?: Readonly<Record<string, string | undefined>>;
   scanRoots?: readonly string[];
   cachePolicy?: CommandCachePolicy;
-  nonClaims?: readonly string[];
 }
 
 export interface CommandCachePolicy {
@@ -69,7 +73,6 @@ export interface HabitatCommandResult {
   stderr: OutputCapture;
   parseStatus: GritParseStatus;
   failureTag: GritAdapterFailureTag | null;
-  nonClaims: readonly string[];
 }
 
 export interface RedactedEnvValue {
@@ -101,7 +104,7 @@ const CAPTURE_LIMIT_BYTES = 4 * 1024 * 1024;
 const SENSITIVE_ENV_KEY = /(TOKEN|SECRET|PASSWORD|PASS|KEY|AUTH|CREDENTIAL|SESSION)/i;
 
 export const HabitatProcessLive = Layer.succeed(HabitatProcess, {
-  run: runLiveHabitatProcess,
+  run: (request) => runLiveHabitatProcess(request).pipe(Effect.provide(WorkspaceToolProviderLive)),
 });
 
 export function makeFakeHabitatProcessLayer(
@@ -142,17 +145,19 @@ export function makeHabitatCommandResult(
     stderr: captureOutput(overrides.stderr?.text ?? ""),
     parseStatus: "unparsed",
     failureTag: exit.code === 0 && !exit.interrupted ? null : "GritCommandFailed",
-    nonClaims: [...(request.nonClaims ?? [])],
     ...overrides,
   };
 }
 
 function runLiveHabitatProcess(
   request: HabitatProcessRequest
-): Effect.Effect<HabitatCommandResult, GritToolUnavailable, CommandExecutor> {
+): Effect.Effect<HabitatCommandResult, GritToolUnavailable, CommandExecutor | WorkspaceToolProvider> {
   return Effect.scoped(
     Effect.gen(function* () {
-      const commandRequest = materializeHabitatCommand(request.executable, request.argv);
+      const commandRequest = yield* materializeWorkspaceToolCommand(
+        request.executable,
+        request.argv
+      );
       const effectiveRequest = {
         ...request,
         executable: commandRequest.executable,

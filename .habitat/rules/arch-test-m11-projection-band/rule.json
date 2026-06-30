@@ -1,0 +1,28 @@
+{
+  "id": "arch-test-m11-projection-band",
+  "ownerTool": "target-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "foundation projection",
+  "forbids": "projection band algorithm regressions (domain-logic test; stays a test permanently)",
+  "why": "Correctness test invoked through the harness for one-stop verification; not harness-owned.",
+  "detect": [
+    "target-check",
+    "run",
+    "mod-swooper-maps:test:architecture-m11-projection-band",
+    "--outputStyle=static"
+  ],
+  "remediate": null,
+  "message": "Projection algorithm regression; see the test for the expected band.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "unresolved-metadata",
+      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+    }
+  ],
+  "graphTarget": {
+    "project": "mod-swooper-maps",
+    "target": "test:architecture-m11-projection-band"
+  }
+}

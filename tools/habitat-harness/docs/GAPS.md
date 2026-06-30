@@ -4,9 +4,9 @@ This document names the gaps that matter for the next Habitat product phase.
 The distinction is central:
 
 - Platform-substrate health means Habitat can classify, check, enforce, route,
-  prove, and guard structural change.
+  verify, and guard structural change.
 - Authoring-workflow capability means Habitat can create useful MapGen
-  structures directly and prove those generated structures build, check, and fit
+  structures directly and verify those generated structures build, check, and fit
   the recipe/domain topology.
 
 The current toolkit is much stronger on platform-substrate health than on
@@ -27,7 +27,7 @@ Habitat does not yet generate these MapGen authoring structures:
 - a Studio recipe artifact update.
 
 The existing `project` generator is a workspace package scaffold for uniform
-project kinds. The existing `pattern` generator is a Grit rule lifecycle
+project kinds. The existing `pattern` generator is a Habitat pattern lifecycle
 scaffold. Neither is a MapGen authoring generator.
 
 ## Missing Product Acceptance Loop
@@ -37,7 +37,7 @@ The missing controlling test is:
 ```text
 Starting from a clean repo, use Habitat to generate a new MapGen domain with
 one operation, wire it into a new or existing recipe stage/step, run the
-generated structure through Nx, Habitat, and recipe compilation, and show the
+generated structure through Habitat, graph verification, and recipe compilation, and show the
 generated code is correct enough for an agent to continue from it without
 hand-inventing topology.
 ```
@@ -54,21 +54,21 @@ Required acceptance properties for future authoring generators:
 - generated structures pass `habitat classify`;
 - generated structures pass owning package `check`, `test`, and relevant
   Habitat rules;
-- generated output does not weaken boundary, Grit, or baseline contracts;
-- generator tests prove both writes and refusals.
+- generated output does not weaken boundary, pattern, or baseline contracts;
+- generator tests validate both writes and refusals.
 
 ## Diagnostic Patterns Are Not Broad Fixes
 
-Most Habitat Grit patterns are diagnostics. They detect structural violations
+Most Habitat patterns are diagnostics. They detect structural violations
 and fail through Habitat, but they do not apply repairs.
 
 Current apply state:
 
-- `.grit/patterns/habitat/apply/deep_import_to_public_surface.md` is wired into
+- `.habitat/patterns/apply/deep_import_to_public_surface.md` is wired into
   `habitat fix`.
-- `.grit/patterns/habitat/apply/helper_redeclarations_to_imports.md` exists but
+- `.habitat/patterns/apply/helper_redeclarations_to_imports.md` exists but
   is not wired into `habitat fix`.
-- No general mapping exists from each diagnostic Grit rule to a safe apply
+- No general mapping exists from each diagnostic Habitat rule to a safe apply
   pattern.
 
 This is partly deliberate and partly unfinished. It is deliberate that unsafe
@@ -76,10 +76,10 @@ or ambiguous rewrites are not automatically applied. It is unfinished wherever a
 diagnostic pattern has a mechanical, locally provable repair that Habitat still
 does not expose.
 
-## Apply Safety Still Needs Per-Pattern Product Proof
+## Apply Safety Still Needs Per-Pattern Product Validation
 
 The apply transaction has strong generic guardrails, but each new apply pattern
-still needs its own proof:
+still needs its own validation:
 
 - exact rewrite inventory;
 - allowed roots;
@@ -90,12 +90,12 @@ still needs its own proof:
 - current-tree dry-run result;
 - rollback and dirty-worktree behavior.
 
-The transaction substrate cannot prove the semantic correctness of a pattern by
-itself.
+The transaction substrate cannot establish the semantic correctness of a pattern
+by itself.
 
-## Pattern Authority Can Overpower Product Focus
+## pattern manifest Can Overpower Product Focus
 
-The Pattern Authority machinery is useful for preventing weak Grit rules from
+The pattern manifest machinery is useful for preventing weak Habitat rules from
 quietly becoming enforcement law. Its risk is that it can become the center of
 gravity. The next phase should not confuse "well-governed rule admission" with
 "the toolkit helps agents author useful MapGen structures."
@@ -103,17 +103,17 @@ gravity. The next phase should not confuse "well-governed rule admission" with
 Pattern work should be judged by whether it protects or repairs real authoring
 flows.
 
-## Docs Are Reference, Not Product Proof
+## Docs Are Reference, Not Product Behavior
 
 Habitat has a deep documentation and ledger trail. That trail is useful for
-handoff and audit, but it is not product proof.
+handoff and audit, but it is not product behavior.
 
 A future agent should prefer:
 
 - generator acceptance tests over prose claims;
 - current-tree command output over historical ledgers;
 - path-grounded code inspection over broad summaries;
-- applied diffs and rollback proof over "pattern exists" claims.
+- applied diffs and rollback evidence over "pattern exists" claims.
 
 ## Known Non-Goals For The Existing Surface
 
@@ -123,9 +123,9 @@ The current toolkit does not claim to:
 - infer recipe semantics from intent;
 - author domain behavior;
 - generate Civ7 resource data;
-- make arbitrary Grit changes safe;
+- make arbitrary structural rewrites safe;
 - guarantee runtime game behavior;
 - make hooks authoritative over CI or explicit graph verification.
 
 Any future work that wants Habitat to own one of these must add a concrete
-interface, proof path, and acceptance test.
+interface, validation path, and acceptance test.

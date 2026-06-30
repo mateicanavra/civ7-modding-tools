@@ -549,7 +549,7 @@ tools/habitat-harness/patterns/grit/
     no-internal-import.output.ts
 ```
 
-`.grit/grit.yaml` should load the harness pattern directory.
+`.habitat/grit.yaml` should load the harness pattern directory.
 
 ### Run commands
 

@@ -27,16 +27,21 @@
 
 ## Implementation Closure (Later)
 
-- [ ] Concrete D0 rows cited for all touched public/durable surfaces.
-- [ ] Live D2/D3/D5/D6 projections and accepted D10 guard contract exist where
-  source implementation depends on them.
-- [ ] Source changes stay inside the approved D7 write set.
-- [ ] Public compatibility facades preserve or version D0-classified surfaces.
-- [ ] `CheckReport.ok` contradiction is unconstructable or rejected.
-- [ ] Selector refusals, dependency refusals, diagnostic failures, baseline
-  refusals, protected-zone refusals, advisory findings, and staged
-  not-applicable states have focused tests.
-- [ ] Human/JSON/output/exit behavior derives from one finalized outcome.
-- [ ] D11 and D12 consumer projections are implemented and tested.
-- [ ] Downstream docs/tests/specs are realigned.
-- [ ] Graphite layer is clean and reviewable.
+- [x] Concrete D0 rows cited for all touched public/durable surfaces in
+  `workstream/implementation-start-inventory.md`.
+- [x] Live D2/D3/D5/D6 projections exist for the approved source slice; D10
+  protected-zone authority is explicitly out of scope.
+- [x] Source changes stay inside the approved D7 write set for the check/report
+  source slice.
+- [x] Public compatibility facades preserve D0-classified
+  `CheckReport`/`RuleReport`/diagnostic/check command surfaces.
+- [x] `CheckReport.ok` contradiction is rejected by TypeBox-backed report
+  validation and prevented by D7 constructors.
+- [x] Selector refusals, dependency refusals, diagnostic failures, baseline
+  refusals, advisory findings, and staged not-applicable states have focused
+  tests; protected-zone refusals remain D10-owned and out of this source slice.
+- [x] Human/JSON/output/exit behavior derives from the constructed report.
+- [x] D11 and D12 consumer projections are implemented and tested.
+- [x] Downstream docs/tests/specs are realigned after D11/D12 projection
+  contracts are implemented.
+- [x] Graphite layer is clean and reviewable.

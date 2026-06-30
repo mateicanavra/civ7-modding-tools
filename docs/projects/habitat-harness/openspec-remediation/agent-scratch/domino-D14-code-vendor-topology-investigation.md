@@ -298,7 +298,7 @@ them:
 - `packages/mapgen-core/**`
 - `packages/civ7-*`
 - `packages/mapgen-*`
-- `.grit/patterns/habitat/checks/**`, except through D8-governed registered
+- `.habitat/patterns/active/checks/**`, except through D8-governed registered
   promotion work
 - `tools/habitat-harness/src/rules/rules.json`, except through D8-governed
   registered promotion work

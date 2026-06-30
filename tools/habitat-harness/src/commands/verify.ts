@@ -1,12 +1,18 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
 import {
+  checkCommandContext,
   createCheckReport,
-  createVerifyProof,
   renderCheckReport,
+  verifyCheckSummary,
+} from "../lib/check-report.js";
+import {
+  createVerifyReceipt,
+  readVerifyTargetPlan,
   resolveVerifyBase,
   runAffectedVerification,
-} from "../lib/command-engine.js";
+  stringifyVerifyReceipt,
+} from "../lib/verify/index.js";
 
 export default class Verify extends HabitatCommand {
   static override summary = "Run Habitat check plus affected verification targets";
@@ -22,7 +28,7 @@ export default class Verify extends HabitatCommand {
       description: "Git base ref for affected targets and baseline integrity.",
     }),
     json: Flags.boolean({
-      description: "Emit a structured VerifyProof artifact instead of human output.",
+      description: "Emit a structured verify receipt instead of human output.",
     }),
   };
 
@@ -30,35 +36,51 @@ export default class Verify extends HabitatCommand {
     const { flags } = await this.parse(Verify);
     const startedAt = new Date().toISOString();
     const startedMs = Date.now();
-    const base = resolveVerifyBase(flags.base);
-    const report = await createCheckReport({ base, commandArgs: this.rawArgv() });
+    const baseDecision = resolveVerifyBase(flags.base);
+    if (baseDecision.kind === "refused") {
+      this.error(baseDecision.message, { exit: 1 });
+    }
+    const base = baseDecision.base;
+    const report = await createCheckReport({ base, command: checkCommandContext(this.rawArgv()) });
+    const checkSummary = verifyCheckSummary(report);
+    const targetPlan = await readVerifyTargetPlan();
     let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;
     let exitCode = 0;
-    if (!report.ok) exitCode = 1;
-    else affectedResult = runAffectedVerification(base);
+    if (!checkSummary.allowsAffectedExecution) exitCode = 1;
+    else if (targetPlan.kind === "verify-target-plan-refused") exitCode = 1;
+    else affectedResult = runAffectedVerification(base, targetPlan);
     if (affectedResult) exitCode = affectedResult.exitCode;
 
     if (flags.json) {
-      const proof = createVerifyProof({
+      const receipt = createVerifyReceipt({
         requestedBase: flags.base,
         resolvedBase: base,
+        baseSource: baseDecision.source,
         commandArgs: this.rawArgv(),
         startedAt,
         durationMs: Date.now() - startedMs,
         exitCode,
         checkReport: report,
+        verifyTargetPlan: targetPlan,
         affectedResult,
       });
-      this.log(JSON.stringify(proof, null, 2));
+      this.log(stringifyVerifyReceipt(receipt));
       if (exitCode !== 0) this.exitWith(exitCode);
       return;
     }
 
     this.log(renderCheckReport(report));
-    if (!report.ok) this.exit(1);
+    if (!checkSummary.allowsAffectedExecution) this.exit(1);
+    if (targetPlan.kind === "verify-target-plan-refused") {
+      const message =
+        targetPlan.refusal.kind === "graph-refusal"
+          ? targetPlan.refusal.message
+          : "Workspace graph refused verify target planning.";
+      this.error(message, { exit: 1 });
+    }
 
     this.log(`\nhabitat verify: running repo Nx affected (base=${base}) ...`);
-    const result = affectedResult ?? runAffectedVerification(base);
+    const result = affectedResult ?? runAffectedVerification(base, targetPlan);
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);

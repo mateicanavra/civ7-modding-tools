@@ -9,9 +9,9 @@ instead. The target outcome is a later implementation with no opportunity to
 mistake a project shell, Pattern Authority candidate, host-specific request, or
 future Authoring Topology request for a generally supported Habitat capability.
 
-This is design/specification work only. No TypeScript source implementation is
-authorized until the packet is accepted for design/specification and the named
-source blockers have live implementation facts.
+This packet is now in source implementation. The TypeScript implementation must
+stay inside the D13 product boundary: plugin scaffolds, candidate pattern drafts,
+and no-write refusals.
 
 ## Authority
 
@@ -20,8 +20,8 @@ source blockers have live implementation facts.
 - Source domino packet: `$D13_SOURCE_PACKET`.
 - Domain design packet: `$HABITAT_PROJECT/domain-mapping/domain-design-packet.md`.
 - Accepted design/specification packets for D0, D2, and D8.
-- Blocking input packet for G-HOST; D13 may design against the dependency, but
-  source implementation remains blocked wherever host declarations are needed.
+- Blocking input packet for G-HOST; D13 leaves host-specific scaffolding outside
+  source scope.
 - Current Habitat generator code and tests as present-behavior input, not
   target-domain authority.
 - Official Nx generator documentation for generator mechanics; official
@@ -32,30 +32,26 @@ source blockers have live implementation facts.
 
 An agent asks Habitat to create or prepare a repo structure. Habitat either:
 
-- creates a supported generic uniform project shell;
+- creates a supported plugin project shell;
 - creates a Pattern Authority candidate draft that is explicitly not active;
-- refuses registered pattern promotion until D8 admission inputs are present;
-- refuses unsupported project kinds, host-specific shapes, and Authoring
-  Topology requests before writes; or
+- refuses active pattern registration through Pattern Governance wording;
+- refuses unsupported project kinds before writes; or
 - returns a recovery action that names the owning domain and next allowed step.
 
 ## What Changes
 
 - Define the closed D13 request/outcome model for:
-  - supported uniform project creation;
+  - supported plugin project creation;
   - project preflight refusal;
   - Pattern Authority candidate draft creation;
-  - registered pattern promotion handoff/refusal through D8;
+  - active pattern registration refusal through Pattern Governance;
   - unsupported kind refusal;
-  - host-policy-gated refusal;
-  - Authoring Topology future-work refusal.
 - Define generator public surfaces and compatibility blockers that require D0
   rows before source implementation changes.
 - Define D13 write/protected paths and validation gates for later
   implementation.
-- Define D13's generic refusal envelope for unsupported authoring requests while
-  keeping authoring-specific blocked actions, future criteria, and source
-  behavior blocked behind D14 early-fence language.
+- Keep host-specific and Authoring Topology scaffolding outside D13 source
+  behavior.
 
 ## What Does Not Change
 
@@ -65,7 +61,7 @@ An agent asks Habitat to create or prepare a repo structure. Habitat either:
 - D13 does not own registry metadata projections; D2 owns those facts.
 - D13 does not own host policy declarations; G-HOST owns them.
 - D13 does not implement MapGen or other domain-specific Authoring Topology.
-- D13 does not change source behavior in this remediation layer.
+- D13 does not implement host-specific or Authoring Topology scaffolding.
 
 ## Requires
 
@@ -79,16 +75,15 @@ An agent asks Habitat to create or prepare a repo structure. Habitat either:
 - D8 accepted design/specification for Pattern Governance candidate/admission
   semantics. Source implementation remains blocked until live D8 candidate and
   admission projections exist where consumed.
-- G-HOST remains blocking for source behavior that depends on host-specific
-  declaration or refusal facts.
+- G-HOST remains the owner for future host-specific scaffold inputs.
 
 ## D14 Boundary
 
 - D13 owns the generic refusal envelope and supported scaffolding boundary.
 - D14 owns Authoring Topology blocked-action language, future acceptance
   criteria, and authoring-specific recovery semantics.
-- Source implementation for authoring-specific refusal behavior remains blocked
-  until D14 supplies accepted early-fence language for D13 to cite.
+- Source implementation for authoring-specific generator behavior remains
+  outside D13 until D14 supplies accepted generator-safe inputs.
 
 ## Affected Owners
 
@@ -145,6 +140,3 @@ Later implementation gates:
 - `bun run nx g @internal/habitat-harness:project <fixture> --kind=mod --dry-run --no-interactive`
 - `bun run nx g @internal/habitat-harness:pattern <fixture> --lifecycle=candidate --dry-run --no-interactive`
 - `bun run nx g @internal/habitat-harness:pattern <fixture> --lifecycle=registered-advisory --dry-run --no-interactive`
-- `nx show project <generated-supported-fixture> --json` after a controlled
-  generated-project fixture write, followed by cleanup and `git status --short
-  --branch`.

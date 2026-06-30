@@ -9,8 +9,8 @@ returns designed refusals.
 ## Product Scenario
 
 An agent asks Habitat to scaffold a project or pattern. Habitat creates
-supported app/foundation/plugin projects and candidate patterns, while refusing
-unsupported kinds and MapGen Authoring Topology requests with next safe action.
+supported plugin projects and candidate patterns, while refusing unsupported
+kinds with next safe action.
 
 ## Domain Owner
 
@@ -18,9 +18,9 @@ Scaffolding owner.
 
 Forbidden owners:
 
-- Pattern Governance owns registration, not candidate file writing.
-- Host Policy Boundary owns host-specific unsupported kinds.
-- Authoring Topology owns future MapGen domain/op/stage/step/recipe generation.
+- Patterns owns registration, not candidate file writing.
+- Host Policy Boundary owns future host-specific scaffold inputs.
+- Authoring Topology owns future domain/op/stage/step/recipe generation.
 
 ## Consumers
 
@@ -31,13 +31,11 @@ Topology investigators.
 
 Define:
 
-- supported project kinds;
+- supported plugin project kind;
 - project generator preflight/refusal states;
 - candidate pattern generator output state;
-- registered pattern handoff to D8;
+- active pattern registration refusal through Patterns;
 - unsupported-kind refusal;
-- Authoring Topology refusal/future trigger;
-- host-policy missing refusal.
 
 ## Dependency Order
 
@@ -59,9 +57,9 @@ refusal semantics.
 
 1. Model project generator supported kinds as a closed union.
 2. Model pattern generator output as candidate-only until D8 registration.
-3. Define refusal DTO/message with blocked action, reason, owner, next safe
-   action, proof class, and non-claims.
-4. Add unsupported host/domain authoring refusals, including MapGen topology.
+3. Define refusal DTO/message with blocked action, reason, next safe action, and
+   retry condition.
+4. Keep host/domain authoring scaffolding outside this packet.
 5. Keep generator tests scenario-based rather than implementation-folder based.
 
 ## TypeScript State-Space Reduction
@@ -82,25 +80,24 @@ both use Nx. That preserves product ambiguity.
 Generator schema and error messages may change. D0 must classify whether
 generator options are stable. Unsupported kinds should fail deliberately.
 
-## Proof Classes
+## Validation Classes
 
-Required design proof:
+Required design validation:
 
 - generator schema inventory;
 - supported/unsupported scenario inventory;
-- Pattern Governance handoff contract.
+- Patterns handoff contract.
 
-Later implementation proof:
+Implementation validation:
 
-- generator tests for supported kinds;
+- generator tests for supported plugin scaffolding;
 - refusal tests for unsupported kinds;
 - candidate pattern generation tests;
-- registration handoff tests;
+- active registration refusal tests;
 - classify/check after generated supported project when feasible.
 
-Non-claims:
+Scope limits:
 
-- project scaffolding does not prove app/product behavior.
 - candidate pattern generation does not register a rule.
 - scaffold refusal does not implement Authoring Topology.
 
@@ -108,7 +105,7 @@ Non-claims:
 
 - Product/scenario review.
 - Refusal contract review.
-- Pattern Governance review.
+- Patterns review.
 - Host boundary review.
 - API/generator compatibility review.
 
@@ -121,18 +118,18 @@ Update:
 - `tools/habitat-harness/docs/AUTHORING-NEXT.md`;
 - AGENTS scaffold guidance if command examples change.
 
-## Validation Commands / Proof Template
+## Validation Commands
 
 - `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts`:
-  expected exit 0; supported scaffold and pattern candidate proof.
+  expected exit 0; supported scaffold and pattern candidate behavior.
 - `nx g @internal/habitat-harness:project habitat-scratch --kind=plugin --dry-run`:
-  expected exit 0; supported project dry-run proof.
+  expected exit 0; supported project dry-run behavior.
 - `nx g @internal/habitat-harness:project unsupported-scratch --kind=host-specific --dry-run`:
-  expected nonzero; unsupported-kind refusal proof.
+  expected nonzero; unsupported-kind refusal.
 - Cache stance: generator dry-runs must run fresh and must not rely on Nx cache.
 - Injected bad case: include unsupported kind, registered-pattern-without-manifest,
   and host-specific scaffold request; all must refuse before writes.
-- Non-claim: this packet does not implement unsupported project kinds.
+- Scope limit: this packet does not implement unsupported project kinds.
 
 ## Graphite/OpenSpec Closure
 
@@ -146,4 +143,4 @@ Stop if:
 - unsupported kinds fall through to generic generation;
 - candidate pattern output is described as registered enforcement;
 - Authoring Topology implementation enters scope;
-- refusal lacks next safe action or non-claim.
+- refusal lacks next safe action.

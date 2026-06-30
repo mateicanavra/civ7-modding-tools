@@ -17,7 +17,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-live-nonzero",
-          kind: "platform-parity",
+          kind: "workspace-tool",
           executable: "node",
           argv: ["-e", "console.log('out'); console.error('err'); process.exit(7)"],
           cwd: repoRoot,
@@ -25,7 +25,6 @@ describe("HabitatProcess", () => {
             HABITAT_VISIBLE_ENV: "visible",
             HABITAT_SECRET_TOKEN: "should-not-appear",
           },
-          nonClaims: ["does-not-prove-grit-pattern-semantics"],
         });
       }).pipe(Effect.provide(HabitatProcessLive))
     );
@@ -42,7 +41,6 @@ describe("HabitatProcess", () => {
       redacted: true,
     });
     expect(JSON.stringify(result)).not.toContain("should-not-appear");
-    expect(result.nonClaims).toEqual(["does-not-prove-grit-pattern-semantics"]);
   });
 
   test("keeps broad Grit-sized JSON captures available to parser code", async () => {
@@ -51,7 +49,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-large-json",
-          kind: "platform-parity",
+          kind: "workspace-tool",
           executable: "node",
           argv: [
             "-e",
@@ -73,7 +71,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-workspace-grit",
-          kind: "grit-check",
+          kind: "pattern-check",
           executable: "grit",
           argv: ["--version"],
           cwd: repoRoot,
@@ -90,36 +88,13 @@ describe("HabitatProcess", () => {
     expect(result.stdout.text).toContain("grit");
   });
 
-  test("routes script-colliding workspace binaries through local-only bunx", async () => {
-    const result = await runHabitatEffect(
-      Effect.gen(function* () {
-        const process = yield* HabitatProcess;
-        return yield* process.run({
-          commandId: "habitat-process-workspace-openspec",
-          kind: "platform-parity",
-          executable: "openspec",
-          argv: ["--version"],
-          cwd: "/tmp",
-        });
-      }).pipe(Effect.provide(HabitatProcessLive))
-    );
-
-    expect(result.exit.code).toBe(0);
-    expect(result.requestedExecutable).toBe("openspec");
-    expect(result.executable).toBe("bun");
-    expect(result.executionPlane).toBe("workspace-bunx-binary");
-    expect(result.cwd).toBe(repoRoot);
-    expect(result.argv).toEqual(["x", "--no-install", "openspec", "--version"]);
-    expect(result.stdout.text).toMatch(/\d+\.\d+\.\d+/);
-  });
-
   test("reports missing tools as tagged adapter errors", async () => {
     const error = await runHabitatEffect(
       Effect.gen(function* () {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-missing-tool",
-          kind: "grit-check",
+          kind: "pattern-check",
           executable: "definitely-not-a-real-habitat-tool",
           argv: ["--version"],
           cwd: repoRoot,
@@ -155,7 +130,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-fake-interruption",
-          kind: "grit-apply",
+          kind: "pattern-apply",
           executable: "grit",
           argv: ["apply"],
           cwd: repoRoot,

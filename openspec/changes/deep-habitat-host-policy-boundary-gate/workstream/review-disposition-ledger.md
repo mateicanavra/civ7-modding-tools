@@ -2,11 +2,11 @@
 
 ## Current State
 
-G-HOST is **accepted for design/specification only** after after-repair final
-rereviews recorded no unresolved P1/P2 findings on the latest disk state. The
-packet is not implementation-complete and does not authorize source work.
-First-wave and first final-wave blockers remain recorded below as repaired
-design-control evidence.
+G-HOST is accepted for design/specification after after-repair final rereviews
+recorded no unresolved P1/P2 findings on that disk state. The current
+implementation layer adds the internal host-policy source boundary and has
+completed fresh temporary-supervisor source/closure review. First-wave and first
+final-wave blockers remain recorded below as repaired design-control evidence.
 
 | Finding | Severity | Disposition | Repair Evidence |
 | --- | --- | --- | --- |
@@ -22,3 +22,6 @@ design-control evidence.
 | Cross-domino/product lane: D9 was omitted as a direct consumer, D14 authoring split was ambiguous, D0/D1 public-surface handling was under-specified, and downstream records were generic. | P1/P2/P3 | accepted; repaired; after-repair final rereview accepted | `$GHOST_CROSS_DOMINO_REVIEW`; repaired in `proposal.md` Enables/Public Surface/Forbidden Owners, `design.md` Owner Boundary/Consumer Projections/Downstream Contract, `spec.md` consumer scenarios, `tasks.md` review and closure tasks, and `downstream-realignment-ledger.md`; after-repair acceptance in `$GHOST_AFTER_REPAIR_CROSS_DOMINO_PRODUCT_REVIEW`. |
 | First final OpenSpec/information rereview: source packet still cited a stale generated-zone unit command and declaration source/format/location remained deferred. | P2 | accepted; repaired; after-repair final rereview accepted | `$AGENT_SCRATCH/host-policy-boundary-final-openspec-information-review.md`; repaired by replacing the stale source-packet command with `test/lib/host-policy.test.ts` and fixing the first implementation source as internal `$HABITAT_TOOL/src/lib/host-policy.ts`; after-repair acceptance in `$GHOST_AFTER_REPAIR_OPENSPEC_INFORMATION_REVIEW`. |
 | After-repair final per-domino rereview gate. | P1 | closed for design/specification acceptance | `$GHOST_AFTER_REPAIR_DOMAIN_REVIEW`, `$GHOST_AFTER_REPAIR_TYPESCRIPT_VALIDATION_REVIEW`, `$GHOST_AFTER_REPAIR_OPENSPEC_INFORMATION_REVIEW`, `$GHOST_AFTER_REPAIR_CODE_VENDOR_TOPOLOGY_REVIEW`, and `$GHOST_AFTER_REPAIR_CROSS_DOMINO_PRODUCT_REVIEW` record no unresolved P1/P2 findings. |
+| Source rereview: conflict detection was too narrow for the accepted G-HOST state model, allowing duplicate generated zones, overlapping surface matchers, duplicate gates/request classes, policy drift, and recovery-owner disagreement to project as declared authority. | P1 | accepted; repaired | `tools/habitat-harness/src/lib/host-policy/state.ts` now reports duplicate owner/declaration/generated-zone/apply-gate/request-class conflicts, policy-id drift, recovery-owner mismatch, non-claim mismatch, and overlapping host surface declarations before projections can return declared authority; `test/lib/host-policy.test.ts` covers the conflict set. |
+| Source rereview: G-HOST records overclaimed D9 transaction and D13 generator no-write proof. | P2 | accepted; repaired | `tasks.md`, `phase-record.md`, `closure-checklist.md`, and downstream realignment now scope G-HOST evidence to projection behavior while keeping D9 transaction sequencing/no-generic-run proof and D13 generator no-write behavior packet-local downstream work. |
+| Closure rereview: downstream realignment and closure tasks still described design-only status and unchecked closure controls. | P2 | accepted; repaired | Downstream realignment, packet index, tasks, phase record, and closure checklist now distinguish live G-HOST projections from downstream D9/D10/D13/D14 implementation closure and record validation evidence for this source layer. |

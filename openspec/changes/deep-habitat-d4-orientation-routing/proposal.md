@@ -8,11 +8,12 @@ into command-facing classification states, target guidance, refusals, recovery
 instructions, and non-claims. It does not run checks, prove rule correctness,
 apply guardrails, generate files, or admit authoring topology.
 
-This packet is design/specification authority only. Source implementation stays
-blocked until concrete D0 public-surface rows exist for every classify command,
-JSON, human-output, package-export, docs-example, and generated surface touched
-by D4, and until live D2/D3 implementation facts are available for routing and
-graph guidance.
+This packet is the D4 product authority for both the accepted design and the
+current source implementation. Source implementation remains valid only after
+concrete D0 public-surface rows exist for every classify command, JSON,
+human-output, package-export, docs-example, and generated surface touched by D4,
+and after live D2/D3 implementation facts are available for routing and graph
+guidance.
 
 ## Authority
 
@@ -58,7 +59,7 @@ classify did not claim.
 - No Civ-specific routing authority.
 - No local reconstruction of D2 rule truth, D3 graph truth, target dependency
   resolution, or authoring topology support.
-- No source implementation in this remediation packet.
+- No source implementation outside the D4-owned classify orientation boundary.
 
 ## Requires
 
@@ -79,12 +80,12 @@ classify did not claim.
 
 - Domain owner: Orientation and Routing.
 - OpenSpec change path: `$D4_CHANGE/**`.
-- Expected Habitat implementation write set named in `design.md`; no code is
-  authorized by this remediation packet itself.
+- Habitat implementation write set named in `design.md`; code is authorized only
+  after the D0/D2/D3 source blockers recorded by this packet are satisfied.
 
 ## Forbidden Owners
 
-- D4 may not parse legacy rule `scope` prose as routing authority.
+- D4 may not parse old rule `scope` prose as routing authority.
 - D4 may not infer project ownership, target existence, alias validity, graph
   read status, or dependency resolution locally.
 - D4 may not treat unavailable targets or graph refusals as runnable commands.
@@ -92,17 +93,17 @@ classify did not claim.
   behavior.
 - Current code names may not become target-domain language without explicit D4
   acceptance and D0 compatibility handling.
-- Implementation agents may not add shims, fallbacks, dual paths, silent skips,
+- Implementation agents may not add shims, alternate DTO paths, silent skips,
   optional target shapes, or generated-output hand edits.
 
 ## Consumer Impact
 
-Classify JSON and human guidance are public command surfaces. `Classification`,
-`DiffClassification`, `ClassifiedTarget`, `UnavailableClassifiedTarget`,
-`ScopedRule`, `RuleScopeKind`, `classifyPath`, and `classifyTarget` are public
-package-export candidates. D4 may design a new target model now, but source
-changes to those surfaces require D0 row citations and a closed D0 handling
-action.
+Classify JSON and human guidance are public command surfaces. The D0-cited
+predecessor classify DTO exports are replaced on this stack. D4 versions them
+to `ClassifyResult`, `PathClassification`, `RuleRouting`, and
+`RuleCoverageKind` instead of preserving parallel DTO paths. `classifyPath` and
+`classifyTarget` remain public function names and now return the D4 result
+model.
 
 ## Stop Conditions
 

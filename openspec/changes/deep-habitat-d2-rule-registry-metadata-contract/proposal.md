@@ -8,10 +8,10 @@ The prior D2 scaffold named the right direction but was not executable authority
 
 ## Authority
 
-- Remediation frame: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation-frame.md`.
-- Source domino packet: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`.
-- Negative control review: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`.
-- Fresh D2 investigations under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-*-investigation.md`.
+- Remediation frame: `docs/projects/habitat-harness/openspec-remediation-frame.md`.
+- Source domino packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`.
+- Negative control review: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`.
+- Fresh D2 investigations under `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-*-investigation.md`.
 - Accepted D0 design/specification packet for public-surface inventory.
 - Accepted D1 design/specification packet for command records, receipts, diagnostics, refusals, and non-claims.
 - Current Habitat code and tests as present-behavior evidence only.
@@ -55,7 +55,7 @@ An agent classifies a path, selects rules, runs `habitat check`, inspects inferr
 - D6 through `ruleGritFacts`.
 - D7 through selector, routing, execution, baseline, Grit, and generated-zone projections.
 - D8 through `ruleGovernanceFacts`.
-- D10 through `ruleGeneratedZoneFacts` plus G-HOST policy ownership.
+- D10 through `ruleFileLayerFacts` plus G-HOST policy ownership.
 - D13 through governance/scaffold relation facts.
 
 ## Affected Owners

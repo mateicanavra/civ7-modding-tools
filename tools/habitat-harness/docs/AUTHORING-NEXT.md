@@ -9,12 +9,12 @@ generators and apply loops.
 Habitat should let an agent create correct MapGen structures faster than hand
 authoring them from memory.
 
-The next product milestone should be proven by an executable loop:
+The next product milestone should be validated by an executable loop:
 
 ```text
 Use Habitat to generate a new MapGen domain with one operation, wire it into a
-new or existing recipe stage/step, run the generated structure through Nx,
-Habitat, and recipe compilation, and show the generated code is correct enough
+new or existing recipe stage/step, run the generated structure through Habitat,
+graph verification, and recipe compilation, and show the generated code is correct enough
 for an agent to continue from it without hand-inventing topology.
 ```
 
@@ -51,33 +51,33 @@ Preferred slice:
    - owning package `check`;
    - owning package `test` where relevant;
    - `bun run habitat:check`;
-   - recipe compilation or the closest current recipe proof.
+   - recipe compilation or the closest current recipe validation.
 
 If current conventions make this slice wrong, choose the smallest complete
-authoring loop that crosses generation, wiring, and proof. Do not stop at files
+authoring loop that crosses generation, wiring, and validation. Do not stop at files
 that compile only because they are unused.
 
 ## Generator Acceptance Contract
 
-Every authoring generator should prove:
+Every authoring generator should demonstrate:
 
 - it writes all required files;
 - it updates all required registries;
 - it refuses collisions before writes;
 - it refuses invalid topology choices before writes;
-- generated imports satisfy Habitat Grit rules;
+- generated imports satisfy Habitat rules;
 - generated files are classified to the expected owner and checks;
 - generated structure builds and passes relevant tests;
 - generated structure is understandable enough for a later agent to extend.
 
 ## Apply Pattern Acceptance Contract
 
-Every new apply pattern should prove:
+Every new apply pattern should demonstrate:
 
 - exact diagnostic rule or source shape it repairs;
 - exact allowed roots;
 - exact file-operation policy;
-- structured rewrite inventory or isolated-copy proof;
+- structured rewrite inventory or isolated-copy diff evidence;
 - target export existence when import paths are rewritten;
 - no unapproved creates or deletes;
 - package-local typecheck/test gate;
@@ -85,12 +85,12 @@ Every new apply pattern should prove:
 - live clean-worktree behavior;
 - rollback behavior.
 
-Do not wire a pattern into `habitat fix` just because it has Grit fixtures.
-Fixture proof is necessary, but not sufficient.
+Do not wire a pattern into `habitat fix` just because it has adapter fixtures.
+Fixture validation is necessary, but not sufficient.
 
 ## Work Discipline
 
-For this phase, product proof outranks control-plane polish.
+For this phase, product behavior outranks control-plane polish.
 
 Prefer:
 
@@ -102,8 +102,8 @@ Prefer:
 
 Avoid:
 
-- adding new documentation layers without generator proof;
-- expanding Pattern Authority process for its own sake;
+- adding new documentation layers without generator validation;
+- expanding pattern manifest process for its own sake;
 - treating rule-pack health as authoring capability;
 - accepting "Habitat has generators" unless the generator serves the MapGen
   authoring loop being claimed.

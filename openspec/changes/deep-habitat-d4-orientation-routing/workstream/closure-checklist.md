@@ -17,16 +17,19 @@
 - [x] OpenSpec validation passes for `deep-habitat-d4-orientation-routing`.
 - [x] Full OpenSpec validation passes.
 - [x] D4 language audit finds no reduced-standard wording in active guidance.
-- [x] Packet index marks D4 accepted for design/specification only.
+- [x] Packet index records D4 source implementation and draft PR #1839.
 
-## Implementation Closure (Later)
+## Implementation Closure
 
-- [ ] Concrete D0 public-surface rows are cited before source edits.
-- [ ] D2 live `ruleRoutingFacts` and D3 live `GraphRefusal`/target facts exist
+- [x] Concrete D0 public-surface rows are cited before source edits.
+- [x] D2 live `ruleRoutingFacts` and D3 live `GraphRefusal`/target facts exist
       before source code consumes them.
-- [ ] Source changes stay inside the approved write set.
-- [ ] Validation gates pass with exact command output/status recorded.
-- [ ] Public-surface changes follow D0 handling.
-- [ ] D14 example corpus is updated with implementation facts.
-- [ ] Graphite layer is clean, reviewable, and does not proceed past unresolved
-      packet approval.
+- [x] Source changes stay inside the approved write set.
+- [x] Validation gates pass with exact command output/status recorded.
+- [x] Public-surface changes follow D0 handling.
+- [x] D14 example corpus is updated with implementation facts.
+- [x] Final D4 source/record rereview finds no unresolved accepted P1/P2
+      findings.
+- [x] Packet index records source implementation after final review.
+- [x] Graphite layer is submitted as draft PR #1839 and does not proceed past
+      unresolved packet approval.

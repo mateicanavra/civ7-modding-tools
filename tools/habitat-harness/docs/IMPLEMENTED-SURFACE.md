@@ -11,14 +11,14 @@ working in this Civ7 codebase:
 - one CLI entrypoint for structural checks and local hook delegation;
 - normalized Habitat diagnostics over heterogeneous tools;
 - shrink-only baseline contracts;
-- graph-owned Nx target integration;
+- graph-owned target integration;
 - project-plane boundary enforcement;
-- Biome hygiene routing;
-- GritQL source-shape checks;
-- guarded Grit apply transactions for approved codemods;
+- formatter hygiene routing;
+- Habitat pattern source-shape checks;
+- guarded Habitat apply transactions for approved codemods;
 - staged file-layer protection for generated/protected zones;
 - classification of paths and diffs into owning projects, rules, and targets;
-- two Nx generators for supported uniform projects and Grit rule lifecycle
+- two workspace generators for supported uniform projects and pattern lifecycle
   scaffolding.
 
 This is meaningful platform-substrate work. It makes many architecture and
@@ -54,34 +54,33 @@ Implemented command qualities:
   runtime artifacts;
 - command tests cover command argument forwarding and output behavior.
 
-## Nx Graph Ownership
+## Workspace Graph Ownership
 
 Implemented graph integration:
 
-- Habitat inference plugin loaded from `nx.json`;
+- Habitat inference plugin loaded by the workspace graph;
 - inferred aggregate `habitat:check:all` for one-pass full Habitat graph checks;
 - inferred `habitat:check` per rule owner;
 - inferred `habitat:rule:<rule-id>` aliases;
-- inferred repo-wide `boundaries`, `biome:*`, `grit:check`, and
-  `generated:check`;
-- root scripts normalized onto Nx graph entrypoints instead of manual task
+- inferred repo-wide boundary, formatter, pattern, and generated-zone checks;
+- root scripts normalized onto workspace graph entrypoints instead of manual task
   chaining;
 - package-local scripts kept leaf-local where possible.
 
-The key result is that Habitat checks participate in the Nx DAG instead of
+The key result is that Habitat checks participate in the workspace DAG instead of
 living as loose repo scripts.
 
 ## Enforcement Layers
 
 Implemented owner tools:
 
-- `habitat-native`
-- `wrapped-script`
-- `grit-check`
-- `nx-boundaries`
-- `biome`
-- `file-layer`
-- `wrapped-test`
+- native checks
+- wrapped scripts
+- pattern checks
+- project boundaries
+- formatter hygiene
+- file protection
+- wrapped tests
 
 Implemented rule state:
 
@@ -92,43 +91,42 @@ Implemented rule state:
 - selector validation for unknown, wrong-namespace, and empty-intersection
   rule selections.
 
-## Grit Pattern Work
+## Pattern Work
 
 Implemented diagnostic/check state:
 
 - 31 active Habitat check patterns;
-- matching 31 registered `grit-check` rules;
-- fixture tests for Grit pattern validity;
-- Grit adapter normalization over machine JSON output;
-- injected-probe and cache/failure handling tests;
-- Effect-backed process boundary for the Grit adapter.
+- matching 31 registered pattern-backed rules;
+- fixture tests for pattern validity;
+- adapter normalization over machine JSON output;
+- cache/failure handling tests;
+- Effect-backed process boundary for the pattern adapter.
 
 Implemented apply state:
 
 - two apply pattern files exist;
 - one apply pattern is wired into `habitat fix`;
 - apply transactions have clean-worktree protection for live writes;
-- apply transactions produce proof artifacts and fail closed on ambiguous
+- apply transactions produce transaction records and fail closed on ambiguous
   output, unapproved paths, creates, deletes, and unexpected file changes.
 
 ## Generators
 
 Implemented `project` generator:
 
-- supported kinds: `foundation`, `plugin`, `app`;
+- supported kinds: `plugin`;
 - canonical roots and package names enforced;
 - root collision and package-name collision checks;
-- generated scratch projects are covered by Nx discovery tests.
+- unsupported project kinds refuse before writes.
 
 Implemented `pattern` generator:
 
 - candidate-only generation by default;
-- active registration requires Pattern Authority Manifest acceptance;
+- active registration requires accepted pattern manifest state;
 - registered promotion validates baseline and rule-introduction contracts;
-- registered promotion writes active Grit pattern plus rule-pack entry;
-- hook-scoped rules require manifest/invocation agreement.
+- registered promotion writes active Habitat pattern plus rule-pack entry;
 
-## Hooks and Local Feedback
+## Hooks and Hook Check
 
 Implemented:
 
@@ -136,14 +134,14 @@ Implemented:
 - resource submodule state checks;
 - staged generated-zone checks;
 - partial-staging refusal before formatting;
-- staged Biome formatting and restaging for formatter-touched files;
-- staged Grit checks;
+- staged formatting and restaging for formatter-touched files;
+- staged pattern checks;
 - affected pre-push verification.
 
-Hooks are intentionally local feedback. CI and explicit graph proof remain the
-authority for review and merge confidence.
+Hooks are workstation checks. CI and explicit graph checks remain the
+review and merge confidence.
 
-## Proof Coverage
+## Test Coverage
 
 Current tests cover:
 
@@ -151,15 +149,15 @@ Current tests cover:
 - rule selection;
 - baselines and baseline integrity;
 - classification;
-- Grit adapter behavior;
-- Grit apply transaction behavior;
+- pattern adapter behavior;
+- Habitat apply transaction behavior;
 - generated/protected zones;
 - hooks;
 - project generator behavior;
 - pattern generator behavior;
-- Pattern Authority Manifest validation;
-- Effect parity and process boundary behavior;
-- workspace tool discovery and proof artifact construction.
+- pattern manifest Manifest validation;
+- process boundary behavior;
+- workspace tool discovery and verification receipt construction.
 
-These proofs establish Habitat as an enforcement and orchestration substrate.
-They do not prove broad MapGen authoring generation.
+These tests cover Habitat's enforcement and orchestration behavior. They do not
+cover broad MapGen authoring generation.

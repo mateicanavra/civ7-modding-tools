@@ -3,9 +3,9 @@
 ## Status
 
 D3 is accepted for design/specification after final per-domino rereview found
-no unresolved P1/P2 blockers. D3 is not implementation-complete, and source
-implementation remains blocked until concrete D0 rows and live D2 graph
-projection facts exist.
+no unresolved P1/P2 blockers. D3 source implementation and implementation-time
+boundary-review repairs are locally validated and submitted through draft PR
+#1838 v3.
 
 ## Imported Negative Control Review
 
@@ -82,3 +82,26 @@ Sources:
 | TypeScript state-space | `$AGENT_SCRATCH/domino-D3-final-typescript-state-review.md` | accepted for design/specification only; no unresolved P1/P2 blockers |
 | Information design | `$AGENT_SCRATCH/domino-D3-final-information-design-review.md` | accepted for design/specification only; no unresolved P1/P2 blockers; P3 task wording repaired in `tasks.md` |
 | Cross-domino | `$AGENT_SCRATCH/domino-D3-final-cross-domino-review.md` | accepted for design/specification only; no unresolved P1/P2 blockers |
+
+## Implementation-Time Dispositions
+
+| Finding | Severity | Disposition | Repair Evidence |
+| --- | --- | --- | --- |
+| `plugin.js` deletion would violate the D0/Nx public plugin surface. | P1 | accepted; repaired | `$HABITAT_TOOL/src/plugin.js` remains present and is still referenced by `nx.json` and `$HABITAT_TOOL/package.json`, but it is now only a one-line compatibility adapter over `$HABITAT_TOOL/src/plugin/nx-plugin.ts`. |
+| Verify and classify could diverge if they consumed separate graph inventories. | P1 | accepted; repaired | `$HABITAT_TOOL/src/lib/classify.ts` and `$HABITAT_TOOL/src/lib/verify-receipt.ts` now consume the D3 workspace graph projections/target plan rather than separate local target construction. |
+| Generic graph code must not hardcode host-specific Civ/MapGen generated-zone dependencies. | P1 | accepted; repaired | `generated:check` now uses the generic Habitat file-layer command; host-specific generated-zone policy remains a G-HOST/D10 non-claim. |
+| Runnable alias wrappers must require resolved dependencies; unresolved graph relationships cannot false-green through `node -e ""`. | P1 | accepted; repaired | Workspace graph projections distinguish resolved and unresolved dependencies; `plugin.js` withholds unresolved aliases; `NX_DAEMON=false nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache` invokes the canonical Biome dependency and fails inside that dependency rather than succeeding through the wrapper. |
+| Workspace graph refusal state was too loose for classify/verify consumers. | P2 | accepted; repaired | `GraphRefusalStateSchema` and related projection schemas are TypeBox-owned in `$HABITAT_TOOL/src/lib/workspace-graph/schema.ts`; classify derives its refusal DTO from that state rather than a hand-written parallel union. |
+| D3 implementation introduced unnecessary JS shim surfaces. | P2 | accepted; repaired | The one-line registry JS re-export and stray note artifact were deleted. `find $HABITAT_TOOL/src -name '*.js'` now returns only `$HABITAT_TOOL/src/plugin.js`, which re-exports the TypeScript implementation for the existing Nx/package path. |
+| TypeBox-first contract discipline must hold for D3 DTO/schema surfaces. | P2 | accepted; repaired | D3 graph, target-definition, and receipt-adjacent schemas use TypeBox schema constants plus derived static types and TypeBox `Value` parsing at boundaries; targeted scan found no `Type.Unsafe` or `as any` in D3-touched implementation source. |
+| The JS loader boundary still owned too much graph construction and target-definition logic. | P2 | accepted; repaired | `$HABITAT_TOOL/src/plugin.js` is a one-line adapter. Nx plugin implementation lives in `$HABITAT_TOOL/src/plugin/nx-plugin.ts`; rule alias mapping lives in `$HABITAT_TOOL/src/rules/registry/graph.ts`; target definition construction lives in `$HABITAT_TOOL/src/plugin/target-definitions.ts`; TypeBox schemas remain the runtime validation source. |
+| Nx inferred alias targets could be silently omitted because plugin inference used package JSON target inventory as dependency authority. | P2 | accepted; repaired | Package JSON scanning was removed from the Nx plugin implementation. Alias wrappers are emitted with explicit Nx `dependsOn` declarations, and Nx metadata/execution now owns missing dependency failure rather than a non-authoritative package inventory. `nx show project @internal/habitat-harness --json` reports all 16 `habitat:rule:*` aliases, including `biome-ci`. |
+| The package `files` boundary did not include the TS modules imported by the plugin runtime. | P2 | accepted; repaired | `$HABITAT_TOOL/package.json` now includes `src/lib/workspace-graph`, `src/lib/workspace-graph-contract.ts`, and `src/rules/registry` alongside `src/plugin` and `src/plugin.js`, so the declared package file surface matches runtime imports including `src/plugin/nx-plugin.ts`. |
+| Boundary review found an untriaged TODO committed in the D3 command test file. | P2 | accepted; repaired | The loose TODO was removed from `$HABITAT_TOOL/test/commands/habitat-commands.test.ts`; command-test modernization remains tracked by existing Habitat docs and later packet-owned command-test gates rather than a source TODO. |
+| Boundary review found duplicate rule alias authority between plugin inference and classify/verify graph facts. | P2 | accepted; repaired | `ruleGraphFacts` now lives in `$HABITAT_TOOL/src/rules/registry/graph.ts` and is consumed by both `$HABITAT_TOOL/src/plugin/nx-plugin.ts` and `$HABITAT_TOOL/src/rules/facts.ts`; `$HABITAT_TOOL/src/plugin/rule-alias.ts` and `$HABITAT_TOOL/src/plugin/rule-graph.ts` were deleted. |
+| Boundary review found duplicate target-name default policy in the JS loader. | P2 | accepted; repaired | `$HABITAT_TOOL/src/plugin/nx-plugin.ts` consumes `$HABITAT_TOOL/src/lib/workspace-graph-contract.ts` for target-name construction and validates the result with `WorkspaceGraphTargetNamesSchema`; the JS adapter does not reconstruct defaults locally. |
+| Boundary review found workspace `lint` emitted as local projection truth without a D3 target-name declaration. | P2 | accepted; repaired | `lint` is now part of `WorkspaceGraphTargetNamesSchema` and the shared target-name contract. It remains a D0-compatible classify workspace aggregate projection, not an inferred Nx plugin target. |
+| Boundary review found stale Graphite closure wording after PR #1838 v2 was submitted. | P2/P3 | accepted; repaired | D3 phase, downstream, packet-index, and review records now identify the boundary-review repair state and draft PR #1838 v3 instead of saying Graphite closure is pending/prepared. |
+
+Implementation-time and boundary-review findings above are accepted and
+repaired; no unresolved P1/P2 findings remain from those waves.

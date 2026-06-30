@@ -50,7 +50,7 @@ Accepted D7 target terms:
 
 | Term | Meaning |
 | --- | --- |
-| `StructuralCheckRequest` | Normalized check operation: command context, selector request, check mode, base request, staged request when present. |
+| `StructuralCheckRequest` | Normalized check operation: Oclif-derived command context, selector request, check mode, base request, staged request when present. |
 | `SelectorRequest` | User selector intent over owner, rule, tool, and command scope. |
 | `RuleSelectionOutcome` | Accepted selected rule set or selector refusal. |
 | `SelectorRefusal` | Unknown selector, wrong selector namespace, or empty selector intersection. |
@@ -197,25 +197,28 @@ Construction rules:
 
 ## Public Surface Compatibility Inventory
 
-Rows use `blocked-pending-d0-row` until the concrete D0 matrix exists. Source
-implementation cannot start while touched public rows remain placeholders.
+Concrete source-start citations are recorded in
+`workstream/implementation-start-inventory.md`. Source implementation cannot
+touch a public or durable surface outside those rows without first updating the
+source-start inventory or adding a packet-approved D0 matrix row.
 
 | Surface | Plane | D0 surface id | Required handling before source edits |
 | --- | --- | --- | --- |
-| `habitat check` flags and selector behavior | command-behavior | `blocked-pending-d0-row` | Preserve, facade, version, or refuse explicitly. |
-| `habitat check --json` schemaVersion 1 `CheckReport` | command-json | `blocked-pending-d0-row` | Preserve unless D0 versions; semantic consistency may tighten through facade/validator decision. |
-| `habitat check` human output | human-output | `blocked-pending-d0-row` | Preserve/facade/version summary and refusal wording. |
-| `habitat check --output` | command-behavior | `blocked-pending-d0-row` | Preserve write semantics or version through D0. |
-| `habitat check --staged` | command-behavior/hook | `blocked-pending-d0-row` | Preserve staged behavior while adding explicit not-applicable/refusal states. |
-| `habitat check --expand-baseline` | command-behavior | `blocked-pending-d0-row` | D5 owns expansion; D7 preserves command separation. |
-| `baseline-integrity` built-in row | command-json/human-output | `blocked-pending-d0-row` | Decide whether it remains built-in only or becomes selectable; current `--rule baseline-integrity` fails. |
-| `CheckReport`, `RuleReport`, `HabitatDiagnostic`, `RuleStatus` | package-export/command-json | `blocked-pending-d0-row` | Preserve/facade/version names and schema. |
-| `validateCheckReport` | package-export | `blocked-pending-d0-row` | Tighten semantics only through D0/D1-compatible handling. |
-| `createCheckReport`, `renderCheckReport`, `stringifyCheckReport` | package-export | `blocked-pending-d0-row` | Preserve public call shape or version/facade. |
-| Hook parsing of check output | hook/human-output | `blocked-pending-d0-row` | Preserve D11 compatibility until D11 consumes projection. |
-| Verify check summary | command-json | `blocked-pending-d0-row` | D12 consumes D7 projection; current `{}` selector summary is compatibility fact. |
-| Nx `habitat:check` and `habitat:rule:*` outputs | script/Nx target output | `blocked-pending-d0-row` | Preserve or version target output semantics with D3 dependency facts. |
-| Docs/examples/generated help | docs-example/generated-only | `blocked-pending-d0-row` | Document-only or generated-only changes after source behavior is settled. |
+| `habitat check` flags and selector behavior | command-behavior | `D0-cli-cmd-check`, `D0-cli-cmd-check-flag-owner`, `D0-cli-cmd-check-flag-rule`, `D0-cli-cmd-check-flag-tool`, `D0-cli-cmd-check-flag-base` | Preserve, facade, version, or refuse explicitly. |
+| `habitat check --json` schemaVersion 1 `CheckReport` | command-json | `D0-cli-cmd-check-flag-json`, `D0-command-json-type-checkreport`, `D0-command-json-type-rulereport`, `D0-command-json-type-habitatdiagnostic`, `D0-command-json-cmd-check-json-selector-failure` | Preserve unless D0 versions; semantic consistency may tighten through facade/validator decision. |
+| `CheckReport.command` | command-json/package-export | `D0-command-json-type-checkreport`, `D0-package-export-symbol-createcheckreport` | Preserve serialized compatibility while replacing manual command/argv string construction with Oclif-derived command context. |
+| `habitat check` human output | human-output | `D0-human-output-cmd-check-line-human-report`, `D0-cli-cmd-check` | Preserve/facade/version summary and refusal wording. |
+| `habitat check --output` | command-behavior | `D0-cli-cmd-check-flag-output`, `D0-command-json-type-checkreport` | Preserve write semantics or version through D0. |
+| `habitat check --staged` | command-behavior/hook | `D0-cli-cmd-check-flag-staged`, `D0-hook-hook-pre-commit` | Preserve staged behavior while adding explicit not-applicable/refusal states. |
+| `habitat check --expand-baseline` | command-behavior | `D0-cli-cmd-check-flag-expand-baseline`, `D0-package-export-symbol-expandbaselines`, `D0-durable-data-baselines-json-array` | D5 owns expansion; D7 preserves command separation. |
+| `baseline-integrity` built-in row | command-json/human-output | `D0-cli-cmd-check-rule-baseline-integrity-refused`, `D0-command-json-type-rulereport` | Keep built-in report behavior; do not make `--rule baseline-integrity` selectable in D7. |
+| `CheckReport`, `RuleReport`, `HabitatDiagnostic`, `RuleStatus` | package-export/command-json | `D0-package-export-symbol-checkreport`, `D0-package-export-symbol-rulereport`, `D0-package-export-symbol-habitatdiagnostic`, `D0-command-json-type-rulereport` | Preserve/facade/version names and schema. `RuleStatus` is covered through `RuleReport`, not a separate D0 row. |
+| `validateCheckReport` | package-export | `D0-package-export-symbol-validatecheckreport` | Tighten semantics only through D0/D1-compatible handling. |
+| `createCheckReport`, `renderCheckReport`, `stringifyCheckReport` | package-export | `D0-package-export-symbol-createcheckreport`, `D0-package-export-symbol-rendercheckreport`, `D0-package-export-symbol-stringifycheckreport` | Preserve public call shape or version/facade. |
+| Hook parsing of check output | hook/human-output | `D0-cli-cmd-hook`, `D0-cli-cmd-hook-arg-name`, `D0-cli-cmd-hook-flag-base`, `D0-hook-hook-pre-commit`, `D0-hook-hook-pre-push`, `D0-hook-hook-unknown-refusal`, `D0-human-output-cmd-hook-line-local-feedback-authority`, `D0-human-output-cmd-hook-line-partial-staging-refusal` | Preserve D11 compatibility until D11 consumes projection. |
+| Verify check summary | command-json | `D0-cli-cmd-verify`, `D0-cli-cmd-verify-flag-json`, `D0-cli-cmd-verify-flag-base`, `D0-command-json-type-verifyproof`, `D0-human-output-cmd-verify-line-running-affected`, `D0-human-output-cmd-verify-help-json-proof-wording` | D12 consumes D7 projection; D7 does not own verify receipt schema. |
+| Nx `habitat:check` and `habitat:rule:*` outputs | script/Nx target output | `D0-nx-target-target-habitat-check-all`, owner `habitat:check` rows, generated `D0-nx-target-target-habitat-rule-*` rows | Preserve or version target output semantics with D3 dependency facts. |
+| Docs/examples/generated help | docs-example/generated-only | `D0-docs-example-doc-tools-habitat-harness-docs-capabilities-command-surface-root-usage-table`, `D0-docs-example-doc-tools-habitat-harness-docs-implemented-surface-cli-and-entrypoints-command-list`, check forwarding rows | Document-only or generated-only changes after source behavior is settled. |
 
 ## D11 Consumer Contract
 
@@ -267,11 +270,11 @@ Later source implementation may edit only after D7 acceptance and prerequisites:
 
 | Area | Purpose |
 | --- | --- |
-| `$HABITAT_TOOL/src/lib/command-engine.ts` | Keep public facade while delegating to D7 pipeline stages. |
-| New `$HABITAT_TOOL/src/lib/check/**` or equivalent | D7-owned state model, report construction, selector projection, execution aggregation, consumer projections. |
+| `$HABITAT_TOOL/src/lib/check-report.ts` | Keep public facade while delegating to D7 pipeline stages. |
+| New `$HABITAT_TOOL/src/lib/check/**` | D7-owned TypeBox state model, report construction, selector projection, execution aggregation, consumer projections. |
 | `$HABITAT_TOOL/src/lib/diagnostics.ts` | Semantic `CheckReport` construction/validation while preserving public compatibility. |
 | `$HABITAT_TOOL/src/rules/messages.ts` | Truth-preserving human rendering only from finalized outcome. |
-| `$HABITAT_TOOL/src/commands/check.ts` | Request normalization/exit handling only if public flags stay D0-compatible. |
+| `$HABITAT_TOOL/src/commands/check.ts` | Oclif command context, request normalization, and exit handling only if public flags stay D0-compatible. |
 | `$HABITAT_TOOL/src/commands/verify.ts` and verify summary helpers | Consume D7 verify summary projection without owning check semantics. |
 | `$HABITAT_TOOL/src/lib/hooks.ts` | Only compatibility bridge until D11 consumes D7 projection. |
 | `$HABITAT_TOOL/src/index.ts` | Export facades or versioned public symbols only with D0 rows. |

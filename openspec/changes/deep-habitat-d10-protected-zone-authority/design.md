@@ -2,7 +2,7 @@
 
 ## Frame
 
-D10 is a rugged design space: the current implementation appears simple, but it combines host-specific path data, generated-output policy, forbidden artifacts, staged Git state, native tool exclusions, generated drift checks, hook behavior, and future apply path approval inside loose string records. The acceptance threshold is a packet that makes the state model, owner boundary, public-surface blockers, and downstream projections explicit enough that later implementation cannot keep the old state-space by moving files around.
+D10 is a rugged design space: the current implementation appears simple, but it combines host-specific path data, generated-output policy, forbidden artifacts, staged Git state, native tool exclusions, generated drift checks, hook behavior, and future apply path approval inside loose string records. The acceptance threshold is a packet that makes the state model, owner boundary, public-surface blockers, and downstream projections explicit enough that source implementation cannot keep the old state-space by moving files around.
 
 Falsifier: if an implementation agent can read this packet and still decide the concrete declaration states, owner boundary, D2/G-HOST join, D7/D9/D11 projection shape, D0 blocker, or validation oracle while coding, D10 is not repaired.
 
@@ -47,7 +47,7 @@ D10 does not own host semantics, registry metadata, report construction, pattern
 
 Host-specific path lists, regeneration commands, host owners, resource paths, and host-policy unavailable states come from G-HOST. D10 consumes G-HOST as declaration input. If a host-owned path or generated-zone reference requires G-HOST but the declaration is missing, unavailable, malformed, or contradictory, D10 returns `blocked-missing-host-declaration` or `blocked-declaration-conflict`. It must not fall back to generic path literals.
 
-Because G-HOST is not accepted/live in the current packet index, D10 source implementation remains blocked for host-owned surfaces. The repaired D10 packet can specify the generic contract, but it cannot implement host-specific closure until G-HOST provides accepted/live declarations.
+During design acceptance, G-HOST was a prerequisite for host-owned closure. In the current source stack, G-HOST declarations and projections are live, so D10 consumes them for host-owned generated/protected surfaces while still leaving host-specific semantics owned by G-HOST.
 
 ## Target Ontology
 
@@ -171,7 +171,7 @@ Design-time validation:
 - D10 wording audit.
 - Fresh final rereviews after this repair.
 
-Later implementation validation:
+Source implementation validation:
 
 - Declaration catalog tests for generated/protected/host-owned/forbidden/unknown/conflict/D0-missing states.
 - Staged file-layer command tests for clean staged state and injected protected/generated/forbidden mutations.

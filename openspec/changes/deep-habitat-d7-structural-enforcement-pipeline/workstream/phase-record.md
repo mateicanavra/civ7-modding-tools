@@ -2,15 +2,17 @@
 
 ## State
 
-- Status: accepted for design/specification after fresh final rereview found no
-  unresolved P1/P2 blockers. Not implementation-complete.
+- Status: D7 source-closure layer submitted as PR #1843 from
+  `agent-DRA-d7-structural-enforcement-closure`. D11/D12 check projections are
+  implemented; D10 protected-zone authority remains out of scope.
 - Worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
 - Branch: `$ACTIVE_REMEDIATION_BRANCH`.
 - Source packet: `$D7_SOURCE_PACKET`.
 - OpenSpec change: `$D7_CHANGE`.
-- D7 source implementation remains blocked behind concrete D0 rows, D1
-  output-family handling, live D2/D3/D5/D6 projections, and accepted D10 guard
-  contract wherever those surfaces are touched.
+- D7 source implementation may begin for the source slice recorded in
+  `workstream/implementation-start-inventory.md`.
+- D10 generated/protected-zone authority remains out of scope until the later D10
+  packet lands.
 
 ## Objective
 
@@ -20,11 +22,15 @@ trade-offs while coding.
 
 ## Current Gate
 
-Final D7 rereview gate is closed for design/specification acceptance. The first
-investigation wave found P1/P2 blockers, the packet was rewritten to repair
-them, and fresh final domain/ontology, TypeScript/validation,
-OpenSpec/information, and code/topology/cross-domino lanes read the repaired
-disk and recorded no unresolved P1/P2 findings.
+Final D7 rereview gate is closed for design/specification acceptance. The
+source-start inventory authorizes the current check/report source slice. The
+source slice splits the check-report monolith into D7 check modules, keeps the
+public facade, uses TypeBox-backed report validation, removes the old
+`commandArgs` check-report input, derives command context from Oclif callers,
+adds TypeBox-backed D7 state/projection schemas, keeps selected staged rules as
+explicit not-applicable outcomes instead of dropping them, routes hook/verify
+consumers through D7 projections, and consumes D3 graph refusal state before
+direct command execution.
 
 ## First Investigation Inputs
 
@@ -56,7 +62,7 @@ disk and recorded no unresolved P1/P2 findings.
 | D3 | accepted for design/specification | live graph target/refusal projections required before D7 closes wrapper false-green paths |
 | D5 | accepted for design/specification | live baseline application/integrity results required before D7 deletes baseline internals |
 | D6 | accepted for design/specification | live diagnostic consumer projections required before D7 deletes Grit/native coupling |
-| D10 | draft/blocking | accepted protected-zone guard/refusal contract required before D7 implements protected-zone outcomes |
+| D10 | later accepted design packet, not live in current stack order | protected-zone report authority is out of scope for this D7 source slice; preserve current file-layer behavior only |
 
 ## Validation Matrix
 
@@ -68,10 +74,16 @@ Design-time validation after this repair:
 | D7-ALL-OPEN | `bun run openspec:validate` | exit 0 | passed; 249 items valid |
 | D7-DIFF | `git diff --check` | exit 0 | passed |
 | D7-WORDING | complete-standard wording audit over `$D7_CHANGE/**` and D7 scratch/final review records | no active reduced-standard guidance | passed |
+| D7-TSC | `bun run --cwd tools/habitat-harness check` | exit 0 | passed |
+| D7-BUILD | `bun run --cwd tools/habitat-harness build` | exit 0 | passed |
+| D7-FOCUSED | `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/commands/habitat-entrypoints.test.ts test/lib/baseline.test.ts test/lib/hooks.test.ts test/lib/verify-receipt.test.ts test/lib/classify.test.ts test/commands/habitat-commands.test.ts test/lib/check-projections.test.ts test/lib/enforcement-surface.test.ts` | exit 0 | passed; 103 tests |
+| D7-PROJECTIONS | `bun run --cwd tools/habitat-harness test -- test/lib/check-projections.test.ts test/lib/verify-receipt.test.ts test/lib/hooks.test.ts test/lib/enforcement-surface.test.ts` | exit 0 | passed as part of focused suite; 47 projection/verify/hook/enforcement tests covered |
+| D7-ENFORCEMENT-SURFACE | `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts` | exit 0 | passed after generated-output-gated wrapped-test direct execution is dispositioned as diagnostic output rather than false-green proof |
+| D7-COMMAND-INVALID-SELECTOR | `bun run habitat check --json --rule definitely-not-a-rule` | exit 1, schemaVersion 1 JSON, selector refusal | passed; one `rule-selection-integrity` failure, stdout 1000 bytes, stderr 124 bytes |
+| D7-COMMAND-STAGED-FILE-LAYER | `bun run habitat check --staged --tool file-layer --json` | valid schemaVersion 1 JSON with staged rule statuses | passed; four file-layer rules pass and dirty-worktree `baseline-integrity` fails, stdout 3766 bytes, stderr 122 bytes |
+| D7-COMMAND-STAGED-GRIT-NO-ROOTS | `bun run habitat check --staged --tool grit-check --json` | exit 1 with explicit not-applicable reports, not baseline-only pass | passed; 33 Grit reports carry `D7 not applicable: staged scope contains no approved roots for this rule.`, stdout 24951 bytes, stderr 122 bytes |
 
-Later implementation gates are listed in `design.md` and `tasks.md`. Fresh
-validation investigation recorded current red behavior for command help and rule
-inventory drift; implementation closure must repair or disposition those facts.
+Later implementation gates are listed in `design.md` and `tasks.md`.
 
 ## Write Set
 
@@ -82,14 +94,17 @@ Current design/specification layer may edit:
 - `$REMEDIATION_DIR/packet-index.md` only after acceptance status changes;
 - D7 scratch/final review files under `$AGENT_SCRATCH`.
 
-Source implementation write set is listed in `design.md` and remains blocked.
+Source implementation write set is listed in `design.md`; the current source
+slice is inside that write set.
 
 ## Non-Claims
 
-- D7 repair does not implement Habitat source changes.
+- D7 source slice does not claim D11/D12 packet closure beyond the D7-owned
+  check projections they consume.
 - D7 repair does not prove current-tree structural cleanliness.
 - D7 repair does not prove CI, runtime/product behavior, apply safety, Graphite
   readiness, OpenSpec acceptance for later packets, or D10 protected-zone
   closure.
-- D7 accepted design/specification, when achieved, will not mean
-  implementation-complete.
+- D10 protected-zone policy and guard authority remain out of scope; D7 only
+  preserves current file-layer behavior and does not emit protected-zone
+  projection labels in this source slice.

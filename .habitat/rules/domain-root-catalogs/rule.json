@@ -1,0 +1,36 @@
+{
+  "id": "domain-root-catalogs",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/{tags,artifacts}.ts",
+  "forbids": "domain-root tag/artifact catalogs",
+  "why": "Catalogs belong to owned public surfaces, not obsolete root files.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Move domain-root catalogs to the owning public surface.",
+  "exceptionPath": "none",
+  "patternName": "domain_root_catalogs",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/tags.ts",
+        "mods/mod-swooper-maps/src/domain/**/artifacts.ts"
+      ]
+    }
+  ]
+}
