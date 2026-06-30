@@ -354,12 +354,15 @@ evidence than this spec records:
 - map-output rows other than the moved operation-boundary row
   `prohibit_domain_ops_projection_effect_dependencies`:
   - `block_studio_config_leakage_into_shipped_catalog`
-  - `preserve_physics_to_map_projection_contracts`
+  - `prohibit_realized_map_artifact_tags`
   - `prohibit_misplaced_projection_adapter_calls`
   - `protect_generated_map_entrypoints_from_hand_edits`
   - `require_projection_calls_in_projection_steps`
   - `require_typed_placement_outcomes_before_apply`
   - `validate_generated_map_entrypoint_contracts`
+  - `preserve_physics_to_map_projection_contracts` was later split by
+    Domino 38; its standard-recipe families no longer belong in this
+    map-output holdback list.
 
 ## Implementation Contract
 

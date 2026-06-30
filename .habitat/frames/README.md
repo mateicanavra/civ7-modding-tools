@@ -24,3 +24,7 @@ Current frames:
   `_remainder/` rows may now be reclaimable into existing blueprint, context,
   or smaller remainder destinations; includes analytics preflight, bounded
   adjacent-slice selection, physical movement, proof, and adversarial review.
+- `PROJECTION-CONTRACT-SURFACE-FRAME.md`: use when a retained projection seam
+  row cannot truthfully move to an existing blueprint or context and the next
+  question is whether a narrow projection contract surface should exist before
+  additional movement.

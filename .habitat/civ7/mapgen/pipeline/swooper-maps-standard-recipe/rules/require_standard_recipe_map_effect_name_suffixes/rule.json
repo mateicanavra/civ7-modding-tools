@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "require_standard_recipe_map_effect_name_suffixes",
+  "title": "Require Standard Recipe Map Effect Name Suffixes",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "contract",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "standard recipe map effect tag names outside the current plotted, built, or parity-captured suffix families",
+  "why": "The standard recipe tag catalog keeps map projection effects named by the current projected map outcome families.",
+  "remediate": null,
+  "message": "Use the current standard recipe map effect tag suffix families.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts"]
+    }
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs"
+    }
+  }
+}
