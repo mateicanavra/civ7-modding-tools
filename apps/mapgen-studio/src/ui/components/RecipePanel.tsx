@@ -8,7 +8,7 @@
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
 import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   Button,
   Dialog,
@@ -156,9 +156,16 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
       ? "Save unavailable while another operation is running"
       : "Save & Deploy Config";
 
-  useEffect(() => {
+  // Close the save menu the instant the action transitions to disabled. Done
+  // during render via the store-prev-value pattern rather than in an effect
+  // (react-hooks/set-state-in-effect). Parity with the prior effect: it fires
+  // only on the disabled transition; mount is a no-op (the menu starts closed)
+  // and the menu stays closed across a later re-enable, exactly as before.
+  const [prevSaveActionDisabled, setPrevSaveActionDisabled] = useState(saveActionDisabled);
+  if (saveActionDisabled !== prevSaveActionDisabled) {
+    setPrevSaveActionDisabled(saveActionDisabled);
     if (saveActionDisabled) setShowSaveMenu(false);
-  }, [saveActionDisabled]);
+  }
   // ==========================================================================
   // Derived State
   // ==========================================================================
