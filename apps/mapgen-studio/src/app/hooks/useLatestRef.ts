@@ -1,4 +1,4 @@
-import { useRef, type RefObject } from "react";
+import { type RefObject, useRef } from "react";
 
 /**
  * `useLatestRef` — keep a ref pointing at the most recent render's `value`.

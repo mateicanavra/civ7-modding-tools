@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import { prunePipelineExpandedStageIds } from "../../features/recipeDag/prunePipelineExpansion";
 import {
@@ -38,10 +38,7 @@ export type ViewportLayout = Readonly<{
  * deck-autofit effects deliberately stay OUT of this hook — they depend on viz
  * VALUES produced downstream and are lifted in their own slice.
  */
-export function useViewportLayout(args: {
-  recipe: string;
-  stageView: StageView;
-}): ViewportLayout {
+export function useViewportLayout(args: { recipe: string; stageView: StageView }): ViewportLayout {
   const { recipe, stageView } = args;
 
   // Deck canvas handle + measured viewport ---------------------------------
