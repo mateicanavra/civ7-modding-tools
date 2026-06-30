@@ -6,7 +6,7 @@ import {
   modRoot,
   read,
   repoRel,
-} from "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
+} from "../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const findings = [];
 const buildElevation = path.join(

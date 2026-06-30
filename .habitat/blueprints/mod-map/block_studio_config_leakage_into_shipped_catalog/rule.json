@@ -4,7 +4,7 @@
   "title": "Block Studio Config Leakage Into Shipped Catalog",
   "placement": {
     "niche": "civ7/mapgen/map-output",
-    "blueprint": "shipped-map-catalog",
+    "blueprint": "mod-map",
     "category": "artifact",
     "artifactKind": "check"
   },
@@ -28,14 +28,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/map-output/_blueprints/shipped-map-catalog/block_studio_config_leakage_into_shipped_catalog/baseline.json"
+    "baseline": ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/mapgen/map-output/_blueprints/shipped-map-catalog/block_studio_config_leakage_into_shipped_catalog/check.ts"
+      "script": ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts"
     }
   }
 }

@@ -50,6 +50,9 @@ This is not a final machine-readable ontology, and it is not evidence that runti
   Domain Operation Kind Pocket slice selected after the Recipe Kind Pocket.
 - `AUTHORITY-DOMAIN-KIND-SLICE.md`: completed-slice reference for the Domain
   Kind Pocket slice that affirmed `domain` above public/config surface facets.
+- `frames/BLUEPRINT-KIND-GATHERING-FRAME.md`: normative frame for affirming one
+  constructible blueprint kind, then gathering bounded whole-rule authority
+  into that kind while demoting non-fitting evidence.
 - `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
 - `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.

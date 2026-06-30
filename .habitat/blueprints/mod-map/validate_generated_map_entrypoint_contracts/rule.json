@@ -4,7 +4,7 @@
   "title": "Validate Generated Map Entrypoint Contracts",
   "placement": {
     "niche": "civ7/mapgen/map-output",
-    "blueprint": "generated-map-entrypoint",
+    "blueprint": "mod-map",
     "category": "artifact",
     "artifactKind": "check"
   },
@@ -28,14 +28,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/map-output/_blueprints/generated-map-entrypoint/validate_generated_map_entrypoint_contracts/baseline.json"
+    "baseline": ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/mapgen/map-output/_blueprints/generated-map-entrypoint/validate_generated_map_entrypoint_contracts/check.ts"
+      "script": ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts"
     }
   }
 }

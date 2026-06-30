@@ -128,6 +128,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 33. Sort the Standard-Recipe Context Pocket | The standard-recipe context pocket was re-read against `recipe`, `recipe-stage`, and `recipe-step` authority: all nine rows stayed under `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/` as honest standard-recipe context authority, with future split/generalization pressure named for manifest/runtime parity, public authoring surface, generated artifact parity, and tag-catalog naming. |
 | 34. Frame Niche Lane Shaping | `.habitat/frames/NICHE-LANE-SHAPING-FRAME.md` now governs parent niche `rules/` lanes that need honest child holding lanes before deeper movement. The pipeline parent lane is the first target for the method. |
 | 35. Shape The Pipeline Child Lanes | The direct parent `.habitat/civ7/mapgen/pipeline/rules/` rows were reviewed and physically sorted into child lanes: narrow runtime and contract source-surface rows moved to intentional child `rules/`, while broader runtime determinism/config, cutover, and config cleanup pressure moved to child `_remainder/`. No row stayed parent-pipeline authority, and no new blueprint, capability, admission, projection, import-law, package-graph, build, or runner authority was created. |
+| 36. Gather the Mod-Map Blueprint Kind | `mod-map` was affirmed as the map-producing mod variant kind, with Swooper Maps as the current concrete instance. Generated entrypoint and shipped catalog rows moved to `.habitat/blueprints/mod-map/`; projection and placement rows moved to `.habitat/civ7/mapgen/map-output/_remainder/` instead of becoming sibling blueprints by label affinity. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -314,9 +315,68 @@ and points inside the row's physical lane.
 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | cleanup/consolidation/split pressure | `pipeline/runtime/_remainder` | `pattern.md` scans ecology, hydrology plan-lakes, placement, and standard recipe planning surfaces for fudge terms, local RNG helpers, and legacy generator calls. | The row points at deterministic runtime/planning pressure, but it is scoped to mixed ecology/hydrology/placement pockets and should split or generalize before becoming runtime `rules` authority. | selected-rule Grit proof passed; path refs exist | Source-planning cleanup that overlaps runtime purity should remain visual debt until rewritten as positive deterministic-generation governance or split by owner. |
 | `prohibit_wrapper_only_advanced_config` | cleanup/consolidation/split pressure | `pipeline/config/_remainder` | `pattern.md` scans standard recipe and map config source for wrapper-only `advanced` config keys. | The row is map/recipe config cleanup pressure, not stable parent-pipeline authority and not final config ontology; it needs a future public-config/map-config owner, split, or retirement. | selected-rule Grit proof passed; path refs exist | Config-token cleanup should be separated from parent pipeline without prematurely creating a config blueprint or admission surface. |
 
+## Domino 36 Disposition Receipt
+
+This table is a receipt for affirming one blueprint kind and draining the
+inspected map-output `_blueprints` pocket. `mod-map` is the affirmed
+map-producing mod variant kind; Swooper Maps is the current concrete instance.
+Rows under `.habitat/blueprints/mod-map/` are gathered blueprint authority
+whose current runners still hard-code the Swooper instance until future
+instance-anchor parameterization exists. Rows under
+`.habitat/civ7/mapgen/map-output/_remainder/` are reviewed but not final; they
+use `placement.blueprint: "_remainder"` and should not be read as accepted
+`map-projection` or `placement-outcome` blueprints.
+
+| Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
+| --- | --- | --- | --- | --- | --- | --- |
+| `protect_generated_map_entrypoints_from_hand_edits` | affirmed blueprint authority | `blueprints/mod-map` | `rule.json` protects `mods/mod-swooper-maps/src/maps/generated/**`; generated map entrypoints are emitted from canonical map configs. | Generated map entrypoints are part of the constructible mod-map output bundle. The current rule is Swooper-rooted, but the invariant belongs to every valid generated-entrypoint map mod instance. | selected-rule proof passed; path refs exist | Generated-file guards can become blueprint authority when the files are required outputs of the constructible kind. |
+| `validate_generated_map_entrypoint_contracts` | affirmed blueprint authority | `blueprints/mod-map` | `check.ts` compares config ids, generated ids, canonical envelopes, hashes, and `createMap` config shape against `src/maps/configs/**`, `src/maps/generated/**`, and standard recipe artifacts. | The whole rule governs the mod-map generated entrypoint contract between authored map configs and shipped map entry modules. It is not a standalone `generated-map-entrypoint` blueprint. | selected-rule proof passed; path refs exist | Instance-hard-coded validators may be gathered into a blueprint when the current instance is the only parameterization gap. |
+| `block_studio_config_leakage_into_shipped_catalog` | affirmed blueprint authority | `blueprints/mod-map` | `check.ts` scans `mod/config/config.xml`, `mod/swooper-maps.modinfo`, and `mod/text/en_us/MapText.xml` for transient Studio config ids. | Shipped catalog metadata is a mod-map ship surface; the row is narrow negative governance, not a complete `shipped-map-catalog` blueprint. | selected-rule proof passed; path refs exist | A narrow guard can belong to the larger constructible kind without promoting the guard's old folder label. |
+| `preserve_physics_to_map_projection_contracts` | projection/contract remainder | `map-output/_remainder` | `check.mjs` scans recipe stage contracts, mod source, mapgen-core source, and tag contracts for map projection contract leakage and effect naming. | The whole rule governs physics-to-map projection seams and recipe contract pressure, not the mod-map shell or generated/shipped output bundle. | selected-rule proof passed; path refs exist | Projection contract pressure should not become mod-map authority merely because its artifacts are map-shaped. |
+| `prohibit_misplaced_projection_adapter_calls` | projection/recipe-step remainder | `map-output/_remainder` | `pattern.md` hard-codes standard recipe stage paths and allowed projection adapter callsites. | The rule is exact recipe projection callsite ownership; future owner may be recipe-step, projection authority, or split work, but not mod-map as written. | selected-rule proof passed; path refs exist | Adapter-call locality is not a blueprint by label; exact recipe-stage paths usually signal remainder until a positive owner exists. |
+| `require_projection_calls_in_projection_steps` | projection/recipe-step remainder | `map-output/_remainder` | `check.mjs` asserts exact buildElevation, lakes, plotRivers, and plotRivers contract tokens. | The whole rule verifies specific projection step implementation and contract content, not every mod-map instance. | selected-rule proof passed; path refs exist | Required callsite validators stay out of a broader kind until parameterized by the owning step or projection surface. |
+| `require_typed_placement_outcomes_before_apply` | placement-outcome remainder | `map-output/_remainder` | `pattern.md` targets one standard recipe placement apply file for direct official generator calls. | The rule is placement-step typed-outcome pressure; `placement-outcome` was not affirmed as a blueprint, and the row is not mod-map authority. | selected-rule proof passed; path refs exist | Typed outcome boundaries can be real pressure without earning a new blueprint in the current slice. |
+
 ## Remaining Dominoes
 
-### 36. Build Narrow Projection From Moved Authority
+### 37. Resolve The Map-Output Projection Remainder
+
+Purpose: re-read the now-visible map-output remainder after `mod-map` moved
+out, and decide whether projection/placement pressure can move to existing
+recipe, recipe-stage, or recipe-step authority, must stay as map-output
+remainder, or needs a newly framed constructible kind later.
+
+Done Means:
+
+- Every row under `.habitat/civ7/mapgen/map-output/_remainder/` receives a
+  fresh disposition against existing affirmed blueprints and source evidence.
+- Rows move only when the whole executable predicate fits an existing owner.
+- No `map-projection`, `placement-outcome`, generated-artifact, or
+  projection-surface blueprint is created by label affinity.
+- The map-output lane no longer hides already-reviewed projection/placement
+  pressure under old `_blueprints` labels.
+
+Moves It Forward:
+
+- Inspect projection and placement source surfaces against `recipe-stage` and
+  `recipe-step`.
+- Keep exact standard-recipe callsite rules in `_remainder` if they still need
+  parameterization or split work.
+- Stop for a new frame if source proves a real constructible kind that cannot
+  be represented by existing owners.
+
+Dependencies:
+
+- `mod-map` has moved generated entrypoint and shipped catalog authority out
+  of the map-output candidate pocket.
+
+Proof:
+
+- Focused selected-rule proof for any moved row.
+- Manifest path proof for all remaining map-output remainder rows.
+- Static scan shows no inspected map-output `_blueprints` pocket remains.
+
+### 38. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -347,7 +407,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 37. Prune Transitional Packet Metadata For Moved Slices
+### 39. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -378,7 +438,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 38. Repeat Activation Slices
+### 40. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -409,7 +469,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 39. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 41. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.

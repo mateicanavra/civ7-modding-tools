@@ -4,7 +4,7 @@
   "title": "Preserve Physics To Map Projection Contracts",
   "placement": {
     "niche": "civ7/mapgen/map-output",
-    "blueprint": "map-projection",
+    "blueprint": "_remainder",
     "category": "contract",
     "artifactKind": "check"
   },
@@ -25,14 +25,14 @@
     }
   ],
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/map-output/_blueprints/map-projection/preserve_physics_to_map_projection_contracts/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/map-output/_remainder/preserve_physics_to_map_projection_contracts/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "node",
     "files": {
-      "script": ".habitat/civ7/mapgen/map-output/_blueprints/map-projection/preserve_physics_to_map_projection_contracts/check.mjs"
+      "script": ".habitat/civ7/mapgen/map-output/_remainder/preserve_physics_to_map_projection_contracts/check.mjs"
     }
   }
 }

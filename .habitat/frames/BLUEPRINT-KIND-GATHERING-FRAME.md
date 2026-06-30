@@ -52,7 +52,7 @@ Out of scope:
 
 Source pointers:
 
-- Direct user decision: use `map-mod` as the next likely seed kind while
+- Direct user decision: use `mod-map` as the next likely seed kind while
   avoiding premature sibling kinds.
 - `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, and
   niche concepts.
@@ -332,11 +332,11 @@ Use this when any inspected row stays outside the new blueprint.
 These tables are proof of physical sorting. They are not second authority
 surfaces.
 
-## Seed Application: Map Mod
+## Seed Application: Mod Map
 
-The next expected seed use is the map mod kind, tentatively named `map-mod`.
-The name can be corrected by the slice if source language proves a better
-singular kind name, but the naming choice must not drive ownership.
+The next expected seed use is the map-producing mod variant kind, named
+`mod-map`. The name is intentional: `mod` is the base kind of thing, and
+`-map` is the variant signal. Do not use `map-mod` for this kind.
 
 Likely current instance:
 
@@ -360,13 +360,13 @@ Expected caution:
   mod output bundle rather than standalone top-level blueprints.
 - `map-projection`, `placement-outcome`, and recipe artifact parity may be
   adjacent projection, recipe-step, or generated-artifact pressure rather than
-  map-mod authority.
-- Do not create `map-projection` or any sibling blueprint in the map-mod slice
+  mod-map authority.
+- Do not create `map-projection` or any sibling blueprint in the mod-map slice
   unless failing to do so would force a false move.
 
 Before moving anything for this seed, the slice should be able to say:
-`map-mod` is the constructible kind; Swooper Maps is the current concrete
-instance; generated entrypoints and shipped catalogs are candidate map-mod
+`mod-map` is the constructible kind; Swooper Maps is the current concrete
+instance; generated entrypoints and shipped catalogs are candidate mod-map
 surfaces unless source evidence proves they are separate kinds.
 
 ## Review Expectations
