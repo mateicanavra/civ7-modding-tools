@@ -526,8 +526,10 @@ describe("Studio event operation adoption", () => {
   });
 
   test("StudioShell live-game events trigger bounded follow-up reads without a cadence", () => {
+    // The live-runtime read functions moved into `useLiveRuntime` (slice 2.10); the
+    // bounded-read / no-cadence (LR-8) contract is now pinned against the hook source.
     const shellSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
+      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useLiveRuntime.ts"),
       "utf8"
     );
 
