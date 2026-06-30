@@ -28,5 +28,14 @@
   },
   "engines": {
     "node": "22.22.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "bun-source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   }
 }

@@ -13,81 +13,97 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "bun-source": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./play/operations/production-choice-proof": {
       "types": "./dist/play/operations/production-choice-proof.d.ts",
+      "bun-source": "./src/play/operations/production-choice-proof.ts",
       "import": "./dist/play/operations/production-choice-proof.js",
       "require": "./dist/play/operations/production-choice-proof.cjs"
     },
     "./play/progression/choice-postconditions": {
       "types": "./dist/play/progression/choice-postconditions.d.ts",
+      "bun-source": "./src/play/progression/choice-postconditions.ts",
       "import": "./dist/play/progression/choice-postconditions.js",
       "require": "./dist/play/progression/choice-postconditions.cjs"
     },
     "./play/notifications/postconditions": {
       "types": "./dist/play/notifications/postconditions.d.ts",
+      "bun-source": "./src/play/notifications/postconditions.ts",
       "import": "./dist/play/notifications/postconditions.js",
       "require": "./dist/play/notifications/postconditions.cjs"
     },
     "./proof/diplomacy-response-proof-policy": {
       "types": "./dist/proof/diplomacy-response-proof-policy.d.ts",
+      "bun-source": "./src/proof/diplomacy-response-proof-policy.ts",
       "import": "./dist/proof/diplomacy-response-proof-policy.js",
       "require": "./dist/proof/diplomacy-response-proof-policy.cjs"
     },
     "./proof/first-meet-response-proof-policy": {
       "types": "./dist/proof/first-meet-response-proof-policy.d.ts",
+      "bun-source": "./src/proof/first-meet-response-proof-policy.ts",
       "import": "./dist/proof/first-meet-response-proof-policy.js",
       "require": "./dist/proof/first-meet-response-proof-policy.cjs"
     },
     "./proof/government-choice-proof-policy": {
       "types": "./dist/proof/government-choice-proof-policy.d.ts",
+      "bun-source": "./src/proof/government-choice-proof-policy.ts",
       "import": "./dist/proof/government-choice-proof-policy.js",
       "require": "./dist/proof/government-choice-proof-policy.cjs"
     },
     "./proof/narrative-choice-proof-policy": {
       "types": "./dist/proof/narrative-choice-proof-policy.d.ts",
+      "bun-source": "./src/proof/narrative-choice-proof-policy.ts",
       "import": "./dist/proof/narrative-choice-proof-policy.js",
       "require": "./dist/proof/narrative-choice-proof-policy.cjs"
     },
     "./proof/notification-dismissal-proof-policy": {
       "types": "./dist/proof/notification-dismissal-proof-policy.d.ts",
+      "bun-source": "./src/proof/notification-dismissal-proof-policy.ts",
       "import": "./dist/proof/notification-dismissal-proof-policy.js",
       "require": "./dist/proof/notification-dismissal-proof-policy.cjs"
     },
     "./proof/advisor-warning-proof-policy": {
       "types": "./dist/proof/advisor-warning-proof-policy.d.ts",
+      "bun-source": "./src/proof/advisor-warning-proof-policy.ts",
       "import": "./dist/proof/advisor-warning-proof-policy.js",
       "require": "./dist/proof/advisor-warning-proof-policy.cjs"
     },
     "./proof/population-placement-proof-policy": {
       "types": "./dist/proof/population-placement-proof-policy.d.ts",
+      "bun-source": "./src/proof/population-placement-proof-policy.ts",
       "import": "./dist/proof/population-placement-proof-policy.js",
       "require": "./dist/proof/population-placement-proof-policy.cjs"
     },
     "./proof/progression-player-choice-proof-policy": {
       "types": "./dist/proof/progression-player-choice-proof-policy.d.ts",
+      "bun-source": "./src/proof/progression-player-choice-proof-policy.ts",
       "import": "./dist/proof/progression-player-choice-proof-policy.js",
       "require": "./dist/proof/progression-player-choice-proof-policy.cjs"
     },
     "./proof/progression-target-proof-policy": {
       "types": "./dist/proof/progression-target-proof-policy.d.ts",
+      "bun-source": "./src/proof/progression-target-proof-policy.ts",
       "import": "./dist/proof/progression-target-proof-policy.js",
       "require": "./dist/proof/progression-target-proof-policy.cjs"
     },
     "./proof/turn-completion-proof-policy": {
       "types": "./dist/proof/turn-completion-proof-policy.d.ts",
+      "bun-source": "./src/proof/turn-completion-proof-policy.ts",
       "import": "./dist/proof/turn-completion-proof-policy.js",
       "require": "./dist/proof/turn-completion-proof-policy.cjs"
     },
     "./proof/town-focus-proof-policy": {
       "types": "./dist/proof/town-focus-proof-policy.d.ts",
+      "bun-source": "./src/proof/town-focus-proof-policy.ts",
       "import": "./dist/proof/town-focus-proof-policy.js",
       "require": "./dist/proof/town-focus-proof-policy.cjs"
     },
     "./proof/unit-target-proof-policy": {
       "types": "./dist/proof/unit-target-proof-policy.d.ts",
+      "bun-source": "./src/proof/unit-target-proof-policy.ts",
       "import": "./dist/proof/unit-target-proof-policy.js",
       "require": "./dist/proof/unit-target-proof-policy.cjs"
     }
