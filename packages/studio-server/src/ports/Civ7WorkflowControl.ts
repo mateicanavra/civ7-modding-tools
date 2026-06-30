@@ -6,6 +6,7 @@ import {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   ensureCiv7SetupMapRowVisible,
   getCiv7PlayableStatus,
+  getCiv7SetupMapRows,
   runCiv7SinglePlayerFromSetup,
   startCiv7Autoplay,
   stopCiv7Autoplay,
@@ -25,6 +26,7 @@ import {
   type StudioRuntimeFailure,
 } from "../errors/index.js";
 import { Civ7TunerSession } from "../services/Civ7TunerSession.js";
+import { classifyMapRowVisibilityFailure } from "./mapModVisibility.js";
 import type {
   RunInGameDeployment,
   RunInGamePreparedRequest,
@@ -153,21 +155,64 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
             Effect.flatMap((rowVisibility) => {
               const rowProof = rowVisibility.final;
               if (rowProof.rows.length === 0) {
-                return Effect.fail(
-                  proofFailed({
-                    message: `Civ7 setup cannot see ${launchMapScript}`,
+                const reloadBoundary =
+                  args.prepared.request.materializationMode === "disposable"
+                    ? "process-restart-required"
+                    : "setup-row-missing";
+                // The map is materialized + deployed + registered (verified above)
+                // yet Civ7 setup cannot see it. Read the FULL setup map list to tell
+                // the two real causes apart: a disabled/unloaded map mod (NO sibling
+                // maps from the mod visible) vs. a freshly-deployed disposable row
+                // that has not been enumerated yet (siblings visible). This turns the
+                // opaque `setup-map-row-not-visible` into the actionable, named
+                // `map-mod-not-loaded` known error when the mod is disabled.
+                const failFromVisibleRows = (
+                  visibleMapRows: ReadonlyArray<{ readonly file: string }>
+                ) => {
+                  const classification = classifyMapRowVisibilityFailure({
+                    launchMapScript,
+                    visibleMapRows,
+                    materializationMode: args.prepared.request.materializationMode,
+                  });
+                  return proofFailed({
+                    message: classification.message,
                     reason: "setup-row-unavailable",
                     diagnostics: boundedDiagnostics({
-                      code: "setup-map-row-not-visible",
+                      code: classification.code,
+                      ...(classification.modNamespace
+                        ? { modNamespace: classification.modNamespace }
+                        : {}),
+                      siblingMapRowCount: classification.siblingMapRowCount,
+                      visibleMapRowCount: classification.visibleMapRowCount,
+                      recoveryHint: classification.recoveryHint,
                       reloadRequired: true,
-                      reloadBoundary:
-                        args.prepared.request.materializationMode === "disposable"
-                          ? "process-restart-required"
-                          : "setup-row-missing",
+                      reloadBoundary,
                       reloadAttempted: rowVisibility.refreshed,
                       mapScript: launchMapScript,
                       materialization,
                     }),
+                  });
+                };
+                return runTuner(
+                  (options) =>
+                    getCiv7SetupMapRows(
+                      {},
+                      { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
+                    ),
+                  (err) =>
+                    directControlUnavailable(
+                      "Civ7 setup map list is unavailable",
+                      "direct-control-setup-rows-unavailable",
+                      err,
+                      { materialization }
+                    )
+                ).pipe(
+                  Effect.matchEffect({
+                    // If the full-list read fails we do NOT guess "mod disabled":
+                    // classify from the (empty) rows we already have, which the
+                    // false-positive guard reports as `setup-map-row-not-visible`.
+                    onFailure: () => Effect.fail(failFromVisibleRows(rowProof.rows)),
+                    onSuccess: (allRows) => Effect.fail(failFromVisibleRows(allRows.rows)),
                   })
                 );
               }

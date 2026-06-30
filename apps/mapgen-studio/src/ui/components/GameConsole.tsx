@@ -509,14 +509,31 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                   >
                     {runInGameStatus.requestId}
                   </span>
-                  {runInGameStatus.error ? (
-                    <p className="text-label text-destructive">{runInGameStatus.error}</p>
-                  ) : null}
-                  {runInGameStatus.details?.recoveryHint ? (
-                    <p className={`text-label ${textMuted}`}>
-                      {runInGameStatus.details.recoveryHint}
-                    </p>
-                  ) : null}
+                  {runInGameStatus.details?.code === "map-mod-not-loaded" ? (
+                    // Known error: the map deployed fine but Civ isn't loading the
+                    // mod (a game update commonly auto-disables it). Surface it as a
+                    // named, actionable condition rather than a raw failure string.
+                    <div className="flex flex-col gap-1 rounded border border-warning/40 bg-warning/10 px-2 py-1.5">
+                      <span className="text-label font-medium text-warning">
+                        Map mod disabled in Civilization
+                      </span>
+                      <p className="text-label text-muted-foreground">
+                        {runInGameStatus.details.recoveryHint ??
+                          "Enable the Swooper Physics Maps mod in Civ’s Add-Ons menu, then retry Run in Game."}
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {runInGameStatus.error ? (
+                        <p className="text-label text-destructive">{runInGameStatus.error}</p>
+                      ) : null}
+                      {runInGameStatus.details?.recoveryHint ? (
+                        <p className={`text-label ${textMuted}`}>
+                          {runInGameStatus.details.recoveryHint}
+                        </p>
+                      ) : null}
+                    </>
+                  )}
                 </>
               ) : (
                 <span className={`text-data ${textMuted}`}>No run yet</span>
