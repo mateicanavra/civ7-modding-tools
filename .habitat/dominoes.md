@@ -123,6 +123,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 30. Sort Remaining Direct Domains-Lane Rows | The remaining direct rows under parent `.habitat/civ7/mapgen/domains/rules/` were reviewed and physically sorted: one moved to affirmed `domain-operation`, three hydrology rows moved to `.habitat/civ7/mapgen/domains/hydrology/_remainder/`, one mixed morphology/config validator moved to `.habitat/civ7/mapgen/domains/morphology/_remainder/`, and the retired narrative-swatches stage-token row moved out of the domains lane to the standard-recipe context. No row stayed under parent `domains/rules`. |
 | 31. Sort the Hydrology Remainder Pocket | The hydrology remainder was re-read after the domains-lane sort: two narrative/hydrology boundary rows moved to `.habitat/civ7/mapgen/domains/hydrology/rules/` as honest hydrology context authority, while the map-config key row stayed under `.habitat/civ7/mapgen/domains/hydrology/_remainder/` as map-authoring/public-config cleanup pressure needing a later owner or split. |
 | 32. Sort the Ecology Context Pocket | The ecology context pocket was re-read against `domain`, `domain-operation`, and recipe-stage authority: two rows stayed under `.habitat/civ7/mapgen/domains/ecology/rules/` as honest ecology context authority, while the ecology op-contract quality validator moved to `.habitat/civ7/mapgen/domains/ecology/_remainder/` as missing positive domain-operation quality governance and stale context cleanup pressure. |
+| 33. Sort the Standard-Recipe Context Pocket | The standard-recipe context pocket was re-read against `recipe`, `recipe-stage`, and `recipe-step` authority: all nine rows stayed under `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/` as honest standard-recipe context authority, with future split/generalization pressure named for manifest/runtime parity, public authoring surface, generated artifact parity, and tag-catalog naming. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -257,9 +258,31 @@ intentional ecology-context authority. Rows moved under
 | `require_public_ecology_surfaces_and_retired_topology_removal` | honest ecology context | `ecology/rules` | `pattern.md` checks active ecology recipe stages for direct ecology ops/rules imports and checks retired ecology stage directories stay empty. | The public-surface half overlaps domain boundary pressure, but the whole row is ecology-stage-specific and includes retired ecology topology cleanup. It is not truthful as a `domain`, `recipe-stage`, or `domain-operation` blueprint rule. | selected-rule Grit proof passed; path refs exist | Mixed public-surface plus retired-context cleanup can remain context authority when it protects one concrete migration state. |
 | `validate_ecology_op_contract_quality` | missing positive kind governance and cleanup pressure | `ecology/_remainder` | `check.sh` delegates to `mods/mod-swooper-maps/scripts/validate-ecology-op-contract-quality.ts`, which checks ecology op schema descriptions and exported-function JSDoc plus a stale `recipes/standard/stages/ecology/steps` root. | The real invariant is positive domain-operation contract-quality governance, but the current implementation is ecology-only and includes stale path coverage. Keeping it in `ecology/rules` would hide generic quality pressure under a concrete context; moving it to `domain-operation` would over-generalize. | selected-rule Habitat script proof passed; path refs exist | Positive quality validators should move to `_remainder` when they point at a missing kind rule but are not implemented generally yet. |
 
+## Domino 33 Disposition Receipt
+
+This table is a receipt for explicit no-move retention, not a new authority
+surface. Rows retained under
+`.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/` are
+intentional standard-recipe context authority. The re-read found kind-shaped
+pressure, but no whole row is general enough to move into `recipe`,
+`recipe-stage`, or `recipe-step` without turning this concrete standard recipe
+into blueprint law.
+
+| Rule id | Bucket | Target or retained context | Source evidence | Reason | Proof needed/run | Reusable lesson |
+| --- | --- | --- | --- | --- | --- | --- |
+| `preserve_standard_stage_topology_and_path_invariants` | honest standard-recipe context | `swooper-maps-standard-recipe/rules` | `structure.toml` owns the exact standard stage root, current active stage directories, entrypoint files, and retired/legacy stage directory bans. | This is concrete standard recipe topology and migration currentness. It is not `recipe-stage` kind law because another valid recipe could use a different stage set, naming scheme, or retired-stage history. | selected-rule Habitat structure proof passed; path refs exist | Exact stage-root inventories stay contextual until a generalized stage-topology rule exists. |
+| `require_full_profile_domain_stage_roots` | honest standard-recipe context | `swooper-maps-standard-recipe/rules` | `structure.toml` requires a selected full-profile set of standard stage roots and explicitly exempts narrative/resources from the current check. | The row is an instance profile assertion for the current Swooper Maps standard recipe, not general recipe-stage authority. Moving it to a blueprint would promote one profile's domain composition. | selected-rule Habitat structure proof passed; path refs exist | Profile-specific stage presence rules should stay with the instance/context unless rewritten as a parameterized kind rule. |
+| `verify_standard_recipe_declared_stage_keys` | honest standard-recipe context | `swooper-maps-standard-recipe/rules` | `check.mjs` textually extracts `orderStandardStages` keys from `recipe.ts` and compares them to a hard-coded standard stage id list. | The durable pressure is stage-order validity, but the current rule is exactly the standard recipe's accepted order. It is not reusable `recipe` authority as written. | selected-rule Habitat script proof passed; path refs exist | Hard-coded instance order checks are context authority, even when they hint at a future manifest-driven kind rule. |
+| `verify_runtime_stage_order_matches_contract_manifest` | honest standard-recipe context with future `recipe` split pressure | `swooper-maps-standard-recipe/rules` | `check.ts` imports `STANDARD_STAGES` from `recipe.ts` and `standardStageContractManifest` from `contract-manifest.ts`, then compares runtime stage and step order. | Manifest/runtime parity is likely a recipe-kind invariant, but this executable is bound to the standard recipe implementation and manifest. The whole row should not move until the rule is abstracted over a recipe instance. | selected-rule Habitat script proof passed; path refs exist | Kind-shaped parity checks can stay contextual when their runner hard-codes one instance. |
+| `verify_standard_recipe_public_authoring_surface` | honest standard-recipe context with future split pressure | `swooper-maps-standard-recipe/rules` | `check.ts` derives stage authoring models from `STANDARD_STAGES` and checks the exact `STANDARD_PUBLIC_KEYS`, strict schemas, focus paths, and raw envelope constraints. | The authoring-surface idea is kind-shaped, but the predicate is anchored by exact standard stage ids and public key lists. Moving it whole to `recipe-stage` would turn one recipe's public schema into blueprint authority. | selected-rule Habitat script proof passed; path refs exist | Public-surface validators need parameterization before promotion; exact public-key lists remain context authority. |
+| `verify_standard_recipe_artifacts_match_source_stages` | honest standard-recipe context with future projection/artifact pressure | `swooper-maps-standard-recipe/rules` | `check.ts` compares derived standard recipe schema, UI metadata, defaults, and canonical map config normalization against generated `dist/recipes/standard-artifacts.js`. | The rule governs generated artifact parity for one recipe, including current defaults and a known raw-envelope exception. It is not final `recipe` or projection authority as a whole. | selected-rule Habitat script proof passed; path refs exist | Generated artifact parity should stay contextual until the projection surface is named and parameterized. |
+| `prohibit_migrated_consumer_effect_gating_tokens` | honest standard-recipe context | `swooper-maps-standard-recipe/rules` | `pattern.md` scans one standard recipe map-hydrology step contract for retired morphology or engine effect-gating tokens. | This is migrated callsite cleanup for one standard recipe consumer contract. It is not `recipe-step` authority because another valid step could have different dependencies and history. | selected-rule Grit proof passed; path refs exist | Exact migrated-consumer cleanup can remain context authority when the whole predicate protects one known transition. |
+| `prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | honest standard-recipe context with future tag-catalog naming pressure | `swooper-maps-standard-recipe/rules` | `pattern.md` scans standard recipe TypeScript files for milestone-prefixed tag catalog constants. | The stronger future rule may be a positive tag-catalog naming rule, but the current row is a narrow negative guard over the standard recipe. It should not become blueprint law by name alone. | selected-rule Grit proof passed; path refs exist | Negative naming cleanup should stay contextual until the positive naming surface exists. |
+| `prohibit_narrative_swatches_stage_token` | honest standard-recipe context | `swooper-maps-standard-recipe/rules` | `pattern.md` scans standard recipe, maps, and tests for the retired `narrative-swatches` stage token. | Domino 30 already moved this out of the domains lane because the token is standard recipe topology cleanup, not narrative/domain ownership. It remains honest context authority, not `recipe-stage` kind authority. | selected-rule Grit proof passed; path refs exist | Token labels are not owners; retired topology tokens stay with the concrete topology until rewritten generally. |
+
 ## Remaining Dominoes
 
-### 33. Build Narrow Projection From Moved Authority
+### 34. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -290,7 +313,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 34. Prune Transitional Packet Metadata For Moved Slices
+### 35. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -321,7 +344,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 35. Repeat Activation Slices
+### 36. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -352,7 +375,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 36. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 37. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.
