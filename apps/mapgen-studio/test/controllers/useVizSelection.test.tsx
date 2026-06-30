@@ -323,3 +323,40 @@ describe("useVizSelection — Era / Overlay group (EO)", () => {
     expect(store().overlayVariantKeyPreference).toBe("era:2");
   });
 });
+
+describe("useVizSelection — navigateTo single-owner facade (NAV, slice 2.7 commit B)", () => {
+  it("NAV-1: navigateTo(stage) selects the stage; default step lands on steps[0]", () => {
+    // The STAGE selection is the load-bearing assertion here (a stage-skip mutation
+    // kills it). The default-step landing on steps[0] is co-guaranteed by the
+    // step-clamp effect (see SS-3 reset), so the navigateTo-unique step behavior is
+    // pinned by NAV-2 (the explicit-step path) instead.
+    const { view } = render();
+    act(() => view.result.current.navigateTo("stageB"));
+    expect(store().selectedStageId).toBe("stageB");
+    expect(store().selectedStepId).toBe("stageB.b1");
+  });
+
+  it("NAV-2: navigateTo(stage, step) selects the stage and the explicit step", () => {
+    const { view } = render();
+    act(() => view.result.current.navigateTo("stageA", "stageA.a2"));
+    expect(store().selectedStageId).toBe("stageA");
+    expect(store().selectedStepId).toBe("stageA.a2");
+  });
+
+  it("NAV-3: handleStepChange is a direct within-stage step write (NOT routed through navigateTo)", () => {
+    // A within-stage step change needs no stage coordination, so it must NOT route
+    // through navigateTo — that would add a redundant same-value setSelectedStageId
+    // store notification. Stage stays put; only the step changes.
+    const { view } = render(); // baseline stage is stageA
+    act(() => view.result.current.handleStepChange("stageA.a2"));
+    expect(store().selectedStageId).toBe("stageA");
+    expect(store().selectedStepId).toBe("stageA.a2");
+  });
+
+  it("NAV-4: handleStageChange on an UNKNOWN stage selects it but does NOT reset the step", () => {
+    const { view } = render(); // baseline step is stageA.a1
+    act(() => view.result.current.handleStageChange("nonexistent"));
+    expect(store().selectedStageId).toBe("nonexistent");
+    expect(store().selectedStepId).toBe("stageA.a1"); // guard preserved — step untouched
+  });
+});
