@@ -96,7 +96,7 @@
   "scripts": {
     "dev": "vite",
     "dev:frontend": "vite",
-    "dev:server": "bun --watch src/server/daemon/daemon.ts",
+    "dev:server": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
     "serve": "bun src/server/daemon/daemon.ts --assets-root dist",
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "check:worker-bundle": "node scripts/check-worker-bundle.mjs",

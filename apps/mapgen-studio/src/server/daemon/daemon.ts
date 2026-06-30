@@ -23,9 +23,15 @@ import { createStudioOperationRuntimePorts } from "../studio/engines";
 // (`/api/civ7/rpc`, `/api/recipe-dag/rpc`) and the 16 hand-rolled legacy
 // `/api/*` REST handlers are RETIRED — every non-`/rpc` API path is a 404.
 //
-// Executed with `bun src/server/daemon/daemon.ts` (never under node). The
-// fetch composition (`createStudioDaemonFetch`) is pure and unit-tested under
-// vitest; only `main()` touches `Bun.serve`.
+// Executed with `bun src/server/daemon/daemon.ts` (never under node). In DEV
+// (`dev:server`) it runs under `bun --conditions bun-source --watch`: the
+// custom opt-in `bun-source` export condition resolves `@civ7/studio-server`
+// to its TypeScript SOURCE (not built `dist`), so editing the server package
+// hot-reloads this daemon with no build step or manual bounce. The condition
+// is dev-only by construction — nothing else passes `--conditions bun-source`,
+// so prod `serve`, `vite` (browser bundle / frontend boundary), and `tsc` all
+// keep resolving `dist`. The fetch composition (`createStudioDaemonFetch`) is
+// pure and unit-tested under vitest; only `main()` touches `Bun.serve`.
 // ============================================================================
 
 declare const Bun: {

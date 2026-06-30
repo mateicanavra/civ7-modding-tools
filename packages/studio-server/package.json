@@ -18,14 +18,17 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "bun-source": "./src/index.ts",
       "import": "./dist/index.js"
     },
     "./contract": {
       "types": "./dist/contract/index.d.ts",
+      "bun-source": "./src/contract/index.ts",
       "import": "./dist/contract/index.js"
     },
     "./live-game": {
       "types": "./dist/liveGame/model.d.ts",
+      "bun-source": "./src/liveGame/model.ts",
       "import": "./dist/liveGame/model.js"
     }
   },
