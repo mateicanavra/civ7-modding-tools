@@ -130,7 +130,7 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 35. Shape The Pipeline Child Lanes | The direct parent `.habitat/civ7/mapgen/pipeline/rules/` rows were reviewed and physically sorted into child lanes: narrow runtime and contract source-surface rows moved to intentional child `rules/`, while broader runtime determinism/config, cutover, and config cleanup pressure moved to child `_remainder/`. No row stayed parent-pipeline authority, and no new blueprint, capability, admission, projection, import-law, package-graph, build, or runner authority was created. |
 | 36. Gather the Mod-Map Blueprint Kind | `mod-map` was affirmed as the map-producing mod variant kind, with Swooper Maps as the current concrete instance. Generated entrypoint and shipped catalog rows moved to `.habitat/blueprints/mod-map/`; projection and placement rows moved to `.habitat/civ7/mapgen/map-output/_remainder/` instead of becoming sibling blueprints by label affinity. |
 | 37. Reclaim Projection/Placement Remainders | The map-output projection/placement remainder was re-read with the Remainder Reclamation frame: three exact standard-recipe projection/placement rows and one foundation projection adjacent row moved to `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/`; the broad physics-to-map contract seam stayed under `.habitat/civ7/mapgen/map-output/_remainder/` as future split or projection-surface pressure. No `recipe-step`, `map-projection`, or `placement-outcome` authority was invented. |
-| 38. Frame Or Split The Projection Contract Remainder | The retained broad projection contract row was behavior-preservingly split: physics-stage contract leakage and map-effect naming moved to the standard-recipe context, while the realized-map artifact namespace check stayed under map-output `_remainder` with `PROJECTION-CONTRACT-SURFACE-FRAME.md` as the next surface frame. |
+| 38. Frame Or Split The Projection Contract Remainder | The retained broad projection contract row was behavior-preservingly split: physics-stage contract leakage and map-effect naming moved to the standard-recipe context, while the realized-map artifact namespace check stayed under map-output `_remainder` with `PROJECTION-CONTRACT-SURFACE-FRAME.md` preserved as surface evidence instead of the next active domino. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -379,130 +379,196 @@ shows what was reclaimed and what still needs a new surface frame.
 
 ## Remaining Dominoes
 
-### 39. Build Narrow Projection From Moved Authority
+### 39. Gather The Dependency-Tag Blueprint Kind
 
-Purpose: let execution consume moved authority only after multiple slices give
-it something honest to discover.
-
-Done Means:
-
-- One narrow adapter projects moved blueprint/context authority into the
-  existing execution surface needed by the touched slices.
-- The adapter is explicitly an adapter, not the authority source.
-- Existing selected-rule or local Toolkit behavior still works for migrated and
-  unmigrated slices.
-
-Moves It Forward:
-
-- Build only the projection path needed by moved slices.
-- Preserve existing compatibility paths outside the migrated slice.
-- Add diagnostics that distinguish admission failure from execution failure if
-  the moved surface can exercise that distinction.
-- Stop if implementation requires finalizing the full global schema.
-
-Dependencies:
-
-- Bounded kind-family slices have repeated enough to expose projection needs.
-
-Proof:
-
-- A focused command or local test exercises the slice projection.
-- The proof does not claim broad `habitat check` correctness.
-- Failure output, if touched, names the authority layer that failed.
-
-### 40. Prune Transitional Packet Metadata For Moved Slices
-
-Purpose: remove duplicated or misleading packet metadata once moved authority
-owns the facts.
+Purpose: admit the real dependency-tag kind before artifact gathering so
+artifact, field, and effect edge semantics do not keep masquerading as
+separate blueprint or projection destinations.
 
 Done Means:
 
-- Transitional metadata for moved slices is removed, demoted, or fenced.
-- Remaining `rule.json` metadata is limited to runner compatibility or
-  documented transitional use.
-- The moved slice no longer teaches future agents that packet metadata is
-  the conceptual source.
+- `.habitat/blueprints/dependency-tag/` exists as affirmed blueprint authority.
+- Whole-rule rows about dependency tag IDs, stable prefixes, tag registries,
+  `requires`, `provides`, and effect gating move there when they fit the whole
+  dependency-tag predicate.
+- `artifact:*`, `field:*`, and `effect:*` are treated as tag kinds under
+  `dependency-tag`, not as sibling blueprint destinations.
+- Touched sibling labels such as `effect-tag`, `tag-catalog`,
+  `projection-contract`, and `config-surface` are merged, rejected, demoted, or
+  explicitly excluded instead of becoming accidental blueprints.
+- Artifact value, schema, publish/read, and immutable store rules stay out of
+  dependency-tag unless their whole predicate is tag governance.
 
 Moves It Forward:
 
-- Start from duplicated facts exposed during bounded movement.
-- Delete facts now owned by blueprint, instance, capability, or niche authority.
-- Keep only metadata still needed by the narrow projection adapter.
-- Update local docs if a reader would otherwise infer the old ownership model.
+- Use `.habitat/frames/DESTINATION-SIMPLIFICATION-FRAME.md` and
+  `.habitat/frames/BLUEPRINT-KIND-GATHERING-FRAME.md`.
+- Start from architecture-backed tag evidence in
+  `SPEC-architecture-overview.md`,
+  `DEPENDENCY-IDS-AND-REGISTRIES.md`, and
+  `packages/mapgen-core/src/engine/tags.ts`.
+- Inspect current `_remainder`, `_blueprints`, and standard-recipe/context rows
+  only where they mention tag prefixes, tag registries, `requires`,
+  `provides`, or effect gating.
+- Preserve current runtime behavior and rule IDs.
 
 Dependencies:
 
-- Narrow projection from moved authority has proved the projection can run.
-- Duplicated facts have been identified before deletion.
+- Destination Simplification frame is recorded.
+- Blueprint Kind Gathering frame includes the sibling/touched-row pass.
 
 Proof:
 
-- Focused inspection shows migrated facts now have a single conceptual owner.
-- Focused command proof still passes for moved slices.
-- No unrelated packet cleanup is bundled into this branch.
+- Focused rule checks pass for moved rows.
+- Manifest path proof shows moved runner and baseline references exist.
+- Static scans show touched rows do not leave accidental `effect-tag`,
+  `tag-catalog`, `projection-contract`, or `config-surface` blueprint claims.
+- The final receipt distinguishes dependency-tag authority from artifact
+  authority and garbage pressure.
 
-### 41. Repeat Activation Slices
+### 40. Re-read After Dependency Tags And Select Artifact, Garbage, Or Candidate Pruning
 
-Purpose: prove the activation model across a second and third corpus before
-making it the default shape.
+Purpose: choose the next largest bounded move from the tree changed by
+dependency-tag gathering instead of pre-committing to artifact, garbage, or
+global `_blueprints` pruning too early.
 
 Done Means:
 
-- At least two additional bounded kind-family slices repeat the movement,
-  projection, and pruning loop.
-- Differences between slices are recorded as model refinements or explicit
-  rejected generalizations.
-- The authority model becomes easier to apply with each slice.
+- The dependency-tag slice has been re-read as changed structure, not as a
+  static corpus snapshot.
+- The next branch is selected as exactly one of: artifact blueprint gathering,
+  targeted garbage collection, targeted `_blueprints` pruning, or stop and
+  reframe if none of those is a fit.
+- The selection names the bounded input pocket and why it is higher leverage
+  than the alternatives.
 
 Moves It Forward:
 
-- Pick the next corpus that stresses the weakest proven part of the pilot.
-- Reuse the pilot shape where it held.
-- Change the model only when a second slice produces source-backed pressure.
-- Keep branch layers reviewable and vertically complete.
+- If artifact rows now line up around value/schema/publish/read behavior, run
+  artifact gathering next.
+- If the remaining rows are mostly duplicate negative proxies, obsolete cleanup,
+  or superseded guards, run garbage collection next.
+- If false `_blueprints` still bias future work more than any real destination,
+  run a targeted candidate-pruning pass next.
+- Do not turn this gate into broad corpus documentation.
 
 Dependencies:
 
-- Transitional packet metadata has been pruned for moved slices.
-- The first moved slices have a clear copyable pattern or named failure mode.
+- Dependency-tag gathering has landed and been validated.
 
 Proof:
 
-- Each repeated slice has its own focused proof.
-- Model changes are tied to concrete slice evidence.
-- Review can compare slices without reconstructing the old packet history.
+- The chosen next domino names its frame, bounded inputs, falsifier, and
+  expected physical movement.
+- The non-chosen paths are explicitly demoted with reasons, not forgotten.
 
-### 42. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 41. Gather The Artifact Blueprint Kind
 
-Purpose: rebuild broad Habitat discovery only after authority admission has
-enough real shape to discover.
+Purpose: admit artifact as the real immutable data-product kind after
+dependency-tag has separated tag-edge governance from artifact value
+governance.
 
 Done Means:
 
-- The broad runner discovers admitted authority rather than deriving ontology
-  from packet paths.
-- Default inclusion, selector behavior, diagnostics, and failure reporting use
-  admitted blueprint, instance, capability, and niche facts.
-- Compatibility metadata remains only for unmigrated slices or deliberate
-  adapter boundaries.
+- `.habitat/blueprints/artifact/` exists as affirmed blueprint authority.
+- Artifact contract is included inside artifact authority, not split into an
+  `artifact-contract` sibling blueprint.
+- Whole-rule rows about artifact IDs, schemas, immutable publish/read behavior,
+  artifact helper surfaces, producer/consumer contract, and buffer exceptions
+  move there when their whole predicate fits artifact governance.
+- Dependency-tag rows remain under dependency-tag even when their IDs use the
+  `artifact:*` prefix.
+- Non-fitting rows move or remain in honest niche/context or `_remainder`
+  lanes.
 
 Moves It Forward:
 
-- Use repeated activation slices as the corpus for runner behavior.
-- Keep selected-rule compatibility until migrated authority can replace it.
-- Rebuild diagnostics around authority-layer failures.
-- Retire legacy assumptions only when their migrated replacements exist.
+- Use `ARTIFACTS.md`, `add-a-new-artifact.md`, artifact authoring source, and
+  current standard-recipe artifact examples as constructibility evidence.
+- Gather artifact rows from bounded `_remainder`, context, and `_blueprints`
+  pockets only after dependency-tag has clarified edge/tag rows.
+- Preserve artifact as the value/contract owner rather than a generic output or
+  projection label.
 
 Dependencies:
 
-- Repeated activation slices prove the activation model across multiple slices.
-- There is enough admitted authority to define default discovery honestly.
+- Dependency-tag gathering has landed, or Domino 40 explicitly chose artifact
+  as the correct next move despite a documented dependency-tag limitation.
 
 Proof:
 
-- Focused runner tests cover admitted and non-admitted slices.
-- Broad execution no longer fails because old registry assumptions leak into
-  authority discovery.
+- Focused rule checks pass for moved rows.
+- Manifest path proof and stale-reference scans pass.
+- The final receipt distinguishes artifact value/contract authority from
+  dependency-tag, projection, config, and garbage pressure.
+
+### 42. Run Targeted Garbage Or `_blueprints` Candidate Pruning
+
+Purpose: delete, retire, demote, or fence misleading rows and candidate
+destinations once the real dependency-tag and artifact destinations have been
+tested or deliberately deferred.
+
+Done Means:
+
+- The targeted garbage or candidate-pruning input set is bounded by the
+  preceding dependency-tag/artifact passes.
+- Rows are removed only when behaviorless, duplicate, superseded by a positive
+  rule, or explicitly retired.
+- False `_blueprints` destinations touched by recent slices are demoted to
+  honest niche `rules/`, `_remainder`, or active source owner lanes.
+- No global `_blueprints` campaign runs without a bounded destination or
+  garbage frame.
+
+Moves It Forward:
+
+- Apply the garbage pressure named in
+  `.habitat/frames/DESTINATION-SIMPLIFICATION-FRAME.md`.
+- Prefer deleting bad negative guards after a stronger positive rule exists.
+- Prefer demoting fake candidates over preserving them as visual ontology.
+- Leave config, adapter, projection, import-law, package-graph, and build
+  surfaces out of blueprint authority unless a later frame admits a specific
+  constructible owner.
+
+Dependencies:
+
+- Domino 40 chooses garbage or candidate pruning, or artifact gathering exposes
+  pruning as the next highest-leverage move.
+
+Proof:
+
+- Deleted or demoted rows are named with the reason.
+- Focused checks prove no behavior regression for retained rows.
+- Static scans show touched fake destinations no longer appear as live
+  `_blueprints` ambiguity.
+
+### 43. Resume Authority Activation Projection Work
+
+Purpose: return to narrow projection, metadata pruning, and runner discovery
+only after the next real destinations and major false destinations stop
+distorting the authority tree.
+
+Done Means:
+
+- The authority tree has enough admitted dependency-tag, artifact, recipe,
+  domain, domain-operation, and mod-map shape to justify projection work.
+- Any projection adapter is explicitly an adapter, not the ontology source.
+- The next runner or metadata change consumes admitted authority rather than
+  deriving ontology from packet paths or stale manifests.
+
+Moves It Forward:
+
+- Build only the projection path needed by admitted slices.
+- Prune transitional packet metadata when moved authority owns the facts.
+- Rebuild broad runner discovery only after enough admitted authority exists.
+
+Dependencies:
+
+- Dependency-tag and artifact direction have been resolved.
+- Garbage or candidate-pruning pressure no longer dominates the next move.
+
+Proof:
+
+- Focused Toolkit or selected-rule proof exercises the projected slice.
 - Review can map runner behavior back to admitted authority, not path guesses.
 
 ## Reorder/Falsifier Gates

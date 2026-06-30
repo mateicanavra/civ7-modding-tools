@@ -13,10 +13,17 @@ moves.
 
 Current frames:
 
+- `DESTINATION-SIMPLIFICATION-FRAME.md`: use when deciding the immediate
+  big-swing destination sequence after several movement slices. It records the
+  simplified destination set, the dependency-tag before artifact ordering,
+  destination merges, not-blueprint calls, and the artifact vs garbage vs
+  `_blueprints` pruning gate after dependency-tag gathering.
 - `BLUEPRINT-KIND-GATHERING-FRAME.md`: use when the next move is to affirm one
   constructible blueprint kind, create its top-level blueprint lane, gather all
   whole-rule authority that belongs to that kind, and demote non-fitting
-  evidence into honest `rules/` or `_remainder/` lanes.
+  evidence into honest `rules/` or `_remainder/` lanes. It now includes
+  sibling/touched-row passes so an admitted kind can merge, reject, or demote
+  adjacent false destinations in the same bounded slice.
 - `NICHE-LANE-SHAPING-FRAME.md`: use when a parent niche `rules/` lane is
   acting as a semantic junk drawer and the next move is to shape honest child
   lanes before deeper blueprint, capability, projection, or cleanup work.

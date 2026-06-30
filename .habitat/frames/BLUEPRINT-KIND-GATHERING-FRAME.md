@@ -35,6 +35,9 @@ In scope:
   instance of the affirmed kind.
 - Bounded evidence pockets named by the active slice plus source-obvious
   adjacent pockets. "Bounded" does not mean whole-corpus search.
+- Sibling or touched-row passes inside the bounded slice when nearby candidate
+  labels could become false sibling destinations or hide rows that should move
+  with the affirmed kind.
 - Physical demotion of non-fitting evidence to the smallest honest niche
   `rules/` or `_remainder/` lane.
 - Disposition receipts that match the final tree.
@@ -62,6 +65,9 @@ Source pointers:
 - `.habitat/AUTHORITY-REMAINDER-SLICE-FRAME.md` for contextual remainders.
 - `.habitat/frames/NICHE-LANE-SHAPING-FRAME.md` for the contrasting method
   where child holding lanes must be shaped before kind extraction.
+- `.habitat/frames/DESTINATION-SIMPLIFICATION-FRAME.md` for the immediate
+  big-swing destination sequence and the dependency-tag before artifact
+  ordering.
 - `.habitat/dominoes.md` for active sequence and completed receipts.
 - Current `.habitat/**/rule.json` manifests as evidence, not ontology.
 - Current source tree as constructibility and ownership evidence.
@@ -72,10 +78,13 @@ This frame treats a candidate constructible kind as the unit of analysis. It
 first asks whether the kind itself is real enough to become top-level
 blueprint authority. If yes, the same workstream uses that new destination to
 gather every bounded rule whose whole meaning applies to every valid instance
-of the kind. Evidence that does not fit the kind is not forced into the
-blueprint; it is moved or retained in the smallest honest niche `rules/` or
-`_remainder/` lane so the tree shows what was affirmed, what stayed
-contextual, and what remains unresolved.
+of the kind. It also inspects sibling and touched rows that could falsely
+become neighboring blueprints, because admitting one real destination should
+reduce adjacent state space rather than leave misleading candidates in place.
+Evidence that does not fit the kind is not forced into the blueprint; it is
+moved or retained in the smallest honest niche `rules/` or `_remainder/` lane
+so the tree shows what was affirmed, what stayed contextual, what was demoted,
+and what remains unresolved.
 
 ## WHY
 
@@ -154,7 +163,9 @@ Hard core:
    to every valid instance of that kind.
 4. Non-fitting evidence must be visibly demoted or retained in an honest lane;
    it must not remain under `_blueprints/` as unresolved ambiguity.
-5. The branch must leave a physical tree state that future agents can use
+5. Sibling candidate labels touched by the slice must be merged, rejected,
+   demoted, or explicitly left outside the slice with a reason.
+6. The branch must leave a physical tree state that future agents can use
    without consulting a hidden classification ledger.
 
 Protective belt:
@@ -265,15 +276,18 @@ destination may be the main source of ambiguity.
 6. If the kind passes, create `.habitat/blueprints/<kind>/` and define the
    bounded primary input group.
 7. Fill the evidence pocket table, including explicit exclusions.
-8. Search only bounded adjacent pockets for rows whose whole meaning may
+8. Run the sibling and touched-row pass for candidate labels adjacent to the
+   selected kind, especially when the proposed kind collapses an over-split
+   destination.
+9. Search only bounded adjacent pockets for rows whose whole meaning may
    belong to the kind. Do not classify the whole corpus.
-9. Predeclare a disposition for every primary row: affirmed blueprint, honest
+10. Predeclare a disposition for every primary row: affirmed blueprint, honest
    niche rules, `_remainder`, explicit exclusion, or falsified.
-10. Physically move packets, preserving `rule.json.id` and updating
+11. Physically move packets, preserving `rule.json.id` and updating
    `placement`, `runner.files`, `artifacts.baseline`, and active references.
-11. Record a receipt that matches the final tree.
-12. Run focused proof for moved rows and stale-reference scans.
-13. Re-read the changed tree before proposing the next candidate kind or
+12. Record a receipt that matches the final tree.
+13. Run focused proof for moved rows and stale-reference scans.
+14. Re-read the changed tree before proposing the next candidate kind or
     remainder slice.
 
 ## Table Contracts
@@ -303,6 +317,19 @@ but the table state must match the final physical tree.
 | `why bounded` | Why the pocket does not open whole-corpus classification. |
 | `source roots inspected` | Source roots used to decide. |
 | `explicit exclusions` | Nearby rows or folders intentionally left outside the slice. |
+
+### Sibling And Touched-Row Pass Table
+
+Use this table when the selected kind is near other candidate labels or when
+source evidence touches rows outside the primary pocket.
+
+| Column | Meaning |
+| --- | --- |
+| `sibling or touched row` | Candidate folder, rule id, or lane inspected because the slice touched its evidence. |
+| `relationship to kind` | Merge into kind, parent-owned facet, honest niche context, `_remainder`, garbage pressure, later possible kind, or excluded. |
+| `why not sibling blueprint` | The specific constructibility, boundary, or whole-rule test that prevents sibling promotion now. |
+| `physical outcome` | Moved, demoted, retained, deleted, or explicitly untouched. |
+| `next trigger` | What future evidence should revisit the row or candidate. |
 
 ### Rule Disposition Receipt
 
@@ -392,6 +419,8 @@ evidence, or explicitly dispositioned by sealed authority/user decision.
 - Kind affirmation table filled.
 - Bounded evidence pockets listed with explicit exclusions.
 - Every primary row has a planned bucket.
+- Sibling and touched rows have been merged, demoted, excluded, or explicitly
+  left untouched with a reason.
 - Target lanes match `.habitat/AUTHORITY-TREE-SHAPE.md`.
 - Review prompts are bounded to the selected kind and do not ask agents to
   classify the whole corpus.
@@ -406,6 +435,8 @@ Reframe before implementation if:
   that must be affirmed first for the slice to be truthful;
 - most candidate rows require a second new kind, capability, projection, or
   import-law surface;
+- touched sibling labels would remain ambiguous `_blueprints/` merely because
+  the branch avoided the adjacent false-destination decision;
 - the slice would mostly create docs or ledgers without physical movement; or
 - creating the blueprint would increase state space by preserving current
   labels rather than reducing ambiguity.
