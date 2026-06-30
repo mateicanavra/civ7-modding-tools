@@ -1,22 +1,7 @@
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
-import { requestCiv7Autoplay } from "../features/civ7Setup/api";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
-import { formatCiv7StudioSeedError, parseCiv7StudioSeed } from "../features/civ7Setup/seedPolicy";
-import {
-  clearStudioSetupSavedConfig,
-  getLocalPlayerSetup,
-  optionRowsFromParameter,
-  studioSetupConfigFromSavedConfigFile,
-  studioSetupDriftsFromSavedConfig,
-} from "../features/civ7Setup/setupConfig";
-import {
-  ensureSelectOption,
-  findSetupParameterLike,
-  mergeSelectOptions,
-  setupCatalogOptions,
-} from "../features/civ7Setup/setupOptions";
 import { buildDefaultConfig } from "../features/configOverrides/configBuilders";
 import {
   PresetConfirmDialog,
@@ -27,7 +12,6 @@ import { type PresetKey, parsePresetKey } from "../features/presets/types";
 import { PipelineStage } from "../features/recipeDag/PipelineStage";
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
 import { runInGameRequiresProcessRestart } from "../features/runInGame/status";
-import { liveControlPort } from "../lib/control/liveControlPort";
 import { orpcClient } from "../lib/orpc";
 import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
 import type { VizEvent } from "../shared/vizEvents";
@@ -51,6 +35,7 @@ import { useLiveRuntime } from "./hooks/useLiveRuntime";
 import { usePresetLifecycle } from "./hooks/usePresetLifecycle";
 import { useRunInGame } from "./hooks/useRunInGame";
 import { useSaveDeploy } from "./hooks/useSaveDeploy";
+import { useSetupControls } from "./hooks/useSetupControls";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
 import { useStudioEvents } from "./hooks/useStudioEvents";
 import { useStudioOperations } from "./hooks/useStudioOperations";
@@ -288,8 +273,6 @@ export function StudioShell(props: StudioShellProps) {
   // defaults), replacing the prior hand-rolled load/retry/focus effect; the derived view
   // shapes are unchanged so `setupControlOptions` below consumes them as before.
   const { savedSetupConfigs, setupCatalog } = useSetupDataQueries();
-  const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
-  const [exploreActionRunning, setExploreActionRunning] = useState(false);
 
   // Viz selection/exploration fixpoint (slice 2.7): owns `useVizState` + the full
   // stage/step/dataType/space/mode/variant/era/overlay cascade and is the sole
@@ -532,115 +515,35 @@ export function StudioShell(props: StudioShellProps) {
       );
   }, [presetOptions, provedRunInGameSource?.materializationMode, studioMatchesProvedLiveSource]);
 
-  const setupControlOptions = useMemo(() => {
-    const setup = liveSetup.setup;
-    const parameters = setup?.setup?.parameters ?? [];
-    const localPlayerId = Number(
-      setup?.setup?.localPlayerId?.ok === true
-        ? setup.setup.localPlayerId.value
-        : getLocalPlayerSetup(setupConfig).playerId
-    );
-    const playerParameters =
-      setup?.setup?.playerParameters?.find((player) => player.playerId === localPlayerId)
-        ?.parameters ??
-      setup?.setup?.playerParameters?.[0]?.parameters ??
-      [];
-    const localPlayer = getLocalPlayerSetup(setupConfig);
-    const gameOptions = setupConfig.gameOptions;
-    const playerOptions = localPlayer.options;
-    const savedConfigOptions = [
-      {
-        value: "",
-        label: savedSetupConfigs.status === "idle" ? "Loading configs" : "No saved config",
-      },
-      ...savedSetupConfigs.configurations.map((config) => ({
-        value: config.id,
-        label: config.displayName,
-      })),
-    ];
-    const leader = playerOptions.PlayerLeader;
-    const civilization = playerOptions.PlayerCivilization;
-    const difficulty = gameOptions.Difficulty ?? playerOptions.PlayerDifficulty;
-    const gameSpeed = gameOptions.GameSpeeds;
-    const catalog = setupCatalog.catalog;
-    return {
-      savedConfigOptions: ensureSelectOption(savedConfigOptions, setupConfig.savedConfig?.id),
-      leaderOptions: ensureSelectOption(
-        mergeSelectOptions(
-          [{ value: "", label: "Leader" }],
-          optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerLeader")),
-          setupCatalogOptions(catalog?.leaders)
-        ),
-        leader
-      ),
-      civilizationOptions: ensureSelectOption(
-        mergeSelectOptions(
-          [{ value: "", label: "Civilization" }],
-          optionRowsFromParameter(findSetupParameterLike(playerParameters, "PlayerCivilization")),
-          setupCatalogOptions(catalog?.civilizations)
-        ),
-        civilization
-      ),
-      difficultyOptions: ensureSelectOption(
-        mergeSelectOptions(
-          [{ value: "", label: "Difficulty" }],
-          optionRowsFromParameter(findSetupParameterLike(parameters, "Difficulty")),
-          setupCatalogOptions(catalog?.difficulties)
-        ),
-        difficulty
-      ),
-      gameSpeedOptions: ensureSelectOption(
-        mergeSelectOptions(
-          [{ value: "", label: "Speed" }],
-          optionRowsFromParameter(findSetupParameterLike(parameters, "GameSpeeds")),
-          setupCatalogOptions(catalog?.gameSpeeds)
-        ),
-        gameSpeed
-      ),
-    };
-  }, [
-    liveSetup.setup,
-    savedSetupConfigs.configurations,
-    savedSetupConfigs.status,
-    setupCatalog.catalog,
+  // Setup-controls cluster (slice 2.12): the derived `setupControlOptions`
+  // projection, the value-equality saved-config drift detector, the saved-config
+  // selection handler, and the two live-game *actions* (autoplay toggle + explore)
+  // with their in-flight guard state. Initialized LAST in the hook sequence (§5):
+  // the autoplay toggle reads the LIVE `liveRuntime.autoplayActive` + `setLiveRuntime`
+  // (from `useLiveRuntime`) and both actions busy-gate on the flags threaded from
+  // `useStudioOperations`, so this must follow those hooks (and `useSetupDataQueries`).
+  const {
+    setupControlOptions,
+    savedSetupConfigModified,
+    handleSavedSetupConfigChange,
+    handleToggleAutoplay,
+    handleExplore,
+    autoplayActionRunning,
+    exploreActionRunning,
+  } = useSetupControls({
     setupConfig,
-  ]);
-
-  // Config precedence (Y2, hardened in P7): the selector claims the saved
-  // config ONLY while the authored setup state equals the file-derived state
-  // — any difference (dropdown edit, live sync, stray persisted key) means
-  // the launch would not be the file, so the header shows "Custom" instead.
-  // Re-selecting the config re-applies the file exactly and returns to clean.
-  const savedSetupConfigModified = useMemo(() => {
-    const selectedId = setupConfig.savedConfig?.id;
-    if (!selectedId) return false;
-    const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === selectedId);
-    if (!savedConfig) return false;
-    return studioSetupDriftsFromSavedConfig(setupConfig, savedConfig);
-  }, [savedSetupConfigs.configurations, setupConfig]);
-
-  const handleSavedSetupConfigChange = useCallback(
-    (configId: string) => {
-      const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === configId);
-      if (!savedConfig) {
-        setSetupConfig((current) => clearStudioSetupSavedConfig(current));
-        return;
-      }
-      setSetupConfig(studioSetupConfigFromSavedConfigFile(savedConfig));
-      const nextSeed = savedConfig.summary.mapSeed ?? savedConfig.summary.gameSeed;
-      if (nextSeed !== undefined) {
-        const seedPolicy = parseCiv7StudioSeed(nextSeed);
-        if (seedPolicy.ok) {
-          setRecipeSettings((current) => ({ ...current, seed: String(seedPolicy.value) }));
-        } else {
-          toast(`Saved config seed ignored: ${formatCiv7StudioSeedError(seedPolicy)}`, {
-            variant: "info",
-          });
-        }
-      }
-    },
-    [savedSetupConfigs.configurations, toast]
-  );
+    setSetupConfig,
+    setRecipeSettings,
+    savedSetupConfigs,
+    setupCatalog,
+    liveSetup,
+    liveRuntime,
+    setLiveRuntime,
+    browserRunning,
+    runInGameRunning,
+    saveDeployRunning,
+    toast,
+  });
 
   const markRunInGameToastHandled = useCallback((requestId: string) => {
     lastRunInGameToastRef.current = requestId;
@@ -675,94 +578,6 @@ export function StudioShell(props: StudioShellProps) {
     setLocalError,
     clearLocalError: clearLocalErrorIfCurrent,
   });
-
-  const handleToggleAutoplay = useCallback(async () => {
-    if (autoplayActionRunning) {
-      toast("Autoplay request is already in flight.", { variant: "info" });
-      return;
-    }
-    const busyMessage = studioBusyGateMessage({
-      subject: "Autoplay",
-      browserRunning,
-      runInGameRunning,
-      saveDeployRunning,
-    });
-    if (busyMessage) {
-      toast(busyMessage, { variant: "info" });
-      return;
-    }
-    const action = liveRuntime.autoplayActive ? "stop" : "start";
-    setAutoplayActionRunning(true);
-    try {
-      const result = await requestCiv7Autoplay(action);
-      if (!result.ok) {
-        toast(`Autoplay ${action} failed: ${result.error ?? "unknown error"}`, {
-          variant: "error",
-        });
-        return;
-      }
-      setLiveRuntime((current) => ({
-        ...current,
-        status: "ok",
-        autoplayActive: result.autoplay?.isActive ?? action === "start",
-        autoplayPaused: result.autoplay?.isPaused,
-        turn: result.game?.turn?.ok ? result.game.turn.value : current.turn,
-        updatedAt: new Date().toISOString(),
-        error: undefined,
-      }));
-      toast(action === "start" ? "Civ7 autoplay started" : "Civ7 autoplay stopped", {
-        variant: "success",
-      });
-    } finally {
-      setAutoplayActionRunning(false);
-    }
-  }, [
-    autoplayActionRunning,
-    browserRunning,
-    liveRuntime.autoplayActive,
-    runInGameRunning,
-    saveDeployRunning,
-    toast,
-  ]);
-
-  /**
-   * Explore (reveal the map) in the live game via the canonical
-   * `display.explore.request` control procedure — the studio's map-QA verb.
-   * The grant stays held (fog does not re-cover) for a disposable studio
-   * session; player 0 is the canonical local player, matching the CLI.
-   */
-  const handleExplore = useCallback(async () => {
-    if (exploreActionRunning) {
-      toast("Explore request is already in flight.", { variant: "info" });
-      return;
-    }
-    const busyMessage = studioBusyGateMessage({
-      subject: "Explore",
-      browserRunning,
-      runInGameRunning,
-      saveDeployRunning,
-    });
-    if (busyMessage) {
-      toast(busyMessage, { variant: "info" });
-      return;
-    }
-    setExploreActionRunning(true);
-    try {
-      const result = await liveControlPort.display.explore.request({ playerId: 0 });
-      toast(
-        result.classification === "already-explored"
-          ? "Live map already fully revealed"
-          : `Live map revealed — ${result.grantedPlots} plots granted`,
-        { variant: "success" }
-      );
-    } catch (err) {
-      toast(`Explore failed: ${err instanceof Error ? err.message : "live game unavailable"}`, {
-        variant: "error",
-      });
-    } finally {
-      setExploreActionRunning(false);
-    }
-  }, [browserRunning, exploreActionRunning, runInGameRunning, saveDeployRunning, toast]);
 
   const gameOperationBusyLabel = studioBusyGateMessage({
     subject: "Game controls",
