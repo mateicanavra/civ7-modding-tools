@@ -13,6 +13,10 @@ moves.
 
 Current frames:
 
+- `BLUEPRINT-KIND-GATHERING-FRAME.md`: use when the next move is to affirm one
+  constructible blueprint kind, create its top-level blueprint lane, gather all
+  whole-rule authority that belongs to that kind, and demote non-fitting
+  evidence into honest `rules/` or `_remainder/` lanes.
 - `NICHE-LANE-SHAPING-FRAME.md`: use when a parent niche `rules/` lane is
   acting as a semantic junk drawer and the next move is to shape honest child
   lanes before deeper blueprint, capability, projection, or cleanup work.
