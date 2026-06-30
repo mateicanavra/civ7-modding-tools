@@ -2,6 +2,9 @@ node_modules
 dist
 *.local
 
+# Storybook static build output
+storybook-static
+
 # design-sync (claude.ai/design) — scaffolding + build artifacts
 .ds-sync/
 ds-bundle/
