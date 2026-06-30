@@ -105,6 +105,7 @@ import { configsEqual } from "../ui/utils/config";
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";
 import { useBrowserRun } from "./hooks/useBrowserRun";
+import { useDeckAutofit } from "./hooks/useDeckAutofit";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
@@ -537,27 +538,10 @@ export function StudioShell(props: StudioShellProps) {
     setLocalError,
   });
   vizIngestRef.current = viz.ingest;
-  const hasEverSeenVizManifestRef = useRef(false);
-  const lastAutoFitSpaceRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const spaceId = viz.effectiveLayer?.spaceId ?? null;
-    if (!spaceId) return;
-    if (!viz.activeBounds) return;
-    if (lastAutoFitSpaceRef.current === spaceId) return;
-    lastAutoFitSpaceRef.current = spaceId;
-    deckApiRef.current?.fitToBounds(viz.activeBounds);
-  }, [viz.activeBounds, viz.effectiveLayer?.spaceId]);
-
-  useEffect(() => {
-    if (!viz.manifest) return;
-    if (hasEverSeenVizManifestRef.current) return;
-    if (!viz.activeBounds) return;
-    const deckApi = deckApiRef.current;
-    if (!deckApi) return;
-    deckApi.fitToBounds(viz.activeBounds);
-    hasEverSeenVizManifestRef.current = true;
-  }, [deckApiReadyTick, viewportSize.height, viewportSize.width, viz.activeBounds, viz.manifest]);
+  // Deck-camera auto-fit (slice 2.7b): the ordered per-space + first-paint refit
+  // pair and their guard refs, consuming the viz read-projection BY VALUE and the
+  // deck handle / viewport from `useViewportLayout`. Lifted AFTER `useVizSelection`.
+  const { handleFitView } = useDeckAutofit({ deckApiRef, viewportSize, deckApiReadyTick, viz });
 
   const error = localError ?? browserRunner.state.error;
 
@@ -1955,10 +1939,7 @@ export function StudioShell(props: StudioShellProps) {
       onShowEdgesChange={setShowEdges}
       showDebugLayers={viz.showDebugLayers}
       onShowDebugLayersChange={viz.setShowDebugLayers}
-      onFitView={() => {
-        if (!viz.activeBounds) return;
-        deckApiRef.current?.fitToBounds(viz.activeBounds);
-      }}
+      onFitView={handleFitView}
       stageExpanded={exploreStageExpanded}
       onStageExpandedChange={setExploreStageExpanded}
       stepExpanded={exploreStepExpanded}
