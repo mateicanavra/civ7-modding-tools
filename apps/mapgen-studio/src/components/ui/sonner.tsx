@@ -9,29 +9,48 @@ import { Toaster as Sonner, type ToasterProps } from "sonner";
  * Toasts are a floating layer, so they carry a shadow and ride the `popover`
  * tier; styling is token-driven via CSS variables.
  */
-const useThemeFromClass = (): "light" | "dark" => {
-  const getTheme = React.useCallback(
-    (): "light" | "dark" =>
-      typeof document !== "undefined" && document.documentElement.classList.contains("dark")
-        ? "dark"
-        : "light",
-    []
+
+/** Theme is an EXTERNAL store (the `<html>` class), not React state. */
+type ThemeMode = "light" | "dark";
+
+/**
+ * Subscribe to `<html>` class mutations. Module-scoped so its identity is stable
+ * across renders (a changing `subscribe` would make `useSyncExternalStore`
+ * re-subscribe every render). Returns the unsubscribe cleanup.
+ */
+function subscribeToThemeClass(onStoreChange: () => void): () => void {
+  if (typeof document === "undefined") return () => {};
+  const observer = new MutationObserver(onStoreChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => observer.disconnect();
+}
+
+/** Read the current theme off the `<html>` class. Returns a primitive, so it is
+ * referentially stable when unchanged — no `useSyncExternalStore` tearing/loop. */
+function getThemeSnapshot(): ThemeMode {
+  return typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+    ? "dark"
+    : "light";
+}
+
+/** SSR / non-DOM snapshot: the app's default surface is light. */
+function getThemeServerSnapshot(): ThemeMode {
+  return "light";
+}
+
+/**
+ * `useThemeFromClass` — the toast theme, sourced from the DOM class via
+ * `useSyncExternalStore`. This is the correct primitive for reading an external
+ * mutable source: no effect, no setState-in-render, no stale first paint. The
+ * store re-themes toasts the instant the chrome's `.dark` class flips.
+ */
+function useThemeFromClass(): ThemeMode {
+  return React.useSyncExternalStore(
+    subscribeToThemeClass,
+    getThemeSnapshot,
+    getThemeServerSnapshot
   );
-
-  const [theme, setTheme] = React.useState<"light" | "dark">(getTheme);
-
-  React.useEffect(() => {
-    if (typeof document === "undefined") return;
-    const root = document.documentElement;
-    const observer = new MutationObserver(() => setTheme(getTheme()));
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Vendor-ish theme primitive (shadcn sonner wrapper). This setState seeds the initial theme right after subscribing the MutationObserver — the read-initial-value half of an external-store subscription. Suppressed rather than rewritten per the vendor-component policy. Follow-up: replace effect+state with `useSyncExternalStore` (subscribe = observe the `.dark` class mutation; getSnapshot = read the class), which removes the effect and the setState entirely.
-    setTheme(getTheme());
-    return () => observer.disconnect();
-  }, [getTheme]);
-
-  return theme;
-};
+}
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const theme = useThemeFromClass();
@@ -61,4 +80,4 @@ const Toaster = ({ ...props }: ToasterProps) => {
   );
 };
 
-export { Toaster };
+export { Toaster, useThemeFromClass };
