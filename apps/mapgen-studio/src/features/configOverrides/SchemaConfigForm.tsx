@@ -155,36 +155,53 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
     };
   }, [resolved, focusPath, value]);
 
-  if (!resolved) {
+  // `active` collapses focused/full modes into one view. It is null exactly when
+  // the schema failed to resolve (focusView is null whenever `resolved` is null),
+  // which the single guard below renders as the "unavailable" message.
+  const active =
+    focusView ??
+    (resolved
+      ? {
+          resolved,
+          formValue: value,
+          mergeBack: (nextFormValue: unknown) => nextFormValue as TConfig,
+        }
+      : null);
+
+  // Hooks must run unconditionally (rules-of-hooks): these memos previously sat
+  // after an early `return` on `!resolved`, so they were skipped whenever the
+  // schema was unresolvable — changing the hook count between renders and risking
+  // React's "rendered more hooks than during the previous render" crash on the
+  // null→resolved transition. Derive null-safe inputs first so the memos keep
+  // their original schema-identity granularity while tolerating a null view.
+  const activeSchema = active?.resolved.schema ?? null;
+  const activeFormContext = active?.resolved.formContext ?? null;
+
+  const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext> | null>(
+    () =>
+      activeSchema
+        ? (buildUiSchema(activeSchema) as UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>)
+        : null,
+    [activeSchema, buildUiSchema]
+  );
+
+  // Pointers are mode-independent (focused mode wraps the stage under its own
+  // key), so one collapse context serves both views unchanged.
+  const formContext = useMemo<BrowserConfigFormContext | null>(
+    () => (activeFormContext ? { ...activeFormContext, collapse } : null),
+    [activeFormContext, collapse]
+  );
+
+  // Single guard after all hooks. `active`, `uiSchema`, and `formContext` are
+  // null together (exactly when `resolved` is null), so this matches the prior
+  // early-return condition while narrowing all three to non-null for the render.
+  if (!active || !uiSchema || !formContext) {
     return (
       <div className="text-data text-muted-foreground">
         Config schema unavailable. Run the pipeline build to regenerate studio artifacts.
       </div>
     );
   }
-
-  const active = focusView ?? {
-    resolved,
-    formValue: value,
-    mergeBack: (nextFormValue: unknown) => nextFormValue as TConfig,
-  };
-
-  const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
-    () =>
-      buildUiSchema(active.resolved.schema) as UiSchema<
-        TConfig,
-        RJSFSchema,
-        BrowserConfigFormContext
-      >,
-    [active.resolved.schema, buildUiSchema]
-  );
-
-  // Pointers are mode-independent (focused mode wraps the stage under its own
-  // key), so one collapse context serves both views unchanged.
-  const formContext = useMemo<BrowserConfigFormContext>(
-    () => ({ ...active.resolved.formContext, collapse }),
-    [active.resolved.formContext, collapse]
-  );
 
   return (
     <SchemaForm
