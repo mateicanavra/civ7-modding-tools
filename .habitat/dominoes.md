@@ -17,14 +17,16 @@ Use this source order when selecting or judging the next domino:
 4. `.habitat/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
 5. `.habitat/AUTHORITY-REMAINDER-SLICE-FRAME.md` for contextual remainder
    slices after parent kinds have moved.
-6. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
+6. `.habitat/AUTHORITY-AUTONOMOUS-DOMINO-LOOP.md` for repeated bounded
+   dominoes whose destinations already exist.
+7. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
    `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
-7. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
+8. Completed slice frames such as `.habitat/AUTHORITY-DOMAIN-KIND-SLICE.md`
    as precedent and evidence, not as the next active selector.
-8. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
+9. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
    and fresh command evidence.
-9. Historical branch, PR, and session context as discovery material only.
+10. Historical branch, PR, and session context as discovery material only.
 
 The center of gravity has moved. Package-script cleanup is not the active
 driver anymore. Source-check retirement and mixed command-check extraction are
@@ -288,7 +290,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 32. Prune Transitional Packet Metadata For Moved Slices
+### 33. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -319,7 +321,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 32. Repeat Activation Slices
+### 34. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -350,7 +352,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 33. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 35. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.

@@ -43,6 +43,9 @@ This is not a final machine-readable ontology, and it is not evidence that runti
   remainder slices after parent kinds have moved, including decision criteria
   for blueprint movement, honest context, missing positive kind rules,
   external enforcement-surface pressure, and cleanup candidates.
+- `AUTHORITY-AUTONOMOUS-DOMINO-LOOP.md`: normative frame for running repeated
+  bounded authority-tree dominoes autonomously when the destinations already
+  exist and the work can close with physical movement, proof, and review.
 - `AUTHORITY-DOMAIN-OPERATION-SLICE.md`: completed-slice reference for the
   Domain Operation Kind Pocket slice selected after the Recipe Kind Pocket.
 - `AUTHORITY-DOMAIN-KIND-SLICE.md`: completed-slice reference for the Domain
