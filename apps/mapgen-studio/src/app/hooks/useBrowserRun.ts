@@ -95,6 +95,10 @@ export function useBrowserRun({
   const setLastRunSnapshot = useRunStore((s) => s.setLastRunSnapshot);
 
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
+  // BR-13 invariant: the debounce timer ref MUST stay co-located with both the
+  // schedule-arm (E2) and the disable-arm (E1) effects below. If a future refactor
+  // moves E1 to a different hook from this ref, a disable mid-debounce leaks the
+  // timer and fires a phantom run. Keep all three in this one hook.
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
 
