@@ -74,7 +74,6 @@ import { mergeBuiltInPresets, toRepoBackedPreset } from "../features/presets/rep
 import { type PresetKey, parsePresetKey } from "../features/presets/types";
 import { usePresets } from "../features/presets/usePresets";
 import { PipelineStage } from "../features/recipeDag/PipelineStage";
-import { useRecipeDagQuery } from "../features/recipeDag/useRecipeDagQuery";
 import { runCurrentConfigInGame } from "../features/runInGame/api";
 import {
   buildRunInGameClientSnapshot,
@@ -88,7 +87,6 @@ import {
   formatRunInGameDiagnostics,
   runInGameRequiresProcessRestart,
 } from "../features/runInGame/status";
-import { type DeckCanvasApi } from "../features/viz/DeckCanvas";
 import {
   findVariantIdForEra,
   findVariantKeyForEra,
@@ -125,7 +123,6 @@ import { ExplorePanel } from "../ui/components/ExplorePanel";
 import { GameConsole } from "../ui/components/GameConsole";
 import { RecipePanel } from "../ui/components/RecipePanel";
 import { StageViewTabs } from "../ui/components/StageViewTabs";
-import { LAYOUT } from "../ui/constants/layout";
 import type {
   DataTypeOption,
   GenerationStatus,
@@ -145,6 +142,7 @@ import { useRunInGameTerminalToast } from "./hooks/useRunInGameTerminalToast";
 import { useSetupDataQueries } from "./hooks/useSetupDataQueries";
 import { useStudioEvents } from "./hooks/useStudioEvents";
 import { useToast } from "./hooks/useToast";
+import { useViewportLayout } from "./hooks/useViewportLayout";
 import { LeftDock } from "./LeftDock";
 import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { RightDock } from "./RightDock";
@@ -210,12 +208,6 @@ export function StudioShell(props: StudioShellProps) {
     (s) => s.setRepoBackedPresetOverridesByRecipe
   );
 
-  const deckApiRef = useRef<DeckCanvasApi | null>(null);
-  const [deckApiReadyTick, setDeckApiReadyTick] = useState(0);
-  const handleDeckApiReady = useCallback(() => setDeckApiReadyTick((prev) => prev + 1), []);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
-
   // View-only state is owned by `viewStore` (Zustand, architecture/10 §3). These
   // are presentation toggles/selections with no server coupling and no persistence
   // contract; the store is the single owner so this component no longer holds a
@@ -251,39 +243,27 @@ export function StudioShell(props: StudioShellProps) {
   const setStageView = useViewStore((s) => s.setStageView);
   const pipelineSelectedStageId = useViewStore((s) => s.pipelineSelectedStageId);
   const setPipelineSelectedStageId = useViewStore((s) => s.setPipelineSelectedStageId);
-  const pipelineExpandedStageIds = useViewStore((s) => s.pipelineExpandedStageIds);
-  const setPipelineExpandedStageIds = useViewStore((s) => s.setPipelineExpandedStageIds);
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
 
-  // Pipeline (recipe DAG) stage view — data via TanStack Query, gated on the
-  // view being active (fetch on first activation, cached per recipe).
-  const recipeDag = useRecipeDagQuery(recipeSettings.recipe, {
-    enabled: stageView === "pipeline",
-  });
-  // Prune pipeline expansion to stages that exist in the loaded DAG (the
-  // merged feature did the same on fetch success) — switching recipes must
-  // not carry phantom expanded ids across graphs.
-  useEffect(() => {
-    if (!recipeDag.dag) return;
-    const known = new Set(recipeDag.dag.stages.map((stage) => stage.stageId));
-    setPipelineExpandedStageIds((prev) => {
-      const kept = [...prev].filter((id) => known.has(id));
-      return kept.length === prev.size ? prev : new Set(kept);
-    });
-  }, [recipeDag.dag, setPipelineExpandedStageIds]);
-  const handlePipelineStageToggle = useCallback(
-    (stageId: string) => {
-      setPipelineExpandedStageIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(stageId)) next.delete(stageId);
-        else next.add(stageId);
-        return next;
-      });
-    },
-    [setPipelineExpandedStageIds]
-  );
+  // Viewport/layout chrome: deck canvas handle, measured viewport, docked-panel
+  // geometry, and the recipe-DAG (pipeline view) read surface + expansion.
+  // Initialized BEFORE `useVizState` so viz and deck-autofit can consume the
+  // deck handle / viewport by reference (architecture/10 §4; init order §7.7).
+  const {
+    containerRef,
+    viewportSize,
+    deckApiRef,
+    deckApiReadyTick,
+    handleDeckApiReady,
+    panelTop,
+    panelBottom,
+    handleHeaderHeightChange,
+    recipeDag,
+    pipelineExpandedStageIds,
+    handlePipelineStageToggle,
+  } = useViewportLayout({ recipe: recipeSettings.recipe, stageView });
 
   const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
   const [saveDialogState, setSaveDialogState] = useState<{
@@ -761,26 +741,6 @@ export function StudioShell(props: StudioShellProps) {
   // Saved configs + setup catalog now load via `useSetupDataQueries` (TanStack Query);
   // the prior hand-rolled load/retry/focus-refetch effect is replaced by the query
   // client's `retry` + `refetchOnWindowFocus` defaults.
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      setViewportSize({ width: Math.max(1, rect.width), height: Math.max(1, rect.height) });
-    };
-    update();
-
-    if (typeof ResizeObserver === "undefined") {
-      window.addEventListener("resize", update);
-      return () => window.removeEventListener("resize", update);
-    }
-
-    const ro = new ResizeObserver(() => update());
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   // Selected stage/step are part of the view surface — owned by `viewStore`
   // (single owner; no App-local mirror), per architecture/10 §3.
@@ -2534,16 +2494,6 @@ export function StudioShell(props: StudioShellProps) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
-
-  const [headerHeight, setHeaderHeight] = useState<number>(LAYOUT.HEADER_HEIGHT);
-  const handleHeaderHeightChange = useCallback((height: number) => {
-    setHeaderHeight((prev) => (prev === height ? prev : height));
-  }, []);
-  const panelTop = LAYOUT.SPACING + headerHeight + LAYOUT.SPACING;
-  // The docks are pinned between the measured header and the footer bar (which
-  // sits `bottom-4` and is FOOTER_HEIGHT tall), keeping one SPACING of air on
-  // each side of the footer.
-  const panelBottom = LAYOUT.FOOTER_HEIGHT + 2 * LAYOUT.SPACING;
 
   const backgroundGridEnabled = useMemo(() => {
     if (!showGrid) return false;
