@@ -466,6 +466,36 @@
             "reason": "Separate deterministic authored-generation positive authority candidate; do not collapse into domain-operation RNG callback recurrence rail."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-native-validation-surfaces.md",
+        "branch": "codex/habitat-native-validation-surfaces",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed stale packet-needed state for six rules whose existing Habitat native validation surfaces are the correct owner rail and have focused green proof.",
+        "selectedRows": [
+          "require_owner_workflow_for_host_protected_surfaces",
+          "validate_boundary_taxonomy_against_workspace_graph",
+          "verify_docs_site_link_integrity",
+          "verify_habitat_cli_smoke_contract",
+          "validate_docs_site_config_inputs",
+          "verify_visualization_runtime_build_artifacts"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "enforce_formatting_and_import_hygiene",
+            "reason": "Currently red from broad unrelated workspace formatting/import drift; not a clean retention closure."
+          },
+          {
+            "ruleId": "enforce_studio_rpc_eventhub_topology",
+            "reason": "Currently reports existing serve-daemon.command drift; requires its own topology slice."
+          },
+          {
+            "ruleId": "block_studio_config_leakage_into_shipped_catalog",
+            "reason": "Generated catalog hygiene involves generator/output currentness and is not equivalent to these native metadata/config validation rails."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1224,12 +1254,98 @@
           "`bun habitat check --rule prohibit_studio_rpc_eventhub_lifecycle_leaks --json` passed.",
           "Current source scans for the guarded token families produced no live violations."
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceCandidate": "native validation surfaces retention",
+        "status": "closed-by-existing-native-validation-surface",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/global/workspace/rules/require_owner_workflow_for_host_protected_surfaces/rule.json",
+          ".habitat/global/workspace/_blueprints/project-boundary-model/validate_boundary_taxonomy_against_workspace_graph/rule.json",
+          ".habitat/global/workspace/_blueprints/project-boundary-model/validate_boundary_taxonomy_against_workspace_graph/check.sh",
+          ".habitat/docs/_blueprints/docs-site/verify_docs_site_link_integrity/rule.json",
+          ".habitat/docs/_blueprints/docs-site/verify_docs_site_link_integrity/check.ts",
+          ".habitat/habitat/toolkit/_blueprints/cli/verify_habitat_cli_smoke_contract/rule.json",
+          ".habitat/habitat/toolkit/_blueprints/cli/verify_habitat_cli_smoke_contract/check.ts",
+          ".habitat/docs/_blueprints/docs-site/validate_docs_site_config_inputs/rule.json",
+          ".habitat/docs/_blueprints/docs-site/validate_docs_site_config_inputs/check.ts",
+          ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/rule.json",
+          ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "require_owner_workflow_for_host_protected_surfaces",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain Habitat file-layer host-surface guard; this protects host-declared generated/protected surfaces through owner workflow declarations rather than package tests.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "validate_boundary_taxonomy_against_workspace_graph",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain Habitat boundary taxonomy script; it cross-checks package manifests, Nx graph tags, boundary config, and taxonomy docs as a workspace metadata consistency rail.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "verify_docs_site_link_integrity",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain docs-site native validation surface; link integrity is a docs-site generated/navigation input proof rather than package behavior-test clutter.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "verify_habitat_cli_smoke_contract",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain Habitat Toolkit CLI smoke contract; this verifies the CLI help and selected-check JSON surfaces directly.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "validate_docs_site_config_inputs",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain docs-site native config validation; it verifies the structured Mintlify navigation input shape at the docs-site authority surface.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "verify_visualization_runtime_build_artifacts",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain MapGen visualization runtime preflight; it verifies required built dist artifacts before diagnostics or Studio worker runtime use.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule require_owner_workflow_for_host_protected_surfaces --json` passes.",
+          "`bun habitat check --rule validate_boundary_taxonomy_against_workspace_graph --json` passes.",
+          "`bun habitat check --rule verify_docs_site_link_integrity --json` passes.",
+          "`bun habitat check --rule verify_habitat_cli_smoke_contract --json` passes.",
+          "`bun habitat check --rule validate_docs_site_config_inputs --json` passes.",
+          "`bun habitat check --rule verify_visualization_runtime_build_artifacts --json` passes.",
+          "Canonical JSON packet-needed runtime/source-validation count drops by six."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule require_owner_workflow_for_host_protected_surfaces --json` passed.",
+          "`bun habitat check --rule validate_boundary_taxonomy_against_workspace_graph --json` passed.",
+          "`bun habitat check --rule verify_docs_site_link_integrity --json` passed.",
+          "`bun habitat check --rule verify_habitat_cli_smoke_contract --json` passed.",
+          "`bun habitat check --rule validate_docs_site_config_inputs --json` passed.",
+          "`bun habitat check --rule verify_visualization_runtime_build_artifacts --json` passed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
-      "runtime/source validation": 15,
+      "runtime/source validation": 9,
       "split by owner": 6
     },
     "implementationReadySliceQueue": [],
@@ -1275,7 +1391,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Existing Grit source-rail contexts reconciliation closed for morphology runtime tokens, morphology contract runtime tokens, domain-operation RNG callback state, and Studio EventHub lifecycle leaks; no implementation-ready Layer 3 queue remains after closure.",
+      "layer2": "Native validation surfaces retained for host protected surfaces, boundary taxonomy, docs site links/config, Habitat CLI smoke, and MapGen visualization runtime preflight; no implementation-ready Layer 3 queue remains after closure.",
       "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1290,15 +1406,15 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 59,
+    "no action": 65,
     "positive authority creation": 4,
-    "runtime/source validation": 15,
+    "runtime/source validation": 9,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 15,
+    "runtime/source validation": 9,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -2088,10 +2204,10 @@
     {
       "ruleId": "require_owner_workflow_for_host_protected_surfaces",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Keep as global Habitat host-policy guard over declared protected surfaces.",
-      "evidenceNote": "File-layer host-surface guard delegates to host-policy/protected-zone source decisions.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain Habitat file-layer host-surface guard; this protects host-declared generated/protected surfaces through owner workflow declarations rather than package tests.",
+      "evidenceNote": "Focused Habitat proof passes. This is workspace host-policy authority and does not map to Grit, Nx project boundaries, or package behavior tests.",
       "currentPath": ".habitat/global/workspace/rules/require_owner_workflow_for_host_protected_surfaces/rule.json"
     },
     {
@@ -2214,19 +2330,19 @@
     {
       "ruleId": "validate_boundary_taxonomy_against_workspace_graph",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Keep as Habitat source validation of boundary metadata consistency.",
-      "evidenceNote": "Script compares taxonomy doc, tags, Nx graph, and boundary config through policy code.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain Habitat boundary taxonomy script; it cross-checks package manifests, Nx graph tags, boundary config, and taxonomy docs as a workspace metadata consistency rail.",
+      "evidenceNote": "Focused Habitat proof passes. Nx enforces boundary edges, but Habitat owns cross-surface taxonomy consistency over Nx/package/docs metadata.",
       "currentPath": ".habitat/global/workspace/_blueprints/project-boundary-model/validate_boundary_taxonomy_against_workspace_graph/rule.json"
     },
     {
       "ruleId": "validate_docs_site_config_inputs",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Route or keep as native docs config validation.",
-      "evidenceNote": "Bun script parses `apps/docs/docs.json` for Mintlify-shaped inputs.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain docs-site native config validation; it verifies the structured Mintlify navigation input shape at the docs-site authority surface.",
+      "evidenceNote": "Focused Habitat proof passes. The rule is scoped to apps/docs/docs.json and remains a native docs config rail.",
       "currentPath": ".habitat/docs/_blueprints/docs-site/validate_docs_site_config_inputs/rule.json"
     },
     {
@@ -2277,19 +2393,19 @@
     {
       "ruleId": "verify_docs_site_link_integrity",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Keep as docs-site native validation surface.",
-      "evidenceNote": "Runner shells to Mintlify `broken-links` over copied docs-site inputs/assets.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain docs-site native validation surface; link integrity is a docs-site generated/navigation input proof rather than package behavior-test clutter.",
+      "evidenceNote": "Focused Habitat proof passes. The rule is scoped to docs-site inputs and remains a native docs validation rail.",
       "currentPath": ".habitat/docs/_blueprints/docs-site/verify_docs_site_link_integrity/rule.json"
     },
     {
       "ruleId": "verify_habitat_cli_smoke_contract",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Keep as Habitat CLI integration validation.",
-      "evidenceNote": "Bun script exercises Habitat help and JSON check output.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain Habitat Toolkit CLI smoke contract; this verifies the CLI help and selected-check JSON surfaces directly.",
+      "evidenceNote": "Focused Habitat proof passes. The rule is Toolkit CLI contract authority and remains a native integration smoke rail.",
       "currentPath": ".habitat/habitat/toolkit/_blueprints/cli/verify_habitat_cli_smoke_contract/rule.json"
     },
     {
@@ -2322,10 +2438,10 @@
     {
       "ruleId": "verify_visualization_runtime_build_artifacts",
       "lane": "MapGen SDK / mod-sdk",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move toward native package/Nx validation or target prerequisite proof.",
-      "evidenceNote": "Current Habitat check is a read-only currentness proxy over required dist files.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain MapGen visualization runtime preflight; it verifies required built dist artifacts before diagnostics or Studio worker runtime use.",
+      "evidenceNote": "Focused Habitat proof passes. This is a runtime artifact currentness/preflight check, not a package behavior test or static Grit source predicate.",
       "currentPath": ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/rule.json"
     }
   ],
@@ -3776,7 +3892,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained MapGen SDK visualization rules",
         "pendingAction": "Move toward Nx/package target prerequisites later; do not keep `runtime-dependencies` as a blueprint candidate.",
-        "evidenceNote": "Domino 44 taxonomy correction: `@swooper/mapgen-viz` is grouped under the MapGen SDK visualization package lane, not under the mod SDK."
+        "evidenceNote": "Focused Habitat proof passes. This is a runtime artifact currentness/preflight check, not a package behavior test or static Grit source predicate.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain MapGen visualization runtime preflight; it verifies required built dist artifacts before diagnostics or Studio worker runtime use."
       },
       {
         "ruleId": "enforce_adapter_only_base_standard_imports",
@@ -3886,7 +4005,10 @@
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
         "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "evidenceNote": "Focused Habitat proof passes. The rule is scoped to apps/docs/docs.json and remains a native docs config rail.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain docs-site native config validation; it verifies the structured Mintlify navigation input shape at the docs-site authority surface."
       },
       {
         "ruleId": "verify_docs_site_link_integrity",
@@ -3896,7 +4018,10 @@
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
         "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "evidenceNote": "Focused Habitat proof passes. The rule is scoped to docs-site inputs and remains a native docs validation rail.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain docs-site native validation surface; link integrity is a docs-site generated/navigation input proof rather than package behavior-test clutter."
       },
       {
         "ruleId": "require_mapgen_doc_ground_truth_anchors_heading",
@@ -3956,7 +4081,10 @@
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
         "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "evidenceNote": "Focused Habitat proof passes. Nx enforces boundary edges, but Habitat owns cross-surface taxonomy consistency over Nx/package/docs metadata.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain Habitat boundary taxonomy script; it cross-checks package manifests, Nx graph tags, boundary config, and taxonomy docs as a workspace metadata consistency rail."
       },
       {
         "ruleId": "enforce_formatting_and_import_hygiene",
@@ -3986,7 +4114,10 @@
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
         "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "evidenceNote": "Focused Habitat proof passes. This is workspace host-policy authority and does not map to Grit, Nx project boundaries, or package behavior tests.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain Habitat file-layer host-surface guard; this protects host-declared generated/protected surfaces through owner workflow declarations rather than package tests."
       },
       {
         "ruleId": "verify_habitat_cli_smoke_contract",
@@ -3996,7 +4127,10 @@
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
         "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "evidenceNote": "Focused Habitat proof passes. The rule is Toolkit CLI contract authority and remains a native integration smoke rail.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain Habitat Toolkit CLI smoke contract; this verifies the CLI help and selected-check JSON surfaces directly."
       },
       {
         "ruleId": "prohibit_product_scan_roots_in_grit_provider",
