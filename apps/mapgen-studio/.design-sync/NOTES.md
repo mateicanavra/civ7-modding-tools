@@ -60,3 +60,71 @@ non-obvious comes up.
   - **tagSelect gotcha (critical for any rjsf-array fixture)**: an array-of-enum only routes to the multi-select widget (with `enumOptions` populated) when the schema has **`uniqueItems: true`** — rjsf `ArrayField.isMultiSelect()` requires it. Without it the `tagSelect` widget renders EMPTY (label only, no chips). The render-check caught exactly this on the first pass; adding `uniqueItems:true` made the chips render. The real config schema expresses tag-sets this way.
   - **SchemaForm deliberately NOT a separate card**: it's the internal rjsf bridge (takes a pre-built `uiSchema`/`formContext` that only `SchemaConfigForm.buildUiSchema` derives); a standalone fixture would be synthetic. The engine card renders it internally → whole composition already visible.
 - **SURFACE COMPLETE (post-Batch-5).** No syncable presentational components remain. The exterior (constructed, not absent): the editable claude.ai/design **project** (a product-surface activity the CLI can't create — `create_project` only makes `PROJECT_TYPE_DESIGN_SYSTEM`), and the runtime/logic **drops** (DeckCanvas/CanvasStage host/StudioProviders/StudioShell + hooks/stores/pure-logic modules). Future syncs are maintenance-only (a NEW presentational component → add to `componentSrcMap`/`docsMap`/`ds-entry`/`tsconfig.dts` + a preview; re-verify `changed:[]`).
+
+## STORYBOOK-SHAPE FLIP (Stage 2, 2026-06-30) — the sync is now `shape: "storybook"`
+
+The sync flipped from `package` shape (hand-authored `.design-sync/previews/*.tsx`
+scenes graded on a rubric) to **`storybook` shape**: the 46 co-located
+`src/**/*.stories.tsx` are the preview source, verified by screenshot pairs
+against a reference Storybook. Config now carries `shape:"storybook"`,
+`storybookStatic:".design-sync/sb-reference"`, `storybookConfigDir:".storybook"`,
+plus the four fixes below. The reference Storybook is built into
+`.design-sync/sb-reference/` (gitignored) — the fidelity oracle, never uploaded.
+
+**Four `[GENERAL]` fixes were needed to make an APP (no published exports) work
+in storybook shape** — all committed, so re-syncs inherit them:
+
+1. **`synthEntry` — the export-authority gap.** `apps/mapgen-studio` publishes no
+   `main`/`exports`/`types`, so `exportedNames(pkgJson)` returns EMPTY and the
+   storybook adapter drops all 46 as `[TITLE_UNMAPPED]` ("exported PascalCase
+   symbols: 0"). Fix: committed thin delegating fork
+   `.design-sync/overrides/source-storybook.mjs` (declared in `cfg.libOverrides`)
+   asserts `synthEntry` when `exportedSet` is empty → package-build treats the
+   curated `--entry` (`ds-entry.tsx`) story surface as the public exports. The
+   fork DELEGATES to the live bundled adapter (only adds one field), so converter
+   improvements to story discovery still flow in. Remove it if the bundled
+   adapter ever treats a curated entry as the export authority on its own.
+
+2. **Retired the package-shape previews.** The 46 `.design-sync/previews/*.tsx`
+   were package-shape scenes; owned previews win over generated, so storybook
+   shape reported "previews: 0 generated (46 user-owned)" — it used the OLD
+   scenes, not the stories. Fix: `git rm` all 46 (git history preserves them).
+   Now `.design-sync/previews/<Name>.tsx` holds ONLY storybook-shape owned fixes
+   (copied from `.cache/previews/<Name>.tsx` minus its marker line), authored
+   per-mismatch. Storybook shape generates story-module wrappers into
+   `.cache/previews/`.
+
+3. **`cfg.provider` = `TooltipProvider`.** The `.storybook/preview` decorators
+   fail to bundle (`! preview decorator bundle failed: Could not resolve
+   "tailwindcss"` — preview.tsx imports `../src/index.css`'s `@import
+   "tailwindcss"`). Fix: `cfg.provider = {component:"TooltipProvider",
+   props:{delayDuration:300}}`. Sufficient because dark theme comes from the
+   dark-default compiled CSS (build-inputs.sh re-targets `.dark`→`:root`), the 46
+   are prop-driven (no `useQuery` → no QueryClientProvider), and Toaster isn't
+   needed for static renders. `TooltipProvider` is the one context that keeps
+   tooltip-using components from rendering silently blank.
+
+4. **`cfg.storyImports.shim`.** Stories importing a component from a BARREL dir
+   (`@/components/ui`, `@/ui/components/fields`) or a MULTI-component file
+   (`@/features/configOverrides/*`) failed to compile (27/46): the resolver
+   bundles the path from source → "Cannot read file …: is a directory". Fix:
+   `cfg.storyImports.shim = ["components/ui", "features/configOverrides",
+   "ui/components/fields"]` → forces the root-global shim so every named import
+   (incl. subcomponents) resolves from the shipped `window.MapGenStudio`. Direct
+   single-component paths (`@/ui/components/ViewControls`) already shim.
+
+**Re-sync routine (storybook shape).** (1) re-stage `.ds-sync/`; (2)
+`bash .design-sync/build-inputs.sh` (or `DS_SKIP_VITE=1` if dist is current);
+(3) rebuild the reference: `(cd apps/mapgen-studio && node_modules/.bin/storybook
+build -c .storybook -o .design-sync/sb-reference)` whenever stories/DS source
+changed; (4) fetch the anchor `_ds_sync.json` → `.design-sync/.cache/remote-sync.json`;
+(5) `node .ds-sync/resync.mjs --config .design-sync/config.json --node-modules
+./node_modules --entry .design-sync/ds-entry.tsx --out ./ds-bundle --remote
+.design-sync/.cache/remote-sync.json` (routes build→diff→validate→scoped capture).
+Chromium: `DS_CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google
+Chrome"` (Homebrew `chromium` is a stale wrapper). Grade fresh sheets per §4.
+
+**`[RENDER_BLANK]` on bare form controls is a false positive.** validate flags
+Checkbox/Input/Textarea + their rjsf widgets (PNG <5KB) — they render correctly
+and match the reference (a bare input IS small). Not a defect; the compare is the
+judge.
