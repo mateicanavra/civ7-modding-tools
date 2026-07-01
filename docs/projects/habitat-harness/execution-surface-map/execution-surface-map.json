@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 566,
+    "totalSurfaces": 564,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "check-script": 35,
-      "rule-json": 118,
+      "check-script": 34,
+      "rule-json": 117,
       "pattern": 73,
       "structure-spec": 6,
       "apply-pattern": 1,
@@ -21,8 +21,8 @@
       "habitat-cli-source": 124
     },
     "surfacesByRole": {
-      "command_check_executor": 35,
-      "runner_metadata": 118,
+      "command_check_executor": 34,
+      "runner_metadata": 117,
       "policy_pattern": 74,
       "structure_authority": 6,
       "operation_surface": 6,
@@ -30,7 +30,7 @@
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
-      "unknown": 237,
+      "unknown": 235,
       "package": 140,
       "nx": 65,
       "direct-script": 3,
@@ -38,7 +38,7 @@
     },
     "surfacesByBucket": {
       "package_boundary_tie": 92,
-      "unknown_invocation": 237,
+      "unknown_invocation": 235,
       "nx_ordering_tie": 101,
       "mutation_surface": 114,
       "package_invoked": 205,
@@ -49,8 +49,8 @@
   },
   "executionAnatomy": {
     "roleCounts": {
-      "fixture-support": 14,
-      "adapter": 118,
+      "fixture-support": 13,
+      "adapter": 117,
       "policy-predicate": 80,
       "transient-dependency": 98,
       "entrypoint": 205,
@@ -67,24 +67,6 @@
   },
   "topCrossBoundaryTiesByFanout": [
     {
-      "target": "git",
-      "targetClass": "workspace-tool",
-      "references": 23,
-      "sourceCount": 23,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs",
-        ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts",
-        ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts",
-        ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs",
-        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs"
-      ]
-    },
-    {
       "target": "@habitat/cli/resources/command/index",
       "targetClass": "habitat-toolkit",
       "references": 22,
@@ -100,6 +82,24 @@
         "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
         "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-render.policy.ts"
+      ]
+    },
+    {
+      "target": "git",
+      "targetClass": "workspace-tool",
+      "references": 22,
+      "sourceCount": 22,
+      "sampleSources": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs",
+        ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts",
+        ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts",
+        ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs",
+        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs",
+        ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts"
       ]
     },
     {
@@ -3490,15 +3490,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": ".habitat/_support/execution/command-check/mapgen-static-check-lib.mjs",
-      "targetClass": "habitat-support",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs"
       ]
     },
     {
@@ -16239,133 +16230,6 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:path",
-          "node:url"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
-        "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:path",
-          "node:url"
-        ],
-        "directHabitatPathCalls": [
-          ".habitat/_support/execution/command-check/mapgen-static-check-lib.mjs"
-        ],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:url",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "path-reference",
-            "value": ".habitat/_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "habitat-support"
-          },
-          {
-            "kind": "shell-command",
-            "value": "git",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:url",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "fixture-support"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -30494,133 +30358,6 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:path",
-          "node:url"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
-        "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:path",
-          "node:url"
-        ],
-        "directHabitatPathCalls": [
-          ".habitat/_support/execution/command-check/mapgen-static-check-lib.mjs"
-        ],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:url",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "path-reference",
-            "value": ".habitat/_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "habitat-support"
-          },
-          {
-            "kind": "shell-command",
-            "value": "git",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:url",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "fixture-support"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

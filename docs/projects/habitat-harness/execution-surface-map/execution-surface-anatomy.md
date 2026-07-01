@@ -13,8 +13,8 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 | role | surface count |
 | --- | --- |
-| fixture-support | 14 |
-| adapter | 118 |
+| fixture-support | 13 |
+| adapter | 117 |
 | policy-predicate | 80 |
 | transient-dependency | 98 |
 | entrypoint | 205 |
@@ -24,8 +24,8 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 | family | count | sample read |
 | --- | --- | --- |
-| check-script | 35 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts: Command-check executable surface invoked through Habitat metadata or direct references. |
-| rule-json | 118 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
+| check-script | 34 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts: Command-check executable surface invoked through Habitat metadata or direct references. |
+| rule-json | 117 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
 | pattern | 73 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | structure-spec | 6 | .habitat/blueprints/domain-operation/require_domain_ops_root_presence/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/blueprints/domain/prohibit_domain_artifacts_modules/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner. |
 | apply-pattern | 1 | .habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |

@@ -136,6 +136,27 @@
           "prohibit_wrapper_only_advanced_config"
         ],
         "excludedRows": []
+      },
+      {
+        "actionClass": "consolidation/dedup",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-standard-stage-key-freeze-retirement-slice.md",
+        "branch": "codex/habitat-retire-standard-stage-key-freeze",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Retired the hardcoded standard stage-key freeze after the source-derived topology rail and runtime/contract parity rule made the duplicate list unnecessary.",
+        "selectedRows": [
+          "verify_standard_recipe_declared_stage_keys"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "verify_standard_recipe_artifacts_match_source_stages",
+            "reason": "Generated artifact parity still owns source-vs-output currentness and was not duplicate stage-key freeze."
+          },
+          {
+            "ruleId": "verify_standard_recipe_public_authoring_surface",
+            "reason": "Public authoring schema guard still owns strict schema/public-key/focus-path invariants and was not duplicate stage-key freeze."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -469,6 +490,42 @@
             "reason": "Tests are not stale-key blacklist drawers; source schemas own behavior and Habitat owns this source-shape recurrence guard."
           }
         ]
+      },
+      {
+        "actionClass": "consolidation/dedup",
+        "sliceCandidate": "standard recipe hardcoded stage-key freeze retirement",
+        "status": "closed-by-duplicate-retirement",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "verify_standard_recipe_declared_stage_keys",
+            "inputClassification": "consolidation/dedup",
+            "wholeRuleFit": "retire duplicate",
+            "ruleIdPlan": "delete id without replacement",
+            "semanticRemediationDecision": "Delete the hardcoded accepted-stage-id list. The live topology rule derives stage ids from `recipe.ts` and `contract-manifest.ts`, and the runtime/contract parity rule still checks stage and step order. A third hardcoded list increases state without adding authority.",
+            "proofLimit": "This retirement removes duplicate stage-key freeze only. It does not retire generated artifact parity, public authoring schema checks, runtime/contract parity, or topology enforcement."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Focused Habitat check passes for `preserve_standard_stage_topology_and_path_invariants` after the deletion.",
+          "Focused Habitat check passes for `verify_runtime_stage_order_matches_contract_manifest` or direct script proof is recorded if the Bun wrapper is slow.",
+          "Deleted manifest is absent from the live authority tree.",
+          "Canonical JSON current rows and live manifests reconcile at 117."
+        ],
+        "verificationEvidence": [
+          "The deleted script hardcoded the same stage ids that are now compared from `recipe.ts` and `contract-manifest.ts` by the topology rail.",
+          "The existing runtime/contract manifest parity rule still owns stage and step order between runtime recipe and contract manifest."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
@@ -477,7 +534,7 @@
       "closed structure inversion": 8,
       "split by owner": 6,
       "positive authority creation": 4,
-      "consolidation/dedup": 4,
+      "consolidation/dedup": 3,
       "retirement/garbage collection": 1
     },
     "implementationReadySliceQueue": [],
@@ -514,16 +571,16 @@
       }
     ],
     "resumeState": {
-      "layer1": "complete and reconciled for 118 current live rules",
-      "layer2": "G9 wrapper-only advanced guard packet closed by admitting the current Grit predicate into the standard recipe context. No implementation-ready Layer 3 queue remains.",
+      "layer1": "complete and reconciled for 117 current live rules",
+      "layer2": "Hardcoded standard stage-key freeze packet closed by duplicate retirement. No implementation-ready Layer 3 queue remains.",
       "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
   "corpus": {
-    "liveManifestCount": 118,
-    "currentRowCount": 118,
-    "retiredHistoricalRowCount": 9,
+    "liveManifestCount": 117,
+    "currentRowCount": 117,
+    "retiredHistoricalRowCount": 10,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -1588,15 +1645,6 @@
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json"
     },
     {
-      "ruleId": "verify_standard_recipe_declared_stage_keys",
-      "lane": "standard recipe top-level",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": true,
-      "expectedRemediation": "Consolidate with contract-manifest parity rule.",
-      "evidenceNote": "Hard-coded textual parser likely duplicates stronger manifest parity.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json"
-    },
-    {
       "ruleId": "verify_standard_recipe_public_authoring_surface",
       "lane": "standard recipe top-level",
       "actionDecision": "consolidation/dedup",
@@ -1705,6 +1753,16 @@
       "evidenceNote": "Complement to deep/relative recipe guards. Absorbed by Domino 58; maps were excluded from this recipe-only G4 enforcement slice.",
       "currentPath": null,
       "retirementRecord": ".habitat/workstreams/rule-remediation-domain-import-matrix-slice.md"
+    },
+    {
+      "ruleId": "verify_standard_recipe_declared_stage_keys",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired as duplicate hardcoded stage-order freeze after source-derived topology and runtime/contract parity own the stage declarations.",
+      "evidenceNote": "The deleted script hardcoded the accepted stage id list and parsed `recipe.ts`. Domino 61 removes that duplicate state: topology now parses `recipe.ts` plus `contract-manifest.ts`, and runtime/contract parity still checks stage/step order.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-standard-stage-key-freeze-retirement-slice.md"
     }
   ],
   "gateState": {
@@ -1970,7 +2028,9 @@
       "liveRulesWithExplicitReceiptRows": 88,
       "liveRulesWithCompletedPocketSummaryOnly": 14,
       "liveRulesNotProcessedInDominoesMd": 16,
-      "staleDominoReferencesExcludedFromLiveMatrix": 10
+      "staleDominoReferencesExcludedFromLiveMatrix": 10,
+      "liveRuleCorpus": 117,
+      "liveRowsInMatrix": 117
     },
     "remainderActionRows": [
       {
@@ -2890,16 +2950,6 @@
         "evidenceNote": "Domino 42 non-move: generated standard-recipe output parity is scoped to one recipe instance."
       },
       {
-        "ruleId": "verify_standard_recipe_declared_stage_keys",
-        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe; category=structure; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json",
-        "dominoEvidence": "Domino 33, Domino 41",
-        "processStatus": "processed: receipt",
-        "dispositionBucket": "recipe-wide standard-recipe context",
-        "pendingAction": "Hard-coded instance order checks are context authority, even when they hint at a future manifest-driven kind rule.",
-        "evidenceNote": "Domino 41 re-read retained this as top-level standard-recipe context because the runner checks the whole standard recipe stage-order declaration."
-      },
-      {
         "ruleId": "verify_standard_recipe_public_authoring_surface",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json",
@@ -3310,6 +3360,11 @@
         "dominoReference": "prohibit_morphology_dual_read_tokens",
         "status": "stale/retired",
         "handling": "Do not include in live rule matrix; garbage-collection slice retired the completed morphology dual-read migration guard after source absence and native no-shadow proof."
+      },
+      {
+        "dominoReference": "verify_standard_recipe_declared_stage_keys",
+        "status": "retired",
+        "handling": "Do not include in live rule matrix; Domino 61 retired the hardcoded stage-key freeze because source-derived topology and runtime/contract parity now own the same stage declaration surface."
       }
     ]
   }

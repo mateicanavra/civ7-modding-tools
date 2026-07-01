@@ -4,14 +4,14 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 118 `rule.json`, 6 `structure.toml`, 0 active source-check `.rule.mjs`, 0 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 117 `rule.json`, 6 `structure.toml`, 0 active source-check `.rule.mjs`, 0 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
-| check-script | 35 |
-| rule-json | 118 |
+| check-script | 34 |
+| rule-json | 117 |
 | pattern | 73 |
 | structure-spec | 6 |
 | apply-pattern | 1 |
@@ -28,8 +28,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | role | count |
 | --- | --- |
-| command_check_executor | 35 |
-| runner_metadata | 118 |
+| command_check_executor | 34 |
+| runner_metadata | 117 |
 | policy_pattern | 74 |
 | structure_authority | 6 |
 | operation_surface | 6 |
@@ -40,8 +40,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | anatomy role | surface count |
 | --- | --- |
-| fixture-support | 14 |
-| adapter | 118 |
+| fixture-support | 13 |
+| adapter | 117 |
 | policy-predicate | 80 |
 | transient-dependency | 98 |
 | entrypoint | 205 |
@@ -72,7 +72,7 @@ _None._
 
 | invoker | count |
 | --- | --- |
-| unknown | 237 |
+| unknown | 235 |
 | package | 140 |
 | nx | 65 |
 | direct-script | 3 |
@@ -83,7 +83,7 @@ _None._
 | bucket | count |
 | --- | --- |
 | package_boundary_tie | 92 |
-| unknown_invocation | 237 |
+| unknown_invocation | 235 |
 | nx_ordering_tie | 101 |
 | mutation_surface | 114 |
 | package_invoked | 205 |
@@ -94,8 +94,8 @@ _None._
 
 | target class | target | source count | references | sample sources |
 | --- | --- | --- | --- | --- |
-| workspace-tool | git | 23 | 23 | .habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts<br>.habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts |
 | habitat-toolkit | @habitat/cli/resources/command/index | 22 | 22 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
+| workspace-tool | git | 22 | 22 | .habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts<br>.habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts |
 | workspace-tool | grit<br>language js(typescript)<br><br>or { | 22 | 22 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md |
 | habitat-toolkit | @habitat/cli/service/model/check/index | 21 | 21 | tools/habitat/src/cli/commands/check.ts<br>tools/habitat/src/cli/commands/verify.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts |
 | workspace-tool | tsc -p tsconfig.json --noEmit | 17 | 17 | apps/docs/package.json#scripts.check<br>apps/docs/package.json#scripts.check:ts<br>apps/playground/package.json#scripts.check |
@@ -266,8 +266,6 @@ _None._
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/check.mjs | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:path |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:path |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection; grit<br>language js(typescript)<br><br>or { |
