@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleRemediation.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-01T18:25:25.020Z",
+  "updatedOn": "2026-07-01T19:52:10.923Z",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule-remediation progress. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -25,7 +25,7 @@
       "closed structure inversion": 1
     },
     "packetNeeded": {
-      "positive authority creation": 10,
+      "positive authority creation": 8,
       "split by owner": 10,
       "runtime/source validation": 1,
       "retirement/garbage collection": 2,
@@ -34,11 +34,14 @@
     }
   },
   "gateState": {
-    "currentLayer": "Corrective Layer 1 reconciliation after local-proxy authority review; Layer 2 packet queue reopened.",
-    "currentGate": "Do not run Layer 3 from the prior empty queue. Build Layer 2 decision packets for the reopened broader-authority slices, then select a bounded implementation slice.",
-    "mutationAuthorization": "none from this corrective review; rule-packet mutations require a later Layer 2 decision packet and slice record",
+    "currentLayer": "Layer 2 convergence complete for mapgen-helper-surface-authority-consolidation.",
+    "currentGate": "Implementation-ready Layer 3 entry warrant exists for the selected helper-surface slice; stop before Layer 3 mutation.",
+    "mutationAuthorization": "Layer 3 may mutate only the selected helper-surface slice after re-reading current state; no other rule/source/test/generated mutation is authorized by this gate.",
     "nextSliceId": "mapgen-helper-surface-authority-consolidation",
-    "nextLegalAction": "Create a Layer 2 decision packet for mapgen-helper-surface-authority-consolidation."
+    "nextLegalAction": "Enter Layer 3 for one bounded slice that widens/polishes prohibit_runtime_helper_redeclarations for exact-equivalent public MapGen core helper redeclarations, then absorbs/deletes prohibit_foundation_duplicate_math_helper_redefinitions only to the covered extent.",
+    "operationalSourceOfTruth": ".habitat/workstreams/rule-remediation-layer1-action-matrix.json",
+    "receipt": ".habitat/workstreams/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
+    "sourceCommit": "dba8598fd52becb4022e86b5e6a1c81a4dde094d"
   },
   "rules": [
     {
@@ -306,10 +309,12 @@
       "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
       "lane": "domains/foundation",
       "actionDecision": "positive authority creation",
-      "packetNeeded": true,
-      "expectedRemediation": "Reopened by local-proxy authority review: consolidate into broader MapGen helper-surface authority, likely by expanding the SDK/core helper rail and then moving/deleting the Foundation-specific proxy only after any Foundation-only residue is justified.",
-      "evidenceNote": "Corrective review found Domino 50 was right: this row is helper/import positive-authority pressure. Architecture docs prefer shared core MapGen SDK helpers for generic utilities, and current source has additional clamp helper redeclarations in Hydrology/Morphology rule/helper files not covered by the existing SDK/core helper Grit rail.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json"
+      "packetNeeded": false,
+      "expectedRemediation": "Layer 2 packet complete: absorb/delete this Foundation proxy during the helper-surface Layer 3 slice only to the extent covered by the widened survivor rail; do not absorb Foundation byte/int8/vector quantization helpers into core.",
+      "evidenceNote": "Decision packet corrects the prior Foundation-local admission. The rule is broader helper-surface pressure, but Foundation clampByte/clampInt8/normalizeToInt8 semantics differ from current core helpers and are excluded from this slice.",
+      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json",
+      "decisionPacket": ".habitat/workstreams/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
+      "nextLayer3Action": "Retire or absorb the rule after the survivor rail covers exact generic helper recurrence risk; retain exclusions for Foundation quantization helpers."
     },
     {
       "ruleId": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
@@ -639,10 +644,12 @@
       "ruleId": "prohibit_runtime_helper_redeclarations",
       "lane": "MapGen SDK / mod-sdk",
       "actionDecision": "positive authority creation",
-      "packetNeeded": true,
-      "expectedRemediation": "Reopen as the consolidation target for broad MapGen helper-surface authority; expand source scope/helper catalog or split a manifest-backed helper authority before absorbing the Foundation helper proxy.",
-      "evidenceNote": "The existing SDK/core helper rail is the right owner direction, but it is under-scoped: it checks recipe steps and op strategies while current helper redeclarations also exist in domain rules/helper files.",
-      "currentPath": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/rule.json"
+      "packetNeeded": false,
+      "expectedRemediation": "Layer 2 packet complete: preserve this rule id as the survivor Habitat/Grit rail and widen/polish it in Layer 3 for exact-equivalent public MapGen core helper redeclarations only.",
+      "evidenceNote": "Decision packet says the SDK/core helper rail is the right consolidation seed, but only for exact-equivalent helpers with public MapGen core/root or lib/math equivalents. It must not become an all-helper catch-all or package-test proxy.",
+      "currentPath": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/rule.json",
+      "decisionPacket": ".habitat/workstreams/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
+      "nextLayer3Action": "Widen/polish the Grit pattern/message/scope for exact-equivalent core helper redeclarations and prove with focused Habitat checks."
     },
     {
       "ruleId": "prohibit_runtime_local_config_default_merging",
@@ -1796,14 +1803,91 @@
     },
     {
       "sliceId": "mapgen-helper-surface-authority-consolidation",
-      "status": "queued",
+      "status": "implementation-ready",
       "actionClass": "positive authority creation",
       "rules": [
         "prohibit_runtime_helper_redeclarations",
         "prohibit_foundation_duplicate_math_helper_redefinitions"
       ],
       "reason": "Existing SDK/core helper rail is the likely owner but is under-scoped; Foundation helper row should not remain a narrow local admission while other domain rules/helpers redeclare the same helper family.",
-      "queueOrder": 1
+      "queueOrder": 1,
+      "receipt": ".habitat/workstreams/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
+      "sourceCommit": "dba8598fd52becb4022e86b5e6a1c81a4dde094d",
+      "selectedRules": [
+        "prohibit_runtime_helper_redeclarations",
+        "prohibit_foundation_duplicate_math_helper_redefinitions"
+      ],
+      "excludedRows": [
+        {
+          "surface": "Foundation clampByte/clampInt8/normalizeToInt8 local helper semantics",
+          "reason": "They differ from current core helpers in rounding, infinity handling, and numeric range."
+        },
+        {
+          "surface": "Hydrology lerp01, threshold transforms, clampMin, and directional helper families",
+          "reason": "Domain-local or operation-local transforms, not exact core-helper clones."
+        },
+        {
+          "surface": "Ecology smoothstep/bandpass helper family",
+          "reason": "Repeated and likely positive-authority pressure, but outside the selected rule ids."
+        },
+        {
+          "surface": "Resources hash32/hash01 and compareRange helper families",
+          "reason": "Repeated and likely positive-authority pressure, but separate from the current helper slice."
+        },
+        {
+          "surface": "Recipe/local byte clamps such as clampI8 and clampToByte",
+          "reason": "Exact signed/range semantics differ from the generic helper rule."
+        }
+      ],
+      "proofClasses": [
+        "source absence proof",
+        "runner/support path proof",
+        "focused habitat check",
+        "record reconciliation"
+      ],
+      "proofLimits": "Does not prove behavioral equivalence or authorize core absorption for byte/int8/vector helpers, Hydrology transforms, Ecology smoothstep/bandpass, Resources hash helpers, or package-owned tests.",
+      "layer3EntryWarrant": {
+        "operationalLedgerPath": ".habitat/workstreams/rule-remediation-layer1-action-matrix.json",
+        "sourceCommit": "dba8598fd52becb4022e86b5e6a1c81a4dde094d",
+        "selectedRuleIds": [
+          "prohibit_runtime_helper_redeclarations",
+          "prohibit_foundation_duplicate_math_helper_redefinitions"
+        ],
+        "selectedSliceId": "mapgen-helper-surface-authority-consolidation",
+        "selectedSliceReceiptPath": ".habitat/workstreams/rule-remediation-mapgen-helper-surface-authority-consolidation.md",
+        "freshPacketReviewerDisposition": "approve-with-repairs; P1/P2 findings accepted and repaired in canonical JSON/receipt",
+        "noSelectedRowStaleOrContradicted": true,
+        "actionsNotAuthorized": [
+          "moving byte/int8/vector quantization helpers into MapGen core",
+          "creating a broad shared-utils owner",
+          "adding package-owned tests for helper redeclaration residue",
+          "mutating product source outside the selected Layer 3 slice",
+          "changing unrelated helper-family rows not selected here"
+        ]
+      },
+      "nextLegalAction": "Enter Layer 3 for one bounded slice that widens/polishes prohibit_runtime_helper_redeclarations for exact-equivalent public MapGen core helper redeclarations, then absorbs/deletes prohibit_foundation_duplicate_math_helper_redefinitions only to the covered extent.",
+      "reviewDisposition": {
+        "reviewer": "fresh no-edit packet reviewer",
+        "disposition": "approve-with-repairs",
+        "acceptedFindings": [
+          {
+            "severity": "P1",
+            "finding": "Canonical JSON was stale relative to packet receipt.",
+            "disposition": "repaired by this JSON update"
+          },
+          {
+            "severity": "P2",
+            "finding": "Layer 3 entry warrant was missing source commit.",
+            "disposition": "repaired in receipt and JSON"
+          },
+          {
+            "severity": "P2",
+            "finding": "Reviewer disposition was pending.",
+            "disposition": "repaired in JSON and receipt"
+          }
+        ],
+        "semanticDisposition": "approved after record repairs"
+      }
     },
     {
       "sliceId": "standard-stage-kind-truth-projection-authority",
@@ -1941,11 +2025,9 @@
       "kind": "positive authority plus deletion pair",
       "rules": [
         "prohibit_ambient_rng_in_authored_generation",
-        "validate_ecology_op_contract_quality",
-        "prohibit_foundation_duplicate_math_helper_redefinitions",
-        "prohibit_runtime_helper_redeclarations"
+        "validate_ecology_op_contract_quality"
       ],
-      "reason": "Positive-authority rows now include helper-surface consolidation, deterministic authored-generation, and ecology/domain-operation contract quality. The helper pair is no longer considered settled local context; it needs a broader helper authority packet before implementation."
+      "reason": "Remaining positive-authority rows include deterministic authored-generation and ecology/domain-operation contract quality. The helper pair has a Layer 2 entry warrant and is now represented by the implementation-ready helper-surface slice."
     },
     {
       "kind": "overlay/story ownership semantic gate",
@@ -2043,6 +2125,18 @@
         "require_standard_recipe_tag_catalog_owner_tokens",
         "require_studio_ui_recipe_artifact_imports",
         "verify_visualization_runtime_build_artifacts"
+      ]
+    },
+    {
+      "findingId": "2026-07-01-mapgen-helper-surface-layer2-packet-review",
+      "recordedOn": "2026-07-01",
+      "ruleId": null,
+      "kind": "layer2-packet-review-disposition",
+      "finding": "Fresh no-edit packet review approved the helper-surface Layer 2 packet after record-state repairs. Semantics are implementation-ready for exact-equivalent helper authority only; broad helper/core absorption and package tests are forbidden.",
+      "handling": "Updated selected rule rows, helper slice, gateState, source commit, proof limits, exclusions, and reviewer disposition in the canonical JSON.",
+      "rules": [
+        "prohibit_runtime_helper_redeclarations",
+        "prohibit_foundation_duplicate_math_helper_redefinitions"
       ]
     }
   ],
