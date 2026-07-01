@@ -16,8 +16,8 @@
   },
   "layer2PacketIndex": {
     "status": "active-inside-canonical-union-record",
-    "sourceCommit": "329db57d4",
-    "sourceBranch": "codex/habitat-domain-operation-strategy-authority",
+    "sourceCommit": "ee0151943",
+    "sourceBranch": "codex/habitat-runtime-local-config-defaulting-rail",
     "recordPolicy": "This object is the Layer 2 packet index. Do not create or maintain a parallel Markdown packet index; Markdown workstream files are slice receipts only.",
     "completedSlices": [
       {
@@ -1686,10 +1686,10 @@
       }
     ],
     "remainingPacketNeededCounts": {
-      "boundary inversion": 3,
+      "runtime/source validation": 1,
       "positive authority creation": 4,
-      "runtime/source validation": 2,
-      "split by owner": 3
+      "split by owner": 3,
+      "boundary inversion": 3
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -1697,14 +1697,11 @@
       {
         "kind": "hairy semantic split",
         "rules": [
-          "ensure_map_policy_dependency_independence",
           "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
           "require_public_domain_surfaces_in_tests",
-          "require_standard_recipe_tag_catalog_owner_tokens",
-          "require_typed_placement_outcomes_before_apply",
-          "validate_mapgen_docs_anchors_and_references"
+          "require_standard_recipe_tag_catalog_owner_tokens"
         ],
-        "reason": "Each row has mixed owners or proof shapes and needs clause-level packets before any authority-tree mutation."
+        "reason": "Current re-read leaves these rows as split-by-owner packet work rather than implementation-ready slices. The ecology/fudge row mixes deterministic-generation, lexical cleanup, owner-specific generator, and projection/runtime clauses; the public-domain test import row needs either explicit Habitat/Grit test-file scan capability or a public/internal test authority split; the standard recipe tag-catalog row spans field, engine, map projection, and placement product tag ownership."
       },
       {
         "kind": "positive authority plus deletion pair",
@@ -1714,7 +1711,7 @@
           "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
           "validate_ecology_op_contract_quality"
         ],
-        "reason": "Each row needs a positive authority assertion paired with proxy deletion, retention, or movement. User guidance says to stop before this class unless the authority is cleanly product-backed and no deletion pair is required."
+        "reason": "Each row needs a positive authority assertion paired with proxy deletion, retention, or movement. The re-read confirmed none is a clean unilateral Layer 3 mutation: deterministic authored-generation needs an exception policy, foundation helpers need a named helper/import surface, tag/effect family authority needs a catalog-family decision, and ecology contract quality needs a general domain-operation contract-quality authority."
       },
       {
         "kind": "overlay/story ownership semantic gate",
@@ -1729,21 +1726,21 @@
         "rules": [
           "prohibit_morphology_overlay_implementation_reads"
         ],
-        "reason": "Likely belongs to a general step implementation/declared-dependency authority rather than a morphology-only negative; needs a decision packet before mutation."
+        "reason": "Likely belongs to a general step implementation/declared-dependency authority rather than a morphology-only negative; mutation requires a decision packet for that positive authority first."
       },
       {
         "kind": "runtime/source residual stop gate",
         "rules": [
           "enforce_formatting_and_import_hygiene"
         ],
-        "reason": "The formatting/import hygiene row is a valid workspace gate but currently red from broad workspace drift, so it is not a clean rule-remediation slice. Runtime-local config defaulting was admitted to runtime rules in Domino 87."
+        "reason": "The formatting/import hygiene row is a valid workspace gate backed by Biome, but the focused check is red from broad workspace drift, so this is not a clean authority-tree remediation slice."
       }
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Runtime-local config defaulting admitted as live runtime Grit rail; public-domain test imports Grit conversion falsified by ignored test-file scan behavior; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or workspace drift blockers.",
-      "layer3Boundary": "Continue only for implementation-ready rows that do not require hairy split, positive-authority/deletion-pair, product ownership, material corpus-boundary decisions, or new Habitat/Grit test-file scan capability.",
-      "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
+      "layer2": "Residual re-read after Domino 87 found no implementation-ready slice queue. The remaining packet-needed rows are current semantic split, positive-authority/deletion-pair, overlay/story ownership, recipe-step declared-dependency authority, or workspace hygiene drift gates.",
+      "layer3Boundary": "Continue only if a remaining row is reclassified by a decision packet into a clean, bounded slice that does not require a hairy split, product ownership choice, non-authorized positive authority plus deletion pair, material corpus-boundary change, or new Habitat/Grit test-file scan capability.",
+      "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state. Markdown workstream files are receipts only, not a second matrix."
     },
     "operatorFindings": [
       {
@@ -1753,6 +1750,21 @@
         "attemptedSlice": "public-domain test imports Grit conversion",
         "finding": "Grit conversion falsified on 2026-07-01: the predicate is static import/export source shape, but current Habitat/Grit source execution obeys .gritignore, which excludes **/test/ and **/*.test.ts. A temporary forbidden deep import in mods/mod-swooper-maps/test/ecology/classify-biomes.test.ts was ignored by Grit, while the existing Habitat script owns the actual test-file corpus. Do not mark this row no-action via Grit until Habitat has an explicit test-file scan capability or the authority is split into non-test public-surface rails plus a separate test policy.",
         "handling": "Restored current Habitat script runner; row remains packetNeeded split-by-owner and sealed blocker. No package tests added."
+      },
+      {
+        "recordedOn": "2026-07-01",
+        "kind": "residual-cascade-reread",
+        "receipt": ".habitat/workstreams/rule-remediation-residual-cascade-reread.md",
+        "finding": "After Runtime Local Config Defaulting, the canonical row set still reconciles at 113 live manifests and 113 current rows, but the blocker list contained stale resolved names. The residual re-read pruned resolved blockers and reconfirmed that the remaining rows are not clean Layer 3 implementation slices.",
+        "rowsReRead": [
+          "enforce_formatting_and_import_hygiene",
+          "prohibit_ambient_rng_in_authored_generation",
+          "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+          "prohibit_foundation_duplicate_math_helper_redefinitions",
+          "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
+          "require_standard_recipe_tag_catalog_owner_tokens"
+        ],
+        "handling": "No authority-tree mutation was performed. The next deterministic move requires a semantic Layer 2 decision packet or user-owned architecture decision for one of the remaining stop classes."
       }
     ]
   },
@@ -1772,10 +1784,10 @@
     "split by owner": 3
   },
   "packetNeededCounts": {
-    "boundary inversion": 3,
-    "positive authority creation": 4,
     "runtime/source validation": 1,
-    "split by owner": 3
+    "positive authority creation": 4,
+    "split by owner": 3,
+    "boundary inversion": 3
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
