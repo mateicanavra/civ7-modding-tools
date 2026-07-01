@@ -32,10 +32,10 @@ describe("rule registry contract", () => {
     }).rules;
 
     expect(rules).toHaveLength(113);
-    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(69);
+    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(70);
     expect(
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
-    ).toHaveLength(33);
+    ).toHaveLength(32);
     expect(
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure")
     ).toHaveLength(5);

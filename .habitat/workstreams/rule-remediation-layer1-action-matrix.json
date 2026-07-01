@@ -399,6 +399,27 @@
             "reason": "Separate positive tag/effect family authority work; this slice only changes the existing map-effect suffix rail executor."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-physics-map-projection-dependency-grit-slice.md",
+        "branch": "codex/habitat-physics-map-dependency-grit-rail",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Converted the standard recipe physics map-projection dependency guard from a bespoke Node script to a packet-local Grit source rule without changing rule ownership or predicate semantics.",
+        "selectedRows": [
+          "prohibit_map_projection_dependencies_in_physics_contracts"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_foundation_projection_legacy_motion_source",
+            "reason": "Already a separate Grit source rule for legacy foundation projection motion tokens; not part of this script-to-Grit conversion."
+          },
+          {
+            "ruleId": "prohibit_morphology_runtime_continent_step_tokens",
+            "reason": "Already a separate Grit source rule over morphology runtime continent tokens; not part of this script-to-Grit conversion."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1013,12 +1034,44 @@
           "`bun habitat check --rule require_standard_recipe_map_effect_name_suffixes --json` passed with Grit runner.",
           "Temporary `effect:map.landmassApplied` probe failed at `mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts`."
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceCandidate": "standard recipe physics map-projection dependency Grit rail",
+        "status": "closed-by-source-check-rail-replacement",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/check.mjs",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.ts",
+          "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/morphology/spec/PHASE-2-MAP-PROJECTIONS-AND-STAMPING.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "source-check rail replacement",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Keep the standard recipe context rule, but express the static map-projection dependency-token predicate as Grit instead of a custom Node script. Do not move this to package tests, Nx boundaries, or a broad projection-surface authority in this slice.",
+            "proofLimit": "Focused Habitat proof validates current source and a temporary bad-literal probe. This does not settle the broader projection contract surface or map-output ontology."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule prohibit_map_projection_dependencies_in_physics_contracts --json` passes with the Grit runner.",
+          "A temporary invalid `artifact:map.*` token in an in-scope physics contract fails the rule.",
+          "The old Node runner file is absent from the live rule packet.",
+          "Canonical JSON packet-needed runtime/source-validation count drops by one."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule prohibit_map_projection_dependencies_in_physics_contracts --json` passed with Grit runner.",
+          "Temporary `artifact:map.invalidProbe` probe failed at `foundation-tectonics/steps/tectonics.contract.ts`."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
-      "runtime/source validation": 22,
+      "runtime/source validation": 21,
       "split by owner": 6
     },
     "implementationReadySliceQueue": [],
@@ -1064,7 +1117,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Standard recipe map-effect suffix source-check rail replacement closed; no implementation-ready Layer 3 queue remains after closure.",
+      "layer2": "Physics map-projection dependency source-check rail replacement closed; no implementation-ready Layer 3 queue remains after closure.",
       "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1079,15 +1132,15 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 52,
+    "no action": 53,
     "positive authority creation": 4,
-    "runtime/source validation": 22,
+    "runtime/source validation": 21,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 22,
+    "runtime/source validation": 21,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -1517,10 +1570,10 @@
     {
       "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
       "lane": "standard recipe top-level",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move to mod/package contract guard or graph validation.",
-      "evidenceNote": "Truth/projection policy and native tests already assert physics must not depend on projection.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Replaced the bespoke Node runner with a packet-local Grit source rule over standard recipe physics contract files.",
+      "evidenceNote": "The predicate is static source-shape authority over map projection dependency tokens in selected standard recipe physics contracts; Grit now enforces string-literal and tag-constant references directly and a bad-literal probe failed as expected.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/rule.json"
     },
     {
@@ -3318,7 +3371,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained recipe-wide standard-recipe context",
         "pendingAction": "Revisit only if standard physics-stage contract families become parameterized recipe-stage or projection-surface authority.",
-        "evidenceNote": "Domino 42 non-move: it protects standard-recipe physics contracts from map projection dependencies; artifact language is incidental to projection dependency naming."
+        "evidenceNote": "The predicate is static source-shape authority over map projection dependency tokens in selected standard recipe physics contracts; Grit now enforces string-literal and tag-constant references directly and a bad-literal probe failed as expected.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Replaced the bespoke Node runner with a packet-local Grit source rule over standard recipe physics contract files."
       },
       {
         "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
