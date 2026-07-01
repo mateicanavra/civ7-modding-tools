@@ -117,6 +117,7 @@ Affirmed blueprint examples include:
 - `blueprints/recipe-step`
 - `blueprints/domain`
 - `blueprints/domain-operation`
+- `blueprints/domain-operation-strategy`
 - `blueprints/mod-map`
 - `blueprints/dependency-tag`
 - `blueprints/artifact`
@@ -244,6 +245,25 @@ It is not a generic Habitat term. Do not use `artifact` for rule categories,
 operation kinds, support files, generated build output, or Habitat packet role
 files. `artifact:*` remains dependency-tag vocabulary when a rule governs
 dependency edge IDs rather than artifact values.
+
+### Domain Operation Strategy Blueprint
+
+`blueprints/domain-operation-strategy` is affirmed product blueprint authority
+for MapGen domain operation strategy implementations: declared strategy ids,
+strategy config schemas, optional normalization, deterministic `run` behavior,
+and the `defineOp`/`createOp`/`createStrategy` binding that makes a strategy
+selectable through the operation config envelope.
+
+It is a child/specialization of operation authority, not a replacement for
+`blueprints/domain-operation`. Operation contracts, operation roots, domain
+registry wiring, operation topology, and operation entrypoint atomicity remain
+parent `domain-operation` authority unless a whole predicate specifically
+governs valid strategy implementations.
+
+Do not move a packet here merely because it scans `strategies/**/*.ts`.
+Foundation-local strategy import lists, helper consolidation, operation module
+topology, runtime validation, and recipe policy can use strategy files as scan
+surfaces without being strategy-kind authority.
 
 ### Packet
 
