@@ -66,23 +66,38 @@
             "reason": "Operation contract-quality pressure, not strategy implementation authority."
           }
         ]
+      },
+      {
+        "actionClass": "retirement/garbage collection",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-config-key-retirement-slice.md",
+        "branch": "codex/habitat-config-key-retirement",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Deleted two retired config-key lexical proxies. No replacement assertion was created because valid config key-space is owned by source schemas, TypeScript types, and config compilation; retired literals do not deserve live Habitat enforcement without recurrence risk.",
+        "selectedRows": [
+          "prohibit_hydrology_map_config_key_tokens",
+          "prohibit_legacy_morphology_config_keys"
+        ],
+        "excludedRows": []
       }
     ],
     "decisionPacketBatches": [
       {
         "actionClass": "runtime/source validation",
         "sliceCandidate": "config-key native-schema retirement probe",
-        "status": "packet-complete-awaiting-layer3",
+        "status": "closed-by-retired-key-garbage-collection",
         "freshReviewers": [
           {
             "agent": "Plato",
             "role": "source investigator",
-            "verdict": "Hydrology requires split/context qualification; Morphology can be replaced by native rail after exact injected native tests."
+            "verdict": "Hydrology requires split/context qualification; Morphology can be replaced by native rail after exact injected native tests.",
+            "reviewDisposition": "not accepted for implementation proof; reviewer repeated package-test junk-drawer proof model"
           },
           {
             "agent": "Zeno",
             "role": "proof rail reviewer",
-            "verdict": "Both rows are native-rail replacement candidates, but deletion must be backed by exact negative tests; Hydrology overmatches live `hydrology-hydrography.lakes` vocabulary."
+            "verdict": "Both rows are native-rail replacement candidates, but deletion must be backed by exact negative tests; Hydrology overmatches live `hydrology-hydrography.lakes` vocabulary.",
+            "reviewDisposition": "not accepted for implementation proof; reviewer repeated package-test junk-drawer proof model"
           }
         ],
         "filesInspected": [
@@ -110,83 +125,98 @@
           {
             "ruleId": "prohibit_hydrology_map_config_key_tokens",
             "inputClassification": "runtime/source validation",
-            "wholeRuleFit": "split/context-qualified replacement required",
-            "ruleIdPlan": "replace by native rail only after exact tests; do not delete as a broad lexical predicate",
-            "semanticRemediationDecision": "The current Grit predicate is too broad because it lexically forbids `lakes` and other tokens in map-source paths even though `hydrology-hydrography.lakes` is a current public config key. Native recipe schema and canonical map config validation own stale-stage/internal-key rejection, but the Layer 3 slice must qualify Hydrology clauses and add exact negative tests before retiring or narrowing the Habitat proxy.",
+            "wholeRuleFit": "retire",
+            "ruleIdPlan": "delete id without replacement",
+            "semanticRemediationDecision": "Delete as retired config-key garbage. Valid config key-space is maintained by source-owned schemas, TypeScript types, and config compilation. No new negative assertion should replace this rule unless future evidence shows the retired literal is a likely recurrence risk.",
             "clauseTable": [
               {
                 "clause": "`climate:`",
                 "owner": "standard recipe config schema / canonical map config validation",
                 "falseOwner": "hydrology-domain lexical Grit rule",
-                "proofClass": "source/schema proof",
-                "packetDisposition": "replace by native rail after exact negative test"
+                "proofClass": "source absence proof plus record reconciliation",
+                "packetDisposition": "delete retired literal assertion"
               },
               {
                 "clause": "`\"climate-baseline\":`",
                 "owner": "hydrology climate-baseline public schema",
                 "falseOwner": "legacy internal step-token guard",
-                "proofClass": "source/schema plus compile-error proof",
-                "packetDisposition": "replace by native rail after exact negative test"
+                "proofClass": "source absence proof plus record reconciliation",
+                "packetDisposition": "delete retired literal assertion"
               },
               {
                 "clause": "`\"climate-refine\":`",
                 "owner": "hydrology climate-refine public schema",
                 "falseOwner": "legacy internal step-token guard",
-                "proofClass": "source/schema proof",
-                "packetDisposition": "replace by native rail after exact negative test"
+                "proofClass": "source absence proof plus record reconciliation",
+                "packetDisposition": "delete retired literal assertion"
               },
               {
                 "clause": "`lakes:`",
                 "owner": "mixed: valid under `hydrology-hydrography`; invalid under `map-hydrology` or raw projection/internal config",
                 "falseOwner": "broad lexical forbid",
-                "proofClass": "source/schema plus contextual negative proof",
-                "packetDisposition": "split/contextualize; do not broadly forbid"
+                "proofClass": "source absence proof plus record reconciliation",
+                "packetDisposition": "delete retired literal assertion"
               },
               {
                 "clause": "`rivers:`",
                 "owner": "hydrology hydrography public schema (`riverNetwork`) or map-rivers projection public schema depending context",
                 "falseOwner": "broad lexical forbid",
-                "proofClass": "source/schema proof",
-                "packetDisposition": "replace by native rail after exact contextual negative test"
+                "proofClass": "source absence proof plus record reconciliation",
+                "packetDisposition": "delete retired literal assertion"
               }
             ],
-            "proofLimit": "Existing schema and compile tests prove closed public surfaces generally, but do not yet prove every named stale token through exact native negative fixtures. Generated map output is proof of generation only, not policy."
+            "proofLimit": "Deletion proves only that the Habitat retired-key proxy is gone and no replacement assertion was added. It does not claim new config behavior; existing source schemas and compiler remain the behavior owner."
           },
           {
             "ruleId": "prohibit_legacy_morphology_config_keys",
             "inputClassification": "runtime/source validation",
-            "wholeRuleFit": "native-rail replacement candidate",
-            "ruleIdPlan": "delete Habitat lexical proxy after exact native negative tests prove `landmass` and `oceanSeparation` are rejected",
-            "semanticRemediationDecision": "The stale `landmass` and `oceanSeparation` map/test tokens are better owned by canonical JSON map config validation and the closed standard recipe public schema. The current Habitat rule scans old TS-oriented surfaces; Layer 3 should add exact negative tests to the native config rail, then retire the Habitat rule.",
+            "wholeRuleFit": "retire",
+            "ruleIdPlan": "delete id without replacement",
+            "semanticRemediationDecision": "Delete as retired config-key garbage. Valid config key-space is maintained by source-owned schemas, TypeScript types, and config compilation. No new negative assertion should replace this rule unless future evidence shows the retired literal is a likely recurrence risk.",
             "clauseTable": [
               {
                 "clause": "`landmass:`",
                 "owner": "standard recipe public config schema / canonical map config validation",
                 "falseOwner": "morphology-domain lexical Grit rule",
-                "proofClass": "source/schema plus exact native negative test",
-                "packetDisposition": "replace by native rail"
+                "proofClass": "source absence proof plus record reconciliation",
+                "packetDisposition": "delete retired literal assertion"
               },
               {
                 "clause": "`oceanSeparation:`",
                 "owner": "standard recipe public config schema / canonical map config validation",
                 "falseOwner": "morphology-domain lexical Grit rule",
-                "proofClass": "source/schema plus exact native negative test",
-                "packetDisposition": "replace by native rail"
+                "proofClass": "source absence proof plus record reconciliation",
+                "packetDisposition": "delete retired literal assertion"
               }
             ],
-            "proofLimit": "Existing public-key tests show current Morphology public surfaces and shipped configs are closed, but exact stale token fixtures must be added before deleting the Habitat proxy."
+            "proofLimit": "Deletion proves only that the Habitat retired-key proxy is gone and no replacement assertion was added. It does not claim new config behavior; existing source schemas and compiler remain the behavior owner."
           }
         ],
         "requiredLayer3Proof": [
-          "Add exact native negative tests for Hydrology `climate`, `climate-baseline`, `climate-refine`, contextual `lakes`, and `rivers` through `deriveRecipeConfigSchema` / `normalizeStrict` or `standardRecipe.compileConfig`.",
-          "Add exact native negative tests for Morphology `landmass` and `oceanSeparation` through canonical map config or recipe schema validation.",
-          "Run focused config/compiler tests and selected Habitat checks for the retained/deleted rule ids.",
-          "If the Hydrology lexical proxy is deleted, prove no live current `hydrology-hydrography.lakes` authoring path is banned by the replacement."
+          "Confirm the two retired-key rule manifests are absent from the live authority tree.",
+          "Confirm the canonical JSON live row count and process ledger reconcile with live rule manifests.",
+          "Confirm no replacement package tests or Habitat negative assertions were introduced."
         ],
         "verificationEvidence": [
-          "Fresh source investigator reported `bun test mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts` and `bun test mods/mod-swooper-maps/test/standard-compile-errors.test.ts` passed.",
-          "Fresh proof reviewer reported `bun habitat check --json --rule prohibit_hydrology_map_config_key_tokens` and `bun habitat check --json --rule prohibit_legacy_morphology_config_keys` passed, plus focused compiler/config tests passed."
-        ]
+          "Prior package tests and subagent reports are evidence of current behavior only; they are not accepted as the replacement authority model.",
+          "Source authority inspected: strict normalization (`normalizeStrict`), recipe compilation, derived recipe config schema, canonical map config validation, and public Hydrology/Morphology stage schemas."
+        ],
+        "correction": {
+          "recordedBy": "Domino 55",
+          "reason": "The original packet chose exact package negative tests as the replacement proof rail. That moves stale config-key blacklist pressure back into owned package tests, which violates the authority-tree pruning frame: tests may prove behavior, but they are not junk drawers for schema/key-management residue that belongs in source validation or Habitat-registered authority.",
+          "authorityRefs": [
+            ".habitat/AUTHORITY.md stop condition: tests are structural gates only with Habitat registration or explicit product-test classification",
+            ".habitat/FRAME.md hard core: Habitat owns structural authority; package tests own behavior/API/validation semantics and proof classes stay separate",
+            "docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md: config is data, unknown keys are rejected by strict schemas, schemas are closed by default",
+            "docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md: config compilation owns strict unknown-key rejection before execution"
+          ],
+          "correctedBoundary": "Do not add per-token package tests as the authority replacement. First create or identify the source-owned schema/key authority, and use Habitat only to verify that authority shape if a structural guard is needed.",
+          "stateCollapse": {
+            "recordedBy": "Domino 56",
+            "decision": "Retired config keys do not need replacement negative assertions. The structurally correct config pipeline is source schemas, TypeScript types, and strict config compilation; Habitat should not keep retired literals alive unless they are known recurrence risks.",
+            "outcome": "Both rule packets deleted as garbage collection."
+          }
+        }
       }
     ],
     "remainingPacketNeededCounts": {
@@ -201,16 +231,6 @@
     "implementationReadySliceQueue": [
       {
         "rank": 1,
-        "slice": "config-key native-schema replacement",
-        "status": "implementation-ready-after-recorded-layer2-packet",
-        "selectedRows": [
-          "prohibit_hydrology_map_config_key_tokens",
-          "prohibit_legacy_morphology_config_keys"
-        ],
-        "reason": "Layer 2 found the native schema/config rail exists and is the correct owner. Layer 3 must add exact native negative tests, then retire or narrow the Habitat lexical proxies according to the packet decisions."
-      },
-      {
-        "rank": 2,
         "slice": "placement/category metadata repair",
         "status": "ready-but-low-state-space-reduction",
         "selectedRows": [
@@ -274,22 +294,22 @@
       }
     ],
     "resumeState": {
-      "layer1": "complete and reconciled for 122 current live rules",
-      "layer2": "two slices closed and one additional decision-packet batch complete. More packets remain, but the next deterministic move is now a bounded Layer 3 config-key native-schema replacement slice rather than broad packet production.",
-      "layer3Boundary": "The highest-leverage implementation-ready slice is `config-key native-schema replacement`; it must add exact native negative tests before retiring or narrowing the two Habitat lexical proxies.",
+      "layer1": "complete and reconciled for 120 current live rules",
+      "layer2": "config-key packet closed by retired-key garbage collection; no replacement package tests, Habitat negative assertions, or schema-authority construction required for these retired literals.",
+      "layer3Boundary": "The remaining implementation-ready queue starts with `placement/category metadata repair`; config-key retired literal cleanup is closed.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
   "corpus": {
-    "liveManifestCount": 122,
-    "currentRowCount": 122,
-    "retiredHistoricalRowCount": 5,
+    "liveManifestCount": 120,
+    "currentRowCount": 120,
+    "retiredHistoricalRowCount": 7,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
   "actionClusterCounts": {
     "no action": 40,
-    "runtime/source validation": 29,
+    "runtime/source validation": 27,
     "split by owner": 6,
     "closed structure inversion": 10,
     "context admission": 9,
@@ -300,8 +320,8 @@
     "placement/category metadata repair": 1
   },
   "packetNeededCounts": {
-    "yes": 72,
-    "no": 50
+    "no": 50,
+    "yes": 70
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -683,15 +703,6 @@
       "currentPath": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/rule.json"
     },
     {
-      "ruleId": "prohibit_hydrology_map_config_key_tokens",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move toward native schema/config validation.",
-      "evidenceNote": "Grit scans TS only; actual JSON configs include valid `lakes` config.",
-      "currentPath": ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_map_config_key_tokens/rule.json"
-    },
-    {
       "ruleId": "prohibit_hydrology_narrative_domain_imports",
       "lane": "domains/nonfoundation",
       "actionDecision": "context admission",
@@ -717,15 +728,6 @@
       "expectedRemediation": "Absorb into allowed op/stage structure.",
       "evidenceNote": "Focused op list makes `computeTectonics` obsolete.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/rule.json"
-    },
-    {
-      "ruleId": "prohibit_legacy_morphology_config_keys",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move toward canonical config/schema rejection of stale keys.",
-      "evidenceNote": "Current Grit scan misses JSON input surface; TS scan passes.",
-      "currentPath": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_config_keys/rule.json"
     },
     {
       "ruleId": "prohibit_legacy_morphology_module_imports",
@@ -1462,6 +1464,26 @@
       "evidenceNote": "Preserves transitional profile composition and overlaps broader topology rule.",
       "currentPath": null,
       "retirementRecord": ".habitat/workstreams/rule-remediation-retirement-slice.md"
+    },
+    {
+      "ruleId": "prohibit_hydrology_map_config_key_tokens",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": true,
+      "expectedRemediation": "Deleted retired config-key lexical assertion; no replacement assertion needed unless recurrence risk becomes concrete.",
+      "evidenceNote": "The row is retired hydrology map-config cleanup, not parent domains authority or a `domain` kind contract as written.<br>The row is not hydrology context authority as a whole; it guards map-authoring/config text and likely needs a future public-config/map-config owner, split, or retirement. Moving it to `domain`, `recipe-stage`, or `hydrology/rules` would preserve the wrong owner.<br>Proof note: selected-rule Grit proof passed; path refs exist",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-config-key-retirement-slice.md"
+    },
+    {
+      "ruleId": "prohibit_legacy_morphology_config_keys",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": true,
+      "expectedRemediation": "Deleted retired config-key lexical assertion; no replacement assertion needed unless recurrence risk becomes concrete.",
+      "evidenceNote": "This is map/test legacy-token cleanup, not morphology-domain constructible authority.<br>Proof note: selected-rule Grit proof passed; path refs exist",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-config-key-retirement-slice.md"
     }
   ],
   "gateState": {
@@ -1723,8 +1745,8 @@
       }
     ],
     "coverageSummary": {
-      "liveRuleManifests": 122,
-      "liveRulesWithExplicitReceiptRows": 89,
+      "liveRuleManifests": 120,
+      "liveRulesWithExplicitReceiptRows": 87,
       "liveRulesWithCompletedPocketSummaryOnly": 17,
       "liveRulesNotProcessedInDominoesMd": 16,
       "staleDominoReferencesExcludedFromLiveMatrix": 10
@@ -1793,22 +1815,6 @@
         "expectedHomeAction": "Absorbed by `prohibit_foundation_strategy_nonlocal_imports`.",
         "domino50Status": "retired",
         "blockerOrProof": "Broader strategy import boundary catches shared `lib/tectonics` imports."
-      },
-      {
-        "ruleId": "prohibit_hydrology_map_config_key_tokens",
-        "remediationAction": "runtime/source validation",
-        "implementationReadiness": "source-ready; not selected",
-        "expectedHomeAction": "Native map-config schema/validation rail.",
-        "domino50Status": "retained `_remainder`",
-        "blockerOrProof": "Prove stale hydrology keys fail through canonical map-config validation before retiring the Habitat token guard."
-      },
-      {
-        "ruleId": "prohibit_legacy_morphology_config_keys",
-        "remediationAction": "runtime/source validation",
-        "implementationReadiness": "source-ready; not selected",
-        "expectedHomeAction": "Native map-config schema/test rail.",
-        "domino50Status": "retained `_remainder`",
-        "blockerOrProof": "Prove stale morphology keys fail through canonical config/test paths before retiring the Habitat token guard."
       },
       {
         "ruleId": "prohibit_legacy_morphology_module_imports",
@@ -2303,16 +2309,6 @@
         "evidenceNote": "The rule is a foundation-specific retired-token guard, not a reusable `domain` or `domain-operation` invariant.<br>Proof note: selected-rule Grit proof passed; path refs exist"
       },
       {
-        "ruleId": "prohibit_hydrology_map_config_key_tokens",
-        "currentPlacement": "blueprint=_remainder; niche=civ7/mapgen/domains/hydrology; category=contract; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_map_config_key_tokens/rule.json",
-        "dominoEvidence": "Domino 30, Domino 31",
-        "processStatus": "processed: receipt",
-        "dispositionBucket": "cleanup/consolidation/split pressure",
-        "pendingAction": "Retired map config key forbids should not remain parent-domain authority merely because the keys are domain-shaped.<br>Map-config token cleanup should not be hidden under concrete-domain context after review unless the map/public-config owner is explicit.",
-        "evidenceNote": "The row is retired hydrology map-config cleanup, not parent domains authority or a `domain` kind contract as written.<br>The row is not hydrology context authority as a whole; it guards map-authoring/config text and likely needs a future public-config/map-config owner, split, or retirement. Moving it to `domain`, `recipe-stage`, or `hydrology/rules` would preserve the wrong owner.<br>Proof note: selected-rule Grit proof passed; path refs exist"
-      },
-      {
         "ruleId": "prohibit_hydrology_climate_intervention_tokens",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/hydrology; category=boundary; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/rule.json",
@@ -2331,16 +2327,6 @@
         "dispositionBucket": "missing positive kind governance<br>honest hydrology context",
         "pendingAction": "Cross-context import forbids should defer unless the whole rule can move to an affirmed import-law or public-surface owner.<br>Cross-context import forbids may remain honest context when no affirmed import-law/public-surface owner exists and the rule is intentionally concrete.",
         "evidenceNote": "The likely durable invariant is a positive public-surface/import boundary, but the current predicate is a narrow hydrology-to-narrative negative proxy.<br>The whole rule protects hydrology from narrative-domain coupling. Existing domain public-surface rules do not own this hydrology-to-narrative boundary, and promoting it to a blueprint would over-generalize.<br>Proof note: selected-rule Grit proof passed; path refs exist"
-      },
-      {
-        "ruleId": "prohibit_legacy_morphology_config_keys",
-        "currentPlacement": "blueprint=_remainder; niche=civ7/mapgen/domains/morphology; category=contract; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_config_keys/rule.json",
-        "dominoEvidence": "Domino 26",
-        "processStatus": "processed: receipt",
-        "dispositionBucket": "cleanup/consolidation/retirement pressure",
-        "pendingAction": "Retired map/test config tokens are cleanup pressure, not concrete-domain context authority.",
-        "evidenceNote": "This is map/test legacy-token cleanup, not morphology-domain constructible authority.<br>Proof note: selected-rule Grit proof passed; path refs exist"
       },
       {
         "ruleId": "prohibit_legacy_morphology_module_imports",

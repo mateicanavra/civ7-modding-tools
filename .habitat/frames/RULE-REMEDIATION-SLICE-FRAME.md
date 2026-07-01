@@ -66,7 +66,9 @@ Exterior:
 3. Rule packets remain mechanically resolvable after moves, splits, or
    deletions.
 4. Proof claims are separated by what the verification actually exercised.
-5. Accepted material review findings block closure until resolved.
+5. Package-owned tests are not junk drawers for retired structural, schema, or
+   property blacklist assertions.
+6. Accepted material review findings block closure until resolved.
 
 ## Slice Readiness
 
@@ -87,6 +89,13 @@ If classifications or required decision packets are missing or stale, stop and
 return to their owning frames. Only stale execution inputs discovered during
 slice setup may be repaired inside this frame, and the slice boundary must be
 revalidated before edits begin.
+
+For a retired-literal slice, implementation readiness can be simpler than a
+replacement slice. If the selected rows only forbid retired keys, properties,
+paths, aliases, or tokens, and the decision packet records no concrete
+recurrence risk, the honest end state is deletion without replacement. The
+source pipeline remains responsible for valid current state through code,
+schemas, types, constructors, and compilers.
 
 Use this pre-edit slice plan shape:
 
@@ -157,6 +166,9 @@ Forbidden actions:
 - hand-edit generated outputs;
 - alter unrelated dirty files;
 - silently widen or narrow rule behavior beyond the decision packet;
+- move retired structural/schema/property blacklists into package-owned tests;
+- create a replacement Habitat negative assertion for a retired literal without
+  concrete recurrence risk;
 - create catch-all niches, blueprints, or categories.
 
 ### Stage 4. Verify The Slice
@@ -189,9 +201,13 @@ Additional verification follows the action decision:
   passes.
 - `consolidation/dedup`: prove retained coverage subsumes retired variants.
 - `retirement/garbage collection`: prove retired concepts are absent or no
-  longer need live enforcement.
+  longer need live enforcement. For retired literals, prove the old packet is
+  absent, no replacement package-test junk or Habitat negative assertion was
+  introduced, and the records state why no live recurrence risk remains.
 - `runtime/source validation`: prove the native rail runs and the Habitat proxy
-  is removed, narrowed, or explicitly retained.
+  is removed, narrowed, or explicitly retained. Do not satisfy this proof by
+  copying stale literal forbids into package tests; use source-owned validation
+  or Habitat-registered authority when a live invariant remains.
 
 ### Stage 5. Review And Disposition
 

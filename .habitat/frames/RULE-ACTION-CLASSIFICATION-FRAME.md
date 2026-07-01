@@ -64,9 +64,11 @@ Exterior:
    before preserving negative assertion rules.
 3. Split is selected only when mixed ownership blocks an honest rule-level
    decision.
-4. The output stays compact enough to compare across independently produced
+4. Retired literal assertions collapse to retirement unless there is concrete
+   evidence that the literal is a known or likely recurrence risk.
+5. The output stays compact enough to compare across independently produced
    rows.
-5. Missing proof remains missing; do not fill gaps with inferred intent.
+6. Missing proof remains missing; do not fill gaps with inferred intent.
 
 ## Action Vocabulary
 
@@ -77,12 +79,12 @@ Use exactly one primary action decision:
 | `no action` | The rule is atomic, honestly owned, and its current metadata is good enough for now. |
 | `split by owner` | The predicate spans multiple owners, contexts, stages, products, or proof shapes. |
 | `consolidation/dedup` | The rule overlaps another rule or protects the same invariant through variant wording. |
-| `retirement/garbage collection` | The rule guards obsolete migration residue, stale paths, or no-longer-live concepts. |
+| `retirement/garbage collection` | The rule guards obsolete migration residue, stale paths, no-longer-live concepts, or retired literals/properties that do not have a concrete recurrence risk. |
 | `positive authority creation` | The rule is a negative proxy for a missing constructible kind, schema, manifest, or owner surface. |
 | `closed structure inversion` | The rule forbids stray shapes but should be replaced by an allowed structure definition. |
 | `boundary inversion` | The rule forbids dependency/import/export leaks but should be replaced by an allowed boundary graph or public surface. |
 | `context admission` | The rule is live authority for its current context even if future quality work may improve it. |
-| `runtime/source validation` | The invariant belongs in source code, runtime validation, generated manifests, Nx graph policy, or another native rail. |
+| `runtime/source validation` | A live invariant belongs in source code, runtime validation, generated manifests, Nx graph policy, or another native rail. Do not use this lane merely to preserve a negative assertion against a retired literal. |
 | `placement/category metadata repair` | The predicate is acceptable but its Habitat placement, category, or process metadata is wrong. |
 
 If two action decisions compete, choose the one that collapses more state space.
@@ -134,6 +136,14 @@ Ask the state-space question:
 > honestly owned, safely deleted, or good enough to leave alone?
 
 Use the action vocabulary. Do not invent local synonyms.
+
+When the predicate only names a retired key, property, token, path, alias, or
+literal, ask whether that exact literal is well-known, externally visible, or
+likely to be recreated. If not, classify it as `retirement/garbage collection`
+rather than inventing a replacement source rule, package test, or Habitat
+negative assertion. A structurally correct source pipeline should make valid
+state constructible; Habitat should not keep retired vocabulary alive as live
+law without recurrence evidence.
 
 ### Stage 4. Decide Whether A Decision Packet Is Needed
 

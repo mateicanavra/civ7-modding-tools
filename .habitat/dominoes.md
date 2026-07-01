@@ -1112,29 +1112,101 @@ Closure note:
 Purpose: complete the Layer 2 decision packet for the stale map-config key
 guards without mutating the authority tree.
 
+Status: superseded by Domino 55. The owner diagnosis remains useful evidence,
+but the package negative-test proof strategy is no longer accepted.
+
 Disposition:
 
 | Rule | Decision | Reason | Layer 3 requirement |
 | --- | --- | --- | --- |
-| `prohibit_hydrology_map_config_key_tokens` | replace/narrow by native schema rail, not broad deletion | The Grit predicate overmatches: `lakes` is current public config under `hydrology-hydrography`, while stale stage/internal forms belong to canonical recipe/map config validation. | Add exact native negative tests for `climate`, `climate-baseline`, `climate-refine`, contextual `lakes`, and `rivers`; then retire or narrow the Habitat proxy. |
-| `prohibit_legacy_morphology_config_keys` | replace by native schema rail | `landmass` and `oceanSeparation` are stale lexical cleanup against old TS surfaces; current Morphology public schemas and canonical map config validation own rejection. | Add exact native negative tests for `landmass` and `oceanSeparation`; then retire the Habitat proxy. |
+| `prohibit_hydrology_map_config_key_tokens` | replace/narrow by source schema authority, not broad deletion | The Grit predicate overmatches: `lakes` is current public config under `hydrology-hydrography`, while stale stage/internal forms belong to canonical recipe/map config validation. | Superseded: do not add package negative tests as the replacement rail. Domino 55 returns this to Layer 2 for source-owned schema/key authority. |
+| `prohibit_legacy_morphology_config_keys` | replace by source schema authority | `landmass` and `oceanSeparation` are stale lexical cleanup against old TS surfaces; current Morphology public schemas and canonical map config validation own rejection. | Superseded: do not add package negative tests as the replacement rail. Domino 55 returns this to Layer 2 for source-owned schema/key authority. |
 
 Moves it forward:
 
 - Records the full decision packet under
   `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
   `layer2PacketIndex.decisionPacketBatches`.
-- Moves the config-key slice into the implementation-ready queue with explicit
-  native-test proof requirements.
-- Removes this probe from the next Layer 2 packet queue so the next
-  deterministic step is a bounded Layer 3 slice, not more broad packet churn.
+- Initially moved the config-key slice into the implementation-ready queue;
+  Domino 55 corrected this and returned the slice to Layer 2.
 
 Closure note:
 
 - No rule packets, manifests, runners, support files, tests, or source files
   changed in this packet-only slice.
-- The packet is implementation-ready only with the exact negative tests named
-  above; generated map output remains proof of generation, not config policy.
+- This packet is no longer implementation-ready. The corrected next move is
+  named in Domino 55.
+
+### 55. Correct Config-Key Proof Owner
+
+Purpose: repair Domino 54's proof model before any Layer 3 mutation can move
+retired config-key pressure back into package-owned tests.
+
+Status: superseded by Domino 56. The package-test correction remains
+normative; the later state-collapse decision deletes the retired literal
+assertions without replacement instead of returning them to Layer 2.
+
+Disposition:
+
+| Surface | Correction | Reason | Next action |
+| --- | --- | --- | --- |
+| `prohibit_hydrology_map_config_key_tokens` | returned to Layer 2 packet repair | The prior packet correctly found that the broad lexical predicate overmatches live public `hydrology-hydrography.lakes`, but incorrectly used package negative tests as the replacement rail. | Re-packet as source-owned schema/key authority, optionally protected by Habitat schema-surface authority, before narrowing or retiring the lexical proxy. |
+| `prohibit_legacy_morphology_config_keys` | returned to Layer 2 packet repair | `landmass` and `oceanSeparation` are stale public-config tokens, but package tests must not become a junk drawer for retired property blacklists. | Decide whether existing closed public schemas are sufficient source authority, whether source key management needs strengthening, or whether Habitat should assert the schema surface structurally. |
+
+Moves it forward:
+
+- Corrects `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
+  so `config-key native-schema replacement` is no longer marked
+  implementation-ready.
+- Initially added `config-key source schema authority replacement` back to the
+  Layer 2 packet queue; Domino 56 superseded that by deleting the retired
+  literals without replacement.
+- Keeps the canonical JSON as the single operational source of truth; this
+  receipt only explains the correction.
+
+Authority basis:
+
+- `.habitat/AUTHORITY.md` stops slices that use tests as structural gates
+  without Habitat registration or explicit product-test classification.
+- `.habitat/FRAME.md` separates Habitat structural authority from package
+  behavior/API/validation tests and keeps proof classes separate.
+- MapGen schema policy and config-compilation reference place unknown-key
+  rejection in strict source schemas and compilation, not in per-token package
+  test residue.
+
+Closure note:
+
+- No authority rule packets, runners, support files, package tests, or source
+  files changed.
+- The next config-key move is not Layer 3 deletion. It is a corrected Layer 2
+  packet for source-owned schema/key authority or Habitat schema-surface
+  authority.
+
+### 56. Retire Config-Key Literal Assertions
+
+Purpose: apply the state-collapse correction for retired config keys.
+
+Disposition:
+
+| Rule | Action | Reason | Record |
+| --- | --- | --- | --- |
+| `prohibit_hydrology_map_config_key_tokens` | deleted without replacement | Retired hydrology config-key literals do not need live negative assertions. The one live collision, `hydrology-hydrography.lakes`, proves the broad lexical rule is actively misleading. Valid key-space belongs to source schemas, TypeScript types, and config compilation. | `.habitat/workstreams/rule-remediation-config-key-retirement-slice.md` |
+| `prohibit_legacy_morphology_config_keys` | deleted without replacement | `landmass` and `oceanSeparation` are retired public-config names, not likely recurrence risks that deserve Habitat law or package-test blacklists. Current Morphology config shape is structurally owned by closed public schemas and compilation. | `.habitat/workstreams/rule-remediation-config-key-retirement-slice.md` |
+
+Moves it forward:
+
+- Deletes two `_remainder` rule packets instead of replacing them with package
+  negative tests or new Habitat negative assertions.
+- Updates the canonical JSON row counts and retired-history records.
+- Updates the rule remediation method frames so future agents treat retired
+  literals as state-collapse candidates before inventing replacement rails.
+
+Closure note:
+
+- No package tests or source config behavior changed.
+- The proof claim is authority-tree cleanup: retired literal assertions are
+  gone, no replacement junk was added, and the config pipeline remains owned by
+  source schemas, TypeScript types, and compilation.
 
 ### 46. Resume Authority Activation Projection Work
 

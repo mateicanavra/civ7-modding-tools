@@ -62,8 +62,38 @@ Exterior:
 3. Every clause has an owner, forbidden-owner statement, and proof shape.
 4. Whole-rule movement is allowed only when every clause belongs to the same
    owner and proof shape.
-5. Residual work must be explicit enough that a later slice does not need chat
+5. Retired literals do not automatically require replacement authority. If a
+   clause only forbids a retired key, path, token, alias, or property, the
+   packet must name concrete recurrence risk before keeping or replacing the
+   assertion.
+6. Residual work must be explicit enough that a later slice does not need chat
    memory.
+
+## Retired Literal State Collapse
+
+A retired literal is a previously valid or transitional name that no longer
+belongs to the public/source contract. Retired literals collapse state: they
+normally disappear because valid source structure, schemas, TypeScript types,
+constructors, or compilers own the current shape.
+
+Do not create a replacement negative assertion merely because a retired literal
+can be typed in source. Do not move that pressure into package-owned tests.
+Package tests may prove behavior or validation semantics when those are the
+product claim, but they are not storage for old property blacklists.
+
+Keep, split, or replace a retired-literal rule only when the packet can name a
+specific live risk:
+
+- the literal remains public, documented, generated, or externally consumed;
+- the literal is a common migration hazard with demonstrated recurrence;
+- the literal overlaps a current public key in one context and stale/internal
+  usage in another;
+- the rule is really evidence for a missing positive structure, schema, or
+  boundary that governs current constructible state.
+
+Absent one of those risks, the whole-rule fit is `retire`, the rule-id strategy
+is `delete id without replacement`, and the proof limit is absence and record
+reconciliation, not a new validation rail.
 
 ## Method
 
@@ -108,6 +138,12 @@ fit, and packet disposition in one row. If decomposition contradicts the input
 classification, record the contradiction and mark the input classification as
 stale; do not silently re-run classification inside this frame.
 
+For retired-literal clauses, include a recurrence-risk judgment before naming a
+replacement owner. If no concrete recurrence risk exists, the clause
+disposition is deletion. Do not infer a source-validation replacement just
+because the current source pipeline rejects the retired shape; that is often
+the reason the Habitat assertion is unnecessary.
+
 ### Stage 4. Decide The Whole-Rule Fit
 
 Classify the whole rule as:
@@ -128,12 +164,17 @@ Record one of:
 - `preserve id`;
 - `rename id for corrected owner`;
 - `split into new ids`;
-- `delete id`;
+- `delete id without replacement`;
 - `replace by native rail`;
 - `replace by positive authority`.
 
 Rule ids remain stable unless the decision packet explains why stability would
 hide a semantic change.
+
+Use `delete id without replacement` when no live invariant remains. If a
+deleted id is absorbed by another rule or authority surface, use
+`replace by native rail` or `replace by positive authority` instead of a
+generic deletion label.
 
 ### Stage 6. Emit The Decision Packet
 
@@ -197,6 +238,11 @@ decision.
 
 Do not claim runtime, source, boundary, or deletion proof from a command that
 only proves manifest syntax.
+
+For retired-literal deletion without replacement, the proof class is usually
+`source absence proof` plus record reconciliation. The source/type/config
+pipeline may be the owner of current valid state, but that is an outcome
+statement, not a proof-class label.
 
 ## Falsifiers
 
