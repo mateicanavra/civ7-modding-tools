@@ -5,8 +5,12 @@ dist
 # Storybook static build output
 storybook-static
 
-# design-sync (claude.ai/design) — scaffolding + build artifacts
-.ds-sync/
+# design-sync (claude.ai/design). The converter scripts (.ds-sync/*.mjs, lib/,
+# storybook/, package-lock.json) are a committed REQUIREMENT of the documented
+# resync routine — vendored so any worktree can run it. Only their installed deps
+# (reproducible via `npm ci` from the committed lockfile) and the uploaded bundle
+# output are ignored.
+.ds-sync/node_modules/
 ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
