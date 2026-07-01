@@ -524,6 +524,29 @@
             "reason": "Runtime config/defaulting remainder row remains broader and needs handler-scope narrowing before mutation."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-positive-currentness-native-rails.md",
+        "branch": "codex/habitat-positive-currentness-rails",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed stale packet-needed state for three rules whose existing Habitat scripts are the correct rails for positive source topology/currentness and generated-output label proof.",
+        "selectedRows": [
+          "enforce_studio_rpc_eventhub_topology",
+          "preserve_decomposed_foundation_contract_surfaces",
+          "preserve_evidence_provenance_labels"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "enforce_formatting_and_import_hygiene",
+            "reason": "Focused check is currently red from broad workspace formatting/import drift; cannot close as retained proof."
+          },
+          {
+            "ruleId": "prohibit_runtime_local_config_default_merging",
+            "reason": "Broad runtime/config `_remainder` Grit rule still needs handler-scope narrowing or positive config authority before admission."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1439,12 +1462,65 @@
           "`bun habitat check --rule require_projection_calls_in_projection_steps --json` passed.",
           "Direct source/output token scans matched the retained native proof shape where applicable."
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceCandidate": "positive currentness native rails retention",
+        "status": "closed-by-existing-native-validation-surface",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/rule.json",
+          ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
+          ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/rule.json",
+          ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/check.mjs",
+          ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json",
+          ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts",
+          "apps/mapgen-studio/src/server/daemon/daemon.ts",
+          "packages/civ7-map-policy/src/civ7-tables.gen.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "enforce_studio_rpc_eventhub_topology",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing positive/currentness native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain Studio server topology validator; it checks the daemon still mounts createStudioRpcHandler(context) while lifecycle leakage stays owned by the separate EventHub Grit rail.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "preserve_decomposed_foundation_contract_surfaces",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing positive/currentness native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain foundation decomposed contract-surface validator; it checks required operation names, artifact tags, strategy rule imports, and projection plate-motion/provenance currentness across exact foundation files.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "preserve_evidence_provenance_labels",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing positive/currentness native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain map-policy generated-output provenance label validator; it checks generated table labels use source-evidence wording and avoid stale source-of-truth claims.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule enforce_studio_rpc_eventhub_topology --json` passes.",
+          "`bun habitat check --rule preserve_decomposed_foundation_contract_surfaces --json` passes.",
+          "`bun habitat check --rule preserve_evidence_provenance_labels --json` passes.",
+          "Canonical JSON packet-needed runtime/source-validation count drops by three."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule enforce_studio_rpc_eventhub_topology --json` passed.",
+          "`bun habitat check --rule preserve_decomposed_foundation_contract_surfaces --json` passed.",
+          "`bun habitat check --rule preserve_evidence_provenance_labels --json` passed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
-      "runtime/source validation": 5,
+      "runtime/source validation": 2,
       "split by owner": 6
     },
     "implementationReadySliceQueue": [],
@@ -1490,7 +1566,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Generated output and projection native rails retained for shipped catalog leakage, generated map entrypoint contracts, Studio worker bundle browser safety, and projection callsite/currentness proof; no implementation-ready Layer 3 queue remains after closure.",
+      "layer2": "Positive/currentness native rails retained for Studio RPC topology, decomposed foundation contract surfaces, and map-policy evidence provenance labels; runtime/source validation now has two remaining packet-needed rows.",
       "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1505,15 +1581,15 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 69,
+    "no action": 72,
     "positive authority creation": 4,
-    "runtime/source validation": 5,
+    "runtime/source validation": 2,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 5,
+    "runtime/source validation": 2,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -1601,10 +1677,10 @@
     {
       "ruleId": "enforce_studio_rpc_eventhub_topology",
       "lane": "MapGen Studio",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move to source/package test validating server contract.",
-      "evidenceNote": "Native tests assert one `/rpc` mount across studio/civ7/recipeDag.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain Studio server topology validator; it checks the daemon still mounts createStudioRpcHandler(context) while lifecycle leakage stays owned by the separate EventHub Grit rail.",
+      "evidenceNote": "Focused Habitat proof passes. This is a positive exact-source topology/currentness check, not a package behavior-test candidate.",
       "currentPath": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/rule.json"
     },
     {
@@ -1646,19 +1722,19 @@
     {
       "ruleId": "preserve_decomposed_foundation_contract_surfaces",
       "lane": "domains/foundation",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Collapse exact-string checks into native contract/source validation.",
-      "evidenceNote": "Script checks focused op names, artifact tags, local rules imports, and projection strings.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain foundation decomposed contract-surface validator; it checks required operation names, artifact tags, strategy rule imports, and projection plate-motion/provenance currentness across exact foundation files.",
+      "evidenceNote": "Focused Habitat proof passes. The rule mixes required positive presence, import-source proof, and currentness assertions, so it is correctly expressed as a Habitat-native validator rather than a single Grit pattern.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/rule.json"
     },
     {
       "ruleId": "preserve_evidence_provenance_labels",
       "lane": "Civ7 platform/resources",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move/align with package verifier generated-output equivalence.",
-      "evidenceNote": "Package verifier generates and byte-compares table header containing `Source evidence:`.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain map-policy generated-output provenance label validator; it checks generated table labels use source-evidence wording and avoid stale source-of-truth claims.",
+      "evidenceNote": "Focused Habitat proof passes. This is generated-output label authority over civ7-map-policy output, not package-test clutter.",
       "currentPath": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json"
     },
     {
@@ -3436,7 +3512,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained foundation context rules",
         "pendingAction": "Positive currentness guards may stay contextual when they are intentionally about one concrete migration state.",
-        "evidenceNote": "Domino 42 non-move: artifact tags are part of a foundation currentness guard spanning op names, strategy imports, and projection state; the whole rule is not artifact authority.<br>Proof note: selected-rule Habitat script proof passed; path refs exist"
+        "evidenceNote": "Focused Habitat proof passes. The rule mixes required positive presence, import-source proof, and currentness assertions, so it is correctly expressed as a Habitat-native validator rather than a single Grit pattern.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain foundation decomposed contract-surface validator; it checks required operation names, artifact tags, strategy rule imports, and projection plate-motion/provenance currentness across exact foundation files."
       },
       {
         "ruleId": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
@@ -3980,7 +4059,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "Studio server lane placement",
         "pendingAction": "Revisit if Studio server runtime grows finer child niches for RPC, EventHub, or daemon lifecycle.",
-        "evidenceNote": "Governs the Studio server daemon mounting RPC through runtime context; `rpc-daemon` is an implementation role, not the niche."
+        "evidenceNote": "Focused Habitat proof passes. This is a positive exact-source topology/currentness check, not a package behavior-test candidate.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain Studio server topology validator; it checks the daemon still mounts createStudioRpcHandler(context) while lifecycle leakage stays owned by the separate EventHub Grit rail."
       },
       {
         "ruleId": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
@@ -4086,7 +4168,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "Civ7 map-policy resource lane placement",
         "pendingAction": "Revisit if provenance validation moves into the map-policy generator or package-local verification target.",
-        "evidenceNote": "Domino 47 moved this to the map-policy child niche because it checks source-evidence labeling on the generated map-policy table, not a constructible blueprint."
+        "evidenceNote": "Focused Habitat proof passes. This is generated-output label authority over civ7-map-policy output, not package-test clutter.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain map-policy generated-output provenance label validator; it checks generated table labels use source-evidence wording and avoid stale source-of-truth claims."
       },
       {
         "ruleId": "block_hand_edits_to_generated_civ7_types",
