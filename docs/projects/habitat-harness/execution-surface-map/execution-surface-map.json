@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 571,
+    "totalSurfaces": 566,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "check-script": 34,
-      "rule-json": 120,
-      "pattern": 75,
+      "rule-json": 118,
+      "pattern": 73,
       "structure-spec": 7,
-      "apply-pattern": 2,
+      "apply-pattern": 1,
       "generate-script": 2,
       "operation-note": 3,
       "fix-script": 1,
@@ -22,25 +22,25 @@
     },
     "surfacesByRole": {
       "command_check_executor": 34,
-      "runner_metadata": 120,
-      "policy_pattern": 77,
+      "runner_metadata": 118,
+      "policy_pattern": 74,
       "structure_authority": 7,
       "operation_surface": 6,
       "workspace_entrypoint": 203,
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
-      "unknown": 242,
+      "unknown": 237,
       "package": 140,
       "nx": 65,
       "direct-script": 3,
       "habitat": 124
     },
     "surfacesByBucket": {
-      "package_boundary_tie": 94,
-      "unknown_invocation": 242,
-      "nx_ordering_tie": 103,
-      "mutation_surface": 116,
+      "package_boundary_tie": 91,
+      "unknown_invocation": 237,
+      "nx_ordering_tie": 101,
+      "mutation_surface": 114,
       "package_invoked": 205,
       "direct_script_invoked": 3,
       "habitat_invoked": 124
@@ -50,9 +50,9 @@
   "executionAnatomy": {
     "roleCounts": {
       "fixture-support": 14,
-      "adapter": 120,
-      "policy-predicate": 84,
-      "transient-dependency": 99,
+      "adapter": 118,
+      "policy-predicate": 81,
+      "transient-dependency": 98,
       "entrypoint": 205,
       "runner-runtime": 124
     },
@@ -66,24 +66,6 @@
     }
   },
   "topCrossBoundaryTiesByFanout": [
-    {
-      "target": "grit\nlanguage js(typescript)\n\nor {",
-      "targetClass": "workspace-tool",
-      "references": 24,
-      "sourceCount": 24,
-      "sampleSources": [
-        ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
-        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md",
-        ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md",
-        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md",
-        ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md"
-      ]
-    },
     {
       "target": "@habitat/cli/resources/command/index",
       "targetClass": "habitat-toolkit",
@@ -118,6 +100,24 @@
         ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs",
         ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs",
         ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts"
+      ]
+    },
+    {
+      "target": "grit\nlanguage js(typescript)\n\nor {",
+      "targetClass": "workspace-tool",
+      "references": 22,
+      "sourceCount": 22,
+      "sampleSources": [
+        ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
+        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md",
+        ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md",
+        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
+        ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md"
       ]
     },
     {
@@ -208,24 +208,6 @@
         "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
         "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
         "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts"
-      ]
-    },
-    {
-      "target": "mods/",
-      "targetClass": "mod",
-      "references": 12,
-      "sourceCount": 12,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-        ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
-        ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_validation_and_compiler_imports/pattern.md",
-        ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
       ]
     },
     {
@@ -370,6 +352,23 @@
       ]
     },
     {
+      "target": "mods/",
+      "targetClass": "mod",
+      "references": 9,
+      "sourceCount": 9,
+      "sampleSources": [
+        ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
+        ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_validation_and_compiler_imports/pattern.md",
+        ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md",
+        ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md",
+        ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md"
+      ]
+    },
+    {
       "target": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
       "targetClass": "relative",
       "references": 14,
@@ -481,7 +480,7 @@
         ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md",
         ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
         ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
         ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md",
         ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md"
       ]
@@ -554,20 +553,6 @@
         ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
         ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
         ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-      "targetClass": "mod",
-      "references": 6,
-      "sourceCount": 6,
-      "sampleSources": [
-        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
-        ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
-        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -673,6 +658,19 @@
         ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md",
         ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md",
         ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
+      "targetClass": "mod",
+      "references": 5,
+      "sourceCount": 5,
+      "sampleSources": [
+        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
+        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md"
       ]
     },
     {
@@ -1156,28 +1154,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/maps/demo.ts",
-      "targetClass": "mod",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-      "targetClass": "mod",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/contract.ts",
       "targetClass": "mod",
       "references": 3,
@@ -1186,17 +1162,6 @@
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_validation_and_compiler_imports/pattern.md",
         ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
-      "targetClass": "mod",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -1782,6 +1747,16 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
+        ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/.",
       "targetClass": "mod",
       "references": 2,
@@ -1792,33 +1767,23 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
-      "targetClass": "mod",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts",
-      "targetClass": "mod",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
       "targetClass": "mod",
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
         ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md"
       ]
     },
     {
@@ -2731,7 +2696,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -2789,57 +2754,12 @@
       ]
     },
     {
-      "target": "../../../../domain/foundation/ops/private/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
       "target": "../../../../domain/hydrology/index.js",
       "targetClass": "relative",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "../../../../domain/hydrology/register.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "../../../../domain/resources/lib/corpus/types.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "../../../../domainish/hydrology/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "../../../../domains/hydrology/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -2858,24 +2778,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md"
-      ]
-    },
-    {
-      "target": "../../../domain/hydrology/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "../../../hydrology/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -2948,15 +2850,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md"
-      ]
-    },
-    {
-      "target": "../../domain/hydrology/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -3095,33 +2988,6 @@
       ]
     },
     {
-      "target": "../domain/hydrology/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "../domain/resources/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "../hydrology/artifacts.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
       "target": "../mesh/viz.js",
       "targetClass": "relative",
       "references": 1,
@@ -3173,15 +3039,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md"
-      ]
-    },
-    {
-      "target": "../src/domain/hydrology/index.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -3272,15 +3129,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "package.json#scripts.docs:project"
-      ]
-    },
-    {
-      "target": "./domain/",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -4832,24 +4680,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes|maps)/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\\\"']?$\"\n  },",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){4}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){5}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){6}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/maps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?\\.\\./domain/[^\\\"']+[\\\"']?$\"\n  },",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
       "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){2,}config\\.js[\\\"']?$\"\n  },",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -4865,6 +4695,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md"
+      ]
+    },
+    {
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -5291,15 +5130,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/__tests__/demo.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/rules/index.ts",
       "targetClass": "mod",
       "references": 1,
@@ -5444,15 +5274,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/maps/__type_tests__/deep-import.test.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/maps/config.test.ts",
       "targetClass": "mod",
       "references": 1,
@@ -5489,12 +5310,12 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/maps/export-star.ts",
+      "target": "mods/mod-swooper-maps/src/maps/demo.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5540,15 +5361,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/maps/standard/demo.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
       ]
     },
     {
@@ -5606,21 +5418,12 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/.",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -5750,15 +5553,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/__tests__/demo.test.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/.",
       "targetClass": "mod",
       "references": 1,
@@ -5810,15 +5604,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/__tests__/deep-import.test.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -5894,142 +5679,25 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts",
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-star.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-type.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-named.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-namespace.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-by-id.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-tail.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-root.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-side-effect.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-strategies-tail.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-type.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
       ]
     },
     {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/build.contract.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
@@ -6101,15 +5769,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/export-named.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6125,15 +5784,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/register.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -6187,7 +5837,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -6206,15 +5856,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo/index.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -6641,15 +6282,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/type-only.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
       "targetClass": "mod",
       "references": 1,
@@ -7028,15 +6660,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/test/ecology/demo.test.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/test/ecology/helpers.test.ts",
       "targetClass": "mod",
       "references": 1,
@@ -7124,15 +6747,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/other-mod/src/recipes/standard/stages/demo.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md"
       ]
     },
     {
@@ -7988,15 +7602,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
-      ]
-    },
-    {
-      "target": "packages/mapgen-core/src/recipes/demo.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md"
       ]
     },
     {
@@ -10880,236 +10485,6 @@
       ]
     },
     {
-      "id": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
-      "path": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/",
-          "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-          "mods/mod-swooper-maps/src/maps/demo.ts",
-          "mods/mod-swooper-maps/src/maps/export-star.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/export-named.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/register.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo/index.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/type-only.ts",
-          "mods/mod-swooper-maps/test/ecology/demo.test.ts",
-          "packages/mapgen-core/src/recipes/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){4}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){5}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){6}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/maps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?\\.\\./domain/[^\\\"']+[\\\"']?$\"\n  },"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "../../../../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domain/hydrology/register.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domain/resources/lib/corpus/types.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domainish/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domains/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../domain/resources/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../hydrology/artifacts.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../src/domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./domain/",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/export-star.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/export-named.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/register.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo/index.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/type-only.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/test/ecology/demo.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/recipes/demo.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){4}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){5}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){6}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/maps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?\\.\\./domain/[^\\\"']+[\\\"']?$\"\n  },",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/rule.json",
-      "path": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md",
       "path": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md",
       "surfaceKind": "pattern",
@@ -11404,68 +10779,6 @@
       ]
     },
     {
-      "id": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-      "path": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-      "surfaceKind": "apply-pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "mutation_surface",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
       "path": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
       "surfaceKind": "pattern",
@@ -11478,17 +10791,16 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "mods/",
           "mods/mod-swooper-maps/src/domain/foundation/ops/private.ts",
-          "mods/mod-swooper-maps/src/maps/__type_tests__/deep-import.test.ts",
-          "mods/mod-swooper-maps/src/maps/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/__tests__/deep-import.test.ts",
+          "mods/mod-swooper-maps/src/recipes/",
+          "mods/mod-swooper-maps/src/recipes/.",
           "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx"
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes|maps)/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\\\"']?$\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -11496,13 +10808,18 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "../../../../domain/foundation/ops/private/index.js",
+            "value": "../../../../../domain/hydrology/index.js",
             "targetClass": "relative"
           },
           {
             "kind": "path-reference",
-            "value": "mods/",
-            "targetClass": "mod"
+            "value": "../../../../domain/hydrology/index.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./",
+            "targetClass": "relative"
           },
           {
             "kind": "path-reference",
@@ -11511,17 +10828,12 @@
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/__type_tests__/deep-import.test.ts",
+            "value": "mods/mod-swooper-maps/src/recipes/",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/__tests__/deep-import.test.ts",
+            "value": "mods/mod-swooper-maps/src/recipes/.",
             "targetClass": "mod"
           },
           {
@@ -11531,12 +10843,17 @@
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts",
             "targetClass": "mod"
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes|maps)/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\\\"']?$\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },",
             "targetClass": "workspace-tool"
           }
         ]
@@ -11703,232 +11020,6 @@
     {
       "id": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json",
       "path": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md",
-      "path": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/domain/foundation/__tests__/demo.ts",
-          "mods/mod-swooper-maps/src/maps/standard/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/.",
-          "mods/mod-swooper-maps/src/recipes/standard/__tests__/demo.test.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-star.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-type.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-named.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-namespace.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-by-id.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-tail.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-root.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-side-effect.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-strategies-tail.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-type.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts",
-          "mods/other-mod/src/recipes/standard/stages/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "build"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "build",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/__tests__/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/standard/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/.",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/__tests__/demo.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-star.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-type.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-named.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-namespace.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-by-id.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-tail.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-root.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-side-effect.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-strategies-tail.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-type.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/other-mod/src/recipes/standard/stages/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/rule.json",
-      "path": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -25585,236 +24676,6 @@
       ]
     },
     {
-      "id": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
-      "path": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/",
-          "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-          "mods/mod-swooper-maps/src/maps/demo.ts",
-          "mods/mod-swooper-maps/src/maps/export-star.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/export-named.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/register.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo/index.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/type-only.ts",
-          "mods/mod-swooper-maps/test/ecology/demo.test.ts",
-          "packages/mapgen-core/src/recipes/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){4}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){5}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){6}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/maps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?\\.\\./domain/[^\\\"']+[\\\"']?$\"\n  },"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "../../../../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domain/hydrology/register.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domain/resources/lib/corpus/types.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domainish/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../domains/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../domain/resources/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../hydrology/artifacts.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../src/domain/hydrology/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./domain/",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/export-star.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/export-named.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/register.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo/index.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/type-only.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/test/ecology/demo.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/recipes/demo.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){4}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){5}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){6}domain/[^\\\"']+[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/maps/[^/]+\\.tsx?$\",\n    $source <: r\"^[\\\"']?\\.\\./domain/[^\\\"']+[\\\"']?$\"\n  },",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/rule.json",
-      "path": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md",
       "path": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md",
       "surfaceKind": "pattern",
@@ -26109,68 +24970,6 @@
       ]
     },
     {
-      "id": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-      "path": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-      "surfaceKind": "apply-pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "mutation_surface",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
       "path": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
       "surfaceKind": "pattern",
@@ -26183,17 +24982,16 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "mods/",
           "mods/mod-swooper-maps/src/domain/foundation/ops/private.ts",
-          "mods/mod-swooper-maps/src/maps/__type_tests__/deep-import.test.ts",
-          "mods/mod-swooper-maps/src/maps/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/__tests__/deep-import.test.ts",
+          "mods/mod-swooper-maps/src/recipes/",
+          "mods/mod-swooper-maps/src/recipes/.",
           "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx"
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes|maps)/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\\\"']?$\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -26201,13 +24999,18 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "../../../../domain/foundation/ops/private/index.js",
+            "value": "../../../../../domain/hydrology/index.js",
             "targetClass": "relative"
           },
           {
             "kind": "path-reference",
-            "value": "mods/",
-            "targetClass": "mod"
+            "value": "../../../../domain/hydrology/index.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./",
+            "targetClass": "relative"
           },
           {
             "kind": "path-reference",
@@ -26216,17 +25019,12 @@
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/__type_tests__/deep-import.test.ts",
+            "value": "mods/mod-swooper-maps/src/recipes/",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/__tests__/deep-import.test.ts",
+            "value": "mods/mod-swooper-maps/src/recipes/.",
             "targetClass": "mod"
           },
           {
@@ -26236,12 +25034,17 @@
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts",
             "targetClass": "mod"
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes|maps)/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\\\"']?$\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/.*\\.tsx?$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/[^/]+/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },",
             "targetClass": "workspace-tool"
           }
         ]
@@ -26408,232 +25211,6 @@
     {
       "id": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json",
       "path": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md",
-      "path": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/domain/foundation/__tests__/demo.ts",
-          "mods/mod-swooper-maps/src/maps/standard/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/.",
-          "mods/mod-swooper-maps/src/recipes/standard/__tests__/demo.test.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-star.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-type.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-named.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-namespace.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-by-id.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-tail.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-root.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-side-effect.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-strategies-tail.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo-type.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts",
-          "mods/other-mod/src/recipes/standard/stages/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "build"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "build",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/__tests__/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/standard/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/.",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/__tests__/demo.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-star.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export-type.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-export.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-named.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-namespace.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-by-id.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-tail.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-root.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-side-effect.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-strategies-tail.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo-type.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/other-mod/src/recipes/standard/stages/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/rule.json",
-      "path": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

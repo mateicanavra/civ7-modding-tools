@@ -91,6 +91,22 @@
           "require_studio_ui_recipe_artifact_imports"
         ],
         "excludedRows": []
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-domain-import-matrix-slice.md",
+        "branch": "codex/habitat-g4-domain-import-matrix",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Replaced three overlapping G4 recipe-domain import proxies with one positive Grit recipe import matrix and repaired the one current deep import through the public morphology ops surface.",
+        "selectedRows": [
+          "prohibit_relative_domain_reaches_from_recipes_and_maps",
+          "require_public_domain_surfaces_in_recipes_and_maps",
+          "restrict_recipes_to_public_domain_surfaces"
+        ],
+        "excludedRows": [
+          "map-source clauses from the old proxy rows; not part of the accepted first G4 enforcement surface"
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -229,11 +245,100 @@
             "outcome": "Both rule packets deleted as garbage collection."
           }
         }
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceCandidate": "G4 public-domain import matrix",
+        "status": "closed-by-g4-recipe-import-matrix",
+        "freshReviewers": [
+          {
+            "agent": "Boole",
+            "role": "source qualification reviewer",
+            "verdict": "G4 boundary inversion is source-backed for recipes only; map clauses are not authorized by the current first-enforcement packet.",
+            "reviewDisposition": "accepted: narrowed the slice to `src/recipes/**` and excluded maps instead of pretending the broader matrix is ready."
+          },
+          {
+            "agent": "Mill",
+            "role": "enforcement rail reviewer",
+            "verdict": "Consolidate overlapping negative import proxies into one positive allowed-surface rule; source deep import must be repaired before closure.",
+            "reviewDisposition": "partially accepted: consolidation and source repair accepted; script conversion rejected after operator review because a single Grit pattern is sufficient for this syntax-level rule."
+          }
+        ],
+        "filesInspected": [
+          ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/rule.json",
+          ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/pattern.md",
+          ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json",
+          ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
+          ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/rule.json",
+          ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md",
+          "docs/projects/engine-refactor-v1/architecture-normalization-packet.md",
+          "docs/system/libs/mapgen/policies/IMPORTS.md",
+          "mods/mod-swooper-maps/tsconfig.json",
+          "mods/mod-swooper-maps/src/domain/morphology/ops/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "require_public_domain_surfaces_in_recipes_and_maps",
+            "inputClassification": "boundary inversion",
+            "wholeRuleFit": "whole-rule fit after recipe-only exclusion",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Preserve as the single positive G4 recipe import matrix. The rule allows recipe source to import domain root, `/ops`, `/ops/index.js`, or `/config.js`, and rejects deeper alias tails plus the known relative reaches into `src/domain`.",
+            "proofLimit": "Grit proves static import/export source strings in `mods/mod-swooper-maps/src/recipes/**`; it does not claim map-source coverage, dynamic import coverage, or Nx project-plane policy."
+          },
+          {
+            "ruleId": "prohibit_relative_domain_reaches_from_recipes_and_maps",
+            "inputClassification": "boundary inversion",
+            "wholeRuleFit": "consolidate",
+            "ruleIdPlan": "replace by positive authority",
+            "semanticRemediationDecision": "Delete the old proxy packet after absorbing its recipe-source predicate into require_public_domain_surfaces_in_recipes_and_maps. Map clauses are excluded from this slice rather than silently preserved.",
+            "proofLimit": "Absence proof plus survivor Grit check; no separate live manifest remains for the absorbed id."
+          },
+          {
+            "ruleId": "restrict_recipes_to_public_domain_surfaces",
+            "inputClassification": "boundary inversion",
+            "wholeRuleFit": "consolidate",
+            "ruleIdPlan": "replace by positive authority",
+            "semanticRemediationDecision": "Delete the old proxy packet after absorbing its recipe-source predicate into require_public_domain_surfaces_in_recipes_and_maps. Map clauses are excluded from this slice rather than silently preserved.",
+            "proofLimit": "Absence proof plus survivor Grit check; no separate live manifest remains for the absorbed id."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Focused Habitat check passes for `require_public_domain_surfaces_in_recipes_and_maps` using the Grit runner.",
+          "The `DEFAULT_ELEVATION_SCALE` recipe deep import is repaired through the public morphology ops surface.",
+          "Old absorbed manifests are absent from the live authority tree.",
+          "Canonical JSON current rows and live manifests reconcile at 118.",
+          "No package-owned tests or bespoke Habitat script were introduced for this syntax-level import rule."
+        ],
+        "verificationEvidence": [
+          "Focused `bun habitat check --rule require_public_domain_surfaces_in_recipes_and_maps --json` passed after consolidation.",
+          "Auxiliary recipe import scan found no current recipe imports matching the forbidden G4 domain-surface shapes.",
+          "`bun run --cwd tools/habitat test test/lib/pattern-apply.test.ts test/rules/pattern-views.test.ts test/service/fix-service.test.ts test/rules/registry/contract.test.ts` passed: 34 tests.",
+          "`nx run mod-swooper-maps:check` passed after exporting `DEFAULT_ELEVATION_SCALE` from the actual `@mapgen/domain/morphology/ops` entrypoint.",
+          "Live manifest/support/runner path resolution and canonical JSON coverage reconcile at 118.",
+          "`bun habitat classify .habitat` passed.",
+          "`bun run --cwd tools/habitat check` passed.",
+          "`git diff --check` passed."
+        ],
+        "exclusions": [
+          {
+            "surface": "maps",
+            "reason": "The accepted architecture packet names the first G4 enforcement as `src/recipes/**`; broader map import authority remains policy until matching public surfaces and owner decisions exist."
+          },
+          {
+            "surface": "Nx project boundaries",
+            "reason": "Nx enforces project-plane tag constraints. This rule is an intra-project recipe import-surface rule under `mods/mod-swooper-maps`, so Habitat/Grit remains the current owner."
+          }
+        ],
+        "correction": {
+          "reason": "A proposed script conversion was rejected because this predicate is source-string import syntax and Grit is the native Habitat rail for that shape. Script checks remain appropriate only when path resolution, build/currentness, or data-driven structural proof is genuinely required.",
+          "outcome": "One consolidated Grit rule, no package test junk drawer, no bespoke script."
+        }
       }
     ],
     "remainingPacketNeededCounts": {
       "runtime/source validation": 27,
-      "boundary inversion": 18,
+      "boundary inversion": 15,
       "closed structure inversion": 10,
       "split by owner": 6,
       "positive authority creation": 4,
@@ -244,17 +349,6 @@
     "nextLayer2PacketQueue": [
       {
         "rank": 1,
-        "actionClass": "boundary inversion",
-        "sliceCandidate": "G4 public-domain import matrix",
-        "selectedRows": [
-          "prohibit_relative_domain_reaches_from_recipes_and_maps",
-          "require_public_domain_surfaces_in_recipes_and_maps",
-          "restrict_recipes_to_public_domain_surfaces"
-        ],
-        "reason": "These rows already share one expected remediation: fold into a positive G4 allowed import matrix. They are a coherent boundary-inversion packet candidate."
-      },
-      {
-        "rank": 2,
         "actionClass": "closed structure inversion",
         "sliceCandidate": "standard recipe topology and wrapper-shape inversion",
         "selectedRows": [
@@ -296,33 +390,33 @@
       }
     ],
     "resumeState": {
-      "layer1": "complete and reconciled for 120 current live rules",
-      "layer2": "config-key packet closed by retired-key garbage collection; no replacement package tests, Habitat negative assertions, or schema-authority construction required for these retired literals. Studio recipe-DAG owner metadata repair is also closed.",
+      "layer1": "complete and reconciled for 118 current live rules",
+      "layer2": "G4 recipe public-domain import matrix packet closed and implemented as one consolidated Grit rule; map-source clauses remain excluded pending map-specific authority.",
       "layer3Boundary": "No implementation-ready Layer 3 slice remains in the queue. Select the next Layer 2 packet class from `nextLayer2PacketQueue` before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
   "corpus": {
-    "liveManifestCount": 120,
-    "currentRowCount": 120,
-    "retiredHistoricalRowCount": 7,
+    "liveManifestCount": 118,
+    "currentRowCount": 118,
+    "retiredHistoricalRowCount": 9,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
   "actionClusterCounts": {
-    "no action": 41,
+    "no action": 42,
     "runtime/source validation": 27,
     "split by owner": 6,
     "closed structure inversion": 10,
     "context admission": 9,
     "positive authority creation": 4,
-    "boundary inversion": 18,
+    "boundary inversion": 15,
     "consolidation/dedup": 4,
     "retirement/garbage collection": 1
   },
   "packetNeededCounts": {
-    "no": 50,
-    "yes": 70
+    "no": 51,
+    "yes": 67
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -893,15 +987,6 @@
       "currentPath": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/rule.json"
     },
     {
-      "ruleId": "prohibit_relative_domain_reaches_from_recipes_and_maps",
-      "lane": "blueprints/domain",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Fold into positive G4 allowed import matrix.",
-      "evidenceNote": "One negative slice of recipe/map public-surface import policy.",
-      "currentPath": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/rule.json"
-    },
-    {
       "ruleId": "prohibit_removed_foundation_profile_config_tokens",
       "lane": "domains/foundation",
       "actionDecision": "runtime/source validation",
@@ -1174,10 +1259,10 @@
     {
       "ruleId": "require_public_domain_surfaces_in_recipes_and_maps",
       "lane": "blueprints/domain",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Fold into positive G4 allowed import matrix.",
-      "evidenceNote": "Deep-internal import guard; runner/manual-scan qualification needed.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Preserve as the positive G4 recipe public-domain import matrix.",
+      "evidenceNote": "Domino 58: consolidated overlapping Grit proxy rows into one recipe-only G4 public-domain-surface rule; map clauses excluded until map-specific authority exists.",
       "currentPath": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json"
     },
     {
@@ -1278,15 +1363,6 @@
       "expectedRemediation": "Split terminal `placement/apply` from resource/discovery materialization authority.",
       "evidenceNote": "Terminal apply consumes typed summaries, but discovery materialization still calls official generator; product policy needs separate decision.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/rule.json"
-    },
-    {
-      "ruleId": "restrict_recipes_to_public_domain_surfaces",
-      "lane": "blueprints/domain",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Fold into positive G4 allowed import matrix.",
-      "evidenceNote": "Complement to deep/relative recipe guards.",
-      "currentPath": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/rule.json"
     },
     {
       "ruleId": "validate_boundary_taxonomy_against_workspace_graph",
@@ -1485,6 +1561,26 @@
       "evidenceNote": "This is map/test legacy-token cleanup, not morphology-domain constructible authority.<br>Proof note: selected-rule Grit proof passed; path refs exist",
       "currentPath": null,
       "retirementRecord": ".habitat/workstreams/rule-remediation-config-key-retirement-slice.md"
+    },
+    {
+      "ruleId": "prohibit_relative_domain_reaches_from_recipes_and_maps",
+      "lane": "blueprints/domain",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": true,
+      "expectedRemediation": "Absorbed into `require_public_domain_surfaces_in_recipes_and_maps` positive G4 recipe import matrix.",
+      "evidenceNote": "One negative slice of recipe/map public-surface import policy. Absorbed by Domino 58; maps were excluded from this recipe-only G4 enforcement slice.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-domain-import-matrix-slice.md"
+    },
+    {
+      "ruleId": "restrict_recipes_to_public_domain_surfaces",
+      "lane": "blueprints/domain",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": true,
+      "expectedRemediation": "Absorbed into `require_public_domain_surfaces_in_recipes_and_maps` positive G4 recipe import matrix.",
+      "evidenceNote": "Complement to deep/relative recipe guards. Absorbed by Domino 58; maps were excluded from this recipe-only G4 enforcement slice.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-domain-import-matrix-slice.md"
     }
   ],
   "gateState": {
@@ -1746,9 +1842,9 @@
       }
     ],
     "coverageSummary": {
-      "liveRuleManifests": 120,
-      "liveRulesWithExplicitReceiptRows": 87,
-      "liveRulesWithCompletedPocketSummaryOnly": 17,
+      "liveRuleManifests": 118,
+      "liveRulesWithExplicitReceiptRows": 88,
+      "liveRulesWithCompletedPocketSummaryOnly": 14,
       "liveRulesNotProcessedInDominoesMd": 16,
       "staleDominoReferencesExcludedFromLiveMatrix": 10
     },
@@ -1980,16 +2076,6 @@
         "evidenceNote": "Do not invent per-rule bucket."
       },
       {
-        "ruleId": "prohibit_relative_domain_reaches_from_recipes_and_maps",
-        "currentPlacement": "blueprint=domain; niche=civ7/mapgen/domains; category=boundary; operation=check",
-        "currentPath": ".habitat/blueprints/domain/prohibit_relative_domain_reaches_from_recipes_and_maps/rule.json",
-        "dominoEvidence": "Domino 24 summary",
-        "processStatus": "processed: summary-only",
-        "dispositionBucket": "domain pocket processed; per-rule disposition not specified",
-        "pendingAction": "not specified in dominoes.md",
-        "evidenceNote": "Do not invent per-rule bucket."
-      },
-      {
         "ruleId": "prohibit_retired_domain_root_catalogs",
         "currentPlacement": "blueprint=domain; niche=civ7/mapgen/domains; category=structure; operation=check",
         "currentPath": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/rule.json",
@@ -2013,26 +2099,16 @@
         "ruleId": "require_public_domain_surfaces_in_recipes_and_maps",
         "currentPlacement": "blueprint=domain; niche=civ7/mapgen/domains; category=boundary; operation=check",
         "currentPath": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json",
-        "dominoEvidence": "Domino 24 summary",
-        "processStatus": "processed: summary-only",
-        "dispositionBucket": "domain pocket processed; per-rule disposition not specified",
-        "pendingAction": "not specified in dominoes.md",
-        "evidenceNote": "Do not invent per-rule bucket."
+        "dominoEvidence": "Domino 58",
+        "processStatus": "processed: receipt",
+        "dispositionBucket": "positive G4 recipe public-domain import matrix",
+        "pendingAction": "none for recipe source; map-source clauses excluded pending map-specific authority.",
+        "evidenceNote": "Consolidated Grit rule absorbs the prior recipe deep-tail and relative-domain proxy rows; public morphology ops surface repaired the current violation."
       },
       {
         "ruleId": "require_public_domain_surfaces_in_tests",
         "currentPlacement": "blueprint=domain; niche=civ7/mapgen/domains; category=boundary; operation=check",
         "currentPath": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json",
-        "dominoEvidence": "Domino 24 summary",
-        "processStatus": "processed: summary-only",
-        "dispositionBucket": "domain pocket processed; per-rule disposition not specified",
-        "pendingAction": "not specified in dominoes.md",
-        "evidenceNote": "Do not invent per-rule bucket."
-      },
-      {
-        "ruleId": "restrict_recipes_to_public_domain_surfaces",
-        "currentPlacement": "blueprint=domain; niche=civ7/mapgen/domains; category=boundary; operation=check",
-        "currentPath": ".habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/rule.json",
         "dominoEvidence": "Domino 24 summary",
         "processStatus": "processed: summary-only",
         "dispositionBucket": "domain pocket processed; per-rule disposition not specified",

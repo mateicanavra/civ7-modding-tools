@@ -1,10 +1,10 @@
 import type { MapDimensions } from "@civ7/adapter";
 import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/config.js";
 import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/config.js";
+import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/ops";
 // SINGLE SOURCE OF TRUTH for the absolute-elevation quantization scale: the same constant
 // base topography quantizes with, imported so the margin sculpt derives its profile on the
 // exact engine scale rather than mirroring it as a config field.
-import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/ops/compute-base-topography/rules/index.js";
 import {
   computeSampleStep,
   ctxRandom,

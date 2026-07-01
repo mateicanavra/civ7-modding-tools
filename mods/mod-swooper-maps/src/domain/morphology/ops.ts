@@ -6,6 +6,7 @@ import implementations from "./ops/index.js";
 export default createDomain(domain, implementations);
 
 export { ReliefConfigSchema } from "./ops/compute-base-topography/config.js";
+export { DEFAULT_ELEVATION_SCALE } from "./ops/compute-base-topography/rules/index.js";
 export { CoastConfigSchema } from "./ops/compute-coastline-metrics/config.js";
 export { GeomorphicCycleConfigSchema } from "./ops/compute-geomorphic-cycle/config.js";
 export { LandmaskConfigSchema } from "./ops/compute-landmask/contract.js";
