@@ -4,7 +4,7 @@
   "title": "Prohibit Runtime Local Config Default Merging",
   "placement": {
     "niche": "civ7/mapgen/pipeline/runtime",
-    "blueprint": "_remainder",
+    "blueprint": "_self",
     "category": "execution"
   },
   "operation": {
@@ -28,12 +28,12 @@
   "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md"
     },
     "patternName": "prohibit_runtime_local_config_default_merging"
   }

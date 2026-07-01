@@ -2069,6 +2069,34 @@ Closure note:
 - No package-owned tests were added, and Nx project-boundary policy was not
   changed.
 
+## Domino 87: Admit Runtime Local Config Defaulting Rail
+
+Status: closed on `codex/habitat-runtime-local-config-defaulting-rail`.
+
+Purpose: resolve `prohibit_runtime_local_config_default_merging` without turning
+runtime config/defaulting authority into package tests, a broad config
+blueprint, or a custom script.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_runtime_local_config_default_merging` | Moved from runtime `_remainder` to runtime `rules/` as live Grit source authority. | `.habitat/workstreams/rule-remediation-runtime-local-config-defaulting-rail.md` |
+
+Moves it forward:
+
+- Removes one runtime/source-validation packet-needed row.
+- Keeps static source-shape recurrence protection in Habitat/Grit.
+- Preserves the compile/runtime boundary: stage compile helpers may translate
+  public config into explicit runtime config; runtime steps and domain ops must
+  not hide normalization behind local `?? {}` or `Value.Default(...)`.
+
+Closure note:
+
+- Focused Habitat check passed after the move.
+- A temporary in-scope `args ?? {}` probe failed the rule and was removed.
+- No package-owned tests or replacement MJS script were introduced.
+
 ### 46. Resume Authority Activation Projection Work
 
 Purpose: return to narrow projection, metadata pruning, and runner discovery

@@ -610,6 +610,18 @@
             "reason": "Still spans multiple product tag ownership families."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation plus context admission",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-runtime-local-config-defaulting-rail.md",
+        "branch": "codex/habitat-runtime-local-config-defaulting-rail",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Admitted the runtime-local config defaulting guard from `_remainder` into the runtime rules lane as live Grit source authority; no package tests or MJS conversion introduced.",
+        "selectedRows": [
+          "prohibit_runtime_local_config_default_merging"
+        ],
+        "excludedRows": []
       }
     ],
     "decisionPacketBatches": [
@@ -1722,15 +1734,14 @@
       {
         "kind": "runtime/source residual stop gate",
         "rules": [
-          "enforce_formatting_and_import_hygiene",
-          "prohibit_runtime_local_config_default_merging"
+          "enforce_formatting_and_import_hygiene"
         ],
-        "reason": "The formatting/import hygiene row is a valid workspace gate but currently red from broad workspace drift, so it is not a clean rule-remediation slice. The runtime-local config defaulting row remains a broad `_remainder` Grit proxy and needs handler-scope narrowing or positive config authority before admission/deletion."
+        "reason": "The formatting/import hygiene row is a valid workspace gate but currently red from broad workspace drift, so it is not a clean rule-remediation slice. Runtime-local config defaulting was admitted to runtime rules in Domino 87."
       }
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "MapGen docs anchor rail repaired; public-domain test imports Grit conversion falsified by ignored test-file scan behavior; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
+      "layer2": "Runtime-local config defaulting admitted as live runtime Grit rail; public-domain test imports Grit conversion falsified by ignored test-file scan behavior; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or workspace drift blockers.",
       "layer3Boundary": "Continue only for implementation-ready rows that do not require hairy split, positive-authority/deletion-pair, product ownership, material corpus-boundary decisions, or new Habitat/Grit test-file scan capability.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     },
@@ -1754,16 +1765,16 @@
   },
   "actionClusterCounts": {
     "boundary inversion": 3,
-    "context admission": 26,
+    "context admission": 27,
     "no action": 75,
     "positive authority creation": 4,
-    "runtime/source validation": 2,
+    "runtime/source validation": 1,
     "split by owner": 3
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 2,
+    "runtime/source validation": 1,
     "split by owner": 3
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -2381,12 +2392,12 @@
     },
     {
       "ruleId": "prohibit_runtime_local_config_default_merging",
-      "lane": "pipeline config/contracts/runtime",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace/back with native compile/schema validation after handler scope narrows.",
-      "evidenceNote": "Source scan found no runtime-local `?? {}` or `Value.Default`; defaults belong to compilation.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/rule.json"
+      "lane": "pipeline runtime",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Admitted to runtime rules as live Grit source authority; no further action unless a future positive config/runtime contract absorbs the rail.",
+      "evidenceNote": "Domino 87 admitted the row as a runtime source Grit rail: docs and source show config normalization/defaulting belongs to compile/schema boundaries, while runtime recipe steps and domain ops consume canonical config. The predicate is already scoped to runtime step/op files and excludes stage compile helpers. Focused check passed, and a temporary `args ?? {}` probe in `mods/mod-swooper-maps/src/domain/ecology/ops/score-shared/index.ts` failed the rule.",
+      "currentPath": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/rule.json"
     },
     {
       "ruleId": "prohibit_runtime_orchestration_helpers_in_domain_ops",
@@ -2944,7 +2955,7 @@
   ],
   "gateState": {
     "currentLayer": "Layer 1 source-backed action classification; Layer 2/3 slices recorded separately",
-    "currentGate": "Layer 2/3 cascade resumed for deterministic rows; public-domain test import Grit conversion falsified and kept as packet-needed blocker. Re-read remaining queue before selecting another slice.",
+    "currentGate": "Layer 2/3 cascade resumed for deterministic rows; runtime-local config defaulting admitted, public-domain test import Grit conversion falsified. Re-read remaining queue before selecting another slice.",
     "mutationAuthorization": "none from this matrix; use a slice record before mutation"
   },
   "laneAgentMap": [
@@ -3316,11 +3327,11 @@
       },
       {
         "ruleId": "prohibit_runtime_local_config_default_merging",
-        "remediationAction": "runtime/source validation",
-        "implementationReadiness": "not ready",
-        "expectedHomeAction": "Runtime source-validation rail for handler defaulting.",
-        "domino50Status": "retained `_remainder`",
-        "blockerOrProof": "Narrow handler path model and prove compile/schema normalization is the defaulting rail."
+        "remediationAction": "runtime/source validation; executed",
+        "implementationReadiness": "executed",
+        "expectedHomeAction": "Runtime rules source-validation rail.",
+        "domino50Status": "moved to runtime/rules",
+        "blockerOrProof": "Focused Habitat check passed after move; temporary in-scope `?? {}` probe failed. Stage compile defaulting remains allowed outside this runtime predicate."
       }
     ],
     "currentRows": [
@@ -3964,13 +3975,13 @@
       },
       {
         "ruleId": "prohibit_runtime_local_config_default_merging",
-        "currentPlacement": "blueprint=_remainder; niche=civ7/mapgen/pipeline/runtime; category=execution; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/rule.json",
-        "dominoEvidence": "Domino 35",
+        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/runtime; category=execution; operation=check",
+        "currentPath": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/rule.json",
+        "dominoEvidence": "Domino 35, Domino 87",
         "processStatus": "processed: receipt",
-        "dispositionBucket": "cleanup/consolidation/split pressure",
-        "pendingAction": "Borderline runtime/config rules should move out of parent pipeline but remain visual debt until their source surface is precise.",
-        "evidenceNote": "The intended boundary is runtime consuming normalized config, but the current scan is broad enough that it should not become stable runtime `rules` authority before the handler surface is narrowed or split.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "dispositionBucket": "runtime source Grit authority",
+        "pendingAction": "No pending action; admitted from `_remainder` because the rule is already scoped to runtime step/op files and proved by focused check plus temporary probe.",
+        "evidenceNote": "Domino 87 admitted the row as a runtime source Grit rail: docs and source show config normalization/defaulting belongs to compile/schema boundaries, while runtime recipe steps and domain ops consume canonical config. The predicate is already scoped to runtime step/op files and excludes stage compile helpers. Focused check passed, and a temporary `args ?? {}` probe in `mods/mod-swooper-maps/src/domain/ecology/ops/score-shared/index.ts` failed the rule."
       },
       {
         "ruleId": "prohibit_runtime_calls_to_runvalidated",
