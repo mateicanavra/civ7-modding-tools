@@ -496,6 +496,34 @@
             "reason": "Generated catalog hygiene involves generator/output currentness and is not equivalent to these native metadata/config validation rails."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-generated-output-and-projection-native-rails.md",
+        "branch": "codex/habitat-generated-output-projection-rails",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed stale packet-needed state for four rules whose existing Habitat scripts are the correct rails for generated output, built output, and required projection callsite/currentness proof.",
+        "selectedRows": [
+          "block_studio_config_leakage_into_shipped_catalog",
+          "validate_generated_map_entrypoint_contracts",
+          "ensure_studio_worker_bundle_is_browser_safe",
+          "require_projection_calls_in_projection_steps"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "preserve_decomposed_foundation_contract_surfaces",
+            "reason": "Mixed required contract/artifact presence and import-source proof across foundation files; requires separate deeper source-validation design."
+          },
+          {
+            "ruleId": "preserve_evidence_provenance_labels",
+            "reason": "Generated resource proof depends on unavailable official resources submodule in this worktree."
+          },
+          {
+            "ruleId": "prohibit_runtime_local_config_default_merging",
+            "reason": "Runtime config/defaulting remainder row remains broader and needs handler-scope narrowing before mutation."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1340,12 +1368,83 @@
           "`bun habitat check --rule validate_docs_site_config_inputs --json` passed.",
           "`bun habitat check --rule verify_visualization_runtime_build_artifacts --json` passed."
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceCandidate": "generated output and projection native rails retention",
+        "status": "closed-by-existing-native-validation-surface",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/rule.json",
+          ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts",
+          ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/rule.json",
+          ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts",
+          ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/rule.json",
+          ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/check.mjs",
+          "mods/mod-swooper-maps/mod/config/config.xml",
+          "mods/mod-swooper-maps/mod/swooper-maps.modinfo",
+          "mods/mod-swooper-maps/mod/text/en_us/MapText.xml",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "block_studio_config_leakage_into_shipped_catalog",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain generated mod catalog leakage guard; it verifies shipped XML/modinfo output does not include transient Studio config identifiers.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "validate_generated_map_entrypoint_contracts",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain generated map entrypoint contract validator; it verifies generated map SDK entrypoints against canonical public config envelopes and hashes.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "ensure_studio_worker_bundle_is_browser_safe",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain Studio browser-worker bundle preflight; it verifies built dist output remains browser-safe and free of runtime/Node references.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          },
+          {
+            "ruleId": "require_projection_calls_in_projection_steps",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing native validation surface",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain map projection owner-callsite validator; it checks required positive callsites/materialization tokens plus a retired contract token absence across exact files.",
+            "proofLimit": "Focused Habitat proof validates the current native rail. This does not mutate authority-tree placement or move validation into package-owned tests."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule block_studio_config_leakage_into_shipped_catalog --json` passes.",
+          "`bun habitat check --rule validate_generated_map_entrypoint_contracts --json` passes.",
+          "`bun habitat check --rule ensure_studio_worker_bundle_is_browser_safe --json` passes.",
+          "`bun habitat check --rule require_projection_calls_in_projection_steps --json` passes.",
+          "Canonical JSON packet-needed runtime/source-validation count drops by four."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule block_studio_config_leakage_into_shipped_catalog --json` passed.",
+          "`bun habitat check --rule validate_generated_map_entrypoint_contracts --json` passed.",
+          "`bun habitat check --rule ensure_studio_worker_bundle_is_browser_safe --json` passed.",
+          "`bun habitat check --rule require_projection_calls_in_projection_steps --json` passed.",
+          "Direct source/output token scans matched the retained native proof shape where applicable."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
-      "runtime/source validation": 9,
+      "runtime/source validation": 5,
       "split by owner": 6
     },
     "implementationReadySliceQueue": [],
@@ -1391,7 +1490,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Native validation surfaces retained for host protected surfaces, boundary taxonomy, docs site links/config, Habitat CLI smoke, and MapGen visualization runtime preflight; no implementation-ready Layer 3 queue remains after closure.",
+      "layer2": "Generated output and projection native rails retained for shipped catalog leakage, generated map entrypoint contracts, Studio worker bundle browser safety, and projection callsite/currentness proof; no implementation-ready Layer 3 queue remains after closure.",
       "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1406,15 +1505,15 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 65,
+    "no action": 69,
     "positive authority creation": 4,
-    "runtime/source validation": 9,
+    "runtime/source validation": 5,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 9,
+    "runtime/source validation": 5,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -1466,10 +1565,10 @@
     {
       "ruleId": "block_studio_config_leakage_into_shipped_catalog",
       "lane": "mixed blueprints",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Choose generator/package/data rail for shipped catalog hygiene.",
-      "evidenceNote": "Rule reads generated output; generated output proves generation, not policy.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain generated mod catalog leakage guard; it verifies shipped XML/modinfo output does not include transient Studio config identifiers.",
+      "evidenceNote": "Focused Habitat proof passes and direct token scan is clean. This is generated-output hygiene over shipped mod files, not a package behavior test or Nx boundary.",
       "currentPath": ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/rule.json"
     },
     {
@@ -1538,10 +1637,10 @@
     {
       "ruleId": "ensure_studio_worker_bundle_is_browser_safe",
       "lane": "MapGen Studio",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move toward build/bundle validation over source/generated output.",
-      "evidenceNote": "Current check reads generated `dist`; ADR/docs support browser-safe worker boundary.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain Studio browser-worker bundle preflight; it verifies built dist output remains browser-safe and free of runtime/Node references.",
+      "evidenceNote": "Focused Habitat proof passes. This is built-output/runtime preflight authority, not source-shape Grit or package behavior-test clutter.",
       "currentPath": ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/rule.json"
     },
     {
@@ -2213,10 +2312,10 @@
     {
       "ruleId": "require_projection_calls_in_projection_steps",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move token-level positive check to source/runtime validation of projection behavior/contracts.",
-      "evidenceNote": "Script asserts exact callsite tokens and `plotRivers` metadata.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain map projection owner-callsite validator; it checks required positive callsites/materialization tokens plus a retired contract token absence across exact files.",
+      "evidenceNote": "Focused Habitat proof passes and source evidence shows the required projection calls/materialization tokens are present. This mixed required-presence/currentness shape is better kept as a packet-local Habitat script than forced into Grit.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/rule.json"
     },
     {
@@ -2357,10 +2456,10 @@
     {
       "ruleId": "validate_generated_map_entrypoint_contracts",
       "lane": "mixed blueprints",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move toward generator/package-local validation or Nx freshness.",
-      "evidenceNote": "Current check validates generated entrypoints against canonical configs and hashes.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain generated map entrypoint contract validator; it verifies generated map SDK entrypoints against canonical public config envelopes and hashes.",
+      "evidenceNote": "Focused Habitat proof passes. The script imports recipe/config authority and validates generated output currentness, which is not expressible as a single Grit source pattern or Nx boundary.",
       "currentPath": ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/rule.json"
     },
     {
@@ -3141,7 +3240,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained mod-map blueprint; stale map-output niche removed",
         "pendingAction": "Keep with mod-map shipped catalog authority, contextualized by the Swooper Maps standard recipe lane.",
-        "evidenceNote": "Domino 45 map-output closure: shipped catalog metadata is a generated/shipped output of the current Swooper Maps standard recipe map lane, not a standalone map-output or mod-integration niche."
+        "evidenceNote": "Focused Habitat proof passes and direct token scan is clean. This is generated-output hygiene over shipped mod files, not a package behavior test or Nx boundary.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain generated mod catalog leakage guard; it verifies shipped XML/modinfo output does not include transient Studio config identifiers."
       },
       {
         "ruleId": "protect_generated_map_entrypoints_from_hand_edits",
@@ -3161,7 +3263,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained mod-map blueprint; stale map-output niche removed",
         "pendingAction": "Keep with mod-map generated entrypoint contract authority, contextualized by the Swooper Maps standard recipe lane.",
-        "evidenceNote": "Domino 45 map-output closure: the predicate imports `STANDARD_STAGES`, validates canonical map configs, and checks generated entrypoints, so the current context is the standard recipe lane rather than a standalone output niche."
+        "evidenceNote": "Focused Habitat proof passes. The script imports recipe/config authority and validates generated output currentness, which is not expressible as a single Grit source pattern or Nx boundary.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain generated map entrypoint contract validator; it verifies generated map SDK entrypoints against canonical public config envelopes and hashes."
       },
       {
         "ruleId": "prohibit_sibling_stage_private_step_imports",
@@ -3733,7 +3838,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "standard-recipe map stage context",
         "pendingAction": "Revisit after projection-step parameterization or split work can name generic required-callsite governance.",
-        "evidenceNote": "Domino 41 moved this into `stages/map/rules` because the runner checks exact standard map projection files as a coherent context guard."
+        "evidenceNote": "Focused Habitat proof passes and source evidence shows the required projection calls/materialization tokens are present. This mixed required-presence/currentness shape is better kept as a packet-local Habitat script than forced into Grit.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain map projection owner-callsite validator; it checks required positive callsites/materialization tokens plus a retired contract token absence across exact files."
       },
       {
         "ruleId": "require_standard_recipe_map_effect_name_suffixes",
@@ -3818,7 +3926,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained Studio browser-worker lane placement",
         "pendingAction": "Revisit if a future worker blueprint kind admits shared browser-worker requirements.",
-        "evidenceNote": "Domino 42 non-move: this is Studio worker runtime safety; artifacts are an allowed boundary, not the owner."
+        "evidenceNote": "Focused Habitat proof passes. This is built-output/runtime preflight authority, not source-shape Grit or package behavior-test clutter.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain Studio browser-worker bundle preflight; it verifies built dist output remains browser-safe and free of runtime/Node references."
       },
       {
         "ruleId": "enforce_studio_dev_runner_topology",
