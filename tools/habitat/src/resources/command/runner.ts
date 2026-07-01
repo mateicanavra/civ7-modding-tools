@@ -47,7 +47,7 @@ function runLiveCommand(
       ...request,
       executable: commandRequest.executable,
       argv: commandRequest.argv,
-      cwd: commandRequest.cwd ?? request.cwd,
+      cwd: request.cwd,
     };
     const timeoutMs = request.timeoutMs ?? config.timeoutPolicy.commandTimeoutMs;
     const execution = executeLiveCommand(request, effectiveRequest, commandRequest.executionPlane);
@@ -161,7 +161,7 @@ export function runSyncHabitatCommand(request: HabitatProcessRequest): HabitatCo
     ...request,
     executable: command.executable,
     argv: command.argv,
-    cwd: command.cwd ?? request.cwd,
+    cwd: request.cwd,
   };
   const startedMs = currentTimeMillis();
   const startedAt = epochMillisToIsoString(startedMs);

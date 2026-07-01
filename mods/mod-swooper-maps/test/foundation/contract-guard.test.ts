@@ -67,37 +67,6 @@ describe("foundation contract guardrails", () => {
     expect(text).toContain("volcanism");
   });
 
-  it("does not import domain config bag schemas from op contracts", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const foundationOpsDir = path.join(repoRoot, "src/domain/foundation/ops");
-    const contractFiles = listFilesRecursive(foundationOpsDir).filter((file) =>
-      file.endsWith(path.join("contract.ts"))
-    );
-
-    expect(contractFiles.length).toBeGreaterThan(0);
-
-    for (const file of contractFiles) {
-      const text = readFileSync(file, "utf8");
-      expect(text).not.toContain("@mapgen/domain/config");
-      expect(text).not.toContain("FoundationConfigSchema");
-    }
-  });
-
-  it("does not import domain config bags from the foundation step contracts", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const contractFiles = foundationStageDirs(repoRoot).flatMap((dir) =>
-      listFilesRecursive(dir).filter((file) => file.endsWith("contract.ts"))
-    );
-
-    expect(contractFiles.length).toBeGreaterThan(0);
-
-    for (const file of contractFiles) {
-      const text = readFileSync(file, "utf8");
-      expect(text).not.toContain("@mapgen/domain/config");
-      expect(text).not.toContain("FoundationConfigSchema");
-    }
-  });
-
   it("does not reintroduce legacy plate kinematics on plateGraph", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const contractFile = path.join(

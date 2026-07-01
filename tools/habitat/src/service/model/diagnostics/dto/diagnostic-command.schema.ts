@@ -2,6 +2,7 @@ import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
+import path from "node:path";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import type { DiagnosticProviderFailureKind } from "../errors/diagnostic-provider.errors.js";
@@ -198,7 +199,7 @@ export function nativeGritCheckRequestFromProcessRequest(input: {
   return Value.Parse(NativeGritCheckRequestSchema, {
     commandFamily: input.commandFamily,
     commandInvocationId: input.request.commandId,
-    executable: input.request.executable,
+    executable: nativeGritExecutableName(input.request.executable),
     argv: [...input.request.argv],
     cwd: input.request.cwd,
     scanRoots: [...(input.request.scanRoots ?? [])],
@@ -217,13 +218,18 @@ export function nativeGritCheckRequestFromCommandResult(
   return Value.Parse(NativeGritCheckRequestSchema, {
     commandFamily: outputContract === "json-report" ? "current-tree-json-check" : "docs-text-check",
     commandInvocationId: commandResult.commandId,
-    executable: commandResult.executable,
+    executable: nativeGritExecutableName(commandResult.executable),
     argv: [...commandResult.argv],
     cwd: commandResult.cwd,
     scanRoots: [...commandResult.scanRoots],
     outputContract,
     cacheRequirement,
   });
+}
+
+function nativeGritExecutableName(executable: string): "grit" {
+  if (path.basename(executable) === "grit") return "grit";
+  return executable as "grit";
 }
 
 export function diagnosticCacheObservationFromCommand(

@@ -456,7 +456,7 @@ describe("Grit check provider parser and diagnostics", () => {
     });
   });
 
-  test("runs selected Grit rules through one argument-array command request", async () => {
+  test("runs selected source Grit rules through their declared packet pattern", async () => {
     const rule = fakeGritRule(
       "enforce_adapter_only_base_standard_imports",
       "adapter_base_standard_import"
@@ -490,9 +490,15 @@ describe("Grit check provider parser and diagnostics", () => {
     });
 
     expect(observedRequest).toMatchObject({
-      executable: "grit",
-      argv: ["--json", "check", "--level", "error", "packages"],
-      cwd: repoRoot,
+      executable: `${repoRoot}/node_modules/.bin/grit`,
+      argv: [
+        "--json",
+        "check",
+        "--level",
+        "error",
+        "packages",
+      ],
+      cwd: expect.stringContaining("habitat-grit-check-"),
       scanRoots: ["packages"],
       timeoutMs: defaultGritCommandTimeoutMs,
       cachePolicy: {
@@ -507,10 +513,15 @@ describe("Grit check provider parser and diagnostics", () => {
       FORCE_COLOR: "0",
       NO_COLOR: "1",
     });
-    expect(results.get(rule.id)?.diagnostics[0]?.message).toBe("adapter finding");
+    expect(results.get(rule.id)?.diagnostics[0]).toMatchObject({
+      ruleId: rule.id,
+      path: "packages/example/src/demo.ts",
+      line: 1,
+      message: "adapter finding",
+    });
   });
 
-  test("runs broad source batches once through the Grit provider", async () => {
+  test("runs broad source selections through one materialized Grit catalog per scan root", async () => {
     const firstRule = fakeGritRule("source-one", "source_one", { scanRoots: ["packages"] });
     const secondRule = fakeGritRule("source-two", "source_two", { scanRoots: ["packages"] });
     const observedRequests: HabitatProcessRequest[] = [];
@@ -545,9 +556,14 @@ describe("Grit check provider parser and diagnostics", () => {
     });
 
     expect(observedRequests).toHaveLength(1);
-    expect(observedRequests.map((request) => request.argv)).toEqual([
-      ["--json", "check", "--level", "error", "packages"],
+    expect(observedRequests[0]?.argv).toEqual([
+      "--json",
+      "check",
+      "--level",
+      "error",
+      "packages",
     ]);
+    expect(observedRequests[0]?.cwd).toContain("habitat-grit-check-");
     expect(results.get(firstRule.id)?.diagnostics[0]?.message).toBe("source one finding");
     expect(results.get(secondRule.id)?.diagnostics[0]?.message).toBe("source two finding");
   });
@@ -594,9 +610,24 @@ describe("Grit check provider parser and diagnostics", () => {
 
     expect(observedRequests.map((request) => request.argv).sort()).toEqual(
       [
-        ["--json", "check", "--level", "error", "mods/mod-swooper-maps/src/domain"],
-        ["--json", "check", "--level", "error", "packages/sdk/src"],
+        [
+          "--json",
+          "check",
+          "--level",
+          "error",
+          "mods/mod-swooper-maps/src/domain",
+        ],
+        [
+          "--json",
+          "check",
+          "--level",
+          "error",
+          "packages/sdk/src",
+        ],
       ].sort()
+    );
+    expect(observedRequests.every((request) => request.cwd.includes("habitat-grit-check-"))).toBe(
+      true
     );
     expect(results.get(packagesRule.id)?.diagnostics).toEqual([
       {
@@ -908,6 +939,7 @@ Processed 2 files and found 1 matches
       "error",
       "mods/mod-swooper-maps/src/maps",
     ]);
+    expect(observedRequests[0]?.cwd).toContain("habitat-grit-check-");
     expect(observedRequests[1]?.argv.slice(0, 2)).toEqual(["apply", relocatedPatternPath]);
     expect(observedRequests[1]?.argv).toContain("docs");
     expect(observedRequests[1]?.argv.slice(-4)).toEqual([
@@ -1115,7 +1147,10 @@ function fakeGritRule(
     message: "test rule",
     runner: {
       name: "grit",
-      files: { pattern: `.habitat/test/${pattern}/pattern.md` },
+      files: {
+        pattern:
+          ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
+      },
       patternName: pattern,
     },
     scanRoots: ["packages"],

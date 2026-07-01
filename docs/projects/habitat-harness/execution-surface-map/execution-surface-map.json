@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 560,
+    "totalSurfaces": 561,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
@@ -18,7 +18,7 @@
       "nx-target": 55,
       "nx-plugin": 1,
       "nx-target-default": 9,
-      "habitat-cli-source": 124
+      "habitat-cli-source": 125
     },
     "surfacesByRole": {
       "command_check_executor": 34,
@@ -27,23 +27,23 @@
       "structure_authority": 5,
       "operation_surface": 6,
       "workspace_entrypoint": 203,
-      "toolkit_runner": 124
+      "toolkit_runner": 125
     },
     "entrypointsByInvoker": {
       "unknown": 231,
       "package": 140,
       "nx": 65,
       "direct-script": 3,
-      "habitat": 124
+      "habitat": 125
     },
     "surfacesByBucket": {
       "package_boundary_tie": 91,
       "unknown_invocation": 231,
       "nx_ordering_tie": 101,
-      "mutation_surface": 114,
+      "mutation_surface": 115,
       "package_invoked": 205,
       "direct_script_invoked": 3,
-      "habitat_invoked": 124
+      "habitat_invoked": 125
     },
     "sanityAssertions": []
   },
@@ -54,7 +54,7 @@
       "policy-predicate": 78,
       "transient-dependency": 98,
       "entrypoint": 205,
-      "runner-runtime": 124
+      "runner-runtime": 125
     },
     "ruleModule": {
       "total": 0,
@@ -66,6 +66,24 @@
     }
   },
   "topCrossBoundaryTiesByFanout": [
+    {
+      "target": "grit\nlanguage js(typescript)\n\nor {",
+      "targetClass": "workspace-tool",
+      "references": 24,
+      "sourceCount": 24,
+      "sampleSources": [
+        ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
+        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md",
+        ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md",
+        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
+        ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md",
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md"
+      ]
+    },
     {
       "target": "@habitat/cli/resources/command/index",
       "targetClass": "habitat-toolkit",
@@ -103,24 +121,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nor {",
-      "targetClass": "workspace-tool",
-      "references": 22,
-      "sourceCount": 22,
-      "sampleSources": [
-        ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
-        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md",
-        ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md",
-        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
-        ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md"
-      ]
-    },
-    {
       "target": "@habitat/cli/service/model/check/index",
       "targetClass": "habitat-toolkit",
       "references": 21,
@@ -136,6 +136,24 @@
         "tools/habitat/src/service/model/check/policy/structural/selection.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/source-execution.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/state.policy.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/service/model/rules/index",
+      "targetClass": "habitat-toolkit",
+      "references": 17,
+      "sourceCount": 17,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/diagnostics.ts",
+        "tools/habitat/src/providers/grit/docs-apply.ts",
+        "tools/habitat/src/providers/grit/failure.ts",
+        "tools/habitat/src/providers/grit/resource.ts",
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/scan-roots/index.ts",
+        "tools/habitat/src/providers/grit/source-check.ts",
+        "tools/habitat/src/providers/nx/rule-registry-loader.ts",
+        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
+        "tools/habitat/src/service/model/check/policy/structural/context.policy.ts"
       ]
     },
     {
@@ -157,24 +175,6 @@
       ]
     },
     {
-      "target": "@habitat/cli/service/model/rules/index",
-      "targetClass": "habitat-toolkit",
-      "references": 16,
-      "sourceCount": 16,
-      "sampleSources": [
-        "tools/habitat/src/providers/grit/diagnostics.ts",
-        "tools/habitat/src/providers/grit/docs-apply.ts",
-        "tools/habitat/src/providers/grit/failure.ts",
-        "tools/habitat/src/providers/grit/resource.ts",
-        "tools/habitat/src/providers/grit/runner.ts",
-        "tools/habitat/src/providers/grit/scan-roots/index.ts",
-        "tools/habitat/src/providers/nx/rule-registry-loader.ts",
-        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
-        "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
-        "tools/habitat/src/service/model/check/policy/structural/execution.policy.ts"
-      ]
-    },
-    {
       "target": "node -e \"\"",
       "targetClass": "workspace-tool",
       "references": 15,
@@ -190,6 +190,24 @@
         "packages/civ7-control-orpc/project.json#targets.check",
         "packages/cli/package.json#scripts.prepack",
         "packages/cli/package.json#scripts.prepublishOnly"
+      ]
+    },
+    {
+      "target": "./types.js",
+      "targetClass": "relative",
+      "references": 23,
+      "sourceCount": 12,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
+        "tools/habitat/src/providers/grit/diagnostics.ts",
+        "tools/habitat/src/providers/grit/index.ts",
+        "tools/habitat/src/providers/grit/output.ts",
+        "tools/habitat/src/providers/grit/request.ts",
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/source-check.ts",
+        "tools/habitat/src/resources/command/fake.ts",
+        "tools/habitat/src/resources/command/index.ts",
+        "tools/habitat/src/resources/command/output.ts"
       ]
     },
     {
@@ -211,24 +229,6 @@
       ]
     },
     {
-      "target": "./types.js",
-      "targetClass": "relative",
-      "references": 21,
-      "sourceCount": 11,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
-        "tools/habitat/src/providers/grit/diagnostics.ts",
-        "tools/habitat/src/providers/grit/index.ts",
-        "tools/habitat/src/providers/grit/output.ts",
-        "tools/habitat/src/providers/grit/request.ts",
-        "tools/habitat/src/providers/grit/runner.ts",
-        "tools/habitat/src/resources/command/fake.ts",
-        "tools/habitat/src/resources/command/index.ts",
-        "tools/habitat/src/resources/command/output.ts",
-        "tools/habitat/src/resources/command/runner.ts"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/",
       "targetClass": "mod",
       "references": 11,
@@ -244,6 +244,24 @@
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/pattern.md",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/pattern.md",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact/pattern.md"
+      ]
+    },
+    {
+      "target": "@habitat/cli/service/model/diagnostics/index",
+      "targetClass": "habitat-toolkit",
+      "references": 10,
+      "sourceCount": 10,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/diagnostics.ts",
+        "tools/habitat/src/providers/grit/docs-apply.ts",
+        "tools/habitat/src/providers/grit/failure.ts",
+        "tools/habitat/src/providers/grit/output.ts",
+        "tools/habitat/src/providers/grit/request.ts",
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/scan-roots/index.ts",
+        "tools/habitat/src/providers/grit/source-check.ts",
+        "tools/habitat/src/service/model/check/dto/check.schema.ts",
+        "tools/habitat/src/service/model/check/policy/summaries.policy.ts"
       ]
     },
     {
@@ -335,23 +353,6 @@
       ]
     },
     {
-      "target": "@habitat/cli/service/model/diagnostics/index",
-      "targetClass": "habitat-toolkit",
-      "references": 9,
-      "sourceCount": 9,
-      "sampleSources": [
-        "tools/habitat/src/providers/grit/diagnostics.ts",
-        "tools/habitat/src/providers/grit/docs-apply.ts",
-        "tools/habitat/src/providers/grit/failure.ts",
-        "tools/habitat/src/providers/grit/output.ts",
-        "tools/habitat/src/providers/grit/request.ts",
-        "tools/habitat/src/providers/grit/runner.ts",
-        "tools/habitat/src/providers/grit/scan-roots/index.ts",
-        "tools/habitat/src/service/model/check/dto/check.schema.ts",
-        "tools/habitat/src/service/model/check/policy/summaries.policy.ts"
-      ]
-    },
-    {
       "target": "mods/",
       "targetClass": "mod",
       "references": 9,
@@ -369,6 +370,22 @@
       ]
     },
     {
+      "target": "./request.js",
+      "targetClass": "relative",
+      "references": 16,
+      "sourceCount": 8,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/index.ts",
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/source-check.ts",
+        "tools/habitat/src/resources/command/index.ts",
+        "tools/habitat/src/resources/command/observation.ts",
+        "tools/habitat/src/resources/command/result.ts",
+        "tools/habitat/src/resources/command/service.ts",
+        "tools/habitat/src/resources/command/types.ts"
+      ]
+    },
+    {
       "target": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
       "targetClass": "relative",
       "references": 14,
@@ -381,21 +398,6 @@
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/check.mjs",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/check.mjs"
-      ]
-    },
-    {
-      "target": "./request.js",
-      "targetClass": "relative",
-      "references": 14,
-      "sourceCount": 7,
-      "sampleSources": [
-        "tools/habitat/src/providers/grit/index.ts",
-        "tools/habitat/src/providers/grit/runner.ts",
-        "tools/habitat/src/resources/command/index.ts",
-        "tools/habitat/src/resources/command/observation.ts",
-        "tools/habitat/src/resources/command/result.ts",
-        "tools/habitat/src/resources/command/service.ts",
-        "tools/habitat/src/resources/command/types.ts"
       ]
     },
     {
@@ -485,6 +487,34 @@
         "tools/habitat/src/service/model/check/policy/structural/index.ts",
         "tools/habitat/src/service/model/check/policy/structural/report.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/source-execution.policy.ts"
+      ]
+    },
+    {
+      "target": "./output.js",
+      "targetClass": "relative",
+      "references": 12,
+      "sourceCount": 6,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/index.ts",
+        "tools/habitat/src/providers/grit/request.ts",
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/source-check.ts",
+        "tools/habitat/src/resources/command/index.ts",
+        "tools/habitat/src/resources/command/runner.ts"
+      ]
+    },
+    {
+      "target": "./scan-roots/index.js",
+      "targetClass": "relative",
+      "references": 12,
+      "sourceCount": 6,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/diagnostics.ts",
+        "tools/habitat/src/providers/grit/docs-apply.ts",
+        "tools/habitat/src/providers/grit/index.ts",
+        "tools/habitat/src/providers/grit/request.ts",
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/source-check.ts"
       ]
     },
     {
@@ -598,29 +628,16 @@
       ]
     },
     {
-      "target": "./output.js",
+      "target": "./resource.js",
       "targetClass": "relative",
       "references": 10,
       "sourceCount": 5,
       "sampleSources": [
-        "tools/habitat/src/providers/grit/index.ts",
-        "tools/habitat/src/providers/grit/request.ts",
-        "tools/habitat/src/providers/grit/runner.ts",
-        "tools/habitat/src/resources/command/index.ts",
-        "tools/habitat/src/resources/command/runner.ts"
-      ]
-    },
-    {
-      "target": "./scan-roots/index.js",
-      "targetClass": "relative",
-      "references": 10,
-      "sourceCount": 5,
-      "sampleSources": [
-        "tools/habitat/src/providers/grit/diagnostics.ts",
         "tools/habitat/src/providers/grit/docs-apply.ts",
         "tools/habitat/src/providers/grit/index.ts",
         "tools/habitat/src/providers/grit/request.ts",
-        "tools/habitat/src/providers/grit/runner.ts"
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/source-check.ts"
       ]
     },
     {
@@ -772,18 +789,6 @@
         "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-record.schema.ts",
         "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-request.schema.ts",
         "tools/habitat/src/service/modules/fix/model/dto/transaction-input.schema.ts"
-      ]
-    },
-    {
-      "target": "./resource.js",
-      "targetClass": "relative",
-      "references": 8,
-      "sourceCount": 4,
-      "sampleSources": [
-        "tools/habitat/src/providers/grit/docs-apply.ts",
-        "tools/habitat/src/providers/grit/index.ts",
-        "tools/habitat/src/providers/grit/request.ts",
-        "tools/habitat/src/providers/grit/runner.ts"
       ]
     },
     {
@@ -999,6 +1004,17 @@
         "tools/habitat/src/service/modules/verify/model/policy/nx-affected.policy.ts",
         "tools/habitat/src/service/modules/verify/model/policy/post-state.policy.ts",
         "tools/habitat/src/service/modules/verify/model/policy/receipt.policy.ts"
+      ]
+    },
+    {
+      "target": "./diagnostics.js",
+      "targetClass": "relative",
+      "references": 6,
+      "sourceCount": 3,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/index.ts",
+        "tools/habitat/src/providers/grit/runner.ts",
+        "tools/habitat/src/providers/grit/source-check.ts"
       ]
     },
     {
@@ -1226,16 +1242,6 @@
       "sampleSources": [
         "tools/habitat/src/service/modules/hook/model/policy/procedure-context.policy.ts",
         "tools/habitat/src/service/modules/hook/model/policy/procedure-operations.policy.ts"
-      ]
-    },
-    {
-      "target": "./diagnostics.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/providers/grit/index.ts",
-        "tools/habitat/src/providers/grit/runner.ts"
       ]
     },
     {
@@ -1676,16 +1682,6 @@
       "sampleSources": [
         "tools/habitat/src/providers/git/index.ts",
         "tools/habitat/src/resources/command/request.ts"
-      ]
-    },
-    {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },",
-      "targetClass": "workspace-tool",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_step_contract_config_bags/pattern.md"
       ]
     },
     {
@@ -2642,6 +2638,15 @@
       ]
     },
     {
+      "target": "./source-check.js",
+      "targetClass": "relative",
+      "references": 2,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/runner.ts"
+      ]
+    },
+    {
       "target": "./source-rules.policy.js",
       "targetClass": "relative",
       "references": 2,
@@ -2702,6 +2707,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh"
+      ]
+    },
+    {
+      "target": "../..",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/package.json#scripts.analyze:execution-surface"
       ]
     },
     {
@@ -2882,6 +2896,33 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md"
+      ]
+    },
+    {
+      "target": "../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/package.json#scripts.analyze:execution-surface"
+      ]
+    },
+    {
+      "target": "../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/package.json#scripts.analyze:execution-surface"
+      ]
+    },
+    {
+      "target": "../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/package.json#scripts.analyze:execution-surface"
       ]
     },
     {
@@ -4262,7 +4303,7 @@
       ]
     },
     {
-      "target": "bun run scripts/execution-surface-map.ts",
+      "target": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -4790,6 +4831,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/service/model/check/policy/structural/source-execution.policy.ts"
+      ]
+    },
+    {
+      "target": "grit.yaml",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/source-check.ts"
       ]
     },
     {
@@ -12997,7 +13047,7 @@
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -13010,7 +13060,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
           }
         ]
@@ -16654,7 +16704,7 @@
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -16667,7 +16717,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
           }
         ]
@@ -26989,7 +27039,7 @@
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -27002,7 +27052,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
           }
         ]
@@ -30646,7 +30696,7 @@
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -30659,7 +30709,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $source <: r\".*@mapgen/domain/config.*\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
           }
         ]
@@ -46926,7 +46976,7 @@
         "packagePath": "tools/habitat/package.json",
         "packageName": "@habitat/cli",
         "name": "analyze:execution-surface",
-        "command": "bun run scripts/execution-surface-map.ts"
+        "command": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -46935,15 +46985,35 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bun run scripts/execution-surface-map.ts"
+          "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
+            "kind": "path-reference",
+            "value": "../..",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md",
+            "targetClass": "relative"
+          },
+          {
             "kind": "shell-command",
-            "value": "bun run scripts/execution-surface-map.ts",
+            "value": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
             "targetClass": "workspace-tool"
           }
         ]
@@ -48881,8 +48951,8 @@
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [
-          "Effect.gen(function* () {\n      const scanRootDecision = decidePatternScanRoots(scanRoots, {\n        repoRoot: options.repoRoot,\n        allowDocsRoot: options.allowDocsRoot,\n      });\n      if (scanRootDecision.kind === \"refused\") {\n        return {\n          kind: \"scan-root-refused\" as const,\n          decision: scanRootDecision,\n          message: renderDiagnosticScanRootRefusal(scanRootDecision),\n          command: { kind: \"not-run\" as const, reason: \"scan-root-refused\" as const },\n        };\n      }\n      const cacheRequirement = diagnosticCacheRequirementForGritCheck({\n        cacheMode: options.cacheMode,\n        requireObservableCacheStatus: options.requireObservableCacheStatus,\n      });\n      const requestOptions =\n        options.cacheMode === \"fresh\"\n          ? {\n              cacheMode: \"fresh\" as const,\n              observableCacheStatus: \"fresh\" as const,\n              outputFormat: options.outputFormat,\n            }\n          : { outputFormat: options.outputFormat };\n      const processRequest = options.grit.checkRequest({\n        scanRoots,\n        cacheMode: requestOptions.cacheMode,\n        observableCacheStatus: requestOptions.observableCacheStatus,\n        outputFormat: requestOptions.outputFormat,\n      });\n      const nativeRequest = nativeGritCheckRequestFromProcessRequest({\n        request: processRequest,\n        commandFamily: nativeCommandFamilyForGritCheck(options),\n        outputContract: nativeOutputContractForGritCheck(options),\n        cacheRequirement,\n      });\n      const result = yield* options.grit\n        .check({\n          scanRoots,\n          cacheMode: requestOptions.cacheMode,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        })\n        .pipe(\n          Effect.catchTag(\"CommandInterrupted\", (error) =>\n            Effect.succeed(interruptedGritResult(processRequest, error))\n          ),\n          Effect.mapError((error) => gritToolUnavailable(processRequest, error))\n        );\n      if (\n        options.requireObservableCacheStatus &&\n        !diagnosticCacheRequirementSatisfied(\n          cacheRequirement,\n          diagnosticCacheObservationFromCommand(result, cacheRequirement)\n        )\n      ) {\n        const cacheObservation = diagnosticCacheObservationFromCommand(result, cacheRequirement);\n        const cacheFailure = diagnosticProviderFailureForCacheObservation(cacheObservation);\n        return {\n          kind: \"provider-failed\" as const,\n          failure: cacheFailure ?? \"GritCacheProvenanceMissing\",\n          parseStatus: \"unsupported-mode\" as const,\n          message: \"Grit cache/fresh status is not observable for this command result.\",\n          request: nativeRequest,\n          command: diagnosticCommandObservationFromResult(result, cacheRequirement),\n        };\n      }\n      return options.outputFormat === \"text\"\n        ? parseGritCheckTextOutput(result, cacheRequirement, nativeRequest)\n        : parseGritCheckOutput(result, cacheRequirement, nativeRequest);\n    }).pipe",
-          "options.grit\n        .check({\n          scanRoots,\n          cacheMode: requestOptions.cacheMode,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        }).pipe"
+          "Effect.gen(function* () {\n      const scanRootDecision = decidePatternScanRoots(scanRoots, {\n        repoRoot: options.repoRoot,\n        allowDocsRoot: options.allowDocsRoot,\n      });\n      if (scanRootDecision.kind === \"refused\") {\n        return {\n          kind: \"scan-root-refused\" as const,\n          decision: scanRootDecision,\n          message: renderDiagnosticScanRootRefusal(scanRootDecision),\n          command: { kind: \"not-run\" as const, reason: \"scan-root-refused\" as const },\n        };\n      }\n      const cacheRequirement = diagnosticCacheRequirementForGritCheck({\n        cacheMode: options.cacheMode,\n        requireObservableCacheStatus: options.requireObservableCacheStatus,\n      });\n      const requestOptions =\n        options.cacheMode === \"fresh\"\n          ? {\n              cacheMode: \"fresh\" as const,\n              observableCacheStatus: \"fresh\" as const,\n              outputFormat: options.outputFormat,\n            }\n          : { outputFormat: options.outputFormat };\n      const processRequest = options.grit.checkRequest({\n        scanRoots,\n        cwd: options.cwd,\n        cacheMode: requestOptions.cacheMode,\n        gritDir: options.gritDir,\n        observableCacheStatus: requestOptions.observableCacheStatus,\n        outputFormat: requestOptions.outputFormat,\n      });\n      const nativeRequest = nativeGritCheckRequestFromProcessRequest({\n        request: processRequest,\n        commandFamily: nativeCommandFamilyForGritCheck(options),\n        outputContract: nativeOutputContractForGritCheck(options),\n        cacheRequirement,\n      });\n      const result = yield* options.grit\n        .check({\n          scanRoots,\n          cwd: options.cwd,\n          cacheMode: requestOptions.cacheMode,\n          gritDir: options.gritDir,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        })\n        .pipe(\n          Effect.catchTag(\"CommandInterrupted\", (error) =>\n            Effect.succeed(interruptedGritResult(processRequest, error))\n          ),\n          Effect.mapError((error) => gritToolUnavailable(processRequest, error))\n        );\n      if (\n        options.requireObservableCacheStatus &&\n        !diagnosticCacheRequirementSatisfied(\n          cacheRequirement,\n          diagnosticCacheObservationFromCommand(result, cacheRequirement)\n        )\n      ) {\n        const cacheObservation = diagnosticCacheObservationFromCommand(result, cacheRequirement);\n        const cacheFailure = diagnosticProviderFailureForCacheObservation(cacheObservation);\n        return {\n          kind: \"provider-failed\" as const,\n          failure: cacheFailure ?? \"GritCacheProvenanceMissing\",\n          parseStatus: \"unsupported-mode\" as const,\n          message: \"Grit cache/fresh status is not observable for this command result.\",\n          request: nativeRequest,\n          command: diagnosticCommandObservationFromResult(result, cacheRequirement),\n        };\n      }\n      return options.outputFormat === \"text\"\n        ? parseGritCheckTextOutput(result, cacheRequirement, nativeRequest)\n        : parseGritCheckOutput(result, cacheRequirement, nativeRequest);\n    }).pipe",
+          "options.grit\n        .check({\n          scanRoots,\n          cwd: options.cwd,\n          cacheMode: requestOptions.cacheMode,\n          gritDir: options.gritDir,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        }).pipe"
         ],
         "all": [
           {
@@ -48932,12 +49002,12 @@
           },
           {
             "kind": "mutation-verb",
-            "value": "Effect.gen(function* () {\n      const scanRootDecision = decidePatternScanRoots(scanRoots, {\n        repoRoot: options.repoRoot,\n        allowDocsRoot: options.allowDocsRoot,\n      });\n      if (scanRootDecision.kind === \"refused\") {\n        return {\n          kind: \"scan-root-refused\" as const,\n          decision: scanRootDecision,\n          message: renderDiagnosticScanRootRefusal(scanRootDecision),\n          command: { kind: \"not-run\" as const, reason: \"scan-root-refused\" as const },\n        };\n      }\n      const cacheRequirement = diagnosticCacheRequirementForGritCheck({\n        cacheMode: options.cacheMode,\n        requireObservableCacheStatus: options.requireObservableCacheStatus,\n      });\n      const requestOptions =\n        options.cacheMode === \"fresh\"\n          ? {\n              cacheMode: \"fresh\" as const,\n              observableCacheStatus: \"fresh\" as const,\n              outputFormat: options.outputFormat,\n            }\n          : { outputFormat: options.outputFormat };\n      const processRequest = options.grit.checkRequest({\n        scanRoots,\n        cacheMode: requestOptions.cacheMode,\n        observableCacheStatus: requestOptions.observableCacheStatus,\n        outputFormat: requestOptions.outputFormat,\n      });\n      const nativeRequest = nativeGritCheckRequestFromProcessRequest({\n        request: processRequest,\n        commandFamily: nativeCommandFamilyForGritCheck(options),\n        outputContract: nativeOutputContractForGritCheck(options),\n        cacheRequirement,\n      });\n      const result = yield* options.grit\n        .check({\n          scanRoots,\n          cacheMode: requestOptions.cacheMode,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        })\n        .pipe(\n          Effect.catchTag(\"CommandInterrupted\", (error) =>\n            Effect.succeed(interruptedGritResult(processRequest, error))\n          ),\n          Effect.mapError((error) => gritToolUnavailable(processRequest, error))\n        );\n      if (\n        options.requireObservableCacheStatus &&\n        !diagnosticCacheRequirementSatisfied(\n          cacheRequirement,\n          diagnosticCacheObservationFromCommand(result, cacheRequirement)\n        )\n      ) {\n        const cacheObservation = diagnosticCacheObservationFromCommand(result, cacheRequirement);\n        const cacheFailure = diagnosticProviderFailureForCacheObservation(cacheObservation);\n        return {\n          kind: \"provider-failed\" as const,\n          failure: cacheFailure ?? \"GritCacheProvenanceMissing\",\n          parseStatus: \"unsupported-mode\" as const,\n          message: \"Grit cache/fresh status is not observable for this command result.\",\n          request: nativeRequest,\n          command: diagnosticCommandObservationFromResult(result, cacheRequirement),\n        };\n      }\n      return options.outputFormat === \"text\"\n        ? parseGritCheckTextOutput(result, cacheRequirement, nativeRequest)\n        : parseGritCheckOutput(result, cacheRequirement, nativeRequest);\n    }).pipe",
+            "value": "Effect.gen(function* () {\n      const scanRootDecision = decidePatternScanRoots(scanRoots, {\n        repoRoot: options.repoRoot,\n        allowDocsRoot: options.allowDocsRoot,\n      });\n      if (scanRootDecision.kind === \"refused\") {\n        return {\n          kind: \"scan-root-refused\" as const,\n          decision: scanRootDecision,\n          message: renderDiagnosticScanRootRefusal(scanRootDecision),\n          command: { kind: \"not-run\" as const, reason: \"scan-root-refused\" as const },\n        };\n      }\n      const cacheRequirement = diagnosticCacheRequirementForGritCheck({\n        cacheMode: options.cacheMode,\n        requireObservableCacheStatus: options.requireObservableCacheStatus,\n      });\n      const requestOptions =\n        options.cacheMode === \"fresh\"\n          ? {\n              cacheMode: \"fresh\" as const,\n              observableCacheStatus: \"fresh\" as const,\n              outputFormat: options.outputFormat,\n            }\n          : { outputFormat: options.outputFormat };\n      const processRequest = options.grit.checkRequest({\n        scanRoots,\n        cwd: options.cwd,\n        cacheMode: requestOptions.cacheMode,\n        gritDir: options.gritDir,\n        observableCacheStatus: requestOptions.observableCacheStatus,\n        outputFormat: requestOptions.outputFormat,\n      });\n      const nativeRequest = nativeGritCheckRequestFromProcessRequest({\n        request: processRequest,\n        commandFamily: nativeCommandFamilyForGritCheck(options),\n        outputContract: nativeOutputContractForGritCheck(options),\n        cacheRequirement,\n      });\n      const result = yield* options.grit\n        .check({\n          scanRoots,\n          cwd: options.cwd,\n          cacheMode: requestOptions.cacheMode,\n          gritDir: options.gritDir,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        })\n        .pipe(\n          Effect.catchTag(\"CommandInterrupted\", (error) =>\n            Effect.succeed(interruptedGritResult(processRequest, error))\n          ),\n          Effect.mapError((error) => gritToolUnavailable(processRequest, error))\n        );\n      if (\n        options.requireObservableCacheStatus &&\n        !diagnosticCacheRequirementSatisfied(\n          cacheRequirement,\n          diagnosticCacheObservationFromCommand(result, cacheRequirement)\n        )\n      ) {\n        const cacheObservation = diagnosticCacheObservationFromCommand(result, cacheRequirement);\n        const cacheFailure = diagnosticProviderFailureForCacheObservation(cacheObservation);\n        return {\n          kind: \"provider-failed\" as const,\n          failure: cacheFailure ?? \"GritCacheProvenanceMissing\",\n          parseStatus: \"unsupported-mode\" as const,\n          message: \"Grit cache/fresh status is not observable for this command result.\",\n          request: nativeRequest,\n          command: diagnosticCommandObservationFromResult(result, cacheRequirement),\n        };\n      }\n      return options.outputFormat === \"text\"\n        ? parseGritCheckTextOutput(result, cacheRequirement, nativeRequest)\n        : parseGritCheckOutput(result, cacheRequirement, nativeRequest);\n    }).pipe",
             "targetClass": "unknown"
           },
           {
             "kind": "mutation-verb",
-            "value": "options.grit\n        .check({\n          scanRoots,\n          cacheMode: requestOptions.cacheMode,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        }).pipe",
+            "value": "options.grit\n        .check({\n          scanRoots,\n          cwd: options.cwd,\n          cacheMode: requestOptions.cacheMode,\n          gritDir: options.gritDir,\n          observableCacheStatus: requestOptions.observableCacheStatus,\n          outputFormat: requestOptions.outputFormat,\n        }).pipe",
             "targetClass": "unknown"
           },
           {
@@ -49161,6 +49231,7 @@
           "./request.js",
           "./resource.js",
           "./scan-roots/index.js",
+          "./source-check.js",
           "./types.js",
           "@habitat/cli/service/model/diagnostics/index",
           "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy",
@@ -49210,6 +49281,11 @@
           {
             "kind": "import",
             "value": "./scan-roots/index.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./source-check.js",
             "targetClass": "relative"
           },
           {
@@ -49275,6 +49351,11 @@
           {
             "kind": "path-reference",
             "value": "./scan-roots/index.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./source-check.js",
             "targetClass": "relative"
           },
           {
@@ -49400,6 +49481,181 @@
           {
             "kind": "shell-command",
             "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "runner-runtime"
+        ],
+        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked",
+        "mutation_surface"
+      ]
+    },
+    {
+      "id": "tools/habitat/src/providers/grit/source-check.ts",
+      "path": "tools/habitat/src/providers/grit/source-check.ts",
+      "surfaceKind": "habitat-cli-source",
+      "surfaceRole": "toolkit_runner",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "./diagnostics.js",
+          "./output.js",
+          "./request.js",
+          "./resource.js",
+          "./scan-roots/index.js",
+          "./types.js",
+          "@habitat/cli/service/model/diagnostics/index",
+          "@habitat/cli/service/model/rules/index",
+          "effect",
+          "node:fs",
+          "node:os",
+          "node:path"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit.yaml",
+          "node:fs",
+          "node:os",
+          "node:path"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "mkdirSync",
+          "writeFileSync"
+        ],
+        "all": [
+          {
+            "kind": "import",
+            "value": "./diagnostics.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./request.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./resource.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./scan-roots/index.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./types.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/service/model/diagnostics/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/service/model/rules/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "effect",
+            "targetClass": "external"
+          },
+          {
+            "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:os",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "mkdirSync",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "writeFileSync",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./diagnostics.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./request.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./resource.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./scan-roots/index.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./types.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.yaml",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:os",
             "targetClass": "node-builtin"
           },
           {

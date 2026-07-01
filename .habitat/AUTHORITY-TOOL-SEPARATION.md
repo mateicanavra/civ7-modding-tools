@@ -39,6 +39,21 @@ itself.
 5. If a command-check script contains more than one proof class, split it by
    assertion before changing owners.
 
+## Source Pattern Execution Rule
+
+Habitat Grit rules are packet-local source-pattern authority. A rule's
+`runner.files.pattern` is the canonical pattern body, and Habitat may
+materialize selected packet patterns into an isolated native Grit workspace to
+run the pinned Grit CLI. Do not convert source-pattern rules to Habitat scripts
+only because native Grit needs execution plumbing.
+
+Package tests are not a junk drawer for retired source tokens, stale schema
+keys, or static import/source-shape assertions. Product/package tests should
+prove behavior, API contracts, generated equivalence, or runtime validation.
+Static source syntax belongs in Grit; project graph law belongs in Nx; retired
+state that cannot recur through a live source rail should usually be deleted,
+not preserved as a negative assertion.
+
 ## Structure-Check Boundary
 
 `structure-check` is intentionally narrow. It should validate only filesystem

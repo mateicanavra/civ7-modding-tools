@@ -26,6 +26,7 @@ import {
   ruleUsesDocsApplyDryRun,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
+import { runSourcePatternCheckOutcomesEffect } from "./source-check.js";
 import type { GritCheckCacheMode, GritCheckOutputFormat, GritDiagnosticOptions } from "./types.js";
 
 interface GritRunOptions {
@@ -57,7 +58,7 @@ export function runGritDiagnosticOutcomesEffect(
   const sourceRules = selectedRules.filter((rule) => !ruleHasDocsScanRoot(rule));
   return Effect.all(
     [
-      runGritRuleOutcomeGroupEffect(sourceRules, options, "json"),
+      runSourcePatternCheckOutcomesEffect(sourceRules, options),
       runDocsApplyBackedDiagnosticOutcomesEffect(docsApplyBackedRules, options),
       runGritRuleOutcomeGroupEffect(docsCheckRules, options, "text"),
     ],

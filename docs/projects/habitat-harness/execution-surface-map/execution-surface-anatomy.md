@@ -18,7 +18,7 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | policy-predicate | 78 |
 | transient-dependency | 98 |
 | entrypoint | 205 |
-| runner-runtime | 124 |
+| runner-runtime | 125 |
 
 ## Surface Families
 
@@ -36,7 +36,7 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | nx-target | 55 | apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work. |
 | nx-plugin | 1 | nx.json: Classified execution surface. |
 | nx-target-default | 9 | nx.json: Classified execution surface.<br>nx.json: Classified execution surface.<br>nx.json: Classified execution surface. |
-| habitat-cli-source | 124 | tools/habitat/src/cli/base/HabitatCommand.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/commands/check.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/commands/classify.ts: Toolkit runner/provider code that executes or routes rule surfaces. |
+| habitat-cli-source | 125 | tools/habitat/src/cli/base/HabitatCommand.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/commands/check.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/commands/classify.ts: Toolkit runner/provider code that executes or routes rule surfaces. |
 
 ## Source-Check Rule Modules
 
