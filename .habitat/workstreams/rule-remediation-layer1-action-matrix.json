@@ -589,6 +589,27 @@
             "reason": "Still spans field, engine, map projection, and placement tag ownership families."
           }
         ]
+      },
+      {
+        "actionClass": "split by owner",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-mapgen-docs-anchor-rail.md",
+        "branch": "codex/habitat-mapgen-docs-anchor-rail",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Repaired one stale MapGen docs anchor and retained the native canonical-docs validator as the correct docs rail.",
+        "selectedRows": [
+          "validate_mapgen_docs_anchors_and_references"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "require_public_domain_surfaces_in_tests",
+            "reason": "Still a real test-scope split between public contract tests and focused internal tests."
+          },
+          {
+            "ruleId": "require_standard_recipe_tag_catalog_owner_tokens",
+            "reason": "Still spans multiple product tag ownership families."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1621,13 +1642,42 @@
           "`bun habitat check --rule require_typed_placement_outcomes_before_apply --json` passed.",
           "Temporary `generateOfficialResources()` probe in terminal apply failed the rule at `apply.ts:81` and was removed."
         ]
+      },
+      {
+        "actionClass": "split by owner",
+        "sliceCandidate": "MapGen docs anchor rail repair",
+        "status": "implemented-stale-anchor-repair",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/docs/_blueprints/mapgen-canonical-docs/validate_mapgen_docs_anchors_and_references/rule.json",
+          ".habitat/docs/_blueprints/mapgen-canonical-docs/validate_mapgen_docs_anchors_and_references/check.sh",
+          "docs/system/libs/mapgen/tools/validate-anchors-and-references.py",
+          "docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "validate_mapgen_docs_anchors_and_references",
+            "inputClassification": "split by owner",
+            "wholeRuleFit": "existing MapGen canonical-docs native validator",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Resolved by repairing the stale MapGen docs authority-tree anchor; retain the existing MapGen canonical-docs native validator as the correct docs rail.",
+            "proofLimit": "Focused Habitat proof validates the repaired docs rail. This does not split docs policy warnings into separate validators."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule validate_mapgen_docs_anchors_and_references --json` passes.",
+          "Canonical JSON packet-needed split-by-owner count drops by one."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule validate_mapgen_docs_anchors_and_references --json` passed after repairing the stale adapter rule anchor."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
       "runtime/source validation": 2,
-      "split by owner": 4
+      "split by owner": 3
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -1680,7 +1730,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Terminal placement apply resolved as an already-atomized Grit rail; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
+      "layer2": "MapGen docs anchor rail repaired and retained as native canonical-docs validation; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
       "layer3Boundary": "Continue only for implementation-ready rows that do not require hairy split, positive-authority/deletion-pair, product ownership, or material corpus-boundary decisions.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1695,16 +1745,16 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 74,
+    "no action": 75,
     "positive authority creation": 4,
     "runtime/source validation": 2,
-    "split by owner": 4
+    "split by owner": 3
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
     "runtime/source validation": 2,
-    "split by owner": 4
+    "split by owner": 3
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -2673,10 +2723,10 @@
     {
       "ruleId": "validate_mapgen_docs_anchors_and_references",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "split by owner",
-      "packetNeeded": true,
-      "expectedRemediation": "Split residual validator into clearer MapGen docs sub-owners/proof shapes.",
-      "evidenceNote": "Python validator combines anchor existence, workspace alias policy, glossary policy, legacy-router checks, and warning/error policy.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Resolved by repairing the stale MapGen docs authority-tree anchor; retain the existing MapGen canonical-docs native validator as the correct docs rail.",
+      "evidenceNote": "The validator failed on one stale anchor to the old `_blueprints/civ7-adapter` path. The anchor now points to `.habitat/civ7/platform/adapter/rules/enforce_adapter_only_base_standard_imports/rule.json`, and focused Habitat proof passes. The remaining alias mentions are warnings, not blocking split evidence.",
       "currentPath": ".habitat/docs/_blueprints/mapgen-canonical-docs/validate_mapgen_docs_anchors_and_references/rule.json"
     },
     {
@@ -4367,7 +4417,10 @@
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
         "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "evidenceNote": "The validator failed on one stale anchor to the old `_blueprints/civ7-adapter` path. The anchor now points to `.habitat/civ7/platform/adapter/rules/enforce_adapter_only_base_standard_imports/rule.json`, and focused Habitat proof passes. The remaining alias mentions are warnings, not blocking split evidence.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Resolved by repairing the stale MapGen docs authority-tree anchor; retain the existing MapGen canonical-docs native validator as the correct docs rail."
       },
       {
         "ruleId": "ensure_docs_checkout_paths_are_portable",
