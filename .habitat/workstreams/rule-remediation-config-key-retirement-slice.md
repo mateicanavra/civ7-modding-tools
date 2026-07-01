@@ -100,8 +100,7 @@ Disposition:
 - [x] Domino receipt updated.
 - [x] Method frames updated with retired-literal state-collapse guidance.
 - [x] Fresh reviewer findings dispositioned.
-- [x] Live rule count reconciled: live manifests `120`, JSON `currentRows`
-  `120`, and `processLedger.currentRows` `120`.
+- [x] Live rule count reconciled: live manifests `120`, JSON `rules` `120`.
 - [x] Support/runner references checked: `120` manifests scanned, no missing
   support or runner file refs.
 - [x] `bun habitat classify .habitat` run: passed.

@@ -36,8 +36,8 @@ In:
 
 - selected rule rows with action classifications;
 - required decision packets for all rules that need semantic rework;
-- rule manifests, packets, runners, support files, baselines, ledgers, and
-  domino receipts in the slice;
+- rule manifests, packets, runners, support files, baselines, the operational
+  remediation ledger, and any narrative receipts in the slice;
 - source authority needed to execute the already-made decisions;
 - generated execution-surface docs only through their owning regeneration
   command.
@@ -47,7 +47,7 @@ Foreground:
 - predeclared write set;
 - file moves, splits, deletions, and metadata repairs;
 - verification that proves the exact slice claim;
-- review disposition and durable record updates;
+- review disposition and operational ledger updates;
 - clean Graphite closure.
 
 Exterior:
@@ -138,8 +138,8 @@ List every file or directory class that may change:
 - runners;
 - support files;
 - baselines;
-- ledger rows;
-- domino receipt;
+- operational ledger rows and slice status;
+- narrative receipt only when semantic context is needed;
 - execution-surface docs, if regenerated;
 - authority shape docs, only if semantics change.
 
@@ -179,16 +179,16 @@ Minimum verification:
   deleted-replacement, or retained-but-touched rule where the command is
   available;
 - support-file and runner-path resolution across live manifests;
-- ledger coverage against live `.habitat/**/rule.json` manifests;
+- operational ledger coverage against live `.habitat/**/rule.json` manifests;
 - `bun habitat classify .habitat`;
 - `git diff --check`;
 - generated execution-surface regeneration proof when rule paths or runner
   paths changed.
 - baseline deltas are shrink-only, or any non-shrink/change in meaning names
   owner, rationale, and follow-up trigger.
-- deleted or split old ids have absence proof: old manifests are absent, ledger
-  rows are updated, no live manifest/support/runner/baseline references remain,
-  and replacement ids or retirement rationale reconcile.
+- deleted or split old ids have absence proof: old manifests are absent,
+  operational ledger rows are updated, no live manifest/support/runner/baseline
+  references remain, and replacement ids or retirement rationale reconcile.
 
 Additional verification follows the action decision:
 
@@ -234,9 +234,11 @@ Record findings in this shape:
 
 Update durable records:
 
-- authority-tree ledger rows for every scoped rule, including non-moves;
-- domino receipt with selected rows, moved/split/deleted/retained rows, proof,
-  review disposition, residual follow-up, and next recommended slice;
+- operational ledger rows for every scoped rule, including non-moves;
+- narrative receipt only when semantic context is needed; it may point to
+  selected rows, moved/split/deleted/retained rows, proof, review disposition,
+  residual follow-up, and next recommended slice, but it must not duplicate the
+  operational queue or rule table;
 - authority-tree shape docs only if tree semantics changed;
 - method frames only if the method itself changed;
 - generated-doc proof if regeneration occurred.
@@ -246,7 +248,7 @@ Close only when:
 
 - focused checks for touched rules have passed or have explicit scoped
   non-applicability;
-- live manifests and ledger coverage reconcile;
+- live manifests and operational ledger coverage reconcile;
 - support files and runner paths resolve;
 - review findings are dispositioned;
 - baseline rows reconcile against live manifests and selected/excluded rules;
@@ -291,7 +293,7 @@ A valid slice:
   boundary;
 - does not redo classification as implementation;
 - implements the exact decision packets it consumes;
-- proves packet resolution and ledger coverage;
+- proves packet resolution and operational ledger coverage;
 - records non-moves and residual actions;
 - closes with review disposition, verification evidence, Graphite state, and a
   clean worktree.

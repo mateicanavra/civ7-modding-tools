@@ -509,7 +509,7 @@ Stage 2: bounded artifact-vocabulary sweep.
     artifact authority;
   - do not introduce `_triage`; the existing `_remainder` lane is the visual
     marker for reviewed-but-not-admitted debt.
-- Update `.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md` for every inspected
+- Update `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` for every inspected
   row, including explicit non-moves and pending actions.
 - Record the disposition receipt in this file so future agents can tell which
   artifact-vocabulary rows have been processed.
@@ -985,7 +985,7 @@ survivor-authority work.
 
 Controlling records:
 
-- `.habitat/workstreams/rule-remediation-layer1-action-matrix.md`
+- `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
 - `.habitat/workstreams/rule-remediation-retirement-slice.md`
 
 Decision matrix:
@@ -1069,7 +1069,7 @@ Review disposition:
 | --- | --- | --- | --- | --- |
 | `domain-operation-strategy` is constructible and product-backed. | P2 | accepted | Authority lane and tree-shape docs created. | Generic strategy-locality or strategy-contract rules still need decision packets before movement. |
 | No current live rule moves whole into the new authority. | P2 | accepted | Explicit non-move dispositions recorded in slice, ledger, and blueprint README. | Avoid using `strategies/**/*.ts` scan roots as an owner test. |
-| The old authority-tree rule ledger still looked like a second current-state matrix. | P2 | accepted | Absorbed its unique process data into `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` under `processLedger`; replaced the Markdown ledger with a pointer. | None; JSON is the active source of truth. |
+| The old authority-tree rule ledger still looked like a second current-state matrix. | P2 | accepted | Absorbed its unique process data into `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` and removed the Markdown ledger. | None; JSON is the active source of truth. |
 
 Closure note:
 
@@ -1087,18 +1087,18 @@ Disposition:
 
 | Record | Decision | Reason | Follow-up |
 | --- | --- | --- | --- |
-| `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` | extend canonical union | The same JSON record now owns the Layer 1 matrix, former process ledger, stale references, Layer 2 packet index, blockers, and next queue. | Future agents should query `layer2PacketIndex` instead of creating a separate packet-index table. |
+| `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` | canonical operational ledger | The same JSON record now owns live rule rows, retired/stale references, queued/completed slices, blockers, findings, and counts. | Future agents should query `rules`, `slices`, `blockers`, `findings`, and `counts`; do not create a separate matrix or packet-index table. |
 | `.habitat/workstreams/rule-remediation-retirement-slice.md` | source reference repair | The receipt still named the archived Markdown matrix as its source. | Slice receipts may reference the canonical JSON, but they are not operational sources of truth. |
 
 Moves it forward:
 
-- Adds `layer2PacketIndex` inside the canonical JSON union record.
+- Normalizes the canonical JSON into one operational ledger.
 - Records the two closed Layer 2/3 slices: garbage collection and
   domain-operation-strategy authority admission.
 - Records the only immediately implementation-ready slice as low-leverage
   metadata repair.
-- Records the next packet candidates and sealed blockers without duplicating
-  the full current rule matrix.
+- Records packet candidates and sealed blockers without duplicating the full
+  current rule matrix anywhere else.
 
 Closure note:
 
@@ -1124,9 +1124,8 @@ Disposition:
 
 Moves it forward:
 
-- Records the full decision packet under
-  `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
-  `layer2PacketIndex.decisionPacketBatches`.
+- Records the packet outcome in
+  `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`.
 - Initially moved the config-key slice into the implementation-ready queue;
   Domino 55 corrected this and returned the slice to Layer 2.
 
@@ -2221,6 +2220,47 @@ Closure note:
   Grit rule and was removed.
 - No package-owned tests, replacement MJS scripts, or broad helper blueprint
   authority were introduced.
+
+## Domino 92: Reopen Local-Proxy Authority Rows
+
+Status: closed on `codex/habitat-local-proxy-authority-rereview`.
+
+Purpose: correct the Layer 1 / Layer 2 decision record after the user
+identified the missing rule: a specially owned boundary in one repeated niche
+instance is usually a design smell and should be checked against architecture
+docs before being admitted locally.
+
+Disposition receipt:
+
+| Corpus | Action | Receipt |
+| --- | --- | --- |
+| Previously settled local/context rows that looked like repeated-kind special cases | Reopened 26 rows as packet-needed and repopulated the canonical Layer 2 queue. No rule packets were moved or deleted. | Recorded directly in `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`; this domino is the narrative receipt. |
+
+Canonical queue repair:
+
+- The queue is operational only in `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`.
+- Query queued Layer 2 work from `slices[] | select(.status == "queued")`.
+- Do not copy the queue, counts, or packet-needed rows into domino receipts.
+
+Moves it forward:
+
+- Reopens the Foundation helper decision from Domino 91: the row is now paired
+  with `prohibit_runtime_helper_redeclarations` for broader MapGen
+  helper-surface authority consolidation.
+- Reopens additional local proxy clusters around domain-operation surfaces,
+  standard stage-kind truth/projection authority, dependency/effect tag family
+  authority, generated-zone/resource package authority, and Studio/platform
+  mixed-owner rails.
+- Updates the canonical remediation JSON instead of creating a second matrix.
+
+Closure note:
+
+- Fresh review lanes inspected actual rule packets, source, and architecture
+  docs.
+- The re-review evidence was consolidated into the canonical JSON and this
+  domino; no separate workstream matrix/receipt document is retained.
+- The next deterministic move is Layer 2 decision-packet work for the reopened
+  broader-authority slices, not Layer 3 mutation from the previous empty queue.
 
 ### 46. Resume Authority Activation Projection Work
 

@@ -1,11 +1,17 @@
 # Rule Remediation: Residual Cascade Re-Read
 
-Status: closed on `codex/habitat-cascade-residual-reread`.
+Status: superseded historical receipt.
+
+Superseded by the canonical operational ledger:
+`.habitat/workstreams/rule-remediation-layer1-action-matrix.json`.
+
+This file records a past re-read only. Do not use it for current counts,
+queues, blockers, or next actions.
 
 Canonical record:
 `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`.
 
-This file is a receipt only. It is not a second operational matrix.
+This file is a receipt only. It is not a second operational ledger.
 
 ## Purpose
 
@@ -14,14 +20,9 @@ blocker list so future resumes do not reprocess already-closed rows.
 
 ## Corpus Check
 
-| Check | Result |
-| --- | --- |
-| Live rule manifests | 113 |
-| Current JSON rows | 113 |
-| Missing live rows | none |
-| Stale current rows | none |
-| Missing runner/support files | none |
-| Implementation-ready queue | empty |
+Historical corpus counts and queue claims from this receipt are superseded.
+Use the canonical JSON ledger for current `corpus`, `counts`, `rules[]`,
+`slices[]`, `blockers[]`, and `gateState`.
 
 ## Residual Rows Re-Read
 
@@ -47,13 +48,11 @@ The other residual blockers remain as previously sealed:
 
 ## Record Repair
 
-- Pruned resolved row ids from the canonical sealed blocker list.
-- Recomputed remaining packet-needed counts from current JSON rows.
-- Preserved an empty implementation-ready queue.
-- Recorded this re-read as an operator finding inside the canonical JSON.
+- Historically pruned resolved row ids from the then-current sealed blocker
+  list.
+- Recorded this re-read as a superseded finding inside the canonical JSON.
 
 ## Closure
 
-No authority-tree mutation was performed. The next deterministic move is a
-semantic Layer 2 decision packet or user-owned architecture decision for one of
-the remaining stop classes.
+No authority-tree mutation was performed in this historical receipt. Current
+next action is owned by the canonical JSON ledger.

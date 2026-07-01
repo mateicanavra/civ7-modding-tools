@@ -121,7 +121,7 @@ Read the rule's:
 - support files;
 - baseline, if present;
 - `pathCoverage` and `scanRoots`;
-- relevant ledger/domino evidence;
+- relevant operational ledger row and receipt evidence;
 - source and docs directly referenced by the rule.
 
 Record what was actually inspected. Do not cite broad repository familiarity as
@@ -205,10 +205,12 @@ Required downstream record update:
 Residual follow-up:
 ```
 
-The packet may be stored in a ledger-linked decision record, domino receipt, or
-workstream artifact. Do not store per-rule decision packets in this method
-frame. The record must be durable enough for a later agent to implement without
-reopening the whole semantic debate.
+The packet may be stored in a slice receipt or returned to the workstream owner,
+but operational state must be summarized in the single remediation ledger. Do
+not create a second packet index, operational ledger, or Markdown queue. Do not store
+per-rule decision packets in this method frame. The record must be durable
+enough for a later agent to implement without reopening the whole semantic
+debate.
 
 `Semantic remediation decision` names the intended semantic outcome. It does
 not name write set, edit sequence, branch shape, or verification plan.

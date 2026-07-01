@@ -1,23 +1,24 @@
 # Rule Remediation: Cascade Stop Gate
 
-Status: closed on `codex/habitat-cascade-stop-gate`
+Status: superseded historical receipt.
+
+Superseded by the canonical operational ledger:
+`.habitat/workstreams/rule-remediation-layer1-action-matrix.json`.
+
+This file records a past stop gate only. Do not use it for current counts,
+queues, blockers, or next actions.
 
 ## Boundary
 
 The Layer 3 cascade closed all clean high-confidence runtime/source validation
-retentions and Grit/source-rail repairs currently available from the canonical
-matrix.
+retentions and Grit/source-rail repairs that were available at the time.
+Current queue state is defined only by the canonical JSON ledger.
 
-No implementation-ready queue remains.
+## Historical Packet-Needed Counts
 
-## Remaining Packet-Needed Counts
-
-| Action class | Count | Boundary |
-| --- | ---: | --- |
-| `boundary inversion` | 3 | Semantic ownership gates around morphology/story/overlay and declared-dependency authority. |
-| `positive authority creation` | 4 | Positive authority plus deletion/retention pairs. |
-| `runtime/source validation` | 2 | One currently red workspace hygiene gate and one broad runtime/config `_remainder` proxy. |
-| `split by owner` | 6 | Clause-level owner splits required before mutation. |
+Historical packet-needed counts from this receipt are superseded. Use
+`counts`, `rules[]`, and `slices[]` in the canonical JSON ledger for current
+state.
 
 ## Runtime/Source Residuals
 
@@ -28,8 +29,8 @@ No implementation-ready queue remains.
 
 ## Stop Condition
 
-The next work should not be another opportunistic Layer 3 mutation. It needs
-one of these explicit scopes:
+At the time, the next work was not another opportunistic Layer 3 mutation. It
+needed one of these explicit scopes:
 
 - semantic split packets and implementation,
 - positive authority/deletion-pair design and implementation,

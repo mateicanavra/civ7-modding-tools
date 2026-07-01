@@ -154,7 +154,7 @@ Deleted packet directories:
 
 Record updates:
 
-- `.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md` removes the five retired
+- `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` removes the five retired
   rows from the live matrix and lists them as stale/retired references.
 - `.habitat/dominoes.md` records the garbage-collection disposition.
 - `tools/habitat/test/commands/habitat-commands.test.ts` no longer uses a

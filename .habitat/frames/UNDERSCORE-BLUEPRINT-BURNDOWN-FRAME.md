@@ -46,7 +46,7 @@ Authority sources, in order:
 4. Existing method frames:
    - `.habitat/frames/BLUEPRINT-KIND-GATHERING-FRAME.md`
    - `.habitat/frames/DESTINATION-SIMPLIFICATION-FRAME.md`
-   - `.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md`
+   - `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
 5. Current `.habitat/**/rule.json` manifests as corpus and placement evidence.
 6. Current source code, package docs, and canonical architecture docs as
    constructibility and ownership evidence.
@@ -338,7 +338,7 @@ justify the weak label.
 Required updates for each loop:
 
 - Add a disposition receipt to `.habitat/dominoes.md`.
-- Update `.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md` for every scoped row.
+- Update `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` for every scoped row.
 - Update `.habitat/AUTHORITY.md` if a current niche is added, removed, or
   renamed.
 - Update `.habitat/AUTHORITY-TREE-SHAPE.md` if the loop establishes a new
@@ -590,7 +590,7 @@ After the active Civ7 dominoes:
 - Every former Civ7 `_blueprints` row has an explicit domino receipt.
 - Any non-Civ7 row pulled in by the hidden-Civ exception has an explicit
   receipt and no longer hides Civ7 authority under its old directory.
-- `.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md` has current paths,
+- `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` has current paths,
   placements, dispositions, and pending actions for all scoped rows.
 - Any new blueprint directories are source-backed constructible kinds.
 - Any new child niches are governed operating areas, not renamed output or
@@ -638,7 +638,7 @@ authority, and record why the old directory hid the real owner.
 For each loop: re-count the scoped corpus, inspect source-backed ownership,
 build the decision matrix, make physical packet moves, update manifests,
 update `.habitat/dominoes.md`, update
-`.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md`, update authority docs if
+`.habitat/workstreams/rule-remediation-layer1-action-matrix.json`, update authority docs if
 niches or blueprints change, regenerate execution-surface docs if paths move,
 run selected-rule checks, verify support/runner refs and ledger coverage, and
 commit through Graphite. Do not create renamed catch-all buckets. Admit a

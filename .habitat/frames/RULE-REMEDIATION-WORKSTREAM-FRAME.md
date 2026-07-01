@@ -46,7 +46,7 @@ In:
 
 - a bounded live Habitat rule corpus;
 - lane assignment for broad rule classification;
-- merged action matrix and conflict reconciliation;
+- merged operational ledger rows and conflict reconciliation;
 - decision-packet action classes and sequencing;
 - implementation-ready slice selection;
 - resume state at every layer and convergence gate.
@@ -58,12 +58,13 @@ Foreground:
 - action-class leverage that can delete, absorb, split, or invert later work;
 - one authority-state mutation slice at a time unless write sets are proven
   disjoint;
-- durable records that let a later agent resume without chat memory.
+- one flat operational ledger that lets a later agent resume without chat
+  memory.
 
 Exterior:
 
 - current slice selection for a concrete domino unless a live domino names it;
-- broad ontology creation not required by the action matrix;
+- broad ontology creation not required by the operational ledger;
 - per-rule clause decomposition details, which belong in
   `RULE-DECISION-PACKET-FRAME.md`;
 - implementation mechanics inside a selected slice, which belong in
@@ -102,26 +103,54 @@ sequenced gates.
 `.habitat/frames/*` files are method and execution frames. They are never the
 active workstream state by themselves.
 
-Current-state artifacts follow this precedence:
+Current-state artifacts follow this rule:
 
-1. The active domino receipt names the current workstream artifact or current
-   execution records.
-2. The named workstream artifact names the current matrix, packet index, slice
-   receipt, and gate reviews.
-3. Ledger rows are evidence or history unless explicitly referenced by the
-   active domino or workstream artifact.
+1. The workstream has exactly one machine-readable operational ledger for live
+   rule rows, queued and completed slices, blockers, findings, retired rules,
+   stale references, counts, and gate state.
+2. Markdown dominoes and slice receipts may explain why a change happened, but
+   they must not duplicate or define the active ledger rows, queue, blockers,
+   packet state, or counts.
+3. If a field is needed for operation, add it to the flat ledger row or slice.
+   Do not create nested operational subledgers or parallel Markdown tables.
 
-Every resume block must include exact paths or ids for the matrix, packet
-index, selected slice receipt, and latest gate review that authorize the next
-action. No path or id means no authority. Historical ledger rows must never
-authorize mutation by themselves.
+Every resume block must include the ledger path and the exact rule ids or
+slice ids that authorize the next action. No ledger row or slice id means no
+authority. Historical receipts must never authorize mutation by themselves.
+
+### Operational Ledger Shape
+
+The operational ledger should stay shallow enough to query without bespoke
+parsers. Use top-level arrays for durable state:
+
+```text
+rules[]:
+slices[]:
+blockers[]:
+findings[]:
+retiredRules[]:
+staleRules[]:
+counts:
+gateState:
+```
+
+Use `rules[]` for one row per live rule. Use `slices[]` for both queued and
+completed Layer 2/Layer 3 slices. Use `blockers[]` and `findings[]` for
+operator gates and durable corrections. Long semantic prose belongs in slice
+receipts or dominoes; the ledger stores ids, action labels, current paths,
+status, and short evidence/handling text.
+
+Do not store the same queue or rule table in both the ledger and a Markdown file.
+Do not bury current operational state under objects such as `processLedger`,
+`layer2PacketIndex`, or `decisionPacketBatches`; those names encourage multiple
+sources of truth inside one file.
 
 ## The Three-Layer Geometry
 
 ```text
 Layer 1: broad fanout by stable tree lane
   -> classify every scoped rule lightly with n = 1 method
-  -> converge into one reconciled action matrix
+  -> converge into one reconciled operational ledger
 
 Layer 2: targeted decision-packet work by action class
   -> produce packets only for rules needing action
@@ -180,8 +209,8 @@ packet.
 
 ### Layer 1 Output
 
-The convergence artifact is one merged action matrix. It must contain enough
-provenance to resume after compaction:
+The convergence artifact is the ledger's `rules[]` rows. They must contain
+enough provenance to resume after compaction:
 
 ```text
 Rule id:
@@ -193,7 +222,6 @@ Decision packet needed:
 Implementation readiness:
 Expected remediation outcome:
 Blocker / proof:
-Confidence:
 Conflicts:
 Selected / excluded:
 Next action-class candidate:
@@ -205,18 +233,18 @@ Do not introduce local synonyms.
 
 ### Layer 1 Convergence Gate
 
-The workstream owner reconciles all lane output into one action matrix. This
-gate must:
+The workstream owner reconciles all lane output into `rules[]`. This gate
+must:
 
-- prove every scoped live rule has exactly one matrix row;
+- prove every scoped live rule has exactly one ledger row;
 - reject any lane that edited files;
 - reject any lane that omitted rule ids or changed the action vocabulary;
 - normalize labels without changing the underlying decision;
 - surface contradictions and unclear rows;
 - identify action clusters;
-- decide whether the matrix is good enough to select Layer 2 work.
+- decide whether the ledger is good enough to select Layer 2 work.
 
-Do not proceed to Layer 2 while the matrix has unresolved coverage gaps,
+Do not proceed to Layer 2 while `rules[]` has unresolved coverage gaps,
 duplicate rows, vocabulary drift, or contradictions that affect action-class
 selection.
 
@@ -227,7 +255,7 @@ implementation safe?
 
 Use `RULE-DECISION-PACKET-FRAME.md` for each selected rule. Do not create
 decision packets for rules marked `no action`, simple context admission, or
-simple metadata repair unless the action matrix later proves the classification
+simple metadata repair unless the operational ledger later proves the classification
 stale.
 
 ### Action-Class Basis
@@ -240,7 +268,7 @@ Layer 2 normally slices by action class, not by tree area:
 - boundary inversion;
 - retirement or consolidation;
 - runtime or source validation;
-- context admission or metadata repair when the matrix shows a grouped
+- context admission or metadata repair when the ledger shows a grouped
   correction.
 
 Action-class lanes may fan out internally when the rows are independent.
@@ -265,8 +293,8 @@ Rows are independent enough for internal fanout only when they have disjoint
 rule ids and no shared positive authority surface, destination,
 deletion/consolidation target, or owner decision.
 
-The workstream owner merges packet output into the packet index. Packet agents
-do not authorize Layer 3.
+The workstream owner merges packet output into `slices[]`, `blockers[]`, or
+`findings[]` as appropriate. Packet agents do not authorize Layer 3.
 
 ### Sequencing Leverage
 
@@ -284,15 +312,15 @@ Examples:
 - Closed structure or boundary inversion can replace many negative assertion
   rules with a smaller positive rail.
 
-After each action-class decision-packet batch, recompute or annotate the action
-matrix before selecting another action class.
+After each action-class decision-packet batch, update the affected `rules[]`
+and `slices[]` rows before selecting another action class.
 
 ### Layer 2 Output
 
 Layer 2 produces:
 
 - durable decision packets for selected rules;
-- a packet index keyed by rule id and action class;
+- ledger slice rows keyed by slice id, rule ids, status, and action class;
 - rows marked stale if packet work contradicts Layer 1 classification;
 - candidate implementation slices with selected rows, excluded adjacent rows,
   proof class, owner, and rough write-set boundary.
@@ -328,10 +356,11 @@ Layer 3 cannot begin from a remembered or historical slice plan. It requires a
 current entry warrant:
 
 ```text
-Reconciled action matrix path/id:
+Operational ledger path:
+Selected rule ids:
 Source commit:
-Packet index path/id:
-Selected slice receipt path/id:
+Selected slice id:
+Selected slice receipt path, if one exists:
 Fresh packet reviewer disposition:
 No selected row stale or contradicted:
 Explicit excluded adjacent rows:
@@ -357,10 +386,10 @@ Parallel work during Layer 3 is limited to:
 
 - fresh review;
 - proof inspection;
-- ledger coverage audit;
+- operational ledger coverage audit;
 - independently proven disjoint write sets.
 
-If write sets overlap in `.habitat`, ledgers, dominoes, generated
+If write sets overlap in `.habitat`, operational ledger, dominoes, generated
 execution-surface docs, baselines, or rule packets, sequence them.
 
 ### Layer 3 Output
@@ -368,40 +397,32 @@ execution-surface docs, baselines, or rule packets, sequence them.
 Each completed slice produces:
 
 - the completed output contract required by `RULE-REMEDIATION-SLICE-FRAME.md`;
-- updated action matrix or next-slice receipt.
+- updated operational ledger rows and any narrative slice receipt needed for semantic
+  context.
 
 ### Layer 3 Convergence Gate
 
 The slice is closed only when `RULE-REMEDIATION-SLICE-FRAME.md` closure passes.
 After closure, the workstream owner must re-read the live corpus state before
-selecting another slice. Do not assume the pre-slice matrix still describes the
+selecting another slice. Do not assume the pre-slice ledger still describes the
 tree.
 
 ## Resume State
 
-Every layer and convergence gate must emit a resume state block:
+Every layer and convergence gate must update the operational ledger, not a
+separate handoff document. Resume state lives in:
 
 ```text
-Current layer:
-Current gate:
-Source commit:
-Worktree state:
-Active matrix / packet / slice artifact:
-Authoritative artifact paths:
-Completed lanes:
-Pending lanes:
-Rejected / superseded outputs:
-Open blockers:
-Reviewer findings blocking:
-Stale-input check:
-Mutation authorization:
-Next legal action:
-Actions explicitly not yet authorized:
+gateState:
+slices[]:
+blockers[]:
+findings[]:
 ```
 
-The resume state is the operator's "you are here" marker. It must be updated
-before stopping, before compaction handoff, and after any committed Layer 3
-slice.
+An external handoff block, if needed, is pointer-only: ledger path, active
+rule ids or slice ids, mutation authorization, and next legal action. Do not
+copy completed lanes, pending lanes, queue rows, blocker tables, or reviewer
+findings into a second current-state record.
 
 ## Review Lanes
 
@@ -410,7 +431,7 @@ gate.
 
 Recommended review lanes:
 
-- Layer 1 matrix reviewer: checks lane completeness, one-row-per-rule coverage,
+- Layer 1 ledger reviewer: checks lane completeness, one-row-per-rule coverage,
   source freshness, action vocabulary, conflicts, and no-edit compliance.
 - Layer 2 packet reviewer: checks action-class sequencing, leverage, packet
   completeness, and slice readiness.
@@ -426,12 +447,12 @@ the active slice boundary.
 
 Start at the earliest layer whose input artifact is missing or stale:
 
-- no reconciled action matrix: start at Layer 1;
-- matrix exists but selected rules lack current decision packets: start at
+- no reconciled operational ledger: start at Layer 1;
+- ledger exists but selected rules lack current decision packets: start at
   Layer 2;
 - implementation-ready slice exists with current packets: start at Layer 3;
 - completed slice exists but corpus state changed: restart at the post-slice
-  Layer 1/Layer 2 selection gate by re-reading the matrix against live state.
+  Layer 1/Layer 2 selection gate by re-reading the ledger against live state.
 
 Layer 3 still requires the Layer 3 entry warrant. Without it, return to the
 Layer 2 convergence gate even if a historical slice plan exists.
@@ -439,7 +460,7 @@ Layer 2 convergence gate even if a historical slice plan exists.
 Stop only at meaningful gates:
 
 - after lane assignment is written but before agents begin;
-- after Layer 1 convergence with a reconciled action matrix;
+- after Layer 1 convergence with a reconciled operational ledger;
 - after Layer 2 convergence with one selected implementation-ready slice;
 - after Layer 3 closure with committed state and updated records;
 - at a falsifier or blocker that prevents the current layer from producing its
@@ -462,7 +483,7 @@ This frame is the wrong tool if:
 A reframe is required if:
 
 - action classes repeatedly fail to produce bounded slices;
-- Layer 3 slices keep invalidating large portions of the Layer 1 matrix;
+- Layer 3 slices keep invalidating large portions of the Layer 1 ledger;
 - mutation cannot be sequenced because several live branches are actively
   rewriting the same authority-tree surface;
 - the workstream discovers that the rule corpus is not the right unit of
@@ -484,7 +505,6 @@ A valid use of this frame:
 ## Not A Plan
 
 This frame defines gates, object shapes, and execution geometry. Current scope,
-lane assignments, slice choices, and concrete rows live in the active artifacts
-named by the Artifact Authority section. Historical ledger rows are not a
-current plan unless the active domino or named workstream artifact cites them
-as current inputs.
+lane assignments, slice choices, and concrete rows live in the operational
+ledger named by the Artifact Authority section. Historical receipts are not a
+current plan unless a current ledger row or slice cites them as evidence.

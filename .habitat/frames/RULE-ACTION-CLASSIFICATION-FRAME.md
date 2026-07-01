@@ -38,7 +38,8 @@ In:
 - one live `.habitat/**/rule.json` manifest and its current packet;
 - current placement, runner, support files, baseline, path coverage, and scan
   roots as evidence;
-- existing ledger/domino/process evidence for that rule, when present;
+- existing operational ledger row and receipt evidence for that rule, when
+  present;
 - source authority needed to decide owner, false owner, or proof class.
 
 Foreground:
@@ -115,7 +116,7 @@ Read only enough to know what the rule claims to govern:
 - current `operation`;
 - current runner and support-file shape;
 - current source/path coverage;
-- current ledger/domino disposition, if one exists.
+- current operational ledger disposition, if one exists.
 
 Stop if the manifest is malformed or the packet cannot be found. The correct
 action is not classifiable until the rule boundary is readable.
