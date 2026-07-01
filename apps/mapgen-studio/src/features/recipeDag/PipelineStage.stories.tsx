@@ -28,7 +28,6 @@ const props = {
   dag: recipeDagFixture,
   status: "ready",
   error: null,
-  isLightMode: false,
   expandedStageIds: new Set(["relief"]),
   selectedStageId: null,
   onToggleStage: noop,

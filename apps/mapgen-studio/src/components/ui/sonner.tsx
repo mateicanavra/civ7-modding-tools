@@ -28,14 +28,19 @@ function subscribeToThemeClass(onStoreChange: () => void): () => void {
 /** Read the current theme off the `<html>` class. Returns a primitive, so it is
  * referentially stable when unchanged — no `useSyncExternalStore` tearing/loop. */
 function getThemeSnapshot(): ThemeMode {
-  return typeof document !== "undefined" && document.documentElement.classList.contains("dark")
-    ? "dark"
-    : "light";
+  if (typeof document === "undefined") return "dark";
+  const root = document.documentElement;
+  // Either convention: `.dark` (app/Storybook) or `.light` (design-sync bundle,
+  // which re-targets :root to dark). Fall back to the resolved color-scheme so
+  // the toast follows whatever theme class the host sets on the root.
+  if (root.classList.contains("dark")) return "dark";
+  if (root.classList.contains("light")) return "light";
+  return getComputedStyle(root).colorScheme.trim() === "light" ? "light" : "dark";
 }
 
-/** SSR / non-DOM snapshot: the app's default surface is light. */
+/** SSR / non-DOM snapshot: the studio is dark-first. */
 function getThemeServerSnapshot(): ThemeMode {
-  return "light";
+  return "dark";
 }
 
 /**
