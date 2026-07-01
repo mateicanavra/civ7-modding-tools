@@ -1,6 +1,7 @@
 # Rule Remediation Layer 1 Action Matrix
 
-Status: Layer 1 convergence passed; Layer 2 not started
+Status: Layer 1 convergence passed; superseded for current live-corpus counts
+by retirement slice
 
 Source commit: `7494dd91354a2d8bf22251dc02ca31f74510be5b`
 
@@ -15,6 +16,29 @@ Layer method: `.habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md`
 Purpose: preserve source-backed Layer 1 lane findings so compaction or agent
 thread shutdown does not lose important details. This file is an active
 workstream record, not a normative method frame and not a Layer 2 packet index.
+
+## Current Corpus Supersession
+
+This matrix is the closed Layer 1 source snapshot for commit
+`7494dd91354a2d8bf22251dc02ca31f74510be5b`: 127 live rules at classification
+time.
+
+The current live corpus is advanced by
+`.habitat/workstreams/rule-remediation-retirement-slice.md`, which retires five
+rules and leaves 122 live rules after verification. Do not treat the five
+retired ids in this matrix as current live rows for later Layer 2 selection.
+
+Retired in the first garbage-collection slice:
+
+- `prohibit_domain_tag_artifact_shim_imports`
+- `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases`
+- `prohibit_narrative_swatches_stage_token`
+- `require_full_profile_domain_stage_roots`
+- `prohibit_morphology_dual_read_tokens`
+
+Retained despite initial retirement classification:
+
+- `prohibit_retired_studio_devlive_daemon_file`
 
 ## Compaction And Inset Preservation
 
@@ -46,7 +70,8 @@ source-grounded Layer 1 matrix is complete, reconciled, and reviewed.
 
 Current layer: Layer 1, source-backed action classification.
 
-Current gate: Layer 1 convergence passed.
+Current gate: Layer 1 convergence passed; first retirement slice selected and
+executed in a successor record.
 
 Mutation authorization: none. No Layer 2 decision packets and no Layer 3
 implementation are authorized by this artifact.

@@ -244,7 +244,7 @@ describe("Habitat oclif commands", () => {
       "--rule",
       "prohibit_cross_op_runtime_calls",
       "--rule",
-      "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+      "prohibit_runtime_validation_and_compiler_imports",
       "--rule",
       "preserve_standard_stage_topology_and_path_invariants",
     ]);
@@ -255,7 +255,7 @@ describe("Habitat oclif commands", () => {
           owner: undefined,
           rules: [
             "prohibit_cross_op_runtime_calls",
-            "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+            "prohibit_runtime_validation_and_compiler_imports",
             "preserve_standard_stage_topology_and_path_invariants",
           ],
           runner: undefined,
@@ -267,12 +267,12 @@ describe("Habitat oclif commands", () => {
             "--rule",
             "prohibit_cross_op_runtime_calls",
             "--rule",
-            "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+            "prohibit_runtime_validation_and_compiler_imports",
             "--rule",
             "preserve_standard_stage_topology_and_path_invariants",
           ],
           serialized:
-            "habitat check --rule prohibit_cross_op_runtime_calls --rule prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases --rule preserve_standard_stage_topology_and_path_invariants",
+            "habitat check --rule prohibit_cross_op_runtime_calls --rule prohibit_runtime_validation_and_compiler_imports --rule preserve_standard_stage_topology_and_path_invariants",
         },
       })
     );
