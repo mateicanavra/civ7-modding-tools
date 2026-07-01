@@ -568,6 +568,27 @@
             "reason": "Still mixes deterministic-generation, lexical cleanup, owner-specific generator, and projection/runtime clauses."
           }
         ]
+      },
+      {
+        "actionClass": "split by owner",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-placement-apply-grit-rail.md",
+        "branch": "codex/habitat-placement-apply-grit-rail",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed stale split-by-owner classification for terminal placement apply. The existing Grit rail is already scoped to terminal apply and does not govern resource/discovery materialization substeps.",
+        "selectedRows": [
+          "require_typed_placement_outcomes_before_apply"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+            "reason": "Still mixes deterministic-generation, lexical cleanup, owner-specific generator, and projection/runtime clauses."
+          },
+          {
+            "ruleId": "require_standard_recipe_tag_catalog_owner_tokens",
+            "reason": "Still spans field, engine, map projection, and placement tag ownership families."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1568,13 +1589,45 @@
           "`bun habitat check --rule ensure_map_policy_dependency_independence --json` passed with the Grit runner.",
           "Temporary `@swooper/mapgen-core` import probe failed the rule at `packages/civ7-map-policy/src/index.ts:1` and was removed."
         ]
+      },
+      {
+        "actionClass": "split by owner",
+        "sliceCandidate": "terminal placement apply Grit rail reconciliation",
+        "status": "closed-by-existing-atomized-source-rail",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/pattern.md",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-resources/materialize.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "require_typed_placement_outcomes_before_apply",
+            "inputClassification": "split by owner",
+            "wholeRuleFit": "existing terminal-apply Grit source rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Resolved as an already-atomized terminal placement/apply Grit rail; no owner split required because official resource/discovery materialization lives in separate placement substeps while terminal apply consumes typed outcome artifacts.",
+            "proofLimit": "Focused Habitat proof and one temporary negative callsite probe validate the terminal apply rail. This does not settle broader placement materialization product policy."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule require_typed_placement_outcomes_before_apply --json` passes.",
+          "Temporary `generateOfficialResources()` probe in terminal apply fails the rule and is removed.",
+          "Canonical JSON packet-needed split-by-owner count drops by one."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule require_typed_placement_outcomes_before_apply --json` passed.",
+          "Temporary `generateOfficialResources()` probe in terminal apply failed the rule at `apply.ts:81` and was removed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
       "runtime/source validation": 2,
-      "split by owner": 5
+      "split by owner": 4
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -1627,7 +1680,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Map-policy dependency independence resolved as a packet-local Grit import rail; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
+      "layer2": "Terminal placement apply resolved as an already-atomized Grit rail; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
       "layer3Boundary": "Continue only for implementation-ready rows that do not require hairy split, positive-authority/deletion-pair, product ownership, or material corpus-boundary decisions.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1642,16 +1695,16 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 73,
+    "no action": 74,
     "positive authority creation": 4,
     "runtime/source validation": 2,
-    "split by owner": 5
+    "split by owner": 4
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
     "runtime/source validation": 2,
-    "split by owner": 5
+    "split by owner": 4
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -2557,10 +2610,10 @@
     {
       "ruleId": "require_typed_placement_outcomes_before_apply",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "split by owner",
-      "packetNeeded": true,
-      "expectedRemediation": "Split terminal `placement/apply` from resource/discovery materialization authority.",
-      "evidenceNote": "Terminal apply consumes typed summaries, but discovery materialization still calls official generator; product policy needs separate decision.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Resolved as an already-atomized terminal placement/apply Grit rail; no owner split required because official resource/discovery materialization lives in separate placement substeps while terminal apply consumes typed outcome artifacts.",
+      "evidenceNote": "Focused Habitat proof passes. Source shows terminal `placement/apply.ts` consumes `resourcePlacement` and `discoveryPlacement` summaries, while official generator calls live in `place-resources` / `place-discoveries` materialization steps. A temporary `generateOfficialResources()` probe in terminal apply failed the Grit rule and was removed.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/rule.json"
     },
     {
@@ -2831,7 +2884,7 @@
   ],
   "gateState": {
     "currentLayer": "Layer 1 source-backed action classification; Layer 2/3 slices recorded separately",
-    "currentGate": "Layer 2/3 cascade resumed for one deterministic split-by-owner row; re-read remaining queue before selecting another slice.",
+    "currentGate": "Layer 2/3 cascade resumed for deterministic split-by-owner rows; re-read remaining queue before selecting another slice.",
     "mutationAuthorization": "none from this matrix; use a slice record before mutation"
   },
   "laneAgentMap": [
@@ -4014,7 +4067,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "standard-recipe placement stage context",
         "pendingAction": "Revisit if direct official generator calls become a broader runtime, adapter, or parameterized step policy.",
-        "evidenceNote": "Domino 41 moved this into `stages/placement/rules` because the whole predicate targets the standard placement apply step."
+        "evidenceNote": "Focused Habitat proof passes. Source shows terminal `placement/apply.ts` consumes `resourcePlacement` and `discoveryPlacement` summaries, while official generator calls live in `place-resources` / `place-discoveries` materialization steps. A temporary `generateOfficialResources()` probe in terminal apply failed the Grit rule and was removed.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Resolved as an already-atomized terminal placement/apply Grit rail; no owner split required because official resource/discovery materialization lives in separate placement substeps while terminal apply consumes typed outcome artifacts."
       },
       {
         "ruleId": "verify_runtime_stage_order_matches_contract_manifest",

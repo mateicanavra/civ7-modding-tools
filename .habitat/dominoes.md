@@ -1987,6 +1987,32 @@ Closure note:
 - A temporary `@swooper/mapgen-core` import probe failed at
   `packages/civ7-map-policy/src/index.ts:1` and was removed.
 
+## Domino 84: Placement Apply Grit Rail
+
+Status: closed on `codex/habitat-placement-apply-grit-rail`.
+
+Purpose: resume the cascade for one deterministic split-by-owner row and close
+it as an already-atomized terminal placement apply Grit rail.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `require_typed_placement_outcomes_before_apply` | Retained existing terminal `placement/apply.ts` Grit rail; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-placement-apply-grit-rail.md` |
+
+Moves it forward:
+
+- Separates terminal apply typed-outcome consumption from resource/discovery
+  materialization substeps without creating a new rule split.
+- Reduces the split-by-owner packet-needed count by one without making a
+  product/architecture semantic decision.
+
+Closure note:
+
+- Focused Habitat check passed.
+- A temporary `generateOfficialResources()` probe in terminal apply failed the
+  Grit rule and was removed.
+
 ### 46. Resume Authority Activation Projection Work
 
 Purpose: return to narrow projection, metadata pruning, and runner discovery
