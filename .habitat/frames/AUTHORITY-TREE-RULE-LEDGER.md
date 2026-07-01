@@ -30,12 +30,15 @@ Source boundary:
 
 ## Coverage Summary
 
+Counts in this summary are derived from the `Rule Matrix`; recompute them after
+matrix edits.
+
 | Metric | Count |
 | --- | ---: |
 | Live rule manifests | 127 |
-| Live rules with explicit receipt rows | 85 |
+| Live rules with explicit receipt rows | 94 |
 | Live rules with completed-pocket summary only | 17 |
-| Live rules not processed in `.habitat/dominoes.md` | 25 |
+| Live rules not processed in `.habitat/dominoes.md` | 16 |
 | Stale domino references excluded from live matrix | 5 |
 
 ## Remainder Action Matrix
