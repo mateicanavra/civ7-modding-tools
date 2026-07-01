@@ -127,7 +127,6 @@ Candidate blueprint-shaped examples include:
 - `docs/_blueprints/docs-site`
 - `habitat/toolkit/_blueprints/service-module`
 - `civ7/platform/_blueprints/civ7-adapter`
-- `civ7/resources/_blueprints/civ7-map-policy`
 
 Known transitional misfits, not blueprint exemplars:
 
@@ -164,6 +163,10 @@ Known transitional misfits, not blueprint exemplars:
   `_blueprints` lane; treat the child niches as honest Studio subsystems, not
   as proof that packet contents have already been split, generalized,
   retired, or admitted as blueprint authority.
+- `civ7/resources/map-policy/rules` and
+  `civ7/resources/civ7-types/rules` are child resource/package lanes for
+  official-resource-derived generated and protected surfaces. They are not
+  admitted `civ7-map-policy` or `civ7-types` blueprint kinds.
 
 ### Rules Lane
 

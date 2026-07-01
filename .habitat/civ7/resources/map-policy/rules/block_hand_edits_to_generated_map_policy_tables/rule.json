@@ -3,8 +3,8 @@
   "id": "block_hand_edits_to_generated_map_policy_tables",
   "title": "Block Hand Edits To Generated Map Policy Tables",
   "placement": {
-    "niche": "civ7/resources",
-    "blueprint": "civ7-map-policy",
+    "niche": "civ7/resources/map-policy",
+    "blueprint": "_self",
     "category": "output"
   },
   "operation": {
@@ -19,12 +19,14 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-map-policy/src/civ7-tables.gen.ts"]
+      "patterns": [
+        "packages/civ7-map-policy/src/civ7-tables.gen.ts"
+      ]
     }
   ],
   "generatedZone": "civ7-map-policy-tables",
   "supportFiles": {
-    "baseline": ".habitat/civ7/resources/_blueprints/civ7-map-policy/block_hand_edits_to_generated_map_policy_tables/baseline.json"
+    "baseline": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/baseline.json"
   },
   "runner": {
     "name": "habitat",

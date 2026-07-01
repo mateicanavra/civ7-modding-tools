@@ -3,8 +3,8 @@
   "id": "ensure_map_policy_dependency_independence",
   "title": "Ensure Map Policy Dependency Independence",
   "placement": {
-    "niche": "civ7/resources",
-    "blueprint": "civ7-map-policy",
+    "niche": "civ7/resources/map-policy",
+    "blueprint": "_self",
     "category": "boundary"
   },
   "operation": {
@@ -19,21 +19,23 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-map-policy/src/**"]
+      "patterns": [
+        "packages/civ7-map-policy/src/**"
+      ]
     },
     {
       "kind": "project-owner"
     }
   ],
   "supportFiles": {
-    "baseline": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/baseline.json"
+    "baseline": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/check.ts"
+      "script": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts"
     }
   }
 }

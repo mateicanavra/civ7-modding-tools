@@ -361,12 +361,12 @@ _None._
 | .habitat/civ7/platform/_blueprints/direct-control-session/require_sanctioned_direct_control_session_owners/rule.json | rule-json |  |
 | .habitat/civ7/platform/_blueprints/intelligence-bridge/require_narrow_game_ui_bridge_bootstrap/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/civ7/platform/_blueprints/intelligence-bridge/require_narrow_game_ui_bridge_bootstrap/rule.json | rule-json |  |
-| .habitat/civ7/resources/_blueprints/civ7-map-policy/block_hand_edits_to_generated_map_policy_tables/rule.json | rule-json |  |
-| .habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
-| .habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/rule.json | rule-json |  |
-| .habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
-| .habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/rule.json | rule-json |  |
-| .habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/rule.json | rule-json |  |
+| .habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/rule.json | rule-json |  |
+| .habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/rule.json | rule-json |  |
+| .habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
+| .habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json | rule-json |  |
+| .habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
+| .habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json | rule-json |  |
 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/operation.md | operation-note | generate |
 | .habitat/docs/_blueprints/docs-site/require_docs_site_root_inputs/rule.json | rule-json |  |
 | .habitat/docs/_blueprints/docs-site/require_docs_site_root_inputs/structure.toml | structure-spec |  |

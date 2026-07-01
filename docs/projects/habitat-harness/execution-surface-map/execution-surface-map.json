@@ -7665,7 +7665,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/check.ts"
+        ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts"
       ]
     },
     {
@@ -7674,7 +7674,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts"
+        ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts"
       ]
     },
     {
@@ -22708,8 +22708,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/block_hand_edits_to_generated_map_policy_tables/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/block_hand_edits_to_generated_map_policy_tables/rule.json",
+      "id": ".habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/rule.json",
+      "path": ".habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -22742,8 +22742,42 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/check.ts",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/check.ts",
+      "id": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/rule.json",
+      "path": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
+      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
       "surfaceKind": "check-script",
       "surfaceRole": "command_check_executor",
       "invokedBy": [
@@ -22832,8 +22866,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/rule.json",
+      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json",
+      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -22866,8 +22900,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts",
+      "id": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts",
+      "path": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts",
       "surfaceKind": "check-script",
       "surfaceRole": "command_check_executor",
       "invokedBy": [
@@ -22956,42 +22990,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/rule.json",
+      "id": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json",
+      "path": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -38007,8 +38007,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/block_hand_edits_to_generated_map_policy_tables/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/block_hand_edits_to_generated_map_policy_tables/rule.json",
+      "id": ".habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/rule.json",
+      "path": ".habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -38041,8 +38041,42 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/check.ts",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/check.ts",
+      "id": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/rule.json",
+      "path": ".habitat/civ7/resources/map-policy/rules/block_hand_edits_to_generated_map_policy_tables/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
+      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
       "surfaceKind": "check-script",
       "surfaceRole": "command_check_executor",
       "invokedBy": [
@@ -38131,8 +38165,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/ensure_map_policy_dependency_independence/rule.json",
+      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json",
+      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -38165,8 +38199,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts",
+      "id": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts",
+      "path": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts",
       "surfaceKind": "check-script",
       "surfaceRole": "command_check_executor",
       "invokedBy": [
@@ -38255,42 +38289,8 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/rule.json",
-      "path": ".habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/rule.json",
+      "id": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json",
+      "path": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

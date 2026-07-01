@@ -3,8 +3,8 @@
   "id": "block_hand_edits_to_generated_civ7_types",
   "title": "Block Hand Edits To Generated Civ7 Types",
   "placement": {
-    "niche": "civ7/resources",
-    "blueprint": "civ7-types",
+    "niche": "civ7/resources/civ7-types",
+    "blueprint": "_self",
     "category": "output"
   },
   "operation": {
@@ -19,12 +19,14 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-types/generated/**"]
+      "patterns": [
+        "packages/civ7-types/generated/**"
+      ]
     }
   ],
   "generatedZone": "civ7-types-generated",
   "supportFiles": {
-    "baseline": ".habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/baseline.json"
+    "baseline": ".habitat/civ7/resources/civ7-types/rules/block_hand_edits_to_generated_civ7_types/baseline.json"
   },
   "runner": {
     "name": "habitat",

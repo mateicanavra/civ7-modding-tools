@@ -3,8 +3,8 @@
   "id": "preserve_evidence_provenance_labels",
   "title": "Preserve Evidence Provenance Labels",
   "placement": {
-    "niche": "civ7/resources",
-    "blueprint": "civ7-map-policy",
+    "niche": "civ7/resources/map-policy",
+    "blueprint": "_self",
     "category": "output"
   },
   "operation": {
@@ -19,21 +19,23 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-map-policy/src/civ7-tables.gen.ts"]
+      "patterns": [
+        "packages/civ7-map-policy/src/civ7-tables.gen.ts"
+      ]
     },
     {
       "kind": "project-owner"
     }
   ],
   "supportFiles": {
-    "baseline": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/baseline.json"
+    "baseline": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/resources/_blueprints/civ7-map-policy/preserve_evidence_provenance_labels/check.ts"
+      "script": ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts"
     }
   }
 }
