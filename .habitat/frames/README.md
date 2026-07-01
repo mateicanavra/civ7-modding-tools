@@ -13,6 +13,11 @@ moves.
 
 Current frames:
 
+- `RULE-REMEDIATION-WORKSTREAM-FRAME.md`: use when a multi-rule Habitat
+  authority-tree remediation effort needs the full execution geometry across
+  Layer 1 classification fanout, Layer 2 decision-packet fanout or sequencing,
+  and Layer 3 sequential implementation slices. It is the parent orchestration
+  frame for the three general rule-remediation frames.
 - `RULE-ACTION-CLASSIFICATION-FRAME.md`: use when one live Habitat rule needs a
   light action decision. The output is compact row data: current placement,
   action decision, expected remediation outcome, whether a decision packet is
