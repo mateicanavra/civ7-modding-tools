@@ -3,6 +3,7 @@ import { Deck, OrthographicView, type OrthographicViewState } from "@deck.gl/cor
 import { LineLayer } from "@deck.gl/layers";
 import type { MutableRefObject } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useResolvedTheme } from "../../ui/hooks/useResolvedTheme";
 import { type Bounds, DEFAULT_VIEW_STATE, type VizLayerEntryV1 } from "./model";
 
 function niceStep(target: number): number {
@@ -59,12 +60,17 @@ export function DeckCanvas(props: DeckCanvasProps) {
     effectiveLayer,
     viewportSize,
     showBackgroundGrid = true,
-    lightMode = false,
+    lightMode,
     activeBounds,
     apiRef,
     onApiReady,
     interactive = true,
   } = props;
+  // deck.gl paints the grid into a <canvas> as literal RGBA that can't read a CSS
+  // class, so it needs the resolved theme as a value. Default to the theme
+  // rendered on the root unless a caller overrides via the prop.
+  const resolvedTheme = useResolvedTheme();
+  const effectiveLightMode = lightMode ?? resolvedTheme === "light";
 
   // Using the core Deck instance avoids React-driven rerenders on every pointer interaction.
   // (The @deck.gl/react wrapper can schedule React updates during camera changes.)
@@ -125,7 +131,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
       }
     }
 
-    const gridColor: [number, number, number, number] = lightMode
+    const gridColor: [number, number, number, number] = effectiveLightMode
       ? [0, 0, 0, 16]
       : [255, 255, 255, 12];
 
@@ -139,7 +145,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
       widthUnits: "pixels",
       pickable: false,
     });
-  }, [gridParams, lightMode]);
+  }, [gridParams, effectiveLightMode]);
 
   const deckLayers = useMemo<Layer[]>(
     () => [...(gridLayer ? [gridLayer] : []), ...layers],

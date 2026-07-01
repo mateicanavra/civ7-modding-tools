@@ -10,6 +10,7 @@ export {
   type UseGenerationReturn,
   useGeneration,
 } from "./useGeneration";
+export { type ResolvedTheme, resolveThemeFromDom, useResolvedTheme } from "./useResolvedTheme";
 export { useThemePreference } from "./useTheme";
 export {
   type UseViewStateOptions,
