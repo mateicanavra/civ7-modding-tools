@@ -438,6 +438,34 @@
             "reason": "Separate positive tag/effect family authority work; do not collapse into morphology-stage recurrence guard."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-existing-grit-rail-contexts.md",
+        "branch": "codex/habitat-existing-grit-rail-contexts",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed stale packet-needed state for four rules that already use exact packet-local Grit source-check rails and have clean focused Habitat proof.",
+        "selectedRows": [
+          "prohibit_morphology_runtime_continent_step_tokens",
+          "prohibit_runtime_continent_contract_tokens",
+          "prohibit_rng_callback_state_in_ops",
+          "prohibit_studio_rpc_eventhub_lifecycle_leaks"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "enforce_studio_rpc_eventhub_topology",
+            "reason": "Positive Studio server mount/topology script, not equivalent to EventHub lifecycle leak Grit source rail."
+          },
+          {
+            "ruleId": "prohibit_runtime_local_config_default_merging",
+            "reason": "Runtime config/defaulting remainder row is broader and not an exact packet-local Grit recurrence rail."
+          },
+          {
+            "ruleId": "prohibit_ambient_rng_in_authored_generation",
+            "reason": "Separate deterministic authored-generation positive authority candidate; do not collapse into domain-operation RNG callback recurrence rail."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1125,12 +1153,83 @@
           "`bun habitat check --rule prohibit_foundation_projection_legacy_motion_source --json` passed.",
           "`bun habitat check --rule prohibit_morphology_stage_legacy_effect_gates --json` passed."
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceCandidate": "existing Grit rail contexts reconciliation",
+        "status": "closed-by-existing-source-check-rail",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/pattern.md",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/pattern.md",
+          ".habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/rule.json",
+          ".habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/pattern.md",
+          ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/rule.json",
+          ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features",
+          "mods/mod-swooper-maps/src/domain/*/ops",
+          "apps/mapgen-studio/src/server/daemon/daemon.ts",
+          "apps/mapgen-studio/src/server/studio/context.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_morphology_runtime_continent_step_tokens",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing source-check rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain existing packet-local Grit rail; the rule already validates concrete morphology step source recurrence risk against runtime continent identifiers and direct landmass marking calls.",
+            "proofLimit": "Focused Habitat proof validates current source. This does not create positive authority, delete adjacent recurrence guards, or move assertions into package-owned tests."
+          },
+          {
+            "ruleId": "prohibit_runtime_continent_contract_tokens",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing source-check rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain existing packet-local Grit rail; the rule already validates concrete morphology contract/artifact source recurrence risk against runtime continent identifiers.",
+            "proofLimit": "Focused Habitat proof validates current source. This does not create positive authority, delete adjacent recurrence guards, or move assertions into package-owned tests."
+          },
+          {
+            "ruleId": "prohibit_rng_callback_state_in_ops",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing source-check rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain existing domain-operation blueprint Grit rail; the rule already validates concrete domain-op source recurrence risk against ambient RNG callback/state surfaces.",
+            "proofLimit": "Focused Habitat proof validates current source. This does not create positive authority, delete adjacent recurrence guards, or move assertions into package-owned tests."
+          },
+          {
+            "ruleId": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing source-check rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain existing packet-local Grit rail; the rule already validates concrete Studio server source recurrence risk around EventHub lifecycle leaks.",
+            "proofLimit": "Focused Habitat proof validates current source. This does not create positive authority, delete adjacent recurrence guards, or move assertions into package-owned tests."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule prohibit_morphology_runtime_continent_step_tokens --json` passes.",
+          "`bun habitat check --rule prohibit_runtime_continent_contract_tokens --json` passes.",
+          "`bun habitat check --rule prohibit_rng_callback_state_in_ops --json` passes.",
+          "`bun habitat check --rule prohibit_studio_rpc_eventhub_lifecycle_leaks --json` passes.",
+          "Canonical JSON packet-needed runtime/source-validation count drops by four."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule prohibit_morphology_runtime_continent_step_tokens --json` passed.",
+          "`bun habitat check --rule prohibit_runtime_continent_contract_tokens --json` passed.",
+          "`bun habitat check --rule prohibit_rng_callback_state_in_ops --json` passed.",
+          "`bun habitat check --rule prohibit_studio_rpc_eventhub_lifecycle_leaks --json` passed.",
+          "Current source scans for the guarded token families produced no live violations."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
-      "runtime/source validation": 19,
+      "runtime/source validation": 15,
       "split by owner": 6
     },
     "implementationReadySliceQueue": [],
@@ -1176,7 +1275,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Existing Grit source-rail reconciliation closed for foundation projection legacy motion and morphology legacy effect gates; no implementation-ready Layer 3 queue remains after closure.",
+      "layer2": "Existing Grit source-rail contexts reconciliation closed for morphology runtime tokens, morphology contract runtime tokens, domain-operation RNG callback state, and Studio EventHub lifecycle leaks; no implementation-ready Layer 3 queue remains after closure.",
       "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1191,15 +1290,15 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 55,
+    "no action": 59,
     "positive authority creation": 4,
-    "runtime/source validation": 19,
+    "runtime/source validation": 15,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 19,
+    "runtime/source validation": 15,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -1683,10 +1782,10 @@
     {
       "ruleId": "prohibit_morphology_runtime_continent_step_tokens",
       "lane": "standard recipe morphology stage",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Validate allowed runtime/projection owners for continent/region runtime tokens.",
-      "evidenceNote": "Morphology source has no runtime continent tokens; placement/adapter legitimately own runtime region IDs.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates concrete morphology step source recurrence risk against runtime continent identifiers and direct landmass marking calls.",
+      "evidenceNote": "The current runner is Grit, scoped to morphology implementation source, current source scan is clean, and focused Habitat proof passes. This is a recurrence-risk source rail, not a package-test or Nx-boundary candidate.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/rule.json"
     },
     {
@@ -1773,10 +1872,10 @@
     {
       "ruleId": "prohibit_rng_callback_state_in_ops",
       "lane": "blueprints/domain-operation",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Retarget or narrow to op contract/input validation for ambient RNG state.",
-      "evidenceNote": "Invariant is live, but source has allowed deterministic internal RNG helpers; current predicate is too lexical.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain existing domain-operation blueprint Grit rail; the rule already validates concrete domain-op source recurrence risk against ambient RNG callback/state surfaces.",
+      "evidenceNote": "The current runner is Grit over domain operation source, current source scan is clean, and focused Habitat proof passes. This remains valid domain-operation execution authority unless a later deterministic authored-generation positive authority absorbs it.",
       "currentPath": ".habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/rule.json"
     },
     {
@@ -1800,10 +1899,10 @@
     {
       "ruleId": "prohibit_runtime_continent_contract_tokens",
       "lane": "standard recipe morphology stage",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Validate contract-file prohibition with runtime/projection allowlists.",
-      "evidenceNote": "Runtime continent identifiers are forbidden in morphology contracts/artifacts but legitimate elsewhere.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates concrete morphology contract/artifact source recurrence risk against runtime continent identifiers.",
+      "evidenceNote": "The current runner is Grit, scoped to morphology contract/artifact surfaces, current source scan is clean, and focused Habitat proof passes. Future positive contract-surface authority can absorb it, but no mutation is needed now.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/rule.json"
     },
     {
@@ -1863,10 +1962,10 @@
     {
       "ruleId": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
       "lane": "MapGen Studio",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move to native EventHub lifecycle invariant.",
-      "evidenceNote": "Package test already asserts runtime-owned EventHub and no daemon/context leakage.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates concrete Studio server source recurrence risk around EventHub lifecycle leaks.",
+      "evidenceNote": "The current runner is Grit over daemon/context source, current source shows handler mounting through context without EventHub lifecycle leakage, and focused Habitat proof passes. This is source-shape authority, not a package-test junk drawer.",
       "currentPath": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/rule.json"
     },
     {
@@ -2813,7 +2912,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "existing blueprint authority",
         "pendingAction": "Cross-domain operation runtime discipline should move to `domain-operation` when the predicate applies to every operation module.",
-        "evidenceNote": "The whole rule governs valid domain operations generally: domain ops should reject ambient RNG callback/state surfaces.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "evidenceNote": "The current runner is Grit over domain operation source, current source scan is clean, and focused Habitat proof passes. This remains valid domain-operation execution authority unless a later deterministic authored-generation positive authority absorbs it.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain existing domain-operation blueprint Grit rail; the rule already validates concrete domain-op source recurrence risk against ambient RNG callback/state surfaces."
       },
       {
         "ruleId": "prohibit_root_config_facade_imports_in_domain_ops",
@@ -3270,7 +3372,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "atomized morphology stage implementation context",
         "pendingAction": "Revisit only if runtime-continent cleanup becomes positive projection/runtime boundary authority.",
-        "evidenceNote": "Domino 49 split `prohibit_runtime_continent_step_tokens`; this row owns only morphology implementation token cleanup."
+        "evidenceNote": "The current runner is Grit, scoped to morphology implementation source, current source scan is clean, and focused Habitat proof passes. This is a recurrence-risk source rail, not a package-test or Nx-boundary candidate.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates concrete morphology step source recurrence risk against runtime continent identifiers and direct landmass marking calls."
       },
       {
         "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
@@ -3293,7 +3398,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained morphology stage context",
         "pendingAction": "Revisit when runtime-token forbids in contracts become positive contract-surface rules.",
-        "evidenceNote": "Domino 42 non-move: the whole predicate guards morphology contracts and artifact files from runtime continent identifiers; it is contract/runtime-token separation, not artifact authority."
+        "evidenceNote": "The current runner is Grit, scoped to morphology contract/artifact surfaces, current source scan is clean, and focused Habitat proof passes. Future positive contract-surface authority can absorb it, but no mutation is needed now.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates concrete morphology contract/artifact source recurrence risk against runtime continent identifiers."
       },
       {
         "ruleId": "require_morphology_config_facade_exports",
@@ -3655,7 +3763,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "Studio server lane placement",
         "pendingAction": "Split later if lifecycle ownership becomes a broader server-runtime capability rule.",
-        "evidenceNote": "Governs EventHub lifecycle ownership inside the Studio server runtime context."
+        "evidenceNote": "The current runner is Grit over daemon/context source, current source shows handler mounting through context without EventHub lifecycle leakage, and focused Habitat proof passes. This is source-shape authority, not a package-test junk drawer.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates concrete Studio server source recurrence risk around EventHub lifecycle leaks."
       },
       {
         "ruleId": "verify_visualization_runtime_build_artifacts",
