@@ -6,9 +6,9 @@
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "check-script": 34,
+      "check-script": 33,
       "rule-json": 113,
-      "pattern": 70,
+      "pattern": 71,
       "structure-spec": 5,
       "apply-pattern": 1,
       "generate-script": 2,
@@ -21,9 +21,9 @@
       "habitat-cli-source": 125
     },
     "surfacesByRole": {
-      "command_check_executor": 34,
+      "command_check_executor": 33,
       "runner_metadata": 113,
-      "policy_pattern": 71,
+      "policy_pattern": 72,
       "structure_authority": 5,
       "operation_surface": 6,
       "workspace_entrypoint": 203,
@@ -49,9 +49,9 @@
   },
   "executionAnatomy": {
     "roleCounts": {
-      "fixture-support": 13,
+      "fixture-support": 12,
       "adapter": 113,
-      "policy-predicate": 76,
+      "policy-predicate": 77,
       "transient-dependency": 98,
       "entrypoint": 205,
       "runner-runtime": 125
@@ -368,6 +368,22 @@
       ]
     },
     {
+      "target": "grit\nlanguage js(typescript)",
+      "targetClass": "workspace-tool",
+      "references": 8,
+      "sourceCount": 8,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md",
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md",
+        ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/pattern.md",
+        ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/",
       "targetClass": "mod",
       "references": 8,
@@ -384,21 +400,6 @@
       ]
     },
     {
-      "target": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-      "targetClass": "relative",
-      "references": 14,
-      "sourceCount": 7,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/check.mjs",
-        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs",
-        ".habitat/civ7/mapgen/domains/narrative/rules/require_narrative_hotspot_overlay_owner/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/check.mjs"
-      ]
-    },
-    {
       "target": "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy",
       "targetClass": "habitat-toolkit",
       "references": 7,
@@ -411,21 +412,6 @@
         "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
         "tools/habitat/src/service/model/source-check/policy/source/source-rules.policy.ts"
-      ]
-    },
-    {
-      "target": "grit\nlanguage js(typescript)",
-      "targetClass": "workspace-tool",
-      "references": 7,
-      "sourceCount": 7,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md",
-        ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/pattern.md",
-        ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md"
       ]
     },
     {
@@ -471,6 +457,20 @@
         "packages/civ7-map-policy/package.json#scripts.check",
         "packages/civ7-types/package.json#scripts.check",
         "packages/mapgen-core/package.json#scripts.check"
+      ]
+    },
+    {
+      "target": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+      "targetClass": "relative",
+      "references": 12,
+      "sourceCount": 6,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/check.mjs",
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs",
+        ".habitat/civ7/mapgen/domains/narrative/rules/require_narrative_hotspot_overlay_owner/check.mjs",
+        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/check.mjs",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/check.mjs"
       ]
     },
     {
@@ -1909,7 +1909,7 @@
       "sourceCount": 2,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md"
       ]
     },
     {
@@ -5588,6 +5588,15 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/other.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/recipe.tsx",
       "targetClass": "mod",
       "references": 1,
@@ -6611,6 +6620,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/tag-contracts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md"
       ]
     },
     {
@@ -15617,45 +15635,39 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [
-          "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:path"
-        ],
+        "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
+          "mods/mod-swooper-maps/src/recipes/standard/other.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/tag-contracts",
           "mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node:path"
+          "grit\nlanguage js(typescript)"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "import",
-            "value": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/other.ts",
+            "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
+            "value": "mods/mod-swooper-maps/src/recipes/standard/tag-contracts",
+            "targetClass": "mod"
           },
           {
             "kind": "path-reference",
@@ -15664,19 +15676,17 @@
           },
           {
             "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "value": "grit\nlanguage js(typescript)",
+            "targetClass": "workspace-tool"
           }
         ]
       },
       "anatomy": {
         "roles": [
-          "fixture-support"
+          "policy-predicate"
         ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
         "transientSignals": []
       },
       "buckets": [
@@ -29451,45 +29461,39 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [
-          "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:path"
-        ],
+        "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
+          "mods/mod-swooper-maps/src/recipes/standard/other.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/tag-contracts",
           "mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node:path"
+          "grit\nlanguage js(typescript)"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "import",
-            "value": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/other.ts",
+            "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
+            "value": "mods/mod-swooper-maps/src/recipes/standard/tag-contracts",
+            "targetClass": "mod"
           },
           {
             "kind": "path-reference",
@@ -29498,19 +29502,17 @@
           },
           {
             "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "value": "grit\nlanguage js(typescript)",
+            "targetClass": "workspace-tool"
           }
         ]
       },
       "anatomy": {
         "roles": [
-          "fixture-support"
+          "policy-predicate"
         ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
         "transientSignals": []
       },
       "buckets": [

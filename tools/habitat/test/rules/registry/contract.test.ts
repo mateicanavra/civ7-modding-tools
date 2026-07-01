@@ -31,11 +31,11 @@ describe("rule registry contract", () => {
       readText: readTextSync,
     }).rules;
 
-    expect(rules).toHaveLength(115);
-    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(70);
+    expect(rules).toHaveLength(113);
+    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(69);
     expect(
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
-    ).toHaveLength(34);
+    ).toHaveLength(33);
     expect(
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure")
     ).toHaveLength(5);
