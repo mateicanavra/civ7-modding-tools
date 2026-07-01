@@ -1,6 +1,11 @@
-import Form from "@rjsf/core";
+// Import Form from its component subpath, NOT the "@rjsf/core" barrel. The
+// barrel (index.ts) statically imports `getTestRegistry`, which imports
+// `@rjsf/validator-ajv8` (ajv) at top level. Because neither package sets
+// `sideEffects: false`, bundlers cannot tree-shake that unused test helper, so
+// the barrel drags ajv's `new Function` compiler into the bundle — the exact
+// CSP violation this migration removes. `Form.js` itself is ajv-free.
+import Form from "@rjsf/core/lib/components/Form.js";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
-import { customizeValidator } from "@rjsf/validator-ajv8";
 import { useMemo } from "react";
 import {
   BrowserConfigArrayFieldTemplate,
@@ -9,6 +14,7 @@ import {
   BrowserConfigObjectFieldTemplate,
 } from "./rjsfTemplates";
 import { configWidgets } from "./rjsfWidgets";
+import { createTypeboxValidator } from "./typeboxRjsfValidator";
 
 export type SchemaFormProps<TConfig> = {
   schema: RJSFSchema;
@@ -21,8 +27,10 @@ export type SchemaFormProps<TConfig> = {
 
 export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
   const { schema, uiSchema, formContext, value, onChange, disabled } = props;
+  // TypeBox-backed validator: CSP-safe (no `new Function`), unlike ajv. See
+  // typeboxRjsfValidator.ts for the parity rationale.
   const validator = useMemo(
-    () => customizeValidator<TConfig, RJSFSchema, BrowserConfigFormContext>(),
+    () => createTypeboxValidator<TConfig, RJSFSchema, BrowserConfigFormContext>(),
     []
   );
 
