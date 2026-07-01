@@ -27,15 +27,16 @@
       "kind": "project-owner"
     }
   ],
+  "scanRoots": ["packages/civ7-map-policy/src"],
+  "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/baseline.json"
   },
   "runner": {
-    "name": "habitat",
-    "mode": "script",
-    "runtime": "bun",
+    "name": "grit",
     "files": {
-      "script": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts"
-    }
+      "pattern": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md"
+    },
+    "patternName": "ensure_map_policy_dependency_independence"
   }
 }

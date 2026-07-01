@@ -547,6 +547,27 @@
             "reason": "Broad runtime/config `_remainder` Grit rule still needs handler-scope narrowing or positive config authority before admission."
           }
         ]
+      },
+      {
+        "actionClass": "split by owner",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-map-policy-import-independence-grit-rail.md",
+        "branch": "codex/habitat-map-policy-import-independence-grit",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Resolved map-policy dependency independence as one packet-local Grit import rail rather than a hairy owner split. Nx covers coarse project-kind law; Habitat/Grit owns the package-specific forbidden import surfaces.",
+        "selectedRows": [
+          "ensure_map_policy_dependency_independence"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "require_public_domain_surfaces_in_tests",
+            "reason": "Still a real test-scope split between public contract tests and focused internal tests."
+          },
+          {
+            "ruleId": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+            "reason": "Still mixes deterministic-generation, lexical cleanup, owner-specific generator, and projection/runtime clauses."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1515,13 +1536,45 @@
           "`bun habitat check --rule preserve_decomposed_foundation_contract_surfaces --json` passed.",
           "`bun habitat check --rule preserve_evidence_provenance_labels --json` passed."
         ]
+      },
+      {
+        "actionClass": "split by owner",
+        "sliceCandidate": "map-policy import independence Grit rail",
+        "status": "implemented-as-single-owner-source-rail",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json",
+          ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
+          "eslint.boundaries.config.mjs",
+          "packages/civ7-map-policy/project.json",
+          "packages/civ7-map-policy/src/index.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "ensure_map_policy_dependency_independence",
+            "inputClassification": "split by owner",
+            "wholeRuleFit": "single packet-local Grit source import rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Resolved as a single packet-local Grit import rail for `@civ7/map-policy`; no owner split required because the whole predicate is package-local import independence beyond coarse Nx `kind:foundation` boundaries.",
+            "proofLimit": "Focused Habitat proof and one temporary negative import probe validate the import-specifier rail. This does not change the global Nx boundary taxonomy."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule ensure_map_policy_dependency_independence --json` passes with the Grit runner.",
+          "Temporary `@swooper/mapgen-core` import probe fails the rule at `packages/civ7-map-policy/src/index.ts:1` and is removed.",
+          "Canonical JSON packet-needed split-by-owner count drops by one."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule ensure_map_policy_dependency_independence --json` passed with the Grit runner.",
+          "Temporary `@swooper/mapgen-core` import probe failed the rule at `packages/civ7-map-policy/src/index.ts:1` and was removed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
       "runtime/source validation": 2,
-      "split by owner": 6
+      "split by owner": 5
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -1574,8 +1627,8 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Layer 3 cascade closed all clean high-confidence runtime/source validation retentions and Grit/source-rail repairs. Remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
-      "layer3Boundary": "Stop before further mutation. The next move requires user/architecture coordination for semantic split or positive authority/deletion-pair classes, or a separately scoped workspace hygiene/config-defaulting remediation.",
+      "layer2": "Map-policy dependency independence resolved as a packet-local Grit import rail; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
+      "layer3Boundary": "Continue only for implementation-ready rows that do not require hairy split, positive-authority/deletion-pair, product ownership, or material corpus-boundary decisions.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
@@ -1589,16 +1642,16 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 72,
+    "no action": 73,
     "positive authority creation": 4,
     "runtime/source validation": 2,
-    "split by owner": 6
+    "split by owner": 5
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
     "runtime/source validation": 2,
-    "split by owner": 6
+    "split by owner": 5
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -1712,10 +1765,10 @@
     {
       "ruleId": "ensure_map_policy_dependency_independence",
       "lane": "Civ7 platform/resources",
-      "actionDecision": "split by owner",
-      "packetNeeded": true,
-      "expectedRemediation": "Split project-boundary graph from virtual `/base-standard/` source import token guard.",
-      "evidenceNote": "`kind:foundation` graph covers project edges, but script also owns source text predicate.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Resolved as a single packet-local Grit import rail for `@civ7/map-policy`; no owner split required because the whole predicate is package-local import independence beyond coarse Nx `kind:foundation` boundaries.",
+      "evidenceNote": "Converted from Bun script to Grit over import/export/dynamic import specifiers in `packages/civ7-map-policy/src`. Nx already owns coarse project-kind boundaries but intentionally permits foundation-to-foundation edges, so this package-specific rule remains Habitat/Grit authority. Focused check passes and a temporary `@swooper/mapgen-core` probe failed at `packages/civ7-map-policy/src/index.ts:1`.",
       "currentPath": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/rule.json"
     },
     {
@@ -2778,7 +2831,7 @@
   ],
   "gateState": {
     "currentLayer": "Layer 1 source-backed action classification; Layer 2/3 slices recorded separately",
-    "currentGate": "Layer 3 cascade stop gate reached: no clean high-confidence implementation-ready slice remains.",
+    "currentGate": "Layer 2/3 cascade resumed for one deterministic split-by-owner row; re-read remaining queue before selecting another slice.",
     "mutationAuthorization": "none from this matrix; use a slice record before mutation"
   },
   "laneAgentMap": [
@@ -4166,7 +4219,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "Civ7 map-policy resource lane placement",
         "pendingAction": "Convert to a shared import-boundary enforcement surface only if later source-check extraction makes that destination explicit.",
-        "evidenceNote": "Domino 47 moved this to the map-policy child niche because the whole predicate governs `@civ7/map-policy` package independence from runtime, MapGen, mods, Studio, and base-standard implementation imports."
+        "evidenceNote": "Converted from Bun script to Grit over import/export/dynamic import specifiers in `packages/civ7-map-policy/src`. Nx already owns coarse project-kind boundaries but intentionally permits foundation-to-foundation edges, so this package-specific rule remains Habitat/Grit authority. Focused check passes and a temporary `@swooper/mapgen-core` probe failed at `packages/civ7-map-policy/src/index.ts:1`.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Resolved as a single packet-local Grit import rail for `@civ7/map-policy`; no owner split required because the whole predicate is package-local import independence beyond coarse Nx `kind:foundation` boundaries."
       },
       {
         "ruleId": "preserve_evidence_provenance_labels",

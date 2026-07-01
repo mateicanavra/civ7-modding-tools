@@ -6,9 +6,9 @@
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "check-script": 32,
+      "check-script": 31,
       "rule-json": 113,
-      "pattern": 72,
+      "pattern": 73,
       "structure-spec": 5,
       "apply-pattern": 1,
       "generate-script": 2,
@@ -21,9 +21,9 @@
       "habitat-cli-source": 125
     },
     "surfacesByRole": {
-      "command_check_executor": 32,
+      "command_check_executor": 31,
       "runner_metadata": 113,
-      "policy_pattern": 73,
+      "policy_pattern": 74,
       "structure_authority": 5,
       "operation_surface": 6,
       "workspace_entrypoint": 203,
@@ -51,7 +51,7 @@
     "roleCounts": {
       "fixture-support": 11,
       "adapter": 113,
-      "policy-predicate": 78,
+      "policy-predicate": 79,
       "transient-dependency": 98,
       "entrypoint": 205,
       "runner-runtime": 125
@@ -69,8 +69,8 @@
     {
       "target": "grit\nlanguage js(typescript)\n\nor {",
       "targetClass": "workspace-tool",
-      "references": 26,
-      "sourceCount": 26,
+      "references": 27,
+      "sourceCount": 27,
       "sampleSources": [
         ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
         ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
@@ -103,24 +103,6 @@
       ]
     },
     {
-      "target": "git",
-      "targetClass": "workspace-tool",
-      "references": 22,
-      "sourceCount": 22,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs",
-        ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts",
-        ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts",
-        ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs",
-        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs",
-        ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts"
-      ]
-    },
-    {
       "target": "@habitat/cli/service/model/check/index",
       "targetClass": "habitat-toolkit",
       "references": 21,
@@ -136,6 +118,24 @@
         "tools/habitat/src/service/model/check/policy/structural/selection.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/source-execution.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/state.policy.ts"
+      ]
+    },
+    {
+      "target": "git",
+      "targetClass": "workspace-tool",
+      "references": 21,
+      "sourceCount": 21,
+      "sampleSources": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs",
+        ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts",
+        ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts",
+        ".habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs",
+        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs",
+        ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts"
       ]
     },
     {
@@ -195,10 +195,11 @@
     {
       "target": "./types.js",
       "targetClass": "relative",
-      "references": 23,
-      "sourceCount": 12,
+      "references": 24,
+      "sourceCount": 13,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
+        ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md",
         "tools/habitat/src/providers/grit/diagnostics.ts",
         "tools/habitat/src/providers/grit/index.ts",
         "tools/habitat/src/providers/grit/output.ts",
@@ -206,8 +207,7 @@
         "tools/habitat/src/providers/grit/runner.ts",
         "tools/habitat/src/providers/grit/source-check.ts",
         "tools/habitat/src/resources/command/fake.ts",
-        "tools/habitat/src/resources/command/index.ts",
-        "tools/habitat/src/resources/command/output.ts"
+        "tools/habitat/src/resources/command/index.ts"
       ]
     },
     {
@@ -3326,6 +3326,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "package.json#scripts.resources:unlock"
+      ]
+    },
+    {
+      "target": "./policy-grid.js",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md"
       ]
     },
     {
@@ -7208,12 +7217,12 @@
       ]
     },
     {
-      "target": "packages/civ7-map-policy/src",
+      "target": "packages/civ7-map-policy/src/.",
       "targetClass": "package",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts"
+        ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md"
       ]
     },
     {
@@ -7223,6 +7232,24 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts"
+      ]
+    },
+    {
+      "target": "packages/civ7-map-policy/src/demo.ts",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/civ7-map-policy/test/demo.ts",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md"
       ]
     },
     {
@@ -20854,87 +20881,67 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
-      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
+      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md",
+      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
+        "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "packages/civ7-map-policy/src"
+          "packages/civ7-map-policy/src/.",
+          "packages/civ7-map-policy/src/demo.ts",
+          "packages/civ7-map-policy/test/demo.ts"
         ],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
+        "childProcessCalls": [],
         "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:fs",
-          "node:path"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "kind": "path-reference",
+            "value": "./policy-grid.js",
+            "targetClass": "relative"
           },
           {
             "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src",
+            "value": "./types.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/civ7-map-policy/src/.",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/civ7-map-policy/src/demo.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/civ7-map-policy/test/demo.ts",
             "targetClass": "package"
           },
           {
             "kind": "shell-command",
-            "value": "git",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
           }
         ]
       },
       "anatomy": {
-        "roles": [],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
         "supportSignals": [],
         "transientSignals": []
       },
@@ -34692,87 +34699,67 @@
       ]
     },
     {
-      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
-      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/check.ts",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
+      "id": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md",
+      "path": ".habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
+        "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "packages/civ7-map-policy/src"
+          "packages/civ7-map-policy/src/.",
+          "packages/civ7-map-policy/src/demo.ts",
+          "packages/civ7-map-policy/test/demo.ts"
         ],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
+        "childProcessCalls": [],
         "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:fs",
-          "node:path"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "kind": "path-reference",
+            "value": "./policy-grid.js",
+            "targetClass": "relative"
           },
           {
             "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src",
+            "value": "./types.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/civ7-map-policy/src/.",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/civ7-map-policy/src/demo.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/civ7-map-policy/test/demo.ts",
             "targetClass": "package"
           },
           {
             "kind": "shell-command",
-            "value": "git",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
           }
         ]
       },
       "anatomy": {
-        "roles": [],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
         "supportSignals": [],
         "transientSignals": []
       },
