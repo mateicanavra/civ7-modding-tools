@@ -1562,12 +1562,20 @@
           "prohibit_morphology_overlay_implementation_reads"
         ],
         "reason": "Likely belongs to a general step implementation/declared-dependency authority rather than a morphology-only negative; needs a decision packet before mutation."
+      },
+      {
+        "kind": "runtime/source residual stop gate",
+        "rules": [
+          "enforce_formatting_and_import_hygiene",
+          "prohibit_runtime_local_config_default_merging"
+        ],
+        "reason": "The formatting/import hygiene row is a valid workspace gate but currently red from broad workspace drift, so it is not a clean rule-remediation slice. The runtime-local config defaulting row remains a broad `_remainder` Grit proxy and needs handler-scope narrowing or positive config authority before admission/deletion."
       }
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Positive/currentness native rails retained for Studio RPC topology, decomposed foundation contract surfaces, and map-policy evidence provenance labels; runtime/source validation now has two remaining packet-needed rows.",
-      "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
+      "layer2": "Layer 3 cascade closed all clean high-confidence runtime/source validation retentions and Grit/source-rail repairs. Remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
+      "layer3Boundary": "Stop before further mutation. The next move requires user/architecture coordination for semantic split or positive authority/deletion-pair classes, or a separately scoped workspace hygiene/config-defaulting remediation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
@@ -2770,7 +2778,7 @@
   ],
   "gateState": {
     "currentLayer": "Layer 1 source-backed action classification; Layer 2/3 slices recorded separately",
-    "currentGate": "Layer 1 convergence passed; current Layer 3 boundary queue advanced by foundation-config-boundary-rail",
+    "currentGate": "Layer 3 cascade stop gate reached: no clean high-confidence implementation-ready slice remains.",
     "mutationAuthorization": "none from this matrix; use a slice record before mutation"
   },
   "laneAgentMap": [
