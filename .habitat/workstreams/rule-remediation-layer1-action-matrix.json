@@ -1730,10 +1730,20 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "MapGen docs anchor rail repaired and retained as native canonical-docs validation; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
-      "layer3Boundary": "Continue only for implementation-ready rows that do not require hairy split, positive-authority/deletion-pair, product ownership, or material corpus-boundary decisions.",
+      "layer2": "MapGen docs anchor rail repaired; public-domain test imports Grit conversion falsified by ignored test-file scan behavior; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, boundary inversion, or residual runtime/source blockers.",
+      "layer3Boundary": "Continue only for implementation-ready rows that do not require hairy split, positive-authority/deletion-pair, product ownership, material corpus-boundary decisions, or new Habitat/Grit test-file scan capability.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
-    }
+    },
+    "operatorFindings": [
+      {
+        "recordedOn": "2026-07-01",
+        "ruleId": "require_public_domain_surfaces_in_tests",
+        "kind": "implementation-falsifier",
+        "attemptedSlice": "public-domain test imports Grit conversion",
+        "finding": "Grit conversion falsified on 2026-07-01: the predicate is static import/export source shape, but current Habitat/Grit source execution obeys .gritignore, which excludes **/test/ and **/*.test.ts. A temporary forbidden deep import in mods/mod-swooper-maps/test/ecology/classify-biomes.test.ts was ignored by Grit, while the existing Habitat script owns the actual test-file corpus. Do not mark this row no-action via Grit until Habitat has an explicit test-file scan capability or the authority is split into non-test public-surface rails plus a separate test policy.",
+        "handling": "Restored current Habitat script runner; row remains packetNeeded split-by-owner and sealed blocker. No package tests added."
+      }
+    ]
   },
   "corpus": {
     "liveManifestCount": 113,
@@ -2572,8 +2582,8 @@
       "lane": "blueprints/domain",
       "actionDecision": "split by owner",
       "packetNeeded": true,
-      "expectedRemediation": "Separate public-contract tests from focused internal tests.",
-      "evidenceNote": "Script scope is narrower than manifest wording; tests have legitimate internal contexts.",
+      "expectedRemediation": "Layer 2 packet required: separate public-contract test expectations from legitimate internal test contexts, or first add an explicit Habitat/Grit test-file scan capability before converting this static import/export predicate to Grit.",
+      "evidenceNote": "Script scope is narrower than manifest wording; tests have legitimate internal contexts. Grit conversion falsified on 2026-07-01: the predicate is static import/export source shape, but current Habitat/Grit source execution obeys .gritignore, which excludes **/test/ and **/*.test.ts. A temporary forbidden deep import in mods/mod-swooper-maps/test/ecology/classify-biomes.test.ts was ignored by Grit, while the existing Habitat script owns the actual test-file corpus. Do not mark this row no-action via Grit until Habitat has an explicit test-file scan capability or the authority is split into non-test public-surface rails plus a separate test policy.",
       "currentPath": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json"
     },
     {
@@ -2934,7 +2944,7 @@
   ],
   "gateState": {
     "currentLayer": "Layer 1 source-backed action classification; Layer 2/3 slices recorded separately",
-    "currentGate": "Layer 2/3 cascade resumed for deterministic split-by-owner rows; re-read remaining queue before selecting another slice.",
+    "currentGate": "Layer 2/3 cascade resumed for deterministic rows; public-domain test import Grit conversion falsified and kept as packet-needed blocker. Re-read remaining queue before selecting another slice.",
     "mutationAuthorization": "none from this matrix; use a slice record before mutation"
   },
   "laneAgentMap": [
@@ -3163,6 +3173,11 @@
       "ruleId": "prohibit_hydrology_narrative_domain_imports",
       "conflictBlocker": "Context-admission no-packet justification: lane judged the row as narrow contextual currentness; broader inversion pressure is recorded but not selected without an admitted cross-domain import-law owner.",
       "layer1Handling": "Keep no-packet classification unless convergence review reopens owner proof."
+    },
+    {
+      "ruleId": "require_public_domain_surfaces_in_tests",
+      "conflictBlocker": "Grit-shaped test import predicate is blocked by current Habitat/Grit ignored-test execution; semantic split still required for public-contract tests versus legitimate internal tests.",
+      "layer1Handling": "Keep packet-required classification; preserve current Habitat script runner until a Layer 2 packet chooses a test-scan capability or a split owner model."
     }
   ],
   "processLedger": {
@@ -3469,8 +3484,8 @@
         "dominoEvidence": "Domino 24 summary",
         "processStatus": "processed: summary-only",
         "dispositionBucket": "domain pocket processed; per-rule disposition not specified",
-        "pendingAction": "not specified in dominoes.md",
-        "evidenceNote": "Do not invent per-rule bucket."
+        "pendingAction": "Create a Layer 2 decision packet for public-domain test surfaces. Do not convert to Grit as-is until ignored test-file scan capability is explicitly available, and do not move this into package-owned behavior tests.",
+        "evidenceNote": "Do not invent per-rule bucket.<br>Grit conversion falsified on 2026-07-01: the predicate is static import/export source shape, but current Habitat/Grit source execution obeys .gritignore, which excludes **/test/ and **/*.test.ts. A temporary forbidden deep import in mods/mod-swooper-maps/test/ecology/classify-biomes.test.ts was ignored by Grit, while the existing Habitat script owns the actual test-file corpus. Do not mark this row no-action via Grit until Habitat has an explicit test-file scan capability or the authority is split into non-test public-surface rails plus a separate test policy."
       },
       {
         "ruleId": "block_studio_config_leakage_into_shipped_catalog",
