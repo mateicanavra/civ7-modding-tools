@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:27:49.113Z",
+  "generatedOn": "2026-07-01T11:29:51.242Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -648,6 +648,41 @@
           "`bun habitat classify .habitat` passed.",
           "`git diff --check` passed."
         ]
+      },
+      {
+        "actionClass": "consolidation/dedup",
+        "sliceCandidate": "recipe-DAG split-rail reclassification",
+        "status": "closed-by-context-admission",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/rule.json",
+          ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md",
+          ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/rule.json",
+          ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts",
+          "apps/mapgen-studio/src/server/recipeDag/service.ts",
+          "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts",
+          "mods/mod-swooper-maps/package.json"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_recipe_dag_runtime_source_dependencies",
+            "inputClassification": "consolidation/dedup",
+            "wholeRuleFit": "context admission after stale classification repair",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Do not consolidate/delete this Grit rule. The graph-aware script rule explicitly excludes direct source-token bans to Grit; the two rules are complementary rails with different proof shapes.",
+            "proofLimit": "Focused Habitat checks prove current source passes both rails. This does not broaden Recipe-DAG product behavior or change Studio runtime wiring."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "No manifest mutation required.",
+          "`bun habitat check --rule prohibit_recipe_dag_runtime_source_dependencies --json` passes.",
+          "`bun habitat check --rule require_recipe_dag_contract_metadata --json` passes.",
+          "Canonical JSON packet-needed counts drop by one consolidation/dedup row."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule prohibit_recipe_dag_runtime_source_dependencies --json` passed with Grit runner.",
+          "`bun habitat check --rule require_recipe_dag_contract_metadata --json` passed with Habitat script runner."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
@@ -656,7 +691,7 @@
       "positive authority creation": 4,
       "boundary inversion": 14,
       "closed structure inversion": 8,
-      "consolidation/dedup": 3
+      "consolidation/dedup": 2
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -686,7 +721,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 116 current live rules",
-      "layer2": "Morphology public-surface boundary packet replaced the retired module import proxy. No implementation-ready Layer 3 queue remains.",
+      "layer2": "Recipe-DAG split-rail classification closed one stale consolidation row without manifest mutation. No implementation-ready Layer 3 queue remains.",
       "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -715,7 +750,7 @@
     "positive authority creation": 4,
     "boundary inversion": 14,
     "closed structure inversion": 8,
-    "consolidation/dedup": 3
+    "consolidation/dedup": 2
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -1270,10 +1305,10 @@
     {
       "ruleId": "prohibit_recipe_dag_runtime_source_dependencies",
       "lane": "MapGen Studio",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": true,
-      "expectedRemediation": "Consolidate with graph-aware Recipe-DAG contract metadata rule.",
-      "evidenceNote": "Narrow direct-token guard overlaps stronger contract-only invariant.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Stay live as the direct-token Grit complement to the graph-aware Recipe-DAG contract metadata rule.",
+      "evidenceNote": "Domino 64 source review found the pair is deliberate split-rail authority: `require_recipe_dag_contract_metadata` owns graph-aware import traversal, while this Grit rule owns direct runtime-source and helper-token relapse detection. Both focused checks passed.",
       "currentPath": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/rule.json"
     },
     {
@@ -3125,8 +3160,9 @@
         "dominoEvidence": "Domino 40",
         "processStatus": "processed: receipt",
         "dispositionBucket": "Studio recipe-dag lane placement",
-        "pendingAction": "Revisit if recipe-DAG boundary rules split into service, contract-source, or artifact-consumption subrules.",
-        "evidenceNote": "Governs Studio recipe-DAG service imports and contract-only metadata source use."
+        "pendingAction": "No pending action; Domino 64 confirmed deliberate split rails.",
+        "evidenceNote": "Domino 64: `require_recipe_dag_contract_metadata` owns graph-aware contract metadata traversal and `prohibit_recipe_dag_runtime_source_dependencies` owns direct runtime-source/helper-token relapse detection. Focused checks passed for both rules.",
+        "domino64Status": "context admission after source review"
       },
       {
         "ruleId": "require_recipe_dag_contract_metadata",
