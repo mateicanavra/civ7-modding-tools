@@ -2,13 +2,25 @@
   "pkg": "mapgen-studio",
   "globalName": "MapGenStudio",
   "projectId": "531d158d-a7f6-41cb-87a4-f0f8a5e521b0",
-  "shape": "package",
+  "shape": "storybook",
+  "storybookStatic": ".design-sync/sb-reference",
+  "storybookConfigDir": ".storybook",
   "srcDir": "src",
   "tsconfig": "tsconfig.json",
   "entry": ".design-sync/ds-entry.tsx",
   "cssEntry": "dist/assets/_ds-compiled.css",
   "buildCmd": "bash .design-sync/build-inputs.sh",
   "readmeHeader": ".design-sync/conventions.md",
+  "libOverrides": {
+    "source-storybook.mjs": "App (no published exports) synced via curated --entry; assert synthEntry so the entry's story surface is the export authority. Thin delegating wrapper — see the file header."
+  },
+  "provider": {
+    "component": "TooltipProvider",
+    "props": { "delayDuration": 300 }
+  },
+  "storyImports": {
+    "shim": ["components/ui", "features/configOverrides", "ui/components/fields"]
+  },
   "overrides": {
     "Dialog": { "cardMode": "single", "viewport": "680x360" },
     "AppFooter": { "cardMode": "column" },

@@ -11,3 +11,5 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+# storybook-shape reference render (the fidelity oracle; never uploaded, never committed)
+.design-sync/sb-reference/
