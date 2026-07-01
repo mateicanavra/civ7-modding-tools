@@ -31,8 +31,8 @@ describe("rule registry contract", () => {
       readText: readTextSync,
     }).rules;
 
-    expect(rules).toHaveLength(116);
-    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(71);
+    expect(rules).toHaveLength(115);
+    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(70);
     expect(
       rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
     ).toHaveLength(34);

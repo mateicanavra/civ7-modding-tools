@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 562,
+    "totalSurfaces": 560,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "check-script": 34,
-      "rule-json": 116,
-      "pattern": 73,
+      "rule-json": 115,
+      "pattern": 72,
       "structure-spec": 5,
       "apply-pattern": 1,
       "generate-script": 2,
@@ -22,23 +22,23 @@
     },
     "surfacesByRole": {
       "command_check_executor": 34,
-      "runner_metadata": 116,
-      "policy_pattern": 74,
+      "runner_metadata": 115,
+      "policy_pattern": 73,
       "structure_authority": 5,
       "operation_surface": 6,
       "workspace_entrypoint": 203,
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
-      "unknown": 233,
+      "unknown": 231,
       "package": 140,
       "nx": 65,
       "direct-script": 3,
       "habitat": 124
     },
     "surfacesByBucket": {
-      "package_boundary_tie": 92,
-      "unknown_invocation": 233,
+      "package_boundary_tie": 91,
+      "unknown_invocation": 231,
       "nx_ordering_tie": 101,
       "mutation_surface": 114,
       "package_invoked": 205,
@@ -50,8 +50,8 @@
   "executionAnatomy": {
     "roleCounts": {
       "fixture-support": 13,
-      "adapter": 116,
-      "policy-predicate": 79,
+      "adapter": 115,
+      "policy-predicate": 78,
       "transient-dependency": 98,
       "entrypoint": 205,
       "runner-runtime": 124
@@ -4658,15 +4658,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  contains r\"mapArtifacts\\.foundationPlates\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\"\n  },\n  contains r\"mapArtifacts\\.foundation(?:TectonicHistoryTiles|TectonicProvenanceTiles|Plates)\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\\.contract\\.ts$\"\n  }\n}",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md"
-      ]
-    },
-    {
       "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) as $import where {\n    $filename <: r\".*packages/mapgen-core/src/.*\\.ts$\",\n    ! $filename <: r\".*packages/mapgen-core/src/dev/.*\",\n    $source <: r\"^[\\\"']?(?:@civ7/adapter(?:/civ7)?|/base-standard/.+)[\\\"']?$\",\n    ! $import <: includes \"import type\",\n    ! $import <: includes \"import { type\",\n    ! $import <: includes \"import {type\"\n  },",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -6521,15 +6512,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6545,15 +6527,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md"
       ]
     },
     {
@@ -17357,94 +17330,6 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  contains r\"mapArtifacts\\.foundationPlates\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\"\n  },\n  contains r\"mapArtifacts\\.foundation(?:TectonicHistoryTiles|TectonicProvenanceTiles|Plates)\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\\.contract\\.ts$\"\n  }\n}"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  contains r\"mapArtifacts\\.foundationPlates\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\"\n  },\n  contains r\"mapArtifacts\\.foundation(?:TectonicHistoryTiles|TectonicProvenanceTiles|Plates)\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\\.contract\\.ts$\"\n  }\n}",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -31437,94 +31322,6 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  contains r\"mapArtifacts\\.foundationPlates\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\"\n  },\n  contains r\"mapArtifacts\\.foundation(?:TectonicHistoryTiles|TectonicProvenanceTiles|Plates)\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\\.contract\\.ts$\"\n  }\n}"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  contains r\"mapArtifacts\\.foundationPlates\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\"\n  },\n  contains r\"mapArtifacts\\.foundation(?:TectonicHistoryTiles|TectonicProvenanceTiles|Plates)\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\\.contract\\.ts$\"\n  }\n}",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

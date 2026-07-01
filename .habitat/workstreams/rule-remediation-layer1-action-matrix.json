@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:31:55.951Z",
+  "generatedOn": "2026-07-01T11:36:17.598Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -190,6 +190,21 @@
             "reason": "Existing G4 recipe-domain import matrix remains recipe-wide authority; this morphology row adds morphology-specific consumer relapse detection without converting to a script or package test."
           }
         ]
+      },
+      {
+        "actionClass": "closed structure inversion",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-morphology-belt-driver-contract-inversion.md",
+        "branch": "codex/habitat-morphology-belt-driver-contract-inversion",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Absorbed morphology contract legacy plate-driver dependency absence into the positive belt-driver contract survivor and retired the separate Grit packet.",
+        "selectedRows": [
+          "prohibit_morphology_contract_legacy_plate_driver_dependencies"
+        ],
+        "survivorRows": [
+          "preserve_morphology_belt_driver_contracts"
+        ],
+        "excludedRows": []
       }
     ],
     "decisionPacketBatches": [
@@ -730,6 +745,47 @@
           "`bun habitat check --rule verify_standard_recipe_artifacts_match_source_stages --json` passed.",
           "`bun habitat check --rule verify_standard_recipe_public_authoring_surface --json` passed."
         ]
+      },
+      {
+        "actionClass": "closed structure inversion",
+        "sliceCandidate": "morphology belt-driver contract inversion",
+        "status": "closed-by-survivor-absorption",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
+            "inputClassification": "closed structure inversion",
+            "wholeRuleFit": "replace by survivor positive contract check",
+            "ruleIdPlan": "replace by preserve_morphology_belt_driver_contracts",
+            "semanticRemediationDecision": "Delete the separate Grit token-ban packet after absorbing absence of retired plate-driver dependencies into the existing belt-driver contract currentness check over the same two contract files.",
+            "proofLimit": "The survivor script proves required canonical references and specific retired-token absence for the two morphology contract files. It does not assert broad artifact or contract-manifest authority."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Focused Habitat check passes for preserve_morphology_belt_driver_contracts.",
+          "Old prohibit_morphology_contract_legacy_plate_driver_dependencies manifest is absent from the live authority tree.",
+          "Canonical JSON current rows and live manifests reconcile.",
+          "No package-owned tests were introduced."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule preserve_morphology_belt_driver_contracts --json` passed.",
+          "`bun run --cwd tools/habitat test test/lib/pattern-apply.test.ts test/rules/pattern-views.test.ts test/service/fix-service.test.ts test/rules/registry/contract.test.ts` passed: 34 tests.",
+          "Old `prohibit_morphology_contract_legacy_plate_driver_dependencies` manifest is absent and survivor manifest is present.",
+          "Live manifest support/runner files resolve for 115 manifests.",
+          "Canonical JSON reconciles with 115 live manifests.",
+          "Execution-surface docs regenerated through `bun run --cwd tools/habitat analyze:execution-surface`; generated surface count now reports 115 rule-json surfaces.",
+          "`bun habitat classify .habitat` passed.",
+          "`git diff --check` passed.",
+          "No package-owned tests were introduced."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
@@ -737,7 +793,7 @@
       "split by owner": 6,
       "positive authority creation": 4,
       "boundary inversion": 14,
-      "closed structure inversion": 8
+      "closed structure inversion": 7
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -766,16 +822,16 @@
       }
     ],
     "resumeState": {
-      "layer1": "complete and reconciled for 116 current live rules",
-      "layer2": "Standard-recipe context guard classification closed the remaining consolidation/dedup rows. No implementation-ready Layer 3 queue remains.",
+      "layer1": "complete and reconciled for 115 current live rules",
+      "layer2": "Morphology belt-driver contract inversion produced an implementation slice and retired one closed-structure row. No implementation-ready Layer 3 queue remains after closure.",
       "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
   "corpus": {
-    "liveManifestCount": 116,
-    "currentRowCount": 116,
-    "retiredHistoricalRowCount": 12,
+    "liveManifestCount": 115,
+    "currentRowCount": 115,
+    "retiredHistoricalRowCount": 13,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -795,7 +851,7 @@
     "split by owner": 6,
     "positive authority creation": 4,
     "boundary inversion": 14,
-    "closed structure inversion": 8
+    "closed structure inversion": 7
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -957,7 +1013,7 @@
       "actionDecision": "no action",
       "packetNeeded": false,
       "expectedRemediation": "Stay live as morphology stage contract authority until generated manifests can prove it natively.",
-      "evidenceNote": "`artifact:morphology.beltDrivers` is canonical derived belt-driver truth.",
+      "evidenceNote": "`artifact:morphology.beltDrivers` is canonical derived belt-driver truth; Domino 66 absorbed legacy plate-driver dependency absence into the survivor contract check.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json"
     },
     {
@@ -1256,15 +1312,6 @@
       "expectedRemediation": "Define allowed projection/materialization call owners.",
       "evidenceNote": "Adapter projection calls belong only in exact owning `map-*` projection steps.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/rule.json"
-    },
-    {
-      "ruleId": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
-      "lane": "standard recipe morphology stage",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace token bans with allowed contract-dependency structure.",
-      "evidenceNote": "Live contracts use crust/history/provenance and `morphologyArtifacts.beltDrivers`.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json"
     },
     {
       "ruleId": "prohibit_morphology_hotspot_overlay_publishers",
@@ -1970,6 +2017,14 @@
       "previousPath": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
       "replacementRuleId": "require_morphology_public_surface_imports",
       "replacementPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
+    },
+    {
+      "ruleId": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
+      "retiredBy": "Domino 66",
+      "retiredReason": "Absorbed by `preserve_morphology_belt_driver_contracts`, which now checks both required canonical belt-driver references and absence of retired plate-driver dependencies.",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
+      "replacementRuleId": "preserve_morphology_belt_driver_contracts",
+      "replacementPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json"
     }
   ],
   "gateState": {
@@ -2815,18 +2870,24 @@
         "dominoEvidence": "Domino 49",
         "processStatus": "processed: receipt",
         "dispositionBucket": "atomized morphology stage contract context",
-        "pendingAction": "Revisit only if generated contract manifests take over belt-driver currentness.",
-        "evidenceNote": "Domino 49 split `preserve_morphology_contracts_and_overlay_ownership`; this row owns only morphology belt-driver contract currentness."
+        "pendingAction": "Revisit only if generated contract manifests take over full belt-driver contract currentness.",
+        "evidenceNote": "Domino 66: survivor owns canonical belt-driver contract references and retired plate-driver dependency absence for the two morphology contract files.",
+        "domino66Status": "absorbed legacy-token absence"
       },
       {
         "ruleId": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
         "dominoEvidence": "Domino 49",
-        "processStatus": "processed: receipt",
+        "processStatus": "retired historical row",
         "dispositionBucket": "atomized morphology stage contract context",
-        "pendingAction": "Revisit only if morphology contract dependencies become manifest-driven positive contract authority.",
-        "evidenceNote": "Domino 49 split `prohibit_legacy_plate_driver_and_plot_mountains_dependencies`; this row owns only morphology contract legacy plate-driver cleanup."
+        "pendingAction": "None; deleted after survivor absorbed retired-token absence.",
+        "evidenceNote": "Domino 66: deleted after `preserve_morphology_belt_driver_contracts` absorbed absence of legacy plate-driver dependencies in the same two morphology contract files.",
+        "remediationAction": "closed structure inversion; executed",
+        "implementationReadiness": "executed",
+        "expectedHomeAction": "Absorbed by `preserve_morphology_belt_driver_contracts`.",
+        "domino66Status": "retired/replaced",
+        "blockerOrProof": "Focused survivor check passed."
       },
       {
         "ruleId": "prohibit_morphology_hotspot_overlay_publishers",

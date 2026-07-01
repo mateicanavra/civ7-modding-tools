@@ -4,6 +4,7 @@ import {
   assertContains,
   assertNoFindings,
   stagesRoot,
+  textFindings,
 } from "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const findings = [];
@@ -30,5 +31,21 @@ findings.push(
   ...assertContains(mountainsContract, "morphologyArtifacts.beltDrivers", "belt-driver-contract")
 );
 
-assertNoFindings("preserve_morphology_belt_driver_contracts", findings);
+findings.push(
+  ...textFindings(
+    landmassContract,
+    ["mapArtifacts.foundationPlates"],
+    "legacy-plate-driver-contract-dependency"
+  ),
+  ...textFindings(
+    mountainsContract,
+    [
+      "mapArtifacts.foundationTectonicHistoryTiles",
+      "mapArtifacts.foundationTectonicProvenanceTiles",
+      "mapArtifacts.foundationPlates",
+    ],
+    "legacy-plate-driver-contract-dependency"
+  )
+);
 
+assertNoFindings("preserve_morphology_belt_driver_contracts", findings);
