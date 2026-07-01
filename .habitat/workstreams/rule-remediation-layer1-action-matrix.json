@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:52:35.220Z",
+  "generatedOn": "2026-07-01T14:52:30.000Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -641,6 +641,31 @@
           {
             "ruleId": "prohibit_morphology_story_overlay_contract_artifact",
             "reason": "Still an overlay/story contract/artifact ownership semantic gate; not a step implementation read rail."
+          }
+        ]
+      },
+      {
+        "actionClass": "retirement/garbage collection",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-standard-tag-catalog-retired-token-gc.md",
+        "branch": "codex/habitat-standard-tag-catalog-retired-token-gc",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Deleted `prohibit_standard_tag_catalog_legacy_morphology_effect_gates` as retired tag-catalog migration vocabulary without replacement.",
+        "selectedRows": [
+          "prohibit_standard_tag_catalog_legacy_morphology_effect_gates"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
+            "reason": "Retained as an existing morphology-stage recurrence guard over a concrete source scope."
+          },
+          {
+            "ruleId": "prohibit_migrated_consumer_effect_gating_tokens",
+            "reason": "Retained as migrated map-consumer cleanup for one known source scope."
+          },
+          {
+            "ruleId": "require_standard_recipe_map_effect_name_suffixes",
+            "reason": "Retained as the current standard-recipe `effect:map.*` suffix source rail."
           }
         ]
       }
@@ -1736,11 +1761,56 @@
           "Temporary `import { readOverlay } from \"./overlays.js\"` probe failed the repaired Grit rule at `morphology-shelf/steps/computeShelf.ts:7`.",
           "`bun habitat check --rule prohibit_morphology_overlay_implementation_reads --json` passed after probe removal."
         ]
+      },
+      {
+        "actionClass": "retirement/garbage collection",
+        "sliceCandidate": "Standard tag-catalog retired effect-gate guard deletion",
+        "status": "implemented-as-retired-literal-garbage-collection",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/pattern.md",
+          "mods/mod-swooper-maps/src/recipes/standard/tags.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_migrated_consumer_effect_gating_tokens/rule.json",
+          ".habitat/frames/RULE-DECISION-PACKET-FRAME.md",
+          ".habitat/frames/RULE-REMEDIATION-SLICE-FRAME.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
+            "inputClassification": "positive authority creation",
+            "classificationCorrection": "retirement/garbage collection",
+            "wholeRuleFit": "retired-literal deletion without replacement",
+            "ruleIdPlan": "delete id without replacement",
+            "semanticRemediationDecision": "Delete the top-level standard tag-catalog guard. The retired engine morphology effect-gate names are absent from current standard tag catalog constants/source, and no concrete recurrence risk remains in that top-level catalog scope.",
+            "proofLimit": "Absence/source-scope proof only. This does not delete adjacent morphology-stage or migrated-consumer recurrence guards and does not define a broader dependency-tag lifecycle authority."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Pre-delete focused Habitat check for the deleted rule passes.",
+          "Current source scan shows `landmassApplied` and `coastlinesApplied` are absent from standard tag catalog source outside retained Habitat packets.",
+          "Focused checks for retained adjacent rules pass.",
+          "Deleted id is absent from live `.habitat/**/rule.json` manifests.",
+          "Canonical JSON live rows and process rows reconcile with live manifests."
+        ],
+        "verificationEvidence": [
+          "Pre-delete `bun habitat check --rule prohibit_standard_tag_catalog_legacy_morphology_effect_gates --json` passed with the old Grit runner.",
+          "`rg` over live standard recipe `tags.ts`, `tag-contracts.ts`, and stage source found no `landmassApplied`, `coastlinesApplied`, `effect:engine.landmassApplied`, or `effect:engine.coastlinesApplied` occurrences outside Habitat packets.",
+          "`bun habitat check --rule prohibit_morphology_stage_legacy_effect_gates --json` passed after deletion.",
+          "`bun habitat check --rule prohibit_migrated_consumer_effect_gating_tokens --json` passed after deletion.",
+          "`bun habitat check --rule require_standard_recipe_map_effect_name_suffixes --json` passed after deletion.",
+          "`bun run --cwd tools/habitat analyze:execution-surface` regenerated execution-surface docs with `rule-json: 112`.",
+          "Manifest/support/runner reconciliation script reported 112 live manifests, 112 current JSON rows, no duplicate ids, no missing support/runner files, no row/manifest drift, and deleted ids absent.",
+          "`bun habitat classify .habitat` passed.",
+          "`git diff --check` passed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "runtime/source validation": 1,
-      "positive authority creation": 4,
+      "positive authority creation": 3,
       "split by owner": 3,
       "boundary inversion": 2
     },
@@ -1761,10 +1831,9 @@
         "rules": [
           "prohibit_ambient_rng_in_authored_generation",
           "prohibit_foundation_duplicate_math_helper_redefinitions",
-          "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
           "validate_ecology_op_contract_quality"
         ],
-        "reason": "Each row needs a positive authority assertion paired with proxy deletion, retention, or movement. The re-read confirmed none is a clean unilateral Layer 3 mutation: deterministic authored-generation needs an exception policy, foundation helpers need a named helper/import surface, tag/effect family authority needs a catalog-family decision, and ecology contract quality needs a general domain-operation contract-quality authority."
+        "reason": "Remaining positive-authority/deletion-pair rows still require semantic authority decisions: deterministic authored-generation needs an exception policy, foundation helpers need a named helper/import surface, and ecology contract quality needs a general domain-operation contract-quality authority. The standard tag-catalog retired effect-gate row was reclassified and deleted as retired-literal garbage collection."
       },
       {
         "kind": "overlay/story ownership semantic gate",
@@ -1782,7 +1851,7 @@
         "reason": "The formatting/import hygiene row is a valid workspace gate backed by Biome, but the focused check is red from broad workspace drift, so this is not a clean authority-tree remediation slice."
       }
     ],
-    "resumeState": "Implementation-ready queue is empty. The only non-semantic residual, `enforce_formatting_and_import_hygiene`, was dry-run checked and is not a clean `habitat fix` slice; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, or overlay/story ownership gates.",
+    "resumeState": "Implementation-ready queue is empty after the standard tag-catalog retired-token garbage-collection slice. Remaining packet-needed rows are workspace hygiene residual, semantic split, positive-authority/deletion-pair, or overlay/story ownership gates.",
     "operatorFindings": [
       {
         "recordedOn": "2026-07-01",
@@ -1826,9 +1895,9 @@
     ]
   },
   "corpus": {
-    "liveManifestCount": 113,
-    "currentRowCount": 113,
-    "retiredHistoricalRowCount": 15,
+    "liveManifestCount": 112,
+    "currentRowCount": 112,
+    "retiredHistoricalRowCount": 16,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -1836,13 +1905,13 @@
     "boundary inversion": 2,
     "context admission": 28,
     "no action": 75,
-    "positive authority creation": 4,
+    "positive authority creation": 3,
     "runtime/source validation": 1,
     "split by owner": 3
   },
   "packetNeededCounts": {
     "runtime/source validation": 1,
-    "positive authority creation": 4,
+    "positive authority creation": 3,
     "split by owner": 3,
     "boundary inversion": 2
   },
@@ -2496,15 +2565,6 @@
       "currentPath": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/rule.json"
     },
     {
-      "ruleId": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
-      "lane": "standard recipe top-level",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": true,
-      "expectedRemediation": "Define allowed tag/effect family authority, then delete guard.",
-      "evidenceNote": "Negative proxy for allowed effect family source.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json"
-    },
-    {
       "ruleId": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
       "lane": "MapGen Studio",
       "actionDecision": "no action",
@@ -3020,6 +3080,16 @@
       "evidenceNote": "Successor concepts exist under different schema names, making raw token bans brittle. Deleted by foundation retired-token garbage-collection slice; duplicate package-test blacklist assertions removed.",
       "currentPath": null,
       "retirementRecord": ".habitat/workstreams/rule-remediation-foundation-retired-token-garbage-collection.md"
+    },
+    {
+      "ruleId": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted retired standard tag-catalog effect-gate assertion without replacement; no concrete recurrence risk remains.",
+      "evidenceNote": "Current standard tag catalog is constructed from closed source constants in `standard/tag-contracts.ts`, which no longer expose `effect:engine.landmassApplied` or `effect:engine.coastlinesApplied`. Adjacent source-scope recurrence guards remain live.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-standard-tag-catalog-retired-token-gc.md"
     }
   ],
   "gateState": {
@@ -3286,16 +3356,16 @@
       }
     ],
     "coverageSummary": {
-      "liveRuleManifests": 113,
-      "liveRulesWithExplicitReceiptRows": 88,
+      "liveRuleManifests": 112,
+      "liveRulesWithExplicitReceiptRows": 82,
       "liveRulesWithCompletedPocketSummaryOnly": 14,
       "liveRulesNotProcessedInDominoesMd": 16,
-      "staleDominoReferencesExcludedFromLiveMatrix": 14,
-      "liveRuleCorpus": 113,
-      "liveRowsInMatrix": 113,
-      "ledgerRows": 113,
-      "retiredHistoricalRows": 15,
-      "currentJsonRows": 113
+      "staleDominoReferencesExcludedFromLiveMatrix": 16,
+      "liveRuleCorpus": 112,
+      "liveRowsInMatrix": 112,
+      "ledgerRows": 112,
+      "retiredHistoricalRows": 16,
+      "currentJsonRows": 112
     },
     "remainderActionRows": [
       {
@@ -3870,21 +3940,6 @@
         "domino66Status": "absorbed legacy-token absence"
       },
       {
-        "ruleId": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
-        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology; category=contract; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
-        "dominoEvidence": "Domino 49",
-        "processStatus": "retired historical row",
-        "dispositionBucket": "atomized morphology stage contract context",
-        "pendingAction": "None; deleted after survivor absorbed retired-token absence.",
-        "evidenceNote": "Domino 66: deleted after `preserve_morphology_belt_driver_contracts` absorbed absence of legacy plate-driver dependencies in the same two morphology contract files.",
-        "remediationAction": "closed structure inversion; executed",
-        "implementationReadiness": "executed",
-        "expectedHomeAction": "Absorbed by `preserve_morphology_belt_driver_contracts`.",
-        "domino66Status": "retired/replaced",
-        "blockerOrProof": "Focused survivor check passed."
-      },
-      {
         "ruleId": "prohibit_morphology_hotspot_overlay_publishers",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology; category=boundary; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/rule.json",
@@ -4158,16 +4213,6 @@
         "dispositionBucket": "retained map stage context",
         "pendingAction": "Revisit only after a parameterized projection-step or recipe-step callsite model exists.",
         "evidenceNote": "Domino 42 non-move: upstream physics stages consuming authored artifacts is part of projection adapter callsite ownership, not artifact authority."
-      },
-      {
-        "ruleId": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
-        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe; category=contract; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json",
-        "dominoEvidence": "Domino 49",
-        "processStatus": "processed: receipt",
-        "dispositionBucket": "atomized standard-recipe tag-catalog context",
-        "pendingAction": "Revisit only if dependency-tag lifecycle/deprecation rules absorb retired effect-gate cleanup.",
-        "evidenceNote": "Domino 49 split `prohibit_legacy_morphology_effect_gating_tokens`; this row owns only standard tag-catalog retired effect-gate cleanup."
       },
       {
         "ruleId": "require_projection_calls_in_projection_steps",
@@ -4698,6 +4743,16 @@
         "dominoReference": "prohibit_removed_foundation_wrap_polar_maturity_tokens",
         "status": "retired",
         "handling": "Do not include in live process rows; Domino 73 retired this Foundation static token blacklist without replacement and removed duplicate package-test assertions."
+      },
+      {
+        "dominoReference": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
+        "status": "retired",
+        "handling": "Do not include in live process rows; Domino 90 retired this standard tag-catalog static token guard without replacement because the current closed tag catalog source no longer exposes the retired engine morphology effect-gate names."
+      },
+      {
+        "dominoReference": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
+        "status": "retired/replaced",
+        "handling": "Do not include in live process rows; Domino 66 retired this rule after `preserve_morphology_belt_driver_contracts` absorbed the legacy plate-driver absence proof."
       }
     ]
   }

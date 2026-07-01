@@ -4,15 +4,15 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 113 `rule.json`, 5 `structure.toml`, 0 active source-check `.rule.mjs`, 0 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 112 `rule.json`, 5 `structure.toml`, 0 active source-check `.rule.mjs`, 0 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
 | check-script | 31 |
-| rule-json | 113 |
-| pattern | 73 |
+| rule-json | 112 |
+| pattern | 72 |
 | structure-spec | 5 |
 | apply-pattern | 1 |
 | generate-script | 2 |
@@ -29,8 +29,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | role | count |
 | --- | --- |
 | command_check_executor | 31 |
-| runner_metadata | 113 |
-| policy_pattern | 74 |
+| runner_metadata | 112 |
+| policy_pattern | 73 |
 | structure_authority | 5 |
 | operation_surface | 6 |
 | workspace_entrypoint | 203 |
@@ -41,8 +41,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | anatomy role | surface count |
 | --- | --- |
 | fixture-support | 11 |
-| adapter | 113 |
-| policy-predicate | 79 |
+| adapter | 112 |
+| policy-predicate | 78 |
 | transient-dependency | 98 |
 | entrypoint | 205 |
 | runner-runtime | 125 |
@@ -72,7 +72,7 @@ _None._
 
 | invoker | count |
 | --- | --- |
-| unknown | 227 |
+| unknown | 225 |
 | package | 140 |
 | nx | 65 |
 | direct-script | 3 |
@@ -82,8 +82,8 @@ _None._
 
 | bucket | count |
 | --- | --- |
-| package_boundary_tie | 90 |
-| unknown_invocation | 227 |
+| package_boundary_tie | 89 |
+| unknown_invocation | 225 |
 | nx_ordering_tie | 101 |
 | mutation_surface | 115 |
 | package_invoked | 205 |
@@ -103,10 +103,10 @@ _None._
 | workspace-tool | node -e "" | 15 | 15 | apps/docs/project.json#targets.build<br>apps/mapgen-studio/project.json#targets.build<br>mods/mod-civ7-intelligence-bridge/project.json#targets.build |
 | relative | ./types.js | 13 | 24 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md<br>tools/habitat/src/providers/grit/diagnostics.ts |
 | workspace-tool | grit | 12 | 12 | tools/habitat/src/providers/grit/constants.ts<br>tools/habitat/src/providers/grit/failures.ts<br>tools/habitat/src/service/model/check/policy/structural/execution.policy.ts |
-| mod | mods/mod-swooper-maps/src/recipes/standard/stages/ | 11 | 11 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md<br>.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md<br>.habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/pattern.md |
 | habitat-toolkit | @habitat/cli/service/model/diagnostics/index | 10 | 10 | tools/habitat/src/providers/grit/diagnostics.ts<br>tools/habitat/src/providers/grit/docs-apply.ts<br>tools/habitat/src/providers/grit/failure.ts |
 | habitat-toolkit | @habitat/cli/service/model/workspace/index | 10 | 10 | tools/habitat/src/providers/nx/graph.ts<br>tools/habitat/src/providers/nx/index.ts<br>tools/habitat/src/providers/nx/inventory.ts |
 | workspace-tool | biome check . | 10 | 10 | mods/mod-swooper-civ-dacia/package.json#scripts.lint<br>mods/mod-swooper-maps/package.json#scripts.lint<br>package.json#scripts.biome:check |
+| mod | mods/mod-swooper-maps/src/recipes/standard/stages/ | 10 | 10 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md<br>.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md<br>.habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/pattern.md |
 | relative | ../dto/pattern-management.schema.js | 9 | 18 | tools/habitat/src/service/modules/fix/model/policy/pattern-admission.policy.ts<br>tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts<br>tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts |
 | habitat-toolkit | @habitat/cli/resources/config/index | 9 | 9 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
 | mod | mods/ | 9 | 9 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md<br>.habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md |
@@ -250,8 +250,6 @@ _None._
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/experimental/tags.ts; mods/mod-swooper-maps/src/recipes/standard/.; mods/mod-swooper-maps/src/recipes/standard/stages/ecology/tags.ts |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/standard/tags; grit<br>language js(typescript)<br><br>contains r"(?:landmassApplied\|coastlinesApplied\|effect:engine\.landmassApplied\|effect:engine\.coastlinesApplied)" where {<br>  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/tags\.ts$"<br>} |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md | pattern | generate; rm; generatedConfig |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/standard/other.ts; mods/mod-swooper-maps/src/recipes/standard/tag-contracts; mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts |
@@ -286,7 +284,7 @@ _None._
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/pattern.md | pattern | mods/mod-swooper-maps/src/domain/narrative/tagging/hotspots.ts; mods/mod-swooper-maps/src/recipes/standard/stages/; mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/pattern.md | pattern | ./overlays.js; mods/mod-swooper-maps/src/recipes/standard/stages/; mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/demo.contract.ts |
+| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/pattern.md | pattern | ./overlays; ./overlays.js; mods/mod-swooper-maps/src/recipes/standard/stages/morphology |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/standard/stages/; grit<br>language js(typescript)<br><br>or {<br>  contains r"\bwestContinent\b",<br>  contains r"\beastContinent\b",<br>  contains r"\bLandmassRegionId\b",<br>  contains r"\bmarkLandmassId\s*\("<br>} where {<br>  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:morphology-coasts\|morphology-routing\|morphology-erosion\|morphology-features)/.*\.ts$"<br>} |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/rule.json | rule-json |  |
