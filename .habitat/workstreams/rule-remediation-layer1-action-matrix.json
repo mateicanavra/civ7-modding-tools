@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:45:06.598Z",
+  "generatedOn": "2026-07-01T11:52:35.220Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -271,6 +271,34 @@
             "ruleId": "declarative file-tree/suffix allowlist runner",
             "reason": "Future collapse target only; not currently available to replace recursive suffix/router-shape validation."
           }
+        ]
+      },
+      {
+        "actionClass": "boundary inversion reconciliation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-boundary-review-reconciliation.md",
+        "branch": "codex/habitat-boundary-review-reconciliation",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Reconciled the boundary-inversion review: seven rows are admitted as existing context rails, four rows are queued for implementation-ready boundary inversion slices, and three overlay/story rows are sealed as semantic blockers.",
+        "selectedRows": [
+          "prohibit_foundation_decomposed_ops_legacy_internal_imports",
+          "prohibit_foundation_rules_tectonics_shim_reexports",
+          "prohibit_foundation_strategy_nonlocal_imports",
+          "prohibit_hydrology_runtime_continent_step_tokens",
+          "prohibit_map_morphology_legacy_plate_driver_dependencies",
+          "prohibit_migrated_consumer_effect_gating_tokens",
+          "prohibit_product_scan_roots_in_grit_provider"
+        ],
+        "implementationReadyRows": [
+          "prohibit_foundation_op_contract_config_bags",
+          "prohibit_foundation_step_contract_config_bags",
+          "prohibit_misplaced_projection_adapter_calls",
+          "prohibit_morphology_stage_config_bag_imports"
+        ],
+        "sealedBlockerRows": [
+          "prohibit_morphology_hotspot_overlay_publishers",
+          "prohibit_morphology_story_overlay_contract_artifact",
+          "prohibit_morphology_overlay_implementation_reads"
         ]
       }
     ],
@@ -862,7 +890,36 @@
       "boundary inversion": 14,
       "closed structure inversion": 7
     },
-    "implementationReadySliceQueue": [],
+    "implementationReadySliceQueue": [
+      {
+        "actionClass": "boundary inversion",
+        "sliceId": "foundation-config-boundary-rail",
+        "status": "queued",
+        "rules": [
+          "prohibit_foundation_op_contract_config_bags",
+          "prohibit_foundation_step_contract_config_bags"
+        ],
+        "reason": "Both rows guard the same Foundation config-bag boundary at domain operation contract and standard-recipe step contract surfaces; source/docs show local op/step contracts own schemas and must not import root config bags."
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceId": "projection-adapter-call-owner-boundary",
+        "status": "queued",
+        "rules": [
+          "prohibit_misplaced_projection_adapter_calls"
+        ],
+        "reason": "Exact projection/materialization adapter call owners are source-backed and can remain Grit/static call-shape authority."
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceId": "morphology-stage-config-import-boundary",
+        "status": "queued",
+        "rules": [
+          "prohibit_morphology_stage_config_bag_imports"
+        ],
+        "reason": "Import policy already names allowed recipe config surfaces through domain-specific config facades; this can be inverted without package tests or Nx."
+      }
+    ],
     "nextLayer2PacketQueue": [],
     "sealedDecisionBlockers": [
       {
@@ -886,6 +943,21 @@
           "validate_ecology_op_contract_quality"
         ],
         "reason": "Each row needs a positive authority assertion paired with proxy deletion, retention, or movement. User guidance says to stop before this class unless the authority is cleanly product-backed and no deletion pair is required."
+      },
+      {
+        "kind": "overlay/story ownership semantic gate",
+        "rules": [
+          "prohibit_morphology_hotspot_overlay_publishers",
+          "prohibit_morphology_story_overlay_contract_artifact"
+        ],
+        "reason": "Morphology versus Gameplay/Narrative overlay ownership is not fully settled in the live recipe; choosing whether story overlays can be morphology byproducts encodes product/architecture philosophy."
+      },
+      {
+        "kind": "recipe-step positive dependency authority packet needed",
+        "rules": [
+          "prohibit_morphology_overlay_implementation_reads"
+        ],
+        "reason": "Likely belongs to a general step implementation/declared-dependency authority rather than a morphology-only negative; needs a decision packet before mutation."
       }
     ],
     "resumeState": {
@@ -903,15 +975,15 @@
     "duplicateLiveRows": []
   },
   "actionClusterCounts": {
-    "boundary inversion": 14,
-    "context admission": 19,
+    "boundary inversion": 7,
+    "context admission": 26,
     "no action": 46,
     "positive authority creation": 4,
     "runtime/source validation": 26,
     "split by owner": 6
   },
   "packetNeededCounts": {
-    "boundary inversion": 14,
+    "boundary inversion": 7,
     "positive authority creation": 4,
     "runtime/source validation": 26,
     "split by owner": 6
@@ -1181,10 +1253,10 @@
     {
       "ruleId": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
       "lane": "domains/foundation",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace retired internal-path bans with allowed public/import surface.",
-      "evidenceNote": "Forbids imports from retired `compute-tectonic-history` internals.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow Foundation decomposition Grit authority; revisit only if a positive foundation operation registry/import rail fully subsumes retired internal-path absence.",
+      "evidenceNote": "Boundary review found this is already honest Foundation context: current ops are decomposed and the retired `compute-tectonic-history` internals are gone.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/rule.json"
     },
     {
@@ -1229,7 +1301,7 @@
       "actionDecision": "boundary inversion",
       "packetNeeded": true,
       "expectedRemediation": "Define allowed import/schema boundary for foundation op contracts.",
-      "evidenceNote": "Current rule bans one root config token; broader boundary is the durable target.",
+      "evidenceNote": "Current rule bans one root config token; broader boundary is the durable target. Boundary review marked this as implementation-ready slice 'foundation-config-boundary-rail'.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json"
     },
     {
@@ -1244,10 +1316,10 @@
     {
       "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
       "lane": "domains/foundation",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Define or retain foundation-local allowed rules export surface.",
-      "evidenceNote": "Operation-internal rules-surface governance; do not promote to generic kind without proof.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow Foundation operation-rules surface Grit authority; revisit only if a positive operation-rules surface is admitted.",
+      "evidenceNote": "Boundary review confirmed this only blocks shim re-exports from shared tectonics helpers while allowing legitimate local rule imports.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/rule.json"
     },
     {
@@ -1274,16 +1346,16 @@
       "actionDecision": "boundary inversion",
       "packetNeeded": true,
       "expectedRemediation": "Define allowed foundation step contract import/config boundary.",
-      "evidenceNote": "Step contracts use op-specific schemas/artifacts, not root config bags.",
+      "evidenceNote": "Step contracts use op-specific schemas/artifacts, not root config bags. Boundary review marked this as implementation-ready slice 'foundation-config-boundary-rail'.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_step_contract_config_bags/rule.json"
     },
     {
       "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
       "lane": "domains/foundation",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Keep as foundation operation-internal strategy locality; design a future positive domain-operation-strategy locality rule before moving or deleting this foundation-specific guard.",
-      "evidenceNote": "Domino 52 admits `domain-operation-strategy`, but this predicate is foundation-only and allows exactly authoring, local contract, and local rules imports; it is not every valid operation strategy.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as Foundation-specific domain-operation-strategy locality Grit authority; do not move to generic strategy kind unless a whole-kind locality rule is designed.",
+      "evidenceNote": "Boundary review confirmed this already encodes the Foundation-local strategy import boundary and is explicitly not every valid domain-operation-strategy.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/rule.json"
     },
     {
@@ -1307,10 +1379,10 @@
     {
       "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Define allowed Hydrology-vs-placement boundary graph.",
-      "evidenceNote": "Hydrology owns water-cycle truth; placement owns landmass-region projection and region slots.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow Hydrology climate-baseline Grit context authority; placement/runtime owns landmass-region projection, Hydrology must not reintroduce these tokens.",
+      "evidenceNote": "Boundary review found exact stale-token relapse guard scoped to Hydrology climate-baseline source; no broader boundary packet is needed.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules/prohibit_hydrology_runtime_continent_step_tokens/rule.json"
     },
     {
@@ -1334,10 +1406,10 @@
     {
       "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Define allowed Morphology projection dependencies.",
-      "evidenceNote": "`plotMountains` consumes morphology artifacts/topography, not Foundation plate drivers.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow map-morphology projection Grit context authority; plot-mountains consumes Morphology artifacts/topography, not Foundation plate drivers.",
+      "evidenceNote": "Boundary review found the positive map-morphology contract already names Morphology artifacts, so this guard is honest local relapse detection.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_map_morphology_legacy_plate_driver_dependencies/rule.json"
     },
     {
@@ -1352,10 +1424,10 @@
     {
       "ruleId": "prohibit_migrated_consumer_effect_gating_tokens",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Define allowed lake projection dependencies/effects.",
-      "evidenceNote": "D2 says Hydrology lake truth projects through `map-hydrology`; retired engine/morphology gates are stale.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow map-hydrology lakes contract Grit context authority for migrated-consumer cleanup.",
+      "evidenceNote": "Boundary review found this is exact cleanup for one known projection contract, not a pending broad boundary inversion.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_migrated_consumer_effect_gating_tokens/rule.json"
     },
     {
@@ -1373,7 +1445,7 @@
       "actionDecision": "boundary inversion",
       "packetNeeded": true,
       "expectedRemediation": "Define allowed projection/materialization call owners.",
-      "evidenceNote": "Adapter projection calls belong only in exact owning `map-*` projection steps.",
+      "evidenceNote": "Adapter projection calls belong only in exact owning `map-*` projection steps. Boundary review marked this as implementation-ready slice 'projection-adapter-call-owner-boundary'.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/rule.json"
     },
     {
@@ -1381,8 +1453,8 @@
       "lane": "standard recipe morphology stage",
       "actionDecision": "boundary inversion",
       "packetNeeded": true,
-      "expectedRemediation": "Replace morphology-negative publisher bans with allowed story-overlay publisher ownership.",
-      "evidenceNote": "Live HOTSPOTS publishing is in narrative source; morphology is a false owner.",
+      "expectedRemediation": "Sealed blocker: Morphology versus Gameplay/Narrative overlay ownership is not fully settled in the live recipe; choosing whether story overlays can be morphology byproducts encodes product/architecture philosophy.",
+      "evidenceNote": "Live HOTSPOTS publishing is in narrative source; morphology is a false owner. Boundary review marked this as a user semantic gate, not an internally decidable implementation slice.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/rule.json"
     },
     {
@@ -1390,8 +1462,8 @@
       "lane": "standard recipe morphology stage",
       "actionDecision": "boundary inversion",
       "packetNeeded": true,
-      "expectedRemediation": "Model allowed overlay consumption surfaces instead of per-stage negative reads.",
-      "evidenceNote": "Forbids `overlays.js` imports and `readOverlay()` in non-contract morphology implementations.",
+      "expectedRemediation": "Sealed blocker: Likely belongs to a general step implementation/declared-dependency authority rather than a morphology-only negative; needs a decision packet before mutation.",
+      "evidenceNote": "Forbids `overlays.js` imports and `readOverlay()` in non-contract morphology implementations. Boundary review marked this as a user semantic gate, not an internally decidable implementation slice.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/rule.json"
     },
     {
@@ -1409,7 +1481,7 @@
       "actionDecision": "boundary inversion",
       "packetNeeded": true,
       "expectedRemediation": "Define allowed recipe stage config import surface.",
-      "evidenceNote": "Live morphology stages import sanctioned `@mapgen/domain/morphology/config.js`; generic config bags are false surface.",
+      "evidenceNote": "Live morphology stages import sanctioned `@mapgen/domain/morphology/config.js`; generic config bags are false surface. Boundary review marked this as implementation-ready slice 'morphology-stage-config-import-boundary'.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/rule.json"
     },
     {
@@ -1426,8 +1498,8 @@
       "lane": "standard recipe morphology stage",
       "actionDecision": "boundary inversion",
       "packetNeeded": true,
-      "expectedRemediation": "Define allowed artifact dependency graph for morphology contracts and narrative overlays.",
-      "evidenceNote": "Forbids `artifact:storyOverlays` in morphology contracts; narrative owns story overlays.",
+      "expectedRemediation": "Sealed blocker: Morphology versus Gameplay/Narrative overlay ownership is not fully settled in the live recipe; choosing whether story overlays can be morphology byproducts encodes product/architecture philosophy.",
+      "evidenceNote": "Forbids `artifact:storyOverlays` in morphology contracts; narrative owns story overlays. Boundary review marked this as a user semantic gate, not an internally decidable implementation slice.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact/rule.json"
     },
     {
@@ -1442,10 +1514,10 @@
     {
       "ruleId": "prohibit_product_scan_roots_in_grit_provider",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace negative product-root string guard with explicit provider/registry boundary authority.",
-      "evidenceNote": "Grit provider is generic tooling; registry owns scan roots.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as Grit-provider genericness authority; registry metadata owns product scan roots, provider code must not hard-code them.",
+      "evidenceNote": "Boundary review confirmed the current Grit row already expresses provider-vs-registry ownership and prior inventories call it the clean Grit model.",
       "currentPath": ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/rule.json"
     },
     {
@@ -2769,11 +2841,11 @@
         "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=boundary; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/rule.json",
-        "dominoEvidence": "Domino 29, Domino 50",
+        "dominoEvidence": "Domino 29, Domino 50, Domino 70",
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained foundation context rules; broader rules-shim boundary",
-        "pendingAction": "Revisit only if an operation-internal rules surface becomes positive authority.",
-        "evidenceNote": "Domino 50 admitted this as the broader foundation rules-shim boundary and retired the narrower `prohibit_foundation_tectonics_rules_reexport_shims` duplicate because the broader predicate covers `rules/index.ts` reexports."
+        "pendingAction": "No action now. Revisit only if a future positive boundary rail fully subsumes the exact predicate.",
+        "evidenceNote": "Domino 50 admitted this as the broader foundation rules-shim boundary and retired the narrower `prohibit_foundation_tectonics_rules_reexport_shims` duplicate because the broader predicate covers `rules/index.ts` reexports. Domino 70 reclassified this as context admission after boundary review confirmed the current row already owns the honest static source/import boundary."
       },
       {
         "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
@@ -2809,11 +2881,11 @@
         "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=boundary; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/rule.json",
-        "dominoEvidence": "Domino 29, Domino 50, Domino 52",
+        "dominoEvidence": "Domino 29, Domino 50, Domino 52, Domino 70",
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained foundation context rules; foundation strategy import boundary",
-        "pendingAction": "Domain-operation-strategy is now admitted; design a generic positive strategy-locality rule before moving or deleting this foundation-specific guard.",
-        "evidenceNote": "Domino 50 admitted this as the broad foundation decomposed-strategy import boundary and retired the narrower shared-tectonics/default-strategy duplicates because the allowed-list predicate covers those cases. Domino 52 admitted `domain-operation-strategy` but explicitly did not move this row because the whole predicate is foundation-only, not every valid operation strategy."
+        "pendingAction": "No action now. Revisit only if a future positive boundary rail fully subsumes the exact predicate.",
+        "evidenceNote": "Domino 50 admitted this as the broad foundation decomposed-strategy import boundary and retired the narrower shared-tectonics/default-strategy duplicates because the allowed-list predicate covers those cases. Domino 52 admitted `domain-operation-strategy` but explicitly did not move this row because the whole predicate is foundation-only, not every valid operation strategy. Domino 70 reclassified this as context admission after boundary review confirmed the current row already owns the honest static source/import boundary."
       },
       {
         "ruleId": "preserve_decomposed_foundation_contract_surfaces",
@@ -2829,11 +2901,11 @@
         "ruleId": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=boundary; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/rule.json",
-        "dominoEvidence": "Domino 29",
+        "dominoEvidence": "Domino 29, Domino 70",
         "processStatus": "processed: receipt",
         "dispositionBucket": "honest foundation context",
-        "pendingAction": "Foundation-specific decomposition currentness can stay contextual when the row guards one concrete migration history.",
-        "evidenceNote": "The rule protects foundation's specific decomposed-operation migration history; it is not parent `domain` or reusable `domain-operation` authority as a whole.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "pendingAction": "No action now. Revisit only if a future positive boundary rail fully subsumes the exact predicate.",
+        "evidenceNote": "The rule protects foundation's specific decomposed-operation migration history; it is not parent `domain` or reusable `domain-operation` authority as a whole.<br>Proof note: selected-rule Grit proof passed; path refs exist Domino 70 reclassified this as context admission after boundary review confirmed the current row already owns the honest static source/import boundary."
       },
       {
         "ruleId": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
@@ -3166,31 +3238,31 @@
         "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology; category=execution; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules/prohibit_hydrology_runtime_continent_step_tokens/rule.json",
-        "dominoEvidence": "Domino 49",
+        "dominoEvidence": "Domino 49, Domino 70",
         "processStatus": "processed: receipt",
         "dispositionBucket": "atomized hydrology stage implementation context",
-        "pendingAction": "Revisit only if runtime-continent cleanup becomes positive projection/runtime boundary authority.",
-        "evidenceNote": "Domino 49 split `prohibit_runtime_continent_step_tokens`; this row owns only hydrology climate-baseline implementation token cleanup."
+        "pendingAction": "No action now. Revisit only if a future positive boundary rail fully subsumes the exact predicate.",
+        "evidenceNote": "Domino 49 split `prohibit_runtime_continent_step_tokens`; this row owns only hydrology climate-baseline implementation token cleanup. Domino 70 reclassified this as context admission after boundary review confirmed the current row already owns the honest static source/import boundary."
       },
       {
         "ruleId": "prohibit_migrated_consumer_effect_gating_tokens",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map; category=boundary; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_migrated_consumer_effect_gating_tokens/rule.json",
-        "dominoEvidence": "Domino 33, Domino 39, Domino 41, Domino 42",
+        "dominoEvidence": "Domino 33, Domino 39, Domino 41, Domino 42, Domino 70",
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained map stage context",
-        "pendingAction": "Revisit during cleanup or if retired effect gates are replaced by a positive dependency-tag lifecycle rule.",
-        "evidenceNote": "Domino 42 non-move: it guards a migrated map-hydrology consumer contract from retired gates, not artifact values."
+        "pendingAction": "No action now. Revisit only if a future positive boundary rail fully subsumes the exact predicate.",
+        "evidenceNote": "Domino 42 non-move: it guards a migrated map-hydrology consumer contract from retired gates, not artifact values. Domino 70 reclassified this as context admission after boundary review confirmed the current row already owns the honest static source/import boundary."
       },
       {
         "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_map_morphology_legacy_plate_driver_dependencies/rule.json",
-        "dominoEvidence": "Domino 49",
+        "dominoEvidence": "Domino 49, Domino 70",
         "processStatus": "processed: receipt",
         "dispositionBucket": "atomized map stage projection context",
-        "pendingAction": "Revisit only if map-morphology projection cleanup moves into a parameterized projection-step authority surface.",
-        "evidenceNote": "Domino 49 split `prohibit_legacy_plate_driver_and_plot_mountains_dependencies`; this row owns only `plotMountains.ts` legacy plate-driver cleanup."
+        "pendingAction": "No action now. Revisit only if a future positive boundary rail fully subsumes the exact predicate.",
+        "evidenceNote": "Domino 49 split `prohibit_legacy_plate_driver_and_plot_mountains_dependencies`; this row owns only `plotMountains.ts` legacy plate-driver cleanup. Domino 70 reclassified this as context admission after boundary review confirmed the current row already owns the honest static source/import boundary."
       },
       {
         "ruleId": "prohibit_milestone_prefixed_standard_recipe_tag_catalog_names",
@@ -3609,11 +3681,11 @@
         "ruleId": "prohibit_product_scan_roots_in_grit_provider",
         "currentPlacement": "blueprint=grit-provider; niche=habitat/toolkit; category=boundary; operation=check",
         "currentPath": ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/rule.json",
-        "dominoEvidence": "none found",
+        "dominoEvidence": "none found, Domino 70",
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
-        "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "pendingAction": "No action now. Revisit only if a future positive boundary rail fully subsumes the exact predicate.",
+        "evidenceNote": "Current placement only; no domino disposition evidence. Domino 70 reclassified this as context admission after boundary review confirmed the current row already owns the honest static source/import boundary."
       },
       {
         "ruleId": "validate_habitat_service_module_file_shape",
