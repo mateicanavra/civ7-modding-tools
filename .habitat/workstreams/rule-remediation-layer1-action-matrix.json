@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleRemediation.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-01T21:42:28.569Z",
+  "updatedOn": "2026-07-01T22:45:00.000Z",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule-remediation progress. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -16,24 +16,34 @@
   "counts": {
     "actionDecision": {
       "no action": 60,
-      "positive authority creation": 10,
+      "positive authority creation": 8,
       "split by owner": 10,
-      "runtime/source validation": 1,
-      "retirement/garbage collection": 2,
+      "runtime/source validation": 3,
+      "retirement/garbage collection": 6,
       "context admission": 19,
-      "boundary inversion": 9,
+      "boundary inversion": 5,
       "closed structure inversion": 1
     },
-    "packetNeeded": {}
+    "packetNeeded": {
+      "false": 112
+    },
+    "layer2Status": {
+      "none": 81,
+      "packet-complete": 20,
+      "excluded-native-rail-not-semantic-remediation": 1,
+      "implementation-ready": 4,
+      "complete-no-generic-domain-operation-slice": 2,
+      "blocked-prior-source-owner-design": 4
+    }
   },
   "gateState": {
-    "currentLayer": "Layer 2 packet cascade complete; all queued Layer 2 slices have packet decisions.",
-    "currentGate": "Ready for Layer 3 implementation-slice selection. No Layer 3 mutation was performed by this cascade.",
-    "mutationAuthorization": "No Layer 3 mutation is authorized by this Layer 2 cascade goal.",
+    "currentLayer": "Layer 2 corrective re-audit complete for reopened unsafe rows.",
+    "currentGate": "Ready for Layer 3 selection only from rows marked implementation-ready under native-owner/deletion criteria; blocked rows require source-owner design before mutation.",
+    "mutationAuthorization": "No authority-state mutation was performed by this corrective audit. Layer 3 is authorized only after selecting a current implementation-ready slice from this ledger.",
     "nextSliceId": null,
-    "nextLegalAction": "Start a Layer 3 implementation cascade from the implementation-ready and packet-complete candidates; prioritize slices that materially collapse state, not merely the first local packet.",
+    "nextLegalAction": "Select a trusted Layer 3 slice: retired literal deletion, native adapter/API rail, tag/effect registry compiler rail, or domain-operation config-facade consolidation. Do not implement stage-kind sidecars, generic Habitat domain-operation promotion, morphology-local owner reshuffles, or workspace-hygiene cleanup as semantic remediation.",
     "operationalSourceOfTruth": ".habitat/workstreams/rule-remediation-layer1-action-matrix.json",
-    "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99"
+    "sourceCommit": "88cd1a344"
   },
   "rules": [
     {
@@ -116,16 +126,16 @@
       "lane": "non-Civ docs/global/toolkit",
       "actionDecision": "runtime/source validation",
       "packetNeeded": false,
-      "expectedRemediation": "Keep or route to native Biome rail.",
-      "evidenceNote": "Rule delegates to `bun run biome:ci`; Biome owns formatting/import hygiene. Layer 2 packet workspace-hygiene-native-rail-residual: Biome owns formatting, ordinary lint hygiene, and import organization. The current rule delegates entirely to bun run biome:ci and is red from broad workspace drift, not from unresolved Habitat authority semantics.",
+      "expectedRemediation": "Park as Biome/native workspace cleanup; exclude from authority-tree semantic remediation queue.",
+      "evidenceNote": "Corrective audit: check.sh runs only bun run biome:ci; root scripts and biome.json own formatter/linter/import organization; Habitat tool separation docs identify Biome as native hygiene owner.",
       "currentPath": ".habitat/global/workspace/rules/enforce_formatting_and_import_hygiene/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "excluded-native-rail-not-semantic-remediation",
       "packetSliceId": "workspace-hygiene-native-rail-residual",
-      "wholeRuleFit": "native rail replacement / retained alias to Biome",
-      "ruleIdPlan": "keep as a Habitat-routed Biome workspace gate or replace with direct native target wiring; do not convert to Grit or package tests",
-      "semanticDecision": "Biome owns formatting, ordinary lint hygiene, and import organization. The current rule delegates entirely to bun run biome:ci and is red from broad workspace drift, not from unresolved Habitat authority semantics.",
-      "residualFollowUp": "Handle as separate workspace cleanup/native-rail slice if green proof is required; do not treat this as authority-tree semantic remediation.",
-      "implementationReadiness": "not an authority remediation implementation; blocked by broad workspace cleanup if green proof is desired"
+      "wholeRuleFit": "native rail wrapper, not Civ7 authority semantic fit",
+      "ruleIdPlan": "exclude from Layer 2/Layer 3 remediation queue; retain only as Habitat-routed Biome workspace gate if the harness still wants that alias",
+      "semanticDecision": "Biome owns formatting, ordinary lint hygiene, and import organization; this rule delegates to bun run biome:ci and should not be converted into Grit, package tests, or authority-rule remediation.",
+      "residualFollowUp": "If a green hygiene proof is needed, scope a separate workspace-native cleanup against biome:ci/biome:format; do not count it as canonical authority-tree semantic remediation.",
+      "implementationReadiness": "not applicable to authority-tree remediation; any green proof requires separate Biome workspace cleanup"
     },
     {
       "ruleId": "enforce_studio_dev_runner_topology",
@@ -259,18 +269,18 @@
     {
       "ruleId": "prohibit_adapter_local_legacy_generator_logic",
       "lane": "Civ7 platform/resources",
-      "actionDecision": "positive authority creation",
+      "actionDecision": "runtime/source validation",
       "packetNeeded": false,
-      "expectedRemediation": "use this token blacklist only as relapse evidence until approved adapter engine-generator/capability surfaces are defined",
-      "evidenceNote": "Adapter-thin invariant is valid, but the current rule is a token blacklist for old RNG/fudge/generator names, which points to missing positive adapter capability authority. Layer 2 packet studio-platform-mixed-owner-rails: The adapter-thin invariant is real, but the current script only proves absence of stale names such as createLabelRng/rng/rollPercent/coverageChance/addNaturalWonders. Adapter may wrap approved engine legality/readback/materialization generator surfaces, while MapGen owns authored entropy and planning logic.",
+      "expectedRemediation": "Retire stale adapter generator token blacklist into source-native adapter package/API boundary proof; do not keep relapse-token Habitat rule.",
+      "evidenceNote": "Corrective audit: no current adapter source hits for the checked tokens; TRUTH-VS-PROJECTION and EngineAdapter docs distinguish MapGen-authored entropy from adapter compatibility surfaces.",
       "currentPath": ".habitat/civ7/platform/adapter/rules/prohibit_adapter_local_legacy_generator_logic/rule.json",
       "layer2Status": "packet-complete",
       "packetSliceId": "studio-platform-mixed-owner-rails",
-      "wholeRuleFit": "replace by positive adapter capability authority",
-      "ruleIdPlan": "use this token blacklist only as relapse evidence until approved adapter engine-generator/capability surfaces are defined",
-      "semanticDecision": "The adapter-thin invariant is real, but the current script only proves absence of stale names such as createLabelRng/rng/rollPercent/coverageChance/addNaturalWonders. Adapter may wrap approved engine legality/readback/materialization generator surfaces, while MapGen owns authored entropy and planning logic.",
-      "residualFollowUp": "Carry into deterministic-authored-generation-authority: decide/record approved adapter generator wrappers versus forbidden authored-generation inputs.",
-      "implementationReadiness": "not ready alone; should be joined with deterministic authored-generation/adapter capability packet"
+      "wholeRuleFit": "split required: retire stale token clauses; move live adapter-thin invariant to adapter package/API verification",
+      "ruleIdPlan": "delete current id after native adapter package/API rail lands; no Habitat rename",
+      "semanticDecision": "Do not preserve createLabelRng/rng/rollPercent/coverageChance/addNaturalWonders as relapse tokens. Enforce no authored-generation ownership in adapter through adapter API/package boundaries.",
+      "residualFollowUp": "Layer 3 should add or verify adapter package boundary for no MapGen authored-generation imports/planning logic in @civ7/adapter, then delete this rule.",
+      "implementationReadiness": "implementation-ready only as adapter package/API native rail, not as Habitat blacklist"
     },
     {
       "ruleId": "prohibit_ambient_rng_in_authored_generation",
@@ -410,16 +420,16 @@
       "lane": "domains/foundation",
       "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "fold contract config-facade/schema-token clauses into broader domain-operation contract/config authority; delete duplicate local coverage where absorbed",
-      "evidenceNote": "A broader domain-operation config-facade rule already exists, while this Foundation packet adds local alias/schema-token cases. The local packet is proxying a wider contract-config boundary. Layer 2 packet domain-operation-generic-surfaces: Operation contracts should expose local typed input/config surfaces and not import root/domain config facades. A broader domain-operation root-config rule already exists, while this Foundation packet adds local alias and retired FoundationConfigSchema residue.",
+      "expectedRemediation": "Consolidate config-facade import clause into existing domain-operation config-facade rail and delete FoundationConfigSchema token residue.",
+      "evidenceNote": "Corrective audit: existing owner is .habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops; FoundationConfigSchema is retired literal residue unless concrete recurrence risk is proven.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "implementation-ready",
       "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split/consolidate into positive authority",
-      "ruleIdPlan": "fold contract config-facade/schema-token clauses into broader domain-operation contract/config authority; delete duplicate local coverage where absorbed",
-      "semanticDecision": "Operation contracts should expose local typed input/config surfaces and not import root/domain config facades. A broader domain-operation root-config rule already exists, while this Foundation packet adds local alias and retired FoundationConfigSchema residue.",
-      "residualFollowUp": "Avoid duplicate negative rails. Preserve valid recipe-stage config facade usage separately from op-contract bans; retire FoundationConfigSchema token coverage unless live recurrence risk is proven.",
-      "implementationReadiness": "partly implementation-ready after broader contract/config authority is selected; local token residue likely garbage-collection candidate"
+      "wholeRuleFit": "split/consolidate",
+      "ruleIdPlan": "replace by widening existing domain-operation config-facade import rule, then delete local Foundation id after proof; do not preserve FoundationConfigSchema blacklist",
+      "semanticDecision": "Operation contracts should expose local typed schemas and may use op-local/named-family config, but must not import recipe-facing root/domain config facades.",
+      "residualFollowUp": "Layer 3 should extend prohibit_root_config_facade_imports_in_domain_ops to alias imports, preserve allowed op-local config imports, prove absence, then retire this Foundation row.",
+      "implementationReadiness": "implementation-ready as config-facade consolidation plus retired-token deletion"
     },
     {
       "ruleId": "prohibit_foundation_projection_legacy_motion_source",
@@ -433,18 +443,18 @@
     {
       "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
       "lane": "domains/foundation",
-      "actionDecision": "split by owner",
+      "actionDecision": "retirement/garbage collection",
       "packetNeeded": false,
-      "expectedRemediation": "separate generic operation-rules entrypoint authority from exact Foundation lib/tectonics shim cleanup",
-      "evidenceNote": "Corrective review found the exact Foundation `lib/tectonics` shim cleanup is local evidence, but rules-folder entrypoint behavior is generic domain-operation authority. Layer 2 packet domain-operation-generic-surfaces: The generic authority is that op rules entrypoints are local rule surfaces, not nonlocal shim barrels. The exact lib/tectonics re-export blacklist is Foundation migration residue and may delete after generic entrypoint authority exists.",
+      "expectedRemediation": "Treat as contextual cleanup or deletion candidate; do not promote exact Foundation lib/tectonics blacklist into generic domain-operation authority.",
+      "evidenceNote": "Corrective audit: current Foundation rules import lib/tectonics but do not re-export it; generic Habitat-only rules shim rail is rejected.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "complete-no-generic-domain-operation-slice",
       "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split/consolidate",
-      "ruleIdPlan": "separate generic operation-rules entrypoint authority from exact Foundation lib/tectonics shim cleanup",
-      "semanticDecision": "The generic authority is that op rules entrypoints are local rule surfaces, not nonlocal shim barrels. The exact lib/tectonics re-export blacklist is Foundation migration residue and may delete after generic entrypoint authority exists.",
-      "residualFollowUp": "Check whether any recurrence risk remains for lib/tectonics re-export shims; otherwise absorb only the generic entrypoint invariant and delete the exact blacklist.",
-      "implementationReadiness": "implementation-ready only as part of a generic op rules-entrypoint/source-shape rail plus local residue deletion proof"
+      "wholeRuleFit": "contextual cleanup / possible retire",
+      "ruleIdPlan": "do not move id; later either replace with source-owned rules-entrypoint policy or delete exact blacklist after absence proof",
+      "semanticDecision": "Rules entrypoints should own local rule surfaces, but the exact Foundation lib/tectonics re-export ban is not reusable authority by itself.",
+      "residualFollowUp": "If recurrence risk matters, implement package/source verification for rules entrypoint exports; otherwise delete stale exact blacklist.",
+      "implementationReadiness": "not implementation-ready for generic Layer 3; contextual cleanup or deletion after recurrence review"
     },
     {
       "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
@@ -499,16 +509,16 @@
       "lane": "domains/foundation",
       "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "extract strategy-locality authority only after allowed dependency classes are defined; retain/delete Foundation residue by exact recurrence proof",
-      "evidenceNote": "The domain-operation-strategy blueprint authority already exists and notes future strategy-locality pressure. A Foundation-only strategy import rule is a repeated-kind special case unless proven otherwise. Layer 2 packet domain-operation-generic-surfaces: domain-operation-strategy is constructible, but this Foundation allowlist is underbroad and not a valid universal strategy rule. Valid strategy imports include core libs, op-local rules/contracts, support dirs, policies, and domain type surfaces depending on context.",
+      "expectedRemediation": "Keep contextual until source-backed strategy dependency classes exist; do not promote Foundation allowlist to generic strategy authority.",
+      "evidenceNote": "Corrective audit: Foundation allowlist is underbroad; other strategies legitimately import support dirs, policy, local types, core libs, same-op strategies, and domain constants.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "complete-no-generic-domain-operation-slice",
       "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split required",
-      "ruleIdPlan": "extract strategy-locality authority only after allowed dependency classes are defined; retain/delete Foundation residue by exact recurrence proof",
-      "semanticDecision": "domain-operation-strategy is constructible, but this Foundation allowlist is underbroad and not a valid universal strategy rule. Valid strategy imports include core libs, op-local rules/contracts, support dirs, policies, and domain type surfaces depending on context.",
-      "residualFollowUp": "Do not move the whole rule to domain-operation-strategy. Define positive strategy dependency classes first, then decide whether the Foundation-only blacklist has any remaining value.",
-      "implementationReadiness": "not implementation-ready as written; needs strategy dependency-class design before mutation"
+      "wholeRuleFit": "contextual foundation rule",
+      "ruleIdPlan": "preserve id in Foundation context for now; do not create generic strategy rail from this predicate",
+      "semanticDecision": "Foundation tectonics strategy locality is narrower than valid strategy-kind imports repo-wide. A generic domain-operation-strategy move would be false.",
+      "residualFollowUp": "Design source-backed domain-operation-strategy dependency classes before replacing or deleting this local guard.",
+      "implementationReadiness": "not implementation-ready for generic Layer 3; keep contextual until positive strategy import policy exists"
     },
     {
       "ruleId": "prohibit_hydrology_climate_intervention_tokens",
@@ -531,18 +541,18 @@
     {
       "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
+      "actionDecision": "retirement/garbage collection",
       "packetNeeded": false,
-      "expectedRemediation": "Reframe as truth-stage/projection-boundary authority over non-map truth stages; preserve exact runtime-continent token GC only as residue if needed.",
-      "evidenceNote": "Hydrology climate-baseline is one instance of the broader truth/projection split: truth stages must not own runtime landmass projection tokens. Layer 2 packet standard-stage-kind-truth-projection-authority: Hydrology truth implementation must not directly materialize runtime continent ids or landmass marking; current exact literals are absent and markLandmassId is stale relative to live setLandmassRegionId placement projection.",
+      "expectedRemediation": "Delete retired runtime-continent literal guard without replacement after source absence proof.",
+      "evidenceNote": "Corrective audit: rule scans exact retired literals in hydrology-climate-baseline; current source uses morphologyArtifacts.topography/shelf and hydrologyClimateBaselineArtifacts only. Stage-kind sidecar authority is rejected.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules/prohibit_hydrology_runtime_continent_step_tokens/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "implementation-ready",
       "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "split/consolidate",
-      "ruleIdPlan": "replace by positive authority for truth/projection boundary; delete stale literal clauses without replacement",
-      "semanticDecision": "Hydrology truth implementation must not directly materialize runtime continent ids or landmass marking; current exact literals are absent and markLandmassId is stale relative to live setLandmassRegionId placement projection.",
-      "residualFollowUp": "If runtime landmass writes need enforcement, own them in projection/materialization or adapter-boundary authority, not hydrology-local token GC.",
-      "implementationReadiness": "ready only after stage-kind/projection authority exists; otherwise retain current guard"
+      "wholeRuleFit": "retire",
+      "ruleIdPlan": "delete id without replacement",
+      "semanticDecision": "Hydrology climate-baseline no longer owns runtime continent identifiers or landmass marking. Current valid state is owned by Hydrology step/artifact contracts and downstream placement/adapter projection.",
+      "residualFollowUp": "None for this rule. Do not preserve exact retired-token garbage collection unless a new concrete recurrence risk appears.",
+      "implementationReadiness": "ready for deletion without replacement"
     },
     {
       "ruleId": "prohibit_legacy_compute_tectonics_token",
@@ -565,34 +575,34 @@
     {
       "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
+      "actionDecision": "retirement/garbage collection",
       "packetNeeded": false,
-      "expectedRemediation": "Replace local plot-mountains recurrence guard with map-projection input contract authority requiring canonical Morphology artifacts for map-morphology projection; keep `foundationArtifacts.plates` only as exact retired-token GC if still justified.",
-      "evidenceNote": "The authority belongs to projection input contracts, not one projection implementation file. Current rule is historical recurrence evidence over a local file. Layer 2 packet standard-stage-kind-truth-projection-authority: Map-morphology projects canonical Morphology outputs and must not redo planning from retired Foundation plate-driver surfaces. Current pattern is a one-file retired-token guard; foundationPlates is still valid in earlier truth-space foundation projection and morphology consumers.",
+      "expectedRemediation": "Delete stale map-morphology plate-driver literal guard without replacement after source absence proof.",
+      "evidenceNote": "Corrective audit: plotMountains.ts materializes morphologyArtifacts.mountains/topography; foundationPlates/foundationArtifacts.plates are absent from that file and valid elsewhere.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_map_morphology_legacy_plate_driver_dependencies/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "implementation-ready",
       "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "split/consolidate",
-      "ruleIdPlan": "replace by positive projection-input authority; delete exact foundationArtifacts.plates residue if no recurrence risk remains",
-      "semanticDecision": "Map-morphology projects canonical Morphology outputs and must not redo planning from retired Foundation plate-driver surfaces. Current pattern is a one-file retired-token guard; foundationPlates is still valid in earlier truth-space foundation projection and morphology consumers.",
-      "residualFollowUp": "Future implementation should assert map-projection input contracts over map-morphology as a surface, not only plotMountains.ts text.",
-      "implementationReadiness": "ready only after stage-kind/projection authority exists; otherwise retain current guard"
+      "wholeRuleFit": "retire",
+      "ruleIdPlan": "delete id without replacement",
+      "semanticDecision": "Map-morphology mountain projection is already source-owned by its step contract requiring Morphology artifacts. The exact legacy plate-driver tokens are absent from the scanned implementation and remain valid in other source owners.",
+      "residualFollowUp": "If direct artifact bypass becomes a real risk, enforce it through package verify, compiler, or typed deps, not a plotMountains token rule.",
+      "implementationReadiness": "ready for deletion without replacement"
     },
     {
       "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
       "lane": "standard recipe top-level",
-      "actionDecision": "positive authority creation",
+      "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "Create or derive positive stage-kind taxonomy (`truth`, `projection`, `placement/product`) from standard recipe/manifest authority, then enforce no `artifact:map.*` or `effect:map.*` in truth contracts by kind.",
-      "evidenceNote": "The rule hardcodes physics stage paths because no positive stage kind exists. Corrective review identified this as the clearest missing-kind smell. Layer 2 packet standard-stage-kind-truth-projection-authority: Replace hardcoded physics/truth path scan with stage-kind authority: truth stage contracts must not require/provide artifact:map.*, effect:map.*, or MAP_PROJECTION_EFFECT_TAGS.map.*. Current rule is underbroad because imported mapArtifacts.* can appear without literal artifact:map strings, and hardcodes the stage list.",
+      "expectedRemediation": "Reopen broad truth/projection claim for native source-owner design; do not create stage-kind sidecar or broad artifact:map ban while valid map artifacts remain source-owned.",
+      "evidenceNote": "Corrective audit: current Habitat rule duplicates literal package-test coverage and is underbroad for imported artifact objects; broad artifact:map prohibition conflicts with live mapArtifacts.foundation* and landmassRegionSlotByTile source artifacts.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "blocked-prior-source-owner-design",
       "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "consolidate into positive authority",
-      "ruleIdPlan": "replace by positive authority",
-      "semanticDecision": "Replace hardcoded physics/truth path scan with stage-kind authority: truth stage contracts must not require/provide artifact:map.*, effect:map.*, or MAP_PROJECTION_EFFECT_TAGS.map.*. Current rule is underbroad because imported mapArtifacts.* can appear without literal artifact:map strings, and hardcodes the stage list.",
-      "residualFollowUp": "Keep only until stage-kind authority is implemented; then absorb/delete this rule or narrow it to injected-proof coverage if needed.",
-      "implementationReadiness": "ready after stage-kind authority rail is selected"
+      "wholeRuleFit": "split/consolidate into native rail",
+      "ruleIdPlan": "delete Habitat id only after native package-verify coverage is accepted; do not replace with stage-kind sidecar",
+      "semanticDecision": "Keep any live truth/projection invariant in source-native contracts or package verify. Do not encode a broad no-artifact:map rule until projection artifact subnamespaces are classified by source authority.",
+      "residualFollowUp": "If broadening beyond the existing literal package guard, first decide artifact:map subnamespace semantics in source/native contract authority.",
+      "implementationReadiness": "not implementation-ready for broad authority; possible duplicate-removal only after native package verify owner is selected"
     },
     {
       "ruleId": "prohibit_migrated_consumer_effect_gating_tokens",
@@ -633,16 +643,16 @@
       "lane": "standard recipe morphology stage",
       "actionDecision": "boundary inversion",
       "packetNeeded": false,
-      "expectedRemediation": "Sealed blocker: Morphology versus Gameplay/Narrative overlay ownership is not fully settled in the live recipe; choosing whether story overlays can be morphology byproducts encodes product/architecture philosophy.",
-      "evidenceNote": "Live HOTSPOTS publishing is in narrative source; morphology is a false owner. Boundary review marked this as a user semantic gate, not an internally decidable implementation slice. Layer 2 packet morphology-story-overlay-ownership-gate: The owner boundary is no longer an unresolved user semantic gate. Current docs say Gameplay absorbs Narrative and owns narrative/playability surfaces, current source publishes HOTSPOTS only from domain/narrative/tagging/hotspots.ts, and an adjacent positive owner rule already approximates the invariant. The current morphology-local Grit rule is narrower than its manifest because it misses morphology-shelf.",
+      "expectedRemediation": "Replace only after native Gameplay/story allowed-publisher boundary exists; do not preserve or move morphology-local blacklist.",
+      "evidenceNote": "Corrective audit: current morphology source has zero HOTSPOTS publisher hits; current source publisher is domain/narrative/tagging/hotspots.ts; Gameplay docs absorb narrative/playability surfaces.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "blocked-prior-source-owner-design",
       "packetSliceId": "morphology-story-overlay-ownership-gate",
-      "wholeRuleFit": "consolidate into positive Gameplay story-surface owner authority",
-      "ruleIdPlan": "replace morphology-local negative blacklist with positive owner authority: Gameplay owns narrative/playability story surfaces; current domain/narrative is legacy implementation surface; Morphology may publish morphology truth signals but not HOTSPOTS story overlay publisher authority",
-      "semanticDecision": "The owner boundary is no longer an unresolved user semantic gate. Current docs say Gameplay absorbs Narrative and owns narrative/playability surfaces, current source publishes HOTSPOTS only from domain/narrative/tagging/hotspots.ts, and an adjacent positive owner rule already approximates the invariant. The current morphology-local Grit rule is narrower than its manifest because it misses morphology-shelf.",
-      "residualFollowUp": "During implementation, correct positive story-surface owner authority and then retire/delete this morphology-local rule or keep only a temporary coverage-repaired rail until positive authority exists.",
-      "implementationReadiness": "implementation-ready as local consolidation into positive story-surface authority; not cascade-stopping"
+      "wholeRuleFit": "replace by native rail",
+      "ruleIdPlan": "delete current morphology-local id after native Gameplay/story publisher boundary exists",
+      "semanticDecision": "Morphology must not own HOTSPOTS story overlay publishing, but enforcement belongs to the story-surface owner, not to a narrow morphology token scan.",
+      "residualFollowUp": "Define allowed story overlay publishers in source/API/compiler terms; then remove this Habitat rule. Do not move it to a narrative folder or create a sidecar Habitat owner rule.",
+      "implementationReadiness": "not ready; missing native allowed-publisher/source-boundary design for Gameplay-owned story surfaces"
     },
     {
       "ruleId": "prohibit_morphology_overlay_implementation_reads",
@@ -674,18 +684,18 @@
     {
       "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
       "lane": "standard recipe morphology stage",
-      "actionDecision": "boundary inversion",
+      "actionDecision": "runtime/source validation",
       "packetNeeded": false,
-      "expectedRemediation": "Rehome as all-standard-recipe retired effect-token garbage collection, or absorb into dependency/effect tag owner schema authority.",
-      "evidenceNote": "The banned `landmassApplied`/`coastlinesApplied` tokens are exact retired-token cleanup, but Morphology-only placement is arbitrary. Layer 2 packet dependency-effect-tag-family-authority: landmassApplied/coastlinesApplied are absent retired effect tokens and not valid registered effect:engine.* family members. Morphology-only placement is arbitrary for tag authority.",
+      "expectedRemediation": "Replace with source-native tag/effect registry compiler validation, then delete morphology-local retired-token guard.",
+      "evidenceNote": "Corrective audit: current morphology source has zero banned-token hits; standard tag constants and docs point to effect:map.* / registered effect owners, while legacy verifier strings are not morphology authority.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/rule.json",
       "layer2Status": "packet-complete",
       "packetSliceId": "dependency-effect-tag-family-authority",
-      "wholeRuleFit": "retire after positive authority",
-      "ruleIdPlan": "delete id without replacement after positive registered effect-family validation or all-standard-recipe absence proof",
-      "semanticDecision": "landmassApplied/coastlinesApplied are absent retired effect tokens and not valid registered effect:engine.* family members. Morphology-only placement is arbitrary for tag authority.",
-      "residualFollowUp": "If keeping a retired-token GC, make scope all-standard-recipe and temporary; do not preserve morphology-local ownership.",
-      "implementationReadiness": "ready after positive registered tag-family authority rail is selected"
+      "wholeRuleFit": "replace by native rail",
+      "ruleIdPlan": "delete id after closed effect-tag registry/compiler validation covers retired effect ids",
+      "semanticDecision": "Do not keep landmassApplied/coastlinesApplied as Habitat relapse tokens. Make effect-tag validity a registry/compiler property; morphology simulation stages should remain artifact-only, with map projection effects under map-* tags.",
+      "residualFollowUp": "Layer 3 should close effect tag registration so raw effect ids cannot be auto-created from step contracts, update any missing current explicit tags, and delete this morphology rule.",
+      "implementationReadiness": "implementation-ready as tag/effect registry compiler slice; not as morphology-local edit"
     },
     {
       "ruleId": "prohibit_morphology_story_overlay_contract_artifact",
@@ -787,18 +797,18 @@
     {
       "ruleId": "prohibit_runtime_continent_contract_tokens",
       "lane": "standard recipe morphology stage",
-      "actionDecision": "boundary inversion",
+      "actionDecision": "retirement/garbage collection",
       "packetNeeded": false,
-      "expectedRemediation": "Make contract-surface purity kind-aware across stage/artifact contracts, keyed by truth vs projection stage kind, before moving or deleting this local Morphology contract guard.",
-      "evidenceNote": "Runtime continent identifiers are disallowed in truth contract surfaces unless the contract is explicitly projection/runtime-owned. Morphology-only placement is a proxy. Layer 2 packet standard-stage-kind-truth-projection-authority: Truth contract/artifact surfaces must not expose runtime/materialization identifiers unless explicitly projection/runtime-owned. Exact westContinent/eastContinent/LandmassRegionId strings are absent and look like stale retired literals.",
+      "expectedRemediation": "Delete retired runtime-continent contract literal guard without replacement after source absence proof.",
+      "evidenceNote": "Corrective audit: rule scans exact retired literals; current Morphology schema uses landmasses/landmassIdByTile, while placement stamps adapter LandmassRegionId from region slots.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "implementation-ready",
       "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "retire after positive authority",
-      "ruleIdPlan": "delete id without replacement after positive authority unless recurrence risk is proven",
-      "semanticDecision": "Truth contract/artifact surfaces must not expose runtime/materialization identifiers unless explicitly projection/runtime-owned. Exact westContinent/eastContinent/LandmassRegionId strings are absent and look like stale retired literals.",
-      "residualFollowUp": "Do not preserve a morphology-only literal blacklist unless a concrete recurrence risk appears.",
-      "implementationReadiness": "ready only after stage-kind/projection authority exists; otherwise retain current guard"
+      "wholeRuleFit": "retire",
+      "ruleIdPlan": "delete id without replacement",
+      "semanticDecision": "Runtime continent tokens are absent from Morphology contracts/artifacts. Valid state is Morphology landmass truth plus downstream placement/adapter LandmassRegionId projection.",
+      "residualFollowUp": "None for this rule. Keep placement projection tests as the live owner; do not preserve a Morphology literal blacklist.",
+      "implementationReadiness": "ready for deletion without replacement"
     },
     {
       "ruleId": "prohibit_runtime_helper_redeclarations",
@@ -915,16 +925,16 @@
       "lane": "domains/nonfoundation",
       "actionDecision": "closed structure inversion",
       "packetNeeded": false,
-      "expectedRemediation": "replace by generic domain-operation topology authority; demote/delete Ecology-only packet after replacement proof",
-      "evidenceNote": "The packet is pure op-module topology and Ecology is only an instance. Multiple migrated domains have operation roots; this should be a closed structure over the domain-operation kind. Layer 2 packet domain-operation-generic-surfaces: Ecology is a valid exemplar of canonical op topology, but the rule is an instance-specific structure rail. Generic domain-operation topology must define required op children and an explicit support-directory exception model before enforcement is generalized.",
+      "expectedRemediation": "Design source-owned operation-module topology verifier/generator with support-directory exceptions before replacing Ecology-only structure rail.",
+      "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries.",
       "currentPath": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "blocked-prior-source-owner-design",
       "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split/consolidate into positive authority",
-      "ruleIdPlan": "replace by generic domain-operation topology authority; demote/delete Ecology-only packet after replacement proof",
-      "semanticDecision": "Ecology is a valid exemplar of canonical op topology, but the rule is an instance-specific structure rail. Generic domain-operation topology must define required op children and an explicit support-directory exception model before enforcement is generalized.",
-      "residualFollowUp": "Do not copy the Ecology structure.toml globally. Design support roots such as score-shared/shared/mountains-shared and transitional no-strategy operation roots before Layer 3 mutation.",
-      "implementationReadiness": "implementation-ready only after generic domain-operation topology plus exception model is selected"
+      "wholeRuleFit": "split/consolidate into source-owned topology authority",
+      "ruleIdPlan": "do not move Ecology rule as-is; later replace by source-owned op-module topology proof and delete Ecology rule after replacement proof",
+      "semanticDecision": "Contract/index/strategy binding is live domain-operation authority, but must be enforced through TS registry, generator, or package verify, not Ecology sidecar topology.",
+      "residualFollowUp": "Design operation-module verifier/generator and support-directory exception model for score-shared/shared/mountains-shared before Layer 3.",
+      "implementationReadiness": "not implementation-ready; needs source-owned operation-module verifier/generator and support-directory exception model"
     },
     {
       "ruleId": "require_explicit_mapgen_sdk_opt_in",
@@ -1157,16 +1167,16 @@
       "lane": "domains/nonfoundation",
       "actionDecision": "positive authority creation",
       "packetNeeded": false,
-      "expectedRemediation": "split schema-description contract-quality authority from JSDoc/source-quality and stale recipe-stage path coverage",
-      "evidenceNote": "Script checks Ecology op descriptions/JSDoc and stale stage coverage; Domino 52 rejects strategy authority because the whole predicate is operation contract-quality pressure, not strategy implementation authority. Layer 2 packet domain-operation-generic-surfaces: The contract schema-description clause belongs to broader domain-operation contract-quality authority. The JSDoc clause is source-quality documentation, and the recipe stages/ecology/steps path is stale residue.",
+      "expectedRemediation": "Split schema-description quality from JSDoc/stale-path checks; source-own schema metadata policy before mutation.",
+      "evidenceNote": "Corrective audit: check.sh delegates to an Ecology-specific script that mixes Type.Object description checks, JSDoc checks, and stale stage path coverage.",
       "currentPath": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
-      "layer2Status": "packet-complete",
+      "layer2Status": "blocked-prior-source-owner-design",
       "packetSliceId": "domain-operation-generic-surfaces",
       "wholeRuleFit": "split required",
-      "ruleIdPlan": "split schema-description contract-quality authority from JSDoc/source-quality and stale recipe-stage path coverage",
-      "semanticDecision": "The contract schema-description clause belongs to broader domain-operation contract-quality authority. The JSDoc clause is source-quality documentation, and the recipe stages/ecology/steps path is stale residue.",
-      "residualFollowUp": "Do not promote the existing script whole. Its Type.Object predicate is coarse and its stale step root should be removed or deleted when the broader quality rail exists.",
-      "implementationReadiness": "requires a dedicated domain-operation contract-quality design and proof; current Ecology script remains context debt until then"
+      "ruleIdPlan": "do not promote current script whole; schema-description clause may become source-owned contract-quality, while JSDoc and stale-path clauses should delete unless separately justified",
+      "semanticDecision": "Op contract metadata belongs in op contract/schema tooling. Exported-function JSDoc and stale recipes/standard/stages/ecology/steps coverage are not domain-operation invariants.",
+      "residualFollowUp": "Define exact schema metadata policy in source/package verify, remove stale ecology stage path, and avoid carrying JSDoc as operation authority.",
+      "implementationReadiness": "not implementation-ready; schema metadata policy must be source/package-verify owned before mutation"
     },
     {
       "ruleId": "validate_generated_map_entrypoint_contracts",
@@ -2100,18 +2110,18 @@
     },
     {
       "sliceId": "standard-stage-kind-truth-projection-authority",
-      "status": "packet-complete",
-      "actionClass": "positive authority creation / boundary inversion",
+      "status": "corrected-reopened",
+      "actionClass": "retirement/garbage collection / native source validation",
       "rules": [
         "prohibit_map_projection_dependencies_in_physics_contracts",
         "prohibit_runtime_continent_contract_tokens",
         "prohibit_hydrology_runtime_continent_step_tokens",
         "prohibit_map_morphology_legacy_plate_driver_dependencies"
       ],
-      "reason": "Several local stage guards compensate for missing positive stage-kind taxonomy over truth, projection, and product/materialization stages.",
+      "reason": "Corrective audit rejected the stage-kind sidecar framing. Three rows are retired-literal deletion candidates; one row has a live truth/projection invariant but belongs to source-native contract/package verification, not a Habitat stage-kind table.",
       "queueOrder": 2,
-      "completedOn": "2026-07-01T20:45:37.526Z",
-      "sourceCommit": "945d6b518",
+      "completedOn": "2026-07-01T22:45:00.000Z",
+      "sourceCommit": "88cd1a344",
       "selectedRules": [
         "prohibit_map_projection_dependencies_in_physics_contracts",
         "prohibit_runtime_continent_contract_tokens",
@@ -2119,103 +2129,90 @@
         "prohibit_map_morphology_legacy_plate_driver_dependencies"
       ],
       "packetSummary": {
-        "authorityConclusion": "accepted narrow Standard Recipe stage-kind authority exists; no user decision required",
-        "stageKinds": [
-          {
-            "kind": "truth",
-            "stageIds": [
-              "foundation-*",
-              "morphology-*",
-              "hydrology-*",
-              "ecology-*"
-            ],
-            "semantics": "deterministic domain/truth stages publish canonical domain artifacts and must not depend on map projection effects or runtime/materialization identifiers unless an explicit projection/runtime exception is declared."
-          },
-          {
-            "kind": "projection-materialization",
-            "stageIds": [
-              "map-*"
-            ],
-            "semantics": "map stages consume truth artifacts and own engine-facing projection/materialization, map artifacts, map effect tags, adapter writes, parity, and readback evidence."
-          },
-          {
-            "kind": "product-effect",
-            "stageIds": [
-              "placement"
-            ],
-            "semantics": "placement owns current product/effect reconciliation for resources, starts, discoveries, natural wonders, and landmass-region projection without settling future Gameplay-vs-Placement domain ontology."
-          }
-        ],
+        "authorityConclusion": "stage-kind sidecar authority rejected",
+        "correctedConclusion": "Retired runtime/projection literals should delete without replacement. Any live truth/projection invariant must be source-native: step contracts, typed deps, tag/artifact registries, package verify, or compiler validation.",
         "inspectedSources": [
-          "docs/projects/engine-refactor-v1/architecture-normalization-packet.md",
-          "docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md",
-          "docs/system/libs/mapgen/reference/STANDARD-RECIPE.md",
-          "docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md",
-          ".habitat/workstreams/product-authority-framing/MAPGEN-PRODUCT-AUTHORITY-FRAME.md",
-          "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/**"
+          ".habitat rule packets for four selected rules",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/**",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts",
+          "mods/mod-swooper-maps/test/pipeline/map-stamping.contract-guard.test.ts",
+          "mods/mod-swooper-maps/test/placement/landmass-region-id-projection.test.ts"
         ],
-        "proofClasses": [
-          "closed structure proof",
-          "manifest/schema proof",
-          "source absence proof",
-          "source presence proof",
-          "focused habitat check"
-        ],
-        "proofLimits": "This Layer 2 packet proves semantic readiness for a stage-kind authority plan. It does not implement a stage-kind field, rewrite rules, delete retired literal guards, or settle future Gameplay/Placement/Narrative ontology."
+        "proofLimits": "This correction does not delete rules. It records that Layer 3 may delete the three retired-literal rules after absence proof, while prohibit_map_projection_dependencies_in_physics_contracts needs source-owner confirmation before broadening or removal."
       },
       "perRuleDecisions": [
         {
           "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
-          "wholeRuleFit": "consolidate into positive authority",
-          "semanticDecision": "Replace hardcoded physics/truth path scan with stage-kind authority: truth stage contracts must not require/provide artifact:map.*, effect:map.*, or MAP_PROJECTION_EFFECT_TAGS.map.*. Current rule is underbroad because imported mapArtifacts.* can appear without literal artifact:map strings, and hardcodes the stage list.",
-          "ruleIdPlan": "replace by positive authority",
-          "residualFollowUp": "Keep only until stage-kind authority is implemented; then absorb/delete this rule or narrow it to injected-proof coverage if needed."
+          "actionDecision": "split by owner",
+          "packetNeeded": false,
+          "layer2Status": "blocked-prior-source-owner-design",
+          "implementationReadiness": "not implementation-ready for broad authority; possible duplicate-removal only after native package verify owner is selected",
+          "wholeRuleFit": "split/consolidate into native rail",
+          "ruleIdPlan": "delete Habitat id only after native package-verify coverage is accepted; do not replace with stage-kind sidecar",
+          "semanticDecision": "Keep any live truth/projection invariant in source-native contracts or package verify. Do not encode a broad no-artifact:map rule until projection artifact subnamespaces are classified by source authority.",
+          "residualFollowUp": "If broadening beyond the existing literal package guard, first decide artifact:map subnamespace semantics in source/native contract authority.",
+          "evidenceNote": "Corrective audit: current Habitat rule duplicates literal package-test coverage and is underbroad for imported artifact objects; broad artifact:map prohibition conflicts with live mapArtifacts.foundation* and landmassRegionSlotByTile source artifacts."
         },
         {
           "ruleId": "prohibit_runtime_continent_contract_tokens",
-          "wholeRuleFit": "retire after positive authority",
-          "semanticDecision": "Truth contract/artifact surfaces must not expose runtime/materialization identifiers unless explicitly projection/runtime-owned. Exact westContinent/eastContinent/LandmassRegionId strings are absent and look like stale retired literals.",
-          "ruleIdPlan": "delete id without replacement after positive authority unless recurrence risk is proven",
-          "residualFollowUp": "Do not preserve a morphology-only literal blacklist unless a concrete recurrence risk appears."
+          "actionDecision": "retirement/garbage collection",
+          "packetNeeded": false,
+          "layer2Status": "implementation-ready",
+          "implementationReadiness": "ready for deletion without replacement",
+          "wholeRuleFit": "retire",
+          "ruleIdPlan": "delete id without replacement",
+          "semanticDecision": "Runtime continent tokens are absent from Morphology contracts/artifacts. Valid state is Morphology landmass truth plus downstream placement/adapter LandmassRegionId projection.",
+          "residualFollowUp": "None for this rule. Keep placement projection tests as the live owner; do not preserve a Morphology literal blacklist.",
+          "evidenceNote": "Corrective audit: rule scans exact retired literals; current Morphology schema uses landmasses/landmassIdByTile, while placement stamps adapter LandmassRegionId from region slots."
         },
         {
           "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
-          "wholeRuleFit": "split/consolidate",
-          "semanticDecision": "Hydrology truth implementation must not directly materialize runtime continent ids or landmass marking; current exact literals are absent and markLandmassId is stale relative to live setLandmassRegionId placement projection.",
-          "ruleIdPlan": "replace by positive authority for truth/projection boundary; delete stale literal clauses without replacement",
-          "residualFollowUp": "If runtime landmass writes need enforcement, own them in projection/materialization or adapter-boundary authority, not hydrology-local token GC."
+          "actionDecision": "retirement/garbage collection",
+          "packetNeeded": false,
+          "layer2Status": "implementation-ready",
+          "implementationReadiness": "ready for deletion without replacement",
+          "wholeRuleFit": "retire",
+          "ruleIdPlan": "delete id without replacement",
+          "semanticDecision": "Hydrology climate-baseline no longer owns runtime continent identifiers or landmass marking. Current valid state is owned by Hydrology step/artifact contracts and downstream placement/adapter projection.",
+          "residualFollowUp": "None for this rule. Do not preserve exact retired-token garbage collection unless a new concrete recurrence risk appears.",
+          "evidenceNote": "Corrective audit: rule scans exact retired literals in hydrology-climate-baseline; current source uses morphologyArtifacts.topography/shelf and hydrologyClimateBaselineArtifacts only. Stage-kind sidecar authority is rejected."
         },
         {
           "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
-          "wholeRuleFit": "split/consolidate",
-          "semanticDecision": "Map-morphology projects canonical Morphology outputs and must not redo planning from retired Foundation plate-driver surfaces. Current pattern is a one-file retired-token guard; foundationPlates is still valid in earlier truth-space foundation projection and morphology consumers.",
-          "ruleIdPlan": "replace by positive projection-input authority; delete exact foundationArtifacts.plates residue if no recurrence risk remains",
-          "residualFollowUp": "Future implementation should assert map-projection input contracts over map-morphology as a surface, not only plotMountains.ts text."
+          "actionDecision": "retirement/garbage collection",
+          "packetNeeded": false,
+          "layer2Status": "implementation-ready",
+          "implementationReadiness": "ready for deletion without replacement",
+          "wholeRuleFit": "retire",
+          "ruleIdPlan": "delete id without replacement",
+          "semanticDecision": "Map-morphology mountain projection is already source-owned by its step contract requiring Morphology artifacts. The exact legacy plate-driver tokens are absent from the scanned implementation and remain valid in other source owners.",
+          "residualFollowUp": "If direct artifact bypass becomes a real risk, enforce it through package verify, compiler, or typed deps, not a plotMountains token rule.",
+          "evidenceNote": "Corrective audit: plotMountains.ts materializes morphologyArtifacts.mountains/topography; foundationPlates/foundationArtifacts.plates are absent from that file and valid elsewhere."
         }
       ],
       "implementationCandidate": {
-        "materialGate": true,
-        "gateStrength": "high-leverage but not immediate stop",
-        "reason": "A source-visible or mechanically-derived stage-kind authority would absorb/reframe four current rules and likely inform dependency/effect tag and domain-operation packets, but the next deterministic move is still more Layer 2 packeting unless later slices prove this implementation would collapse a larger family immediately.",
-        "candidateSlice": "create Standard Recipe stage-kind authority rail, then absorb/delete/narrow the four selected proxy rules",
+        "materialGate": false,
+        "candidateSlices": [
+          "delete retired runtime/projection literal guards: prohibit_hydrology_runtime_continent_step_tokens, prohibit_map_morphology_legacy_plate_driver_dependencies, prohibit_runtime_continent_contract_tokens",
+          "decide native package-verify/source-contract owner before changing prohibit_map_projection_dependencies_in_physics_contracts"
+        ],
         "actionsNotAuthorizedByPacket": [
-          "Layer 3 mutation under the current Layer 2-only goal",
-          "settling future Gameplay-vs-Placement-vs-Narrative ontology",
-          "deleting retired literal guards before stage-kind/projection authority exists",
-          "treating foundation-projection as map projection without a stronger product decision"
+          "creating a Standard Recipe stage-kind table or Habitat sidecar taxonomy",
+          "broadly banning artifact:map.* while source-owned mapArtifacts.foundation* remain valid",
+          "preserving retired literal token blacklists without concrete recurrence risk"
         ]
       },
       "reviewDisposition": {
         "reviewers": [
-          "fresh stage-kind authority reviewer",
-          "fresh predicate decomposition reviewer"
+          "fresh stage/projection corrective reviewer"
         ],
-        "disposition": "approved-for-layer2-record",
-        "acceptedFindings": [],
-        "semanticDisposition": "stage-kind authority is authorized and narrow; no user-level semantic blocker"
+        "disposition": "corrected; prior stage-kind readiness superseded",
+        "acceptedFindings": [
+          "stage-kind framing was a reshuffle",
+          "three rows are deletion candidates",
+          "one row needs native/source owner confirmation"
+        ]
       }
     },
     {
@@ -2303,10 +2300,15 @@
         },
         {
           "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
-          "wholeRuleFit": "retire after positive authority",
-          "semanticDecision": "landmassApplied/coastlinesApplied are absent retired effect tokens and not valid registered effect:engine.* family members. Morphology-only placement is arbitrary for tag authority.",
-          "ruleIdPlan": "delete id without replacement after positive registered effect-family validation or all-standard-recipe absence proof",
-          "residualFollowUp": "If keeping a retired-token GC, make scope all-standard-recipe and temporary; do not preserve morphology-local ownership."
+          "actionDecision": "runtime/source validation",
+          "packetNeeded": false,
+          "layer2Status": "packet-complete",
+          "implementationReadiness": "implementation-ready as tag/effect registry compiler slice; not as morphology-local edit",
+          "wholeRuleFit": "replace by native rail",
+          "ruleIdPlan": "delete id after closed effect-tag registry/compiler validation covers retired effect ids",
+          "semanticDecision": "Do not keep landmassApplied/coastlinesApplied as Habitat relapse tokens. Make effect-tag validity a registry/compiler property; morphology simulation stages should remain artifact-only, with map projection effects under map-* tags.",
+          "residualFollowUp": "Layer 3 should close effect tag registration so raw effect ids cannot be auto-created from step contracts, update any missing current explicit tags, and delete this morphology rule.",
+          "evidenceNote": "Corrective audit: current morphology source has zero banned-token hits; standard tag constants and docs point to effect:map.* / registered effect owners, while legacy verifier strings are not morphology authority."
         }
       ],
       "implementationCandidate": {
@@ -2328,13 +2330,14 @@
         ],
         "disposition": "approved-for-layer2-record",
         "acceptedFindings": [],
-        "semanticDisposition": "registered tag-family authority is source-backed; one rule has split residue; no user-level semantic blocker"
+        "semanticDisposition": "registered tag-family authority is source-backed; one rule has split residue; no user-level semantic blocker",
+        "correctiveAudit": "Morphology legacy effect gate row corrected: do not keep retired effect tokens as Habitat relapse evidence; close effect-tag registration/compiler validation, then delete rule."
       }
     },
     {
       "sliceId": "domain-operation-generic-surfaces",
-      "status": "packet-complete",
-      "actionClass": "closed structure inversion / split by owner",
+      "status": "corrected-reopened",
+      "actionClass": "closed structure inversion / split by owner / native source-owner design",
       "rules": [
         "require_ecology_canonical_op_module_topology",
         "validate_ecology_op_contract_quality",
@@ -2342,10 +2345,10 @@
         "prohibit_foundation_rules_tectonics_shim_reexports",
         "prohibit_foundation_op_contract_config_bags"
       ],
-      "reason": "Ecology/Foundation local rows are instances of repeated domain-operation topology, contract quality, strategy locality, rules entrypoint, and operation-contract config authority.",
+      "reason": "Corrective audit rejected promoting Ecology/Foundation instance rules into a generic Habitat domain-operation rail. Only the config-facade clause is close to implementation-ready through an existing source-backed domain-operation import rail.",
       "queueOrder": 4,
-      "completedOn": "2026-07-01T21:00:29.240Z",
-      "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
+      "completedOn": "2026-07-01T22:45:00.000Z",
+      "sourceCommit": "88cd1a344",
       "selectedRules": [
         "require_ecology_canonical_op_module_topology",
         "validate_ecology_op_contract_quality",
@@ -2353,72 +2356,97 @@
         "prohibit_foundation_rules_tectonics_shim_reexports",
         "prohibit_foundation_op_contract_config_bags"
       ],
-      "packetSummary": "Source-backed positive domain-operation authority exists, and domain-operation-strategy remains a constructible kind, but the current Ecology/Foundation rules are local proxy rails. The slice should create broader topology, contract-quality/config, strategy-locality, and rules-entrypoint authorities before demoting or deleting the instance-specific packets.",
+      "packetSummary": "Domain-operation authority is real, but these rows cannot be solved by copying local Habitat predicates into a generic rail. Topology, contract quality, strategy locality, and rules entrypoint need source-owned verifier/generator/API designs or deletion-by-absence. Foundation op contract config-facade imports can consolidate into the existing domain-operation config-facade rule.",
       "authorityConclusion": {
-        "domainOperation": "accepted positive authority surface for op topology, contract quality/config, op rules entrypoints, and support-dir exception modeling",
-        "domainOperationStrategy": "constructible kind, but current Foundation strategy import allowlist is not universal strategy authority",
-        "implementationGate": "material for this slice, not cascade-stopping; continue Layer 2 until a broader state-collapse implementation gate is proven"
+        "domainOperation": "accepted as a product/source concept, but not implemented by Habitat sidecar generalization of local rules",
+        "implementationGate": "only prohibit_foundation_op_contract_config_bags has a clear near-term Layer 3 consolidation path; the rest are blocked or contextual"
       },
       "perRuleDecisions": {
         "require_ecology_canonical_op_module_topology": {
-          "wholeRuleFit": "split/consolidate into positive authority",
-          "ruleIdPlan": "replace by generic domain-operation topology authority; demote/delete Ecology-only packet after replacement proof",
-          "semanticDecision": "Ecology is a valid exemplar of canonical op topology, but the rule is an instance-specific structure rail. Generic domain-operation topology must define required op children and an explicit support-directory exception model before enforcement is generalized.",
-          "residualFollowUp": "Do not copy the Ecology structure.toml globally. Design support roots such as score-shared/shared/mountains-shared and transitional no-strategy operation roots before Layer 3 mutation.",
-          "implementationReadiness": "implementation-ready only after generic domain-operation topology plus exception model is selected"
+          "ruleId": "require_ecology_canonical_op_module_topology",
+          "actionDecision": "closed structure inversion",
+          "packetNeeded": false,
+          "layer2Status": "blocked-prior-source-owner-design",
+          "implementationReadiness": "not implementation-ready; needs source-owned operation-module verifier/generator and support-directory exception model",
+          "wholeRuleFit": "split/consolidate into source-owned topology authority",
+          "ruleIdPlan": "do not move Ecology rule as-is; later replace by source-owned op-module topology proof and delete Ecology rule after replacement proof",
+          "semanticDecision": "Contract/index/strategy binding is live domain-operation authority, but must be enforced through TS registry, generator, or package verify, not Ecology sidecar topology.",
+          "residualFollowUp": "Design operation-module verifier/generator and support-directory exception model for score-shared/shared/mountains-shared before Layer 3.",
+          "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries."
         },
         "validate_ecology_op_contract_quality": {
+          "ruleId": "validate_ecology_op_contract_quality",
+          "actionDecision": "positive authority creation",
+          "packetNeeded": false,
+          "layer2Status": "blocked-prior-source-owner-design",
+          "implementationReadiness": "not implementation-ready; schema metadata policy must be source/package-verify owned before mutation",
           "wholeRuleFit": "split required",
-          "ruleIdPlan": "split schema-description contract-quality authority from JSDoc/source-quality and stale recipe-stage path coverage",
-          "semanticDecision": "The contract schema-description clause belongs to broader domain-operation contract-quality authority. The JSDoc clause is source-quality documentation, and the recipe stages/ecology/steps path is stale residue.",
-          "residualFollowUp": "Do not promote the existing script whole. Its Type.Object predicate is coarse and its stale step root should be removed or deleted when the broader quality rail exists.",
-          "implementationReadiness": "requires a dedicated domain-operation contract-quality design and proof; current Ecology script remains context debt until then"
+          "ruleIdPlan": "do not promote current script whole; schema-description clause may become source-owned contract-quality, while JSDoc and stale-path clauses should delete unless separately justified",
+          "semanticDecision": "Op contract metadata belongs in op contract/schema tooling. Exported-function JSDoc and stale recipes/standard/stages/ecology/steps coverage are not domain-operation invariants.",
+          "residualFollowUp": "Define exact schema metadata policy in source/package verify, remove stale ecology stage path, and avoid carrying JSDoc as operation authority.",
+          "evidenceNote": "Corrective audit: check.sh delegates to an Ecology-specific script that mixes Type.Object description checks, JSDoc checks, and stale stage path coverage."
         },
         "prohibit_foundation_strategy_nonlocal_imports": {
-          "wholeRuleFit": "split required",
-          "ruleIdPlan": "extract strategy-locality authority only after allowed dependency classes are defined; retain/delete Foundation residue by exact recurrence proof",
-          "semanticDecision": "domain-operation-strategy is constructible, but this Foundation allowlist is underbroad and not a valid universal strategy rule. Valid strategy imports include core libs, op-local rules/contracts, support dirs, policies, and domain type surfaces depending on context.",
-          "residualFollowUp": "Do not move the whole rule to domain-operation-strategy. Define positive strategy dependency classes first, then decide whether the Foundation-only blacklist has any remaining value.",
-          "implementationReadiness": "not implementation-ready as written; needs strategy dependency-class design before mutation"
+          "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
+          "actionDecision": "split by owner",
+          "packetNeeded": false,
+          "layer2Status": "complete-no-generic-domain-operation-slice",
+          "implementationReadiness": "not implementation-ready for generic Layer 3; keep contextual until positive strategy import policy exists",
+          "wholeRuleFit": "contextual foundation rule",
+          "ruleIdPlan": "preserve id in Foundation context for now; do not create generic strategy rail from this predicate",
+          "semanticDecision": "Foundation tectonics strategy locality is narrower than valid strategy-kind imports repo-wide. A generic domain-operation-strategy move would be false.",
+          "residualFollowUp": "Design source-backed domain-operation-strategy dependency classes before replacing or deleting this local guard.",
+          "evidenceNote": "Corrective audit: Foundation allowlist is underbroad; other strategies legitimately import support dirs, policy, local types, core libs, same-op strategies, and domain constants."
         },
         "prohibit_foundation_rules_tectonics_shim_reexports": {
-          "wholeRuleFit": "split/consolidate",
-          "ruleIdPlan": "separate generic operation-rules entrypoint authority from exact Foundation lib/tectonics shim cleanup",
-          "semanticDecision": "The generic authority is that op rules entrypoints are local rule surfaces, not nonlocal shim barrels. The exact lib/tectonics re-export blacklist is Foundation migration residue and may delete after generic entrypoint authority exists.",
-          "residualFollowUp": "Check whether any recurrence risk remains for lib/tectonics re-export shims; otherwise absorb only the generic entrypoint invariant and delete the exact blacklist.",
-          "implementationReadiness": "implementation-ready only as part of a generic op rules-entrypoint/source-shape rail plus local residue deletion proof"
+          "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
+          "actionDecision": "retirement/garbage collection",
+          "packetNeeded": false,
+          "layer2Status": "complete-no-generic-domain-operation-slice",
+          "implementationReadiness": "not implementation-ready for generic Layer 3; contextual cleanup or deletion after recurrence review",
+          "wholeRuleFit": "contextual cleanup / possible retire",
+          "ruleIdPlan": "do not move id; later either replace with source-owned rules-entrypoint policy or delete exact blacklist after absence proof",
+          "semanticDecision": "Rules entrypoints should own local rule surfaces, but the exact Foundation lib/tectonics re-export ban is not reusable authority by itself.",
+          "residualFollowUp": "If recurrence risk matters, implement package/source verification for rules entrypoint exports; otherwise delete stale exact blacklist.",
+          "evidenceNote": "Corrective audit: current Foundation rules import lib/tectonics but do not re-export it; generic Habitat-only rules shim rail is rejected."
         },
         "prohibit_foundation_op_contract_config_bags": {
-          "wholeRuleFit": "split/consolidate into positive authority",
-          "ruleIdPlan": "fold contract config-facade/schema-token clauses into broader domain-operation contract/config authority; delete duplicate local coverage where absorbed",
-          "semanticDecision": "Operation contracts should expose local typed input/config surfaces and not import root/domain config facades. A broader domain-operation root-config rule already exists, while this Foundation packet adds local alias and retired FoundationConfigSchema residue.",
-          "residualFollowUp": "Avoid duplicate negative rails. Preserve valid recipe-stage config facade usage separately from op-contract bans; retire FoundationConfigSchema token coverage unless live recurrence risk is proven.",
-          "implementationReadiness": "partly implementation-ready after broader contract/config authority is selected; local token residue likely garbage-collection candidate"
+          "ruleId": "prohibit_foundation_op_contract_config_bags",
+          "actionDecision": "split by owner",
+          "packetNeeded": false,
+          "layer2Status": "implementation-ready",
+          "implementationReadiness": "implementation-ready as config-facade consolidation plus retired-token deletion",
+          "wholeRuleFit": "split/consolidate",
+          "ruleIdPlan": "replace by widening existing domain-operation config-facade import rule, then delete local Foundation id after proof; do not preserve FoundationConfigSchema blacklist",
+          "semanticDecision": "Operation contracts should expose local typed schemas and may use op-local/named-family config, but must not import recipe-facing root/domain config facades.",
+          "residualFollowUp": "Layer 3 should extend prohibit_root_config_facade_imports_in_domain_ops to alias imports, preserve allowed op-local config imports, prove absence, then retire this Foundation row.",
+          "evidenceNote": "Corrective audit: existing owner is .habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops; FoundationConfigSchema is retired literal residue unless concrete recurrence risk is proven."
         }
       },
       "implementationCandidate": {
-        "materialGate": true,
-        "gateStrength": "high leverage for domain-operation slice but not a reason to stop the Layer 2 cascade",
-        "candidateSlice": "Create generic domain-operation topology/contract-config/rules-entrypoint authority with explicit support-dir exceptions; separately design strategy dependency-class locality before replacing Foundation strategy import guard.",
-        "blockedBy": [
-          "support-directory exception model for generic op topology",
-          "strategy dependency-class design before universal strategy-locality enforcement",
-          "split contract schema-description quality from JSDoc/source-quality checks"
+        "materialGate": false,
+        "candidateSlices": [
+          "consolidate prohibit_foundation_op_contract_config_bags into prohibit_root_config_facade_imports_in_domain_ops and delete FoundationConfigSchema token residue",
+          "design source-owned operation-module topology verifier/generator before touching require_ecology_canonical_op_module_topology",
+          "design op contract schema metadata policy before touching validate_ecology_op_contract_quality",
+          "keep prohibit_foundation_strategy_nonlocal_imports contextual until strategy dependency classes exist",
+          "delete or source-own rules-entrypoint verification before changing prohibit_foundation_rules_tectonics_shim_reexports"
         ],
-        "downstreamEffects": [
-          "demote or delete Ecology-only topology packet after positive topology rail exists",
-          "absorb/delete Foundation config-bag duplicate coverage after broader op-contract config authority exists",
-          "delete exact Foundation shim/token residue only with recurrence-risk proof"
+        "blockedBy": [
+          "operation-module verifier/generator and support-directory exception model",
+          "schema metadata source/package-verify policy",
+          "source-backed strategy dependency classes",
+          "source-owned rules-entrypoint export policy or deletion proof"
         ]
       },
       "reviewDisposition": {
         "accepted": [
-          "Fresh reviewers agreed local Ecology/Foundation rules are proxy pressure for broader domain-operation authority.",
-          "Accepted warning that existing Ecology topology and Foundation strategy allowlists are not safe to generalize directly."
+          "Rejected generic Habitat promotion",
+          "Accepted config-facade consolidation as the only near-ready row"
         ],
         "rejected": [
-          "Rejected moving any of the five current rules whole into a blueprint authority.",
-          "Rejected stopping the Layer 2 cascade for this slice because required implementation design is not yet a broad downstream collapse gate."
+          "Copying Ecology topology structure.toml globally",
+          "Moving Foundation strategy allowlist into domain-operation-strategy as-is"
         ]
       }
     },
@@ -2618,11 +2646,16 @@
           "implementationReadiness": "implementation-ready as a narrow boundary refinement, not cascade-stopping"
         },
         "prohibit_adapter_local_legacy_generator_logic": {
-          "wholeRuleFit": "replace by positive adapter capability authority",
-          "ruleIdPlan": "use this token blacklist only as relapse evidence until approved adapter engine-generator/capability surfaces are defined",
-          "semanticDecision": "The adapter-thin invariant is real, but the current script only proves absence of stale names such as createLabelRng/rng/rollPercent/coverageChance/addNaturalWonders. Adapter may wrap approved engine legality/readback/materialization generator surfaces, while MapGen owns authored entropy and planning logic.",
-          "residualFollowUp": "Carry into deterministic-authored-generation-authority: decide/record approved adapter generator wrappers versus forbidden authored-generation inputs.",
-          "implementationReadiness": "not ready alone; should be joined with deterministic authored-generation/adapter capability packet"
+          "ruleId": "prohibit_adapter_local_legacy_generator_logic",
+          "actionDecision": "runtime/source validation",
+          "packetNeeded": false,
+          "layer2Status": "packet-complete",
+          "implementationReadiness": "implementation-ready only as adapter package/API native rail, not as Habitat blacklist",
+          "wholeRuleFit": "split required: retire stale token clauses; move live adapter-thin invariant to adapter package/API verification",
+          "ruleIdPlan": "delete current id after native adapter package/API rail lands; no Habitat rename",
+          "semanticDecision": "Do not preserve createLabelRng/rng/rollPercent/coverageChance/addNaturalWonders as relapse tokens. Enforce no authored-generation ownership in adapter through adapter API/package boundaries.",
+          "residualFollowUp": "Layer 3 should add or verify adapter package boundary for no MapGen authored-generation imports/planning logic in @civ7/adapter, then delete this rule.",
+          "evidenceNote": "Corrective audit: no current adapter source hits for the checked tokens; TRUTH-VS-PROJECTION and EngineAdapter docs distinguish MapGen-authored entropy from adapter compatibility surfaces."
         },
         "require_studio_ui_recipe_artifact_imports": {
           "wholeRuleFit": "keep predicate; repair owner placement",
@@ -2676,7 +2709,8 @@
         "rejected": [
           "Rejected consolidating all five rows into a fake Studio/platform bucket.",
           "Rejected stopping the Layer 2 cascade; this packet informs a later slice but does not require immediate implementation."
-        ]
+        ],
+        "correctiveAudit": "Adapter legacy-generator row corrected: stale token blacklist must retire into adapter package/API native rail, not remain relapse evidence."
       }
     },
     {
@@ -2758,13 +2792,13 @@
     },
     {
       "sliceId": "morphology-story-overlay-ownership-gate",
-      "status": "packet-complete",
+      "status": "corrected-reopened",
       "actionClass": "boundary inversion",
       "rules": [
         "prohibit_morphology_hotspot_overlay_publishers",
         "prohibit_morphology_story_overlay_contract_artifact"
       ],
-      "reason": "These rows remain sealed semantic blockers until morphology versus Gameplay/Narrative overlay ownership is settled.",
+      "reason": "Corrective audit rejected morphology-local negative authority but also rejected immediate sidecar positive owner authority. HOTSPOTS publisher enforcement needs a native Gameplay/story allowed-publisher/source-boundary design before mutation.",
       "queueOrder": 9,
       "completedOn": "2026-07-01T21:36:22.057Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
@@ -2773,39 +2807,21 @@
         "prohibit_morphology_story_overlay_contract_artifact"
       ],
       "packetSummary": {
-        "authorityConclusion": "resolved internally: Gameplay owns narrative/playability story surfaces; domain/narrative is legacy/current implementation surface; Morphology owns tile-space terrain/earth-matter truth and may only provide morphology truth signals consumed by Gameplay/Narrative surfaces",
-        "authoritySurface": "Positive Gameplay story-surface/story-entry artifact authority should replace morphology-local negative blacklists. ctx.overlays remains debug/compat; canonical story surfaces are story-entry artifacts.",
-        "inspectedSources": [
-          ".habitat/frames/RULE-DECISION-PACKET-FRAME.md",
-          ".habitat/workstreams/product-authority-framing/MAPGEN-PRODUCT-AUTHORITY-FRAME.md",
-          "docs/system/libs/mapgen/reference/domains/GAMEPLAY.md",
-          "docs/system/libs/mapgen/reference/domains/NARRATIVE.md",
-          "docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md",
-          "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/gameplay/APPENDIX-SCOPE-AND-ABSORPTION.md",
-          "docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-008-narrative-playability-contract-is-story-entry-artifacts-by-motif-views-derived-no-storytags-no-narrative-globals.md",
-          "docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-024-hotspot-categories-live-in-a-single-narrative-hotspots-artifact-no-split-artifacts-in-v1.md",
-          "docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-025-ctx-overlays-remains-a-non-canonical-derived-debug-view-story-entry-artifacts-are-canonical.md",
-          "packages/mapgen-core/src/core/types.ts",
-          "mods/mod-swooper-maps/src/domain/narrative/tagging/hotspots.ts",
-          "mods/mod-swooper-maps/src/domain/narrative/overlays/**",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**"
-        ],
-        "proofClasses": [
-          "source/document authority review",
-          "focused Habitat checks for both rules",
-          "source absence/presence search",
-          "predicate coverage review"
-        ],
-        "proofLimits": "This packet does not implement Gameplay story-surface authority or retire the rules. It records that the old sealed-blocker label is superseded by source-backed ownership authority."
+        "authorityConclusion": "Gameplay/story-surface ownership is directionally supported, but current source lacks explicit native allowed-publisher rail; do not implement by moving the Habitat rule.",
+        "proofLimits": "This correction covers prohibit_morphology_hotspot_overlay_publishers. It does not re-audit prohibit_morphology_story_overlay_contract_artifact."
       },
       "perRuleDecisions": [
         {
           "ruleId": "prohibit_morphology_hotspot_overlay_publishers",
-          "wholeRuleFit": "consolidate into positive Gameplay story-surface owner authority",
-          "ruleIdPlan": "replace morphology-local negative blacklist with positive owner authority: Gameplay owns narrative/playability story surfaces; current domain/narrative is legacy implementation surface; Morphology may publish morphology truth signals but not HOTSPOTS story overlay publisher authority",
-          "semanticDecision": "The owner boundary is no longer an unresolved user semantic gate. Current docs say Gameplay absorbs Narrative and owns narrative/playability surfaces, current source publishes HOTSPOTS only from domain/narrative/tagging/hotspots.ts, and an adjacent positive owner rule already approximates the invariant. The current morphology-local Grit rule is narrower than its manifest because it misses morphology-shelf.",
-          "residualFollowUp": "During implementation, correct positive story-surface owner authority and then retire/delete this morphology-local rule or keep only a temporary coverage-repaired rail until positive authority exists.",
-          "implementationReadiness": "implementation-ready as local consolidation into positive story-surface authority; not cascade-stopping"
+          "actionDecision": "boundary inversion",
+          "packetNeeded": false,
+          "layer2Status": "blocked-prior-source-owner-design",
+          "implementationReadiness": "not ready; missing native allowed-publisher/source-boundary design for Gameplay-owned story surfaces",
+          "wholeRuleFit": "replace by native rail",
+          "ruleIdPlan": "delete current morphology-local id after native Gameplay/story publisher boundary exists",
+          "semanticDecision": "Morphology must not own HOTSPOTS story overlay publishing, but enforcement belongs to the story-surface owner, not to a narrow morphology token scan.",
+          "residualFollowUp": "Define allowed story overlay publishers in source/API/compiler terms; then remove this Habitat rule. Do not move it to a narrative folder or create a sidecar Habitat owner rule.",
+          "evidenceNote": "Corrective audit: current morphology source has zero HOTSPOTS publisher hits; current source publisher is domain/narrative/tagging/hotspots.ts; Gameplay docs absorb narrative/playability surfaces."
         },
         {
           "ruleId": "prohibit_morphology_story_overlay_contract_artifact",
@@ -2817,30 +2833,29 @@
         }
       ],
       "implementationCandidate": {
-        "readiness": "implementation-ready but not cascade-stopping",
-        "reason": "The slice collapses only two overlay/story rows and does not materially change remaining workspace hygiene or public-domain test import packets.",
-        "suggestedSlice": "gameplay-story-surface-authority-and-morphology-overlay-gc"
+        "readiness": "blocked for hotspot publisher row",
+        "reason": "Requires native allowed-publisher/source-boundary design; current morphology rule is a narrow blacklist and sidecar positive owner rule would be reshuffling.",
+        "suggestedSlice": "design Gameplay/story publisher boundary before deleting morphology hotspot blacklist"
       },
       "reviewDisposition": {
         "accepted": [
-          "Accepted P2 correction that treating this as a user semantic gate is too conservative under current Gameplay/Narrative authority docs.",
-          "Accepted runner/manifest mismatch: current Grit excludes morphology-shelf despite manifest morphology* coverage.",
-          "Accepted artifact:storyOverlays as retired literal; overlays are debug/compat and canonical story surfaces are story-entry artifacts."
+          "Morphology is a false owner for HOTSPOTS publisher authority",
+          "Current rule misses morphology-shelf and should not be kept as durable authority"
         ],
         "rejected": [
-          "Rejected preserving morphology-local negative blacklists as durable authority.",
-          "Rejected stopping the Layer 2 cascade; implementation would collapse this packet only."
+          "Moving the rule to narrative/gameplay as a folder change",
+          "Creating a sidecar Habitat positive owner rule without native source rail"
         ]
       }
     },
     {
       "sliceId": "workspace-hygiene-native-rail-residual",
-      "status": "packet-complete",
-      "actionClass": "runtime/source validation",
+      "status": "parked-native-cleanup",
+      "actionClass": "native workspace rail cleanup",
       "rules": [
         "enforce_formatting_and_import_hygiene"
       ],
-      "reason": "This is a valid workspace hygiene gate backed by Biome, but current broad workspace drift makes it unsuitable as a clean authority-tree remediation slice until handled as its own cleanup or narrowed native fix path.",
+      "reason": "Corrective audit: Biome owns this invariant. This row is excluded from authority-tree Layer 3 remediation and belongs to separate workspace-native cleanup only if green proof is required.",
       "queueOrder": 10,
       "completedOn": "2026-07-01T21:42:28.569Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
@@ -2872,26 +2887,30 @@
       "perRuleDecisions": [
         {
           "ruleId": "enforce_formatting_and_import_hygiene",
-          "wholeRuleFit": "native rail replacement / retained alias to Biome",
-          "ruleIdPlan": "keep as a Habitat-routed Biome workspace gate or replace with direct native target wiring; do not convert to Grit or package tests",
-          "semanticDecision": "Biome owns formatting, ordinary lint hygiene, and import organization. The current rule delegates entirely to bun run biome:ci and is red from broad workspace drift, not from unresolved Habitat authority semantics.",
-          "residualFollowUp": "Handle as separate workspace cleanup/native-rail slice if green proof is required; do not treat this as authority-tree semantic remediation.",
-          "implementationReadiness": "not an authority remediation implementation; blocked by broad workspace cleanup if green proof is desired"
+          "actionDecision": "runtime/source validation",
+          "packetNeeded": false,
+          "layer2Status": "excluded-native-rail-not-semantic-remediation",
+          "implementationReadiness": "not applicable to authority-tree remediation; any green proof requires separate Biome workspace cleanup",
+          "wholeRuleFit": "native rail wrapper, not Civ7 authority semantic fit",
+          "ruleIdPlan": "exclude from Layer 2/Layer 3 remediation queue; retain only as Habitat-routed Biome workspace gate if the harness still wants that alias",
+          "semanticDecision": "Biome owns formatting, ordinary lint hygiene, and import organization; this rule delegates to bun run biome:ci and should not be converted into Grit, package tests, or authority-rule remediation.",
+          "residualFollowUp": "If a green hygiene proof is needed, scope a separate workspace-native cleanup against biome:ci/biome:format; do not count it as canonical authority-tree semantic remediation.",
+          "evidenceNote": "Corrective audit: check.sh runs only bun run biome:ci; root scripts and biome.json own formatter/linter/import organization; Habitat tool separation docs identify Biome as native hygiene owner."
         }
       ],
       "implementationCandidate": {
-        "readiness": "not implementation-ready for authority remediation",
-        "reason": "Cleaning Biome drift is a separate workspace hygiene task and does not collapse remaining rule-remediation semantics.",
-        "suggestedSlice": "workspace-biome-cleanup-native-rail"
+        "readiness": "not authority-remediation work",
+        "reason": "Cleaning Biome drift does not collapse Civ7 rule-remediation semantics.",
+        "suggestedSlice": "separate workspace-biome-cleanup-native-rail if needed"
       },
       "reviewDisposition": {
         "accepted": [
-          "Accepted Biome/native rail ownership and rejected Grit/package-test conversion.",
-          "Accepted current red state as broad workspace drift, not a bad Habitat predicate."
+          "Biome/native rail owns formatting, lint hygiene, and import organization"
         ],
         "rejected": [
-          "Rejected treating formatter/import hygiene as Layer 3 authority mutation.",
-          "Rejected stopping the Layer 2 cascade for workspace cleanup."
+          "Grit conversion",
+          "package tests",
+          "counting workspace cleanup as authority-tree semantic remediation"
         ]
       }
     },
@@ -2971,6 +2990,30 @@
         "require_public_domain_surfaces_in_tests"
       ],
       "reason": "Current Habitat/Grit execution ignores test files via .gritignore, so converting the static import predicate to Grit would false-green. Keep the script until explicit test-file scan capability or a public/internal test exception policy exists."
+    },
+    {
+      "kind": "projection artifact namespace native-owner blocker",
+      "rules": [
+        "prohibit_map_projection_dependencies_in_physics_contracts"
+      ],
+      "reason": "Broad truth/projection enforcement cannot use a stage-kind sidecar or blanket artifact:map ban while source-owned map artifacts remain valid. Decide source-native projection artifact subnamespace/contract verification before broad mutation."
+    },
+    {
+      "kind": "domain-operation source-owner design blocker",
+      "rules": [
+        "require_ecology_canonical_op_module_topology",
+        "validate_ecology_op_contract_quality",
+        "prohibit_foundation_strategy_nonlocal_imports",
+        "prohibit_foundation_rules_tectonics_shim_reexports"
+      ],
+      "reason": "These rows need source-owned verifier/generator/API decisions or deletion proof before Layer 3. Do not generalize Ecology/Foundation Habitat predicates into generic domain-operation rails."
+    },
+    {
+      "kind": "story publisher native-boundary blocker",
+      "rules": [
+        "prohibit_morphology_hotspot_overlay_publishers"
+      ],
+      "reason": "Morphology is a false owner, but native Gameplay/story allowed-publisher/source-boundary authority does not yet exist. Do not replace with a sidecar Habitat owner rule."
     }
   ],
   "findings": [
@@ -3108,6 +3151,28 @@
         "require_public_domain_surfaces_in_tests"
       ],
       "summary": "Public-domain test import enforcement remains a valid Habitat script bridge until explicit test-file scan capability or a split exception policy exists."
+    },
+    {
+      "findingId": "2026-07-01-corrective-reopen-row-audit",
+      "recordedOn": "2026-07-01",
+      "kind": "corrective-layer2-audit",
+      "rules": [
+        "prohibit_hydrology_runtime_continent_step_tokens",
+        "prohibit_map_morphology_legacy_plate_driver_dependencies",
+        "prohibit_map_projection_dependencies_in_physics_contracts",
+        "prohibit_runtime_continent_contract_tokens",
+        "require_ecology_canonical_op_module_topology",
+        "validate_ecology_op_contract_quality",
+        "prohibit_foundation_strategy_nonlocal_imports",
+        "prohibit_foundation_rules_tectonics_shim_reexports",
+        "prohibit_foundation_op_contract_config_bags",
+        "prohibit_adapter_local_legacy_generator_logic",
+        "prohibit_morphology_hotspot_overlay_publishers",
+        "prohibit_morphology_stage_legacy_effect_gates",
+        "enforce_formatting_and_import_hygiene"
+      ],
+      "summary": "Fresh corrective agents re-audited the reopen rows under the native-owner/state-collapse frame. Unsafe stage-kind, generic domain-operation, morphology-local, adapter-token, and workspace-hygiene claims were repaired in the canonical ledger.",
+      "handling": "Rows and affected slices now distinguish deletion candidates, native-rail candidates, blocked source-owner design, contextual rules, and workspace-native cleanup. No rule packets were moved or deleted in this audit."
     }
   ],
   "retiredRules": [
