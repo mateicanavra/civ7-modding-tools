@@ -343,6 +343,24 @@
             "reason": "Needs a broader positive step implementation/dependency authority decision before mutation."
           }
         ]
+      },
+      {
+        "actionClass": "retirement/garbage collection",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-foundation-retired-token-garbage-collection.md",
+        "branch": "codex/habitat-foundation-retired-token-garbage-collection",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Deleted two retired Foundation token blacklist rules and removed matching package-test blacklist blocks. Valid Foundation state remains owned by current schemas, contracts, artifacts, and compilation code; no replacement assertion was created.",
+        "selectedRows": [
+          "prohibit_removed_foundation_profile_config_tokens",
+          "prohibit_removed_foundation_wrap_polar_maturity_tokens"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_legacy_compute_tectonics_token",
+            "reason": "Separate accepted Habitat Grit recurrence guard for the retired monolithic tectonics operation token."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1022,13 +1040,13 @@
     "context admission": 26,
     "no action": 50,
     "positive authority creation": 4,
-    "runtime/source validation": 26,
+    "runtime/source validation": 24,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 26,
+    "runtime/source validation": 24,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -1589,24 +1607,6 @@
       "expectedRemediation": "Stay as reverse-dependency guard.",
       "evidenceNote": "Domain must not import recipe modules; source search clean.",
       "currentPath": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/rule.json"
-    },
-    {
-      "ruleId": "prohibit_removed_foundation_profile_config_tokens",
-      "lane": "domains/foundation",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace lexical ban with native map/config schema validation.",
-      "evidenceNote": "Tokens absent from live source and appear only in archive material.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_removed_foundation_profile_config_tokens/rule.json"
-    },
-    {
-      "ruleId": "prohibit_removed_foundation_wrap_polar_maturity_tokens",
-      "lane": "domains/foundation",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace lexical ban with native allowed config/contract validation.",
-      "evidenceNote": "Successor concepts exist under different schema names, making raw token bans brittle.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_removed_foundation_wrap_polar_maturity_tokens/rule.json"
     },
     {
       "ruleId": "prohibit_retired_domain_root_catalogs",
@@ -2203,6 +2203,26 @@
       "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/rule.json",
       "replacementRuleId": "preserve_morphology_belt_driver_contracts",
       "replacementPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json"
+    },
+    {
+      "ruleId": "prohibit_removed_foundation_profile_config_tokens",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted retired Foundation literal assertion without replacement; no concrete recurrence risk remains.",
+      "evidenceNote": "Tokens absent from live source and appear only in archive material. Deleted by foundation retired-token garbage-collection slice; duplicate package-test blacklist assertions removed.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-foundation-retired-token-garbage-collection.md"
+    },
+    {
+      "ruleId": "prohibit_removed_foundation_wrap_polar_maturity_tokens",
+      "lane": "domains/foundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted retired Foundation literal assertion without replacement; no concrete recurrence risk remains.",
+      "evidenceNote": "Successor concepts exist under different schema names, making raw token bans brittle. Deleted by foundation retired-token garbage-collection slice; duplicate package-test blacklist assertions removed.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-foundation-retired-token-garbage-collection.md"
     }
   ],
   "gateState": {
@@ -2468,9 +2488,9 @@
       "liveRulesWithExplicitReceiptRows": 88,
       "liveRulesWithCompletedPocketSummaryOnly": 14,
       "liveRulesNotProcessedInDominoesMd": 16,
-      "staleDominoReferencesExcludedFromLiveMatrix": 10,
-      "liveRuleCorpus": 116,
-      "liveRowsInMatrix": 116
+      "staleDominoReferencesExcludedFromLiveMatrix": 14,
+      "liveRuleCorpus": 113,
+      "liveRowsInMatrix": 113
     },
     "remainderActionRows": [
       {
@@ -2989,26 +3009,6 @@
         "dispositionBucket": "honest foundation context",
         "pendingAction": "No action now. Retire or consolidate later only if a positive foundation operation/contract rail fully subsumes the exact predicate.",
         "evidenceNote": "The rule is a foundation-specific retired-token guard; another domain can differ without violating the affirmed kinds.<br>Proof note: selected-rule Grit proof passed; path refs exist Domino 68 reclassified this as context admission because the current Grit predicate is source-backed recurrence authority, not stale retired-key clutter."
-      },
-      {
-        "ruleId": "prohibit_removed_foundation_profile_config_tokens",
-        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=contract; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_removed_foundation_profile_config_tokens/rule.json",
-        "dominoEvidence": "Domino 27",
-        "processStatus": "processed: receipt",
-        "dispositionBucket": "honest foundation context",
-        "pendingAction": "Retired config-token history can be honest context when the context owns that migration history.",
-        "evidenceNote": "The rule protects foundation's current transition vocabulary and is not a domain-wide config ontology.<br>Proof note: selected-rule Grit proof passed; path refs exist"
-      },
-      {
-        "ruleId": "prohibit_removed_foundation_wrap_polar_maturity_tokens",
-        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=contract; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_removed_foundation_wrap_polar_maturity_tokens/rule.json",
-        "dominoEvidence": "Domino 27",
-        "processStatus": "processed: receipt",
-        "dispositionBucket": "honest foundation context",
-        "pendingAction": "Do not move concrete-domain token history to a kind just because it scans operation files.",
-        "evidenceNote": "The rule is a foundation-specific retired-token guard, not a reusable `domain` or `domain-operation` invariant.<br>Proof note: selected-rule Grit proof passed; path refs exist"
       },
       {
         "ruleId": "prohibit_hydrology_climate_intervention_tokens",
@@ -3811,6 +3811,16 @@
         "dominoReference": "prohibit_retired_studio_devlive_daemon_file",
         "status": "retired",
         "handling": "Do not include in live rule matrix; Domino 62 retired the separate devLive absence packet after `enforce_studio_dev_runner_topology` absorbed the absence and current source-watch daemon command authority."
+      },
+      {
+        "dominoReference": "prohibit_removed_foundation_profile_config_tokens",
+        "status": "retired",
+        "handling": "Do not include in live process rows; Domino 73 retired this Foundation static token blacklist without replacement and removed duplicate package-test assertions."
+      },
+      {
+        "dominoReference": "prohibit_removed_foundation_wrap_polar_maturity_tokens",
+        "status": "retired",
+        "handling": "Do not include in live process rows; Domino 73 retired this Foundation static token blacklist without replacement and removed duplicate package-test assertions."
       }
     ]
   }

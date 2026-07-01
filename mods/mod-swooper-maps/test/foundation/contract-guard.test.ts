@@ -79,63 +79,6 @@ describe("foundation contract guardrails", () => {
     expect(text).not.toContain("rotation");
   });
 
-  it("does not reintroduce removed foundation surfaces", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const roots = [
-      path.join(repoRoot, "src/domain/foundation"),
-      ...foundationStageDirs(repoRoot),
-      path.join(repoRoot, "src/maps"),
-    ];
-
-    const files = roots.flatMap((root) =>
-      listFilesRecursive(root).filter((file) => file.endsWith(".ts"))
-    );
-
-    expect(files.length).toBeGreaterThan(0);
-
-    for (const file of files) {
-      const text = readFileSync(file, "utf8");
-      expect(text).not.toContain("directionality");
-      expect(text).not.toContain("foundation.dynamics");
-      expect(text).not.toContain("foundation.config");
-      expect(text).not.toContain("foundation.seed");
-      expect(text).not.toContain("foundation.diagnostics");
-      expect(text).not.toContain("wrap_x");
-      expect(text).not.toContain("wrap_y");
-      expect(text).not.toContain("environment_wrap");
-
-      // M11/U11: remove legacy latitude-band tectonics injection and neighbor-scan op surface.
-      expect(text).not.toMatch(/\bcomputeTectonics\b/);
-      expect(text).not.toContain("polarBandFraction");
-      expect(text).not.toContain("polarBoundary");
-    }
-  });
-
-  it("does not reintroduce dead foundation knobs or required-unused inputs", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const roots = [
-      path.join(repoRoot, "src/domain/foundation"),
-      ...foundationStageDirs(repoRoot),
-      path.join(repoRoot, "src/maps"),
-    ];
-    const files = roots.flatMap((root) =>
-      listFilesRecursive(root).filter((file) => file.endsWith(".ts") || file.endsWith(".json"))
-    );
-    expect(files.length).toBeGreaterThan(0);
-
-    for (const file of files) {
-      const text = readFileSync(file, "utf8");
-      expect(text).not.toContain("upliftToMaturity");
-      expect(text).not.toContain("ageToMaturity");
-      expect(text).not.toContain("disruptionToMaturity");
-      expect(text).not.toContain("lithosphereProfile");
-      expect(text).not.toContain("mantleProfile");
-      expect(text).not.toContain("potentialMode");
-      expect(text).not.toContain("tangentialSpeed");
-      expect(text).not.toContain("tangentialJitterDeg");
-    }
-  });
-
   it("keeps foundation advanced override lowering typed (no runtime cast-merge path)", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const stageIndexFiles = foundationStageDirs(repoRoot)
