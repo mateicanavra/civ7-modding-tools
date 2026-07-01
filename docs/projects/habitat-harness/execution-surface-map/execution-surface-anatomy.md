@@ -55,7 +55,7 @@ _None._
 | .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts | check-script | build/currentness or ordering tie |
 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs | check-script | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md | pattern | build/currentness or ordering tie |

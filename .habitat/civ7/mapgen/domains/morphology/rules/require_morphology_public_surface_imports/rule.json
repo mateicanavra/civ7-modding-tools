@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "require_morphology_public_surface_imports",
+  "title": "Require Morphology Public Surface Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domains/morphology",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "non-domain consumers importing morphology code outside the public root, ops, or config surfaces",
+  "why": "Morphology consumers should compose through canonical public surfaces rather than retired or deep morphology internals.",
+  "remediate": null,
+  "message": "Use @mapgen/domain/morphology, @mapgen/domain/morphology/ops, or @mapgen/domain/morphology/config.js.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
+    },
+    "patternName": "require_morphology_public_surface_imports"
+  }
+}

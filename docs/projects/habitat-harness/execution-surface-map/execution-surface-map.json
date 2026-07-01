@@ -444,6 +444,21 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/domain/.",
+      "targetClass": "mod",
+      "references": 7,
+      "sourceCount": 7,
+      "sampleSources": [
+        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
+        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
+        ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/pattern.md",
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
+      ]
+    },
+    {
       "target": "tsc --noEmit",
       "targetClass": "workspace-tool",
       "references": 7,
@@ -540,20 +555,6 @@
         "tools/habitat/src/service/model/check/policy/structural/selection.policy.ts",
         "tools/habitat/src/service/modules/check/model/policy/baseline-expansion.policy.ts",
         "tools/habitat/src/service/modules/check/module.ts"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/.",
-      "targetClass": "mod",
-      "references": 6,
-      "sourceCount": 6,
-      "sampleSources": [
-        ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
-        ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
-        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
-        ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/pattern.md"
       ]
     },
     {
@@ -1758,6 +1759,26 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/domain/morphology/ops/demo/index.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md",
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/maps/demo.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/",
       "targetClass": "mod",
       "references": 2,
@@ -1863,7 +1884,7 @@
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md",
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/pattern.md"
       ]
     },
@@ -4466,15 +4487,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/morphology/(?:landmass|coastlines|islands|mountains|volcanoes)(?:/.*)?$\"\n}",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md"
-      ]
-    },
-    {
       "target": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology|recipes/standard/stages/hydrology-(?:climate-baseline|hydrography|climate-refine))/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/narrative/.+\"\n}",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -4661,6 +4673,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md"
+      ]
+    },
+    {
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n    ! $filename <: r\".*mods/mod-swooper-maps/src/domain/.*\\.ts$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/morphology/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/morphology/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
       ]
     },
     {
@@ -4885,7 +4906,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md"
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
       ]
     },
     {
@@ -5195,15 +5216,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/domain/morphology/ops/demo/index.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain/morphology/ops/demo/strategies/default.ts",
       "targetClass": "mod",
       "references": 1,
@@ -5286,15 +5298,6 @@
     },
     {
       "target": "mods/mod-swooper-maps/src/maps/current.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/maps/demo.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
@@ -13675,106 +13678,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md",
-      "path": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/.",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/morphology/(?:landmass|coastlines|islands|mountains|volcanoes)(?:/.*)?$\"\n}"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "build"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "build",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/.",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/morphology/(?:landmass|coastlines|islands|mountains|volcanoes)(?:/.*)?$\"\n}",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
-      "path": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs",
       "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs",
       "surfaceKind": "check-script",
@@ -13847,6 +13750,124 @@
     {
       "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json",
       "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md",
+      "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/src/.",
+          "mods/mod-swooper-maps/src/domain/.",
+          "mods/mod-swooper-maps/src/domain/morphology/ops/demo/index.ts",
+          "mods/mod-swooper-maps/src/maps/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n    ! $filename <: r\".*mods/mod-swooper-maps/src/domain/.*\\.ts$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/morphology/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/morphology/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "build"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/.",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/.",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/morphology/ops/demo/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n    ! $filename <: r\".*mods/mod-swooper-maps/src/domain/.*\\.ts$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/morphology/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/morphology/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json",
+      "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -27737,106 +27758,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md",
-      "path": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/.",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/morphology/(?:landmass|coastlines|islands|mountains|volcanoes)(?:/.*)?$\"\n}"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "build"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "build",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/.",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/morphology/(?:landmass|coastlines|islands|mountains|volcanoes)(?:/.*)?$\"\n}",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
-      "path": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs",
       "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs",
       "surfaceKind": "check-script",
@@ -27909,6 +27830,124 @@
     {
       "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json",
       "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md",
+      "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/src/.",
+          "mods/mod-swooper-maps/src/domain/.",
+          "mods/mod-swooper-maps/src/domain/morphology/ops/demo/index.ts",
+          "mods/mod-swooper-maps/src/maps/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n    ! $filename <: r\".*mods/mod-swooper-maps/src/domain/.*\\.ts$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/morphology/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/morphology/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "build"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/.",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/.",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/morphology/ops/demo/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*\\.ts$\",\n    ! $filename <: r\".*mods/mod-swooper-maps/src/domain/.*\\.ts$\",\n    $source <: r\"^[\\\"']?@mapgen/domain/morphology/.+[\\\"']?$\",\n    ! $source <: r\"^[\\\"']?@mapgen/domain/morphology/(?:ops|ops/index\\.js|config\\.js)[\\\"']?$\"\n  },",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json",
+      "path": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

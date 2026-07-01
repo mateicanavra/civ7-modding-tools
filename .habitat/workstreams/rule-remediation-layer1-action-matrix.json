@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01",
+  "generatedOn": "2026-07-01T11:27:49.113Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -170,6 +170,26 @@
           "prohibit_retired_studio_devlive_daemon_file"
         ],
         "excludedRows": []
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-morphology-public-surface-boundary-slice.md",
+        "branch": "codex/habitat-morphology-public-surface-boundary",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Replaced the morphology retired-module import proxy with a live single-Grit public-surface import boundary and removed the `_remainder` packet.",
+        "selectedRows": [
+          "prohibit_legacy_morphology_module_imports"
+        ],
+        "createdRows": [
+          "require_morphology_public_surface_imports"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "require_public_domain_surfaces_in_recipes_and_maps",
+            "reason": "Existing G4 recipe-domain import matrix remains recipe-wide authority; this morphology row adds morphology-specific consumer relapse detection without converting to a script or package test."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -583,16 +603,60 @@
           "Before repair, `enforce_studio_dev_runner_topology` failed only on the stale `serve-daemon.command` expectation.",
           "Current source and handoff docs identify `bun --conditions bun-source --watch src/server/daemon/daemon.ts` as the correct dev daemon command."
         ]
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceCandidate": "morphology public-surface import boundary",
+        "status": "closed-by-single-grit-public-surface-rule",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
+          ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md",
+          "mods/mod-swooper-maps/tsconfig.json",
+          "mods/mod-swooper-maps/src/domain/morphology/index.ts",
+          "mods/mod-swooper-maps/src/domain/morphology/ops.ts",
+          "mods/mod-swooper-maps/src/domain/morphology/ops/index.ts",
+          ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json",
+          ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
+          "docs/projects/engine-refactor-v1/architecture-normalization-packet.md",
+          "docs/system/libs/mapgen/policies/IMPORTS.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_legacy_morphology_module_imports",
+            "inputClassification": "boundary inversion",
+            "wholeRuleFit": "replace by public-surface boundary authority",
+            "ruleIdPlan": "replace with require_morphology_public_surface_imports",
+            "semanticRemediationDecision": "Retire the morphology-specific legacy module blacklist and replace it with one Grit rule that permits non-domain consumers to import morphology only through `@mapgen/domain/morphology`, `/ops`, `/ops/index.js`, or `/config.js`. Domain internals remain excluded from this consumer rule. G4 continues to own recipe-wide public domain import policy.",
+            "proofLimit": "Grit proves static import/export source strings in TypeScript source. It does not claim Nx project-plane enforcement, dynamic import coverage, or package behavior tests."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Focused Habitat check passes for require_morphology_public_surface_imports using the Grit runner.",
+          "Old prohibit_legacy_morphology_module_imports manifest is absent from the live authority tree.",
+          "Canonical JSON current rows and live manifests reconcile.",
+          "No package-owned tests or bespoke Habitat script were introduced."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule require_morphology_public_surface_imports --json` passed with Grit runner.",
+          "`bun run --cwd tools/habitat test test/lib/pattern-apply.test.ts test/rules/pattern-views.test.ts test/service/fix-service.test.ts test/rules/registry/contract.test.ts` passed: 34 tests.",
+          "Old `_remainder/prohibit_legacy_morphology_module_imports` manifest is absent and new `require_morphology_public_surface_imports` manifest is present.",
+          "Live manifest support/runner files resolve for 116 manifests.",
+          "Canonical JSON reconciles with 116 live manifests.",
+          "No `check.mjs` or package-owned test was introduced for this slice.",
+          "Execution-surface docs regenerated through `bun run --cwd tools/habitat analyze:execution-surface`.",
+          "`bun habitat classify .habitat` passed.",
+          "`git diff --check` passed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "runtime/source validation": 26,
-      "boundary inversion": 15,
-      "closed structure inversion": 8,
       "split by owner": 6,
       "positive authority creation": 4,
-      "consolidation/dedup": 3,
-      "retirement/garbage collection": 0
+      "boundary inversion": 14,
+      "closed structure inversion": 8,
+      "consolidation/dedup": 3
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -622,7 +686,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 116 current live rules",
-      "layer2": "Studio devops source-watch topology repaired and separate devLive absence packet retired. No implementation-ready Layer 3 queue remains.",
+      "layer2": "Morphology public-surface boundary packet replaced the retired module import proxy. No implementation-ready Layer 3 queue remains.",
       "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -630,7 +694,7 @@
   "corpus": {
     "liveManifestCount": 116,
     "currentRowCount": 116,
-    "retiredHistoricalRowCount": 11,
+    "retiredHistoricalRowCount": 12,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -646,8 +710,12 @@
     "retirement/garbage collection": 1
   },
   "packetNeededCounts": {
-    "no": 51,
-    "yes": 67
+    "runtime/source validation": 26,
+    "split by owner": 6,
+    "positive authority creation": 4,
+    "boundary inversion": 14,
+    "closed structure inversion": 8,
+    "consolidation/dedup": 3
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -1056,13 +1124,13 @@
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/rule.json"
     },
     {
-      "ruleId": "prohibit_legacy_morphology_module_imports",
+      "ruleId": "require_morphology_public_surface_imports",
       "lane": "domains/nonfoundation",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace retired-path negative guard with allowed import/public-surface matrix.",
-      "evidenceNote": "Current source uses public morphology surfaces or `/ops`.",
-      "currentPath": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json"
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Stay live as morphology public-surface import boundary authority.",
+      "evidenceNote": "Domino 63 replaced the retired-path proxy with a single Grit public-surface import rule for non-domain consumers; G4 remains recipe-wide domain import authority, while this morphology row owns morphology-specific consumer relapse detection outside the domain internals.",
+      "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
     },
     {
       "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
@@ -1814,6 +1882,14 @@
       "evidenceNote": "Domino 62 repaired `enforce_studio_dev_runner_topology` to current source-watch daemon authority and added explicit retired `devLive.ts` absence, so this single-file structure packet no longer owns a separate live surface.",
       "currentPath": null,
       "retirementRecord": ".habitat/workstreams/rule-remediation-studio-devops-topology-source-watch-slice.md"
+    },
+    {
+      "ruleId": "prohibit_legacy_morphology_module_imports",
+      "retiredBy": "Domino 63",
+      "retiredReason": "Replaced by `require_morphology_public_surface_imports`, which inverts the retired morphology module blacklist into live public-surface import authority.",
+      "previousPath": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
+      "replacementRuleId": "require_morphology_public_surface_imports",
+      "replacementPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
     }
   ],
   "gateState": {
@@ -2149,12 +2225,13 @@
         "blockerOrProof": "Broader strategy import boundary catches shared `lib/tectonics` imports."
       },
       {
-        "ruleId": "prohibit_legacy_morphology_module_imports",
-        "remediationAction": "boundary inversion",
-        "implementationReadiness": "not ready",
-        "expectedHomeAction": "Domain public-surface import contract or existing domain blueprint boundary.",
+        "ruleId": "require_morphology_public_surface_imports",
+        "remediationAction": "boundary inversion; executed",
+        "implementationReadiness": "executed",
+        "expectedHomeAction": "Replaced by live morphology public-surface import boundary.",
         "domino50Status": "retained `_remainder`",
-        "blockerOrProof": "Decide the allowed import matrix before replacing the retired-path list."
+        "blockerOrProof": "Focused Grit rule proof and live manifest/JSON reconciliation.",
+        "domino63Status": "replaced old id with live public-surface rule"
       },
       {
         "ruleId": "prohibit_wrapper_only_advanced_config",
@@ -2641,14 +2718,15 @@
         "evidenceNote": "The likely durable invariant is a positive public-surface/import boundary, but the current predicate is a narrow hydrology-to-narrative negative proxy.<br>The whole rule protects hydrology from narrative-domain coupling. Existing domain public-surface rules do not own this hydrology-to-narrative boundary, and promoting it to a blueprint would over-generalize.<br>Proof note: selected-rule Grit proof passed; path refs exist"
       },
       {
-        "ruleId": "prohibit_legacy_morphology_module_imports",
-        "currentPlacement": "blueprint=_remainder; niche=civ7/mapgen/domains/morphology; category=boundary; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/rule.json",
+        "ruleId": "require_morphology_public_surface_imports",
+        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/morphology; category=boundary; operation=check",
+        "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json",
         "dominoEvidence": "Domino 26",
         "processStatus": "processed: receipt",
-        "dispositionBucket": "missing positive kind governance",
-        "pendingAction": "Retired-path forbids can point to a future positive public-surface rule without being admitted as-is.",
-        "evidenceNote": "The real invariant is a positive domain public-surface/import contract; the current rule is morphology-specific retired-path cleanup.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "dispositionBucket": "morphology public-surface boundary authority",
+        "pendingAction": "No pending action; Domino 63 replaced the retired-path proxy with a live Grit public-surface import boundary.",
+        "evidenceNote": "Domino 63: the real invariant is now encoded as a single Grit morphology public-surface import boundary for non-domain consumers. The old retired-path proxy was replaced; no package tests, Nx project-boundary changes, or Habitat script conversion were introduced.",
+        "domino63Status": "replaced old id with live public-surface rule"
       },
       {
         "ruleId": "preserve_morphology_belt_driver_contracts",
