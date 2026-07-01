@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:36:17.598Z",
+  "generatedOn": "2026-07-01T11:40:53.066Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -205,6 +205,28 @@
           "preserve_morphology_belt_driver_contracts"
         ],
         "excludedRows": []
+      },
+      {
+        "actionClass": "closed structure inversion reclassification",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-foundation-stage-grit-context.md",
+        "branch": "codex/habitat-foundation-stage-grit-context",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Reclassified two standard-recipe foundation-stage Grit rows as context admission because they are already narrow source-shape rails extracted from older aggregate scripts; no MJS conversion, package test relocation, or deletion was performed.",
+        "selectedRows": [
+          "prohibit_foundation_stage_cast_merge_hacks",
+          "prohibit_foundation_stage_sentinel_passthrough"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "verify_standard_recipe_public_authoring_surface",
+            "reason": "Adjacent structural authoring-surface script remains separate; it does not prove these exact retired wrapper/sentinel source fragments."
+          },
+          {
+            "ruleId": "preserve_decomposed_foundation_contract_surfaces",
+            "reason": "Foundation domain contract currentness explicitly delegates source-token bans to narrow Grit packets."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -836,22 +858,20 @@
     "duplicateLiveRows": []
   },
   "actionClusterCounts": {
-    "no action": 42,
-    "runtime/source validation": 27,
-    "split by owner": 6,
-    "closed structure inversion": 10,
-    "context admission": 9,
+    "boundary inversion": 14,
+    "closed structure inversion": 5,
+    "context admission": 14,
+    "no action": 46,
     "positive authority creation": 4,
-    "boundary inversion": 15,
-    "consolidation/dedup": 4,
-    "retirement/garbage collection": 1
+    "runtime/source validation": 26,
+    "split by owner": 6
   },
   "packetNeededCounts": {
-    "runtime/source validation": 26,
-    "split by owner": 6,
-    "positive authority creation": 4,
     "boundary inversion": 14,
-    "closed structure inversion": 7
+    "closed structure inversion": 5,
+    "positive authority creation": 4,
+    "runtime/source validation": 26,
+    "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -1190,19 +1210,19 @@
     {
       "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace wrapper-era cast/spread fallback bans with allowed stage-surface shape.",
-      "evidenceNote": "D1 flat config target and current explicit `public`/`knobsSchema`/`compile` shapes support this.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow standard-recipe foundation-stage Grit authority; revisit only if a future positive foundation stage contract surface fully subsumes this predicate.",
+      "evidenceNote": "Current row is the intended narrow Grit extraction for wrapper-era cast/merge fallback fragments; source checks and Domino 49 show no broader script/package-test replacement is needed.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_cast_merge_hacks/rule.json"
     },
     {
       "ruleId": "prohibit_foundation_stage_sentinel_passthrough",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace retired Studio sentinel token checks with closed allowed stage config/public metadata shape.",
-      "evidenceNote": "Same stage authoring surface owner as cast/merge hacks.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow standard-recipe foundation-stage Grit authority; revisit only if a future positive foundation stage contract surface fully subsumes this predicate.",
+      "evidenceNote": "Current row is the intended narrow Grit extraction for retired Studio sentinel passthrough tokens; source checks and Domino 49 show no broader script/package-test replacement is needed.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_sentinel_passthrough/rule.json"
     },
     {
@@ -2716,21 +2736,21 @@
         "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_cast_merge_hacks/rule.json",
-        "dominoEvidence": "Domino 29, Domino 41, Domino 49",
+        "dominoEvidence": "Domino 29, Domino 41, Domino 49, Domino 67",
         "processStatus": "processed: receipt",
         "dispositionBucket": "standard-recipe foundation stage context; consolidated aggregate coverage",
-        "pendingAction": "Retire or consolidate later only if a positive foundation stage contract surface fully subsumes it.",
-        "evidenceNote": "Domino 49 folded the cast/merge half of retired `prohibit_foundation_advanced_cast_merge_fragments` into this narrower live row, including named override-value fragments."
+        "pendingAction": "No action now. Retire or consolidate later only if a positive foundation stage contract surface fully subsumes it.",
+        "evidenceNote": "Domino 49 folded the cast/merge half of retired `prohibit_foundation_advanced_cast_merge_fragments` into this narrower live row; Domino 67 reclassified it as context admission because the current Grit predicate is already the intended narrow source-shape rail."
       },
       {
         "ruleId": "prohibit_foundation_stage_sentinel_passthrough",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_sentinel_passthrough/rule.json",
-        "dominoEvidence": "Domino 29, Domino 41, Domino 49",
+        "dominoEvidence": "Domino 29, Domino 41, Domino 49, Domino 67",
         "processStatus": "processed: receipt",
         "dispositionBucket": "standard-recipe foundation stage context; consolidated aggregate coverage",
-        "pendingAction": "Retire or consolidate later only if a positive foundation stage contract surface fully subsumes it.",
-        "evidenceNote": "Domino 49 folded the sentinel/passthrough half of retired `prohibit_foundation_advanced_cast_merge_fragments` into this narrower live row, including spaced `advancedRecord[stepId]` coverage."
+        "pendingAction": "No action now. Retire or consolidate later only if a positive foundation stage contract surface fully subsumes it.",
+        "evidenceNote": "Domino 49 folded the sentinel/passthrough half of retired `prohibit_foundation_advanced_cast_merge_fragments` into this narrower live row; Domino 67 reclassified it as context admission because the current Grit predicate is already the intended narrow source-shape rail."
       },
       {
         "ruleId": "prohibit_foundation_step_contract_config_bags",
