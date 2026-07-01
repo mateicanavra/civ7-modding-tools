@@ -420,6 +420,24 @@
             "reason": "Already a separate Grit source rule over morphology runtime continent tokens; not part of this script-to-Grit conversion."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-existing-grit-rails-reconciliation.md",
+        "branch": "codex/habitat-existing-grit-rails-reconciliation",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed stale packet-needed state for two rules that already use the correct packet-local Grit source-check rail and have concrete recurrence-risk source scopes.",
+        "selectedRows": [
+          "prohibit_foundation_projection_legacy_motion_source",
+          "prohibit_morphology_stage_legacy_effect_gates"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
+            "reason": "Separate positive tag/effect family authority work; do not collapse into morphology-stage recurrence guard."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1066,12 +1084,53 @@
           "`bun habitat check --rule prohibit_map_projection_dependencies_in_physics_contracts --json` passed with Grit runner.",
           "Temporary `artifact:map.invalidProbe` probe failed at `foundation-tectonics/steps/tectonics.contract.ts`."
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceCandidate": "existing Grit source rails reconciliation",
+        "status": "closed-by-existing-source-check-rail",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/pattern.md",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/pattern.md",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts",
+          "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/morphology/spec/PHASE-2-MAP-PROJECTIONS-AND-STAMPING.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_foundation_projection_legacy_motion_source",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing source-check rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "No authority-state mutation required. The rule is already a packet-local Grit source rail over a concrete recurrence-risk source scope.",
+            "proofLimit": "Focused Habitat proof validates current source. This does not create positive projection/tag authority or delete adjacent recurrence guards."
+          },
+          {
+            "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "existing source-check rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "No authority-state mutation required. The rule is already a packet-local Grit source rail over a concrete recurrence-risk source scope.",
+            "proofLimit": "Focused Habitat proof validates current source. This does not create positive projection/tag authority or delete adjacent recurrence guards."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule prohibit_foundation_projection_legacy_motion_source --json` passes.",
+          "`bun habitat check --rule prohibit_morphology_stage_legacy_effect_gates --json` passes.",
+          "Canonical JSON packet-needed runtime/source-validation count drops by two."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule prohibit_foundation_projection_legacy_motion_source --json` passed.",
+          "`bun habitat check --rule prohibit_morphology_stage_legacy_effect_gates --json` passed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "boundary inversion": 3,
       "positive authority creation": 4,
-      "runtime/source validation": 21,
+      "runtime/source validation": 19,
       "split by owner": 6
     },
     "implementationReadySliceQueue": [],
@@ -1117,7 +1176,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Physics map-projection dependency source-check rail replacement closed; no implementation-ready Layer 3 queue remains after closure.",
+      "layer2": "Existing Grit source-rail reconciliation closed for foundation projection legacy motion and morphology legacy effect gates; no implementation-ready Layer 3 queue remains after closure.",
       "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -1132,15 +1191,15 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 53,
+    "no action": 55,
     "positive authority creation": 4,
-    "runtime/source validation": 21,
+    "runtime/source validation": 19,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 21,
+    "runtime/source validation": 19,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -1462,10 +1521,10 @@
     {
       "ruleId": "prohibit_foundation_projection_legacy_motion_source",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move from legacy-token absence to native source/type validation of projection contract.",
-      "evidenceNote": "Source consumes `foundationPlateMotion`, `foundationTectonics`, and history artifacts through projection contract.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates the concrete projection source recurrence risk against legacy plateGraph motion reads.",
+      "evidenceNote": "The current runner is Grit, scoped to `foundation-projection/steps/projection.ts`, and focused Habitat proof passes. The canonical plate-motion artifact surface is live source authority; no package-test or script migration is needed.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/rule.json"
     },
     {
@@ -1642,10 +1701,10 @@
     {
       "ruleId": "prohibit_morphology_stage_legacy_effect_gates",
       "lane": "standard recipe morphology stage",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Move retired effect-gate token validation to source/tag rail.",
-      "evidenceNote": "Old engine gates appear in older spec/adapter contexts; current projection tags are `effect:map.*`.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates the concrete morphology-stage recurrence risk against retired engine effect-gate tokens.",
+      "evidenceNote": "The current runner is Grit, scoped to morphology stage source, and focused Habitat proof passes. Broader tag/effect positive authority remains separate from this existing recurrence guard.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/rule.json"
     },
     {
@@ -3221,7 +3280,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "atomized morphology stage execution context",
         "pendingAction": "Revisit only if dependency-tag lifecycle/deprecation rules absorb retired effect-gate cleanup.",
-        "evidenceNote": "Domino 49 split `prohibit_legacy_morphology_effect_gating_tokens`; this row owns only morphology stage retired effect-gate cleanup."
+        "evidenceNote": "The current runner is Grit, scoped to morphology stage source, and focused Habitat proof passes. Broader tag/effect positive authority remains separate from this existing recurrence guard.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates the concrete morphology-stage recurrence risk against retired engine effect-gate tokens."
       },
       {
         "ruleId": "prohibit_runtime_continent_contract_tokens",
@@ -3361,7 +3423,10 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained foundation stage context",
         "pendingAction": "Revisit only if a later projection-step surface absorbs the standard-recipe projection cleanup rows together.",
-        "evidenceNote": "Domino 42 non-move: the exact foundation projection step must consume canonical foundation motion; this is stage consumer authority."
+        "evidenceNote": "The current runner is Grit, scoped to `foundation-projection/steps/projection.ts`, and focused Habitat proof passes. The canonical plate-motion artifact surface is live source authority; no package-test or script migration is needed.",
+        "actionDecision": "no action",
+        "packetNeeded": false,
+        "expectedRemediation": "Retain existing packet-local Grit rail; the rule already validates the concrete projection source recurrence risk against legacy plateGraph motion reads."
       },
       {
         "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
