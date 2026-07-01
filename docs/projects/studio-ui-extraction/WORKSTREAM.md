@@ -1,6 +1,6 @@
 # WORKSTREAM — MapGen Studio UI Library Extraction
 
-**Status:** grounding (no code changes yet)
+**Status:** classification ledger FROZEN ([LEDGER.md](./LEDGER.md)); design phase next (no code changes yet)
 **Owner:** extraction workstream agent (this document is the owner's operating picture)
 **Normative anchor:** [FRAME.md](./FRAME.md) — scope, DoD, non-goals, reserved decisions. This doc never overrides the frame; contradictions get escalated to Matei.
 **Branch/worktree:** `studio-ui-extraction` (parent `main`), worktree `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`
@@ -64,9 +64,9 @@ Enumerated via `meta:introspect` over installed plugins (dev ~48, cognition 14, 
 
 | # | Question | State |
 |---|---|---|
-| Q1 | Extraction manifest + per-component tiers | manifest verified at exactly 46 (5 groups: primitives 16, composites 13, forms 11, panels 4, layout 2); ledger build+adversarial-verify workflow running |
+| Q1 | Extraction manifest + per-component tiers | **ANSWERED — [LEDGER.md](./LEDGER.md) frozen 2026-07-01**: 38 clean / 6 moderate / 2 app-shaped (AppHeader + PipelineStage); 4 build slices + 4 adversarial verifies (all verified=true) + coherence adjudication; 25-module shared-kernel ownership map; 4 escalations E1–E4 reserved to Matei |
 | Q2 | Package name / location / publishing policy | **reserved to Matei** — added facts: naming split `@swooper/*` (mapgen domain) vs `@civ7/*` (infra); no `kind:ui` tag in the enforced Nx boundary taxonomy (new tag = formal taxonomy revision, or fit `kind:foundation`); zero peerDependencies exist anywhere in the workspace (React peer-dep precedent is ours to set) |
-| Q3 | Dependency policy re `@civ7/studio-server` | evidence in: 2 bare type-only imports (GameConsole, RecipePanel) + 1 `/contract` type-only (PipelineStage) + **runtime value deps one hop behind GameConsole/RecipePanel** (`features/mapConfigSave/status.ts`, `features/runInGame/status.ts` value-import contract phase tables) and two hops behind AppHeader (`setupConfig.ts`). Props also leak server types (`GameConsoleProps`, `RecipePanelProps`). Remedies per-component in the ledger |
+| Q3 | Dependency policy re `@civ7/studio-server` | evidence in: 2 bare type-only imports (GameConsole, RecipePanel) + 1 `/contract` type-only (PipelineStage) + **runtime value deps one hop behind GameConsole/RecipePanel** (`features/mapConfigSave/status.ts`, `features/runInGame/status.ts` value-import contract phase tables) and two hops behind AppHeader (`setupConfig.ts`). Props also leak server types (`GameConsoleProps`, `RecipePanelProps`). **Ledger correction: the status-module runtime drag is SEVERABLE** — the only contract value uses are dead import+re-export lines with zero consumers (grep-confirmed); remedy = split-formatters (type-only), so only the E1 `.d.ts` policy decision remains |
 | Q4 | Build recipe | evidence in: converter consumes only CSS + fonts + `.d.ts` tree + (future) real ESM entry — all standard tsup/vite-lib outputs EXCEPT the bespoke dark-default `:root` + `.light` CSS artifact (must be deliberately authored) and the Tailwind v4 content-scan scope (package CSS must cover story/preview-only utilities). House exemplar: tsup ESM + `--dts`, exports map w/ `types` (the `types` barrel is also what retires the `synthEntry` fork). Tailwind v4 has NO `@source` precedent in-repo |
 | Q5 | Storybook topology | evidence in: `.storybook/` is app-hosted, viteFinal hand-mirrors app aliases; preview.tsx ties: index.css (needed by all), TooltipProvider (8 stories), Toaster (1), QueryClient stub (needed by ZERO stories), `resetStudioStores` (**the one un-movable import; its invariant is vacuous for the 46** — no storied component reads stores). Stories: CSF3, alias-only imports, zero per-story decorators/parameters. SB 9.1.20, addon-docs only |
 | Q6 | Sync end-state shape | strong prior: stay `storybook`; **anchor survives** a same-shape re-point (changed:[46], not anchor loss) — a shape flip to `package` would discard the anchor (`shape_changed`). Config-only repoint verified sufficient (pkg/entry/cssEntry/buildCmd + delete fork/libOverrides + storyImports.shim update); `cfg.tsconfig` + `docsMap` resolve PKG_DIR-relative (silent breakage on move — must re-point) |
@@ -98,7 +98,7 @@ Enumerated via `meta:introspect` over installed plugins (dev ~48, cognition 14, 
 ## 6. Sequencing
 
 1. **Grounding** (running): 6 parallel readers → reports in session scratchpad → distilled here.
-2. **Classification ledger**: fan-out per-component evidence pass over the 46 (manifest from `componentSrcMap`), tiering + target home + story/preview status; adversarial verification fan-out; ledger reviewed before any structure is designed. Ledger lands as `LEDGER.md` beside this doc.
+2. **Classification ledger** ✅ (2026-07-01): 4 builders → 4 adversarial verifiers (verified=true ×4) → coherence judge; frozen as [LEDGER.md](./LEDGER.md) with the evidence corpus in [ledger/](./ledger/). Binding adjudications supersede raw build rows (LEDGER §3).
 3. **Design**: alternatives on Q2/Q4/Q5/Q6; OpenSpec change set (`openspec/changes/...`, `bun run openspec:validate`); target file tree to exact names; Matei checkpoint for reserved decisions (Q2 + anything touching the live project).
 4. **Execution**: one change set per Graphite branch, stacked; implementation fan-out where independent; review fan-out + Codex second-reviewer on substantial diffs.
 5. **Verification**: package build green (no TS7056 tolerance), app rewire renders identically (oracle), full 46 re-verify via resync driver locally; light-render canary decision (frame §2).
@@ -112,7 +112,7 @@ Enumerated via `meta:introspect` over installed plugins (dev ~48, cognition 14, 
 
 ## 8. Risks / falsifier watch (frame §9 live tally)
 
-- Tiering prior wrong (components reading stores/clients) → none found yet; coupling recon will settle.
+- Tiering prior wrong (components reading stores/clients) → **SETTLED clean**: zero store/orpc/query readers among the 46 (all props-driven); prior "~1 app-shaped" undercounted by one (AppHeader's grade is earned — verify-composites), otherwise 38/6/2 matches the plan.
 - Package build can't feed the sync contract → **contract fact #2 strongly suggests the opposite**; still verified end-to-end before design freezes.
 - Drift beyond portal-dialog class at re-verify → stop-and-diagnose.
 - Wrapper/shim accretion during rewire → boundary is wrong; redraw, don't shim (reinforced by D2).
