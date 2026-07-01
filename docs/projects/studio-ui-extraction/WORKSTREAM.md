@@ -64,16 +64,36 @@ Enumerated via `meta:introspect` over installed plugins (dev ~48, cognition 14, 
 
 | # | Question | State |
 |---|---|---|
-| Q1 | Extraction manifest + per-component tiers | grounding fan-out running; ledger phase next |
-| Q2 | Package name / location / publishing policy | **reserved to Matei** — options TBD after ledger |
-| Q3 | Dependency policy re `@civ7/studio-server` types | evidence gathering (coupling recon) |
-| Q4 | Build recipe (tsup vs Vite lib; CSS strategy; fonts) | evidence gathering (conventions + theme readers) |
-| Q5 | Storybook topology (package-owned vs app-hosted) | evidence gathering (storybook-oracle reader) |
-| Q6 | Sync end-state shape | strong prior: stay `storybook` (contract fact #7); decide in design phase |
-| Q7 | Theme distribution (`useResolvedTheme` home; class convention) | evidence gathering (theme reader) |
-| Q8 | `.design-sync/` metadata migration (docsMap, overrides, NOTES) | evidence gathering (sync-surface reader) |
-| Q9 | v3-style Tailwind imports liveness | evidence gathering (theme reader) |
-| Q10 | Buyable incrementality improvement | bounded by contract fact #8; investigate against converter code |
+| Q1 | Extraction manifest + per-component tiers | manifest verified at exactly 46 (5 groups: primitives 16, composites 13, forms 11, panels 4, layout 2); ledger build+adversarial-verify workflow running |
+| Q2 | Package name / location / publishing policy | **reserved to Matei** — added facts: naming split `@swooper/*` (mapgen domain) vs `@civ7/*` (infra); no `kind:ui` tag in the enforced Nx boundary taxonomy (new tag = formal taxonomy revision, or fit `kind:foundation`); zero peerDependencies exist anywhere in the workspace (React peer-dep precedent is ours to set) |
+| Q3 | Dependency policy re `@civ7/studio-server` | evidence in: 2 bare type-only imports (GameConsole, RecipePanel) + 1 `/contract` type-only (PipelineStage) + **runtime value deps one hop behind GameConsole/RecipePanel** (`features/mapConfigSave/status.ts`, `features/runInGame/status.ts` value-import contract phase tables) and two hops behind AppHeader (`setupConfig.ts`). Props also leak server types (`GameConsoleProps`, `RecipePanelProps`). Remedies per-component in the ledger |
+| Q4 | Build recipe | evidence in: converter consumes only CSS + fonts + `.d.ts` tree + (future) real ESM entry — all standard tsup/vite-lib outputs EXCEPT the bespoke dark-default `:root` + `.light` CSS artifact (must be deliberately authored) and the Tailwind v4 content-scan scope (package CSS must cover story/preview-only utilities). House exemplar: tsup ESM + `--dts`, exports map w/ `types` (the `types` barrel is also what retires the `synthEntry` fork). Tailwind v4 has NO `@source` precedent in-repo |
+| Q5 | Storybook topology | evidence in: `.storybook/` is app-hosted, viteFinal hand-mirrors app aliases; preview.tsx ties: index.css (needed by all), TooltipProvider (8 stories), Toaster (1), QueryClient stub (needed by ZERO stories), `resetStudioStores` (**the one un-movable import; its invariant is vacuous for the 46** — no storied component reads stores). Stories: CSF3, alias-only imports, zero per-story decorators/parameters. SB 9.1.20, addon-docs only |
+| Q6 | Sync end-state shape | strong prior: stay `storybook`; **anchor survives** a same-shape re-point (changed:[46], not anchor loss) — a shape flip to `package` would discard the anchor (`shape_changed`). Config-only repoint verified sufficient (pkg/entry/cssEntry/buildCmd + delete fork/libOverrides + storyImports.shim update); `cfg.tsconfig` + `docsMap` resolve PKG_DIR-relative (silent breakage on move — must re-point) |
+| Q7 | Theme distribution | evidence in: single live stylesheet `src/index.css` (:root light 76–113, `.dark` 115–146, `@theme inline`, 27 color tokens + text-data/text-label type scale used in 35 files); runtime = class on `<html>` (index.html pre-paint script + StudioProviders writes both classes; SB decorator toggles `.dark`); exactly 2 convention-agnostic readers: `useResolvedTheme` (DeckCanvas + PipelineStage) and a **byte-equivalent private duplicate** in sonner.tsx (`useThemeFromClass`) — unify. `.custom-scrollbar` + tw-animate-css utilities must travel with the package. index.html flash-guard keeps hardcoded hex copies (documented manual-sync) |
+| Q8 | `.design-sync/` metadata migration | evidence in: 25 overrides are card-rendering-only (carry as-is); `docsMap` inert for grouping (story titles are the authority — keep titles verbatim to preserve DS-pane identity); NOTES.md is append-only with superseded bullets (read bottom-up); AUTHORING-BRIEF.md describes the retired package-shape pipeline (not a runbook); `.design-sync/previews/` is empty (zero owned previews — no `@ds-stories` path rewrites needed!); `storyImports.shim` patterns are app-path-specific and must be updated on re-point |
+| Q9 | v3-style Tailwind imports liveness | **ANSWERED: dead.** `src/ui/index.css` has zero importers ever (`git log -S` verified), and `tailwindcss/base|components` are unresolvable subpaths in installed tailwindcss@4.3.0. Delete the whole file (it's the Magic Patterns prototype stylesheet). Also stale: `system.md:54` Google-Fonts claim |
+| Q10 | Buyable incrementality improvement | **REFRAMED with evidence**: the frame's "any shared CSS change de-incrementalizes all 46" is FALSE for grading (grades/captures carry; styleSha is upload-partition-only). The real cost axis: any styleSha/bundleSha12 flip forces the full 46-card chromium render-check + whole-surface re-upload — and full-writes-per-upload is skill doctrine anyway. Improvement question becomes: is the render-check tiering (skip/sample/full in resync.mjs) already the designed path? Likely yes — document rather than build |
+
+## 5a. Grounding corrections to the frame (to surface to Matei — none block; frame anticipated the prior being incomplete)
+
+1. **Incrementality axis** (Q10 above) — the bug class is real but lives on render-check+upload, not grading.
+2. **Coupling prior undersold**: three composites carry *runtime* contract deps 1–2 hops out (Q3 above); the "exactly 2 type-only imports" claim holds only for the bare specifier.
+3. **`componentSrcMap` values are dead** under storybook shape (key set = subcomponent-root pins only); story titles are the real manifest+grouping authority.
+4. **`buildCmd` is declarative** — no `.ds-sync` script executes it; deleting `build-inputs.sh` is config+runbook change, zero converter code.
+5. **The `source-storybook.mjs` fork exists only because the app publishes no `exports`/`types`** — a real package with a `types` barrel retires the fork (its deletion re-keys all 46 grades — one-time, coincides with the move's own re-key).
+6. **Fresh grounding gifts**: zero owned previews exist (no `@ds-stories` migration); the app worktree needs `bun install` before typechecks; `.ds-sync/` is committed-vendored in this repo (NOTES' "ephemeral" claim is stale); Chromium via `DS_CHROMIUM_PATH` (Homebrew wrapper is stale); `[RENDER_BLANK]` on bare form controls is a known false positive.
+
+## 5b. Clean-package defect inventory (from grounding; per-component detail in LEDGER.md)
+
+- Two divergent `cn()` implementations: `src/lib/utils.ts` (extendTailwindMerge, registers `text-data`/`text-label` — load-bearing) vs `src/ui/utils/cn.ts` (plain twMerge; used by DisclosureHeader/EmptyState/ViewControls — exposed to the clobbering bug). Unify on the extended one; delete the plain one.
+- `sonner.tsx` ships a private byte-equivalent duplicate of `useResolvedTheme`'s DOM logic (`useThemeFromClass`) — symptom of unsettled dependency direction between the two component trees; unify in the package.
+- `cva`, `clsx`, `tailwind-merge` declared at `"latest"` — pin for the package.
+- `src/ui/index.css` dead (delete); `--animate-pulse-subtle` token+keyframes have zero users; two dead prototype token names (`--color-border-secondary`, `--color-text-muted`) survive only as `.custom-scrollbar` repointers.
+- `ui/components/index.ts` barrel omits StageViewTabs and OptionSelect (consumers deep-path them); `ui/utils` barrel over-drags config.ts+formatting.ts into three composites.
+- `src/features/configOverrides/` must split: 4 component files are import-clean, but `configBuilders.ts` in the same dir is app plumbing (value-imports @swooper/mapgen-core) consumed by app hooks/stores.
+- Props leak server types: `GameConsoleProps`, `RecipePanelProps` reference `@civ7/studio-server` types in the public API.
+- `@rjsf/core/lib/components/Form.js` deep subpath import (the CSP fix from #1993) — a published package must pin/document or wrap it.
 
 ## 6. Sequencing
 
