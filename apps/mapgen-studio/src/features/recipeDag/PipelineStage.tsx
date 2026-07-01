@@ -2,6 +2,7 @@ import type { RecipeDagResult } from "@civ7/studio-server/contract";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { EmptyState } from "../../ui/components/EmptyState";
+import { useResolvedTheme } from "../../ui/hooks/useResolvedTheme";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
 import {
   chooseRecipeDagDomainId,
@@ -20,10 +21,11 @@ import type { RecipeDagLoadStatus } from "./useRecipeDagQuery";
 // PIPELINE STAGE — the recipe DAG as a first-class stage view
 // (mapgen-studio-dag-tab; re-expresses the merged RecipeDagView chrome)
 // ============================================================================
-// Chrome is token-driven (single `.dark` class; no lightMode palette forks);
-// the ONLY place `isLightMode` survives is the preserved domain presentation
+// Chrome is token-driven (single theme class; no lightMode palette forks); the
+// ONLY place a light/dark boolean survives is the preserved domain presentation
 // module, whose lane fills/accents are data color with explicit light/dark
-// variants (handoff §2.4 — domain drives color, not phase order).
+// variants (handoff §2.4 — domain drives color, not phase order). That boolean is
+// resolved from the rendered root theme (`useResolvedTheme`), not a threaded prop.
 //
 // Everything the handoff lists under §2.3–§2.6 is consumed or reproduced
 // verbatim: the headless layout (dependency rank × phase-lane waterfall,
@@ -45,8 +47,6 @@ export interface PipelineStageProps {
   dag: RecipeDagResult | null;
   status: RecipeDagLoadStatus;
   error: string | null;
-  /** Forwarded ONLY to the preserved domain palette (data color variants). */
-  isLightMode: boolean;
   expandedStageIds: ReadonlySet<string>;
   selectedStageId: string | null;
   onToggleStage: (stageId: string) => void;
@@ -63,7 +63,6 @@ export function PipelineStage(props: PipelineStageProps) {
     dag,
     status,
     error,
-    isLightMode,
     expandedStageIds,
     selectedStageId,
     onToggleStage,
@@ -71,6 +70,10 @@ export function PipelineStage(props: PipelineStageProps) {
     topInset,
     bottomInset,
   } = props;
+  // Domain lane colors are data color baked into SVG (can't skin off tokens), so
+  // read the rendered theme from the root — follows the app/Storybook/design-tool
+  // toggle without a threaded prop.
+  const isLightMode = useResolvedTheme() === "light";
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
   const layout = useMemo(() => (dag ? buildRecipeDagLayout(dag) : null), [dag]);
   const phaseIdByStageId = useMemo(() => {

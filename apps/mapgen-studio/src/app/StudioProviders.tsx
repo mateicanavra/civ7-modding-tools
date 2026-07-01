@@ -22,17 +22,18 @@ export function StudioProviders() {
   // owns the pre-paint initial state (no flash); this effect owns every change
   // after hydration so the theme toggle actually re-themes the chrome
   // (theme-class-sync spec — without it the cycle only relabels the button).
+  // Write BOTH classes explicitly (not just toggle `.dark`) so the rendered theme
+  // is unambiguous on the root: components read it back via `useResolvedTheme`,
+  // and an explicit `.light` also matches the design-sync bundle's convention.
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", !isLightMode);
+    const root = document.documentElement;
+    root.classList.toggle("dark", !isLightMode);
+    root.classList.toggle("light", isLightMode);
   }, [isLightMode]);
 
   return (
     <TooltipProvider delayDuration={300}>
-      <StudioShell
-        themePreference={preference}
-        isLightMode={isLightMode}
-        cyclePreference={cyclePreference}
-      />
+      <StudioShell themePreference={preference} cyclePreference={cyclePreference} />
       <Toaster />
     </TooltipProvider>
   );

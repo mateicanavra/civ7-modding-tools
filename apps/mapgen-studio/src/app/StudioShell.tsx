@@ -49,13 +49,6 @@ import { studioBusyGateMessage } from "./studioEventRecovery";
 
 export type StudioShellProps = {
   themePreference: "system" | "light" | "dark";
-  /**
-   * Live light/dark boolean from the theme-preference hook. The chrome is themed
-   * entirely by the single `.dark` class (no theme object, no `lightMode` prop),
-   * so this is forwarded ONLY to the deck.gl canvas, whose background-grid color
-   * is drawn into a `<canvas>` as literal RGBA and cannot read a CSS class.
-   */
-  isLightMode: boolean;
   cyclePreference(): void;
 };
 
@@ -112,7 +105,7 @@ export type StudioShellProps = {
  */
 export function StudioShell(props: StudioShellProps) {
   const toast = useToast();
-  const { themePreference, isLightMode, cyclePreference } = props;
+  const { themePreference, cyclePreference } = props;
 
   // Authoring state is owned by `authoringStore` (Zustand persist, architecture/10 §3).
   // The store seeds itself from the reference persistence (`loadStudioAuthoringState`)
@@ -981,7 +974,6 @@ export function StudioShell(props: StudioShellProps) {
             effectiveLayer={viz.effectiveLayer}
             viewportSize={viewportSize}
             activeBounds={viz.activeBounds}
-            lightMode={isLightMode}
             backgroundGridEnabled={backgroundGridEnabled}
             hasManifest={Boolean(viz.manifest)}
           />
@@ -992,7 +984,6 @@ export function StudioShell(props: StudioShellProps) {
             dag={recipeDag.dag}
             status={recipeDag.status}
             error={recipeDag.error}
-            isLightMode={isLightMode}
             expandedStageIds={pipelineExpandedStageIds}
             selectedStageId={pipelineSelectedStageId || null}
             onToggleStage={handlePipelineStageToggle}

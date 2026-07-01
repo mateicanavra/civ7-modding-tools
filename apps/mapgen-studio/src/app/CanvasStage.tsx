@@ -12,7 +12,6 @@ export type CanvasStageProps = {
   effectiveLayer: VizLayerEntryV1 | null;
   viewportSize: { width: number; height: number };
   activeBounds: Bounds | null;
-  lightMode: boolean;
   /** Whether the decorative background grid is rendered behind the canvas. */
   backgroundGridEnabled: boolean;
   /** True once a viz manifest has been produced; gates the empty-state hint. */
@@ -33,8 +32,9 @@ export type CanvasStageProps = {
  * `lightMode` hex ternary. The radial vignette + grid are drawn in luminance
  * (`--muted-foreground` at very low alpha), not hex. Before any matter exists,
  * the empty stage frames the map with a subtle graticule + contour ring so it
- * reads as *ready*, not hollow. `lightMode` is still forwarded to `DeckCanvas`
- * because that governs deck.gl scene rendering, not the chrome.
+ * reads as *ready*, not hollow. `DeckCanvas` self-resolves its scene theme from
+ * the rendered root (it can't read a CSS class from the WebGL canvas), so the
+ * chrome no longer threads a `lightMode` prop.
  */
 export function CanvasStage(props: CanvasStageProps) {
   const {
@@ -44,7 +44,6 @@ export function CanvasStage(props: CanvasStageProps) {
     effectiveLayer,
     viewportSize,
     activeBounds,
-    lightMode,
     backgroundGridEnabled,
     hasManifest,
   } = props;
@@ -83,7 +82,6 @@ export function CanvasStage(props: CanvasStageProps) {
         effectiveLayer={effectiveLayer}
         viewportSize={viewportSize}
         showBackgroundGrid={false}
-        lightMode={lightMode}
         activeBounds={activeBounds}
         interactive={hasManifest}
       />
