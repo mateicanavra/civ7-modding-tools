@@ -361,6 +361,27 @@
             "reason": "Separate accepted Habitat Grit recurrence guard for the retired monolithic tectonics operation token."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-runtime-helper-redeclaration-source-slice.md",
+        "branch": "codex/habitat-runtime-helper-redeclaration-source",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed the runtime-helper source/baseline contradiction by removing the in-scope local helper redeclaration and repairing the Grit pattern so typed helper declarations are caught by Habitat.",
+        "selectedRows": [
+          "prohibit_runtime_helper_redeclarations"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
+            "reason": "Foundation helper-surface consolidation remains positive-authority work, not this source-validation repair."
+          },
+          {
+            "ruleId": "helper declarations under domain */rules/",
+            "reason": "Out of current rule scan scope; broad helper-kind consolidation would be a separate positive authority slice."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1022,15 +1043,15 @@
       }
     ],
     "resumeState": {
-      "layer1": "complete and reconciled for 115 current live rules",
-      "layer2": "Morphology belt-driver contract inversion produced an implementation slice and retired one closed-structure row. No implementation-ready Layer 3 queue remains after closure.",
-      "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
+      "layer1": "complete and reconciled for 113 current live rules",
+      "layer2": "Runtime-helper source-validation slice closed; no implementation-ready Layer 3 queue remains after closure.",
+      "layer3Boundary": "Select the next sequenced Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
   "corpus": {
-    "liveManifestCount": 115,
-    "currentRowCount": 115,
+    "liveManifestCount": 113,
+    "currentRowCount": 113,
     "retiredHistoricalRowCount": 13,
     "missingLiveRows": [],
     "duplicateLiveRows": []
@@ -1038,15 +1059,15 @@
   "actionClusterCounts": {
     "boundary inversion": 3,
     "context admission": 26,
-    "no action": 50,
+    "no action": 51,
     "positive authority creation": 4,
-    "runtime/source validation": 24,
+    "runtime/source validation": 23,
     "split by owner": 6
   },
   "packetNeededCounts": {
     "boundary inversion": 3,
     "positive authority creation": 4,
-    "runtime/source validation": 24,
+    "runtime/source validation": 23,
     "split by owner": 6
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
@@ -1656,10 +1677,10 @@
     {
       "ruleId": "prohibit_runtime_helper_redeclarations",
       "lane": "MapGen SDK / mod-sdk",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Resolve source/baseline contradiction before mutation.",
-      "evidenceNote": "Source inspection found an in-scope helper redeclaration in `compute-shelf-mask`; decide fix, baseline, or scope.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Resolved source/baseline contradiction: source now uses core helper rail and the existing Habitat/Grit rule remains live authority.",
+      "evidenceNote": "Replaced the local compute-shelf-mask clamp01 helper with clampPct from @swooper/mapgen-core/lib/math; repaired the Grit pattern to catch return-typed helper declarations; temporary probe proved detection.",
       "currentPath": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/rule.json"
     },
     {
@@ -2399,8 +2420,8 @@
     },
     {
       "ruleId": "prohibit_runtime_helper_redeclarations",
-      "conflictBlocker": "source/baseline contradiction found in `compute-shelf-mask`; packet must decide fix, scope, or baseline truth",
-      "layer1Handling": "Keep packet-required classification; no mutation before Layer 2 decision packet."
+      "conflictBlocker": "resolved by runtime-helper source-validation slice",
+      "layer1Handling": "Closed: no current contradiction remains; preserve live Habitat/Grit helper boundary authority."
     },
     {
       "ruleId": "enforce_studio_dev_runner_topology",
