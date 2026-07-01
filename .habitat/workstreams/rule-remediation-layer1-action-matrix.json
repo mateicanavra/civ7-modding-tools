@@ -622,6 +622,27 @@
           "prohibit_runtime_local_config_default_merging"
         ],
         "excludedRows": []
+      },
+      {
+        "actionClass": "boundary inversion plus context admission",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-morphology-overlay-implementation-rail.md",
+        "branch": "codex/habitat-morphology-overlay-implementation-rail",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Closed `prohibit_morphology_overlay_implementation_reads` as an existing Morphology no-overlay implementation rail and repaired its Grit predicate to cover `morphology*` step files, including morphology-shelf.",
+        "selectedRows": [
+          "prohibit_morphology_overlay_implementation_reads"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_morphology_hotspot_overlay_publishers",
+            "reason": "Still an overlay/story ownership semantic gate; not a step implementation read rail."
+          },
+          {
+            "ruleId": "prohibit_morphology_story_overlay_contract_artifact",
+            "reason": "Still an overlay/story contract/artifact ownership semantic gate; not a step implementation read rail."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -1683,13 +1704,45 @@
         "verificationEvidence": [
           "`bun habitat check --rule validate_mapgen_docs_anchors_and_references --json` passed after repairing the stale adapter rule anchor."
         ]
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceCandidate": "Morphology overlay implementation rail repair",
+        "status": "implemented-as-existing-context-grit-rail",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/pattern.md",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-shelf/steps/computeShelf.ts",
+          "docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md",
+          "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/morphology/spec/PHASE-2-CORE-MODEL-AND-PIPELINE.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_morphology_overlay_implementation_reads",
+            "inputClassification": "boundary inversion",
+            "wholeRuleFit": "existing standard-recipe Morphology context rail after Grit predicate repair",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Retain in the Morphology standard-recipe rules lane as a no-overlay implementation rail; do not move to package tests, do not convert to MJS, and do not wait for a generalized recipe-step authority.",
+            "proofLimit": "Focused Habitat proof plus temporary negative import probe validates the static import rail over current morphology* step implementation files. This does not settle broader overlay/story ownership rows."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "`bun habitat check --rule prohibit_morphology_overlay_implementation_reads --json` fails while a temporary `./overlays.js` import probe exists in `morphology-shelf/steps/computeShelf.ts`.",
+          "`bun habitat check --rule prohibit_morphology_overlay_implementation_reads --json` passes after the temporary probe is removed.",
+          "Canonical JSON packet-needed boundary-inversion count drops by one."
+        ],
+        "verificationEvidence": [
+          "Temporary `import { readOverlay } from \"./overlays.js\"` probe failed the repaired Grit rule at `morphology-shelf/steps/computeShelf.ts:7`.",
+          "`bun habitat check --rule prohibit_morphology_overlay_implementation_reads --json` passed after probe removal."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "runtime/source validation": 1,
       "positive authority creation": 4,
       "split by owner": 3,
-      "boundary inversion": 3
+      "boundary inversion": 2
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -1722,13 +1775,6 @@
         "reason": "Morphology versus Gameplay/Narrative overlay ownership is not fully settled in the live recipe; choosing whether story overlays can be morphology byproducts encodes product/architecture philosophy."
       },
       {
-        "kind": "recipe-step positive dependency authority packet needed",
-        "rules": [
-          "prohibit_morphology_overlay_implementation_reads"
-        ],
-        "reason": "Likely belongs to a general step implementation/declared-dependency authority rather than a morphology-only negative; mutation requires a decision packet for that positive authority first."
-      },
-      {
         "kind": "runtime/source residual stop gate",
         "rules": [
           "enforce_formatting_and_import_hygiene"
@@ -1736,12 +1782,7 @@
         "reason": "The formatting/import hygiene row is a valid workspace gate backed by Biome, but the focused check is red from broad workspace drift, so this is not a clean authority-tree remediation slice."
       }
     ],
-    "resumeState": {
-      "layer1": "complete and reconciled for 113 current live rules",
-      "layer2": "Residual re-read after Domino 87 found no implementation-ready slice queue. The remaining packet-needed rows are current semantic split, positive-authority/deletion-pair, overlay/story ownership, recipe-step declared-dependency authority, or workspace hygiene drift gates.",
-      "layer3Boundary": "Continue only if a remaining row is reclassified by a decision packet into a clean, bounded slice that does not require a hairy split, product ownership choice, non-authorized positive authority plus deletion pair, material corpus-boundary change, or new Habitat/Grit test-file scan capability.",
-      "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state. Markdown workstream files are receipts only, not a second matrix."
-    },
+    "resumeState": "Layer 3 slice closed for `prohibit_morphology_overlay_implementation_reads`; implementation-ready queue remains empty. Re-read remaining packet-needed rows before selecting the next deterministic Layer 2 slice.",
     "operatorFindings": [
       {
         "recordedOn": "2026-07-01",
@@ -1765,6 +1806,14 @@
           "require_standard_recipe_tag_catalog_owner_tokens"
         ],
         "handling": "No authority-tree mutation was performed. The next deterministic move requires a semantic Layer 2 decision packet or user-owned architecture decision for one of the remaining stop classes."
+      },
+      {
+        "recordedOn": "2026-07-01",
+        "ruleId": "prohibit_morphology_overlay_implementation_reads",
+        "kind": "decision-packet-closed-by-existing-context-rail",
+        "receipt": ".habitat/workstreams/rule-remediation-morphology-overlay-implementation-rail.md",
+        "finding": "The row did not require a user semantic gate or a new recipe-step positive authority. Canonical Morphology docs already ban overlays as Physics inputs; the existing standard-recipe Morphology context is the honest owner for this static source rail.",
+        "handling": "Retained the Grit runner, repaired path/source matching, proved a temporary morphology-shelf `./overlays.js` import fails, removed the probe, and cleared the packet-needed blocker."
       }
     ]
   },
@@ -1776,8 +1825,8 @@
     "duplicateLiveRows": []
   },
   "actionClusterCounts": {
-    "boundary inversion": 3,
-    "context admission": 27,
+    "boundary inversion": 2,
+    "context admission": 28,
     "no action": 75,
     "positive authority creation": 4,
     "runtime/source validation": 1,
@@ -1787,7 +1836,7 @@
     "runtime/source validation": 1,
     "positive authority creation": 4,
     "split by owner": 3,
-    "boundary inversion": 3
+    "boundary inversion": 2
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -2261,10 +2310,10 @@
     {
       "ruleId": "prohibit_morphology_overlay_implementation_reads",
       "lane": "standard recipe morphology stage",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Sealed blocker: Likely belongs to a general step implementation/declared-dependency authority rather than a morphology-only negative; needs a decision packet before mutation.",
-      "evidenceNote": "Forbids `overlays.js` imports and `readOverlay()` in non-contract morphology implementations. Boundary review marked this as a user semantic gate, not an internally decidable implementation slice.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as live Morphology no-overlay implementation rail. The rule belongs in the standard recipe Morphology context because canonical Morphology authority forbids narrative/story/gameplay overlays as Morphology inputs; the Grit predicate was repaired to cover current morphology* step implementation files, including morphology-shelf, without moving the assertion into package tests or an MJS script.",
+      "evidenceNote": "Decision packet closed internally: source docs define Morphology truth as tile-space Physics truth and explicitly ban overlays as physics inputs. Negative probe `import { readOverlay } from \"./overlays.js\"` in `morphology-shelf/steps/computeShelf.ts` failed the repaired Grit rule, then passed after probe removal.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/rule.json"
     },
     {
@@ -3229,7 +3278,7 @@
       }
     ],
     "coverageSummary": {
-      "liveRuleManifests": 118,
+      "liveRuleManifests": 113,
       "liveRulesWithExplicitReceiptRows": 88,
       "liveRulesWithCompletedPocketSummaryOnly": 14,
       "liveRulesNotProcessedInDominoesMd": 16,
@@ -3237,7 +3286,8 @@
       "liveRuleCorpus": 113,
       "liveRowsInMatrix": 113,
       "ledgerRows": 113,
-      "retiredHistoricalRows": 15
+      "retiredHistoricalRows": 15,
+      "currentJsonRows": 113
     },
     "remainderActionRows": [
       {
@@ -3843,8 +3893,8 @@
         "dominoEvidence": "Domino 26, Domino 37, Domino 41",
         "processStatus": "processed: receipt",
         "dispositionBucket": "standard-recipe morphology stage context",
-        "pendingAction": "Revisit if recipe-step implementation/contract separation becomes a broader positive rule.",
-        "evidenceNote": "Domino 41 moved this into `stages/morphology/rules` because the current whole predicate guards morphology standard stage implementation files."
+        "pendingAction": "closed by Domino 89: retain as Morphology no-overlay implementation rail; Grit predicate repaired for morphology* step files.",
+        "evidenceNote": "Negative probe failed repaired Grit rule and was removed; no package test or MJS conversion."
       },
       {
         "ruleId": "prohibit_morphology_stage_config_bag_imports",
