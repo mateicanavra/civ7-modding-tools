@@ -39,3 +39,9 @@ Current frames:
   row cannot truthfully move to an existing blueprint or context and the next
   question is whether a narrow projection contract surface should exist before
   additional movement.
+- `REMAINDER-REMEDIATION-ACTION-FRAME.md`: normative method frame for
+  classifying and executing the action needed to reduce state space for
+  reviewed `_remainder` rows. This is distinct from rule manifest
+  `placement.category`; it carries a domino through action-matrix creation,
+  single-rule analysis, decision, implementation, verification, review, and
+  closure.
