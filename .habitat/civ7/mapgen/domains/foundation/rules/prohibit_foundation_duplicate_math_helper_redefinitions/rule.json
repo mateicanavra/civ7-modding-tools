@@ -4,7 +4,7 @@
   "title": "Prohibit Foundation Duplicate Math Helper Redefinitions",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
-    "blueprint": "_remainder",
+    "blueprint": "_self",
     "category": "boundary"
   },
   "operation": {
@@ -38,12 +38,12 @@
   ],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md"
     },
     "patternName": "prohibit_foundation_duplicate_math_helper_redefinitions"
   }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T14:52:30.000Z",
+  "generatedOn": "2026-07-01T14:58:45.000Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -666,6 +666,31 @@
           {
             "ruleId": "require_standard_recipe_map_effect_name_suffixes",
             "reason": "Retained as the current standard-recipe `effect:map.*` suffix source rail."
+          }
+        ]
+      },
+      {
+        "actionClass": "context admission",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-foundation-helper-rail-admission.md",
+        "branch": "codex/habitat-foundation-helper-rail-admission",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Moved `prohibit_foundation_duplicate_math_helper_redefinitions` from Foundation `_remainder` to Foundation `rules/` as a live Grit source rail.",
+        "selectedRows": [
+          "prohibit_foundation_duplicate_math_helper_redefinitions"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_ambient_rng_in_authored_generation",
+            "reason": "Still needs deterministic authored-generation authority plus official-discovery exception policy."
+          },
+          {
+            "ruleId": "validate_ecology_op_contract_quality",
+            "reason": "Still needs general domain-operation contract-quality authority."
+          },
+          {
+            "ruleId": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+            "reason": "Still a mixed-owner split row, not a helper redeclaration rail."
           }
         ]
       }
@@ -1806,11 +1831,57 @@
           "`bun habitat classify .habitat` passed.",
           "`git diff --check` passed."
         ]
+      },
+      {
+        "actionClass": "positive authority creation correction to context admission",
+        "sliceCandidate": "Foundation helper redeclaration Grit rail admission",
+        "status": "implemented-as-existing-context-grit-rail",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json",
+          ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md",
+          "mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts",
+          "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/rules/index.ts",
+          "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/rules/index.ts",
+          "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts",
+          ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
+          ".habitat/frames/RULE-REMEDIATION-SLICE-FRAME.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
+            "inputClassification": "positive authority creation",
+            "classificationCorrection": "context admission",
+            "wholeRuleFit": "existing Foundation context Grit rail",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Move the existing Grit packet from Foundation `_remainder` to Foundation `rules/` and repair the predicate so TypeScript-annotated helper declarations are caught. The rule is source-backed recurrence protection against local helper redeclarations, not a new blueprint-kind assertion.",
+            "proofLimit": "Focused Habitat proof validates current source and path resolution. This does not define a broad helper blueprint authority or settle unrelated deterministic-generation/domain-operation quality rows."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Pre-move focused Habitat check passes.",
+          "A temporary typed `clampByte` helper probe first falsified the old AST-only Grit pattern, then failed the repaired Grit pattern at the expected Foundation source file.",
+          "Post-move focused Habitat check passes with updated supportFiles and runner paths after probe removal.",
+          "Canonical JSON packet-needed positive-authority count drops by one.",
+          "Live manifest/current JSON/process ledger rows reconcile."
+        ],
+        "verificationEvidence": [
+          "Pre-move `bun habitat check --rule prohibit_foundation_duplicate_math_helper_redefinitions --json` passed.",
+          "Temporary `function clampByte(value: number): number` probe in `compute-plate-graph/index.ts` exposed that the old AST-only pattern did not catch typed helper declarations.",
+          "After Grit pattern repair, the same temporary probe failed at `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts:10`.",
+          "Temporary probe was removed before post-move verification.",
+          "Post-move `bun habitat check --rule prohibit_foundation_duplicate_math_helper_redefinitions --json` passed after probe removal.",
+          "`bun run --cwd tools/habitat analyze:execution-surface` regenerated execution-surface docs with `rule-json: 112`.",
+          "Manifest/support/runner reconciliation script reported 112 live manifests, 112 current JSON rows, no duplicate ids, no missing support/runner files, no row/manifest drift, and the Foundation helper row at its new rules path.",
+          "`bun habitat classify .habitat` passed.",
+          "`git diff --check` passed.",
+          "Fresh reviewer found stale `processLedger.remainderActionRows` entry for this id; removed it before closure."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "runtime/source validation": 1,
-      "positive authority creation": 3,
+      "positive authority creation": 2,
       "split by owner": 3,
       "boundary inversion": 2
     },
@@ -1830,10 +1901,9 @@
         "kind": "positive authority plus deletion pair",
         "rules": [
           "prohibit_ambient_rng_in_authored_generation",
-          "prohibit_foundation_duplicate_math_helper_redefinitions",
           "validate_ecology_op_contract_quality"
         ],
-        "reason": "Remaining positive-authority/deletion-pair rows still require semantic authority decisions: deterministic authored-generation needs an exception policy, foundation helpers need a named helper/import surface, and ecology contract quality needs a general domain-operation contract-quality authority. The standard tag-catalog retired effect-gate row was reclassified and deleted as retired-literal garbage collection."
+        "reason": "Remaining positive-authority/deletion-pair rows still require semantic authority decisions: deterministic authored-generation needs an exception policy, and ecology contract quality needs a general domain-operation contract-quality authority. Foundation helper redeclaration prevention was reclassified as an existing Foundation context rail and admitted to `rules/`."
       },
       {
         "kind": "overlay/story ownership semantic gate",
@@ -1851,7 +1921,7 @@
         "reason": "The formatting/import hygiene row is a valid workspace gate backed by Biome, but the focused check is red from broad workspace drift, so this is not a clean authority-tree remediation slice."
       }
     ],
-    "resumeState": "Implementation-ready queue is empty after the standard tag-catalog retired-token garbage-collection slice. Remaining packet-needed rows are workspace hygiene residual, semantic split, positive-authority/deletion-pair, or overlay/story ownership gates.",
+    "resumeState": "Implementation-ready queue is empty after the Foundation helper rail admission. Remaining packet-needed rows are workspace hygiene residual, semantic split, positive-authority/deletion-pair, or overlay/story ownership gates.",
     "operatorFindings": [
       {
         "recordedOn": "2026-07-01",
@@ -1903,15 +1973,15 @@
   },
   "actionClusterCounts": {
     "boundary inversion": 2,
-    "context admission": 28,
+    "context admission": 29,
     "no action": 75,
-    "positive authority creation": 3,
+    "positive authority creation": 2,
     "runtime/source validation": 1,
     "split by owner": 3
   },
   "packetNeededCounts": {
     "runtime/source validation": 1,
-    "positive authority creation": 3,
+    "positive authority creation": 2,
     "split by owner": 3,
     "boundary inversion": 2
   },
@@ -2189,11 +2259,11 @@
     {
       "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
       "lane": "domains/foundation",
-      "actionDecision": "positive authority creation",
-      "packetNeeded": true,
-      "expectedRemediation": "Define helper authority, then retire/admit the negative proxy.",
-      "evidenceNote": "Canonical helpers exist in `lib/tectonics/shared.ts`; Domino 52 rejects strategy authority because the whole predicate is helper-surface consolidation across strategy and non-strategy files.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json"
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Moved from Foundation `_remainder` to Foundation `rules/` as live Grit source authority for canonical helper redeclaration prevention.",
+      "evidenceNote": "The predicate is a narrow Foundation source-shape recurrence guard over local helper redeclarations; no new helper blueprint authority is needed for this existing context rail.",
+      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json"
     },
     {
       "ruleId": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
@@ -3377,14 +3447,6 @@
         "blockerOrProof": "Define the general contract-quality surface and repair stale ecology-stage path coverage before promotion; Domino 52 rejected this row as strategy authority."
       },
       {
-        "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
-        "remediationAction": "positive authority creation",
-        "implementationReadiness": "not ready",
-        "expectedHomeAction": "Future positive foundation tectonics helper/import surface around canonical helper modules.",
-        "domino50Status": "retained `_remainder`",
-        "blockerOrProof": "Name the helper surface and prove consumers import it before deleting the negative proxy; Domino 52 rejected this row as strategy authority."
-      },
-      {
         "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
         "remediationAction": "consolidation/dedup` plus context admission",
         "implementationReadiness": "ready; executed",
@@ -3776,13 +3838,17 @@
       },
       {
         "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
-        "currentPlacement": "blueprint=_remainder; niche=civ7/mapgen/domains/foundation; category=boundary; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json",
-        "dominoEvidence": "Domino 29, Domino 52",
+        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=boundary; operation=check",
+        "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/rule.json",
+        "dominoEvidence": "Domino 52, Domino 91",
         "processStatus": "processed: receipt",
-        "dispositionBucket": "cleanup/consolidation/split pressure",
-        "pendingAction": "Helper consolidation rows should defer until the positive helper/import surface is named; Domino 52 rejected this as strategy authority.",
-        "evidenceNote": "The row is helper-surface consolidation pressure around canonical foundation math helpers, not final context authority, operation-kind law, or strategy-kind authority.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "dispositionBucket": "Foundation helper source rail",
+        "pendingAction": "No action now. Revisit only if a future named helper authority fully subsumes this exact redeclaration guard.",
+        "evidenceNote": "Domino 91 admitted this from `_remainder` as live Foundation context authority; it is a narrow Grit source-shape recurrence guard, not a helper blueprint-kind assertion.",
+        "actionDecision": "context admission",
+        "packetNeeded": false,
+        "expectedRemediation": "Moved into Foundation `rules/` with id and predicate preserved.",
+        "blockerOrProof": "Focused Habitat check passes before and after move."
       },
       {
         "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
