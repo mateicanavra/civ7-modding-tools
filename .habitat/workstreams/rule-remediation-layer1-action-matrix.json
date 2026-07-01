@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:40:53.066Z",
+  "generatedOn": "2026-07-01T11:43:14.271Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -225,6 +225,30 @@
           {
             "ruleId": "preserve_decomposed_foundation_contract_surfaces",
             "reason": "Foundation domain contract currentness explicitly delegates source-token bans to narrow Grit packets."
+          }
+        ]
+      },
+      {
+        "actionClass": "closed structure inversion reclassification",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-foundation-legacy-op-grit-context.md",
+        "branch": "codex/habitat-foundation-legacy-op-grit-context",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Reclassified four foundation legacy operation/contract Grit rows as context admission because the Foundation reference documents the decomposed operation surface and explicitly rejects the legacy aggregate op; no package tests, scripts, or deletions were introduced.",
+        "selectedRows": [
+          "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
+          "prohibit_foundation_legacy_aggregate_tectonics",
+          "prohibit_foundation_legacy_plate_kinematics",
+          "prohibit_legacy_compute_tectonics_token"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "preserve_decomposed_foundation_contract_surfaces",
+            "reason": "Positive currentness script remains separate and explicitly delegates source-token bans to narrow Grit packets."
+          },
+          {
+            "ruleId": "domain-operation positive registry rail",
+            "reason": "Future possible collapse target, but not required to keep these exact source-backed recurrence guards honest now."
           }
         ]
       }
@@ -859,8 +883,8 @@
   },
   "actionClusterCounts": {
     "boundary inversion": 14,
-    "closed structure inversion": 5,
-    "context admission": 14,
+    "closed structure inversion": 1,
+    "context admission": 18,
     "no action": 46,
     "positive authority creation": 4,
     "runtime/source validation": 26,
@@ -868,7 +892,7 @@
   },
   "packetNeededCounts": {
     "boundary inversion": 14,
-    "closed structure inversion": 5,
+    "closed structure inversion": 1,
     "positive authority creation": 4,
     "runtime/source validation": 26,
     "split by owner": 6
@@ -1156,28 +1180,28 @@
     {
       "ruleId": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
       "lane": "domains/foundation",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace token ban with allowed op registry structure.",
-      "evidenceNote": "Current `ops/contracts.ts` and `ops/index.ts` enumerate focused ops.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow foundation operation-surface Grit authority; revisit only if a future positive domain-operation registry rail fully subsumes this aggregate-op absence predicate.",
+      "evidenceNote": "Current row is source-backed by the Foundation reference: the legacy `foundation/compute-tectonic-history` aggregate op was removed and must not be reintroduced as compatibility surface.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/rule.json"
     },
     {
       "ruleId": "prohibit_foundation_legacy_aggregate_tectonics",
       "lane": "domains/foundation",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Replace aggregate-token guard with allowed tectonics step/op structure.",
-      "evidenceNote": "Focused tectonic ops are current source/docs target.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow foundation tectonics contract/index Grit authority; revisit only if a future positive domain-operation registry or foundation contract rail fully subsumes this aggregate-op absence predicate.",
+      "evidenceNote": "Current row guards the standard foundation tectonics contract and domain root from reintroducing the retired aggregate `computeTectonicHistory` surface named in the Foundation reference.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/rule.json"
     },
     {
       "ruleId": "prohibit_foundation_legacy_plate_kinematics",
       "lane": "domains/foundation",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Encode allowed schema split between graph/metadata and motion.",
-      "evidenceNote": "`compute-plate-graph` and `compute-plate-motion` now split responsibilities.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow compute-plate-graph contract Grit authority; revisit only if a future positive operation contract schema rail proves plate graph remains kinematics-free.",
+      "evidenceNote": "Current row guards a documented Foundation split: plate graph stays metadata/partition authority while plate motion owns kinematics.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json"
     },
     {
@@ -1273,10 +1297,10 @@
     {
       "ruleId": "prohibit_legacy_compute_tectonics_token",
       "lane": "domains/foundation",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Absorb into allowed op/stage structure.",
-      "evidenceNote": "Focused op list makes `computeTectonics` obsolete.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as narrow foundation source-token Grit authority; revisit only if a future positive foundation operation registry rail fully subsumes this retired monolithic token absence predicate.",
+      "evidenceNote": "Current row guards against reintroducing the retired monolithic `computeTectonics` token across foundation surfaces; this is documented recurrence pressure, not generic stale config-key clutter.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/rule.json"
     },
     {
@@ -2796,41 +2820,41 @@
         "ruleId": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/rule.json",
-        "dominoEvidence": "Domino 29",
+        "dominoEvidence": "Domino 29, Domino 68",
         "processStatus": "processed: receipt",
         "dispositionBucket": "honest foundation context",
-        "pendingAction": "A concrete context can own sharper companion guards around its retired public surfaces.",
-        "evidenceNote": "The rule is a foundation op-registry companion to the existing aggregate-history context guard, not a domain-wide contract.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "pendingAction": "No action now. Retire or consolidate later only if a positive foundation operation/contract rail fully subsumes the exact predicate.",
+        "evidenceNote": "The rule is a foundation op-registry companion to the existing aggregate-history context guard, not a domain-wide contract.<br>Proof note: selected-rule Grit proof passed; path refs exist Domino 68 reclassified this as context admission because the current Grit predicate is source-backed recurrence authority, not stale retired-key clutter."
       },
       {
         "ruleId": "prohibit_foundation_legacy_aggregate_tectonics",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/rule.json",
-        "dominoEvidence": "Domino 27",
+        "dominoEvidence": "Domino 27, Domino 68",
         "processStatus": "processed: receipt",
         "dispositionBucket": "honest foundation context",
-        "pendingAction": "Foundation-specific migration history can remain intentional context authority when it is not mixed with another owner.",
-        "evidenceNote": "The rule encodes foundation's decomposition history; another valid domain could have a different aggregate history without violating `domain` or `domain-operation`.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "pendingAction": "No action now. Retire or consolidate later only if a positive foundation operation/contract rail fully subsumes the exact predicate.",
+        "evidenceNote": "The rule encodes foundation's decomposition history; another valid domain could have a different aggregate history without violating `domain` or `domain-operation`.<br>Proof note: selected-rule Grit proof passed; path refs exist Domino 68 reclassified this as context admission because the current Grit predicate is source-backed recurrence authority, not stale retired-key clutter."
       },
       {
         "ruleId": "prohibit_foundation_legacy_plate_kinematics",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json",
-        "dominoEvidence": "Domino 27",
+        "dominoEvidence": "Domino 27, Domino 68",
         "processStatus": "processed: receipt",
         "dispositionBucket": "honest foundation context",
-        "pendingAction": "One-operation retired field guards can stay contextual when they are truly current vocabulary history.",
-        "evidenceNote": "The rule protects one foundation contract vocabulary; it is not a reusable operation-kind invariant.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "pendingAction": "No action now. Retire or consolidate later only if a positive foundation operation/contract rail fully subsumes the exact predicate.",
+        "evidenceNote": "The rule protects one foundation contract vocabulary; it is not a reusable operation-kind invariant.<br>Proof note: selected-rule Grit proof passed; path refs exist Domino 68 reclassified this as context admission because the current Grit predicate is source-backed recurrence authority, not stale retired-key clutter."
       },
       {
         "ruleId": "prohibit_legacy_compute_tectonics_token",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/domains/foundation; category=contract; operation=check",
         "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/rule.json",
-        "dominoEvidence": "Domino 27",
+        "dominoEvidence": "Domino 27, Domino 68",
         "processStatus": "processed: receipt",
         "dispositionBucket": "honest foundation context",
-        "pendingAction": "Broad retired-token guards may remain context authority when the token history is concrete-domain-specific.",
-        "evidenceNote": "The rule is a foundation-specific retired-token guard; another domain can differ without violating the affirmed kinds.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "pendingAction": "No action now. Retire or consolidate later only if a positive foundation operation/contract rail fully subsumes the exact predicate.",
+        "evidenceNote": "The rule is a foundation-specific retired-token guard; another domain can differ without violating the affirmed kinds.<br>Proof note: selected-rule Grit proof passed; path refs exist Domino 68 reclassified this as context admission because the current Grit predicate is source-backed recurrence authority, not stale retired-key clutter."
       },
       {
         "ruleId": "prohibit_removed_foundation_profile_config_tokens",
