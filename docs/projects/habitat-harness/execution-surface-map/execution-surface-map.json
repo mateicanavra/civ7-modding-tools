@@ -69,8 +69,8 @@
     {
       "target": "grit\nlanguage js(typescript)\n\nor {",
       "targetClass": "workspace-tool",
-      "references": 24,
-      "sourceCount": 24,
+      "references": 25,
+      "sourceCount": 25,
       "sampleSources": [
         ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
         ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
@@ -229,24 +229,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/",
-      "targetClass": "mod",
-      "references": 11,
-      "sourceCount": 11,
-      "sampleSources": [
-        ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md",
-        ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md",
-        ".habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact/pattern.md"
-      ]
-    },
-    {
       "target": "@habitat/cli/service/model/diagnostics/index",
       "targetClass": "habitat-toolkit",
       "references": 10,
@@ -316,6 +298,24 @@
         ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/",
+      "targetClass": "mod",
+      "references": 10,
+      "sourceCount": 10,
+      "sampleSources": [
+        ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md",
+        ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md",
+        ".habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_legacy_effect_gates/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/pattern.md"
       ]
     },
     {
@@ -4546,15 +4546,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:morphology-coasts|morphology-routing|morphology-erosion|morphology-features)/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/config(?:/.*)?$\"\n}",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/pattern.md"
-      ]
-    },
-    {
       "target": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\\.ts$\",\n  $source <: r\"^[\\\"']?.*\\.\\./[^/]+/steps/.*[\\\"']?$\"\n}",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -6562,6 +6553,15 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6581,6 +6581,15 @@
     },
     {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/demo.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-shelf/demo.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
@@ -17699,13 +17708,14 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "mods/mod-swooper-maps/src/recipes/standard/stages/",
           "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/demo.ts"
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-shelf/demo.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:morphology-coasts|morphology-routing|morphology-erosion|morphology-features)/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/config(?:/.*)?$\"\n}"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -17713,12 +17723,12 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/demo.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/demo.ts",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology",
             "targetClass": "mod"
           },
           {
@@ -17727,8 +17737,13 @@
             "targetClass": "mod"
           },
           {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-shelf/demo.ts",
+            "targetClass": "mod"
+          },
+          {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:morphology-coasts|morphology-routing|morphology-erosion|morphology-features)/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/config(?:/.*)?$\"\n}",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
           }
         ]
@@ -31691,13 +31706,14 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "mods/mod-swooper-maps/src/recipes/standard/stages/",
           "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/demo.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/demo.ts"
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-shelf/demo.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:morphology-coasts|morphology-routing|morphology-erosion|morphology-features)/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/config(?:/.*)?$\"\n}"
+          "grit\nlanguage js(typescript)\n\nor {"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -31705,12 +31721,12 @@
         "all": [
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/demo.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/demo.ts",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology",
             "targetClass": "mod"
           },
           {
@@ -31719,8 +31735,13 @@
             "targetClass": "mod"
           },
           {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-shelf/demo.ts",
+            "targetClass": "mod"
+          },
+          {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nimport_statement(source=$source) where {\n  $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:morphology-coasts|morphology-routing|morphology-erosion|morphology-features)/.*\\.ts$\",\n  $source <: r\".*@mapgen/domain/config(?:/.*)?$\"\n}",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
             "targetClass": "workspace-tool"
           }
         ]

@@ -317,6 +317,32 @@
           "removedAssertionsFrom": "mods/mod-swooper-maps/test/foundation/contract-guard.test.ts",
           "reason": "The static config-bag import bans are now owned by executable Habitat Grit rails; package tests should not act as junk drawers for source-shape enforcement."
         }
+      },
+      {
+        "actionClass": "boundary inversion",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-projection-and-morphology-boundary-rails.md",
+        "branch": "codex/habitat-projection-morphology-boundary-rails",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Admitted projection adapter callsite ownership as exact Grit authority and repaired the morphology stage config-import Grit rail to cover all morphology* standard-recipe stages while allowing the morphology-specific config facade.",
+        "selectedRows": [
+          "prohibit_misplaced_projection_adapter_calls",
+          "prohibit_morphology_stage_config_bag_imports"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_morphology_hotspot_overlay_publishers",
+            "reason": "Sealed blocker: overlay ownership is a product/architecture decision."
+          },
+          {
+            "ruleId": "prohibit_morphology_story_overlay_contract_artifact",
+            "reason": "Sealed blocker: overlay ownership is a product/architecture decision."
+          },
+          {
+            "ruleId": "prohibit_morphology_overlay_implementation_reads",
+            "reason": "Needs a broader positive step implementation/dependency authority decision before mutation."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -992,15 +1018,15 @@
     "duplicateLiveRows": []
   },
   "actionClusterCounts": {
-    "boundary inversion": 5,
+    "boundary inversion": 3,
     "context admission": 26,
-    "no action": 48,
+    "no action": 50,
     "positive authority creation": 4,
     "runtime/source validation": 26,
     "split by owner": 6
   },
   "packetNeededCounts": {
-    "boundary inversion": 5,
+    "boundary inversion": 3,
     "positive authority creation": 4,
     "runtime/source validation": 26,
     "split by owner": 6
@@ -1459,10 +1485,10 @@
     {
       "ruleId": "prohibit_misplaced_projection_adapter_calls",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Define allowed projection/materialization call owners.",
-      "evidenceNote": "Adapter projection calls belong only in exact owning `map-*` projection steps. Boundary review marked this as implementation-ready slice 'projection-adapter-call-owner-boundary'.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "implemented/admitted by projection-and-morphology-boundary-rails slice",
+      "evidenceNote": "Projection/materialization adapter callsite ownership is exact Grit authority; selected-rule proof passes after packet-local Grit execution repair.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/rule.json"
     },
     {
@@ -1495,10 +1521,10 @@
     {
       "ruleId": "prohibit_morphology_stage_config_bag_imports",
       "lane": "standard recipe morphology stage",
-      "actionDecision": "boundary inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Define allowed recipe stage config import surface.",
-      "evidenceNote": "Live morphology stages import sanctioned `@mapgen/domain/morphology/config.js`; generic config bags are false surface. Boundary review marked this as implementation-ready slice 'morphology-stage-config-import-boundary'.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "implemented by projection-and-morphology-boundary-rails slice",
+      "evidenceNote": "Grit boundary now covers all morphology* standard-recipe stages, including morphology-shelf, while allowing @mapgen/domain/morphology/config.js and forbidding root @mapgen/domain/config.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports/rule.json"
     },
     {
