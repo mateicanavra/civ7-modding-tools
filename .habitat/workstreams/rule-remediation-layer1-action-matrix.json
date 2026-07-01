@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:43:14.271Z",
+  "generatedOn": "2026-07-01T11:45:06.598Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -249,6 +249,27 @@
           {
             "ruleId": "domain-operation positive registry rail",
             "reason": "Future possible collapse target, but not required to keep these exact source-backed recurrence guards honest now."
+          }
+        ]
+      },
+      {
+        "actionClass": "closed structure inversion reclassification",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-service-module-shape-context.md",
+        "branch": "codex/habitat-service-module-shape-context",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Reclassified the residual Habitat service-module file-shape script as context admission after confirming root topology was already split to structure TOML and recursive suffix/router-shape semantics remain live Toolkit authority.",
+        "selectedRows": [
+          "validate_habitat_service_module_file_shape"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "validate_habitat_service_module_root_topology",
+            "reason": "Already owns the TOML-expressible direct root topology split."
+          },
+          {
+            "ruleId": "declarative file-tree/suffix allowlist runner",
+            "reason": "Future collapse target only; not currently available to replace recursive suffix/router-shape validation."
           }
         ]
       }
@@ -883,8 +904,7 @@
   },
   "actionClusterCounts": {
     "boundary inversion": 14,
-    "closed structure inversion": 1,
-    "context admission": 18,
+    "context admission": 19,
     "no action": 46,
     "positive authority creation": 4,
     "runtime/source validation": 26,
@@ -892,7 +912,6 @@
   },
   "packetNeededCounts": {
     "boundary inversion": 14,
-    "closed structure inversion": 1,
     "positive authority creation": 4,
     "runtime/source validation": 26,
     "split by owner": 6
@@ -1864,10 +1883,10 @@
     {
       "ruleId": "validate_habitat_service_module_file_shape",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Invert into admitted service-module file-shape authority.",
-      "evidenceNote": "Custom script contains suffix allowlists and comments pointing to positive subject-local pattern allowlist.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as residual Habitat Toolkit service-module file-shape authority; revisit only when a declarative file-tree/suffix allowlist runner can express recursive suffix and router-shape semantics.",
+      "evidenceNote": "Prior structure-check conversion split root topology into `validate_habitat_service_module_root_topology`; the residual script owns recursive suffix and router-shape constraints that TOML v1 cannot express.",
       "currentPath": ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/rule.json"
     },
     {
@@ -3600,11 +3619,11 @@
         "ruleId": "validate_habitat_service_module_file_shape",
         "currentPlacement": "blueprint=service-module; niche=habitat/toolkit; category=structure; operation=check",
         "currentPath": ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/rule.json",
-        "dominoEvidence": "none found",
+        "dominoEvidence": "none found, Domino 69",
         "processStatus": "not processed in dominoes.md",
         "dispositionBucket": "not specified",
-        "pendingAction": "still to be processed",
-        "evidenceNote": "Current placement only; no domino disposition evidence."
+        "pendingAction": "No action now. Revisit when the Toolkit has a declarative file-tree/suffix allowlist runner that can subsume the residual script.",
+        "evidenceNote": "Current placement only; no domino disposition evidence. Domino 69 reclassified this as context admission because the direct root topology was already split and the remaining recursive suffix/router-shape checks are live Toolkit service-module authority."
       },
       {
         "ruleId": "validate_habitat_service_module_root_topology",
