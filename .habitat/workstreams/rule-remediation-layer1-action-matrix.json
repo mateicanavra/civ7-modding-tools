@@ -107,6 +107,23 @@
         "excludedRows": [
           "map-source clauses from the old proxy rows; not part of the accepted first G4 enforcement surface"
         ]
+      },
+      {
+        "actionClass": "closed structure inversion",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-standard-recipe-topology-slice.md",
+        "branch": "codex/habitat-standard-recipe-topology-rail",
+        "commit": "branch-head",
+        "status": "closed",
+      "semanticOutcome": "Replaced the hardcoded standard recipe stage-root structure inventory with a source-derived Habitat script check that parses the contract manifest/runtime recipe source as active-stage authority and keeps shared hubs admitted as support directories.",
+        "selectedRows": [
+          "preserve_standard_stage_topology_and_path_invariants"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_wrapper_only_advanced_config",
+            "reason": "The row is G9 wrapper-only advanced recurrence pressure, not stage-root topology. It stays live and is requeued for consolidation/source-validation without package-test blacklist assertions."
+          }
+        ]
       }
     ],
     "decisionPacketBatches": [
@@ -334,28 +351,84 @@
           "reason": "A proposed script conversion was rejected because this predicate is source-string import syntax and Grit is the native Habitat rail for that shape. Script checks remain appropriate only when path resolution, build/currentness, or data-driven structural proof is genuinely required.",
           "outcome": "One consolidated Grit rule, no package test junk drawer, no bespoke script."
         }
+      },
+      {
+        "actionClass": "closed structure inversion",
+        "sliceCandidate": "standard recipe topology and wrapper-shape inversion",
+        "status": "topology-closed-wrapper-guard-requeued",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/structure.toml",
+          ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
+          ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
+          "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages",
+          "docs/projects/engine-refactor-v1/architecture-normalization-packet.md",
+          "docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md",
+          "packages/mapgen-core/src/authoring/stage.ts",
+          "packages/mapgen-core/src/compiler/normalize.ts",
+          "packages/mapgen-core/src/authoring/recipe-config-schema.ts",
+          "mods/mod-swooper-maps/src/maps/configs/canonical.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "preserve_standard_stage_topology_and_path_invariants",
+            "inputClassification": "closed structure inversion",
+            "wholeRuleFit": "whole-rule fit after support-hub distinction",
+            "ruleIdPlan": "preserve id and replace structure runner with source-derived Habitat script",
+        "semanticRemediationDecision": "Active standard recipe stage roots derive from `contract-manifest.ts` and the `orderStandardStages` call in `recipe.ts`. Bare `ecology`, `foundation`, and `morphology` children are admitted support directories, not active stage ids. Retired stage roots and unexpected children remain forbidden.",
+            "proofLimit": "The script proves top-level stage-root topology and entrypoint existence. Stage order and step parity remain owned by adjacent runtime/contract rules; support hub rehoming remains future work."
+          },
+          {
+            "ruleId": "prohibit_wrapper_only_advanced_config",
+            "inputClassification": "closed structure inversion",
+            "wholeRuleFit": "not implementation-ready in this slice",
+            "ruleIdPlan": "retain id in current _remainder path for now",
+            "semanticRemediationDecision": "Do not retire or move the row as part of stage-root topology. G9 docs keep wrapper-only `advanced` as Habitat guard pressure, but the current predicate spans recipe and map surfaces and needs a separate consolidation/source-validation packet.",
+            "proofLimit": "No mutation was made to this packet. The next packet must avoid package-test blacklist assertions and decide whether source validation or a consolidated Habitat guard absorbs the predicate."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Focused Habitat check passes for `preserve_standard_stage_topology_and_path_invariants` with the script runner.",
+          "The old hardcoded `structure.toml` is absent from the rule packet.",
+          "The `prohibit_wrapper_only_advanced_config` packet remains live and explicitly requeued, not silently retired.",
+          "Canonical JSON current rows and live manifests reconcile at 118.",
+          "No package-owned tests were introduced."
+        ],
+        "verificationEvidence": [
+          "Focused `bun habitat check --rule preserve_standard_stage_topology_and_path_invariants --json` passed after the runner replacement.",
+        "The new check parses `recipe.ts` and `contract-manifest.ts`, compares their stage ids, and checks stage-root children from the filesystem.",
+          "Source review confirmed the `advanced` row is G9 recurrence guard pressure and not clean stage-root topology."
+        ],
+        "exclusions": [
+          {
+            "surface": "wrapper-only advanced config guard",
+            "reason": "Excluded from this topology mutation because docs keep it as a Habitat guard, but its current lexical predicate spans recipe/map config surfaces and needs a separate consolidation packet."
+          }
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
       "runtime/source validation": 27,
       "boundary inversion": 15,
-      "closed structure inversion": 10,
+      "closed structure inversion": 8,
       "split by owner": 6,
       "positive authority creation": 4,
-      "consolidation/dedup": 4,
+      "consolidation/dedup": 5,
       "retirement/garbage collection": 1
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [
       {
         "rank": 1,
-        "actionClass": "closed structure inversion",
-        "sliceCandidate": "standard recipe topology and wrapper-shape inversion",
+        "actionClass": "consolidation/dedup",
+        "sliceCandidate": "G9 wrapper-only advanced config guard consolidation",
         "selectedRows": [
-          "preserve_standard_stage_topology_and_path_invariants",
           "prohibit_wrapper_only_advanced_config"
         ],
-        "reason": "These rows point at admitted recipe/config structures that may eliminate negative shape checks, but they need stronger native structure proof before mutation."
+        "reason": "Docs explicitly keep wrapper-only `advanced` as G9 Habitat guard pressure; source schemas are strict, but the current lexical guard spans recipe and map config surfaces and needs a separate consolidation/source-validation packet before mutation."
       }
     ],
     "sealedDecisionBlockers": [
@@ -391,7 +464,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 118 current live rules",
-      "layer2": "G4 recipe public-domain import matrix packet closed and implemented as one consolidated Grit rule; map-source clauses remain excluded pending map-specific authority.",
+      "layer2": "Standard recipe stage topology closed by deriving active stage roots from the contract manifest/runtime recipe. The wrapper-only `advanced` guard was excluded and requeued as G9 consolidation/source-validation pressure.",
       "layer3Boundary": "No implementation-ready Layer 3 slice remains in the queue. Select the next Layer 2 packet class from `nextLayer2PacketQueue` before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -584,10 +657,10 @@
     {
       "ruleId": "preserve_standard_stage_topology_and_path_invariants",
       "lane": "standard recipe top-level",
-      "actionDecision": "closed structure inversion",
-      "packetNeeded": true,
-      "expectedRemediation": "Derive topology authority from recipe/contract manifest plus allowed shared dirs.",
-      "evidenceNote": "Current structure list preserves transitional hubs that target packet says should dissolve.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Implemented: derive active stage topology from the standard contract manifest/runtime recipe plus admitted support directories.",
+      "evidenceNote": "The Habitat script parses `recipe.ts` and `contract-manifest.ts`, checks stage parity, requires each manifest stage directory and index.ts, and treats ecology/foundation/morphology as support hubs rather than active stages.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json"
     },
     {
@@ -1133,10 +1206,10 @@
     {
       "ruleId": "prohibit_wrapper_only_advanced_config",
       "lane": "pipeline config/contracts/runtime",
-      "actionDecision": "closed structure inversion",
+      "actionDecision": "consolidation/dedup",
       "packetNeeded": true,
-      "expectedRemediation": "Replace token ban with canonical map/recipe config structure.",
-      "evidenceNote": "Docs say flat config and no persisted `advanced`; source scan found no `advanced:` keys.",
+      "expectedRemediation": "Create a G9 wrapper-only `advanced` consolidation packet; retain the current Grit guard until standard-recipe public authoring and map-config validation rails can absorb or replace it without turning package tests into stale-key junk drawers.",
+      "evidenceNote": "Docs explicitly identify wrapper-only `advanced` as G9 Habitat guard pressure. Source schemas are strict, but this row spans recipe source and map config surface and was not safe to retire inside the topology slice.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json"
     },
     {
@@ -2539,11 +2612,11 @@
         "ruleId": "prohibit_wrapper_only_advanced_config",
         "currentPlacement": "blueprint=_remainder; niche=civ7/mapgen/pipeline/config; category=structure; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
-        "dominoEvidence": "Domino 35",
+        "dominoEvidence": "Domino 35, Domino 59",
         "processStatus": "processed: receipt",
-        "dispositionBucket": "cleanup/consolidation/split pressure",
-        "pendingAction": "Config-token cleanup should be separated from parent pipeline without prematurely creating a config blueprint or admission surface.",
-        "evidenceNote": "The row is map/recipe config cleanup pressure, not stable parent-pipeline authority and not final config ontology; it needs a future public-config/map-config owner, split, or retirement.<br>Proof note: selected-rule Grit proof passed; path refs exist"
+        "dispositionBucket": "G9 wrapper-only advanced guard consolidation pressure",
+        "pendingAction": "Create a G9 consolidation/source-validation packet. Retain the current Grit guard until standard-recipe public authoring and map-config validation rails can absorb or replace it without adding package-test blacklist assertions.",
+        "evidenceNote": "Domino 59 excluded this row from the topology mutation: docs name wrapper-only `advanced` as recurrence guard pressure, but the current predicate spans recipe source and maps and needs a separate consolidation packet."
       },
       {
         "ruleId": "prohibit_bare_value_export_all_from_contract_surfaces",
@@ -2619,11 +2692,11 @@
         "ruleId": "preserve_standard_stage_topology_and_path_invariants",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe; category=structure; operation=check",
         "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json",
-        "dominoEvidence": "Domino 33, Domino 41",
+        "dominoEvidence": "Domino 33, Domino 41, Domino 59",
         "processStatus": "processed: receipt",
         "dispositionBucket": "recipe-wide standard-recipe context",
-        "pendingAction": "Exact stage-root inventories stay contextual until a generalized stage-topology rule exists.",
-        "evidenceNote": "Domino 41 re-read retained this as top-level standard-recipe context because the predicate owns the whole recipe stage-root set, not one stage prefix or a split-required cleanup row."
+        "pendingAction": "No action. Active stage roots now derive from the standard contract manifest/runtime recipe source; shared support hubs remain admitted support directories until a future helper/artifact rehome slice removes them.",
+        "evidenceNote": "Domino 59 replaced the hardcoded structure inventory with a Habitat script that parses `recipe.ts` and `contract-manifest.ts`, requires manifest stage directories and entrypoints, and treats ecology/foundation/morphology as support hubs rather than stage ids."
       },
       {
         "ruleId": "prohibit_foundation_projection_legacy_motion_source",
