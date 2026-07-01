@@ -1782,7 +1782,7 @@
         "reason": "The formatting/import hygiene row is a valid workspace gate backed by Biome, but the focused check is red from broad workspace drift, so this is not a clean authority-tree remediation slice."
       }
     ],
-    "resumeState": "Layer 3 slice closed for `prohibit_morphology_overlay_implementation_reads`; implementation-ready queue remains empty. Re-read remaining packet-needed rows before selecting the next deterministic Layer 2 slice.",
+    "resumeState": "Implementation-ready queue is empty. The only non-semantic residual, `enforce_formatting_and_import_hygiene`, was dry-run checked and is not a clean `habitat fix` slice; remaining packet-needed rows are semantic split, positive-authority/deletion-pair, or overlay/story ownership gates.",
     "operatorFindings": [
       {
         "recordedOn": "2026-07-01",
@@ -1814,6 +1814,14 @@
         "receipt": ".habitat/workstreams/rule-remediation-morphology-overlay-implementation-rail.md",
         "finding": "The row did not require a user semantic gate or a new recipe-step positive authority. Canonical Morphology docs already ban overlays as Physics inputs; the existing standard-recipe Morphology context is the honest owner for this static source rail.",
         "handling": "Retained the Grit runner, repaired path/source matching, proved a temporary morphology-shelf `./overlays.js` import fails, removed the probe, and cleared the packet-needed blocker."
+      },
+      {
+        "recordedOn": "2026-07-01",
+        "ruleId": "enforce_formatting_and_import_hygiene",
+        "kind": "native-fix-dry-run-falsifier",
+        "attemptedSlice": "workspace hygiene native-fix residual",
+        "finding": "`bun habitat fix --dry-run` is not a clean remediation for the red Biome-backed hygiene gate. It plans broad historical/docs pattern rewrites and reports Markdown parse errors, rather than a bounded formatting/import hygiene mutation.",
+        "handling": "Do not run `bun habitat fix` as the Layer 3 remediation for this row. The row remains a runtime/source residual stop gate until workspace hygiene is handled as its own cleanup or the rule is routed to a narrower native Biome fix path."
       }
     ]
   },
