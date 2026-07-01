@@ -3,8 +3,8 @@
   "id": "prohibit_adapter_local_legacy_generator_logic",
   "title": "Prohibit Adapter Local Legacy Generator Logic",
   "placement": {
-    "niche": "civ7/platform",
-    "blueprint": "civ7-adapter",
+    "niche": "civ7/platform/adapter",
+    "blueprint": "_self",
     "category": "boundary"
   },
   "operation": {
@@ -19,21 +19,23 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-adapter/src/**"]
+      "patterns": [
+        "packages/civ7-adapter/src/**"
+      ]
     },
     {
       "kind": "project-owner"
     }
   ],
   "supportFiles": {
-    "baseline": ".habitat/civ7/platform/_blueprints/civ7-adapter/prohibit_adapter_local_legacy_generator_logic/baseline.json"
+    "baseline": ".habitat/civ7/platform/adapter/rules/prohibit_adapter_local_legacy_generator_logic/baseline.json"
   },
   "runner": {
     "name": "habitat",
     "mode": "script",
     "runtime": "bun",
     "files": {
-      "script": ".habitat/civ7/platform/_blueprints/civ7-adapter/prohibit_adapter_local_legacy_generator_logic/check.ts"
+      "script": ".habitat/civ7/platform/adapter/rules/prohibit_adapter_local_legacy_generator_logic/check.ts"
     }
   }
 }

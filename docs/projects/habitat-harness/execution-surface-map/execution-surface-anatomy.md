@@ -71,7 +71,7 @@ _None._
 | .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/platform/_blueprints/control-orpc/preserve_transport_pure_orpc_contracts/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh | generate-script | build/currentness or ordering tie |
 | apps/docs/project.json | nx-target | build/currentness or ordering tie |
 | apps/docs/project.json | nx-target | build/currentness or ordering tie |

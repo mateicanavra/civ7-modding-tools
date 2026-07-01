@@ -126,7 +126,6 @@ Candidate blueprint-shaped examples include:
 - `global/workspace/_blueprints/project-boundary-model`
 - `docs/_blueprints/docs-site`
 - `habitat/toolkit/_blueprints/service-module`
-- `civ7/platform/_blueprints/civ7-adapter`
 
 Known transitional misfits, not blueprint exemplars:
 
@@ -167,6 +166,14 @@ Known transitional misfits, not blueprint exemplars:
   `civ7/resources/civ7-types/rules` are child resource/package lanes for
   official-resource-derived generated and protected surfaces. They are not
   admitted `civ7-map-policy` or `civ7-types` blueprint kinds.
+- `civ7/platform/adapter/rules`,
+  `civ7/platform/control-orpc/rules`,
+  `civ7/platform/direct-control/session/rules`, and
+  `civ7/platform/game-ui-bridge/rules` are child platform operating-area
+  lanes for adapter import discipline, control-oRPC contract purity,
+  direct-control session lifecycle ownership, and the game-UI bridge bootstrap
+  surface. They are not admitted `adapter`, `control-orpc`,
+  `direct-control-session`, or `bridge` blueprint kinds.
 
 ### Rules Lane
 

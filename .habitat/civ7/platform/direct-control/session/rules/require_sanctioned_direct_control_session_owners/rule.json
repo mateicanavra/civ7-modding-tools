@@ -3,8 +3,8 @@
   "id": "require_sanctioned_direct_control_session_owners",
   "title": "Require Sanctioned Direct Control Session Owners",
   "placement": {
-    "niche": "civ7/platform",
-    "blueprint": "direct-control-session",
+    "niche": "civ7/platform/direct-control/session",
+    "blueprint": "_self",
     "category": "boundary"
   },
   "operation": {
@@ -19,18 +19,26 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"]
+      "patterns": [
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "packages/**/*.ts",
+        "packages/**/*.tsx"
+      ]
     }
   ],
-  "scanRoots": ["apps/mapgen-studio/src", "packages"],
+  "scanRoots": [
+    "apps/mapgen-studio/src",
+    "packages"
+  ],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/platform/_blueprints/direct-control-session/require_sanctioned_direct_control_session_owners/baseline.json"
+    "baseline": ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/platform/_blueprints/direct-control-session/require_sanctioned_direct_control_session_owners/pattern.md"
+      "pattern": ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/pattern.md"
     },
     "patternName": "require_sanctioned_direct_control_session_owners"
   }
