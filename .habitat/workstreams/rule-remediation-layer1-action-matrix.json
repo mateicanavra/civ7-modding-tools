@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "habitat.ruleRemediation.layer1ActionMatrix",
   "status": "canonical-union-operational-record",
-  "generatedOn": "2026-07-01T11:29:51.242Z",
+  "generatedOn": "2026-07-01T11:31:55.951Z",
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -683,6 +683,53 @@
           "`bun habitat check --rule prohibit_recipe_dag_runtime_source_dependencies --json` passed with Grit runner.",
           "`bun habitat check --rule require_recipe_dag_contract_metadata --json` passed with Habitat script runner."
         ]
+      },
+      {
+        "actionClass": "consolidation/dedup",
+        "sliceCandidate": "standard-recipe context guard reclassification",
+        "status": "closed-by-context-admission",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts",
+          "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
+          "mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards.test.ts",
+          "mods/mod-swooper-maps/test/config/standard-authoring-surface-guards.test.ts",
+          "apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts",
+          "apps/mapgen-studio/test/config/defaultConfigSchema.test.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "verify_standard_recipe_artifacts_match_source_stages",
+            "inputClassification": "consolidation/dedup",
+            "wholeRuleFit": "context admission after stale classification repair",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Do not consolidate into package tests or delete. This Habitat script owns generated standard-recipe artifact currentness against source stages/schema/UI/defaults for the standard recipe instance until projection/output parity is parameterized.",
+            "proofLimit": "Focused Habitat check proves the structural parity rule passes now. It does not assert broad artifact blueprint authority."
+          },
+          {
+            "ruleId": "verify_standard_recipe_public_authoring_surface",
+            "inputClassification": "consolidation/dedup",
+            "wholeRuleFit": "context admission after stale classification repair",
+            "ruleIdPlan": "preserve id",
+            "semanticRemediationDecision": "Do not consolidate into package tests or delete. This Habitat script owns the exact standard recipe public authoring surface until a broader parameterized authority exists.",
+            "proofLimit": "Focused Habitat check proves the standard recipe structural authoring-surface rule passes now. It does not assert a generic recipe-stage or authoring-surface blueprint."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "No manifest mutation required.",
+          "`bun habitat check --rule verify_standard_recipe_artifacts_match_source_stages --json` passes.",
+          "`bun habitat check --rule verify_standard_recipe_public_authoring_surface --json` passes.",
+          "Canonical JSON packet-needed consolidation/dedup count reaches zero."
+        ],
+        "verificationEvidence": [
+          "`bun habitat check --rule verify_standard_recipe_artifacts_match_source_stages --json` passed.",
+          "`bun habitat check --rule verify_standard_recipe_public_authoring_surface --json` passed."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
@@ -690,8 +737,7 @@
       "split by owner": 6,
       "positive authority creation": 4,
       "boundary inversion": 14,
-      "closed structure inversion": 8,
-      "consolidation/dedup": 2
+      "closed structure inversion": 8
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
@@ -721,7 +767,7 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 116 current live rules",
-      "layer2": "Recipe-DAG split-rail classification closed one stale consolidation row without manifest mutation. No implementation-ready Layer 3 queue remains.",
+      "layer2": "Standard-recipe context guard classification closed the remaining consolidation/dedup rows. No implementation-ready Layer 3 queue remains.",
       "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
@@ -749,8 +795,7 @@
     "split by owner": 6,
     "positive authority creation": 4,
     "boundary inversion": 14,
-    "closed structure inversion": 8,
-    "consolidation/dedup": 2
+    "closed structure inversion": 8
   },
   "mutationAuthorization": "none; this record authorizes selection and decision-packet work only, not authority-tree mutation by itself.",
   "importantInsets": [
@@ -1782,19 +1827,19 @@
     {
       "ruleId": "verify_standard_recipe_artifacts_match_source_stages",
       "lane": "standard recipe top-level",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": true,
-      "expectedRemediation": "Consolidate with package artifact guard/build validation.",
-      "evidenceNote": "Native test covers source-vs-generated parity.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Stay live as contextual generated standard-recipe artifact parity authority.",
+      "evidenceNote": "Domino 65 confirmed this is not package-test residue: it compares generated standard-artifacts output against source stages, schema, UI metadata, defaults, and the explicit raw-envelope exception for one recipe instance.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json"
     },
     {
       "ruleId": "verify_standard_recipe_public_authoring_surface",
       "lane": "standard recipe top-level",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": true,
-      "expectedRemediation": "Consolidate with native authoring-surface guard or positive public-surface manifest.",
-      "evidenceNote": "Native test is near-equivalent; source derives authoring schema.",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Stay live as contextual standard-recipe public authoring-surface authority.",
+      "evidenceNote": "Domino 65 confirmed this is not package-test residue: it owns exact standard stage public keys, strict schemas, focus paths, and raw-envelope constraints until that surface is parameterized into broader authority.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json"
     },
     {
@@ -3110,8 +3155,9 @@
         "dominoEvidence": "Domino 33, Domino 41, Domino 42",
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained recipe-wide standard-recipe context",
-        "pendingAction": "Generated artifact parity should stay contextual until the projection surface is named and parameterized.",
-        "evidenceNote": "Domino 42 non-move: generated standard-recipe output parity is scoped to one recipe instance."
+        "pendingAction": "No pending action; Domino 65 confirmed this remains honest standard-recipe context authority until a future parameterized authority exists.",
+        "evidenceNote": "Domino 65 confirmed this is not package-test residue: it compares generated standard-artifacts output against source stages, schema, UI metadata, defaults, and the explicit raw-envelope exception for one recipe instance.",
+        "domino65Status": "context admission after source review"
       },
       {
         "ruleId": "verify_standard_recipe_public_authoring_surface",
@@ -3120,8 +3166,9 @@
         "dominoEvidence": "Domino 33, Domino 41",
         "processStatus": "processed: receipt",
         "dispositionBucket": "recipe-wide standard-recipe context",
-        "pendingAction": "Public-surface validators need parameterization before promotion; exact public-key lists remain context authority.",
-        "evidenceNote": "Domino 41 re-read retained this as top-level standard-recipe context because it validates the whole standard recipe public authoring surface."
+        "pendingAction": "No pending action; Domino 65 confirmed this remains honest standard-recipe context authority until a future parameterized authority exists.",
+        "evidenceNote": "Domino 65 confirmed this is not package-test residue: it owns exact standard stage public keys, strict schemas, focus paths, and raw-envelope constraints until that surface is parameterized into broader authority.",
+        "domino65Status": "context admission after source review"
       },
       {
         "ruleId": "require_explicit_mapgen_sdk_opt_in",
