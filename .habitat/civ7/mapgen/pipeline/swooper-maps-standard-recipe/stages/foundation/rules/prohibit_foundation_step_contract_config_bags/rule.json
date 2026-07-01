@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_foundation_step_contract_config_bags",
+  "title": "Prohibit Foundation Step Contract Config Bags",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "foundation recipe step contracts importing domain config bags or using FoundationConfigSchema",
+  "why": "Foundation recipe step contracts must expose decomposed typed inputs rather than root config-bag surfaces.",
+  "remediate": null,
+  "message": "Remove foundation config-bag references from recipe step contract surfaces.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation*/**/*contract.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_step_contract_config_bags/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_step_contract_config_bags/pattern.md"
+    },
+    "patternName": "prohibit_foundation_step_contract_config_bags"
+  }
+}

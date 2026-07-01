@@ -139,19 +139,23 @@ Known transitional misfits, not blueprint exemplars:
   be live context authority. Treat this whole lane as instance/context
   material until a row is generalized under a recipe, recipe-stage, or
   recipe-step blueprint.
-- `civ7/mapgen/domains/foundation/rules` and
+- `civ7/mapgen/domains/foundation/rules`,
+  `civ7/mapgen/domains/morphology/rules`,
+  `civ7/mapgen/domains/narrative/rules`, and
   `civ7/mapgen/domains/ecology/rules` are current concrete-domain context
   rules, not accepted blueprints by label inheritance. Foundation currently has
   both intentional context rules and sorted deferred packets; do not collapse
-  those lanes.
+  those lanes. Narrative appears here because HOTSPOTS overlay publication is
+  source-backed narrative domain ownership, not morphology-stage ownership.
 - `civ7/mapgen/domains/morphology/_remainder` is the first reviewed
   concrete-domain remainder. Its packets have been sorted out of intentional
   `rules/` authority but are not final owners; treat them as visible debt for
   later movement, split, consolidation, projection, or retirement.
 - `civ7/mapgen/domains/foundation/_remainder` contains reviewed foundation
-  packets that are not final context authority: mixed recipe-step plus
-  operation-contract predicates, projection implementation cleanup,
-  strategy-file locality pressure, and rules-index shim cleanup.
+  packets that are not final context authority: helper/import consolidation,
+  strategy-file locality pressure, and rules-index shim cleanup. The earlier
+  mixed operation-contract plus recipe-step predicate has been atomized into
+  live foundation domain and standard-recipe foundation stage rules.
 - `civ7/mapgen/studio/devops/rules`,
   `civ7/mapgen/studio/browser-worker/rules`,
   `civ7/mapgen/studio/recipe-dag/rules`, and
@@ -162,6 +166,11 @@ Known transitional misfits, not blueprint exemplars:
   `_blueprints` lane; treat the child niches as honest Studio subsystems, not
   as proof that packet contents have already been split, generalized,
   retired, or admitted as blueprint authority.
+- `civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules`
+  is the current standard-recipe hydrology stage-prefix lane. It was created
+  only after a mixed morphology-plus-hydrology implementation cleanup rule was
+  atomized; it is not a broad hydrology blueprint or a parent-domain
+  replacement.
 - `civ7/resources/map-policy/rules` and
   `civ7/resources/civ7-types/rules` are child resource/package lanes for
   official-resource-derived generated and protected surfaces. They are not

@@ -9,6 +9,8 @@ Foundation stage entrypoints must not restore wrapper-era advanced config cast o
 language js(typescript)
 
 or {
+  contains r"const (?:mantleOverrideValues|budgetsOverrideValues|meshOverrideValues) = \(advanced\?\.[^)]* \?\? \{\}\) as",
+  contains r"typeof (?:mantleOverrideValues|budgetsOverrideValues|meshOverrideValues)\.",
   `($value ?? {}) as $type`,
   `...($spread)` where {
     $spread <: `typeof $value === "object" ? $value : {}`

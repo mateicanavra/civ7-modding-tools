@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
+  "title": "Prohibit Morphology Contract Legacy Plate Driver Dependencies",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "legacy foundation plate-driver artifact dependencies in morphology contracts",
+  "why": "Morphology belt-driver contracts should use canonical belt driver artifacts rather than retired plate dependency surfaces.",
+  "remediate": null,
+  "message": "Use canonical belt-driver artifacts in morphology contracts.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_contract_legacy_plate_driver_dependencies/pattern.md"
+    },
+    "patternName": "prohibit_morphology_contract_legacy_plate_driver_dependencies"
+  }
+}

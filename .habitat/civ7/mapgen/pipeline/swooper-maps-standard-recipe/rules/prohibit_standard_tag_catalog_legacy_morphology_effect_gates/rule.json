@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
+  "title": "Prohibit Standard Tag Catalog Legacy Morphology Effect Gates",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "old landmassApplied and coastlinesApplied effect gating tokens in the standard recipe tag catalog",
+  "why": "The standard recipe tag catalog should expose current typed effect gates rather than retired engine landmass/coastline gates.",
+  "remediate": null,
+  "message": "Remove legacy morphology effect gating tokens from the standard recipe tag catalog.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/tags.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/tags.ts"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/pattern.md"
+    },
+    "patternName": "prohibit_standard_tag_catalog_legacy_morphology_effect_gates"
+  }
+}
