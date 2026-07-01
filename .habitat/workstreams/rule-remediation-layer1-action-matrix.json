@@ -79,6 +79,18 @@
           "prohibit_legacy_morphology_config_keys"
         ],
         "excludedRows": []
+      },
+      {
+        "actionClass": "placement/category metadata repair",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-studio-recipe-dag-owner-slice.md",
+        "branch": "codex/habitat-studio-recipe-dag-owner-repair",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Repaired `require_studio_ui_recipe_artifact_imports` owner metadata from `habitat` to `mapgen-studio` while preserving its accepted Studio recipe-DAG boundary predicate, placement, category, runner, and support files.",
+        "selectedRows": [
+          "require_studio_ui_recipe_artifact_imports"
+        ],
+        "excludedRows": []
       }
     ],
     "decisionPacketBatches": [
@@ -228,17 +240,7 @@
       "consolidation/dedup": 4,
       "retirement/garbage collection": 1
     },
-    "implementationReadySliceQueue": [
-      {
-        "rank": 1,
-        "slice": "placement/category metadata repair",
-        "status": "ready-but-low-state-space-reduction",
-        "selectedRows": [
-          "require_studio_ui_recipe_artifact_imports"
-        ],
-        "reason": "Layer 1 says the predicate remains acceptable and only ownership metadata needs repair. This is implementation-ready but should not distract from higher-leverage semantic slices unless a clean metadata pass is desired."
-      }
-    ],
+    "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [
       {
         "rank": 1,
@@ -295,8 +297,8 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 120 current live rules",
-      "layer2": "config-key packet closed by retired-key garbage collection; no replacement package tests, Habitat negative assertions, or schema-authority construction required for these retired literals.",
-      "layer3Boundary": "The remaining implementation-ready queue starts with `placement/category metadata repair`; config-key retired literal cleanup is closed.",
+      "layer2": "config-key packet closed by retired-key garbage collection; no replacement package tests, Habitat negative assertions, or schema-authority construction required for these retired literals. Studio recipe-DAG owner metadata repair is also closed.",
+      "layer3Boundary": "No implementation-ready Layer 3 slice remains in the queue. Select the next Layer 2 packet class from `nextLayer2PacketQueue` before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
@@ -308,7 +310,7 @@
     "duplicateLiveRows": []
   },
   "actionClusterCounts": {
-    "no action": 40,
+    "no action": 41,
     "runtime/source validation": 27,
     "split by owner": 6,
     "closed structure inversion": 10,
@@ -316,8 +318,7 @@
     "positive authority creation": 4,
     "boundary inversion": 18,
     "consolidation/dedup": 4,
-    "retirement/garbage collection": 1,
-    "placement/category metadata repair": 1
+    "retirement/garbage collection": 1
   },
   "packetNeededCounts": {
     "no": 50,
@@ -1254,10 +1255,10 @@
     {
       "ruleId": "require_studio_ui_recipe_artifact_imports",
       "lane": "MapGen Studio",
-      "actionDecision": "placement/category metadata repair",
+      "actionDecision": "no action",
       "packetNeeded": false,
-      "expectedRemediation": "Repair ownership metadata while keeping predicate.",
-      "evidenceNote": "Predicate is valid UI artifact boundary, but manifest `ownerProject` is `habitat`.",
+      "expectedRemediation": "Preserve as live Studio recipe-DAG boundary authority.",
+      "evidenceNote": "Predicate is valid UI artifact boundary; owner metadata repaired to `mapgen-studio` in the placement/category metadata repair slice.",
       "currentPath": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/rule.json"
     },
     {
@@ -2776,7 +2777,7 @@
         "processStatus": "processed: receipt",
         "dispositionBucket": "retained Studio recipe-dag lane placement",
         "pendingAction": "Split later if UI artifact consumption becomes broader than the recipe-DAG lane.",
-        "evidenceNote": "Domino 42 non-move: it governs Studio recipe-DAG/UI import boundaries for recipe artifacts; the owner is the Studio recipe-DAG lane, not artifact."
+        "evidenceNote": "Domino 42 non-move: it governs Studio recipe-DAG/UI import boundaries for recipe artifacts; the owner is the Studio recipe-DAG lane, not artifact. Owner project metadata repaired to `mapgen-studio` in the placement/category metadata repair slice."
       },
       {
         "ruleId": "enforce_studio_rpc_eventhub_topology",

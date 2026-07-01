@@ -10,7 +10,7 @@
   "operation": {
     "kind": "check"
   },
-  "ownerProject": "habitat",
+  "ownerProject": "mapgen-studio",
   "lane": "enforced",
   "forbids": "Studio UI importing runtime recipe modules instead of artifact exports",
   "why": "The browser UI consumes schema/default/meta artifacts; runtime recipes stay worker-side.",
