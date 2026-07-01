@@ -1,10 +1,10 @@
 {
   "schemaVersion": 2,
   "id": "prohibit_foundation_strategy_nonlocal_imports",
-  "title": "Prohibit Foundation Strategy Nonlocal Imports",
+  "title": "Require Foundation Strategy Local Imports",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
-    "blueprint": "_remainder",
+    "blueprint": "_self",
     "category": "boundary"
   },
   "operation": {
@@ -34,12 +34,12 @@
   ],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_strategy_nonlocal_imports/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_strategy_nonlocal_imports/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/pattern.md"
     },
     "patternName": "prohibit_foundation_strategy_nonlocal_imports"
   }

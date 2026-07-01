@@ -1,9 +1,10 @@
 ---
 level: error
 ---
-# Prohibit Foundation Strategy Nonlocal Imports
+# Require Foundation Strategy Local Imports
 
-Decomposed foundation tectonics strategies may import only authoring helpers, their local contract, or local rules.
+Decomposed foundation tectonics strategies may import only authoring helpers,
+their local contract, or local rules.
 
 ```grit
 language js(typescript)

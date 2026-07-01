@@ -4,7 +4,7 @@
   "title": "Prohibit Foundation Rules Tectonics Shim Reexports",
   "placement": {
     "niche": "civ7/mapgen/domains/foundation",
-    "blueprint": "_remainder",
+    "blueprint": "_self",
     "category": "boundary"
   },
   "operation": {
@@ -34,12 +34,12 @@
   ],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_rules_tectonics_shim_reexports/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md"
     },
     "patternName": "prohibit_foundation_rules_tectonics_shim_reexports"
   }

@@ -54,16 +54,19 @@ baseline evidence. The rule is a domain-operation boundary guard because its
 whole predicate forbids operation modules from depending on map projection or
 map effect dependency keys.
 
-Strategy-file rows stayed contextual:
+Domino 21 left the strategy-file rows contextual:
 
 - `prohibit_foundation_strategy_nonlocal_imports`
 - `prohibit_foundation_strategy_shared_tectonics_lib_imports`
 - `prohibit_foundation_tectonics_strategy_nonlocal_imports`
 - `prohibit_foundation_tectonics_strategy_shim_imports`
 
-These rows remain operation-internal pressure and consolidation candidates,
-but their current predicates are foundation-scoped and partially overlapping.
-Moving them now would preserve foundation cleanup as operation-kind ontology.
+Those rows were operation-internal pressure and consolidation candidates, but
+their predicates were foundation-scoped and partially overlapping. Domino 50
+later resolved the foundation-local part: `prohibit_foundation_strategy_nonlocal_imports`
+became the live foundation strategy import boundary, and the three narrower
+strategy duplicate rows were retired. This did not admit `operation-strategy`
+or move the rows to `domain-operation`.
 
 ## Frame
 
@@ -282,27 +285,27 @@ blueprint authority at
 
 ### Strategy-file Rules
 
-Review these as operation-internal pressure, not as a prescribed
+Domino 21 reviewed these as operation-internal pressure, not as a prescribed
 `operation-strategy` blueprint move:
 
 - `prohibit_foundation_strategy_nonlocal_imports`
 - `prohibit_foundation_strategy_shared_tectonics_lib_imports`
 
-Domino 21 disposition: leave contextual. The source-order evidence supports
-strategy files as operation-internal implementations, but these predicates are
-still foundation-scoped and tied to decomposed foundation strategy cleanup. Do
-not move them to a separate `operation-strategy` blueprint without later proof
-of independent strategy constructibility.
+Domino 50 follow-up: `prohibit_foundation_strategy_nonlocal_imports` is now the
+live foundation context rule for decomposed strategy import locality. The
+narrower shared-tectonics strategy row was retired as a duplicate. Do not move
+the retained row to a separate `operation-strategy` blueprint without later
+proof of independent strategy constructibility.
 
-Review before moving:
+Domino 21 also reviewed these narrower rows:
 
 - `prohibit_foundation_tectonics_strategy_nonlocal_imports`
 - `prohibit_foundation_tectonics_strategy_shim_imports`
 
-Rationale: these duplicate or narrow the broader strategy-locality rules.
-Domino 21 disposition: leave contextual and mark consolidation pressure. They
-do not yet have a distinct `domain-operation` meaning that would justify
-moving them away from current foundation context.
+Rationale: these duplicated or narrowed the broader strategy-locality rule.
+Domino 50 retired both as duplicates of
+`prohibit_foundation_strategy_nonlocal_imports`; they do not remain live
+authority and were not promoted to `domain-operation`.
 
 Do not move as a whole without splitting:
 

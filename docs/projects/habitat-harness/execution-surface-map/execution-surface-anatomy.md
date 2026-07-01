@@ -14,9 +14,9 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | role | surface count |
 | --- | --- |
 | fixture-support | 15 |
-| adapter | 131 |
-| policy-predicate | 95 |
-| transient-dependency | 102 |
+| adapter | 127 |
+| policy-predicate | 91 |
+| transient-dependency | 99 |
 | entrypoint | 205 |
 | runner-runtime | 124 |
 
@@ -25,8 +25,8 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | family | count | sample read |
 | --- | --- | --- |
 | check-script | 35 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts: Command-check executable surface invoked through Habitat metadata or direct references. |
-| rule-json | 131 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
-| pattern | 85 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
+| rule-json | 127 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
+| pattern | 81 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | structure-spec | 8 | .habitat/blueprints/domain-operation/require_domain_ops_root_presence/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/blueprints/domain/prohibit_domain_artifacts_modules/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner. |
 | apply-pattern | 2 | .habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | generate-script | 2 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.<br>.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
@@ -55,10 +55,7 @@ _None._
 | .habitat/blueprints/domain/restrict_recipes_to_public_domain_surfaces/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts | check-script | build/currentness or ordering tie |
 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_strategy_shared_tectonics_lib_imports/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_tectonics_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_tectonics_strategy_shim_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build/currentness or ordering tie |
@@ -91,6 +88,9 @@ _None._
 | mods/mod-swooper-civ-dacia/package.json | package-script | build/currentness or ordering tie |
 | mods/mod-swooper-civ-dacia/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-civ-dacia/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
