@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleRemediation.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-01T22:45:00.000Z",
+  "updatedOn": "2026-07-01",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule-remediation progress. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 112,
-    "currentRowCount": 112,
-    "retiredHistoricalRowCount": 16,
+    "liveManifestCount": 109,
+    "currentRowCount": 109,
+    "retiredHistoricalRowCount": 19,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -19,31 +19,31 @@
       "positive authority creation": 8,
       "split by owner": 10,
       "runtime/source validation": 3,
-      "retirement/garbage collection": 6,
+      "retirement/garbage collection": 3,
       "context admission": 19,
       "boundary inversion": 5,
       "closed structure inversion": 1
     },
     "packetNeeded": {
-      "false": 112
+      "false": 109
     },
     "layer2Status": {
       "none": 81,
       "packet-complete": 20,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "implementation-ready": 4,
+      "implementation-ready": 1,
       "complete-no-generic-domain-operation-slice": 2,
       "blocked-prior-source-owner-design": 4
     }
   },
   "gateState": {
-    "currentLayer": "Layer 2 corrective re-audit complete for reopened unsafe rows.",
-    "currentGate": "Ready for Layer 3 selection only from rows marked implementation-ready under native-owner/deletion criteria; blocked rows require source-owner design before mutation.",
-    "mutationAuthorization": "No authority-state mutation was performed by this corrective audit. Layer 3 is authorized only after selecting a current implementation-ready slice from this ledger.",
+    "currentLayer": "Layer 3 retired literal deletion slice complete.",
+    "currentGate": "Ready to select the next trusted Layer 3 slice from current implementation-ready/native-owner rows; blocked rows still require source-owner design before mutation.",
+    "mutationAuthorization": "This slice deleted only retired literal Habitat rule packets with scoped source-absence proof and no replacement rail.",
     "nextSliceId": null,
-    "nextLegalAction": "Select a trusted Layer 3 slice: retired literal deletion, native adapter/API rail, tag/effect registry compiler rail, or domain-operation config-facade consolidation. Do not implement stage-kind sidecars, generic Habitat domain-operation promotion, morphology-local owner reshuffles, or workspace-hygiene cleanup as semantic remediation.",
+    "nextLegalAction": "Select the next trusted Layer 3 slice from the canonical ledger, likely domain-operation config-facade consolidation or another native-owner deletion/rail. Do not implement stage-kind sidecars, generic Habitat domain-operation promotion, morphology-local owner reshuffles, or workspace-hygiene cleanup as semantic remediation.",
     "operationalSourceOfTruth": ".habitat/workstreams/rule-remediation-layer1-action-matrix.json",
-    "sourceCommit": "88cd1a344"
+    "sourceCommit": "61126d664"
   },
   "rules": [
     {
@@ -539,22 +539,6 @@
       "currentPath": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_narrative_domain_imports/rule.json"
     },
     {
-      "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "retirement/garbage collection",
-      "packetNeeded": false,
-      "expectedRemediation": "Delete retired runtime-continent literal guard without replacement after source absence proof.",
-      "evidenceNote": "Corrective audit: rule scans exact retired literals in hydrology-climate-baseline; current source uses morphologyArtifacts.topography/shelf and hydrologyClimateBaselineArtifacts only. Stage-kind sidecar authority is rejected.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules/prohibit_hydrology_runtime_continent_step_tokens/rule.json",
-      "layer2Status": "implementation-ready",
-      "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "retire",
-      "ruleIdPlan": "delete id without replacement",
-      "semanticDecision": "Hydrology climate-baseline no longer owns runtime continent identifiers or landmass marking. Current valid state is owned by Hydrology step/artifact contracts and downstream placement/adapter projection.",
-      "residualFollowUp": "None for this rule. Do not preserve exact retired-token garbage collection unless a new concrete recurrence risk appears.",
-      "implementationReadiness": "ready for deletion without replacement"
-    },
-    {
       "ruleId": "prohibit_legacy_compute_tectonics_token",
       "lane": "domains/foundation",
       "actionDecision": "context admission",
@@ -571,22 +555,6 @@
       "expectedRemediation": "Stay live as morphology public-surface import boundary authority.",
       "evidenceNote": "Domino 63 replaced the retired-path proxy with a single Grit public-surface import rule for non-domain consumers; G4 remains recipe-wide domain import authority, while this morphology row owns morphology-specific consumer relapse detection outside the domain internals.",
       "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
-    },
-    {
-      "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "retirement/garbage collection",
-      "packetNeeded": false,
-      "expectedRemediation": "Delete stale map-morphology plate-driver literal guard without replacement after source absence proof.",
-      "evidenceNote": "Corrective audit: plotMountains.ts materializes morphologyArtifacts.mountains/topography; foundationPlates/foundationArtifacts.plates are absent from that file and valid elsewhere.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_map_morphology_legacy_plate_driver_dependencies/rule.json",
-      "layer2Status": "implementation-ready",
-      "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "retire",
-      "ruleIdPlan": "delete id without replacement",
-      "semanticDecision": "Map-morphology mountain projection is already source-owned by its step contract requiring Morphology artifacts. The exact legacy plate-driver tokens are absent from the scanned implementation and remain valid in other source owners.",
-      "residualFollowUp": "If direct artifact bypass becomes a real risk, enforce it through package verify, compiler, or typed deps, not a plotMountains token rule.",
-      "implementationReadiness": "ready for deletion without replacement"
     },
     {
       "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
@@ -793,22 +761,6 @@
       "expectedRemediation": "Admit in runtime child lane.",
       "evidenceNote": "No `runValidated(...)` in scoped runtime surfaces.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/rule.json"
-    },
-    {
-      "ruleId": "prohibit_runtime_continent_contract_tokens",
-      "lane": "standard recipe morphology stage",
-      "actionDecision": "retirement/garbage collection",
-      "packetNeeded": false,
-      "expectedRemediation": "Delete retired runtime-continent contract literal guard without replacement after source absence proof.",
-      "evidenceNote": "Corrective audit: rule scans exact retired literals; current Morphology schema uses landmasses/landmassIdByTile, while placement stamps adapter LandmassRegionId from region slots.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/rule.json",
-      "layer2Status": "implementation-ready",
-      "packetSliceId": "standard-stage-kind-truth-projection-authority",
-      "wholeRuleFit": "retire",
-      "ruleIdPlan": "delete id without replacement",
-      "semanticDecision": "Runtime continent tokens are absent from Morphology contracts/artifacts. Valid state is Morphology landmass truth plus downstream placement/adapter LandmassRegionId projection.",
-      "residualFollowUp": "None for this rule. Keep placement projection tests as the live owner; do not preserve a Morphology literal blacklist.",
-      "implementationReadiness": "ready for deletion without replacement"
     },
     {
       "ruleId": "prohibit_runtime_helper_redeclarations",
@@ -2110,23 +2062,17 @@
     },
     {
       "sliceId": "standard-stage-kind-truth-projection-authority",
-      "status": "corrected-reopened",
+      "status": "blocked-prior-source-owner-design",
       "actionClass": "retirement/garbage collection / native source validation",
       "rules": [
-        "prohibit_map_projection_dependencies_in_physics_contracts",
-        "prohibit_runtime_continent_contract_tokens",
-        "prohibit_hydrology_runtime_continent_step_tokens",
-        "prohibit_map_morphology_legacy_plate_driver_dependencies"
+        "prohibit_map_projection_dependencies_in_physics_contracts"
       ],
-      "reason": "Corrective audit rejected the stage-kind sidecar framing. Three rows are retired-literal deletion candidates; one row has a live truth/projection invariant but belongs to source-native contract/package verification, not a Habitat stage-kind table.",
+      "reason": "Corrective audit rejected the stage-kind sidecar framing. Retired runtime/projection literals have been deleted; the remaining live truth/projection invariant belongs to source-native contract/package verification, not a Habitat stage-kind table.",
       "queueOrder": 2,
       "completedOn": "2026-07-01T22:45:00.000Z",
       "sourceCommit": "88cd1a344",
       "selectedRules": [
-        "prohibit_map_projection_dependencies_in_physics_contracts",
-        "prohibit_runtime_continent_contract_tokens",
-        "prohibit_hydrology_runtime_continent_step_tokens",
-        "prohibit_map_morphology_legacy_plate_driver_dependencies"
+        "prohibit_map_projection_dependencies_in_physics_contracts"
       ],
       "packetSummary": {
         "authorityConclusion": "stage-kind sidecar authority rejected",
@@ -2153,54 +2099,17 @@
           "semanticDecision": "Keep any live truth/projection invariant in source-native contracts or package verify. Do not encode a broad no-artifact:map rule until projection artifact subnamespaces are classified by source authority.",
           "residualFollowUp": "If broadening beyond the existing literal package guard, first decide artifact:map subnamespace semantics in source/native contract authority.",
           "evidenceNote": "Corrective audit: current Habitat rule duplicates literal package-test coverage and is underbroad for imported artifact objects; broad artifact:map prohibition conflicts with live mapArtifacts.foundation* and landmassRegionSlotByTile source artifacts."
-        },
-        {
-          "ruleId": "prohibit_runtime_continent_contract_tokens",
-          "actionDecision": "retirement/garbage collection",
-          "packetNeeded": false,
-          "layer2Status": "implementation-ready",
-          "implementationReadiness": "ready for deletion without replacement",
-          "wholeRuleFit": "retire",
-          "ruleIdPlan": "delete id without replacement",
-          "semanticDecision": "Runtime continent tokens are absent from Morphology contracts/artifacts. Valid state is Morphology landmass truth plus downstream placement/adapter LandmassRegionId projection.",
-          "residualFollowUp": "None for this rule. Keep placement projection tests as the live owner; do not preserve a Morphology literal blacklist.",
-          "evidenceNote": "Corrective audit: rule scans exact retired literals; current Morphology schema uses landmasses/landmassIdByTile, while placement stamps adapter LandmassRegionId from region slots."
-        },
-        {
-          "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
-          "actionDecision": "retirement/garbage collection",
-          "packetNeeded": false,
-          "layer2Status": "implementation-ready",
-          "implementationReadiness": "ready for deletion without replacement",
-          "wholeRuleFit": "retire",
-          "ruleIdPlan": "delete id without replacement",
-          "semanticDecision": "Hydrology climate-baseline no longer owns runtime continent identifiers or landmass marking. Current valid state is owned by Hydrology step/artifact contracts and downstream placement/adapter projection.",
-          "residualFollowUp": "None for this rule. Do not preserve exact retired-token garbage collection unless a new concrete recurrence risk appears.",
-          "evidenceNote": "Corrective audit: rule scans exact retired literals in hydrology-climate-baseline; current source uses morphologyArtifacts.topography/shelf and hydrologyClimateBaselineArtifacts only. Stage-kind sidecar authority is rejected."
-        },
-        {
-          "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
-          "actionDecision": "retirement/garbage collection",
-          "packetNeeded": false,
-          "layer2Status": "implementation-ready",
-          "implementationReadiness": "ready for deletion without replacement",
-          "wholeRuleFit": "retire",
-          "ruleIdPlan": "delete id without replacement",
-          "semanticDecision": "Map-morphology mountain projection is already source-owned by its step contract requiring Morphology artifacts. The exact legacy plate-driver tokens are absent from the scanned implementation and remain valid in other source owners.",
-          "residualFollowUp": "If direct artifact bypass becomes a real risk, enforce it through package verify, compiler, or typed deps, not a plotMountains token rule.",
-          "evidenceNote": "Corrective audit: plotMountains.ts materializes morphologyArtifacts.mountains/topography; foundationPlates/foundationArtifacts.plates are absent from that file and valid elsewhere."
         }
       ],
       "implementationCandidate": {
         "materialGate": false,
         "candidateSlices": [
-          "delete retired runtime/projection literal guards: prohibit_hydrology_runtime_continent_step_tokens, prohibit_map_morphology_legacy_plate_driver_dependencies, prohibit_runtime_continent_contract_tokens",
           "decide native package-verify/source-contract owner before changing prohibit_map_projection_dependencies_in_physics_contracts"
         ],
         "actionsNotAuthorizedByPacket": [
           "creating a Standard Recipe stage-kind table or Habitat sidecar taxonomy",
           "broadly banning artifact:map.* while source-owned mapArtifacts.foundation* remain valid",
-          "preserving retired literal token blacklists without concrete recurrence risk"
+          "recreating retired literal token blacklists without concrete recurrence risk"
         ]
       },
       "reviewDisposition": {
@@ -2213,7 +2122,8 @@
           "three rows are deletion candidates",
           "one row needs native/source owner confirmation"
         ]
-      }
+      },
+      "expectedOutcome": "Three retired literal rows were deleted without replacement; the remaining projection/artifact namespace row is blocked on source-native contract/package verification design."
     },
     {
       "sliceId": "dependency-effect-tag-family-authority",
@@ -3173,6 +3083,18 @@
       ],
       "summary": "Fresh corrective agents re-audited the reopen rows under the native-owner/state-collapse frame. Unsafe stage-kind, generic domain-operation, morphology-local, adapter-token, and workspace-hygiene claims were repaired in the canonical ledger.",
       "handling": "Rows and affected slices now distinguish deletion candidates, native-rail candidates, blocked source-owner design, contextual rules, and workspace-native cleanup. No rule packets were moved or deleted in this audit."
+    },
+    {
+      "findingId": "2026-07-01-retired-runtime-projection-literal-deletion",
+      "recordedOn": "2026-07-01",
+      "kind": "layer3-implementation-slice",
+      "rules": [
+        "prohibit_hydrology_runtime_continent_step_tokens",
+        "prohibit_map_morphology_legacy_plate_driver_dependencies",
+        "prohibit_runtime_continent_contract_tokens"
+      ],
+      "summary": "Deleted three retired runtime/projection literal Habitat rules without replacement after scoped source-absence proof. Valid adjacent concepts remain owned by Hydrology/Morphology source contracts, map artifacts, and placement/adapter projection rather than Habitat token blacklists.",
+      "handling": "Removed rule packets from the live authority tree, removed their live rows from rules[], and recorded retired historical rows in this canonical JSON only."
     }
   ],
   "retiredRules": [
@@ -3331,6 +3253,42 @@
       "evidenceNote": "Current standard tag catalog is constructed from closed source constants in `standard/tag-contracts.ts`, which no longer expose `effect:engine.landmassApplied` or `effect:engine.coastlinesApplied`. Adjacent source-scope recurrence guards remain live.",
       "currentPath": null,
       "retirementRecord": ".habitat/workstreams/rule-remediation-standard-tag-catalog-retired-token-gc.md"
+    },
+    {
+      "ruleId": "prohibit_hydrology_runtime_continent_step_tokens",
+      "lane": "standard recipe hydrology stage",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted retired runtime-continent literal guard without replacement; no concrete recurrence risk remains.",
+      "evidenceNote": "Source absence proof found no westContinent/eastContinent/LandmassRegionId/markLandmassId hits in hydrology-climate-baseline sources. Valid Hydrology state is owned by climate-baseline step/artifact contracts and downstream placement/adapter projection, not a Habitat retired-token blacklist.",
+      "currentPath": null,
+      "retiredBy": "Layer 3 retired literal deletion slice",
+      "retiredReason": "Exact retired literals are absent from the scoped source; replacement would preserve obsolete vocabulary rather than collapse state.",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules/prohibit_hydrology_runtime_continent_step_tokens/rule.json"
+    },
+    {
+      "ruleId": "prohibit_map_morphology_legacy_plate_driver_dependencies",
+      "lane": "standard recipe map stage",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted stale map-morphology plate-driver literal guard without replacement; no concrete recurrence risk remains.",
+      "evidenceNote": "Source absence proof found no foundationPlates or foundationArtifacts.plates references in map-morphology plotMountains.ts. Valid foundationPlates references remain source-owned elsewhere; map-morphology currently consumes morphology topography and mountains artifacts.",
+      "currentPath": null,
+      "retiredBy": "Layer 3 retired literal deletion slice",
+      "retiredReason": "The exact stale plotMountains dependency tokens are absent from the scoped source; broader artifact use remains valid under its source owners.",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_map_morphology_legacy_plate_driver_dependencies/rule.json"
+    },
+    {
+      "ruleId": "prohibit_runtime_continent_contract_tokens",
+      "lane": "standard recipe morphology stage",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted retired runtime-continent contract literal guard without replacement; no concrete recurrence risk remains.",
+      "evidenceNote": "Source absence proof found no westContinent/eastContinent/LandmassRegionId hits in scoped Morphology contract/artifact files. Valid runtime LandmassRegionId projection remains downstream placement/adapter ownership.",
+      "currentPath": null,
+      "retiredBy": "Layer 3 retired literal deletion slice",
+      "retiredReason": "Exact retired Morphology contract literals are absent; Morphology truth and placement projection are already separate source-owned concerns.",
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens/rule.json"
     }
   ],
   "staleRules": [
