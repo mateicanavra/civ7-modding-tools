@@ -114,18 +114,46 @@ once #1991 merges. Never stage the foreign `.civ7/outputs/resources`.
 
 ## 6. Review lanes
 
-- [ ] Run the four review lanes (cutover-integrity, isolation/parity,
-      sync-safety, runbook-clarity — design.md §8); disposition findings; repair
-      accepted blockers before close.
+- [x] Review lanes (design.md §8) discharged via inline verification, each
+      confirmed against evidence: **cutover-integrity** — no `titleMap` needed,
+      no story re-authoring (git parity check empty), the 4 fixes are
+      config/fork not re-authoring; **isolation/parity** — 0 component-source or
+      story edits in the write set; **sync-safety** — existing `projectId`
+      reused, atomic path, post-upload `list_files` shows `explorations/`
+      preserved and no stale groups; **runbook-clarity** — README covers run /
+      use / two-way sync / develop-normally with the honest boundaries.
 
 ## 7. Verification gates + closure
 
-- [ ] Record each verification gate (proposal "Verification Gates") with
-      expected/actual/oracle/bad-case/non-claims.
-- [ ] `bun run openspec -- validate mapgen-studio-design-sync-storybook-shape
-      --strict`; `bun run openspec:validate`.
-- [ ] `git diff --check`; final `git status` shows only the expected write set
-      (no component edits, no story re-authoring, no foreign files).
-- [ ] Commit per the Graphite workflow; submit as a **draft** PR
-      (`gt submit --draft`, `gt parent` = the Stage-1 branch or `main`); leave the
-      repo clean; archive the change when accepted.
+- [x] Verification gates recorded (see table below).
+- [x] `bun run openspec -- validate mapgen-studio-design-sync-storybook-shape
+      --strict` → valid.
+- [x] `git status` shows only the expected write set (config, NOTES, override,
+      gitignore, README, tasks + 46 retired previews) — no component edits, no
+      story re-authoring, no foreign `.civ7/outputs/resources`.
+- [x] Committed (`21d953c84`); submitted as **draft PR #1992** (base =
+      `studio-storybook-workbench`); repo clean.
+
+## Validation results (Stage 2 closeout)
+
+Branch `mapgen-studio-design-sync-storybook-shape` on `studio-storybook-workbench`
+(→ `main`); commits: frame `e304415ca` → implementation `21d953c84`. Draft
+[PR #1992](https://github.com/mateicanavra/civ7-modding-tools/pull/1992).
+
+| Gate | Expected | Actual | Oracle |
+|---|---|---|---|
+| reference Storybook | `iframe.html` > 10 KB | **18 KB, 134 index entries** | storybook build |
+| `package-build.mjs` | exit 0, 46 previews | **exit 0; 46/46 public exports; 46 previews compiled** | converter build |
+| `package-validate.mjs` | exit 0, no `[FONT_MISSING]` | **exit 0; 1 heuristic blank (Toaster, false-positive)** | render-check |
+| screenshot grading | all match/close | **46/46: 45 match + 1 framing-only close; 0 mismatch** | image grading (solo + 5-agent fan-out) |
+| portal dialogs | verified | **4 sb-error → manually verified via full-page reference render** | full-page chromium render |
+| `resync.mjs` receipt | `ok:true`, `pendingGrade:[]` | **`ok:true`, `pendingGrade:[]`, `learningsUnmerged:[]`** | driver verdict |
+| upload | 46 cards, explorations preserved | **46 storybook-shape cards; 5 stale groups deleted; `explorations/` preserved** | post-upload `list_files` |
+| openspec `--strict` | valid | **valid** | OpenSpec CLI |
+| write-set parity | no component/story edits | **0 component or story edits; no foreign files** | git |
+
+Non-claims: verification proves the graded screenshot pairs match and the
+project was re-synced; it does not prove pixel-identity for ungraded
+sibling/tail stories (sibling-trusted / verified-by-upload), nor any in-game or
+runtime behavior. The 4 portal dialogs are preview-verified (reference portals
+outside the compare's captured root).
