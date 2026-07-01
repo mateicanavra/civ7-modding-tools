@@ -1078,6 +1078,64 @@ Closure note:
   positive-kind assertion/deletion pairs.
 - The current live corpus remains 122 rules.
 
+### 53. Unite Layer 2 Packet State Into Canonical Rule Matrix
+
+Purpose: prevent a second source of truth for rule remediation state while
+making Layer 2 resume/queue information parseable.
+
+Disposition:
+
+| Record | Decision | Reason | Follow-up |
+| --- | --- | --- | --- |
+| `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` | extend canonical union | The same JSON record now owns the Layer 1 matrix, former process ledger, stale references, Layer 2 packet index, blockers, and next queue. | Future agents should query `layer2PacketIndex` instead of creating a separate packet-index table. |
+| `.habitat/workstreams/rule-remediation-retirement-slice.md` | source reference repair | The receipt still named the archived Markdown matrix as its source. | Slice receipts may reference the canonical JSON, but they are not operational sources of truth. |
+
+Moves it forward:
+
+- Adds `layer2PacketIndex` inside the canonical JSON union record.
+- Records the two closed Layer 2/3 slices: garbage collection and
+  domain-operation-strategy authority admission.
+- Records the only immediately implementation-ready slice as low-leverage
+  metadata repair.
+- Records the next packet candidates and sealed blockers without duplicating
+  the full current rule matrix.
+
+Closure note:
+
+- No authority-tree rule packets, manifests, runners, support files, or source
+  code changed.
+- This is a process-ground-truth repair only; mutation still requires the
+  appropriate Layer 3 slice record.
+
+### 54. Packet Config-Key Native Schema Replacement
+
+Purpose: complete the Layer 2 decision packet for the stale map-config key
+guards without mutating the authority tree.
+
+Disposition:
+
+| Rule | Decision | Reason | Layer 3 requirement |
+| --- | --- | --- | --- |
+| `prohibit_hydrology_map_config_key_tokens` | replace/narrow by native schema rail, not broad deletion | The Grit predicate overmatches: `lakes` is current public config under `hydrology-hydrography`, while stale stage/internal forms belong to canonical recipe/map config validation. | Add exact native negative tests for `climate`, `climate-baseline`, `climate-refine`, contextual `lakes`, and `rivers`; then retire or narrow the Habitat proxy. |
+| `prohibit_legacy_morphology_config_keys` | replace by native schema rail | `landmass` and `oceanSeparation` are stale lexical cleanup against old TS surfaces; current Morphology public schemas and canonical map config validation own rejection. | Add exact native negative tests for `landmass` and `oceanSeparation`; then retire the Habitat proxy. |
+
+Moves it forward:
+
+- Records the full decision packet under
+  `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
+  `layer2PacketIndex.decisionPacketBatches`.
+- Moves the config-key slice into the implementation-ready queue with explicit
+  native-test proof requirements.
+- Removes this probe from the next Layer 2 packet queue so the next
+  deterministic step is a bounded Layer 3 slice, not more broad packet churn.
+
+Closure note:
+
+- No rule packets, manifests, runners, support files, tests, or source files
+  changed in this packet-only slice.
+- The packet is implementation-ready only with the exact negative tests named
+  above; generated map output remains proof of generation, not config policy.
+
 ### 46. Resume Authority Activation Projection Work
 
 Purpose: return to narrow projection, metadata pruning, and runner discovery

@@ -4,7 +4,7 @@ Status: closed
 
 Branch: `codex/habitat-rule-remediation-garbage-collection`
 
-Source matrix: `.habitat/workstreams/rule-remediation-layer1-action-matrix.md`
+Source matrix: `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
 
 Action class: `retirement/garbage collection`
 

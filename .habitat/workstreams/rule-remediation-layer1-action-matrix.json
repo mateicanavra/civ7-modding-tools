@@ -6,13 +6,279 @@
   "owner": "DRA Habitat authority-tree workstream",
   "controllingFrame": ".habitat/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
-  "purpose": "Single operational source of truth for the current live Habitat rule corpus Layer 1 action matrix, process ledger, stale references, and slice-selection metadata after the first garbage-collection slice and the domain-operation-strategy authority admission slice.",
+  "purpose": "Single operational source of truth for the current live Habitat rule corpus Layer 1 action matrix, process ledger, stale references, Layer 2 packet index, and slice-selection metadata after the first garbage-collection slice and the domain-operation-strategy authority admission slice.",
   "sourceHistory": {
     "originalLayer1Commit": "7494dd91354a2d8bf22251dc02ca31f74510be5b",
     "originalLayer1Branch": "codex/habitat-rule-remediation-frames",
     "supersedingSlice": ".habitat/workstreams/rule-remediation-retirement-slice.md",
     "currentBranchAtCreation": "codex/habitat-rule-remediation-garbage-collection",
     "domainOperationStrategySlice": ".habitat/workstreams/rule-remediation-domain-operation-strategy-slice.md"
+  },
+  "layer2PacketIndex": {
+    "status": "active-inside-canonical-union-record",
+    "sourceCommit": "329db57d4",
+    "sourceBranch": "codex/habitat-domain-operation-strategy-authority",
+    "recordPolicy": "This object is the Layer 2 packet index. Do not create or maintain a parallel Markdown packet index; Markdown workstream files are slice receipts only.",
+    "completedSlices": [
+      {
+        "actionClass": "retirement/garbage collection",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-retirement-slice.md",
+        "branch": "codex/habitat-rule-remediation-garbage-collection",
+        "commit": "fbd4611e5",
+        "status": "closed",
+        "semanticOutcome": "Deleted five clean garbage-collection residues and retained one blocked Studio devops row.",
+        "selectedRows": [
+          "prohibit_domain_tag_artifact_shim_imports",
+          "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+          "prohibit_narrative_swatches_stage_token",
+          "require_full_profile_domain_stage_roots",
+          "prohibit_morphology_dual_read_tokens"
+        ],
+        "excludedRows": [
+          {
+            "ruleId": "prohibit_retired_studio_devlive_daemon_file",
+            "reason": "Direct deletion is blocked until Studio dev topology survivor authority is repaired or explicitly consolidated."
+          }
+        ]
+      },
+      {
+        "actionClass": "product-backed blueprint authority creation",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-domain-operation-strategy-slice.md",
+        "branch": "codex/habitat-domain-operation-strategy-authority",
+        "commit": "329db57d4",
+        "status": "closed",
+        "semanticOutcome": "Admitted domain-operation-strategy as a constructible MapGen blueprint authority without moving current rule packets.",
+        "selectedAuthorities": [
+          "domain-operation-strategy"
+        ],
+        "selectedRows": [],
+        "explicitNonMoveRows": [
+          {
+            "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
+            "reason": "Foundation-specific strategy locality guard, not every valid domain-operation strategy."
+          },
+          {
+            "ruleId": "prohibit_foundation_duplicate_math_helper_redefinitions",
+            "reason": "Helper-surface consolidation across strategy and non-strategy files, not strategy authority."
+          },
+          {
+            "ruleId": "validate_ecology_op_contract_quality",
+            "reason": "Operation contract-quality pressure, not strategy implementation authority."
+          }
+        ]
+      }
+    ],
+    "decisionPacketBatches": [
+      {
+        "actionClass": "runtime/source validation",
+        "sliceCandidate": "config-key native-schema retirement probe",
+        "status": "packet-complete-awaiting-layer3",
+        "freshReviewers": [
+          {
+            "agent": "Plato",
+            "role": "source investigator",
+            "verdict": "Hydrology requires split/context qualification; Morphology can be replaced by native rail after exact injected native tests."
+          },
+          {
+            "agent": "Zeno",
+            "role": "proof rail reviewer",
+            "verdict": "Both rows are native-rail replacement candidates, but deletion must be backed by exact negative tests; Hydrology overmatches live `hydrology-hydrography.lakes` vocabulary."
+          }
+        ],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_map_config_key_tokens/rule.json",
+          ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_map_config_key_tokens/pattern.md",
+          ".habitat/civ7/mapgen/domains/hydrology/_remainder/prohibit_hydrology_map_config_key_tokens/baseline.json",
+          ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_config_keys/rule.json",
+          ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_config_keys/pattern.md",
+          ".habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_config_keys/baseline.json",
+          "mods/mod-swooper-maps/src/maps/configs/canonical.ts",
+          "packages/mapgen-core/src/compiler/normalize.ts",
+          "packages/mapgen-core/src/compiler/recipe-compile.ts",
+          "packages/mapgen-core/src/authoring/recipe-config-schema.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-public-config.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/index.ts",
+          "mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts",
+          "mods/mod-swooper-maps/test/standard-compile-errors.test.ts",
+          "mods/mod-swooper-maps/src/maps/__type_tests__/createMap-config.inference.ts"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_hydrology_map_config_key_tokens",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "split/context-qualified replacement required",
+            "ruleIdPlan": "replace by native rail only after exact tests; do not delete as a broad lexical predicate",
+            "semanticRemediationDecision": "The current Grit predicate is too broad because it lexically forbids `lakes` and other tokens in map-source paths even though `hydrology-hydrography.lakes` is a current public config key. Native recipe schema and canonical map config validation own stale-stage/internal-key rejection, but the Layer 3 slice must qualify Hydrology clauses and add exact negative tests before retiring or narrowing the Habitat proxy.",
+            "clauseTable": [
+              {
+                "clause": "`climate:`",
+                "owner": "standard recipe config schema / canonical map config validation",
+                "falseOwner": "hydrology-domain lexical Grit rule",
+                "proofClass": "source/schema proof",
+                "packetDisposition": "replace by native rail after exact negative test"
+              },
+              {
+                "clause": "`\"climate-baseline\":`",
+                "owner": "hydrology climate-baseline public schema",
+                "falseOwner": "legacy internal step-token guard",
+                "proofClass": "source/schema plus compile-error proof",
+                "packetDisposition": "replace by native rail after exact negative test"
+              },
+              {
+                "clause": "`\"climate-refine\":`",
+                "owner": "hydrology climate-refine public schema",
+                "falseOwner": "legacy internal step-token guard",
+                "proofClass": "source/schema proof",
+                "packetDisposition": "replace by native rail after exact negative test"
+              },
+              {
+                "clause": "`lakes:`",
+                "owner": "mixed: valid under `hydrology-hydrography`; invalid under `map-hydrology` or raw projection/internal config",
+                "falseOwner": "broad lexical forbid",
+                "proofClass": "source/schema plus contextual negative proof",
+                "packetDisposition": "split/contextualize; do not broadly forbid"
+              },
+              {
+                "clause": "`rivers:`",
+                "owner": "hydrology hydrography public schema (`riverNetwork`) or map-rivers projection public schema depending context",
+                "falseOwner": "broad lexical forbid",
+                "proofClass": "source/schema proof",
+                "packetDisposition": "replace by native rail after exact contextual negative test"
+              }
+            ],
+            "proofLimit": "Existing schema and compile tests prove closed public surfaces generally, but do not yet prove every named stale token through exact native negative fixtures. Generated map output is proof of generation only, not policy."
+          },
+          {
+            "ruleId": "prohibit_legacy_morphology_config_keys",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "native-rail replacement candidate",
+            "ruleIdPlan": "delete Habitat lexical proxy after exact native negative tests prove `landmass` and `oceanSeparation` are rejected",
+            "semanticRemediationDecision": "The stale `landmass` and `oceanSeparation` map/test tokens are better owned by canonical JSON map config validation and the closed standard recipe public schema. The current Habitat rule scans old TS-oriented surfaces; Layer 3 should add exact negative tests to the native config rail, then retire the Habitat rule.",
+            "clauseTable": [
+              {
+                "clause": "`landmass:`",
+                "owner": "standard recipe public config schema / canonical map config validation",
+                "falseOwner": "morphology-domain lexical Grit rule",
+                "proofClass": "source/schema plus exact native negative test",
+                "packetDisposition": "replace by native rail"
+              },
+              {
+                "clause": "`oceanSeparation:`",
+                "owner": "standard recipe public config schema / canonical map config validation",
+                "falseOwner": "morphology-domain lexical Grit rule",
+                "proofClass": "source/schema plus exact native negative test",
+                "packetDisposition": "replace by native rail"
+              }
+            ],
+            "proofLimit": "Existing public-key tests show current Morphology public surfaces and shipped configs are closed, but exact stale token fixtures must be added before deleting the Habitat proxy."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Add exact native negative tests for Hydrology `climate`, `climate-baseline`, `climate-refine`, contextual `lakes`, and `rivers` through `deriveRecipeConfigSchema` / `normalizeStrict` or `standardRecipe.compileConfig`.",
+          "Add exact native negative tests for Morphology `landmass` and `oceanSeparation` through canonical map config or recipe schema validation.",
+          "Run focused config/compiler tests and selected Habitat checks for the retained/deleted rule ids.",
+          "If the Hydrology lexical proxy is deleted, prove no live current `hydrology-hydrography.lakes` authoring path is banned by the replacement."
+        ],
+        "verificationEvidence": [
+          "Fresh source investigator reported `bun test mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts` and `bun test mods/mod-swooper-maps/test/standard-compile-errors.test.ts` passed.",
+          "Fresh proof reviewer reported `bun habitat check --json --rule prohibit_hydrology_map_config_key_tokens` and `bun habitat check --json --rule prohibit_legacy_morphology_config_keys` passed, plus focused compiler/config tests passed."
+        ]
+      }
+    ],
+    "remainingPacketNeededCounts": {
+      "runtime/source validation": 27,
+      "boundary inversion": 18,
+      "closed structure inversion": 10,
+      "split by owner": 6,
+      "positive authority creation": 4,
+      "consolidation/dedup": 4,
+      "retirement/garbage collection": 1
+    },
+    "implementationReadySliceQueue": [
+      {
+        "rank": 1,
+        "slice": "config-key native-schema replacement",
+        "status": "implementation-ready-after-recorded-layer2-packet",
+        "selectedRows": [
+          "prohibit_hydrology_map_config_key_tokens",
+          "prohibit_legacy_morphology_config_keys"
+        ],
+        "reason": "Layer 2 found the native schema/config rail exists and is the correct owner. Layer 3 must add exact native negative tests, then retire or narrow the Habitat lexical proxies according to the packet decisions."
+      },
+      {
+        "rank": 2,
+        "slice": "placement/category metadata repair",
+        "status": "ready-but-low-state-space-reduction",
+        "selectedRows": [
+          "require_studio_ui_recipe_artifact_imports"
+        ],
+        "reason": "Layer 1 says the predicate remains acceptable and only ownership metadata needs repair. This is implementation-ready but should not distract from higher-leverage semantic slices unless a clean metadata pass is desired."
+      }
+    ],
+    "nextLayer2PacketQueue": [
+      {
+        "rank": 1,
+        "actionClass": "boundary inversion",
+        "sliceCandidate": "G4 public-domain import matrix",
+        "selectedRows": [
+          "prohibit_relative_domain_reaches_from_recipes_and_maps",
+          "require_public_domain_surfaces_in_recipes_and_maps",
+          "restrict_recipes_to_public_domain_surfaces"
+        ],
+        "reason": "These rows already share one expected remediation: fold into a positive G4 allowed import matrix. They are a coherent boundary-inversion packet candidate."
+      },
+      {
+        "rank": 2,
+        "actionClass": "closed structure inversion",
+        "sliceCandidate": "standard recipe topology and wrapper-shape inversion",
+        "selectedRows": [
+          "preserve_standard_stage_topology_and_path_invariants",
+          "prohibit_wrapper_only_advanced_config"
+        ],
+        "reason": "These rows point at admitted recipe/config structures that may eliminate negative shape checks, but they need stronger native structure proof before mutation."
+      }
+    ],
+    "sealedDecisionBlockers": [
+      {
+        "kind": "blocked clean retirement",
+        "rules": [
+          "prohibit_retired_studio_devlive_daemon_file"
+        ],
+        "reason": "File absence is proven, but survivor authority is not sealed because adjacent Studio dev topology split this absence into its own current rule."
+      },
+      {
+        "kind": "hairy semantic split",
+        "rules": [
+          "ensure_map_policy_dependency_independence",
+          "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+          "require_public_domain_surfaces_in_tests",
+          "require_standard_recipe_tag_catalog_owner_tokens",
+          "require_typed_placement_outcomes_before_apply",
+          "validate_mapgen_docs_anchors_and_references"
+        ],
+        "reason": "Each row has mixed owners or proof shapes and needs clause-level packets before any authority-tree mutation."
+      },
+      {
+        "kind": "positive authority plus deletion pair",
+        "rules": [
+          "prohibit_ambient_rng_in_authored_generation",
+          "prohibit_foundation_duplicate_math_helper_redefinitions",
+          "prohibit_standard_tag_catalog_legacy_morphology_effect_gates",
+          "validate_ecology_op_contract_quality"
+        ],
+        "reason": "Each row needs a positive authority assertion paired with proxy deletion, retention, or movement. User guidance says to stop before this class unless the authority is cleanly product-backed and no deletion pair is required."
+      }
+    ],
+    "resumeState": {
+      "layer1": "complete and reconciled for 122 current live rules",
+      "layer2": "two slices closed and one additional decision-packet batch complete. More packets remain, but the next deterministic move is now a bounded Layer 3 config-key native-schema replacement slice rather than broad packet production.",
+      "layer3Boundary": "The highest-leverage implementation-ready slice is `config-key native-schema replacement`; it must add exact native negative tests before retiring or narrowing the two Habitat lexical proxies.",
+      "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
+    }
   },
   "corpus": {
     "liveManifestCount": 122,
