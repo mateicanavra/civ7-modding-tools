@@ -116,8 +116,8 @@
         ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
         ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
         ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md"
       ]
     },
     {
@@ -294,10 +294,10 @@
         ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_removed_foundation_wrap_polar_maturity_tokens/pattern.md",
         ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/pattern.md",
         ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_narrative_domain_imports/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/support.pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_runtime_local_config_default_merging/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -959,9 +959,9 @@
       "references": 4,
       "sourceCount": 4,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_validation_and_compiler_imports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md",
         ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md"
       ]
     },
@@ -1694,7 +1694,7 @@
       "sourceCount": 2,
       "sampleSources": [
         ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -4866,7 +4866,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5280,7 +5280,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5307,7 +5307,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5316,7 +5316,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5325,7 +5325,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5352,7 +5352,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5415,7 +5415,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5451,7 +5451,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5739,7 +5739,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5748,7 +5748,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -5757,7 +5757,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -6405,7 +6405,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -6738,7 +6738,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -7602,7 +7602,7 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -13990,207 +13990,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
-      "path": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
-          "mods/mod-swooper-maps/src/",
-          "mods/mod-swooper-maps/src/domain/ecology/config.ts",
-          "mods/mod-swooper-maps/src/maps/config.test.ts",
-          "mods/mod-swooper-maps/src/maps/current.ts",
-          "mods/mod-swooper-maps/src/maps/demo.ts",
-          "mods/mod-swooper-maps/src/maps/fractal.ts",
-          "mods/mod-swooper-maps/src/maps/readme.ts",
-          "mods/mod-swooper-maps/src/maps/terms.ts",
-          "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
-          "mods/other-mod/src/maps/demo.ts",
-          "packages/mapgen-core/src/maps/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "generate",
-          "rm"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "generate",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "generatedConfig",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/config.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/current.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/fractal.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/readme.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/terms.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/other-mod/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/maps/demo.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
-      "path": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
       "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
       "surfaceKind": "pattern",
@@ -15733,6 +15532,207 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
+          "mods/mod-swooper-maps/src/",
+          "mods/mod-swooper-maps/src/domain/ecology/config.ts",
+          "mods/mod-swooper-maps/src/maps/config.test.ts",
+          "mods/mod-swooper-maps/src/maps/current.ts",
+          "mods/mod-swooper-maps/src/maps/demo.ts",
+          "mods/mod-swooper-maps/src/maps/fractal.ts",
+          "mods/mod-swooper-maps/src/maps/readme.ts",
+          "mods/mod-swooper-maps/src/maps/terms.ts",
+          "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
+          "mods/other-mod/src/maps/demo.ts",
+          "packages/mapgen-core/src/maps/demo.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "generate",
+          "rm"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "generatedConfig",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/config.test.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/current.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/fractal.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/readme.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/terms.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/other-mod/src/maps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/mapgen-core/src/maps/demo.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -28245,207 +28245,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
-      "path": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
-          "mods/mod-swooper-maps/src/",
-          "mods/mod-swooper-maps/src/domain/ecology/config.ts",
-          "mods/mod-swooper-maps/src/maps/config.test.ts",
-          "mods/mod-swooper-maps/src/maps/current.ts",
-          "mods/mod-swooper-maps/src/maps/demo.ts",
-          "mods/mod-swooper-maps/src/maps/fractal.ts",
-          "mods/mod-swooper-maps/src/maps/readme.ts",
-          "mods/mod-swooper-maps/src/maps/terms.ts",
-          "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
-          "mods/other-mod/src/maps/demo.ts",
-          "packages/mapgen-core/src/maps/demo.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "generate",
-          "rm"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "generate",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "generatedConfig",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/config.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/current.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/fractal.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/readme.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/terms.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/other-mod/src/maps/demo.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/maps/demo.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
-      "path": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
       "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
       "surfaceKind": "pattern",
@@ -29988,6 +29787,207 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
+          "mods/mod-swooper-maps/src/",
+          "mods/mod-swooper-maps/src/domain/ecology/config.ts",
+          "mods/mod-swooper-maps/src/maps/config.test.ts",
+          "mods/mod-swooper-maps/src/maps/current.ts",
+          "mods/mod-swooper-maps/src/maps/demo.ts",
+          "mods/mod-swooper-maps/src/maps/fractal.ts",
+          "mods/mod-swooper-maps/src/maps/readme.ts",
+          "mods/mod-swooper-maps/src/maps/terms.ts",
+          "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
+          "mods/other-mod/src/maps/demo.ts",
+          "packages/mapgen-core/src/maps/demo.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "generate",
+          "rm"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "generatedConfig",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/mod/src/recipes/standard/stages/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/config.test.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/current.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/fractal.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/readme.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/maps/terms.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/browser-test/stages/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.test.tsx",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/config.tsx",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/other-mod/src/maps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/mapgen-core/src/maps/demo.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [

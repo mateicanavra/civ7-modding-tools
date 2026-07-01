@@ -233,8 +233,6 @@ _None._
 | .habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/domains/narrative/rules/require_narrative_hotspot_overlay_owner/check.mjs | check-script | ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs |
 | .habitat/civ7/mapgen/domains/narrative/rules/require_narrative_hotspot_overlay_owner/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md | pattern | generate; rm; generatedConfig |
-| .habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build; ../contract.js; ./builders |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md | pattern | mods/; mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts; mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.tsx |
@@ -258,6 +256,8 @@ _None._
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/standard/tags; grit<br>language js(typescript)<br><br>contains r"(?:landmassApplied\|coastlinesApplied\|effect:engine\.landmassApplied\|effect:engine\.coastlinesApplied)" where {<br>  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/tags\.ts$"<br>} |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_standard_tag_catalog_legacy_morphology_effect_gates/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md | pattern | generate; rm; generatedConfig |
+| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/check.mjs | check-script | ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/check.mjs | check-script | ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs |

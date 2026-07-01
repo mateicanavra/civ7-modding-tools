@@ -56,9 +56,9 @@ _None._
 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_module_imports/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs | check-script | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts | check-script | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/check.mjs | check-script | build/currentness or ordering tie |

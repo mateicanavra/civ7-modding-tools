@@ -3,8 +3,8 @@
   "id": "prohibit_wrapper_only_advanced_config",
   "title": "Prohibit Wrapper Only Advanced Config",
   "placement": {
-    "niche": "civ7/mapgen/pipeline/config",
-    "blueprint": "_remainder",
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
     "category": "structure"
   },
   "operation": {
@@ -30,12 +30,12 @@
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard", "mods/mod-swooper-maps/src/maps"],
   "hookCheck": true,
   "supportFiles": {
-    "baseline": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
     },
     "patternName": "prohibit_wrapper_only_advanced_config"
   }

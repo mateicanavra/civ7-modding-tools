@@ -114,7 +114,7 @@
         "branch": "codex/habitat-standard-recipe-topology-rail",
         "commit": "branch-head",
         "status": "closed",
-      "semanticOutcome": "Replaced the hardcoded standard recipe stage-root structure inventory with a source-derived Habitat script check that parses the contract manifest/runtime recipe source as active-stage authority and keeps shared hubs admitted as support directories.",
+        "semanticOutcome": "Replaced the hardcoded standard recipe stage-root structure inventory with a source-derived Habitat script check that parses the contract manifest/runtime recipe source as active-stage authority and keeps shared hubs admitted as support directories.",
         "selectedRows": [
           "preserve_standard_stage_topology_and_path_invariants"
         ],
@@ -124,6 +124,18 @@
             "reason": "The row is G9 wrapper-only advanced recurrence pressure, not stage-root topology. It stays live and is requeued for consolidation/source-validation without package-test blacklist assertions."
           }
         ]
+      },
+      {
+        "actionClass": "consolidation/dedup",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-g9-advanced-guard-context-slice.md",
+        "branch": "codex/habitat-g9-advanced-guard-context",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Admitted the G9 wrapper-only `advanced` guard from config `_remainder` into the standard recipe rules lane as live context authority, without deleting it or replacing it with package-owned tests.",
+        "selectedRows": [
+          "prohibit_wrapper_only_advanced_config"
+        ],
+        "excludedRows": []
       }
     ],
     "decisionPacketBatches": [
@@ -378,7 +390,7 @@
             "inputClassification": "closed structure inversion",
             "wholeRuleFit": "whole-rule fit after support-hub distinction",
             "ruleIdPlan": "preserve id and replace structure runner with source-derived Habitat script",
-        "semanticRemediationDecision": "Active standard recipe stage roots derive from `contract-manifest.ts` and the `orderStandardStages` call in `recipe.ts`. Bare `ecology`, `foundation`, and `morphology` children are admitted support directories, not active stage ids. Retired stage roots and unexpected children remain forbidden.",
+            "semanticRemediationDecision": "Active standard recipe stage roots derive from `contract-manifest.ts` and the `orderStandardStages` call in `recipe.ts`. Bare `ecology`, `foundation`, and `morphology` children are admitted support directories, not active stage ids. Retired stage roots and unexpected children remain forbidden.",
             "proofLimit": "The script proves top-level stage-root topology and entrypoint existence. Stage order and step parity remain owned by adjacent runtime/contract rules; support hub rehoming remains future work."
           },
           {
@@ -399,13 +411,62 @@
         ],
         "verificationEvidence": [
           "Focused `bun habitat check --rule preserve_standard_stage_topology_and_path_invariants --json` passed after the runner replacement.",
-        "The new check parses `recipe.ts` and `contract-manifest.ts`, compares their stage ids, and checks stage-root children from the filesystem.",
+          "The new check parses `recipe.ts` and `contract-manifest.ts`, compares their stage ids, and checks stage-root children from the filesystem.",
           "Source review confirmed the `advanced` row is G9 recurrence guard pressure and not clean stage-root topology."
         ],
         "exclusions": [
           {
             "surface": "wrapper-only advanced config guard",
             "reason": "Excluded from this topology mutation because docs keep it as a Habitat guard, but its current lexical predicate spans recipe/map config surfaces and needs a separate consolidation packet."
+          }
+        ]
+      },
+      {
+        "actionClass": "consolidation/dedup",
+        "sliceCandidate": "G9 wrapper-only advanced config guard consolidation",
+        "status": "closed-by-context-admission",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
+          ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/pattern.md",
+          "docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md",
+          "docs/projects/engine-refactor-v1/architecture-normalization-packet.md",
+          "docs/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md",
+          "packages/mapgen-core/src/authoring/stage.ts",
+          "packages/mapgen-core/src/authoring/recipe-config-schema.ts",
+          "packages/mapgen-core/src/compiler/normalize.ts",
+          ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json",
+          ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/rule.json"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "prohibit_wrapper_only_advanced_config",
+            "inputClassification": "consolidation/dedup",
+            "wholeRuleFit": "context admission",
+            "ruleIdPlan": "preserve id and move packet to standard recipe rules lane",
+            "semanticRemediationDecision": "Retain the G9 wrapper-only `advanced` source-shape guard and admit it to the standard recipe context. Do not delete it: current guardrail docs name this as live Habitat recurrence protection. Do not move it into package tests: source schemas own config behavior, while this Grit rule owns source-shape relapse detection across standard recipe source and map configs.",
+            "proofLimit": "The move proves authority placement and current absence of wrapper-only `advanced` keys. It does not create a generic config blueprint, and it does not claim broader public-config authority."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Focused Habitat check passes for `prohibit_wrapper_only_advanced_config` from the new path.",
+          "Old `_remainder` manifest path is absent from the live authority tree.",
+          "Canonical JSON current rows and live manifests reconcile at 118.",
+          "No package-owned tests were introduced."
+        ],
+        "verificationEvidence": [
+          "Source scan found no current `advanced:` or `\"advanced\":` keys under standard recipe source or maps.",
+          "Focused `bun habitat check --rule prohibit_wrapper_only_advanced_config --json` passed before the move; rerun after the move is required for closure.",
+          "G9 docs explicitly retain the Habitat wrapper-only advanced guard."
+        ],
+        "exclusions": [
+          {
+            "surface": "generic config blueprint",
+            "reason": "The workstream has not admitted a generic config blueprint or public-config kind; this row is live standard-recipe context authority for now."
+          },
+          {
+            "surface": "package tests",
+            "reason": "Tests are not stale-key blacklist drawers; source schemas own behavior and Habitat owns this source-shape recurrence guard."
           }
         ]
       }
@@ -416,21 +477,11 @@
       "closed structure inversion": 8,
       "split by owner": 6,
       "positive authority creation": 4,
-      "consolidation/dedup": 5,
+      "consolidation/dedup": 4,
       "retirement/garbage collection": 1
     },
     "implementationReadySliceQueue": [],
-    "nextLayer2PacketQueue": [
-      {
-        "rank": 1,
-        "actionClass": "consolidation/dedup",
-        "sliceCandidate": "G9 wrapper-only advanced config guard consolidation",
-        "selectedRows": [
-          "prohibit_wrapper_only_advanced_config"
-        ],
-        "reason": "Docs explicitly keep wrapper-only `advanced` as G9 Habitat guard pressure; source schemas are strict, but the current lexical guard spans recipe and map config surfaces and needs a separate consolidation/source-validation packet before mutation."
-      }
-    ],
+    "nextLayer2PacketQueue": [],
     "sealedDecisionBlockers": [
       {
         "kind": "blocked clean retirement",
@@ -464,8 +515,8 @@
     ],
     "resumeState": {
       "layer1": "complete and reconciled for 118 current live rules",
-      "layer2": "Standard recipe stage topology closed by deriving active stage roots from the contract manifest/runtime recipe. The wrapper-only `advanced` guard was excluded and requeued as G9 consolidation/source-validation pressure.",
-      "layer3Boundary": "No implementation-ready Layer 3 slice remains in the queue. Select the next Layer 2 packet class from `nextLayer2PacketQueue` before further authority-state mutation.",
+      "layer2": "G9 wrapper-only advanced guard packet closed by admitting the current Grit predicate into the standard recipe context. No implementation-ready Layer 3 queue remains.",
+      "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
@@ -1205,12 +1256,12 @@
     },
     {
       "ruleId": "prohibit_wrapper_only_advanced_config",
-      "lane": "pipeline config/contracts/runtime",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": true,
-      "expectedRemediation": "Create a G9 wrapper-only `advanced` consolidation packet; retain the current Grit guard until standard-recipe public authoring and map-config validation rails can absorb or replace it without turning package tests into stale-key junk drawers.",
-      "evidenceNote": "Docs explicitly identify wrapper-only `advanced` as G9 Habitat guard pressure. Source schemas are strict, but this row spans recipe source and map config surface and was not safe to retire inside the topology slice.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json"
+      "lane": "standard recipe top-level",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Implemented: admitted the G9 wrapper-only `advanced` guard into the standard recipe rules lane as live context authority.",
+      "evidenceNote": "G9 docs explicitly retain a Habitat guard for standard recipe source and map configs. The current Grit predicate is source-shape recurrence protection, passes, and does not belong in a package-test junk drawer or a generic config remainder.",
+      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json"
     },
     {
       "ruleId": "protect_generated_map_entrypoints_from_hand_edits",
@@ -2610,13 +2661,13 @@
       },
       {
         "ruleId": "prohibit_wrapper_only_advanced_config",
-        "currentPlacement": "blueprint=_remainder; niche=civ7/mapgen/pipeline/config; category=structure; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/pipeline/config/_remainder/prohibit_wrapper_only_advanced_config/rule.json",
-        "dominoEvidence": "Domino 35, Domino 59",
+        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/pipeline/swooper-maps-standard-recipe; category=structure; operation=check",
+        "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/rule.json",
+        "dominoEvidence": "Domino 35, Domino 59, Domino 60",
         "processStatus": "processed: receipt",
-        "dispositionBucket": "G9 wrapper-only advanced guard consolidation pressure",
-        "pendingAction": "Create a G9 consolidation/source-validation packet. Retain the current Grit guard until standard-recipe public authoring and map-config validation rails can absorb or replace it without adding package-test blacklist assertions.",
-        "evidenceNote": "Domino 59 excluded this row from the topology mutation: docs name wrapper-only `advanced` as recurrence guard pressure, but the current predicate spans recipe source and maps and needs a separate consolidation packet."
+        "dispositionBucket": "standard recipe G9 context guard",
+        "pendingAction": "No action. Keep as standard recipe context authority until a broader public-config or map-config authority is admitted and can absorb the guard without package-test blacklist assertions.",
+        "evidenceNote": "Domino 60 moved this out of `_remainder` because current G9 docs make the guard live standard-recipe/map-config recurrence authority, while source schemas and generated-entrypoint checks do not fully replace the source-shape predicate."
       },
       {
         "ruleId": "prohibit_bare_value_export_all_from_contract_surfaces",
