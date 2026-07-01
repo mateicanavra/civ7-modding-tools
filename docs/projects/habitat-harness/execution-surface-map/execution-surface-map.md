@@ -4,16 +4,16 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 117 `rule.json`, 6 `structure.toml`, 0 active source-check `.rule.mjs`, 0 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 116 `rule.json`, 5 `structure.toml`, 0 active source-check `.rule.mjs`, 0 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
 | check-script | 34 |
-| rule-json | 117 |
+| rule-json | 116 |
 | pattern | 73 |
-| structure-spec | 6 |
+| structure-spec | 5 |
 | apply-pattern | 1 |
 | generate-script | 2 |
 | operation-note | 3 |
@@ -29,9 +29,9 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | role | count |
 | --- | --- |
 | command_check_executor | 34 |
-| runner_metadata | 117 |
+| runner_metadata | 116 |
 | policy_pattern | 74 |
-| structure_authority | 6 |
+| structure_authority | 5 |
 | operation_surface | 6 |
 | workspace_entrypoint | 203 |
 | toolkit_runner | 124 |
@@ -41,8 +41,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | anatomy role | surface count |
 | --- | --- |
 | fixture-support | 13 |
-| adapter | 117 |
-| policy-predicate | 80 |
+| adapter | 116 |
+| policy-predicate | 79 |
 | transient-dependency | 98 |
 | entrypoint | 205 |
 | runner-runtime | 124 |
@@ -72,7 +72,7 @@ _None._
 
 | invoker | count |
 | --- | --- |
-| unknown | 235 |
+| unknown | 233 |
 | package | 140 |
 | nx | 65 |
 | direct-script | 3 |
@@ -83,7 +83,7 @@ _None._
 | bucket | count |
 | --- | --- |
 | package_boundary_tie | 92 |
-| unknown_invocation | 235 |
+| unknown_invocation | 233 |
 | nx_ordering_tie | 101 |
 | mutation_surface | 114 |
 | package_invoked | 205 |
@@ -140,7 +140,7 @@ _None._
 | .habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh | check-script | bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts | check-script | git; node:child_process; node:fs; node:path; node:url |
 | .habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs | check-script | git; node:child_process; node:fs; node:path |
-| .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | bun --watch; bun src/server/daemon/daemon.ts; git; node:child_process; node:fs; node:path; node:url |
+| .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | bun --conditions bun-source --watch src/server/daemon/daemon.ts; bun --watch; git; node:child_process; node:fs; node:path; node:url |
 
 ## Unknown Or Unclassified Surfaces Requiring Follow-Up
 
@@ -317,8 +317,6 @@ _None._
 | .habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/structure.toml | structure-spec |  |
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md | pattern | build; ../standard/contract-manifest.js; apps/mapgen-studio/src/server/recipeDag/service |
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |

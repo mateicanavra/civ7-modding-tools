@@ -157,6 +157,19 @@
             "reason": "Public authoring schema guard still owns strict schema/public-key/focus-path invariants and was not duplicate stage-key freeze."
           }
         ]
+      },
+      {
+        "actionClass": "runtime/source validation plus retirement/garbage collection",
+        "sliceReceipt": ".habitat/workstreams/rule-remediation-studio-devops-topology-source-watch-slice.md",
+        "branch": "codex/habitat-studio-devops-topology-source-watch",
+        "commit": "branch-head",
+        "status": "closed",
+        "semanticOutcome": "Repaired Studio devops topology authority to the source-watch daemon target and retired the separate devLive.ts absence rule after absorbing that absence into the survivor check.",
+        "selectedRows": [
+          "enforce_studio_dev_runner_topology",
+          "prohibit_retired_studio_devlive_daemon_file"
+        ],
+        "excludedRows": []
       }
     ],
     "decisionPacketBatches": [
@@ -526,27 +539,64 @@
           "The deleted script hardcoded the same stage ids that are now compared from `recipe.ts` and `contract-manifest.ts` by the topology rail.",
           "The existing runtime/contract manifest parity rule still owns stage and step order between runtime recipe and contract manifest."
         ]
+      },
+      {
+        "actionClass": "runtime/source validation plus retirement/garbage collection",
+        "sliceCandidate": "Studio devops source-watch topology repair and devLive absence retirement",
+        "status": "closed-by-survivor-repair-and-retirement",
+        "freshReviewers": [],
+        "filesInspected": [
+          ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/rule.json",
+          ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts",
+          ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json",
+          "apps/mapgen-studio/project.json",
+          "apps/mapgen-studio/package.json",
+          "apps/mapgen-studio/src/server/daemon/daemon.ts",
+          "docs/handoffs/HABITAT-RESTACK-HANDOFF-DAEMON-SOURCE-WATCH.md",
+          "docs/projects/habitat-harness/task-graph-cleanup/framing.md"
+        ],
+        "rulePackets": [
+          {
+            "ruleId": "enforce_studio_dev_runner_topology",
+            "inputClassification": "runtime/source validation",
+            "wholeRuleFit": "survivor repair",
+            "ruleIdPlan": "preserve id and update predicate to current source-watch topology",
+            "semanticRemediationDecision": "Update the Studio devops topology check to the current `serve-daemon` command: `bun --conditions bun-source --watch src/server/daemon/daemon.ts` with `cwd` under `apps/mapgen-studio`. Absorb retired `devLive.ts` absence into this survivor rule.",
+            "proofLimit": "This proves development topology metadata and source-watch command shape, not a runtime daemon restart/live-edit product proof."
+          },
+          {
+            "ruleId": "prohibit_retired_studio_devlive_daemon_file",
+            "inputClassification": "retirement/garbage collection",
+            "wholeRuleFit": "retire after survivor absorption",
+            "ruleIdPlan": "delete id without replacement",
+            "semanticRemediationDecision": "Delete the separate structure packet after the survivor devops topology rule owns retired `devLive.ts` absence.",
+            "proofLimit": "Absence remains enforced by the survivor check; no standalone structure rule remains."
+          }
+        ],
+        "requiredLayer3Proof": [
+          "Focused Habitat check passes for `enforce_studio_dev_runner_topology`.",
+          "Deleted `prohibit_retired_studio_devlive_daemon_file` manifest is absent from the live authority tree.",
+          "Canonical JSON current rows and live manifests reconcile at 116.",
+          "`apps/mapgen-studio/src/server/daemon/devLive.ts` remains absent."
+        ],
+        "verificationEvidence": [
+          "Before repair, `enforce_studio_dev_runner_topology` failed only on the stale `serve-daemon.command` expectation.",
+          "Current source and handoff docs identify `bun --conditions bun-source --watch src/server/daemon/daemon.ts` as the correct dev daemon command."
+        ]
       }
     ],
     "remainingPacketNeededCounts": {
-      "runtime/source validation": 27,
+      "runtime/source validation": 26,
       "boundary inversion": 15,
       "closed structure inversion": 8,
       "split by owner": 6,
       "positive authority creation": 4,
       "consolidation/dedup": 3,
-      "retirement/garbage collection": 1
+      "retirement/garbage collection": 0
     },
     "implementationReadySliceQueue": [],
     "nextLayer2PacketQueue": [],
     "sealedDecisionBlockers": [
-      {
-        "kind": "blocked clean retirement",
-        "rules": [
-          "prohibit_retired_studio_devlive_daemon_file"
-        ],
-        "reason": "File absence is proven, but survivor authority is not sealed because adjacent Studio dev topology split this absence into its own current rule."
-      },
       {
         "kind": "hairy semantic split",
         "rules": [
@@ -571,16 +621,16 @@
       }
     ],
     "resumeState": {
-      "layer1": "complete and reconciled for 117 current live rules",
-      "layer2": "Hardcoded standard stage-key freeze packet closed by duplicate retirement. No implementation-ready Layer 3 queue remains.",
+      "layer1": "complete and reconciled for 116 current live rules",
+      "layer2": "Studio devops source-watch topology repaired and separate devLive absence packet retired. No implementation-ready Layer 3 queue remains.",
       "layer3Boundary": "Select the next Layer 2 packet class from remaining packet-needed counts before further authority-state mutation.",
       "sourceOfTruth": "Use this JSON record for matrix, process ledger, packet index, blockers, and queue state."
     }
   },
   "corpus": {
-    "liveManifestCount": 117,
-    "currentRowCount": 117,
-    "retiredHistoricalRowCount": 10,
+    "liveManifestCount": 116,
+    "currentRowCount": 116,
+    "retiredHistoricalRowCount": 11,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -675,10 +725,10 @@
     {
       "ruleId": "enforce_studio_dev_runner_topology",
       "lane": "MapGen Studio",
-      "actionDecision": "runtime/source validation",
-      "packetNeeded": true,
-      "expectedRemediation": "Repair stale runner support and validate Nx/project source semantics.",
-      "evidenceNote": "Direct runner rejects current required `bun --conditions bun-source --watch ...` command.",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Implemented: repaired Studio devops topology authority to the source-watch serve-daemon command and absorbed retired devLive.ts absence.",
+      "evidenceNote": "The rule now matches source-watch handoff authority: `serve-daemon` runs `bun --conditions bun-source --watch src/server/daemon/daemon.ts` from `apps/mapgen-studio`, and the retired devLive file absence is part of the survivor topology check.",
       "currentPath": ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/rule.json"
     },
     {
@@ -1193,15 +1243,6 @@
       "expectedRemediation": "Stay as G2 root-catalog guard.",
       "evidenceNote": "No root `tags.ts` / `artifacts.ts`; guardrail docs name this cleanup.",
       "currentPath": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/rule.json"
-    },
-    {
-      "ruleId": "prohibit_retired_studio_devlive_daemon_file",
-      "lane": "MapGen Studio",
-      "actionDecision": "retirement/garbage collection",
-      "packetNeeded": true,
-      "expectedRemediation": "Retire one-file cleanup residue.",
-      "evidenceNote": "Structure rule only forbids retired `devLive.ts`; broader dev topology owns current daemon shape.",
-      "currentPath": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json"
     },
     {
       "ruleId": "prohibit_rng_callback_state_in_ops",
@@ -1763,6 +1804,16 @@
       "evidenceNote": "The deleted script hardcoded the accepted stage id list and parsed `recipe.ts`. Domino 61 removes that duplicate state: topology now parses `recipe.ts` plus `contract-manifest.ts`, and runtime/contract parity still checks stage/step order.",
       "currentPath": null,
       "retirementRecord": ".habitat/workstreams/rule-remediation-standard-stage-key-freeze-retirement-slice.md"
+    },
+    {
+      "ruleId": "prohibit_retired_studio_devlive_daemon_file",
+      "lane": "MapGen Studio",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired after survivor Studio devops topology rule absorbed devLive.ts absence and source-watch command authority.",
+      "evidenceNote": "Domino 62 repaired `enforce_studio_dev_runner_topology` to current source-watch daemon authority and added explicit retired `devLive.ts` absence, so this single-file structure packet no longer owns a separate live surface.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/workstreams/rule-remediation-studio-devops-topology-source-watch-slice.md"
     }
   ],
   "gateState": {
@@ -2029,8 +2080,8 @@
       "liveRulesWithCompletedPocketSummaryOnly": 14,
       "liveRulesNotProcessedInDominoesMd": 16,
       "staleDominoReferencesExcludedFromLiveMatrix": 10,
-      "liveRuleCorpus": 117,
-      "liveRowsInMatrix": 117
+      "liveRuleCorpus": 116,
+      "liveRowsInMatrix": 116
     },
     "remainderActionRows": [
       {
@@ -2983,21 +3034,11 @@
         "ruleId": "enforce_studio_dev_runner_topology",
         "currentPlacement": "blueprint=_self; niche=civ7/mapgen/studio/devops; category=structure; operation=check",
         "currentPath": ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/rule.json",
-        "dominoEvidence": "Domino 40",
+        "dominoEvidence": "Domino 40, Domino 62",
         "processStatus": "processed: receipt",
         "dispositionBucket": "Studio devops lane placement",
-        "pendingAction": "Revisit if devops and server runtime need a shared or split positive operational contract.",
-        "evidenceNote": "Governs Studio development execution topology: Nx dev/daemon targets, Vite watch boundaries, and retired package script surfaces."
-      },
-      {
-        "ruleId": "prohibit_retired_studio_devlive_daemon_file",
-        "currentPlacement": "blueprint=_self; niche=civ7/mapgen/studio/devops; category=structure; operation=check",
-        "currentPath": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json",
-        "dominoEvidence": "Domino 40",
-        "processStatus": "processed: receipt",
-        "dispositionBucket": "Studio devops lane placement",
-        "pendingAction": "Retire later if the positive devops topology check fully subsumes it.",
-        "evidenceNote": "Guards retired Studio dev-live daemon surface as part of the devops lane."
+        "pendingAction": "No action. Revisit only if devops and server runtime need a shared or split positive operational contract.",
+        "evidenceNote": "Domino 62 repaired the source-watch daemon command and absorbed retired devLive.ts absence into this survivor topology rule."
       },
       {
         "ruleId": "prohibit_recipe_dag_runtime_source_dependencies",
@@ -3365,6 +3406,11 @@
         "dominoReference": "verify_standard_recipe_declared_stage_keys",
         "status": "retired",
         "handling": "Do not include in live rule matrix; Domino 61 retired the hardcoded stage-key freeze because source-derived topology and runtime/contract parity now own the same stage declaration surface."
+      },
+      {
+        "dominoReference": "prohibit_retired_studio_devlive_daemon_file",
+        "status": "retired",
+        "handling": "Do not include in live rule matrix; Domino 62 retired the separate devLive absence packet after `enforce_studio_dev_runner_topology` absorbed the absence and current source-watch daemon command authority."
       }
     ]
   }

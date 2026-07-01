@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 564,
+    "totalSurfaces": 562,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "check-script": 34,
-      "rule-json": 117,
+      "rule-json": 116,
       "pattern": 73,
-      "structure-spec": 6,
+      "structure-spec": 5,
       "apply-pattern": 1,
       "generate-script": 2,
       "operation-note": 3,
@@ -22,15 +22,15 @@
     },
     "surfacesByRole": {
       "command_check_executor": 34,
-      "runner_metadata": 117,
+      "runner_metadata": 116,
       "policy_pattern": 74,
-      "structure_authority": 6,
+      "structure_authority": 5,
       "operation_surface": 6,
       "workspace_entrypoint": 203,
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
-      "unknown": 235,
+      "unknown": 233,
       "package": 140,
       "nx": 65,
       "direct-script": 3,
@@ -38,7 +38,7 @@
     },
     "surfacesByBucket": {
       "package_boundary_tie": 92,
-      "unknown_invocation": 235,
+      "unknown_invocation": 233,
       "nx_ordering_tie": 101,
       "mutation_surface": 114,
       "package_invoked": 205,
@@ -50,8 +50,8 @@
   "executionAnatomy": {
     "roleCounts": {
       "fixture-support": 13,
-      "adapter": 117,
-      "policy-predicate": 80,
+      "adapter": 116,
+      "policy-predicate": 79,
       "transient-dependency": 98,
       "entrypoint": 205,
       "runner-runtime": 124
@@ -1615,6 +1615,16 @@
       "sampleSources": [
         "tools/habitat/src/providers/biome/index.ts",
         "tools/habitat/src/resources/command/request.ts"
+      ]
+    },
+    {
+      "target": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
+      "targetClass": "workspace-tool",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts",
+        "apps/mapgen-studio/project.json#targets.serve-daemon"
       ]
     },
     {
@@ -4024,15 +4034,6 @@
       ]
     },
     {
-      "target": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "apps/mapgen-studio/project.json#targets.serve-daemon"
-      ]
-    },
-    {
       "target": "bun --watch",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -4291,15 +4292,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "apps/docs/package.json#scripts.normalize"
-      ]
-    },
-    {
-      "target": "bun src/server/daemon/daemon.ts",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts"
       ]
     },
     {
@@ -8840,8 +8832,8 @@
           "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
         ],
         "shellCommandCalls": [
+          "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
           "bun --watch",
-          "bun src/server/daemon/daemon.ts",
           "git",
           "node:child_process",
           "node:fs",
@@ -8917,12 +8909,12 @@
           },
           {
             "kind": "shell-command",
-            "value": "bun --watch",
+            "value": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
             "targetClass": "workspace-tool"
           },
           {
             "kind": "shell-command",
-            "value": "bun src/server/daemon/daemon.ts",
+            "value": "bun --watch",
             "targetClass": "workspace-tool"
           },
           {
@@ -19112,8 +19104,8 @@
           "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
         ],
         "shellCommandCalls": [
+          "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
           "bun --watch",
-          "bun src/server/daemon/daemon.ts",
           "git",
           "node:child_process",
           "node:fs",
@@ -19189,12 +19181,12 @@
           },
           {
             "kind": "shell-command",
-            "value": "bun --watch",
+            "value": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
             "targetClass": "workspace-tool"
           },
           {
             "kind": "shell-command",
-            "value": "bun src/server/daemon/daemon.ts",
+            "value": "bun --watch",
             "targetClass": "workspace-tool"
           },
           {
@@ -19268,72 +19260,6 @@
         ],
         "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
         "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json",
-      "path": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/structure.toml",
-      "path": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/structure.toml",
-      "surfaceKind": "structure-spec",
-      "surfaceRole": "structure_authority",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
         "supportSignals": [],
         "transientSignals": []
       },
@@ -33240,8 +33166,8 @@
           "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
         ],
         "shellCommandCalls": [
+          "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
           "bun --watch",
-          "bun src/server/daemon/daemon.ts",
           "git",
           "node:child_process",
           "node:fs",
@@ -33317,12 +33243,12 @@
           },
           {
             "kind": "shell-command",
-            "value": "bun --watch",
+            "value": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
             "targetClass": "workspace-tool"
           },
           {
             "kind": "shell-command",
-            "value": "bun src/server/daemon/daemon.ts",
+            "value": "bun --watch",
             "targetClass": "workspace-tool"
           },
           {
@@ -33396,72 +33322,6 @@
         ],
         "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
         "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json",
-      "path": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/structure.toml",
-      "path": ".habitat/civ7/mapgen/studio/devops/rules/prohibit_retired_studio_devlive_daemon_file/structure.toml",
-      "surfaceKind": "structure-spec",
-      "surfaceRole": "structure_authority",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
         "supportSignals": [],
         "transientSignals": []
       },

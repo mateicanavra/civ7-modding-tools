@@ -12,9 +12,9 @@
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "forbids": "root dev aliases, package daemon watcher scripts, dev target topology drift, or generated/deploy outputs triggering Vite reloads",
+  "forbids": "root dev aliases, package daemon watcher scripts, dev target topology drift, retired devLive daemon files, or generated/deploy outputs triggering Vite reloads",
   "why": "Studio dev execution topology is structural task authority and should not live in package tests.",
-  "remediate": "Keep Studio dev orchestration in Nx project targets and keep generated/deploy outputs ignored by Vite watch. Retired daemon file absence is owned by prohibit_retired_studio_devlive_daemon_file.",
+  "remediate": "Keep Studio dev orchestration in Nx project targets, run the dev daemon with the dev-only bun-source watch condition, and keep generated/deploy outputs ignored by Vite watch.",
   "message": "MapGen Studio dev runner topology drifted.",
   "pathCoverage": [
     {
@@ -24,6 +24,7 @@
         "apps/mapgen-studio/package.json",
         "apps/mapgen-studio/vite.config.ts",
         "apps/mapgen-studio/src/server/daemon/daemon.ts",
+        "apps/mapgen-studio/src/server/daemon/devLive.ts",
         "package.json"
       ]
     },
