@@ -76,10 +76,12 @@ packages/studio-ui/
    `storyImports` + `componentSrcMap` (prune, with the grouped-subcomponents build-log watch
    item); overrides/titles/provider/docsMap verbatim (docsMap re-pointed PKG_DIR-relative).
    Anchor survives as changed:[46].
-6. **Nx/CI**: package.json `nx` key (tags only); plain scripts build/check/test/clean join
-   CI's five-target run-many; `verify` = fast artifact-contract assertions (46 exports +
-   TooltipProvider, dark `:root` + `.light` blocks, no server specifier in dist —
-   unconditional, token-set parity vs the committed B1 token-contract fixture);
+6. **Nx/CI**: package.json `nx` key (tags: `kind:foundation`); plain scripts
+   build/check/test/clean join CI's five-target run-many; `verify` = fast artifact-contract
+   assertions (46 exports + TooltipProvider, dark `:root` + `.light` blocks, no
+   `@civ7/studio-server` AND no runtime `@civ7/studio-contract` specifier in dist JS —
+   contract usage is type-position only, token-set parity vs the committed B1
+   token-contract fixture);
    the Chromium render-check is NEVER a CI target, but a custom-named Nx target on the
    package (`design-sync:check`: buildCmd + sb-reference rebuild + local resync verdict)
    makes the sync CI-runnable per the FRAME DoD. Root vitest gains a `studio-ui` project
@@ -89,11 +91,20 @@ packages/studio-ui/
    the collapsed `RunInGameRelation`; dead PHASES re-exports deleted app-side; re-homed types
    live with their owning components and re-export through the types barrel; viewStore /
    clientState / runInGame-status / useRecipeDagQuery import the package types back.
-8. **Reserved defaults** (re-confirmed at checkpoint): Q2 = `@civ7/studio-ui`; E1-B (re-home
-   structural contract types + `kind:foundation` + app-side parity-test drift fence); E2-A
-   (options data stays app-side; options-via-props mirroring today's shapes); E3 =
-   verbatim-move-first, one post-anchor cleanup wave; E4a (AppHeader intent-callback redesign,
-   exact contract in design/structure-rewire.md §5).
+8. **Checkpoint outcomes (Matei, 2026-07-01 — DESIGN.md §4a)**: Q2 DECIDED =
+   `@swooper/mapgen-studio-ui` at `packages/mapgen-studio-ui` (every `@civ7/studio-ui` /
+   `packages/studio-ui` placeholder in this change set reads as the decided name); E2-A
+   DECIDED (options data stays app-side; options-via-props mirroring today's shapes); E3
+   CONFIRMED (verbatim-move-first, one post-anchor cleanup wave); E4a DECIDED (AppHeader
+   intent-callback redesign, exact contract in design/structure-rewire.md §5). **E1 RESOLVED
+   = E1-C, APPROVED**: extract `@civ7/studio-contract` (packages/studio-contract,
+   `kind:foundation`) as precursor branch **B0** — server keeps `implementEffect`-ing the
+   identical contract (effect-orpc merge stays in its thin `./contract` subpath); app
+   repoints ~18 imports; the UI package declares `"@civ7/studio-contract": "workspace:*"`
+   and types its 3 props + statusLabels against the REAL contract (type-position only). No
+   taxonomy revision, no structural twins, **no parity-fence test** (deleted from the plan);
+   `src/types/server-contract.ts` does not exist. Full plan:
+   docs/projects/studio-ui-extraction/design/e1-contract-boundary.md.
 
 ## 3. Verification model
 
@@ -101,8 +112,8 @@ Staging rule (blocker-derived): **the branch that moves a module repoints EVERY 
 consumer** (src, stories still app-side, tests) to the package in the same branch; gate = grep
 for the moved module's old path returns empty AND `mapgen-studio:check` + vitest green.
 Per-branch: package build green (strict d.ts) + `mapgen-studio:check` green + relocated tests
-green + package `build-storybook` smoke. B5 adds the app-side type-level parity test (E1-B
-drift fence — server-contract drift fails `mapgen-studio:check`). At the repoint branch:
+green + package `build-storybook` smoke. No parity test exists (E1-C: contract types have one
+owner, `@civ7/studio-contract`; the dist grep is the fence). At the repoint branch:
 buildCmd + sb-reference rebuilt together → `resync.mjs --remote` (DS_CHROMIUM_PATH) → expect
 changed:[46]/added:[]/removed:[] with anchor ok → full render-check → grade all 46 → portal-4
 manual path → forced-`.light` render canary over a token-heavy story subset (the FRAME's

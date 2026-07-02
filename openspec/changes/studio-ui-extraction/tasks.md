@@ -4,9 +4,15 @@
 - [ ] 0.2 Confirm lane discipline: stack parents `studio-ui-extraction` → B1…; `git diff --cached` before every commit; draft PRs via `gt submit --draft --no-interactive` with `gt parent` verified.
 - [ ] 0.3 **Staging rule for every move branch (blocker-derived, non-negotiable):** the branch that moves a module repoints EVERY not-yet-moved consumer of it — app src files, stories still app-side, and test files — to the package in the SAME branch. Branch gate: grep for each moved module's old path returns empty; `mapgen-studio:check` + app vitest + package build/check/test green. The per-branch lists below name the big classes; the grep gate is the authority, not the counts.
 
+## 0b. B0 — Extract `@civ7/studio-contract` (E1-C precursor; plan: design/e1-contract-boundary.md)
+
+- [ ] 0b.1 Create `packages/studio-contract` (`kind:foundation`, `@civ7/types` precedent): move the 8 `src/contract` modules + pure closure (`errorData`/`failure`, `typeboxStandardSchema`, `recipeDag` contract/schema/errors, `liveGame/model`; ~15 files) out of `packages/studio-server`; the effect-orpc `Civ7ControlOrpcContract` merge STAYS in the server's thin `./contract` subpath; server `implementEffect`s the identical contract.
+- [ ] 0b.2 Repoint the ~18 app import sites + server internals per the report's §5.4 verified file lists; zero behavior change.
+- [ ] 0b.3 Green: `studio-contract`/`studio-server` build+check, `mapgen-studio:check`, app vitest; boundary lint clean (control→foundation, app→foundation). Independently revertible.
+
 ## 1. B1 — Package scaffold (no component code)
 
-- [ ] 1.1 Create `packages/studio-ui/` per design.md §1: package.json (RESERVED name from 0.1; pinned deps incl. tw-animate-css + @fontsource pair; react/react-dom peers; exports map; sideEffects; nx tags key), tsconfig.json, tsup.config.ts, components.json, README stub with the LEDGER §7 contracts.
+- [ ] 1.1 Create `packages/mapgen-studio-ui/` (`@swooper/mapgen-studio-ui`, Q2 decided) per design.md §1: package.json (pinned deps incl. tw-animate-css + @fontsource pair + `"@civ7/studio-contract": "workspace:*"` (E1-C, type-position use only); react/react-dom peers; exports map; sideEffects; nx tags `kind:foundation`), tsconfig.json, tsup.config.ts, components.json, README stub with the LEDGER §7 contracts.
 - [ ] 1.2 Authored CSS source (`src/styles/{index,theme,fonts}.css` — ONE dark-default source) + fonts copy script + build wiring (`build` = tsup + tsc dts + tailwind CLI + assets); `check`/`test`/`clean` scripts; root vitest `studio-ui` project block.
 - [ ] 1.3 Capture the token contract ONCE (run build-inputs.sh a final time; extract token names/values from `_ds-compiled.css` into a committed fixture in the package test dir), then the theme-invariant test asserts `dist/styles.css` against the fixture (dark `:root` + `.light` blocks; token-set + spot-value parity) — the assert_theme_block replacement. `verify` script = artifact-contract assertions (exports count grows with each branch; final: 46 + TooltipProvider; no `@civ7/studio-server` specifier in dist JS — unconditional). Decide the `./types` export shape as adjudicated: types-only condition, no runtime target (DESIGN.md §2.8); fonts seam per DESIGN.md §2.9.
 - [ ] 1.4 CI green: `bunx nx run <pkg>:build && :check && :test` + `bunx nx run mapgen-studio:check` unaffected.
@@ -32,9 +38,9 @@
 
 ## 5. B5 — Panels + splits (4)
 
-- [ ] 5.1 Create `panels/statusLabels.ts` (3 formatters + `runInGameRequiresProcessRestart` + collapsed `RunInGameRelation`; type-only over contract types per E1 outcome); delete dead PHASES re-exports app-side; app status modules keep constructors; clientState + runInGame-status alias the package union; StudioShell repoints `runInGameRequiresProcessRestart`.
+- [ ] 5.1 Create `panels/statusLabels.ts` (3 formatters + `runInGameRequiresProcessRestart` + collapsed `RunInGameRelation`; `import type` from `@civ7/studio-contract` per E1-C); delete dead PHASES re-exports app-side; app status modules keep constructors; clientState + runInGame-status alias the package union; StudioShell repoints `runInGameRequiresProcessRestart`.
 - [ ] 5.2 recipe-dag split: PipelineStage (owns `RecipeDagLoadStatus`) + layout + domainPresentation + artifactPresentation + recipeDagFixture move; `useRecipeDagQuery` + `prunePipelineExpansion` stay (query hook imports the status union back). Move ExplorePanel, GameConsole, RecipePanel + 4 stories + relocated panel tests; app rewire per rule 0.3 (StudioShell panel repoints land HERE).
-- [ ] 5.3 **E1-B drift fence**: app-side type-level parity test (mutual-assignability between `@civ7/studio-server/contract` unions/shapes and the package's re-homed types, in the app's test/type surface so drift fails `mapgen-studio:check`). Under E1-A: skip; the unconditional dist-grep fence covers the runtime leak.
+- [ ] 5.3 **E1-C fence** (the parity test is DELETED — no twins exist): `verify`'s dist grep asserts no `@civ7/studio-server` AND no runtime `@civ7/studio-contract` specifier in dist JS (contract usage is type-position only, compiler-enforced by verbatimModuleSyntax).
 - [ ] 5.4 Strict d.ts proof: package build green with zero TS7056 (a failure = mis-executed split; stop-and-diagnose, never re-add tolerance). `buildRecipeDagLayout` output byte-identical (fixture snapshot test).
 - [ ] 5.5 Green per rule 0.3 gates (45 stories cumulative).
 

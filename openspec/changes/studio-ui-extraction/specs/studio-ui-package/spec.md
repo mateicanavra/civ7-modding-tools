@@ -25,12 +25,13 @@ The extraction SHALL execute the frozen ownership map (`docs/projects/studio-ui-
 
 #### Scenario: The status-module split keeps domain constructors app-side
 - **WHEN** the phase-label formatters move to the package
-- **THEN** they type against contract types only (per the E1 outcome) with the dead contract value re-exports deleted
+- **THEN** they type against contract types only (`import type` from `@civ7/studio-contract`, per E1-C) with the dead contract value re-exports deleted
 - **AND** the app's status modules retain the operation-domain constructors with their six app consumers unchanged
 
-#### Scenario: Re-homed contract types cannot drift silently (E1-B)
-- **WHEN** the E1-B outcome re-homes server-contract shapes into the package and the server's contract later changes
-- **THEN** the app-side type-level parity test fails `mapgen-studio:check`, surfacing the drift before it ships
+#### Scenario: Contract types come from the contract package only (E1-C)
+- **WHEN** the package types its contract-shaped prop surfaces (GameConsole, RecipePanel, PipelineStage) and `panels/statusLabels.ts` against `@civ7/studio-contract`
+- **THEN** every contract reference is an `import type` from `@civ7/studio-contract` — no structural twins exist and no parity test is needed
+- **AND** the package `verify` dist grep finds no `@civ7/studio-server` and no runtime `@civ7/studio-contract` specifier in dist JS
 
 ### Requirement: The app renders identically after the rewire
 

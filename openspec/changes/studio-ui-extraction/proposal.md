@@ -22,9 +22,9 @@ The classification is done and reviewed: `docs/projects/studio-ui-extraction/LED
 - App-side domain modules: `seedPolicy`, `setupConfig`, `clientState`, `riverLakeInspector`, `configBuilders`, presets plumbing, `useRecipeDagQuery`, `prunePipelineExpansion`.
 - No uploads to design project `531d158d…` without Matei's explicit go-ahead.
 
-## Reserved Decisions (gate execution — Matei checkpoint)
+## Reserved Decisions (checkpoint held 2026-07-01 — outcomes in DESIGN.md §4a)
 
-Q2 (package name/publishing), E1 bundle (contract types × Nx boundary tag), E2 (Civ7 options data vs props), E3 (cleanup-wave batching — confirm), E4 (AppHeader redesign vs 45-component v1). Options + recommendations: `docs/projects/studio-ui-extraction/DESIGN.md` §4.
+ALL DECIDED: Q2 = `@swooper/mapgen-studio-ui` at `packages/mapgen-studio-ui`; E2 = options-via-props (data stays app-side); E3 confirmed (verbatim-move-first + one post-anchor cleanup wave); E4 = redesign now (46/46 ships); E1 = **E1-C APPROVED** — extract `@civ7/studio-contract` (`packages/studio-contract`, `kind:foundation`) as precursor branch B0 (tasks §0b) per `docs/projects/studio-ui-extraction/design/e1-contract-boundary.md`: the server stays a fully contained boundary (`implementEffect`s the identical contract; the effect-orpc merge stays in its thin `./contract` subpath), the UI package `import type`s the real contract (no twins, no parity fence), and the app repoints ~18 import sites.
 
 ## Affected Owners
 

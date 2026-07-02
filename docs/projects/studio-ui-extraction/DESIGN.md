@@ -17,8 +17,9 @@ This file carries the resolved cross-axis decisions, the synthesizer's conflict 
 
 ## 1. The design in one screen
 
-- **Package**: `packages/studio-ui`, name **RESERVED** (Q2 — candidates §4.1; docs use
-  `@civ7/studio-ui` as placeholder). `private: true`, publishable-shaped manifest, v0.1.0, ESM.
+- **Package**: **`@swooper/mapgen-studio-ui`** at `packages/mapgen-studio-ui` (Q2 DECIDED,
+  §4a; older docs/reports say `@civ7/studio-ui` or `packages/studio-ui` — superseded).
+  `private: true`, publishable-shaped manifest, v0.1.0, ESM.
   Exports: `.` (value-clean barrel), `./types`, `./styles.css` (compiled flat), `./theme.css` +
   `./fonts.css` + `./fonts/*` (source entries the app consumes). React 19 as the workspace's
   first `peerDependencies` (dupe-React fence); every dep pinned from today's lockfile
@@ -86,6 +87,8 @@ This file carries the resolved cross-axis decisions, the synthesizer's conflict 
    mechanically fenced by an app-side type-level parity test that fails `mapgen-studio:check`
    on drift. **Synthesizer recommendation: E1-B + kind:foundation** (re-home into
    `src/types/server-contract.ts`; statusLabels types against the re-homed unions).
+   **[SUPERSEDED by §4a: Matei redirected E1 and approved E1-C — the `@civ7/studio-contract`
+   extraction. Neither A nor B executes; no parity fence; no server-contract.ts.]**
 3. **Name candidates both live** (§4.1): Designer 1 recommends `@swooper/studio-ui` (practiced
    split: @swooper/* = mapgen domain), Designer 4 recommends `@civ7/studio-ui` (pairs with
    `@civ7/studio-server`; studio chrome is product tooling, not mapgen domain). Reserved to
@@ -158,7 +161,36 @@ This file carries the resolved cross-axis decisions, the synthesizer's conflict 
   remedy is an authored `@source inline()` safelist, never scanning app code.
 - **Upload**: gated on Matei (project `531d158d…`, atomic path, deletes verbatim).
 
-## 4. Decision packet — RESERVED to Matei
+## 4a. CHECKPOINT OUTCOMES (Matei, 2026-07-01)
+
+- **Q2 DECIDED**: `@swooper/mapgen-studio-ui` at `packages/mapgen-studio-ui` (dir = unscoped
+  name per house convention); private + publishable-shaped as designed.
+- **E1 RESOLVED = E1-C, APPROVED by Matei** (supersedes both designer branches and the §2.2
+  recommendation). Matei's directive — *the server is a fully contained boundary that ships
+  its own types; no client maintains the types of the service it uses; every package fully
+  contained* — is satisfied by extracting the studio-owned contract into
+  **`@civ7/studio-contract`** at `packages/studio-contract`, tagged `kind:foundation`
+  (`@civ7/types` precedent), as **precursor branch B0** at the bottom of the extraction
+  stack (~15 moved files: the 8 `src/contract` modules + pure closure; the effect-orpc
+  `Civ7ControlOrpcContract` merge stays behind in the server's thin `./contract` subpath;
+  server keeps `implementEffect`-ing the identical contract; app repoints ~18 one-line
+  imports; zero behavior change, independently revertible). The UI package takes ONE
+  `workspace:*` dependency and types GameConsole/RecipePanel/PipelineStage props + the
+  statusLabels formatters against the REAL contract. Consequences: NO `kind:ui` taxonomy
+  revision (foundation→foundation, control→foundation, app→foundation all already legal), NO
+  structural twins, the E1-B **parity-fence test is deleted from the plan**, and the
+  claude.ai/design card-quality concern is location-independent (today's cards already
+  degrade these three props; recovery ladder priced in the report §6). This is the topology
+  oRPC's contract-first monorepo docs prescribe. Full plan:
+  [design/e1-contract-boundary.md](./design/e1-contract-boundary.md).
+- **E2 DECIDED**: (A) props — options data stays app-side; AppFooter/AppHeader take options
+  props mirroring today's shapes exactly.
+- **E3**: presented as "confirm the recommended shape"; no objection raised — treated as
+  CONFIRMED (verbatim-move-first, one post-anchor cleanup wave).
+- **E4 DECIDED**: (a) redesign now — AppHeaderSetupState view-model + intent callbacks in B6;
+  46/46 ships.
+
+## 4. Decision packet — as presented (kept for the record)
 
 1. **Q2 — name + publishing**: (a) `@civ7/studio-ui` (pairs with studio-server; studio product
    family) vs (b) `@swooper/studio-ui` (mapgen-domain reading; Designer 1's verified naming
