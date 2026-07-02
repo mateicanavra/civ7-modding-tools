@@ -10,8 +10,6 @@ export {
   DEFAULT_VIEW_STATE,
   DEFAULT_WORLD_SETTINGS,
 } from "./defaults";
-// Layout constants
-export { LAYOUT, type LayoutConfig } from "./layout";
 // Options for dropdowns and selectors
 export {
   DEFAULT_DATA_TYPE_OPTIONS,

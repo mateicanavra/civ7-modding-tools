@@ -17,6 +17,7 @@ vi.mock("../../src/features/configOverrides/configBuilders", async (importOrigin
   };
 });
 
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import {
   type UsePresetLifecycleArgs,
   usePresetLifecycle,
@@ -31,7 +32,6 @@ import { buildPresetExportFile } from "../../src/features/presets/importExport";
 import type { BuiltInPreset } from "../../src/recipes/catalog";
 import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../../src/recipes/catalog";
 import { DEFAULT_RECIPE_SETTINGS, DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
-import type { PipelineConfig } from "../../src/ui/types";
 
 const applySpy = vi.mocked(applyPresetConfig);
 const buildSpy = vi.mocked(buildDefaultConfig);

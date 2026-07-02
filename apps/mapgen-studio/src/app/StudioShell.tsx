@@ -1,4 +1,5 @@
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import type { GenerationStatus, PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
@@ -24,7 +25,6 @@ import { ExplorePanel } from "../ui/components/ExplorePanel";
 import { GameConsole } from "../ui/components/GameConsole";
 import { RecipePanel } from "../ui/components/RecipePanel";
 import { StageViewTabs } from "../ui/components/StageViewTabs";
-import type { GenerationStatus, PipelineConfig } from "../ui/types";
 import { configsEqual } from "../ui/utils/config";
 import { CanvasStage } from "./CanvasStage";
 import { ErrorBanner } from "./ErrorBanner";

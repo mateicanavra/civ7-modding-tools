@@ -9,14 +9,14 @@ import {
   SelectValue,
   Switch,
   Textarea,
-} from "../../components/ui";
+} from "@swooper/mapgen-studio-ui";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 
 /**
  * RJSF widgets re-skinned onto the canonical design-system primitives
- * (`src/components/ui/*`) — token-driven, dark-first, no `lightMode` prop and no
+ * (`@swooper/mapgen-studio-ui`) — token-driven, dark-first, no `lightMode` prop and no
  * off-token `ring-gray-400`. Only presentation changed: the value plumbing
  * (`onChange`, `emptyValue` normalization, enum mapping) is preserved, so the
  * authored config the form emits is byte-for-byte what it produced before.

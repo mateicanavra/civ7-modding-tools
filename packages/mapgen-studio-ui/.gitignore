@@ -1,0 +1,4 @@
+# Storybook build output (smoke-built per branch; the design-sync reference
+# is rebuilt into .design-sync/sb-reference at the B7 repoint)
+storybook-static
+*storybook.log

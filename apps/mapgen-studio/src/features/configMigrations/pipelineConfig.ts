@@ -1,4 +1,4 @@
-import type { PipelineConfig } from "../../ui/types";
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 
 export class PipelineConfigMigrationError extends Error {
   readonly details: readonly string[];

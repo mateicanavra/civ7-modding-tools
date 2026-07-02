@@ -1,6 +1,10 @@
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import type {
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import { type MutableRefObject, useCallback, useMemo } from "react";
-
 import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
 import { LIVE_GAME_PRESET_KEY } from "../../features/civ7Setup/livePreset";
 import {
@@ -26,7 +30,6 @@ import {
 import { formatRunInGameDiagnostics } from "../../features/runInGame/status";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 import type { UseLiveRuntimeResult } from "./useLiveRuntime";
 import type { UsePresetLifecycleResult } from "./usePresetLifecycle";
 import { useRunInGameTerminalToast } from "./useRunInGameTerminalToast";

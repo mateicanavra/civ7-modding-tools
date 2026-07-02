@@ -1,7 +1,7 @@
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import type { PipelineConfig, RecipeSettings } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useEffect, useRef, useState } from "react";
-
 import { saveRepoBackedConfig, toConfigId } from "../../features/mapConfigSave/api";
 import {
   createMapConfigSaveDeployStatus,
@@ -13,7 +13,6 @@ import { toRepoBackedPreset } from "../../features/presets/repoBacked";
 import { type PresetKey, parsePresetKey } from "../../features/presets/types";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
-import type { PipelineConfig, RecipeSettings } from "../../ui/types";
 import type { UsePresetLifecycleResult } from "./usePresetLifecycle";
 import type { StudioOperations } from "./useStudioOperations";
 import type { ToastFn } from "./useToast";

@@ -15,9 +15,6 @@ export {
 } from "./DisclosureHeader";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { ExplorePanel, type ExplorePanelProps } from "./ExplorePanel";
-// Form fields (only `FieldRow` remains — the old lightMode/hex field set was
-// dead and removed; UI primitives now live in `src/components/ui` (shadcn)).
-export * from "./fields";
 export { GameConsole, type GameConsoleLiveRuntime, type GameConsoleProps } from "./GameConsole";
 // Panel components
 export { RecipePanel, type RecipePanelProps } from "./RecipePanel";

@@ -1,3 +1,8 @@
+import type {
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import { create } from "zustand";
 import { type PersistStorage, persist, type StorageValue } from "zustand/middleware";
 import {
@@ -13,7 +18,6 @@ import {
 } from "../features/studioState/persistence";
 import type { BuiltInPreset } from "../recipes/catalog";
 import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../recipes/catalog";
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../ui/types";
 
 /**
  * `authoringStore` — the single persisted owner of AUTHORING state

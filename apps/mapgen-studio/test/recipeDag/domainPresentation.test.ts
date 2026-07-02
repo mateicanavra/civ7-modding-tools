@@ -102,7 +102,10 @@ describe("recipe DAG domain presentation", () => {
       new URL("../../src/features/recipeDag/PipelineStage.tsx", import.meta.url),
       "utf8"
     );
-    const lucideImport = source.match(/import\s*{([\s\S]*?)}\s*from "lucide-react";/)?.[1] ?? "";
+    // [^}]* (not [\s\S]*?) so the match anchors at the lucide import itself —
+    // a spanning pattern grabs the file's FIRST brace-import and everything up
+    // to the lucide specifier once any other named import precedes it.
+    const lucideImport = source.match(/import\s*{([^}]*)}\s*from "lucide-react";/)?.[1] ?? "";
     const importedNames = lucideImport
       .split(",")
       .map((name) => name.trim())

@@ -1,8 +1,8 @@
+import { TooltipProvider } from "@swooper/mapgen-studio-ui";
+import type { RecipeSettings, WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { TooltipProvider } from "../../src/components/ui/tooltip";
 import { AppFooter } from "../../src/ui/components/AppFooter";
-import type { RecipeSettings, WorldSettings } from "../../src/ui/types";
 
 // The footer is the WORLD/MAP console (Pass-5 toolbar-architecture-v2 spec,
 // narrowed by world-console-map-params): map authoring (size · players ·

@@ -1,5 +1,9 @@
+import type {
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import type { BuiltInPreset } from "../../recipes/catalog";
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 import {
   type Civ7StudioSetupConfig,
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,

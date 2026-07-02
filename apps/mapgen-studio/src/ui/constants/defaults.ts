@@ -5,7 +5,7 @@
 // Backend engineers: These can be overridden by server-provided defaults.
 // ============================================================================
 
-import type { RecipeSettings, ViewState, WorldSettings } from "../types";
+import type { RecipeSettings, ViewState, WorldSettings } from "@swooper/mapgen-studio-ui/types";
 
 // ============================================================================
 // Default World Settings
