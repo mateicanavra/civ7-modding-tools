@@ -1,6 +1,7 @@
+// @vitest-environment jsdom
 import type { RunInGameOperationStatus } from "@civ7/studio-contract";
-import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, render } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { GameConsole, type GameConsoleProps } from "../src/components/panels/GameConsole.js";
 import { TooltipProvider } from "../src/components/ui/tooltip.js";
 
@@ -9,10 +10,26 @@ import { TooltipProvider } from "../src/components/ui/tooltip.js";
 // Z-wave folded the status pills into ONE chip + the status hang-off panel).
 // These scenarios moved here from AppFooter.test.tsx when the console left
 // the footer. Expanded-status pins render with `defaultStatusOpen` because
-// static markup cannot click the chip open.
+// a test render cannot click the chip open.
+//
+// Harness note (E3 Popover rebuild): the hang-off is a Radix Popover whose
+// content PORTALS to document.body — `renderToStaticMarkup` omits portals, so
+// these pins render through testing-library/jsdom and assert against the full
+// document body markup instead.
+
+// Radix Popper measures its anchor via ResizeObserver, which jsdom lacks.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+(globalThis as { ResizeObserver?: unknown }).ResizeObserver ??= ResizeObserverStub;
+
+afterEach(cleanup);
 
 function renderConsole(overrides: Partial<GameConsoleProps> = {}) {
-  return renderToStaticMarkup(
+  cleanup();
+  render(
     <TooltipProvider>
       <GameConsole
         operationControlsDisabled={false}
@@ -24,6 +41,7 @@ function renderConsole(overrides: Partial<GameConsoleProps> = {}) {
       />
     </TooltipProvider>
   );
+  return document.body.innerHTML;
 }
 
 function renderWithStatus(

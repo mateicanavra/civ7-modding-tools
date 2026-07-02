@@ -13,6 +13,7 @@ import {
 import React from "react";
 import { cn } from "../../lib/utils.js";
 import { Button } from "../ui/button.js";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import {
   formatMapConfigSaveDeployPhaseLabel,
@@ -124,32 +125,13 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   saveDeployStatus,
   defaultStatusOpen = false,
 }) => {
+  // The hang-off is a Radix Popover (E3 rebuild of the hand-rolled popup):
+  // Radix owns positioning, outside-click/Escape dismissal, and the trigger's
+  // aria wiring — opening anything else IS an outside click, so it never
+  // stacks against the header's setup-disclosure row. The open state stays
+  // CONTROLLED here because the chip's own chrome reads it (active border +
+  // chevron rotation).
   const [statusOpen, setStatusOpen] = React.useState(defaultStatusOpen);
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
-  // The hang-off is a popup, so it dismisses like one (outside click /
-  // Escape). This also keeps it from ever stacking against the header's
-  // setup-disclosure row — opening anything else IS an outside click.
-  React.useEffect(() => {
-    if (!statusOpen) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (
-        rootRef.current &&
-        event.target instanceof Node &&
-        !rootRef.current.contains(event.target)
-      ) {
-        setStatusOpen(false);
-      }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setStatusOpen(false);
-    };
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [statusOpen]);
   const textPrimary = "text-foreground";
   const textMuted = "text-muted-foreground/70";
   const eyebrowClass = cn("text-label font-medium uppercase tracking-wider", textMuted);
@@ -313,139 +295,150 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   const applyLiveTitle = "Apply live game suggestion to Studio";
 
   return (
-    <div ref={rootRef} className="relative inline-flex min-w-0 max-w-full items-center gap-2">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            onClick={() => setStatusOpen((open) => !open)}
-            aria-expanded={statusOpen}
-            aria-controls="game-status-panel"
-            aria-label={chipTitle}
-            title={chipTitle}
-            className={cn(
-              "inline-flex h-7 min-w-0 max-w-[280px] cursor-pointer items-center gap-2 rounded border px-2 transition-colors hover:bg-accent",
-              liveGameStudioRelation === "stale"
-                ? "border-warning text-warning ring-1 ring-warning/40"
-                : statusOpen
-                  ? "border-input bg-accent"
-                  : "border-transparent"
-            )}
+    <div className="relative inline-flex min-w-0 max-w-full items-center gap-2">
+      {/* Hover text lives on ONE surface (the Radix tooltip); the accessible
+          name mirrors the full merged status via aria-label. The native
+          `title` mirrors are gone — they rendered the browser tooltip ON TOP
+          of the Radix one (E3 hover-text dedupe). */}
+      <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-label={chipTitle}
+                className={cn(
+                  "inline-flex h-7 min-w-0 max-w-[280px] cursor-pointer items-center gap-2 rounded border px-2 transition-colors hover:bg-accent",
+                  liveGameStudioRelation === "stale"
+                    ? "border-warning text-warning ring-1 ring-warning/40"
+                    : statusOpen
+                      ? "border-input bg-accent"
+                      : "border-transparent"
+                )}
+              >
+                <Radio
+                  className={cn(
+                    "w-3.5 h-3.5",
+                    liveGameStudioRelation === "stale" ? "text-warning" : textMuted
+                  )}
+                />
+                <div className={cn("w-2 h-2 shrink-0 rounded-full", combinedDotClass)} />
+                <span
+                  className={cn(
+                    "truncate text-data font-medium",
+                    liveGameStudioRelation === "stale" ? "text-warning" : textPrimary
+                  )}
+                >
+                  {chipContent}
+                </span>
+                {liveRuntime?.autoplayActive ? (
+                  <span className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
+                    Auto
+                  </span>
+                ) : null}
+                <ChevronDown
+                  className={cn(
+                    "h-3 w-3 shrink-0",
+                    textMuted,
+                    "transition-transform",
+                    statusOpen && "rotate-180"
+                  )}
+                />
+              </button>
+            </PopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent className="whitespace-pre-line">{chipTitle}</TooltipContent>
+        </Tooltip>
+
+        {operationControlsDisabled && operationBusyLabel ? (
+          <span
+            className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning"
+            title={operationBusyLabel}
           >
-            <Radio
+            Busy
+          </span>
+        ) : null}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onToggleAutoplay}
+              disabled={autoplayControlDisabled}
+              aria-label={autoplayTitle}
               className={cn(
-                "w-3.5 h-3.5",
-                liveGameStudioRelation === "stale" ? "text-warning" : textMuted
-              )}
-            />
-            <div className={cn("w-2 h-2 shrink-0 rounded-full", combinedDotClass)} />
-            <span
-              className={cn(
-                "truncate text-data font-medium",
-                liveGameStudioRelation === "stale" ? "text-warning" : textPrimary
+                "shrink-0",
+                liveRuntime?.autoplayActive && "border-warning/60 text-warning"
               )}
             >
-              {chipContent}
-            </span>
-            {liveRuntime?.autoplayActive ? (
-              <span className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning">
-                Auto
-              </span>
-            ) : null}
-            <ChevronDown
-              className={cn(
-                "h-3 w-3 shrink-0",
-                textMuted,
-                "transition-transform",
-                statusOpen && "rotate-180"
+              {isAutoplayActionRunning ? (
+                <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
+              ) : liveRuntime?.autoplayActive ? (
+                <Square className="w-3.5 h-3.5" />
+              ) : (
+                <AutoplayGlyph />
               )}
-            />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent className="whitespace-pre-line">{chipTitle}</TooltipContent>
-      </Tooltip>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{autoplayTitle}</TooltipContent>
+        </Tooltip>
 
-      {operationControlsDisabled && operationBusyLabel ? (
-        <span
-          className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning"
-          title={operationBusyLabel}
-        >
-          Busy
-        </span>
-      ) : null}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onExplore}
+              disabled={
+                operationControlsDisabled ||
+                isExploreActionRunning ||
+                liveRuntime?.status !== "ok" ||
+                !onExplore
+              }
+              aria-label={exploreTitle}
+              className="shrink-0"
+            >
+              {isExploreActionRunning ? (
+                <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <ScanEye className="w-3.5 h-3.5" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{exploreTitle}</TooltipContent>
+        </Tooltip>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onToggleAutoplay}
-            disabled={autoplayControlDisabled}
-            aria-label={autoplayTitle}
-            title={autoplayTitle}
-            className={cn(
-              "shrink-0",
-              liveRuntime?.autoplayActive && "border-warning/60 text-warning"
-            )}
-          >
-            {isAutoplayActionRunning ? (
-              <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
-            ) : liveRuntime?.autoplayActive ? (
-              <Square className="w-3.5 h-3.5" />
-            ) : (
-              <AutoplayGlyph />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{autoplayTitle}</TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onExplore}
-            disabled={
-              operationControlsDisabled ||
-              isExploreActionRunning ||
-              liveRuntime?.status !== "ok" ||
-              !onExplore
-            }
-            aria-label={exploreTitle}
-            title={exploreTitle}
-            className="shrink-0"
-          >
-            {isExploreActionRunning ? (
-              <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <ScanEye className="w-3.5 h-3.5" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{exploreTitle}</TooltipContent>
-      </Tooltip>
-
-      {/* The Game CTA mirrors the World console's Run: the one filled action
+        {/* The Game CTA mirrors the World console's Run: the one filled action
           in its bar, same Button size, verb label. Rocket = launch Civ7 (the
-          action leaves the studio — the old external-launch semantic). */}
-      <Button
-        onClick={onRunInGame}
-        disabled={operationControlsDisabled}
-        aria-label={runInGameTitle}
-        title={runInGameTitle}
-        className={isRunInGameRunning ? "shrink-0 opacity-70 cursor-wait" : "shrink-0"}
-      >
-        <Rocket className="w-3 h-3" />
-        <span>{isRunInGameRunning ? "Playing..." : "Play"}</span>
-      </Button>
+          action leaves the studio — the old external-launch semantic). It
+          rides the same Radix tooltip surface as the other commands (the
+          operation story stays in the accessible name). */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={onRunInGame}
+              disabled={operationControlsDisabled}
+              aria-label={runInGameTitle}
+              className={isRunInGameRunning ? "shrink-0 opacity-70 cursor-wait" : "shrink-0"}
+            >
+              <Rocket className="w-3 h-3" />
+              <span>{isRunInGameRunning ? "Playing..." : "Play"}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent className="whitespace-pre-line">{runInGameTitle}</TooltipContent>
+        </Tooltip>
 
-      {statusOpen ? (
-        <div
+        {/* The expanded status panel — Radix renders it (portaled) only while
+          open, anchored under the chip trigger; the className overrides the
+          PopoverContent defaults back to today's panel chrome (w-80, flush
+          sections instead of padding, translucent popover tier). */}
+        <PopoverContent
           id="game-status-panel"
-          role="region"
           aria-label="Expanded game status"
-          className="absolute left-0 top-full z-30 mt-3.5 w-80 overflow-hidden rounded-lg border border-border bg-popover/95 shadow-lg backdrop-blur-sm"
+          align="start"
+          sideOffset={14}
+          className="w-80 overflow-hidden bg-popover/95 p-0 backdrop-blur-sm"
         >
           <div className="flex flex-col divide-y divide-border-subtle">
             {/* Live runtime */}
@@ -497,7 +490,6 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                           className="h-6 w-6"
                           onClick={onCopyRunInGameDiagnostics}
                           aria-label="Copy Run in Game diagnostics"
-                          title="Copy Run in Game diagnostics"
                         >
                           <Bug className="w-3.5 h-3.5" />
                         </Button>
@@ -588,8 +580,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
               </div>
             ) : null}
           </div>
-        </div>
-      ) : null}
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
