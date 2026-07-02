@@ -34,7 +34,11 @@
  */
 
 // composites
-export { AppBrand } from "./components/composites/AppBrand.js";
+export {
+  AppBrand,
+  type AppBrandLink,
+  type AppBrandProps,
+} from "./components/composites/AppBrand.js";
 export { AppFooter, type AppFooterProps } from "./components/composites/AppFooter.js";
 export {
   AppHeader,
