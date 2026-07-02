@@ -1,6 +1,6 @@
 # WORKSTREAM — MapGen Studio UI Library Extraction
 
-**Status:** **EXECUTING** — checkpoint COMPLETE 2026-07-01 (Q2/E1–E4 all decided; D3–D6 below); B0 SHIPPED 2026-07-01 (draft PR #1997, gates green, 14-agent fan-out review folded); stack per openspec `studio-ui-extraction` tasks.md: B0 `@civ7/studio-contract` → B1 scaffold → B2–B6 moves → B7 sync repoint → B8+ cleanup wave
+**Status:** **EXECUTING** — checkpoint COMPLETE 2026-07-01 (Q2/E1–E4 all decided; D3–D6 below); B0 SHIPPED 2026-07-01 (draft PR #1997, gates green, 14-agent fan-out review folded); B1 SHIPPED 2026-07-01 (draft PR #1998, scaffold + theme single-source + token fixture, review folded — no-generator policy, nx test→build edge); B2 SHIPPED 2026-07-02 (draft PR #1999, foundation + 16 primitives + full app rewire, review folded — dev-only vite alias made exact-match regex after a string key prefix-captured the theme.css/fonts.css subpath imports and 500'd `vite dev`; app storybook targets now declare their dist deps); stack per openspec `studio-ui-extraction` tasks.md: B0 `@civ7/studio-contract` → B1 scaffold → B2–B6 moves → B7 sync repoint → B8+ cleanup wave
 **Owner:** extraction workstream agent (this document is the owner's operating picture)
 **Normative anchor:** [FRAME.md](./FRAME.md) — scope, DoD, non-goals, reserved decisions. This doc never overrides the frame; contradictions get escalated to Matei.
 **Branch/worktree:** `studio-ui-extraction` (parent `main`), worktree `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`
