@@ -51,10 +51,10 @@
 
 ## 7. B7 — Sync repoint + deletions + oracle run
 
-- [ ] 7.1 `git mv` `.design-sync/` + `.ds-sync/` into the package; config edit per design.md §2.5; DELETE build-inputs.sh, tsconfig.dts.json, ds-entry.tsx, the fork + `libOverrides`, app `.storybook/`, `storybook/{storeReset,queryStub}.ts`; NOTES.md gains an append-only extraction section.
-- [ ] 7.2 Full local re-verify: buildCmd + sb-reference rebuild TOGETHER → `resync.mjs --remote` (DS_CHROMIUM_PATH=Google Chrome; config keeps `entry: "dist/index.js"` per DESIGN.md §2.6) → assert changed:[46]/added:[]/removed:[] + anchor ok → full render-check → grade all 46 → portal-4 manual path → **forced-`.light` render canary** over a token-heavy story subset (FRAME both-modes gate) → conventions.md revalidation against package artifacts.
-- [ ] 7.2b Create the CI-runnable sync target: custom-named Nx target on the package (`design-sync:check` = buildCmd + sb-reference rebuild + local resync verdict), deliberately outside the CI five (FRAME §2 DoD).
-- [ ] 7.3 Cutover class-set diff (old uploaded stylesheet vs package compile) + explorations grep; any gap → authored `@source inline()` safelist.
+- [x] 7.1 `git mv` `.design-sync/` + `.ds-sync/` into the package; config edit per design.md §2.5; DELETE build-inputs.sh, tsconfig.dts.json, ds-entry.tsx, the fork + `libOverrides`, app `.storybook/`, `storybook/{storeReset,queryStub}.ts`; NOTES.md gains an append-only extraction section.
+- [x] 7.2 Full local re-verify: buildCmd + sb-reference rebuild TOGETHER → `resync.mjs --remote` (DS_CHROMIUM_PATH=Google Chrome; config keeps `entry: "dist/index.js"` per DESIGN.md §2.6) → assert changed:[46]/added:[]/removed:[] + anchor ok → full render-check → grade all 46 → portal-4 manual path → **forced-`.light` render canary** over a token-heavy story subset (FRAME both-modes gate) → conventions.md revalidation against package artifacts.
+- [x] 7.2b Create the CI-runnable sync target: custom-named Nx target on the package (`design-sync:check` = buildCmd + sb-reference rebuild + local resync verdict), deliberately outside the CI five (FRAME §2 DoD).
+- [x] 7.3 Cutover class-set diff (old uploaded stylesheet vs package compile) + explorations grep; any gap → authored `@source inline()` safelist.
 - [ ] 7.4 NO upload: present results to Matei; upload to `531d158d…` only on explicit go-ahead (atomic path, deletes verbatim from `.sync-diff.json`).
 
 ## 8. B8+ — E3 cleanup wave (post-anchor, per E3 confirmation)
