@@ -10,18 +10,22 @@ import { describe, expect, it } from "vitest";
 import { deriveAppHeaderSetupState } from "../../src/app/hooks/useSetupControls";
 import type { Civ7StudioSetupConfig } from "../../src/features/civ7Setup/setupConfig";
 
-// E4a redesign no-op pins (tasks.md 6.1): the fixture is the byte-exact
-// rendered markup of the PRE-redesign app-side AppHeader (the
-// setupConfig-driven component deleted in B6), captured at the B6 parent tip
-// (studio-ui-panels, 1eb984728) by a throwaway generator that rendered the
-// scenario list below — the two story scenes, the P7 precedence-pin scenes,
-// a no-saved-config + gameConsole scene, and two OPEN setup-panel scenes
-// (gear-click via jsdom) covering the leader/civ/difficulty/speed value paths
-// including the difficulty game-over-player fallback. These assertions render
-// the SAME scenarios through the REAL app container derivation
-// (`deriveAppHeaderSetupState`, the E4a container half) composed with the
-// redesigned package AppHeader, and require byte equality: the view-model
-// flip is a rendered-markup NO-OP.
+// AppHeader rendered-markup regression pins. Originally the E4a redesign
+// no-op proof (tasks.md 6.1): the fixture was the byte-exact markup of the
+// PRE-redesign app-side AppHeader captured at the B6 parent tip
+// (studio-ui-panels, 1eb984728), and the redesigned package AppHeader +
+// container derivation reproduced it byte-identically — that proof is
+// anchored in git history (the fixture as of the B6/B7 commits). The fixture
+// has since advanced ONCE, for the E3 cleanup wave (B8): the only delta vs
+// the B6 capture, enumerated across all 7 scenarios, is `tabindex="0"` on
+// the AppBrand root — E3 item 2's keyboard-a11y intent (nothing else in the
+// wave moved AppHeader's markup). The scenarios: the two story scenes, the
+// P7 precedence-pin scenes, a no-saved-config + gameConsole scene, and two
+// OPEN setup-panel scenes (gear-click via jsdom) covering the
+// leader/civ/difficulty/speed value paths including the difficulty
+// game-over-player fallback, all rendered through the REAL app container
+// derivation (`deriveAppHeaderSetupState`) composed with the package
+// AppHeader and required byte-equal.
 //
 // Static scenes render via renderToStaticMarkup (server ids, per-call
 // deterministic); the two open scenes render via RTL + gear click in the
