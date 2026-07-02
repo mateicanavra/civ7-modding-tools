@@ -46,8 +46,8 @@
 
 ## 6. B6 — AppHeader (per E4 outcome)
 
-- [ ] 6.1 E4a: implement the `AppHeaderSetupState` view-model + intent-callback contract (design/structure-rewire.md §5); update helpers + difficulty double-write move to the app container; both stories' args updated; markup-pin test proves identical rendered output. (E4b: skip — record the 45-component consequence.)
-- [ ] 6.2 Green: as 2.4 (46 stories); `setupConfig` stays app-side; `Civ7StudioSetupConfig` out of the public API.
+- [x] 6.1 E4a: implement the `AppHeaderSetupState` view-model + intent-callback contract (design/structure-rewire.md §5); update helpers + difficulty double-write move to the app container; both stories' args updated; markup-pin test proves identical rendered output. (E4b: skip — record the 45-component consequence.)
+- [x] 6.2 Green: as 2.4 (46 stories); `setupConfig` stays app-side; `Civ7StudioSetupConfig` out of the public API.
 
 ## 7. B7 — Sync repoint + deletions + oracle run
 
