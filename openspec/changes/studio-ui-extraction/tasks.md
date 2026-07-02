@@ -38,11 +38,11 @@
 
 ## 5. B5 — Panels + splits (4)
 
-- [ ] 5.1 Create `panels/statusLabels.ts` (3 formatters + `runInGameRequiresProcessRestart` + collapsed `RunInGameRelation`; `import type` from `@civ7/studio-contract` per E1-C); delete dead PHASES re-exports app-side; app status modules keep constructors; clientState + runInGame-status alias the package union; StudioShell repoints `runInGameRequiresProcessRestart`.
-- [ ] 5.2 recipe-dag split: PipelineStage (owns `RecipeDagLoadStatus`) + layout + domainPresentation + artifactPresentation + recipeDagFixture move; `useRecipeDagQuery` + `prunePipelineExpansion` stay (query hook imports the status union back). Move ExplorePanel, GameConsole, RecipePanel + 4 stories + relocated panel tests; app rewire per rule 0.3 (StudioShell panel repoints land HERE).
-- [ ] 5.3 **E1-C fence** (the parity test is DELETED — no twins exist): `verify`'s dist grep asserts no `@civ7/studio-server` AND no runtime `@civ7/studio-contract` specifier in dist JS (contract usage is type-position only, compiler-enforced by verbatimModuleSyntax).
-- [ ] 5.4 Strict d.ts proof: package build green with zero TS7056 (a failure = mis-executed split; stop-and-diagnose, never re-add tolerance). `buildRecipeDagLayout` output byte-identical (fixture snapshot test).
-- [ ] 5.5 Green per rule 0.3 gates (45 stories cumulative).
+- [x] 5.1 Create `panels/statusLabels.ts` (3 formatters + `runInGameRequiresProcessRestart` + collapsed `RunInGameRelation`; `import type` from `@civ7/studio-contract` per E1-C); delete dead PHASES re-exports app-side; app status modules keep constructors; clientState + runInGame-status alias the package union; StudioShell repoints `runInGameRequiresProcessRestart`.
+- [x] 5.2 recipe-dag split: PipelineStage (owns `RecipeDagLoadStatus`) + layout + domainPresentation + artifactPresentation + recipeDagFixture move; `useRecipeDagQuery` + `prunePipelineExpansion` stay (query hook imports the status union back). Move ExplorePanel, GameConsole, RecipePanel + 4 stories + relocated panel tests; app rewire per rule 0.3 (StudioShell panel repoints land HERE).
+- [x] 5.3 **E1-C fence** (the parity test is DELETED — no twins exist): `verify`'s dist grep asserts no `@civ7/studio-server` AND no runtime `@civ7/studio-contract` specifier in dist JS (contract usage is type-position only, compiler-enforced by verbatimModuleSyntax).
+- [x] 5.4 Strict d.ts proof: package build green with zero TS7056 (a failure = mis-executed split; stop-and-diagnose, never re-add tolerance). `buildRecipeDagLayout` output byte-identical (fixture snapshot test).
+- [x] 5.5 Green per rule 0.3 gates (45 stories cumulative).
 
 ## 6. B6 — AppHeader (per E4 outcome)
 
