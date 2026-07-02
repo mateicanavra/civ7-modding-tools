@@ -7,6 +7,72 @@ seams the app and the Claude Design sync both consume. Single source of truth;
 the retired `build-inputs.sh` reconstruction pipeline is replaced by this
 package's ordinary build.
 
+## Operating model — a product design system
+
+The frame everything below hangs off:
+
+- **This is a product design system.** It deliberately carries MapGen Studio's
+  composites and panels alongside the generic primitives (the same shape as
+  Shopify Polaris or GitHub Primer). The picker groups — `primitives / forms /
+  layout / composites / panels` — are the internal layering. Only a real
+  second consumer justifies splitting a primitives-only package with its own
+  synced project (the B0 contract extraction is the mechanical precedent);
+  don't pre-split for a consumer that doesn't exist.
+- **The design system is a library, not a workspace.** Everything inside it —
+  this package and its synced Claude Design project alike — exists to evolve
+  the library itself.
+- **Consuming projects are for product exploration.** Screens, flows, feature
+  concepts, and design-space exploration happen in Claude Design projects that
+  attach the design system (e.g. "App Shell"), never in the design-system
+  project.
+
+Three surfaces, three owners:
+
+| Surface | Owner | Content |
+|---|---|---|
+| This package (`src/` + stories) | the repo | the truth: components, tokens, stories (the fidelity oracle) |
+| DS project (pinned in `.design-sync/config.json`) | the sync | regenerated artifact: cards, `.d.ts`, prompts, bundle — never hand-edited |
+| DS project `explorations/` | humans + agents | **system proposals only** (lifecycle below) |
+| Consuming projects (e.g. "App Shell") | humans + agents | product design; attach the DS and explore freely |
+
+**Exploration lifecycle — the anti-dumping-ground rule.** A file in the DS
+project's `explorations/` must be one of exactly three things, each declaring
+its intent + pull-down path in a header comment:
+
+1. **Proposal: new component** (e.g. `Legend panel.html`) — built on the live
+   bundle, names its intended package home and carries story-ready fixtures.
+   Lands as a package component → prune the exploration or flip it to a
+   reference.
+2. **Proposal: change to an existing component** — the before/after idiom. The
+   "Current" pane renders the live bundle *by reference* (so the before is
+   automatically true forever); the "Proposed" pane carries consumer-side
+   overrides that annotate the exact repo edit. Landed = the panes render
+   identically → prune.
+3. **Reference: canonical assembly** (e.g. `Studio shell mock.html`) — bare
+   package components composed exactly as the app composes them; auto-tracks
+   every sync.
+
+Anything else — a screen idea, a flow, a feature sketch — belongs in a
+consuming project.
+
+Two deliberate non-features: there is **no standing `before/` snapshot
+structure** (the component cards ARE the always-current "before" for every
+component; maintained snapshots would only rot), and there is **no
+`templates/` directory of loose HTML** (an assembly that earns reuse graduates
+INTO the package as a real slot-based component with a story, surfaced in a
+`templates` picker group; loose HTML in the project is unindexed dead weight
+the design agent never reads).
+
+**Where new work starts.** Product-shaped ideas start in a consuming project —
+hacky is fine there. When a direction is worth locking, restate it as a DS
+exploration built on the real bundle (that step forces "can our parts build
+this?" and produces story-ready fixtures), then implement in the package and
+resync. Small evolutions of an *existing* component skip the consuming project
+and start directly as a before/after proposal in the DS project: DS
+explorations render the live bundle, while consuming projects render their
+attached snapshot (refreshed manually), so precise component work is strictly
+better in the DS project.
+
 ## Consuming
 
 | Import | What it is |

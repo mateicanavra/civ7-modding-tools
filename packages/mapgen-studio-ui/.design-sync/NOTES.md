@@ -227,3 +227,19 @@ historical.
   `components/<group>/<Name>/<Name>.html?story=<ExportName>` full-page, compare the
   dialog panels). B8 (E3 cleanup) did exactly this: force re-grade, all 46 match,
   grades now certify the post-cleanup renders.
+
+- **2026-07-02 — operating model recorded (post-close).** The design system is a
+  **product design system** operated as a **library, not a workspace**: DS-project
+  content evolves the library itself; product exploration lives in consuming
+  projects (e.g. the "App Shell" project). The full frame + the `explorations/`
+  lifecycle (proposal:new-component / proposal:before-after / reference:assembly —
+  nothing else) is canonical in the package README ("Operating model") and in the
+  agent-facing tail of `conventions.md` (reaches every consuming agent's prompt
+  via `readmeHeader`). Current explorations in project 531d158d: `Studio shell
+  mock.html` (reference assembly, screenshot-verified vs the live app) and
+  `Legend panel.html` (new-component proposal, ported from App Shell's DC-format
+  originals — intent kept, implementation rebuilt on the live bundle with the
+  real ExplorePanel). Also: the 74 leftover hash-suffixed remote fonts were
+  deleted (glob-fenced plan); token consumption in explorations MUST be
+  `hsl(var(--token))` — bare `var(--token)` computes to transparent and only
+  *looks* right because `color-scheme: dark` darkens the canvas.
