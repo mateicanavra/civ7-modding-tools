@@ -32,9 +32,9 @@
 
 ## 4. B4 — Forms (11; the five-module unit moves as ONE)
 
-- [ ] 4.1 Move rjsfWidgets + rjsfTemplates + SchemaConfigForm + SchemaForm (CSP deep-subpath KEPT verbatim) + pathUtils + schemaPresentation + typeboxRjsfValidator(+test) + useConfigCollapse + mockWidgetProps + the 11 stories; `configBuilders.ts` stays app-side (only file left in the app dir).
-- [ ] 4.2 App rewire per rule 0.3: still-app-side RecipePanel repoints its SchemaConfigForm + useConfigCollapse imports to the package.
-- [ ] 4.3 Green per rule 0.3 gates (41 stories cumulative; validator test green in the package project).
+- [x] 4.1 Move rjsfWidgets + rjsfTemplates + SchemaConfigForm + SchemaForm (CSP deep-subpath KEPT verbatim) + pathUtils + schemaPresentation + typeboxRjsfValidator(+test) + useConfigCollapse + mockWidgetProps + the 11 stories; `configBuilders.ts` stays app-side (only file left in the app dir).
+- [x] 4.2 App rewire per rule 0.3: still-app-side RecipePanel repoints its SchemaConfigForm + useConfigCollapse imports to the package.
+- [x] 4.3 Green per rule 0.3 gates (41 stories cumulative; validator test green in the package project).
 
 ## 5. B5 — Panels + splits (4)
 
