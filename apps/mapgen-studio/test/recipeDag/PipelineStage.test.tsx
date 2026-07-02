@@ -1,4 +1,4 @@
-import type { RecipeDagResult } from "@civ7/studio-server/contract";
+import type { RecipeDagResult } from "@civ7/studio-contract";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { PIPELINE_EDGE_INK, PipelineStage } from "../../src/features/recipeDag/PipelineStage";

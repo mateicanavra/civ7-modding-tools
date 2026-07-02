@@ -1,4 +1,4 @@
-import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-server";
+import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-contract";
 import { type Dispatch, type RefObject, type SetStateAction, useCallback, useState } from "react";
 
 import { useLatestRef } from "./useLatestRef";

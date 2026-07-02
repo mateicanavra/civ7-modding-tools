@@ -1,4 +1,4 @@
-import type { RunInGameOperationStatus } from "@civ7/studio-server";
+import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 import { describe, expect, it } from "vitest";
 
 import {

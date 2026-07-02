@@ -1,4 +1,4 @@
-import type { RecipeDagResult } from "@civ7/studio-server/contract";
+import type { RecipeDagResult } from "@civ7/studio-contract";
 import { useQuery } from "@tanstack/react-query";
 
 import { orpcClient } from "../../lib/orpc";

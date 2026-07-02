@@ -8,7 +8,7 @@ import {
   type RunInGameSavedSetupConfigRef,
   type RunInGameSetupConfig,
   type RunInGameSetupOptionValue,
-} from "@civ7/studio-server/contract";
+} from "@civ7/studio-contract";
 
 export type Civ7StudioSetupOptionValue = RunInGameSetupOptionValue;
 

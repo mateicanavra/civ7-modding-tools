@@ -1,9 +1,10 @@
 import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "@civ7/control-orpc";
+import type { StudioEffectContract } from "@civ7/studio-contract";
 import { isDefinedError, onError, type Router } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { Effect } from "effect";
 import type { StudioServerContext } from "./context.js";
-import type { StudioContract, StudioEffectContract } from "./contract/index.js";
+import type { StudioContract } from "./contract/index.js";
 import { type LiveGameWatcherOptions, StudioLiveGameWatcher } from "./liveGame/watcher.js";
 import { type StudioDaemonIdentity, StudioOperationRuntime } from "./operationRuntime/index.js";
 import { createStudioRouter } from "./router/index.js";

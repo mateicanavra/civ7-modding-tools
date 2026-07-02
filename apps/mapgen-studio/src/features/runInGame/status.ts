@@ -2,8 +2,8 @@ import type {
   RunInGameOperationKind,
   RunInGameOperationStatus,
   RunInGamePhase,
-} from "@civ7/studio-server/contract";
-import { RUN_IN_GAME_PHASES } from "@civ7/studio-server/contract";
+} from "@civ7/studio-contract";
+import { RUN_IN_GAME_PHASES } from "@civ7/studio-contract";
 
 export { RUN_IN_GAME_PHASES };
 

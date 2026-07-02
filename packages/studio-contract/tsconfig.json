@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    // The contract package is consumed by bundler-built packages on both sides
+    // (studio-server via tsup, the studio app via Vite), so typecheck with
+    // bundler resolution to match — same rationale as @civ7/studio-server.
+    // Relative imports keep the explicit `.js` extension for nodenext-clean
+    // output.
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    // Environment-neutral package consumed directly by the browser app: no
+    // ambient @types (the workspace root ships @types/node; without this pin
+    // tsc would put node globals in scope and let node-only code typecheck).
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

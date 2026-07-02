@@ -4,38 +4,28 @@ export type {
   FailedErrorData,
   StatusNotFoundData,
   StatusNotFoundErrorData,
-  StudioFailureData,
-  UnavailableFailureErrorData,
-  UnexpectedDefectData,
-} from "./errorData.js";
-export {
-  dependencyUnavailableDataSchema,
-  expectedFailureDataSchema,
-  expectedFailureErrorDataSchema,
-  failedErrorDataSchema,
-  statusNotFoundDataSchema,
-  statusNotFoundErrorDataSchema,
-  studioFailureDataSchema,
-  studioRecoveryActionSchema,
-  unavailableFailureErrorDataSchema,
-  unexpectedDefectDataSchema,
-} from "./errorData.js";
-export type {
   StudioBoundedDiagnostics,
   StudioBoundedDiagnosticValue,
   StudioDependencyKind,
+  StudioFailureData,
   StudioFailureReasonCode,
   StudioFailureTag,
   StudioOperationNamespace,
   StudioRecoveryAction,
   StudioRuntimeFailure,
-} from "./failure.js";
+  UnavailableFailureErrorData,
+  UnexpectedDefectData,
+} from "@civ7/studio-contract";
 export {
   autoplayStartStopFailed,
   autoplayVerificationFailed,
   daemonIdentityMismatch,
   dependencyUnavailable,
+  dependencyUnavailableDataSchema,
   deployFailed,
+  expectedFailureDataSchema,
+  expectedFailureErrorDataSchema,
+  failedErrorDataSchema,
   invalidRequest,
   isStudioRuntimeFailure,
   materializationFailed,
@@ -49,8 +39,14 @@ export {
   STUDIO_FAILURE_TAGS,
   STUDIO_OPERATION_NAMESPACES,
   STUDIO_RECOVERY_ACTIONS,
+  statusNotFoundDataSchema,
+  statusNotFoundErrorDataSchema,
+  studioFailureDataSchema,
+  studioRecoveryActionSchema,
+  unavailableFailureErrorDataSchema,
+  unexpectedDefectDataSchema,
   unsupportedOperationType,
-} from "./failure.js";
+} from "@civ7/studio-contract";
 export type {
   StudioDaemonIdentity,
   StudioDeclaredErrorCode,

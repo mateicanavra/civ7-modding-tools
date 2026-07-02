@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
 
-import { toStandardSchema } from "../typeboxStandardSchema.js";
+import { toStandardSchema } from "../lib/typeboxStandardSchema.js";
 
 const RecipeDagRecipeNotFoundDataSchema = Type.Object(
   {

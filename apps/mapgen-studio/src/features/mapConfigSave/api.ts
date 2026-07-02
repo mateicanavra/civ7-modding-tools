@@ -9,9 +9,9 @@
 // contract errors: `safe(...)` +
 // `isDefinedError(...)` expose the DECLARED code
 // (SAVE_DEPLOY_BLOCKED/INVALID/FAILED/STATUS_NOT_FOUND, statuses pinned in
-// packages/studio-server/src/contract/errors.ts).
+// packages/studio-contract/src/errors.ts).
 
-import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";

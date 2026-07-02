@@ -1,6 +1,6 @@
 import type { ContractProcedure } from "@orpc/contract";
 import { oc } from "@orpc/contract";
-import { toStandardSchema } from "../typeboxStandardSchema.js";
+import { toStandardSchema } from "../lib/typeboxStandardSchema.js";
 import { type RecipeDagErrorMap, recipeDagErrorMap } from "./errors.js";
 import { RecipeDagGetInputSchema, RecipeDagResultSchema } from "./schema.js";
 
