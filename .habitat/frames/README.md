@@ -60,3 +60,7 @@ Current frames:
   the three general rule-remediation frames to reviewed `_remainder` rows. It
   owns remainder-specific entry tests, row status semantics, pending-action
   requirements, and closure additions; it no longer duplicates the full method.
+- `CLOSED-STRUCTURE-ENFORCEMENT-METHOD-FRAME.md`: use when the next authority
+  domino should pick one architecture-backed kind, assert its closed structure,
+  make current files conform, and remove rule packets whose predicates are
+  subsumed by the new live enforcement.
