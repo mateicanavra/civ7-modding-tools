@@ -1,12 +1,15 @@
+import type {
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import { describe, expect, it } from "vitest";
-
 import {
   loadStudioAuthoringState,
   parseStudioAuthoringState,
   STUDIO_AUTHORING_STATE_KEY,
   saveStudioAuthoringState,
 } from "../../src/features/studioState/persistence";
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../src/ui/types";
 
 function memoryStorage() {
   const values = new Map<string, string>();

@@ -30,9 +30,12 @@
       }
     </style>
     <script>
-      // Apply theme before first paint (no flash). `.dark` drives the design
-      // tokens in index.css. Must stay AFTER the flash-guard <style> so the
-      // light override it appends wins by source order.
+      // Apply theme before first paint (no flash). The design tokens are
+      // DARK-DEFAULT (`:root, .dark` in the package theme.css) and re-skin
+      // under an explicit `.light` class — so the light branch MUST add the
+      // class (the dark-default cascade companion, DESIGN.md §2.2), not just
+      // out-cascade the flash guard. Must stay AFTER the flash-guard <style>
+      // so the light override it appends wins by source order.
       (function () {
         try {
           // Same key + resolution as `useTheme.ts`: explicit light/dark wins;
@@ -45,9 +48,12 @@
           if (dark) {
             document.documentElement.classList.add("dark");
           } else {
+            // Dark-default tokens: without `.light` on the root the light
+            // user would render the DARK palette after hydration.
+            document.documentElement.classList.add("light");
             // The static flash guard above is dark; out-cascade it (same
             // specificity, later source order) so light users don't get a
-            // dark pre-React flash (index.css :root --background/--foreground).
+            // dark pre-React flash (theme.css `.light` --background/--foreground).
             var s = document.createElement("style");
             s.textContent =
               ":root { color-scheme: light; background: #f2f2f7; } " +

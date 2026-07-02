@@ -1,5 +1,13 @@
+import type {
+  DataTypeOption,
+  OverlayOption,
+  RenderModeOption,
+  SpaceOption,
+  StageOption,
+  StepOption,
+  VariantOption,
+} from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useEffect, useMemo } from "react";
-
 import {
   findVariantIdForEra,
   findVariantKeyForEra,
@@ -18,15 +26,6 @@ import { getOverlaySuggestions } from "../../recipes/overlaySuggestions";
 import { formatErrorForUi } from "../../shared/errorFormat";
 import { clampNumber } from "../../shared/number";
 import { useViewStore } from "../../stores/viewStore";
-import type {
-  DataTypeOption,
-  OverlayOption,
-  RenderModeOption,
-  SpaceOption,
-  StageOption,
-  StepOption,
-  VariantOption,
-} from "../../ui/types";
 import { formatStageName } from "../../ui/utils/formatting";
 
 /** The resolved (dataType, space, renderMode, variant) tuple driving the canvas. */

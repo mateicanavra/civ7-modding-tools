@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { RecipeSettings, WorldSettings } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
 import { AppFooter } from "@/ui/components/AppFooter";
-import type { RecipeSettings, WorldSettings } from "@/ui/types";
 
 /**
  * AppFooter is the World/Map console — a centered floating bar (size · players ·

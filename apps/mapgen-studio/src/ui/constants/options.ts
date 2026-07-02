@@ -12,7 +12,7 @@ import type {
   RenderModeOption,
   ResourceMode,
   SelectOption,
-} from "../types";
+} from "@swooper/mapgen-studio-ui/types";
 
 export interface MapSizeOption extends SelectOption<MapSize> {
   dimensions: string;

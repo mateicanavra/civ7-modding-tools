@@ -4,9 +4,9 @@
 // Manages visualization preferences and selected step.
 // ============================================================================
 
+import type { ViewState } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useState } from "react";
 import { DEFAULT_VIEW_STATE } from "../constants";
-import type { ViewState } from "../types";
 
 export interface UseViewStateOptions {
   initialState?: Partial<ViewState>;

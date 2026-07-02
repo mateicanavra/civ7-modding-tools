@@ -1,6 +1,6 @@
+import { TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { TooltipProvider } from "../../src/components/ui/tooltip";
 import type {
   RiverLakeFloodplainInspectorSummary,
   RiverLakeInspectorLayerRef,

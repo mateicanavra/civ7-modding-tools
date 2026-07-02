@@ -16,7 +16,14 @@
     "noUncheckedSideEffectImports": true,
     // Environment-neutral browser package: no ambient @types (the workspace
     // root ships @types/node; without this pin node globals would typecheck).
-    "types": []
+    "types": [],
+    // Self-referential bare package imports (stories + .storybook/preview
+    // import the published name — the public API is the story contract;
+    // DESIGN.md §1 "one tsconfig paths self-entry"). Runtime resolution is the
+    // Storybook exact-match alias (dev) / the exports map (everywhere else).
+    "paths": {
+      "@swooper/mapgen-studio-ui": ["./src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

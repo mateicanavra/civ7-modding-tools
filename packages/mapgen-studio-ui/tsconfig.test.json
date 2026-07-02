@@ -2,9 +2,17 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     // Tests run under vitest on node (fs fixtures, jsdom component tests) —
-    // node ambients are legitimate HERE and only here. `src/` stays checked
-    // by the base config with `types: []` (environment-neutral browser code).
+    // node ambients are legitimate HERE and only here (plus the .storybook
+    // config files, which run under node/Vite). `src/` stays checked by the
+    // base config with `types: []` (environment-neutral browser code).
     "types": ["node"]
   },
-  "include": ["test/**/*.ts", "test/**/*.tsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": [
+    "test/**/*.ts",
+    "test/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx"
+  ]
 }

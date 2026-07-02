@@ -1,11 +1,10 @@
 import type { RJSFSchema, WidgetProps } from "@rjsf/utils";
+import { FieldRow, Input } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { Input } from "@/components/ui";
 import type {
   BrowserConfigFormContext,
   ConfigCollapseContext,
 } from "@/features/configOverrides/rjsfTemplates";
-import { FieldRow } from "@/ui/components/fields";
 
 /**
  * Shared rjsf mock support for the Stage-1 config-override stories.

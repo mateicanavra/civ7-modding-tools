@@ -4,8 +4,13 @@
 // Manages generation state and actions.
 // ============================================================================
 
+import type {
+  GenerationStatus,
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useMemo, useState } from "react";
-import type { GenerationStatus, PipelineConfig, RecipeSettings, WorldSettings } from "../types";
 import { configsEqual, generateSeed, recipeSettingsEqual, worldSettingsEqual } from "../utils";
 
 export interface GenerationSnapshot {

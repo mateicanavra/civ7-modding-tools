@@ -3,7 +3,11 @@
 // states are offered — its semantics are PARITY-CRITICAL and reproduced verbatim
 // from `App.tsx` (app-decomposition slice).
 
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
+import type {
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import { configsEqual } from "../../ui/utils/config";
 import { type Civ7StudioSetupConfig, studioSetupConfigsEqual } from "../civ7Setup/setupConfig";
 import type { RunInGameSourceSnapshot } from "./clientState";

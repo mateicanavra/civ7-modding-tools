@@ -1,6 +1,6 @@
+import { TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { TooltipProvider } from "../../src/components/ui/tooltip";
 import { AppHeader, type AppHeaderProps } from "../../src/ui/components/AppHeader";
 
 // Config-precedence pins (P7): the saved-config selector claims the file only

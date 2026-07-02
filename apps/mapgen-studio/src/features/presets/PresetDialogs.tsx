@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Button,
   Dialog,
@@ -9,7 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-} from "../../components/ui";
+} from "@swooper/mapgen-studio-ui";
+import { useState } from "react";
 
 /**
  * Preset dialogs — error / save / confirm flows, migrated from the legacy
