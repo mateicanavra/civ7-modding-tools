@@ -283,7 +283,14 @@ function FlatObjectChildren(args: {
         run.kind === "section" ? (
           <div key={run.item.name ?? index}>{run.item.content}</div>
         ) : (
-          <div key={index} className={`flex flex-col ${FORM.rhythm.siblings} ${args.fieldsClass}`}>
+          // A field run is identified by its first property: property names are
+          // unique within an object, so this key survives sections being added,
+          // removed, or reordered around the run — an index key would remount
+          // every following run (and drop transient input state) on such shifts.
+          <div
+            key={run.items[0]?.name ?? index}
+            className={`flex flex-col ${FORM.rhythm.siblings} ${args.fieldsClass}`}
+          >
             {run.items.map((p, itemIndex) => (
               <Fragment key={p.name ?? itemIndex}>{p.content}</Fragment>
             ))}
