@@ -434,7 +434,6 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           PopoverContent defaults back to today's panel chrome (w-80, flush
           sections instead of padding, translucent popover tier). */}
         <PopoverContent
-          id="game-status-panel"
           aria-label="Expanded game status"
           align="start"
           sideOffset={14}
