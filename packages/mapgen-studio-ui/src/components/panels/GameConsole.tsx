@@ -11,6 +11,7 @@ import {
   Square,
 } from "lucide-react";
 import React from "react";
+import { cn } from "../../lib/utils.js";
 import { Button } from "../ui/button.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import {
@@ -151,7 +152,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   }, [statusOpen]);
   const textPrimary = "text-foreground";
   const textMuted = "text-muted-foreground/70";
-  const eyebrowClass = `text-label font-medium uppercase tracking-wider ${textMuted}`;
+  const eyebrowClass = cn("text-label font-medium uppercase tracking-wider", textMuted);
   // The "stale vs live game" emphasis is a warning about data, so it uses the
   // `warning` token (not the slate identity accent).
   const liveDotClass =
@@ -322,20 +323,27 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             aria-controls="game-status-panel"
             aria-label={chipTitle}
             title={chipTitle}
-            className={`inline-flex h-7 min-w-0 max-w-[280px] cursor-pointer items-center gap-2 rounded border px-2 transition-colors hover:bg-accent ${
+            className={cn(
+              "inline-flex h-7 min-w-0 max-w-[280px] cursor-pointer items-center gap-2 rounded border px-2 transition-colors hover:bg-accent",
               liveGameStudioRelation === "stale"
                 ? "border-warning text-warning ring-1 ring-warning/40"
                 : statusOpen
                   ? "border-input bg-accent"
                   : "border-transparent"
-            }`}
+            )}
           >
             <Radio
-              className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-warning" : textMuted}`}
+              className={cn(
+                "w-3.5 h-3.5",
+                liveGameStudioRelation === "stale" ? "text-warning" : textMuted
+              )}
             />
-            <div className={`w-2 h-2 shrink-0 rounded-full ${combinedDotClass}`} />
+            <div className={cn("w-2 h-2 shrink-0 rounded-full", combinedDotClass)} />
             <span
-              className={`truncate text-data font-medium ${liveGameStudioRelation === "stale" ? "text-warning" : textPrimary}`}
+              className={cn(
+                "truncate text-data font-medium",
+                liveGameStudioRelation === "stale" ? "text-warning" : textPrimary
+              )}
             >
               {chipContent}
             </span>
@@ -345,7 +353,12 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
               </span>
             ) : null}
             <ChevronDown
-              className={`h-3 w-3 shrink-0 ${textMuted} transition-transform ${statusOpen ? "rotate-180" : ""}`}
+              className={cn(
+                "h-3 w-3 shrink-0",
+                textMuted,
+                "transition-transform",
+                statusOpen && "rotate-180"
+              )}
             />
           </button>
         </TooltipTrigger>
@@ -370,7 +383,10 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
             disabled={autoplayControlDisabled}
             aria-label={autoplayTitle}
             title={autoplayTitle}
-            className={`shrink-0 ${liveRuntime?.autoplayActive ? "border-warning/60 text-warning" : ""}`}
+            className={cn(
+              "shrink-0",
+              liveRuntime?.autoplayActive && "border-warning/60 text-warning"
+            )}
           >
             {isAutoplayActionRunning ? (
               <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
@@ -443,13 +459,15 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                 ) : null}
               </div>
               <div className="flex items-center gap-2">
-                <span className={`h-2 w-2 shrink-0 rounded-full ${liveDotClass}`} />
-                <span className={`truncate text-data font-medium ${textPrimary}`}>{liveText}</span>
+                <span className={cn("h-2 w-2 shrink-0 rounded-full", liveDotClass)} />
+                <span className={cn("truncate text-data font-medium", textPrimary)}>
+                  {liveText}
+                </span>
               </div>
               {liveRuntime?.readiness &&
               liveRuntime.status === "ok" &&
               (liveRuntime.turn !== undefined || liveRuntime.seed !== undefined) ? (
-                <span className={`text-label ${textMuted}`}>{liveRuntime.readiness}</span>
+                <span className={cn("text-label", textMuted)}>{liveRuntime.readiness}</span>
               ) : null}
               {liveSyncAvailable ? (
                 <Button
@@ -492,20 +510,25 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
               {runInGameStatus ? (
                 <>
                   <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
-                    <span className={`text-data font-medium ${textPrimary}`}>
+                    <span className={cn("h-2 w-2 shrink-0 rounded-full", runInGameDotClass)} />
+                    <span className={cn("text-data font-medium", textPrimary)}>
                       {runInGamePhaseLabel}
                     </span>
                     {runInGameStateLabel ? (
                       <span
-                        className={`rounded border px-1 py-0.5 text-label ${runInGameCurrentRelation === "stale" ? "border-warning/40 text-warning" : "border-border text-muted-foreground"}`}
+                        className={cn(
+                          "rounded border px-1 py-0.5 text-label",
+                          runInGameCurrentRelation === "stale"
+                            ? "border-warning/40 text-warning"
+                            : "border-border text-muted-foreground"
+                        )}
                       >
                         {runInGameStateLabel}
                       </span>
                     ) : null}
                   </div>
                   <span
-                    className={`truncate text-label ${textMuted}`}
+                    className={cn("truncate text-label", textMuted)}
                     title={runInGameStatus.requestId}
                   >
                     {runInGameStatus.requestId}
@@ -529,7 +552,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                         <p className="text-label text-destructive">{runInGameStatus.error}</p>
                       ) : null}
                       {runInGameStatus.details?.recoveryHint ? (
-                        <p className={`text-label ${textMuted}`}>
+                        <p className={cn("text-label", textMuted)}>
                           {runInGameStatus.details.recoveryHint}
                         </p>
                       ) : null}
@@ -537,7 +560,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                   )}
                 </>
               ) : (
-                <span className={`text-data ${textMuted}`}>No run yet</span>
+                <span className={cn("text-data", textMuted)}>No run yet</span>
               )}
             </div>
 
@@ -546,12 +569,14 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
               <div className="flex flex-col gap-1.5 px-3 py-2.5">
                 <span className={eyebrowClass}>Save &amp; Deploy</span>
                 <div className="flex items-center gap-2">
-                  <span className={`h-2 w-2 shrink-0 rounded-full ${saveDeployDotClass}`} />
-                  <span className={`text-data font-medium ${textPrimary}`}>{saveDeployLabel}</span>
+                  <span className={cn("h-2 w-2 shrink-0 rounded-full", saveDeployDotClass)} />
+                  <span className={cn("text-data font-medium", textPrimary)}>
+                    {saveDeployLabel}
+                  </span>
                 </div>
                 {saveDeployStatus.requestId ? (
                   <span
-                    className={`truncate text-label ${textMuted}`}
+                    className={cn("truncate text-label", textMuted)}
                     title={saveDeployStatus.requestId}
                   >
                     {saveDeployStatus.requestId}

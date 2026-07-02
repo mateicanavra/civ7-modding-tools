@@ -6,8 +6,9 @@ import type {
 } from "@rjsf/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
-import { errorFieldId } from "./fieldIds.js";
+import { cn } from "../../lib/utils.js";
 import { FieldRow } from "./FieldRow.js";
+import { errorFieldId } from "./fieldIds.js";
 import { pathToPointer } from "./schemaPresentation.js";
 
 /**
@@ -95,11 +96,7 @@ function renderGsComments(args: { schema: unknown; className: string }): ReactNo
   const meta = args.schema as GsSchemaMeta | null;
   const comments = normalizeGsComments(meta?.gs?.comments);
   if (!comments) return null;
-  return (
-    <div className={["text-data whitespace-pre-wrap", args.className].filter(Boolean).join(" ")}>
-      {comments}
-    </div>
-  );
+  return <div className={cn("text-data whitespace-pre-wrap", args.className)}>{comments}</div>;
 }
 
 function configContentId(pointer: string): string {
@@ -126,7 +123,7 @@ function CollapsibleHeader(args: {
   const Chevron = expanded ? ChevronDown : ChevronRight;
   return (
     <header
-      className={["flex items-center gap-1", className].filter(Boolean).join(" ")}
+      className={cn("flex items-center gap-1", className)}
       data-config-header=""
       data-config-pointer={pointer}
     >
@@ -138,7 +135,7 @@ function CollapsibleHeader(args: {
         className="flex flex-1 min-w-0 items-center gap-1.5 text-left cursor-pointer"
       >
         <Chevron className="w-3 h-3 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-        <span className={`min-w-0 truncate ${titleClass}`}>{title}</span>
+        <span className={cn("min-w-0 truncate", titleClass)}>{title}</span>
       </button>
       {actions ? <div className="flex items-center gap-1 shrink-0">{actions}</div> : null}
     </header>
@@ -183,10 +180,10 @@ export function BrowserConfigFieldTemplate(
 
   if (!showLabel) {
     return (
-      <div className={[`flex flex-col ${FORM.rhythm.field}`, classNames].filter(Boolean).join(" ")}>
+      <div className={cn("flex flex-col", FORM.rhythm.field, classNames)}>
         <div className={textClass}>{children}</div>
         {description && !suppressDescription ? (
-          <div className={`text-data ${labelClass}`}>{description}</div>
+          <div className={cn("text-data", labelClass)}>{description}</div>
         ) : null}
         {renderGsComments({ schema: props.schema, className: labelClass })}
         {hasErrors ? (
@@ -194,22 +191,22 @@ export function BrowserConfigFieldTemplate(
             {errors}
           </div>
         ) : null}
-        {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
+        {help ? <div className={cn("text-data", mutedClass)}>{help}</div> : null}
       </div>
     );
   }
 
   return (
-    <div className={[`flex flex-col ${FORM.rhythm.field}`, classNames].filter(Boolean).join(" ")}>
+    <div className={cn("flex flex-col", FORM.rhythm.field, classNames)}>
       <FieldRow>
-        <label className={`text-data min-w-[96px] ${FORM.fieldLabel}`} htmlFor={id}>
+        <label className={cn("text-data min-w-[96px]", FORM.fieldLabel)} htmlFor={id}>
           <span className="font-medium">{prettyLabel}</span>
           {required ? <span className="text-data text-destructive">*</span> : null}
         </label>
-        <div className={`flex-1 min-w-[120px] ${textClass}`}>{children}</div>
+        <div className={cn("flex-1 min-w-[120px]", textClass)}>{children}</div>
       </FieldRow>
       {description && !suppressDescription ? (
-        <div className={`text-data ${labelClass}`}>{description}</div>
+        <div className={cn("text-data", labelClass)}>{description}</div>
       ) : null}
       {renderGsComments({ schema: props.schema, className: labelClass })}
       {hasErrors ? (
@@ -217,7 +214,7 @@ export function BrowserConfigFieldTemplate(
           {errors}
         </div>
       ) : null}
-      {help ? <div className={`text-data ${mutedClass}`}>{help}</div> : null}
+      {help ? <div className={cn("text-data", mutedClass)}>{help}</div> : null}
     </div>
   );
 }
@@ -289,7 +286,7 @@ function FlatObjectChildren(args: {
           // every following run (and drop transient input state) on such shifts.
           <div
             key={run.items[0]?.name ?? index}
-            className={`flex flex-col ${FORM.rhythm.siblings} ${args.fieldsClass}`}
+            className={cn("flex flex-col", FORM.rhythm.siblings, args.fieldsClass)}
           >
             {run.items.map((p, itemIndex) => (
               <Fragment key={p.name ?? itemIndex}>{p.content}</Fragment>
@@ -320,7 +317,9 @@ export function BrowserConfigObjectFieldTemplate(
     // by hairlines, no inter-card margins, no card chrome. Expansion is the
     // only volume change (a recessed slab opens under the row).
     return (
-      <div className={`flex flex-col divide-y divide-border-subtle border-y ${FORM.borderSubtle}`}>
+      <div
+        className={cn("flex flex-col divide-y divide-border-subtle border-y", FORM.borderSubtle)}
+      >
         {properties
           .filter((p) => !p.hidden)
           .map((p, index) => (
@@ -368,29 +367,29 @@ export function BrowserConfigObjectFieldTemplate(
           <CollapsibleHeader
             pointer={pointer}
             title={prettyTitle}
-            titleClass={`text-sm font-semibold ${textClass}`}
+            titleClass={cn("text-sm font-semibold", textClass)}
             expanded={expanded}
             collapse={collapse}
             className="px-2.5 py-2 hover:bg-muted/20 transition-colors"
           />
         ) : (
           <header className="flex flex-col gap-1 px-2.5 py-2">
-            <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
+            <div className={cn("text-sm font-semibold", textClass)}>{prettyTitle}</div>
             {renderGsComments({ schema, className: labelClass })}
-            {description ? <div className={`text-data ${labelClass}`}>{description}</div> : null}
+            {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
           </header>
         )}
         {expanded ? (
           <div
             id={collapse ? configContentId(pointer) : undefined}
-            className={`border-t bg-surface-sunken/60 ${FORM.borderSubtle}`}
+            className={cn("border-t bg-surface-sunken/60", FORM.borderSubtle)}
           >
             {collapse &&
             (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
               <div className="flex flex-col gap-1 px-2.5 pt-2 pb-1.5">
                 {renderGsComments({ schema, className: labelClass })}
                 {description ? (
-                  <div className={`text-data ${labelClass}`}>{description}</div>
+                  <div className={cn("text-data", labelClass)}>{description}</div>
                 ) : null}
               </div>
             ) : null}
@@ -426,7 +425,7 @@ export function BrowserConfigObjectFieldTemplate(
       {expanded ? (
         <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
           {description ? (
-            <div className={`text-data px-2.5 pb-1.5 ${labelClass}`}>{description}</div>
+            <div className={cn("text-data px-2.5 pb-1.5", labelClass)}>{description}</div>
           ) : null}
           <FlatObjectChildren
             properties={properties}
@@ -458,7 +457,7 @@ export function BrowserConfigArrayFieldTemplate(
     canAdd && allowMutations ? (
       <button
         type="button"
-        className={`px-2 py-1 text-data rounded border ${FORM.button}`}
+        className={cn("px-2 py-1 text-data rounded border", FORM.button)}
         onClick={onAddClick}
       >
         Add
@@ -489,7 +488,7 @@ export function BrowserConfigArrayFieldTemplate(
       )}
       {expanded ? (
         <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
-          {renderGsComments({ schema, className: `px-2.5 pb-1.5 ${labelClass}` })}
+          {renderGsComments({ schema, className: cn("px-2.5 pb-1.5", labelClass) })}
           <div className="flex flex-col divide-y divide-border-subtle">
             {items.map((item, index) => {
               // RJSF v6 types this as ReactElement[], but some templates/versions

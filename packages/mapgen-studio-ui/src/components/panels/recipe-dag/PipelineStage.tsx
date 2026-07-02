@@ -2,6 +2,7 @@ import type { RecipeDagResult } from "@civ7/studio-contract";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
 import React, { useCallback, useMemo, useState } from "react";
 import { useResolvedTheme } from "../../../lib/useResolvedTheme.js";
+import { cn } from "../../../lib/utils.js";
 import { EmptyState } from "../../composites/EmptyState.js";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation.js";
 import {
@@ -510,7 +511,11 @@ const StageNode = React.memo(function StageNode(props: {
   const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
   return (
     <article
-      className={`absolute rounded-lg border shadow-sm transition-[background-color,border-color,box-shadow,color,transform] duration-200 ${expanded ? "shadow-2xl" : ""} ${stageClass}`}
+      className={cn(
+        "absolute rounded-lg border shadow-sm transition-[background-color,border-color,box-shadow,color,transform] duration-200",
+        expanded && "shadow-2xl",
+        stageClass
+      )}
       style={{
         left: position.x,
         top: position.y,
@@ -535,14 +540,14 @@ const StageNode = React.memo(function StageNode(props: {
         >
           <DomainInlineIcon
             domainId={stageDomainId}
-            className={`mt-0.5 h-4 w-4 ${iconClass}`}
+            className={cn("mt-0.5 h-4 w-4", iconClass)}
             style={activeNodeAccent ? { color: activeNodeAccent } : undefined}
           />
           <span className="min-w-0 flex-1">
-            <span className={`block truncate text-data font-semibold ${headingClass}`}>
+            <span className={cn("block truncate text-data font-semibold", headingClass)}>
               {stage.stageId}
             </span>
-            <span className={`mt-0.5 block truncate text-label ${bodyClass}`}>
+            <span className={cn("mt-0.5 block truncate text-label", bodyClass)}>
               Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"}; creates{" "}
               {stage.artifactProvides.length}; needs {stage.artifactRequires.length}
             </span>
@@ -560,7 +565,11 @@ const StageNode = React.memo(function StageNode(props: {
           }}
         >
           <ChevronDown
-            className={`h-4 w-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""} ${iconClass}`}
+            className={cn(
+              "h-4 w-4 transition-transform duration-200",
+              expanded && "rotate-180",
+              iconClass
+            )}
           />
         </button>
       </div>
@@ -574,9 +583,10 @@ const StageNode = React.memo(function StageNode(props: {
       <div
         id={expandedPanelId}
         aria-hidden={!expanded}
-        className={`origin-top overflow-hidden border-t border-border transition-[max-height,opacity,transform] duration-200 ${
+        className={cn(
+          "origin-top overflow-hidden border-t border-border transition-[max-height,opacity,transform] duration-200",
           expanded ? "max-h-[340px] opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-1"
-        }`}
+        )}
       >
         <div className="max-h-[320px] overflow-auto px-3 py-2 custom-scrollbar">
           <ol className="space-y-2">
@@ -585,10 +595,10 @@ const StageNode = React.memo(function StageNode(props: {
                 key={step.fullStepId}
                 className="rounded border border-border bg-muted/40 px-2 py-1.5"
               >
-                <div className={`truncate text-label font-medium ${headingClass}`}>
+                <div className={cn("truncate text-label font-medium", headingClass)}>
                   Step {step.orderInStage + 1}: {step.stepId}
                 </div>
-                <div className={`mt-1 flex items-center gap-1 truncate text-label ${bodyClass}`}>
+                <div className={cn("mt-1 flex items-center gap-1 truncate text-label", bodyClass)}>
                   <DomainInlineIcon domainId={step.phase} className="h-2.5 w-2.5" />
                   <span className="truncate">Phase: {step.phase}</span>
                 </div>
@@ -617,7 +627,7 @@ const PipelineMetric = React.memo(function PipelineMetric(props: {
   return (
     <div className="flex items-baseline gap-1.5">
       <span
-        className={`text-data font-semibold ${props.warn ? "text-warning" : "text-foreground"}`}
+        className={cn("text-data font-semibold", props.warn ? "text-warning" : "text-foreground")}
       >
         {props.value}
       </span>
@@ -658,7 +668,10 @@ const ArtifactEdgeLabel = React.memo(function ArtifactEdgeLabel(props: {
   return (
     <button
       type="button"
-      className={`absolute flex max-w-[190px] cursor-pointer items-center gap-1 rounded-full border px-[6.5px] py-0.5 text-label font-semibold shadow-sm transition-[left,top,border-color,box-shadow,color,background-color] duration-200 ${className}`}
+      className={cn(
+        "absolute flex max-w-[190px] cursor-pointer items-center gap-1 rounded-full border px-[6.5px] py-0.5 text-label font-semibold shadow-sm transition-[left,top,border-color,box-shadow,color,background-color] duration-200",
+        className
+      )}
       style={{
         left: props.x,
         top: props.y,
@@ -693,7 +706,10 @@ const ArtifactList = React.memo(function ArtifactList(props: {
         {props.values.slice(0, 5).map((value) => (
           <span
             key={value}
-            className={`flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-label ${chip}`}
+            className={cn(
+              "flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-label",
+              chip
+            )}
             title={value}
           >
             <DomainInlineIcon
@@ -704,7 +720,7 @@ const ArtifactList = React.memo(function ArtifactList(props: {
           </span>
         ))}
         {props.values.length > 5 ? (
-          <span className={`rounded border px-1 py-0.5 text-label ${chip}`}>
+          <span className={cn("rounded border px-1 py-0.5 text-label", chip)}>
             +{props.values.length - 5}
           </span>
         ) : null}
@@ -721,7 +737,7 @@ const DomainInlineIcon = React.memo(function DomainInlineIcon(props: {
   const { Icon, strokeWidth } = getRecipeDagDomainPresentation(props.domainId);
   return (
     <Icon
-      className={`shrink-0 text-current ${props.className}`}
+      className={cn("shrink-0 text-current", props.className)}
       strokeWidth={strokeWidth}
       style={props.style}
       aria-hidden="true"

@@ -10,6 +10,7 @@ import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
 import { LAYOUT } from "../../lib/layout.js";
+import { cn } from "../../lib/utils.js";
 import type { PipelineConfig, RecipeSettings, SelectOption } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
 import { OptionSelect } from "../composites/OptionSelect.js";
@@ -226,18 +227,22 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           pass-through dock. */}
       <div
         style={{ width: LAYOUT.PANEL_WIDTH }}
-        className={`flex flex-col max-h-full rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}
+        className={cn(
+          "flex flex-col max-h-full rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm pointer-events-auto",
+          panelBg,
+          panelBorder
+        )}
       >
         {/* Header */}
-        <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+        <div className={cn("flex-shrink-0 border-b", borderSubtle)}>
           <DisclosureHeader
             className="px-3 py-2.5"
             chevron={false}
             expanded={!recipeCollapsed}
             onToggle={() => setRecipeCollapsed(!recipeCollapsed)}
             controls="recipe-panel-recipe-section"
-            icon={<BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />}
-            title={<span className={`text-[13px] font-semibold ${textPrimary}`}>Recipe</span>}
+            icon={<BookOpen className={cn("w-4 h-4 shrink-0", textSecondary)} aria-hidden="true" />}
+            title={<span className={cn("text-[13px] font-semibold", textPrimary)}>Recipe</span>}
             trailing={
               isDirty ? (
                 <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
@@ -252,11 +257,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {!recipeCollapsed && (
           <div
             id="recipe-panel-recipe-section"
-            className={`flex-shrink-0 px-3 py-3 space-y-2 border-b ${borderSubtle}`}
+            className={cn("flex-shrink-0 px-3 py-3 space-y-2 border-b", borderSubtle)}
           >
             <div className="flex items-center gap-3">
               <span
-                className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}
+                className={cn(
+                  "text-label font-medium uppercase tracking-wider w-14 shrink-0",
+                  textMuted
+                )}
               >
                 Recipe
               </span>
@@ -274,7 +282,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
             <div className="flex items-center gap-3">
               <span
-                className={`text-label font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}
+                className={cn(
+                  "text-label font-medium uppercase tracking-wider w-14 shrink-0",
+                  textMuted
+                )}
               >
                 Config
               </span>
@@ -293,15 +304,15 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         )}
 
         {/* Config Section Header */}
-        <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+        <div className={cn("flex-shrink-0 border-b", borderSubtle)}>
           <DisclosureHeader
             className="px-3 py-2.5 cursor-pointer"
             chevron={false}
             expanded={!configCollapsed}
             onToggle={() => setConfigCollapsed(!configCollapsed)}
             controls="recipe-panel-config-section"
-            icon={<Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />}
-            title={<span className={`text-[13px] font-semibold ${textPrimary}`}>Config</span>}
+            icon={<Settings className={cn("w-4 h-4 shrink-0", textSecondary)} aria-hidden="true" />}
+            title={<span className={cn("text-[13px] font-semibold", textPrimary)}>Config</span>}
             // role="button" div (not a <button>) because the trailing zone nests
             // interactive controls; the Enter/Space keyboard contract comes from
             // the primitive (p.onKeyDown).
@@ -324,7 +335,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     must NOT toggle the section. */}
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <span
-                    className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? "text-primary" : textMuted}`}
+                    className={cn(
+                      "text-[9px] font-medium uppercase tracking-wider",
+                      overridesDisabled ? "text-primary" : textMuted
+                    )}
                   >
                     On
                   </span>
@@ -376,7 +390,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           >
             {/* Config Actions */}
             <div
-              className={`px-3 py-2 flex items-center gap-2 ${overridesDisabled ? "opacity-40 pointer-events-none select-none" : ""}`}
+              className={cn(
+                "px-3 py-2 flex items-center gap-2",
+                overridesDisabled && "opacity-40 pointer-events-none select-none"
+              )}
             >
               <div className="flex-1" />
 
@@ -435,12 +452,19 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 at full scroll the fade overlays only this padding, never the
                 last field row. */}
             <div
-              className={`px-3 pb-6 ${overridesDisabled ? "opacity-40 pointer-events-none select-none" : ""}`}
+              className={cn(
+                "px-3 pb-6",
+                overridesDisabled && "opacity-40 pointer-events-none select-none"
+              )}
             >
               {showJson ? (
                 <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
                   <pre
-                    className={`text-label font-mono leading-relaxed ${textMuted} whitespace-pre-wrap break-all`}
+                    className={cn(
+                      "text-label font-mono leading-relaxed",
+                      textMuted,
+                      "whitespace-pre-wrap break-all"
+                    )}
                   >
                     {JSON.stringify(filteredConfig, null, 2)}
                   </pre>
@@ -468,7 +492,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         )}
 
         {/* Footer */}
-        <div className={`flex-shrink-0 px-3 py-2.5 border-t ${borderColor} ${sectionBg}`}>
+        <div className={cn("flex-shrink-0 px-3 py-2.5 border-t", borderColor, sectionBg)}>
           <div className="flex items-center gap-2">
             {/*
               Save & Deploy menu — Radix `DropdownMenu` (role=menu/menuitem,
@@ -489,7 +513,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     <Button
                       variant="outline"
                       disabled={saveActionDisabled}
-                      className={`flex-1 ${isSaveDeployRunning ? "opacity-70 cursor-wait" : ""}`}
+                      className={cn("flex-1", isSaveDeployRunning && "opacity-70 cursor-wait")}
                     >
                       <Save className="w-4 h-4" aria-hidden="true" />
                       <span>Save & Deploy</span>
