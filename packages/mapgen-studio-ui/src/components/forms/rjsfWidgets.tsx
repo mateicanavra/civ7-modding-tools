@@ -1,4 +1,5 @@
 import type { RJSFSchema, WidgetProps } from "@rjsf/utils";
+import { cn } from "../../lib/utils.js";
 import { Checkbox } from "../ui/checkbox.js";
 import { Input } from "../ui/input.js";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
@@ -220,7 +221,11 @@ export function TagSelectWidget(props: ConfigWidgetProps) {
   const selectedKeys = new Set(selected.map((entry) => String(entry)));
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
   // Token-driven pill: muted inset substrate, primary fill when active, the
-  // luminance contour ring on focus.
+  // luminance contour ring on focus. Active pills merge through `cn` so the
+  // active bg/border/text/hover utilities RESOLVE over the base ones
+  // (tailwind-merge last-wins) instead of emitting both and leaning on
+  // stylesheet order — this was the one render-affecting manual join in the
+  // package (LEDGER adjudication 4).
   const baseTag =
     "px-2 py-1 text-data rounded-full border border-input bg-input-background text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
   const activeTag = "bg-primary text-primary-foreground border-primary hover:bg-primary/90";
@@ -234,7 +239,7 @@ export function TagSelectWidget(props: ConfigWidgetProps) {
           <button
             key={key}
             type="button"
-            className={[baseTag, isActive ? activeTag : null].filter(Boolean).join(" ")}
+            className={cn(baseTag, isActive && activeTag)}
             aria-pressed={isActive}
             disabled={!allowMutations}
             onClick={() => {
