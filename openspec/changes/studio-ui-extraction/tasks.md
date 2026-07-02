@@ -59,7 +59,7 @@
 
 ## 8. B8+ — E3 cleanup wave (post-anchor, per E3 confirmation)
 
-- [ ] 8.1 One designed wave, each item individually story-gated: ErrorBanner text-xs→text-data, AppBrand propification, positioning-as-chrome lifts, ExplorePanel native→Radix selects, TagSelectWidget cn flip, panels/forms manual-join normalization onto the extended cn (adjudication 4's oracle-gated batch), `${id}__error` shared id-builder extraction (`forms/fieldIds.ts`), PresetConfirmDialog double-fire fix, GameConsole Popover rebuild + hover-text dedupe, object-template re-key, React 19 forwardRef sweep, memoization wave (PipelineStage).
+- [x] 8.1 One designed wave, each item individually story-gated: ErrorBanner text-xs→text-data, AppBrand propification, positioning-as-chrome lifts, ExplorePanel native→Radix selects, TagSelectWidget cn flip, panels/forms manual-join normalization onto the extended cn (adjudication 4's oracle-gated batch), `${id}__error` shared id-builder extraction (`forms/fieldIds.ts`), PresetConfirmDialog double-fire fix, GameConsole Popover rebuild + hover-text dedupe, object-template re-key, React 19 forwardRef sweep, memoization wave (PipelineStage).
 
 ## 9. Review + close
 
