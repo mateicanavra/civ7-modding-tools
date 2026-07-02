@@ -6,6 +6,7 @@ import type {
 } from "@rjsf/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
+import { errorFieldId } from "./fieldIds.js";
 import { FieldRow } from "./FieldRow.js";
 import { pathToPointer } from "./schemaPresentation.js";
 
@@ -170,13 +171,14 @@ export function BrowserConfigFieldTemplate(
 
   const showLabel = displayLabel && label;
 
-  // Errors are associated with the field's input via `id="${id}__error"` + a
-  // `role="alert"` live region, and the widget mirrors that id through
-  // `aria-describedby` + `aria-invalid` (see `rjsfWidgets.tsx`), so assistive tech
-  // announces validation against the control rather than as orphaned text.
+  // Errors are associated with the field's input via the shared `errorFieldId`
+  // id (one definition — `fieldIds.ts`) + a `role="alert"` live region, and the
+  // widget mirrors that id through `aria-describedby` + `aria-invalid` (see
+  // `rjsfWidgets.tsx`), so assistive tech announces validation against the
+  // control rather than as orphaned text.
   // Gated on `rawErrors`: rjsf's `errors` prop is an always-truthy element, so
   // rendering on it mounts an empty live region per field (~40 phantom alerts).
-  const errorId = `${id}__error`;
+  const errorId = errorFieldId(id);
   const hasErrors = (rawErrors?.length ?? 0) > 0;
 
   if (!showLabel) {

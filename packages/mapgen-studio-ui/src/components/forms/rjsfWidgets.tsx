@@ -4,6 +4,7 @@ import { Input } from "../ui/input.js";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
 import { Switch } from "../ui/switch.js";
 import { Textarea } from "../ui/textarea.js";
+import { errorFieldId } from "./fieldIds.js";
 import type { BrowserConfigFormContext } from "./rjsfTemplates.js";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
@@ -26,15 +27,15 @@ function normalizeEmptyValue(next: string, emptyValue: unknown): string | unknow
 }
 
 // Validation a11y: when RJSF reports `rawErrors` for a field, mark the control
-// invalid and point it at the FieldTemplate's `id="${id}__error"` live region
-// (see `rjsfTemplates.tsx`) so assistive tech announces the error against the
-// input. Presentation only — no value plumbing changes.
+// invalid and point it at the FieldTemplate's error live region (the shared
+// `errorFieldId` contract — see `fieldIds.ts`) so assistive tech announces the
+// error against the input. Presentation only — no value plumbing changes.
 function errorA11yProps(
   id: string,
   rawErrors: ReadonlyArray<string> | undefined
 ): { "aria-invalid"?: true; "aria-describedby"?: string } {
   return rawErrors && rawErrors.length > 0
-    ? { "aria-invalid": true, "aria-describedby": `${id}__error` }
+    ? { "aria-invalid": true, "aria-describedby": errorFieldId(id) }
     : {};
 }
 
