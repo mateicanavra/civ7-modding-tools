@@ -7,8 +7,16 @@
 // ============================================================================
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
+import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
+import React, { useMemo, useRef, useState } from "react";
+import { LAYOUT } from "../../lib/layout.js";
+import type { PipelineConfig, RecipeSettings, SelectOption } from "../../types/index.js";
+import { DisclosureHeader } from "../composites/DisclosureHeader.js";
+import { OptionSelect } from "../composites/OptionSelect.js";
+import { SchemaConfigForm } from "../forms/SchemaConfigForm.js";
+import { useConfigCollapse } from "../forms/useConfigCollapse.js";
+import { Button } from "../ui/button.js";
 import {
-  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -16,25 +24,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DisclosureHeader,
+} from "../ui/dialog.js";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  LAYOUT,
-  OptionSelect,
-  SchemaConfigForm,
-  Switch,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  useConfigCollapse,
-} from "@swooper/mapgen-studio-ui";
-import type { PipelineConfig, RecipeSettings, SelectOption } from "@swooper/mapgen-studio-ui/types";
-import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
-import React, { useMemo, useRef, useState } from "react";
-import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
+} from "../ui/dropdown-menu.js";
+import { Switch } from "../ui/switch.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
+import { formatMapConfigSaveDeployPhaseLabel } from "./statusLabels.js";
 // ============================================================================
 // Props
 // ============================================================================

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { GameConsole, type GameConsoleProps } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { GameConsole, type GameConsoleProps } from "@/ui/components/GameConsole";
 
 /**
  * Adapted from `.design-sync/previews/GameConsole.tsx`. The live-Civ7 command

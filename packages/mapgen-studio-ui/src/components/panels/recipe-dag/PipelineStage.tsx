@@ -1,20 +1,29 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
-import { EmptyState, useResolvedTheme } from "@swooper/mapgen-studio-ui";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
+import { useResolvedTheme } from "../../../lib/useResolvedTheme.js";
+import { EmptyState } from "../../composites/EmptyState.js";
+import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation.js";
 import {
   chooseRecipeDagDomainId,
   getRecipeDagDomainPresentation,
   getRecipeDagPhaseLaneColors,
-} from "./domainPresentation";
+} from "./domainPresentation.js";
 import {
   buildArtifactEdgeLabels,
   buildRecipeDagLayout,
   pointsToPath,
   type RoutedStageEdgeGroup,
-} from "./layout";
-import type { RecipeDagLoadStatus } from "./useRecipeDagQuery";
+} from "./layout.js";
+
+/**
+ * The pipeline view's load state — RE-HOMED here from the app's
+ * `useRecipeDagQuery` (structure-rewire §3.4): the component owns the union its
+ * `status` prop renders; the app's query hook imports it back through the
+ * barrel. This kills the orpc-declaration path out of the package's d.ts emit
+ * (the TS7056 death — LEDGER row 44).
+ */
+export type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
 
 // ============================================================================
 // PIPELINE STAGE — the recipe DAG as a first-class stage view

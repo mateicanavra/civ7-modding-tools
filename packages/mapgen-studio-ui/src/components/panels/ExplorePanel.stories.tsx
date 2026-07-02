@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { ExplorePanel, type ExplorePanelProps } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { ExplorePanel, type ExplorePanelProps } from "@/ui/components/ExplorePanel";
 
 /**
  * Adapted from `.design-sync/previews/ExplorePanel.tsx`. The Explore dock:

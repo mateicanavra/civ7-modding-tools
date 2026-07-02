@@ -6,23 +6,6 @@
 // ============================================================================
 
 import {
-  DisclosureHeader,
-  LAYOUT,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  WaterStatsSection,
-} from "@swooper/mapgen-studio-ui";
-import type {
-  DataTypeOption,
-  OverlayOption,
-  RenderModeOption,
-  SpaceOption,
-  StageOption,
-  StepOption,
-  VariantOption,
-} from "@swooper/mapgen-studio-ui/types";
-import {
   Activity,
   Bug,
   CircleDot,
@@ -35,14 +18,31 @@ import {
   SquareStack,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { LAYOUT } from "../../lib/layout.js";
 import type {
-  RiverLakeFloodplainInspectorSummary,
-  RiverLakeInspectorLayerRef,
-} from "../../features/viz/riverLakeInspector";
+  DataTypeOption,
+  OverlayOption,
+  RenderModeOption,
+  SpaceOption,
+  StageOption,
+  StepOption,
+  VariantOption,
+} from "../../types/index.js";
+import { DisclosureHeader } from "../composites/DisclosureHeader.js";
+import {
+  type WaterStatsLayerRef,
+  WaterStatsSection,
+  type WaterStatsSummary,
+} from "../composites/WaterStatsSection.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 // ============================================================================
 // Props
 // ============================================================================
-export interface ExplorePanelProps {
+// Generic over the water-stats layer-ref type (the WaterStatsSection contract):
+// the app instantiates TRef at its WIDER viz-domain ref so the ref handed back
+// through `onRiverLakeInspectorLayerSelect` keeps every field the caller
+// supplied (e.g. stepId/visibility), not just the narrow rendered slice.
+export interface ExplorePanelProps<TRef extends WaterStatsLayerRef = WaterStatsLayerRef> {
   /** Available stages to select from */
   stages: StageOption[];
   /** Currently selected stage */
@@ -126,9 +126,9 @@ export interface ExplorePanelProps {
   /** Callback when layersExpanded changes (optional controlled mode) */
   onLayersExpandedChange?: (expanded: boolean) => void;
   /** River/Lake/Floodplain inspector summary (Water proof section) */
-  riverLakeInspectorSummary?: RiverLakeFloodplainInspectorSummary | null;
+  riverLakeInspectorSummary?: WaterStatsSummary<TRef> | null;
   /** Callback when a water-proof evidence layer chip is clicked */
-  onRiverLakeInspectorLayerSelect?: (ref: RiverLakeInspectorLayerRef) => void;
+  onRiverLakeInspectorLayerSelect?: (ref: TRef) => void;
   /** Whether the water-proof section is expanded (optional controlled mode) */
   waterStatsExpanded?: boolean;
   /** Callback when waterStatsExpanded changes (optional controlled mode) */
@@ -137,7 +137,7 @@ export interface ExplorePanelProps {
 // ============================================================================
 // Component
 // ============================================================================
-export const ExplorePanel: React.FC<ExplorePanelProps> = ({
+export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRef>({
   stages,
   selectedStage,
   onSelectedStageChange,
@@ -183,7 +183,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   onRiverLakeInspectorLayerSelect,
   waterStatsExpanded: waterStatsExpandedProp,
   onWaterStatsExpandedChange,
-}) => {
+}: ExplorePanelProps<TRef>) {
   const [localStageExpanded, setLocalStageExpanded] = useState(true);
   const [localStepExpanded, setLocalStepExpanded] = useState(true);
   const [localLayersExpanded, setLocalLayersExpanded] = useState(true);
@@ -743,4 +743,4 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       </div>
     </div>
   );
-};
+}

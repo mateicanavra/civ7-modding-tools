@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Blocks, Droplet, Leaf, SunSnow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
@@ -6,7 +8,7 @@ import {
   getRecipeDagDomainPresentation,
   getRecipeDagPhaseLaneColors,
   normalizeRecipeDagDomainId,
-} from "../../src/features/recipeDag/domainPresentation";
+} from "../src/components/panels/recipe-dag/domainPresentation.js";
 
 describe("recipe DAG domain presentation", () => {
   it("covers canonical phases and Studio aliases with stable domain ids", () => {
@@ -98,8 +100,19 @@ describe("recipe DAG domain presentation", () => {
   });
 
   it("keeps domain lucide imports centralized outside the view", () => {
+    // join/dirname over the import.meta.url STRING (the plainCnMarkup pattern):
+    // under the project's jsdom environment the global `URL` is jsdom's, and
+    // node's fs rejects its instances ("The URL must be of scheme file").
     const source = readFileSync(
-      new URL("../../src/features/recipeDag/PipelineStage.tsx", import.meta.url),
+      join(
+        dirname(fileURLToPath(import.meta.url)),
+        "..",
+        "src",
+        "components",
+        "panels",
+        "recipe-dag",
+        "PipelineStage.tsx"
+      ),
       "utf8"
     );
     // [^}]* (not [\s\S]*?) so the match anchors at the lucide import itself —

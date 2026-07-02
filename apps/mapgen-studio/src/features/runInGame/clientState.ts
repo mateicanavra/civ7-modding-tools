@@ -1,4 +1,5 @@
 import type { RunInGameOperationStatus } from "@civ7/studio-contract";
+import type { RunInGameRelation } from "@swooper/mapgen-studio-ui";
 import type {
   PipelineConfig,
   RecipeSettings,
@@ -42,7 +43,9 @@ export type RunInGameSourceSnapshot = Readonly<{
   };
 }>;
 
-export type RunInGameCurrentRelation = "current" | "stale" | "unknown";
+// Alias of the package's re-homed relation union (adjudication 7 — never a
+// third copy); kept so app call sites keep their vocabulary.
+export type RunInGameCurrentRelation = RunInGameRelation;
 
 export function buildRunInGameFingerprint(args: {
   recipeSettings: RecipeSettings;

@@ -1,4 +1,4 @@
-import { chooseRecipeDagDomainId, normalizeRecipeDagDomainId } from "./domainPresentation";
+import { chooseRecipeDagDomainId, normalizeRecipeDagDomainId } from "./domainPresentation.js";
 
 const ARTIFACT_TAG_PREFIX = /^artifact:/i;
 

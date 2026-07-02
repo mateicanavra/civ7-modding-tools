@@ -322,3 +322,6 @@ export type {
   BrowserConfigFormContext,
   ConfigCollapseContext,
 } from "../components/forms/rjsfTemplates.js";
+export type { GameConsoleLiveRuntime } from "../components/panels/GameConsole.js";
+export type { RecipeDagLoadStatus } from "../components/panels/recipe-dag/PipelineStage.js";
+export type { RunInGameRelation } from "../components/panels/statusLabels.js";

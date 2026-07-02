@@ -1,8 +1,8 @@
 import type { RunInGameOperationStatus } from "@civ7/studio-contract";
-import { TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { GameConsole, type GameConsoleProps } from "../../src/ui/components/GameConsole";
+import { GameConsole, type GameConsoleProps } from "../src/components/panels/GameConsole.js";
+import { TooltipProvider } from "../src/components/ui/tooltip.js";
 
 // The game console owns all live-Civ7 markup (Pass-5 toolbar-architecture-v2
 // spec: it renders as the command cluster inside the header's Game bar; the

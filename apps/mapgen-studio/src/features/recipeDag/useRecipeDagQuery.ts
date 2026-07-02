@@ -1,4 +1,5 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
+import type { RecipeDagLoadStatus } from "@swooper/mapgen-studio-ui";
 import { useQuery } from "@tanstack/react-query";
 
 import { orpcClient } from "../../lib/orpc";
@@ -17,7 +18,10 @@ import { orpcClient } from "../../lib/orpc";
  * runtime-one-mount slice) — the client never imports recipe modules.
  */
 
-export type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
+// Re-homed with the package's PipelineStage (the component owns the union its
+// `status` prop renders); imported back and re-exported so app consumers keep
+// this module as their source.
+export type { RecipeDagLoadStatus };
 
 export type RecipeDagQueryView = Readonly<{
   dag: RecipeDagResult | null;

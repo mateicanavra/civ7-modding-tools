@@ -1,0 +1,300 @@
+{
+  "width": 2000,
+  "height": 1236,
+  "positions": {
+    "plates": {
+      "x": 80,
+      "y": 138,
+      "width": 248,
+      "height": 122,
+      "rank": 0,
+      "phaseRow": 0,
+      "phaseId": "foundation"
+    },
+    "relief": {
+      "x": 478,
+      "y": 356,
+      "width": 248,
+      "height": 122,
+      "rank": 1,
+      "phaseRow": 0,
+      "phaseId": "morphology"
+    },
+    "coastlines": {
+      "x": 876,
+      "y": 514,
+      "width": 248,
+      "height": 122,
+      "rank": 2,
+      "phaseRow": 1,
+      "phaseId": "morphology"
+    },
+    "rivers": {
+      "x": 1274,
+      "y": 732,
+      "width": 248,
+      "height": 122,
+      "rank": 3,
+      "phaseRow": 0,
+      "phaseId": "hydrology"
+    },
+    "biomes": {
+      "x": 1672,
+      "y": 950,
+      "width": 248,
+      "height": 122,
+      "rank": 4,
+      "phaseRow": 0,
+      "phaseId": "ecology"
+    }
+  },
+  "phaseBands": [
+    {
+      "id": "foundation",
+      "y": 96,
+      "height": 190
+    },
+    {
+      "id": "morphology",
+      "y": 314,
+      "height": 348
+    },
+    {
+      "id": "hydrology",
+      "y": 690,
+      "height": 190
+    },
+    {
+      "id": "ecology",
+      "y": 908,
+      "height": 190
+    }
+  ],
+  "rankColumns": [
+    {
+      "rank": 0,
+      "x": 80,
+      "label": "Sources"
+    },
+    {
+      "rank": 1,
+      "x": 478,
+      "label": "D1"
+    },
+    {
+      "rank": 2,
+      "x": 876,
+      "label": "D2"
+    },
+    {
+      "rank": 3,
+      "x": 1274,
+      "label": "D3"
+    },
+    {
+      "rank": 4,
+      "x": 1672,
+      "label": "D4"
+    }
+  ],
+  "edgeGroups": [
+    {
+      "id": "plates->relief",
+      "fromStageId": "plates",
+      "toStageId": "relief",
+      "artifacts": [
+        "crust"
+      ],
+      "points": [
+        {
+          "x": 328,
+          "y": 204
+        },
+        {
+          "x": 376,
+          "y": 204
+        },
+        {
+          "x": 376,
+          "y": 422
+        },
+        {
+          "x": 444,
+          "y": 422
+        },
+        {
+          "x": 478,
+          "y": 422
+        }
+      ],
+      "label": "crust",
+      "labelX": 376,
+      "labelY": 313
+    },
+    {
+      "id": "relief->coastlines",
+      "fromStageId": "relief",
+      "toStageId": "coastlines",
+      "artifacts": [
+        "landmask"
+      ],
+      "points": [
+        {
+          "x": 726,
+          "y": 417
+        },
+        {
+          "x": 774,
+          "y": 417
+        },
+        {
+          "x": 774,
+          "y": 580
+        },
+        {
+          "x": 842,
+          "y": 580
+        },
+        {
+          "x": 876,
+          "y": 580
+        }
+      ],
+      "label": "landmask",
+      "labelX": 774,
+      "labelY": 498.5
+    },
+    {
+      "id": "relief->rivers",
+      "fromStageId": "relief",
+      "toStageId": "rivers",
+      "artifacts": [
+        "elevation"
+      ],
+      "points": [
+        {
+          "x": 726,
+          "y": 417
+        },
+        {
+          "x": 807.6,
+          "y": 417
+        },
+        {
+          "x": 807.6,
+          "y": 807.3333333333334
+        },
+        {
+          "x": 1240,
+          "y": 807.3333333333334
+        },
+        {
+          "x": 1274,
+          "y": 807.3333333333334
+        }
+      ],
+      "label": "elevation",
+      "labelX": 807.6,
+      "labelY": 612.1666666666667
+    },
+    {
+      "id": "coastlines->rivers",
+      "fromStageId": "coastlines",
+      "toStageId": "rivers",
+      "artifacts": [
+        "coast"
+      ],
+      "points": [
+        {
+          "x": 1124,
+          "y": 580
+        },
+        {
+          "x": 1172,
+          "y": 580
+        },
+        {
+          "x": 1172,
+          "y": 788.6666666666666
+        },
+        {
+          "x": 1240,
+          "y": 788.6666666666666
+        },
+        {
+          "x": 1274,
+          "y": 788.6666666666666
+        }
+      ],
+      "label": "coast",
+      "labelX": 1172,
+      "labelY": 684.3333333333333
+    },
+    {
+      "id": "relief->biomes",
+      "fromStageId": "relief",
+      "toStageId": "biomes",
+      "artifacts": [
+        "elevation"
+      ],
+      "points": [
+        {
+          "x": 726,
+          "y": 417
+        },
+        {
+          "x": 807.6,
+          "y": 417
+        },
+        {
+          "x": 807.6,
+          "y": 1006.6666666666666
+        },
+        {
+          "x": 1638,
+          "y": 1006.6666666666666
+        },
+        {
+          "x": 1672,
+          "y": 1006.6666666666666
+        }
+      ],
+      "label": "elevation",
+      "labelX": 807.6,
+      "labelY": 711.8333333333333
+    },
+    {
+      "id": "rivers->biomes",
+      "fromStageId": "rivers",
+      "toStageId": "biomes",
+      "artifacts": [
+        "rivers"
+      ],
+      "points": [
+        {
+          "x": 1522,
+          "y": 798
+        },
+        {
+          "x": 1570,
+          "y": 798
+        },
+        {
+          "x": 1570,
+          "y": 1025.3333333333333
+        },
+        {
+          "x": 1638,
+          "y": 1025.3333333333333
+        },
+        {
+          "x": 1672,
+          "y": 1025.3333333333333
+        }
+      ],
+      "label": "rivers",
+      "labelX": 1570,
+      "labelY": 911.6666666666666
+    }
+  ]
+}

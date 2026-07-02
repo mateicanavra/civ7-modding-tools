@@ -12,7 +12,16 @@
  * `data-config-*`/`configContentId` counterpart — structure-rewire §3.5).
  * SchemaForm stays internal: it is the five-module unit's private core
  * (SchemaConfigForm is the public engine; §3.5 lists no SchemaForm export).
- * Components land branch-by-branch (B5 panels → B6 AppHeader);
+ * B5 surface: the panels (ExplorePanel, GameConsole, RecipePanel) + the
+ * recipe-dag split's PipelineStage (owns `RecipeDagLoadStatus`; the layout/
+ * presentation modules stay internal) + the `panels/statusLabels` formatters
+ * (the split-formatter module — the four functions the panels and StudioShell
+ * word operation status with, plus the re-homed `RunInGameRelation` union).
+ * `parseArtifactPresentation` is additionally public for the app's recipe-
+ * corpus classification contract test (every served artifact id must classify
+ * into a semantic icon domain — the test pairs the app's DAG service with the
+ * package's parser).
+ * Components land branch-by-branch (B6 AppHeader last);
  * each branch adds its exports here and raises the `verify` export floor.
  * Final surface: the 46 design-synced components (+ TooltipProvider and the
  * lib exports — `cn`, `useResolvedTheme`, `LAYOUT`, statusLabels formatters,
@@ -85,6 +94,27 @@ export {
 // layout
 export { LeftDock, type LeftDockProps } from "./components/layout/LeftDock.js";
 export { RightDock, type RightDockProps } from "./components/layout/RightDock.js";
+// panels
+export { ExplorePanel, type ExplorePanelProps } from "./components/panels/ExplorePanel.js";
+export {
+  GameConsole,
+  type GameConsoleLiveRuntime,
+  type GameConsoleProps,
+} from "./components/panels/GameConsole.js";
+export { RecipePanel, type RecipePanelProps } from "./components/panels/RecipePanel.js";
+export { parseArtifactPresentation } from "./components/panels/recipe-dag/artifactPresentation.js";
+export {
+  PipelineStage,
+  type PipelineStageProps,
+  type RecipeDagLoadStatus,
+} from "./components/panels/recipe-dag/PipelineStage.js";
+export {
+  formatMapConfigSaveDeployPhaseLabel,
+  formatRunInGamePhaseLabel,
+  type RunInGameRelation,
+  runInGamePrimaryActionLabel,
+  runInGameRequiresProcessRestart,
+} from "./components/panels/statusLabels.js";
 // primitives — the shadcn sub-barrel (15 components + families)
 export * from "./components/ui/index.js";
 
