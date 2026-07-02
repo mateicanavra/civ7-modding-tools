@@ -203,3 +203,27 @@ historical.
   `.design-sync/light-canary-tokens.json` (2026-07-02, 7/7 zero drift;
   screenshots ephemeral by design — re-run to regenerate). This is the FRAME §2
   both-modes leg; `design-sync:check` itself renders dark-only.
+- **A cleanup wave that edits COMPONENT INTERNALS must `--force` a full re-grade**
+  (review fold, 2026-07-02). The gradeKey is **story-source-keyed** (`sourceKeyFor`
+  in `.ds-sync/lib/sync-hashes.mjs` hashes story files + owned previews +
+  preview-affecting config + committed forks — NOT the component `.tsx`). So a wave
+  that rewrites component internals while leaving the stories byte-frozen keeps
+  every gradeKey stable, and `compare.mjs` carries the prior grade sheets forward
+  over renders that demonstrably moved — the committed grades then certify the
+  PRE-wave renders. The `renderChurned→canary` backstop can't save you here: when
+  the local anchor is stale it puts ALL 46 components in `changed` (verdict
+  `changed:[46]`, `canary:null`), and the canary only samples the `unchanged`
+  partition — an all-`changed` partition nulls it. **Remedy: after any
+  internals-only wave, `node .ds-sync/storybook/compare.mjs --out ./ds-bundle
+  --storybook-static .design-sync/sb-reference --force` (recaptures all 46 / 88
+  story pairs AND clears every grade), then re-grade from the fresh sheets** — or,
+  for a scoped wave, `--spot-check-components <the moved set>`. Grades live in the
+  gitignored `.design-sync/.cache/compare/*.grade.json`; their durability is the
+  re-runnable `--force` + this note (cross-machine carry derives from the uploaded
+  project, per the `compare.mjs` header). The 4 portal dialogs (Dialog family)
+  sb-error under `--force` (open-state portals out of `#storybook-root` with no
+  trigger) — grade them via the manual full-page path (see the light-canary /
+  PR #1992 precedent: render `iframe.html?id=<storyId>` and the preview card
+  `components/<group>/<Name>/<Name>.html?story=<ExportName>` full-page, compare the
+  dialog panels). B8 (E3 cleanup) did exactly this: force re-grade, all 46 match,
+  grades now certify the post-cleanup renders.
