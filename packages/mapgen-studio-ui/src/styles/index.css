@@ -1,0 +1,16 @@
+/* ============================================================================
+   @swooper/mapgen-studio-ui — package compile entry (Tailwind v4, CSS-first).
+   Produces dist/styles.css: preflight + theme tokens + globals + the utilities
+   used by the package's own component/story sources.
+
+   `source(none)` disables Tailwind's automatic content detection; the @source
+   below scopes the class scan to this package's sources only (components,
+   co-located stories — never the consuming app). Fonts are NOT compiled in:
+   the @font-face seam is the separate `./fonts.css` export whose url()s are
+   dist-layout-relative (see scripts/copy-fonts.mjs and DESIGN.md §2.9).
+   ============================================================================ */
+@import "tailwindcss" source(none);
+@import "tw-animate-css";
+@import "./theme.css";
+
+@source "../";

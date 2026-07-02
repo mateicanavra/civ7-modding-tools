@@ -91,6 +91,14 @@ export default defineConfig({
       },
       {
         extends: true,
+        root: r("packages/mapgen-studio-ui"),
+        test: {
+          name: "mapgen-studio-ui",
+          environment: "jsdom",
+        },
+      },
+      {
+        extends: true,
         root: r("packages/plugins/plugin-files"),
         test: { name: "plugin-files" },
       },

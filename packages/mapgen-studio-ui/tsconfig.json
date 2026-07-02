@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Browser component package consumed by the Vite app and bundled by tsup,
+    // so typecheck with bundler resolution — same rationale as the app.
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    // Environment-neutral browser package: no ambient @types (the workspace
+    // root ships @types/node; without this pin node globals would typecheck).
+    "types": []
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}
