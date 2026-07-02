@@ -22,7 +22,7 @@ import { orpc } from "../../lib/orpc";
  *
  * The oRPC client throws the contract's DEFINED errors on failure
  * (SAVED_CONFIGS_UNAVAILABLE / SETUP_CATALOG_UNAVAILABLE — see
- * packages/studio-server/src/contract/errors.ts), which `useQuery` surfaces as
+ * packages/studio-contract/src/errors.ts), which `useQuery` surfaces as
  * `error`. These views only consume the message (the legacy wrappers only read
  * `error`/`observedAt` here), so the typed code/data are intentionally not
  * threaded through — `errorMessage` below is a plain message fallback, not an

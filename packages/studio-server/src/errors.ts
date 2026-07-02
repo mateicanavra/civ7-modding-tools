@@ -2,7 +2,8 @@
  * `@civ7/studio-server` — error helpers (contract-errors regime).
  *
  * Error mapping is CONTRACT-FIRST: every failure a procedure can emit is a
- * DECLARED oRPC error in `./contract/errors.ts` (attached per procedure via
+ * DECLARED oRPC error in `@civ7/studio-contract` (`packages/studio-contract/src/errors.ts`,
+ * attached per procedure via
  * `oc.errors(...)`), carrying the legacy non-uniform status code
  * (architecture/10 §1 + §7 "Do-not-break registry"):
  *   - civ7.gameInfo / live.* → 400

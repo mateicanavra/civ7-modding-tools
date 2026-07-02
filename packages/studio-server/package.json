@@ -25,11 +25,6 @@
       "types": "./dist/contract/index.d.ts",
       "bun-source": "./src/contract/index.ts",
       "import": "./dist/contract/index.js"
-    },
-    "./live-game": {
-      "types": "./dist/liveGame/model.d.ts",
-      "bun-source": "./src/liveGame/model.ts",
-      "import": "./dist/liveGame/model.js"
     }
   },
   "scripts": {
@@ -43,6 +38,7 @@
   "dependencies": {
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
+    "@civ7/studio-contract": "workspace:*",
     "@standard-schema/spec": "^1.1.0",
     "typebox": "^1.0.80",
     "@orpc/client": "1.14.6",

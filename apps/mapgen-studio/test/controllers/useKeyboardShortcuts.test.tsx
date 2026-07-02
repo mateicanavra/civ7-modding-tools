@@ -2,8 +2,8 @@
 import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  useKeyboardShortcuts,
   type KeyboardShortcutContext,
+  useKeyboardShortcuts,
 } from "../../src/app/hooks/useKeyboardShortcuts";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "../../src/shared/shortcuts/shortcutPolicy";
 import "./_setup";

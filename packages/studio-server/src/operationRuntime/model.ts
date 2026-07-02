@@ -1,12 +1,12 @@
-import type { MapConfigSaveDeployStatus } from "../contract/mapConfigs.js";
 import type {
+  MapConfigSaveDeployStatus,
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
   RunInGameOperationKind,
   RunInGamePhase,
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
-} from "../contract/runInGame.js";
+} from "@civ7/studio-contract";
 import type { StudioRuntimeFailure } from "../errors/index.js";
 import type { StudioDaemonIdentity } from "./ports.js";
 

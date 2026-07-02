@@ -1,7 +1,6 @@
+import type { StudioEvent } from "@civ7/studio-contract";
 import { AsyncIteratorClass } from "@orpc/server";
 import { Context, Effect, Exit, Layer, PubSub, Queue, Ref, Scope } from "effect";
-
-import type { StudioEvent } from "../contract/studio.js";
 
 export interface StudioEventSubscription {
   readonly initialEvents: readonly StudioEvent[];

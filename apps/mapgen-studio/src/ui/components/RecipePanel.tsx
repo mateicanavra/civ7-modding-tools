@@ -6,7 +6,7 @@
 // Uses path-based patching for efficient state updates.
 // ============================================================================
 
-import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
 import {

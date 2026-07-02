@@ -1,11 +1,11 @@
-import type { StudioInputs, StudioOutputs } from "../context.js";
-import type { MapConfigSaveDeployStatus } from "../contract/mapConfigs.js";
 import type {
+  MapConfigSaveDeployStatus,
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
-} from "../contract/runInGame.js";
+} from "@civ7/studio-contract";
+import type { StudioInputs, StudioOutputs } from "../context.js";
 import type { StudioBoundedDiagnostics } from "../errors/index.js";
 
 export type StudioDaemonIdentity = Readonly<{

@@ -1,11 +1,16 @@
+import {
+  invalidRequest,
+  operationStatusTypeSchema,
+  proofFailed,
+  type StudioEvent,
+  studio,
+  typeboxOutputSchemaFromContractProcedure,
+} from "@civ7/studio-contract";
 import { Effect, Layer, ManagedRuntime } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 import { afterEach, describe, expect, test } from "vitest";
 import type { StudioInputs } from "../src/context";
-import { operationStatusTypeSchema } from "../src/contract/runInGame";
-import { operationsCurrent, type StudioEvent, studioEventSchema } from "../src/contract/studio";
-import { invalidRequest, proofFailed } from "../src/errors/failure";
 import {
   makeStudioOperationRuntimeLayer,
   StudioOperationRuntime,
@@ -13,7 +18,8 @@ import {
 } from "../src/operationRuntime";
 import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
 import { StudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
-import { typeboxOutputSchemaFromContractProcedure } from "../src/typeboxStandardSchema";
+
+const { operationsCurrent, studioEventSchema } = studio;
 
 const openRuntimes: ManagedRuntime.ManagedRuntime<unknown, never>[] = [];
 

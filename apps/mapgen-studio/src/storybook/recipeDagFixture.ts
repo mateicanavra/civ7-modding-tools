@@ -1,11 +1,11 @@
-import type { RecipeDagResult } from "@civ7/studio-server/contract";
+import type { RecipeDagResult } from "@civ7/studio-contract";
 
 /**
  * A small but complete, valid `RecipeDagResult` for the `PipelineStage` story —
  * a four-phase map-generation recipe (foundation → morphology → hydrology →
  * ecology), wired by the artifacts each stage provides/consumes. Ported from the
  * synced `.design-sync/previews/PipelineStage.tsx` fixture and typed against the
- * real `@civ7/studio-server/contract` schema, so `buildRecipeDagLayout` lays it
+ * real `@civ7/studio-contract` schema, so `buildRecipeDagLayout` lays it
  * out deterministically with no server.
  *
  * INVARIANT (mirrored by the story): every id in the story's `expandedStageIds`

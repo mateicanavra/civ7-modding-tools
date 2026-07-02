@@ -1,7 +1,7 @@
 import { oc } from "@orpc/contract";
 import { type Static, Type } from "typebox";
 
-import { studioRecoveryActionSchema } from "../errors/errorData.js";
+import { studioRecoveryActionSchema } from "./errors/errorData.js";
 import { mapConfigsErrors } from "./errors.js";
 import { contractSchema } from "./shared.js";
 

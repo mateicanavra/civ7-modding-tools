@@ -8,13 +8,10 @@
 // preserved verbatim; failures are read through oRPC's NATIVE typed contract
 // errors: `safe(...)` + `isDefinedError(...)` expose the DECLARED code
 // (RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE/STATUS_NOT_FOUND, statuses
-// pinned in packages/studio-server/src/contract/errors.ts) and sealed typed
+// pinned in packages/studio-contract/src/errors.ts) and sealed typed
 // failure data.
 
-import type {
-  RunInGameFailureDetails,
-  RunInGameOperationStatus,
-} from "@civ7/studio-server/contract";
+import type { RunInGameFailureDetails, RunInGameOperationStatus } from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";

@@ -18,29 +18,15 @@
  * runtime owns stateful operation and event lifecycle.
  */
 
-export type {
-  SetupCatalog,
-  StudioInputs,
-  StudioOutputs,
-  StudioServerContext,
-} from "./context.js";
-export type { RecipeDagResult, StudioContract, StudioEffectContract } from "./contract/index.js";
-export {
-  civ7,
-  contract,
-  live,
-  mapConfigs,
-  runInGame,
-  studio,
-  studioEffectContract,
-} from "./contract/index.js";
+// Contract re-exports below are NAMED on purpose — esbuild drops
+// `export * from "<external>"` when this module is code-split into a shared
+// chunk (values silently vanish from dist; see src/contract/index.ts). Any
+// new contract re-export must be added by name.
 export type {
   MapConfigSaveDeployKind,
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
-} from "./contract/mapConfigs.js";
-export { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "./contract/mapConfigs.js";
-export type {
+  RecipeDagResult,
   RunInGameContentMarkerProof,
   RunInGameExactAuthorshipProof,
   RunInGameFailureDetails,
@@ -53,15 +39,46 @@ export type {
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
   RunInGameSourceSnapshotProof,
-} from "./contract/runInGame.js";
-export { RUN_IN_GAME_PHASES } from "./contract/runInGame.js";
-export type {
+  StudioEffectContract,
   StudioEvent,
   StudioHelloEvent,
   StudioLiveGameEvent,
   StudioOperationEvent,
   StudioOperationsCurrent,
-} from "./contract/studio.js";
+} from "@civ7/studio-contract";
+export {
+  buildLiveGameErrorState,
+  buildLiveGameState,
+  civ7,
+  hashLiveGameValue,
+  type LiveGameBindingStatus,
+  type LiveGameSnapshotStatus,
+  type LiveGameState,
+  type LiveGameStatusBody,
+  type LiveGameStatusKind,
+  live,
+  liveGameStateKey,
+  liveGameStateSchema,
+  MAP_CONFIG_SAVE_DEPLOY_PHASES,
+  mapConfigs,
+  RUN_IN_GAME_PHASES,
+  runInGame,
+  stableLiveGameStringify,
+  studio,
+  studioEffectContract,
+  toStandardSchema,
+  typeboxInputSchemaFromContractProcedure,
+  typeboxOutputSchemaFromContractProcedure,
+  typeboxSchemaFromStandardSchema,
+} from "@civ7/studio-contract";
+export type {
+  SetupCatalog,
+  StudioInputs,
+  StudioOutputs,
+  StudioServerContext,
+} from "./context.js";
+export type { StudioContract } from "./contract/index.js";
+export { contract } from "./contract/index.js";
 export type {
   DependencyUnavailableData,
   ExpectedFailureErrorData,
@@ -111,19 +128,6 @@ export {
 } from "./errors/index.js";
 export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
 export {
-  buildLiveGameErrorState,
-  buildLiveGameState,
-  hashLiveGameValue,
-  type LiveGameBindingStatus,
-  type LiveGameSnapshotStatus,
-  type LiveGameState,
-  type LiveGameStatusBody,
-  type LiveGameStatusKind,
-  liveGameStateKey,
-  liveGameStateSchema,
-  stableLiveGameStringify,
-} from "./liveGame/model.js";
-export {
   LIVE_GAME_WATCH_INITIAL_DELAY_MS,
   LIVE_GAME_WATCH_INTERVAL_MS,
   type LiveGameWatcher,
@@ -160,9 +164,3 @@ export {
   type StudioEventSubscription,
   studioEventSubscriptionIterator,
 } from "./services/StudioEventHub.js";
-export {
-  toStandardSchema,
-  typeboxInputSchemaFromContractProcedure,
-  typeboxOutputSchemaFromContractProcedure,
-  typeboxSchemaFromStandardSchema,
-} from "./typeboxStandardSchema.js";

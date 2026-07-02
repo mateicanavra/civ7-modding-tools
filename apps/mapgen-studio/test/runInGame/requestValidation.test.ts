@@ -1,4 +1,4 @@
-import { runInGame, typeboxInputSchemaFromContractProcedure } from "@civ7/studio-server";
+import { runInGame, typeboxInputSchemaFromContractProcedure } from "@civ7/studio-contract";
 import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
 

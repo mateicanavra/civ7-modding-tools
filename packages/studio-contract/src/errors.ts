@@ -10,8 +10,8 @@ import {
   statusNotFoundErrorDataSchema,
   type UnavailableFailureErrorData,
   unavailableFailureErrorDataSchema,
-} from "../errors/errorData.js";
-import { toStandardSchema } from "../typeboxStandardSchema.js";
+} from "./errors/errorData.js";
+import { toStandardSchema } from "./lib/typeboxStandardSchema.js";
 
 /**
  * Typed contract error maps for `@civ7/studio-server` — oRPC NATIVE defined errors.

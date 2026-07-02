@@ -1,4 +1,4 @@
-import type { RunInGameOperationStatus } from "@civ7/studio-server";
+import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { TooltipProvider } from "../../src/components/ui/tooltip";

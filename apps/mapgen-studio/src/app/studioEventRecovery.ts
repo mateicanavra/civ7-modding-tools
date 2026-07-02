@@ -1,4 +1,4 @@
-import type { StudioEvent, StudioOperationsCurrent } from "@civ7/studio-server";
+import type { StudioEvent, StudioOperationsCurrent } from "@civ7/studio-contract";
 
 export interface StudioDaemonIdentity {
   serverInstanceId: string;
