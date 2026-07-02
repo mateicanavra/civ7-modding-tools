@@ -63,5 +63,5 @@
 
 ## 9. Review + close
 
-- [ ] 9.1 Fan-out reviews per branch (correctness / boundary / maintainability lenses + adversarial verify) + independent Codex second pass on substantial diffs; draft PRs with `gh pr edit` titles/bodies.
-- [ ] 9.2 Frame §2 DoD walk with evidence (workstream close-out); runner worktree move-up + relaunch per standing memory.
+- [x] 9.1 Fan-out reviews per branch (correctness / boundary / maintainability lenses + adversarial verify) + independent Codex second pass on substantial diffs; draft PRs with `gh pr edit` titles/bodies.
+- [x] 9.2 Frame §2 DoD walk with evidence (workstream close-out); runner worktree move-up + relaunch per standing memory.
