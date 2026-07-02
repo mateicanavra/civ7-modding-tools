@@ -28,8 +28,8 @@
 // the error on the array field (not a phantom index) with a meaningful message.
 import {
   ANY_OF_KEY,
-  createErrorHandler,
   type CustomValidator,
+  createErrorHandler,
   type ErrorTransformer,
   type FormContextType,
   getDefaultFormState,
@@ -43,8 +43,8 @@ import {
   type UiSchema,
   unwrapErrorHandler,
   type ValidationData,
-  validationDataMerge,
   type ValidatorType,
+  validationDataMerge,
 } from "@rjsf/utils";
 import { Check, Errors } from "typebox/value";
 
@@ -151,11 +151,10 @@ function toRawErrorObjects(schema: object, formData: unknown): RawErrorObject[] 
 }
 
 /** Adapted from `@rjsf/validator-ajv8` `transformRJSFValidationErrors`. */
-function transformErrorsToRjsf<
-  T,
-  S extends StrictRJSFSchema,
-  F extends FormContextType,
->(errors: RawErrorObject[], uiSchema?: UiSchema<T, S, F>): RJSFValidationError[] {
+function transformErrorsToRjsf<T, S extends StrictRJSFSchema, F extends FormContextType>(
+  errors: RawErrorObject[],
+  uiSchema?: UiSchema<T, S, F>
+): RJSFValidationError[] {
   const errorList = errors.map((e): RJSFValidationError => {
     const { instancePath, keyword, params, schemaPath, parentSchema } = e;
     let message = e.message ?? "";
@@ -242,11 +241,7 @@ function transformErrorsToRjsf<
 }
 
 /** Adapted from `@rjsf/validator-ajv8` `processRawValidationErrors`. */
-function buildValidationData<
-  T,
-  S extends StrictRJSFSchema,
-  F extends FormContextType,
->(
+function buildValidationData<T, S extends StrictRJSFSchema, F extends FormContextType>(
   validator: ValidatorType<T, S, F>,
   rawErrors: { errors?: RawErrorObject[]; validationError?: Error },
   formData: T | undefined,
@@ -280,7 +275,12 @@ function buildValidationData<
 
   // Include form data with undefined values, which custom validation expects.
   const newFormData = getDefaultFormState<T, S, F>(validator, schema, formData, schema, true) as T;
-  const errorHandler = customValidate(newFormData, createErrorHandler<T>(newFormData), uiSchema, errorSchema);
+  const errorHandler = customValidate(
+    newFormData,
+    createErrorHandler<T>(newFormData),
+    uiSchema,
+    errorSchema
+  );
   const userErrorSchema = unwrapErrorHandler<T>(errorHandler);
   return validationDataMerge<T>({ errors, errorSchema }, userErrorSchema);
 }

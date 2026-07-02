@@ -1,16 +1,16 @@
 import type { ObjectFieldTemplateProps, RJSFSchema } from "@rjsf/utils";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ReactNode } from "react";
 import {
   type BrowserConfigFormContext,
   BrowserConfigObjectFieldTemplate,
-} from "@/features/configOverrides/rjsfTemplates";
+} from "@swooper/mapgen-studio-ui";
+import type { ReactNode } from "react";
 import {
   alwaysExpandedCollapse,
   mockFieldContent,
   mockSectionContent,
   noTransparentPaths,
-} from "@/storybook/mockWidgetProps";
+} from "../../storybook/mockWidgetProps.js";
 
 /**
  * BrowserConfigObjectFieldTemplate is the config explorer's stage section: a

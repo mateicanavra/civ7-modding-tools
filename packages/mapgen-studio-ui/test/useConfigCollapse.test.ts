@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  computeActiveChain,
-  pointerPrefixes,
-} from "../../src/features/configOverrides/useConfigCollapse";
+import { computeActiveChain, pointerPrefixes } from "../src/components/forms/useConfigCollapse.js";
 
 // The sticky engine's pure core (Pass-4 config-collapse design): the
 // candidate is the LAST header at/above the focus line; the active chain is

@@ -1,11 +1,11 @@
 import type { ArrayFieldTemplateProps, RJSFSchema } from "@rjsf/utils";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ReactNode } from "react";
 import {
   BrowserConfigArrayFieldTemplate,
   type BrowserConfigFormContext,
-} from "@/features/configOverrides/rjsfTemplates";
-import { alwaysExpandedCollapse, mockFieldContent, noop } from "@/storybook/mockWidgetProps";
+} from "@swooper/mapgen-studio-ui";
+import type { ReactNode } from "react";
+import { alwaysExpandedCollapse, mockFieldContent, noop } from "../../storybook/mockWidgetProps.js";
 
 /**
  * BrowserConfigArrayFieldTemplate is the config explorer's array section: the same

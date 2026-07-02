@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { TextareaWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { TextareaWidget } from "@/features/configOverrides/rjsfWidgets";
-import { widgetProps } from "@/storybook/mockWidgetProps";
+import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
 /**
  * TextareaWidget is the RJSF multiline control re-skinned onto the DS `Textarea`.

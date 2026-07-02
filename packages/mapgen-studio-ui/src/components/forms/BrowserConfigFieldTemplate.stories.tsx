@@ -1,11 +1,11 @@
 import type { FieldTemplateProps, RJSFSchema } from "@rjsf/utils";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Input } from "@swooper/mapgen-studio-ui";
-import type { ReactNode } from "react";
 import {
   BrowserConfigFieldTemplate,
   type BrowserConfigFormContext,
-} from "@/features/configOverrides/rjsfTemplates";
+  Input,
+} from "@swooper/mapgen-studio-ui";
+import type { ReactNode } from "react";
 
 /**
  * BrowserConfigFieldTemplate is the per-field row of the config form: a humanized

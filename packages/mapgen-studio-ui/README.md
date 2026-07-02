@@ -29,8 +29,10 @@ the product default.
 - **`data-config-header` / `data-config-pointer` + `configContentId` string
   convention**: intra-package after LEDGER adjudication 3, but still queried
   by string — renames are behavior changes.
-- **`${id}__error` widget↔template ARIA id convention** (single id-builder to
-  be extracted with the forms unit).
+- **`${id}__error` widget↔template ARIA id convention** — moved verbatim with
+  the forms unit (B4); both sides now live in `components/forms/`. The single
+  id-builder extraction (`forms/fieldIds.ts`) is scheduled for the oracle-gated
+  E3 cleanup wave (tasks.md §8.1), not the move branch.
 - **GameConsole `@max-3xl:hidden` requires an ancestor `@container`** —
   host-context coupling; without it the responsive collapse never fires.
 - **`@rjsf/core/lib/components/Form.js` deep subpath is a pinned CSP fix** —

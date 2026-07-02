@@ -24,16 +24,16 @@ import {
   DropdownMenuTrigger,
   LAYOUT,
   OptionSelect,
+  SchemaConfigForm,
   Switch,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  useConfigCollapse,
 } from "@swooper/mapgen-studio-ui";
 import type { PipelineConfig, RecipeSettings, SelectOption } from "@swooper/mapgen-studio-ui/types";
 import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
-import { SchemaConfigForm } from "../../features/configOverrides/SchemaConfigForm";
-import { useConfigCollapse } from "../../features/configOverrides/useConfigCollapse";
 import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
 // ============================================================================
 // Props

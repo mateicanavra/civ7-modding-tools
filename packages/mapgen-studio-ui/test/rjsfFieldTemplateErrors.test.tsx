@@ -12,7 +12,7 @@ import {
   BrowserConfigFieldTemplate,
   type BrowserConfigFormContext,
   BrowserConfigObjectFieldTemplate,
-} from "../../src/features/configOverrides/rjsfTemplates";
+} from "../src/components/forms/rjsfTemplates.js";
 
 type TemplateProps = FieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 

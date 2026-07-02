@@ -318,3 +318,7 @@ export type {
   WaterStatsRow,
   WaterStatsSummary,
 } from "../components/composites/WaterStatsSection.js";
+export type {
+  BrowserConfigFormContext,
+  ConfigCollapseContext,
+} from "../components/forms/rjsfTemplates.js";

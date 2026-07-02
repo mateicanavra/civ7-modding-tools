@@ -12,9 +12,9 @@ import {
   BrowserConfigFieldTemplate,
   type BrowserConfigFormContext,
   BrowserConfigObjectFieldTemplate,
-} from "./rjsfTemplates";
-import { configWidgets } from "./rjsfWidgets";
-import { createTypeboxValidator } from "./typeboxRjsfValidator";
+} from "./rjsfTemplates.js";
+import { configWidgets } from "./rjsfWidgets.js";
+import { createTypeboxValidator } from "./typeboxRjsfValidator.js";
 
 export type SchemaFormProps<TConfig> = {
   schema: RJSFSchema;

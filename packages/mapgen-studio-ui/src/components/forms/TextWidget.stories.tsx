@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { TextWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { TextWidget } from "@/features/configOverrides/rjsfWidgets";
-import { widgetProps } from "@/storybook/mockWidgetProps";
+import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
 /**
  * TextWidget is the RJSF text control re-skinned onto the DS `Input` — the form's

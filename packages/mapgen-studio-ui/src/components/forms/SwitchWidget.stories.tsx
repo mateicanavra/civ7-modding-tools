@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { SwitchWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { SwitchWidget } from "@/features/configOverrides/rjsfWidgets";
-import { widgetProps } from "@/storybook/mockWidgetProps";
+import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
 /**
  * SwitchWidget is the RJSF boolean control rendered as the DS `Switch` (the toggle

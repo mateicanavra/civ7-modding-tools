@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { ConfigCollapseContext } from "./rjsfTemplates";
+import type { ConfigCollapseContext } from "./rjsfTemplates.js";
 
 // ============================================================================
 // CONFIG COLLAPSE (Pass-4 config-collapse spec)

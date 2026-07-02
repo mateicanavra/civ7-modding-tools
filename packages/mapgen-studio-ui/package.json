@@ -66,6 +66,7 @@
     "typebox": "1.0.80"
   },
   "devDependencies": {
+    "@rjsf/validator-ajv8": "6.2.5",
     "@storybook/addon-docs": "9.1.20",
     "@storybook/react-vite": "9.1.20",
     "@tailwindcss/cli": "4.3.0",

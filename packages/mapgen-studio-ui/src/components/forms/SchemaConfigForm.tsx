@@ -1,14 +1,14 @@
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
 import { useMemo } from "react";
-import { getAtPath, setAtPath } from "./pathUtils";
-import type { BrowserConfigFormContext, ConfigCollapseContext } from "./rjsfTemplates";
-import { SchemaForm } from "./SchemaForm";
+import { getAtPath, setAtPath } from "./pathUtils.js";
+import type { BrowserConfigFormContext, ConfigCollapseContext } from "./rjsfTemplates.js";
+import { SchemaForm } from "./SchemaForm.js";
 import {
   collectTransparentPaths,
   normalizeSchemaForRjsf,
   toRjsfSchema,
   tryGetSchemaAtPath,
-} from "./schemaPresentation";
+} from "./schemaPresentation.js";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (!value || typeof value !== "object") return false;
