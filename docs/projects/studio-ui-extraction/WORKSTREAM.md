@@ -1,6 +1,6 @@
 # WORKSTREAM — MapGen Studio UI Library Extraction
 
-**Status:** **EXECUTING** — checkpoint COMPLETE 2026-07-01 (Q2/E1–E4 all decided; D3–D5 below); stack per openspec `studio-ui-extraction` tasks.md: B0 `@civ7/studio-contract` → B1 scaffold → B2–B6 moves → B7 sync repoint → B8+ cleanup wave
+**Status:** **EXECUTING** — checkpoint COMPLETE 2026-07-01 (Q2/E1–E4 all decided; D3–D6 below); B0 SHIPPED 2026-07-01 (draft PR #1997, gates green, 14-agent fan-out review folded); stack per openspec `studio-ui-extraction` tasks.md: B0 `@civ7/studio-contract` → B1 scaffold → B2–B6 moves → B7 sync repoint → B8+ cleanup wave
 **Owner:** extraction workstream agent (this document is the owner's operating picture)
 **Normative anchor:** [FRAME.md](./FRAME.md) — scope, DoD, non-goals, reserved decisions. This doc never overrides the frame; contradictions get escalated to Matei.
 **Branch/worktree:** `studio-ui-extraction` (parent `main`), worktree `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`
@@ -111,7 +111,8 @@ Enumerated via `meta:introspect` over installed plugins (dev ~48, cognition 14, 
 - **D3 (2026-07-01, Matei checkpoint):** Q2 = `@swooper/mapgen-studio-ui` at `packages/mapgen-studio-ui`; E2 = options-via-props (data app-side); E3 confirmed; E4 = redesign now. Full record: DESIGN.md §4a.
 - **D4 (2026-07-01, Matei checkpoint):** E1 REDIRECTED — the studio server becomes a fully contained boundary shipping its own types (no client-maintained twins, no clients reaching in; "every package fully contained"). oRPC/Effect-oRPC contract-first investigation → plan at design/e1-contract-boundary.md; gates B1. **RESOLVED by D5.**
 - **D5 (2026-07-01, Matei):** **E1-C APPROVED** ("Approve E1-C (Recommended)") — extract `@civ7/studio-contract` (`packages/studio-contract`, `kind:foundation`) as precursor branch B0: ~15 files (the 8 `src/contract` modules + pure closure) move out of `packages/studio-server`; the effect-orpc merge stays in the server's thin `./contract` subpath; server `implementEffect`s the identical contract; UI package `import type`s the contract (no twins, no parity fence — the dist grep is the fence); ~18 app import sites repoint. Full plan: [design/e1-contract-boundary.md](./design/e1-contract-boundary.md); folded into DESIGN.md §4a + the openspec change (tasks §0b).
-- (open) D6+: further decisions land here with reasons.
+- **D6 (2026-07-01, Matei):** deferral — **server-exported client factory**. `@civ7/studio-server` should ship a runtime-light `./client` subpath exporting a preassembled typed client factory (RPCLink + `createORPCClient`, typed `ContractRouterClient<StudioContract>`), so no consumer hand-assembles its client (today the app's one seam is `apps/mapgen-studio/src/lib/orpc.ts`, kept verbatim in B0). ADDITIVE to E1-C, not a replacement: the UI package still needs a foundation-tier home for its DTO/prop types (type-only imports count in the boundary lint), the browser needs contract runtime VALUES (`RUN_IN_GAME_PHASES`, normalizers, status schemas), and the design-sync converter needs a dependency-clean `.d.ts` tree — all owned by `@civ7/studio-contract`. Out of scope for this workstream; queue as a follow-up initiative.
+- (open) D7+: further decisions land here with reasons.
 
 ## 8. Risks / falsifier watch (frame §9 live tally)
 

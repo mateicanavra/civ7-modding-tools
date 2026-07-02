@@ -6,9 +6,9 @@
 
 ## 0b. B0 — Extract `@civ7/studio-contract` (E1-C precursor; plan: design/e1-contract-boundary.md)
 
-- [ ] 0b.1 Create `packages/studio-contract` (`kind:foundation`, `@civ7/types` precedent): move the 8 `src/contract` modules + pure closure (`errorData`/`failure`, `typeboxStandardSchema`, `recipeDag` contract/schema/errors, `liveGame/model`; ~15 files) out of `packages/studio-server`; the effect-orpc `Civ7ControlOrpcContract` merge STAYS in the server's thin `./contract` subpath; server `implementEffect`s the identical contract.
-- [ ] 0b.2 Repoint the ~18 app import sites + server internals per the report's §5.4 verified file lists; zero behavior change.
-- [ ] 0b.3 Green: `studio-contract`/`studio-server` build+check, `mapgen-studio:check`, app vitest; boundary lint clean (control→foundation, app→foundation). Independently revertible.
+- [x] 0b.1 Create `packages/studio-contract` (`kind:foundation`, `@civ7/types` precedent): move the 8 `src/contract` modules + pure closure (`errorData`/`failure`, `typeboxStandardSchema`, `recipeDag` contract/schema/errors, `liveGame/model`; ~15 files) out of `packages/studio-server`; the effect-orpc `Civ7ControlOrpcContract` merge STAYS in the server's thin `./contract` subpath; server `implementEffect`s the identical contract.
+- [x] 0b.2 Repoint the ~18 app import sites + server internals per the report's §5.4 verified file lists; zero behavior change.
+- [x] 0b.3 Green: `studio-contract`/`studio-server` build+check, `mapgen-studio:check`, app vitest; boundary lint clean (control→foundation, app→foundation). Independently revertible.
 
 ## 1. B1 — Package scaffold (no component code)
 

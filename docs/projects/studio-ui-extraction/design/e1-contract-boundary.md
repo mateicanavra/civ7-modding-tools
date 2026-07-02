@@ -167,7 +167,7 @@ A foundation-tagged contract package is legally importable by the server (`kind:
 (`packages/civ7-types/package.json:4-7`, a types-only package) and `@civ7/config`/`map-policy`
 carry the tag (identity-wiring §6 T1: foundation members are "contract/util packages"). No
 `kind:ui`, no allow-list entry (T3 is banned by the config header, `eslint.boundaries.config.mjs:10-14`),
-no taxonomy edit at all.
+no taxonomy edit at all (constraint rows — the audited project-assignments table still gains a row; §5.4a errata).
 
 ### 3.4 The exports precedent is already cut
 
@@ -191,13 +191,13 @@ land cleanly: **the studio-owned contract moves; the civ7-control merge stays se
   `studioEffectContract` router assembly from `contract/index.ts`.
 - Stays in `@civ7/studio-server` (a thin `src/contract/index.ts`): the
   `Civ7ControlOrpcContract` merge (`contract` value, `StudioContract` type — `contract/index.ts:76-88`
-  today) and compat re-exports. Reason: the merge's value graph includes `@civ7/control-orpc`
+  today) and — as planned — compat re-exports (DROPPED as-built; §5.4a errata). Reason: the merge's value graph includes `@civ7/control-orpc`
   (kind:control, effect-orpc-built contract, §2.2) — pulling it into a foundation package would
   recreate the illegal edge one level down. The merged surface is the *server's composition* of
   its mount — exactly the thing the server should own. (A future workstream can give
   `@civ7/control-orpc` the same contract split; out of scope, nothing here blocks it.)
 - Cost: one new package + ~11 server-file repoints + ~18 app one-line repoints (§5.4); zero
-  behavior change; zero taxonomy change; kills the parity-fence task and the E1-B twin surface.
+  behavior change; zero taxonomy *constraint* change (the project table gains a row — §5.4a); kills the parity-fence task and the E1-B twin surface.
 - Risk: the card-degradation question is *moved, not auto-solved* — priced honestly in §6 with a
   bounded ladder and a no-regression baseline.
 
@@ -286,7 +286,7 @@ delete it from the B5 task list (DESIGN §3 "E1-B drift fence").
 
 | Party | Imports | Edge / legality |
 |---|---|---|
-| `@civ7/studio-server` | `@civ7/studio-contract` (value: `studioEffectContract`, error maps, schemas) — `implementEffect(studioEffectContract, runtime)` unchanged at `router/index.ts:56`; thin `./contract` module keeps the `Civ7ControlOrpcContract` merge + `StudioContract` type + compat re-exports | control → foundation ✓ (`:41-43`) |
+| `@civ7/studio-server` | `@civ7/studio-contract` (value: `studioEffectContract`, error maps, schemas) — `implementEffect(studioEffectContract, runtime)` unchanged at `router/index.ts:56`; thin `./contract` module keeps the `Civ7ControlOrpcContract` merge + `StudioContract` type (compat re-exports dropped as-built — §5.4a errata) | control → foundation ✓ (`:41-43`) |
 | `@swooper/mapgen-studio-ui` | `@civ7/studio-contract` in `dependencies` (`workspace:*` — types appear in published d.ts, so a devDep would be the adjudication-10 under-declaration); all imports `import type` (compiler-enforced by `verbatimModuleSyntax`, identity-wiring §7) | foundation → foundation ✓ (`:33`) |
 | app (client side) | contract material from `@civ7/studio-contract` (~18 one-line repoints, §5.4); `lib/orpc.ts` keeps `import type { StudioContract } from "@civ7/studio-server/contract"` — the *merged mount surface* is the server's own published type, which is exactly "the server ships its own types" | app → foundation ✓, app → control ✓ |
 | app (`src/server/**` daemon host) | `@civ7/studio-server` unchanged | app → control ✓ |
@@ -320,7 +320,7 @@ delete it from the B5 task list (DESIGN §3 "E1-B drift fence").
   `c4ebaf1e1`). `tsup.config.ts` drops the `src/contract/index.ts` + `src/liveGame/model.ts`
   entries or keeps them as thin re-export shims (recommend: keep `./contract` = the merge module;
   keep `./live-game` as a one-line re-export until the app repoint lands in the same branch,
-  then it may also thin out).
+  then it may also thin out). *As-built this recommendation was overtaken — §5.4a.*
 - **App repoints (~18 one-line import edits)**: the §3.2 "pure contract material" list. Several of
   these files are moving/splitting later in the stack anyway (GameConsole, RecipePanel,
   PipelineStage, both status modules, recipeDagFixture) — doing B0 first means they move already
@@ -330,6 +330,25 @@ delete it from the B5 task list (DESIGN §3 "E1-B drift fence").
   on day one (identity-wiring §2).
 - Proof: whole-repo `build,check,lint,test,verify` green + `boundaries` green; zero behavior
   change (a move + repoints).
+
+### 5.4a Errata (as-built deviations, 2026-07-01 — PR #1997)
+
+- **Compat re-exports were dropped, not kept.** The planned `export * from
+  "@civ7/studio-contract"` in the thin `./contract` module shipped
+  `studioEffectContract === undefined` at runtime: **esbuild silently drops star
+  re-exports of EXTERNAL packages when the exporting module is code-split into a
+  shared chunk** (named re-exports survive). As-built: the thin module exports
+  ONLY the merge (`contract` value + `StudioContract` type), and the server root
+  index re-exports contract material via NAMED exports directly from
+  `@civ7/studio-contract`. The constraint is pinned in code comments at
+  `packages/studio-server/src/contract/index.ts` and above the root index's
+  contract re-export block — any new contract re-export must be added by name.
+- **`./live-game` was deleted outright** (not kept as a shim); its single
+  consumer repointed in the same branch.
+- **One real taxonomy edit was required** after all: the §3.3 "zero taxonomy
+  change" claim covered constraint rows only — the habitat boundary-taxonomy
+  *project-assignments table* is manifest-parity-audited, so B0 registers
+  `@civ7/studio-contract` there (+ audit count pins 24/23).
 
 ### 5.5 Stack slotting
 
