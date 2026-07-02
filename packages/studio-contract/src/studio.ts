@@ -1,7 +1,7 @@
 import { eventIterator, oc } from "@orpc/contract";
 import { type Static, type TSchema, Type } from "typebox";
-import { liveGameStateSchema } from "../liveGame/model.js";
-import { toStandardSchema } from "../typeboxStandardSchema.js";
+import { toStandardSchema } from "./lib/typeboxStandardSchema.js";
+import { liveGameStateSchema } from "./liveGame/model.js";
 import { saveDeployStatusTypeSchema } from "./mapConfigs.js";
 import { operationStatusTypeSchema } from "./runInGame.js";
 import { contractSchema, emptyInputSchema, isoTimestampSchema } from "./shared.js";

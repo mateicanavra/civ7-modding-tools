@@ -1,4 +1,4 @@
-import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { useCallback, useEffect, useRef, useState } from "react";
 

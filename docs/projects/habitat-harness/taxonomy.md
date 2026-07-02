@@ -66,6 +66,7 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 | @civ7/direct-control | `packages/civ7-direct-control` | `kind:control` |
 | @civ7/control-orpc | `packages/civ7-control-orpc` | `kind:control` |
 | @civ7/studio-server | `packages/studio-server` | `kind:control` |
+| @civ7/studio-contract | `packages/studio-contract` | `kind:foundation` |
 | @civ7/types | `packages/civ7-types` | `kind:foundation` |
 | @civ7/config | `packages/config` | `kind:foundation` |
 | @civ7/map-policy | `packages/civ7-map-policy` | `kind:foundation` |

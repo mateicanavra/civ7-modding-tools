@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
-
+import type { RunInGameSourceSnapshotProof } from "@civ7/studio-contract";
 import type { StudioInputs } from "../context.js";
-import type { RunInGameSourceSnapshotProof } from "../contract/runInGame.js";
 
 export function buildRunInGameSourceSnapshotProof(
   args: Readonly<{

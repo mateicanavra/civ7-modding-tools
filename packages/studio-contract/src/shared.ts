@@ -1,6 +1,6 @@
 import { type TSchema, Type } from "typebox";
 
-import { toStandardSchema } from "../typeboxStandardSchema.js";
+import { toStandardSchema } from "./lib/typeboxStandardSchema.js";
 
 /**
  * Shared TypeBox building blocks for the studio-server success I/O contracts.

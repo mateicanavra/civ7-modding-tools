@@ -1,4 +1,4 @@
-import type { RunInGameOperationStatus } from "@civ7/studio-server";
+import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 import {
   type Civ7StudioSetupConfig,

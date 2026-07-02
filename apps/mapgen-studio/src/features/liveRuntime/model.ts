@@ -8,7 +8,7 @@ import {
   type LiveGameStatusBody,
   type LiveGameStatusKind,
   stableLiveGameStringify,
-} from "@civ7/studio-server/live-game";
+} from "@civ7/studio-contract";
 
 export type LiveRuntimeStatusKind = LiveGameStatusKind;
 

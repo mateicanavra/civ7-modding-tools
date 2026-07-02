@@ -4,7 +4,7 @@ import type {
   StudioLiveGameEvent,
   StudioOperationEvent,
   StudioOperationsCurrent,
-} from "@civ7/studio-server";
+} from "@civ7/studio-contract";
 import type { LiveRuntimeStatusState } from "../features/liveRuntime/model";
 import { isRunInGameTerminalPhase } from "../features/runInGame/status";
 

@@ -1,4 +1,4 @@
-import type { RecipeDagResult } from "@civ7/studio-server/contract";
+import type { RecipeDagResult } from "@civ7/studio-contract";
 import { formatArtifactGroupLabel, formatArtifactLabel } from "./artifactPresentation";
 
 export type DagPoint = Readonly<{

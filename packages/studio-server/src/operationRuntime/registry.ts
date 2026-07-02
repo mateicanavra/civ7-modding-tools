@@ -1,13 +1,12 @@
-import { Effect, SynchronizedRef } from "effect";
-
-import type { MapConfigSaveDeployStatus } from "../contract/mapConfigs.js";
 import type {
+  MapConfigSaveDeployStatus,
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
   RunInGameOperationStatus,
   RunInGamePhase,
   RunInGameProcessRestartStatus,
-} from "../contract/runInGame.js";
+} from "@civ7/studio-contract";
+import { Effect, SynchronizedRef } from "effect";
 import {
   dependencyUnavailable,
   deployFailed,

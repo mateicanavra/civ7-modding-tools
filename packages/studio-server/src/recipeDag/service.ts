@@ -1,4 +1,4 @@
-import type { RecipeDagResult } from "./schema.js";
+import type { RecipeDagResult } from "@civ7/studio-contract";
 
 /**
  * `RecipeDagService` — the host-injected recipe-DAG projection seam.

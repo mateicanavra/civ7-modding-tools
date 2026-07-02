@@ -1,4 +1,4 @@
-import type { RecipeDagResult } from "@civ7/studio-server/contract";
+import type { RecipeDagResult } from "@civ7/studio-contract";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { EmptyState } from "../../ui/components/EmptyState";

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { act, render, renderHook } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
-import { useRecipeDagQuery } from "../../src/features/recipeDag/useRecipeDagQuery";
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import { useViewportLayout, type ViewportLayout } from "../../src/app/hooks/useViewportLayout";
+import { useRecipeDagQuery } from "../../src/features/recipeDag/useRecipeDagQuery";
 import type { StageView } from "../../src/stores/viewStore";
 import "./_setup";
 
@@ -111,7 +111,8 @@ describe("useViewportLayout — viewport (VL-1)", () => {
 describe("useViewportLayout — recipe DAG fetch gate (VL-6)", () => {
   it("enables the DAG query only while the pipeline view is active", () => {
     const { rerender } = renderHook(
-      ({ stageView }: { stageView: StageView }) => useViewportLayout({ recipe: "rec-1", stageView }),
+      ({ stageView }: { stageView: StageView }) =>
+        useViewportLayout({ recipe: "rec-1", stageView }),
       { initialProps: { stageView: "pipeline" as StageView } }
     );
 

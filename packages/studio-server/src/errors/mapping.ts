@@ -1,18 +1,15 @@
-import type { ORPCError } from "@orpc/server";
-import { ORPCError as ServerORPCError } from "@orpc/server";
-
 import type {
   DependencyUnavailableData,
   StatusNotFoundData,
   StudioFailureData,
-  UnexpectedDefectData,
-} from "./errorData.js";
-import type {
   StudioFailureTag,
   StudioOperationNamespace,
   StudioRuntimeFailure,
-} from "./failure.js";
-import { isStudioRuntimeFailure } from "./failure.js";
+  UnexpectedDefectData,
+} from "@civ7/studio-contract";
+import { isStudioRuntimeFailure } from "@civ7/studio-contract";
+import type { ORPCError } from "@orpc/server";
+import { ORPCError as ServerORPCError } from "@orpc/server";
 
 export const STUDIO_OPERATION_PROCEDURES = [
   "autoplay.command",

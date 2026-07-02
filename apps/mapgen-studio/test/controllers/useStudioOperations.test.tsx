@@ -1,8 +1,11 @@
 // @vitest-environment jsdom
-import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-server";
+import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-contract";
 import { act, render, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { useStudioOperations, type StudioOperations } from "../../src/app/hooks/useStudioOperations";
+import {
+  type StudioOperations,
+  useStudioOperations,
+} from "../../src/app/hooks/useStudioOperations";
 import "./_setup";
 
 // Minimal fixtures — the hook only reads `.status` and holds the object by
