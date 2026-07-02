@@ -1,11 +1,16 @@
-# Storybook workbench — excluded components (Stage 1)
+# Storybook workbench — excluded components (the oracle's boundary)
 
-The workbench stories the **46-component presentational surface** enumerated by
-the design-sync `componentSrcMap` (every one is a pure, prop-driven leaf). The
-components below are deliberately **not** storied in Stage 1, with reasons. These
-are orchestration hosts and deck.gl/WebGL surfaces — storying them would violate
-the change's stop conditions (an orchestration host given a story; StrictMode /
-live canvas in a story) or require live data.
+> Moved from `apps/mapgen-studio/src/storybook/` at the B7 extraction repoint
+> (2026-07-02): this package now hosts the one Storybook (the design-sync
+> fidelity oracle) and the app has zero story files. The components below are
+> **app-side hosts** that stay unstoried; their paths are app paths.
+
+The workbench stories the **46-component presentational surface** (every one a
+pure, prop-driven leaf — now this package's public barrel; story titles are the
+sync's grouping authority). The components below are deliberately **not**
+storied, with reasons. These are orchestration hosts and deck.gl/WebGL surfaces
+— storying them would violate the workbench's stop conditions (an orchestration
+host given a story; StrictMode / live canvas in a story) or require live data.
 
 | Component | Reason excluded |
 |---|---|
@@ -16,5 +21,7 @@ live canvas in a story) or require live data.
 
 **Data-coupling exclusions:** none. The census confirmed all 46 in-scope
 components are prop-driven and reach no `/rpc`/daemon data; none had to be
-excluded for live-data coupling. The per-story stub `QueryClient` is the cold-
-`/rpc` backstop, not a mock for any storied component's own queries.
+excluded for live-data coupling. (The app-era per-story stub `QueryClient` and
+store reset were retired with the app Storybook at B7 — no storied component
+ever read a store or mounted a query, so the package preview provides only
+`TooltipProvider` + `Toaster`.)

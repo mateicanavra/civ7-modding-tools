@@ -128,3 +128,78 @@ Chrome"` (Homebrew `chromium` is a stale wrapper). Grade fresh sheets per §4.
 Checkbox/Input/Textarea + their rjsf widgets (PNG <5KB) — they render correctly
 and match the reference (a bare input IS small). Not a defect; the compare is the
 judge.
+
+## EXTRACTION REPOINT (B7, 2026-07-02) — the sync consumes the real package
+
+The synced surface was extracted into `packages/mapgen-studio-ui`
+(`@swooper/mapgen-studio-ui`) and the sync repointed at its REAL artifacts.
+Everything above this section describes the app-hosted era; path references up
+there (`apps/mapgen-studio/...`, `build-inputs.sh`, `ds-entry.tsx`) are
+historical.
+
+- **Home moved.** `.design-sync/` + `.ds-sync/` live in
+  `packages/mapgen-studio-ui/` (git mv). cwd = PKG_DIR = the package dir; all
+  converter commands run from here. `--node-modules ./node_modules`
+  (react/react-dom resolve in the package's own node_modules under the
+  isolated linker).
+- **`build-inputs.sh` is DELETED** (with `.design-sync/tsconfig.dts.json` and
+  `ds-entry.tsx`). `buildCmd` is `bunx nx run mapgen-studio-ui:build`: real
+  tsup ESM dist (`entry: dist/index.js`), strict-tsc `.d.ts` tree (the TS7056
+  tolerance is gone), Tailwind-CLI-compiled `cssEntry: dist/styles.css`
+  (AUTHORED dark-default `:root, .dark { … }` + `.light { … }` — no text
+  surgery), fonts copied by the build with `@font-face` URLs correct at
+  authoring time. `assert_theme_block`'s replacement is the package's
+  theme-invariant test (`test/themeTokens.test.ts` vs the committed token
+  fixture) + the `verify` artifact-contract script.
+- **The `synthEntry` fork is DELETED** (`.design-sync/overrides/
+  source-storybook.mjs` + `cfg.libOverrides`). The package publishes real
+  `exports` + `types`, so `exportedNames()` is non-empty and the bundled
+  adapter's own export authority applies — the fork's recorded removal
+  condition, met.
+- **`cfg.storyImports` is DELETED.** Stories import by the bare package name
+  (`@swooper/mapgen-studio-ui`), which shims to `window.MapGenStudio` by the
+  converter's specifier rule before any resolution. The three app-path shim
+  patterns had nothing left to match.
+- **`cfg.componentSrcMap` is PRUNED** (key removed). Under storybook shape its
+  46 path values were never read (titles ∩ public exports are the surface);
+  the keys only exempted names from the compound-subcomponent partition, which
+  cannot fire for flat const exports. WATCH ITEM: if a build log ever prints
+  `(grouped N subcomponents under M parents…)`, re-pin that one name with a
+  single-line `componentSrcMap` entry and a bullet here.
+- **Reference build pairs with buildCmd**: `node_modules/.bin/storybook build
+  -c .storybook -o .design-sync/sb-reference` from the package dir. The
+  package `.storybook` aliases the bare package name to `src/index.ts`
+  (unconditional by design — the compare is dist-rendered cards vs the
+  source-rendered reference, so a source↔dist defect surfaces as a mismatch).
+- **One-command check**: `bunx nx run 'mapgen-studio-ui:"design-sync:check"'`
+  (the colon-named target must be quoted)
+  (builds the package via the Nx dependency edge, rebuilds the reference,
+  runs the resync driver locally; uses `.design-sync/.cache/remote-sync.json`
+  as the anchor when present, else reports full first-sync scope; needs
+  Chromium — `DS_CHROMIUM_PATH` respected, macOS Google Chrome auto-detected).
+  Deliberately OUTSIDE the CI five-target graph (chromium-weight rule).
+- **The app storybook is retired**: `apps/mapgen-studio/.storybook/` and
+  `src/storybook/{storeReset,queryStub}.ts` deleted (the app has zero story
+  files post-extraction); `EXCLUSIONS.md` moved to the package `.storybook/`
+  — it documents the oracle's boundary (which app hosts stay unstoried).
+- **First package-era resync**: expected verdict `changed:[46]` /
+  `added:[]` / `removed:[]` with `anchor: ok` — every sourceKey moves at once
+  (fork deleted + storyImports deleted from the global config slice; story
+  bytes rewritten to bare package imports). Any `added`/`removed` entry means
+  a missing barrel export or a changed story title — stop and fix, never
+  re-grade around.
+- **`[GRID_OVERFLOW]` on TagSelectWidget is PRE-EXISTING, not a repoint artifact**
+  (first package-era run, 2026-07-02): the emitted card html is byte-identical
+  to the shipped project card (diff-verified modulo the bundle version param),
+  so the product card cropped those stories before the extraction too. Kept
+  `overrides` verbatim per the move discipline; the `cardMode: column` remedy
+  is queued for the oracle-gated E3 cleanup wave. `[RENDER_BLANK]` on the empty
+  Toaster host remains the recorded false positive.
+- **Forced-`.light` canary is a committed capability** (review fold, 2026-07-02):
+  `scripts/light-canary.mjs` (run from the package root after `design-sync:check`
+  has produced `sb-reference/` + `ds-bundle/`) screenshots 7 token-heavy picks
+  forced light on BOTH sides and cross-checks 7 core tokens programmatically —
+  non-empty `drift` = FAIL. Latest run's durable record:
+  `.design-sync/light-canary-tokens.json` (2026-07-02, 7/7 zero drift;
+  screenshots ephemeral by design — re-run to regenerate). This is the FRAME §2
+  both-modes leg; `design-sync:check` itself renders dark-only.

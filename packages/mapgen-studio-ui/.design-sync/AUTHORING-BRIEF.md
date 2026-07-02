@@ -1,3 +1,5 @@
+> **HISTORICAL — retired app-hosted/package-shape pipeline (pre-extraction, superseded at B7 2026-07-02). Kept for the record; NOT a runbook.**
+
 # design-sync preview authoring brief (mapgen-studio)
 
 You are authoring **preview cards** for components of the MapGen Studio design

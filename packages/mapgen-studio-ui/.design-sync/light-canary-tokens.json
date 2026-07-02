@@ -1,0 +1,156 @@
+{
+  "Button": {
+    "sbClass": "light",
+    "sbTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "dsTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "drift": []
+  },
+  "Tabs": {
+    "sbClass": "light",
+    "sbTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "dsTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "drift": []
+  },
+  "ErrorBanner": {
+    "sbClass": "light",
+    "sbTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "dsTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "drift": []
+  },
+  "AppFooter": {
+    "sbClass": "light",
+    "sbTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "dsTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "drift": []
+  },
+  "GameConsole": {
+    "sbClass": "light",
+    "sbTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "dsTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "drift": []
+  },
+  "WaterStatsSection": {
+    "sbClass": "light",
+    "sbTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "dsTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "drift": []
+  },
+  "PipelineStage": {
+    "sbClass": "light",
+    "sbTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "dsTokens": {
+      "--background": "240 20% 97%",
+      "--foreground": "215 25% 17%",
+      "--card": "0 0% 100%",
+      "--primary": "216 22% 32%",
+      "--muted-foreground": "220 9% 46%",
+      "--border": "220 13% 88%",
+      "--destructive": "350 72% 48%"
+    },
+    "drift": []
+  }
+}

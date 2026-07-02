@@ -7,6 +7,7 @@
   "sideEffects": [
     "**/*.css"
   ],
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
@@ -30,6 +31,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio-ui",
     "verify": "node scripts/verify.mjs",
+    "design-sync:check": "node scripts/design-sync-check.mjs",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
     "storybook": "storybook dev -p 6006 --no-open",
@@ -94,6 +96,13 @@
           "build",
           "^build"
         ]
+      },
+      "design-sync:check": {
+        "dependsOn": [
+          "build",
+          "^build"
+        ],
+        "cache": false
       }
     }
   }
