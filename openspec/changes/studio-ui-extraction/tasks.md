@@ -26,9 +26,9 @@
 
 ## 3. B3 — Composites + layout (12: all but AppHeader)
 
-- [ ] 3.1 Move AppBrand, AppFooter (+ required seedMin/seedMax props per adjudication 2 AND — under E2-A — mapSizeOptions/mapSizeShortLabels/playerCountOptions props mirroring today's shapes; story args = today's exact values; STRIP AppFooter's inline TooltipProvider per adjudication 6, hover verified manually), StageViewTabs (owns `StageView`; viewStore imports back), ViewControls (plain cn → extended), WaterStatsSection (owns the two narrow structural types), OptionSelect, DisclosureHeader, EmptyState (plain cn → extended), ErrorBanner, PresetDialogs (3 components), LeftDock, RightDock + their stories; delete `src/ui/utils/cn.ts` + dead `src/ui/index.css`.
-- [ ] 3.2 App rewire per rule 0.3: StudioShell repoints for THIS branch's components + seed/options props wiring; still-app-side PipelineStage repoints its EmptyState import to the package; CanvasStage EmptyState normalization; presets dir split (plumbing stays); `ui/utils` barrel trim.
-- [ ] 3.3 Green per rule 0.3 gates (30 stories cumulative; plain-cn unification verified no-op on the 3 affected stories via markup-pin tests).
+- [x] 3.1 Move AppBrand, AppFooter (+ required seedMin/seedMax props per adjudication 2 AND — under E2-A — mapSizeOptions/mapSizeShortLabels/playerCountOptions props mirroring today's shapes; story args = today's exact values; STRIP AppFooter's inline TooltipProvider per adjudication 6, hover verified manually), StageViewTabs (owns `StageView`; viewStore imports back), ViewControls (plain cn → extended), WaterStatsSection (owns the two narrow structural types), OptionSelect, DisclosureHeader, EmptyState (plain cn → extended), ErrorBanner, PresetDialogs (3 components), LeftDock, RightDock + their stories; delete `src/ui/utils/cn.ts` + dead `src/ui/index.css`.
+- [x] 3.2 App rewire per rule 0.3: StudioShell repoints for THIS branch's components + seed/options props wiring; still-app-side PipelineStage repoints its EmptyState import to the package; CanvasStage EmptyState normalization; presets dir split (plumbing stays); `ui/utils` barrel trim.
+- [x] 3.3 Green per rule 0.3 gates (30 stories cumulative; plain-cn unification verified no-op on the 3 affected stories via markup-pin tests).
 
 ## 4. B4 — Forms (11; the five-module unit moves as ONE)
 
