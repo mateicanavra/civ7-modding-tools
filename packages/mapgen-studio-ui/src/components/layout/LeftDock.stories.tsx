@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { LeftDock, type LeftDockProps } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { LeftDock, type LeftDockProps } from "@/app/LeftDock";
 
 /**
  * LeftDock is the left-anchored floating rail that hosts the recipe authoring

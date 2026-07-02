@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { ViewControls } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { ViewControls } from "@/ui/components/ViewControls";
 
 /**
  * ViewControls is the floating map toolbar: a theme-cycle button (auto/light/

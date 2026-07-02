@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { EmptyState, type EmptyStateProps } from "@swooper/mapgen-studio-ui";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
-import { EmptyState, type EmptyStateProps } from "@/ui/components/EmptyState";
 
 /**
  * EmptyState is the centered status card — the shared awaiting/loading/error/

@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ReactNode } from "react";
 import type {
-  RiverLakeFloodplainInspectorSummary,
-  RiverLakeInspectorLayerRef,
-  RiverLakeInspectorMaskCategory,
-  RiverLakeInspectorRow,
-} from "@/features/viz/riverLakeInspector";
-import { WaterStatsSection } from "@/ui/components/WaterStatsSection";
+  WaterStatsLayerRef,
+  WaterStatsRow,
+  WaterStatsSummary,
+} from "@swooper/mapgen-studio-ui";
+import { WaterStatsSection } from "@swooper/mapgen-studio-ui";
+import type { ReactNode } from "react";
 
 /**
  * WaterStatsSection is the hydrology/lake/floodplain stats surface inside the
@@ -15,9 +14,10 @@ import { WaterStatsSection } from "@/ui/components/WaterStatsSection";
  * (module-owned data colors). Divergence counts (mismatch/rejected) are
  * emphasized in warning when nonzero. The expanded row's chips carry shadcn
  * Tooltips whose TooltipProvider is supplied by the global Storybook decorator.
- * Adapted from `.design-sync/previews/WaterStatsSection.tsx` — the preview's
- * loose `ref()`/`summary` mock is completed here against the real
- * `RiverLakeFloodplainInspectorSummary` (every required ref/row field present).
+ * Adapted from `.design-sync/previews/WaterStatsSection.tsx` — the fixture is
+ * typed against the package-owned narrow structural types
+ * (`WaterStatsSummary`/`WaterStatsLayerRef`); the app's wide viz types conform
+ * structurally.
  */
 const meta = {
   title: "composites/WaterStatsSection",
@@ -29,65 +29,38 @@ type Story = StoryObj<typeof meta>;
 
 const noop = () => {};
 
-// Fully-typed layer ref. The component reads only layerKey/dataTypeKey/label and
-// presentation.categoryLabel + palette.activeColor; the remaining fields are
-// completed with valid Viz values so the fixture satisfies the real type.
+// Narrow layer ref — exactly the fields the component renders: layerKey /
+// dataTypeKey / label + presentation.categoryLabel / palette.activeColor.
 const makeRef = (
   layerKey: string,
   dataTypeKey: string,
   label: string,
-  category: RiverLakeInspectorMaskCategory,
   categoryLabel: string,
   activeColor: string
-): RiverLakeInspectorLayerRef => ({
+): WaterStatsLayerRef => ({
   dataTypeKey,
   layerKey,
-  stepId: "rivers",
-  stepIndex: 0,
-  spaceId: "tile.hexOddR",
-  kind: "grid",
-  role: null,
-  variantKey: null,
-  visibility: "default",
   label,
-  renderModeId: "mask",
-  nonZeroCount: null,
-  sampleCount: null,
   presentation: {
-    category,
     categoryLabel,
-    palette: {
-      paletteId: `${category}-palette`,
-      label: categoryLabel,
-      activeColor,
-      inactiveColor: "#1f2937",
-      debugColor: "#dc2626",
-    },
+    palette: { activeColor },
   },
 });
 
-// Fully-typed row. The component reads rowKey/label/counts/layerRefs; the lane/
-// proof/claim/display/evidence fields are completed to satisfy the real type.
+// Narrow row — the component reads rowKey/label/counts/layerRefs.
 const makeRow = (
   rowKey: string,
   label: string,
   counts: Record<string, number>,
-  layerRefs: RiverLakeInspectorLayerRef[]
-): RiverLakeInspectorRow => ({
+  layerRefs: WaterStatsLayerRef[]
+): WaterStatsRow => ({
   rowKey,
-  lane: "hydrology",
-  laneLabel: "Hydrology",
   label,
-  proofClass: "hydrology-truth",
-  claimStatus: "available",
-  displayStatus: "hydrology-truth-present",
   counts,
   layerRefs,
-  evidence: [],
 });
 
-const summary: RiverLakeFloodplainInspectorSummary = {
-  version: 1,
+const summary: WaterStatsSummary = {
   rows: [
     makeRow(
       "projection-plan",
@@ -98,7 +71,6 @@ const summary: RiverLakeFloodplainInspectorSummary = {
           "map.rivers.projectedRiverMask@9",
           "map.rivers.projectedRiverMask",
           "Projected navigable rivers",
-          "navigable-projection",
           "Projection plan",
           "#0f766e"
         ),
@@ -106,7 +78,6 @@ const summary: RiverLakeFloodplainInspectorSummary = {
           "map.rivers.plannedMajorRiverMask@9",
           "map.rivers.plannedMajorRiverMask",
           "Planned major rivers",
-          "navigable-projection",
           "Projection plan",
           "#0f766e"
         ),
@@ -121,7 +92,6 @@ const summary: RiverLakeFloodplainInspectorSummary = {
           "map.rivers.engineRiverMask@14",
           "map.rivers.engineRiverMask",
           "Engine river terrain",
-          "engine-terrain-readback",
           "Terrain readback",
           "#0891b2"
         ),
@@ -129,7 +99,6 @@ const summary: RiverLakeFloodplainInspectorSummary = {
           "map.rivers.riverMismatchMask@14",
           "map.rivers.riverMismatchMask",
           "River terrain mismatch",
-          "mismatch-debug",
           "Mismatch/debug",
           "#dc2626"
         ),
@@ -144,7 +113,6 @@ const summary: RiverLakeFloodplainInspectorSummary = {
           "map.hydrology.lakes.plannedLakeMask@11",
           "map.hydrology.lakes.plannedLakeMask",
           "Planned lakes",
-          "lake-plan-readback",
           "Lake plan/readback",
           "#4f46e5"
         ),
@@ -152,7 +120,6 @@ const summary: RiverLakeFloodplainInspectorSummary = {
           "map.hydrology.lakes.rejectedLakeMask@11",
           "map.hydrology.lakes.rejectedLakeMask",
           "Rejected lakes",
-          "mismatch-debug",
           "Mismatch/debug",
           "#dc2626"
         ),
@@ -167,7 +134,6 @@ const summary: RiverLakeFloodplainInspectorSummary = {
           "map.ecology.features.floodplainAppliedMask@22",
           "map.ecology.features.floodplainAppliedMask",
           "Applied floodplains",
-          "floodplain-apply",
           "Floodplain apply",
           "#16a34a"
         ),

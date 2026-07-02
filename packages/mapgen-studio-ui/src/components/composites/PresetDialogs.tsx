@@ -1,5 +1,6 @@
+import { useState } from "react";
+import { Button } from "../ui/button.js";
 import {
-  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -7,9 +8,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Input,
-} from "@swooper/mapgen-studio-ui";
-import { useState } from "react";
+} from "../ui/dialog.js";
+import { Input } from "../ui/input.js";
 
 /**
  * Preset dialogs — error / save / confirm flows, migrated from the legacy

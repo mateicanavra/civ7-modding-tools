@@ -1,3 +1,4 @@
+import type { StageView } from "@swooper/mapgen-studio-ui";
 import { create } from "zustand";
 
 /**
@@ -24,12 +25,10 @@ function resolve<T>(updater: Updater<T>, prev: T): T {
 
 export type EraMode = "auto" | "fixed";
 
-/**
- * Which view the center stage presents: the generated map, or the authored
- * recipe's dependency pipeline (mapgen-studio-dag-tab). Stage furniture —
- * not a Game-bar or World-console concern.
- */
-export type StageView = "map" | "pipeline";
+// `StageView` is component-owned (StageViewTabs re-homed it to
+// @swooper/mapgen-studio-ui); the store imports it back and re-exports so
+// existing app import sites keep working.
+export type { StageView };
 
 export type ViewState = {
   // Canvas layer toggles

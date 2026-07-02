@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { DisclosureHeader, type DisclosureHeaderProps } from "@swooper/mapgen-studio-ui";
 import { Compass, Layers, Settings } from "lucide-react";
 import type { ReactNode } from "react";
-import { DisclosureHeader, type DisclosureHeaderProps } from "@/ui/components/DisclosureHeader";
 
 /**
  * DisclosureHeader is the controlled section-header row used across the studio

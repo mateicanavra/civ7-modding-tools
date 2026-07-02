@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { PresetSaveDialog } from "@/features/presets/PresetDialogs";
+import { PresetSaveDialog } from "@swooper/mapgen-studio-ui";
 
 /**
  * PresetSaveDialog captures the current config as a named preset (Save disabled

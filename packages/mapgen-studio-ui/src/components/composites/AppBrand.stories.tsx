@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { AppBrand } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { AppBrand } from "@/ui/components/AppBrand";
 
 /**
  * AppBrand is the identity pill in the header ("MapGen Studio v0.1"), riding the

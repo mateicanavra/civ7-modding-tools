@@ -1,9 +1,8 @@
 import type { Layer } from "@deck.gl/core";
+import { EmptyState } from "@swooper/mapgen-studio-ui";
 import type { MutableRefObject } from "react";
-
 import { DeckCanvas, type DeckCanvasApi } from "../features/viz/DeckCanvas";
 import type { Bounds, VizLayerEntryV1 } from "../features/viz/model";
-import { EmptyState } from "../ui/components/EmptyState";
 
 export type CanvasStageProps = {
   apiRef: MutableRefObject<DeckCanvasApi | null>;

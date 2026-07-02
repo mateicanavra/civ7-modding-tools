@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { RightDock, type RightDockProps } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { RightDock, type RightDockProps } from "@/app/RightDock";
 
 /**
  * RightDock is the right-anchored floating rail that hosts the explore panel.

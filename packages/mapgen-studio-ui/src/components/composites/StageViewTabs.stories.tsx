@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { StageViewTabs } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { StageViewTabs } from "@/ui/components/StageViewTabs";
 
 /**
  * StageViewTabs is the stage's own Map/Pipeline view switcher — a segmented pill

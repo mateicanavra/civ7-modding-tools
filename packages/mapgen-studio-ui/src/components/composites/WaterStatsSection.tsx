@@ -10,23 +10,56 @@
 // jump-to-layer chips for the underlying evidence.
 // ============================================================================
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
 import { Droplets } from "lucide-react";
-import React from "react";
-import type {
-  RiverLakeFloodplainInspectorSummary,
-  RiverLakeInspectorLayerRef,
-} from "../../features/viz/riverLakeInspector";
-import { DisclosureHeader } from "./DisclosureHeader";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
+import { DisclosureHeader } from "./DisclosureHeader.js";
+
+// ============================================================================
+// Types (package-owned narrow structural stand-ins — LEDGER row 22)
+// ============================================================================
+// The component reads ONLY these fields; the app's wide viz-domain types
+// (`riverLakeInspector`'s `RiverLakeFloodplainInspectorSummary` /
+// `RiverLakeInspectorLayerRef`) conform structurally. The component is generic
+// over the layer-ref type so the ref handed back through `onLayerSelect` keeps
+// the caller's WIDER type (the app jump handler reads fields beyond this
+// contract — e.g. stepId/visibility — off the refs it supplied itself).
+
+/** Narrow structural stand-in for a viz evidence-layer reference. */
+export interface WaterStatsLayerRef {
+  /** Concrete layer key (jump target identity). */
+  layerKey: string;
+  /** Semantic data-type key (drives the chip's short label heuristics). */
+  dataTypeKey: string;
+  /** Human label (chip accessible name). */
+  label: string;
+  /** Presentation slice actually rendered: category label + data color. */
+  presentation: {
+    categoryLabel: string;
+    palette: { activeColor: string };
+  };
+}
+
+/** One stats line per data family. */
+export interface WaterStatsRow<TRef extends WaterStatsLayerRef = WaterStatsLayerRef> {
+  rowKey: string;
+  label: string;
+  counts: Readonly<Record<string, number>>;
+  layerRefs: readonly TRef[];
+}
+
+/** Narrow structural stand-in for the river/lake/floodplain inspector summary. */
+export interface WaterStatsSummary<TRef extends WaterStatsLayerRef = WaterStatsLayerRef> {
+  rows: readonly WaterStatsRow<TRef>[];
+}
 
 // ============================================================================
 // Props
 // ============================================================================
-export interface WaterStatsSectionProps {
+export interface WaterStatsSectionProps<TRef extends WaterStatsLayerRef = WaterStatsLayerRef> {
   /** Inspector summary built from the current viz manifest (null = no run). */
-  summary: RiverLakeFloodplainInspectorSummary | null | undefined;
+  summary: WaterStatsSummary<TRef> | null | undefined;
   /** Jump the explore selection to an evidence layer. */
-  onLayerSelect?: (ref: RiverLakeInspectorLayerRef) => void;
+  onLayerSelect?: (ref: TRef) => void;
   /** Whether the row list is expanded (controlled). */
   expanded: boolean;
   /** Callback when the disclosure toggles. */
@@ -44,7 +77,7 @@ const INVENTORY_COUNT_KEYS = new Set(["layers", "default", "debug"]);
  */
 const isDivergenceCount = (key: string): boolean => /mismatch|reject|drift/i.test(key);
 
-const formatLayerButtonLabel = (ref: RiverLakeInspectorLayerRef): string => {
+const formatLayerButtonLabel = (ref: WaterStatsLayerRef): string => {
   if (ref.dataTypeKey.includes("projectedRiverMask")) return "projected";
   if (ref.dataTypeKey.includes("plannedMinorRiverMask")) return "minor";
   if (ref.dataTypeKey.includes("plannedMajorRiverMask")) return "major";
@@ -74,12 +107,12 @@ const formatLayerButtonLabel = (ref: RiverLakeInspectorLayerRef): string => {
  * to the evidence layers (module-owned data colors). Rows with no counts and
  * no layers (closure bookkeeping the manifest cannot inform) do not render.
  */
-export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
+export function WaterStatsSection<TRef extends WaterStatsLayerRef>({
   summary,
   onLayerSelect,
   expanded,
   onExpandedChange,
-}) => {
+}: WaterStatsSectionProps<TRef>) {
   const allRows = summary?.rows ?? [];
   const rows = allRows
     .map((row) => ({
@@ -187,4 +220,4 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
       ) : null}
     </>
   );
-};
+}

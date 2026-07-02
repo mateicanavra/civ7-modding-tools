@@ -24,7 +24,11 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // DropdownMenu×15, Input, Label, Popover×4, ScrollArea+ScrollBar, Select×10,
 // Separator, Toaster, Switch, Tabs×4, Textarea, Tooltip×4) + FieldRow +
 // cn + useResolvedTheme + resolveThemeFromDom + LAYOUT = 63.
-const EXPECTED_MIN_EXPORTS = 63;
+// B3 (composites + layout 14): AppBrand, AppFooter, StageViewTabs,
+// ViewControls, WaterStatsSection, OptionSelect, DisclosureHeader, EmptyState,
+// ErrorBanner, PresetErrorDialog, PresetSaveDialog, PresetConfirmDialog,
+// LeftDock, RightDock = 77.
+const EXPECTED_MIN_EXPORTS = 77;
 
 const failures = [];
 const assert = (cond, msg) => {

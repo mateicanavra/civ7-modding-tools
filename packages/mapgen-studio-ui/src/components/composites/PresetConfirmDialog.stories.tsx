@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { PresetConfirmDialog } from "@/features/presets/PresetDialogs";
+import { PresetConfirmDialog } from "@swooper/mapgen-studio-ui";
 
 /**
  * PresetConfirmDialog is the destructive-confirm flow (outline Cancel + filled

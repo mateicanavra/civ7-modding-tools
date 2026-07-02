@@ -4,7 +4,6 @@
 // Re-exports all utility functions.
 // ============================================================================
 
-export { cn } from "./cn";
 export {
   applyConfigPatch,
   // Config manipulation

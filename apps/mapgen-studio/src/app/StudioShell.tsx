@@ -1,14 +1,20 @@
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import {
+  AppFooter,
+  ErrorBanner,
+  LeftDock,
+  PresetConfirmDialog,
+  PresetErrorDialog,
+  PresetSaveDialog,
+  RightDock,
+  StageViewTabs,
+} from "@swooper/mapgen-studio-ui";
 import type { GenerationStatus, PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
+import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
 import { buildDefaultConfig } from "../features/configOverrides/configBuilders";
-import {
-  PresetConfirmDialog,
-  PresetErrorDialog,
-  PresetSaveDialog,
-} from "../features/presets/PresetDialogs";
 import { type PresetKey, parsePresetKey } from "../features/presets/types";
 import { PipelineStage } from "../features/recipeDag/PipelineStage";
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
@@ -19,15 +25,13 @@ import type { VizEvent } from "../shared/vizEvents";
 import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
 import { useViewStore } from "../stores/viewStore";
-import { AppFooter } from "../ui/components/AppFooter";
 import { AppHeader } from "../ui/components/AppHeader";
 import { ExplorePanel } from "../ui/components/ExplorePanel";
 import { GameConsole } from "../ui/components/GameConsole";
 import { RecipePanel } from "../ui/components/RecipePanel";
-import { StageViewTabs } from "../ui/components/StageViewTabs";
+import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../ui/constants";
 import { configsEqual } from "../ui/utils/config";
 import { CanvasStage } from "./CanvasStage";
-import { ErrorBanner } from "./ErrorBanner";
 import { useBrowserRun } from "./hooks/useBrowserRun";
 import { useDeckAutofit } from "./hooks/useDeckAutofit";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -42,9 +46,7 @@ import { useStudioOperations } from "./hooks/useStudioOperations";
 import { useToast } from "./hooks/useToast";
 import { useViewportLayout } from "./hooks/useViewportLayout";
 import { useVizSelection } from "./hooks/useVizSelection";
-import { LeftDock } from "./LeftDock";
 import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
-import { RightDock } from "./RightDock";
 import { studioBusyGateMessage } from "./studioEventRecovery";
 
 export type StudioShellProps = {
@@ -881,6 +883,11 @@ export function StudioShell(props: StudioShellProps) {
       onToast={(message) => toast(message, { variant: "success" })}
       autoRunEnabled={autoRunEnabled}
       onAutoRunEnabledChange={setAutoRunEnabled}
+      mapSizeOptions={MAP_SIZE_OPTIONS}
+      mapSizeShortLabels={MAP_SIZE_SHORT}
+      playerCountOptions={PLAYER_COUNT_OPTIONS}
+      seedMin={CIV7_STUDIO_SEED_MIN}
+      seedMax={CIV7_STUDIO_SEED_MAX}
     />
   );
 

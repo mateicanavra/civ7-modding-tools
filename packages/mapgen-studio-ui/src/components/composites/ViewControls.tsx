@@ -9,11 +9,11 @@
 // the shadcn Tooltip (token-styled, delay-grouped under the shell provider).
 // ============================================================================
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
-import type { ThemePreference } from "@swooper/mapgen-studio-ui/types";
 import { Grid3x3, Monitor, Moon, Sun } from "lucide-react";
 import React from "react";
-import { cn } from "../utils";
+import { cn } from "../../lib/utils.js";
+import type { ThemePreference } from "../../types/index.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 // ============================================================================
 // Props
 // ============================================================================
