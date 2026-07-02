@@ -20,7 +20,7 @@ export function ErrorBanner({ message, top }: ErrorBannerProps) {
     <div
       role="alert"
       aria-live="assertive"
-      className="absolute left-1/2 -translate-x-1/2 z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-destructive/40 bg-destructive/15 px-4 py-2 text-xs text-destructive backdrop-blur-sm"
+      className="absolute left-1/2 -translate-x-1/2 z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-destructive/40 bg-destructive/15 px-4 py-2 text-data text-destructive backdrop-blur-sm"
       style={{ top }}
     >
       {message}
