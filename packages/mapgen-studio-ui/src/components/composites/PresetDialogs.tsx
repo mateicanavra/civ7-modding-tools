@@ -153,10 +153,12 @@ export function PresetConfirmDialog(props: PresetConfirmDialogProps) {
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
+          {/* Cancel carries NO onClick of its own: DialogClose flips the open
+              state, which reaches `onCancel` exactly once through the Dialog's
+              `onOpenChange(false)` above. A direct onClick here double-fired
+              the cancel callback (once via click, once via the close). */}
           <DialogClose asChild>
-            <Button variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
+            <Button variant="outline">Cancel</Button>
           </DialogClose>
           <Button onClick={onConfirm}>{confirmLabel}</Button>
         </DialogFooter>
