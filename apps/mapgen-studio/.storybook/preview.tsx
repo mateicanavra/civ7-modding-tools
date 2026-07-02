@@ -1,18 +1,13 @@
-// Self-hosted fonts + the token system — mirror `src/main.tsx` exactly, at module
-// load, before any story renders. Without `src/index.css` every story is unstyled
-// and untokened; without the fonts the type renders in a fallback face.
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-import "@fontsource/inter/700.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
+// The token system + fonts, at module load, before any story renders. The
+// collapsed `src/index.css` now carries BOTH (package theme.css + fonts.css
+// imports), so the former direct @fontsource imports are gone with the app
+// deps (B2 foundation move).
 import "../src/index.css";
 
 import type { Decorator, Preview } from "@storybook/react-vite";
+import { Toaster, TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { Toaster, TooltipProvider } from "../src/components/ui";
 import { createStoryQueryClient } from "../src/storybook/queryStub";
 import { resetStudioStores } from "../src/storybook/storeReset";
 
@@ -40,17 +35,20 @@ function StudioStoryProviders({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Theme is a single `.dark` class on `document.documentElement` (the app's
- * single-class strategy, no next-themes). Own it directly from the toolbar global
- * rather than mounting `StudioProviders`/`useThemePreference` (which read+write
- * `localStorage["theme-preference"]` and subscribe to matchMedia — story-hostile
- * side effects). `<Toaster/>` re-themes off this class automatically via the app's
- * `useThemeFromClass`. Set per render so flipping the toolbar re-themes live.
+ * Theme is a class on `document.documentElement` (no next-themes). Own it
+ * directly from the toolbar global rather than mounting `StudioProviders`/
+ * `useThemePreference` (which read+write `localStorage["theme-preference"]`
+ * and subscribe to matchMedia — story-hostile side effects). BOTH classes are
+ * written explicitly: the package theme is dark-DEFAULT (`:root, .dark` +
+ * `.light` re-skin), so light needs its class present, and `<Toaster/>`
+ * re-themes off the root via the package's `useResolvedTheme` either way.
+ * Set per render so flipping the toolbar re-themes live.
  */
 const withStudioContext: Decorator = (Story, context) => {
   const theme = context.globals.theme ?? "dark";
   if (typeof document !== "undefined") {
     document.documentElement.classList.toggle("dark", theme !== "light");
+    document.documentElement.classList.toggle("light", theme === "light");
   }
   return (
     <StudioStoryProviders>

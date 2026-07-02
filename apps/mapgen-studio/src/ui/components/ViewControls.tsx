@@ -8,10 +8,11 @@
 // `bg-accent` on hover / `bg-muted` when active. Native `title=` hints are now
 // the shadcn Tooltip (token-styled, delay-grouped under the shell provider).
 // ============================================================================
+
+import { Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
+import type { ThemePreference } from "@swooper/mapgen-studio-ui/types";
 import { Grid3x3, Monitor, Moon, Sun } from "lucide-react";
 import React from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
-import type { ThemePreference } from "../types";
 import { cn } from "../utils";
 // ============================================================================
 // Props

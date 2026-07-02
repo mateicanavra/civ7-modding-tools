@@ -7,8 +7,8 @@
 
 import { stripSchemaMetadataRoot, type TSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import type { StudioRecipeUiMeta } from "../../recipes/catalog";
-import type { PipelineConfig } from "../../ui/types";
 import { migratePipelineConfigUnknown } from "../configMigrations/pipelineConfig";
 import type { PresetKey } from "../presets/types";
 

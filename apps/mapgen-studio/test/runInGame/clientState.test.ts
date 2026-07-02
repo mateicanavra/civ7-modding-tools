@@ -1,6 +1,10 @@
 import type { RunInGameOperationStatus } from "@civ7/studio-contract";
+import type {
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import { describe, expect, it } from "vitest";
-
 import {
   buildRunInGameClientSnapshot,
   buildRunInGameFingerprint,
@@ -9,7 +13,6 @@ import {
   parseRunInGameSourceSnapshot,
   relationForRunInGameOperation,
 } from "../../src/features/runInGame/clientState";
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../src/ui/types";
 
 const recipeSettings: RecipeSettings = {
   recipe: "standard",

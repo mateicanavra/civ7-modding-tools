@@ -14,7 +14,7 @@ import type {
   StepConfig,
   StepOption,
   WorldSettings,
-} from "../types";
+} from "@swooper/mapgen-studio-ui/types";
 import { formatStageName } from "./formatting";
 
 /**

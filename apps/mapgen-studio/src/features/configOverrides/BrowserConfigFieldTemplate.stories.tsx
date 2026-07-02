@@ -1,7 +1,7 @@
 import type { FieldTemplateProps, RJSFSchema } from "@rjsf/utils";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Input } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { Input } from "@/components/ui";
 import {
   BrowserConfigFieldTemplate,
   type BrowserConfigFormContext,

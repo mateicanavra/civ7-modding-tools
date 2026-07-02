@@ -4,9 +4,9 @@ import type {
   ObjectFieldTemplateProps,
   RJSFSchema,
 } from "@rjsf/utils";
+import { FieldRow } from "@swooper/mapgen-studio-ui";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
-import { FieldRow } from "../../ui/components/fields";
 import { pathToPointer } from "./schemaPresentation";
 
 /**

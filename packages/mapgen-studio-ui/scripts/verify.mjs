@@ -19,8 +19,12 @@ import { fileURLToPath } from "node:url";
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = (p) => join(pkgRoot, "dist", p);
 
-// B1 scaffold ships an empty barrel; each component branch raises this floor.
-const EXPECTED_MIN_EXPORTS = 0;
+// Each component branch raises this floor. B2 (foundation + primitives 16):
+// 58 primitive names (Button+buttonVariants, Checkbox, Dialog×10,
+// DropdownMenu×15, Input, Label, Popover×4, ScrollArea+ScrollBar, Select×10,
+// Separator, Toaster, Switch, Tabs×4, Textarea, Tooltip×4) + FieldRow +
+// cn + useResolvedTheme + resolveThemeFromDom + LAYOUT = 63.
+const EXPECTED_MIN_EXPORTS = 63;
 
 const failures = [];
 const assert = (cond, msg) => {

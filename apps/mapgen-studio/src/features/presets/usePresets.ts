@@ -1,6 +1,6 @@
+import type { SelectOption } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useMemo, useState } from "react";
 import type { BuiltInPreset } from "../../recipes/catalog";
-import type { SelectOption } from "../../ui/types";
 import {
   type LocalPresetV1,
   loadPresetStore,
