@@ -1,6 +1,6 @@
 # WORKSTREAM — MapGen Studio UI Library Extraction
 
-**Status:** classification ledger FROZEN ([LEDGER.md](./LEDGER.md)); design phase next (no code changes yet)
+**Status:** design SYNTHESIZED + REVIEWED ([DESIGN.md](./DESIGN.md), OpenSpec `studio-ui-extraction` validated); **AWAITING MATEI CHECKPOINT** (DESIGN §4: Q2, E1 bundle, E2, E3, E4) before any implementation slice
 **Owner:** extraction workstream agent (this document is the owner's operating picture)
 **Normative anchor:** [FRAME.md](./FRAME.md) — scope, DoD, non-goals, reserved decisions. This doc never overrides the frame; contradictions get escalated to Matei.
 **Branch/worktree:** `studio-ui-extraction` (parent `main`), worktree `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-studio-ui-extraction`
@@ -99,7 +99,7 @@ Enumerated via `meta:introspect` over installed plugins (dev ~48, cognition 14, 
 
 1. **Grounding** (running): 6 parallel readers → reports in session scratchpad → distilled here.
 2. **Classification ledger** ✅ (2026-07-01): 4 builders → 4 adversarial verifiers (verified=true ×4) → coherence judge; frozen as [LEDGER.md](./LEDGER.md) with the evidence corpus in [ledger/](./ledger/). Binding adjudications supersede raw build rows (LEDGER §3).
-3. **Design**: alternatives on Q2/Q4/Q5/Q6; OpenSpec change set (`openspec/changes/...`, `bun run openspec:validate`); target file tree to exact names; Matei checkpoint for reserved decisions (Q2 + anything touching the live project).
+3. **Design** ✅ (2026-07-01): 4 parallel designers (reports in [design/](./design/)) → synthesis [DESIGN.md](./DESIGN.md) with 9 cross-axis adjudications → 3-lens adversarial review (27 findings incl. 2 blockers, ALL folded; record: [design/review-findings.md](./design/review-findings.md)) → OpenSpec change `studio-ui-extraction` validates strict. Q4/Q5/Q6 ANSWERED (tsup+strict-tsc+tailwind CLI; package-hosted SB; same-shape config-only repoint, anchor survives). **Next gate: Matei checkpoint (DESIGN §4).**
 4. **Execution**: one change set per Graphite branch, stacked; implementation fan-out where independent; review fan-out + Codex second-reviewer on substantial diffs.
 5. **Verification**: package build green (no TS7056 tolerance), app rewire renders identically (oracle), full 46 re-verify via resync driver locally; light-render canary decision (frame §2).
 6. **Close-out**: DoD walk (frame §2) with evidence; Matei go-ahead → re-sync upload of `531d158d`; runner worktree move-up + relaunch.
