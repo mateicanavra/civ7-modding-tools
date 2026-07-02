@@ -25,7 +25,11 @@ vi.mock("../../src/lib/control/liveControlPort", async (importOriginal) => {
   };
 });
 
-import { type UseSetupControlsArgs, useSetupControls } from "../../src/app/hooks/useSetupControls";
+import {
+  deriveAppHeaderSetupState,
+  type UseSetupControlsArgs,
+  useSetupControls,
+} from "../../src/app/hooks/useSetupControls";
 import { requestCiv7Autoplay } from "../../src/features/civ7Setup/api";
 import {
   type Civ7SavedSetupConfigFile,
@@ -130,6 +134,93 @@ describe("useSetupControls — SC-4 (drift via value equality, not identity)", (
     const noSelection: Civ7StudioSetupConfig = { ...derived, savedConfig: undefined };
     const { result } = setup({ setupConfig: noSelection });
     expect(result.current.savedSetupConfigModified).toBe(false);
+  });
+});
+
+describe("useSetupControls — E4a header view-model + setup intents (the container half)", () => {
+  // The pre-redesign AppHeader read these fields inline (setupConfig prop);
+  // the E4a container derives them. Field-for-field equivalence, including
+  // the difficulty game-over-player fallback and the narrow savedConfig ref.
+  it("deriveAppHeaderSetupState projects the authored config field-for-field (game Difficulty wins)", () => {
+    expect(deriveAppHeaderSetupState(studioSetupConfigFromSavedConfigFile(SAVED_CONFIG))).toEqual({
+      savedConfig: { id: "saved-alpha", displayName: "Saved Alpha" },
+      leaderId: "LEADER_HARRIET_TUBMAN",
+      civilizationId: "CIVILIZATION_AMERICA",
+      difficultyId: "DIFFICULTY_SOVEREIGN",
+      gameSpeedId: "GAMESPEED_STANDARD",
+    });
+  });
+
+  it("deriveAppHeaderSetupState falls back to the player difficulty and maps unset to ''/null", () => {
+    expect(
+      deriveAppHeaderSetupState({
+        gameOptions: {},
+        playerOptions: [{ playerId: 0, options: { PlayerDifficulty: "DIFFICULTY_KING" } }],
+      })
+    ).toEqual({
+      savedConfig: null,
+      leaderId: "",
+      civilizationId: "",
+      difficultyId: "DIFFICULTY_KING",
+      gameSpeedId: "",
+    });
+  });
+
+  it("headerSetupState is the derived projection of the threaded-in config", () => {
+    const config = studioSetupConfigFromSavedConfigFile(SAVED_CONFIG);
+    const { result } = setup({ setupConfig: config });
+    expect(result.current.headerSetupState).toEqual(deriveAppHeaderSetupState(config));
+  });
+
+  // Each intent updates via the functional setter off the CURRENT config —
+  // assert by applying the queued updater to a base config and comparing
+  // against the pure-helper composition the deleted component performed.
+  function applyIntent(
+    invoke: (r: ReturnType<typeof setup>["result"]) => void,
+    base: Civ7StudioSetupConfig
+  ): Civ7StudioSetupConfig {
+    const setSetupConfig = vi.fn();
+    const harness = setup({ setupConfig: base, setSetupConfig });
+    invoke(harness.result);
+    expect(setSetupConfig).toHaveBeenCalledTimes(1);
+    const updater = setSetupConfig.mock.calls[0]?.[0] as (
+      current: Civ7StudioSetupConfig
+    ) => Civ7StudioSetupConfig;
+    expect(updater).toBeTypeOf("function");
+    return updater(base);
+  }
+
+  it("handleDifficultyChange performs the game+player DOUBLE-WRITE in one update", () => {
+    const base = studioSetupConfigFromSavedConfigFile(SAVED_CONFIG);
+    const next = applyIntent((r) => r.current.handleDifficultyChange("DIFFICULTY_DEITY"), base);
+    expect(next.gameOptions.Difficulty).toBe("DIFFICULTY_DEITY");
+    expect(next.playerOptions[0]?.options.PlayerDifficulty).toBe("DIFFICULTY_DEITY");
+  });
+
+  it("handleDifficultyChange('') clears BOTH difficulty keys", () => {
+    const base: Civ7StudioSetupConfig = {
+      gameOptions: { Difficulty: "DIFFICULTY_DEITY" },
+      playerOptions: [{ playerId: 0, options: { PlayerDifficulty: "DIFFICULTY_DEITY" } }],
+    };
+    const next = applyIntent((r) => r.current.handleDifficultyChange(""), base);
+    expect(next.gameOptions.Difficulty).toBeUndefined();
+    expect(next.playerOptions[0]?.options.PlayerDifficulty).toBeUndefined();
+  });
+
+  it("leader/civ/speed intents set the single key ('' clears)", () => {
+    const base = studioSetupConfigFromSavedConfigFile(SAVED_CONFIG);
+    expect(
+      applyIntent((r) => r.current.handleLeaderChange("LEADER_AMINA"), base).playerOptions[0]
+        ?.options.PlayerLeader
+    ).toBe("LEADER_AMINA");
+    expect(
+      applyIntent((r) => r.current.handleCivilizationChange(""), base).playerOptions[0]?.options
+        .PlayerCivilization
+    ).toBeUndefined();
+    expect(
+      applyIntent((r) => r.current.handleGameSpeedChange("GAMESPEED_ONLINE"), base).gameOptions
+        .GameSpeeds
+    ).toBe("GAMESPEED_ONLINE");
   });
 });
 

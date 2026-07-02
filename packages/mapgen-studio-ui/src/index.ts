@@ -21,8 +21,10 @@
  * corpus classification contract test (every served artifact id must classify
  * into a semantic icon domain — the test pairs the app's DAG service with the
  * package's parser).
- * Components land branch-by-branch (B6 AppHeader last);
- * each branch adds its exports here and raises the `verify` export floor.
+ * B6 surface: AppHeader (E4a redesign — props-driven view over the
+ * `AppHeaderSetupState` view-model + intent callbacks; the app container owns
+ * the setup-config updates and the difficulty double-write).
+ * Each branch adds its exports here and raises the `verify` export floor.
  * Final surface: the 46 design-synced components (+ TooltipProvider and the
  * lib exports — `cn`, `useResolvedTheme`, `LAYOUT`, statusLabels formatters,
  * `useConfigCollapse`).
@@ -34,6 +36,11 @@
 // composites
 export { AppBrand } from "./components/composites/AppBrand.js";
 export { AppFooter, type AppFooterProps } from "./components/composites/AppFooter.js";
+export {
+  AppHeader,
+  type AppHeaderProps,
+  type AppHeaderSetupState,
+} from "./components/composites/AppHeader.js";
 export {
   DisclosureHeader,
   type DisclosureHeaderProps,

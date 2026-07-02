@@ -1,3 +1,4 @@
+import type { AppHeaderSetupState } from "@swooper/mapgen-studio-ui";
 import { useCallback, useMemo, useState } from "react";
 
 import { requestCiv7Autoplay } from "../../features/civ7Setup/api";
@@ -6,11 +7,14 @@ import {
   parseCiv7StudioSeed,
 } from "../../features/civ7Setup/seedPolicy";
 import {
+  type Civ7StudioSetupConfig,
   clearStudioSetupSavedConfig,
   getLocalPlayerSetup,
   optionRowsFromParameter,
   studioSetupConfigFromSavedConfigFile,
   studioSetupDriftsFromSavedConfig,
+  updateStudioSetupGameOption,
+  updateStudioSetupPlayerOption,
 } from "../../features/civ7Setup/setupConfig";
 import {
   ensureSelectOption,
@@ -71,10 +75,20 @@ export type SetupControlOptions = {
 export type UseSetupControlsResult = {
   /** Derived Civ7 setup-control select options (saved config + leader/civ/difficulty/speed). */
   setupControlOptions: SetupControlOptions;
+  /** AppHeader's game-setup view-model (E4a) — derived from the authored setup config. */
+  headerSetupState: AppHeaderSetupState;
   /** Drift flag — true when the authored setup diverges (by value) from the selected saved config. */
   savedSetupConfigModified: boolean;
   /** Applies (replaces) the authored setup from the chosen saved config + adopts its seed. */
   handleSavedSetupConfigChange: (configId: string) => void;
+  /** AppHeader intent: set/clear ("" = clear) the local player's leader. */
+  handleLeaderChange: (value: string) => void;
+  /** AppHeader intent: set/clear the local player's civilization. */
+  handleCivilizationChange: (value: string) => void;
+  /** AppHeader intent: the difficulty DOUBLE-WRITE — game `Difficulty` + player `PlayerDifficulty`. */
+  handleDifficultyChange: (value: string) => void;
+  /** AppHeader intent: set/clear the game speed. */
+  handleGameSpeedChange: (value: string) => void;
   /** Starts/stops Civ7 autoplay — busy-gated + re-entrant-guarded; reads LIVE autoplay state. */
   handleToggleAutoplay: () => Promise<void>;
   /** Reveals the live map (explore) — busy-gated + re-entrant-guarded. */
@@ -86,11 +100,39 @@ export type UseSetupControlsResult = {
 };
 
 /**
+ * `deriveAppHeaderSetupState` — the app container's projection of the authored
+ * setup config into AppHeader's `AppHeaderSetupState` view-model (E4a redesign,
+ * structure-rewire §5). Field-for-field the reads the pre-redesign AppHeader
+ * performed inline: saved-config ref (id + displayName only), the local
+ * player's leader/civilization, the difficulty with its game-over-player
+ * fallback (`gameOptions.Difficulty ?? PlayerDifficulty`), and the game speed.
+ * "" = unset throughout. Pure + exported so the markup-pin test composes the
+ * REAL derivation with the package AppHeader.
+ */
+export function deriveAppHeaderSetupState(config: Civ7StudioSetupConfig): AppHeaderSetupState {
+  const localPlayerSetup = getLocalPlayerSetup(config);
+  return {
+    savedConfig: config.savedConfig
+      ? { id: config.savedConfig.id, displayName: config.savedConfig.displayName }
+      : null,
+    leaderId: String(localPlayerSetup.options.PlayerLeader ?? ""),
+    civilizationId: String(localPlayerSetup.options.PlayerCivilization ?? ""),
+    difficultyId: String(
+      config.gameOptions.Difficulty ?? localPlayerSetup.options.PlayerDifficulty ?? ""
+    ),
+    gameSpeedId: String(config.gameOptions.GameSpeeds ?? ""),
+  };
+}
+
+/**
  * `useSetupControls` — owns the Civ7 setup-controls cluster: the derived
- * `setupControlOptions` select-option projection, the saved-config selection
- * handler (`handleSavedSetupConfigChange`), the value-equality drift detector
- * (`savedSetupConfigModified`), and the two live-game *actions* co-located here
- * (`handleToggleAutoplay` / `handleExplore`) with their in-flight guard state.
+ * `setupControlOptions` select-option projection, the AppHeader view-model
+ * (`headerSetupState`) with its four setup intents (leader/civ/difficulty/
+ * speed — the E4a container half; difficulty is the game+player double-write),
+ * the saved-config selection handler (`handleSavedSetupConfigChange`), the
+ * value-equality drift detector (`savedSetupConfigModified`), and the two
+ * live-game *actions* co-located here (`handleToggleAutoplay` /
+ * `handleExplore`) with their in-flight guard state.
  *
  * Load-bearing invariants preserved verbatim from the prior host body:
  * - SC-4: drift detection is VALUE equality (`studioSetupDriftsFromSavedConfig`
@@ -244,6 +286,53 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     [savedSetupConfigs.configurations, toast]
   );
 
+  // The E4a header intents (structure-rewire §4.7/§5): the update composition
+  // the pre-redesign AppHeader performed inline, moved to the container. Each
+  // uses the functional setter form (the hook's existing pattern for
+  // `clearStudioSetupSavedConfig`) so updates compose off the CURRENT config;
+  // "" clears the option (`value || undefined`, exactly as before).
+  const handleLeaderChange = useCallback(
+    (value: string) => {
+      setSetupConfig((current) =>
+        updateStudioSetupPlayerOption(current, "PlayerLeader", value || undefined)
+      );
+    },
+    [setSetupConfig]
+  );
+  const handleCivilizationChange = useCallback(
+    (value: string) => {
+      setSetupConfig((current) =>
+        updateStudioSetupPlayerOption(current, "PlayerCivilization", value || undefined)
+      );
+    },
+    [setSetupConfig]
+  );
+  // The difficulty DOUBLE-WRITE (pre-redesign AppHeader.tsx:92-97): one state
+  // update writing game `Difficulty` and player `PlayerDifficulty` together —
+  // the pair must never drift apart.
+  const handleDifficultyChange = useCallback(
+    (value: string) => {
+      setSetupConfig((current) =>
+        updateStudioSetupPlayerOption(
+          updateStudioSetupGameOption(current, "Difficulty", value || undefined),
+          "PlayerDifficulty",
+          value || undefined
+        )
+      );
+    },
+    [setSetupConfig]
+  );
+  const handleGameSpeedChange = useCallback(
+    (value: string) => {
+      setSetupConfig((current) =>
+        updateStudioSetupGameOption(current, "GameSpeeds", value || undefined)
+      );
+    },
+    [setSetupConfig]
+  );
+
+  const headerSetupState = useMemo(() => deriveAppHeaderSetupState(setupConfig), [setupConfig]);
+
   const handleToggleAutoplay = useCallback(async () => {
     if (autoplayActionRunning) {
       toast("Autoplay request is already in flight.", { variant: "info" });
@@ -334,8 +423,13 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
 
   return {
     setupControlOptions,
+    headerSetupState,
     savedSetupConfigModified,
     handleSavedSetupConfigChange,
+    handleLeaderChange,
+    handleCivilizationChange,
+    handleDifficultyChange,
+    handleGameSpeedChange,
     handleToggleAutoplay,
     handleExplore,
     autoplayActionRunning,

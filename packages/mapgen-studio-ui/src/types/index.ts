@@ -312,6 +312,7 @@ export interface Preset {
 // Types that live WITH their owning component but re-export through this
 // barrel so `@swooper/mapgen-studio-ui/types` stays the single types surface.
 
+export type { AppHeaderSetupState } from "../components/composites/AppHeader.js";
 export type { StageView } from "../components/composites/StageViewTabs.js";
 export type {
   WaterStatsLayerRef,

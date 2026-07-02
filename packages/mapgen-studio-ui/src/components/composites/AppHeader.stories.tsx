@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { AppHeaderSetupState } from "@swooper/mapgen-studio-ui";
+import { AppHeader } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import type { Civ7StudioSetupConfig } from "@/features/civ7Setup/setupConfig";
-import { AppHeader } from "@/ui/components/AppHeader";
 
 /**
  * AppHeader is the top chrome bar: AppBrand (left), the Game bar (config
@@ -9,8 +9,9 @@ import { AppHeader } from "@/ui/components/AppHeader";
  * positions `absolute top-4`, so it's framed in a relative dark surface.
  * Tooltips are covered by the global Storybook decorator's TooltipProvider.
  * Adapted from `.design-sync/previews/AppHeader.tsx` — the preview's loose
- * `setupConfig` mock is completed here against the real `Civ7StudioSetupConfig`
- * (full `savedConfig` ref + required `gameOptions`).
+ * `setupConfig` mock became the `AppHeaderSetupState` view-model when the E4a
+ * redesign made the header props-driven (the app container derives it; the
+ * story hands it a plain structural fixture).
  */
 const meta = {
   title: "composites/AppHeader",
@@ -28,15 +29,15 @@ const savedConfigOptions = [
   { value: "pangaea", label: "Pangaea" },
 ];
 
-const setupConfig: Civ7StudioSetupConfig = {
+const setup: AppHeaderSetupState = {
   savedConfig: {
     id: "continents-std",
     displayName: "Continents — Standard",
-    fileName: "continents-std.json",
-    path: "/configs/continents-std.json",
   },
-  gameOptions: {},
-  playerOptions: [{ playerId: 0, options: {} }],
+  leaderId: "",
+  civilizationId: "",
+  difficultyId: "",
+  gameSpeedId: "",
 };
 
 const setupOptions = {
@@ -66,10 +67,13 @@ export const Default: Story = {
     onThemeCycle: noop,
     showGrid: true,
     onShowGridChange: noop,
-    setupConfig,
+    setup,
     setupOptions,
-    onSetupConfigChange: noop,
     onSavedConfigChange: noop,
+    onLeaderChange: noop,
+    onCivilizationChange: noop,
+    onDifficultyChange: noop,
+    onGameSpeedChange: noop,
     savedConfigModified: false,
   },
   render: (args) => (
@@ -85,10 +89,13 @@ export const ModifiedConfig: Story = {
     onThemeCycle: noop,
     showGrid: false,
     onShowGridChange: noop,
-    setupConfig,
+    setup,
     setupOptions,
-    onSetupConfigChange: noop,
     onSavedConfigChange: noop,
+    onLeaderChange: noop,
+    onCivilizationChange: noop,
+    onDifficultyChange: noop,
+    onGameSpeedChange: noop,
     savedConfigModified: true,
   },
   render: (args) => (

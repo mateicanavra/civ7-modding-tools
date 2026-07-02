@@ -1,20 +1,15 @@
-import { TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { AppHeader, type AppHeaderProps } from "../../src/ui/components/AppHeader";
+import { AppHeader, type AppHeaderProps } from "../src/components/composites/AppHeader.js";
+import { TooltipProvider } from "../src/components/ui/tooltip.js";
 
 // Config-precedence pins (P7): the saved-config selector claims the file only
 // while the authored setup state equals the file-derived state. Once drifted,
 // the selector itself goes "Custom" (warning emphasis) and the companion
 // Re-apply affordance restores the file exactly. Static markup cannot open
 // the Radix select, so these pins assert the drifted chrome + affordances.
-
-const SAVED_CONFIG_REF = {
-  id: "tot-config",
-  displayName: "ToT Config",
-  fileName: "ToT Config.Civ7Cfg",
-  path: "/tmp/ToT Config.Civ7Cfg",
-};
+// Args are the E4a `AppHeaderSetupState` view-model (structure-rewire §5) —
+// the app container derives it; here it is a plain structural fixture.
 
 function renderHeader(overrides: Partial<AppHeaderProps> = {}) {
   return renderToStaticMarkup(
@@ -24,10 +19,12 @@ function renderHeader(overrides: Partial<AppHeaderProps> = {}) {
         onThemeCycle={vi.fn()}
         showGrid={false}
         onShowGridChange={vi.fn()}
-        setupConfig={{
-          savedConfig: SAVED_CONFIG_REF,
-          gameOptions: { Difficulty: "DIFFICULTY_CUSTOM" },
-          playerOptions: [{ playerId: 0, options: {} }],
+        setup={{
+          savedConfig: { id: "tot-config", displayName: "ToT Config" },
+          leaderId: "",
+          civilizationId: "",
+          difficultyId: "DIFFICULTY_CUSTOM",
+          gameSpeedId: "",
         }}
         setupOptions={{
           savedConfigOptions: [
@@ -39,8 +36,11 @@ function renderHeader(overrides: Partial<AppHeaderProps> = {}) {
           difficultyOptions: [{ value: "", label: "Difficulty" }],
           gameSpeedOptions: [{ value: "", label: "Speed" }],
         }}
-        onSetupConfigChange={vi.fn()}
         onSavedConfigChange={vi.fn()}
+        onLeaderChange={vi.fn()}
+        onCivilizationChange={vi.fn()}
+        onDifficultyChange={vi.fn()}
+        onGameSpeedChange={vi.fn()}
         {...overrides}
       />
     </TooltipProvider>
