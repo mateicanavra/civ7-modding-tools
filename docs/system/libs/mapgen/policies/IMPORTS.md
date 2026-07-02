@@ -45,14 +45,14 @@ must stay on a named domain surface.
 | --------------------------------------- | ------------------------------------------------------------------------------ | ------------------- |
 | Standard recipe assembly                | `@mapgen/domain/<domain>`                                                      | Policy only         |
 | Standard recipe op registry             | `@mapgen/domain/<domain>/ops`                                                  | Habitat `pattern-check` |
-| Standard recipe config/knob compilation | `@mapgen/domain/<domain>/config.js`                                            | Habitat `pattern-check` |
+| Standard recipe config/knob compilation | Domain-owned config objects under `<domain>/model/config/*.config.ts` | Habitat `pattern-check` |
 | Cross-domain source code                | Domain-root contracts first; domain-internal imports only with a named owner   | Policy only         |
 | Domain internals                        | Relative imports within the same domain owner                                  | Policy only         |
 | Tests                                   | Public surfaces by default; deep imports only for focused internals under test | Policy only         |
 
-Domain `/config.js` surfaces are recipe-facing public facades. They should stay
-thin unless they intentionally own a shared invariant with concrete consumers.
-Op strategy schemas belong beside the owning op or named op family.
+The domain-owned authoring config surface is split one exported config object
+per file under `<domain>/model/config/*.config.ts`. Op strategy schemas belong
+beside the owning op or named op family.
 
 ## Disallowed
 
@@ -82,7 +82,7 @@ Do not import domain internals from recipe files, such as:
 - `@mapgen/domain/<domain>/types.js`
 
 If recipe assembly needs those symbols, expose them through the domain root,
-`/ops`, or `/config.js` surface with a named owner.
+`/ops`, or the target model config surface with a named owner.
 
 ## Why
 
