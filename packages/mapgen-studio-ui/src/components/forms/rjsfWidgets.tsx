@@ -9,11 +9,11 @@ import type { BrowserConfigFormContext } from "./rjsfTemplates.js";
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 
 /**
- * RJSF widgets re-skinned onto the canonical design-system primitives
- * (`@swooper/mapgen-studio-ui`) — token-driven, dark-first, no `lightMode` prop and no
- * off-token `ring-gray-400`. Only presentation changed: the value plumbing
- * (`onChange`, `emptyValue` normalization, enum mapping) is preserved, so the
- * authored config the form emits is byte-for-byte what it produced before.
+ * RJSF widgets skinned onto this package's ui primitives — token-driven,
+ * dark-first, no `lightMode` prop and no off-token `ring-gray-400`. The value
+ * plumbing (`onChange`, `emptyValue` normalization, enum mapping) is the
+ * contract: the authored config the form emits is exactly what the schema
+ * round-trip expects.
  */
 
 // Radix Select disallows an empty `value`; the schema enum's "no selection"

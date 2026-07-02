@@ -18,8 +18,8 @@ export interface OptionSelectProps {
 }
 
 /**
- * `OptionSelect` — a thin, token-driven adapter over the design-system Radix
- * `Select` (`@swooper/mapgen-studio-ui`). It preserves the simple
+ * `OptionSelect` — a thin, token-driven adapter over this package's Radix
+ * `Select` primitive. It preserves the simple
  * `value` / `onValueChange` / `options` shape the studio chrome used with the
  * legacy native `<select>`, so call sites migrate without restructuring while
  * dropping the off-token hex + `lightMode` prop. Radix requires non-empty

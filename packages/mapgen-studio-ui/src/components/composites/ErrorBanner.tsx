@@ -6,11 +6,10 @@ export type ErrorBannerProps = {
 };
 
 /**
- * `ErrorBanner` — the centered, dismissable-by-resolution error chrome
- * (architecture/10 §4). Purely presentational: it renders the destructive-toned
- * banner only when a message is present. Previously an inline conditional in
- * `AppContent`'s return; MOVED here verbatim (same classes, same token-driven
- * destructive styling) so the rendered DOM is unchanged.
+ * `ErrorBanner` — the centered, dismissable-by-resolution error chrome.
+ * Purely presentational: it renders the token-driven destructive-toned banner
+ * only when a message is present; the host dismisses it by resolution (passing
+ * `null`).
  */
 export function ErrorBanner({ message, top }: ErrorBannerProps) {
   if (!message) return null;
