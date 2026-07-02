@@ -1,0 +1,279 @@
+/* ============================================================================
+   MapGen Studio — design system theme (Tailwind v4, CSS-first).
+   Direction + token rationale: the "cartographer's instrument" system — a
+   dense, dark-first surface: graphite substrate, one elevated cool-steel slate
+   accent, a felt elevation hierarchy, and a contour-line focus signature
+   carried by luminance, not chroma.
+
+   ONE dark-default source (DESIGN.md §2 adjudication 1): `:root, .dark` owns
+   the dark palette as the default; `.light` re-skins with the hand-tuned light
+   palette (equal specificity, later source order — it wins wherever the class
+   is set, and custom properties inherit down from there). This replaces the
+   retired build-inputs.sh block re-targeting: there is exactly one owner of
+   the palette, consumed identically by the app's Tailwind compile (via the
+   `./theme.css` export) and this package's own `dist/styles.css`.
+
+   Consumers select a theme explicitly: the app sets `.dark` or `.light` on
+   <html> pre-paint; a class-less document renders dark (the product default —
+   what claude.ai/design previews see).
+   ============================================================================ */
+
+/* Dark variant utilities (`dark:*`) key off an explicit `.dark` ancestor —
+   no prefers-color-scheme coupling, no per-component prop. */
+@custom-variant dark (&:is(.dark *));
+
+/* ----------------------------------------------------------------------------
+   Token → utility mapping. `inline` keeps the var reference in generated CSS
+   so flipping `.dark`/`.light` re-themes at runtime. Custom tokens
+   (border-subtle/-strong, input-background, elevation-*, surface-sunken,
+   success, warning) carry the substrate-elevation craft the stock shadcn set
+   doesn't express.
+   ---------------------------------------------------------------------------- */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* substrate elevation + semantics (the primary craft lever) */
+  --color-border-subtle: hsl(var(--border-subtle));
+  --color-border-strong: hsl(var(--border-strong));
+  --color-input-background: hsl(var(--input-background));
+  --color-elevation-1: hsl(var(--elevation-1));
+  --color-elevation-2: hsl(var(--elevation-2));
+  --color-surface-sunken: hsl(var(--surface-sunken));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Named type scale: replaces ad-hoc text-[11px]/text-[10px].
+     `data` is the 11px body default; `label` is the 10px uppercase eyebrow. */
+  --text-data: 0.6875rem; /* 11px */
+  --text-data--line-height: 1rem; /* 16px */
+  --text-label: 0.625rem; /* 10px */
+  --text-label--line-height: 0.875rem; /* 14px */
+
+  --radius-sm: 0.25rem; /* 4px — inputs, buttons, tags (the default) */
+  --radius-md: 0.375rem; /* 6px — rare */
+  --radius-lg: 0.5rem; /* 8px — cards, dialogs, dropdowns */
+  --radius-xl: 0.75rem;
+
+  --animate-pulse-subtle: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* ----------------------------------------------------------------------------
+   Theme-invariant vars. Kept outside the palette blocks: identical in both
+   themes (the legacy scrollbar/select vars reference tokens that flip).
+   ---------------------------------------------------------------------------- */
+:root {
+  --radius: 0.25rem;
+
+  /* legacy vars still referenced by scrollbar/select below — repointed to tokens */
+  --color-border-secondary: hsl(var(--border-strong));
+  --color-text-muted: hsl(var(--muted-foreground));
+}
+
+/* ----------------------------------------------------------------------------
+   Tokens. Values are HSL channels (H S% L%). DARK IS THE DEFAULT: the ladder
+   below is intentionally a felt hierarchy — page → panel → floating each
+   occupy a distinct (still quiet) lightness tier so structure survives the
+   squint test instead of reading as one hollow plane.
+   ---------------------------------------------------------------------------- */
+:root,
+.dark {
+  color-scheme: dark;
+
+  --background: 240 14% 6%; /* page — the deck.gl canvas backdrop */
+  --foreground: 240 13% 92%;
+  --card: 240 9% 10%; /* panel — sits a felt step above the page */
+  --card-foreground: 240 13% 92%;
+  --popover: 240 9% 13%; /* floating layers — a step above panels */
+  --popover-foreground: 240 13% 92%;
+  --primary: 216 18% 44%; /* elevated cool-steel slate — the one accent */
+  --primary-foreground: 210 20% 96%;
+  --secondary: 240 7% 15%;
+  --secondary-foreground: 240 12% 88%;
+  --muted: 240 7% 15%;
+  --muted-foreground: 240 5% 58%;
+  --accent: 240 8% 17%; /* ghost/hover surface */
+  --accent-foreground: 240 13% 92%;
+  --destructive: 350 70% 58%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 8% 22%; /* findable hairline against panels */
+  --input: 240 9% 26%;
+  --ring: 212 28% 62%; /* focus contour — a luminance step, not a hue */
+
+  --border-subtle: 240 8% 15%; /* dividers within a surface */
+  --border-strong: 240 9% 32%; /* emphasis / control focus border */
+  --input-background: 240 12% 8%; /* inset: darker than its panel */
+  --elevation-1: 240 9% 10%; /* = panel */
+  --elevation-2: 240 9% 13%; /* = floating / raised-nested */
+  --surface-sunken: 240 12% 7%; /* nested cards: between page and panel */
+  --success: 160 50% 46%;
+  --warning: 40 80% 56%;
+}
+
+/* The hand-tuned light palette — applied only where `.light` is explicitly
+   set (equal specificity to the dark `:root`, later source order wins). */
+.light {
+  color-scheme: light;
+
+  --background: 240 20% 97%;
+  --foreground: 215 25% 17%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 25% 17%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 25% 17%;
+  --primary: 216 22% 32%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 14% 94%;
+  --secondary-foreground: 215 25% 22%;
+  --muted: 240 14% 94%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 240 14% 92%;
+  --accent-foreground: 215 25% 17%;
+  --destructive: 350 72% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 13% 88%;
+  --input: 220 13% 84%;
+  --ring: 216 25% 45%;
+
+  --border-subtle: 220 14% 92%;
+  --border-strong: 220 13% 78%;
+  --input-background: 0 0% 100%;
+  --elevation-1: 0 0% 100%;
+  --elevation-2: 0 0% 100%;
+  --surface-sunken: 240 16% 95%;
+  --success: 160 55% 36%;
+  --warning: 38 80% 42%;
+}
+
+/* ----------------------------------------------------------------------------
+   Base
+   ---------------------------------------------------------------------------- */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Signature: focus is a 1px luminous contour ring (the ring token), offset
+     so it reads as a drawn contour rather than a filled glow. */
+  *:focus {
+    outline: none;
+  }
+  *:focus-visible {
+    outline: 1px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* ----------------------------------------------------------------------------
+   Custom scrollbar — quiet by default, findable on hover.
+   ---------------------------------------------------------------------------- */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-secondary) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-secondary);
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-muted);
+}
+.custom-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+/* ----------------------------------------------------------------------------
+   Form element resets (kept from the as-built baseline)
+   ---------------------------------------------------------------------------- */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 2rem;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+button {
+  cursor: pointer;
+}
+button:disabled,
+select:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@supports not (backdrop-filter: blur(8px)) {
+  .backdrop-blur-sm {
+    background-color: hsl(var(--popover) / 0.95);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
