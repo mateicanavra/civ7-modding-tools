@@ -30,6 +30,7 @@ import type {
   VariantOption,
 } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
+import { OptionSelect } from "../composites/OptionSelect.js";
 import {
   type WaterStatsLayerRef,
   WaterStatsSection,
@@ -719,41 +720,37 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           </div>
         ) : null}
 
+        {/* Variant/Overlay ride the design-system Radix Select (via OptionSelect,
+            the same idiom as the footer's Size/Players controls) instead of raw
+            native <select>s — the natives depended on unlayered global element
+            resets and diverged from every other picker in the surface (E3
+            native->Radix lift). OptionSelect renders a button trigger, so the
+            caption is a sibling span and the accessible name rides ariaLabel. */}
         {variantOptions.length > 1 ? (
-          <label className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1">
             <span className={cn("text-label uppercase tracking-wider", textMuted)}>Variant</span>
-            <select
+            <OptionSelect
               value={selectedVariant}
-              onChange={(e) => onSelectedVariantChange(e.target.value)}
-              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground"
-            >
-              {variantOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onValueChange={onSelectedVariantChange}
+              options={variantOptions}
+              ariaLabel="Variant"
+            />
             <span className={cn("text-label", textMuted)}>
               Semantic slices like <span className="text-muted-foreground">era:2</span>, not
               styling.
             </span>
-          </label>
+          </div>
         ) : null}
 
         {overlayOptions.length ? (
-          <label className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1">
             <span className={cn("text-label uppercase tracking-wider", textMuted)}>Overlay</span>
-            <select
+            <OptionSelect
               value={selectedOverlay}
-              onChange={(e) => onSelectedOverlayChange(e.target.value)}
-              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground"
-            >
-              {overlayOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onValueChange={onSelectedOverlayChange}
+              options={overlayOptions}
+              ariaLabel="Overlay"
+            />
             {selectedOverlay ? (
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between text-label">
@@ -772,7 +769,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
                 />
               </div>
             ) : null}
-          </label>
+          </div>
         ) : null}
       </div>
     </div>
