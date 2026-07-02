@@ -55,7 +55,7 @@
 - [x] 7.2 Full local re-verify: buildCmd + sb-reference rebuild TOGETHER → `resync.mjs --remote` (DS_CHROMIUM_PATH=Google Chrome; config keeps `entry: "dist/index.js"` per DESIGN.md §2.6) → assert changed:[46]/added:[]/removed:[] + anchor ok → full render-check → grade all 46 → portal-4 manual path → **forced-`.light` render canary** over a token-heavy story subset (FRAME both-modes gate) → conventions.md revalidation against package artifacts.
 - [x] 7.2b Create the CI-runnable sync target: custom-named Nx target on the package (`design-sync:check` = buildCmd + sb-reference rebuild + local resync verdict), deliberately outside the CI five (FRAME §2 DoD).
 - [x] 7.3 Cutover class-set diff (old uploaded stylesheet vs package compile) + explorations grep; any gap → authored `@source inline()` safelist.
-- [ ] 7.4 NO upload: present results to Matei; upload to `531d158d…` only on explicit go-ahead (atomic path, deletes verbatim from `.sync-diff.json`).
+- [x] 7.4 NO upload: present results to Matei; upload to `531d158d…` only on explicit go-ahead (atomic path, deletes verbatim from `.sync-diff.json`). → go-ahead given + upload EXECUTED 2026-07-02: fresh `get_file _ds_sync.json` anchor, driver re-run verdict ok/anchor-ok (changed:46, pendingGrade:0, deletePaths:[]), atomic sentinel-fenced upload of 319 files, explorations/scraps untouched, uploaded anchor round-trip-verified (bundleSha12 1dc4a6d15130).
 
 ## 8. B8+ — E3 cleanup wave (post-anchor, per E3 confirmation)
 
