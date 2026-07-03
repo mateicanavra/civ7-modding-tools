@@ -51,8 +51,8 @@ describe("boundary taxonomy verifier", () => {
 
     expect(audit.ok).toBe(true);
     expect(audit.issues).toEqual([]);
-    expect(audit.projectCount).toBe(24);
-    expect(audit.nxProjectCount).toBe(23);
+    expect(audit.projectCount).toBe(25);
+    expect(audit.nxProjectCount).toBe(24);
     expect(audit.graphEdgeCount).toBeGreaterThan(0);
     expect(audit.notes).toContainEqual({
       reason: "workspace-root-not-nx-project",
