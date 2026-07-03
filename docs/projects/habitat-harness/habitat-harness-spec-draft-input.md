@@ -7,7 +7,7 @@
 
 ## 1. Executive decision
 
-A Habitat tool harness is a small repository-local development harness that makes structure executable. It lives inside the repository, normally under `tools/habitat-harness/`, and wires together:
+A Habitat tool harness is a small repository-local development harness that makes structure executable. It lives inside the repository, normally under `tools/habitat/`, and wires together:
 
 ```text
 Bun      -> package manager, workspace installer, script runner, local TS harness CLI runtime
@@ -45,7 +45,7 @@ local workspace refs: workspace:*
 CI install:           bun ci, or bun install --frozen-lockfile
 script execution:     bun run <script>
 package binaries:     bunx <binary>, unless a root script wraps them
-local TS CLI:         bun tools/habitat-harness/src/bin/habitat.ts
+local TS CLI:         bun tools/habitat/src/bin/habitat.ts
 Node CLIs:            Nx, ESLint, and often Grit should run normally through bunx, not forced with --bun unless tested
 Biome CLI:            use bunx --bun @biomejs/biome, matching Biome's Bun docs
 ```
@@ -97,7 +97,7 @@ bun add -d -E @biomejs/biome
 bunx --bun @biomejs/biome init
 bunx husky init
 bunx nx add @nx/plugin
-bunx nx g @nx/plugin:plugin tools/habitat-harness --importPath=@internal/habitat-harness
+bunx nx g @nx/plugin:plugin tools/habitat --importPath=@habitat/cli
 ```
 
 For an existing repository:
@@ -109,7 +109,7 @@ bunx nx init
 bunx --bun @biomejs/biome init
 bunx husky init
 bunx nx add @nx/plugin
-bunx nx g @nx/plugin:plugin tools/habitat-harness --importPath=@internal/habitat-harness
+bunx nx g @nx/plugin:plugin tools/habitat --importPath=@habitat/cli
 ```
 
 If the repo is migrating from pnpm, remove `pnpm-lock.yaml` and `pnpm-workspace.yaml` after verifying `bun.lock`, `package.json` workspaces, and the Nx project graph. Do not keep competing lockfiles.
@@ -129,7 +129,7 @@ Exact package versions may vary, but the harness must create one local plugin un
     "tools/*"
   ],
   "scripts": {
-    "habitat": "bun tools/habitat-harness/src/bin/habitat.ts",
+    "habitat": "bun tools/habitat/src/bin/habitat.ts",
     "habitat:init": "bun run habitat init",
     "habitat:check": "bun run habitat check",
     "habitat:fix": "bun run habitat fix",
@@ -144,7 +144,7 @@ Use `workspace:*` for local workspace dependencies:
 ```jsonc
 {
   "devDependencies": {
-    "@internal/habitat-harness": "workspace:*"
+    "@habitat/cli": "workspace:*"
   }
 }
 ```
@@ -212,7 +212,7 @@ repo/
   package.json
 ```
 
-This is deliberately local. The harness begins as repository infrastructure, not a published framework. If multiple repositories converge on the same harness, the `tools/habitat-harness` package can later become a shared private or public Nx plugin.
+This is deliberately local. The harness begins as repository infrastructure, not a published framework. If multiple repositories converge on the same harness, the `tools/habitat` package can later become a shared private or public Nx plugin.
 
 ## 5. Per-tool specifications
 
@@ -285,7 +285,7 @@ Register the local plugin in `nx.json`:
 {
   "plugins": [
     {
-      "plugin": "./tools/habitat-harness/src/plugin.ts",
+      "plugin": "./tools/habitat/src/plugin.ts",
       "options": {
         "biomeTargetName": "biome:ci",
         "boundaryTargetName": "boundaries",
@@ -302,7 +302,7 @@ Register the local plugin in `nx.json`:
 }
 ```
 
-The plugin must implement `createNodesV2` for project discovery and target inference. It should identify projects from `project.json`, package-level `package.json`, and any repo-specific marker files declared in `tools/habitat-harness/src/rules/architecture.ts`.
+The plugin must implement `createNodesV2` for project discovery and target inference. It should identify projects from `project.json`, package-level `package.json`, and any repo-specific marker files declared in `tools/habitat/src/rules/architecture.ts`.
 
 The plugin should implement `createDependencies` only for dependency edges that Nx cannot infer from normal imports but the repository can prove from explicit declarations, manifests, config files, or project metadata.
 
@@ -314,7 +314,7 @@ bunx nx graph --affected
 bunx nx show project <project-name>
 bunx nx affected -t biome:ci,boundaries,grit:check,typecheck,test
 bunx nx run-many -t verify --all
-bunx nx g @internal/habitat-harness:project <name> --kind=<kind>
+bunx nx g @habitat/cli:project <name> --kind=<kind>
 bunx nx migrate <package-or-version>
 bunx nx sync:check
 ```
@@ -355,7 +355,7 @@ Nx does not own formatting, ordinary lint rules, source-code structural pattern 
 
 ### Integration glue
 
-`tools/habitat-harness/src/plugin.ts` is glue. It translates repository-specific architecture rules into Nx graph nodes, dependencies, tags, and targets. It should stay thin and explicit.
+`tools/habitat/src/plugin.ts` is glue. It translates repository-specific architecture rules into Nx graph nodes, dependencies, tags, and targets. It should stay thin and explicit.
 
 ## 5.3 Biome
 
@@ -516,7 +516,7 @@ When the repository has a suitable replacement, this layer may be removed. Valid
 
 ```text
 Nx Conformance, if the repository is licensed for it;
-a custom graph-boundary executor in tools/habitat-harness;
+a custom graph-boundary executor in tools/habitat;
 a future Biome/Nx boundary integration that fully covers the required rules.
 ```
 
@@ -538,7 +538,7 @@ If the local package install does not expose the `grit` binary correctly under B
 Pattern layout:
 
 ```text
-tools/habitat-harness/patterns/grit/
+tools/habitat/patterns/grit/
   no-internal-import.grit
   no-deprecated-builder.grit
   no-generated-zone-edit.grit
@@ -606,7 +606,7 @@ Every `grit:apply` pattern must be paired with fixtures. If a pattern has no fix
 Illustrative pattern shape:
 
 ```grit
-// tools/habitat-harness/patterns/grit/no-deprecated-builder.grit
+// tools/habitat/patterns/grit/no-deprecated-builder.grit
 `oldBoundary($args)` => `newBoundary($args)`
 ```
 
@@ -759,7 +759,7 @@ Every rule must be specified as an enforceable invariant, not a preference.
 ### 7.1 Rule pack format
 
 ```ts
-// tools/habitat-harness/src/rules/architecture.ts
+// tools/habitat/src/rules/architecture.ts
 export default defineHarnessRules({
   projectKinds: [
     "app",
@@ -791,7 +791,7 @@ export default defineHarnessRules({
     {
       id: "generated-zone-is-write-protected",
       glob: "**/__generated__/**",
-      allowedWriters: ["tools/habitat-harness/**"],
+      allowedWriters: ["tools/habitat/**"],
       remediation: "Run bun run habitat fix or the generator that owns this file."
     }
   ],
@@ -799,13 +799,13 @@ export default defineHarnessRules({
   structuralRules: [
     {
       id: "no-internal-import",
-      grit: "tools/habitat-harness/patterns/grit/no-internal-import.grit",
+      grit: "tools/habitat/patterns/grit/no-internal-import.grit",
       mode: "check",
       remediation: "Use the public boundary export. If no public export exists, generate one or ask for a boundary decision."
     },
     {
       id: "deprecated-boundary-v1",
-      grit: "tools/habitat-harness/patterns/grit/migrate-boundary-v1-to-v2.grit",
+      grit: "tools/habitat/patterns/grit/migrate-boundary-v1-to-v2.grit",
       mode: "apply",
       remediation: "Run bun run habitat fix."
     }
@@ -962,7 +962,7 @@ eslint.boundaries.config.mjs
 
 ### Phase 2: Local harness plugin
 
-Create `tools/habitat-harness` and implement:
+Create `tools/habitat` and implement:
 
 ```text
 createNodesV2 for project discovery
@@ -1040,8 +1040,8 @@ Add generators for the repo's actual project kinds. Add migrations when the harn
 Exit condition:
 
 ```sh
-bunx nx g @internal/habitat-harness:project example --kind=domain
-bunx nx migrate @internal/habitat-harness
+bunx nx g @habitat/cli:project example --kind=domain
+bunx nx migrate @habitat/cli
 ```
 
 ## 12. Forbidden patterns
@@ -1150,7 +1150,7 @@ bunx eslint -c eslint.boundaries.config.mjs "**/*.{ts,tsx,js,jsx}"
 # structural checks and rewrites
 bunx nx affected -t grit:check
 bunx grit check
-bunx grit apply tools/habitat-harness/patterns/grit/migrate-boundary-v1-to-v2.grit
+bunx grit apply tools/habitat/patterns/grit/migrate-boundary-v1-to-v2.grit
 
 # full verification
 bun run habitat verify

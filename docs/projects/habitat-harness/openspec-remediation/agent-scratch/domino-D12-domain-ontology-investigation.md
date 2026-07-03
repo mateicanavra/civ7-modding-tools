@@ -52,10 +52,10 @@ Current implementation evidence read:
 
 | Source | Current-state fact |
 | --- | --- |
-| `tools/habitat-harness/src/commands/verify.ts` | Current CLI summary and JSON flag still call the output a structured `VerifyProof` artifact. |
-| `tools/habitat-harness/src/lib/command-engine.ts` | Current exported type is `VerifyProof`; `requestedSelectors` is `{}`; non-claims are prose strings and omit required canonical identifiers; affected target states are executed/skipped only. |
-| `tools/habitat-harness/test/lib/verify-proof.test.ts` | Current tests cover stream bounds, task-local cache state, and check-failed skip. |
-| `tools/habitat-harness/test/commands/habitat-commands.test.ts` | Current mocked command test preserves proof-shaped JSON expectations and does not test D3/D7 projection semantics. |
+| `tools/habitat/src/commands/verify.ts` | Current CLI summary and JSON flag still call the output a structured `VerifyProof` artifact. |
+| `tools/habitat/src/lib/command-engine.ts` | Current exported type is `VerifyProof`; `requestedSelectors` is `{}`; non-claims are prose strings and omit required canonical identifiers; affected target states are executed/skipped only. |
+| `tools/habitat/test/lib/verify-proof.test.ts` | Current tests cover stream bounds, task-local cache state, and check-failed skip. |
+| `tools/habitat/test/commands/habitat-commands.test.ts` | Current mocked command test preserves proof-shaped JSON expectations and does not test D3/D7 projection semantics. |
 
 ## D12 Solution-Design Frame
 

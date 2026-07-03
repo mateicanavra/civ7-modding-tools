@@ -45,8 +45,8 @@ Required D11 and control inputs read:
   - `domino-D11-openspec-information-testing-investigation.md`
   - `domino-D11-cross-domino-product-investigation.md`
 - current hook behavior inputs:
-  - `tools/habitat-harness/src/lib/hooks.ts`
-  - `tools/habitat-harness/test/lib/hooks.test.ts`
+  - `tools/habitat/src/lib/hooks.ts`
+  - `tools/habitat/test/lib/hooks.test.ts`
 
 Upstream/conditional packet sections read for relation checks:
 
@@ -152,7 +152,7 @@ projections (`tasks.md:7`-`:27`, `:123`-`:134`).
 ## Current-Code Input Check
 
 The current hook code still has the old state-space and authority-risk shapes:
-`ResourceState.kind` plus `allowPreCommit` (`tools/habitat-harness/src/lib/hooks.ts:29`-`:43`),
+`ResourceState.kind` plus `allowPreCommit` (`tools/habitat/src/lib/hooks.ts:29`-`:43`),
 legacy hook notice wording (`hooks.ts:152`-`:155`), raw `CheckReport`/Grit parsing
 (`hooks.ts:371`-`:393`, `:802`-`:823`), and string-only pre-push base/target behavior
 (`hooks.ts:403`-`:433`, `:613`-`:640`). The repaired D11 packet correctly treats
@@ -162,7 +162,7 @@ D11 domain semantics (`design.md:12`-`:19`, `:167`-`:176`).
 The tests characterize existing behavior for resource refusal precedence,
 partial staging refusal, formatter-touched restage, malformed Grit fail-closed,
 pre-push base selection, and Nx affected failure
-(`tools/habitat-harness/test/lib/hooks.test.ts:16`-`:198`, `:200`-`:460`,
+(`tools/habitat/test/lib/hooks.test.ts:16`-`:198`, `:200`-`:460`,
 `:463`-`:612`). D11 correctly records those tests as current/later validation
 inputs rather than design-time implementation proof (`proposal.md:189`-`:208`;
 `phase-record.md:78`-`:89`).

@@ -138,13 +138,13 @@ Update or add:
   - tropical low coastal tiles still produce mangroves.
 
 ### Static posture guard
-Confirm `mods/mod-swooper-maps/test/ecology/no-fudging-static-scan.test.ts` still passes (no chance/penalty/multiplier style regressions).
+Confirm `bun habitat check --rule ecology-fudging-guardrails` reports no chance/penalty/multiplier style regressions.
 
 ## Verification Commands (implementation phase)
 - `bun test mods/mod-swooper-maps/test/ecology/wetlands-step.test.ts`
 - `bun test mods/mod-swooper-maps/test/ecology/vegetation-step.test.ts`
 - `bun test mods/mod-swooper-maps/test/ecology/earthlike-balance-smoke.test.ts`
-- `bun test mods/mod-swooper-maps/test/ecology/no-fudging-static-scan.test.ts`
+- `bun habitat check --rule ecology-fudging-guardrails`
 - Repo-standard typecheck/build commands per existing scripts.
 
 ## Assumptions and Defaults

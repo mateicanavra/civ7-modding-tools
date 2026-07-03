@@ -961,7 +961,7 @@ Execute the implementation:
 Before considering work complete:
 
 ```bash
-bun run check-types    # Type checking
+bun run check          # Type checking
 bun run build          # Build verification
 # bun run test         # Tests (when available)
 ```
@@ -1036,7 +1036,7 @@ Move to next task in sequence.
 | Create branch | New branch (no commit) | `gt create <name>` |
 | New commit | Add commit to branch | `git add -A && git commit` |
 | Amend commit | Override existing commit | `gt modify -a` (use sparingly) |
-| Verify | Type check | `bun run check-types` |
+| Verify | Type check | `bun run check` |
 | Verify | Build | `bun run build` |
 | Submit draft | Submit stack as draft PRs | `gt ss --draft` |
 | Publish drafts | Publish draft PRs for review | `gt ss --publish` |
@@ -1066,7 +1066,7 @@ gt ls                                    # Check stack
 gt create per-20-env-config-module       # Create branch
 # ... do work ...
 gt modify -a                             # Commit (write full message in editor)
-bun run check-types && bun run build     # Verify
+bun run check && bun run build           # Verify
 gt ss --draft                            # Submit as draft PR
 ```
 

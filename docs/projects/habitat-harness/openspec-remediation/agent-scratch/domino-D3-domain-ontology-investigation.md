@@ -141,7 +141,7 @@ Registry declaration is not resolution. Resolution is not execution. Classify
 output is not a runnable command proof.
 
 Current code shows why the distinction matters. `ClassifiedTarget.proof` in
-`tools/habitat-harness/src/lib/command-engine.ts` lines 196-204 currently mixes
+`tools/habitat/src/lib/command-engine.ts` lines 196-204 currently mixes
 target listing with a proof-shaped field. `UnavailableClassifiedTarget` at
 lines 206-211 has only `missing-nx-target`. `plugin.js` lines 182-197 turns a
 target-name string into `dependsOn`. These are compatibility shapes and
@@ -181,7 +181,7 @@ refused for all aliases.
 first colon, treat the prefix as a project, and treat the suffix as a target.
 That is invalid for scoped npm package project names such as
 `@swooper/mapgen-core`, for multi-colon target names, and for any alias whose
-real dependency is a workspace-owned target on `@internal/habitat-harness`.
+real dependency is a workspace-owned target on `@habitat/cli`.
 
 The current D3 packet says "alias target with resolved dependency" in the
 proposal, but it does not define relationship identity, endpoints, direction,

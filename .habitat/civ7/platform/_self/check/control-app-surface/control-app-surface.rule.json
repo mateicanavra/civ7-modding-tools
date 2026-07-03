@@ -1,7 +1,7 @@
 {
   "id": "control-app-surface",
   "ownerTool": "source-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "apps/**/*.ts, apps/**/*.tsx, packages/**/*.ts, packages/**/*.tsx",
   "forbids": "caller-local Civ7DirectControlSession construction outside sanctioned session owner files and tests",

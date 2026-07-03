@@ -1,0 +1,32 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "mod-intelligence-bridge",
+  "tags": ["kind:mod", "kind:control"],
+  "targets": {
+    "build:bundle": {
+      "command": "tsup",
+      "dependsOn": ["^build", "gen:modinfo"],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**"],
+      "options": {
+        "cwd": "mods/mod-civ7-intelligence-bridge"
+      }
+    },
+    "build": {
+      "command": "node -e \"\"",
+      "dependsOn": ["build:bundle"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-civ7-intelligence-bridge"
+      }
+    },
+    "gen:modinfo": {
+      "command": "bun ./scripts/generate-mod-artifacts.ts",
+      "cache": true,
+      "outputs": ["{projectRoot}/mod/**"],
+      "options": {
+        "cwd": "mods/mod-civ7-intelligence-bridge"
+      }
+    }
+  }
+}

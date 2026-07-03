@@ -11,7 +11,7 @@ from advancing source changes before the relevant packet has passed its gates.
 
 ## Workstream Gates
 
-1. Corpus before tuning: inspect current `tools/habitat-harness/src`, local
+1. Corpus before tuning: inspect current `tools/habitat/src`, local
    docs, OpenSpec records, `.habitat`, root package scripts, Nx metadata,
    Biome/Grit/Husky config, and Graphite stack state before changing source.
 2. Expectations before stats: write expected public behavior, allowed direct
@@ -63,8 +63,8 @@ Source packets add the closest classified checks:
 
 ```bash
 bun run habitat classify <changed-path-or-diff>
-bun run --cwd tools/habitat-harness check
-bun run --cwd tools/habitat-harness test
+bun run --cwd tools/habitat check
+bun run --cwd tools/habitat test
 bun run habitat check --tool habitat --json
 ```
 

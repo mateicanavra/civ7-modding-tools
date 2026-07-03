@@ -32,12 +32,19 @@ const physicsRoots = [
 ].map((stage) => path.join(stagesRoot, stage));
 const findings = [];
 
-for (const file of existingFiles(physicsRoots, [".ts"]).filter((file) => file.endsWith("contract.ts"))) {
+for (const file of existingFiles(physicsRoots, [".ts"]).filter((file) =>
+  file.endsWith("contract.ts")
+)) {
   const text = read(file);
   for (const token of ["artifact:map.", "effect:map.", "MAP_PROJECTION_EFFECT_TAGS.map"]) {
     const index = text.indexOf(token);
     if (index !== -1) {
-      findings.push({ file: repoRel(file), line: lineOf(text, index), rule: "physics-map-contract", detail: token });
+      findings.push({
+        file: repoRel(file),
+        line: lineOf(text, index),
+        rule: "physics-map-contract",
+        detail: token,
+      });
     }
   }
 }
@@ -50,7 +57,12 @@ for (const file of sourceFiles) {
   const text = read(file);
   const index = text.indexOf("artifact:map.realized.");
   if (index !== -1) {
-    findings.push({ file: repoRel(file), line: lineOf(text, index), rule: "realized-map-artifact", detail: "artifact:map.realized." });
+    findings.push({
+      file: repoRel(file),
+      line: lineOf(text, index),
+      rule: "realized-map-artifact",
+      detail: "artifact:map.realized.",
+    });
   }
 }
 

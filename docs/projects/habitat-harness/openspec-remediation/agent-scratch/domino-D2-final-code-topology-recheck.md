@@ -14,7 +14,7 @@ Reviewed:
 
 - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-final-code-topology-review.md`
 - D2 `proposal.md`, `design.md`, `tasks.md`, `workstream/phase-record.md`, `workstream/review-disposition-ledger.md`, and `workstream/closure-checklist.md`
-- Current code evidence in `tools/habitat-harness/src/lib/grit-injected-probe.ts`, `tools/habitat-harness/src/lib/hooks.ts`, and focused hook-test evidence
+- Current code evidence in `tools/habitat/src/lib/grit-injected-probe.ts`, `tools/habitat/src/lib/hooks.ts`, and focused hook-test evidence
 
 ## Recheck Findings
 
@@ -24,15 +24,15 @@ Accepted as repaired.
 
 Current code still confirms why the original finding was real:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-injected-probe.ts:4` imports `HarnessRule`, `ruleById`, and `rules`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-injected-probe.ts:34` accepts `registry?: readonly HarnessRule[]`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-injected-probe.ts:81`-`:83` defaults to `rules` and `ruleById`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-injected-probe.ts:261`-`:267` reads raw `gritPattern`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-injected-probe.ts:4` imports `HarnessRule`, `ruleById`, and `rules`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-injected-probe.ts:34` accepts `registry?: readonly HarnessRule[]`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-injected-probe.ts:81`-`:83` defaults to `rules` and `ruleById`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-injected-probe.ts:261`-`:267` reads raw `gritPattern`.
 
 The packet now controls that implementation obligation:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:190` defines `ruleGritFacts` for Grit/D6/D8/hooks consumers.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:245`-`:262` includes `tools/habitat-harness/src/lib/grit-injected-probe.ts` in the D2 implementation write set.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:245`-`:262` includes `tools/habitat/src/lib/grit-injected-probe.ts` in the D2 implementation write set.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:274`-`:280` includes injected-probe migration in the safe refactor sequence.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md:39`-`:40` requires `grit-injected-probe.ts` to consume `ruleGritFacts`/registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/review-disposition-ledger.md:36` records the P2 as accepted and repaired pending this recheck.
@@ -43,10 +43,10 @@ Accepted as repaired.
 
 Current code and tests still confirm why the hook oracle is a real D2 compatibility gate:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts:247`-`:259` shells out to `habitat check --staged --tool file-layer --json`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts:350`-`:368` shells out to `habitat check --staged --tool grit-check --json`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts:371`-`:393` parses check-report JSON into hook outcomes.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/hooks.test.ts:787`-`:825` builds command-facing Grit hook report JSON with `ownerTool`, `lane`, `detect`, `message`, and `remediate`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts:247`-`:259` shells out to `habitat check --staged --tool file-layer --json`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts:350`-`:368` shells out to `habitat check --staged --tool grit-check --json`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts:371`-`:393` parses check-report JSON into hook outcomes.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/hooks.test.ts:787`-`:825` builds command-facing Grit hook report JSON with `ownerTool`, `lane`, `detect`, `message`, and `remediate`.
 
 The packet now has a hook-specific oracle and a correct non-claim:
 
@@ -54,7 +54,7 @@ The packet now has a hook-specific oracle and a correct non-claim:
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:227` lists hook/local-feedback output as a D2-touched D0 surface class.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/proposal.md:92` includes `test/lib/hooks.test.ts` in the verification gate.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md:43` keeps hook migration scoped to `ruleLocalFeedbackFacts` without owning D11 hook behavior.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md:59` adds `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` and says it covers hook-facing D2 metadata compatibility only, not D11 hook behavior.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/tasks.md:59` adds `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts` and says it covers hook-facing D2 metadata compatibility only, not D11 hook behavior.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/phase-record.md:51` records the same D2-HOOK gate and non-claim.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/review-disposition-ledger.md:37` records the P2 as accepted and repaired pending this recheck.
 

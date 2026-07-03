@@ -11,12 +11,12 @@ Reviewed as a design/specification rereview only:
 - `openspec/changes/deep-habitat-d8-pattern-governance/**`
 - D8 first-wave scratch records under `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D8-*.md`
 - Current Pattern Authority source and tests:
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `tools/habitat-harness/src/generators/pattern/generator.cjs`
-  - `tools/habitat-harness/src/generators/pattern/registration.cjs`
-  - `tools/habitat-harness/src/generators/pattern/schema.json`
-  - `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
-  - `tools/habitat-harness/test/generators/pattern-generator.test.ts`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/src/generators/pattern/generator.cjs`
+  - `tools/habitat/src/generators/pattern/registration.cjs`
+  - `tools/habitat/src/generators/pattern/schema.json`
+  - `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
+  - `tools/habitat/test/generators/pattern-generator.test.ts`
 
 Skill anchors read in full before review:
 

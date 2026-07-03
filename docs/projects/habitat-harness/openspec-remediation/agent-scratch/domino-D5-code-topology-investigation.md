@@ -53,7 +53,7 @@ manifest missing/mismatch.
 
 ### Baseline Authority Core
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`
 
 - Public exported failure vocabulary:
   - `BaselineContractFailureReason` at lines 24-43.
@@ -110,7 +110,7 @@ manifest missing/mismatch.
   - `doc-ambiguity` validates `docs/.doc-ambiguity-lint-baseline.json` and
     currently projects no keys.
 - Current JSON baseline file contract:
-  - one file per rule under `tools/habitat-harness/baselines/<rule-id>.json`.
+  - one file per rule under `tools/habitat/baselines/<rule-id>.json`.
   - JSON must be an array of strings, duplicate-free, sorted lexicographically.
   - Current tree has 49 committed baseline JSON files, all explicit empty arrays.
   - Baseline JSON files are not generated artifacts, but they are protected debt
@@ -119,7 +119,7 @@ manifest missing/mismatch.
 
 ### Baseline Contract Tests
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/baseline.test.ts`
 
 - Existing scenarios cover explicit empty/locked state lines 28-40.
 - Explicit debt application and new unbaselined errors lines 42-64.
@@ -141,7 +141,7 @@ the gaps.
 
 ### Structural Enforcement Consumer
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
 
 - Imports baseline functions directly at lines 6-16.
 - `createCheckReport` lines 273-343 mixes rule selection, execution, baseline
@@ -175,7 +175,7 @@ baseline internals.
 
 ### CLI Public Surface
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/check.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts`
 
 - Command summary/description lines 11-13 mention shrink-only baseline integrity.
 - Examples lines 14-18 include `--json` and `--rule`.
@@ -195,7 +195,7 @@ behavior, or help text requires concrete D0 row citation before source work.
 
 ### Package Export Surface
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
 
 - Baseline types exported at lines 1-7:
   - `BaselineContractFailure`
@@ -225,7 +225,7 @@ is a facade/versioning plan, not silent export churn.
 
 ### Command JSON And Human Report Projection
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/diagnostics.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/diagnostics.ts`
 
 - `HabitatDiagnostic` JSON fields lines 8-17 include `ruleId`, `path`, optional
   `line`, `message`, `severity`, and `baselined`.
@@ -236,7 +236,7 @@ is a facade/versioning plan, not silent export churn.
 - `validateCheckReport` lines 45-66 structurally validates only broad field
   types, not D5-specific decision states.
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/messages.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/messages.ts`
 
 - Human renderer marks baselined diagnostics with `[baselined]` at lines 13-16.
 - Locked human message: `this rule is locked (empty baseline): any violation
@@ -251,14 +251,14 @@ handling and likely D7 report-constructor ownership.
 
 ### Command Tests And Fixtures
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-entrypoints.test.ts`
 
 - Help output includes `--expand-baseline` at lines 19-24.
 - Invalid selector JSON must not return only `baseline-integrity` lines 51-102.
 - Baseline contract JSON reports missing/malformed/orphan states lines 142-207.
 - Invalid expansion selectors fail before writing baselines lines 209-241.
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-commands.test.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
 
 - `expandBaselines` mock and message shape at lines 38-40.
 - `--expand-baseline` command dispatch tested at lines 121-136.
@@ -268,7 +268,7 @@ these tests, preserve them, or leave command behavior to D7.
 
 ### Pattern Authority And Generator Consumer
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/pattern-authority/manifest.ts`
 
 - Current lifecycle union line 5: `candidate`, `registered-advisory`,
   `registered-enforced`.
@@ -282,12 +282,12 @@ these tests, preserve them, or leave command behavior to D7.
   524-551.
 - Registered contradictions reject `baselineAction: "blocked"` at lines 620-627.
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
 
 - Promotion validates manifest then calls `validateRegisteredBaselineContract`
   at lines 39-65.
 - `validateRegisteredBaselineContract` lines 148-224 independently checks:
-  - baseline path equals `tools/habitat-harness/baselines/<rule>.json`;
+  - baseline path equals `tools/habitat/baselines/<rule>.json`;
   - `blocked` cannot register;
   - baseline file and rule-introduction manifest exist;
   - baseline JSON is a string array;
@@ -299,7 +299,7 @@ these tests, preserve them, or leave command behavior to D7.
   Pattern Governance lifecycle/admission into D5. D5 should define a one-way
   baseline authority projection/refusal result that D8 later consumes.
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/generator.cjs`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/generator.cjs`
 
 - Candidate generation refuses if an active baseline already exists at lines
   76-85.
@@ -307,7 +307,7 @@ these tests, preserve them, or leave command behavior to D7.
   rule-introduction manifest` at line 126.
 - Candidate markdown states candidate has no baseline at line 134.
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/pattern-generator.test.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts`
 
 - Candidate generation asserts no baseline file is created lines 20-33.
 - Registered advisory/enforced promotion requires explicit baseline contract
@@ -323,7 +323,7 @@ versus downstream D8/D13 behavior.
 
 ### Rule Registry / D2 Baseline Relation Surface
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
 
 - Current registry uses `id` and `exceptionPath` for baseline relation.
 - `adapter-boundary` declares `exceptionPath` as
@@ -338,11 +338,11 @@ schema implementation.
 
 ### Nx / Cache Surface
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
 
-- Grit check target inputs include `tools/habitat-harness/baselines/**` at lines
+- Grit check target inputs include `tools/habitat/baselines/**` at lines
   109-125.
-- Aggregate Habitat check inputs include `tools/habitat-harness/baselines/**` at
+- Aggregate Habitat check inputs include `tools/habitat/baselines/**` at
   lines 159-172.
 
 D5 baseline JSON changes affect graph cache inputs and need D0/Nx target row
@@ -372,7 +372,7 @@ terminology changes.
 ## Current Baseline File Inventory
 
 Current committed baseline files under
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/baselines/`:
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/baselines/`:
 
 - 49 JSON files.
 - All 49 currently contain `[]`.
@@ -408,45 +408,45 @@ not authorization for this investigation.
 
 ### D5-Owned Source/Test Paths
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`
   - Baseline state/decision/refusal unions.
   - External exception source model variants.
   - Rule-introduction manifest contract.
   - Shrink-only/current-tree integrity guard.
   - Expansion guard result shape.
   - Baseline authority projection for D7/D8.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/baseline.test.ts`
   - Normative state-machine tests for every D5 state.
   - Guard tests for rule-introduction manifests and comparison-base failures.
   - External exception source variant tests.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-entrypoints.test.ts`
   - Only baseline-command projection tests required to preserve or version D0
     command JSON/human behavior.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/pattern-generator.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts`
   - Only D5 baseline projection consumer tests, not D8 lifecycle redesign.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/rules/pattern-authority-manifest.test.ts`
   - Only if D5 changes the baseline contract field/projection consumed by D8.
-- New focused D5 fixtures under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/fixtures/` or temp-dir test helpers.
+- New focused D5 fixtures under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/fixtures/` or temp-dir test helpers.
 
 ### D5-Adjacent Source Paths Requiring Bounded Justification
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
   - Only for D0-cited facade/export changes to baseline public API.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
   - Only to consume a D5 baseline authority projection without restructuring
     enforcement pipeline. Any broader report/pipeline extraction belongs to D7.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/check.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/check.ts`
   - Only if `--expand-baseline`, `--base`, or help text must change under D0
     compatibility handling.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/pattern-authority/manifest.ts`
   - Only to consume a D5 baseline projection/refusal field. D8 owns lifecycle
     states and admission rules.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
   - Only to replace local baseline validation with a D5-owned projection. D13/D8
     own generator lifecycle/refusal behavior.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/generator.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/generator.cjs`
   - Only if active-baseline collision must call a D5 projection; otherwise D13.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
   - Only if D2-apvalidated `ruleBaselineFacts` implementation is already live and
     D5 must add explicit introduction/baseline references. Otherwise protected.
 
@@ -477,7 +477,7 @@ D5 must protect these paths/owners unless a repaired D5 packet explicitly
 amends the write set and re-reviews cross-domino ownership:
 
 - D7 Structural Enforcement redesign:
-  - broad extraction/refactor of `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
+  - broad extraction/refactor of `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
   - changes to selector semantics, report constructor ownership, staged
     execution, rule execution, Grit acquisition, status derivation, renderer
     truth equivalence, `CheckReport.ok`, and `RuleReport.status`.
@@ -495,12 +495,12 @@ amends the write set and re-reviews cross-domino ownership:
 - D11 hooks:
   - pre-commit/pre-push behavior, local-feedback output, staged mutation policy.
 - Generated artifacts and lockfiles:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/dist/**`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/oclif.manifest.json`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/dist/**`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/oclif.manifest.json`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/bun.lock`
   - generated/mod output paths.
 - Current baseline JSON files:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/baselines/*.json`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/baselines/*.json`
   - protected except explicit D5 fixtures or named current-tree validation edits.
 - Active Grit patterns:
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.grit/patterns/habitat/**`
@@ -555,7 +555,7 @@ concrete D0 `surface_id` rows for at least these baseline-related surfaces:
 
 ### Package Export Rows
 
-- Every baseline type/function exported from `tools/habitat-harness/src/index.ts`:
+- Every baseline type/function exported from `tools/habitat/src/index.ts`:
   `BaselineContractFailure`, `BaselineContractFailureReason`,
   `BaselineContractValidation`, `BaselineState`,
   `RuleIntroductionBaselineManifest`, `applyBaseline`,
@@ -566,12 +566,12 @@ concrete D0 `surface_id` rows for at least these baseline-related surfaces:
 - `expandBaselines` and `createCheckReport` as baseline-adjacent command
   exports.
 - Package subpath exports from
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/package.json`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/package.json`,
   especially `"."`, `"./plugin"`, and `"./rules"`.
 
 ### Generator / Pattern Rows
 
-- `@internal/habitat-harness:pattern` candidate behavior that creates no
+- `@habitat/cli:pattern` candidate behavior that creates no
   baseline.
 - Registered pattern promotion baseline contract validation.
 - Registered manifest `baselineContract` fields:
@@ -582,17 +582,17 @@ concrete D0 `surface_id` rows for at least these baseline-related surfaces:
 
 ### Nx / Root Script / Hook Rows
 
-- `@internal/habitat-harness` inferred `grit:check`,
+- `@habitat/cli` inferred `grit:check`,
   `habitat:check`, `habitat:check:all`, and `habitat:rule:*` targets that include
-  `tools/habitat-harness/baselines/**` as inputs.
+  `tools/habitat/baselines/**` as inputs.
 - Root scripts that call Habitat or Habitat-owned Nx targets.
 - Hook/pre-push use of `mergeBase` if D5 changes exported merge-base behavior.
 
 ### Docs Example Rows
 
-- `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md` baseline and pattern
+- `tools/habitat/docs/IMPLEMENTED-SURFACE.md` baseline and pattern
   registration examples.
-- `tools/habitat-harness/docs/SCENARIOS.md` `Run The Full Habitat Rule Pack` and
+- `tools/habitat/docs/SCENARIOS.md` `Run The Full Habitat Rule Pack` and
   `Promote A Grit Rule After Authority Is Accepted`.
 - `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md`
   Manage Baselines row.
@@ -719,7 +719,7 @@ design/specification, not source implementation.
 - Replace broad validation with:
   - design-time: `bun run openspec -- validate deep-habitat-d5-baseline-authority --strict`,
     `bun run openspec:validate`, `git diff --check`;
-  - later implementation: `bun run --cwd tools/habitat-harness test --
+  - later implementation: `bun run --cwd tools/habitat test --
     test/lib/baseline.test.ts`, focused command/generator tests only if public
     projections change, `bun run habitat check --rule baseline-integrity --json`,
     and injected bad-case validation for missing/malformed/orphan/growth/introduced

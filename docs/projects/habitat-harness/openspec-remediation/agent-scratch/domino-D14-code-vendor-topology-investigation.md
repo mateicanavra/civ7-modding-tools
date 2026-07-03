@@ -119,18 +119,18 @@ code or exercise D13 refusal behavior.
 
 Local evidence:
 
-- `tools/habitat-harness/src/commands/classify.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts:822`
-- `tools/habitat-harness/src/lib/command-engine.ts:846`
-- `tools/habitat-harness/src/lib/command-engine.ts:913`
-- `tools/habitat-harness/src/lib/command-engine.ts:939`
+- `tools/habitat/src/commands/classify.ts`
+- `tools/habitat/src/lib/command-engine.ts:822`
+- `tools/habitat/src/lib/command-engine.ts:846`
+- `tools/habitat/src/lib/command-engine.ts:913`
+- `tools/habitat/src/lib/command-engine.ts:939`
 
 ### Generator Surfaces
 
 Habitat exposes exactly two Nx generators:
 
-- `@internal/habitat-harness:project`
-- `@internal/habitat-harness:pattern`
+- `@habitat/cli:project`
+- `@habitat/cli:pattern`
 
 The project generator supports only `plugin`, `foundation`, and `app` at runtime,
 while its schema still admits `adapter`, `control`, `engine`, `mod`, `sdk`,
@@ -139,11 +139,11 @@ through a thrown `Error`, not through the full structured D13 refusal envelope.
 
 Local evidence:
 
-- `tools/habitat-harness/generators.json`
-- `tools/habitat-harness/src/generators/project/schema.json:15`
-- `tools/habitat-harness/src/generators/project/generator.cjs:4`
-- `tools/habitat-harness/src/generators/project/generator.cjs:32`
-- `tools/habitat-harness/src/generators/project/generator.cjs:51`
+- `tools/habitat/generators.json`
+- `tools/habitat/src/generators/project/schema.json:15`
+- `tools/habitat/src/generators/project/generator.cjs:4`
+- `tools/habitat/src/generators/project/generator.cjs:32`
+- `tools/habitat/src/generators/project/generator.cjs:51`
 
 The pattern generator writes candidate artifacts only for `candidate`, routes
 registered lifecycles through manifest/baseline validation, and refuses
@@ -151,23 +151,23 @@ registered generation without `--manifestPath`.
 
 Local evidence:
 
-- `tools/habitat-harness/src/generators/pattern/schema.json`
-- `tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts`
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
+- `tools/habitat/src/generators/pattern/schema.json`
+- `tools/habitat/src/generators/pattern/generator.cjs`
+- `tools/habitat/src/generators/pattern/registration.cjs`
+- `tools/habitat/test/generators/pattern-generator.test.ts`
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
 
 ### Authoring Docs Surface
 
 Current docs already draw the desired D14 fence:
 
-- `tools/habitat-harness/docs/SCENARIOS.md` lists supported project/pattern
+- `tools/habitat/docs/SCENARIOS.md` lists supported project/pattern
   scaffolds and explicitly says MapGen recipe/domain/op/stage/step generation is
   not supported.
-- `tools/habitat-harness/docs/AUTHORING-NEXT.md` describes the future authoring
+- `tools/habitat/docs/AUTHORING-NEXT.md` describes the future authoring
   vertical slice and requires generated-diff, classify, owning package checks,
   tests, and recipe result gates.
-- `tools/habitat-harness/docs/CAPABILITIES.md` states Habitat is not yet a broad
+- `tools/habitat/docs/CAPABILITIES.md` states Habitat is not yet a broad
   MapGen authoring toolkit.
 
 These docs are legitimate D14 write surfaces for fence wording and future
@@ -213,19 +213,19 @@ classify gate.
 Commands run:
 
 ```text
-bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts
+bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts
 => exit 0, 3 files passed, 37 tests passed
 
-bun run nx g @internal/habitat-harness:project d14-plugin-smoke --kind=plugin --dry-run --no-interactive
+bun run nx g @habitat/cli:project d14-plugin-smoke --kind=plugin --dry-run --no-interactive
 => exit 0, CREATE packages/plugins/plugin-d14-plugin-smoke/...; NOTE dryRun means no changes were made
 
-bun run nx g @internal/habitat-harness:project d14-mod-refusal --kind=mod --dry-run --no-interactive
+bun run nx g @habitat/cli:project d14-mod-refusal --kind=mod --dry-run --no-interactive
 => exit 1, supports only uniform kinds: plugin, foundation, app; refusing "mod"
 
-bun run nx g @internal/habitat-harness:pattern grit-d14-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d14-authoring-topology-fence --dry-run --no-interactive
+bun run nx g @habitat/cli:pattern grit-d14-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d14-authoring-topology-fence --dry-run --no-interactive
 => exit 0, candidate pattern and manifest paths only; NOTE dryRun means no changes were made
 
-bun run nx g @internal/habitat-harness:pattern grit-d14-advisory --lifecycle=registered-advisory --dry-run --no-interactive
+bun run nx g @habitat/cli:pattern grit-d14-advisory --lifecycle=registered-advisory --dry-run --no-interactive
 => exit 1, requires --manifestPath
 ```
 
@@ -256,30 +256,30 @@ legitimate D14-adjacent write set is:
   after review status legitimately changes
 - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D14-*.md`
   review artifacts
-- `tools/habitat-harness/docs/AUTHORING-NEXT.md`, only for future-trigger and
+- `tools/habitat/docs/AUTHORING-NEXT.md`, only for future-trigger and
   acceptance-criteria clarification
-- `tools/habitat-harness/docs/SCENARIOS.md`, only for unsupported authoring
+- `tools/habitat/docs/SCENARIOS.md`, only for unsupported authoring
   examples/refusal guidance
-- `tools/habitat-harness/docs/CAPABILITIES.md`, only for current capability
+- `tools/habitat/docs/CAPABILITIES.md`, only for current capability
   truth and non-support wording
-- `tools/habitat-harness/README.md`, only if public command examples need the
+- `tools/habitat/README.md`, only if public command examples need the
   same current/future distinction
 
 If source behavior changes are needed to make D13 refusals consume D14 language,
 they belong to the D13 generator/refusal write set, not to a new D14 authoring
 implementation:
 
-- `tools/habitat-harness/src/generators/project/schema.json`
-- `tools/habitat-harness/src/generators/project/generator.cjs`
-- `tools/habitat-harness/test/generators/project-generator.test.ts`
-- `tools/habitat-harness/src/generators/pattern/schema.json`
-- `tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs`, only for
+- `tools/habitat/src/generators/project/schema.json`
+- `tools/habitat/src/generators/project/generator.cjs`
+- `tools/habitat/test/generators/project-generator.test.ts`
+- `tools/habitat/src/generators/pattern/schema.json`
+- `tools/habitat/src/generators/pattern/generator.cjs`
+- `tools/habitat/src/generators/pattern/registration.cjs`, only for
   command-facing refusal projection without weakening D8 validation
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts`
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`, only
+- `tools/habitat/test/generators/pattern-generator.test.ts`
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts`, only
   for D13/D8 boundary fixtures
-- `tools/habitat-harness/generators.json`, if D0 compatibility rows authorize
+- `tools/habitat/generators.json`, if D0 compatibility rows authorize
   public description/help correction
 
 D14 should explicitly say that D13 owns implementation of the generic refusal
@@ -300,13 +300,13 @@ them:
 - `packages/mapgen-*`
 - `.habitat/patterns/active/checks/**`, except through D8-governed registered
   promotion work
-- `tools/habitat-harness/src/rules/rules.json`, except through D8-governed
+- `tools/habitat/src/rules/rules.json`, except through D8-governed
   registered promotion work
-- `tools/habitat-harness/baselines/**`, except through D5/D8 authority
-- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`, unless D8
+- `tools/habitat/baselines/**`, except through D5/D8 authority
+- `tools/habitat/src/rules/pattern-authority/manifest.ts`, unless D8
   requests a manifest contract change
 - generated artifacts and tool outputs: `dist/**`, `mod/**`, `.nx/**`,
-  `tools/habitat-harness/oclif.manifest.json`, lockfiles, `.civ7/outputs/**`,
+  `tools/habitat/oclif.manifest.json`, lockfiles, `.civ7/outputs/**`,
   `packages/civ7-types/generated/**`, and
   `packages/civ7-map-policy/src/civ7-tables.gen.ts`
 - unrelated OpenSpec packets except dependency/status rows explicitly named by
@@ -404,7 +404,7 @@ instruction, retry condition, write set empty, and non-claim.
 
 ### P2: D14 Does Not Tie Future Acceptance Criteria To Existing Authoring Docs
 
-`tools/habitat-harness/docs/AUTHORING-NEXT.md` already has a concrete future
+`tools/habitat/docs/AUTHORING-NEXT.md` already has a concrete future
 vertical slice and generator acceptance contract. D14 currently says "record
 trigger conditions" but does not bind to those criteria.
 

@@ -1,0 +1,38 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "control-orpc",
+  "tags": ["kind:control"],
+  "targets": {
+    "build": {
+      "command": "node scripts/build.mjs",
+      "dependsOn": ["clean", "^build"],
+      "outputs": ["{projectRoot}/dist/**"],
+      "options": {
+        "cwd": "packages/civ7-control-orpc"
+      }
+    },
+    "check:types": {
+      "command": "tsc -p tsconfig.json --noEmit",
+      "dependsOn": [
+        {
+          "projects": ["control-direct"],
+          "target": "build"
+        }
+      ],
+      "cache": true,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/civ7-control-orpc"
+      }
+    },
+    "check": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["check:types", "habitat:check"],
+      "options": {
+        "cwd": "packages/civ7-control-orpc"
+      }
+    }
+  }
+}

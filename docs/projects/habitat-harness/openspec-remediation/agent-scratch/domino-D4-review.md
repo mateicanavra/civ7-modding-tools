@@ -40,15 +40,15 @@ D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scrat
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/classify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/classify.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
 
 Commands run:
 
 - `git status --short --branch`
 - `bun run openspec -- validate deep-habitat-d4-orientation-routing --strict` passed.
-- `bun run habitat classify tools/habitat-harness/src/plugin.js` passed and showed current JSON shape.
+- `bun run habitat classify tools/habitat/src/plugin.js` passed and showed current JSON shape.
 - `bun run habitat classify <literal README diff>` passed and showed current diff JSON shape.
 - `bun run habitat classify <pathless newline text>` passed with `{"schemaVersion":1,"inputKind":"diff","paths":[]}`, demonstrating the malformed/pathless ambiguity remains present behavior.
 
@@ -68,7 +68,7 @@ Evidence:
 
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
 - Generated spec: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/specs/habitat-harness/spec.md`
-- Current code: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
+- Current code: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
 
 Why this blocks: the packet asks implementation to "define path/diff orientation contracts" instead of defining the contract. An execution agent could preserve the current optional-heavy `Classification`, add a shallow `kind?: string`, or invent incompatible variants and still plausibly claim to satisfy the generated scaffold.
 
@@ -182,7 +182,7 @@ Add a "Public Surface Compatibility" table to `design.md`:
 Rewrite validation tasks to include exact oracles, for example:
 
 ```text
-- [ ] Run `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`
+- [ ] Run `bun run --cwd tools/habitat test -- test/lib/classify.test.ts`
       and verify coverage for project-path, workspace-path, diff, malformed-or-pathless-diff,
       unresolved-owner, graph-refusal, unavailable targets, and unresolved rule metadata.
 - [ ] Run `bun run habitat classify <malformed newline input>` and verify it returns

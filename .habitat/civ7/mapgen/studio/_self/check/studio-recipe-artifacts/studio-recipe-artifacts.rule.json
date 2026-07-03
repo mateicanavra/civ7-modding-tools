@@ -1,7 +1,7 @@
 {
   "id": "studio-recipe-artifacts",
   "ownerTool": "source-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "apps/mapgen-studio/src/**/*.{ts,tsx}",
   "forbids": "Studio UI importing runtime recipe modules instead of artifact exports",

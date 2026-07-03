@@ -1,7 +1,7 @@
 {
   "id": "file-layer-civ7-types-generated",
   "ownerTool": "file-layer",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "staged changes under packages/civ7-types/generated/**",
   "forbids": "staged hand-edits to generated Civ7 declaration files",

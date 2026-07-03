@@ -165,7 +165,7 @@ If your step introduces a new required/provided dependency tag:
 ## Verification
 
 - Run the package tests:
-  - `bun run test:mapgen`
+  - `nx run mapgen-core:test`
   - `bun run --cwd mods/mod-swooper-maps test`
 - Enable verbose tracing for your step id and confirm the trace shows:
   - `step.start` and `step.finish` for your step id

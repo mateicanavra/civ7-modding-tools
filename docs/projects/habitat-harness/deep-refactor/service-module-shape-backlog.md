@@ -8,7 +8,7 @@ logic may live in `model/`, but only as concrete managed sub-kinds such as
 `model/dto/`, `model/policy/`, `model/errors/`, `model/repositories/`, or
 `model/helpers/`; loose implementation files, vague support buckets, and
 Markdown notes do not belong under
-`tools/habitat-harness/src/service/modules/**`.
+`tools/habitat/src/service/modules/**`.
 
 ## Router Pattern Follow-Up
 
@@ -40,7 +40,7 @@ generator support surface with explicit file-kind rules.
 
 Nx must treat a service module and its module-local `model/` tree as one module
 project, not as a shared service-model project. The separate inferred
-`@internal/habitat-harness-service-module-<module>-model` projects blur
+`@habitat/cli-service-module-<module>-model` projects blur
 module-local domain ownership into shared model ownership and make the boundary
 taxonomy weaker than the collect-style shape. Collapse module-local model trees
 back into their owning module projects, keep only `src/service/model` as the

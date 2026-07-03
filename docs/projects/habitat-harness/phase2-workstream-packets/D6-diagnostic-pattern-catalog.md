@@ -127,11 +127,11 @@ Update:
 - Grit receipt matrix;
 - Patterns ledger references to diagnostic receipt;
 - hook contract docs;
-- `tools/habitat-harness/docs/CAPABILITIES.md`.
+- `tools/habitat/docs/CAPABILITIES.md`.
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`:
   expected exit 0; adapter, injected-probe, and native Grit sample receipt.
 - `bun run habitat check --tool grit-check --json`: expected exit 0 after the
   current `GritMalformedJson` projection risk is fixed or explicitly non-goaled.

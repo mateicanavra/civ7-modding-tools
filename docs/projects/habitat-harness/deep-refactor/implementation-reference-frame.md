@@ -173,13 +173,13 @@ D1 output family, allowed `ClaimId`s, and `NonClaimId`s. Consumers may depend
 only on owner-published projections, never whole records from another domain.
 
 Current code is evidence, not target authority. Important current surfaces:
-`tools/habitat-harness/src/commands/*`, `src/index.ts`, `src/lib/command-engine.ts`,
+`tools/habitat/src/commands/*`, `src/index.ts`, `src/lib/command-engine.ts`,
 `src/lib/baseline.ts`, `src/lib/grit.ts`, `src/lib/grit-apply.ts`,
 `src/lib/generated-zones.ts`, `src/lib/hooks.ts`, `src/lib/nx-projects.ts`,
 `src/plugin.js`, `src/rules/rules.json`, Patterns modules,
 generators, `.grit/patterns/habitat/**`, baselines, root package scripts,
 Nx/Biome/Grit/Husky configuration, and focused tests under
-`tools/habitat-harness/test/**`.
+`tools/habitat/test/**`.
 
 Known current execution precondition: the prep worktree did not have dependency
 install state when source topology was inspected. Commands that depend on local
@@ -359,7 +359,7 @@ Required discipline:
 
 Current state-space hotspots to treat carefully:
 
-- `tools/habitat-harness/src/index.ts` exports many internals and compatibility
+- `tools/habitat/src/index.ts` exports many internals and compatibility
   DTOs.
 - `command-engine.ts` mixes check, classify, verify, graph, fix, baseline,
   selector, report, and receipt helpers.

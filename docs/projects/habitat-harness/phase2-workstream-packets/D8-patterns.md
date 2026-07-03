@@ -126,7 +126,7 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`:
+- `bun run --cwd tools/habitat test -- test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`:
   expected exit 0; candidate generation and manifest receipt.
 - `bun run habitat check --rule baseline-integrity --json`: expected exit 0;
   baseline contract receipt for registered patterns.

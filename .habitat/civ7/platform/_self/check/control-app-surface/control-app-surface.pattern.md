@@ -57,7 +57,7 @@ const session = new Civ7DirectControlSession({ host: "127.0.0.1" });
 // @filename: packages/civ7-direct-control/tests/shared-session.ts
 const session = new Civ7DirectControlSession({ host: "127.0.0.1" });
 
-// @filename: tools/habitat-harness/src/session.ts
+// @filename: tools/habitat/src/session.ts
 const session = new Civ7DirectControlSession(options);
 
 // @filename: apps/mapgen-studio/src/features/liveRuntime/session.ts

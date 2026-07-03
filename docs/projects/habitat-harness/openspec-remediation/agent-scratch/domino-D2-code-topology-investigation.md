@@ -22,26 +22,26 @@ This is a code/topology investigation only. It does not implement the registry r
 - D1 packet and OpenSpec design/spec for receipt/proof boundary
 - D1 code topology scratch: `/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-code-topology-investigation.md`
 - Current implementation and tests:
-  - `tools/habitat-harness/src/rules/architecture.ts`
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/src/plugin.js`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/lib/baseline.ts`
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/generated-zones.ts`
-  - `tools/habitat-harness/src/lib/hooks.ts`
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `tools/habitat-harness/src/generators/pattern/generator.cjs`
-  - `tools/habitat-harness/src/generators/pattern/registration.cjs`
-  - `tools/habitat-harness/src/index.ts`
-  - `tools/habitat-harness/test/lib/rule-selection.test.ts`
-  - `tools/habitat-harness/test/lib/classify.test.ts`
-  - `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
-  - `tools/habitat-harness/test/lib/biome-closure.test.ts`
-  - `tools/habitat-harness/test/lib/grit-adapter.test.ts`
-  - `tools/habitat-harness/test/lib/baseline.test.ts`
-  - `tools/habitat-harness/test/generators/pattern-generator.test.ts`
-  - `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
+  - `tools/habitat/src/rules/architecture.ts`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/src/plugin.js`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/lib/baseline.ts`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/generated-zones.ts`
+  - `tools/habitat/src/lib/hooks.ts`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/src/generators/pattern/generator.cjs`
+  - `tools/habitat/src/generators/pattern/registration.cjs`
+  - `tools/habitat/src/index.ts`
+  - `tools/habitat/test/lib/rule-selection.test.ts`
+  - `tools/habitat/test/lib/classify.test.ts`
+  - `tools/habitat/test/lib/enforcement-surface.test.ts`
+  - `tools/habitat/test/lib/biome-closure.test.ts`
+  - `tools/habitat/test/lib/grit-adapter.test.ts`
+  - `tools/habitat/test/lib/baseline.test.ts`
+  - `tools/habitat/test/generators/pattern-generator.test.ts`
+  - `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
 
 Mandatory skills read in full:
 
@@ -64,7 +64,7 @@ Refactoring bar applied: state-space collapse, deletion before rearrangement, ca
 
 ### Registry Data And Loader
 
-`tools/habitat-harness/src/rules/rules.json` is the central data file, but it is not a typed metadata registry today. It is a mixed record set with 51 rules and these observed dimensions:
+`tools/habitat/src/rules/rules.json` is the central data file, but it is not a typed metadata registry today. It is a mixed record set with 51 rules and these observed dimensions:
 
 - `ownerTool`: `grit-check` 31, `wrapped-test` 7, `file-layer` 4, `habitat-native` 4, `wrapped-script` 3, `biome` 1, `nx-boundaries` 1.
 - `lane`: `enforced` 49, `advisory` 2.
@@ -72,7 +72,7 @@ Refactoring bar applied: state-space collapse, deletion before rearrangement, ca
 - Optional fields: `gritPattern` and `hookScope` on 31 Grit rows, `nxTarget` on 7 wrapped tests, `generatedZone` on 3 file-layer rows, `forbiddenFileNames` on 1 file-layer row.
 - `manifestPath` exists in the TypeScript interface and generator path, but no current rule has it.
 
-`tools/habitat-harness/src/rules/architecture.ts` is the only TypeScript loader. It casts JSON directly to `{ rules: HarnessRule[] }`; there is no schema parse, versioning, discriminated union, or malformed-registry refusal. The exported `HarnessRule` record mixes identity, diagnostics, routing prose, execution selection, graph target hints, baseline exception state, Grit state, generated-zone state, hook state, and Pattern Authority future state.
+`tools/habitat/src/rules/architecture.ts` is the only TypeScript loader. It casts JSON directly to `{ rules: HarnessRule[] }`; there is no schema parse, versioning, discriminated union, or malformed-registry refusal. The exported `HarnessRule` record mixes identity, diagnostics, routing prose, execution selection, graph target hints, baseline exception state, Grit state, generated-zone state, hook state, and Pattern Authority future state.
 
 ### Execution Owner
 
@@ -86,7 +86,7 @@ This makes `ownerTool` both a public/reporting property and an execution strateg
 
 ### Command Engine And Selection
 
-`tools/habitat-harness/src/lib/command-engine.ts` imports `rules`, `ruleById`, `executeRule`, and `HarnessRule`.
+`tools/habitat/src/lib/command-engine.ts` imports `rules`, `ruleById`, `executeRule`, and `HarnessRule`.
 
 Current responsibilities tied to whole `HarnessRule`:
 
@@ -113,9 +113,9 @@ D2 must remove this authority from prose. The current routing states are not exp
 
 ### Nx Plugin And Graph
 
-`tools/habitat-harness/src/plugin.js` reads `rules.json` directly and independently. It hard-codes `OWNER_ROOTS` and silently skips rules with unknown owner projects:
+`tools/habitat/src/plugin.js` reads `rules.json` directly and independently. It hard-codes `OWNER_ROOTS` and silently skips rules with unknown owner projects:
 
-- Known owners include `mod-swooper-maps`, `@swooper/mapgen-core`, `@civ7/control-orpc`, `@mateicanavra/civ7-sdk`, and `@internal/habitat-harness`.
+- Known owners include `mod-swooper-maps`, `@swooper/mapgen-core`, `@civ7/control-orpc`, `@mateicanavra/civ7-sdk`, and `@habitat/cli`.
 - Current `rules.json` also includes `mod-civ7-intelligence-bridge`, which has no owner root and therefore no inferred rule target.
 
 Target aliasing is also hard-coded:
@@ -125,19 +125,19 @@ Target aliasing is also hard-coded:
 - `grit-check` aliases harness `grit:check`.
 - `file-layer` aliases harness `generated:check`.
 - `nxTarget` is parsed by colon string splitting.
-- All other rules run `bun tools/habitat-harness/bin/dev.ts check --rule <id>`.
+- All other rules run `bun tools/habitat/bin/dev.ts check --rule <id>`.
 
 Graph ownership, target aliasing, and dependency target parsing are not registry metadata today.
 
 ### Baseline Contract
 
-`tools/habitat-harness/src/lib/baseline.ts` consumes only a narrow `BaselineRuleContractInput` of `id` and `exceptionPath?`, but it obtains that projection through whole-rule callers or a separate permissive JSON parser. `parseRuleRegistry` validates only that a rules array exists and that ids are strings.
+`tools/habitat/src/lib/baseline.ts` consumes only a narrow `BaselineRuleContractInput` of `id` and `exceptionPath?`, but it obtains that projection through whole-rule callers or a separate permissive JSON parser. `parseRuleRegistry` validates only that a rules array exists and that ids are strings.
 
 External exception source behavior is hard-coded in `defaultExternalExceptionSources` for `adapter-boundary` and `doc-ambiguity`. Current repository state has 49 baseline files for 51 rules, matching those two externally modeled exceptions. The registry does not explicitly say which rules are baseline-file-backed, externally sourced, or intentionally baseline-less.
 
 ### Grit Adapter
 
-`tools/habitat-harness/src/lib/grit.ts` accepts whole `HarnessRule` records.
+`tools/habitat/src/lib/grit.ts` accepts whole `HarnessRule` records.
 
 Current metadata inference:
 
@@ -151,7 +151,7 @@ D2 must make Grit pattern identity, scan roots, hook policy, and current-tree po
 
 ### Generated Zones And File-Layer Rules
 
-`tools/habitat-harness/src/lib/generated-zones.ts` owns a separate `generatedZones` table with `id`, `kind`, `path`, and `remediation`.
+`tools/habitat/src/lib/generated-zones.ts` owns a separate `generatedZones` table with `id`, `kind`, `path`, and `remediation`.
 
 The registry only stores `generatedZone` string references for three file-layer rules. A fourth file-layer rule uses `forbiddenFileNames` instead. `runGeneratedZoneRule` treats unknown `generatedZone` as an execution diagnostic, not a registry-load failure.
 
@@ -159,15 +159,15 @@ D2 must model file-layer rules as a union, not as optional `generatedZone` plus 
 
 ### Pattern Governance And Generator Writes
 
-`tools/habitat-harness/src/rules/pattern-authority/manifest.ts` defines richer Pattern Authority types, including scan roots, baseline contract, lifecycle, hook scope, and apply safety.
+`tools/habitat/src/rules/pattern-authority/manifest.ts` defines richer Pattern Authority types, including scan roots, baseline contract, lifecycle, hook scope, and apply safety.
 
 `patternAuthorityRuleReferenceFromRule` projects current rule fields into Pattern Authority references, but registered manifest validation requires `manifestPath` alignment when rule references are required. Current rules have zero `manifestPath` values, so the current registry is not already a registered-manifest-backed registry.
 
-`tools/habitat-harness/src/generators/pattern/registration.cjs` writes new `rules.json` entries in the current mixed shape. It writes a prose `scope` synthesized from manifest scan roots, plus `gritPattern`, `manifestPath`, and `hookScope` when applicable. The generator must become a D2 registry writer or an adapter to the D2 writer.
+`tools/habitat/src/generators/pattern/registration.cjs` writes new `rules.json` entries in the current mixed shape. It writes a prose `scope` synthesized from manifest scan roots, plus `gritPattern`, `manifestPath`, and `hookScope` when applicable. The generator must become a D2 registry writer or an adapter to the D2 writer.
 
 ### Public/Durable Surfaces
 
-`tools/habitat-harness/src/index.ts` exports `executeRule`, `HarnessRule`, `ruleById`, and `rules`. Public command output also carries rule-shaped facts:
+`tools/habitat/src/index.ts` exports `executeRule`, `HarnessRule`, `ruleById`, and `rules`. Public command output also carries rule-shaped facts:
 
 - `CheckReport` and rule report rows expose `ruleId`, `ownerTool`, `lane`, `detect`, `message`, and `remediate`.
 - classify output exposes rule ownership and scope-resolution state.
@@ -262,21 +262,21 @@ D2 should require implementation in behavior-preserving slices, each with compil
 
 Implementation will likely need to edit:
 
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/src/rules/architecture.ts`
-- likely new registry/projection modules under `tools/habitat-harness/src/rules/`
-- `tools/habitat-harness/src/plugin.js`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/src/lib/baseline.ts`
-- `tools/habitat-harness/src/lib/grit.ts`
-- `tools/habitat-harness/src/lib/generated-zones.ts`
-- `tools/habitat-harness/src/lib/hooks.ts`
-- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-- `tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `tools/habitat-harness/src/index.ts` only after D0 compatibility disposition
-- tests under `tools/habitat-harness/test/lib/`, `tools/habitat-harness/test/generators/`, and `tools/habitat-harness/test/rules/`
-- docs under `tools/habitat-harness/docs/` when behavior/public contracts change
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/src/rules/architecture.ts`
+- likely new registry/projection modules under `tools/habitat/src/rules/`
+- `tools/habitat/src/plugin.js`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/src/lib/baseline.ts`
+- `tools/habitat/src/lib/grit.ts`
+- `tools/habitat/src/lib/generated-zones.ts`
+- `tools/habitat/src/lib/hooks.ts`
+- `tools/habitat/src/rules/pattern-authority/manifest.ts`
+- `tools/habitat/src/generators/pattern/generator.cjs`
+- `tools/habitat/src/generators/pattern/registration.cjs`
+- `tools/habitat/src/index.ts` only after D0 compatibility disposition
+- tests under `tools/habitat/test/lib/`, `tools/habitat/test/generators/`, and `tools/habitat/test/rules/`
+- docs under `tools/habitat/docs/` when behavior/public contracts change
 
 The D2 packet should name this write set directly instead of asking the implementation agent to infer it.
 
@@ -286,9 +286,9 @@ For D2 implementation, these paths should be protected unless their owning packe
 
 - D2 source packet and OpenSpec files during investigation-only work.
 - Other domino packets and OpenSpec changes, especially D0 and D1.
-- `tools/habitat-harness/src/index.ts` until D0 classifies exported package API compatibility.
+- `tools/habitat/src/index.ts` until D0 classifies exported package API compatibility.
 - Root workspace scripts, `package.json`, `nx.json`, and lockfiles unless D0/graph work explicitly requires a public surface change.
-- `tools/habitat-harness/baselines/**` except through an approved baseline migration slice.
+- `tools/habitat/baselines/**` except through an approved baseline migration slice.
 - `.grit/patterns/**` and Pattern Authority manifest output except through D8/D13 governance/generator slices.
 - generated artifacts such as `dist/`, `mod/`, and official resource submodule content.
 - runtime Civ7 control transports outside `@civ7/direct-control`.
@@ -297,28 +297,28 @@ For D2 implementation, these paths should be protected unless their owning packe
 
 Update existing tests:
 
-- `tools/habitat-harness/test/lib/rule-selection.test.ts`
+- `tools/habitat/test/lib/rule-selection.test.ts`
   - selection returns/proves projection use instead of whole-rule dependence.
   - staged Grit behavior uses hook facts, not raw `hookScope` on the mega-record.
-- `tools/habitat-harness/test/lib/classify.test.ts`
+- `tools/habitat/test/lib/classify.test.ts`
   - replace prose-scope parsing expectations with explicit routing metadata.
   - add rejection for rules whose routing cannot be resolved from typed metadata.
-- `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
+- `tools/habitat/test/lib/enforcement-surface.test.ts`
   - update owner/tool count expectations if compatibility facade changes.
   - assert unknown owner/project graph metadata fails instead of silently skipping.
   - assert structured graph target facts replace colon-string `nxTarget` parsing.
-- `tools/habitat-harness/test/lib/biome-closure.test.ts`
+- `tools/habitat/test/lib/biome-closure.test.ts`
   - verify registry-to-plugin graph closure through projections.
-- `tools/habitat-harness/test/lib/grit-adapter.test.ts`
+- `tools/habitat/test/lib/grit-adapter.test.ts`
   - reject missing `gritPattern`/pattern name; remove id fallback expectation.
   - replace prose-scope ignored-test-root behavior with explicit Grit scan-root metadata.
-- `tools/habitat-harness/test/lib/baseline.test.ts`
+- `tools/habitat/test/lib/baseline.test.ts`
   - require explicit baseline facet states.
   - ensure external exception sources are metadata-backed rather than hidden defaults.
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts`
+- `tools/habitat/test/generators/pattern-generator.test.ts`
   - assert registered pattern generation writes the canonical D2 registry shape.
   - assert manifest/hook/baseline metadata mismatches produce named refusals.
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
   - align rule-reference projection with D2 governance facts.
 
 Add new tests:

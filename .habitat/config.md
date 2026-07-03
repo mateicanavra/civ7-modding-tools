@@ -9,7 +9,7 @@ being refactored.
 The key distinction:
 
 - `.habitat` contains authored repository policy: what this repo governs.
-- `tools/habitat-harness` contains execution mechanics: how Habitat invokes
+- `tools/habitat` contains execution mechanics: how Habitat invokes
   Grit, Biome, Nx, Vitest, Bun, shell commands, providers, hooks, and CI paths.
 
 Do not introduce a separate `.habitat` tooling config just to map operations to

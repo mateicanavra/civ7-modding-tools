@@ -22,7 +22,7 @@ closure must record fresh current-state commands from
 2. Root repo instructions in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/AGENTS.md`.
 3. Phase frame in `docs/projects/habitat-harness/domain-refactor-frame.md`.
 4. Domain design packet in `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
-5. Current Habitat docs under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/`.
+5. Current Habitat docs under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/docs/`.
 6. Current source, tests, root scripts, and Nx metadata in the mandated worktree as present-behavior evidence.
 7. Active OpenSpec records and project ledgers as downstream records, not target-domain authority unless they match the frame and packet.
 8. Historical archives and earlier takeover frames as audit evidence only.
@@ -61,7 +61,7 @@ Primary:
 
 Current Habitat docs:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/README.md`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`
 - `docs/CAPABILITIES.md`
 - `docs/IMPLEMENTED-SURFACE.md`
 - `docs/SCENARIOS.md`
@@ -81,13 +81,13 @@ Project records used as bounded evidence:
 
 The owner read current Habitat source and tests under:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/bin/habitat.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/commands/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/lib/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/rules/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/generators/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/scripts/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/test/`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/bin/habitat.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands/`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/rules/`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/scripts/`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test/`
 
 Root integration surfaces:
 

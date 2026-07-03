@@ -1,11 +1,6 @@
 {
   "name": "@civ7/adapter",
   "version": "0.1.0",
-  "nx": {
-    "tags": [
-      "kind:adapter"
-    ]
-  },
   "description": "Centralized adapter for Civ7 engine APIs - the only package allowed to import /base-standard/...",
   "type": "module",
   "main": "./dist/index.js",

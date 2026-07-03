@@ -37,7 +37,7 @@ This tutorial intentionally avoids re-teaching contracts; it routes to reference
 
 From the repo root:
 
-- `bun run dev:mapgen-studio`
+- `nx run mapgen-studio:dev`
 
 ### 2) Confirm Studio is in Browser mode (live runs)
 

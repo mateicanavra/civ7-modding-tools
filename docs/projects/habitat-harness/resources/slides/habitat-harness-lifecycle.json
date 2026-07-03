@@ -301,8 +301,8 @@
                 "caption": "Generator coverage after H8.",
                 "rows": [
                   "Generator,Supported now,Refused or deferred",
-                  "`@internal/habitat-harness:project`,foundation / plugin / app,mod / engine / control / adapter / sdk / tooling",
-                  "`@internal/habitat-harness:pattern`,Native Grit pattern + empty baseline + rule-pack entry,Semantic product rules or custom scanners",
+                  "`@habitat/cli:project`,foundation / plugin / app,mod / engine / control / adapter / sdk / tooling",
+                  "`@habitat/cli:pattern`,Native Grit pattern + empty baseline + rule-pack entry,Semantic product rules or custom scanners",
                   "Harness migrations,No-op migration wiring via local run file,Published package migration flow",
                   "`habitat classify`,Paths and literal diff or patch inputs,Policy decisions outside known ownership data"
                 ]

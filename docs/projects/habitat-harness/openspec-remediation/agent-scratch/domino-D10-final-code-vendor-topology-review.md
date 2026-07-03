@@ -34,19 +34,19 @@ Branch: `codex/d10-protected-zone-authority-packet`
   - `domino-D10-typescript-state-investigation.md`
   - `domino-D10-vendor-validation-investigation.md`
 - Current code/tests/config:
-  - `tools/habitat-harness/src/lib/generated-zones.ts`
-  - `tools/habitat-harness/scripts/verify-generated-zones.mjs`
-  - `tools/habitat-harness/src/plugin.js`
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/src/rules/architecture.ts`
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/grit-apply.ts`
-  - `tools/habitat-harness/src/lib/hooks.ts`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/commands/check.ts`
-  - `tools/habitat-harness/test/lib/biome-closure.test.ts`
-  - `tools/habitat-harness/test/lib/hooks.test.ts`
-  - `tools/habitat-harness/test/lib/grit-adapter.test.ts`
+  - `tools/habitat/src/lib/generated-zones.ts`
+  - `tools/habitat/scripts/verify-generated-zones.mjs`
+  - `tools/habitat/src/plugin.js`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/src/rules/architecture.ts`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/grit-apply.ts`
+  - `tools/habitat/src/lib/hooks.ts`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/commands/check.ts`
+  - `tools/habitat/test/lib/biome-closure.test.ts`
+  - `tools/habitat/test/lib/hooks.test.ts`
+  - `tools/habitat/test/lib/grit-adapter.test.ts`
   - `biome.json`
   - `.gritignore`
   - `.habitat/grit.yaml`
@@ -66,7 +66,7 @@ Branch: `codex/d10-protected-zone-authority-packet`
 | Command | Result | What it proves | Non-claim |
 | --- | --- | --- | --- |
 | `git status --short --branch` | Exit 0; branch `codex/d10-protected-zone-authority-packet`; preexisting untracked final D10 review files were present before this scratch was written. | Worktree/branch state recorded; my only intended write is this scratch file. | Does not validate D10 packet content. |
-| `nx show target @internal/habitat-harness:generated:check --json` | Exit 0; target resolves to `bun tools/habitat-harness/scripts/verify-generated-zones.mjs`, `cache: false`, depends on `@swooper/mapgen-core:build` and `@civ7/map-policy:verify`, with generated/resource inputs. | Current Nx metadata matches the packet's generated-drift target assumptions. | Does not execute the drift target or prove generated freshness. |
+| `nx show target @habitat/cli:generated:check --json` | Exit 0; target resolves to `bun tools/habitat/scripts/verify-generated-zones.mjs`, `cache: false`, depends on `@swooper/mapgen-core:build` and `@civ7/map-policy:verify`, with generated/resource inputs. | Current Nx metadata matches the packet's generated-drift target assumptions. | Does not execute the drift target or prove generated freshness. |
 | `bun run openspec -- validate deep-habitat-d10-protected-zone-authority --strict` | Exit 0; change is valid. | D10 OpenSpec shape passes strict validation. | Does not prove source implementation readiness. |
 | `git diff --check` | Exit 0. | Diff whitespace hygiene is clean before this scratch write. | Does not validate D10 design completeness. |
 

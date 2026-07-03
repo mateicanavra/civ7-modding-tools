@@ -39,7 +39,7 @@ The current D14 OpenSpec spec reduces that to one broad requirement and two scen
 - a request that asks Habitat to "create or manage authoring topology outside current support" receives owner and trigger guidance;
 - supported classify/check/scaffold/refusal workflows do not require MapGen concepts.
 
-That is not enough to keep the authoring boundary closed. It does not enumerate the blocked actions already required by the source packet and adjacent docs: whole MapGen mod recipe, domain, operation, recipe stage, recipe step, step contract/default/schema bundle, recipe-stage-step wiring update, domain operation registry update, or Studio recipe artifact update. It also does not encode the future acceptance loop already stated in `tools/habitat-harness/docs/GAPS.md` and `tools/habitat-harness/docs/AUTHORING-NEXT.md`.
+That is not enough to keep the authoring boundary closed. It does not enumerate the blocked actions already required by the source packet and adjacent docs: whole MapGen mod recipe, domain, operation, recipe stage, recipe step, step contract/default/schema bundle, recipe-stage-step wiring update, domain operation registry update, or Studio recipe artifact update. It also does not encode the future acceptance loop already stated in `tools/habitat/docs/GAPS.md` and `tools/habitat/docs/AUTHORING-NEXT.md`.
 
 Required repair:
 
@@ -118,7 +118,7 @@ Packet index:
 
 Deferral/future-authoring docs:
 
-- `tools/habitat-harness/docs/GAPS.md` and `tools/habitat-harness/docs/AUTHORING-NEXT.md` already contain the strongest inventory and acceptance-loop language. D14 should consume that language or move the durable trigger into an explicit D14-owned deferral row.
+- `tools/habitat/docs/GAPS.md` and `tools/habitat/docs/AUTHORING-NEXT.md` already contain the strongest inventory and acceptance-loop language. D14 should consume that language or move the durable trigger into an explicit D14-owned deferral row.
 - Add or update a deferral/future-authoring row that says current Habitat refuses MapGen recipe/domain/op/stage/step/contract/default/schema/registry/Studio artifact generation until the authoring acceptance loop exists.
 - Keep future authoring acceptance tied to generator records, classify/check command records, compile results, and product acceptance.
 

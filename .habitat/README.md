@@ -1,7 +1,7 @@
 # Habitat Authority Tree
 
 This directory is the repository's authority tree for Habitat enforcement.
-The Habitat SDK code under `tools/habitat-harness` manages, validates, and
+The Habitat SDK code under `tools/habitat` manages, validates, and
 executes these artifacts, but package source, root scripts, tests, CI, hooks,
 and tool configs are not independent sources of enforcement truth.
 
@@ -68,6 +68,8 @@ Authority planes:
   their mutability rules.
 - `AUTHORITY-TREE-SHAPE.md`: the working reference for the current flattened
   authority-tree shape.
+- `dominoes.md`: the working ratchet sequence for authority-tree and runner
+  integration dominoes.
 - `config.md`: a human-readable sketch of the Habitat operation model. It is
   not consumed programmatically.
 - `<niche>/_self/check/<packet>/<packet>.rule.json`: provisional rule metadata.
@@ -96,3 +98,11 @@ Compatibility note: several Toolkit paths still reference the old flat
 work for the Toolkit resolver, package scripts, target routing, source-check
 loader, generator schema bridge, tests, and docs. This hierarchy pass is
 classification and authority layout only.
+
+Runner status note: curated `habitat check --rule <id>` execution is the
+currently proven bridge for package scripts. Plain `habitat check` /
+graph-wide `nx run-many -t habitat:check` full-suite execution has known
+resolver/admission debt and should be treated as a rebuild target rather than a surprising failure. The
+full-suite runner should be rebuilt around `.habitat/**/_self/<kind>/<packet>/`
+discovery, path-inferred niche/kind identity, explicit triage exclusion, and
+clear packet-level diagnostics.

@@ -1,7 +1,7 @@
 {
   "id": "file-layer-host-protected-surfaces",
   "ownerTool": "file-layer",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "staged changes touching host-declared protected surfaces",
   "forbids": "staged hand-edits to host-declared protected surfaces",

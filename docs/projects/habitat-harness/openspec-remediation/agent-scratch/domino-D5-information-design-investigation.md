@@ -44,7 +44,7 @@ Evidence:
 - `tasks.md:14-16` turns the central design work into three generic implementation tasks.
 - `spec.md:3-13` has only two scenarios: existing debt and new debt.
 
-Why this blocks: the D5 source packet requires explicit empty, explicit debt, external exception, malformed, missing, orphan, introduced-rule expansion, and shrink-only failure states. Current code evidence has even more precise refusal states: `BaselineContractFailureReason` spans missing, malformed, unsorted, duplicate, non-string, orphan, external-exception, comparison-source, parser-owned, and rule-introduction failures in `tools/habitat-harness/src/lib/baseline.ts:24-43`. The test suite already names many of those states in `tools/habitat-harness/test/lib/baseline.test.ts:27-310`. None of that is shaped into the OpenSpec contract.
+Why this blocks: the D5 source packet requires explicit empty, explicit debt, external exception, malformed, missing, orphan, introduced-rule expansion, and shrink-only failure states. Current code evidence has even more precise refusal states: `BaselineContractFailureReason` spans missing, malformed, unsorted, duplicate, non-string, orphan, external-exception, comparison-source, parser-owned, and rule-introduction failures in `tools/habitat/src/lib/baseline.ts:24-43`. The test suite already names many of those states in `tools/habitat/test/lib/baseline.test.ts:27-310`. None of that is shaped into the OpenSpec contract.
 
 Required repair: add an executor-facing "D5 Execution Contract" section to `design.md` with one table per required reader question:
 
@@ -86,7 +86,7 @@ Evidence:
 
 - `proposal.md:51-52` says the expected Habitat implementation write set is named in `design.md`, but `design.md` only says a write set must exist.
 - `tasks.md:9` asks the implementation agent to record the write/protected sets.
-- No artifact lists concrete files such as `tools/habitat-harness/src/lib/baseline.ts`, `tools/habitat-harness/src/lib/command-engine.ts`, baseline tests/fixtures, baseline JSON paths, D2 projection touchpoints, or D8 consumer tests as allowed or protected.
+- No artifact lists concrete files such as `tools/habitat/src/lib/baseline.ts`, `tools/habitat/src/lib/command-engine.ts`, baseline tests/fixtures, baseline JSON paths, D2 projection touchpoints, or D8 consumer tests as allowed or protected.
 
 Why this blocks: an executor can either under-edit and leave D5 incomplete, or over-edit into D7/D8 because the packet has not constrained where D5 stops. That violates the OpenSpec artifact contract requiring owners, write set, protected paths, gates, and stop conditions before implementation.
 
@@ -129,7 +129,7 @@ Tool calls and one-off investigation notes can use absolute paths. Durable packe
 Required repair: split validation into two tables:
 
 - Design-time gates: `bun run openspec -- validate deep-habitat-d5-baseline-authority --strict`, `bun run openspec:validate`, `git diff --check`, review-ledger P1/P2 disposition, and spec completeness checks.
-- Later implementation gates: `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`, `bun run habitat check --rule baseline-integrity --json`, injected bad-case matrix, D0 compatibility checks, and downstream consumer tests.
+- Later implementation gates: `bun run --cwd tools/habitat test -- test/lib/baseline.test.ts`, `bun run habitat check --rule baseline-integrity --json`, injected bad-case matrix, D0 compatibility checks, and downstream consumer tests.
 
 Also replace the broad `bun run habitat check --json` gate with the source packet's targeted `bun run habitat check --rule baseline-integrity --json` for D5 baseline validation. Broad check output can be an additional D7/D7-adjacent validation, but it is not the D5 state-machine gate.
 

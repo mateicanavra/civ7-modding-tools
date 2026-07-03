@@ -1,6 +1,10 @@
 # Hidden Test Authority Ledger
 
-Status: active investigation ledger for `agent-DRA-habitat-hidden-test-authority-audit`
+Status: superseded investigation ledger for `agent-DRA-habitat-hidden-test-authority-audit`
+
+Current dispositions for the embedded hidden-authority migration live in
+`docs/projects/habitat-harness/hidden-test-authority/workstream.md`. This file
+is retained as historical context for the earlier audit slice.
 
 ## Frame
 
@@ -69,16 +73,16 @@ Repo-state baseline before edits:
 | Command | Result | Claim |
 | --- | --- | --- |
 | `bun test mods/mod-swooper-maps/test/foundation/no-op-calls-op-tectonics.test.ts mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts` | pass | Old package authority for the two migrated subjects was green before deletion. |
-| `bun tools/habitat-harness/bin/dev.ts check --rule op-calls-op --json` | fail: `FileReadFailed` | Existing `source-check` execution path is blocked by Toolkit compatibility debt before this slice's command-check cutover. |
-| `bun tools/habitat-harness/bin/dev.ts check --rule ecology-step-imports --json` | fail: `FileReadFailed` | Existing `source-check` execution path is blocked by Toolkit compatibility debt before this slice's command-check cutover. |
+| `bun tools/habitat/bin/dev.ts check --rule op-calls-op --json` | fail: `FileReadFailed` | Existing `source-check` execution path is blocked by Toolkit compatibility debt before this slice's command-check cutover. |
+| `bun tools/habitat/bin/dev.ts check --rule ecology-step-imports --json` | fail: `FileReadFailed` | Existing `source-check` execution path is blocked by Toolkit compatibility debt before this slice's command-check cutover. |
 | `node .habitat/civ7/mapgen/pipeline/_self/check/op-calls-op/op-calls-op.check.mjs` | pass | Habitat-owned transitional command check preserves the old package test's static source-shape oracle. |
 | `node .habitat/civ7/mapgen/pipeline/_self/check/ecology-step-imports/ecology-step-imports.check.mjs` | pass | Habitat-owned transitional command check preserves the old package test's retired-topology and active-stage import oracle. |
-| `bun tools/habitat-harness/bin/dev.ts check --rule op-calls-op` | fail: `FileReadFailed` | Current Habitat runner still fails before command execution; this is compatibility debt, not a rule finding. Package/Nx bridges call the Habitat-owned subject script directly until routing is repaired. |
+| `bun tools/habitat/bin/dev.ts check --rule op-calls-op` | fail: `FileReadFailed` | Current Habitat runner still fails before command execution; this is compatibility debt, not a rule finding. Package/Nx bridges call the Habitat-owned subject script directly until routing is repaired. |
 | `bun run --cwd mods/mod-swooper-maps test:architecture-ecology-step-imports` | pass | Owner package command chain now executes the Habitat-owned `ecology-step-imports` subject script directly. |
 | `bun run --cwd mods/mod-swooper-maps test:architecture-cutover` | pass | Owner package command chain now executes Habitat-owned `op-calls-op`, `cutover-source-guardrails`, and `standard-stage-topology` subject scripts directly. |
 | `nx run mod-swooper-maps:test:architecture-ecology-step-imports --outputStyle=static` | pass | Nx owner target reaches the Habitat-owned ecology command script after dependency builds. |
 | `nx run mod-swooper-maps:test:architecture-cutover --outputStyle=static` | pass | Nx owner target reaches the Habitat-owned cutover command-check scripts. |
-| `bun run --cwd tools/habitat-harness test -- test/rules/registry/contract.test.ts test/rules/registry/facts.test.ts` | pass | Registry schema/facts accept the migrated owner-tool counts: 55 total rules, 29 `source-check`, 18 `command-check`. |
+| `bun run --cwd tools/habitat test -- test/rules/registry/contract.test.ts test/rules/registry/facts.test.ts` | pass | Registry schema/facts accept the migrated owner-tool counts: 55 total rules, 29 `source-check`, 18 `command-check`. |
 | `bun run habitat:check` | fail: `FileReadFailed` | Aggregate Habitat runner still fails before executing selected checks. This slice records the debt and does not mask it. |
 | `bun test mods/mod-swooper-maps/test/pipeline/no-dual-contract-paths.test.ts mods/mod-swooper-maps/test/pipeline/no-shim-surfaces.test.ts mods/mod-swooper-maps/test/pipeline/foundation-topology-lock.test.ts` | pass | Pre-batch cutover package tests were green before their assertions moved into `cutover-source-guardrails` and `standard-stage-topology`. |
 | `DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full REFRACTOR_DOMAINS=foundation,ecology ./.habitat/civ7/mapgen/pipeline/_self/check/domain-refactor-guardrails/domain-refactor-guardrails.check.sh` | fail | Full-profile guardrails cover neighboring static slices but currently expose unrelated debt; not a closure gate for this slice. |

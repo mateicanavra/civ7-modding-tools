@@ -140,7 +140,7 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts`:
   expected exit 0; isolated-copy, rollback, and safe-write receipt.
 - `bun run habitat fix --dry-run --json`: expected exit 0 after approved apply
   patterns have stable dry-run inventory output.

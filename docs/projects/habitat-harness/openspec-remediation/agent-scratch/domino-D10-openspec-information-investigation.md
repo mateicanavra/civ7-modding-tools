@@ -45,11 +45,11 @@ as live review/closure evidence.
 - Nearby accepted packets D7, D8, and D9, including proposal/design/spec/tasks
   and workstream closure artifacts.
 - Relevant current evidence:
-  `tools/habitat-harness/src/lib/generated-zones.ts`,
-  `tools/habitat-harness/src/rules/rules.json`,
-  `tools/habitat-harness/src/commands/check.ts`,
-  `tools/habitat-harness/test/lib/hooks.test.ts`, and
-  `tools/habitat-harness/scripts/verify-generated-zones.mjs`.
+  `tools/habitat/src/lib/generated-zones.ts`,
+  `tools/habitat/src/rules/rules.json`,
+  `tools/habitat/src/commands/check.ts`,
+  `tools/habitat/test/lib/hooks.test.ts`, and
+  `tools/habitat/scripts/verify-generated-zones.mjs`.
 
 ## Current Information Architecture Defects
 

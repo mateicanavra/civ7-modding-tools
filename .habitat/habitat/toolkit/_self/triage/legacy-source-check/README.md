@@ -9,7 +9,7 @@ move to subject-local `<subject>.pattern.md` files under
 `.habitat/**/{boundaries,structure,capabilities,contracts}/<subject>/` and
 execute through `grit-check`.
 
-Current integration note: `tools/habitat-harness/src/service/model/source-check`
+Current integration note: `tools/habitat/src/service/model/source-check`
 still references the old `.habitat/tooling/components/legacy-source-check`
 loader paths for remaining `source-check` rule records. This hierarchy pass
 does not repair that runtime path. The loader should either be rewired to the

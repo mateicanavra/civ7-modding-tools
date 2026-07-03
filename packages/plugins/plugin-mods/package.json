@@ -2,11 +2,6 @@
   "name": "@civ7/plugin-mods",
   "version": "0.1.0",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:plugin"
-    ]
-  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

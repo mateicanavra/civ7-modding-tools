@@ -18,11 +18,11 @@ Implementation remains blocked behind concrete D0 rows for every touched public 
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/downstream-realignment-ledger.md`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/closure-checklist.md`
 - Grounding source/topology inputs:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
   - `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
   - `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
 - Negative-control inputs:
@@ -48,7 +48,7 @@ None.
 
 ### TypeScript state-space collapse is specified tightly enough
 
-Current source still has the exact state-space risks D5 is meant to remediate: `ExternalExceptionSourceModel` uses optional `projectedKeys`, `projectKeys`, and `validate` combinations at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:109`; `BaselineExpansionGuardResult` is `ok: boolean` with optional `reason` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:223`; `createCheckReport` loads and applies baseline state inline at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:273`; exported baseline types/functions are public at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts:1`.
+Current source still has the exact state-space risks D5 is meant to remediate: `ExternalExceptionSourceModel` uses optional `projectedKeys`, `projectKeys`, and `validate` combinations at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:109`; `BaselineExpansionGuardResult` is `ok: boolean` with optional `reason` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:223`; `createCheckReport` loads and applies baseline state inline at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:273`; exported baseline types/functions are public at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts:1`.
 
 The packet no longer leaves those as prose aspirations. It defines target ontology for `BaselineAuthorityState`, `BaselineRefusal`, `BaselineApplicationResult`, `BaselineIntegrityResult`, `BaselineExpansionDecision`, `ExternalExceptionSource`, `RuleIntroductionBaselineManifest`, and `BaselineAuthorityProjection` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:60`. It then maps current smells to target moves at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:118` and requires closed states before consumer migration/deletion at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:131`.
 

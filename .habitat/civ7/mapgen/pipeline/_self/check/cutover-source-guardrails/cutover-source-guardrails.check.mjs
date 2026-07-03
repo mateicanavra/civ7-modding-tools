@@ -49,7 +49,12 @@ for (const file of files) {
   for (const token of legacyStageTokens) {
     const index = text.indexOf(token);
     if (index !== -1) {
-      findings.push({ file: repoRel(file), line: lineOf(text, index), rule: "legacy-stage", detail: token });
+      findings.push({
+        file: repoRel(file),
+        line: lineOf(text, index),
+        rule: "legacy-stage",
+        detail: token,
+      });
     }
   }
   for (const pair of dualStagePairs) {

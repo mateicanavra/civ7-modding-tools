@@ -36,15 +36,15 @@ Primary packet files reviewed:
 
 Current code/tests/pattern evidence reviewed:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-apply.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/fix.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-apply.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/fix.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/deep_import_to_public_surface.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/docs_local_checkout_paths_rewrite.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/package.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/package.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/package.json`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/grit.yaml`
 
 Vendor references checked:
@@ -182,13 +182,13 @@ Accepted. The repaired validation split is current:
 - Design-time gates: OpenSpec strict validation, all OpenSpec validation,
   `git diff --check`, wording audit, and final rereviews.
 - Later implementation gates: focused Habitat harness tests, Grit pattern tests
-  when pattern invocation/fixtures change, `bun tools/habitat-harness/bin/dev.ts fix --dry-run`,
+  when pattern invocation/fixtures change, `bun tools/habitat/bin/dev.ts fix --dry-run`,
   help/equivalent command check, and before/after `git status --short --branch`.
 - The invalid current gate `habitat fix --dry-run --json` is gone unless D0 later
   authorizes JSON output.
 
 One non-blocking implementation note: current Oclif help invocation emitted
-usage for `bun tools/habitat-harness/bin/dev.ts fix --help` but also printed
+usage for `bun tools/habitat/bin/dev.ts fix --help` but also printed
 `Nonexistent flag: --help`. The phase record already permits "`fix --help` or
 equivalent Oclif help command", so this is not a D9 design/spec blocker.
 
@@ -212,7 +212,7 @@ lane.
 - `git status --short --branch` before review showed the requested D9 branch with
   existing packet changes and prior scratch files. I did not modify source or
   packet files.
-- `bun tools/habitat-harness/bin/dev.ts fix --help` was run only to confirm
+- `bun tools/habitat/bin/dev.ts fix --help` was run only to confirm
   current CLI facts; it showed `fix` supports `--dry-run` and no `--json`.
 - `git diff --check` result after writing this scratch file: exit 0, no output.
 

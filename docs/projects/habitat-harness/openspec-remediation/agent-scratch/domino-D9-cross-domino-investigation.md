@@ -62,7 +62,7 @@ Live source facts that still block D9 implementation:
 - No durable `docs/projects/habitat-harness/public-surface-compatibility-matrix.md`
   exists in this worktree, so D9 cannot cite concrete D0 rows for `habitat fix`
   or legacy apply transaction DTO/output compatibility.
-- `tools/habitat-harness/src/lib/grit-apply.ts` still combines transaction
+- `tools/habitat/src/lib/grit-apply.ts` still combines transaction
   mechanics, hard-coded apply pattern paths, MapGen source roots, docs checkout
   path rewrites, public-ops export validation, Biome handoff, optional gates,
   rollback, and legacy proof/result objects.

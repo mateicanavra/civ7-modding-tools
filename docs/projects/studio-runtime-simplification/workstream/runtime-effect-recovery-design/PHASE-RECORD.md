@@ -192,7 +192,7 @@ This design phase closes when:
 | --- | --- | --- |
 | `bun run openspec:validate` | Passed: 186 items passed, 0 failed. | OpenSpec tree shape only. |
 | `bun run habitat classify docs/projects/studio-runtime-simplification/workstream/runtime-effect-recovery-design` | Passed; workspace-level path; returned `bun run lint`. | Required target discovery for this docs-only path. |
-| `bun run lint` | Non-green on `mod-swooper-maps:habitat:check`: `arch-test-m11-projection-band`, `arch-test-map-bundle-runtime-imports`, `arch-test-cutover`. `@internal/habitat-harness:habitat:check` passed with advisory `doc-ambiguity`. | Root graph hygiene is not green. The failures are outside this docs-only design write set and are not repaired here. |
+| `bun run lint` | Non-green on `mod-swooper-maps:habitat:check`: `arch-test-m11-projection-band`, `arch-test-map-bundle-runtime-imports`, `arch-test-cutover`. `@habitat/cli:habitat:check` passed with advisory `doc-ambiguity`. | Root graph hygiene is not green. The failures are outside this docs-only design write set and are not repaired here. |
 | `git diff --check` | Passed for design and R4 closeout edits before commit. | Diff whitespace hygiene only. |
 | R4 `bun run openspec -- list` packet scan | All runtime Effect packets complete except `mapgen-studio-live-game-watch` at `36/37 tasks`. | Confirms the retained D10 proof gap remains explicit. |
 | R4 habitat classify | `runtime-effect-recovery-design` and `runtime-effect-recovery-closeout` both classify as workspace-level docs paths requiring `bun run lint`. | Required target discovery for the closeout write set. |

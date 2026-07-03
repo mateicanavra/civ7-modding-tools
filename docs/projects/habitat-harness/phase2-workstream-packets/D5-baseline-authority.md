@@ -125,7 +125,7 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/baseline.test.ts`:
   expected exit 0; baseline state-machine receipt.
 - `bun run habitat check --rule baseline-integrity --json`: expected exit 0;
   current-tree baseline-integrity command receipt.

@@ -47,7 +47,7 @@ Local Habitat context read as repository evidence, not Effect authority:
 - `agent-F-habitat-effect-core:openspec/changes/habitat-effect-native-core/specs/habitat-effect-runtime-substrate/spec.md`
 - `agent-F-habitat-effect-core:openspec/changes/habitat-effect-native-core/specs/habitat-effect-command-programs/spec.md`
 - `agent-F-habitat-effect-core:openspec/changes/habitat-grit-catalog/design.md`
-- `agent-F-habitat-effect-core:tools/habitat-harness/src/lib/{grit,spawn,command-engine,baseline,hooks,generated-zones,diagnostics}.ts`
+- `agent-F-habitat-effect-core:tools/habitat/src/lib/{grit,spawn,command-engine,baseline,hooks,generated-zones,diagnostics}.ts`
 
 ## Findings With Provenance
 
@@ -172,4 +172,4 @@ Recommended decision: adopt Effect as an implementation dependency for the Effec
 - file: `openspec/changes/habitat-effect-native-core/specs/habitat-effect-runtime-substrate/spec.md` -> change: require the runtime bridge to keep `Effect.run*` at adapter boundaries and dispose scoped resources before command completion.
 - file: `openspec/changes/habitat-effect-native-core/specs/habitat-effect-process-baselines/spec.md` -> change: require command proof records to preserve argv/env/cwd/stdout/stderr/exit code plus parse/projection provenance.
 - file: `openspec/changes/habitat-effect-native-core/specs/habitat-effect-check-orchestration/spec.md` -> change: require Grit JSON parser parity before replacing the existing parser with Effect Schema or typed parser effects.
-- file: `tools/habitat-harness/test/**` -> change: add fake-layer parity tests before migrating live command paths.
+- file: `tools/habitat/test/**` -> change: add fake-layer parity tests before migrating live command paths.

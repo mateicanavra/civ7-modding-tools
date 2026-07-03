@@ -57,7 +57,7 @@ Primary project sources:
 | `docs/projects/habitat-harness/invariant-corpus.md` | 68-83 | Generated-zone and promised-but-unenforced invariant dispositions. |
 | `docs/projects/habitat-harness/taxonomy.md` | 3-15 | Taxonomy is derived from current implied architecture; project-plane and intra-project planes must not be conflated. |
 | `docs/projects/habitat-harness/taxonomy.md` | 19-29 | `kind:*` tag definitions. |
-| `docs/projects/habitat-harness/taxonomy.md` | 53-78 | 21 existing projects plus new Habitat harness package. Current local source scan found 22 workspace packages including `tools/habitat-harness`. |
+| `docs/projects/habitat-harness/taxonomy.md` | 53-78 | 21 existing projects plus new Habitat harness package. Current local source scan found 22 workspace packages including `tools/habitat`. |
 | `docs/projects/habitat-harness/taxonomy.md` | 80-117 | Project-plane constraints and initial empty-baseline expectation. |
 | `docs/projects/habitat-harness/taxonomy.md` | 119-130 | Intra-project `scope:*` families remain Grit/file-layer owned. |
 
@@ -65,17 +65,17 @@ Active Habitat OpenSpec records used as target or historical sources:
 
 | Change | Key lines | Claim surface |
 | --- | ---: | --- |
-| `openspec/changes/habitat-nx-adoption/specs/habitat-harness/spec.md` | 3-18, 20-36, 38-52 | Nx graph authority, Bun package-manager posture, pipeline parity. |
-| `openspec/changes/habitat-harness-scaffold/specs/habitat-harness/spec.md` | 3-19, 21-45, 47-58 | Single enforcement entrypoint, shrink-only baselines, wrapped existing checks. |
-| `openspec/changes/habitat-boundary-tags/specs/habitat-harness/spec.md` | 3-21, 23-34 | Project-plane graph law and quarantined ESLint boundary-only role. |
-| `openspec/changes/habitat-biome-hygiene/specs/habitat-harness/spec.md` | 3-17, 19-27 | Biome owns hygiene; reformat history is blame-shielded. |
-| `openspec/changes/habitat-oclif-cli/specs/habitat-harness/spec.md` | 3-19, 21-36, 38-53 | oclif surface, JSON compatibility, lifecycle ownership. |
-| `openspec/changes/habitat-grit-catalog/specs/habitat-harness/spec.md` | 3-27, 28-42, 44-57 | Grit syntax layer, codemod safety, generated-zone write protection. |
-| `openspec/changes/habitat-enforcement-consolidation/specs/habitat-harness/spec.md` | 3-28 | Only enforcement path and CI diagnostics through Habitat. |
-| `openspec/changes/habitat-git-hooks/specs/habitat-harness/spec.md` | 3-28 | Local hooks delegate to Habitat and restage only formatter-touched files. |
-| `openspec/changes/habitat-generators-migrations/specs/habitat-harness/spec.md` | 3-14, 16-27, 28-38 | Supported generators, classify-before-author, migrations. |
+| `openspec/changes/habitat-nx-adoption/specs/cli/spec.md` | 3-18, 20-36, 38-52 | Nx graph authority, Bun package-manager posture, pipeline parity. |
+| `openspec/changes/cli-scaffold/specs/cli/spec.md` | 3-19, 21-45, 47-58 | Single enforcement entrypoint, shrink-only baselines, wrapped existing checks. |
+| `openspec/changes/habitat-boundary-tags/specs/cli/spec.md` | 3-21, 23-34 | Project-plane graph law and quarantined ESLint boundary-only role. |
+| `openspec/changes/habitat-biome-hygiene/specs/cli/spec.md` | 3-17, 19-27 | Biome owns hygiene; reformat history is blame-shielded. |
+| `openspec/changes/habitat-oclif-cli/specs/cli/spec.md` | 3-19, 21-36, 38-53 | oclif surface, JSON compatibility, lifecycle ownership. |
+| `openspec/changes/habitat-grit-catalog/specs/cli/spec.md` | 3-27, 28-42, 44-57 | Grit syntax layer, codemod safety, generated-zone write protection. |
+| `openspec/changes/habitat-enforcement-consolidation/specs/cli/spec.md` | 3-28 | Only enforcement path and CI diagnostics through Habitat. |
+| `openspec/changes/habitat-git-hooks/specs/cli/spec.md` | 3-28 | Local hooks delegate to Habitat and restage only formatter-touched files. |
+| `openspec/changes/habitat-generators-migrations/specs/cli/spec.md` | 3-14, 16-27, 28-38 | Supported generators, classify-before-author, migrations. |
 
-Supporting active `specs/habitat-harness/spec.md` records also exist for
+Supporting active `specs/cli/spec.md` records also exist for
 `adapter-boundary-river-metadata-provenance`, `cli-root-load-test-timeouts`,
 `mapgen-studio-root-load-followup`, `mapgen-studio-test-timeouts`,
 `mod-swooper-catalog-order-proof`, `plugin-vitest-project-scope`, and
@@ -87,28 +87,28 @@ Current source and command evidence:
 | Evidence | Lines or command | Current observation |
 | --- | --- | --- |
 | Root package scripts | `package.json:12`, `package.json:22`, `package.json:53-78` | Root `check` routes to `habitat:verify`; `lint` routes to `habitat:check`; several structural aliases still exist. |
-| Habitat package config | `tools/habitat-harness/package.json:8-35`, `tools/habitat-harness/package.json:53-62` | Package has a production `bin/run.js`, a `dev` script, and oclif config. |
-| Dev runner | `tools/habitat-harness/bin/dev.ts:13-28`, `tools/habitat-harness/bin/dev.ts:30-41` | Current root script path uses a manual command map and `Command.run`, not full oclif command discovery. |
-| Source oclif shim | `tools/habitat-harness/src/bin/habitat.ts:1-5` | Direct source shim renders oclif help correctly when invoked directly. |
-| Check engine | `tools/habitat-harness/src/lib/command-engine.ts:65-70`, `78-139`, `157-160` | Rule selection can return zero selected rules, while `baseline-integrity` is still appended; JSON output can write to an arbitrary repo-relative path if `--output` is used. |
-| Fix engine | `tools/habitat-harness/src/lib/command-engine.ts:173-182` | `habitat fix` runs Grit apply then Biome, with writes unless `--dry-run` is used. |
-| Verify engine | `tools/habitat-harness/src/lib/command-engine.ts:185-202` | `verify` runs Habitat check then Nx affected targets. |
-| Classify engine | `tools/habitat-harness/src/lib/command-engine.ts:222-294` | Classify derives owner from package roots and returns static required target strings. |
-| Baseline engine | `tools/habitat-harness/src/lib/baseline.ts:7-19`, `25-47`, `71-103` | Missing baseline file is treated as empty locked baseline; shrink-only integrity compares against merge-base and only permits added keys for new rule IDs. |
-| Nx plugin | `tools/habitat-harness/src/plugin.js:1-8`, `42-55`, `82-145`, `146-175` | Plugin infers Habitat, boundaries, Biome, Grit, and generated targets. |
-| Rules | `tools/habitat-harness/src/rules/rules.json:1-610` | Local summary command found 41 rules: 22 `grit-check`, 4 `file-layer`, 4 `habitat-native`, 3 `wrapped-script`, 6 `wrapped-test`, 1 `nx-boundaries`, 1 `biome`. |
-| Baseline files | `tools/habitat-harness/baselines/adapter-boundary.json`; summary command | Only `adapter-boundary` has an explicit harness baseline file; 39 rules with `exceptionPath: "none"` use implicit empty baseline files. |
-| Grit adapter | `tools/habitat-harness/src/lib/grit.ts:27-36`, `45-84`, `86-133` | One native Grit JSON scan is adapted into Habitat diagnostics; one apply pattern is allowlisted. |
-| Generated zones | `tools/habitat-harness/src/lib/generated-zones.ts:17-38`, `40-70`, `91-114` | Staged file-layer checks protect three generated zones; non-staged runs return no diagnostics. |
-| Generated drift script | `tools/habitat-harness/scripts/verify-generated-zones.mjs:7-39`, `67-82` | `generated:check` can run generators, detect drift, restore tracked snapshots, and remove untracked generated outputs. |
-| Hooks | `.husky/pre-commit:1`, `.husky/pre-push:1`, `tools/habitat-harness/src/lib/hooks.ts:58-166`, `169-203` | Husky delegates to Habitat; pre-commit runs resource publishing before staged file-layer/Biome/Grit checks; pre-push uses Graphite parent or merge-base. |
+| Habitat package config | `tools/habitat/package.json:8-35`, `tools/habitat/package.json:53-62` | Package has a production `bin/run.js`, a `dev` script, and oclif config. |
+| Dev runner | `tools/habitat/bin/dev.ts:13-28`, `tools/habitat/bin/dev.ts:30-41` | Current root script path uses a manual command map and `Command.run`, not full oclif command discovery. |
+| Source oclif shim | `tools/habitat/src/bin/habitat.ts:1-5` | Direct source shim renders oclif help correctly when invoked directly. |
+| Check engine | `tools/habitat/src/lib/command-engine.ts:65-70`, `78-139`, `157-160` | Rule selection can return zero selected rules, while `baseline-integrity` is still appended; JSON output can write to an arbitrary repo-relative path if `--output` is used. |
+| Fix engine | `tools/habitat/src/lib/command-engine.ts:173-182` | `habitat fix` runs Grit apply then Biome, with writes unless `--dry-run` is used. |
+| Verify engine | `tools/habitat/src/lib/command-engine.ts:185-202` | `verify` runs Habitat check then Nx affected targets. |
+| Classify engine | `tools/habitat/src/lib/command-engine.ts:222-294` | Classify derives owner from package roots and returns static required target strings. |
+| Baseline engine | `tools/habitat/src/lib/baseline.ts:7-19`, `25-47`, `71-103` | Missing baseline file is treated as empty locked baseline; shrink-only integrity compares against merge-base and only permits added keys for new rule IDs. |
+| Nx plugin | `tools/habitat/src/plugin.js:1-8`, `42-55`, `82-145`, `146-175` | Plugin infers Habitat, boundaries, Biome, Grit, and generated targets. |
+| Rules | `tools/habitat/src/rules/rules.json:1-610` | Local summary command found 41 rules: 22 `grit-check`, 4 `file-layer`, 4 `habitat-native`, 3 `wrapped-script`, 6 `wrapped-test`, 1 `nx-boundaries`, 1 `biome`. |
+| Baseline files | `tools/habitat/baselines/adapter-boundary.json`; summary command | Only `adapter-boundary` has an explicit harness baseline file; 39 rules with `exceptionPath: "none"` use implicit empty baseline files. |
+| Grit adapter | `tools/habitat/src/lib/grit.ts:27-36`, `45-84`, `86-133` | One native Grit JSON scan is adapted into Habitat diagnostics; one apply pattern is allowlisted. |
+| Generated zones | `tools/habitat/src/lib/generated-zones.ts:17-38`, `40-70`, `91-114` | Staged file-layer checks protect three generated zones; non-staged runs return no diagnostics. |
+| Generated drift script | `tools/habitat/scripts/verify-generated-zones.mjs:7-39`, `67-82` | `generated:check` can run generators, detect drift, restore tracked snapshots, and remove untracked generated outputs. |
+| Hooks | `.husky/pre-commit:1`, `.husky/pre-push:1`, `tools/habitat/src/lib/hooks.ts:58-166`, `169-203` | Husky delegates to Habitat; pre-commit runs resource publishing before staged file-layer/Biome/Grit checks; pre-push uses Graphite parent or merge-base. |
 | Biome config | `biome.json:8-26`, `37-65`, `79-86` | Biome excludes archives, generated zones, `dist`, `types`, `mod`, `.nx`, `.civ7`; selected linter rules and organize imports are enabled. |
 | Boundary config | `eslint.boundaries.config.mjs:1-15`, `19-56`, `85-118` | Root boundary config has only `@nx/enforce-module-boundaries`; a separate mod-local `mods/mod-swooper-civ-dacia/eslint.config.js` still exists with empty rules. |
-| Pattern generator | `tools/habitat-harness/src/generators/pattern/schema.json:7-45`, `tools/habitat-harness/src/generators/pattern/generator.cjs:23-37`, `40-55`, `70-72` | Only `ruleId` is required; default authority/proof text is placeholder; generated rules are enforced `grit-check` entries. |
-| Project generator | `tools/habitat-harness/src/generators/project/generator.cjs:4-24`, `49-80` | Supports `plugin`, `foundation`, `app`; refuses non-uniform kinds. |
-| Tests | `tools/habitat-harness/test/commands/habitat-commands.test.ts:70-160` | Command tests exercise command classes with mocked engine functions, not root script entrypoints. |
-| Classify tests | `tools/habitat-harness/test/lib/classify.test.ts:5-38`, `40-55` | Matrix covers four paths and one literal diff. |
-| Grit tests | `tools/habitat-harness/test/grit/grit-patterns.test.ts:28-55` | Native pattern tests assert catalog sample count and success. |
+| Pattern generator | `tools/habitat/src/generators/pattern/schema.json:7-45`, `tools/habitat/src/generators/pattern/generator.cjs:23-37`, `40-55`, `70-72` | Only `ruleId` is required; default authority/proof text is placeholder; generated rules are enforced `grit-check` entries. |
+| Project generator | `tools/habitat/src/generators/project/generator.cjs:4-24`, `49-80` | Supports `plugin`, `foundation`, `app`; refuses non-uniform kinds. |
+| Tests | `tools/habitat/test/commands/habitat-commands.test.ts:70-160` | Command tests exercise command classes with mocked engine functions, not root script entrypoints. |
+| Classify tests | `tools/habitat/test/lib/classify.test.ts:5-38`, `40-55` | Matrix covers four paths and one literal diff. |
+| Grit tests | `tools/habitat/test/grit/grit-patterns.test.ts:28-55` | Native pattern tests assert catalog sample count and success. |
 
 Fresh probes run for this pack:
 
@@ -117,8 +117,8 @@ Fresh probes run for this pack:
 | `bun run habitat -- --help` | 2 | Root script path prints `Unknown habitat command: --help`; it does not render root oclif help. |
 | `bun run habitat -- check --help` | 2 | Root script path exits 2 without command help output. |
 | `bun run habitat:check -- --help` | 2 | Same dev runner help failure through the `habitat:check` script. |
-| `bun tools/habitat-harness/src/bin/habitat.ts --help` | 0 | Direct source oclif shim renders root help with command list. |
-| `bun tools/habitat-harness/src/bin/habitat.ts check --help` | 0 | Direct source oclif shim renders check help and flags. |
+| `bun tools/habitat/src/bin/habitat.ts --help` | 0 | Direct source oclif shim renders root help with command list. |
+| `bun tools/habitat/src/bin/habitat.ts check --help` | 0 | Direct source oclif shim renders check help and flags. |
 | `bun run habitat classify packages/config/src/index.ts` | 0 | Returns project `@civ7/config`, tag `kind:foundation`, in-scope rules, and required targets. |
 | `bun run habitat -- classify <literal diff>` | 0 | Returns diff classification for `packages/config/src/index.ts`. |
 | `bun run habitat:check -- --rule file-layer-pnpm-artifacts --json` | 0 | Returns `file-layer-pnpm-artifacts` plus `baseline-integrity`, both passing. |
@@ -129,7 +129,7 @@ Concurrent state observed but not used as authority:
 
 - Pre-existing modified files at session start:
   `docs/projects/habitat-harness/dra-takeover-frame.md`,
-  `docs/projects/habitat-harness/habitat-harness-spec-draft-input.md`, and
+  `docs/projects/habitat-harness/cli-spec-draft-input.md`, and
   `openspec/changes/habitat-biome-hygiene/workstream/phase-record.md`.
 - During the session, other untracked artifacts appeared under
   `docs/projects/habitat-harness/`, including `recovery-claim-ledger.md`,
@@ -143,26 +143,26 @@ Concurrent state observed but not used as authority:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | S0-LEDGER | Stage 0 claim reconciliation must precede repair branches and Grit backfill. | `adversarial-audit-recovery-reference.md:68-90` | A concurrent untracked `docs/projects/habitat-harness/recovery-claim-ledger.md` exists, but this assigned pack is the only write I made. | current source inspection + architecture target | partial | records-only; reconcile tracked ledger shape before implementation | DRA Habitat recovery owner | `git status --porcelain=v1 -- docs/projects/habitat-harness/recovery-claim-ledger.md docs/projects/habitat-harness/research/local-stage0-claim-extraction.md` |
 | SYS-ENFORCEMENT-ONLY | Habitat enforces current implied architecture and does not invent product/runtime behavior. | `FRAME.md:60-78` | Current sources are structural: package scripts, Nx plugin, rules, generators, hooks. No runtime/game proof was run. | current source inspection | partial | records-only, with repair triggers if a slice claims runtime/product proof | Habitat recovery owner | `rg -n "runtime proof|in-game|product behavior" docs/projects/habitat-harness openspec/changes/habitat-*` |
-| SYS-FIVE-LAYERS | Each structural concern lives in exactly one layer/tool owner. | `FRAME.md:79-83`; `taxonomy.md:8-15`; `rules.json:1-610` | Rule pack has multiple owner tools, but package aliases and wrapped tests/scripts still exist; H6 explicitly keeps some wrapped/direct surfaces. | current source inspection | partial | repair or records-only per mechanism | `habitat-enforcement-surface-cleanup` | `node -e "const r=require('./tools/habitat-harness/src/rules/rules.json').rules; console.log(r.map(x=>[x.id,x.ownerTool,x.ownerProject]).join('\\n'))"` |
-| SYS-RATCHET | Baselines are shrink-only; locked rules hard-fail. | `FRAME.md:84-87`; `baseline.ts:7-19`, `71-103` | Code enforces shrink-only via merge-base comparison, but missing files are implicit empty baselines and only one explicit harness baseline file exists. | current source inspection | partial | repair contract language and tests | `habitat-scaffold-contract-repair` | `find tools/habitat-harness/baselines -maxdepth 1 -type f -print` |
-| SYS-CI-AUTHORITY | CI is authoritative; hooks are local friction reduction. | `FRAME.md:91-92`; `README.md:123-131`; `.github/workflows/ci.yml` search | CI invokes `bun run habitat:verify` and uploads diagnostics; hooks delegate locally and `--no-verify` remains documented. | current source inspection | yes, with caveat | records-only unless CI command path drifts | H6/H7 owners | `rg -n "habitat:verify|habitat-diagnostics|--no-verify|pre-commit|pre-push" .github tools/habitat-harness docs/projects/habitat-harness` |
+| SYS-FIVE-LAYERS | Each structural concern lives in exactly one layer/tool owner. | `FRAME.md:79-83`; `taxonomy.md:8-15`; `rules.json:1-610` | Rule pack has multiple owner tools, but package aliases and wrapped tests/scripts still exist; H6 explicitly keeps some wrapped/direct surfaces. | current source inspection | partial | repair or records-only per mechanism | `habitat-enforcement-surface-cleanup` | `node -e "const r=require('./tools/habitat/src/rules/rules.json').rules; console.log(r.map(x=>[x.id,x.ownerTool,x.ownerProject]).join('\\n'))"` |
+| SYS-RATCHET | Baselines are shrink-only; locked rules hard-fail. | `FRAME.md:84-87`; `baseline.ts:7-19`, `71-103` | Code enforces shrink-only via merge-base comparison, but missing files are implicit empty baselines and only one explicit harness baseline file exists. | current source inspection | partial | repair contract language and tests | `habitat-scaffold-contract-repair` | `find tools/habitat/baselines -maxdepth 1 -type f -print` |
+| SYS-CI-AUTHORITY | CI is authoritative; hooks are local friction reduction. | `FRAME.md:91-92`; `README.md:123-131`; `.github/workflows/ci.yml` search | CI invokes `bun run habitat:verify` and uploads diagnostics; hooks delegate locally and `--no-verify` remains documented. | current source inspection | yes, with caveat | records-only unless CI command path drifts | H6/H7 owners | `rg -n "habitat:verify|habitat-diagnostics|--no-verify|pre-commit|pre-push" .github tools/habitat docs/projects/habitat-harness` |
 | H1-NX-RETIREMENT | H1 fully retired Turbo and made Nx the graph/cache/task authority. | `workstream-record.md:34`; `adversarial-audit-recovery-reference.md:129`, `172-195`; H1 spec `spec.md:3-18` | Root package scripts use Nx/Habitat; no root `turbo.json` was found. Active residue remains in `apps/docs/turbo.json`, comments, docs, type tests, and a mod-local ESLint ignore. | current source inspection + historical claim | partial | repair/records-only after classifying every residue | `habitat-nx-adoption-cleanup` | `rg -n "turbo|turbo.json|bunx turbo|\\.turbo" package.json nx.json .github apps tools packages mods docs/projects/habitat-harness openspec/changes/habitat-nx-adoption` |
 | H2-SCAFFOLD-CONTRACT | H2 preserved original rule semantics and provided ratchet/baseline/diagnostic/staged/target-inference behavior. | `workstream-record.md:35`; H2 spec `spec.md:3-58`; `adversarial-audit-recovery-reference.md:130`, `197-222` | Current engine supports JSON, baselines, selected checks, and target inference. Contract tension remains between "every rule explicit baseline" and code's "missing file == empty locked baseline". | current source inspection | partial | repair | `habitat-scaffold-contract-repair` | `bun run habitat:check -- --json --rule adapter-boundary` |
 | H3-TAXONOMY | H3 encoded current architecture in project tags and locked `nx-boundaries` empty. | `workstream-record.md:36`; `taxonomy.md:80-117`; H3 spec `spec.md:3-34`; `adversarial-audit-recovery-reference.md:131`, `224-247` | Current boundary config has one Nx boundary rule matching taxonomy constraints. Broad allowances still need current graph/architecture proof, especially app/tooling and control/engine allowances. | current source inspection + active OpenSpec target | unknown | repair if speculative edges remain; records-only if graph proof passes | `habitat-boundary-taxonomy-tightening` | `nx show projects --json` |
 | H4-BIOME-HYGIENE | H4 made Biome the single hygiene owner, excluded protected archives, quarantined ESLint, and blame-shielded the reformat. | `workstream-record.md:37`; H4 spec `spec.md:3-27`; `adversarial-audit-recovery-reference.md:132`, `249-272` | `biome.json` excludes nested archives and generated zones; `.git-blame-ignore-revs` records a format commit. Root boundary ESLint is quarantined, but a mod-local `eslint.config.js` and root/package lint aliases remain and need owner classification. | current source inspection | partial | repair/records-only after script/config audit | `habitat-biome-closure-repair` | `find . -name 'eslint.config.*' -o -name 'biome.json'` |
 | H4P-ROOT-TEST-REPAIRS | H4 promoted DL-15/DL-16 and related proof repairs so root build/test proof could close. | `discrepancy-log.md:31-32`; `habitat-biome-hygiene/workstream/phase-record.md` status lines from search | Current pack did not rerun root build/test or proof-repair specs. Treat as historical until reverified. | historical claim | unknown | fresh proof before closure claim | H4 proof-repair owners | `bun run test` |
 | H45-OCLIF-CLI | H4.5 made Habitat a real oclif CLI through root/dev/production surfaces. | `workstream-record.md:38`; H4.5 spec `spec.md:3-53`; `adversarial-audit-recovery-reference.md:133`, `274-302` | Current root script path fails `bun run habitat -- --help` and `bun run habitat -- check --help` with exit 2, while direct `src/bin/habitat.ts` help succeeds. | verified current behavior | no | repair | `habitat-oclif-entrypoint-repair` | `bun run habitat -- --help` |
-| H45-SUBCOMMAND-HELP | H4.5 verified command-specific help through the canonical path. | H4.5 proposal `proposal.md:119-120`; phase record search lines 48-53, 111 | `bun run habitat -- check --help`, `bun run habitat:check -- --help`, and `bun tools/habitat-harness/bin/dev.ts check --help` all exit 2 with no help output. | verified current behavior | no | repair | `habitat-oclif-entrypoint-repair` | `bun run habitat -- check --help` |
-| H45-PROD-RUNNER | Production runner help works after build and stale ignored `dist/**` cannot silently define behavior. | `adversarial-audit-recovery-reference.md:290-299`; `package.json:8-35` | Not rerun here. Direct source shim works; production runner requires build/manifests and ignored outputs proof. | hypothesis | unknown | fresh proof; repair if fail | `habitat-oclif-entrypoint-repair` | `nx run @internal/habitat-harness:build && bun tools/habitat-harness/bin/run.js --help` |
+| H45-SUBCOMMAND-HELP | H4.5 verified command-specific help through the canonical path. | H4.5 proposal `proposal.md:119-120`; phase record search lines 48-53, 111 | `bun run habitat -- check --help`, `bun run habitat:check -- --help`, and `bun tools/habitat/bin/dev.ts check --help` all exit 2 with no help output. | verified current behavior | no | repair | `habitat-oclif-entrypoint-repair` | `bun run habitat -- check --help` |
+| H45-PROD-RUNNER | Production runner help works after build and stale ignored `dist/**` cannot silently define behavior. | `adversarial-audit-recovery-reference.md:290-299`; `package.json:8-35` | Not rerun here. Direct source shim works; production runner requires build/manifests and ignored outputs proof. | hypothesis | unknown | fresh proof; repair if fail | `habitat-oclif-entrypoint-repair` | `nx run @habitat/cli:build && bun tools/habitat/bin/run.js --help` |
 | H5-GRIT-FIRST-TRANCHE | H5 should be treated as first locked Grit tranche unless more patterns are proved. | `adversarial-audit-recovery-reference.md:134`, `304-329`, `484-488`; H5 spec `spec.md:3-27` | Current rule pack has 22 Grit rules and one allowlisted apply pattern. Existing proof model must be rechecked before any old mechanism retirement or backlog expansion. | current source inspection + architecture target | partial | repair | `habitat-grit-proof-repair` | `GRIT_TELEMETRY_DISABLED=true grit patterns test --verbose` |
-| H5-GENERATED-ZONES | Generated paths are protected by staged checks and repo-runnable drift gates where possible. | H5 spec `spec.md:44-57`; `generated-zones.ts:17-70`; `verify-generated-zones.mjs:7-39` | Staged file-layer rules exist for three zones. Drift script covers map and map-policy generators; Civ7 types remain external workflow. | current source inspection | partial | records-only plus explicit external gap | H5/H6 owners | `nx run @internal/habitat-harness:generated:check` |
-| H5-SAFE-TRANSFORMS | Habitat provides safe transformations where appropriate. | `FRAME.md:39-41`, `51`; H5 spec `spec.md:28-42`; `adversarial-audit-recovery-reference.md:518-527` | Only one Grit apply pattern is wired in `grit.ts`; candidate codemods require safety and applied-diff proof. | current source inspection | partial | repair/defer with trigger per codemod | `habitat-grit-proof-repair` and codemod-specific workstreams | `rg -n "gritApplyPatterns|apply/" tools/habitat-harness .habitat/patterns/active/apply` |
+| H5-GENERATED-ZONES | Generated paths are protected by staged checks and repo-runnable drift gates where possible. | H5 spec `spec.md:44-57`; `generated-zones.ts:17-70`; `verify-generated-zones.mjs:7-39` | Staged file-layer rules exist for three zones. Drift script covers map and map-policy generators; Civ7 types remain external workflow. | current source inspection | partial | records-only plus explicit external gap | H5/H6 owners | `nx run @habitat/cli:generated:check` |
+| H5-SAFE-TRANSFORMS | Habitat provides safe transformations where appropriate. | `FRAME.md:39-41`, `51`; H5 spec `spec.md:28-42`; `adversarial-audit-recovery-reference.md:518-527` | Only one Grit apply pattern is wired in `grit.ts`; candidate codemods require safety and applied-diff proof. | current source inspection | partial | repair/defer with trigger per codemod | `habitat-grit-proof-repair` and codemod-specific workstreams | `rg -n "gritApplyPatterns|apply/" tools/habitat .habitat/patterns/active/apply` |
 | H6-ONLY-ENFORCEMENT-PATH | H6 consolidated enforcement; direct bypass aliases are removed, wrapped, or documented. | `workstream-record.md:40`; H6 spec `spec.md:3-28`; `adversarial-audit-recovery-reference.md:135`, `331-352` | Root aliases mostly delegate to Habitat, but `lint:domain-refactor-guardrails:strict-core` and `lint:mapgen-docs` still call scripts directly by design or legacy. Needs owner/retirement-trigger table in current records. | current source inspection | partial | repair/records-only per alias | `habitat-enforcement-surface-cleanup` | `node -e "const p=require('./package.json'); for (const [k,v] of Object.entries(p.scripts)) if (/lint|check|verify/.test(k)) console.log(k+'='+v)"` |
 | H6-UNKNOWN-SELECTION | Filtered `habitat check` commands fail truthfully when no selected rule/tool exists. | Implied by H2/H4.5 command-trust and H6 only-path claims; `command-engine.ts:65-70`, `78-139` | `--rule definitely-not-a-rule` and `--tool definitely-not-a-tool` exit 0 with only `baseline-integrity`, so invalid selections false-green. | verified current behavior | no | repair | Command trust owner with H5/H6 coordination | `bun run habitat:check -- --json --rule definitely-not-a-rule` |
 | H7-HOOKS-BOUNDED | H7 hooks are bounded, scoped, local, and reversible; restaging touches only formatter-touched files. | `workstream-record.md:41`; H7 spec `spec.md:3-28`; `adversarial-audit-recovery-reference.md:136`, `354-375`; `hooks.ts:58-166` | Husky delegates to Habitat. Pre-commit still runs resource publish before staged file-layer/Biome/Grit checks; this side effect needs explicit idempotence/order proof. | current source inspection | partial | repair | `habitat-git-hook-hardening` | `bun run habitat hook pre-commit` |
 | H8-CLASSIFY-PRIMITIVE | H8 made `habitat classify <path-or-diff>` an agent primitive. | `workstream-record.md:42`, `49-64`; H8 spec `spec.md:16-27`; `adversarial-audit-recovery-reference.md:137`, `377-401` | Path and literal-diff classify probes pass. Required targets are generated statically; path-specific rule/target accuracy still needs matrix proof across projects and workspace-level paths. | verified current behavior | partial | repair | `habitat-classify-generator-repair` | `bun run habitat classify packages/civ7-adapter/src/index.ts` |
-| H8-GENERATORS | Supported structure comes from generators and unsupported kinds refuse. | H8 spec `spec.md:3-14`; `project/generator.cjs:4-24`; `README.md:65-79` | Project generator supports `plugin`, `foundation`, and `app`; non-uniform kinds are refused. That is real but more constrained than any broad "generates structure" claim. | current source inspection | partial | records-only plus repair if docs overstate | `habitat-classify-generator-repair` | `nx g @internal/habitat-harness:project h8-probe --kind=foundation --dry-run` |
-| H8-PATTERN-GENERATOR-AUTHORITY | Pattern generator should support backfill standards before new Grit work. | `adversarial-audit-recovery-reference.md:137`, `424-488`; `pattern/schema.json:7-45`; `pattern/generator.cjs:23-55` | Generator only requires `ruleId` and supplies placeholder authority/proof text while creating enforced rules. | current source inspection | no | repair | `habitat-pattern-generator-metadata-repair` or H8 repair | `sed -n '1,120p' tools/habitat-harness/src/generators/pattern/schema.json` |
+| H8-GENERATORS | Supported structure comes from generators and unsupported kinds refuse. | H8 spec `spec.md:3-14`; `project/generator.cjs:4-24`; `README.md:65-79` | Project generator supports `plugin`, `foundation`, and `app`; non-uniform kinds are refused. That is real but more constrained than any broad "generates structure" claim. | current source inspection | partial | records-only plus repair if docs overstate | `habitat-classify-generator-repair` | `nx g @habitat/cli:project h8-probe --kind=foundation --dry-run` |
+| H8-PATTERN-GENERATOR-AUTHORITY | Pattern generator should support backfill standards before new Grit work. | `adversarial-audit-recovery-reference.md:137`, `424-488`; `pattern/schema.json:7-45`; `pattern/generator.cjs:23-55` | Generator only requires `ruleId` and supplies placeholder authority/proof text while creating enforced rules. | current source inspection | no | repair | `habitat-pattern-generator-metadata-repair` or H8 repair | `sed -n '1,120p' tools/habitat/src/generators/pattern/schema.json` |
 | REVIEW-ALL-REPAIRS-APPLIED | All accepted P1/P2 repairs were applied before H1 and all 8 changes revalidated. | `review-disposition-ledger.md:72-75` | Records claim closure, but current command behavior contradicts at least H4.5 help claims and selector truthfulness. | historical claim contradicted by current behavior | no | stale-record repair | Habitat recovery records owner | `rg -n "READY|CLOSED|DONE|passed|help" docs/projects/habitat-harness openspec/changes/habitat-* -g '*.md'` |
 | DISC-NO-CODE-VS-DOC | Derivation pass found no code-violates-docs cases. | `discrepancy-log.md:11-13` | Current Habitat docs/specs claim root help and closure that current commands contradict. This may be outside the original discrepancy-log scope, but it is now stale if read broadly. | historical claim contradicted by current behavior | no, if applied to Habitat records | records-only repair | Habitat records owner | `bun run habitat -- --help && rg -n "help.*exit|root help|CLOSED|DONE" docs/projects/habitat-harness openspec/changes/habitat-*` |
 | WORKSTREAM-H1-H8-CLOSED | H1-H8 are locally closed and final gates green. | `workstream-record.md:21-28`, `49-64`, `114-131` | Current H4.5 root help and selector probes fail truthfulness. Worktree is also dirty with pre-existing and concurrent untracked files. | historical claim contradicted by current behavior | no | repair records alongside code/spec fixes | Habitat recovery owner | `git status --short --branch && bun run habitat -- --help` |
@@ -179,9 +179,9 @@ Command trust:
 
 - `bun run habitat -- --help`
 - `bun run habitat -- check --help`
-- `bun tools/habitat-harness/src/bin/habitat.ts --help`
-- `bun tools/habitat-harness/src/bin/habitat.ts check --help`
-- `nx run @internal/habitat-harness:build && bun tools/habitat-harness/bin/run.js --help`
+- `bun tools/habitat/src/bin/habitat.ts --help`
+- `bun tools/habitat/src/bin/habitat.ts check --help`
+- `nx run @habitat/cli:build && bun tools/habitat/bin/run.js --help`
 - `bun run habitat:check -- --json --rule definitely-not-a-rule`
 - `bun run habitat:check -- --json --tool definitely-not-a-tool`
 
@@ -189,7 +189,7 @@ Graph, taxonomy, and classify:
 
 - `nx show projects --json`
 - `nx show project @civ7/adapter --json`
-- `nx show project @internal/habitat-harness --json`
+- `nx show project @habitat/cli --json`
 - `bun run habitat classify packages/civ7-adapter/src/index.ts`
 - `bun run habitat classify apps/mapgen-studio/src/main.tsx`
 - `bun run habitat classify docs/projects/habitat-harness/FRAME.md`
@@ -197,25 +197,25 @@ Graph, taxonomy, and classify:
 
 Ratchet and rules:
 
-- `find tools/habitat-harness/baselines -maxdepth 1 -type f -print`
+- `find tools/habitat/baselines -maxdepth 1 -type f -print`
 - `bun run habitat:check -- --json --rule adapter-boundary`
 - `bun run habitat:check -- --json --rule baseline-integrity`
-- `bun run habitat:check -- --json --owner @internal/habitat-harness`
-- `bun run --cwd tools/habitat-harness test`
+- `bun run habitat:check -- --json --owner @habitat/cli`
+- `bun run --cwd tools/habitat test`
 
 Grit proof:
 
 - `GRIT_TELEMETRY_DISABLED=true grit patterns test --verbose`
 - `bun run habitat:check -- --json --tool grit-check`
-- `nx run @internal/habitat-harness:grit:check --outputStyle=static`
+- `nx run @habitat/cli:grit:check --outputStyle=static`
 - Inject one temporary violation per retired mechanism only in an owned scratch branch, then remove it before closure.
 
 Biome, generated zones, and archives:
 
-- `nx run @internal/habitat-harness:biome:ci --outputStyle=static`
+- `nx run @habitat/cli:biome:ci --outputStyle=static`
 - `find . -path '*/_archive/*' -type f | sed -n '1,80p'`
 - `find . -name 'eslint.config.*' -o -name 'biome.json'`
-- `nx run @internal/habitat-harness:generated:check --outputStyle=static`
+- `nx run @habitat/cli:generated:check --outputStyle=static`
 
 Hooks and local mutation:
 
@@ -255,14 +255,14 @@ Records:
   `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`, and several
   `docs/projects/habitat-harness/research/official-docs-*.md` files. Do not
   treat them as tracked source authority until reconciled.
-- `tools/habitat-harness/test/commands/habitat-commands.test.ts:70-160` uses
+- `tools/habitat/test/commands/habitat-commands.test.ts:70-160` uses
   command classes with mocked engine functions. It is useful for adapter logic,
   but it does not prove root script or production runner behavior.
-- `tools/habitat-harness/src/lib/generated-zones.ts:40-70` returns pass for
+- `tools/habitat/src/lib/generated-zones.ts:40-70` returns pass for
   non-staged generated-zone checks. CI drift proof depends on
-  `tools/habitat-harness/scripts/verify-generated-zones.mjs`, not on staged
+  `tools/habitat/scripts/verify-generated-zones.mjs`, not on staged
   file-layer rules alone.
-- `tools/habitat-harness/src/generators/pattern/schema.json:45` requires only
+- `tools/habitat/src/generators/pattern/schema.json:45` requires only
   `ruleId`, while the recovery reference requires authority and proving sources
   before Grit work. Pattern generation can currently create enforced scaffold
   rules with placeholder authority text.

@@ -43,15 +43,15 @@ The current Habitat code already has a general command-observation DTO:
 
 References:
 
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/habitat-process.ts:27`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/habitat-process.ts:35`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/habitat-process.ts:45`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/habitat-process.ts:56`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/habitat-process.ts:70`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/habitat-process.ts:71`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/grit-apply.ts:74`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/grit-apply.ts:79`
-- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat-harness/src/lib/grit-apply.ts:83`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/habitat-process.ts:27`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/habitat-process.ts:35`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/habitat-process.ts:45`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/habitat-process.ts:56`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/habitat-process.ts:70`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/habitat-process.ts:71`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/grit-apply.ts:74`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/grit-apply.ts:79`
+- `$ACTIVE_REMEDIATION_WORKTREE/tools/habitat/src/lib/grit-apply.ts:83`
 
 That existing code is a present-behavior record, not target authority. Without a stronger trigger artifact, a future agent can claim "local DTO rejected" in prose, then introduce a shared record that merely centralizes the same optional/null state space. That is the TypeScript smell "boolean flags & optional soup" plus "leaky boundaries": the design would widen representable states instead of removing a named contradiction.
 
