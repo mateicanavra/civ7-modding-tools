@@ -1,6 +1,6 @@
 # Review Ledger
 
-Status: synthesized review complete; updated after final source-check runtime deletion
+Status: synthesized review complete; updated after command-check split canary
 
 | Finding | Severity | Disposition | Repair Evidence |
 | --- | --- | --- | --- |
@@ -16,3 +16,4 @@ Status: synthesized review complete; updated after final source-check runtime de
 | Systematic burn-down must preserve row-level proof rather than batch-level proof. | P1 | cleared | Lane proof files under `grit-burn-down/lanes/` record pre-source-check, post-grit-check, and normal-selection proof per row. |
 | `prohibit_runtime_calls_to_runvalidated` initially failed in one lane attempt. | P2 | accepted and repaired | The row was re-tested after lane integration, passed grit-check and normal selection without pattern changes, was converted, and its adapter was deleted. The lane proof row records the transient failure and repair. |
 | `require_explicit_mapgen_sdk_opt_in` must not be bulk-converted as a whole row. | P1 | cleared | The final split removed the overlapping mapgen-core branch from the SDK packet, converted the residual SDK predicate to `grit-check`, deleted the last adapter, and deleted `rule-runtime.policy.mjs`. |
+| Command-check split canary must not hide assertion-level owner changes. | P1 | cleared | `prohibit_cross_op_runtime_calls`, `require_public_ecology_surfaces_and_retired_topology_removal`, and `ensure_docs_checkout_paths_are_portable` now have assertion rows in `command-check-split-canary/canary-corpus.jsonl`; docs portability records the intentional narrowing from broad heuristic detection to apply-backed advisory rewrite diagnostics. |

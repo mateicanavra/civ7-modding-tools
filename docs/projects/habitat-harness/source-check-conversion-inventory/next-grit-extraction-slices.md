@@ -1,6 +1,6 @@
 # Next Grit Extraction Slices
 
-Status: updated after final source-check runtime deletion
+Status: updated after command-check split canary
 
 ## Completed Canary
 
@@ -60,20 +60,20 @@ Completed moves:
 - Convert the residual rule away from `source-check`, delete `require_explicit_mapgen_sdk_opt_in.rule.mjs`, then delete `rule-runtime.policy.mjs`.
 - Regenerate execution-surface analytics and prove `source-check` has zero active rules.
 
-## Slice 1: Command-Check Split Canary
+## Completed Command-Check Split Canary
 
-Goal: run one small vertical split slice before launching a systematic agent
+Goal completed: run one small vertical split slice before launching a systematic agent
 wave. The slice should split mixed `command-check` packets assertion by
 assertion, move or delete only the assertions whose owner is clear, and record
 the workflow/insights for the broader `needs_split` workstream.
 
-Selected canary set:
+Completed canary set:
 
 | Priority | Rule | Lane | Why |
 | ---: | --- | --- | --- |
-| 1 | `prohibit_cross_op_runtime_calls` | mapgen-domain | Compact duplicate/consolidation case: split cross-op import/export/dynamic source authority into Grit and consolidate local `ops.bind` / `runValidated` orchestration detection with `prohibit_runtime_orchestration_helpers_in_domain_ops`. |
-| 2 | `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | Mixed source/topology case: extract Grit-shaped import/export and retired-path predicates while keeping active-root existence/currentness as a separate topology assertion. |
-| 3 | `ensure_docs_checkout_paths_are_portable` | global-docs-toolkit | Docs operation case: the Markdown pattern already owns the rewrite/check shape, while the command-check script duplicates advisory detection and should be demoted or deleted if pattern execution covers it. |
+| 1 | `prohibit_cross_op_runtime_calls` | mapgen-domain | Converted cross-op import/export/dynamic source authority to `grit-check`; deleted duplicated `ops.bind` / `runValidated` command-script detection in favor of `prohibit_runtime_orchestration_helpers_in_domain_ops`. |
+| 2 | `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | Converted source import/export and retired-path predicates to `grit-check`; demoted active-root existence/currentness out of this packet. |
+| 3 | `ensure_docs_checkout_paths_are_portable` | global-docs-toolkit | Converted to docs apply-backed `grit-check` diagnostics; preserved advisory severity and intentionally narrowed the old broad heuristic to rewrite-backed findings. |
 
 Do not start with `prohibit_product_scan_roots_in_grit_provider`; it is already
 `grit-check` and remains listed in the matrix only as an already-promoted Grit
@@ -82,7 +82,7 @@ authority row.
 ## Slice 2: Systematic Needs-Split Wave
 
 Goal: after the canary proves the mechanical workflow, fan out across the
-remaining `needs_split` rows with the same assertion-level process. Each lane
+remaining 12 `needs_split` rows with the same assertion-level process. Each lane
 should classify assertions as Grit authority, data-driven structural authority,
 package-local/Nx ownership, duplicate-to-delete, or non-executable demotion.
 
@@ -99,15 +99,12 @@ Goal: split `needs_split` rows assertion-by-assertion. Port Grit-shaped assertio
 | `block_unapproved_base_standard_boundary_leaks` | platform-resources | Split into: runtime import boundary consolidated into enforce_adapter_only_base_standard_imports Grit authority; allowlisted provenance/test string debt deleted or demoted after confirming it is not runtime import authority. |
 | `enforce_domain_refactor_boundary_profile` | mapgen-domain | This is a transitional bundle/profile. Split into dedicated structural rules, demote profile mechanics, and delete duplicates already covered by narrower packets. |
 | `enforce_studio_dev_runner_topology` | mapgen-other | Split Nx target/dependency topology toward Nx/project metadata proof, while source-token/file-existence residue can remain Habitat structural or become data-driven. |
-| `ensure_docs_checkout_paths_are_portable` | global-docs-toolkit | First-class split candidate: keep pattern authority for the Grit rewrite/check, then demote or delete the advisory command script once the pattern lane owns detection and apply semantics. |
 | `preserve_decomposed_foundation_contract_surfaces` | mapgen-domain | Do not convert whole file directly to Grit; first split legacy bans, import allowlists, expected tag/contract presence, and projection currentness. |
 | `preserve_morphology_contracts_and_overlay_ownership` | mapgen-domain | Split before acting; current rule mixes cleanup bans, contract-shape currentness, and overlay ownership proof. |
 | `preserve_standard_stage_topology_and_path_invariants` | mapgen-pipeline | Do not force the whole rule into Grit. Split retired alias bans from canonical topology/order and stage-directory invariants; the latter wants a small data-driven structural checker or single source manifest. |
-| `prohibit_cross_op_runtime_calls` | mapgen-domain | Split source-import authority into Grit and consolidate orchestration-call detection with prohibit_runtime_orchestration_helpers_in_domain_ops. |
 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | mapgen-pipeline | Category notes already call this a mixed packet; split into at least ecology terminology, scoped runtime RNG/fudge helpers, and legacy official generator surfaces before choosing Grit rows. |
 | `require_owned_domain_config_catalog_surfaces` | mapgen-domain | Likely yields at least one Grit rule plus one data-driven exact-surface rule. |
 | `require_projection_calls_in_projection_steps` | mapgen-other | Split into Grit candidates for forbidden projection/physics calls and separate structural/topology assertions for required owners/tokens. |
-| `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | Split Grit-able source/retired topology checks from active-root existence/currentness. |
 | `require_recipe_dag_contract_metadata` | mapgen-other | Split direct service/contract import rules into Grit or data-driven boundary checks; keep transitive graph closure as a package/local graph validator unless Habitat grows a graph rule engine. |
 | `validate_mapgen_docs_anchors_and_references` | global-docs-toolkit | Split text-shape policy from reference-existence validation. Do not port the whole Python script to Grit as one large pattern. |
 | `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | Split topology/stage-id overlap from package-local authoring-model validation. Public schema derivation and focus-path semantics belong with the package validator, not Grit. |
