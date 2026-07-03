@@ -4,7 +4,7 @@ Subject ID: `block_studio_config_leakage_into_shipped_catalog`
 
 Title: Block Studio Config Leakage Into Shipped Catalog
 
-Blueprint: `block_studio_config_leakage_into_shipped_catalog`
+Blueprint: `shipped-map-catalog`
 
 Primary category: `artifact`
 
@@ -16,7 +16,7 @@ Lifecycle: `steady`
 
 Admission: `admitted`
 
-Authority path: `.habitat/civ7/mapgen/map-output/blueprints/block_studio_config_leakage_into_shipped_catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog`
+Authority path: `.habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog`
 
 Files:
 - `block_studio_config_leakage_into_shipped_catalog.baseline.json`
