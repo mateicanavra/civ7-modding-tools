@@ -8,7 +8,8 @@ import type {
 } from "@habitat/cli/service/model/rules/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@habitat/cli/service/model/rules/policy/selection.policy";
-import { Effect } from "effect";
+import { runStructureRulesEffect } from "@habitat/cli/service/model/structure-check/index";
+import { Clock, Effect } from "effect";
 import {
   executeCommandRulesEffect,
   executeFormatRulesEffect,
@@ -53,6 +54,7 @@ const defaultLocalRuleTools = new Set([
   "grit-check",
   "habitat",
   "source-check",
+  "structure-check",
 ]);
 
 function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?: boolean }) {
@@ -77,6 +79,12 @@ export function executeSelectedRulesEffect(
     const gritRules = factsForRuleIds(context.rules.grit, selectedRuleIds);
     yield* executeGritSourceRulesEffect(gritRules, results, options, context, () =>
       currentStagedPathsEffect(context)
+    );
+
+    yield* executeStructureRulesEffect(
+      factsForRuleIds(context.rules.structure, selectedRuleIds),
+      results,
+      context
     );
 
     const commandRules = factsForRuleIds(context.rules.commandExecution, selectedRuleIds);
@@ -111,6 +119,43 @@ export function executeSelectedRulesEffect(
     return results;
   });
 }
+
+function executeStructureRulesEffect(
+  structureRules: readonly StructureRuleFact[],
+  results: Map<string, RuleExecutionRecord>,
+  context: StructuralExecutionContext
+): Effect.Effect<void, never, any> {
+  if (structureRules.length === 0) return Effect.void;
+  return Effect.gen(function* () {
+    const started = yield* Clock.currentTimeMillis;
+    const structureResults = yield* runStructureRulesEffect(structureRules, {
+      repoRoot: context.repoRoot,
+      fileSystem: context.structureFileSystem,
+    });
+    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+    for (const rule of structureRules) {
+      const result = structureResults.get(rule.id);
+      if (result) {
+        results.set(rule.id, {
+          result,
+          durationMs,
+          timing:
+            structureRules.length > 1
+              ? {
+                  kind: "shared",
+                  groupId: "structure-check:rules",
+                  durationMs,
+                  ruleCount: structureRules.length,
+                }
+              : undefined,
+          disposition: { kind: "executed", durationMs },
+        });
+      }
+    }
+  });
+}
+
+type StructureRuleFact = StructuralExecutionContext["rules"]["structure"][number];
 
 function isGraphBackedCommandRule(
   rule: RuleCommandExecutionFacts,

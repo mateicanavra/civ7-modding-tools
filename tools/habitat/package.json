@@ -108,6 +108,8 @@
     "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
     "effect-orpc": "0.5.0",
+    "picomatch": "4.0.4",
+    "smol-toml": "1.7.0",
     "typebox": "^1.0.80"
   },
   "oclif": {

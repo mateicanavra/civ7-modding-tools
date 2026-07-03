@@ -1,6 +1,7 @@
 export { cachePath, ensurePatternCacheRoot } from "./cache.js";
 export {
   type HabitatDirectoryEntry,
+  type HabitatFileSystemReadPort,
   hashFileSync,
   isDirectory,
   isFile,

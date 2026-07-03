@@ -12,6 +12,7 @@ const RuleIdentitySchema = Type.Object(
       Type.Literal("habitat"),
       Type.Literal("source-check"),
       Type.Literal("command-check"),
+      Type.Literal("structure-check"),
       Type.Literal("nx"),
     ]),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
@@ -116,6 +117,15 @@ const CommandRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+const StructureCheckRuleRegistryRecordV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataSchema],
+  {
+    ownerTool: Type.Literal("structure-check"),
+    structureFile: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
 const NxRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
@@ -178,6 +188,7 @@ const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
 
 export const RuleRegistryRecordV1Schema = Type.Union([
   CommandRuleRegistryRecordV1Schema,
+  StructureCheckRuleRegistryRecordV1Schema,
   NxRuleRegistryRecordV1Schema,
   GritCheckRuleRegistryRecordV1Schema,
   SourceCheckRuleRegistryRecordV1Schema,
@@ -318,6 +329,14 @@ export const RuleFileLayerFactsSchema = Type.Union([
   ]),
 ]);
 
+export const RuleStructureFactsSchema = Type.Pick(StructureCheckRuleRegistryRecordV1Schema, [
+  "id",
+  "lane",
+  "message",
+  "pathCoverage",
+  "structureFile",
+]);
+
 export const RuleHookCheckFactsSchema = Type.Interface(
   [
     Type.Union([
@@ -344,4 +363,5 @@ export type RuleSourceFacts = Static<typeof RuleSourceFactsSchema>;
 export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
 export type RuleManifestFacts = Static<typeof RuleManifestFactsSchema>;
 export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
+export type RuleStructureFacts = Static<typeof RuleStructureFactsSchema>;
 export type RuleHookCheckFacts = Static<typeof RuleHookCheckFactsSchema>;
