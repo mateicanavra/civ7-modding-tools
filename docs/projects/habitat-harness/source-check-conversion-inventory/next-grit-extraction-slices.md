@@ -60,19 +60,37 @@ Completed moves:
 - Convert the residual rule away from `source-check`, delete `require_explicit_mapgen_sdk_opt_in.rule.mjs`, then delete `rule-runtime.policy.mjs`.
 - Regenerate execution-surface analytics and prove `source-check` has zero active rules.
 
-## Slice 1: Promote Existing Non-Adapter Patterns Where Runner Ownership Is Clear
+## Slice 1: Command-Check Split Canary
 
-Goal: normalize rules that already have pattern authority but are not active source-check adapters, especially where command-check is only duplicating text/source matching.
+Goal: run one small vertical split slice before launching a systematic agent
+wave. The slice should split mixed `command-check` packets assertion by
+assertion, move or delete only the assertions whose owner is clear, and record
+the workflow/insights for the broader `needs_split` workstream.
+
+Selected canary set:
 
 | Priority | Rule | Lane | Why |
 | ---: | --- | --- | --- |
-| 1 | `prohibit_product_scan_roots_in_grit_provider` | global-docs-toolkit | Prevents product/domain scan-root literals such as packages, apps, mods, and .civ7 from being hard-coded inside the generic Grit provider. |
+| 1 | `prohibit_cross_op_runtime_calls` | mapgen-domain | Compact duplicate/consolidation case: split cross-op import/export/dynamic source authority into Grit and consolidate local `ops.bind` / `runValidated` orchestration detection with `prohibit_runtime_orchestration_helpers_in_domain_ops`. |
+| 2 | `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | Mixed source/topology case: extract Grit-shaped import/export and retired-path predicates while keeping active-root existence/currentness as a separate topology assertion. |
+| 3 | `ensure_docs_checkout_paths_are_portable` | global-docs-toolkit | Docs operation case: the Markdown pattern already owns the rewrite/check shape, while the command-check script duplicates advisory detection and should be demoted or deleted if pattern execution covers it. |
 
-## Slice 2: Consolidate Deleted Stale Adapter Rows
+Do not start with `prohibit_product_scan_roots_in_grit_provider`; it is already
+`grit-check` and remains listed in the matrix only as an already-promoted Grit
+authority row.
+
+## Slice 2: Systematic Needs-Split Wave
+
+Goal: after the canary proves the mechanical workflow, fan out across the
+remaining `needs_split` rows with the same assertion-level process. Each lane
+should classify assertions as Grit authority, data-driven structural authority,
+package-local/Nx ownership, duplicate-to-delete, or non-executable demotion.
+
+## Slice 3: Consolidate Deleted Stale Adapter Rows
 
 Goal: no file deletion remains for the four stale adapters; follow-up work should split or consolidate the command-check records themselves where the matrix marks them mixed.
 
-## Slice 3: Split Broad Command-Check Bundles And Mixed Helpers
+## Slice 4: Remaining Broad Command-Check Bundles And Mixed Helpers
 
 Goal: split `needs_split` rows assertion-by-assertion. Port Grit-shaped assertions first; keep generated-output, graph, exact topology, or runtime/package behavior in package-local validators, Nx, or data-driven structural checks.
 
@@ -94,6 +112,6 @@ Goal: split `needs_split` rows assertion-by-assertion. Port Grit-shaped assertio
 | `validate_mapgen_docs_anchors_and_references` | global-docs-toolkit | Split text-shape policy from reference-existence validation. Do not port the whole Python script to Grit as one large pattern. |
 | `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | Split topology/stage-id overlap from package-local authoring-model validation. Public schema derivation and focus-path semantics belong with the package validator, not Grit. |
 
-## Slice 4: Non-Grit Cleanup
+## Slice 5: Non-Grit Cleanup
 
 Goal: move or preserve non-Grit rows in the right owner model: generated/currentness checks to Nx or package validators, file-layer protection to data-driven path rules, runtime/tool smoke checks to package-local validators. Do this now that source-check adapter deletion has removed the confusing execution surface.
