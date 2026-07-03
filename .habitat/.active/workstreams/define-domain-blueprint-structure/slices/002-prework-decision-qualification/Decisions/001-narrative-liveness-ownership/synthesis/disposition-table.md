@@ -20,7 +20,7 @@ Disposition:
 
 - empty domain ops and the unused orogeny wind helper were deleted in Slice 1
   after import/type proof;
-- behavior-bearing story code has no Domino 001 landing slot and is assigned to
+- behavior-bearing story code has no Slice 001 landing slot and is assigned to
   Slice 3 deletion with no replacement in this cleanup;
 - current tests under `mods/mod-swooper-maps/test/story/**` are compatibility
   evidence for the removed implementation and are assigned to Slice 3 deletion;
@@ -128,5 +128,5 @@ These rows are assigned to Slice 3 deletion with no replacement in this cleanup:
 - story config schemas;
 - story tests that define compatibility expectations.
 
-No current row has a qualified Domino 001 destination inside the domain
+No current row has a qualified Slice 001 destination inside the domain
 closed-structure geometry.

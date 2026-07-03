@@ -35,6 +35,12 @@ prework decisions, and prepare closed-structure enforcement.
 Current role: primary active workstream for domain-blueprint prework
 decisions.
 
+Current next move: run the next unresolved prework decision,
+`Foundation lib/ / Tectonics Disposition`, under
+`slices/002-prework-decision-qualification/`. The narrative liveness and
+ownership packet is closed proof for the completed burn-down, not an open
+decision queue item.
+
 ### Direct Method Frames
 
 Path: `.habitat/.active/frames/`

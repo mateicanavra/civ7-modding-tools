@@ -1,4 +1,4 @@
-# Domino 001 Red Inventory
+# Slice 001 Red Inventory
 
 Status: active slice packet
 
@@ -10,9 +10,10 @@ go red when the selected scope set is activated. Shared criteria live in
 
 | State | Meaning |
 | --- | --- |
-| `Ready` | Domino 001 owns the later move or deletion. |
-| `Ready with owner law` | Domino 001 owns the later burn-down and the exact destination is governed by a shared owner boundary. |
+| `Ready` | Slice 001 owns the later move or deletion. |
+| `Ready with owner law` | Slice 001 owns the later burn-down and the exact destination is governed by a shared owner boundary. |
 | `Owner-law pending` | The current row has a named owner-law domino that must define the destination before movement. |
+| `Closed by prework` | The row was resolved before Slice 001 implementation and is retained as closure evidence. |
 
 Before any source-moving implementation starts, each `Ready` or
 `Ready with owner law` row must be expanded to symbol/definition preservation:
@@ -38,7 +39,7 @@ rationale.
 | `mods/mod-swooper-maps/src/domain/ecology/index.ts` exports from root helper files | `Ready` | Remove from root `index.ts`; move symbols according to ecology rows below. |
 | `mods/mod-swooper-maps/src/domain/hydrology/index.ts` exports river helper surfaces | `Ready` | Remove from root `index.ts`; move symbols into hydrology model policy rows below. |
 | `mods/mod-swooper-maps/src/domain/resources/index.ts` exports legacy `lib/` and model policy surfaces | `Ready` | Remove from root `index.ts`; public access is owned by a later public-surface law. |
-| `mods/mod-swooper-maps/src/domain/narrative/index.ts` public exports | `Owner-law pending` | Gameplay/narrative owner-law domino selects the public surface. |
+| `mods/mod-swooper-maps/src/domain/narrative/index.ts` public exports | `Closed by prework` | Current public exports were deleted with the narrative burn-down; no Slice 001 destination. |
 
 ## Ecology Rows
 
@@ -185,11 +186,11 @@ owner law must classify the symbols before execution.
 | `mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/schemas.ts` | `Owner-law pending` | Foundation model/core disposition | Foundation model/core extraction domino must classify this symbol owner. |
 | `mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts` | `Owner-law pending` | Foundation model/core disposition | Foundation model/core extraction domino must classify this symbol owner. |
 
-## Placement And Narrative Rows
+## Narrative Closure Row
 
 | Current path or class | State | Move class | Exact destination or action |
 | --- | --- | --- | --- |
-| `mods/mod-swooper-maps/src/domain/narrative/**` | `Owner-law pending` | Gameplay/narrative liveness and owner-law | Preserve source while the prework pass classifies live symbols, deletion rows, and later Gameplay/story-artifact destinations. |
+| `mods/mod-swooper-maps/src/domain/narrative/**` | `Closed by prework` | Narrative liveness and ownership disposition | Current MapGen narrative source was deleted with no Slice 001 destination. Future story behavior starts from a separate Gameplay/story owner-law domino. |
 
 ## Expansion Evidence
 

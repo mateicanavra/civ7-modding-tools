@@ -1,8 +1,8 @@
-# Domino 001 Frame
+# Slice 001 Frame
 
 Status: active slice frame
 
-Domino 001 is the first closed-structure cut for the MapGen `domain` blueprint.
+Slice 001 is the first closed-structure cut for the MapGen `domain` blueprint.
 It covers domain roots by blueprint kind and the immediate `ops/` child
 topology. This documentation slice records the law, inventory, and later
 execution plan.
@@ -39,7 +39,7 @@ Foreground:
 Deferred:
 
 - full grammar inside operation `policy/`, `rules/`, and `strategies/`;
-- Gameplay/narrative liveness and owner-law consolidation;
+- future Gameplay/story owner-law definition for any new story implementation;
 - public import-routing law for downstream callers;
 - live Habitat `structure.toml` and Grit packet implementation.
 
@@ -61,7 +61,7 @@ Deferred:
 Falsifier:
 
 If the Habitat structure runner lacks an expression for closed direct-child
-topology over domain roots and immediate `ops/` children, this domino reframes
+topology over domain roots and immediate `ops/` children, this slice reframes
 around the smallest existing enforcement owner that produces the same red/green
 state.
 
@@ -72,29 +72,29 @@ placement, stop. The topology is carrying debt instead of closing it.
 
 ## Mechanical Trust Condition
 
-Domino 001 is mechanically trusted only when topology enforcement is paired
+Slice 001 is mechanically trusted only when topology enforcement is paired
 with source-shape gates for root `index.ts` and root `ops.ts`.
 
 The source-shape gates prevent the failure mode where the structure rule deletes
 root helper files but implementers paste their contents into a selected
 filename to keep imports green.
 
-## Placement And Narrative
+## Placement And Closed Narrative Evidence
 
-The domain blueprint applies by kind to domain roots. `placement` and
-`narrative` references in this slice are current source rows for liveness and
-owner classification.
+The domain blueprint applies by kind to domain roots. `placement` rows remain
+current source rows for liveness and owner classification.
 
 `placement` rows execute where `inventory.md` names exact destinations.
-`narrative` rows feed the liveness and Gameplay/narrative owner-law prework:
-current symbols are classified as live owned material, deleted material, or
-later Gameplay/story-artifact rows.
+Narrative rows are closed evidence from the completed liveness and ownership
+prework. Current MapGen narrative source was deleted with no Slice 001
+destination. Future story behavior starts from a separate Gameplay/story owner
+law.
 
 ## Superseded Root Slots
 
 An earlier working grammar treated root `config.ts`, root `policy/`, and
 data-only root `lib/` as transitional direct slots. The selected target law now
-uses `model/config/`, `model/policy/`, and `model/data/`. Domino 001 treats old
+uses `model/config/`, `model/policy/`, and `model/data/`. Slice 001 treats old
 root config/policy/lib placements as source evidence and red inventory.
 
 ## Rule Packet Collapse Candidates

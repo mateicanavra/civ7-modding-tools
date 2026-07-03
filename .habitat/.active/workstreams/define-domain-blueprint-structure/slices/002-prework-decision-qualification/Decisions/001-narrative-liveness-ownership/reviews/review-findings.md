@@ -1,6 +1,6 @@
 # Review Findings
 
-Status: review ledger
+Status: closed review ledger
 
 This file records fresh review findings and steward disposition for the
 narrative liveness and ownership decision packet.
@@ -37,7 +37,8 @@ P2 accepted and fixed:
 
 P3 accepted and fixed:
 
-- Source count was stale; current tree has 36 narrative-domain files.
+- Pre-execution source count was stale; the pre-Slice-1 narrative tree had 36
+  narrative-domain files.
 
 ### Process And Preservation Reviewer
 
@@ -51,7 +52,8 @@ P2 accepted and fixed:
 
 P3 accepted and fixed:
 
-- Source count was stale; current tree has 36 narrative-domain files.
+- Pre-execution source count was stale; the pre-Slice-1 narrative tree had 36
+  narrative-domain files.
 
 ## Steward Disposition
 
@@ -64,14 +66,14 @@ All reviewer findings were accepted. Packet edits applied:
 - changed `utils/water.ts` to adapter/runtime integration evidence and deleted
   the current implementation instead of creating a destination bucket;
 - split Narsil raw evidence from interpretation in `evidence/narsil-graph.md`;
-- corrected the narrative-domain source count to 36.
+- corrected the pre-execution narrative-domain source count to 36.
 
 Residual risk: KNIP remains suspicion evidence because this repo has no KNIP
 config. The implementation slices supplied import/type proof before deletion.
 
 ## Post-Execution Review Loop
 
-Status: active review repair
+Status: closed review repair
 
 Findings:
 

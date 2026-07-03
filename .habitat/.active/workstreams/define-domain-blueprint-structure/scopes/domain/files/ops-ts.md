@@ -21,8 +21,9 @@ Architectural evidence:
   registration;
 - source evidence shows `collectCompileOps(...)` and `createRecipe(...)` consume
   the domain operation surface rather than root helper files.
-- observed source metrics: `7/7` current domain runtime modules use
-  `createDomain(...)`; morphology is the known content violation because it also
+- observed source metrics after the narrative burn-down: `6/6` current domain
+  runtime modules use `createDomain(...)`; morphology is the known content
+  violation because it also
   exports config schemas/constants from the binding surface.
 
 Evidence command:

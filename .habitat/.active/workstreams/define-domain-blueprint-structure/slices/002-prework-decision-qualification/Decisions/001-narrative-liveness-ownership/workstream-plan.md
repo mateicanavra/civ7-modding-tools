@@ -21,13 +21,13 @@ Produce a row-level decision for every narrative-domain path and connected
 collar path:
 
 - delete with consumer proof;
-- qualified for Domino 001 with an exact destination;
+- qualified for Slice 001 with an exact destination;
 - recipe/stage-owned with an exact owner path;
 - domain-owned with existing governing scope or file law;
 - future Gameplay story design context where current source is deleted and no
   current destination exists.
 
-The output feeds Domino 001 by removing guesswork before source-moving work
+The output feeds Slice 001 by removing guesswork before source-moving work
 begins.
 
 ## Authority Order

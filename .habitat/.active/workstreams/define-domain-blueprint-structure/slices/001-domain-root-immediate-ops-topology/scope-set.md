@@ -1,8 +1,8 @@
-# Domino 001 Scope Set
+# Slice 001 Scope Set
 
 Status: active slice packet
 
-Domino 001 selects the first closed-structure law for the MapGen `domain`
+Slice 001 selects the first closed-structure law for the MapGen `domain`
 blueprint. It does not implement live enforcement in this documentation slice.
 
 The rationale and reframe conditions for this selection live in `frame.md`.
@@ -45,6 +45,6 @@ fragment remain named deeper scopes, not live topology snippets.
 
 - full operation-internal file grammar below operation `policy/`, `rules/`, and
   `strategies/`;
-- Gameplay/narrative liveness and owner-law consolidation;
+- future Gameplay/story owner-law definition for any new story implementation;
 - a public import-routing law for downstream callers;
 - live Habitat `structure.toml` or Grit packets.

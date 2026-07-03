@@ -1,4 +1,4 @@
-# Domino 001 Execution
+# Slice 001 Execution
 
 Status: active slice packet
 
@@ -22,8 +22,8 @@ plus import updates required by those rows.
 ## Protected Surfaces
 
 - source outside the exact inventory rows;
-- `mods/mod-swooper-maps/src/domain/narrative/**` rows assigned to the
-  Gameplay/narrative owner-law prework;
+- completed narrative burn-down evidence, which stays out of Slice 001 source
+  movement;
 - recipe, stage, adapter, generated-output, and package source files outside
   exact named destinations and import updates;
 - deeper operation internals not selected by `scope-set.md`.

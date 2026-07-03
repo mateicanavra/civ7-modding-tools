@@ -1,10 +1,10 @@
 # Narrative Burn-Down Execution Plan
 
-Status: execution-ready draft for the narrative liveness and ownership prework
-decision.
+Status: closed execution record for the narrative liveness and ownership
+prework decision.
 
-This plan carries the four-slice cleanup sequence for the current
-`mods/mod-swooper-maps/src/domain/narrative/**` network. It does not implement
+This record preserves the four-slice cleanup sequence used for the removed
+`mods/mod-swooper-maps/src/domain/narrative/**` network. It did not implement
 the generic domain blueprint assertion, new `structure.toml` assertions, or
 Grit packets. Slice 3 may remove stale narrative scope from the existing
 `require_domain_ops_root_presence` structure rule.
@@ -35,9 +35,9 @@ No slice selects tests after editing. Each slice starts with its listed checks,
 executes only its write set, and closes with the same checks plus `git diff
 --check`.
 
-## Global Preflight
+## Global Preflight Used For Execution
 
-Run at the start of any implementation turn:
+The implementation used this preflight before source edits:
 
 ```bash
 git status --short
@@ -47,10 +47,9 @@ find mods/mod-swooper-maps/src/domain/narrative -type f | sort
 rg -n "storyEnabled|StoryOverlaySnapshot|StoryOverlayRegistry|@mapgen/domain/narrative|domain/narrative|narrative/config|storyTag|CorridorsConfigSchema|zonalWindStep" mods packages -g '*.ts'
 ```
 
-Preflight passes when the implementation worktree contains no unrelated
-uncommitted source changes and the query output still matches this packet's
-source inventory. If the query output changes, update this packet before editing
-source.
+Preflight passed when the implementation worktree contained no unrelated
+uncommitted source changes and the query output matched the packet's source
+inventory. Query drift was recorded in the packet before source edits.
 
 ## Slice 1: Mechanical Shell Deletion
 

@@ -19,9 +19,10 @@ Architectural evidence:
 - step and recipe-facing code resolve domain contracts through named public
   surfaces;
 - root `index.ts` is the single domain contract owner.
-- observed source metrics: `7/7` domain roots use `defineDomain(...)`, `7/7`
-  are exported from the package domain index, and `30` source step or artifact
-  contract imports resolve domain roots rather than root `contract.ts`.
+- observed source metrics after the narrative burn-down: `6/6` domain roots
+  use `defineDomain(...)`, and `6/6` are exported from the package domain
+  index. Source step and artifact-contract import counts should be refreshed
+  with the evidence command before enforcement implementation.
 
 Evidence command:
 

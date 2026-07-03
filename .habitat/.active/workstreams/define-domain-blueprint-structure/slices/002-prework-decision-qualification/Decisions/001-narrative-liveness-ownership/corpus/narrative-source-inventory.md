@@ -1,9 +1,11 @@
 # Narrative Source Inventory
 
-Status: source corpus artifact
+Status: sealed historical source corpus artifact
 
-Expanded source corpus after Slice 1 shell deletion: 32 files under
-`mods/mod-swooper-maps/src/domain/narrative/**`.
+This corpus records the source network that existed during the narrative
+burn-down decision. It is retained as proof for the completed deletion, not as
+current source inventory. After Slice 1 shell deletion, the corpus contained 32
+files under `mods/mod-swooper-maps/src/domain/narrative/**`.
 
 ## Evidence Summary
 

@@ -14,7 +14,7 @@ until a later slice activates scopes or source changes.
 
 ## Purpose
 
-Domino 001 has a defined target shape, but several red rows still point at
+Slice 001 has a defined target shape, but several red rows still point at
 blocking owner-law dominoes instead of exact destinations. This slice works
 backward from the least-defined unresolved rows to the more-defined rows so
 the next implementation slice does not require agents to invent destinations.
@@ -34,7 +34,7 @@ Use this loop for every item in `inventory.md`:
 
 ```text
 select one inventory item -> answer its Decision line ->
-write the disposition to the owning reference -> update Domino 001 inventory
+write the disposition to the owning reference -> update Slice 001 inventory
 ```
 
 `single-prework-decision-frame.md` defines how to answer one item from
@@ -47,7 +47,7 @@ carry resolved choices.
 
 Qualification results update the owning reference:
 
-- exact source-path dispositions update Domino 001 `inventory.md`;
+- exact source-path dispositions update Slice 001 `inventory.md`;
 - reusable criteria update the shared `decision-book/`;
 - topology, file, or pattern law updates the owning scope tree file;
 - out-of-scope work becomes a named later domino.

@@ -1,10 +1,11 @@
 # Narrative Burn-Down Implementation Frame
 
-Status: implementation framing document for the narrative burn-down handoff.
+Status: closed implementation framing record for the narrative burn-down
+handoff.
 
-This document records the frame for executing `execution.md` after compaction.
-It is not a replacement for `execution.md`; the execution document remains the
-controlling slice plan.
+This document records the frame that was used to execute `execution.md` after
+compaction. It is retained as closed execution evidence; it is not current
+handoff instruction.
 
 ## Read Set
 
@@ -116,17 +117,17 @@ alone, but it corroborates unused narrative shell/tagging/helper surfaces.
 Narsil/reference evidence plus `rg` consumer proof is the stronger liveness
 basis.
 
-## Current Drift To Resolve Before Source Edits
+## Resolved Preflight Drift
 
 Global preflight in the clean execution worktree found one current source row
 not listed in Slice 4's declared `storyEnabled` caller set:
 
 - `mods/mod-swooper-maps/test/pipeline/determinism-suite.test.ts`
 
-The implementation should repair the packet inventory before source edits,
-because `execution.md` says changed query output must update the packet before
-editing source. This is a caller-set expansion, not a plan-shape change: it
-belongs to the Slice 4 compatibility cleanup write set once recorded.
+The implementation repaired the packet inventory before source edits, because
+`execution.md` said changed query output must update the packet before editing
+source. This was a caller-set expansion, not a plan-shape change, and it landed
+in the Slice 4 compatibility cleanup write set.
 
 ## Scope
 
@@ -155,16 +156,15 @@ Out of scope:
 
 ## Worktree And Stack Frame
 
-Use the dedicated execution worktree:
+The implementation used the dedicated execution worktree:
 
 ```text
 /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-narrative-burndown
 ```
 
-The root checkout is dirty with unrelated generated/resource state and must not
-be used for edits. The execution worktree was created from local `main` and had
-a clean working tree before framing. `bun install --frozen-lockfile` completed
-successfully in that worktree.
+The root checkout was avoided during implementation. The execution worktree was
+created from local `main` and had a clean working tree before framing. `bun
+install --frozen-lockfile` completed successfully in that worktree.
 
 Graphite stack shape should be:
 

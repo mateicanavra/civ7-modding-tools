@@ -24,13 +24,13 @@ unit remains one inventory item.
 
 For the selected inventory item, produce one of these outcomes:
 
-1. **Qualified for Domino 001:** every source path or symbol covered by the
+1. **Qualified for Slice 001:** every source path or symbol covered by the
    item has an exact destination or delete action, backed by an existing scope,
    file description, pattern, or shared owner criterion.
 2. **Reference update required before execution:** the owner is clear, but the
    governing scope, file description, pattern, or decision-book criterion must
    be updated before the item can become executable.
-3. **Out of Domino 001:** the item belongs to a named later owner-law domino
+3. **Out of Slice 001:** the item belongs to a named later owner-law domino
    and must stay out of the next mechanical implementation slice.
 
 The actual decision is the `Decision:` line in the selected inventory item.
@@ -173,9 +173,9 @@ the content.
 
 Collapse the row dispositions into one item-level decision:
 
-- `Qualified for Domino 001`;
+- `Qualified for Slice 001`;
 - `Reference update required before execution`;
-- `Out of Domino 001: <named later domino>`;
+- `Out of Slice 001: <named later domino>`;
 - `Blocked: <specific authority gap>`.
 
 This item-level decision updates `inventory.md` or the relevant later slice

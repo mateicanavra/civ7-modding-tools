@@ -2,40 +2,37 @@
 
 Status: active slice checklist
 
-These are the unresolved decisions to walk before source-moving work begins.
-They are ordered from least defined to more defined. Items already defined
-enough to execute are excluded.
+These are the unresolved decisions to walk before domain-blueprint source-moving
+work begins. They are ordered from least defined to more defined. Completed
+prework decisions stay in the completed section as proof pointers, not as active
+queue items.
 
-## 1. Narrative Liveness And Ownership Disposition
+Current next move: `Foundation lib/ / Tectonics Disposition`.
+
+## Completed Decisions
+
+### Narrative Liveness And Ownership Disposition
 
 Decision:
 determine which `mods/mod-swooper-maps/src/domain/narrative/**` paths and
-symbols are live, which owner controls the live material, and which unused
-material can be deleted.
+symbols were live, which owner controlled the live material, and which unused
+material could be deleted.
 
-Inspect:
+Result:
+the current MapGen narrative implementation was removed with no replacement in
+this cleanup. Direct-control, control-oRPC, and CLI narrative-choice surfaces
+remain under their own runtime-control owners. Future Gameplay/story behavior
+starts from a separate owner-law domino.
 
-- `mods/mod-swooper-maps/src/domain/narrative/**`
-- all imports and callers of narrative exports
-- recipe and stage usage
-- architecture docs for Gameplay, narrative, placement, and MapGen domain
-  boundaries
-
-Choices:
-
-- Gameplay/story-artifact owner-law row;
-- recipe or stage owner row;
-- domain-owned row with exact scope/file law;
-- deletion with consumer proof;
-- split across the owner rows above.
+Proof packet:
+`Decisions/001-narrative-liveness-ownership/`
 
 Done:
-every narrative path has liveness evidence and one disposition: exact current
-slice destination, deletion, or named later owner-law row. Any Gameplay/story
-artifact row names the owner-law domino that will define root shape and public
-surface.
+every narrative path has liveness evidence and one disposition. The selected
+disposition was deletion of the current implementation plus protected retention
+of separate runtime-control narrative-choice surfaces.
 
-## 2. Foundation `lib/` / Tectonics Disposition
+## 1. Foundation `lib/` / Tectonics Disposition
 
 Decision:
 classify each foundation `lib/**` file as domain model policy/data,
@@ -61,7 +58,7 @@ every foundation `lib/**` file has an exact destination or delete action. No
 row lands in generic `model/data`, `model/policy`, or `core` without a named
 file path.
 
-## 3. Domain Model Config Law
+## 2. Domain Model Config Law
 
 Decision:
 decide whether `model/config/` is required for every domain root covered by the
@@ -98,7 +95,7 @@ row has an exact destination: `model/config/<part>.config.ts`, operation
 and resources are explicitly resolved as real config-object domains or as
 domains with an optional `model/config/` law.
 
-## 4. Placement Status
+## 3. Placement Status
 
 Decision:
 determine the owner status of current `placement` material under the selected
@@ -123,7 +120,7 @@ Done:
 current `placement` material has a declared owner status, and
 `placement/config.ts` has one exact landing or delete path.
 
-## 5. Resources Initial Map Authoring
+## 4. Resources Initial Map Authoring
 
 Decision:
 split `resources/policy/initial-map-authoring.ts` into its true owners.
@@ -147,7 +144,7 @@ Done:
 each exported symbol or behavior-bearing definition has an exact destination.
 The file is not moved whole into `resources/model/policy/`.
 
-## 6. Morphology `ops.ts` Non-Binding Exports
+## 5. Morphology `ops.ts` Non-Binding Exports
 
 Decision:
 place the config schema exports and `DEFAULT_ELEVATION_SCALE` currently living
@@ -172,7 +169,7 @@ every non-binding export has an exact destination or delete action, and
 `morphology/ops.ts` can become only the `createDomain(domain, implementations)`
 binding surface.
 
-## 7. Domain Public / Import Surface
+## 6. Domain Public / Import Surface
 
 Decision:
 define what remains public after root helper exports and config barrels move.

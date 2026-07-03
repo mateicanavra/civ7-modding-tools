@@ -52,7 +52,7 @@ and orogeny behavior.
 | Material | Owner criterion | Current narrative implication |
 | --- | --- | --- |
 | Empty domain registration and empty ops | Delete as duplicate/dead authority after caller proof. | `ops.ts`, `ops/contracts.ts`, and `ops/index.ts` are deletion candidates. |
-| Story motif APIs, story-entry artifacts, and derived overlay views | Future Gameplay-owned story law. | Current behavior-bearing story code is deleted; no Domino 001 destination is created for it. |
+| Story motif APIs, story-entry artifacts, and derived overlay views | Future Gameplay-owned story law. | Current behavior-bearing story code is deleted; no Slice 001 destination is created for it. |
 | Recipe/stage ordering and stage config | Owning recipe/stage. | Current recipe contains no narrative stage to own this code. |
 | Runtime engine/API behavior | Adapter or explicit runtime integration. | Helpers reading adapter-backed context cannot become pure domain law by path alone. |
 | Resource planning | `domain/resources` per ADR-008. | Narrative cleanup leaves resource planning untouched. |
@@ -62,7 +62,7 @@ and orogeny behavior.
 
 The high-confidence disposition is:
 
-- remove `domain/narrative/**` from the Domino 001 executable source corpus;
+- remove `domain/narrative/**` from the Slice 001 executable source corpus;
 - treat behavior-bearing story logic as removed current implementation; any
   future design starts from Gameplay-owned story law;
 - treat current root/domain/config narrative barrels as collars to remove when

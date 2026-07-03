@@ -38,7 +38,7 @@ Applicability boundary:
 this scope defines the target law for every domain root selected by the
 blueprint-kind glob. Current folder names are source evidence and inventory
 corpus; durable ontology comes from the blueprint role and owner decisions.
-Domino 001 names the exact current rows selected for implementation.
+Slice 001 names the exact current rows selected for implementation.
 
 Evidence command:
 

@@ -1,11 +1,15 @@
 # Agent Briefs
 
-Status: active packet prompts
+Status: sealed historical prompts
 
-All agents work in:
+These prompts document the research and review lanes used to build the sealed
+narrative liveness packet. Future agents should treat the checkout path as a
+handoff-supplied value, not as a durable source path.
+
+All agents work in the supplied checkout path:
 
 ```text
-/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-authority-tree-pruning-frame
+<working checkout supplied by the handoff prompt>
 ```
 
 Decision line:
@@ -117,7 +121,7 @@ artifacts. Produce synthesis/disposition-table.md.
 For each narrative path or symbol and each connected collar path, assign one
 outcome:
 - delete with consumer proof;
-- qualified for Domino 001 with exact destination;
+- qualified for Slice 001 with exact destination;
 - recipe/stage-owned with exact owner path;
 - domain-owned with governing scope/file law;
 - deleted current implementation with future Gameplay story context.
