@@ -44,7 +44,6 @@ function runStandardContext(caseData: DeterminismCase) {
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[determinism-suite]",
-    storyEnabled: true,
   });
   standardRecipe.run(context, env, config, { log: () => {} });
   return context;

@@ -51,7 +51,7 @@ describe("m11 volcanoes truth contract", () => {
       rng: createLabelRng(seed),
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
     standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
 

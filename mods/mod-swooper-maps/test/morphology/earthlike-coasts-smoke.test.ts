@@ -43,7 +43,7 @@ describe("Earthlike coasts (smoke)", () => {
       rng: createLabelRng(seed),
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
     standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
 
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as

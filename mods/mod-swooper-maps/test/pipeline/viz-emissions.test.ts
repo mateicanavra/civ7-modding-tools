@@ -59,7 +59,7 @@ describe("standard pipeline viz emissions", () => {
     };
 
     context.viz = viz;
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     // Regression guard: never encode temporal slices into `dataTypeKey`.
@@ -158,7 +158,7 @@ describe("standard pipeline viz emissions", () => {
     };
 
     context.viz = viz;
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const historyBoundaryVariants =
@@ -237,7 +237,7 @@ describe("standard pipeline viz emissions", () => {
     };
 
     context.viz = viz;
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const plateIdMetas = metasByKey.get("foundation.plates.tilePlateId") as any[] | undefined;

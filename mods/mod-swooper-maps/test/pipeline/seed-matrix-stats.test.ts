@@ -37,7 +37,7 @@ function runMetrics(seed: number, width: number, height: number) {
     rng: createLabelRng(seed),
   });
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[seed-matrix]", storyEnabled: true });
+  initializeStandardRuntime(context, { mapInfo, logPrefix: "[seed-matrix]" });
   standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
   const topography = context.artifacts.get(morphologyArtifacts.topography.id) as

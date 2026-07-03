@@ -667,7 +667,6 @@ export function collectWorldBalanceStats(
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[world-balance]",
-    storyEnabled: false,
   });
   standardRecipe.run(context, env, args.config, { log: () => {} });
 

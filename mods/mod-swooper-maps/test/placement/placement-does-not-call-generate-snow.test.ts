@@ -72,7 +72,6 @@ function runStandardPlacementRecipe({
   initializeStandardRuntime(context, {
     mapInfo: resolvedMapInfo,
     logPrefix: "[test]",
-    storyEnabled: true,
   });
   standardRecipe.run(context, env, config, { log: () => {} });
 

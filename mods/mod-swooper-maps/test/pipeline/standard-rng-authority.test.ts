@@ -44,7 +44,6 @@ describe("standard recipe RNG authority", () => {
     initializeStandardRuntime(context, {
       mapInfo,
       logPrefix: "[rng-authority]",
-      storyEnabled: true,
     });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 

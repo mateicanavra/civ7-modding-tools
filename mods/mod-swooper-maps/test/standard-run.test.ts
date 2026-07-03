@@ -59,7 +59,7 @@ describe("standard recipe execution", () => {
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
@@ -243,7 +243,7 @@ describe("standard recipe execution", () => {
     const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1 });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
     const config = standardConfig;
     const plan = standardRecipe.compile(env, config);
@@ -396,7 +396,7 @@ describe("standard recipe execution", () => {
         rng: createLabelRng(seed),
       });
       const context = createExtendedMapContext({ width, height }, adapter, env);
-      initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+      initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
       standardRecipe.run(context, env, cfg, { log: () => {} });
       const indices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
         | { surfaceTemperatureC?: Float32Array }
@@ -462,7 +462,7 @@ describe("standard recipe execution", () => {
         rng: createLabelRng(seed),
       });
       const context = createExtendedMapContext({ width, height }, adapter, env);
-      initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+      initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
       standardRecipe.run(context, env, cfg, { log: () => {} });
       const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
         | { riverClass?: Uint8Array }

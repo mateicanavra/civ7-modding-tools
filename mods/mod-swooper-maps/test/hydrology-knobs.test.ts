@@ -44,7 +44,6 @@ function runHydrologyTruth(config: Record<string, unknown>) {
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[hydrology-knobs]",
-    storyEnabled: false,
   });
   standardRecipe.run(context, env, withFoundation(config), { log: () => {} });
 

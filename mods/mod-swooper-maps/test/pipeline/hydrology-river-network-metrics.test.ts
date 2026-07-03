@@ -62,7 +62,6 @@ function runHydrologyMetrics(
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[hydrology-metrics]",
-    storyEnabled: true,
   });
   standardRecipe.run(context, env, args.config, { log: () => {} });
 

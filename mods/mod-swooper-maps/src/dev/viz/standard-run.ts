@@ -68,7 +68,7 @@ const adapter = createMockAdapter({
 const context = createExtendedMapContext({ width, height }, adapter, env);
 context.viz = viz;
 
-initializeStandardRuntime(context, { mapInfo, logPrefix: "[viz]", storyEnabled: true });
+initializeStandardRuntime(context, { mapInfo, logPrefix: "[viz]" });
 standardRecipe.run(context, env, config, { traceSink, log: () => {} });
 
 const runId = deriveRunId(plan);

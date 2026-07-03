@@ -58,7 +58,6 @@ describe("pipeline earth metrics", () => {
     initializeStandardRuntime(context, {
       mapInfo,
       logPrefix: "[earth-metrics]",
-      storyEnabled: true,
     });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
