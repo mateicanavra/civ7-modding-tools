@@ -15,22 +15,6 @@ export { inBounds } from "@mapgen/lib/grid/bounds.js";
 export { idx, xyFromIndex } from "@mapgen/lib/grid/indexing.js";
 export { wrapX } from "@mapgen/lib/grid/wrap.js";
 
-/**
- * Produce a stable string key for a tile coordinate.
- * Used for sparse storage in Sets/Maps.
- */
-export function storyKey(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-/**
- * Parse a story key back into coordinates
- */
-export function parseStoryKey(key: string): { x: number; y: number } {
-  const [x, y] = key.split(",").map(Number);
-  return { x, y };
-}
-
 export { clampChance, rollPercent } from "@mapgen/lib/math/chance.js";
 export { clamp, clamp01, clampInt, clampPct } from "@mapgen/lib/math/clamp.js";
 export { lerp } from "@mapgen/lib/math/lerp.js";

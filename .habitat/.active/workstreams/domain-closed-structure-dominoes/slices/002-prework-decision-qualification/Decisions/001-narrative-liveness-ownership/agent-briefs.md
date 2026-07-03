@@ -21,7 +21,8 @@ Shared hard core:
 - The domain blueprint applies generatively by kind.
 - `domain/narrative/**` is current source evidence for liveness and ownership.
 - Current paths are evidence, not architecture authority.
-- Destinations come from existing law or a named later owner-law domino.
+- Destinations come from existing law; current story implementation without an
+  owner is deleted rather than parked in a placeholder bucket.
 - Artifact output is the working space; memory-only conclusions are insufficient.
 
 ## Authority Mapper
@@ -119,7 +120,7 @@ outcome:
 - qualified for Domino 001 with exact destination;
 - recipe/stage-owned with exact owner path;
 - domain-owned with governing scope/file law;
-- Gameplay/story-artifact owner-law domino.
+- deleted current implementation with future Gameplay story context.
 
 Each row needs liveness, owner, action, evidence strength, and governing
 authority. Directory-only destinations are not sufficient.

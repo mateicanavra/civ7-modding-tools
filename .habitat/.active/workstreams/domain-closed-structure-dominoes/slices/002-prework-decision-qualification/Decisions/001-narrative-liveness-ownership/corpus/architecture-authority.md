@@ -20,16 +20,16 @@ and public domain surface. Recipe ordering, stage projection, adapter/runtime
 behavior, official Civ7 catalogs, generic mechanics, and Gameplay/playability
 ownership route to separate authority surfaces.
 
-The owner-boundaries decision book says Gameplay/narrative material routes
-through a Gameplay/story-artifact owner-law domino before movement into a model
-slot. The move-class book provides a `Gameplay/narrative owner-law` disposition
-for material whose exact public surface and destinations are not yet named.
+The owner-boundaries decision book says behavior-bearing story material requires
+Gameplay-owned law before it can return as owned structure. In this packet, the
+current MapGen narrative implementation is deletion evidence, not a destination
+candidate.
 
 ## Controlling Architecture Evidence
 
 | Source | Evidence | Implication |
 | --- | --- | --- |
-| `docs/system/libs/mapgen/reference/domains/GAMEPLAY.md` | Gameplay is the final mapgen layer for playable outcomes and absorbs legacy Narrative and Placement, with `domain/resources` retained for resource planning. Current standard recipe has placement and no separate narrative stage. | Story/playability material belongs to a Gameplay/story-artifact law before it can be reintroduced as owned structure. |
+| `docs/system/libs/mapgen/reference/domains/GAMEPLAY.md` | Gameplay is the final mapgen layer for playable outcomes and absorbs legacy Narrative and Placement, with `domain/resources` retained for resource planning. Current standard recipe has placement and no separate narrative stage. | Current story/playability source is deleted; any future story implementation starts from Gameplay-owned law. |
 | `docs/system/ADR.md` ADR-008 | `domain/resources` owns resource planning; future Gameplay consolidation may absorb starts/discoveries/wonders orchestration but does not re-own resources. | Narrative cleanup does not move resource planning. |
 | `docs/system/ADR.md` ADR-009 | Placement deterministic plan/reconcile is the current regime; engine readbacks are evidence. | Discovery/start/wonder placement concerns stay in placement/adapter/resource lanes until a Gameplay law supersedes them. |
 | `docs/system/mods/swooper-maps/architecture.md` | Current architecture is physics-first; map and placement stages project artifacts to engine state. | Narrative overlays are not current core physics authority. |
@@ -52,7 +52,7 @@ and orogeny behavior.
 | Material | Owner criterion | Current narrative implication |
 | --- | --- | --- |
 | Empty domain registration and empty ops | Delete as duplicate/dead authority after caller proof. | `ops.ts`, `ops/contracts.ts`, and `ops/index.ts` are deletion candidates. |
-| Story motif APIs, story-entry artifacts, and derived overlay views | Gameplay/story-artifact owner-law domino. | Behavior-bearing story code has no Domino 001 destination until that owner law exists. |
+| Story motif APIs, story-entry artifacts, and derived overlay views | Future Gameplay-owned story law. | Current behavior-bearing story code is deleted; no Domino 001 destination is created for it. |
 | Recipe/stage ordering and stage config | Owning recipe/stage. | Current recipe contains no narrative stage to own this code. |
 | Runtime engine/API behavior | Adapter or explicit runtime integration. | Helpers reading adapter-backed context cannot become pure domain law by path alone. |
 | Resource planning | `domain/resources` per ADR-008. | Narrative cleanup leaves resource planning untouched. |
@@ -63,8 +63,8 @@ and orogeny behavior.
 The high-confidence disposition is:
 
 - remove `domain/narrative/**` from the Domino 001 executable source corpus;
-- treat behavior-bearing story logic as a later Gameplay/story-artifact law if
-  it is retained conceptually;
+- treat behavior-bearing story logic as removed current implementation; any
+  future design starts from Gameplay-owned story law;
 - treat current root/domain/config narrative barrels as collars to remove when
   the implementation slice deletes the narrative source;
 - keep placement, resources, adapter, and Civ7 UI narrative-control code outside
