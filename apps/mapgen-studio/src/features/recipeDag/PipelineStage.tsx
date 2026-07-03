@@ -1,8 +1,7 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
-import { useResolvedTheme } from "@swooper/mapgen-studio-ui";
+import { EmptyState, useResolvedTheme } from "@swooper/mapgen-studio-ui";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import { EmptyState } from "../../ui/components/EmptyState";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
 import {
   chooseRecipeDagDomainId,

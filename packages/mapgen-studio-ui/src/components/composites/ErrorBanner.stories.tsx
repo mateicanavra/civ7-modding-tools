@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { ErrorBanner } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { ErrorBanner } from "@/app/ErrorBanner";
 
 /**
  * ErrorBanner is the centered destructive alert (role=alert) that renders only

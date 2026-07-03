@@ -166,7 +166,6 @@
     "@swooper/mapgen-core": "workspace:*",
     "@swooper/mapgen-studio-ui": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
-    "clsx": "latest",
     "effect": "3.21.3",
     "effect-orpc": "0.3.0",
     "lucide-react": "0.522.0",
@@ -174,7 +173,6 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sonner": "2.0.7",
-    "tailwind-merge": "latest",
     "typebox": "^1.0.80",
     "zustand": "5.0.14"
   },

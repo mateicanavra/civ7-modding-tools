@@ -1,8 +1,8 @@
-import { TooltipProvider } from "@swooper/mapgen-studio-ui";
-import type { RecipeSettings, WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { AppFooter } from "../../src/ui/components/AppFooter";
+import { AppFooter } from "../src/components/composites/AppFooter.js";
+import { TooltipProvider } from "../src/components/ui/tooltip.js";
+import type { RecipeSettings, WorldSettings } from "../src/types/index.js";
 
 // The footer is the WORLD/MAP console (Pass-5 toolbar-architecture-v2 spec,
 // narrowed by world-console-map-params): map authoring (size · players ·
@@ -43,6 +43,17 @@ function renderFooter(overrides: Partial<Parameters<typeof AppFooter>[0]> = {}) 
         isDirty={false}
         autoRunEnabled={false}
         onAutoRunEnabledChange={vi.fn()}
+        mapSizeOptions={[
+          { value: "MAPSIZE_TINY", label: "Tiny" },
+          { value: "MAPSIZE_SMALL", label: "Small" },
+          { value: "MAPSIZE_STANDARD", label: "Standard" },
+          { value: "MAPSIZE_LARGE", label: "Large" },
+          { value: "MAPSIZE_HUGE", label: "Huge" },
+        ]}
+        mapSizeShortLabels={{ MAPSIZE_STANDARD: "Standard" }}
+        playerCountOptions={[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}
+        seedMin={0}
+        seedMax={2147483647}
         {...overrides}
       />
     </TooltipProvider>

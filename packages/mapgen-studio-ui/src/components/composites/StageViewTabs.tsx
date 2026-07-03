@@ -1,6 +1,12 @@
 import { Map as MapIcon, Workflow } from "lucide-react";
 import React from "react";
-import type { StageView } from "../../stores/viewStore";
+
+/**
+ * Which view the center stage presents: the generated map, or the authored
+ * recipe's dependency pipeline (mapgen-studio-dag-tab). Owned by the component
+ * (re-homed from the app's `viewStore`, which imports it back).
+ */
+export type StageView = "map" | "pipeline";
 
 // ============================================================================
 // STAGE VIEW TABS — the stage's own view switcher (mapgen-studio-dag-tab)

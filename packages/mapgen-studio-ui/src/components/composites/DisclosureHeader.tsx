@@ -1,6 +1,6 @@
-import React from "react";
 import { ChevronDown } from "lucide-react";
-import { cn } from "../utils";
+import React from "react";
+import { cn } from "../../lib/utils.js";
 // ============================================================================
 // DISCLOSURE HEADER
 // ============================================================================
@@ -83,8 +83,7 @@ export interface DisclosureHeaderProps {
 // Padding intentionally omitted — it varies per consumer (py-2.5 / py-2 /
 // pt-2 pb-1 / pl-3 pr-2). Baking a shorthand here would linger under
 // tailwind-merge's directional px↔pl/pr · py↔pt/pb conflict model.
-const ROOT_CHROME =
-  "w-full flex items-center justify-between transition-colors hover:bg-accent";
+const ROOT_CHROME = "w-full flex items-center justify-between transition-colors hover:bg-accent";
 const LEFT_CHROME = "flex items-center gap-2 min-w-0 overflow-hidden";
 const TRAILING_CHROME = "flex items-center gap-2 shrink-0";
 const CHEVRON_DEFAULT = "w-3.5 h-3.5 text-muted-foreground/70";
@@ -124,7 +123,7 @@ export function DisclosureHeader({
             className={cn(
               chevronClassName ?? CHEVRON_DEFAULT,
               "transition-transform",
-              expanded && "rotate-180",
+              expanded && "rotate-180"
             )}
           />
         ) : null}

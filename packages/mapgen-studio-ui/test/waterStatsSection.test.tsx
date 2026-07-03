@@ -1,70 +1,50 @@
-import { TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import type {
-  RiverLakeFloodplainInspectorSummary,
-  RiverLakeInspectorLayerRef,
-  RiverLakeInspectorRow,
-} from "../../src/features/viz/riverLakeInspector";
 import {
+  type WaterStatsLayerRef,
+  type WaterStatsRow,
   WaterStatsSection,
   type WaterStatsSectionProps,
-} from "../../src/ui/components/WaterStatsSection";
+  type WaterStatsSummary,
+} from "../src/components/composites/WaterStatsSection.js";
+import { TooltipProvider } from "../src/components/ui/tooltip.js";
 
 // Water stats pins: the ExplorePanel surface is a STATS section — semantic
 // counts (plan vs engine, divergence emphasis) plus layer-jump chips. Proof
 // vocabulary (claim words, lane eyebrows, acceptance rows) must NOT render:
 // claim bookkeeping lives in the semantic module and project docs, not in
-// product chrome.
+// product chrome. Fixtures are typed against the package-owned NARROW
+// structural types (the app's wide viz types conform structurally); the wide
+// proof-vocabulary fields (lane, claimStatus, evidence, …) are no longer part
+// of the contract — the render-absence pins below still hold.
 
-function makeRef(overrides: Partial<RiverLakeInspectorLayerRef> = {}): RiverLakeInspectorLayerRef {
+function makeRef(overrides: Partial<WaterStatsLayerRef> = {}): WaterStatsLayerRef {
   return {
     dataTypeKey: "map.rivers.projectedRiverMask",
     layerKey: "step-a::map.rivers.projectedRiverMask::tile.hexOddQ::grid",
-    stepId: "step-a",
-    stepIndex: 1,
-    spaceId: "tile.hexOddQ",
-    kind: "grid",
-    role: "projection",
-    variantKey: null,
-    visibility: "default",
     label: "Projected river mask",
-    renderModeId: "grid:projection",
-    nonZeroCount: 12,
-    sampleCount: 100,
     presentation: {
-      category: "navigable-projection",
       categoryLabel: "Projection plan",
       palette: {
-        paletteId: "river-projection-teal",
-        label: "Projection plan",
         activeColor: "#0f766e",
-        inactiveColor: "#ccfbf1",
-        debugColor: "#134e4a",
       },
     },
     ...overrides,
   };
 }
 
-function makeRow(overrides: Partial<RiverLakeInspectorRow> = {}): RiverLakeInspectorRow {
+function makeRow(overrides: Partial<WaterStatsRow> = {}): WaterStatsRow {
   return {
     rowKey: "projection-plan",
-    lane: "projection",
-    laneLabel: "Projection",
     label: "Navigable river plan",
-    proofClass: "projection-plan",
-    claimStatus: "available",
-    displayStatus: "projection-plan-present",
     counts: { layers: 1, projected: 12 },
     layerRefs: [makeRef()],
-    evidence: ["The projected navigable-river mask is present."],
     ...overrides,
   };
 }
 
-function makeSummary(rows: readonly RiverLakeInspectorRow[]): RiverLakeFloodplainInspectorSummary {
-  return { version: 1, rows };
+function makeSummary(rows: readonly WaterStatsRow[]): WaterStatsSummary {
+  return { rows };
 }
 
 function renderSection(overrides: Partial<WaterStatsSectionProps> = {}) {
@@ -108,10 +88,7 @@ describe("WaterStatsSection (water stats)", () => {
 
   it("renders no proof vocabulary — claim words, lane eyebrows, status dots are gone", () => {
     const html = renderSection({
-      summary: makeSummary([
-        makeRow({ claimStatus: "available" }),
-        makeRow({ rowKey: "x", claimStatus: "unresolved", counts: { terrain: 9 } }),
-      ]),
+      summary: makeSummary([makeRow(), makeRow({ rowKey: "x", counts: { terrain: 9 } })]),
     });
 
     expect(html).not.toContain("inspect");

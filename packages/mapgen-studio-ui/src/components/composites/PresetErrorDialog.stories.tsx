@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { PresetErrorDialog } from "@/features/presets/PresetDialogs";
+import { PresetErrorDialog } from "@swooper/mapgen-studio-ui";
 
 /**
  * PresetErrorDialog surfaces a failed preset import/save on the token-driven

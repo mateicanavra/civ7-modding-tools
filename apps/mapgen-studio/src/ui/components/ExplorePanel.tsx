@@ -5,7 +5,14 @@
 // Fully controlled component - all options passed via props.
 // ============================================================================
 
-import { LAYOUT, Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
+import {
+  DisclosureHeader,
+  LAYOUT,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  WaterStatsSection,
+} from "@swooper/mapgen-studio-ui";
 import type {
   DataTypeOption,
   OverlayOption,
@@ -32,8 +39,6 @@ import type {
   RiverLakeFloodplainInspectorSummary,
   RiverLakeInspectorLayerRef,
 } from "../../features/viz/riverLakeInspector";
-import { DisclosureHeader } from "./DisclosureHeader";
-import { WaterStatsSection } from "./WaterStatsSection";
 // ============================================================================
 // Props
 // ============================================================================

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { OptionSelect } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { OptionSelect } from "@/ui/components/OptionSelect";
 
 /**
  * OptionSelect is a thin, token-driven adapter over the Radix Select that keeps

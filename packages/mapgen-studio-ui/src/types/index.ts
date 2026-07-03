@@ -305,3 +305,16 @@ export interface Preset {
 }
 
 // (No retired aliases: Studio is the only consumer and uses the v1 vocabulary.)
+
+// ============================================================================
+// Component-owned re-homed types (structure-rewire §3.4)
+// ============================================================================
+// Types that live WITH their owning component but re-export through this
+// barrel so `@swooper/mapgen-studio-ui/types` stays the single types surface.
+
+export type { StageView } from "../components/composites/StageViewTabs.js";
+export type {
+  WaterStatsLayerRef,
+  WaterStatsRow,
+  WaterStatsSummary,
+} from "../components/composites/WaterStatsSection.js";

@@ -16,12 +16,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DisclosureHeader,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   LAYOUT,
+  OptionSelect,
   Switch,
   Tooltip,
   TooltipContent,
@@ -33,8 +35,6 @@ import React, { useMemo, useRef, useState } from "react";
 import { SchemaConfigForm } from "../../features/configOverrides/SchemaConfigForm";
 import { useConfigCollapse } from "../../features/configOverrides/useConfigCollapse";
 import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
-import { DisclosureHeader } from "./DisclosureHeader";
-import { OptionSelect } from "./OptionSelect";
 // ============================================================================
 // Props
 // ============================================================================

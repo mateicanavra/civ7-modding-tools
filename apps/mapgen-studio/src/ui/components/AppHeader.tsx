@@ -1,4 +1,12 @@
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
+import {
+  AppBrand,
+  Button,
+  OptionSelect,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  ViewControls,
+} from "@swooper/mapgen-studio-ui";
 import type { ThemePreference } from "@swooper/mapgen-studio-ui/types";
 import { Gamepad2, Settings } from "lucide-react";
 import React from "react";
@@ -8,9 +16,6 @@ import {
   updateStudioSetupGameOption,
   updateStudioSetupPlayerOption,
 } from "../../features/civ7Setup/setupConfig";
-import { AppBrand } from "./AppBrand";
-import { OptionSelect } from "./OptionSelect";
-import { ViewControls } from "./ViewControls";
 
 /**
  * Sentinel selector value for the drifted state: the authored game setup no
