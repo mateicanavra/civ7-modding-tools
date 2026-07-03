@@ -18,6 +18,67 @@ export function habitatInputs(): string[] {
   ];
 }
 
+export function boundaryInputs(): string[] {
+  const sourceInputs = [
+    "{workspaceRoot}/apps/**/*.cjs",
+    "{workspaceRoot}/apps/**/*.cts",
+    "{workspaceRoot}/apps/**/*.js",
+    "{workspaceRoot}/apps/**/*.jsx",
+    "{workspaceRoot}/apps/**/*.mjs",
+    "{workspaceRoot}/apps/**/*.mts",
+    "{workspaceRoot}/apps/**/*.ts",
+    "{workspaceRoot}/apps/**/*.tsx",
+    "{workspaceRoot}/mods/**/*.cjs",
+    "{workspaceRoot}/mods/**/*.cts",
+    "{workspaceRoot}/mods/**/*.js",
+    "{workspaceRoot}/mods/**/*.jsx",
+    "{workspaceRoot}/mods/**/*.mjs",
+    "{workspaceRoot}/mods/**/*.mts",
+    "{workspaceRoot}/mods/**/*.ts",
+    "{workspaceRoot}/mods/**/*.tsx",
+    "{workspaceRoot}/packages/**/*.cjs",
+    "{workspaceRoot}/packages/**/*.cts",
+    "{workspaceRoot}/packages/**/*.js",
+    "{workspaceRoot}/packages/**/*.jsx",
+    "{workspaceRoot}/packages/**/*.mjs",
+    "{workspaceRoot}/packages/**/*.mts",
+    "{workspaceRoot}/packages/**/*.ts",
+    "{workspaceRoot}/packages/**/*.tsx",
+    "{workspaceRoot}/scripts/**/*.cjs",
+    "{workspaceRoot}/scripts/**/*.cts",
+    "{workspaceRoot}/scripts/**/*.js",
+    "{workspaceRoot}/scripts/**/*.jsx",
+    "{workspaceRoot}/scripts/**/*.mjs",
+    "{workspaceRoot}/scripts/**/*.mts",
+    "{workspaceRoot}/scripts/**/*.ts",
+    "{workspaceRoot}/scripts/**/*.tsx",
+    "{workspaceRoot}/tools/**/*.cjs",
+    "{workspaceRoot}/tools/**/*.cts",
+    "{workspaceRoot}/tools/**/*.js",
+    "{workspaceRoot}/tools/**/*.jsx",
+    "{workspaceRoot}/tools/**/*.mjs",
+    "{workspaceRoot}/tools/**/*.mts",
+    "{workspaceRoot}/tools/**/*.ts",
+    "{workspaceRoot}/tools/**/*.tsx",
+    "!{workspaceRoot}/**/dist/**",
+    "!{workspaceRoot}/**/types/**",
+    "!{workspaceRoot}/**/mod/**",
+    "!{workspaceRoot}/**/example-generated-mod/**",
+  ];
+  return [
+    "{workspaceRoot}/eslint.boundaries.config.mjs",
+    "{workspaceRoot}/nx.json",
+    "{workspaceRoot}/package.json",
+    "{workspaceRoot}/bun.lock",
+    "{workspaceRoot}/docs/projects/habitat-harness/taxonomy.md",
+    "{workspaceRoot}/apps/**/package.json",
+    "{workspaceRoot}/mods/**/package.json",
+    "{workspaceRoot}/packages/**/package.json",
+    "{workspaceRoot}/tools/**/package.json",
+    ...sourceInputs,
+  ];
+}
+
 export function biomeTargets(): {
   format: NxTargetDefinition;
   check: NxTargetDefinition;
@@ -63,10 +124,10 @@ export function biomeTargets(): {
 export function boundariesTarget(): NxTargetDefinition {
   return {
     command:
-      "FORCE_COLOR=0 eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
+      "FORCE_COLOR=0 eslint . --quiet --cache --cache-strategy content --cache-location .nx/cache/eslint-boundaries --config eslint.boundaries.config.mjs --no-config-lookup",
     options: workspaceCwd,
     cache: true,
-    inputs: habitatInputs(),
+    inputs: boundaryInputs(),
     metadata: {
       description:
         "project-plane module boundaries via @nx/enforce-module-boundaries (habitat-boundary-tags/H3)",

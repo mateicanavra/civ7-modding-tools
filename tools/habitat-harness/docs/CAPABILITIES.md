@@ -52,6 +52,14 @@ Root scripts also expose graph-owned entrypoints:
 - Full Habitat structural verification lives in `bun run habitat:check`,
   `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
   `bun run check`; it is not hidden inside root lint.
+- `@internal/habitat-harness:validate:boundary-taxonomy` runs the current
+  workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
+  target. It is part of root `bun run check` and Habitat verify/pre-push target
+  planning, not package unit tests.
+- `@internal/habitat-harness:validate:grit-patterns` runs checked-in Habitat
+  Grit pattern fixture validation through native `grit patterns test`. It is
+  part of root `bun run check` and Habitat verify/pre-push target planning, not
+  package unit tests.
 - `bun run verify` runs the repo-wide verification aggregate.
 - `bun run check` runs the repo-wide build, check, lint, test, and verify aggregate.
 - `bun run habitat:fix` runs `bun run habitat fix`.
@@ -62,49 +70,53 @@ the same command as diagnostic `bun run habitat verify`.
 ## Workspace Graph Integration
 
 The workspace graph loads the Habitat inference plugin from
-`tools/habitat-harness/src/plugin.ts`. The plugin gives the workspace graph
-these Habitat-owned targets:
+`tools/habitat-harness/src/plugin.ts` and package-declared Nx targets from
+project manifests. Together they expose these Habitat-owned targets:
 
 - Repo-wide `boundaries`
 - Repo-wide formatter targets
 - Repo-wide pattern checks
 - Repo-wide `generated:check`
+- Package-owned `validate:boundary-taxonomy` for current workspace taxonomy,
+  manifest, Nx metadata, boundary config, and graph-edge validation
+- Package-owned `validate:grit-patterns` for checked-in Habitat/Grit pattern
+  fixture validation
 - Aggregate `habitat:check:all` for one-pass full Habitat graph checks
 - Per-rule `habitat:rule:<rule-id>` aliases
 - Per-owner `habitat:check` targets for projects that own Habitat rules
 
 The graph is the intended orchestration layer. Package scripts should not hide
 cross-project dependency ordering that belongs in graph target dependencies.
+Current workspace topology audits belong in this layer; unit tests cover the
+pure parser and audit model with fixtures.
 
 ## Rule Pack
 
 The rule registry is `.habitat/rules/index.json` and
 `.habitat/rules/<rule-id>/rule.json`. At this
-state it contains 51 registered rules:
+state it contains 49 registered rules:
 
 | Habitat lane | Count | Role |
 | --- | ---: | --- |
-| Pattern checks | 31 | Source-shape diagnostics over registered scan roots. |
-| Wrapped tests | 7 | Existing package test or verification targets wrapped as Habitat rules. |
-| File protection | 4 | Generated-zone and forbidden-file staged checks. |
-| Native checks | 4 | Habitat structural rules and built-in checks. |
-| Wrapped scripts | 3 | Existing scripts wrapped without changing their semantics. |
+| Pattern checks | 35 | Source-shape diagnostics over registered scan roots. |
+| File protection | 5 | Generated-zone and forbidden-file staged checks. |
+| Native checks | 3 | Habitat structural rules and built-in checks. |
+| Command checks | 4 | Existing command-line gates wrapped without changing their semantics. |
 | Formatter hygiene | 1 | Hygiene-layer CI gate. |
 | Project boundaries | 1 | Project-plane import boundary enforcement. |
 
 Lane state:
 
-- 49 enforced rules fail `habitat check` on unbaselined violations.
-- 2 advisory rules report findings without failing the check.
+- 48 enforced rules fail `habitat check` on unbaselined violations.
+- 1 advisory rule reports findings without failing the check.
 
 Owner state:
 
-- `mod-swooper-maps`: 32 rules
-- `@internal/habitat-harness`: 14 rules
-- `@swooper/mapgen-core`: 2 rules
+- `mod-swooper-maps`: 29 rules
+- `@internal/habitat-harness`: 17 rules
+- `@swooper/mapgen-core`: 1 rule
 - `@civ7/control-orpc`: 1 rule
 - `@mateicanavra/civ7-sdk`: 1 rule
-- `mod-civ7-intelligence-bridge`: 1 rule
 
 ## Baselines
 
@@ -130,8 +142,8 @@ through a structural pattern engine behind that contract.
 
 Current active pattern state:
 
-- 31 check patterns under `.habitat/patterns/checks`.
-- 31 registered pattern-check rules in the rule registry.
+- 35 check patterns under `.habitat/patterns/checks`.
+- 35 registered pattern-check rules in the rule registry.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
 - Habitat normalizes adapter JSON results back to Habitat rule IDs and

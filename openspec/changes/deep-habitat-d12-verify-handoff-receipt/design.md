@@ -30,7 +30,7 @@ correctness, CI, root aggregate verification, reviewer approval, or PR readiness
 
 `VerifyReceipt` is a closed TypeBox object:
 
-- `outcome`: `succeeded`, `failed`, or `blocked`.
+- `outcome`: `succeeded`, `failed`, `blocked`, or `planned`.
 - `base`: requested base, resolved base, and source (`flag` or `merge-base`).
 - `habitatCheck`: selected rule ids, status counts, D7 admission, and selector state.
 - `targetPlan`: ready targets or graph-refusal summary.
@@ -47,10 +47,12 @@ raw stdout/stderr bodies from affected Nx.
 3. Consume D7 `VerifyCheckSummaryProjection`.
 4. Read D3 `VerifyTargetPlan`.
 5. If check or graph state blocks affected execution, build a blocked receipt.
-6. Otherwise run:
+6. If the caller requested receipt-only JSON, build a planned receipt without
+   invoking affected targets.
+7. Otherwise run:
    `nx affected -t <targets> --base <resolved-base> --head HEAD --outputStyle=static`
-7. Observe post-state with `git status --short --branch`.
-8. Emit human output or JSON receipt.
+8. Observe post-state with `git status --short --branch`.
+9. Emit human output or JSON receipt.
 
 ## Stability
 

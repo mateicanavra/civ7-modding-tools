@@ -3,29 +3,20 @@
   "ownerTool": "pattern-check",
   "ownerProject": "@swooper/mapgen-core",
   "lane": "enforced",
-  "scope": "packages/mapgen-core/src/{core,engine}/**/*.ts",
-  "forbids": "Civ7 adapter value imports, /base-standard paths, or runtime globals in mapgen-core",
+  "scope": "packages/mapgen-core/src/**/*.ts excluding src/dev",
+  "forbids": "Civ7 adapter value imports, /base-standard paths, runtime globals, adapter creation, or unsafe engine casts in mapgen-core production source",
   "why": "mapgen-core is a pure TypeScript engine; Civ7 coupling belongs in adapters.",
   "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
-  "message": "Remove Civ7 runtime coupling from mapgen-core core/engine source.",
+  "message": "Remove Civ7 runtime coupling from mapgen-core production source.",
   "exceptionPath": "none",
   "patternName": "mapgen_core_runtime_civ7",
   "hookCheck": true,
-  "scanRoots": [
-    "packages",
-    "apps/mapgen-studio/src",
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["packages/mapgen-core/src"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/mapgen-core/src/core/**/*.ts",
-        "packages/mapgen-core/src/engine/**/*.ts"
-      ]
+      "patterns": ["packages/mapgen-core/src/**/*.ts"]
     }
   ]
 }

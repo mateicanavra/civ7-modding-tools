@@ -14,7 +14,7 @@ export type PrePushBaseDecision =
     };
 
 export function resolvePrePushBase(runtime: HookRuntime = {}): PrePushBaseDecision {
-  const parent = graphiteParent(runtime);
+  const parent = resolveGraphiteParent(runtime);
   if (parent) return { kind: "resolved", base: parent, source: "graphite-parent" };
   const defaultBranch = remoteDefaultBranch(runtime);
   const base = defaultBranch ? mergeBaseForRef(defaultBranch, runtime) : null;
@@ -26,7 +26,7 @@ export function resolvePrePushBase(runtime: HookRuntime = {}): PrePushBaseDecisi
   };
 }
 
-function graphiteParent(runtime: HookRuntime = {}): string | null {
+export function resolveGraphiteParent(runtime: HookRuntime = {}): string | null {
   const info = runHookCommand(
     runtime,
     "pre-push-base",

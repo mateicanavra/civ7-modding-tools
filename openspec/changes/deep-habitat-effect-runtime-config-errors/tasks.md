@@ -4,8 +4,9 @@
 
 - [x] 1.1 Add `src/{runtime,config,errors,resources,providers/command,providers/reporter}/**` modules and exports.
 - [x] 1.2 Move runtime bridge ownership out of general `src/lib/**`.
-- [x] 1.3 Add live and fake layers for config, clock, filesystem, reporter,
-  command runner, and resource scope.
+- [x] 1.3 Add live and fake layers for config, reporter, command runner, and
+  provider-owned services; native filesystem/clock come from Effect platform
+  layers after `deep-habitat-effect-native-platform-resource-drain`.
 
 ## 2. Error And Config Model
 
@@ -26,8 +27,6 @@
 - [x] 4.1 Static scan for `Effect.run*` outside adapters.
 - [x] 4.2 `bun run --cwd tools/habitat-harness check`
 - [x] 4.3 `bun run --cwd tools/habitat-harness test`
-- [ ] 4.4 `bun run habitat:check -- --json` returns bounded JSON but exits 1
-      on explicit broad Grit scheduling refusal; vendor batching/cutover remains
-      owned by the next domino.
+- [x] 4.4 `bun run habitat check --tool habitat --json`
 - [x] 4.5 `bun run openspec:validate`
 - [x] 4.6 `git diff --check`

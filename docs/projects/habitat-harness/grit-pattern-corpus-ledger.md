@@ -12,7 +12,14 @@ program. A pattern OpenSpec opens only after its row has authority, proof,
 owner layer, scan roots, fixtures, current-tree scan status, baseline action,
 apply safety disposition, and review.
 
-## Corpus Seed Summary
+**Supersession note:** `deep-habitat-effect-target-check-drain` removed the
+active Habitat `target-check` / `arch-test-*` wrapper rows from structural
+execution. Historical rows below that mention `arch-test-*`, `wrapped-test`, or
+wrapper baselines describe the old proof trail only; current source-shape
+ownership lives in source-check pattern rules, and generated-bundle/domain
+correctness checks remain package Nx targets.
+
+## Historical Corpus Seed Summary
 
 - Current implemented corpus: 22 check patterns under
   `.habitat/patterns/checks/`.

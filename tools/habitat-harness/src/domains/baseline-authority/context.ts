@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { ruleRegistryRepoPath } from "../../lib/artifact-paths.ts";
 import { baselinesDir, repoRoot } from "../../lib/paths.js";
-import { runSyncSpawnCommand, type SpawnResult } from "../../providers/command/index.js";
 import {
   loadRuleRegistryDocument,
   ruleBaselineFacts,
@@ -17,29 +16,21 @@ export interface BaselineAuthorityContext {
   ruleIntroductionManifests?: readonly RuleIntroductionBaselineManifest[];
 }
 
-export interface BaselineContractContext extends BaselineAuthorityContext {
-  runCommand?: (argv: string[], options?: { cwd?: string }) => SpawnResult;
-}
-
 export interface RequiredBaselineContext {
   repoRoot: string;
   baselinesDir: string;
   registry: readonly BaselineRuleContractInput[];
-  runCommand: (argv: string[], options?: { cwd?: string }) => SpawnResult;
   ruleIntroductionManifests: readonly RuleIntroductionBaselineManifest[];
 }
 
 export function resolveBaselineContext(
-  options: BaselineContractContext = {}
+  options: BaselineAuthorityContext = {}
 ): RequiredBaselineContext {
   const root = options.repoRoot ?? repoRoot;
   return {
     repoRoot: root,
     baselinesDir: options.baselinesDir ?? baselinesDir,
     registry: options.registry ?? readCurrentRuleRegistry(root),
-    runCommand:
-      options.runCommand ??
-      ((argv, runOptions) => runSyncSpawnCommand(argv, { cwd: runOptions?.cwd ?? root })),
     ruleIntroductionManifests: options.ruleIntroductionManifests ?? [],
   };
 }
@@ -60,25 +51,6 @@ export function readCurrentRuleRegistry(root: string): BaselineRuleContractInput
         : {}),
     };
   });
-}
-
-export function gitShow(
-  ref: string,
-  repoRelPath: string,
-  context = resolveBaselineContext()
-): string | null {
-  const res = context.runCommand(["git", "show", `${ref}:${repoRelPath}`], {
-    cwd: context.repoRoot,
-  });
-  return res.exitCode === 0 ? res.stdout : null;
-}
-
-export function mergeBase(base = "main", context = resolveBaselineContext()): string | null {
-  for (const ref of [base, `origin/${base}`]) {
-    const res = context.runCommand(["git", "merge-base", "HEAD", ref], { cwd: context.repoRoot });
-    if (res.exitCode === 0) return res.stdout.trim();
-  }
-  return null;
 }
 
 export function baselinePathForRule(ruleId: string, context: RequiredBaselineContext): string {

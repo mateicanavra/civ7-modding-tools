@@ -1,6 +1,8 @@
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 import type { HookRuntime } from "../../src/domains/hook-runtime/runtime.js";
+import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
+import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runHookService } from "../../src/service/modules/hook/router.js";
 
@@ -8,8 +10,9 @@ describe("Habitat hook service", () => {
   test("runs owned hook orchestration from service input", async () => {
     const fake = makePrePushRuntime();
 
-    const result = await Effect.runPromise(
-      runHookService({ name: "pre-push", base: "HEAD~1" }, { runtime: fake.runtime })
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime }
     );
 
     expect(result).toEqual({
@@ -19,12 +22,12 @@ describe("Habitat hook service", () => {
       stderr: "",
     });
     expect(fake.calls).toEqual([
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base HEAD~1 --head HEAD --outputStyle=static",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static",
     ]);
   });
 
   test("preserves unknown hook stream behavior", async () => {
-    const result = await Effect.runPromise(runHookService({}));
+    const result = await runHookServiceInTest({});
 
     expect(result).toEqual({
       exitCode: 2,
@@ -36,14 +39,46 @@ describe("Habitat hook service", () => {
   test("preserves empty base as hook runtime input", async () => {
     const fake = makePrePushRuntime({ graphiteParent: "agent-parent" });
 
-    const result = await Effect.runPromise(
-      runHookService({ name: "pre-push", base: "" }, { runtime: fake.runtime })
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "" },
+      { runtime: fake.runtime }
     );
 
     expect(result.stdout).toContain("base=agent-parent");
     expect(fake.calls).toEqual([
       "gt branch info --no-interactive",
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base agent-parent --head HEAD --outputStyle=static",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base agent-parent --head HEAD --outputStyle=static",
+    ]);
+  });
+
+  test("resolves pre-push merge-base through GitProvider when Graphite parent is absent", async () => {
+    const fake = makePrePushRuntime();
+    const gitCalls: string[] = [];
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        gitCalls.push(argv.join(" "));
+        const stdout =
+          argv[0] === "symbolic-ref"
+            ? "origin/main\n"
+            : argv[0] === "merge-base"
+              ? "abc123mergebase\n"
+              : "";
+        return commandResult(argv, options.cwd, stdout);
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("base=abc123mergebase");
+    expect(fake.calls).toEqual([
+      "gt branch info --no-interactive",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base abc123mergebase --head HEAD --outputStyle=static",
+    ]);
+    expect(gitCalls).toEqual([
+      "symbolic-ref --quiet --short refs/remotes/origin/HEAD",
+      "merge-base HEAD origin/main",
     ]);
   });
 
@@ -57,7 +92,7 @@ describe("Habitat hook service", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("base=HEAD~1");
     expect(fake.calls).toEqual([
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base HEAD~1 --head HEAD --outputStyle=static",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static",
     ]);
   });
 
@@ -88,6 +123,28 @@ describe("Habitat hook service", () => {
     ]);
   });
 });
+
+function runHookServiceInTest(
+  input: Parameters<typeof runHookService>[0],
+  options: Parameters<typeof runHookService>[1] = {},
+  gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, ""))
+) {
+  return Effect.runPromise(runHookService(input, options).pipe(Effect.provide(gitLayer)));
+}
+
+function commandResult(argv: readonly string[], cwd: string, stdout: string) {
+  return makeHabitatCommandResult(
+    {
+      commandId: `git-${argv.join("-")}`,
+      kind: "git-state",
+      executable: "git",
+      argv,
+      cwd,
+      captureGitState: false,
+    },
+    { stdout: captureOutput(stdout) }
+  );
+}
 
 function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
   runtime: HookRuntime;

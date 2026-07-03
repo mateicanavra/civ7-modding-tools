@@ -66,20 +66,3 @@ export const PatternGeneratorOptionsSchema = Type.Object(
 );
 
 export type PatternGeneratorOptions = Static<typeof PatternGeneratorOptionsSchema>;
-
-export const NormalizedPatternGeneratorOptionsSchema = Type.Object(
-  {
-    ruleId: Type.String({ minLength: 1 }),
-    patternName: Type.String({ minLength: 1 }),
-    lifecycle: PatternLifecycleSchema,
-    identifier: Type.String({ minLength: 1 }),
-    ownerProject: Type.String({ minLength: 1 }),
-    openspecChangeId: Type.String({ minLength: 1 }),
-    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
-  },
-  { additionalProperties: false }
-);
-
-export type NormalizedPatternGeneratorOptions = Static<
-  typeof NormalizedPatternGeneratorOptionsSchema
->;

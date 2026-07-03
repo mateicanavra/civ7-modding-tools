@@ -24,7 +24,7 @@ import {
   renderDiagnosticAdapterFailure,
 } from "../../src/domains/diagnostic-pattern-catalog/index.js";
 import type { RulePatternFacts } from "../../src/domains/rule-registry/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
+import { repoRoot, toRepoRelative } from "../../src/lib/paths.js";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
@@ -303,17 +303,28 @@ describe("Grit check adapter parser and diagnostics", () => {
   });
 
   test("validates missing, outside, generated, protected, and approved scan roots", () => {
-    expect(validateScanRoots(["packages"])).toBeNull();
-    expect(validateScanRoots(["packages/mapgen-core/src"])).toBeNull();
-    expect(validateScanRoots(["mods/mod-swooper-maps/test"])).toBeNull();
-    expect(validateScanRoots(["missing-root"])).toContain("does not exist");
-    expect(validateScanRoots(["../outside"])).toContain("outside the repo");
-    expect(validateScanRoots(["mods/mod-swooper-maps/src/maps/generated"])).toContain(
+    const options = {
+      pathExists: fakeExistingScanRoots([
+        ".git",
+        "docs/PROCESS.md",
+        "mods/mod-swooper-maps/src/maps/generated",
+        "mods/mod-swooper-maps/test",
+        "packages",
+        "packages/mapgen-core/src",
+      ]),
+    };
+
+    expect(validateScanRoots(["packages"], options)).toBeNull();
+    expect(validateScanRoots(["packages/mapgen-core/src"], options)).toBeNull();
+    expect(validateScanRoots(["mods/mod-swooper-maps/test"], options)).toBeNull();
+    expect(validateScanRoots(["missing-root"], options)).toContain("does not exist");
+    expect(validateScanRoots(["../outside"], options)).toContain("outside the repo");
+    expect(validateScanRoots(["mods/mod-swooper-maps/src/maps/generated"], options)).toContain(
       "generated output"
     );
-    expect(validateScanRoots([".git"])).toContain("protected");
-    expect(validateScanRoots(["docs/PROCESS.md"])).toContain("not approved");
-    expect(validateScanRoots(["docs/PROCESS.md"], { allowDocsRoot: true })).toBeNull();
+    expect(validateScanRoots([".git"], options)).toContain("protected");
+    expect(validateScanRoots(["docs/PROCESS.md"], options)).toContain("not approved");
+    expect(validateScanRoots(["docs/PROCESS.md"], { ...options, allowDocsRoot: true })).toBeNull();
   });
 
   test("keeps scan-root refusal reasons as closed decisions", () => {
@@ -476,6 +487,118 @@ describe("Grit check adapter parser and diagnostics", () => {
     expect(results.get(secondRule.id)?.diagnostics[0]?.message).toBe("source two finding");
   });
 
+  test("splits source Grit execution by scan root and keeps rule findings isolated", async () => {
+    const packagesRule = fakeGritRule("packages-rule", "packages_rule", {
+      scanRoots: ["packages/sdk/src"],
+    });
+    const domainRule = fakeGritRule("domain-rule", "domain_rule", {
+      scanRoots: ["mods/mod-swooper-maps/src/domain"],
+    });
+    const observedRequests: HabitatProcessRequest[] = [];
+    const fakeLayer = makeFakeGritProviderLayer((request) => {
+      observedRequests.push(request);
+      return makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: request.scanRoots,
+            results: request.scanRoots.includes("packages/sdk/src")
+              ? [
+                  {
+                    local_name: "packages_rule",
+                    path: "packages/sdk/src/index.ts",
+                    start: { line: 1 },
+                    extra: { message: "packages finding" },
+                  },
+                ]
+              : [
+                  {
+                    local_name: "domain_rule",
+                    path: "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+                    start: { line: 2 },
+                    extra: { message: "domain finding" },
+                  },
+                ],
+          })
+        ),
+      });
+    });
+
+    const results = await runGritRules([packagesRule, domainRule], {
+      providerLayer: fakeLayer,
+    });
+
+    expect(observedRequests.map((request) => request.argv).sort()).toEqual(
+      [
+        ["--json", "check", "--level", "error", "mods/mod-swooper-maps/src/domain"],
+        ["--json", "check", "--level", "error", "packages/sdk/src"],
+      ].sort()
+    );
+    expect(results.get(packagesRule.id)?.diagnostics).toEqual([
+      {
+        ruleId: packagesRule.id,
+        path: "packages/sdk/src/index.ts",
+        line: 1,
+        message: "packages finding",
+        severity: "error",
+        baselined: false,
+      },
+    ]);
+    expect(results.get(domainRule.id)?.diagnostics).toEqual([
+      {
+        ruleId: domainRule.id,
+        path: "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+        line: 2,
+        message: "domain finding",
+        severity: "error",
+        baselined: false,
+      },
+    ]);
+  });
+
+  test("unions findings for a selected Grit rule that owns multiple scan roots", async () => {
+    const rule = fakeGritRule("multi-root-rule", "multi_root_rule", {
+      scanRoots: ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
+    });
+    const fakeLayer = makeFakeGritProviderLayer((request) =>
+      makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: request.scanRoots,
+            results: [
+              {
+                local_name: "multi_root_rule",
+                path: `${request.scanRoots[0]}/demo.ts`,
+                start: { line: request.scanRoots[0]?.includes("recipes") ? 3 : 4 },
+                extra: { message: `${request.scanRoots[0]} finding` },
+              },
+            ],
+          })
+        ),
+      })
+    );
+
+    const results = await runGritRules([rule], { providerLayer: fakeLayer });
+
+    expect(results.get(rule.id)?.diagnostics).toEqual([
+      {
+        ruleId: rule.id,
+        path: "mods/mod-swooper-maps/src/recipes/demo.ts",
+        line: 3,
+        message: "mods/mod-swooper-maps/src/recipes finding",
+        severity: "error",
+        baselined: false,
+      },
+      {
+        ruleId: rule.id,
+        path: "mods/mod-swooper-maps/src/domain/demo.ts",
+        line: 4,
+        message: "mods/mod-swooper-maps/src/domain finding",
+        severity: "error",
+        baselined: false,
+      },
+    ]);
+  });
+
   test("fresh cache mode uses a scoped isolated cache with observable freshness", async () => {
     const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
     let observedRequest: HabitatProcessRequest | undefined;
@@ -633,13 +756,7 @@ Processed 1 files and found 1 matches
 
   test("splits mixed source and docs Grit selections by output contract", async () => {
     const sourceRule = fakeGritRule("domain-deep-import", "domain_deep_import", {
-      scanRoots: [
-        "packages",
-        "apps/mapgen-studio/src",
-        "mods/mod-swooper-maps/src/recipes",
-        "mods/mod-swooper-maps/src/maps",
-        "mods/mod-swooper-maps/src/domain",
-      ],
+      scanRoots: ["mods/mod-swooper-maps/src/maps"],
     });
     const docsRule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
@@ -684,11 +801,7 @@ Processed 2 files and found 1 matches
       "check",
       "--level",
       "error",
-      "packages",
-      "apps/mapgen-studio/src",
-      "mods/mod-swooper-maps/src/recipes",
       "mods/mod-swooper-maps/src/maps",
-      "mods/mod-swooper-maps/src/domain",
     ]);
     expect(observedRequests[1]?.argv.slice(0, 2)).toEqual([
       "apply",
@@ -869,6 +982,13 @@ function output(text: string): OutputCapture {
     sha256: "test",
     bytes: Buffer.byteLength(text, "utf8"),
   };
+}
+
+function fakeExistingScanRoots(
+  existingRoots: readonly string[]
+): (absolutePath: string) => boolean {
+  const roots = new Set(existingRoots.map(toRepoRelative));
+  return (absolutePath) => roots.has(toRepoRelative(absolutePath));
 }
 
 function fakeGritRule(

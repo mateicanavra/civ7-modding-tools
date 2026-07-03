@@ -11,8 +11,8 @@ import {
   type NxGraphRequest,
   NxProvider,
 } from "../../src/providers/nx/index.js";
-import { makeFakeHabitatFileSystemLayer } from "../../src/resources/index.js";
 import { runGraphService } from "../../src/service/modules/graph/router.js";
+import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
 describe("Habitat graph service", () => {
   test("runs Nx graph through providers and returns compact CLI JSON", async () => {
@@ -36,7 +36,7 @@ describe("Habitat graph service", () => {
           );
         },
       }),
-      makeFakeHabitatFileSystemLayer(
+      makeFakePlatformFileSystemLayer(
         events,
         new Map([[graphPath, JSON.stringify({ graph: { nodes: { app: {} } } })]])
       )
@@ -73,7 +73,7 @@ describe("Habitat graph service", () => {
             captureGitState: false,
           }),
       }),
-      makeFakeHabitatFileSystemLayer(
+      makeFakePlatformFileSystemLayer(
         [],
         new Map([[graphPath, JSON.stringify({ graph: null, nodes: { root: {} } })]])
       )
@@ -106,7 +106,7 @@ describe("Habitat graph service", () => {
             }
           ),
       }),
-      makeFakeHabitatFileSystemLayer(events)
+      makeFakePlatformFileSystemLayer(events)
     );
 
     const result = await Effect.runPromise(runGraphService({}).pipe(Effect.provide(layer)));
@@ -146,7 +146,7 @@ describe("Habitat graph service", () => {
           ),
         graphArgv,
       }),
-      makeFakeHabitatFileSystemLayer(events)
+      makeFakePlatformFileSystemLayer(events)
     );
 
     const result = await Effect.runPromise(runGraphService({}).pipe(Effect.provide(layer)));

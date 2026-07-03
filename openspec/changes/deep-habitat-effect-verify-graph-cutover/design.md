@@ -30,6 +30,11 @@ tools/habitat-harness/test/lib/workspace-graph.test.ts
 - `readVerifyTargetPlan` uses workspace graph service and `NxProvider` target
   proof.
 - `runAffectedVerification` uses `NxProvider`.
+- Receipt-only JSON consumes Habitat check plus the verify target plan but does
+  not run the affected target lane before emitting JSON.
+- Graph-backed structural checks batch through `NxProvider.runMany` instead of
+  flattening every target-check/import-boundaries/format-check rule into a raw
+  direct command.
 - Verify timestamps use `HabitatClock`.
 - Receipt projection keeps bounded stdout/stderr previews.
 

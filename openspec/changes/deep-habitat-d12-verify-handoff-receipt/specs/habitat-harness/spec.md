@@ -16,6 +16,14 @@ post-state fields.
 - **THEN** affected Nx targets may run
 - **AND** the receipt records `outcome == "succeeded"` when affected Nx exits 0 and post-state observation succeeds
 
+#### Scenario: Receipt-only JSON plans affected execution
+- **WHEN** `habitat verify --json` consumes a passing check projection
+- **AND** D3 publishes a ready verify target plan
+- **THEN** affected Nx targets are not invoked
+- **AND** the receipt records `outcome == "planned"`
+- **AND** `nxAffected.kind == "skipped"`
+- **AND** `nxAffected.skipReason == "receipt-only"`
+
 #### Scenario: Check blocks affected execution
 - **WHEN** D7 publishes a check projection that blocks affected execution
 - **THEN** affected Nx targets are not invoked
@@ -46,7 +54,7 @@ failed execution, and skipped execution.
 - **AND** bounded stdout/stderr metadata remains available
 
 #### Scenario: Affected targets are skipped
-- **WHEN** upstream check or graph state prevents affected execution
+- **WHEN** upstream check, graph state, or receipt-only mode prevents affected execution
 - **THEN** the receipt records `nxAffected.kind == "skipped"`
 - **AND** stdout/stderr lengths are 0
 - **AND** no project list or task cache observations are synthesized

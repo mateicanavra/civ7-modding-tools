@@ -63,6 +63,12 @@ Implemented graph integration:
 - inferred `habitat:check` per rule owner;
 - inferred `habitat:rule:<rule-id>` aliases;
 - inferred repo-wide boundary, formatter, pattern, and generated-zone checks;
+- explicit package-owned `validate:boundary-taxonomy` target for current
+  workspace taxonomy validation;
+- explicit package-owned `validate:grit-patterns` target for checked-in
+  Habitat/Grit pattern fixture validation;
+- public-surface guard logic owned in Habitat source, with the root lint script
+  serving as the current-tree rule wrapper;
 - root scripts normalized onto workspace graph entrypoints instead of manual task
   chaining;
 - package-local scripts kept leaf-local where possible.
@@ -80,13 +86,12 @@ Implemented owner tools:
 - project boundaries
 - formatter hygiene
 - file protection
-- wrapped tests
 
 Implemented rule state:
 
-- 51 registered rules;
-- 49 enforced;
-- 2 advisory;
+- 49 registered rules;
+- 48 enforced;
+- 1 advisory;
 - locked and debt-carrying baselines modeled explicitly;
 - selector validation for unknown, wrong-namespace, and empty-intersection
   rule selections.
@@ -95,8 +100,8 @@ Implemented rule state:
 
 Implemented diagnostic/check state:
 
-- 31 active Habitat check patterns;
-- matching 31 registered pattern-backed rules;
+- 35 active Habitat check patterns;
+- matching 35 registered pattern-backed rules;
 - fixture tests for pattern validity;
 - adapter normalization over machine JSON output;
 - cache/failure handling tests;
@@ -156,8 +161,13 @@ Current tests cover:
 - project generator behavior;
 - pattern generator behavior;
 - pattern manifest Manifest validation;
+- workspace-owned tool command materialization without executing native vendor
+  binaries for availability checks;
+- public-surface guard model coverage through injected in-memory fixture files;
 - process boundary behavior;
 - workspace tool discovery and verification receipt construction.
 
 These tests cover Habitat's enforcement and orchestration behavior. They do not
-cover broad MapGen authoring generation.
+cover current workspace topology by resolving the live graph; that validation is
+owned by graph targets such as `validate:boundary-taxonomy`, `boundaries`, and
+`grit:check`.

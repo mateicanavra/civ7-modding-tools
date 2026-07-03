@@ -11,9 +11,7 @@
 
 - [x] 2.1 Add compile/runtime tests for impossible command states.
 - [x] 2.2 Add tests for env redaction and output digest/truncation.
-- [ ] 2.3 Add tests for Git state ownership through fake `GitProvider`.
-  - Follow-on: this requires decoupling Git snapshot acquisition from the
-    command-runner-backed live `GitProvider` to avoid a provider cycle.
+- [x] 2.3 Add tests for Git state ownership through fake `GitStateProvider`.
 
 ## 3. Validation
 

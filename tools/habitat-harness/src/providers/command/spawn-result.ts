@@ -1,4 +1,4 @@
-import type { CommandProviderError } from "../../errors/index.js";
+import type { CommandProviderError } from "./errors.js";
 import { runSyncHabitatCommand } from "./runner.js";
 import type { HabitatCommandResult } from "./types.js";
 
