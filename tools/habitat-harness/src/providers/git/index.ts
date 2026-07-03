@@ -7,7 +7,11 @@ import type { HabitatClock } from "../../resources/index.js";
 import { CommandRunner, spawnResultFromCommandResult } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
 
-type GitProviderRequirements = CommandExecutor | HabitatConfig | HabitatClock | CommandRunner;
+export type GitProviderRequirements =
+  | CommandExecutor
+  | HabitatConfig
+  | HabitatClock
+  | CommandRunner;
 type GitCommandEffect = Effect.Effect<
   HabitatCommandResult,
   CommandProviderError,
@@ -27,6 +31,12 @@ export interface GitProviderService {
   readonly statusShortBranch: (options?: GitCommandOptions) => GitCommandEffect;
   readonly remoteDefaultBranch: (options?: GitCommandOptions) => GitTextEffect;
   readonly mergeBase: (ref: string, options?: GitCommandOptions) => GitTextEffect;
+  readonly show: (ref: string, repoPath: string, options?: GitCommandOptions) => GitTextEffect;
+  readonly lsTreeNameOnly: (
+    ref: string,
+    repoPath: string,
+    options?: GitCommandOptions
+  ) => Effect.Effect<readonly string[] | null, never, GitProviderRequirements>;
   readonly add: (paths: readonly string[], options?: GitCommandOptions) => GitCommandEffect;
   readonly diffNameOnly: (
     input?: { cached?: boolean; paths?: readonly string[] } & GitCommandOptions
@@ -89,6 +99,18 @@ function providerFromCommand(command: GitProviderService["command"]): GitProvide
         command(["symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], options)
       ),
     mergeBase: (ref, options) => textOrNull(command(["merge-base", "HEAD", ref], options)),
+    show: (ref, repoPath, options) => textOrNull(command(["show", `${ref}:${repoPath}`], options)),
+    lsTreeNameOnly: (ref, repoPath, options) =>
+      textOrNull(command(["ls-tree", "-r", "--name-only", ref, repoPath], options)).pipe(
+        Effect.map((stdout) =>
+          stdout === null
+            ? null
+            : stdout
+                .split("\n")
+                .map((line) => line.trim())
+                .filter(Boolean)
+        )
+      ),
     add: (paths, options) => command(["add", "--", ...paths], options),
     diffNameOnly: (input = {}) =>
       command(

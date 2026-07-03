@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { checkCommandContext, renderCheckReport } from "../lib/check-report.js";
+import { checkCommandContext, renderCheckReport } from "../domains/structural-check/index.js";
 import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Check extends HabitatCommand {

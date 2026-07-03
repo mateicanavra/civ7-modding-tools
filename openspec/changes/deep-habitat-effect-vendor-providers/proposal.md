@@ -9,7 +9,8 @@ and testable.
 
 ## What Changes
 
-- Promote the existing Grit Effect island into `providers/grit`.
+- Promote the existing Grit Effect island into the enclosed
+  `adapters/grit/provider` surface.
 - Add `GitProvider`, `BiomeProvider`, `NxProvider`, and `HuskyProvider`.
 - Define provider contracts for version/config discovery, command
   construction, resource/cache policy, typed failure tags, output parsing, and
@@ -26,7 +27,6 @@ and testable.
 ## Affected Owners
 
 - `tools/habitat-harness/src/adapters/grit/**`
-- `tools/habitat-harness/src/lib/habitat-process.ts`
 - `tools/habitat-harness/src/lib/workspace-tools.ts`
 - `tools/habitat-harness/src/lib/git-state.ts`
 - `tools/habitat-harness/src/lib/workspace-graph/**`

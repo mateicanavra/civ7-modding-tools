@@ -56,13 +56,10 @@
 
 ## Migration Boundary
 
-- `src/lib/habitat-process.ts` is a temporary migration bridge only. It exists
-  in this packet to keep current Grit adapter and public command behavior
-  stable while `CommandRunner` becomes the generic execution owner.
-- The durable end state forbids compatibility shims, duplicate process paths,
-  dead code, or fallback runners. Deletion is explicitly assigned to
-  `deep-habitat-effect-vendor-providers` and
-  `deep-habitat-effect-grit-apply-cutover`; those packets must move Grit
-  callsites to provider services and remove `HabitatProcessLive`,
-  `makeFakeHabitatProcessLayer`, and the Grit-shaped process facade before the
-  refactor train closes.
+- `src/lib/habitat-process.ts` has been deleted by
+  `deep-habitat-effect-grit-apply-cutover`. `CommandRunner` and
+  `src/providers/command/**` own command request/result construction, fake
+  command layers, live execution, and spawn-shaped projections.
+- Remaining raw command callsites are not accepted end-state architecture; each
+  is assigned to its owning service-module/provider packet as the affected
+  module moves behind Effect-oRPC procedures.

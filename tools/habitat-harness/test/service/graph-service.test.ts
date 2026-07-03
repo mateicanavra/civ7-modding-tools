@@ -12,7 +12,7 @@ import {
   NxProvider,
 } from "../../src/providers/nx/index.js";
 import { makeFakeHabitatFileSystemLayer } from "../../src/resources/index.js";
-import { runGraphService } from "../../src/service/modules/graph/run.js";
+import { runGraphService } from "../../src/service/modules/graph/router.js";
 
 describe("Habitat graph service", () => {
   test("runs Nx graph through providers and returns compact CLI JSON", async () => {

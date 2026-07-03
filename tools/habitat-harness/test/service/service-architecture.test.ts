@@ -66,9 +66,11 @@ describe("Habitat service architecture", () => {
       expect(moduleFile).not.toContain("Layer.succeed");
 
       expect(routerFile).toContain(".effect(");
+      expect(routerFile).not.toContain('from "./run.js"');
       expect(routerFile).not.toContain(".router(");
       expect(routerFile).not.toContain("ManagedRuntime");
       expect(routerFile).not.toContain("Layer.succeed");
+      expect(existsSync(join(packageRoot, `src/service/modules/${moduleName}/run.ts`))).toBe(false);
     }
   });
 
@@ -82,14 +84,84 @@ describe("Habitat service architecture", () => {
     }
   });
 
+  test("keeps grit provider enclosed inside the grit adapter", () => {
+    expect(existsSync(join(packageRoot, "src/providers/grit"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/adapters/grit/provider"))).toBe(true);
+
+    for (const file of sourceFiles(join(sourceRoot, "adapters/grit/provider"))) {
+      const text = source(file);
+      expect(text).not.toMatch(/from\s+["'][^"']*service\//);
+      expect(text).not.toMatch(/from\s+["'][^"']*domains\//);
+      expect(text).not.toContain("effect-orpc");
+      expect(text).not.toContain("implementEffect");
+    }
+  });
+
+  test("keeps diagnostic and pattern governance in domain ownership", () => {
+    expect(existsSync(join(packageRoot, "src/lib/diagnostic-catalog"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/rules/patterns"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/diagnostic-pattern-catalog"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/domains/pattern-governance"))).toBe(true);
+
+    for (const file of sourceFiles(sourceRoot)) {
+      const text = source(file);
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/diagnostic-catalog/);
+      expect(text).not.toMatch(/from\s+["'][^"']*rules\/patterns/);
+    }
+  });
+
+  test("keeps rule registry and selection in domain ownership", () => {
+    expect(existsSync(join(packageRoot, "src/rules/registry"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/rules/facts.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/rule-selection.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/rule-registry"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/domains/rule-selection"))).toBe(true);
+
+    for (const file of sourceFiles(sourceRoot)) {
+      const text = source(file);
+      expect(text).not.toMatch(/from\s+["'][^"']*rules\/registry/);
+      expect(text).not.toMatch(/from\s+["'][^"']*rules\/facts/);
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/rule-selection/);
+    }
+  });
+
   test("routes check CLI orchestration through the service client", () => {
     const checkCommand = source("src/commands/check.ts");
+    const checkRouter = source("src/service/modules/check/router.ts");
+    const serviceImpl = source("src/service/impl.ts");
+    const baselineService = source("src/domains/baseline-authority/service.ts");
+    const structuralExecution = source("src/domains/structural-check/execution.ts");
 
     expect(checkCommand).toContain("createHabitatServiceClient");
     expect(checkCommand).toContain("client.check.run");
     expect(checkCommand).toContain("client.check.expandBaseline");
     expect(checkCommand).not.toContain("createCheckReport");
     expect(checkCommand).not.toContain("expandBaselines");
+    expect(checkRouter).toContain("checkModule.run.effect");
+    expect(checkRouter).toContain("checkModule.expandBaseline.effect");
+    expect(checkRouter).toContain("StructuralCheck");
+    expect(checkRouter).not.toContain('from "./run.js"');
+    expect(checkRouter).not.toContain("lib/check-report");
+    expect(source("src/domains/structural-check/report.ts")).toContain("BaselineAuthority");
+    expect(structuralExecution).toContain("executeSelectedRulesEffect");
+    expect(structuralExecution).toContain("GitProvider");
+    expect(structuralExecution).not.toContain("runSyncSpawnCommand");
+    expect(baselineService).toContain("loadBaselineStateEffect");
+    expect(baselineService).toContain("checkBaselineIntegrityEffect");
+    expect(baselineService).toContain("writeBaselineEffect");
+    expect(baselineService).not.toContain("loadBaselineState(");
+    expect(baselineService).not.toContain("checkBaselineIntegrity(");
+    expect(baselineService).not.toContain("guardBaselineExpansion(");
+    expect(baselineService).not.toContain("writeBaseline(");
+    expect(serviceImpl).toContain("StructuralCheckLive");
+    expect(serviceImpl).toContain("BaselineAuthorityLive");
+    expect(existsSync(join(packageRoot, "src/service/modules/check/report.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/check/baseline.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/check/execution.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/check/run.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/verify/run.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/check"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/baseline-core"))).toBe(false);
   });
 
   test("routes classify CLI orchestration through the service client", () => {
@@ -101,7 +173,30 @@ describe("Habitat service architecture", () => {
     expect(classifyCommand).not.toContain("classifyTarget(");
     expect(classifyCommand).not.toContain("classifyPathResult");
     expect(classifyCommand).not.toContain("classifyPath(");
-    expect(classifyCommand).not.toContain("../lib/classify.js");
+    expect(classifyCommand).not.toContain("../domains/workspace-graph-integration/index.js");
+  });
+
+  test("keeps orientation and workspace graph logic in domain and provider ownership", () => {
+    const publicIndex = source("src/index.ts");
+    const classifyRouter = source("src/service/modules/classify/router.ts");
+    const sourceTexts = sourceFiles(sourceRoot).map(source);
+
+    expect(existsSync(join(packageRoot, "src/lib/classify-core"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/classify.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/workspace-graph"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/workspace-graph.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/workspace-graph-contract.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/workspace-graph-integration"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/providers/nx/graph.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/providers/nx/targets.ts"))).toBe(true);
+    expect(publicIndex).not.toContain("./domains/workspace-graph-integration/index.js");
+    expect(classifyRouter).toContain("classifyModule.run.effect");
+    expect(classifyRouter).not.toContain("runClassifyService");
+    for (const text of sourceTexts) {
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/classify(?:-core)?/);
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/workspace-graph/);
+      expect(text).not.toContain("workspace-graph-contract");
+    }
   });
 
   test("routes graph CLI orchestration through the service client", () => {
@@ -113,44 +208,127 @@ describe("Habitat service architecture", () => {
     expect(graphCommand).not.toContain("../lib/graph.js");
   });
 
+  test("keeps verify proof contracts in domain ownership", () => {
+    const verifyCommand = source("src/commands/verify.ts");
+    const verifyRouter = source("src/service/modules/verify/router.ts");
+    const verifyContract = source("src/service/modules/verify/contract.ts");
+    const publicIndex = source("src/index.ts");
+    const sourceTexts = sourceFiles(sourceRoot).map(source);
+
+    expect(existsSync(join(packageRoot, "src/lib/verify"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/proof-contract"))).toBe(true);
+    expect(verifyCommand).toContain("../domains/proof-contract/index.js");
+    expect(verifyRouter).toContain("../../../domains/proof-contract/index.js");
+    expect(verifyContract).toContain("../../../domains/proof-contract/schema.js");
+    expect(publicIndex).not.toContain("./domains/proof-contract/index.js");
+    for (const text of sourceTexts) {
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/verify/);
+    }
+  });
+
   test("routes fix CLI orchestration through the service client", () => {
     const fixCommand = source("src/commands/fix.ts");
-    const fixRun = source("src/service/modules/fix/run.ts");
+    const fixRouter = source("src/service/modules/fix/router.ts");
     const publicIndex = source("src/index.ts");
 
     expect(fixCommand).toContain("createHabitatServiceClient");
     expect(fixCommand).toContain("client.fix.run");
     expect(fixCommand).not.toContain("runFix");
     expect(fixCommand).not.toContain("../lib/fix.js");
-    expect(fixRun).not.toMatch(/from\s+["'][^"']*lib\/fix\.js["']/);
-    expect(fixRun).not.toContain("runPatternApply");
-    expect(fixRun).not.toMatch(/from\s+["'][^"']*lib\/pattern-apply\/run/);
+    expect(fixRouter).toContain("fixModule.run.effect");
+    expect(fixRouter).not.toMatch(/from\s+["'][^"']*lib\/fix\.js["']/);
+    expect(fixRouter).not.toContain("runPatternApply");
+    expect(fixRouter).not.toMatch(/from\s+["'][^"']*lib\/pattern-apply\/run/);
     expect(publicIndex).not.toContain("runFix");
     expect(existsSync(join(packageRoot, "src/lib/fix.ts"))).toBe(false);
   });
 
   test("keeps transaction execution in the transactions service module", () => {
-    const transactionRun = source("src/service/modules/transactions/run.ts");
-    const patternApplyIndex = source("src/lib/pattern-apply/index.ts");
+    const transactionRouter = source("src/service/modules/transactions/router.ts");
+    const transformationTransactionIndex = source(
+      "src/domains/transformation-transaction/index.ts"
+    );
 
-    expect(transactionRun).toContain("runTransactionApplyService");
-    expect(transactionRun).toContain("PatternApplyRecordSchema");
-    expect(patternApplyIndex).not.toContain("runPatternApply");
+    expect(transactionRouter).toContain("transactionsModule.apply.effect");
+    expect(transactionRouter).toContain("runTransactionApplyService");
+    expect(transactionRouter).toContain("PatternApplyRecordSchema");
+    expect(transactionRouter).toContain("../../../domains/transformation-transaction/schema.js");
+    expect(transformationTransactionIndex).not.toContain("runPatternApply");
+    expect(existsSync(join(packageRoot, "src/lib/pattern-apply"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/transformation-transaction"))).toBe(true);
     expect(existsSync(join(packageRoot, "src/lib/pattern-apply/run.ts"))).toBe(false);
   });
 
   test("routes hook CLI orchestration through the service client", () => {
     const hookCommand = source("src/commands/hook.ts");
-    const hookRun = source("src/service/modules/hook/run.ts");
+    const hookRouter = source("src/service/modules/hook/router.ts");
     const publicIndex = source("src/index.ts");
 
     expect(hookCommand).toContain("createHabitatServiceClient");
     expect(hookCommand).toContain("client.hook.run");
     expect(hookCommand).not.toContain("runHook");
     expect(hookCommand).not.toContain("../lib/hooks.js");
-    expect(hookRun).not.toMatch(/from\s+["'][^"']*lib\/hooks\.js["']/);
+    expect(hookRouter).toContain("hookModule.run.effect");
+    expect(hookRouter).not.toMatch(/from\s+["'][^"']*lib\/hooks\.js["']/);
+    expect(hookRouter).toContain("../../../domains/hook-runtime/");
     expect(publicIndex).not.toContain("runHook");
     expect(existsSync(join(packageRoot, "src/lib/hooks.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/hook-runtime"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/hook-runtime"))).toBe(true);
+  });
+
+  test("keeps the package root as a public facade only", () => {
+    const packageManifest = JSON.parse(source("package.json")) as {
+      exports: Record<string, string>;
+    };
+    const rootIndex = source("src/index.ts");
+    const publicIndex = source("src/public/index.ts");
+    const publicVerify = source("src/public/verify.ts");
+
+    expect(Object.keys(packageManifest.exports).sort()).toEqual([".", "./plugin", "./public/*"]);
+    expect(rootIndex.trim()).toBe('export * from "./public/index.js";');
+    expect(publicIndex).toContain("./check-report.js");
+    expect(publicIndex).toContain("./classify.js");
+    expect(publicIndex).toContain("./generators.js");
+    expect(publicIndex).toContain("./verify.js");
+    expect(existsSync(join(packageRoot, "src/public/check-report.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/public/classify.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/public/verify.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/public/generators.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/lib/baseline.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/check-report.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/diagnostics.ts"))).toBe(false);
+
+    for (const forbidden of [
+      "./adapters/",
+      "./config/",
+      "./domains/",
+      "./errors/",
+      "./lib/",
+      "./providers/",
+      "./runtime/",
+      "./rules/",
+    ]) {
+      expect(rootIndex).not.toContain(forbidden);
+      expect(Object.keys(packageManifest.exports).join("\n")).not.toContain(forbidden);
+    }
+
+    for (const internalExport of [
+      "HabitatRuntimeLive",
+      "makeFakeCommandRunnerLayer",
+      "WorkspaceToolProviderLive",
+      "GritToolUnavailable",
+      "checkBaselineIntegrity",
+      "readVerifyTargetPlan",
+      "resolveVerifyBase",
+      "runAffectedVerification",
+      "runHabitatEffect",
+      "runGraph",
+    ]) {
+      expect(rootIndex).not.toContain(internalExport);
+      expect(publicIndex).not.toContain(internalExport);
+      expect(publicVerify).not.toContain(internalExport);
+    }
   });
 });
 

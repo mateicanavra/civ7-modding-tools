@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { workspaceGraphTargetNames } from "../../../src/lib/workspace-graph/target-names.js";
 import {
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
@@ -9,7 +8,8 @@ import {
   ruleManifestFacts,
   rulePatternFacts,
   ruleRoutingFacts,
-} from "../../../src/rules/registry/index.js";
+} from "../../../src/domains/rule-registry/index.js";
+import { workspaceGraphTargetNames } from "../../../src/providers/nx/targets.js";
 import { baseRule } from "./helpers.js";
 
 describe("rule registry facts", () => {

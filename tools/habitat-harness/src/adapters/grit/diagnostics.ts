@@ -6,12 +6,12 @@ import {
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
-} from "../../lib/diagnostic-catalog/index.js";
+} from "../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../../rules/registry/index.js";
 import { infrastructureFailure } from "./failure.js";
+import type { GritDiagnosticOptions, GritReport, GritResult } from "./provider/types.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
-import type { GritDiagnosticOptions, GritReport, GritResult } from "./types.js";
 
 export function gritDiagnosticOutcomesFromReport(
   selectedRules: readonly RulePatternFacts[],

@@ -2,7 +2,7 @@ import { expect } from "vitest";
 import type {
   parseRuleRegistryDocument,
   RuleRegistryRecordV1,
-} from "../../../src/rules/registry/index.js";
+} from "../../../src/domains/rule-registry/index.js";
 
 export function registryDocument(rules: unknown[]): unknown {
   return {
