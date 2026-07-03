@@ -70,7 +70,11 @@ describe("saveDeployResultFromTerminalStatus", () => {
   });
 
   it("uses fallbackPath when the status carries no path", () => {
-    const status = createMapConfigSaveDeployStatus({ requestId: "r", phase: "complete", saved: true });
+    const status = createMapConfigSaveDeployStatus({
+      requestId: "r",
+      phase: "complete",
+      saved: true,
+    });
     const result = saveDeployResultFromTerminalStatus(status, "configs/fallback.config.json");
     expect(result.ok).toBe(true);
     expect(result.path).toBe("configs/fallback.config.json");

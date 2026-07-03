@@ -1,13 +1,15 @@
-import { Value } from "typebox/value";
-
-import type { MapConfigSaveDeployStatus } from "../contract/mapConfigs.js";
+import type {
+  MapConfigSaveDeployStatus,
+  StudioOperationEvent,
+  StudioOperationsCurrent,
+} from "@civ7/studio-contract";
 import {
   materializationStatus,
   type RunInGameMaterializationStatus,
   type RunInGameOperationStatus,
   type RunInGamePhase,
-} from "../contract/runInGame.js";
-import type { StudioOperationEvent, StudioOperationsCurrent } from "../contract/studio.js";
+} from "@civ7/studio-contract";
+import { Value } from "typebox/value";
 import type { StudioRecoveryAction, StudioRuntimeFailure } from "../errors/index.js";
 import type {
   RegistryState,

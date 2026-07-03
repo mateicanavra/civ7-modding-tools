@@ -3,8 +3,8 @@ import type {
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
   StudioRecoveryAction,
-} from "@civ7/studio-server/contract";
-import { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "@civ7/studio-server/contract";
+} from "@civ7/studio-contract";
+import { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "@civ7/studio-contract";
 
 export { MAP_CONFIG_SAVE_DEPLOY_PHASES };
 

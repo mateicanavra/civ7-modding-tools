@@ -1,14 +1,13 @@
-import { Context, Effect, Layer, Ref, type Scope } from "effect";
-import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
-
-import { StudioEventHub, type StudioEventHubApi } from "../services/StudioEventHub.js";
 import {
   buildLiveGameErrorState,
   buildLiveGameState,
   type LiveGameState,
   type LiveGameStatusBody,
   liveGameStateKey,
-} from "./model.js";
+} from "@civ7/studio-contract";
+import { Context, Effect, Layer, Ref, type Scope } from "effect";
+import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
+import { StudioEventHub, type StudioEventHubApi } from "../services/StudioEventHub.js";
 import { readLiveGameStatusBody } from "./statusRead.js";
 
 export const LIVE_GAME_WATCH_INITIAL_DELAY_MS = 250;

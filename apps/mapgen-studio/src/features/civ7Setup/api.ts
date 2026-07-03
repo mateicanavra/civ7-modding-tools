@@ -6,7 +6,7 @@
 // — there is NO manual `fetch` of `/api/*` here anymore. Failures are read through
 // oRPC's NATIVE typed contract errors: `safe(...)` + `isDefinedError(...)` expose
 // the DECLARED code (e.g. `SETUP_CONFIG_UNAVAILABLE`, status 503 pinned in
-// packages/studio-server/src/contract/errors.ts) and its typed `data`
+// packages/studio-contract/src/errors.ts) and its typed `data`
 // (`observedAt`), so the failure envelope carries `{ error, code?, observedAt? }`
 // instead of a raw transport status code.
 import { safe } from "@orpc/client";

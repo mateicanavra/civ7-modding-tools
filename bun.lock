@@ -45,6 +45,7 @@
         "@civ7/direct-control": "workspace:*",
         "@civ7/map-policy": "workspace:*",
         "@civ7/plugin-mods": "workspace:*",
+        "@civ7/studio-contract": "workspace:*",
         "@civ7/studio-server": "workspace:*",
         "@deck.gl/core": "^9.0.43",
         "@deck.gl/layers": "^9.0.43",
@@ -278,12 +279,22 @@
         "@types/lodash": "^4.17.23",
       },
     },
+    "packages/studio-contract": {
+      "name": "@civ7/studio-contract",
+      "version": "0.1.0",
+      "dependencies": {
+        "@orpc/contract": "1.14.6",
+        "@standard-schema/spec": "^1.1.0",
+        "typebox": "^1.0.80",
+      },
+    },
     "packages/studio-server": {
       "name": "@civ7/studio-server",
       "version": "0.1.0",
       "dependencies": {
         "@civ7/control-orpc": "workspace:*",
         "@civ7/direct-control": "workspace:*",
+        "@civ7/studio-contract": "workspace:*",
         "@orpc/client": "1.14.6",
         "@orpc/contract": "1.14.6",
         "@orpc/server": "1.14.6",
@@ -640,6 +651,8 @@
     "@civ7/plugin-graph": ["@civ7/plugin-graph@workspace:packages/plugins/plugin-graph"],
 
     "@civ7/plugin-mods": ["@civ7/plugin-mods@workspace:packages/plugins/plugin-mods"],
+
+    "@civ7/studio-contract": ["@civ7/studio-contract@workspace:packages/studio-contract"],
 
     "@civ7/studio-server": ["@civ7/studio-server@workspace:packages/studio-server"],
 

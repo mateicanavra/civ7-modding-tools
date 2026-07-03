@@ -1,4 +1,4 @@
-import type { RunInGameOperationStatus } from "@civ7/studio-server";
+import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 import { type MutableRefObject, useEffect } from "react";
 import { isRunInGameTerminalPhase } from "../../features/runInGame/status";
 import type { ToastFn } from "./useToast";

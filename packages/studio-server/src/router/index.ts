@@ -1,8 +1,7 @@
+import { type StudioEffectContract, studioEffectContract } from "@civ7/studio-contract";
 import type { Router } from "@orpc/server";
 import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
-
-import { type StudioEffectContract, studioEffectContract } from "../contract/index.js";
 import {
   mapStudioFailureToDefinedError,
   mapUnexpectedDefectToDefinedError,
@@ -28,7 +27,7 @@ import { StudioEventHub, studioEventSubscriptionIterator } from "../services/Stu
  *
  *   - Read procedures call `Civ7TunerClient` (-> `@civ7/direct-control`) and map a
  *     failure to its DECLARED contract error via the typed `errors.CODE(...)`
- *     constructor param (contract/errors.ts). The codes pin the EXACT legacy
+ *     constructor param (packages/studio-contract/src/errors.ts). The codes pin the EXACT legacy
  *     status - they are NON-UNIFORM (gameInfo/live.* -> 400, setupConfig -> 503,
  *     most -> 500), the do-not-break registry (architecture/10 section 7).
  *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`

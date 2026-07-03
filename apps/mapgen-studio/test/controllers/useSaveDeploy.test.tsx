@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
+import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./_setup";

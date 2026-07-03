@@ -2,7 +2,7 @@ import type {
   MapConfigSaveDeployStatus,
   RunInGameOperationStatus,
   StudioEvent,
-} from "@civ7/studio-server";
+} from "@civ7/studio-contract";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import type { LiveRuntimeStatusState } from "../../features/liveRuntime/model";

@@ -1,12 +1,8 @@
 import { createHash } from "node:crypto";
+import type { StudioOperationsCurrent } from "@civ7/studio-contract";
+import { type RunInGameRequestStatus, validateRunInGameSetupConfig } from "@civ7/studio-contract";
 import { Context, Effect, FiberSet, Layer, type Scope } from "effect";
-
 import type { StudioInputs, StudioOutputs } from "../context.js";
-import {
-  type RunInGameRequestStatus,
-  validateRunInGameSetupConfig,
-} from "../contract/runInGame.js";
-import type { StudioOperationsCurrent } from "../contract/studio.js";
 import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
 import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
 import { StudioEventHub } from "../services/StudioEventHub.js";

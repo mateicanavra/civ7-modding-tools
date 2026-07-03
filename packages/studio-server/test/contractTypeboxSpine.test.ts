@@ -2,24 +2,21 @@ import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Type } from "typebox";
-import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
-
-import { saveDeployStatusTypeSchema } from "../src/contract/mapConfigs";
-import { operationStatusTypeSchema } from "../src/contract/runInGame";
 import {
-  operationsCurrent,
-  studioEventSchema,
-  studioOperationEventSchema,
-} from "../src/contract/studio";
-import { RecipeDagGetContract } from "../src/recipeDag/contract";
-import {
+  operationStatusTypeSchema,
+  RecipeDagGetContract,
+  saveDeployStatusTypeSchema,
+  studio,
   toStandardSchema,
   typeboxInputSchemaFromContractProcedure,
   typeboxOutputSchemaFromContractProcedure,
   typeboxSchemaFromStandardSchema,
-} from "../src/typeboxStandardSchema";
+} from "@civ7/studio-contract";
+import { Type } from "typebox";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
+
+const { operationsCurrent, studioEventSchema, studioOperationEventSchema } = studio;
 
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 
@@ -159,10 +156,13 @@ describe("studio-server TypeBox contract spine", () => {
   });
 
   test("keeps active Studio contract modules free of stale schema-tech residue", async () => {
-    const studioServerSources = await sourceFiles(join(repoRoot, "packages/studio-server/src"));
+    const studioSources = [
+      ...(await sourceFiles(join(repoRoot, "packages/studio-server/src"))),
+      ...(await sourceFiles(join(repoRoot, "packages/studio-contract/src"))),
+    ];
     const appStudioSources = await sourceFiles(join(repoRoot, "apps/mapgen-studio/src"));
-    const studioText = studioServerSources.map((file) => readFileSync(file, "utf8")).join("\n");
-    const nonRouterText = studioServerSources
+    const studioText = studioSources.map((file) => readFileSync(file, "utf8")).join("\n");
+    const nonRouterText = studioSources
       .filter((file) => !file.includes("/router/"))
       .map((file) => readFileSync(file, "utf8"))
       .join("\n");
@@ -219,10 +219,10 @@ describe("studio-server TypeBox contract spine", () => {
       "utf8"
     );
 
-    expect(runInGameFeatureStatus).toMatch(/from "@civ7\/studio-server\/contract"/);
-    expect(mapConfigFeatureStatus).toMatch(/from "@civ7\/studio-server\/contract"/);
-    expect(runInGameFeatureStatus).not.toMatch(/^import\s+(?!type).*from "@civ7\/studio-server";/m);
-    expect(mapConfigFeatureStatus).not.toMatch(/^import\s+(?!type).*from "@civ7\/studio-server";/m);
+    expect(runInGameFeatureStatus).toMatch(/from "@civ7\/studio-contract"/);
+    expect(mapConfigFeatureStatus).toMatch(/from "@civ7\/studio-contract"/);
+    expect(runInGameFeatureStatus).not.toMatch(/@civ7\/studio-server/);
+    expect(mapConfigFeatureStatus).not.toMatch(/@civ7\/studio-server/);
     expect(runInGameFeatureStatus).not.toMatch(
       /export\s+type\s+\{[\s\S]*\}\s+from\s+["']@civ7\/studio-server["']/
     );
