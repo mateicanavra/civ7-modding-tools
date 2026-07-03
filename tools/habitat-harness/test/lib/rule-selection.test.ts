@@ -1,3 +1,4 @@
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   approvedScanRootsForRules,
   checkCommandContext,
@@ -256,7 +257,9 @@ describe("rule selector boundary", () => {
 
   test("source-check staged checks with no approved roots report not-applicable instead of baseline-only pass", () => {
     const gritRule = fakeSourceRuleFact("hook", ["packages"]);
-    const scanRoots = stagedSourceCheckPaths(["README.md"], approvedScanRootsForRules([gritRule]));
+    const scanRoots = stagedSourceCheckPaths(["README.md"], approvedScanRootsForRules([gritRule]), {
+      repoRoot,
+    });
     const records = stagedSourceCheckNotApplicableRecords([gritRule], scanRoots);
     const record = records?.get("hook");
 
@@ -288,11 +291,15 @@ describe("rule selector boundary", () => {
 
   test("source-check staged scan roots preserve exact approved file paths", () => {
     expect(
-      stagedSourceCheckPaths([
-        "packages/mapgen-core/src/core/index.ts",
-        "tools/habitat-harness/src/service/modules/hook/router.ts",
-        "README.md",
-      ])
+      stagedSourceCheckPaths(
+        [
+          "packages/mapgen-core/src/core/index.ts",
+          "tools/habitat-harness/src/service/modules/hook/router.ts",
+          "README.md",
+        ],
+        undefined,
+        { repoRoot }
+      )
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);
   });
 });

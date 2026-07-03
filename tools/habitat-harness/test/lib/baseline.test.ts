@@ -2,7 +2,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { NodeContext } from "@effect/platform-node";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import {
+  type GitProviderService,
+  makeGitProviderFromCommandHandler,
+} from "@internal/habitat-harness/providers/git/index";
 import {
   captureOutput,
   type HabitatCommandResult,
@@ -15,15 +18,15 @@ import {
   type BaselineRuleContractInput,
   baselineFailureDiagnostic,
   isBaselineLocked,
-  loadBaselineState,
-  validateBaselineContract,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
   guardBaselineExpansionEffect,
+  loadBaselineStateEffect,
+  validateBaselineContractEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/operations.policy";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 
 const tempDirs: string[] = [];
@@ -44,13 +47,13 @@ describe("Habitat baseline contract", () => {
     });
     writeBaselineFile(ctx.baselinesDir, "existing-rule", []);
 
-    const state = loadBaselineState(rule("existing-rule"), ctx);
+    const state = await loadState(rule("existing-rule"), ctx);
     expect(state).toMatchObject({ kind: "explicit-empty", ruleId: "existing-rule", locked: true });
     expect(isBaselineLocked(state)).toBe(true);
     expect(await checkIntegrity("main", ctx)).toEqual({ status: "accepted", refusals: [] });
   });
 
-  test("applies explicit debt baselines and leaves new errors unbaselined", () => {
+  test("applies explicit debt baselines and leaves new errors unbaselined", async () => {
     const ctx = createBaselineContext({
       registry: [rule("existing-rule")],
       rulePackAtBase: ["existing-rule"],
@@ -67,29 +70,29 @@ describe("Habitat baseline contract", () => {
       diagnostic("existing-rule", "src/a.ts", "tracked debt"),
       diagnostic("existing-rule", "src/c.ts", "new debt"),
     ];
-    const state = loadBaselineState(rule("existing-rule"), ctx);
+    const state = await loadState(rule("existing-rule"), ctx);
     expect(state).toMatchObject({ kind: "explicit-debt", locked: false });
     expect(applyBaseline(diagnostics, state)).toMatchObject({ status: "applied", refusals: [] });
     expect(diagnostics.map((entry) => entry.baselined)).toEqual([true, false]);
     expect(isBaselineLocked(state)).toBe(false);
   });
 
-  test("fails missing required baseline files for registered rules", () => {
+  test("fails missing required baseline files for registered rules", async () => {
     const ctx = createBaselineContext({
       registry: [rule("missing-rule")],
       rulePackAtBase: ["missing-rule"],
       baselinesAtBase: new Map(),
     });
 
-    const state = loadBaselineState(rule("missing-rule"), ctx);
+    const state = await loadState(rule("missing-rule"), ctx);
     expect(state).toMatchObject({ kind: "baseline-refusal", reason: "missing-baseline" });
-    const validation = validateBaselineContract(ctx);
+    const validation = await validateContract(ctx);
     expect(validation.refusals).toEqual([
       expect.objectContaining({ ruleId: "missing-rule", reason: "missing-baseline" }),
     ]);
   });
 
-  test("fails malformed, non-array, non-string, duplicate, and unsorted baseline files", () => {
+  test("fails malformed, non-array, non-string, duplicate, and unsorted baseline files", async () => {
     const cases = [
       { ruleId: "bad-json", body: "{", reason: "malformed-baseline" },
       { ruleId: "non-array", body: '{"items":[]}', reason: "malformed-baseline" },
@@ -105,12 +108,12 @@ describe("Habitat baseline contract", () => {
 
     for (const item of cases) {
       writeFileSync(path.join(ctx.baselinesDir, `${item.ruleId}.json`), `${item.body}\n`);
-      const state = loadBaselineState(rule(item.ruleId), ctx);
+      const state = await loadState(rule(item.ruleId), ctx);
       expect(state).toMatchObject({ kind: "baseline-refusal", reason: item.reason });
     }
   });
 
-  test("fails orphan baseline files", () => {
+  test("fails orphan baseline files", async () => {
     const ctx = createBaselineContext({
       registry: [rule("registered-rule")],
       rulePackAtBase: ["registered-rule"],
@@ -119,19 +122,19 @@ describe("Habitat baseline contract", () => {
     writeBaselineFile(ctx.baselinesDir, "registered-rule", []);
     writeBaselineFile(ctx.baselinesDir, "orphan-rule", []);
 
-    expect(validateBaselineContract(ctx).refusals).toEqual([
+    expect((await validateContract(ctx)).refusals).toEqual([
       expect.objectContaining({ ruleId: "orphan-rule", reason: "orphan-baseline" }),
     ]);
   });
 
-  test("rejects parser-owned baselining when explicit Habitat state owns the rule", () => {
+  test("rejects parser-owned baselining when explicit Habitat state owns the rule", async () => {
     const ctx = createBaselineContext({
       registry: [rule("explicit-rule")],
       rulePackAtBase: ["explicit-rule"],
       baselinesAtBase: new Map([["explicit-rule", ["src/a.ts::tracked debt"]]]),
     });
     writeBaselineFile(ctx.baselinesDir, "explicit-rule", ["src/a.ts::tracked debt"]);
-    const state = loadBaselineState(rule("explicit-rule"), ctx);
+    const state = await loadState(rule("explicit-rule"), ctx);
 
     const result = applyBaseline(
       [diagnostic("explicit-rule", "src/a.ts", "tracked debt", true)],
@@ -384,6 +387,14 @@ function checkIntegrity(base: string, context: BaselineTestContext) {
   return runBaselineEffect(checkBaselineIntegrityEffect(base, context), context);
 }
 
+function loadState(rule: BaselineRuleContractInput, context: BaselineTestContext) {
+  return runBaselineEffect(loadBaselineStateEffect(rule, context), context);
+}
+
+function validateContract(context: BaselineTestContext) {
+  return runBaselineEffect(validateBaselineContractEffect(context), context);
+}
+
 async function integrityFindings(base: string, context: BaselineTestContext) {
   const result = await checkIntegrity(base, context);
   return Effect.runPromise(baselineIntegrityFindingsEffect(result));
@@ -402,9 +413,7 @@ function runBaselineEffect<A, E>(
   effect: Effect.Effect<A, E, never>,
   context: BaselineTestContext
 ): Promise<A> {
-  return Effect.runPromise(
-    effect.pipe(Effect.provide(Layer.mergeAll(NodeContext.layer, context.gitLayer)))
-  );
+  return Effect.runPromise(effect.pipe(Effect.provide(NodeContext.layer)));
 }
 
 function diagnostic(
@@ -423,9 +432,9 @@ function diagnostic(
 }
 
 interface BaselineTestContext extends BaselineAuthorityContext {
+  readonly git: GitProviderService;
   readonly repoRoot: string;
   readonly baselinesDir: string;
-  readonly gitLayer: ReturnType<typeof makeFakeGitProviderLayer>;
 }
 
 function createBaselineContext(options: {
@@ -443,7 +452,7 @@ function createBaselineContext(options: {
     repoRoot,
     baselinesDir,
     registry: options.registry,
-    gitLayer: makeFakeGitProviderLayer((argv, runOptions) => {
+    git: makeGitProviderFromCommandHandler((argv, runOptions) => {
       if (argv[0] === "merge-base") {
         return options.mergeBase === null
           ? commandResult(argv, runOptions.cwd, "", 1, "no merge-base\n")

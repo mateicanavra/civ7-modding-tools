@@ -10,13 +10,13 @@ export interface CheckOptions extends RuleSelection {
   baselineIntegrity?: boolean;
   command?: CheckCommandContext;
   hookCheck?: boolean;
+  repoRoot?: string;
   staged?: boolean;
   stagedPaths?: readonly string[];
 }
 
 export interface EmitCheckOptions {
   json?: boolean;
-  output?: string;
 }
 
 export function normalizeSelectorRequest(selection: RuleSelection): SelectorRequest {

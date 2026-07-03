@@ -31,14 +31,41 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import type { BaselineExpansionResult } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
+
+type StructuralCheckPolicy = {
+  readonly createReport: (options?: CheckOptions) => Effect.Effect<CheckReport>;
+  readonly expandBaselines: () => Effect.Effect<BaselineExpansionResult>;
+};
+
+const mockCreateCheckReportEffect = vi.hoisted(() =>
+  vi.fn<StructuralCheckPolicy["createReport"]>()
+);
+const mockExpandBaselinesEffect = vi.hoisted(() =>
+  vi.fn<StructuralCheckPolicy["expandBaselines"]>()
+);
+
+vi.mock(
+  "@internal/habitat-harness/service/model/check/policy/structural/index",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("@internal/habitat-harness/service/model/check/policy/structural/index")
+      >();
+    return {
+      ...actual,
+      createCheckReportEffect: mockCreateCheckReportEffect,
+      expandBaselinesEffect: mockExpandBaselinesEffect,
+    };
+  }
+);
 
 const prePushAffectedTargets =
   "check,validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
@@ -52,6 +79,12 @@ const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
 describe("Habitat hook service", () => {
+  beforeEach(() => {
+    mockCreateCheckReportEffect.mockReset();
+    mockExpandBaselinesEffect.mockReset();
+    useStructuralCheckPolicy(defaultStructuralCheckPolicy());
+  });
+
   test("runs owned hook orchestration from service input", async () => {
     const fake = makePrePushFixture();
 
@@ -251,14 +284,14 @@ describe("Habitat hook service", () => {
         return commandResult(argv, options.cwd, stdout);
       }),
       nxLayer(),
-      makeFakeStructuralCheckLayer({
+      {
         createReport: (options = {}) =>
           Effect.sync(() => {
             checkRequests.push(options);
             return passingCheckReport(options.command?.serialized ?? "habitat check");
           }),
         expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
-      })
+      }
     );
 
     expect(result.exitCode).toBe(0);
@@ -547,6 +580,15 @@ describe("Habitat hook service", () => {
 
   test("runs pre-commit through the in-process Habitat service router", async () => {
     const fake = makePreCommitFixture();
+    useStructuralCheckPolicy({
+      createReport: (options = {}) =>
+        Effect.succeed(fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check")),
+      expandBaselines: () =>
+        Effect.succeed({
+          kind: "expanded",
+          messages: [],
+        }),
+    });
 
     const result = await Effect.runPromise(
       Effect.gen(function* () {
@@ -576,17 +618,6 @@ describe("Habitat hook service", () => {
           Layer.mergeAll(
             prePushGitLayer(makePrePushFixture()),
             nxLayer(),
-            makeFakeStructuralCheckLayer({
-              createReport: (options = {}) =>
-                Effect.succeed(
-                  fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check")
-                ),
-              expandBaselines: () =>
-                Effect.succeed({
-                  kind: "expanded",
-                  messages: [],
-                }),
-            }),
             biomeLayer(),
             makeFakeGraphiteProviderLayer(() => null)
           )
@@ -621,11 +652,11 @@ describe("Habitat hook service", () => {
       { hashFile: fake.hashFile, pathExists: fake.pathExists },
       preCommitGitLayer(fake),
       undefined,
-      makeFakeStructuralCheckLayer({
+      {
         createReport: (options = {}) =>
           Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
         expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
-      }),
+      },
       biomeLayer((request) => {
         biomeRequests.push(request);
         return commandResult(
@@ -660,6 +691,23 @@ describe("Habitat hook service", () => {
   });
 });
 
+function defaultStructuralCheckPolicy(): StructuralCheckPolicy {
+  return {
+    createReport: (options = {}) =>
+      Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
+    expandBaselines: () =>
+      Effect.succeed({
+        kind: "expanded",
+        messages: [],
+      }),
+  };
+}
+
+function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
+  mockCreateCheckReportEffect.mockImplementation(policy.createReport);
+  mockExpandBaselinesEffect.mockImplementation(policy.expandBaselines);
+}
+
 function runHookServiceInTest(
   input: HookServiceRunInput,
   options: {
@@ -670,27 +718,12 @@ function runHookServiceInTest(
   } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
-  structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>,
+  structuralCheck?: StructuralCheckPolicy,
   biome = biomeLayer(),
   graphite = makeFakeGraphiteProviderLayer(() => null)
 ) {
-  const layer = structuralCheck
-    ? Layer.mergeAll(gitLayer, nx, structuralCheck, biome, graphite)
-    : Layer.mergeAll(
-        gitLayer,
-        nx,
-        makeFakeStructuralCheckLayer({
-          createReport: (options = {}) =>
-            Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
-          expandBaselines: () =>
-            Effect.succeed({
-              kind: "expanded",
-              messages: [],
-            }),
-        }),
-        biome,
-        graphite
-      );
+  if (structuralCheck) useStructuralCheckPolicy(structuralCheck);
+  const layer = Layer.mergeAll(gitLayer, nx, biome, graphite);
   return Effect.runPromise(
     Effect.gen(function* () {
       const biome = yield* BiomeProvider;

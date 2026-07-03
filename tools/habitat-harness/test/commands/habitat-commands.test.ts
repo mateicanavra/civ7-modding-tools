@@ -20,6 +20,15 @@ const mockFixRun = vi.hoisted(() => vi.fn());
 const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
+const mockWriteFileSync = vi.hoisted(() => vi.fn());
+
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  return {
+    ...actual,
+    writeFileSync: mockWriteFileSync,
+  };
+});
 
 vi.mock("../../src/service/model/check/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../src/service/model/check/index.js")>();
@@ -32,6 +41,7 @@ vi.mock("../../src/service/model/check/index.js", async (importOriginal) => {
       serialized: ["habitat", "check", ...argv].join(" "),
     })),
     renderCheckReport: vi.fn(() => '{"ok":true}'),
+    stringifyCheckReport: vi.fn(() => '{"ok":true}'),
     verifyCheckSummary: vi.fn(() => ({
       reportSchemaVersion: 1,
       requestedSelectors: {},
@@ -195,8 +205,9 @@ describe("Habitat oclif commands", () => {
     );
     expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport, {
       json: true,
-      output: "/tmp/report.json",
     });
+    expect(checkReport.stringifyCheckReport).toHaveBeenCalledWith(mockReport);
+    expect(mockWriteFileSync).toHaveBeenCalledWith("/tmp/report.json", '{"ok":true}\n');
     expect(capturedOutput()).toContain('{"ok":true}');
   });
 

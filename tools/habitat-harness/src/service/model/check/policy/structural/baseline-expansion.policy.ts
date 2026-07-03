@@ -1,23 +1,21 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
-import type {
-  GitProvider,
-  GitProviderRequirements,
-} from "@internal/habitat-harness/providers/git/index";
+import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
 import type {
   GritProvider,
   GritProviderRequirements,
 } from "@internal/habitat-harness/providers/grit/index";
-import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
-  BaselineAuthority,
+  applyBaseline,
+  type BaselineAuthorityContext,
+  guardBaselineExpansionEffect,
+  loadBaselineStateEffect,
   violationKey,
+  writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
-import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   activeRuleBaselineFacts,
   activeRuleSelectorFacts,
@@ -29,7 +27,7 @@ import {
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
-import { executeSelectedRulesEffect } from "./execution.policy.js";
+import { executeSelectedRulesEffect, type StructuralExecutionContext } from "./execution.policy.js";
 
 export type BaselineExpansionResult =
   | { ok: true; messages: string[] }
@@ -43,30 +41,26 @@ export type BaselineExpansionResult =
 
 export function expandBaselinesEffect(
   selection: RuleSelection = {},
-  options: { base?: string } = {}
+  options: { base?: string; repoRoot: string },
+  executionContext: StructuralExecutionContext
 ): Effect.Effect<
   BaselineExpansionResult,
   never,
-  | BaselineAuthority
-  | BiomeProvider
   | CommandRunner
-  | NxProvider
   | CommandExecutor
-  | SourceCheck
   | HabitatConfig
   | FileSystem.FileSystem
-  | GitProvider
   | GitProviderRequirements
   | GritProvider
   | GritProviderRequirements
 > {
   return Effect.gen(function* () {
-    const baselineAuthority = yield* BaselineAuthority;
     const selected = selectRules(selection);
     if (!selected.ok) return selected;
 
+    const context = baselineContext(executionContext);
     const messages: string[] = [];
-    const ruleResults = yield* executeSelectedRulesEffect(selected.rules);
+    const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {}, executionContext);
     const baselinesByRuleId = factsByRuleId(
       baselineContractInputs(selected.rules.map((rule) => rule.id))
     );
@@ -74,7 +68,7 @@ export function expandBaselinesEffect(
       const baselineFacts = baselinesByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* baselineAuthority.loadState(baselineFacts);
+      const baseline = yield* loadBaselineStateEffect(baselineFacts, context);
       if (baseline.kind === "baseline-refusal") {
         return {
           ok: false,
@@ -86,7 +80,7 @@ export function expandBaselinesEffect(
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       const { diagnostics } = execution.result;
-      const baselineResult = yield* baselineAuthority.apply(diagnostics, baseline);
+      const baselineResult = yield* Effect.sync(() => applyBaseline(diagnostics, baseline));
       if (baselineResult.status === "refused") {
         return {
           ok: false,
@@ -99,14 +93,10 @@ export function expandBaselinesEffect(
         .filter((diagnostic) => diagnostic.severity === "error" && !diagnostic.baselined)
         .map(violationKey);
       if (keys.length > 0) {
-        const guard = yield* baselineAuthority.guardExpansion(
-          rule.id,
-          keys,
-          options.base ?? "main",
-          {
-            registry: baselineContractInputs(),
-          }
-        );
+        const guard = yield* guardBaselineExpansionEffect(rule.id, keys, options.base ?? "main", {
+          ...context,
+          registry: baselineContractInputs(),
+        });
         if (guard.status === "refused") {
           return {
             ok: false,
@@ -115,7 +105,7 @@ export function expandBaselinesEffect(
             message: guard.message,
           };
         }
-        const writeFailure = yield* baselineAuthority.write(rule.id, guard.keys).pipe(
+        const writeFailure = yield* writeBaselineEffect(rule.id, guard.keys, context).pipe(
           Effect.as(null),
           Effect.catchAll((error) => Effect.succeed(error))
         );
@@ -132,6 +122,10 @@ export function expandBaselinesEffect(
     }
     return { ok: true, messages };
   });
+}
+
+function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
+  return { git: context.git, repoRoot: context.repoRoot };
 }
 
 export function baselineContractInputs(ruleIds?: readonly string[]) {

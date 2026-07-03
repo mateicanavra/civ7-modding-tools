@@ -17,9 +17,15 @@ Current burn-down categories:
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
+- Follow-up: active rule registry loading still uses an import-time singleton rooted through `resources/paths`; replace it with an explicit registry input/read path or generated artifact so rule facts are not coupled to global checkout state.
 
 Completed burn-downs:
 
+- Baseline authority now receives Git through explicit baseline context from module-projected resources; shared baseline policy no longer resolves `GitProvider` internally.
+- Structural rule execution now receives Biome, Nx, Git, and CommandRunner through module-projected execution context; shared structural policy no longer yields those provider/resource tags directly.
+- Hook staged-worktree and resource-inspection policies now derive repo-relative paths from their module-projected repo root; hook module policy no longer imports global path helpers.
+- Verify receipt command metadata now receives an allowlisted environment snapshot from the platform resource; verify policy no longer reads `process.env`.
+- Boundary taxonomy policy now requires callers to pass the repo root/config path explicitly; the service-model graph policy no longer imports the global repo root.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
@@ -45,3 +51,14 @@ Completed burn-downs:
 - Platform filesystem/temp/path/repo-root helpers now enter the service through one `HabitatPlatform` resource; `HabitatServiceDeps` no longer carries raw platform helper functions.
 - Hook module procedure context now carries the `HabitatPlatform` resource directly instead of exploded `hashFile`, `pathExists`, and `repoRoot` fields.
 - Structural check policy no longer enters through `HabitatServiceDeps` or live service-context construction; check, hook, and verify modules resolve the shared Effect policy layer at execution while tests provision fakes as layers.
+- Source-check rule execution no longer has an internal Effect service tag or runtime layer; structural execution calls the owned source-rule policy directly.
+- Baseline authority no longer has an internal Effect service tag or runtime layer; structural check/report/expansion policy calls baseline policy operations directly.
+- Verify base, post-state, and Nx affected policies now receive module-projected provider resources instead of reading provider tags from the Effect runtime.
+- Classify path and diff policy now receives repo root from module-projected platform context instead of importing the global repo-root singleton.
+- Check report rendering is now pure service-model formatting; the CLI owns `--output` file writes after compiling flags to service actions.
+- Structural check orchestration no longer has an internal Effect service tag, live layer, or fake layer; check, hook, and verify modules call owned structural policies directly.
+- Source-scope staged path normalization now receives repo root through module-projected check policy context instead of importing the global repo-root/path singleton.
+- Baseline authority no longer exports or tests a synchronous file-system API; baseline state tests now use the Effect policy operations and the stale sync path/read helpers are removed.
+- Baseline Effect operations now require explicit repo-root context and derive baseline paths from artifact policy; they no longer import global repo-root or baselines-dir singletons.
+- Structural rule execution now receives repo root through explicit execution context for command cwd and staged git reads instead of importing the global repo-root/path helpers.
+- Source-check native rule execution now receives repo root through `SourceCheckOptions` for module loading, source reads, and scan-root collection instead of importing global repo-root/path helpers.

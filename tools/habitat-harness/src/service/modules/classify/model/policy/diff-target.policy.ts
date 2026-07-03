@@ -1,10 +1,12 @@
 import path from "node:path";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { isFileSync, readTextSync } from "@internal/habitat-harness/resources/platform/filesystem";
 
-export function diffText(target: string): string | undefined {
+export function diffText(
+  target: string,
+  context: { readonly repoRoot: string }
+): string | undefined {
   if (target.includes("\n") || target.startsWith("diff --git ")) return target;
-  const candidate = path.resolve(repoRoot, target);
+  const candidate = path.resolve(context.repoRoot, target);
   if (isDiffPath(candidate) && isFileSync(candidate)) {
     const text = readTextSync(candidate);
     if (text.includes("diff --git ") || text.includes("\n+++ b/")) return text;

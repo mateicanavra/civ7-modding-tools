@@ -1,6 +1,6 @@
 import {
   affectedArgv,
-  NxProvider,
+  type NxProviderService,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/providers/nx/index";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
@@ -26,13 +26,11 @@ export function affectedVerificationArgv(base: string, targetPlan: VerifyTargetP
 }
 
 export function runAffectedVerificationEffect(
+  nx: NxProviderService,
   base: string,
-  targetPlan: Extract<VerifyTargetPlan, { kind: "verify-target-plan" }>
+  targets: readonly string[]
 ) {
-  return NxProvider.pipe(
-    Effect.flatMap((nx) => nx.affected({ base, targets: targetPlan.targets })),
-    Effect.map(spawnResultFromCommandResult)
-  );
+  return nx.affected({ base, targets }).pipe(Effect.map(spawnResultFromCommandResult));
 }
 
 /**

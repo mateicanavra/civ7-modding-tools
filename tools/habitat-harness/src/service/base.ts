@@ -3,6 +3,7 @@ import type { GitProviderService } from "@internal/habitat-harness/providers/git
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
+import type { CommandRunnerService } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
@@ -15,6 +16,7 @@ export interface HabitatServiceContext {
 
 export interface HabitatServiceDeps {
   readonly biome: BiomeProviderService;
+  readonly commandRunner: CommandRunnerService;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly grit: GritProviderService;

@@ -1,18 +1,18 @@
 import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import {
-  GitProvider,
   type GitProviderRequirements,
+  type GitProviderService,
 } from "@internal/habitat-harness/providers/git/index";
 import {
   baselineRepoPath,
+  baselinesRepoPath,
   ruleRegistryRepoPath,
 } from "@internal/habitat-harness/resources/artifact-paths";
 import {
   type FileWriteFailed,
   renderHabitatError,
 } from "@internal/habitat-harness/resources/errors/index";
-import { baselinesDir, repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   isDirectory,
   isFile,
@@ -41,6 +41,7 @@ import { parseBaselineArray } from "./state.policy.js";
 import { sortedUnique } from "./utils.policy.js";
 
 interface RequiredBaselineAuthorityContext {
+  readonly git: GitProviderService;
   readonly repoRoot: string;
   readonly baselinesDir: string;
   readonly registry: readonly BaselineRuleContractInput[];
@@ -58,7 +59,7 @@ const preD14aAuthoredArtifactPaths = {
 
 export function loadBaselineStateEffect(
   rule: BaselineRuleContractInput,
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ) {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
@@ -85,7 +86,7 @@ export function loadBaselineStateEffect(
   });
 }
 
-export function validateBaselineContractEffect(options: BaselineAuthorityContext = {}) {
+export function validateBaselineContractEffect(options: BaselineAuthorityContext) {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
     const states = new Map<string, BaselineAuthorityState>();
@@ -123,12 +124,8 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
 
 export function checkBaselineIntegrityEffect(
   base = "main",
-  options: BaselineAuthorityContext = {}
-): Effect.Effect<
-  BaselineIntegrityResult,
-  never,
-  FileSystem.FileSystem | GitProvider | GitProviderRequirements
-> {
+  options: BaselineAuthorityContext
+): Effect.Effect<BaselineIntegrityResult, never, FileSystem.FileSystem | GitProviderRequirements> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
     const contract = yield* validateBaselineContractEffect(context);
@@ -192,11 +189,11 @@ export function guardBaselineExpansionEffect(
   ruleId: string,
   keys: readonly string[],
   base = "main",
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ): Effect.Effect<
   BaselineExpansionDecision,
   never,
-  FileSystem.FileSystem | GitProvider | GitProviderRequirements
+  FileSystem.FileSystem | GitProviderRequirements
 > {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
@@ -253,7 +250,7 @@ export function guardBaselineExpansionEffect(
 export function writeBaselineEffect(
   ruleId: string,
   keys: readonly string[],
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ): Effect.Effect<void, FileWriteFailed, FileSystem.FileSystem> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
@@ -266,14 +263,14 @@ export function writeBaselineEffect(
 }
 
 function resolveBaselineAuthorityContext(
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ): Effect.Effect<RequiredBaselineAuthorityContext, never, FileSystem.FileSystem> {
-  const root = options.repoRoot ?? repoRoot;
   return Effect.gen(function* () {
     return {
-      repoRoot: root,
-      baselinesDir: options.baselinesDir ?? baselinesDir,
-      registry: options.registry ?? (yield* readCurrentRuleRegistryEffect(root)),
+      git: options.git,
+      repoRoot: options.repoRoot,
+      baselinesDir: options.baselinesDir ?? path.join(options.repoRoot, baselinesRepoPath),
+      registry: options.registry ?? (yield* readCurrentRuleRegistryEffect(options.repoRoot)),
       ruleIntroductionManifests: options.ruleIntroductionManifests ?? [],
     };
   });
@@ -373,11 +370,10 @@ function directoryExists(
 function mergeBaseEffect(
   base: string,
   context: RequiredBaselineAuthorityContext
-): Effect.Effect<string | null, never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<string | null, never, GitProviderRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
     for (const ref of [base, `origin/${base}`]) {
-      const mb = yield* git.mergeBase(ref, { cwd: context.repoRoot });
+      const mb = yield* context.git.mergeBase(ref, { cwd: context.repoRoot });
       if (mb) return mb;
     }
     return null;
@@ -390,7 +386,7 @@ function loadBaseRuleIdsEffect(
 ): Effect.Effect<
   { ok: true; ruleIds: Set<string> } | { ok: false; refusal: BaselineRefusal },
   never,
-  GitProvider | GitProviderRequirements
+  GitProviderRequirements
 > {
   return Effect.gen(function* () {
     const registryPath = ruleRegistryRepoPath;
@@ -440,10 +436,9 @@ function loadBaseRuleIdsFromDirectoryEffect(
   mb: string,
   registryPath: string,
   context: RequiredBaselineAuthorityContext
-): Effect.Effect<Set<string> | null, never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<Set<string> | null, never, GitProviderRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
-    const lines = yield* git.lsTreeNameOnly(mb, registryPath, { cwd: context.repoRoot });
+    const lines = yield* context.git.lsTreeNameOnly(mb, registryPath, { cwd: context.repoRoot });
     if (lines === null) return null;
     const ids = lines
       .filter((line) => line.startsWith(`${registryPath}/`) && line.endsWith("/rule.json"))
@@ -461,7 +456,7 @@ function loadBaseBaselineKeysEffect(
 ): Effect.Effect<
   { ok: true; keys: string[] } | { ok: false; refusal: BaselineRefusal },
   never,
-  GitProvider | GitProviderRequirements
+  GitProviderRequirements
 > {
   return Effect.gen(function* () {
     const baselinePath = baselineRepoPath(ruleId);
@@ -497,13 +492,12 @@ function gitShowMovedAuthoredArtifactEffect(
   currentRepoPath: string,
   previousRepoPath: string,
   context: RequiredBaselineAuthorityContext
-): Effect.Effect<{ contents: string } | null, never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<{ contents: string } | null, never, GitProviderRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
-    const current = yield* git.show(ref, currentRepoPath, { cwd: context.repoRoot });
+    const current = yield* context.git.show(ref, currentRepoPath, { cwd: context.repoRoot });
     if (current !== null) return { contents: current };
 
-    const previous = yield* git.show(ref, previousRepoPath, { cwd: context.repoRoot });
+    const previous = yield* context.git.show(ref, previousRepoPath, { cwd: context.repoRoot });
     return previous === null ? null : { contents: previous };
   });
 }

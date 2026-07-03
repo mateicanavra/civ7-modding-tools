@@ -1,58 +1,59 @@
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import {
+  makeFakeGitProviderLayer,
+  makeGitProviderFromCommandHandler,
+} from "@internal/habitat-harness/providers/git/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import {
-  BaselineAuthority,
-  BaselineAuthorityLive,
+  checkBaselineIntegrityEffect,
+  writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/execution.policy";
 import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps.js";
 
 describe("check and baseline provider boundaries", () => {
-  test("BaselineAuthorityLive reads integrity state through filesystem and git providers", async () => {
+  test("baseline integrity reads state through filesystem and git providers", async () => {
     const root = "/repo";
     const baselinesDir = "/repo/.habitat/baselines";
     const events: string[] = [];
     const gitCalls: string[][] = [];
     const registry = [baselineRule("existing-rule")];
+    const git = makeGitProviderFromCommandHandler((argv, options) => {
+      gitCalls.push([...argv]);
+      if (argv[0] === "merge-base") {
+        return commandResult(argv, options.cwd, "merge-base-sha\n");
+      }
+      if (argv[0] === "show" && argv[1] === "merge-base-sha:.habitat/rules/rules.json") {
+        return commandResult(argv, options.cwd, ruleRegistryJson(["existing-rule"]));
+      }
+      if (
+        argv[0] === "show" &&
+        argv[1] === "merge-base-sha:.habitat/baselines/existing-rule.json"
+      ) {
+        return commandResult(argv, options.cwd, "[]\n");
+      }
+      return commandResult(argv, options.cwd, "", 1, "not found\n");
+    });
     const layer = Layer.mergeAll(
-      BaselineAuthorityLive,
       makeFakePlatformFileSystemLayer(
         events,
         new Map([[`${baselinesDir}/existing-rule.json`, "[]\n"]]),
         new Map([[baselinesDir, [{ name: "existing-rule.json", kind: "file" }]]])
-      ),
-      makeFakeGitProviderLayer((argv, options) => {
-        gitCalls.push([...argv]);
-        if (argv[0] === "merge-base") {
-          return commandResult(argv, options.cwd, "merge-base-sha\n");
-        }
-        if (argv[0] === "show" && argv[1] === "merge-base-sha:.habitat/rules/rules.json") {
-          return commandResult(argv, options.cwd, ruleRegistryJson(["existing-rule"]));
-        }
-        if (
-          argv[0] === "show" &&
-          argv[1] === "merge-base-sha:.habitat/baselines/existing-rule.json"
-        ) {
-          return commandResult(argv, options.cwd, "[]\n");
-        }
-        return commandResult(argv, options.cwd, "", 1, "not found\n");
-      })
+      )
     );
 
     const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const baseline = yield* BaselineAuthority;
-        return yield* baseline.checkIntegrity("main", {
-          repoRoot: root,
-          baselinesDir,
-          registry,
-        });
+      checkBaselineIntegrityEffect("main", {
+        git,
+        repoRoot: root,
+        baselinesDir,
+        registry,
       }).pipe(Effect.provide(layer))
     );
 
@@ -71,19 +72,17 @@ describe("check and baseline provider boundaries", () => {
     ]);
   });
 
-  test("BaselineAuthorityLive writes baselines through the platform filesystem", async () => {
+  test("baseline expansion writes through the platform filesystem", async () => {
     const baselinesDir = "/repo/.habitat/baselines";
     const events: string[] = [];
-    const layer = Layer.mergeAll(BaselineAuthorityLive, makeFakePlatformFileSystemLayer(events));
+    const layer = makeFakePlatformFileSystemLayer(events);
 
     await Effect.runPromise(
-      Effect.gen(function* () {
-        const baseline = yield* BaselineAuthority;
-        yield* baseline.write("new-rule", ["z::last", "a::first"], {
-          repoRoot: "/repo",
-          baselinesDir,
-          registry: [],
-        });
+      writeBaselineEffect("new-rule", ["z::last", "a::first"], {
+        git: makeTestHabitatServiceDeps().git,
+        repoRoot: "/repo",
+        baselinesDir,
+        registry: [],
       }).pipe(Effect.provide(layer))
     );
 
@@ -97,15 +96,24 @@ describe("check and baseline provider boundaries", () => {
     const fileLayerRule = activeRuleSelectorFacts.find((rule) => rule.ownerTool === "file-layer");
     expect(fileLayerRule).toBeDefined();
     const gitCalls: string[][] = [];
-    const layer = Layer.mergeAll(
-      makeFakeGitProviderLayer((argv, options) => {
-        gitCalls.push([...argv]);
-        return commandResult(argv, options.cwd, "", 1, "fake staged diff failure\n");
-      })
-    );
+    const git = makeGitProviderFromCommandHandler((argv, options) => {
+      gitCalls.push([...argv]);
+      return commandResult(argv, options.cwd, "", 1, "fake staged diff failure\n");
+    });
+    const deps = makeTestHabitatServiceDeps({ git });
 
     const results = await Effect.runPromise(
-      executeSelectedRulesEffect([fileLayerRule!], { staged: true }).pipe(Effect.provide(layer))
+      executeSelectedRulesEffect(
+        [fileLayerRule!],
+        { staged: true },
+        {
+          biome: deps.biome,
+          commandRunner: deps.commandRunner,
+          git: deps.git,
+          nx: deps.nx,
+          repoRoot: "/repo",
+        }
+      )
     );
     const record = results.get(fileLayerRule!.id);
 
