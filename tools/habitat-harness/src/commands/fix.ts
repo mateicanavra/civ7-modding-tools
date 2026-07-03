@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runFix } from "../lib/fix.js";
+import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Fix extends HabitatCommand {
   static override summary = "Apply Habitat-owned safe fixes";
@@ -17,7 +17,8 @@ export default class Fix extends HabitatCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Fix);
-    const result = await runFix({
+    const client = createHabitatServiceClient();
+    const result = await client.fix.run({
       kind: flags["dry-run"] ? "dry-run-intent" : "live-write-intent",
     });
     process.stdout.write(result.stdout);

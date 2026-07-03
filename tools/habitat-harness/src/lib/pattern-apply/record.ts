@@ -2,8 +2,8 @@ import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { ApplyAdmissionSchema } from "../../rules/patterns/index.js";
 import { NonEmptyStringSchema } from "./primitives.js";
-import { PatternApplyRequestSchema } from "./request.js";
 import { TransactionRefusalSchema } from "./refusal.js";
+import { PatternApplyRequestSchema } from "./request.js";
 
 const DryRunCommandResultSchema = Type.Object(
   {
@@ -54,8 +54,6 @@ export type PatternApplyDryRunCompletedOutcome = Static<
 export type PatternApplyOutcome = Static<typeof PatternApplyOutcomeSchema>;
 export type PatternApplyRecord = Static<typeof PatternApplyRecordSchema>;
 
-export function parsePatternApplyRecord(
-  value: unknown
-): PatternApplyRecord {
+export function parsePatternApplyRecord(value: unknown): PatternApplyRecord {
   return Value.Parse(PatternApplyRecordSchema, value);
 }

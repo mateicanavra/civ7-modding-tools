@@ -1,4 +1,24 @@
 export type {
+  HabitatConfigService,
+  HabitatConfigValue,
+  HabitatTimeoutPolicy,
+  WorkspaceToolPolicy,
+} from "./config/index.js";
+export {
+  HabitatConfig,
+  HabitatConfigLive,
+  makeHabitatConfig,
+  makeHabitatConfigLayer,
+} from "./config/index.js";
+export {
+  CommandInterrupted,
+  CommandUnavailable,
+  ConfigUnavailable,
+  FileReadFailed,
+  FileWriteFailed,
+  renderHabitatError,
+} from "./errors/index.js";
+export type {
   BaselineApplicationResult,
   BaselineAuthorityResult,
   BaselineAuthorityState,
@@ -71,7 +91,6 @@ export type {
 } from "./lib/diagnostics.js";
 export { validateCheckReport } from "./lib/diagnostics.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
-export { runFix } from "./lib/fix.js";
 export { readGitState } from "./lib/git-state.js";
 export { runGraph } from "./lib/graph.js";
 export type { GritAdapterFailure, GritAdapterFailureTag } from "./lib/grit-failures.js";
@@ -112,8 +131,8 @@ export {
   resolveVerifyBase,
   runAffectedVerification,
   stringifyVerifyReceipt,
-  VerifyBaseSchema,
   VerifyBaseResolutionSchema,
+  VerifyBaseSchema,
   VerifyCommandRecordSchema,
   VerifyHabitatCheckSummarySchema,
   VerifyNxAffectedSchema,
@@ -152,3 +171,4 @@ export {
   patternManifestSchemaVersion,
   validatePatternManifest,
 } from "./rules/patterns/index.js";
+export { HabitatRuntimeLive } from "./runtime/index.js";

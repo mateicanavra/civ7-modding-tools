@@ -1,28 +1,21 @@
+import { Effect } from "effect";
+import { runHookCommand } from "../../../lib/hook-runtime/command-runner.js";
 import {
   hookCheckCommandResult,
   renderResourceDecisionFailure,
   resourceDecisionToFacade,
-} from "./hook-runtime/index.js";
-import { runHookCommand } from "./hook-runtime/command-runner.js";
-import { finalizePreCommit, finalizePrePush } from "./hook-runtime/lifecycle.js";
-import { resolvePrePushBase } from "./hook-runtime/pre-push-base.js";
-import { captureRepoSnapshot } from "./hook-runtime/repo-snapshot.js";
-import {
-  classifyResourcePreCommitDecision,
-  classifyResourcesState,
-} from "./hook-runtime/resource-inspection.js";
+} from "../../../lib/hook-runtime/index.js";
+import { finalizePreCommit, finalizePrePush } from "../../../lib/hook-runtime/lifecycle.js";
+import { resolvePrePushBase } from "../../../lib/hook-runtime/pre-push-base.js";
+import { captureRepoSnapshot } from "../../../lib/hook-runtime/repo-snapshot.js";
+import { classifyResourcePreCommitDecision } from "../../../lib/hook-runtime/resource-inspection.js";
 import {
   createHookOutput,
-  createHookTrace,
+  type HookOptions,
+  type HookRuntime,
   hookNow,
   section,
-  type HookOptions,
-  type HookReportEvent,
-  type HookReporter,
-  type HookResourcePolicy,
-  type HookRuntime,
-  type ResourceRecoveryCommands,
-} from "./hook-runtime/runtime.js";
+} from "../../../lib/hook-runtime/runtime.js";
 import {
   biomeHookPaths,
   existingStagedPaths,
@@ -30,38 +23,26 @@ import {
   gitAdd,
   hookPatternScanRoots,
   unstagedAmong,
-} from "./hook-runtime/staged-worktree.js";
-import { repoRoot } from "./paths.js";
-import type { SpawnResult } from "./spawn.js";
+} from "../../../lib/hook-runtime/staged-worktree.js";
+import { repoRoot } from "../../../lib/paths.js";
+import type { SpawnResult } from "../../../lib/spawn.js";
+import type { HookServiceOptions } from "./context.js";
+import type { HookServiceRunInput } from "./contract.js";
 
 type HookName = "pre-commit" | "pre-push";
-
-export type {
-  HookCommandPhase,
-  HookCommandRecord,
-  HookRepoSnapshot,
-  HookTrace,
-  PreCommitOutcome,
-  PreCommitTrace,
-  PrePushTrace,
-  ResourcePreCommitDecision,
-  ResourceStateFacade as ResourceState,
-  ResourceStateKind,
-} from "./hook-runtime/index.js";
-export { classifyResourcePreCommitDecision, classifyResourcesState, createHookTrace };
-export type {
-  HookOptions,
-  HookReportEvent,
-  HookReporter,
-  HookResourcePolicy,
-  HookRuntime,
-  ResourceRecoveryCommands,
-};
 
 const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"];
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
-export function runHook(name: string | undefined, options: HookOptions = {}): SpawnResult {
+export function runHookService(input: HookServiceRunInput = {}, options: HookServiceOptions = {}) {
+  return Effect.sync(() => runHook(input.name, { base: input.base }, options.runtime));
+}
+
+export function runHook(
+  name: string | undefined,
+  options: HookOptions = {},
+  runtime: HookRuntime = {}
+): SpawnResult {
   if (!isHookName(name)) {
     return {
       exitCode: 2,
@@ -69,7 +50,7 @@ export function runHook(name: string | undefined, options: HookOptions = {}): Sp
       stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
     };
   }
-  return name === "pre-commit" ? runPreCommit() : runPrePush(options);
+  return name === "pre-commit" ? runPreCommit(runtime) : runPrePush(options, runtime);
 }
 
 export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
@@ -308,9 +289,7 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
   });
 }
 
-function checkSummaryAllowsNextStage(
-  result: ReturnType<typeof hookCheckCommandResult>
-): boolean {
+function checkSummaryAllowsNextStage(result: ReturnType<typeof hookCheckCommandResult>): boolean {
   return (
     result.kind === "parsed" &&
     (result.summary.kind === "pass" ||

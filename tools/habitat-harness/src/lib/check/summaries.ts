@@ -92,16 +92,11 @@ export function verifyCheckSummary(
   });
 }
 
-export function isDiagnosticUnavailableSummary(
-  summary: HookCheckSummary
-): boolean {
+export function isDiagnosticUnavailableSummary(summary: HookCheckSummary): boolean {
   return summary.kind === "diagnostic-unavailable";
 }
 
-function hookCheckKind(
-  report: CheckReport,
-  outcome: CheckOutcome
-): HookCheckSummary["kind"] {
+function hookCheckKind(report: CheckReport, outcome: CheckOutcome): HookCheckSummary["kind"] {
   if (outcome.kind === "selector-refused") return "selector-refused";
   if (hasGritAdapterFailure(report)) return "diagnostic-unavailable";
   if (hasBaselineRefusal(report)) return "baseline-refused";

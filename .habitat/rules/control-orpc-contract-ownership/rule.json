@@ -6,12 +6,7 @@
   "scope": "packages/civ7-control-orpc/src/modules/**/contract.ts and root index",
   "forbids": "direct-control imports in contracts or contract-local schemas from public root",
   "why": "oRPC contracts are transport-pure public contracts; runtime control stays in procedures/services.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Keep control-oRPC contracts transport-pure and keep module-local schemas private.",
   "exceptionPath": "none",

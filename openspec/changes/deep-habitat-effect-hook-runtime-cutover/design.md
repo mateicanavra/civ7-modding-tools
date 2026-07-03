@@ -1,0 +1,73 @@
+# Design: Deep Habitat Effect Hook Service Ownership
+
+## Domain Boundary
+
+Owner: hook service module, with lower-level hook runtime material still owning
+the current local feedback helpers until provider/resource drainage lands.
+
+Hook owns staged-worktree policy, local-only feedback labels, hook trace, and
+stage ordering. Providers own tool and Git execution once the next hook runtime
+drain lands. This service-ownership slice moves command-level hook orchestration
+behind the Effect-oRPC module without changing user-facing hook behavior.
+
+## Target Flow
+
+```text
+Husky -> habitat hook CLI -> Habitat service client -> hook service module -> hook runtime helpers
+```
+
+## Write Set
+
+```text
+tools/habitat-harness/src/service/modules/hook/**
+tools/habitat-harness/src/service/contract.ts
+tools/habitat-harness/src/service/router.ts
+tools/habitat-harness/src/commands/hook.ts
+tools/habitat-harness/test/service/hook-service.test.ts
+tools/habitat-harness/test/service/service-architecture.test.ts
+tools/habitat-harness/test/commands/habitat-commands.test.ts
+tools/habitat-harness/test/lib/hooks.test.ts
+```
+
+Deleted path:
+
+```text
+tools/habitat-harness/src/lib/hooks.ts
+```
+
+## Required Cutover In This Slice
+
+- Define a contract for `hook.run`.
+- Bind the procedure through `effect-orpc` in `src/service/modules/hook`.
+- Own hook name dispatch, pre-commit stage orchestration, pre-push base/affected
+  orchestration, and stream rendering in the hook service module.
+- Refuse `D0-package-export-symbol-runhook`; this slice does not add a
+  replacement package helper export or a compatibility wrapper.
+- Refuse `D0-package-export-source-hooks-internal`; this slice does not add an
+  aggregate compatibility wrapper for old `runPreCommit`, `runPrePush`,
+  `createHookTrace`, resource-state helper, reporter/runtime type, or trace type
+  exports.
+- Route the CLI through `client.hook.run`.
+- Keep unknown hook name, pre-commit, and pre-push stream/exit behavior stable.
+- Add tests that fail if the CLI or hook service imports a `lib/hooks` path
+  directly.
+
+## Follow-On Hook Runtime Drain
+
+- `HookRuntime.runCommand` becomes provider Layer substitution.
+- `HookRuntime.nowMs` becomes `HabitatClock`.
+- Staged path reads use `GitProvider`.
+- File hashes and existence use `HabitatFileSystem`.
+- Biome formatting/checking uses `BiomeProvider`.
+- Pattern checking uses the owned check service or Grit provider according to
+  the check/baseline packet outcome.
+
+## Stop Conditions
+
+- `src/commands/hook.ts` calls a `src/lib/hooks.ts` wrapper directly.
+- `src/service/modules/hook/run.ts` delegates command orchestration to a
+  `lib/hooks` wrapper.
+- The service module changes hook output from local workstation feedback.
+- Partial-staging refusal or formatter restage behavior changes.
+- The packet presents this service-module slice as a complete hook provider
+  drain.

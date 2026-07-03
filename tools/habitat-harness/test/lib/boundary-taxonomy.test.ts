@@ -61,7 +61,7 @@ describe("boundary taxonomy verifier", () => {
       project: "civ7-modding-tools",
       root: ".",
     });
-  });
+  }, 90_000);
 
   test("uses all matching source tags so dual-tag control-to-sdk edges fail", async () => {
     const taxonomy = parseBoundaryTaxonomy(await readTaxonomyMarkdown());

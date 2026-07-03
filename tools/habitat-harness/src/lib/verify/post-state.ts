@@ -1,15 +1,25 @@
+import { Effect } from "effect";
+import { GitProvider, spawnResultFromCommandResult } from "../../providers/git/index.js";
+import { runHabitatEffect } from "../../runtime/index.js";
 import { repoRoot } from "../paths.js";
-import { run, type SpawnResult } from "../spawn.js";
-import type { VerifyReceipt } from "./schema.js";
+import type { SpawnResult } from "../spawn.js";
 import { boundedPreview } from "./command-output.js";
+import type { VerifyReceipt } from "./schema.js";
 
 /**
  * Reads the current repository status for verify handoff.
  *
  * @returns Spawn result for `git status --short --branch`.
  */
-export function observeGitStatus(): SpawnResult {
-  return run(["git", "status", "--short", "--branch"], { cwd: repoRoot });
+export function observeGitStatus(): Promise<SpawnResult> {
+  return runHabitatEffect(observeGitStatusEffect());
+}
+
+export function observeGitStatusEffect() {
+  return GitProvider.pipe(
+    Effect.flatMap((git) => git.statusShortBranch()),
+    Effect.map(spawnResultFromCommandResult)
+  );
 }
 
 /**

@@ -2,14 +2,12 @@ import { Value } from "typebox/value";
 import {
   type CandidatePatternManifest,
   type PatternAdmissionRefusal,
-  type PatternState,
   type PatternRetirementDecision,
+  type PatternState,
   PatternStateSchema,
 } from "./schema.js";
 
-export function candidateDraftState(
-  candidate: CandidatePatternManifest
-): PatternState {
+export function candidateDraftState(candidate: CandidatePatternManifest): PatternState {
   return Value.Parse(PatternStateSchema, { kind: "candidate-draft", candidate });
 }
 
@@ -43,8 +41,5 @@ export function retiredPatternState(retirement: PatternRetirementDecision): Patt
 }
 
 export function isAdmittedPatternState(state: PatternState): boolean {
-  return (
-    state.kind === "diagnostic-admitted" ||
-    state.kind === "apply-admitted"
-  );
+  return state.kind === "diagnostic-admitted" || state.kind === "apply-admitted";
 }

@@ -8,10 +8,7 @@ import {
 import { ruleRegistryRepoPath } from "../artifact-paths.ts";
 import { baselinesDir, repoRoot } from "../paths.js";
 import { run, type SpawnResult } from "../spawn.js";
-import type {
-  BaselineRuleContractInput,
-  RuleIntroductionBaselineManifest,
-} from "./schema.js";
+import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
 export interface BaselineContractContext {
   repoRoot?: string;

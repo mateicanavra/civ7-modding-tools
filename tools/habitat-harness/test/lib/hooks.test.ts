@@ -1,16 +1,17 @@
 import { describe, expect, test } from "vitest";
-import type { HookReportEvent } from "../../src/lib/hooks.js";
 import {
   classifyResourcePreCommitDecision,
   classifyResourcesState,
+} from "../../src/lib/hook-runtime/resource-inspection.js";
+import {
   createHookTrace,
-  runPreCommit,
-  runPrePush,
-} from "../../src/lib/hooks.js";
+  type HookReportEvent,
+  type HookRuntime,
+} from "../../src/lib/hook-runtime/runtime.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/lib/spawn.js";
+import { runPreCommit, runPrePush } from "../../src/service/modules/hook/run.js";
 
-type HookRuntime = NonNullable<Parameters<typeof runPreCommit>[0]>;
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 
 describe("Habitat hook resource policy", () => {
@@ -21,7 +22,9 @@ describe("Habitat hook resource policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: clean");
-    expect(result.stdout).toContain("hook result: workstation check only; CI remains authoritative.");
+    expect(result.stdout).toContain(
+      "hook result: workstation check only; CI remains authoritative."
+    );
     expect(result.stdout).toContain("habitat hook pre-commit: PASS");
     expect(fake.calls).toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
@@ -272,7 +275,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
   test("does not run staged pattern checks for JavaScript files outside approved scan roots", () => {
     const fake = makeFakeRuntime({
-      stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
+      stagedPaths: ["tools/habitat-harness/src/service/modules/hook/run.ts"],
     });
 
     const result = runPreCommit(fake.runtime);
@@ -282,7 +285,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       "patterns: no staged TypeScript/JavaScript files in approved scan roots"
     );
     expect(fake.calls).toContain(
-      "biome check --no-errors-on-unmatched tools/habitat-harness/src/lib/hooks.ts"
+      "biome check --no-errors-on-unmatched tools/habitat-harness/src/service/modules/hook/run.ts"
     );
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
@@ -425,7 +428,9 @@ describe("Habitat pre-push base policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
-    expect(result.stdout).toContain("hook result: workstation check only; CI remains authoritative.");
+    expect(result.stdout).toContain(
+      "hook result: workstation check only; CI remains authoritative."
+    );
     expect(fake.calls).toContain(
       "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base HEAD~1 --head HEAD --outputStyle=static"
     );
@@ -662,7 +667,9 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call.startsWith("biome check --no-errors-on-unmatched")) {
       return options.biomeCheckExitCode ? failure(options.biomeCheckExitCode) : ok();
     }
-    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json") {
+    if (
+      call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
+    ) {
       return {
         exitCode: options.gritExitCode ?? 0,
         stdout: options.gritStdout ?? gritCheckReport({ ok: true, status: "pass" }),

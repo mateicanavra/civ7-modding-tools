@@ -19,8 +19,8 @@ import { repoRoot, toRepoRelative } from "../paths.js";
 import {
   modifiedStagedPaths,
   runFileLayerProtectedMutationRule,
-  stagedPathsFromNameStatus,
   type StagedMutationPath,
+  stagedPathsFromNameStatus,
 } from "../protected-zones/index.js";
 import { run } from "../spawn.js";
 import { readWorkspaceGraph, ruleAliasTargetState } from "../workspace-graph/index.js";
@@ -164,12 +164,17 @@ async function executeCommandRules(
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>
 ): Promise<void> {
-  for (const rule of commandRules) {
-    const started = Date.now();
-    const result = await executeRule(rule);
-    const durationMs = Date.now() - started;
-    results.set(rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } });
-  }
+  const records = await Promise.all(commandRules.map(executeCommandRule));
+  for (const [ruleId, record] of records) results.set(ruleId, record);
+}
+
+async function executeCommandRule(
+  rule: RuleCommandExecutionFacts
+): Promise<[string, RuleExecutionRecord]> {
+  const started = Date.now();
+  const result = await executeRule(rule);
+  const durationMs = Date.now() - started;
+  return [rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } }];
 }
 
 function executeFileLayerRules(
@@ -207,9 +212,7 @@ function executeFileLayerRules(
   }
 }
 
-type StagedPathActionReadResult =
-  | StagedMutationPath[]
-  | { ok: false; message: string };
+type StagedPathActionReadResult = StagedMutationPath[] | { ok: false; message: string };
 
 function isStagedPathReadFailure(
   result: StagedPathActionReadResult | undefined

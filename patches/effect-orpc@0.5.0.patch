@@ -1,0 +1,21 @@
+diff --git a/package.json b/package.json
+index 090229169f12cccdbf38c135b8242317bdde99a4..9cbd7356210acbccde8b64c9765bdfad9a0ec5a9 100644
+--- a/package.json
++++ b/package.json
+@@ -20,8 +20,14 @@
+   ],
+   "type": "module",
+   "exports": {
+-    ".": "./src/index.ts",
+-    "./node": "./src/node.ts"
++    ".": {
++      "types": "./src/index.ts",
++      "default": "./dist/index.js"
++    },
++    "./node": {
++      "types": "./src/node.ts",
++      "default": "./dist/node.js"
++    }
+   },
+   "publishConfig": {
+     "exports": {

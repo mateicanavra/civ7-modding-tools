@@ -1,10 +1,11 @@
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
+import { defaultGritCommandTimeoutMs } from "../../src/adapters/grit/constants.js";
+import { gritRuleResultsFromReport } from "../../src/adapters/grit/diagnostics.js";
 import {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
 } from "../../src/adapters/grit/output/index.js";
-import { gritRuleResultsFromReport } from "../../src/adapters/grit/diagnostics.js";
 import { decidePatternScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
 import {
   DiagnosticCatalogEntrySchema,
@@ -422,6 +423,7 @@ describe("Grit check adapter parser and diagnostics", () => {
       argv: ["--json", "check", "--level", "error", "packages"],
       cwd: repoRoot,
       scanRoots: ["packages"],
+      timeoutMs: defaultGritCommandTimeoutMs,
       cachePolicy: {
         mode: "isolated",
         observableStatus: "unknown",
@@ -435,6 +437,22 @@ describe("Grit check adapter parser and diagnostics", () => {
       NO_COLOR: "1",
     });
     expect(results.get(rule.id)?.diagnostics[0]?.message).toBe("adapter finding");
+  });
+
+  test("refuses unschedulable live source batches before starting Grit", async () => {
+    const firstRule = fakeGritRule("source-one", "source_one", { scanRoots: ["packages"] });
+    const secondRule = fakeGritRule("source-two", "source_two", { scanRoots: ["packages"] });
+
+    const results = await runGritRules([firstRule, secondRule], {
+      scanRoots: ["packages"],
+    });
+
+    expect(results.get(firstRule.id)?.diagnostics[0]?.message).toContain(
+      "Refusing to run 2 source-backed Grit rules as one live batch"
+    );
+    expect(results.get(secondRule.id)?.diagnostics[0]?.message).toContain(
+      "GritProvider batching/resource scheduling"
+    );
   });
 
   test("fresh cache mode uses a scoped isolated cache with observable freshness", async () => {

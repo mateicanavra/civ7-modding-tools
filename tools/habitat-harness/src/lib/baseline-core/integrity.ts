@@ -1,12 +1,14 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { parseRuleRegistryDocument } from "../../rules/registry/index.js";
+import { baselineRepoPath, ruleRegistryRepoPath } from "../artifact-paths.ts";
 import {
+  type BaselineContractContext,
   baselinePathForRule,
   gitShow,
   mergeBase,
-  resolveBaselineContext,
-  type BaselineContractContext,
   type RequiredBaselineContext,
+  resolveBaselineContext,
 } from "./context.js";
 import {
   type BaselineExpansionDecision,
@@ -14,8 +16,6 @@ import {
   type BaselineIntegrityResult,
   type BaselineRefusal,
 } from "./schema.js";
-import { parseRuleRegistryDocument } from "../../rules/registry/index.js";
-import { baselineRepoPath, ruleRegistryRepoPath } from "../artifact-paths.ts";
 import { parseBaselineArray, validateBaselineContract } from "./state.js";
 import { sortedUnique } from "./utils.js";
 
@@ -207,10 +207,9 @@ function loadBaseRuleIdsFromDirectory(
   registryPath: string,
   context: RequiredBaselineContext
 ): Set<string> | null {
-  const res = context.runCommand(
-    ["git", "ls-tree", "-r", "--name-only", mb, registryPath],
-    { cwd: context.repoRoot }
-  );
+  const res = context.runCommand(["git", "ls-tree", "-r", "--name-only", mb, registryPath], {
+    cwd: context.repoRoot,
+  });
   if (res.exitCode !== 0) return null;
   const ids = res.stdout
     .split("\n")

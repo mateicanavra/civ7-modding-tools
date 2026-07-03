@@ -6,12 +6,7 @@
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
   "forbids": "ops depending on map projection/effect artifact keys",
   "why": "Domain ops should not encode runtime map artifact/effect dependencies.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Remove map projection/effect dependency keys from domain ops.",
   "exceptionPath": "none",
@@ -27,9 +22,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
     }
   ]
 }

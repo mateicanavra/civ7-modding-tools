@@ -1,17 +1,11 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import {
-  checkCommandContext,
-  createCheckReport,
-  describeRuleSelectionFailure,
-  expandBaselines,
-  renderCheckReport,
-} from "../lib/check-report.js";
+import { checkCommandContext, renderCheckReport } from "../lib/check-report.js";
+import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Check extends HabitatCommand {
   static override summary = "Run Habitat structural checks";
-  static override description =
-    "Runs the Habitat rule pack with shrink-only baseline integrity and normalized diagnostics.";
+  static override description = "Runs the Habitat rule pack and emits normalized diagnostics.";
   static override examples = [
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --json",
@@ -28,25 +22,35 @@ export default class Check extends HabitatCommand {
     "expand-baseline": Flags.boolean({
       description: "Authoring-only: write current uncovered errors into selected rule baselines.",
     }),
+    "baseline-integrity": Flags.boolean({
+      description: "Also check shrink-only baseline integrity against the selected base ref.",
+    }),
     base: Flags.string({
-      description: "Git base ref for shrink-only baseline integrity comparison.",
-      default: "main",
+      description: "Git base ref for baseline authoring or explicit baseline integrity comparison.",
     }),
   };
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
+    const base = flags.base ?? "main";
+    const client = createHabitatServiceClient();
     if (flags["expand-baseline"]) {
-      const expansion = await expandBaselines(selection, { base: flags.base });
-      if (!expansion.ok) this.error(describeRuleSelectionFailure(expansion), { exit: 1 });
+      const expansion = await client.check.expandBaseline({
+        selectors: selection,
+        base,
+        command: checkCommandContext(this.rawArgv()),
+      });
+      if (expansion.kind === "refused") this.error(expansion.message, { exit: 1 });
       for (const message of expansion.messages) this.log(message);
       return;
     }
 
-    const report = await createCheckReport({
-      ...selection,
-      base: flags.base,
+    const baselineIntegrity = flags["baseline-integrity"] || Boolean(flags.base);
+    const report = await client.check.run({
+      selectors: selection,
+      ...(baselineIntegrity ? { base } : {}),
+      baselineIntegrity,
       command: checkCommandContext(this.rawArgv()),
       staged: flags.staged,
     });

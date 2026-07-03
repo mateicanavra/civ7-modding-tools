@@ -1,14 +1,14 @@
 /** Public verify module barrel for command orchestration and receipt contracts. */
 export type { VerifyOptions } from "./base.js";
-export { resolveVerifyBase } from "./base.js";
-export { runAffectedVerification } from "./nx-affected.js";
+export { resolveVerifyBase, resolveVerifyBaseEffect } from "./base.js";
+export { runAffectedVerification, runAffectedVerificationEffect } from "./nx-affected.js";
+export { observeGitStatus, observeGitStatusEffect } from "./post-state.js";
 export type { VerifyReceiptInput } from "./receipt.js";
 export { createVerifyReceipt, readVerifyTargetPlan, verifyAffectedTargets } from "./receipt.js";
 export type { VerifyBaseResolution, VerifyReceipt } from "./schema.js";
 export {
   isVerifyReceipt,
   stringifyVerifyReceipt,
-  validateVerifyReceipt,
   VerifyBaseResolutionSchema,
   VerifyBaseSchema,
   VerifyCommandRecordSchema,
@@ -17,4 +17,5 @@ export {
   VerifyNxCacheTaskSchema,
   VerifyPostStateSchema,
   VerifyReceiptSchema,
+  validateVerifyReceipt,
 } from "./schema.js";

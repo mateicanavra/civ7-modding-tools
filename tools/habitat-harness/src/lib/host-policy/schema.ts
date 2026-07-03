@@ -242,9 +242,5 @@ export type HostPolicySourceState = Static<typeof HostPolicySourceStateSchema>;
 export type HostPolicyState = Static<typeof HostPolicyStateSchema>;
 export type HostSurfaceDecision = Static<typeof HostSurfaceDecisionSchema>;
 export type HostApplyGateDecision = Static<typeof HostApplyGateDecisionSchema>;
-export type HostProjectSupportDecision = Static<
-  typeof HostProjectSupportDecisionSchema
->;
-export type HostAuthoringBoundaryState = Static<
-  typeof HostAuthoringBoundaryStateSchema
->;
+export type HostProjectSupportDecision = Static<typeof HostProjectSupportDecisionSchema>;
+export type HostAuthoringBoundaryState = Static<typeof HostAuthoringBoundaryStateSchema>;

@@ -1,3 +1,12 @@
+export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.js";
+export type { BaselineContractContext, RequiredBaselineContext } from "./context.js";
+export { mergeBase, resolveBaselineContext } from "./context.js";
+export {
+  baselineIntegrityFindings,
+  checkBaselineIntegrity,
+  guardBaselineExpansion,
+  writeBaseline,
+} from "./integrity.js";
 export type {
   BaselineApplicationResult,
   BaselineAuthorityResult,
@@ -25,8 +34,6 @@ export {
   BaselineRuleContractInputSchema,
   RuleIntroductionBaselineManifestSchema,
 } from "./schema.js";
-export type { BaselineContractContext, RequiredBaselineContext } from "./context.js";
-export { mergeBase, resolveBaselineContext } from "./context.js";
 export {
   baselineAuthorityResult,
   baselinePath,
@@ -36,10 +43,3 @@ export {
   parseBaselineArray,
   validateBaselineContract,
 } from "./state.js";
-export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.js";
-export {
-  baselineIntegrityFindings,
-  checkBaselineIntegrity,
-  guardBaselineExpansion,
-  writeBaseline,
-} from "./integrity.js";

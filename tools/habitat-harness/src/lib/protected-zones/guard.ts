@@ -1,12 +1,12 @@
 import { Value } from "typebox/value";
+import { matchesDeclarationPath } from "./declarations.js";
 import {
-  DeclarationReadinessSchema,
-  ProtectedMutationDecisionSchema,
   type DeclarationReadiness,
+  DeclarationReadinessSchema,
   type ProtectedMutationDecision,
+  ProtectedMutationDecisionSchema,
   type StagedMutationPath,
 } from "./schema.js";
-import { matchesDeclarationPath } from "./declarations.js";
 
 export function evaluateProtectedMutationGuard(
   declarationState: DeclarationReadiness,

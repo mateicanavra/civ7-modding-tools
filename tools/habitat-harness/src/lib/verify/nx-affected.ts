@@ -1,8 +1,14 @@
-import { repoRoot } from "../paths.js";
-import { run, type SpawnResult } from "../spawn.js";
+import { Effect } from "effect";
+import {
+  affectedArgv,
+  NxProvider,
+  spawnResultFromCommandResult,
+} from "../../providers/nx/index.js";
+import { runHabitatEffect } from "../../runtime/index.js";
+import type { SpawnResult } from "../spawn.js";
 import type { VerifyTargetPlan } from "../workspace-graph/index.js";
-import type { VerifyReceipt } from "./schema.js";
 import { boundedPreview } from "./command-output.js";
+import type { VerifyReceipt } from "./schema.js";
 
 /**
  * Builds the Nx affected argv used by verify.
@@ -12,17 +18,7 @@ import { boundedPreview } from "./command-output.js";
  * @returns Argument vector passed to the repository-local Nx entrypoint.
  */
 export function affectedVerificationArgv(base: string, targetPlan: VerifyTargetPlan): string[] {
-  return [
-    "nx",
-    "affected",
-    "-t",
-    targetPlan.targets.join(","),
-    "--base",
-    base,
-    "--head",
-    "HEAD",
-    "--outputStyle=static",
-  ];
+  return affectedArgv({ base, targets: targetPlan.targets });
 }
 
 /**
@@ -35,10 +31,18 @@ export function affectedVerificationArgv(base: string, targetPlan: VerifyTargetP
 export function runAffectedVerification(
   base: string,
   targetPlan: Extract<VerifyTargetPlan, { kind: "verify-target-plan" }>
-): SpawnResult {
-  return run(affectedVerificationArgv(base, targetPlan), {
-    cwd: repoRoot,
-  });
+): Promise<SpawnResult> {
+  return runHabitatEffect(runAffectedVerificationEffect(base, targetPlan));
+}
+
+export function runAffectedVerificationEffect(
+  base: string,
+  targetPlan: Extract<VerifyTargetPlan, { kind: "verify-target-plan" }>
+) {
+  return NxProvider.pipe(
+    Effect.flatMap((nx) => nx.affected({ base, targets: targetPlan.targets })),
+    Effect.map(spawnResultFromCommandResult)
+  );
 }
 
 /**
@@ -128,7 +132,9 @@ function parseNxTaskCacheStates(
       taskId: `${project}:${target}`,
       project,
       target,
-      cacheState: taskLine.includes("existing outputs match the cache") ? "cache-hit" : "not-observed",
+      cacheState: taskLine.includes("existing outputs match the cache")
+        ? "cache-hit"
+        : "not-observed",
     };
   });
 }
