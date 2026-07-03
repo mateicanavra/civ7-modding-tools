@@ -12,10 +12,6 @@ import {
   ruleRegistryRepoPath,
 } from "./resources/artifact-paths.ts";
 import { repoRoot } from "./resources/paths.ts";
-import {
-  sourceCheckRuleModuleRepoPath,
-  sourceCheckRuleRuntimeRepoPath,
-} from "./service/model/check/policy/source/module-paths.policy.ts";
 import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
   type InferredProjects,
@@ -34,6 +30,10 @@ import {
   ownerCheckTarget,
   sourceCheckTarget,
 } from "./service/model/graph/policy/target-definitions.policy.ts";
+import {
+  sourceCheckRuleModuleRepoPath,
+  sourceCheckRuleRuntimeRepoPath,
+} from "./service/model/source-check/policy/source/module-paths.policy.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,

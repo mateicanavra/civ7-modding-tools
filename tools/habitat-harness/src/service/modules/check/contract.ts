@@ -3,7 +3,6 @@ import {
   CheckReportSchema,
   SelectorRequestSchema,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
@@ -52,32 +51,13 @@ export type CheckServiceExpandBaselineOutput = Static<
   typeof CheckServiceExpandBaselineOutputSchema
 >;
 
-const CheckReportInputStandardSchema = toStandardSchema(CheckReportInputSchema);
-const CheckReportOutputStandardSchema = toStandardSchema(CheckReportSchema);
-const CheckServiceExpandBaselineInputStandardSchema = toStandardSchema(
-  CheckServiceExpandBaselineInputSchema
-);
-const CheckServiceExpandBaselineOutputStandardSchema = toStandardSchema(
-  CheckServiceExpandBaselineOutputSchema
-);
-
-export const checkReportContract: HabitatServiceProcedureContract<
-  typeof CheckReportInputStandardSchema,
-  typeof CheckReportOutputStandardSchema
-> = eoc
-  .errors(habitatServiceErrorMap)
-  .input(CheckReportInputStandardSchema)
-  .output(CheckReportOutputStandardSchema);
-
-export const checkServiceExpandBaselineContract: HabitatServiceProcedureContract<
-  typeof CheckServiceExpandBaselineInputStandardSchema,
-  typeof CheckServiceExpandBaselineOutputStandardSchema
-> = eoc
-  .errors(habitatServiceErrorMap)
-  .input(CheckServiceExpandBaselineInputStandardSchema)
-  .output(CheckServiceExpandBaselineOutputStandardSchema);
-
 export const checkServiceContract = {
-  report: checkReportContract,
-  expandBaseline: checkServiceExpandBaselineContract,
+  report: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(CheckReportInputSchema))
+    .output(toStandardSchema(CheckReportSchema)),
+  expandBaseline: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(CheckServiceExpandBaselineInputSchema))
+    .output(toStandardSchema(CheckServiceExpandBaselineOutputSchema)),
 };

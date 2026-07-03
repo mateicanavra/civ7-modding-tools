@@ -20,7 +20,7 @@ import {
   type BaselineIntegrityResult,
   type BaselineRefusal,
   type BaselineRuleContractInput,
-} from "./schema.js";
+} from "./dto/baseline.schema.js";
 import { parseBaselineArray } from "./state.policy.js";
 import { sortedUnique } from "./utils.policy.js";
 

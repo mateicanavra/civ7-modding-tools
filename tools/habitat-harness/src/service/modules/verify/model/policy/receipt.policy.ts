@@ -4,8 +4,8 @@ import {
   type VerifyCheckSummary,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
-import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/validation/policy/target-routing.policy";
 import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,

@@ -4,12 +4,7 @@ import {
   habitatCacheRepoPath,
   habitatCacheRepoPathPrefix,
 } from "@internal/habitat-harness/resources/artifact-paths";
-import {
-  collapsedSourceScanRoots,
-  type HabitatDiagnostic,
-  selectedSourceScanRootsForRules,
-  sortedUnique,
-} from "@internal/habitat-harness/service/model/check/index";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/index";
 import type { RuleRunResult } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import {
   pathCoveragePatternMatches,
@@ -17,6 +12,11 @@ import {
 } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect } from "effect";
 import ts from "typescript";
+import {
+  collapsedSourceScanRoots,
+  selectedSourceScanRootsForRules,
+  sortedUnique,
+} from "../source-scope.policy.js";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.policy.js";
 
 export interface SourceCheckOptions {

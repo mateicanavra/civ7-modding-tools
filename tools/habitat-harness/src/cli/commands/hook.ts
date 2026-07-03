@@ -19,10 +19,29 @@ export default class Hook extends HabitatCommand {
 
   async run(): Promise<void> {
     const { args, flags } = await this.parse(Hook);
-    const client = await this.habitatServiceClient();
-    const result = await client.hook.execute({ name: args.name, base: flags.base });
+    const result = await this.runHookAction(args.name, flags.base);
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);
   }
+
+  private async runHookAction(name: string | undefined, base: string | undefined) {
+    if (name === "pre-commit") {
+      const client = await this.habitatServiceClient();
+      return client.hook.preCommit({});
+    }
+    if (name === "pre-push") {
+      const client = await this.habitatServiceClient();
+      return client.hook.prePush({ base });
+    }
+    return unknownHookResult(name);
+  }
+}
+
+function unknownHookResult(name: string | undefined) {
+  return {
+    exitCode: 2,
+    stdout: "",
+    stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
+  };
 }

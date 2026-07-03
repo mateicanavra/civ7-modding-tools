@@ -19,21 +19,21 @@ import {
   readText,
   writeText,
 } from "@internal/habitat-harness/resources/platform/index";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/index";
 import {
   applyBaseline,
   type BaselineAuthorityContext,
   type BaselineRuleContractInput,
   baselineFailureDiagnostic,
   isBaselineLocked,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+} from "@internal/habitat-harness/service/model/baseline/index";
 import {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
   guardBaselineExpansionEffect,
   loadBaselineStateEffect,
   validateBaselineContractEffect,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/operations.policy";
+} from "@internal/habitat-harness/service/model/baseline/operations.policy";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/index";
 import { Effect } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 

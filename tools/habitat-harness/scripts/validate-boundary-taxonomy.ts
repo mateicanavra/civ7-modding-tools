@@ -4,10 +4,12 @@ import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   auditBoundaryTaxonomy,
   parseBoundaryTaxonomy,
+} from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy.policy";
+import {
   readBoundaryConfigConstraints,
   readNxProjectMetadataFromGraph,
   readWorkspaceManifestProjects,
-} from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy.policy";
+} from "@internal/habitat-harness/validation/boundary-taxonomy-inputs";
 
 const taxonomy = parseBoundaryTaxonomy(
   await readFile(path.join(repoRoot, "docs/projects/habitat-harness/taxonomy.md"), "utf8")

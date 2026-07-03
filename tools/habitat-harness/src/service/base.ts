@@ -7,12 +7,19 @@ import type { CommandRunnerService } from "@internal/habitat-harness/resources/c
 import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
+import type { StructuralExecutionContext } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import type { AnyContractRouter } from "@orpc/contract";
 import { Context, type Layer } from "effect";
+import type { EffectImplementerInternal } from "effect-orpc";
 
 export interface HabitatServiceContext {
   readonly deps: HabitatServiceDeps;
   readonly correlationId?: string;
+}
+
+export interface HabitatServiceSharedContext extends HabitatServiceContext {
+  readonly structuralCheck: StructuralExecutionContext;
 }
 
 export interface HabitatServiceDeps {
@@ -35,3 +42,14 @@ export type HabitatServiceRequirements =
   | HabitatServiceRuntime
   | Layer.Layer.Success<typeof HabitatRuntimeLive>;
 export type HabitatServiceRuntimeError = Layer.Layer.Error<typeof HabitatRuntimeLive>;
+
+export type HabitatModule<
+  TContract extends AnyContractRouter,
+  TContext extends object,
+> = EffectImplementerInternal<
+  TContract,
+  HabitatServiceContext,
+  HabitatServiceSharedContext & TContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError
+>;

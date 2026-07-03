@@ -9,7 +9,7 @@ import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifa
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import { HabitatPlatform } from "@internal/habitat-harness/resources/platform/index";
 import { silentHabitatReporter } from "@internal/habitat-harness/resources/reporter/index";
-import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
+import { habitatServiceManagedRuntime } from "@internal/habitat-harness/runtime/service-runtime";
 import type {
   HabitatServiceContext,
   HabitatServiceDeps,
@@ -19,9 +19,7 @@ import {
   type RuleRegistryFileSystem,
 } from "@internal/habitat-harness/service/model/rules/index";
 import { ruleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
-import { Effect, ManagedRuntime } from "effect";
-
-const serviceContextRuntime = ManagedRuntime.make(HabitatRuntimeLive);
+import { Effect } from "effect";
 
 export type LiveHabitatServiceContextInput = Omit<Partial<HabitatServiceContext>, "deps"> & {
   readonly deps?: Partial<HabitatServiceDeps>;
@@ -30,7 +28,7 @@ export type LiveHabitatServiceContextInput = Omit<Partial<HabitatServiceContext>
 export async function createLiveHabitatServiceContext(
   input: LiveHabitatServiceContextInput = {}
 ): Promise<HabitatServiceContext> {
-  const deps = await serviceContextRuntime.runPromise(
+  const deps = await habitatServiceManagedRuntime.runPromise(
     Effect.gen(function* () {
       const platform = input.deps?.platform ?? (yield* HabitatPlatform);
       const registryFileSystem: RuleRegistryFileSystem<FileSystem.FileSystem> = {

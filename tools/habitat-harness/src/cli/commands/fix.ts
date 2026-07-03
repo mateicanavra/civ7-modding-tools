@@ -17,9 +17,9 @@ export default class Fix extends HabitatCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(Fix);
     const client = await this.habitatServiceClient();
-    const result = await client.fix.applyPatterns({
-      kind: flags["dry-run"] ? "dry-run-intent" : "live-write-intent",
-    });
+    const result = flags["dry-run"]
+      ? await client.fix.planPatterns({})
+      : await client.fix.applyPatterns({});
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);
