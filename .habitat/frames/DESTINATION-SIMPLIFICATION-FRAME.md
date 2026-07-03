@@ -135,7 +135,7 @@ Exterior:
 - Adapter-boundary as a blueprint.
 - Effect-tag as a sibling blueprint separate from dependency-tag.
 - Artifact-contract as a sibling blueprint separate from artifact.
-- Domain-operation-strategy as a blueprint until source proves independent
+- Domain-operation-strategy as a blueprint before source proves independent
   constructibility rather than strategy-file cleanup.
 
 ## Hard Core And Protective Belt
@@ -147,8 +147,8 @@ Hard core:
    blueprint.
 2. `dependency-tag` is a real blueprint kind; `artifact:*`, `field:*`, and
    `effect:*` are tag kinds under it, not separate blueprint destinations.
-3. `config-surface`, `adapter-boundary`, generic `projection`, and
-   `domain-operation-strategy` are not blueprints now.
+3. `config-surface`, `adapter-boundary`, and generic `projection` are not
+   blueprints now.
 4. Dependency-tag gathering was the correct first move because it clarified
    edge semantics that otherwise made artifact, effect, projection, and config
    rows look more tangled than they were.
@@ -178,6 +178,7 @@ Affirmed or ready-to-admit blueprint destinations:
 - `recipe-step`
 - `domain`
 - `domain-operation`
+- `domain-operation-strategy`
 - `mod-map`
 - `dependency-tag`
 - `artifact`
@@ -200,10 +201,16 @@ Not blueprint destinations now:
 - `artifact-contract`
 - `adapter-boundary`
 - generic `projection`
-- `domain-operation-strategy`
 - `worker-bundle`
 - `dev-runner`
-- `runtime-dependencies`
+- `runtime-dependencies` (resolved for MapGen visualization by Domino 43)
+
+Supersession note: Domino 52 later admitted `domain-operation-strategy` after
+source/docs proved independent constructibility through the operation strategy
+envelope, `defineOp`/`createOp`/`createStrategy` binding, and 104 current
+strategy implementations across six domains. The original exclusion remains
+valid only as a warning against admitting strategy-file cleanup by path label
+alone.
 
 ## Garbage And Pruning Pressure
 

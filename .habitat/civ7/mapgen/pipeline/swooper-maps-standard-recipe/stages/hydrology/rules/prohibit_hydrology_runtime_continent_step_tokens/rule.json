@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_hydrology_runtime_continent_step_tokens",
+  "title": "Prohibit Hydrology Runtime Continent Step Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology",
+    "blueprint": "_self",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "runtime continent identifiers and markLandmassId calls in hydrology climate-baseline implementation files",
+  "why": "Hydrology implementation steps consume canonical artifacts instead of direct runtime continent marking.",
+  "remediate": null,
+  "message": "Route hydrology landmass identity through canonical artifacts instead of runtime continent step tokens.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules/prohibit_hydrology_runtime_continent_step_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules/prohibit_hydrology_runtime_continent_step_tokens/pattern.md"
+    },
+    "patternName": "prohibit_hydrology_runtime_continent_step_tokens"
+  }
+}

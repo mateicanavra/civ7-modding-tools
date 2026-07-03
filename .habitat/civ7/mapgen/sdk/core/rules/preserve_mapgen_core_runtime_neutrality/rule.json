@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "preserve_mapgen_core_runtime_neutrality",
+  "title": "Preserve Mapgen Core Runtime Neutrality",
+  "placement": {
+    "niche": "civ7/mapgen/sdk/core",
+    "blueprint": "_self",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-core",
+  "lane": "enforced",
+  "forbids": "Civ7 adapter value imports, /base-standard paths, runtime globals, adapter creation, or unsafe engine casts in mapgen-core production source",
+  "why": "mapgen-core is a pure TypeScript engine; Civ7 coupling belongs in adapters.",
+  "remediate": null,
+  "message": "Remove Civ7 runtime coupling from mapgen-core production source.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/mapgen-core/src/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "packages/mapgen-core/src"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md"
+    },
+    "patternName": "preserve_mapgen_core_runtime_neutrality"
+  }
+}

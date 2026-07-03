@@ -13,6 +13,23 @@ moves.
 
 Current frames:
 
+- `RULE-REMEDIATION-WORKSTREAM-FRAME.md`: use when a multi-rule Habitat
+  authority-tree remediation effort needs the full execution geometry across
+  Layer 1 classification fanout, Layer 2 decision-packet fanout or sequencing,
+  and Layer 3 sequential implementation slices. It is the parent orchestration
+  frame for the three general rule-remediation frames.
+- `RULE-ACTION-CLASSIFICATION-FRAME.md`: use when one live Habitat rule needs a
+  light action decision. The output is compact row data: current placement,
+  action decision, expected remediation outcome, whether a decision packet is
+  needed, and blocker/proof. External workstreams may apply it repeatedly, but
+  the frame itself remains one-rule scoped.
+- `RULE-DECISION-PACKET-FRAME.md`: use after action classification when one
+  rule needs clause decomposition and a durable semantic decision before
+  implementation. It produces the full decision packet and does not edit files.
+- `RULE-REMEDIATION-SLICE-FRAME.md`: use after classifications and decision
+  packets exist to implement one coherent remediation slice through bounded
+  edits, verification, review disposition, ledger/domino updates, and Graphite
+  closure.
 - `POST-DEPENDENCY-TAG-POSITION-FRAME.md`: use immediately after Domino 39 to
   ground the next branch. It records what dependency-tag proved, what it did
   not prove, and the decision gate between Artifact Blueprint Gathering,
@@ -39,3 +56,7 @@ Current frames:
   row cannot truthfully move to an existing blueprint or context and the next
   question is whether a narrow projection contract surface should exist before
   additional movement.
+- `REMAINDER-REMEDIATION-ACTION-FRAME.md`: specialization adapter for applying
+  the three general rule-remediation frames to reviewed `_remainder` rows. It
+  owns remainder-specific entry tests, row status semantics, pending-action
+  requirements, and closure additions; it no longer duplicates the full method.

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "preserve_morphology_belt_driver_contracts",
+  "title": "Preserve Morphology Belt Driver Contracts",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "missing canonical morphology belt-driver contract references",
+  "why": "Morphology belt-driver contracts are the structural handoff between foundation physics artifacts and morphology truth artifacts.",
+  "remediate": null,
+  "message": "Keep morphology belt-driver contracts wired to canonical artifacts.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs"
+    }
+  }
+}

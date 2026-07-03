@@ -12,14 +12,18 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "standard recipe stage directory drift, missing stage entrypoints, or retired stage directories",
-  "why": "The standard MapGen pipeline file tree is structural authority; source-order and runtime parity checks are owned by separate rules.",
+  "forbids": "standard recipe stage directory drift from the contract manifest/runtime recipe, missing stage entrypoints, or retired stage directories",
+  "why": "The standard MapGen pipeline file tree must stay closed around active stages derived from the contract manifest and runtime recipe; source-order and step parity checks are owned by separate rules.",
   "remediate": null,
-  "message": "Update the standard topology intentionally and move any helper directory out of stage shape.",
+  "message": "Update the standard contract manifest, runtime recipe, and stage-root topology together; shared support hubs are allowed but are not active stage ids.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/*"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/*"
+      ]
     }
   ],
   "supportFiles": {
@@ -27,9 +31,10 @@
   },
   "runner": {
     "name": "habitat",
-    "mode": "structure",
+    "mode": "script",
+    "runtime": "node",
     "files": {
-      "structure": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/structure.toml"
+      "script": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs"
     }
   }
 }

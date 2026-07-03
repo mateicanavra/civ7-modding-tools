@@ -245,8 +245,8 @@ Use the smallest assertion or operation as the unit of analysis.
 | Oracle or behavior | Disposition | Owner |
 | --- | --- | --- |
 | Source shape, file tree, import/export legality, public surface structure, package ownership, protected generated placement, boundary reach | Keep, consolidate, or refine as Habitat authority | `.habitat` |
-| Runtime behavior, command output, API behavior, validation semantics, state transition, retry/reconnect, telemetry, live Civ7 or FireTuner behavior, generated runtime output correctness, product acceptance | Keep package-local; rename or split only for clarity | owning package |
-| Build ordering, generated artifact prerequisites, cache/output dependencies, consumer-before-producer ordering | Encode in Nx target graph; Habitat may only check separate structural meaning | Nx/project metadata |
+| Runtime behavior, command output, API behavior, live validation semantics, state transition, retry/reconnect, telemetry, live Civ7 or FireTuner behavior, generated runtime output correctness, product acceptance | Keep package-local; rename or split only for clarity | owning package |
+| Build ordering, generated-output prerequisites, cache/output dependencies, consumer-before-producer ordering | Encode in Nx target graph; Habitat may only check separate structural meaning | Nx/project metadata |
 | Mutating repair of authored files | Admit as `fix` only with idempotence and write-scope proof, or keep out of default authority | `.habitat` operation |
 | Materialization of generated/scaffolded outputs | Admit as `generate` with declared inputs/outputs, or keep with the consuming package | generator owner |
 | Transition from one accepted authored shape to another | Admit as `migrate` with source shape, target shape, review boundary, and stop condition | migration owner |
@@ -257,6 +257,13 @@ or only preserved a transitional state that no longer exists. Demotion is
 valid when useful evidence remains but default execution would overclaim.
 Consolidation is valid when two packets enforce the same invariant through
 different historical mechanisms.
+
+Retired exact literals, properties, paths, aliases, and tokens are usually
+`remove`, not `package-local`. A package test may prove live behavior or live
+validation semantics, but it must not become a junk drawer for old property
+blacklists. Keep or replace a retired-literal assertion only when the exact
+literal remains public, documented, generated, externally consumed, commonly
+reintroduced, or otherwise has concrete recurrence risk.
 
 ## Disposition Workflow
 
@@ -297,8 +304,10 @@ cluster:
   proof classes, or mutability.
 - `consolidate`: merge duplicate authority into the stronger packet and remove
   or redirect the weaker duplicate.
-- `package-local`: leave or move the assertion to the owning package's tests,
-  validators, or docs, without weakening package behavior proof.
+- `package-local`: leave or move live behavior, API, validation-semantic, or
+  product assertions to the owning package's tests, validators, or docs,
+  without weakening package behavior proof. Do not use this label for retired
+  exact literals with no recurrence risk; those are `remove`.
 - `nx-ordering`: encode dependency/order/currentness in Nx target metadata or
   project metadata, and remove Habitat enforcement unless separate structural
   meaning remains.

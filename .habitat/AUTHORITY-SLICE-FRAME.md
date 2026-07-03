@@ -126,7 +126,7 @@ Hard core:
 3. A bounded slice must change structure before its lessons are generalized.
 4. Capabilities and niches are admitted only when blueprint ownership cannot
    truthfully own the rule.
-5. `rule.json` identity and explicit runner/artifact references remain stable
+5. `rule.json` identity and explicit runner/support-file references remain stable
    while physical placement changes.
 
 Protective belt:

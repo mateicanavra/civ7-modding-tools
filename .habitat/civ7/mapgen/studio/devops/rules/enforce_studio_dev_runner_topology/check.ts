@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -58,6 +58,7 @@ const serveDaemon = target(appProject, "serve-daemon");
 if (dev) {
   if (dev.command !== "vite") failures.push(`dev.command must be vite, got ${dev.command}`);
   if (dev.executor !== undefined) failures.push("dev.executor must be undefined");
+  if (dev.options?.cwd !== "apps/mapgen-studio") failures.push("dev.options.cwd must be apps/mapgen-studio");
   if (dev.options?.script !== undefined) failures.push("dev.options.script must be undefined");
   if (dev.continuous !== true) failures.push("dev.continuous must be true");
   if (!JSON.stringify(dev.dependsOn).includes("serve-daemon")) {
@@ -68,10 +69,12 @@ if (dev) {
   }
 }
 if (serveDaemon) {
-  if (serveDaemon.command !== "bun src/server/daemon/daemon.ts") {
+  if (serveDaemon.command !== "bun --conditions bun-source --watch src/server/daemon/daemon.ts") {
     failures.push(`serve-daemon.command drifted: ${serveDaemon.command}`);
   }
   if (serveDaemon.executor !== undefined) failures.push("serve-daemon.executor must be undefined");
+  if (serveDaemon.options?.cwd !== "apps/mapgen-studio")
+    failures.push("serve-daemon.options.cwd must be apps/mapgen-studio");
   if (serveDaemon.options?.script !== undefined)
     failures.push("serve-daemon.options.script must be undefined");
   if (serveDaemon.continuous !== true) failures.push("serve-daemon.continuous must be true");
@@ -92,8 +95,14 @@ if (JSON.stringify(appPackage.scripts).includes("bun --watch"))
 
 const daemonSource = readFileSync(join(appRoot, "src/server/daemon/daemon.ts"), "utf8");
 const viteSource = readFileSync(join(appRoot, "vite.config.ts"), "utf8");
+if (existsSync(join(appRoot, "src/server/daemon/devLive.ts"))) {
+  failures.push("retired src/server/daemon/devLive.ts must not exist");
+}
 for (const token of ["STUDIO_DAEMON_PORT"]) {
   if (!daemonSource.includes(token)) failures.push(`daemon source missing ${token}`);
+}
+for (const token of ["--conditions bun-source", "--watch", "src/server/daemon/daemon.ts"]) {
+  if (!daemonSource.includes(token)) failures.push(`daemon source comment missing ${token}`);
 }
 for (const token of ["STUDIO_DEV_PORT", "STUDIO_DEV_RPC_TARGET"]) {
   if (!viteSource.includes(token)) failures.push(`vite config missing ${token}`);

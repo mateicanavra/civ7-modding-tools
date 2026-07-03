@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "require_public_domain_surfaces_in_recipes_and_maps",
-  "title": "Require Public Domain Surfaces In Recipes And Maps",
+  "title": "Require Public Domain Surfaces In Recipes",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
@@ -12,22 +12,20 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe/map source deep-importing domain ops internals, ops-by-id, rules, or strategies",
-  "why": "Domain surfaces are named contracts; recipe/map code composes through public entrypoints.",
+  "forbids": "recipe source importing domain code outside the public domain root, ops, or config surfaces",
+  "why": "The G4 import matrix is positive recipe boundary authority: standard recipe source composes domains through named public surfaces, not relative reaches or deep domain internals.",
   "remediate": null,
-  "message": "Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather than deep internals.",
+  "message": "Recipe source may import domain code only through @mapgen/domain/<domain>, @mapgen/domain/<domain>/ops, or @mapgen/domain/<domain>/config.js.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/**/*.ts",
-        "mods/*/src/maps/**/*.ts",
-        "mods/*/src/recipes/**/*.tsx",
-        "mods/*/src/maps/**/*.tsx"
+        "mods/mod-swooper-maps/src/recipes/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/**/*.tsx"
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/baseline.json"
@@ -35,8 +33,7 @@
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-      "applyPattern": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
+      "pattern": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
     },
     "patternName": "require_public_domain_surfaces_in_recipes_and_maps"
   }

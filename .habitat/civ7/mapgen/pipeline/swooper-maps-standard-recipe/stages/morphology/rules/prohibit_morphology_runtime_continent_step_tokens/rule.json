@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_morphology_runtime_continent_step_tokens",
+  "title": "Prohibit Morphology Runtime Continent Step Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology",
+    "blueprint": "_self",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "runtime continent identifiers and markLandmassId calls in morphology implementation files",
+  "why": "Morphology implementation steps consume canonical artifacts instead of direct runtime continent marking.",
+  "remediate": null,
+  "message": "Route morphology landmass identity through canonical artifacts instead of runtime continent step tokens.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_runtime_continent_step_tokens/pattern.md"
+    },
+    "patternName": "prohibit_morphology_runtime_continent_step_tokens"
+  }
+}

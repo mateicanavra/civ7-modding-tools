@@ -60,10 +60,10 @@ current context that has not been accepted as a blueprint. It is transitional
 rule inventory, not final niche admission. `_self` may still appear as a
 manifest placement value, but it is no longer a physical blueprint directory.
 Category names are single-word universal purpose categories: `boundary`,
-`structure`, `contract`, `execution`, `artifact`, `quality`, and `policy`.
-Operation kinds are mutability classes: `check`, `fix`, `generate`, `migrate`,
-and `triage`. Category and operation kind live in manifest placement metadata,
-not path directories.
+`structure`, `contract`, `execution`, `output`, `quality`, and `policy`.
+Operation kinds are mutability classes: `check`, `fix`, `generate`, and
+`migrate`. Category and operation kind live in manifest placement metadata, not
+path directories.
 
 `_remainder/` is the physical lane for sorted-but-deferred packets after a
 remainder slice has reviewed them. It is visual debt, not a niche, blueprint,
@@ -103,11 +103,11 @@ fix, or migrate the affirmed thing being authored.
 
 Blueprints are intentionally broader than individual rule subjects, but
 narrower than areas such as `workspace`, `documentation`, `toolkit`,
-`platform`, `resources`, `domain`, `pipeline`, `map-output`, or `studio`.
+`platform`, `resources`, `domain`, `pipeline`, or `studio`.
 
 The packet folders under a blueprint are not the final anatomy of a blueprint
 definition. They are current gathered authority packets while final typed
-blueprint manifests and cascade semantics remain open. Category and artifact
+blueprint manifests and cascade semantics remain open. Category and operation
 kind are manifest facts for those packets.
 
 Affirmed blueprint examples include:
@@ -117,36 +117,46 @@ Affirmed blueprint examples include:
 - `blueprints/recipe-step`
 - `blueprints/domain`
 - `blueprints/domain-operation`
+- `blueprints/domain-operation-strategy`
 - `blueprints/mod-map`
 - `blueprints/dependency-tag`
+- `blueprints/artifact`
 
 Candidate blueprint-shaped examples include:
 
 - `global/workspace/_blueprints/project-boundary-model`
 - `docs/_blueprints/docs-site`
 - `habitat/toolkit/_blueprints/service-module`
-- `civ7/platform/_blueprints/civ7-adapter`
-- `civ7/resources/_blueprints/civ7-map-policy`
 
 Known transitional misfits, not blueprint exemplars:
 
-- `civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules`
-  is the bounded current-recipe context for concrete Swooper Maps standard
-  recipe evidence. Treat it as instance/context material until the rule is
-  generalized under a recipe, recipe-stage, or recipe-step blueprint.
-- `civ7/mapgen/domains/foundation/rules` and
+- `civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules`,
+  `civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/<prefix>/rules`,
+  and `civ7/mapgen/pipeline/swooper-maps-standard-recipe/**/_remainder`
+  are the bounded current-recipe context for concrete Swooper Maps standard
+  recipe evidence. Top-level `rules/` holds recipe-wide context; stage-prefix
+  `rules/` holds coherent context rules for a stage family; `_remainder`
+  means the predicate needs split, consolidation, or retirement before it can
+  be live context authority. Treat this whole lane as instance/context
+  material until a row is generalized under a recipe, recipe-stage, or
+  recipe-step blueprint.
+- `civ7/mapgen/domains/foundation/rules`,
+  `civ7/mapgen/domains/morphology/rules`,
+  `civ7/mapgen/domains/narrative/rules`, and
   `civ7/mapgen/domains/ecology/rules` are current concrete-domain context
   rules, not accepted blueprints by label inheritance. Foundation currently has
   both intentional context rules and sorted deferred packets; do not collapse
-  those lanes.
+  those lanes. Narrative appears here because HOTSPOTS overlay publication is
+  source-backed narrative domain ownership, not morphology-stage ownership.
 - `civ7/mapgen/domains/morphology/_remainder` is the first reviewed
   concrete-domain remainder. Its packets have been sorted out of intentional
   `rules/` authority but are not final owners; treat them as visible debt for
   later movement, split, consolidation, projection, or retirement.
 - `civ7/mapgen/domains/foundation/_remainder` contains reviewed foundation
-  packets that are not final context authority: mixed recipe-step plus
-  operation-contract predicates, projection implementation cleanup,
-  strategy-file locality pressure, and rules-index shim cleanup.
+  packets that are not final context authority: helper/import consolidation,
+  strategy-file locality pressure, and rules-index shim cleanup. The earlier
+  mixed operation-contract plus recipe-step predicate has been atomized into
+  live foundation domain and standard-recipe foundation stage rules.
 - `civ7/mapgen/studio/devops/rules`,
   `civ7/mapgen/studio/browser-worker/rules`,
   `civ7/mapgen/studio/recipe-dag/rules`, and
@@ -157,6 +167,23 @@ Known transitional misfits, not blueprint exemplars:
   `_blueprints` lane; treat the child niches as honest Studio subsystems, not
   as proof that packet contents have already been split, generalized,
   retired, or admitted as blueprint authority.
+- `civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules`
+  is the current standard-recipe hydrology stage-prefix lane. It was created
+  only after a mixed morphology-plus-hydrology implementation cleanup rule was
+  atomized; it is not a broad hydrology blueprint or a parent-domain
+  replacement.
+- `civ7/resources/map-policy/rules` and
+  `civ7/resources/civ7-types/rules` are child resource/package lanes for
+  official-resource-derived generated and protected surfaces. They are not
+  admitted `civ7-map-policy` or `civ7-types` blueprint kinds.
+- `civ7/platform/adapter/rules`,
+  `civ7/platform/control-orpc/rules`,
+  `civ7/platform/direct-control/session/rules`, and
+  `civ7/platform/game-ui-bridge/rules` are child platform operating-area
+  lanes for adapter import discipline, control-oRPC contract purity,
+  direct-control session lifecycle ownership, and the game-UI bridge bootstrap
+  surface. They are not admitted `adapter`, `control-orpc`,
+  `direct-control-session`, or `bridge` blueprint kinds.
 
 ### Rules Lane
 
@@ -200,16 +227,47 @@ Categories are manifest placement values, not packet directories.
 
 The category model is defined in `SUBJECT-CATEGORIES.md`.
 
-### Artifact Kind
+### Operation Kind
 
 An operation kind answers what Habitat is allowed to do: read-only evaluation,
-repair, generation, migration, or triage. Operation kinds are manifest placement
-values, not packet directories. Mutability rules are defined in
+repair, generation, or migration. Operation kinds are manifest placement values,
+not packet directories. Mutability rules are defined in
 `RULE-OPERATION-KINDS.md`.
+
+### Artifact Blueprint
+
+`blueprints/artifact` is affirmed product blueprint authority for MapGen
+artifact values and contracts: stable IDs, schemas, write-once publish/read
+behavior, producer/consumer contracts, value-store semantics, and the narrow
+buffer exception.
+
+It is not a generic Habitat term. Do not use `artifact` for rule categories,
+operation kinds, support files, generated build output, or Habitat packet role
+files. `artifact:*` remains dependency-tag vocabulary when a rule governs
+dependency edge IDs rather than artifact values.
+
+### Domain Operation Strategy Blueprint
+
+`blueprints/domain-operation-strategy` is affirmed product blueprint authority
+for MapGen domain operation strategy implementations: declared strategy ids,
+strategy config schemas, optional normalization, deterministic `run` behavior,
+and the `defineOp`/`createOp`/`createStrategy` binding that makes a strategy
+selectable through the operation config envelope.
+
+It is a child/specialization of operation authority, not a replacement for
+`blueprints/domain-operation`. Operation contracts, operation roots, domain
+registry wiring, operation topology, and operation entrypoint atomicity remain
+parent `domain-operation` authority unless a whole predicate specifically
+governs valid strategy implementations.
+
+Do not move a packet here merely because it scans `strategies/**/*.ts`.
+Foundation-local strategy import lists, helper consolidation, operation module
+topology, runtime validation, and recipe policy can use strategy files as scan
+surfaces without being strategy-kind authority.
 
 ### Packet
 
-The leaf folders are current artifact packets. They are gathered enforceable or
+The leaf folders are current authority packets. They are gathered enforceable or
 executable units, not necessarily final blueprint internals. The path is current
 inventory placement. Rule identity, current placement facts, runner file
 references, and baseline references are authored in `rule.json` so the same

@@ -28,10 +28,10 @@ describe("Habitat fix service", () => {
 
     const result = await Effect.runPromise(runFixProcedure().pipe(Effect.provide(layer)));
 
-    expect(result).toEqual({ exitCode: 0, stdout: "dry run ok\ndry run ok\n", stderr: "" });
-    expect(requests).toHaveLength(2);
+    expect(result).toEqual({ exitCode: 0, stdout: "dry run ok\n", stderr: "" });
+    expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
-      commandId: "habitat-fix-deep-import-to-public-surface-dry-run",
+      commandId: "habitat-fix-ensure_docs_checkout_paths_are_portable-dry-run",
       executable: "grit",
       kind: "pattern-apply",
     });
@@ -59,7 +59,7 @@ describe("Habitat fix service", () => {
       exitCode: 0,
       stderr: "",
     });
-    expect(requests).toHaveLength(2);
+    expect(requests).toHaveLength(1);
   });
 });
 

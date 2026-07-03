@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "id": "require_explicit_mapgen_sdk_opt_in",
+  "title": "Require Explicit Mapgen Sdk Opt In",
+  "placement": {
+    "niche": "civ7/mod-sdk",
+    "blueprint": "_self",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-sdk",
+  "lane": "enforced",
+  "forbids": "SDK root importing/exporting ./mapgen or Civ7 adapter imports outside mapgen runtime subpath",
+  "why": "General SDK authoring APIs stay runtime-neutral; mapgen bindings are explicit opt-in.",
+  "remediate": null,
+  "message": "Keep Civ7 map runtime bindings behind @mateicanavra/civ7-sdk/mapgen.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/sdk/src/index.ts",
+        "packages/sdk/src/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "packages/sdk/src"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/pattern.md"
+    },
+    "patternName": "require_explicit_mapgen_sdk_opt_in"
+  }
+}

@@ -247,6 +247,13 @@ Moved to `.habitat/blueprints/domain/`:
 - `prohibit_retired_domain_root_catalogs`
 - `prohibit_unknown_bag_config_usage`
 
+Later receipt: Domino 58 absorbed
+`prohibit_relative_domain_reaches_from_recipes_and_maps` and
+`restrict_recipes_to_public_domain_surfaces` into the surviving
+`require_public_domain_surfaces_in_recipes_and_maps` G4 recipe import matrix.
+Treat the list above as the Domino 24 movement receipt, not current live-rule
+membership.
+
 Left contextual during Domino 24, then sorted by later remainder work:
 
 - `require_owned_domain_config_catalog_surfaces` moved to

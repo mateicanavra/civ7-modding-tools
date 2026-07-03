@@ -1,6 +1,6 @@
 # Projection Contract Surface Frame
 
-Status: narrow method frame for unresolved map projection contract pressure
+Status: closed method frame for the former map-output projection contract pressure
 
 Built: 2026-06-30
 
@@ -17,12 +17,14 @@ Use this frame when a row has already been split down to projection contract
 pressure and still cannot whole-fit an existing authority destination such as
 `recipe-step`, `swooper-maps-standard-recipe`, or `mod-map`.
 
-The seed row for this frame is
+The seed row for this frame was
 `.habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags`.
-It forbids `artifact:map.realized.` across both `mods/mod-swooper-maps/src`
-and `packages/mapgen-core/src`. That cross-source scan is the key evidence:
-the rule is not merely standard-recipe context and not merely mod-map output
-authority.
+Domino 45 moved it to
+`.habitat/blueprints/artifact/prohibit_realized_map_artifact_tags` after
+source inspection showed the positive projection model already exists:
+`artifact:map.*` owns stable projection/observation data products and
+`effect:map.*` owns execution guarantees, while `artifact:map.realized.*` is
+explicitly forbidden.
 
 ## Competency Question
 
@@ -79,13 +81,15 @@ Retain or move to a smaller `_remainder` when:
   currentness; or
 - the only evidence is a current filename, folder, or token prefix.
 
-## Current Seed Disposition
+## Final Seed Disposition
 
-`prohibit_realized_map_artifact_tags` stays under
-`.habitat/civ7/mapgen/map-output/_remainder/` until this frame is run as its
-own domino. It is reviewed debt, not final map-output authority.
+`prohibit_realized_map_artifact_tags` is admitted artifact blueprint authority
+under `.habitat/blueprints/artifact/`. The row remains a negative namespace
+guard, but it no longer needs a projection-surface destination because the
+canonical Phase 2 projection spec already answers the positive model:
+execution completion is represented by `effect:map.*`, and engine-derived
+observations use explicitly named `artifact:map.*` layers rather than a
+`realized` namespace.
 
-The next implementation should not move it by itself. It should first inspect
-adjacent retained rows and source boundaries to decide whether the surface
-exists, whether the rule should become part of that surface, or whether the row
-is garbage-collection pressure after a positive boundary rule is authored.
+No `map-output`, `map-projection`, `projection-contract`, or `artifact-contract`
+destination was created by this frame.

@@ -129,18 +129,6 @@ describe("pattern management views", () => {
     expect(transactionInputs).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          patternId: "deep-import-to-public-surface",
-          manifestPath:
-            ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-          dryRunCommands: [
-            expect.objectContaining({
-              patternPath:
-                ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
-              roots: ["mods/mod-swooper-maps/src/maps", "mods/mod-swooper-maps/src/recipes"],
-            }),
-          ],
-        }),
-        expect.objectContaining({
           patternId: "ensure_docs_checkout_paths_are_portable",
           manifestPath: ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
           dryRunCommands: [
@@ -166,7 +154,7 @@ describe("pattern management views", () => {
     expect(
       Value.Check(
         ApplyPatternPathSchema,
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
+        ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
       )
     ).toBe(true);
     expect(

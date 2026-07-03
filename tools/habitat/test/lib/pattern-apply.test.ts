@@ -20,8 +20,8 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
-const deepImportApplyPatternPath =
-  ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md";
+const runtimeHelperApplyPatternPath =
+  ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -54,7 +54,7 @@ describe("pattern apply", () => {
       exitCode: 0,
       stderr: "",
     });
-    expect(requests).toHaveLength(2);
+    expect(requests).toHaveLength(1);
   });
 
   test("rejects unsupported request properties through TypeBox", () => {
@@ -94,11 +94,11 @@ describe("pattern apply", () => {
 
     expect(record.outcome).toMatchObject({
       kind: "dry-run-completed",
-      admission: { patternId: "deep-import-to-public-surface" },
+      admission: { patternId: "prohibit_runtime_helper_redeclarations" },
     });
     expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
-      commandId: "habitat-fix-deep-import-dry-run",
+      commandId: "habitat-fix-runtime-helper-dry-run",
       executable: "grit",
       argv: expect.arrayContaining(["apply", "--dry-run"]),
       kind: "pattern-apply",
@@ -333,10 +333,10 @@ function dirtyWorktree() {
 function applyAdmission(overrides: Partial<ApplyAdmission> = {}): ApplyAdmission {
   return {
     kind: "apply-admission",
-    patternId: "deep-import-to-public-surface",
-    manifestPath: deepImportApplyPatternPath,
-    transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
-    transactionInputRuleIds: ["require_public_domain_surfaces_in_recipes_and_maps"],
+    patternId: "prohibit_runtime_helper_redeclarations",
+    manifestPath: runtimeHelperApplyPatternPath,
+    transactionInputRef: "patterns:prohibit_runtime_helper_redeclarations:transaction-input",
+    transactionInputRuleIds: ["prohibit_runtime_helper_redeclarations"],
     dryRunRoots: ["tools/habitat/test/fixtures"],
     dryRunOutput: "compact",
     ...overrides,
@@ -346,14 +346,14 @@ function applyAdmission(overrides: Partial<ApplyAdmission> = {}): ApplyAdmission
 function transactionInput(overrides: Partial<ApplyTransactionInput> = {}): ApplyTransactionInput {
   return {
     kind: "apply-transaction-input",
-    patternId: "deep-import-to-public-surface",
-    manifestPath: deepImportApplyPatternPath,
-    transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
+    patternId: "prohibit_runtime_helper_redeclarations",
+    manifestPath: runtimeHelperApplyPatternPath,
+    transactionInputRef: "patterns:prohibit_runtime_helper_redeclarations:transaction-input",
     dryRunCommands: [
       {
         kind: "dry-run-command",
-        commandId: "habitat-fix-deep-import-dry-run",
-        patternPath: deepImportApplyPatternPath,
+        commandId: "habitat-fix-runtime-helper-dry-run",
+        patternPath: runtimeHelperApplyPatternPath,
         roots: ["tools/habitat/test/fixtures"],
         output: "compact",
       },

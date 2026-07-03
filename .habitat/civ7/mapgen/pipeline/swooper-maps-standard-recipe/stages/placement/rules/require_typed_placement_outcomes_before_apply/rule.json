@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "require_typed_placement_outcomes_before_apply",
+  "title": "Require Typed Placement Outcomes Before Apply",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "direct official resource/discovery generation calls in placement apply",
+  "why": "Placement outcomes are typed at the contract boundary before apply.",
+  "remediate": null,
+  "message": "Use typed placement outcomes instead of direct official generator calls.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/pattern.md"
+    },
+    "patternName": "require_typed_placement_outcomes_before_apply"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "require_morphology_config_facade_exports",
+  "title": "Require Morphology Config Facade Exports",
+  "placement": {
+    "niche": "civ7/mapgen/domains/morphology",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "missing required morphology config facade exports",
+  "why": "The morphology domain config facade must expose only its owned shared knob surfaces.",
+  "remediate": null,
+  "message": "Keep the morphology config facade exports exact.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/morphology/config.ts"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs"
+    }
+  }
+}

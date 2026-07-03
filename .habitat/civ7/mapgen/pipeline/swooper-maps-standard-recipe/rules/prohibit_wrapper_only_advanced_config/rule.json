@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_wrapper_only_advanced_config",
+  "title": "Prohibit Wrapper Only Advanced Config",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "wrapper-only advanced stage config surfaces",
+  "why": "Standard recipe config must use supported step/domain config paths.",
+  "remediate": null,
+  "message": "Do not reintroduce wrapper-only `advanced` stage config surfaces.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.json",
+        "mods/mod-swooper-maps/src/maps/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.json"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard", "mods/mod-swooper-maps/src/maps"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
+    },
+    "patternName": "prohibit_wrapper_only_advanced_config"
+  }
+}

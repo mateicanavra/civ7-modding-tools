@@ -88,12 +88,11 @@ blueprint, category, operation kind, or authored policy root.
 | `habitat/toolkit/**` | Habitat Toolkit self-authority, service shape, provider boundaries, registry bridge, and legacy compatibility packets. |
 | `civ7/platform/**` | Civ7 adapter, control, game UI, and oRPC integration surfaces. |
 | `civ7/resources/**` | Official-resource-derived generated projections and protected resource surfaces. |
-| `civ7/mapgen/core/**` | MapGen core library authority. |
-| `civ7/mapgen/sdk/**` | MapGen SDK entrypoint authority. |
-| `civ7/mapgen/visualization/**` | MapGen visualization/runtime dependency authority. |
+| `civ7/mod-sdk/**` | Civ7 mod SDK authoring API and explicit runtime-bound SDK subpath authority. |
+| `civ7/mapgen/sdk/core/**` | MapGen SDK core package authority. |
+| `civ7/mapgen/sdk/visualization/**` | MapGen SDK visualization/runtime dependency authority. |
 | `civ7/mapgen/domains/**` | MapGen domain model boundaries, contracts, and runtime capability discipline. |
 | `civ7/mapgen/pipeline/**` | Standard stage, recipe, runtime validation, and pipeline policy. |
-| `civ7/mapgen/map-output/**` | Map output contracts, generated entrypoints, projection callsites, and shipped catalogs. |
 | `civ7/mapgen/studio/**` | Studio integration, recipe artifacts, worker safety, and dev runner topology. |
 
 ## Current Runners

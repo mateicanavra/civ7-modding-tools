@@ -133,6 +133,17 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 38. Frame Or Split The Projection Contract Remainder | The retained broad projection contract row was behavior-preservingly split: physics-stage contract leakage and map-effect naming moved to the standard-recipe context, while the realized-map artifact namespace check stayed under map-output `_remainder` with `PROJECTION-CONTRACT-SURFACE-FRAME.md` preserved as surface evidence instead of the next active domino. |
 | 39. Gather The Dependency-Tag Blueprint Kind | `dependency-tag` was affirmed as the constructible/governable kind for registered dependency-edge IDs. The whole-rule typed `requires`/`provides` constant guard moved to `.habitat/blueprints/dependency-tag/`; touched effect-tag, tag-catalog, projection-contract, config-surface, and artifact-contract labels were rejected as sibling blueprints for this slice, while context/projection/config/artifact-value rows stayed in their honest lanes. |
 | 40. Sort Studio Blueprint Candidates Into Operating Niches | The Studio `_blueprints` lane was removed. Its eight packets moved whole into child operating-area niches: `devops`, `browser-worker`, `recipe-dag`, and `server`. This was structural rehoming with manifest path repair, not content-level cleanup, retirement, split, or blueprint admission. |
+| 41. Sort The Standard Recipe Stage Context | The Swooper Maps standard-recipe lane was split into recipe-wide context `rules/`, stage-prefix context `stages/<prefix>/rules/`, and split-required `_remainder/`. Coherent context rules stayed live even when future generalization is needed; only predicates needing split/consolidation moved to `_remainder`. |
+| 42. Establish And Sweep The Artifact Blueprint Kind | `artifact` was affirmed as the immutable MapGen data-product blueprint kind and `.habitat/blueprints/artifact/` was created. The 24 artifact-vocabulary manifest rows were re-read: no existing row moved to live artifact authority, because each whole predicate was dependency-tag, domain, domain-operation, mod-map, standard-recipe context, Studio context, build-output, or unresolved projection/artifact debt. |
+| 43. Prune SDK/Core/Visualization False Blueprint Pockets | Source inspection confirmed Civ7 SDK, MapGen core, and MapGen visualization are separate package owners rather than an SDK parent with core/viz children. Four `_blueprints` packets were demoted into honest niche `rules/`: two MapGen core library rules, one Civ7 SDK mapgen subpath rule, and one MapGen visualization build-currentness rule. |
+| 44. Correct SDK Taxonomy Lanes | The Civ7 modding SDK niche was renamed to `civ7/mod-sdk`, while MapGen core and visualization moved under `civ7/mapgen/sdk/{core,visualization}` as MapGen SDK package-surface lanes. The correction preserves package ownership without making the mod SDK the owner of MapGen internals. |
+| 45. Close The Map-Output Niche | The stale `civ7/mapgen/map-output` niche was removed. `prohibit_realized_map_artifact_tags` moved into `blueprints/artifact` as artifact ID namespace authority, while the three mod-map generated/shipped output rows kept `blueprint=mod-map` and were contextualized by `civ7/mapgen/pipeline/swooper-maps-standard-recipe` instead of a renamed catch-all output niche. |
+| 47. Sort Civ7 Resource Blueprint Candidates | The active `civ7/resources` `_blueprints` rows moved into `map-policy` and `civ7-types` child resource/package lanes rather than admitted blueprint kinds. |
+| 48. Sort Civ7 Platform Blueprint Candidates | The active `civ7/platform` `_blueprints` rows moved into adapter, control-oRPC, direct-control session, and game-UI bridge child operating-area lanes rather than admitted blueprint kinds. |
+| 49. Atomize Mixed Civ7 Remainder Rules | Seven mixed or superseded Civ7 `_remainder` packets were removed. Six split into twelve atomic live rules under their owning contexts, while the broad foundation advanced-fragment aggregate was consolidated into two existing foundation-stage rules. |
+| 50. Consolidate Foundation Remainder Rules | Foundation strategy/rules-index duplicate guards were consolidated into broader live foundation context rules; helper-surface consolidation stayed in `_remainder` pending positive helper authority. |
+| 51. Retire Clean Garbage-Collection Rule Residue | Five dead or absorbed cleanup guards were deleted, dropping the live corpus from 127 to 122; the Studio devlive cleanup guard stayed live because its survivor authority is not sealed. |
+| 52. Admit Domain Operation Strategy Blueprint Authority | `domain-operation-strategy` was admitted as product-backed blueprint authority based on operation strategy envelope source/docs, but no live rule moved because current predicates are foundation-local, helper authority, or contract-quality pressure rather than every-valid-strategy authority. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
@@ -417,47 +428,184 @@ cleanup, retirement, and future blueprint-kind generalization remain deferred.
 | `enforce_studio_rpc_eventhub_topology` | `.habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/enforce_studio_rpc_eventhub_topology` | `.habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology` | Governs the Studio server daemon mounting RPC through runtime context; `rpc-daemon` is an implementation role, not the niche. | Revisit if Studio server runtime grows finer child niches for RPC, EventHub, or daemon lifecycle. |
 | `prohibit_studio_rpc_eventhub_lifecycle_leaks` | `.habitat/civ7/mapgen/studio/_blueprints/rpc-daemon/prohibit_studio_rpc_eventhub_lifecycle_leaks` | `.habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks` | Governs EventHub lifecycle ownership inside the Studio server runtime context. | Split later if lifecycle ownership becomes a broader server-runtime capability rule. |
 
-### 41. Gather The Artifact Blueprint Kind
+## Domino 41 Disposition Receipt
 
-Purpose: admit artifact as the real immutable data-product kind after
-dependency-tag has separated tag-edge governance from artifact value
-governance.
+This table is a receipt for semantic sorting inside the concrete Swooper Maps
+standard-recipe context. It does not admit `standard recipe` as a blueprint.
+Rows that are coherent whole predicates moved into the most precise context
+`rules/` lane even if future cleanup, retirement, or generalization is still
+needed. Rows moved to `_remainder/` are there because the current predicate
+needs split/consolidation before it can be live context authority.
+
+| Rule id | Start path | Bucket | Target path | Reason | Pending action |
+| --- | --- | --- | --- | --- | --- |
+| `preserve_standard_stage_topology_and_path_invariants` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants` | recipe-wide standard-recipe context | unchanged | Whole-recipe stage-root topology is coherent current context authority. | Generalize only if a later recipe-stage topology kind is parameterized. |
+| `require_full_profile_domain_stage_roots` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_full_profile_domain_stage_roots` | recipe-wide standard-recipe context | unchanged | Full-profile stage presence is a whole standard recipe instance assertion. | Generalize only if profile composition becomes parameterized recipe authority. |
+| `verify_standard_recipe_declared_stage_keys` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_declared_stage_keys` | recipe-wide standard-recipe context | unchanged | Stage-key order is checked against the whole current recipe declaration. | Generalize only if order validation becomes manifest-driven recipe authority. |
+| `verify_runtime_stage_order_matches_contract_manifest` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest` | recipe-wide standard-recipe context | unchanged | Runtime/manifest parity spans the whole current recipe. | Parameterize before moving to recipe-kind authority. |
+| `verify_standard_recipe_public_authoring_surface` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface` | recipe-wide standard-recipe context | unchanged | Public authoring validation owns the whole current standard recipe public schema. | Parameterize before moving to recipe-stage or authoring-surface authority. |
+| `verify_standard_recipe_artifacts_match_source_stages` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages` | recipe-wide standard-recipe context | unchanged | Generated standard-recipe output parity spans the whole source recipe. | Revisit when projection/artifact authority is named and parameterized. |
+| `prohibit_map_projection_dependencies_in_physics_contracts` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts` | recipe-wide standard-recipe context | unchanged | The predicate spans multiple upstream physics stage prefixes, so `stages/map` would be misleading. | Revisit only if projection-surface authority can own the predicate generally. |
+| `require_standard_recipe_map_effect_name_suffixes` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes` | recipe-wide standard-recipe context | unchanged | The predicate governs `standard/tag-contracts.ts`, not a stage-prefix directory. | Revisit if map-effect naming becomes positive dependency-tag or projection-surface authority. |
+| `prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | recipe-wide standard-recipe context | unchanged | The predicate scans the standard recipe tag catalog surface as a whole. | Revisit if tag-catalog grammar becomes dependency-tag blueprint authority. |
+| `prohibit_narrative_swatches_stage_token` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_narrative_swatches_stage_token` | recipe-wide standard-recipe context | unchanged | The retired token guard spans standard recipe, maps, and tests rather than one stage prefix. | Retire when the retired token no longer needs protection. |
+| `prohibit_foundation_projection_legacy_motion_source` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_foundation_projection_legacy_motion_source` | foundation stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source` | The whole predicate is an exact standard foundation projection stage guard. | Revisit if later projection-step authority absorbs projection cleanup rows. |
+| `prohibit_foundation_stage_cast_merge_hacks` | `.habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_stage_cast_merge_hacks` | foundation stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_cast_merge_hacks` | The whole predicate scans standard foundation stage indexes for one coherent cast/merge guard. | Retire or consolidate if broader foundation stage cleanup absorbs it. |
+| `prohibit_foundation_stage_sentinel_passthrough` | `.habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_stage_sentinel_passthrough` | foundation stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_sentinel_passthrough` | The whole predicate scans standard foundation stage indexes for one coherent sentinel passthrough guard. | Retire or consolidate if broader foundation stage cleanup absorbs it. |
+| `prohibit_foundation_advanced_cast_merge_fragments` | `.habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_advanced_cast_merge_fragments` | foundation split remainder | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/_remainder/prohibit_foundation_advanced_cast_merge_fragments` | The predicate overlaps the narrower cast/merge and sentinel rows. | Split, consolidate, or retire after the narrower rows cover the separable predicates. |
+| `prohibit_migrated_consumer_effect_gating_tokens` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_migrated_consumer_effect_gating_tokens` | map stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_migrated_consumer_effect_gating_tokens` | The whole predicate is scoped to one standard map-hydrology consumer contract. | Revisit during cleanup or dependency-tag lifecycle work. |
+| `prohibit_misplaced_projection_adapter_calls` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_misplaced_projection_adapter_calls` | map stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/prohibit_misplaced_projection_adapter_calls` | The whole predicate governs standard map-projection adapter callsite locality. | Revisit after projection-step or recipe-step callsite authority is parameterized. |
+| `require_projection_calls_in_projection_steps` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_projection_calls_in_projection_steps` | map stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps` | The runner checks exact standard map projection files as one coherent context guard. | Revisit after projection-step required-callsite governance is parameterized. |
+| `require_typed_placement_outcomes_before_apply` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_typed_placement_outcomes_before_apply` | placement stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply` | The whole predicate targets the standard placement apply step. | Revisit if the boundary becomes broader runtime, adapter, or step policy. |
+| `prohibit_legacy_morphology_effect_gating_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_effect_gating_tokens` | standard-recipe split remainder | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/_remainder/prohibit_legacy_morphology_effect_gating_tokens` | The predicate mixes morphology stage files with `standard/tags.ts`. | Split morphology-stage cleanup from tag-catalog cleanup, or retire when lifecycle rules exist. |
+| `prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | standard-recipe split remainder | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/_remainder/prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | The predicate mixes morphology contract dependency cleanup with one map-morphology implementation cleanup row. | Split contract cleanup from implementation cleanup before promoting either part. |
+| `prohibit_morphology_dual_read_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_dual_read_tokens` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_dual_read_tokens` | The whole predicate is a coherent morphology-stage dual-read guard. | Retire when the dual-read migration cleanup is obsolete. |
+| `prohibit_morphology_hotspot_overlay_publishers` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_hotspot_overlay_publishers` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers` | The current whole predicate guards morphology standard stage source from publishing HOTSPOTS overlays. | Revisit if story-overlay ownership becomes broader narrative or overlay authority. |
+| `prohibit_morphology_overlay_implementation_reads` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_overlay_implementation_reads` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_overlay_implementation_reads` | The current whole predicate guards morphology standard stage implementation files. | Revisit if recipe-step implementation/contract separation becomes positive authority. |
+| `prohibit_morphology_stage_config_bag_imports` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_stage_config_bag_imports` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_stage_config_bag_imports` | The whole predicate guards morphology standard stage files from config-bag imports. | Revisit when consumer-side config facade rules are named generally. |
+| `prohibit_morphology_story_overlay_contract_artifact` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_story_overlay_contract_artifact` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact` | The current whole predicate guards morphology standard step contracts. | Revisit if story/narrative artifact boundaries become positive authority. |
+| `prohibit_runtime_continent_contract_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_runtime_continent_contract_tokens` | morphology stage context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_runtime_continent_contract_tokens` | The whole predicate guards morphology standard contracts/artifact files from runtime continent identifiers. | Revisit when runtime-token forbids in contracts become positive contract-surface rules. |
+
+### 42. Establish And Sweep The Artifact Blueprint Kind
+
+Purpose: admit `artifact` as the real immutable data-product blueprint kind,
+then use it as a concrete destination while re-reading the bounded current
+artifact-vocabulary rule set. This is a staged domino, not a broad corpus
+campaign.
+
+Stage 1: artifact kind creation.
+
+- Use `.habitat/frames/BLUEPRINT-KIND-GATHERING-FRAME.md` as the method frame.
+- Affirm `artifact` from source-backed constructibility evidence:
+  `docs/system/libs/mapgen/reference/ARTIFACTS.md`,
+  `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`,
+  `packages/mapgen-core/src/authoring/artifact/**`,
+  `packages/mapgen-core/src/core/types.ts`, and current Swooper Maps artifact
+  definitions.
+- Create `.habitat/blueprints/artifact/` as affirmed blueprint authority.
+- Include artifact contracts inside artifact authority; do not create an
+  `artifact-contract` sibling blueprint.
+- Keep `dependency-tag` separate: `artifact:*` remains a dependency-tag prefix
+  when the rule governs edge/tag ids rather than artifact values.
+
+Stage 2: bounded artifact-vocabulary sweep.
+
+- Analyze the `24` live rule manifests that currently mention artifact
+  vocabulary.
+- Decision set for each row:
+  - move to `.habitat/blueprints/artifact/<rule-id>/` only when the whole
+    predicate governs every valid artifact value/contract: stable id, schema,
+    immutable publish/read behavior, artifact helper surface,
+    producer/consumer contract, value-store semantics, or buffer exception;
+  - keep the row in its current honest context when artifact language is
+    incidental to another owner, such as dependency-tag, domain,
+    domain-operation, mod-map, Studio recipe-DAG, standard-recipe parity, or
+    generated-output hygiene;
+  - if the rule clearly points at artifact blueprint authority but cannot move
+    whole because it needs a split, rewrite, or inversion from current owner
+    language, either leave it in the smallest honest `_remainder` with an
+    explicit pending action or move it to an artifact-local `_remainder` only
+    after documenting that lane as sorted artifact-blueprint debt, not live
+    artifact authority;
+  - do not introduce `_triage`; the existing `_remainder` lane is the visual
+    marker for reviewed-but-not-admitted debt.
+- Update `.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md` for every inspected
+  row, including explicit non-moves and pending actions.
+- Record the disposition receipt in this file so future agents can tell which
+  artifact-vocabulary rows have been processed.
+
+Current preflight metrics:
+
+- Live rule manifests: `126`.
+- Artifact-vocabulary live rule manifests: `24`.
+- Artifact-vocabulary rows already in top-level blueprints: `7`.
+- Artifact-vocabulary rows in context/remainder/candidate lanes: `17`.
+- Artifact-vocabulary rows still under `_blueprints`: `1`
+  (`verify_visualization_runtime_build_artifacts`, likely generic build output
+  rather than product artifact authority).
+- Source-side constructibility evidence is strong:
+  `82` `defineArtifact(...)` calls, `70` `artifact:*` ids, `56` contract
+  `artifacts: { ... }` blocks, and `261` `deps.artifacts` reads/publishes in
+  current MapGen source scopes.
 
 Done Means:
 
-- `.habitat/blueprints/artifact/` exists as affirmed blueprint authority.
-- Artifact contract is included inside artifact authority, not split into an
-  `artifact-contract` sibling blueprint.
-- Whole-rule rows about artifact IDs, schemas, immutable publish/read behavior,
-  artifact helper surfaces, producer/consumer contract, and buffer exceptions
-  move there when their whole predicate fits artifact governance.
-- Dependency-tag rows remain under dependency-tag even when their IDs use the
-  `artifact:*` prefix.
-- Non-fitting rows move or remain in honest niche/context or `_remainder`
-  lanes.
-
-Moves It Forward:
-
-- Use `ARTIFACTS.md`, `add-a-new-artifact.md`, artifact authoring source, and
-  current standard-recipe artifact examples as constructibility evidence.
-- Gather artifact rows from bounded `_remainder`, context, and `_blueprints`
-  pockets only after dependency-tag has clarified edge/tag rows.
-- Preserve artifact as the value/contract owner rather than a generic output or
-  projection label.
+- `.habitat/blueprints/artifact/` exists.
+- The bounded 24-row artifact-vocabulary set has been read and dispositioned.
+- Whole-rule artifact authority moved to artifact.
+- Artifact-pressure rows that cannot move whole have explicit pending actions
+  in the ledger and, if physically moved under artifact `_remainder`, are
+  clearly marked as not-yet-live blueprint authority.
+- Non-fitting rows remain in honest existing authority lanes with evidence for
+  why artifact is not their owner.
+- The rule ledger and execution-surface map reflect the final tree.
 
 Dependencies:
 
-- Dependency-tag gathering has landed, or Domino 40 explicitly chose artifact
-  as the correct next move despite a documented dependency-tag limitation.
+- Dependency-tag gathering has landed.
+- The artifact term-closure migration has landed, so Habitat metadata no
+  longer uses generic `artifact` as a rule category or operation concept.
 
 Proof:
 
-- Focused rule checks pass for moved rows.
+- Focused rule checks pass for the inspected 24-row artifact-vocabulary corpus.
 - Manifest path proof and stale-reference scans pass.
 - The final receipt distinguishes artifact value/contract authority from
   dependency-tag, projection, config, and garbage pressure.
 
-### 42. Run Targeted Garbage Or `_blueprints` Candidate Pruning
+Disposition receipt:
+
+- Created `.habitat/blueprints/artifact/README.md` as the affirmed blueprint
+  marker. No `rule.json` packet was admitted under the blueprint in this slice.
+- Primary corpus is exactly the `24` live manifests whose `rule.json` text
+  mentions artifact vocabulary. Adjacent runner/body-only artifact text was
+  reviewed as exclusion evidence, not added to the primary manifest corpus.
+- Runner/body-only exclusions: `prohibit_relative_domain_reaches_from_recipes_and_maps`
+  stays domain public-surface authority; `require_domain_contract_roots_in_step_contracts`
+  stays recipe-step authority; `prohibit_recipe_dag_runtime_source_dependencies`
+  and `require_recipe_dag_contract_metadata` stay Studio recipe-DAG authority.
+- No artifact-local `_remainder` was introduced. The one artifact-pressure row,
+  `prohibit_realized_map_artifact_tags`, stays in `map-output/_remainder`
+  because it is still unresolved projection/artifact debt, not live artifact
+  blueprint authority.
+
+| Rule | Final disposition | Why not artifact authority | Pending action |
+| --- | --- | --- | --- |
+| `require_typed_dependency_and_effect_tag_constants` | retained dependency-tag blueprint | `artifact:*` is dependency-edge vocabulary inside `requires`/`provides`, not artifact values. | Generalize only if dependency-tag rules later cover broader registry use. |
+| `prohibit_domain_ops_projection_effect_dependencies` | retained domain-operation blueprint | Governs operation purity against map projection/effect keys in domain ops. | Revisit only if future dependency-tag import/placement rules absorb it without weakening operation authority. |
+| `prohibit_domain_artifacts_modules` | retained domain blueprint | Bans retired domain `artifacts.ts` topology. | No artifact action; keep with domain topology. |
+| `prohibit_domain_tag_artifact_shim_imports` | retained domain blueprint | Protects retired domain shim imports. | No artifact action; keep with domain public-surface governance. |
+| `prohibit_retired_domain_root_catalogs` | retained domain blueprint | Domain-root tag/artifact catalogs are retired domain topology. | No artifact action; keep with domain-root topology cleanup. |
+| `block_studio_config_leakage_into_shipped_catalog` | retained mod-map blueprint | Shipped catalog metadata is a mod-map output surface. | Keep with mod-map shipped catalog authority. |
+| `validate_generated_map_entrypoint_contracts` | retained mod-map blueprint | Generated map entrypoint contracts are mod-map output authority. | Keep with mod-map generated entrypoint authority. |
+| `preserve_decomposed_foundation_contract_surfaces` | retained foundation context rules | Artifact tags are one part of a foundation currentness guard. | Keep contextual until a future split names a positive artifact rule. |
+| `preserve_morphology_contracts_and_overlay_ownership` | retained morphology `_remainder` | Mixed belt-driver contract and story-overlay ownership pressure. | Split or project through a future narrative/overlay boundary frame. |
+| `prohibit_runtime_continent_step_tokens` | retained morphology `_remainder` | Runtime continent implementation-token cleanup; artifact language is incidental. | Split cross-domain implementation cleanup before promotion. |
+| `prohibit_realized_map_artifact_tags` | retained map-output `_remainder` | Unresolved realized-map truth/projection pressure; not safe as artifact authority. | Run `PROJECTION-CONTRACT-SURFACE-FRAME.md` or decide garbage/projection owner. |
+| `prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | retained standard-recipe `_remainder` | Concrete retired dependency cleanup across selected standard-recipe files. | Split morphology contract cleanup from map-morphology implementation cleanup. |
+| `prohibit_map_projection_dependencies_in_physics_contracts` | retained recipe-wide standard-recipe rules | Protects standard-recipe physics contracts from map projection dependencies. | Revisit only if physics contract families become parameterized projection-surface authority. |
+| `verify_standard_recipe_artifacts_match_source_stages` | retained recipe-wide standard-recipe rules | Generated standard-recipe output parity is scoped to one recipe instance. | Keep contextual until projection/output parity is parameterized. |
+| `prohibit_foundation_projection_legacy_motion_source` | retained foundation stage rules | Exact foundation projection step consumer guard. | Revisit only if a projection-step surface absorbs related cleanup rows. |
+| `prohibit_migrated_consumer_effect_gating_tokens` | retained map stage rules | Guards one migrated map-hydrology consumer contract from retired gates. | Revisit during cleanup or dependency-tag lifecycle work. |
+| `prohibit_misplaced_projection_adapter_calls` | retained map stage rules | Projection adapter callsite ownership, not artifact value authority. | Revisit after a parameterized projection-step or recipe-step callsite model exists. |
+| `prohibit_morphology_dual_read_tokens` | retained morphology stage rules | Transitional morphology-coasts dual-read cleanup. | Retire when the migration cleanup is obsolete. |
+| `prohibit_morphology_stage_config_bag_imports` | retained morphology stage rules | Morphology-stage import-boundary rule. | Revisit when consumer-side config facade rules are named generally. |
+| `prohibit_morphology_story_overlay_contract_artifact` | retained morphology stage rules | Keeps narrative-owned story overlay artifacts out of morphology contracts. | Revisit if story/narrative artifact boundaries become positive authority. |
+| `prohibit_runtime_continent_contract_tokens` | retained morphology stage rules | Contract/runtime-token separation in morphology contracts and artifact files. | Revisit when runtime-token forbids become positive contract-surface rules. |
+| `ensure_studio_worker_bundle_is_browser_safe` | retained Studio browser-worker rules | Studio worker runtime safety; artifacts are allowed boundary text, not owner. | Revisit only if a future worker blueprint admits shared browser-worker requirements. |
+| `require_studio_ui_recipe_artifact_imports` | retained Studio recipe-DAG rules | Studio UI/recipe-DAG import boundary for recipe artifacts. | Split later if UI artifact consumption becomes broader than recipe-DAG. |
+| `verify_visualization_runtime_build_artifacts` | then-retained visualization `_blueprints` candidate; superseded by Domino 43 | Required `dist` build outputs, not product artifact contracts. | Process in targeted `_blueprints`/runtime-dependencies candidate pruning; completed by Domino 43 demotion to visualization `rules/`. |
+
+Review disposition:
+
+| Finding | Severity | Disposition | Repair Evidence |
+| --- | --- | --- | --- |
+| Reconcile the artifact row universe before moving anything. | P1 | accepted | Receipt defines 24 manifest-hit rows plus 4 runner/body-only exclusions. |
+| Do not admit rows whose whole rule is dependency, domain, projection, generated-output, Studio, or context authority. | P1 | accepted | No live rule packet moved under `blueprints/artifact`. |
+| Treat `prohibit_realized_map_artifact_tags` as projection/artifact debt, not live artifact authority. | P2 | accepted | Row retained in `map-output/_remainder`; ledger pending action updated. |
+| Verification must prove movement, not just selection. | P2 | accepted | No rule movement occurred; closure proof uses corpus counts, path proof, classify, and diff checks. |
+
+### 43. Run Targeted Garbage Or `_blueprints` Candidate Pruning
 
 Purpose: delete, retire, demote, or fence misleading rows and candidate
 destinations once the real dependency-tag and artifact destinations have been
@@ -486,8 +634,8 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 40 chooses garbage or candidate pruning, or artifact gathering exposes
-  pruning as the next highest-leverage move.
+- Domino 42 exposes garbage or candidate pruning as the next highest-leverage
+  move.
 
 Proof:
 
@@ -496,7 +644,967 @@ Proof:
 - Static scans show touched fake destinations no longer appear as live
   `_blueprints` ambiguity.
 
-### 43. Resume Authority Activation Projection Work
+Disposition receipt:
+
+- Source-backed structure:
+  - `packages/sdk` owns the Civ7 SDK authoring API and the explicit runtime-bound
+    `@mateicanavra/civ7-sdk/mapgen` subpath.
+  - `packages/mapgen-core` owns pure MapGen engine/core authoring, execution,
+    helpers, artifacts, domains, recipes, compiler, and tracing.
+  - `packages/mapgen-viz` owns shared visualization contract types and helpers
+    consumed by MapGen Studio, dump tooling, and core/mod visualization emitters.
+- Rejected nesting: SDK is not the parent of MapGen core or visualization.
+  `@mateicanavra/civ7-sdk/mapgen` depends on MapGen core and the Civ7 adapter;
+  it does not contain the core library or visualization contract package.
+- Moved packets:
+
+| Rule | From | To | Reason |
+| --- | --- | --- | --- |
+| `preserve_mapgen_core_runtime_neutrality` | `civ7/mapgen/core/_blueprints/mapgen-core-library` | `civ7/mapgen/core/rules` | Whole predicate protects `packages/mapgen-core` runtime neutrality; `mapgen-core-library` is not an admitted blueprint kind. |
+| `prohibit_runtime_helper_redeclarations` | `civ7/mapgen/core/_blueprints/mapgen-core-library` | `civ7/mapgen/core/rules` | Whole predicate protects shared helpers exported by `@swooper/mapgen-core`; it is honest core-library niche authority. |
+| `require_explicit_mapgen_sdk_opt_in` | `civ7/mapgen/sdk/_blueprints/mapgen-entrypoint` | `civ7/sdk/rules` | Whole predicate protects the Civ7 SDK root-vs-mapgen-runtime subpath boundary; it belongs directly under the SDK niche, not under MapGen and not under an extra SDK child niche. |
+| `verify_visualization_runtime_build_artifacts` | `civ7/mapgen/visualization/_blueprints/runtime-dependencies` | `civ7/mapgen/visualization/rules` | Whole predicate checks visualization/runtime build-currentness; `runtime-dependencies` is not a blueprint kind. |
+
+Residual scope:
+
+- Platform, resources, docs, workspace, and toolkit `_blueprints` pockets remain
+  for later bounded pruning. This slice intentionally clears only the
+  SDK/core/visualization ambiguity and its directly dependent false blueprint
+  pockets.
+
+## Domino 44 Disposition Receipt
+
+This receipt captures the SDK taxonomy correction requested after the initial
+SDK/core/visualization pruning. It is a naming and grouping correction over the
+already-demoted packets, not a new blueprint admission.
+
+Source-backed structure:
+
+- `packages/sdk` is the Civ7 modding SDK. Its Habitat authority lane is now
+  `civ7/mod-sdk`, because its root concern is mod authoring, with the
+  explicit runtime-bound `@mateicanavra/civ7-sdk/mapgen` subpath as an opt-in.
+- `packages/mapgen-core` and `packages/mapgen-viz` are MapGen package surfaces.
+  They now sit under `civ7/mapgen/sdk/{core,visualization}` to reflect the
+  MapGen SDK grouping without implying ownership by the Civ7 mod SDK package.
+- `map-output` is not touched in this slice. Its remaining physical
+  `_remainder` row is still reserved for the projection contract surface frame.
+
+Moved packets:
+
+| Rule | From | To | Reason |
+| --- | --- | --- | --- |
+| `require_explicit_mapgen_sdk_opt_in` | `civ7/sdk/rules` | `civ7/mod-sdk/rules` | The predicate protects `packages/sdk` root-vs-mapgen-runtime subpath isolation, so the honest owner is the mod SDK lane. |
+| `preserve_mapgen_core_runtime_neutrality` | `civ7/mapgen/core/rules` | `civ7/mapgen/sdk/core/rules` | The predicate protects the MapGen core package as part of the MapGen SDK package surface. |
+| `prohibit_runtime_helper_redeclarations` | `civ7/mapgen/core/rules` | `civ7/mapgen/sdk/core/rules` | Shared deterministic helpers belong to the MapGen core package surface, not to the mod SDK. |
+| `verify_visualization_runtime_build_artifacts` | `civ7/mapgen/visualization/rules` | `civ7/mapgen/sdk/visualization/rules` | The predicate checks MapGen visualization package/runtime dependency currentness under the MapGen SDK grouping. |
+
+Residual scope:
+
+- `.habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags`
+  remains the next focused projection-contract-surface decision.
+- The three `mod-map` blueprint rows with `placement.niche:
+  "civ7/mapgen/map-output"` remain for the following map-output cleanup, where
+  their manifest niche should be reassessed separately from the physical
+  remainder row.
+
+## Domino 45 Disposition Receipt
+
+This receipt closes the stale `map-output` lane after the SDK taxonomy
+correction. It runs `PROJECTION-CONTRACT-SURFACE-FRAME.md` against the last
+physical map-output remainder and updates the three remaining `mod-map`
+manifests that still claimed `civ7/mapgen/map-output`.
+
+Source-backed structure:
+
+- `artifact:map.realized.*` is not a live projection surface. The canonical
+  Phase 2 projection spec says `artifact:map.*` may describe stable projection
+  or observation data products, `effect:map.*` describes execution guarantees,
+  and `artifact:map.realized.*` must not be introduced.
+- The realized namespace guard therefore belongs to the `artifact` blueprint
+  as artifact ID namespace authority. No `projection-contract`,
+  `artifact-contract`, `map-output`, or `map-projection` destination was
+  created.
+- The three `mod-map` rows still belong to the `mod-map` blueprint, but their
+  stale `map-output` niche metadata did not justify a replacement
+  `mod-integration` niche. The current predicates are tied to the Swooper Maps
+  standard recipe lane: canonical map configs, `STANDARD_STAGES`, generated map
+  entrypoints, and shipped catalog output.
+
+Moved or recontextualized packets:
+
+| Rule | From | To | Reason |
+| --- | --- | --- | --- |
+| `prohibit_realized_map_artifact_tags` | `civ7/mapgen/map-output/_remainder` | `blueprints/artifact` | The whole predicate governs an invalid artifact ID namespace. Positive projection semantics already live in the Phase 2 projection spec, so this does not need a new projection surface. |
+| `block_studio_config_leakage_into_shipped_catalog` | `placement.niche: civ7/mapgen/map-output` | `placement.niche: civ7/mapgen/pipeline/swooper-maps-standard-recipe` | The guard protects generated/shipped catalog output for the current Swooper Maps standard recipe lane; it is not a standalone output niche or mod-integration area. |
+| `protect_generated_map_entrypoints_from_hand_edits` | `placement.niche: civ7/mapgen/map-output` | `placement.niche: civ7/mapgen/pipeline/swooper-maps-standard-recipe` | Generated map entrypoints are produced from the current Swooper map config and standard recipe surface, while the reusable constructible kind remains `mod-map`. |
+| `validate_generated_map_entrypoint_contracts` | `placement.niche: civ7/mapgen/map-output` | `placement.niche: civ7/mapgen/pipeline/swooper-maps-standard-recipe` | The executable imports `STANDARD_STAGES`, validates canonical map configs, and checks generated entrypoints; that is current standard-recipe context, not a generic output bucket. |
+
+Residual scope:
+
+- The physical `.habitat/civ7/mapgen/map-output/` lane is gone.
+- Historical domino receipts may still mention map-output as the prior
+  provisional lane; live manifests and current authority docs no longer do.
+
+## Domino 47 Disposition Receipt
+
+This receipt burns down the active `civ7/resources` `_blueprints` slice from
+`UNDERSCORE-BLUEPRINT-BURNDOWN-FRAME.md`. It processes the `civ7-map-policy`
+and `civ7-types` candidate pockets as resource/package operating areas, not as
+affirmed blueprint kinds.
+
+Metrics:
+
+- Scoped `_blueprints` rows: 4.
+- Candidate pockets processed: 2 (`civ7-map-policy`, `civ7-types`).
+- Runner mix: 2 `habitat` file-layer generated-zone guards, 2 `habitat`
+  script checks.
+- Category mix: 3 `output`, 1 `boundary`.
+- Source roots: `packages/civ7-map-policy/src/civ7-tables.gen.ts`,
+  `packages/civ7-map-policy/src/**`, and `packages/civ7-types/generated/**`.
+- Single-package/resource rows: 4.
+- Cross-owner rows: 0.
+- Deferred non-Civ7 rows inspected for hidden Civ7 resource authority: 12.
+  Rows pulled into scope: 0.
+
+Decision matrix:
+
+| Rule | Decision | Destination | Reason | Pending action |
+| --- | --- | --- | --- | --- |
+| `block_hand_edits_to_generated_map_policy_tables` | move to child-niche rules | `civ7/resources/map-policy/rules` | Protects one official-resource-derived generated table surface for `@civ7/map-policy`; the remediation is the package verify/generate path, not a constructible blueprint instance. | Revisit only if protected generated-resource output becomes a parameterized generated-output capability or generator-owned rule. |
+| `ensure_map_policy_dependency_independence` | move to child-niche rules | `civ7/resources/map-policy/rules` | Governs `@civ7/map-policy` package independence from runtime, MapGen, mods, Studio, and base-standard implementation imports. | Convert to a shared import-boundary enforcement surface only if later source-check extraction makes that destination explicit. |
+| `preserve_evidence_provenance_labels` | move to child-niche rules | `civ7/resources/map-policy/rules` | Checks source-evidence labeling on the generated map-policy table; this is resource-derived package currentness, not a reusable blueprint kind. | Revisit if provenance validation moves into the map-policy generator or package-local verification target. |
+| `block_hand_edits_to_generated_civ7_types` | move to child-niche rules | `civ7/resources/civ7-types/rules` | Protects the generated declaration surface owned by `@civ7/types`; `civ7-types` is a package/resource lane here, not a constructible blueprint kind. | Revisit only if external-resource generated declaration protection becomes a parameterized generated-output capability. |
+
+Review lanes:
+
+- Corpus auditor: every scoped resource `_blueprints` row received exactly one
+  disposition, and `.habitat/civ7/resources/_blueprints` was removed.
+- Semantic reviewer: no blueprint was admitted; `civ7-map-policy` and
+  `civ7-types` were treated as child operating/resource lanes rather than kind
+  names.
+- Interface reviewer: manifests now point at the moved `baseline.json` and
+  `check.ts` files under the new physical paths.
+- Closure reviewer: the authority ledger records current placement, path,
+  pending action, and Domino 47 evidence for all four rows.
+
+Residual scope:
+
+- `civ7/platform/_blueprints` is the next active Civ7 burndown loop and is
+  handled by Domino 48 below.
+- `docs`, `global/workspace`, and `habitat/toolkit` `_blueprints` rows remain
+  deferred; none of their whole predicates hid Civ7 resource authority in this
+  loop.
+
+## Domino 48 Disposition Receipt
+
+This receipt burns down the active `civ7/platform` `_blueprints` slice from
+`UNDERSCORE-BLUEPRINT-BURNDOWN-FRAME.md`. It processes the adapter,
+control-oRPC, direct-control session, and intelligence-bridge candidates as
+platform operating areas, not as affirmed blueprint kinds.
+
+Metrics:
+
+- Scoped `_blueprints` rows: 5.
+- Candidate pockets processed: 4 (`civ7-adapter`, `control-orpc`,
+  `direct-control-session`, `intelligence-bridge`).
+- Runner mix: 3 `grit`, 2 `habitat` script checks.
+- Category mix: 5 `boundary`.
+- Source roots: `packages/**/*.ts`, `packages/civ7-adapter/src/**`,
+  `packages/civ7-control-orpc/src/modules/**/contract.ts`,
+  `packages/civ7-control-orpc/src/index.ts`, `apps/**/*.ts(x)`,
+  `packages/**/*.ts(x)`, and
+  `mods/mod-civ7-intelligence-bridge/src/ui/civ7-intelligence-bridge.ts`.
+- Single-package or single-surface rows: 3.
+- Cross-owner platform-boundary rows: 2.
+- Deferred non-Civ7 rows inspected for hidden Civ7 platform authority: 12.
+  Rows pulled into scope: 0.
+
+Decision matrix:
+
+| Rule | Decision | Destination | Reason | Pending action |
+| --- | --- | --- | --- | --- |
+| `enforce_adapter_only_base_standard_imports` | move to child-niche rules | `civ7/platform/adapter/rules` | Guards the `@civ7/adapter` base-standard import boundary. The current Grit pattern covers package `.ts` import statements; it is adapter operating-area authority, not a full reusable adapter blueprint. | Broaden only if the Grit pattern is explicitly expanded beyond package `.ts` import forms. |
+| `prohibit_adapter_local_legacy_generator_logic` | move to child-niche rules | `civ7/platform/adapter/rules` | Protects the current adapter package from growing product planning, RNG, or legacy generator logic. | Revisit only if adapter thinness becomes a shared adapter-kind rule with source-backed constructibility. |
+| `preserve_transport_pure_orpc_contracts` | move to child-niche rules | `civ7/platform/control-orpc/rules` | Keeps control-oRPC contract files transport-pure while runtime control stays in procedures/services over direct-control ports. | Revisit if oRPC contract anatomy becomes a reusable service-contract blueprint. |
+| `require_sanctioned_direct_control_session_owners` | move to child-niche rules | `civ7/platform/direct-control/session/rules` | Guards sanctioned direct-control session lifecycle owners across apps and packages. | Revisit if direct-control session lifecycle becomes a parameterized runtime capability rule. |
+| `require_narrow_game_ui_bridge_bootstrap` | move to child-niche rules | `civ7/platform/game-ui-bridge/rules` | Guards the intelligence bridge mod bootstrap through the narrow `@civ7/control-orpc/game-ui` install surface. | Revisit if the bridge grows broader than the single narrow game-UI install surface. |
+
+Review lanes:
+
+- Corpus auditor: every scoped platform `_blueprints` row received exactly one
+  disposition, and `.habitat/civ7/platform/_blueprints` was removed.
+- Semantic reviewer: no blueprint was admitted; old candidate labels were
+  treated as platform operating areas, package surfaces, or lifecycle surfaces.
+- Interface reviewer: manifests now point at the moved `baseline.json`,
+  `pattern.md`, and `check.ts` files under the new physical paths.
+- Closure reviewer: the authority ledger records current placement, path,
+  pending action, and Domino 48 evidence for all five rows.
+
+Residual scope:
+
+- The active Civ7 `_blueprints` burndown is complete: no
+  `.habitat/civ7/**/_blueprints/**/rule.json` manifests remain.
+- `docs`, `global/workspace`, and `habitat/toolkit` `_blueprints` rows remain
+  deferred; none of their whole predicates hid Civ7 platform authority in this
+  loop.
+
+## Domino 49 Disposition Receipt
+
+This receipt runs the Civ7 remainder atomicity pass requested after the
+`_blueprints` burndown. The goal was not a metadata sweep. The goal was to
+remove mixed-owner rule units that would pollute later category and inversion
+sweeps.
+
+Metrics:
+
+- Starting Civ7 `_remainder` rows: 23.
+- Mixed/split candidates processed: 7.
+- Superseded aggregate rows removed: 7.
+- New atomic live rules created: 12.
+- Existing atomic rules widened to absorb a superseded aggregate: 2.
+- Ending live rule manifests: 131.
+- Ending Civ7 `_remainder` rows: 16.
+- New child lanes introduced from source-backed owners:
+  `civ7/mapgen/domains/narrative/rules` and
+  `civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/hydrology/rules`.
+
+Decision matrix:
+
+| Old rule | Decision | Replacement / owner | Reason |
+| --- | --- | --- | --- |
+| `prohibit_foundation_contract_config_bags` | split and delete aggregate | `prohibit_foundation_op_contract_config_bags` in `civ7/mapgen/domains/foundation/rules`; `prohibit_foundation_step_contract_config_bags` in `civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules` | The old predicate mixed foundation domain operation contracts with standard-recipe foundation step contracts. |
+| `require_owned_domain_config_catalog_surfaces` | split and delete aggregate | `require_morphology_config_facade_exports` in `civ7/mapgen/domains/morphology/rules`; `require_standard_recipe_tag_catalog_owner_tokens` in `civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules` | The old positive script mixed morphology config-facade exactness with standard recipe tag-catalog currentness. |
+| `prohibit_runtime_continent_step_tokens` | split and delete aggregate | `prohibit_morphology_runtime_continent_step_tokens` in `stages/morphology/rules`; `prohibit_hydrology_runtime_continent_step_tokens` in `stages/hydrology/rules` | The old Grit rule mixed morphology implementation files with hydrology climate-baseline implementation files. |
+| `preserve_morphology_contracts_and_overlay_ownership` | split and delete aggregate | `preserve_morphology_belt_driver_contracts` in `stages/morphology/rules`; `require_narrative_hotspot_overlay_owner` in `civ7/mapgen/domains/narrative/rules` | The old script mixed morphology belt-driver contract currentness with narrative HOTSPOTS overlay publisher ownership. |
+| `prohibit_legacy_morphology_effect_gating_tokens` | split and delete aggregate | `prohibit_morphology_stage_legacy_effect_gates` in `stages/morphology/rules`; `prohibit_standard_tag_catalog_legacy_morphology_effect_gates` in standard-recipe `rules` | The old Grit rule mixed morphology stage source with the standard recipe tag catalog. |
+| `prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | split and delete aggregate | `prohibit_morphology_contract_legacy_plate_driver_dependencies` in `stages/morphology/rules`; `prohibit_map_morphology_legacy_plate_driver_dependencies` in `stages/map/rules` | The old Grit rule mixed morphology contract dependency cleanup with map-morphology projection implementation cleanup. |
+| `prohibit_foundation_advanced_cast_merge_fragments` | consolidate and delete aggregate | Existing `prohibit_foundation_stage_cast_merge_hacks` and `prohibit_foundation_stage_sentinel_passthrough` in `stages/foundation/rules` | The old aggregate was already split by two narrower live foundation-stage rules; its missing named-token coverage was folded into those rules instead of creating a third duplicate. |
+
+Review lanes:
+
+- Foundation/config reviewer: confirmed the foundation config-bag row should
+  split by source owner and must not be generalized into `domain-operation`.
+- Morphology/recipe reviewer: confirmed the morphology/overlay/effect/plate
+  rows should split by morphology stage, map stage, standard tag catalog, and
+  narrative owner.
+- Workstream owner disposition: no `_triage` lane was introduced; all new rows
+  are live owner-context rules, and only source-backed child lanes were added.
+
+Residual scope:
+
+- The remaining Civ7 `_remainder` rows are no longer blocked by these seven
+  mixed-owner aggregates.
+- This slice deliberately did not perform the later metadata/category sweep.
+  The next sweep should operate on the now-atomic corpus.
+
+## Domino 50 Disposition Receipt
+
+This receipt instantiates `.habitat/frames/REMAINDER-REMEDIATION-ACTION-FRAME.md`
+for the reviewed Civ7 `_remainder` corpus and executes the first
+implementation-ready slice: foundation consolidation and context admission.
+
+Metrics:
+
+- Starting live rule manifests: 131.
+- Starting reviewed Civ7 `_remainder` rows: 16.
+- Remainder action matrix rows recorded: 16.
+- Selected foundation rows: 7.
+- Moved from `_remainder` to `foundation/rules`: 2.
+- Retired duplicate rule packets: 4.
+- Retained foundation `_remainder` rows: 1.
+- Ending live rule manifests: 127.
+- Ending reviewed Civ7 `_remainder` rows: 10.
+
+Selection rationale:
+
+- The foundation cluster was the only source-qualified, implementation-ready
+  high-confidence slice where deletion was strict consolidation rather than
+  semantic invention.
+- `prohibit_foundation_strategy_nonlocal_imports` already expresses the broad
+  decomposed-strategy import boundary; the narrower strategy-shim/default-file
+  rows were duplicate subsets.
+- `prohibit_foundation_rules_tectonics_shim_reexports` already expresses the
+  broad decomposed rules reexport boundary; the narrower rules-index shim row
+  was a duplicate subset.
+- `prohibit_foundation_duplicate_math_helper_redefinitions` stayed in
+  `_remainder` because it points at a missing positive helper/import surface
+  and should not be smuggled into `domain-operation` or generic math-helper
+  authority.
+
+Decision matrix:
+
+| Rule | Remediation action | Decision | Destination / handling | Reason | Pending action |
+| --- | --- | --- | --- | --- | --- |
+| `prohibit_foundation_rules_tectonics_shim_reexports` | consolidation/dedup plus context admission | move to live foundation context | `.habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports` | The whole predicate guards foundation decomposed operation `rules/**/*.ts` from re-exporting shared `lib/tectonics` shims. It is broad enough to subsume the narrower rules-index row without becoming `domain-operation` ontology. | Revisit only if an operation-internal rules surface becomes positive authority. |
+| `prohibit_foundation_strategy_nonlocal_imports` | boundary inversion plus context admission | move to live foundation context | `.habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports` | The whole predicate is the allowed import boundary for decomposed foundation strategy files: authoring, local contract, and local rules. It is foundation context authority, not a new `operation-strategy` blueprint. | Revisit only if a source-backed `operation-strategy` or positive strategy import-law surface is admitted. |
+| `prohibit_foundation_strategy_shared_tectonics_lib_imports` | consolidation/dedup | retire duplicate | absorbed by `prohibit_foundation_strategy_nonlocal_imports` | Direct shared `lib/tectonics` strategy imports are already forbidden by the broader allowed-list predicate. | None; deleted as duplicate. |
+| `prohibit_foundation_tectonics_rules_reexport_shims` | consolidation/dedup | retire duplicate | absorbed by `prohibit_foundation_rules_tectonics_shim_reexports` | `rules/index.ts` reexports are covered by the broader `rules/**/*.ts` reexport predicate. | None; deleted as duplicate. |
+| `prohibit_foundation_tectonics_strategy_nonlocal_imports` | consolidation/dedup | retire duplicate | absorbed by `prohibit_foundation_strategy_nonlocal_imports` | The broader strategy import boundary covers `default.ts` and other decomposed strategy files. | None; deleted as duplicate. |
+| `prohibit_foundation_tectonics_strategy_shim_imports` | consolidation/dedup | retire duplicate | absorbed by `prohibit_foundation_strategy_nonlocal_imports` | Shared `lib/tectonics` imports in default strategy files are already forbidden by the broader allowed-list predicate. | None; deleted as duplicate. |
+| `prohibit_foundation_duplicate_math_helper_redefinitions` | positive authority creation | retain `_remainder` | unchanged | The row points at a missing positive helper/import surface around canonical foundation tectonics helpers. Current evidence is not enough to admit it as live context or blueprint authority. | Name the positive helper surface and prove consumers import it before deleting the negative proxy. |
+
+Non-selected action groups recorded in the ledger:
+
+- Map-config runtime/source-validation candidates:
+  `prohibit_hydrology_map_config_key_tokens` and
+  `prohibit_legacy_morphology_config_keys`.
+- Deterministic authored-generation authority candidates:
+  `prohibit_ambient_rng_in_authored_generation` plus split parts of
+  `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces`.
+- Immediate garbage-collection candidate:
+  `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases`.
+- Missing positive authority candidates:
+  `validate_ecology_op_contract_quality`,
+  `prohibit_wrapper_only_advanced_config`,
+  `prohibit_legacy_morphology_module_imports`, and
+  `prohibit_runtime_local_config_default_merging`.
+
+Review disposition:
+
+| Finding | Severity | Disposition | Repair evidence | Residual risk / follow-up |
+| --- | --- | --- | --- | --- |
+| Foundation duplicate strategy/default rows are strict subsets of the broader strategy import boundary. | P2 | accepted | Retired the three duplicate strategy rows and retained `prohibit_foundation_strategy_nonlocal_imports` under `foundation/rules`. | None for duplicate coverage; broader positive `operation-strategy` authority remains future work. |
+| Foundation rules-index shim row is a strict subset of the broader rules reexport boundary. | P2 | accepted | Retired `prohibit_foundation_tectonics_rules_reexport_shims` and retained `prohibit_foundation_rules_tectonics_shim_reexports` under `foundation/rules`. | None for duplicate coverage; operation-internal rules surface remains future work. |
+| Math-helper duplicate guard should not be admitted without a named positive helper surface. | P2 | accepted | `prohibit_foundation_duplicate_math_helper_redefinitions` remains in `_remainder`; ledger action matrix records positive-authority blocker. | Future helper/import surface domino. |
+| Deterministic authored-generation is a bigger state reducer but is not implementation-ready until the mixed ecology/hydrology/placement row is split. | P3 | accepted as next-slice evidence | Ledger action matrix records the split/positive-authority blockers. | Candidate future domino after choosing whether to split RNG/generator clauses first. |
+| Map-config token guards likely belong in native config validation, not Habitat domain rules. | P3 | accepted as next-slice evidence | Ledger action matrix records runtime/source-validation action for the two map-config rows. | Candidate future domino after proving native validation catches stale keys. |
+
+Closure note:
+
+- No new blueprint or niche was introduced.
+- `.habitat/AUTHORITY-TREE-SHAPE.md` was not changed because the existing
+  `foundation/rules` lane already existed.
+- Execution-surface records were regenerated because rule paths changed.
+
+### 51. Retire Clean Garbage-Collection Rule Residue
+
+Purpose: execute the first clean Layer 2/Layer 3 garbage-collection slice from
+the closed rule-remediation matrix, deleting only rules with source-backed
+retirement packets and excluding the Studio devops row that still needs
+survivor-authority work.
+
+Controlling records:
+
+- `.habitat/workstreams/rule-remediation-layer1-action-matrix.md`
+- `.habitat/workstreams/rule-remediation-retirement-slice.md`
+
+Decision matrix:
+
+| Rule | Decision | Handling | Proof boundary | Residual follow-up |
+| --- | --- | --- | --- | --- |
+| `prohibit_domain_tag_artifact_shim_imports` | retire | deleted | source and consumer absence for retired `@mapgen/domain/tags` / `@mapgen/domain/artifacts` shim imports | Broader domain import/public-surface inversion remains separate. |
+| `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | retire | deleted | source absence plus stage topology/native no-shadow proof | No permanent cutover lane retained. |
+| `prohibit_narrative_swatches_stage_token` | retire after absorption | deleted | standard recipe topology/manifest excludes retired `narrative-swatches` stage token | Standard topology inversion remains separate. |
+| `require_full_profile_domain_stage_roots` | retire after absorption | deleted | standard recipe topology/manifest surfaces cover the stage-root set | Profile parameterization, if ever needed, is future authority work. |
+| `prohibit_morphology_dual_read_tokens` | retire | deleted | source absence plus native no-shadow proof for completed dual-read cleanup | None. |
+| `prohibit_retired_studio_devlive_daemon_file` | exclude | retained | file absence exists, but survivor authority is not sealed | Revisit in Studio devops topology repair/consolidation. |
+
+Moves it forward:
+
+- Removes five stale lexical, transitional, or absorbed cleanup guards from the
+  live Habitat rule corpus.
+- Drops the live rule count from 127 to 122.
+- Keeps the blocked Studio devops cleanup rule visible instead of deleting it
+  without a survivor authority.
+
+Review disposition:
+
+| Finding | Severity | Disposition | Repair evidence | Residual risk / follow-up |
+| --- | --- | --- | --- | --- |
+| Five retirement rows had clean source-backed deletion packets. | P2 | accepted | Deleted the five rule packets and moved their ledger entries to stale/retired references. | Execution-surface docs regenerated because rule paths changed. |
+| `prohibit_retired_studio_devlive_daemon_file` was not safely retire-able. | P2 | accepted | Retained the rule; the retirement-slice record marks Layer 1 direct-deletion readiness stale for this row. | Studio devops topology repair/consolidation must decide survivor authority. |
+
+Closure note:
+
+- No new blueprint, niche, or catch-all bucket was introduced.
+- This slice intentionally stopped before hairy semantic splits and positive
+  kind/deletion pairs.
+- The current corpus is ready for the next action-class slice after verification
+  and Graphite closure.
+
+### 52. Admit Domain Operation Strategy Blueprint Authority
+
+Purpose: assert the product-backed blueprint destination for MapGen domain
+operation strategies without forcing current foundation-local or helper
+cleanup rules into the wrong authority.
+
+Source-backed constructibility:
+
+- MapGen op authoring docs require a strategy surface and bind operations with
+  `defineOp({ ..., strategies })` plus `createOp(Contract, { strategies })`.
+- The glossary and ops-module contract define ops as strategy envelopes used
+  within steps.
+- `packages/mapgen-core/src/authoring/op/contract.ts` requires strategy config
+  schemas and builds the operation config envelope.
+- `packages/mapgen-core/src/authoring/op/create.ts` rejects missing or unknown
+  strategy implementations and dispatches normalize/run by selected strategy.
+- `packages/mapgen-core/src/authoring/op/strategy.ts` defines
+  `createStrategy` and the typed strategy implementation surface.
+- Current source has 104 strategy implementation files and 104
+  `createStrategy(...)` calls across foundation, morphology, hydrology,
+  ecology, resources, and placement domains.
+
+Disposition:
+
+| Row | Decision | Reason | Follow-up |
+| --- | --- | --- | --- |
+| `domain-operation-strategy` | admit blueprint authority | The construct has independent source shape: strategy id, config schema, optional normalization, run function, and op-contract binding. | Future whole-rule strategy predicates can target `.habitat/blueprints/domain-operation-strategy/`. |
+| `prohibit_foundation_strategy_nonlocal_imports` | no move | The predicate is a foundation-specific allowed import list, not every valid operation strategy. | Design a generic positive strategy-locality rule before moving or deleting this guard. |
+| `prohibit_foundation_duplicate_math_helper_redefinitions` | no move | The predicate is helper-surface consolidation across strategy and non-strategy files. | Name positive helper/import authority before deletion or admission. |
+| `validate_ecology_op_contract_quality` | no move | The predicate is ecology operation contract-quality pressure, not strategy implementation authority. | Define general operation contract-quality authority and repair stale ecology path coverage. |
+
+Moves it forward:
+
+- Creates `.habitat/blueprints/domain-operation-strategy/README.md` as the
+  admitted authority lane.
+- Updates `AUTHORITY-TREE-SHAPE.md` and supersedes the older
+  `DESTINATION-SIMPLIFICATION-FRAME.md` exclusion.
+- Converts the Layer 1 action matrix and former authority-tree rule ledger into
+  one canonical JSON operational record so future metrics and process queries
+  do not depend on brittle Markdown parsing or duplicated matrices.
+
+Review disposition:
+
+| Finding | Severity | Disposition | Repair evidence | Residual risk / follow-up |
+| --- | --- | --- | --- | --- |
+| `domain-operation-strategy` is constructible and product-backed. | P2 | accepted | Authority lane and tree-shape docs created. | Generic strategy-locality or strategy-contract rules still need decision packets before movement. |
+| No current live rule moves whole into the new authority. | P2 | accepted | Explicit non-move dispositions recorded in slice, ledger, and blueprint README. | Avoid using `strategies/**/*.ts` scan roots as an owner test. |
+| The old authority-tree rule ledger still looked like a second current-state matrix. | P2 | accepted | Absorbed its unique process data into `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` under `processLedger`; replaced the Markdown ledger with a pointer. | None; JSON is the active source of truth. |
+
+Closure note:
+
+- No rule manifests, runners, support files, or execution-surface docs changed.
+- This slice does not delete any negative guard and intentionally stops before
+  positive-kind assertion/deletion pairs.
+- The current live corpus remains 122 rules.
+
+### 53. Unite Layer 2 Packet State Into Canonical Rule Matrix
+
+Purpose: prevent a second source of truth for rule remediation state while
+making Layer 2 resume/queue information parseable.
+
+Disposition:
+
+| Record | Decision | Reason | Follow-up |
+| --- | --- | --- | --- |
+| `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` | extend canonical union | The same JSON record now owns the Layer 1 matrix, former process ledger, stale references, Layer 2 packet index, blockers, and next queue. | Future agents should query `layer2PacketIndex` instead of creating a separate packet-index table. |
+| `.habitat/workstreams/rule-remediation-retirement-slice.md` | source reference repair | The receipt still named the archived Markdown matrix as its source. | Slice receipts may reference the canonical JSON, but they are not operational sources of truth. |
+
+Moves it forward:
+
+- Adds `layer2PacketIndex` inside the canonical JSON union record.
+- Records the two closed Layer 2/3 slices: garbage collection and
+  domain-operation-strategy authority admission.
+- Records the only immediately implementation-ready slice as low-leverage
+  metadata repair.
+- Records the next packet candidates and sealed blockers without duplicating
+  the full current rule matrix.
+
+Closure note:
+
+- No authority-tree rule packets, manifests, runners, support files, or source
+  code changed.
+- This is a process-ground-truth repair only; mutation still requires the
+  appropriate Layer 3 slice record.
+
+### 54. Packet Config-Key Native Schema Replacement
+
+Purpose: complete the Layer 2 decision packet for the stale map-config key
+guards without mutating the authority tree.
+
+Status: superseded by Domino 55. The owner diagnosis remains useful evidence,
+but the package negative-test proof strategy is no longer accepted.
+
+Disposition:
+
+| Rule | Decision | Reason | Layer 3 requirement |
+| --- | --- | --- | --- |
+| `prohibit_hydrology_map_config_key_tokens` | replace/narrow by source schema authority, not broad deletion | The Grit predicate overmatches: `lakes` is current public config under `hydrology-hydrography`, while stale stage/internal forms belong to canonical recipe/map config validation. | Superseded: do not add package negative tests as the replacement rail. Domino 55 returns this to Layer 2 for source-owned schema/key authority. |
+| `prohibit_legacy_morphology_config_keys` | replace by source schema authority | `landmass` and `oceanSeparation` are stale lexical cleanup against old TS surfaces; current Morphology public schemas and canonical map config validation own rejection. | Superseded: do not add package negative tests as the replacement rail. Domino 55 returns this to Layer 2 for source-owned schema/key authority. |
+
+Moves it forward:
+
+- Records the full decision packet under
+  `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
+  `layer2PacketIndex.decisionPacketBatches`.
+- Initially moved the config-key slice into the implementation-ready queue;
+  Domino 55 corrected this and returned the slice to Layer 2.
+
+Closure note:
+
+- No rule packets, manifests, runners, support files, tests, or source files
+  changed in this packet-only slice.
+- This packet is no longer implementation-ready. The corrected next move is
+  named in Domino 55.
+
+### 55. Correct Config-Key Proof Owner
+
+Purpose: repair Domino 54's proof model before any Layer 3 mutation can move
+retired config-key pressure back into package-owned tests.
+
+Status: superseded by Domino 56. The package-test correction remains
+normative; the later state-collapse decision deletes the retired literal
+assertions without replacement instead of returning them to Layer 2.
+
+Disposition:
+
+| Surface | Correction | Reason | Next action |
+| --- | --- | --- | --- |
+| `prohibit_hydrology_map_config_key_tokens` | returned to Layer 2 packet repair | The prior packet correctly found that the broad lexical predicate overmatches live public `hydrology-hydrography.lakes`, but incorrectly used package negative tests as the replacement rail. | Re-packet as source-owned schema/key authority, optionally protected by Habitat schema-surface authority, before narrowing or retiring the lexical proxy. |
+| `prohibit_legacy_morphology_config_keys` | returned to Layer 2 packet repair | `landmass` and `oceanSeparation` are stale public-config tokens, but package tests must not become a junk drawer for retired property blacklists. | Decide whether existing closed public schemas are sufficient source authority, whether source key management needs strengthening, or whether Habitat should assert the schema surface structurally. |
+
+Moves it forward:
+
+- Corrects `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
+  so `config-key native-schema replacement` is no longer marked
+  implementation-ready.
+- Initially added `config-key source schema authority replacement` back to the
+  Layer 2 packet queue; Domino 56 superseded that by deleting the retired
+  literals without replacement.
+- Keeps the canonical JSON as the single operational source of truth; this
+  receipt only explains the correction.
+
+Authority basis:
+
+- `.habitat/AUTHORITY.md` stops slices that use tests as structural gates
+  without Habitat registration or explicit product-test classification.
+- `.habitat/FRAME.md` separates Habitat structural authority from package
+  behavior/API/validation tests and keeps proof classes separate.
+- MapGen schema policy and config-compilation reference place unknown-key
+  rejection in strict source schemas and compilation, not in per-token package
+  test residue.
+
+Closure note:
+
+- No authority rule packets, runners, support files, package tests, or source
+  files changed.
+- The next config-key move is not Layer 3 deletion. It is a corrected Layer 2
+  packet for source-owned schema/key authority or Habitat schema-surface
+  authority.
+
+### 56. Retire Config-Key Literal Assertions
+
+Purpose: apply the state-collapse correction for retired config keys.
+
+Disposition:
+
+| Rule | Action | Reason | Record |
+| --- | --- | --- | --- |
+| `prohibit_hydrology_map_config_key_tokens` | deleted without replacement | Retired hydrology config-key literals do not need live negative assertions. The one live collision, `hydrology-hydrography.lakes`, proves the broad lexical rule is actively misleading. Valid key-space belongs to source schemas, TypeScript types, and config compilation. | `.habitat/workstreams/rule-remediation-config-key-retirement-slice.md` |
+| `prohibit_legacy_morphology_config_keys` | deleted without replacement | `landmass` and `oceanSeparation` are retired public-config names, not likely recurrence risks that deserve Habitat law or package-test blacklists. Current Morphology config shape is structurally owned by closed public schemas and compilation. | `.habitat/workstreams/rule-remediation-config-key-retirement-slice.md` |
+
+Moves it forward:
+
+- Deletes two `_remainder` rule packets instead of replacing them with package
+  negative tests or new Habitat negative assertions.
+- Updates the canonical JSON row counts and retired-history records.
+- Updates the rule remediation method frames so future agents treat retired
+  literals as state-collapse candidates before inventing replacement rails.
+
+Closure note:
+
+- No package tests or source config behavior changed.
+- The proof claim is authority-tree cleanup: retired literal assertions are
+  gone, no replacement junk was added, and the config pipeline remains owned by
+  source schemas, TypeScript types, and compilation.
+
+## Domino 57: Repair Studio Recipe-DAG Owner Metadata
+
+Status: closed on `codex/habitat-studio-recipe-dag-owner-repair`.
+
+Purpose: close the remaining implementation-ready Layer 3 metadata slice by
+repairing the lone Studio recipe-DAG rule whose predicate belonged to
+`mapgen-studio` but whose manifest still declared `ownerProject: "habitat"`.
+
+Disposition receipt:
+
+| Rule id | Prior ownerProject | New ownerProject | Decision | Receipt |
+| --- | --- | --- | --- | --- |
+| `require_studio_ui_recipe_artifact_imports` | `habitat` | `mapgen-studio` | Metadata-only repair. Keep the accepted Studio recipe-DAG boundary predicate, placement, category, runner, support files, and deferred split trigger. | `.habitat/workstreams/rule-remediation-studio-recipe-dag-owner-slice.md` |
+
+Moves it forward:
+
+- Aligns the rule with adjacent Studio recipe-DAG rules already owned by
+  `mapgen-studio`.
+- Removes the last implementation-ready metadata-repair row from the canonical
+  Layer 3 queue.
+- Leaves the future semantic trigger intact: split only if UI artifact
+  consumption becomes broader than the recipe-DAG lane.
+
+Closure note:
+
+- No source code, package tests, predicate text, category, placement, runner, or
+  support files changed.
+- The proof claim is ownership metadata alignment for Habitat routing and
+  execution-surface projection.
+
+## Domino 58: Replace G4 Recipe Domain Import Proxies With Positive Matrix
+
+Status: closed on `codex/habitat-g4-domain-import-matrix`.
+
+Purpose: close the next Layer 2 -> Layer 3 boundary-inversion slice by
+collapsing three overlapping G4 recipe-domain import proxy rules into one
+positive Grit import matrix.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `require_public_domain_surfaces_in_recipes_and_maps` | preserved and narrowed to recipe-source G4 authority | This is the surviving positive import matrix for `mods/mod-swooper-maps/src/recipes/**`: allow domain root, `/ops`, `/ops/index.js`, and `/config.js`; forbid deeper alias tails and known relative reaches into `src/domain`. | `.habitat/workstreams/rule-remediation-domain-import-matrix-slice.md` |
+| `prohibit_relative_domain_reaches_from_recipes_and_maps` | absorbed/deleted | The recipe-source predicate is covered by the survivor rule; map-source clauses are excluded from this first G4 enforcement because the accepted architecture packet only authorizes `src/recipes/**` at this stage. | `.habitat/workstreams/rule-remediation-domain-import-matrix-slice.md` |
+| `restrict_recipes_to_public_domain_surfaces` | absorbed/deleted | The unknown-tail predicate is covered by the survivor rule's positive allowed-surface matrix. | `.habitat/workstreams/rule-remediation-domain-import-matrix-slice.md` |
+
+Moves it forward:
+
+- Replaces overlapping negative proxy packets with one Grit rule instead of a
+  bespoke script or package-owned tests.
+- Repairs the one current source violation by exporting
+  `DEFAULT_ELEVATION_SCALE` from the public morphology ops surface and updating
+  the standard recipe import to use that surface.
+- Updates the canonical JSON so the current live corpus is 118 rules and the
+  G4 packet no longer appears in the next Layer 2 queue.
+
+Closure note:
+
+- Nx project boundaries remain the project-plane owner; this slice is below
+  that granularity and stays in Habitat/Grit.
+- Map-source clauses remain excluded pending a map-specific authority decision.
+- The next recorded move is Layer 2 packet selection from the canonical JSON.
+
+## Domino 59: Derive Standard Recipe Stage Topology From Source Authority
+
+Status: closed on `codex/habitat-standard-recipe-topology-rail`.
+
+Purpose: close the standard recipe stage-root topology sub-slice without
+collapsing it into the adjacent G9 wrapper-only `advanced` config guard.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `preserve_standard_stage_topology_and_path_invariants` | preserved and converted from structure runner to source-derived script runner | Active standard recipe stage roots are already declared in `contract-manifest.ts` and the `orderStandardStages` call in `recipe.ts`; the old `structure.toml` repeated a hardcoded inventory and treated support hubs as required stage roots. | `.habitat/workstreams/rule-remediation-standard-recipe-topology-slice.md` |
+| `prohibit_wrapper_only_advanced_config` | excluded and requeued | This row is G9 wrapper-only `advanced` recurrence pressure, not stage-root topology. It remains live until a separate consolidation/source-validation packet can absorb or replace it without package-test blacklist assertions. | `.habitat/workstreams/rule-remediation-standard-recipe-topology-slice.md` |
+
+Moves it forward:
+
+- Replaces a stale hardcoded stage-root list with a Habitat script that parses
+  the runtime recipe and contract manifest source, compares their stage ids, and
+  checks the filesystem topology.
+- Keeps `ecology`, `foundation`, and `morphology` visible as support hubs rather
+  than pretending they are active stages.
+- Preserves the user correction that package tests are not junk drawers for
+  retired or wrapper-key assertions.
+
+Closure note:
+
+- The proof claim is standard recipe stage-root topology, not stage order,
+  step parity, config schema behavior, or support-hub rehoming.
+- The next recorded move is a Layer 2 packet for G9 wrapper-only `advanced`
+  guard consolidation from the canonical JSON.
+
+## Domino 60: Admit G9 Advanced Guard To Standard Recipe Context
+
+Status: closed on `codex/habitat-g9-advanced-guard-context`.
+
+Purpose: close the G9 wrapper-only `advanced` guard packet without deleting the
+guard or moving stale key pressure into package tests.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `prohibit_wrapper_only_advanced_config` | moved from `pipeline/config/_remainder` to `swooper-maps-standard-recipe/rules` | Current G9 guardrail docs explicitly retain this Habitat source-shape guard for standard recipe source and map configs. It is not garbage, and it is not a package-test assertion. | `.habitat/workstreams/rule-remediation-g9-advanced-guard-context-slice.md` |
+
+Moves it forward:
+
+- Removes one `_remainder` row by admitting it to the honest current context.
+- Keeps source schemas/config compilation as behavior authority while Habitat
+  owns the source-shape recurrence guard.
+- Avoids creating a broad config blueprint before that authority exists.
+
+Closure note:
+
+- The proof claim is placement/context admission for the existing G9 Grit guard.
+- The slice does not create generic config authority and does not replace the
+  guard with package tests.
+
+## Domino 61: Retire Hardcoded Standard Stage-Key Freeze
+
+Status: closed on `codex/habitat-retire-standard-stage-key-freeze`.
+
+Purpose: remove duplicate hardcoded standard stage-key state after the standard
+recipe topology rail became source-derived.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `verify_standard_recipe_declared_stage_keys` | retired/deleted | The rule hardcoded the accepted stage id list and parsed `recipe.ts`; stage ids are now compared from `recipe.ts` and `contract-manifest.ts` by the topology rail, while runtime/contract parity remains live for stage and step order. | `.habitat/workstreams/rule-remediation-standard-stage-key-freeze-retirement-slice.md` |
+
+Moves it forward:
+
+- Removes one duplicate Habitat rule and one hardcoded stage-id list.
+- Keeps the distinct topology, runtime/contract parity, generated artifact
+  parity, and public authoring-surface checks intact.
+
+Closure note:
+
+- The proof claim is duplicate retirement only.
+- This does not change the standard recipe stage set or generated outputs.
+
+## Domino 62: Repair Studio DevOps Source-Watch Topology
+
+Status: closed on `codex/habitat-studio-devops-topology-source-watch`.
+
+Purpose: repair the Studio devops survivor rule to current source-watch daemon
+authority, then retire the separate `devLive.ts` absence packet.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `enforce_studio_dev_runner_topology` | preserved and repaired | The live `serve-daemon` target and source-watch handoff require `bun --conditions bun-source --watch src/server/daemon/daemon.ts`; the Habitat rule still expected the old plain Bun command. | `.habitat/workstreams/rule-remediation-studio-devops-topology-source-watch-slice.md` |
+| `prohibit_retired_studio_devlive_daemon_file` | retired/deleted | The survivor devops topology rule now owns retired `src/server/daemon/devLive.ts` absence directly, so the single-file structure packet no longer owns a separate surface. | `.habitat/workstreams/rule-remediation-studio-devops-topology-source-watch-slice.md` |
+
+Moves it forward:
+
+- Removes the last direct retirement/garbage-collection row from the canonical
+  queue.
+- Aligns Studio devops authority with the source-watch daemon handoff.
+- Keeps runtime hot-reload product proof out of this structural slice.
+
+Closure note:
+
+- The proof claim is structural devops topology, not a live daemon restart
+  product test.
+
+## Domino 63: Admit Morphology Public-Surface Import Boundary
+
+Status: closed on `codex/habitat-morphology-public-surface-boundary`.
+
+Purpose: replace the morphology `_remainder` retired-module import proxy with
+live public-surface import authority, without turning a Grit-shaped predicate
+into a Habitat script or package test.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `prohibit_legacy_morphology_module_imports` | retired/replaced | The retired `@mapgen/domain/morphology/<legacy>` blacklist was a proxy for a missing public-surface import boundary. | `.habitat/workstreams/rule-remediation-morphology-public-surface-boundary-slice.md` |
+| `require_morphology_public_surface_imports` | created/admitted | Non-domain consumers now have one live Grit rule that permits Morphology imports through the root, `/ops`, `/ops/index.js`, or `/config.js` surfaces. | `.habitat/workstreams/rule-remediation-morphology-public-surface-boundary-slice.md` |
+
+Moves it forward:
+
+- Removes the Morphology `_remainder` import-boundary row.
+- Converts a retired-path negative assertion into live public-surface import
+  authority.
+- Keeps this as a Grit rule because the predicate is static import/export
+  source shape.
+- Leaves the existing G4 recipe-domain import matrix as recipe-wide authority;
+  this row owns morphology-specific consumer relapse detection.
+
+Closure note:
+
+- Nx project boundaries remain project-plane authority and were not changed.
+- No package-owned tests or bespoke Habitat script were introduced.
+
+## Domino 64: Admit Recipe-DAG Split Rails
+
+Status: closed on `codex/habitat-recipe-dag-split-rail-classification`.
+
+Purpose: repair a stale `consolidation/dedup` classification for the Studio
+recipe-DAG runtime-source dependency guard.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `prohibit_recipe_dag_runtime_source_dependencies` | reclassified to context admission | It is the direct-token Grit complement to `require_recipe_dag_contract_metadata`, not a duplicate of it. | `.habitat/workstreams/rule-remediation-recipe-dag-split-rail-reclassification.md` |
+| `require_recipe_dag_contract_metadata` | unchanged | It remains graph-aware Recipe-DAG contract metadata authority. | `.habitat/workstreams/rule-remediation-recipe-dag-split-rail-reclassification.md` |
+
+Moves it forward:
+
+- Removes one stale Layer 2 packet-needed row without deleting a live rule.
+- Keeps source-string/helper-token checks in Grit and graph traversal in the
+  existing Habitat script.
+- Avoids forcing two different proof shapes into one rule.
+
+Closure note:
+
+- No manifest mutation was required.
+- Focused Habitat checks passed for both split rails.
+
+## Domino 65: Admit Standard Recipe Context Guards
+
+Status: closed on `codex/habitat-standard-recipe-context-guards`.
+
+Purpose: repair stale `consolidation/dedup` classifications for the remaining
+standard-recipe top-level structural checks.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `verify_standard_recipe_artifacts_match_source_stages` | reclassified to context admission | Generated artifact parity is standard-recipe structural authority, not package-test residue. | `.habitat/workstreams/rule-remediation-standard-recipe-context-guards.md` |
+| `verify_standard_recipe_public_authoring_surface` | reclassified to context admission | Exact public authoring schema/focus-path constraints remain standard-recipe context authority until parameterized. | `.habitat/workstreams/rule-remediation-standard-recipe-context-guards.md` |
+
+Moves it forward:
+
+- Clears the remaining stale `consolidation/dedup` action rows.
+- Keeps structural recipe output/public authoring authority in Habitat instead
+  of pushing it into owned package tests.
+- Preserves both rules until a real parameterized projection/output or
+  authoring-surface authority exists.
+
+Closure note:
+
+- No manifest mutation was required.
+- Focused Habitat checks passed for both rules.
+
+## Domino 66: Invert Morphology Belt-Driver Contract Dependency Guard
+
+Status: closed on `codex/habitat-morphology-belt-driver-contract-inversion`.
+
+Purpose: absorb a negative legacy plate-driver token guard into the positive
+morphology belt-driver contract authority.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `preserve_morphology_belt_driver_contracts` | preserved and expanded | The survivor now checks both required canonical belt-driver references and absence of retired plate-driver dependency names in the same contract files. | `.habitat/workstreams/rule-remediation-morphology-belt-driver-contract-inversion.md` |
+| `prohibit_morphology_contract_legacy_plate_driver_dependencies` | retired/deleted | The separate Grit packet duplicated the same contract surface after the survivor absorbed its negative predicate. | `.habitat/workstreams/rule-remediation-morphology-belt-driver-contract-inversion.md` |
+
+Moves it forward:
+
+- Removes one closed-structure negative assertion.
+- Keeps the positive contract-currentness rule as the owner.
+- Avoids moving this structural guard into package tests.
+
+Closure note:
+
+- The proof claim is the two-file morphology belt-driver contract surface only.
+- This does not create artifact blueprint authority or generated
+  contract-manifest authority.
+
+## Domino 67: Admit Foundation Stage Grit Context Rails
+
+Status: closed on `codex/habitat-foundation-stage-grit-context`.
+
+Purpose: repair stale `closed structure inversion` labels for two
+standard-recipe foundation-stage source-shape checks.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `prohibit_foundation_stage_cast_merge_hacks` | reclassified to context admission | The current Grit row is already the intended narrow source-shape rail for wrapper-era cast/merge fallback fragments in standard foundation stage entrypoints. | `.habitat/workstreams/rule-remediation-foundation-stage-grit-context.md` |
+| `prohibit_foundation_stage_sentinel_passthrough` | reclassified to context admission | The current Grit row is already the intended narrow source-shape rail for retired Studio sentinel passthrough tokens in standard foundation stage entrypoints. | `.habitat/workstreams/rule-remediation-foundation-stage-grit-context.md` |
+
+Moves it forward:
+
+- Clears two stale Layer 2 packet-needed rows without mutating rule behavior.
+- Preserves Grit for static source-shape predicates.
+- Avoids moving these structural checks into package-owned tests.
+- Avoids converting narrow Grit predicates back into broader Habitat scripts.
+
+Closure note:
+
+- Future retirement is allowed only if a positive foundation stage contract
+  surface fully subsumes these exact predicates.
+- The adjacent public-authoring-surface script and foundation-domain contract
+  script remain separate proof shapes.
+
+## Domino 68: Admit Foundation Legacy Operation Grit Context Rails
+
+Status: closed on `codex/habitat-foundation-legacy-op-grit-context`.
+
+Purpose: repair stale `closed structure inversion` labels for foundation
+legacy operation and contract source-shape checks.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `prohibit_foundation_legacy_aggregate_tectonic_op_surface` | reclassified to context admission | The Foundation reference documents the decomposed operation surface and says the legacy aggregate compatibility op must not be reintroduced. | `.habitat/workstreams/rule-remediation-foundation-legacy-op-grit-context.md` |
+| `prohibit_foundation_legacy_aggregate_tectonics` | reclassified to context admission | The row guards the domain root and standard tectonics contract from aggregate `computeTectonicHistory` relapse. | `.habitat/workstreams/rule-remediation-foundation-legacy-op-grit-context.md` |
+| `prohibit_foundation_legacy_plate_kinematics` | reclassified to context admission | The row guards the source-backed split where plate graph stays metadata/partition authority and plate motion owns kinematics. | `.habitat/workstreams/rule-remediation-foundation-legacy-op-grit-context.md` |
+| `prohibit_legacy_compute_tectonics_token` | reclassified to context admission | The row guards against reintroducing the retired monolithic `computeTectonics` token across foundation surfaces. | `.habitat/workstreams/rule-remediation-foundation-legacy-op-grit-context.md` |
+
+Moves it forward:
+
+- Clears four stale Layer 2 packet-needed rows without changing rule behavior.
+- Preserves Grit for bounded source-token/source-shape predicates.
+- Distinguishes documented recurrence guards from dead retired config-key
+  clutter.
+- Leaves possible future consolidation to a positive foundation operation
+  registry or operation contract rail, if one fully subsumes these predicates.
+
+Closure note:
+
+- No package-owned tests, Habitat scripts, or replacement negative assertions
+  were introduced.
+- These checks remain live because the higher-level Foundation authority gives
+  the retired symbols recurrence significance.
+
+## Domino 69: Admit Service Module Shape Residual Context
+
+Status: closed on `codex/habitat-service-module-shape-context`.
+
+Purpose: repair the stale `closed structure inversion` label for the residual
+Habitat Toolkit service-module file-shape rule.
+
+Disposition receipt:
+
+| Rule id | Action | Reason | Receipt |
+| --- | --- | --- | --- |
+| `validate_habitat_service_module_file_shape` | reclassified to context admission | Root topology was already split into `validate_habitat_service_module_root_topology`; the residual script still owns recursive suffix, policy naming, and router-shape constraints that current structure TOML cannot express. | `.habitat/workstreams/rule-remediation-service-module-shape-context.md` |
+
+Moves it forward:
+
+- Clears the final stale `closed structure inversion` packet-needed row.
+- Keeps recursive service-module file-shape validation in Habitat instead of
+  moving it into package-owned tests.
+- Names the real future collapse point: a declarative file-tree/suffix
+  allowlist runner that can subsume the residual script.
+
+Closure note:
+
+- No Toolkit rule behavior changed.
+- This does not resolve the broader deferred Toolkit `_blueprints` pocket; it
+  only repairs the current action classification for this residual rule.
+
+## Domino 70: Reconcile Boundary-Inversion Review
+
+Status: closed on `codex/habitat-boundary-review-reconciliation`.
+
+Purpose: separate the remaining boundary-inversion rows into admitted context
+rails, implementation-ready slices, and sealed semantic blockers.
+
+Disposition receipt:
+
+| Bucket | Rule ids | Receipt |
+| --- | --- | --- |
+| context admission | `prohibit_foundation_decomposed_ops_legacy_internal_imports`, `prohibit_foundation_rules_tectonics_shim_reexports`, `prohibit_foundation_strategy_nonlocal_imports`, `prohibit_hydrology_runtime_continent_step_tokens`, `prohibit_map_morphology_legacy_plate_driver_dependencies`, `prohibit_migrated_consumer_effect_gating_tokens`, `prohibit_product_scan_roots_in_grit_provider` | `.habitat/workstreams/rule-remediation-boundary-review-reconciliation.md` |
+| implementation-ready queue | `prohibit_foundation_op_contract_config_bags`, `prohibit_foundation_step_contract_config_bags`, `prohibit_misplaced_projection_adapter_calls`, `prohibit_morphology_stage_config_bag_imports` | `.habitat/workstreams/rule-remediation-boundary-review-reconciliation.md` |
+| sealed blocker | `prohibit_morphology_hotspot_overlay_publishers`, `prohibit_morphology_story_overlay_contract_artifact`, `prohibit_morphology_overlay_implementation_reads` | `.habitat/workstreams/rule-remediation-boundary-review-reconciliation.md` |
+
+Moves it forward:
+
+- Removes stale packet-needed pressure from rows that are already honest Grit
+  or Habitat context authority.
+- Creates the next implementation-ready queue from source-backed boundary
+  rows.
+- Preserves semantic stop gates around overlay/story ownership instead of
+  hiding them inside a broad boundary bucket.
+
+Closure note:
+
+- No rule behavior changed in this reconciliation slice.
+- The next deterministic move is Layer 3 implementation for the first queued
+  boundary slice.
+
+### 46. Resume Authority Activation Projection Work
 
 Purpose: return to narrow projection, metadata pruning, and runner discovery
 only after the next real destinations and major false destinations stop
