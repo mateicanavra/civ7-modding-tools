@@ -69,8 +69,9 @@ export const BaselineRuleContractInputSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
     exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
+    baselinePath: Type.Optional(Type.String({ minLength: 1 })),
     ownerProject: Type.Optional(Type.String({ minLength: 1 })),
-    ownerTool: Type.Optional(Type.String({ minLength: 1 })),
+    runner: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
@@ -80,7 +81,7 @@ export const RuleIntroductionBaselineManifestSchema = Type.Object(
     changeId: Type.String({ minLength: 1 }),
     ruleId: Type.String({ minLength: 1 }),
     ownerProject: Type.String({ minLength: 1 }),
-    ownerTool: Type.String({ minLength: 1 }),
+    runner: Type.String({ minLength: 1 }),
     baselinePath: Type.String({ minLength: 1 }),
     initialBaselineKeys: Type.Array(Type.String()),
     comparisonBase: Type.String({ minLength: 1 }),

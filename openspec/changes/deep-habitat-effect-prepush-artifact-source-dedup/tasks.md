@@ -2,10 +2,10 @@
 
 ## 1. Implementation
 
-- [x] 1.1 Classify Habitat rule artifact paths by registry owner tool.
-- [x] 1.2 Route source-check rule artifacts to `source:check` without also
+- [x] 1.1 Classify Habitat rule authority paths by registry owner tool.
+- [x] 1.2 Route source-check rule authority files to `source:check` without also
       requesting owner `habitat:check`.
-- [x] 1.3 Route non-source rule artifacts to `habitat:rule:<id>`.
+- [x] 1.3 Route non-source rule authority files to `habitat:rule:<id>`.
 - [x] 1.4 Cover source-only, non-source-only, and mixed artifact diffs in hook
       service tests.
 

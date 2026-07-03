@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_ops_root_presence",
+  "title": "Require Domain Ops Root Presence",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "missing ops roots for explicitly migrated domains",
+  "why": "Migrated domains expose operation bundles through an owned ops root.",
+  "remediate": "Restore the missing domain ops root or update the owning authority packet intentionally.",
+  "message": "A migrated domain ops root is missing.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/{ecology,foundation,hydrology,morphology,narrative,placement,resources}/ops"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/require_domain_ops_root_presence/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain-operation/require_domain_ops_root_presence/structure.toml"
+    }
+  }
+}

@@ -17,7 +17,7 @@ describe("pattern manifest validator", () => {
           ruleId: manifest.ruleId,
           patternName: manifest.patternName,
           manifestPath: patternManifestPath(manifest.ruleId),
-          ownerTool: "source-check",
+          patternRole: "diagnostic",
           lifecycle: "advisory",
         },
       ],
@@ -38,8 +38,8 @@ describe("pattern manifest validator", () => {
       lifecycle: "candidate",
       openspecChangeId: "habitat-pattern-generator-metadata-repair",
       ownerProject: "habitat",
-      ownerTool: "source-check",
-      candidateArtifacts: {
+      patternRole: "diagnostic",
+      candidateAuthorityFiles: {
         patternPath: ".habitat/patterns/candidates/candidate_probe.md",
         manifestPath: ".habitat/patterns/candidates/candidate-probe.json",
       },
@@ -71,7 +71,7 @@ describe("pattern manifest validator", () => {
       ruleId: "malformed-probe",
       patternName: "malformed_probe",
       lifecycle: "registered-advisory",
-      ownerTool: "source-check",
+      patternRole: "diagnostic",
     });
 
     expect(issueReasons(result)).toContain("malformed-manifest");
@@ -104,7 +104,7 @@ describe("pattern manifest validator", () => {
     expect(issueReasons(result)).toContain("orphan-manifest");
   });
 
-  test("rejects registered manifests outside the canonical source-artifact path", () => {
+  test("rejects registered manifests outside the canonical source-authority path", () => {
     const manifest = registeredManifest();
     const result = validatePatternManifest(manifest, {
       manifestPath: ".habitat/patterns/candidates/registration-probe.json",
@@ -114,7 +114,7 @@ describe("pattern manifest validator", () => {
           ruleId: manifest.ruleId,
           patternName: manifest.patternName,
           manifestPath: ".habitat/patterns/candidates/registration-probe.json",
-          ownerTool: "source-check",
+          patternRole: "diagnostic",
           lifecycle: "advisory",
         },
       ],
@@ -133,7 +133,7 @@ describe("pattern manifest validator", () => {
           ruleId: manifest.ruleId,
           patternName: manifest.patternName,
           manifestPath: "",
-          ownerTool: "source-check",
+          patternRole: "diagnostic",
           lifecycle: "advisory",
         },
       ],
@@ -162,16 +162,20 @@ describe("pattern manifest validator", () => {
     expect(
       patternRuleReferenceFromRule({
         id: "registration-probe",
-        patternName: "registration_probe",
+        runner: {
+          name: "grit",
+          patternPath: ".habitat/fixtures/rules/registration-probe/pattern.md",
+          patternName: "registration_probe",
+        },
         manifestPath: patternManifestPath("registration-probe"),
-        ownerTool: "source-check",
+        patternRole: "diagnostic",
         lane: "advisory",
       })
     ).toEqual({
       ruleId: "registration-probe",
       patternName: "registration_probe",
       manifestPath: patternManifestPath("registration-probe"),
-      ownerTool: "source-check",
+      patternRole: "diagnostic",
       lifecycle: "advisory",
     });
   });
@@ -230,7 +234,7 @@ function registeredManifest(
     lifecycle: "registered-advisory",
     openspecChangeId: "habitat-pattern-generator-metadata-repair",
     ownerProject: "habitat",
-    ownerTool: "source-check",
+    patternRole: "diagnostic",
     normativeSources: [
       {
         kind: "accepted-spec",

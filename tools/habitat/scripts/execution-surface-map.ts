@@ -154,24 +154,42 @@ interface RuleRecord {
 }
 
 const habitatSurfaceSuffixes = [
+  "/rule.json",
   ".rule.json",
   ".rule.mjs",
+  "/check.ts",
+  "/check.mjs",
+  "/check.js",
+  "/check.sh",
+  "/check.py",
   ".check.ts",
   ".check.mjs",
   ".check.js",
   ".check.sh",
   ".check.py",
+  "/fix.ts",
+  "/fix.mjs",
+  "/fix.js",
+  "/fix.sh",
   ".fix.ts",
   ".fix.mjs",
   ".fix.js",
   ".fix.sh",
+  "/generate.ts",
+  "/generate.mjs",
+  "/generate.js",
+  "/generate.sh",
   ".generate.ts",
   ".generate.mjs",
   ".generate.js",
   ".generate.sh",
+  "/operation.md",
   ".operation.md",
   ".apply.pattern.md",
-  ".pattern.md",
+  "/pattern.md",
+  "/apply.pattern.md",
+  "/support.pattern.md",
+  "/structure.toml",
   ".structure.toml",
 ] as const;
 
@@ -252,7 +270,9 @@ function parseArgs(argv: string[]): Args {
   const outJsonArg = values.get("--out-json");
   const outMdArg = values.get("--out-md");
   if (!outJsonArg || !outMdArg) {
-    throw new Error("Usage: bun run scripts/execution-surface-map.ts --repo-root <root> --out-json <path> --out-md <path>");
+    throw new Error(
+      "Usage: bun run scripts/execution-surface-map.ts --repo-root <root> --out-json <path> --out-md <path>"
+    );
   }
 
   return {
@@ -297,15 +317,19 @@ function isHabitatSurface(relPath: string): boolean {
 }
 
 function surfaceKindFor(relPath: string): SurfaceKind {
-  if (relPath.endsWith(".rule.json")) return "rule-json";
+  if (relPath.endsWith("/rule.json") || relPath.endsWith(".rule.json")) return "rule-json";
   if (relPath.endsWith(".rule.mjs")) return "rule-module";
-  if (/\.check\.[^.]+$/.test(relPath)) return "check-script";
-  if (/\.fix\.[^.]+$/.test(relPath)) return "fix-script";
-  if (/\.generate\.[^.]+$/.test(relPath)) return "generate-script";
-  if (relPath.endsWith(".operation.md")) return "operation-note";
-  if (relPath.endsWith(".apply.pattern.md")) return "apply-pattern";
-  if (relPath.endsWith(".pattern.md")) return "pattern";
-  if (relPath.endsWith(".structure.toml")) return "structure-spec";
+  if (/\/check\.[^.]+$/.test(relPath) || /\.check\.[^.]+$/.test(relPath)) return "check-script";
+  if (/\/fix\.[^.]+$/.test(relPath) || /\.fix\.[^.]+$/.test(relPath)) return "fix-script";
+  if (/\/generate\.[^.]+$/.test(relPath) || /\.generate\.[^.]+$/.test(relPath))
+    return "generate-script";
+  if (relPath.endsWith("/operation.md") || relPath.endsWith(".operation.md"))
+    return "operation-note";
+  if (relPath.endsWith("/apply.pattern.md") || relPath.endsWith(".apply.pattern.md"))
+    return "apply-pattern";
+  if (relPath.endsWith("/pattern.md") || relPath.endsWith("/support.pattern.md")) return "pattern";
+  if (relPath.endsWith("/structure.toml") || relPath.endsWith(".structure.toml"))
+    return "structure-spec";
   throw new Error(`Unsupported surface path: ${relPath}`);
 }
 
@@ -333,7 +357,8 @@ function targetClass(value: string): string {
   const normalized = value.replaceAll("\\", "/");
   if (normalized.includes(".habitat/_support/")) return "habitat-support";
   if (normalized.includes(".habitat/")) return "habitat-authority";
-  if (normalized.includes("tools/habitat") || normalized.includes("@habitat/cli")) return "habitat-toolkit";
+  if (normalized.includes("tools/habitat") || normalized.includes("@habitat/cli"))
+    return "habitat-toolkit";
   if (normalized.startsWith("node:")) return "node-builtin";
   if (
     normalized.startsWith("packages/") ||
@@ -346,7 +371,11 @@ function targetClass(value: string): string {
   if (normalized.startsWith("apps/")) return "app";
   if (normalized.startsWith("mods/") || normalized.startsWith("mod-")) return "mod";
   if (normalized.startsWith("./") || normalized.startsWith("../")) return "relative";
-  if (/^(bun|bunx|nx|node|python|python3|sh|bash|git|tsc|vitest|biome|grit|docsify-cli)\b/.test(normalized)) {
+  if (
+    /^(bun|bunx|nx|node|python|python3|sh|bash|git|tsc|vitest|biome|grit|docsify-cli)\b/.test(
+      normalized
+    )
+  ) {
     return "workspace-tool";
   }
   if (/^[a-zA-Z0-9@][a-zA-Z0-9@/_-]*$/.test(normalized)) return "external";
@@ -368,7 +397,8 @@ function stringLiteralValue(node: ts.Node): string | undefined {
 
 function propertyNameText(node: ts.Expression): string {
   if (ts.isIdentifier(node)) return node.text;
-  if (ts.isPropertyAccessExpression(node)) return `${propertyNameText(node.expression)}.${node.name.text}`;
+  if (ts.isPropertyAccessExpression(node))
+    return `${propertyNameText(node.expression)}.${node.name.text}`;
   return node.getText();
 }
 
@@ -443,16 +473,25 @@ function analyzeScriptLike(filePath: string, relPath: string, text: string): Sta
     if (!line || line.startsWith("#")) continue;
     collectStringLiteralTies(ties, line);
     const command = line.match(/^(?:exec\s+)?([A-Za-z0-9_./-]+)(?:\s|$)/)?.[1];
-    if (command && /^(bun|bunx|nx|node|python3?|sh|bash|git|tsc|vitest|biome|grit|rm|mv|cp|mkdir|sed)$/.test(command)) {
+    if (
+      command &&
+      /^(bun|bunx|nx|node|python3?|sh|bash|git|tsc|vitest|biome|grit|rm|mv|cp|mkdir|sed)$/.test(
+        command
+      )
+    ) {
       addTie(ties, "shell-command", line);
     }
   }
 
   if (relPath.endsWith(".py")) {
-    for (const match of text.matchAll(/^\s*(?:from\s+([A-Za-z0-9_.]+)\s+import|import\s+([A-Za-z0-9_.]+))/gm)) {
+    for (const match of text.matchAll(
+      /^\s*(?:from\s+([A-Za-z0-9_.]+)\s+import|import\s+([A-Za-z0-9_.]+))/gm
+    )) {
       addTie(ties, "import", match[1] ?? match[2] ?? "");
     }
-    for (const match of text.matchAll(/subprocess\.(?:run|check_call|check_output|Popen)\(([^)]*)\)/g)) {
+    for (const match of text.matchAll(
+      /subprocess\.(?:run|check_call|check_output|Popen)\(([^)]*)\)/g
+    )) {
       addTie(ties, "child-process", match[1] ?? "");
     }
   }
@@ -510,12 +549,18 @@ function uniqueSorted<T extends string>(items: readonly T[]): T[] {
 }
 
 function analyzeRuleModule(text: string): RuleModuleAnatomy {
-  const sourceFile = ts.createSourceFile("rule.mjs", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const sourceFile = ts.createSourceFile(
+    "rule.mjs",
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.JS
+  );
   const exported = new Set<string>();
   const candidateExtensions = new Set<string>();
 
   const visit = (node: ts.Node): void => {
-    const modifiers = ts.canHaveModifiers(node) ? ts.getModifiers(node) ?? [] : [];
+    const modifiers = ts.canHaveModifiers(node) ? (ts.getModifiers(node) ?? []) : [];
     const isExported = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
     if (isExported && ts.isVariableStatement(node)) {
       for (const declaration of node.declarationList.declarations) {
@@ -547,14 +592,18 @@ function analyzeRuleModule(text: string): RuleModuleAnatomy {
     ...(runtimeHelpers.some((helper) => ["importRefs", "sourceRefsMatching"].includes(helper))
       ? ["import/export reference predicates"]
       : []),
-    ...(runtimeHelpers.some((helper) => ["callExpressions", "propertyCallExpressions"].includes(helper))
+    ...(runtimeHelpers.some((helper) =>
+      ["callExpressions", "propertyCallExpressions"].includes(helper)
+    )
       ? ["AST call-expression predicates"]
       : []),
     ...(runtimeHelpers.includes("policy") ? ["shared runtime policy helper"] : []),
     ...(text.includes("file.text") ? ["raw text scan predicates"] : []),
   ]);
   const separableSupportSignals = uniqueSorted([
-    ...(text.includes("/fixtures/") || text.includes("/support/") ? ["references support files"] : []),
+    ...(text.includes("/fixtures/") || text.includes("/support/")
+      ? ["references support files"]
+      : []),
     ...(/readFile|readText|fs\./.test(text) ? ["reads auxiliary files"] : []),
   ]);
 
@@ -588,11 +637,22 @@ function anatomyForSurface(
   const tieText = surface.staticTies.all.map((tie) => tie.value).join("\n");
 
   if (surface.isDirectEntrypoint || surface.invokedBy.some((invoker) => invoker !== "unknown")) {
-    if (["package-script", "nx-target", "nx-target-default", "nx-plugin", "check-script", "fix-script", "generate-script"].includes(surface.surfaceKind)) {
+    if (
+      [
+        "package-script",
+        "nx-target",
+        "nx-target-default",
+        "nx-plugin",
+        "check-script",
+        "fix-script",
+        "generate-script",
+      ].includes(surface.surfaceKind)
+    ) {
       roles.add("entrypoint");
     }
   }
-  if (surface.surfaceKind === "rule-json" || surface.surfaceKind === "rule-module") roles.add("adapter");
+  if (surface.surfaceKind === "rule-json" || surface.surfaceKind === "rule-module")
+    roles.add("adapter");
   if (surface.surfaceKind === "habitat-cli-source") roles.add("runner-runtime");
   if (
     surface.surfaceKind === "pattern" ||
@@ -602,11 +662,17 @@ function anatomyForSurface(
   ) {
     roles.add("policy-predicate");
   }
-  if (surface.buckets?.includes("transitional_runtime_tie") || tieText.includes("rule-runtime.policy.mjs")) {
+  if (
+    surface.buckets?.includes("transitional_runtime_tie") ||
+    tieText.includes("rule-runtime.policy.mjs")
+  ) {
     roles.add("transient-dependency");
     transientSignals.add("imports transitional source-check runtime");
   }
-  if (surface.buckets?.includes("nx_ordering_tie") || /(?:generated|current|fresh|dist\/|build|gen:|ensure:)/.test(tieText)) {
+  if (
+    surface.buckets?.includes("nx_ordering_tie") ||
+    /(?:generated|current|fresh|dist\/|build|gen:|ensure:)/.test(tieText)
+  ) {
     roles.add("transient-dependency");
     transientSignals.add("build/currentness or ordering tie");
   }
@@ -631,21 +697,27 @@ function anatomyForSurface(
   let summary = "Classified execution surface.";
   let runnerContract: string | undefined;
   if (surface.surfaceKind === "rule-module") {
-    runnerContract = "Dynamically imported by source-check; must export ruleId, candidateExtensions, and diagnosticsForRule.";
+    runnerContract =
+      "Dynamically imported by source-check; must export ruleId, candidateExtensions, and diagnosticsForRule.";
     summary = surface.path.startsWith(".habitat/_support/execution/source-check/adapters/")
       ? "Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload."
       : "Transitional source-check adapter: the runner imports this module, while diagnosticsForRule carries the predicate payload. Regexes/path checks are policy predicates unless they reference auxiliary support files.";
   } else if (surface.surfaceKind === "rule-json") {
     runnerContract = "Read by Habitat registry/catalog loading; not policy authority by itself.";
-    summary = "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.";
+    summary =
+      "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.";
   } else if (surface.surfaceKind === "pattern" || surface.surfaceKind === "apply-pattern") {
-    summary = "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.";
+    summary =
+      "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.";
   } else if (surface.surfaceKind === "structure-spec") {
-    summary = "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.";
+    summary =
+      "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.";
   } else if (surface.surfaceKind === "check-script") {
-    summary = "Command-check executable surface invoked through Habitat metadata or direct references.";
+    summary =
+      "Command-check executable surface invoked through Habitat metadata or direct references.";
   } else if (surface.surfaceKind === "fix-script" || surface.surfaceKind === "generate-script") {
-    summary = "Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.";
+    summary =
+      "Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.";
   } else if (surface.surfaceKind === "package-script" || surface.surfaceKind === "nx-target") {
     summary = "Workspace entrypoint that may invoke Habitat or package-local work.";
   } else if (surface.surfaceKind === "habitat-cli-source") {
@@ -665,8 +737,10 @@ function anatomyForSurface(
 function classifyBuckets(surface: Omit<SurfaceRecord, "buckets">): Bucket[] {
   const buckets = new Set<Bucket>();
   if (surface.invokedBy.includes("habitat")) buckets.add("habitat_invoked");
-  if (surface.invokedBy.includes("package") || surface.invokedBy.includes("nx")) buckets.add("package_invoked");
-  if (surface.invokedBy.includes("direct-script") || surface.isDirectEntrypoint) buckets.add("direct_script_invoked");
+  if (surface.invokedBy.includes("package") || surface.invokedBy.includes("nx"))
+    buckets.add("package_invoked");
+  if (surface.invokedBy.includes("direct-script") || surface.isDirectEntrypoint)
+    buckets.add("direct_script_invoked");
 
   const tieText = surface.staticTies.all.map((tie) => tie.value).join("\n");
   if (
@@ -685,14 +759,19 @@ function classifyBuckets(surface: Omit<SurfaceRecord, "buckets">): Bucket[] {
   if (
     orderingPatterns.some((pattern) => tieText.includes(pattern)) ||
     surface.nxTarget?.dependsOn.length ||
-    (surface.nxTarget?.command && orderingPatterns.some((pattern) => surface.nxTarget?.command?.includes(pattern)))
+    (surface.nxTarget?.command &&
+      orderingPatterns.some((pattern) => surface.nxTarget?.command?.includes(pattern)))
   ) {
     buckets.add("nx_ordering_tie");
   }
-  if (surface.staticTies.knownMutationVerbs.length > 0 || /(?:fix|generate)/.test(surface.surfaceKind)) {
+  if (
+    surface.staticTies.knownMutationVerbs.length > 0 ||
+    /(?:fix|generate)/.test(surface.surfaceKind)
+  ) {
     buckets.add("mutation_surface");
   }
-  if (surface.invokedBy.length === 0 || surface.invokedBy.includes("unknown")) buckets.add("unknown_invocation");
+  if (surface.invokedBy.length === 0 || surface.invokedBy.includes("unknown"))
+    buckets.add("unknown_invocation");
   return [...buckets].sort();
 }
 
@@ -763,7 +842,8 @@ function discoverHabitatSurfaces(repoRoot: string): SurfaceRecord[] {
       } else if (["rule-module", "check-script", "fix-script", "generate-script"].includes(kind)) {
         ties.push(...analyzeScriptLike(filePath, relPath, text));
       } else {
-        for (const match of text.matchAll(/`([^`]+)`/g)) collectStringLiteralTies(ties, match[1] ?? "");
+        for (const match of text.matchAll(/`([^`]+)`/g))
+          collectStringLiteralTies(ties, match[1] ?? "");
       }
 
       const input = {
@@ -829,14 +909,17 @@ function discoverNxSurfaces(repoRoot: string): SurfaceRecord[] {
   const surfaces: SurfaceRecord[] = [];
   const nxJsonPath = path.join(repoRoot, "nx.json");
   if (fs.existsSync(nxJsonPath)) {
-    const nxJson = readJson<{ targetDefaults?: Record<string, { dependsOn?: unknown }>; plugins?: unknown[] }>(
-      nxJsonPath
-    );
-    for (const [targetName, config] of Object.entries(nxJson.targetDefaults ?? {}).sort(([left], [right]) =>
-      left.localeCompare(right)
+    const nxJson = readJson<{
+      targetDefaults?: Record<string, { dependsOn?: unknown }>;
+      plugins?: unknown[];
+    }>(nxJsonPath);
+    for (const [targetName, config] of Object.entries(nxJson.targetDefaults ?? {}).sort(
+      ([left], [right]) => left.localeCompare(right)
     )) {
       const ties: StaticTie[] = [];
-      const dependsOn = Array.isArray(config.dependsOn) ? config.dependsOn.map((item) => JSON.stringify(item)) : [];
+      const dependsOn = Array.isArray(config.dependsOn)
+        ? config.dependsOn.map((item) => JSON.stringify(item))
+        : [];
       for (const dep of dependsOn) addTie(ties, "nx-depends-on", dep);
       surfaces.push(
         createSurface({
@@ -883,13 +966,15 @@ function discoverNxSurfaces(repoRoot: string): SurfaceRecord[] {
       name?: string;
       targets?: Record<string, { command?: string; executor?: string; dependsOn?: unknown }>;
     }>(filePath);
-    for (const [targetName, target] of Object.entries(project.targets ?? {}).sort(([left], [right]) =>
-      left.localeCompare(right)
+    for (const [targetName, target] of Object.entries(project.targets ?? {}).sort(
+      ([left], [right]) => left.localeCompare(right)
     )) {
       const ties: StaticTie[] = [];
       if (target.command) collectStringLiteralTies(ties, target.command);
       if (target.executor) addTie(ties, "shell-command", target.executor);
-      const dependsOn = Array.isArray(target.dependsOn) ? target.dependsOn.map((item) => JSON.stringify(item)) : [];
+      const dependsOn = Array.isArray(target.dependsOn)
+        ? target.dependsOn.map((item) => JSON.stringify(item))
+        : [];
       for (const dep of dependsOn) addTie(ties, "nx-depends-on", dep);
       const isDirectHabitat = Boolean(target.command?.includes(".habitat/"));
       surfaces.push(
@@ -974,7 +1059,9 @@ function directHabitatPaths(surface: SurfaceRecord): string[] {
 function markReferencedHabitatFiles(surfaces: SurfaceRecord[]): SurfaceRecord[] {
   const byId = new Map(surfaces.map((surface) => [surface.id, surface]));
   const habitatByPath = new Map(
-    surfaces.filter((surface) => surface.path.startsWith(".habitat/")).map((surface) => [surface.path, surface.id])
+    surfaces
+      .filter((surface) => surface.path.startsWith(".habitat/"))
+      .map((surface) => [surface.path, surface.id])
   );
   const habitatPathPattern = /\.habitat\/[A-Za-z0-9_./@:-]+/g;
   for (const surface of surfaces) {
@@ -985,7 +1072,13 @@ function markReferencedHabitatFiles(surfaces: SurfaceRecord[]): SurfaceRecord[] 
         if (!targetId) continue;
         const target = byId.get(targetId);
         if (!target) continue;
-        byId.set(targetId, addInvokedBy(target, surface.surfaceKind === "package-script" ? "package" : "direct-script"));
+        byId.set(
+          targetId,
+          addInvokedBy(
+            target,
+            surface.surfaceKind === "package-script" ? "package" : "direct-script"
+          )
+        );
       }
     }
   }
@@ -1033,7 +1126,11 @@ function fanout(surfaces: SurfaceRecord[]) {
       const normalizedTie = normalizeFanoutTie(tie);
       if (["node-builtin", "external", "unknown"].includes(normalizedTie.targetClass)) continue;
       const key = `${normalizedTie.targetClass}:${normalizedTie.target}`;
-      const existing = groups.get(key) ?? { targetClass: normalizedTie.targetClass, count: 0, sources: new Set<string>() };
+      const existing = groups.get(key) ?? {
+        targetClass: normalizedTie.targetClass,
+        count: 0,
+        sources: new Set<string>(),
+      };
       existing.count += 1;
       existing.sources.add(surface.id);
       groups.set(key, existing);
@@ -1047,18 +1144,24 @@ function fanout(surfaces: SurfaceRecord[]) {
       sourceCount: value.sources.size,
       sampleSources: [...value.sources].sort().slice(0, 10),
     }))
-    .sort((left, right) => right.sourceCount - left.sourceCount || right.references - left.references || left.target.localeCompare(right.target));
+    .sort(
+      (left, right) =>
+        right.sourceCount - left.sourceCount ||
+        right.references - left.references ||
+        left.target.localeCompare(right.target)
+    );
 }
 
 function normalizeFanoutTie(tie: StaticTie): { target: string; targetClass: string } {
   if (
-    tie.value.includes("preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs") ||
+    tie.value.includes(
+      "preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs"
+    ) ||
     tie.value.includes("_support/execution/source-check/runtime/rule-runtime.policy.mjs") ||
     tie.value.endsWith("rule-runtime.policy.mjs")
   ) {
     return {
-      target:
-        ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
+      target: ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
       targetClass: "habitat-support",
     };
   }
@@ -1070,13 +1173,15 @@ function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
   const errors: string[] = [];
   const ruleJsonCount = surfaces.filter((surface) => surface.surfaceKind === "rule-json").length;
   const activeSourceCheckRuleCount = surfaces.filter(
-    (surface) =>
-      surface.surfaceKind === "rule-json" && surface.declaredOwnerTool === "source-check"
+    (surface) => surface.surfaceKind === "rule-json" && surface.declaredOwnerTool === "source-check"
   ).length;
-  const ruleModuleCount = surfaces.filter((surface) => surface.surfaceKind === "rule-module").length;
+  const ruleModuleCount = surfaces.filter(
+    (surface) => surface.surfaceKind === "rule-module"
+  ).length;
   const ruleModules = surfaces.filter((surface) => surface.surfaceKind === "rule-module");
   const transitionalRuleModules = surfaces.filter(
-    (surface) => surface.surfaceKind === "rule-module" && surface.buckets.includes("transitional_runtime_tie")
+    (surface) =>
+      surface.surfaceKind === "rule-module" && surface.buckets.includes("transitional_runtime_tie")
   ).length;
   const expectedRuleModuleExports = ruleModules.filter(
     (surface) => surface.anatomy.ruleModule?.hasExpectedExportShape
@@ -1105,36 +1210,50 @@ function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
     );
   }
   if (transitionalRuleModules !== activeSourceCheckRuleCount) {
-    errors.push(`Expected ${activeSourceCheckRuleCount} transitional source-check runtime imports, found ${transitionalRuleModules}.`);
+    errors.push(
+      `Expected ${activeSourceCheckRuleCount} transitional source-check runtime imports, found ${transitionalRuleModules}.`
+    );
   }
   if (expectedRuleModuleExports !== activeSourceCheckRuleCount) {
-    errors.push(`Expected ${activeSourceCheckRuleCount} .rule.mjs files with ruleId/candidateExtensions/diagnosticsForRule exports, found ${expectedRuleModuleExports}.`);
+    errors.push(
+      `Expected ${activeSourceCheckRuleCount} .rule.mjs files with ruleId/candidateExtensions/diagnosticsForRule exports, found ${expectedRuleModuleExports}.`
+    );
   }
   if (anatomyRuntimeImports !== activeSourceCheckRuleCount) {
-    errors.push(`Expected ${activeSourceCheckRuleCount} .rule.mjs anatomy runtime imports, found ${anatomyRuntimeImports}.`);
+    errors.push(
+      `Expected ${activeSourceCheckRuleCount} .rule.mjs anatomy runtime imports, found ${anatomyRuntimeImports}.`
+    );
   }
   if (!rootDocsProject) errors.push("Did not detect root docs:project direct .habitat call.");
-  if (!toolkitGenerateSchemas) errors.push("Did not detect tools/habitat generate:schemas direct .habitat call.");
+  if (!toolkitGenerateSchemas)
+    errors.push("Did not detect tools/habitat generate:schemas direct .habitat call.");
   return errors;
 }
 
 function packageCurrentnessChecks(surfaces: SurfaceRecord[]): SurfaceRecord[] {
   return surfaces.filter((surface) => {
     if (!surface.path.startsWith(".habitat/")) return false;
-    if (!["check-script", "rule-json", "package-script", "nx-target"].includes(surface.surfaceKind)) return false;
+    if (!["check-script", "rule-json", "package-script", "nx-target"].includes(surface.surfaceKind))
+      return false;
     const text = [
       ...(surface.detectCommand ?? []),
       ...surface.staticTies.childProcessCalls,
       ...surface.staticTies.shellCommandCalls,
       ...surface.staticTies.directHabitatPathCalls,
-      ...surface.staticTies.all.filter((tie) => tie.kind === "path-reference").map((tie) => tie.value),
+      ...surface.staticTies.all
+        .filter((tie) => tie.kind === "path-reference")
+        .map((tie) => tie.value),
     ].join("\n");
     return /(bun run --cwd|nx |generated|current|fresh|dist\/|build|gen:|ensure:)/.test(text);
   });
 }
 
 function staleDetectTargets(surfaces: SurfaceRecord[]) {
-  const habitatPaths = new Set(surfaces.filter((surface) => surface.path.startsWith(".habitat/")).map((surface) => surface.path));
+  const habitatPaths = new Set(
+    surfaces
+      .filter((surface) => surface.path.startsWith(".habitat/"))
+      .map((surface) => surface.path)
+  );
   return surfaces
     .filter((surface) => surface.surfaceKind === "rule-json")
     .flatMap((surface) =>
@@ -1171,7 +1290,10 @@ function ruleModuleRuntimeHelperFanout(surfaces: readonly SurfaceRecord[]) {
       sourceCount: sourcePaths.size,
       sampleSources: [...sourcePaths].sort().slice(0, 5),
     }))
-    .sort((left, right) => right.sourceCount - left.sourceCount || left.helper.localeCompare(right.helper));
+    .sort(
+      (left, right) =>
+        right.sourceCount - left.sourceCount || left.helper.localeCompare(right.helper)
+    );
 }
 
 function ruleModuleAnatomySummary(surfaces: readonly SurfaceRecord[]) {
@@ -1206,8 +1328,14 @@ function markdownTable(headers: string[], rows: string[][]): string {
 }
 
 function renderMarkdown(report: ReturnType<typeof buildReport>): string {
-  const byKindRows = Object.entries(report.summary.surfacesByKind).map(([kind, count]) => [kind, String(count)]);
-  const byRoleRows = Object.entries(report.summary.surfacesByRole).map(([role, count]) => [role, String(count)]);
+  const byKindRows = Object.entries(report.summary.surfacesByKind).map(([kind, count]) => [
+    kind,
+    String(count),
+  ]);
+  const byRoleRows = Object.entries(report.summary.surfacesByRole).map(([role, count]) => [
+    role,
+    String(count),
+  ]);
   const anatomyRows = Object.entries(report.executionAnatomy.roleCounts).map(([role, count]) => [
     role,
     String(count),
@@ -1218,8 +1346,13 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     String(support.virtualFilenames.length),
     String(support.lineCount),
   ]);
-  const invokerRows = Object.entries(report.summary.entrypointsByInvoker).map(([invoker, count]) => [invoker, String(count)]);
-  const bucketRows = Object.entries(report.summary.surfacesByBucket).map(([bucket, count]) => [bucket, String(count)]);
+  const invokerRows = Object.entries(report.summary.entrypointsByInvoker).map(
+    ([invoker, count]) => [invoker, String(count)]
+  );
+  const bucketRows = Object.entries(report.summary.surfacesByBucket).map(([bucket, count]) => [
+    bucket,
+    String(count),
+  ]);
 
   const directRows = report.directPackageRootScriptsCallingHabitatInternals.map((surface) => [
     surface.packageScript?.packagePath ?? surface.path,
@@ -1227,34 +1360,48 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     surface.packageScript?.command ?? surface.nxTarget?.command ?? "",
   ]);
 
-  const transitionRows = report.ruleModulesImportingTransitionalRuntime.map((surface) => [surface.path]);
-  const currentnessRows = report.checksInvokingOrRecommendingPackageCurrentnessCommands.map((surface) => [
+  const transitionRows = report.ruleModulesImportingTransitionalRuntime.map((surface) => [
     surface.path,
-    surface.surfaceKind,
-    surface.detectCommand?.join("; ") || surface.packageScript?.command || surface.nxTarget?.command || surface.staticTies.shellCommandCalls.join("; "),
   ]);
+  const currentnessRows = report.checksInvokingOrRecommendingPackageCurrentnessCommands.map(
+    (surface) => [
+      surface.path,
+      surface.surfaceKind,
+      surface.detectCommand?.join("; ") ||
+        surface.packageScript?.command ||
+        surface.nxTarget?.command ||
+        surface.staticTies.shellCommandCalls.join("; "),
+    ]
+  );
   const unknownRows = report.unknownUnclassifiedSurfaces.map((surface) => [
     surface.path,
     surface.surfaceKind,
-    surface.staticTies.all.slice(0, 3).map((tie) => tie.value).join("; "),
+    surface.staticTies.all
+      .slice(0, 3)
+      .map((tie) => tie.value)
+      .join("; "),
   ]);
   const staleDetectRows = report.staleDetectTargets.map((target) => [
     target.rulePath,
     target.ownerTool,
     target.missingDetectTarget,
   ]);
-  const fanoutRows = report.topCrossBoundaryTiesByFanout.slice(0, 25).map((entry) => [
-    entry.targetClass,
-    entry.target,
-    String(entry.sourceCount),
-    String(entry.references),
-    entry.sampleSources.slice(0, 3).join("<br>"),
-  ]);
-  const helperRows = report.executionAnatomy.ruleModule.runtimeHelperFanout.slice(0, 25).map((entry) => [
-    entry.helper,
-    String(entry.sourceCount),
-    entry.sampleSources.slice(0, 3).join("<br>"),
-  ]);
+  const fanoutRows = report.topCrossBoundaryTiesByFanout
+    .slice(0, 25)
+    .map((entry) => [
+      entry.targetClass,
+      entry.target,
+      String(entry.sourceCount),
+      String(entry.references),
+      entry.sampleSources.slice(0, 3).join("<br>"),
+    ]);
+  const helperRows = report.executionAnatomy.ruleModule.runtimeHelperFanout
+    .slice(0, 25)
+    .map((entry) => [
+      entry.helper,
+      String(entry.sourceCount),
+      entry.sampleSources.slice(0, 3).join("<br>"),
+    ]);
   const ruleModuleRows = report.surfaces
     .filter((surface) => surface.surfaceKind === "rule-module")
     .map((surface) => [
@@ -1273,7 +1420,7 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Sanity Assertions",
     "",
     report.summary.sanityAssertions.length === 0
-      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`.rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`.structure.toml\`, ${report.executionAnatomy.ruleModule.total} active source-check \`.rule.mjs\`, ${report.executionAnatomy.ruleModule.transitionalRuntimeImports} transitional runtime imports, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
+      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`structure.toml\`, ${report.executionAnatomy.ruleModule.total} active source-check \`.rule.mjs\`, ${report.executionAnatomy.ruleModule.transitionalRuntimeImports} transitional runtime imports, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
       : report.summary.sanityAssertions.map((issue) => `- ${issue}`).join("\n"),
     "",
     "## Surfaces By Kind",
@@ -1296,7 +1443,10 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     markdownTable(["runtime helper", "module count", "sample modules"], helperRows),
     "## `.rule.mjs` Module Details",
     "",
-    markdownTable(["path", "candidate extensions", "runtime helpers", "regex literals", "support signals"], ruleModuleRows),
+    markdownTable(
+      ["path", "candidate extensions", "runtime helpers", "regex literals", "support signals"],
+      ruleModuleRows
+    ),
     "## Fixture/Support Files",
     "",
     markdownTable(["path", "support file", "virtual filenames", "lines"], supportRows),
@@ -1308,7 +1458,10 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     markdownTable(["bucket", "count"], bucketRows),
     "## Top Cross-Boundary Ties By Fanout",
     "",
-    markdownTable(["target class", "target", "source count", "references", "sample sources"], fanoutRows),
+    markdownTable(
+      ["target class", "target", "source count", "references", "sample sources"],
+      fanoutRows
+    ),
     "## Direct Package Or Root Scripts Calling `.habitat` Internals",
     "",
     markdownTable(["package", "script", "command"], directRows),
@@ -1419,7 +1572,9 @@ function buildReport(surfaces: SurfaceRecord[], supportFiles: SupportFileRecord[
     .filter((surface) => surface.surfaceKind === "rule-module")
     .filter((surface) => surface.buckets.includes("transitional_runtime_tie"))
     .sort((left, right) => left.path.localeCompare(right.path));
-  const currentness = packageCurrentnessChecks(surfaces).sort((left, right) => left.id.localeCompare(right.id));
+  const currentness = packageCurrentnessChecks(surfaces).sort((left, right) =>
+    left.id.localeCompare(right.id)
+  );
   const unknown = surfaces
     .filter((surface) => surface.buckets.includes("unknown_invocation"))
     .sort((left, right) => left.id.localeCompare(right.id));
@@ -1467,7 +1622,9 @@ function main(): void {
   const supportFiles = discoverSupportFiles(args.repoRoot);
   const report = buildReport(allSurfaces, supportFiles);
   if (report.summary.sanityAssertions.length > 0) {
-    throw new Error(`Execution surface map sanity assertions failed:\n${report.summary.sanityAssertions.join("\n")}`);
+    throw new Error(
+      `Execution surface map sanity assertions failed:\n${report.summary.sanityAssertions.join("\n")}`
+    );
   }
 
   fs.mkdirSync(path.dirname(args.outJson), { recursive: true });

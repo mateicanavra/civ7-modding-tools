@@ -37,7 +37,41 @@ describe("check and baseline provider boundaries", () => {
         return commandResult(
           argv,
           options.cwd,
-          ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/existing-rule.rule.json\n"
+          ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json\n"
+        );
+      }
+      if (
+        argv[0] === "show" &&
+        argv[1] ===
+          "merge-base-sha:.habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json"
+      ) {
+        return commandResult(
+          argv,
+          options.cwd,
+          JSON.stringify(
+            {
+              schemaVersion: 2,
+              id: "existing-rule",
+              title: "Existing Rule",
+              placement: {
+                niche: "global/workspace",
+                blueprint: "project-boundary-model",
+                category: "structure",
+              },
+              operation: { kind: "check" },
+              ownerProject: "habitat",
+              lane: "enforced",
+              runner: {
+                name: "grit",
+                files: {
+                  pattern:
+                    ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/pattern.md",
+                },
+              },
+            },
+            null,
+            2
+          )
         );
       }
       if (
@@ -82,6 +116,10 @@ describe("check and baseline provider boundaries", () => {
         "merge-base-sha:tools/habitat/src/service/model/check/policy/rule-runtime/rules.json",
       ],
       ["ls-tree", "-r", "--name-only", "merge-base-sha", ".habitat"],
+      [
+        "show",
+        "merge-base-sha:.habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json",
+      ],
       ["show", "merge-base-sha:.habitat/baselines/existing-rule.json"],
     ]);
   });
@@ -109,7 +147,7 @@ describe("check and baseline provider boundaries", () => {
 
   test("staged file-layer checks render GitProvider failures as diagnostics", async () => {
     const fileLayerRule = makeTestHabitatServiceDeps().rules.selector.find(
-      (rule) => rule.ownerTool === "file-layer"
+      (rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer"
     );
     expect(fileLayerRule).toBeDefined();
     const gitCalls: string[][] = [];
@@ -148,9 +186,9 @@ describe("check and baseline provider boundaries", () => {
 function baselineRule(id: string) {
   return {
     id,
-    exceptionPath: "none",
+    baselinePath: `.habitat/baselines/${id}.json`,
     ownerProject: "habitat",
-    ownerTool: "source-check",
+    runner: "grit",
   } as const;
 }
 

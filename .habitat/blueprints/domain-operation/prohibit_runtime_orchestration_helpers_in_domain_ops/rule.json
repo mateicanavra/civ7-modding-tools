@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_runtime_orchestration_helpers_in_domain_ops",
+  "title": "Prohibit Runtime Orchestration Helpers In Domain Ops",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain op runtime entrypoints calling ops.bind or runValidated",
+  "why": "Domain ops are atomic runtime units; orchestration belongs in step/stage composition, not inside op entrypoints.",
+  "remediate": null,
+  "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md"
+    },
+    "patternName": "prohibit_runtime_orchestration_helpers_in_domain_ops"
+  }
+}

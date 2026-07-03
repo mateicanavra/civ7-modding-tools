@@ -1,5 +1,5 @@
 import {
-  candidateArtifactPaths,
+  candidateAuthorityPaths,
   patternGenerator,
 } from "@habitat/cli/generators/scaffold/pattern/support/generator";
 import type { RegisteredPatternManifest } from "@habitat/cli/service/modules/fix/model/dto/index";
@@ -11,26 +11,24 @@ import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
 
-const rulesPath = ".habitat/rules";
-const indexPath = `${rulesPath}/index.json`;
-const registeredRulePath = ".habitat";
+const indexPath = ".habitat/index.json";
 
 describe("Habitat pattern generator", () => {
-  test("creates candidate artifacts without registering active enforcement state", async () => {
+  test("creates candidate authority files without registering active enforcement state", async () => {
     const tree = createPatternTree();
 
     await patternGenerator(tree, { ruleId: "dra-metadata-probe" });
 
-    const candidatePaths = candidateArtifactPaths({
+    const candidatePaths = candidateAuthorityPaths({
       ruleId: "dra-metadata-probe",
       patternName: "dra_metadata_probe",
     });
     expect(tree.exists(candidatePaths.patternPath)).toBe(true);
     expect(tree.exists(candidatePaths.manifestPath)).toBe(true);
     expect(tree.exists(".habitat/patterns/checks/dra_metadata_probe.md")).toBe(false);
-    expect(tree.exists(".habitat/baselines/dra-metadata-probe.json")).toBe(false);
+    expect(tree.exists(".habitat/docs/rules/dra-metadata-probe/rule.json")).toBe(false);
     expect(readJson(tree, indexPath)).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       ownerRoots: { habitat: "tools/habitat" },
     });
 
@@ -41,7 +39,7 @@ describe("Habitat pattern generator", () => {
       patternName: "dra_metadata_probe",
       lifecycle: "candidate",
       openspecChangeId: "habitat-pattern-generator-metadata-repair",
-      ownerTool: "source-check",
+      patternRole: "diagnostic",
       registration: { accepted: false },
     });
     expect(
@@ -270,7 +268,7 @@ describe("Habitat pattern generator", () => {
       }),
     });
 
-    const candidatePaths = candidateArtifactPaths({
+    const candidatePaths = candidateAuthorityPaths({
       ruleId: "new-probe",
       patternName: "existing_probe",
     });
@@ -283,9 +281,10 @@ describe("Habitat pattern generator", () => {
     expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
   });
 
-  test("refuses candidate generation when an active baseline already exists", async () => {
-    const tree = createPatternTree();
-    tree.write(".habitat/baselines/existing-baseline.json", "[]\n");
+  test("refuses candidate generation when an active manifest id already exists elsewhere", async () => {
+    const tree = createPatternTree({
+      ...emptyRuleRegistryDocument([existingRegistryRule("existing-baseline")]),
+    });
     const beforeIndex = tree.read(indexPath, "utf8");
 
     await expect(patternGenerator(tree, { ruleId: "existing-baseline" })).rejects.toMatchObject({
@@ -295,14 +294,13 @@ describe("Habitat pattern generator", () => {
       }),
     });
 
-    const candidatePaths = candidateArtifactPaths({
+    const candidatePaths = candidateAuthorityPaths({
       ruleId: "existing-baseline",
       patternName: "existing_baseline",
     });
     expect(tree.exists(candidatePaths.patternPath)).toBe(false);
     expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
     expect(tree.exists(".habitat/patterns/manifests/existing-baseline.json")).toBe(false);
-    expect(tree.read(".habitat/baselines/existing-baseline.json", "utf8")).toBe("[]\n");
     expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
   });
 });
@@ -315,7 +313,7 @@ function createPatternTree(
     indexPath,
     `${JSON.stringify(
       {
-        schemaVersion: 1,
+        schemaVersion: 2,
         ownerRoots: rulesJson.ownerRoots,
       },
       null,
@@ -325,14 +323,14 @@ function createPatternTree(
   for (const rule of rulesJson.rules) {
     const id = (rule as { id?: unknown }).id;
     if (typeof id !== "string") continue;
-    tree.write(`${registeredRulePath}/${id}/rule.json`, `${JSON.stringify(rule, null, 2)}\n`);
+    tree.write(`.habitat/docs/rules/${id}/rule.json`, `${JSON.stringify(rule, null, 2)}\n`);
   }
   return tree;
 }
 
 function emptyRuleRegistryDocument(rules: unknown[] = []) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     ownerRoots: {
       habitat: "tools/habitat",
     },
@@ -342,18 +340,33 @@ function emptyRuleRegistryDocument(rules: unknown[] = []) {
 
 function existingRegistryRule(ruleId: string) {
   return {
+    schemaVersion: 2,
     id: ruleId,
-    ownerTool: "command-check",
+    title: ruleId,
+    placement: {
+      niche: "docs",
+      blueprint: "_self",
+      category: "quality",
+    },
+    operation: { kind: "check" },
     ownerProject: "habitat",
     lane: "enforced",
-    scope: "workspace",
     forbids: "test fixture",
     why: "test fixture",
-    detect: ["habitat", "check", "--rule", ruleId],
     remediate: null,
     message: "test fixture",
-    exceptionPath: "none",
     pathCoverage: [{ kind: "project-owner" }],
+    supportFiles: {
+      baseline: `.habitat/docs/rules/${ruleId}/baseline.json`,
+    },
+    runner: {
+      name: "habitat",
+      mode: "script",
+      files: {
+        script: `.habitat/docs/rules/${ruleId}/check.mjs`,
+      },
+      runtime: "node",
+    },
   };
 }
 
@@ -363,12 +376,11 @@ function assertNoGeneratedArtifacts(
   patternName: string,
   beforeIndex: string | null
 ) {
-  const candidatePaths = candidateArtifactPaths({ ruleId, patternName });
+  const candidatePaths = candidateAuthorityPaths({ ruleId, patternName });
   expect(tree.exists(candidatePaths.patternPath)).toBe(false);
   expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
   expect(tree.exists(`.habitat/patterns/manifests/${ruleId}.json`)).toBe(false);
   expect(tree.exists(`.habitat/patterns/checks/${patternName}.md`)).toBe(false);
-  expect(tree.exists(`.habitat/baselines/${ruleId}.json`)).toBe(false);
   expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
 }
 
@@ -379,7 +391,7 @@ function assertNoPromotionWrites(
   manifestPath: string,
   beforeManifest: string | null
 ) {
-  const candidatePaths = candidateArtifactPaths({
+  const candidatePaths = candidateAuthorityPaths({
     ruleId: manifest.ruleId,
     patternName: manifest.patternName,
   });
@@ -387,7 +399,7 @@ function assertNoPromotionWrites(
   expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
   expect(tree.read(manifestPath, "utf8")).toBe(beforeManifest);
   expect(tree.exists(`.habitat/patterns/checks/${manifest.patternName}.md`)).toBe(false);
-  expect(tree.exists(`.habitat/baselines/${manifest.ruleId}.json`)).toBe(false);
+  expect(tree.exists(`.habitat/docs/rules/${manifest.ruleId}/rule.json`)).toBe(false);
   expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
 }
 
@@ -404,13 +416,13 @@ function registeredManifest(
   overrides: Partial<RegisteredPatternManifest> = {}
 ): RegisteredPatternManifest {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     ruleId: "registration-probe",
     patternName: "registration_probe",
     lifecycle: "registered-advisory",
     openspecChangeId: "habitat-pattern-generator-metadata-repair",
     ownerProject: "habitat",
-    ownerTool: "source-check",
+    patternRole: "diagnostic",
     normativeSources: [
       {
         kind: "accepted-spec",

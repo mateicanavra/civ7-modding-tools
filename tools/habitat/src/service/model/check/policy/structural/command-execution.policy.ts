@@ -19,21 +19,10 @@ import type {
   StructuralNxPort,
 } from "./context.policy.js";
 
-export function executeFormatRulesEffect(
-  formatRules: readonly RuleCommandExecutionFacts[],
-  results: Map<string, RuleExecutionRecord>,
-  context: StructuralExecutionContext
-): Effect.Effect<void, never, any> {
-  return Effect.gen(function* () {
-    const records = yield* Effect.all(
-      formatRules.map((rule) => executeFormatRuleEffect(rule, context)),
-      {
-        concurrency: "unbounded",
-      }
-    );
-    for (const [ruleId, record] of records) results.set(ruleId, record);
-  });
-}
+type ExecutableRuleResultFacts = Pick<
+  RuleCommandExecutionFacts | RuleGraphFacts,
+  "id" | "lane" | "message"
+>;
 
 export function executeCommandRulesEffect(
   commandRules: readonly RuleCommandExecutionFacts[],
@@ -56,48 +45,27 @@ export function executeCommandRulesEffect(
 }
 
 export function executeGraphBackedCommandRulesEffect(
-  rules: readonly RuleCommandExecutionFacts[],
-  graphRulesById: ReadonlyMap<string, RuleGraphFacts>,
+  rules: readonly RuleGraphFacts[],
   results: Map<string, RuleExecutionRecord>,
   context: StructuralExecutionContext
 ): Effect.Effect<void, never, any> {
   if (rules.length === 0) return Effect.void;
-  const groups = groupedGraphBackedCommandRules(rules);
   return Effect.gen(function* () {
-    const groupResults = yield* Effect.all(
-      groups.map((group) => runGraphBackedCommandRuleGroup(group, graphRulesById, context)),
-      { concurrency: "unbounded" }
-    );
+    const groupResults = yield* Effect.all([runGraphBackedCommandRuleGroup(rules, context)], {
+      concurrency: "unbounded",
+    });
     for (const groupResult of groupResults) {
       for (const [ruleId, record] of groupResult) results.set(ruleId, record);
     }
   });
 }
 
-function executeFormatRuleEffect(
-  rule: RuleCommandExecutionFacts,
-  context: StructuralExecutionContext
-): Effect.Effect<[string, RuleExecutionRecord], never, any> {
-  return Effect.gen(function* () {
-    const started = yield* Clock.currentTimeMillis;
-    const result = yield* context.biome.run({ kind: "ci" }).pipe(
-      Effect.match({
-        onFailure: (error) => commandProviderFailureResult(rule, error),
-        onSuccess: (commandResult) => commandRuleResult(rule, commandResult),
-      })
-    );
-    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-    return [rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } }];
-  });
-}
-
 function runGraphBackedCommandRuleGroup(
-  rules: readonly RuleCommandExecutionFacts[],
-  graphRulesById: ReadonlyMap<string, RuleGraphFacts>,
+  rules: readonly RuleGraphFacts[],
   context: StructuralExecutionContext
 ): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
   return Effect.gen(function* () {
-    const targets = graphTargetsForRules(rules, graphRulesById);
+    const targets = graphTargetsForRules(rules);
     const started = yield* Clock.currentTimeMillis;
     const execution = yield* runGraphTargetsEffect(context.nx, targets).pipe(
       Effect.match({
@@ -172,28 +140,14 @@ function uniqueGraphTargets(
   return unique;
 }
 
-function groupedGraphBackedCommandRules(
-  rules: readonly RuleCommandExecutionFacts[]
-): RuleCommandExecutionFacts[][] {
-  const groups = new Map<string, RuleCommandExecutionFacts[]>();
-  for (const rule of rules) {
-    const group = groups.get(rule.ownerTool) ?? [];
-    group.push(rule);
-    groups.set(rule.ownerTool, group);
-  }
-  return [...groups.values()];
-}
-
 function graphTargetsForRules(
-  rules: readonly RuleCommandExecutionFacts[],
-  graphRulesById: ReadonlyMap<string, RuleGraphFacts>
+  rules: readonly RuleGraphFacts[]
 ): Array<{ project: string; target: string }> {
   return rules.map((rule) => {
-    const graphRule = graphRulesById.get(rule.id);
-    if (graphRule?.alias.kind !== "depends-on") {
+    if (rule.alias.kind !== "depends-on") {
       throw new Error(`habitat internal error: missing graph target for ${rule.id}`);
     }
-    return graphRule.alias.target;
+    return rule.alias.target;
   });
 }
 
@@ -210,7 +164,7 @@ function commandRuleExecutionGroups(
 ): CommandRuleExecutionGroup[] {
   const groups = new Map<string, CommandRuleExecutionGroup>();
   for (const rule of rules) {
-    const { executable, argv } = commandInvocationFromDetect(rule.detect);
+    const { executable, argv } = commandInvocationFromRunner(rule.runner);
     const key = JSON.stringify({ executable, argv, cwd: context.repoRoot });
     const current = groups.get(key);
     groups.set(key, {
@@ -223,27 +177,13 @@ function commandRuleExecutionGroups(
   return [...groups.values()];
 }
 
-function commandInvocationFromDetect(detect: readonly string[]): {
+function commandInvocationFromRunner(runner: RuleCommandExecutionFacts["runner"]): {
   readonly executable: string;
   readonly argv: readonly string[];
 } {
-  const executable = detect[0] ?? "";
-  const argv = detect.slice(1);
-  const runner = directScriptRunner(executable);
-  if (!runner) return { executable, argv };
-  return { executable: runner, argv: [executable, ...argv] };
-}
-
-function directScriptRunner(executable: string): "node" | "bash" | "python3" | undefined {
-  if (!isScriptPath(executable)) return undefined;
-  if (/\.(?:mjs|js|cjs)$/u.test(executable)) return "node";
-  if (/\.sh$/u.test(executable)) return "bash";
-  if (/\.py$/u.test(executable)) return "python3";
-  return undefined;
-}
-
-function isScriptPath(value: string): boolean {
-  return value.startsWith(".") || value.startsWith("/") || value.includes("/");
+  if (runner.runtime === "bun") return { executable: "bun", argv: [runner.files.script] };
+  if (runner.runtime === "node") return { executable: "node", argv: [runner.files.script] };
+  return { executable: "bash", argv: [runner.files.script] };
 }
 
 function executeCommandRuleGroupEffect(
@@ -294,7 +234,7 @@ function commandTimingGroupId(group: CommandRuleExecutionGroup): string {
 }
 
 function commandRuleResult(
-  rule: RuleCommandExecutionFacts,
+  rule: ExecutableRuleResultFacts,
   result: HabitatCommandResult
 ): RuleRunResult {
   return {
@@ -308,7 +248,7 @@ function commandRuleResult(
 }
 
 function commandProviderFailureResult(
-  rule: RuleCommandExecutionFacts,
+  rule: ExecutableRuleResultFacts,
   error: unknown
 ): RuleRunResult {
   return {

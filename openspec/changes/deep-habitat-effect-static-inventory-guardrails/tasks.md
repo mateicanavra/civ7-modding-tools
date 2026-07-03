@@ -10,10 +10,10 @@
 
 ## 2. Guardrail Ownership
 
-- [x] 2.1 Record owner and intended artifact path for `Effect.run*` guardrails outside runtime adapters.
-- [x] 2.2 Record owner and intended artifact path for direct process/fs/env/time guardrails outside provider or host-adapter paths.
-- [x] 2.3 Record owner and intended artifact path for broad public barrel and internal export leak guardrails.
-- [x] 2.4 Record owner and intended artifact path for `.habitat` executable-code and product-language leak guardrails.
+- [x] 2.1 Record owner and intended authority path for `Effect.run*` guardrails outside runtime adapters.
+- [x] 2.2 Record owner and intended authority path for direct process/fs/env/time guardrails outside provider or host-adapter paths.
+- [x] 2.3 Record owner and intended authority path for broad public barrel and internal export leak guardrails.
+- [x] 2.4 Record owner and intended authority path for `.habitat` executable-code and product-language leak guardrails.
 
 ## 3. Verification
 

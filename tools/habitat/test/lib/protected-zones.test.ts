@@ -11,11 +11,22 @@ import {
 import { describe, expect, test } from "vitest";
 
 describe("protected zone file-layer execution", () => {
+  const generatedZoneRunner = {
+    name: "habitat",
+    mode: "file-layer",
+    guard: "generated-zone",
+  } as const;
+  const forbiddenFileRunner = {
+    name: "habitat",
+    mode: "file-layer",
+    guard: "forbidden-file-name",
+  } as const;
+
   test("rejects an unknown generated zone before staged no-op behavior", () => {
     const result = runFileLayerProtectedMutationRule({
       id: "file-layer-unknown-zone",
       lane: "enforced",
-      ownerTool: "file-layer",
+      runner: generatedZoneRunner,
       message: "Generated output must be regenerated.",
       generatedZone: "unknown-zone",
     });
@@ -38,7 +49,7 @@ describe("protected zone file-layer execution", () => {
       {
         id: "file-layer-generated-zone",
         lane: "enforced",
-        ownerTool: "file-layer",
+        runner: generatedZoneRunner,
         message: "Generated output must be regenerated.",
         generatedZone: "swooper-map-generated",
       },
@@ -63,13 +74,13 @@ describe("protected zone file-layer execution", () => {
     expect(result.diagnostics[0]?.message).toContain("nx run mod-swooper-maps:gen:maps");
   });
 
-  test("refuses forbidden artifacts separately from generated surfaces", () => {
+  test("refuses forbidden files separately from generated surfaces", () => {
     const result = runFileLayerProtectedMutationRule(
       {
-        id: "file-layer-forbidden-artifact",
+        id: "file-layer-forbidden-file",
         lane: "enforced",
-        ownerTool: "file-layer",
-        message: "pnpm artifacts are forbidden in this Bun-only repo.",
+        runner: forbiddenFileRunner,
+        message: "pnpm files are forbidden in this Bun-only repo.",
         forbiddenFileNames: ["pnpm-lock.yaml"],
       },
       {
@@ -82,9 +93,9 @@ describe("protected zone file-layer execution", () => {
       exitCode: 1,
       diagnostics: [
         {
-          ruleId: "file-layer-forbidden-artifact",
+          ruleId: "file-layer-forbidden-file",
           path: "pnpm-lock.yaml",
-          message: "pnpm artifacts are forbidden in this Bun-only repo.",
+          message: "pnpm files are forbidden in this Bun-only repo.",
           severity: "error",
           baselined: false,
         },
@@ -97,7 +108,7 @@ describe("protected zone file-layer execution", () => {
       {
         id: "file-layer-advisory-generated-zone",
         lane: "advisory",
-        ownerTool: "file-layer",
+        runner: generatedZoneRunner,
         message: "Generated output must be regenerated.",
         generatedZone: "swooper-map-generated",
       },
@@ -128,7 +139,7 @@ describe("protected zone file-layer execution", () => {
     const state = declarationForFileLayerRule({
       id: "file-layer-generated-zone",
       lane: "enforced",
-      ownerTool: "file-layer",
+      runner: generatedZoneRunner,
       message: "Generated output must be regenerated.",
       generatedZone: "swooper-map-generated",
     });

@@ -1,0 +1,9 @@
+import { patternCandidateRoot, patternManifestRoot } from "@habitat/cli/resources/authority-paths";
+
+export { patternCandidateRoot, patternManifestRoot };
+
+export const patternManifestSchemaVersion = 1;
+
+export function patternManifestPath(ruleId: string): string {
+  return `${patternManifestRoot}/${ruleId}.json`;
+}

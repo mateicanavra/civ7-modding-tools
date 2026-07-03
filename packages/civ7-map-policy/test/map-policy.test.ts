@@ -191,7 +191,10 @@ describe("@civ7/map-policy", () => {
       { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number }
     >;
     const width = 84;
-    const cell = (plotIndex: number) => ({ x: plotIndex % width, y: Math.trunc(plotIndex / width) });
+    const cell = (plotIndex: number) => ({
+      x: plotIndex % width,
+      y: Math.trunc(plotIndex / width),
+    });
     const footprint = (featureType: number, x: number, y: number) =>
       getNaturalWonderFootprintIndices({
         x,

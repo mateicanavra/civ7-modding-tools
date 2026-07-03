@@ -2,7 +2,7 @@
 
 ## Frame
 
-D10 is a rugged design space: the current implementation appears simple, but it combines host-specific path data, generated-output policy, forbidden artifacts, staged Git state, native tool exclusions, generated drift checks, hook behavior, and future apply path approval inside loose string records. The acceptance threshold is a packet that makes the state model, owner boundary, public-surface blockers, and downstream projections explicit enough that source implementation cannot keep the old state-space by moving files around.
+D10 is a rugged design space: the current implementation appears simple, but it combines host-specific path data, generated-output policy, forbidden files, staged Git state, native tool exclusions, generated drift checks, hook behavior, and future apply path approval inside loose string records. The acceptance threshold is a packet that makes the state model, owner boundary, public-surface blockers, and downstream projections explicit enough that source implementation cannot keep the old state-space by moving files around.
 
 Falsifier: if an implementation agent can read this packet and still decide the concrete declaration states, owner boundary, D2/G-HOST join, D7/D9/D11 projection shape, D0 blocker, or validation oracle while coding, D10 is not repaired.
 
@@ -10,7 +10,7 @@ Falsifier: if an implementation agent can read this packet and still decide the 
 
 | Current surface | Current role | Target owner | D10 risk |
 | --- | --- | --- | --- |
-| `$HABITAT_TOOL/src/lib/generated-zones.ts` | Hard-coded generated-zone array, staged Git reader, generated-zone matcher, forbidden-file matcher, diagnostic construction. | D10 declaration catalog and guard projection; D2/G-HOST supply upstream facts. | Host paths, forbidden artifacts, guard states, and recovery text are collapsed into one string bag. |
+| `$HABITAT_TOOL/src/lib/generated-zones.ts` | Hard-coded generated-zone array, staged Git reader, generated-zone matcher, forbidden-file matcher, diagnostic construction. | D10 declaration catalog and guard projection; D2/G-HOST supply upstream facts. | Host paths, forbidden files, guard states, and recovery text are collapsed into one string bag. |
 | `$HABITAT_TOOL/src/rules/rules.json` file-layer rows | `generatedZone` strings and `forbiddenFileNames` route checks. | D2 registry projection consumed by D10. | Unknown or malformed facets can remain runtime surprises instead of blocked catalog states. |
 | `$HABITAT_TOOL/src/rules/architecture.ts` | Dispatches `ownerTool: "file-layer"` rules into generated-zone runner. | D7 orchestration consuming D10 projection. | D7 can accidentally own D10 policy if routing stays whole-rule based. |
 | `$HABITAT_TOOL/src/commands/check.ts` and `$HABITAT_TOOL/src/lib/command-engine.ts` | Expose `--staged` and pass staged context. | D7 command/report owner consuming D10. | Public JSON/human output can change without D0/D1 handling. |
@@ -100,7 +100,7 @@ Declaration states:
 - `declared-generated-surface`: generated matcher, generator authority, recovery instruction, optional host declaration reference, and non-claims.
 - `declared-protected-surface`: protected matcher, owner authority, allowed mutation lanes, recovery instruction, and non-claims.
 - `declared-host-owned-surface`: G-HOST supplies owner, path relation, recovery, and host-policy boundary.
-- `declared-forbidden-artifact`: filename/path matcher and removal/remediation instruction.
+- `declared-forbidden-file`: filename/path matcher and removal/remediation instruction.
 - `blocked-unknown-zone-reference`: D2 or caller references a zone id D10 cannot resolve.
 - `blocked-missing-host-declaration`: host-owned surface lacks accepted/live G-HOST declaration.
 - `blocked-declaration-conflict`: declarations overlap or contradict.
@@ -121,7 +121,7 @@ Decision states:
 - `allowed-transaction-write`: D9 transaction presents accepted path-authority input and D10 declarations allow the touched surface.
 - `refused-direct-protected-edit`: direct mutation touches protected/generated/host-owned surface without an allowed lane.
 - `refused-direct-generated-edit`: direct mutation touches generated surface outside generator lane.
-- `refused-forbidden-artifact`: mutation introduces or changes forbidden artifact.
+- `refused-forbidden-file`: mutation introduces or changes forbidden file.
 - `blocked-unknown-zone`, `blocked-missing-host-declaration`, `blocked-declaration-conflict`, and `blocked-public-compatibility-missing`.
 
 Every refusal and blocked decision carries owner, recovery instruction, and D1 non-claim mapping. Required non-empty facts, such as conflicts, affected paths, recovery targets, and missing surface rows, must not be modeled as ordinary arrays that can be empty in a state that requires them.

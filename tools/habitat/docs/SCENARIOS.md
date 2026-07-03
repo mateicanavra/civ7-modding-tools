@@ -158,8 +158,10 @@ Supported outcome:
 
 - accepted manifest is validated;
 - baseline contract is validated;
-- active check pattern is written;
-- `rules.json` is updated;
+- live registration writes are refused by the candidate generator;
+- accepted active rules must be authored as location-independent `rule.json`
+  manifests with explicit runner and artifact references through pattern
+  management;
 
 This supports disciplined rule admission. It does not decide whether the pattern
 is useful; the manifest and review must establish that.

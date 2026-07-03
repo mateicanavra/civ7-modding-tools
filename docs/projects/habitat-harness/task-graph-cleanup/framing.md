@@ -189,7 +189,7 @@ runtime service id.
 | `civ-mod-dacia` | `mod-dacia` | Runtime package/mod id remains unchanged. |
 | `mod-civ7-intelligence-bridge` | `mod-intelligence-bridge` | Runtime package/mod id remains unchanged. |
 | `@habitat/cli` | `habitat` | Package, import, bin, and generator identities remain `@habitat/cli` / `habitat`. |
-| `@internal/habitat-artifacts` | `habitat-artifacts` | Generated artifact topology node. |
+| `@internal/habitat-authority` | `habitat-authority` | Generated artifact topology node. |
 | `@habitat/cli-cli` | `habitat-cli` | Generated Habitat topology node. |
 | `@habitat/cli-service-shell` | `habitat-service` | Generated Habitat topology node. |
 | `@habitat/cli-service-model` | `habitat-service-model` | Generated Habitat topology node. |
@@ -210,7 +210,7 @@ runtime service id.
 - Update `nx.json`, explicit `project.json` dependencies, CI workflows, active
   command docs, Habitat rule metadata, remediation strings, and tests that
   assert Nx task ids.
-- Update `tools/habitat/src/nx-plugin.ts`, Habitat artifact paths, boundary
+- Update `tools/habitat/src/nx-plugin.ts`, Habitat authority paths, boundary
   taxonomy policy, taxonomy docs, and taxonomy/classify tests for generated
   Habitat topology names.
 - Audit old names only in graph/command contexts. Expected remaining old-name

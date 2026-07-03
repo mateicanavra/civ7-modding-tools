@@ -23,7 +23,7 @@ const RuleCoverageKindSchema = Type.Union([
 const RuleRoutingSchema = Type.Object(
   {
     ruleId: Type.String({ minLength: 1 }),
-    ownerTool: Type.String({ minLength: 1 }),
+    runner: Type.String({ minLength: 1 }),
     ownerProject: Type.String({ minLength: 1 }),
     coverageKind: RuleCoverageKindSchema,
     reason: Type.String({ minLength: 1 }),

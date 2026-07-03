@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_domain_artifacts_modules",
+  "title": "Prohibit Domain Artifacts Modules",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "artifacts.ts modules under domain source",
+  "why": "Domain artifact catalogs are retired in favor of owned public domain surfaces.",
+  "remediate": "Remove domain artifacts.ts modules and route artifact ownership through current public surfaces.",
+  "message": "Domain artifacts.ts modules are retired.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/artifacts.ts"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/prohibit_domain_artifacts_modules/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain/prohibit_domain_artifacts_modules/structure.toml"
+    }
+  }
+}

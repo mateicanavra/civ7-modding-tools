@@ -118,9 +118,7 @@ function selectedRuleIds(report: CheckReport): string[] {
 }
 
 function builtInRules(report: CheckReport): RuleReport[] {
-  return report.rules.filter(
-    (rule) => rule.ownerTool === "habitat-builtin" && rule.detect.includes("(built-in)")
-  );
+  return report.rules.filter((rule) => rule.ruleId === "baseline-integrity");
 }
 
 function failedRules(report: CheckReport): RuleReport[] {
@@ -166,7 +164,7 @@ function hasBaselineRefusal(report: CheckReport): boolean {
 function hasGritProviderFailure(report: CheckReport): boolean {
   return report.rules.some(
     (rule) =>
-      (rule.ownerTool === "source-check" || rule.ownerTool === "grit-check") &&
+      rule.runner === "grit" &&
       rule.diagnostics.some(
         (diagnostic) => parseGritProviderFailureKind(diagnostic.message) !== null
       )

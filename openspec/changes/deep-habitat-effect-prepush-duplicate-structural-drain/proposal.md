@@ -19,11 +19,11 @@ the slow-path smell alive.
   Habitat tooling source-edit path.
 - Keep distinct affected structural guards that are not Habitat rule
   re-entry: boundary taxonomy and native Grit pattern fixture validation.
-- Preserve artifact-only and ordinary repo pre-push target planning.
+- Preserve authority-only and ordinary repo pre-push target planning.
 
 ## Non-Goals
 
-- Do not weaken artifact-only validation.
+- Do not weaken authority-only validation.
 - Do not remove ordinary repo affected `check`.
 - Do not add structural topology tests.
 - Do not hide slow work behind longer timeouts.

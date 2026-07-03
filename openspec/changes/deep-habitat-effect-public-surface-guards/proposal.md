@@ -16,7 +16,7 @@ provider leaks, and authored-artifact boundary drift.
 ## What Does Not Change
 
 - No new public command behavior.
-- No authored artifact content migration.
+- No authored authority data content migration.
 - No generated-output hand edits.
 
 ## Verification Gates

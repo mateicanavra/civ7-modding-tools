@@ -32,7 +32,7 @@ docs/projects/habitat-harness/openspec-remediation/**
 - No direct `node:fs` side-effect imports in migrated feature domains.
 - No new feature logic under `src/lib`.
 - No provider implementation exports from public package facade.
-- No authored artifact semantics under `tools/habitat-harness/src`.
+- No authored authority data semantics under `tools/habitat-harness/src`.
 - No remaining implementation ownership under `src/lib`, `src/base`, or
   `src/adapters` unless the packet records an explicit public adapter with a
   closure action.

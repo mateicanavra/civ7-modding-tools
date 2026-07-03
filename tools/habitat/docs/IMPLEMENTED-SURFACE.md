@@ -76,19 +76,18 @@ living as loose repo scripts.
 
 ## Enforcement Layers
 
-Implemented owner tools:
+Implemented runners:
 
-- native checks
-- wrapped scripts
-- pattern checks
-- project boundaries
-- formatter hygiene
-- file protection
+- `grit`
+- `habitat:structure`
+- `habitat:script`
+- `habitat:file-layer`
+- `nx`
 
 Implemented rule state:
 
-- 49 registered rules;
-- 48 enforced;
+- 124 registered rules;
+- 123 enforced;
 - 1 advisory;
 - locked and debt-carrying baselines modeled explicitly;
 - selector validation for unknown, wrong-namespace, and empty-intersection
@@ -98,11 +97,9 @@ Implemented rule state:
 
 Implemented diagnostic/check state:
 
-- 34 registered source-check rules;
-- 34 source-check rule modules under
-  `tools/habitat/src/service/modules/check/source/rules`;
-- shared source-check helper runtime under
-  `tools/habitat/src/service/modules/check/source/rule-runtime.mjs`;
+- 79 registered `grit` rules;
+- source checks are rule manifests that point at pattern files rather than
+  source-check modules or owner-tool records;
 - fixture tests for pattern validity;
 - Grit provider normalization over machine JSON output;
 - cache/failure handling tests;
@@ -129,8 +126,8 @@ Implemented `pattern` generator:
 
 - candidate-only generation by default;
 - active registration requires accepted pattern manifest state;
-- registered promotion validates baseline and rule-introduction contracts;
-- registered promotion writes active Habitat pattern plus rule-pack entry;
+- registered promotion is intentionally refused until pattern management owns
+  the accepted manifest, baseline, and rule-introduction contract;
 
 ## Hooks and Hook Check
 

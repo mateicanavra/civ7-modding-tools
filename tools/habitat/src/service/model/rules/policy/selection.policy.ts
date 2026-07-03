@@ -4,10 +4,10 @@ export interface RuleSelection {
   owner?: string;
   rule?: string;
   rules?: readonly string[];
-  tool?: string;
+  runner?: string;
 }
 
-export type RuleSelectorKind = "owner" | "rule" | "tool";
+export type RuleSelectorKind = "owner" | "rule" | "runner";
 export type RuleSelectionFailureReason =
   | "unknown-selector"
   | "wrong-selector-namespace"
@@ -68,7 +68,7 @@ export function selectRules(
   const selected = selectedRuleIds
     .map((ruleId) => registry.find((rule) => rule.id === ruleId))
     .filter((rule): rule is RegistryRuleSelectorFacts => Boolean(rule));
-  if (facts.length > 0 && selected.length === 0 && !isKnownEmptyToolSelection(facts)) {
+  if (facts.length > 0 && selected.length === 0 && !isKnownEmptyRunnerSelection(facts)) {
     return {
       ok: false,
       requested: selection,
@@ -104,7 +104,7 @@ function filterRuleIds(
     const requestedRuleSet = new Set(requestedRules);
     selected = selected.filter((rule) => requestedRuleSet.has(rule.id));
   }
-  if (selection.tool) selected = selected.filter((rule) => rule.ownerTool === selection.tool);
+  if (selection.runner) selected = selected.filter((rule) => rule.runner.name === selection.runner);
   return selected.map((rule) => rule.id);
 }
 
@@ -117,7 +117,7 @@ function selectorFacts(
   for (const ruleId of ruleSelectorValues(selection)) {
     facts.push(selectorFact("rule", ruleId, registry));
   }
-  if (selection.tool) facts.push(selectorFact("tool", selection.tool, registry));
+  if (selection.runner) facts.push(selectorFact("runner", selection.runner, registry));
   return facts;
 }
 
@@ -138,31 +138,22 @@ function selectorFact(
   return {
     kind,
     requestedValue,
-    known: matchingRuleIds.length > 0 || isKnownToolSelector(kind, requestedValue),
+    known: matchingRuleIds.length > 0 || isKnownRunnerSelector(kind, requestedValue),
     matchedNamespace,
     matchingRuleIds,
   };
 }
 
-const knownToolSelectors = new Set([
-  "command-check",
-  "file-layer",
-  "format-check",
-  "grit-check",
-  "habitat",
-  "nx",
-  "source-check",
-  "structure-check",
-]);
+const knownRunnerSelectors = new Set(["habitat", "nx", "grit"]);
 
-function isKnownToolSelector(kind: RuleSelectorKind, value: string): boolean {
-  return kind === "tool" && knownToolSelectors.has(value);
+function isKnownRunnerSelector(kind: RuleSelectorKind, value: string): boolean {
+  return kind === "runner" && knownRunnerSelectors.has(value);
 }
 
-function isKnownEmptyToolSelection(facts: readonly RuleSelectorFact[]): boolean {
+function isKnownEmptyRunnerSelection(facts: readonly RuleSelectorFact[]): boolean {
   return (
     facts.length === 1 &&
-    facts[0]?.kind === "tool" &&
+    facts[0]?.kind === "runner" &&
     facts[0].known &&
     facts[0].matchingRuleIds.length === 0
   );
@@ -178,8 +169,8 @@ function matchingRulesForKind(
       return registry.filter((rule) => rule.ownerProject === value);
     case "rule":
       return registry.filter((rule) => rule.id === value);
-    case "tool":
-      return registry.filter((rule) => rule.ownerTool === value);
+    case "runner":
+      return registry.filter((rule) => rule.runner.name === value);
   }
 }
 
@@ -188,7 +179,7 @@ function firstMatchingNamespace(
   value: string,
   registry: readonly RegistryRuleSelectorFacts[]
 ): RuleSelectorKind | undefined {
-  return (["owner", "rule", "tool"] as const).find(
+  return (["owner", "rule", "runner"] as const).find(
     (kind) => kind !== requestedKind && matchingRulesForKind(kind, value, registry).length > 0
   );
 }
@@ -200,7 +191,7 @@ function selectorKey(fact: RuleSelectorFact): string {
 function selectorLabel(kind: RuleSelectorKind): string {
   if (kind === "owner") return "owner id";
   if (kind === "rule") return "rule id";
-  return "tool id";
+  return "runner id";
 }
 
 function describeSelectorFacts(facts: RuleSelectorFact[]): string {

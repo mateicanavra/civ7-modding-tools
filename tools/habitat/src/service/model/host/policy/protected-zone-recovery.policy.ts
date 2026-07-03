@@ -10,5 +10,5 @@ export function renderRecoveryInstruction(recovery: ProtectedZoneRecoveryInstruc
 function isHostRecovery(
   recovery: ProtectedZoneRecoveryInstruction
 ): recovery is HostRecoveryInstruction {
-  return recovery.actionKind !== "remove-artifact";
+  return recovery.actionKind !== "remove-file";
 }

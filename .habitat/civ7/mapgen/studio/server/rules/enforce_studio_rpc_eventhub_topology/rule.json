@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "enforce_studio_rpc_eventhub_topology",
+  "title": "Enforce Studio Rpc Eventhub Topology",
+  "placement": {
+    "niche": "civ7/mapgen/studio/server",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "a daemon entrypoint that no longer mounts createStudioRpcHandler(context)",
+  "why": "The daemon mounts Studio RPC; EventHub lifecycle belongs inside the Studio runtime context.",
+  "remediate": "Keep the daemon mounting createStudioRpcHandler(context). EventHub lifecycle leaks are owned by prohibit_studio_rpc_eventhub_lifecycle_leaks.",
+  "message": "Studio daemon no longer mounts the RPC handler through runtime context.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["apps/mapgen-studio/src/server/daemon/daemon.ts"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts"
+    }
+  }
+}

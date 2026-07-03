@@ -72,7 +72,7 @@ states after the relevant domain or provider packet migrates a module.
 - `habitat check`, `fix`, `verify`, `graph`, `hook`, and `classify` output.
 - Root package scripts and Husky delegators.
 - `@internal/habitat-harness` package exports.
-- D14A `.habitat` authored artifact paths.
+- D14A `.habitat` authored authority data paths.
 
 `workstream/public-contract-risk-register.md` is the required risk register for
 later source packets. `workstream/public-surface-ledger.md` binds those risks to
@@ -93,5 +93,5 @@ Source implementation packets SHALL NOT:
 - add a provider that also owns Habitat domain policy;
 - add a domain service that reconstructs vendor command semantics locally;
 - retain two active implementations for the same behavior after cutover;
-- change command output, package exports, hook behavior, or authored artifact
+- change command output, package exports, hook behavior, or authored authority data
   paths without a named public-contract handling decision.

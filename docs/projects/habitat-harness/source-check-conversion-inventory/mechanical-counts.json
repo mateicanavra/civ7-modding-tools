@@ -65,9 +65,7 @@
     "format-check": 1,
     "nx": 1
   },
-  "convertedFinalRuntimeDeletionRules": [
-    "require_explicit_mapgen_sdk_opt_in"
-  ],
+  "convertedFinalRuntimeDeletionRules": ["require_explicit_mapgen_sdk_opt_in"],
   "convertedCommandCheckSplitCanaryRules": [
     "ensure_docs_checkout_paths_are_portable",
     "prohibit_cross_op_runtime_calls",
@@ -78,9 +76,7 @@
     "prohibit_misplaced_projection_adapter_calls",
     "prohibit_recipe_dag_runtime_source_dependencies"
   ],
-  "deletedCommandCheckSplitSystematicWaveRules": [
-    "block_unapproved_base_standard_boundary_leaks"
-  ],
+  "deletedCommandCheckSplitSystematicWaveRules": ["block_unapproved_base_standard_boundary_leaks"],
   "retainedCommandCheckSplitSystematicWaveRules": [
     "enforce_domain_refactor_boundary_profile",
     "enforce_studio_dev_runner_topology",

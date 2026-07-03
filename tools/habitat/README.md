@@ -70,10 +70,10 @@ Notes:
   cross-references the rule pack at the merge-base and rejects existing-rule
   growth).
 - Requested check selectors are validated before rule execution. Unknown
-  `--owner`, `--rule`, or `--tool` values, values passed in the wrong selector
+  `--owner`, `--rule`, or `--runner` values, values passed in the wrong selector
   namespace, and valid selectors whose intersection contains no rules exit
   non-zero. `--rule` may be repeated to run a curated rule group; repeated rules
-  are unioned, then intersected with any owner/tool selector. JSON mode renders a
+  are unioned, then intersected with any owner/runner selector. JSON mode renders a
   schemaVersion 1 `CheckReport` with the single failing `rule-selection-integrity`
   report; `--expand-baseline` exits before any baseline file is written.
 - H2 wrapped existing mechanisms verbatim (zero new rules, zero semantic

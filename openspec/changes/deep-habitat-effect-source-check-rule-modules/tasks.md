@@ -7,7 +7,7 @@
 - [x] 1.3 Replace global policy loading with selected rule-module loading.
 - [x] 1.4 Scope Nx direct source-check rule inputs to the rule module and shared runtime.
 - [x] 1.5 Remove the old monolithic source-check policy file.
-- [x] 1.6 Register `.habitat` as the Habitat artifact project in the inferred Nx graph.
+- [x] 1.6 Register `.habitat` as the Habitat authority project in the inferred Nx graph.
 
 ## 2. Verification
 
@@ -26,5 +26,5 @@
 
 ## 3. Follow-Up Dominoes
 
-- [ ] 3.1 Narrow generic `check` target expansion for Habitat artifact edits so
+- [ ] 3.1 Narrow generic `check` target expansion for Habitat authority edits so
   source-check rule module changes do not fan into ordinary product builds.

@@ -46,7 +46,8 @@ function pickPath(sub: string): string {
   return join(dataDir, f);
 }
 const readU8 = (sub: string): Uint8Array => Uint8Array.from(readFileSync(pickPath(sub)));
-const readI16 = (sub: string): Int16Array => new Int16Array(Uint8Array.from(readFileSync(pickPath(sub))).buffer);
+const readI16 = (sub: string): Int16Array =>
+  new Int16Array(Uint8Array.from(readFileSync(pickPath(sub))).buffer);
 
 // dims from manifest
 const manifest = JSON.parse(readFileSync(join(dumpDir, "manifest.json"), "utf8")) as any;
@@ -75,7 +76,10 @@ const boundaryType = readU8("morphology-belts-boundarytype-tile");
 const liveShelf = readU8("compute-shelf-morphology-shelf-shelfmask-tile");
 const liveShelfDist = (() => {
   try {
-    return new Uint16Array(Uint8Array.from(readFileSync(pickPath("compute-shelf-morphology-shelf-distancetocoast-tile"))).buffer);
+    return new Uint16Array(
+      Uint8Array.from(readFileSync(pickPath("compute-shelf-morphology-shelf-distancetocoast-tile")))
+        .buffer
+    );
   } catch {
     return null;
   }
@@ -88,7 +92,8 @@ for (const [name, arr] of [
   ["lmPreIsland", lmPreIsland],
   ["lmPostIsland", lmPostIsland],
 ] as const) {
-  if (arr.length !== size) throw new Error(`${name} length ${arr.length} != ${size} (${width}x${height})`);
+  if (arr.length !== size)
+    throw new Error(`${name} length ${arr.length} != ${size} (${width}x${height})`);
 }
 
 // --- replicate shelf-op support: coastal adjacency + multi-source distance BFS ---
@@ -142,7 +147,12 @@ function clampInt16(v: number): number {
 
 // faithful replica of compute-shelf-mask/strategies/default.ts run()
 // forcedCutoff: override the nearshore quantile cutoff (to isolate the cutoff-shift factor).
-function shelf(landMask: Uint8Array, bathymetry: Int16Array, dist: Uint16Array, forcedCutoff?: number) {
+function shelf(
+  landMask: Uint8Array,
+  bathymetry: Int16Array,
+  dist: Uint16Array,
+  forcedCutoff?: number
+) {
   const cfg = SHELF_CONFIG;
   const sampleRadius = cfg.breakDepthSampleRadius;
   const activeThresholdU8 = Math.floor(cfg.activeClosenessThreshold * 255);
@@ -176,7 +186,9 @@ function shelf(landMask: Uint8Array, bathymetry: Int16Array, dist: Uint16Array, 
     if (isActive) activeMargin++;
     const marginFactor = isActive ? cfg.activeBreakDepthFactor : cfg.passiveBreakDepthFactor;
     const rawBreak = shallowCutoff * cfg.breakDepthScale * marginFactor;
-    const breakDepth = clampInt16(Math.max(cfg.absoluteMaxShelfDepth, Math.min(0, Math.round(rawBreak))));
+    const breakDepth = clampInt16(
+      Math.max(cfg.absoluteMaxShelfDepth, Math.min(0, Math.round(rawBreak)))
+    );
     if ((bathymetry[i] ?? 0) >= breakDepth) depthGate[i] = 1;
   }
 

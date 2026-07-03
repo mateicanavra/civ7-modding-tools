@@ -20,20 +20,32 @@ const HEIGHT = process.env.CENSUS_H ? Number(process.env.CENSUS_H) : 66;
 const CONFIG_ID = process.env.CENSUS_CONFIG ?? "swooper-earthlike";
 
 const SEEDS = (() => {
-  const parsed = process.argv.slice(2).map(Number).filter((n) => Number.isInteger(n));
+  const parsed = process.argv
+    .slice(2)
+    .map(Number)
+    .filter((n) => Number.isInteger(n));
   return parsed.length > 0 ? parsed : [1018, 1, 2, 3, 42, 99, 1234, 7777];
 })();
 
 function main(): number {
   const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
-  const cfgPath = resolve(repoRoot, `mods/mod-swooper-maps/src/maps/configs/${CONFIG_ID}.config.json`);
+  const cfgPath = resolve(
+    repoRoot,
+    `mods/mod-swooper-maps/src/maps/configs/${CONFIG_ID}.config.json`
+  );
   const raw = JSON.parse(readFileSync(cfgPath, "utf8"));
   const config = canonicalRecipeConfig(raw);
 
   console.log(`# config=${CONFIG_ID} ${WIDTH}x${HEIGHT} seeds=${SEEDS.join(",")}`);
   let coldZero = 0;
   for (const seed of SEEDS) {
-    const stats = collectWorldBalanceStats({ label: `${CONFIG_ID}:${seed}`, config, seed, width: WIDTH, height: HEIGHT });
+    const stats = collectWorldBalanceStats({
+      label: `${CONFIG_ID}:${seed}`,
+      config,
+      seed,
+      width: WIDTH,
+      height: HEIGHT,
+    });
     const cold = stats.featureCounts.FEATURE_COLD_REEF ?? 0;
     const atoll = stats.featureCounts.FEATURE_ATOLL ?? 0;
     const reef = stats.featureCounts.FEATURE_REEF ?? 0;
@@ -46,7 +58,7 @@ function main(): number {
         coldReef: cold,
         atoll,
         warmReef: reef,
-        coldReefShareOfCoastWater: +(stats.coldReefShareOfCoastWater).toFixed(4),
+        coldReefShareOfCoastWater: +stats.coldReefShareOfCoastWater.toFixed(4),
         uniqueTypes: stats.resourceUniquePlannedTypes,
         varietyFloor,
         varietyGap: varietyFloor - stats.resourceUniquePlannedTypes,

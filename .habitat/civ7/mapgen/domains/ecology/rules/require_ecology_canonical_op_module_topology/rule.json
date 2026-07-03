@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_ecology_canonical_op_module_topology",
+  "title": "Require Ecology Canonical Op Module Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains/ecology",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "ecology op modules missing canonical topology direct children",
+  "why": "Ecology is the canonical exemplar for decomposed op module topology; support directories, schema quality, and JSDoc quality remain outside structure-check.",
+  "remediate": "Restore contract.ts, index.ts, strategies/index.ts, and rules/index.ts where a rules directory exists for each ecology op module.",
+  "message": "An ecology op module is missing canonical topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/ecology/ops/*"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/structure.toml"
+    }
+  }
+}

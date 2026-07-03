@@ -73,7 +73,7 @@ The prior P2 findings are repaired for design/specification acceptance:
 
 ## TypeScript State-Space Assessment
 
-The packet now chooses the core model: `RuleRegistryDocumentV1` with
+The packet now chooses the core model: `RuleRegistryDocument` with
 `schemaVersion: 1` and a closed `RuleRegistryRecord` union keyed by the current
 public selector vocabulary `ownerTool`. That resolves the prior open choice
 between optional facets on a mega-record, a separate unsynchronized rule kind,

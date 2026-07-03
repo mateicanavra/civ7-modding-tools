@@ -6,9 +6,9 @@ export function patternRuleReferenceFromRule(
 ): PatternRuleReferenceInput {
   return {
     ruleId: rule.id,
-    patternName: rule.patternName,
+    patternName: rule.runner?.name === "grit" ? rule.runner.patternName : undefined,
     manifestPath: rule.manifestPath,
-    ownerTool: rule.ownerTool,
+    patternRole: rule.patternRole,
     lifecycle: rule.lane,
   };
 }

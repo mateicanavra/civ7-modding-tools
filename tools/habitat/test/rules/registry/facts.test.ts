@@ -3,6 +3,7 @@ import {
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
   ruleGraphFacts,
+  ruleGritFacts,
   ruleHookCheckFacts,
   ruleManifestFacts,
   ruleRoutingFacts,
@@ -11,22 +12,30 @@ import {
 } from "@habitat/cli/service/model/rules/index";
 import { workspaceGraphTargetNames } from "@habitat/cli/service/model/workspace/index";
 import { describe, expect, test } from "vitest";
-import { baseRule } from "./helpers.js";
+import {
+  baseRule,
+  gritRunner,
+  habitatFileLayerRunner,
+  habitatScriptRunner,
+  habitatStructureRunner,
+  nxRunner,
+} from "./helpers.js";
 
 describe("rule registry facts", () => {
   test("keeps hook check out of Grit execution facts", () => {
     const rule = baseRule({
-      ownerTool: "source-check",
-      patternName: "sample_pattern",
+      runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
       scanRoots: ["packages"],
       hookCheck: true,
     });
 
-    expect(ruleSourceFacts([rule])).toEqual([
+    expect(ruleSourceFacts([rule])).toEqual([]);
+    expect(ruleGritFacts([rule])).toEqual([
       {
         id: "sample-rule",
         lane: "enforced",
         message: "Fix the structural issue.",
+        runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
         patternName: "sample_pattern",
         pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
@@ -44,36 +53,36 @@ describe("rule registry facts", () => {
     const commandRule = baseRule();
     const gritRule = baseRule({
       id: "rule",
-      ownerTool: "source-check",
-      patternName: "sample_pattern",
+      runner: { ...gritRunner("rule"), patternName: "sample_pattern" },
       scanRoots: ["packages"],
       hookCheck: true,
     });
     const fileLayerRule = baseRule({
       id: "file-layer-rule",
-      ownerTool: "file-layer",
+      runner: habitatFileLayerRunner("generated-zone"),
       generatedZone: "swooper-map-generated",
     });
     const structureRule = baseRule({
       id: "structure-rule",
-      ownerTool: "structure-check",
-      structureFile: ".habitat/sample/sample.structure.toml",
+      runner: habitatStructureRunner("structure-rule"),
     });
 
-    expect(ruleCommandExecutionFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
+    expect(
+      ruleCommandExecutionFacts([commandRule, gritRule, fileLayerRule, structureRule])
+    ).toEqual([
       {
         id: "sample-rule",
-        ownerTool: "command-check",
         lane: "enforced",
-        detect: ["habitat", "check", "--rule", "sample-rule"],
+        runner: habitatScriptRunner("sample-rule"),
         message: "Fix the structural issue.",
       },
     ]);
-    expect(ruleSourceFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
+    expect(ruleGritFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
       {
         id: "rule",
         lane: "enforced",
         message: "Fix the structural issue.",
+        runner: { ...gritRunner("rule"), patternName: "sample_pattern" },
         patternName: "sample_pattern",
         pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
@@ -82,7 +91,7 @@ describe("rule registry facts", () => {
     expect(ruleFileLayerFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
       {
         id: "file-layer-rule",
-        ownerTool: "file-layer",
+        runner: habitatFileLayerRunner("generated-zone"),
         lane: "enforced",
         message: "Fix the structural issue.",
         generatedZone: "swooper-map-generated",
@@ -94,7 +103,7 @@ describe("rule registry facts", () => {
         lane: "enforced",
         message: "Fix the structural issue.",
         pathCoverage: [{ kind: "project-owner" }],
-        structureFile: ".habitat/sample/sample.structure.toml",
+        runner: habitatStructureRunner("structure-rule"),
       },
     ]);
   });
@@ -108,7 +117,7 @@ describe("rule registry facts", () => {
     expect(projected).toEqual([
       {
         id: "sample-rule",
-        ownerTool: "command-check",
+        runner: habitatScriptRunner("sample-rule"),
         ownerProject: "habitat",
         pathCoverage: [{ kind: "exact-path", patterns: ["packages/**"] }],
       },
@@ -123,9 +132,8 @@ describe("rule registry facts", () => {
       ruleBaselineFacts([
         baseRule({
           exceptionPath:
-            ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh#ALLOWLIST",
-          ownerTool: "source-check",
-          patternName: "sample_pattern",
+            ".habitat/civ7/platform/_blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
+          runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
           scanRoots: ["packages"],
           hookCheck: true,
           manifestPath: ".habitat/patterns/manifests/sample-rule.json",
@@ -134,8 +142,9 @@ describe("rule registry facts", () => {
     ).toEqual([
       {
         id: "sample-rule",
+        baselinePath: ".habitat/fixtures/rules/sample-rule/baseline.json",
         exceptionPath:
-          ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh#ALLOWLIST",
+          ".habitat/civ7/platform/_blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
       },
     ]);
   });
@@ -145,20 +154,18 @@ describe("rule registry facts", () => {
       ruleManifestFacts([
         baseRule({
           id: "registered-rule",
-          ownerTool: "source-check",
-          patternName: "registered_grit_rule",
+          runner: { ...gritRunner("registered-rule"), patternName: "registered_grit_rule" },
           scanRoots: ["packages"],
           manifestPath: ".habitat/patterns/manifests/registered-rule.json",
         }),
         baseRule({
           id: "metadata-only-rule",
-          ownerTool: "source-check",
-          patternName: "metadata_only_grit_rule",
+          runner: { ...gritRunner("metadata-only-rule"), patternName: "metadata_only_grit_rule" },
           scanRoots: ["packages"],
         }),
         baseRule({
           id: "command-rule",
-          ownerTool: "command-check",
+          runner: habitatScriptRunner("command-rule"),
         }),
       ])
     ).toEqual([
@@ -184,7 +191,7 @@ describe("rule registry facts", () => {
           baseRule({
             id: "nx-rule",
             ownerProject: "mod-swooper-maps",
-            ownerTool: "nx",
+            runner: nxRunner("mod-swooper-maps", "habitat:check"),
             graphTarget: {
               project: "mod-swooper-maps",
               target: "habitat:check",
@@ -200,6 +207,8 @@ describe("rule registry facts", () => {
         id: "enforce_formatting_and_import_hygiene",
         ownerProject: "habitat",
         ownerRoot: "tools/habitat",
+        lane: "enforced",
+        message: "Fix the structural issue.",
         alias: {
           kind: "depends-on",
           target: { project: "habitat", target: "biome:ci" },
@@ -209,6 +218,8 @@ describe("rule registry facts", () => {
         id: "nx-rule",
         ownerProject: "mod-swooper-maps",
         ownerRoot: "mods/mod-swooper-maps",
+        lane: "enforced",
+        message: "Fix the structural issue.",
         alias: {
           kind: "depends-on",
           target: { project: "mod-swooper-maps", target: "habitat:check" },
@@ -218,6 +229,8 @@ describe("rule registry facts", () => {
         id: "direct-rule",
         ownerProject: "habitat",
         ownerRoot: "tools/habitat",
+        lane: "enforced",
+        message: "Fix the structural issue.",
         alias: { kind: "direct-rule-check" },
       },
     ]);

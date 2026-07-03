@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_map_projection_dependencies_in_physics_contracts",
+  "title": "Prohibit Map Projection Dependencies In Physics Contracts",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "standard-recipe physics stage contracts requiring map artifacts or map effects",
+  "why": "The current standard recipe keeps upstream physics contracts independent from map projection artifacts and effects.",
+  "remediate": null,
+  "message": "Keep map projection dependencies out of standard recipe physics contracts.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.contract.ts"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/check.mjs"
+    }
+  }
+}

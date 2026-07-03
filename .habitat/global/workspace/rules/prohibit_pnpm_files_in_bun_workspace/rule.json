@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_pnpm_files_in_bun_workspace",
+  "title": "Prohibit Pnpm Files In Bun Workspace",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "_self",
+    "category": "quality"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "pnpm-lock.yaml or pnpm-workspace.yaml",
+  "why": "The repo package-manager contract is Bun-only; CI already rejects pnpm files and H7 moves that feedback local.",
+  "remediate": "Remove pnpm files and use `bun install` so bun.lock remains the only package-manager lockfile.",
+  "message": "pnpm files are forbidden in this Bun-only repo.",
+  "pathCoverage": [
+    {
+      "kind": "project-owner"
+    },
+    {
+      "kind": "workspace-gate"
+    }
+  ],
+  "forbiddenFileNames": ["pnpm-lock.yaml", "pnpm-workspace.yaml"],
+  "supportFiles": {
+    "baseline": ".habitat/global/workspace/rules/prohibit_pnpm_files_in_bun_workspace/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "file-layer",
+    "guard": "forbidden-file-name"
+  }
+}

@@ -42,14 +42,13 @@ export type RuleExecutionTiming = Static<typeof RuleExecutionTimingSchema>;
 export const RuleReportSchema = Type.Object(
   {
     ruleId: Type.String({ minLength: 1 }),
-    ownerTool: Type.String({ minLength: 1 }),
+    runner: Type.String({ minLength: 1 }),
     lane: RuleLaneSchema,
     status: RuleStatusSchema,
     locked: Type.Boolean(),
     durationMs: Type.Number({ minimum: 0 }),
     timing: Type.Optional(RuleExecutionTimingSchema),
     diagnostics: Type.Array(HabitatDiagnosticSchema),
-    detect: Type.Array(Type.String()),
     message: Type.String(),
     remediate: Type.Union([Type.String(), Type.Null()]),
   },
@@ -74,7 +73,7 @@ export const SelectorRequestSchema = Type.Object(
     owner: Type.Optional(Type.String({ minLength: 1 })),
     rule: Type.Optional(Type.String({ minLength: 1 })),
     rules: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
-    tool: Type.Optional(Type.String({ minLength: 1 })),
+    runner: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );

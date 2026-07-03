@@ -17,6 +17,6 @@ still covers the changed path class.
 
 #### Scenario: Ordinary repo changes keep broad affected verification
 
-- **WHEN** pre-push changed paths are not Habitat artifact-only or Habitat
+- **WHEN** pre-push changed paths are not Habitat authority-only or Habitat
   tooling-only changes
 - **THEN** Habitat SHALL preserve the existing generic affected target plan.

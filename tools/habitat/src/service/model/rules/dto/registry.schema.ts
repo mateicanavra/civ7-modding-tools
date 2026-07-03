@@ -1,43 +1,114 @@
 import { type Static, Type } from "typebox";
 
-const RuleIdentitySchema = Type.Object(
+const GraphTargetSchema = Type.Object(
   {
-    id: Type.String({ minLength: 1 }),
-    title: Type.Optional(Type.String({ minLength: 1 })),
-    ownerProject: Type.String({ minLength: 1 }),
-    ownerTool: Type.Union([
-      Type.Literal("format-check"),
-      Type.Literal("file-layer"),
-      Type.Literal("grit-check"),
-      Type.Literal("habitat"),
-      Type.Literal("source-check"),
-      Type.Literal("command-check"),
-      Type.Literal("structure-check"),
-      Type.Literal("nx"),
+    project: Type.String({ minLength: 1 }),
+    target: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const RulePlacementSchema = Type.Object(
+  {
+    niche: Type.String({ minLength: 1 }),
+    blueprint: Type.String({ minLength: 1 }),
+    category: Type.Union([
+      Type.Literal("boundary"),
+      Type.Literal("contract"),
+      Type.Literal("execution"),
+      Type.Literal("output"),
+      Type.Literal("policy"),
+      Type.Literal("quality"),
+      Type.Literal("structure"),
     ]),
-    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
   },
   { additionalProperties: false }
 );
 
-const RuleReportSchema = Type.Object(
+const RuleOperationSchema = Type.Object(
   {
-    forbids: Type.String({ minLength: 1 }),
-    why: Type.String({ minLength: 1 }),
-    detect: Type.Array(Type.String(), { minItems: 1 }),
-    remediate: Type.Union([Type.String(), Type.Null()]),
-    message: Type.String({ minLength: 1 }),
+    kind: Type.Union([
+      Type.Literal("check"),
+      Type.Literal("fix"),
+      Type.Literal("generate"),
+      Type.Literal("migrate"),
+    ]),
   },
   { additionalProperties: false }
 );
 
-const RuleExceptionMetadataSchema = Type.Object(
+const GritRuleRunnerSchema = Type.Object(
   {
-    scope: Type.String({ minLength: 1 }),
-    exceptionPath: Type.String({ minLength: 1 }),
+    name: Type.Literal("grit"),
+    files: Type.Object(
+      {
+        pattern: Type.String({ minLength: 1 }),
+        applyPattern: Type.Optional(Type.String({ minLength: 1 })),
+      },
+      { additionalProperties: false }
+    ),
+    patternName: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
 );
+
+const HabitatStructureRuleRunnerSchema = Type.Object(
+  {
+    name: Type.Literal("habitat"),
+    mode: Type.Literal("structure"),
+    files: Type.Object(
+      {
+        structure: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+  },
+  { additionalProperties: false }
+);
+
+const HabitatScriptRuleRunnerSchema = Type.Object(
+  {
+    name: Type.Literal("habitat"),
+    mode: Type.Literal("script"),
+    files: Type.Object(
+      {
+        script: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+    runtime: Type.Union([Type.Literal("bun"), Type.Literal("node"), Type.Literal("bash")]),
+  },
+  { additionalProperties: false }
+);
+
+const HabitatFileLayerRuleRunnerSchema = Type.Object(
+  {
+    name: Type.Literal("habitat"),
+    mode: Type.Literal("file-layer"),
+    guard: Type.Union([
+      Type.Literal("generated-zone"),
+      Type.Literal("forbidden-file-name"),
+      Type.Literal("host-surface"),
+    ]),
+  },
+  { additionalProperties: false }
+);
+
+const NxRuleRunnerSchema = Type.Object(
+  {
+    name: Type.Literal("nx"),
+    target: GraphTargetSchema,
+  },
+  { additionalProperties: false }
+);
+
+const RuleRunnerSchema = Type.Union([
+  GritRuleRunnerSchema,
+  HabitatStructureRuleRunnerSchema,
+  HabitatScriptRuleRunnerSchema,
+  HabitatFileLayerRuleRunnerSchema,
+  NxRuleRunnerSchema,
+]);
 
 const RulePathCoverageSchema = Type.Array(
   Type.Union([
@@ -48,18 +119,8 @@ const RulePathCoverageSchema = Type.Array(
       },
       { additionalProperties: false }
     ),
-    Type.Object(
-      {
-        kind: Type.Literal("project-owner"),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        kind: Type.Literal("workspace-gate"),
-      },
-      { additionalProperties: false }
-    ),
+    Type.Object({ kind: Type.Literal("project-owner") }, { additionalProperties: false }),
+    Type.Object({ kind: Type.Literal("workspace-gate") }, { additionalProperties: false }),
     Type.Object(
       {
         kind: Type.Literal("unresolved-metadata"),
@@ -71,148 +132,67 @@ const RulePathCoverageSchema = Type.Array(
   { minItems: 1 }
 );
 
-const RequiredRuleMetadataSchema = Type.Interface(
-  [RuleIdentitySchema, RuleReportSchema, RuleExceptionMetadataSchema],
+const RuleSupportFilesSchema = Type.Object(
   {
-    pathCoverage: RulePathCoverageSchema,
+    baseline: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
 
-const RequiredCommandRuleMetadataSchema = Type.Omit(RequiredRuleMetadataSchema, ["ownerTool"]);
-export const RuleRoutingFactsSchema = Type.Interface(
-  [Type.Pick(RuleIdentitySchema, ["id", "ownerTool", "ownerProject"])],
+const RuleManifestShape = {
+  schemaVersion: Type.Literal(2),
+  id: Type.String({ minLength: 1 }),
+  title: Type.String({ minLength: 1 }),
+  placement: RulePlacementSchema,
+  operation: RuleOperationSchema,
+  ownerProject: Type.String({ minLength: 1 }),
+  lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+  forbids: Type.String({ minLength: 1 }),
+  why: Type.String({ minLength: 1 }),
+  remediate: Type.Union([Type.String(), Type.Null()]),
+  message: Type.String({ minLength: 1 }),
+  exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
+  pathCoverage: RulePathCoverageSchema,
+  scanRoots: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
+  hookCheck: Type.Optional(Type.Literal(true)),
+  manifestPath: Type.Optional(Type.String({ minLength: 1 })),
+  patternName: Type.Optional(Type.String({ minLength: 1 })),
+  graphTarget: Type.Optional(GraphTargetSchema),
+  generatedZone: Type.Optional(Type.String({ minLength: 1 })),
+  forbiddenFileNames: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
+  hostSurfaceGuard: Type.Optional(Type.Literal(true)),
+  supportFiles: Type.Optional(RuleSupportFilesSchema),
+  runner: RuleRunnerSchema,
+};
+
+export const RuleRegistryRecordInputSchema = Type.Object(RuleManifestShape, {
+  additionalProperties: false,
+});
+
+export const RuleRegistryRecordSchema = Type.Object(
   {
-    pathCoverage: RulePathCoverageSchema,
+    ...RuleManifestShape,
+    manifestFilePath: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
 
-const DirectCommandOwnerToolSchema = Type.Union([
-  Type.Literal("command-check"),
-  Type.Literal("format-check"),
-  Type.Literal("habitat"),
-]);
-const CommandOwnerToolSchema = Type.Union([
-  Type.Literal("command-check"),
-  Type.Literal("format-check"),
-  Type.Literal("habitat"),
-  Type.Literal("nx"),
-]);
-const HookCheckSchema = Type.Literal(true);
-const PatternScanRootSchema = Type.String({ minLength: 1 });
-const GraphTargetSchema = Type.Object(
-  {
-    project: Type.String({ minLength: 1 }),
-    target: Type.String({ minLength: 1 }),
-  },
-  { additionalProperties: false }
-);
-
-const CommandRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: DirectCommandOwnerToolSchema,
-  },
-  { additionalProperties: false }
-);
-
-const StructureCheckRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: Type.Literal("structure-check"),
-    structureFile: Type.String({ minLength: 1 }),
-  },
-  { additionalProperties: false }
-);
-
-const NxRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: Type.Literal("nx"),
-    graphTarget: GraphTargetSchema,
-  },
-  { additionalProperties: false }
-);
-
-export const SourceCheckRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: Type.Literal("source-check"),
-    patternName: Type.String({ minLength: 1 }),
-    scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
-    hookCheck: Type.Optional(HookCheckSchema),
-    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
-  },
-  { additionalProperties: false }
-);
-
-export const GritCheckRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: Type.Literal("grit-check"),
-    patternName: Type.String({ minLength: 1 }),
-    scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
-    hookCheck: Type.Optional(HookCheckSchema),
-    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
-  },
-  { additionalProperties: false }
-);
-
-const GeneratedZoneFileLayerRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: Type.Literal("file-layer"),
-    generatedZone: Type.String({ minLength: 1 }),
-  },
-  { additionalProperties: false }
-);
-
-const ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: Type.Literal("file-layer"),
-    forbiddenFileNames: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
-  },
-  { additionalProperties: false }
-);
-
-const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
-  [RequiredCommandRuleMetadataSchema],
-  {
-    ownerTool: Type.Literal("file-layer"),
-    hostSurfaceGuard: Type.Literal(true),
-  },
-  { additionalProperties: false }
-);
-
-export const RuleRegistryRecordV1Schema = Type.Union([
-  CommandRuleRegistryRecordV1Schema,
-  StructureCheckRuleRegistryRecordV1Schema,
-  NxRuleRegistryRecordV1Schema,
-  GritCheckRuleRegistryRecordV1Schema,
-  SourceCheckRuleRegistryRecordV1Schema,
-  GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
-  ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,
-  HostSurfaceFileLayerRuleRegistryRecordV1Schema,
-]);
-
-export const RuleRegistryDocumentV1Schema = Type.Object(
+export const RuleRegistryDocumentSchema = Type.Object(
   {
     $comment: Type.Optional(Type.String()),
-    schemaVersion: Type.Literal(1),
+    schemaVersion: Type.Literal(2),
     ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
       minProperties: 1,
     }),
-    rules: Type.Array(RuleRegistryRecordV1Schema),
+    rules: Type.Array(RuleRegistryRecordSchema),
   },
   { additionalProperties: false }
 );
 
-export const RuleRegistryIndexV1Schema = Type.Object(
+export const RuleRegistryIndexSchema = Type.Object(
   {
     $comment: Type.Optional(Type.String()),
-    schemaVersion: Type.Literal(1),
+    schemaVersion: Type.Literal(2),
     ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
       minProperties: 1,
     }),
@@ -220,42 +200,54 @@ export const RuleRegistryIndexV1Schema = Type.Object(
   { additionalProperties: false }
 );
 
-export const RuleSelectorFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
-  "id",
-  "ownerProject",
-  "ownerTool",
-]);
-
-export const RuleReportFactsSchema = Type.Interface(
-  [
-    Type.Pick(RuleIdentitySchema, ["id", "ownerTool", "lane"]),
-    Type.Pick(RuleReportSchema, ["detect", "message", "remediate"]),
-  ],
-  {},
+export const RuleSelectorFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    ownerProject: Type.String({ minLength: 1 }),
+    runner: RuleRunnerSchema,
+  },
   { additionalProperties: false }
 );
 
-export const RuleBaselineFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
-  "id",
-  "exceptionPath",
-]);
-
-const RuleGraphOwnerSchema = Type.Object(
+export const RuleReportFactsSchema = Type.Object(
   {
+    id: Type.String({ minLength: 1 }),
+    runner: RuleRunnerSchema,
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
+    remediate: Type.Union([Type.String(), Type.Null()]),
+  },
+  { additionalProperties: false }
+);
+
+export const RuleBaselineFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
+    baselinePath: Type.Optional(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
+export const RuleRoutingFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    runner: RuleRunnerSchema,
+    ownerProject: Type.String({ minLength: 1 }),
+    pathCoverage: RulePathCoverageSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const RuleGraphFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    ownerProject: Type.String({ minLength: 1 }),
     ownerRoot: Type.String({ minLength: 1 }),
-  },
-  { additionalProperties: false }
-);
-export const RuleGraphFactsSchema = Type.Interface(
-  [Type.Pick(RuleIdentitySchema, ["id", "ownerProject"]), RuleGraphOwnerSchema],
-  {
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
     alias: Type.Union([
-      Type.Object(
-        {
-          kind: Type.Literal("direct-rule-check"),
-        },
-        { additionalProperties: false }
-      ),
+      Type.Object({ kind: Type.Literal("direct-rule-check") }, { additionalProperties: false }),
       Type.Object(
         {
           kind: Type.Literal("depends-on"),
@@ -268,91 +260,81 @@ export const RuleGraphFactsSchema = Type.Interface(
   { additionalProperties: false }
 );
 
-export const RuleCommandExecutionFactsSchema = Type.Interface(
-  [
-    Type.Pick(RuleIdentitySchema, ["id", "lane"]),
-    Type.Pick(RuleReportSchema, ["detect", "message"]),
-  ],
+export const RuleCommandExecutionFactsSchema = Type.Object(
   {
-    ownerTool: CommandOwnerToolSchema,
+    id: Type.String({ minLength: 1 }),
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
+    runner: HabitatScriptRuleRunnerSchema,
   },
   { additionalProperties: false }
 );
 
-export const RuleSourceFactsSchema = Type.Pick(SourceCheckRuleRegistryRecordV1Schema, [
-  "id",
-  "lane",
-  "message",
-  "patternName",
-  "pathCoverage",
-  "scanRoots",
-]);
-
-export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema, [
-  "id",
-  "lane",
-  "message",
-  "patternName",
-  "pathCoverage",
-  "scanRoots",
-]);
-
-export const RuleManifestFactsSchema = Type.Interface(
-  [Type.Pick(SourceCheckRuleRegistryRecordV1Schema, ["id", "lane", "patternName"])],
+export const RuleSourceFactsSchema = Type.Object(
   {
+    id: Type.String({ minLength: 1 }),
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
+    runner: GritRuleRunnerSchema,
+    patternName: Type.String({ minLength: 1 }),
+    pathCoverage: RulePathCoverageSchema,
+    scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+export const RuleGritFactsSchema = RuleSourceFactsSchema;
+
+export const RuleManifestFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    patternName: Type.String({ minLength: 1 }),
     manifestPath: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
 );
 
-export const RuleFileLayerFactsSchema = Type.Union([
-  Type.Pick(GeneratedZoneFileLayerRuleRegistryRecordV1Schema, [
-    "id",
-    "ownerTool",
-    "lane",
-    "message",
-    "generatedZone",
-  ]),
-  Type.Pick(ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema, [
-    "id",
-    "ownerTool",
-    "lane",
-    "message",
-    "forbiddenFileNames",
-  ]),
-  Type.Pick(HostSurfaceFileLayerRuleRegistryRecordV1Schema, [
-    "id",
-    "ownerTool",
-    "lane",
-    "message",
-    "hostSurfaceGuard",
-  ]),
-]);
-
-export const RuleStructureFactsSchema = Type.Pick(StructureCheckRuleRegistryRecordV1Schema, [
-  "id",
-  "lane",
-  "message",
-  "pathCoverage",
-  "structureFile",
-]);
-
-export const RuleHookCheckFactsSchema = Type.Interface(
-  [
-    Type.Union([
-      Type.Pick(SourceCheckRuleRegistryRecordV1Schema, ["id"]),
-      Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id"]),
-    ]),
-  ],
+export const RuleFileLayerFactsSchema = Type.Object(
   {
-    hookCheck: HookCheckSchema,
+    id: Type.String({ minLength: 1 }),
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
+    runner: HabitatFileLayerRuleRunnerSchema,
+    generatedZone: Type.Optional(Type.String({ minLength: 1 })),
+    forbiddenFileNames: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
+    hostSurfaceGuard: Type.Optional(Type.Literal(true)),
   },
   { additionalProperties: false }
 );
 
-export type RuleRegistryRecordV1 = Static<typeof RuleRegistryRecordV1Schema>;
-export type RuleRegistryDocumentV1 = Static<typeof RuleRegistryDocumentV1Schema>;
-export type RuleRegistryIndexV1 = Static<typeof RuleRegistryIndexV1Schema>;
+export const RuleStructureFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
+    runner: HabitatStructureRuleRunnerSchema,
+    pathCoverage: RulePathCoverageSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const RuleHookCheckFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    hookCheck: Type.Literal(true),
+  },
+  { additionalProperties: false }
+);
+
+export type RuleRunner = Static<typeof RuleRunnerSchema>;
+export type RuleRunnerName = RuleRunner["name"];
+export type RulePlacement = Static<typeof RulePlacementSchema>;
+export type RuleSupportFiles = Static<typeof RuleSupportFilesSchema>;
+export type RuleRegistryRecord = Static<typeof RuleRegistryRecordSchema>;
+export type RuleRegistryRecordInput = Static<typeof RuleRegistryRecordInputSchema>;
+export type RuleRegistryDocument = Static<typeof RuleRegistryDocumentSchema>;
+export type RuleRegistryIndex = Static<typeof RuleRegistryIndexSchema>;
 export type RuleSelectorFacts = Static<typeof RuleSelectorFactsSchema>;
 export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
 export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;

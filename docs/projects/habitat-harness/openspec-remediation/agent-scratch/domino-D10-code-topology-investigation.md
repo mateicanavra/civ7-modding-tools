@@ -88,7 +88,7 @@
 
 2. The current zone model cannot represent D10 target states.
    - `GeneratedZone` only has `id`, `kind`, `path`, and `remediation`.
-   - It cannot distinguish `generated`, `protected`, `forbidden artifact`, `missing host declaration`, `allowed generator write`, or `host policy unavailable`.
+   - It cannot distinguish `generated`, `protected`, `forbidden file`, `missing host declaration`, `allowed generator write`, or `host policy unavailable`.
    - Optional/prose fields would let command output lack owner or next safe action.
 
 3. Rule metadata and zone declarations duplicate message/remediation ownership.
@@ -98,7 +98,7 @@
 
 4. File-layer owns a non-zone rule through the generated-zone executor.
    - `file-layer-pnpm-artifacts` uses `forbiddenFileNames` inside `runGeneratedZoneRule`.
-   - This mixes generic forbidden artifact policy with generated/protected-zone authority.
+   - This mixes generic forbidden file policy with generated/protected-zone authority.
 
 5. Staged-path testing is not injectable for file-layer rules.
    - `CheckOptions.stagedPaths` exists, but file-layer code ignores it and reads Git directly.
@@ -216,7 +216,7 @@ The D10 packet says it will consume G-HOST declarations, but G-HOST remains an i
 
 ### P1: D10 Does Not Specify A Concrete State Model
 
-The current spec only says unauthorized protected edits report a guard refusal and authorized generators are identified. It does not define the closed state model required by the source packet: generated, protected, forbidden artifact, missing host declaration, allowed generator write, refused hand edit, drift check, and remediation guidance.
+The current spec only says unauthorized protected edits report a guard refusal and authorized generators are identified. It does not define the closed state model required by the source packet: generated, protected, forbidden file, missing host declaration, allowed generator write, refused hand edit, drift check, and remediation guidance.
 
 ### P1: Duplicated Zone Authority Is Not Dispositioned
 
@@ -240,7 +240,7 @@ The D10 phase record says branch `codex/deep-habitat-openspec-remediation`, but 
 
 ### P2: `forbiddenFileNames` Needs An Ownership Decision
 
-The pnpm artifact guard currently lives inside the generated-zone runner. D10 must either exclude it from protected/generated authority or explicitly define a separate file-layer forbidden-artifact projection owned outside D10.
+The pnpm file guard currently lives inside the generated-zone runner. D10 must either exclude it from protected/generated authority or explicitly define a separate file-layer forbidden-file projection owned outside D10.
 
 ### P2: File-Layer Tests Need Real Guard Coverage
 

@@ -2,7 +2,7 @@
 
 ## Summary
 
-Specify D10 as the Generated/Protected Zone Authority for Deep Habitat. This change converts `$D10_SOURCE_PACKET` into a concrete OpenSpec design/specification packet for protected mutation decisions, generated-surface declarations, host-owned zone consumption, forbidden-artifact handling, generated drift relation, and downstream path-authority projections.
+Specify D10 as the Generated/Protected Zone Authority for Deep Habitat. This change converts `$D10_SOURCE_PACKET` into a concrete OpenSpec design/specification packet for protected mutation decisions, generated-surface declarations, host-owned zone consumption, forbidden-file handling, generated drift relation, and downstream path-authority projections.
 
 Status after final design rereview was accepted for design/specification. Current stack status: D10 source implementation is active on top of live D0/D1/D2/G-HOST/D7/D9 prerequisites, with protected-zone source changes pending final implementation review, Graphite submission, and packet-boundary closure.
 

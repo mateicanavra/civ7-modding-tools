@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "block_adapter_context_imports_from_domain_ops",
+  "title": "Block Adapter Context Imports From Domain Ops",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "ops using adapter/context crossing constructs",
+  "why": "Domain ops stay pure and composable; adapter/context belongs outside domain implementation.",
+  "remediate": null,
+  "message": "Remove adapter/context crossing from domain ops.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md"
+    },
+    "patternName": "block_adapter_context_imports_from_domain_ops"
+  }
+}

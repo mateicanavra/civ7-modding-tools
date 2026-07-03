@@ -8,7 +8,7 @@
       tooling source edits.
 - [x] 1.3 Preserve distinct affected structural guards for Habitat tooling
       source edits.
-- [x] 1.4 Preserve artifact-only and ordinary repo target planning.
+- [x] 1.4 Preserve authority-only and ordinary repo target planning.
 - [x] 1.5 Mark the owner-check input-scope follow-up domino as closed by this
       slice.
 

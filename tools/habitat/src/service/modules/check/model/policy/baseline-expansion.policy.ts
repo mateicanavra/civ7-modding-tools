@@ -88,7 +88,10 @@ export function expandBaselinesEffect(
             message: guard.message,
           };
         }
-        const writeFailure = yield* writeBaselineEffect(rule.id, guard.keys, context).pipe(
+        const writeFailure = yield* writeBaselineEffect(rule.id, guard.keys, {
+          ...context,
+          registry: baselineContractInputs(executionContext.rules),
+        }).pipe(
           Effect.as(null),
           Effect.catchAll((error) => Effect.succeed(error))
         );

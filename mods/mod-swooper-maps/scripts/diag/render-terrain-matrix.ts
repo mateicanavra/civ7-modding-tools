@@ -10,11 +10,10 @@
 // Env: MATRIX_W/MATRIX_H (default 84x54 STANDARD), MATRIX_CELL (px per tile, default 4),
 //      MATRIX_OUT (svg path, default docs/projects/crust-relief/renders/terrain-matrix.svg)
 //
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { deflateSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
+import { deflateSync } from "node:zlib";
 import { createMockAdapter } from "@civ7/adapter";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
@@ -87,10 +86,19 @@ function encodePng(rgba: Buffer, iw: number, ih: number): Buffer {
 
 function main(): void {
   const { mapInfo } = createFinalSurfaceParityMapInfo(W, H);
-  const probe = createMockAdapter({ width: W, height: H, mapInfo, mapSizeId: mapInfo.MapSizeType ?? 1, rng: createLabelRng(1) });
+  const probe = createMockAdapter({
+    width: W,
+    height: H,
+    mapInfo,
+    mapSizeId: mapInfo.MapSizeType ?? 1,
+    rng: createLabelRng(1),
+  });
   const T = (n: string) => probe.getTerrainTypeIndex(n);
-  const OCEAN = T("TERRAIN_OCEAN"), COAST = T("TERRAIN_COAST"), MOUNT = T("TERRAIN_MOUNTAIN");
-  const HILL = T("TERRAIN_HILL"), NAVR = T("TERRAIN_NAVIGABLE_RIVER");
+  const OCEAN = T("TERRAIN_OCEAN"),
+    COAST = T("TERRAIN_COAST"),
+    MOUNT = T("TERRAIN_MOUNTAIN");
+  const HILL = T("TERRAIN_HILL"),
+    NAVR = T("TERRAIN_NAVIGABLE_RIVER");
   // terrain class -> RGB. Deep ocean dark, coast pale blue, land greens, mountains grey.
   const colorFor = (v: number | null): [number, number, number] => {
     if (v === null || v === undefined) return [0, 0, 0];
@@ -102,7 +110,8 @@ function main(): void {
     return [104, 150, 92]; // flat / other land
   };
 
-  const IW = W * CELL, IH = H * CELL;
+  const IW = W * CELL,
+    IH = H * CELL;
   type Cell = { row: number; col: number; label: string; deep: number; png: string };
   const cells: Cell[] = [];
 
@@ -112,11 +121,19 @@ function main(): void {
     for (let c = 0; c < SEEDS.length; c++) {
       const seed = SEEDS[c]!;
       const snap = runLocalFinalSurfaceSnapshot({ width: W, height: H, seed, config });
-      const adapter = createMockAdapter({ width: W, height: H, mapInfo, mapSizeId: mapInfo.MapSizeType ?? 1, rng: createLabelRng(seed) });
+      const adapter = createMockAdapter({
+        width: W,
+        height: H,
+        mapInfo,
+        mapSizeId: mapInfo.MapSizeType ?? 1,
+        rng: createLabelRng(seed),
+      });
       const idx = (n: string) => adapter.getTerrainTypeIndex(n);
-      const vOCEAN = idx("TERRAIN_OCEAN"), vCOAST = idx("TERRAIN_COAST");
+      const vOCEAN = idx("TERRAIN_OCEAN"),
+        vCOAST = idx("TERRAIN_COAST");
       const vals = snap.surfaces.terrain.values;
-      let ocean = 0, coast = 0;
+      let ocean = 0,
+        coast = 0;
       const rgba = Buffer.alloc(IW * IH * 4);
       for (let y = 0; y < IH; y++) {
         const gy = (y / CELL) | 0;
@@ -127,7 +144,10 @@ function main(): void {
           else if (v === vCOAST) coast++;
           const [rr, gg, bb] = colorFor(v);
           const o = (y * IW + x) * 4;
-          rgba[o] = rr; rgba[o + 1] = gg; rgba[o + 2] = bb; rgba[o + 3] = 255;
+          rgba[o] = rr;
+          rgba[o + 1] = gg;
+          rgba[o + 2] = bb;
+          rgba[o + 3] = 255;
         }
       }
       // ocean/coast counted over the upscaled image -> divide out CELL^2 implicitly via ratio
@@ -139,29 +159,48 @@ function main(): void {
   }
 
   // ── compose SVG ──
-  const PAD = 10, HEADER = 26, LBL = 18, GAP = 8, TITLE = 40;
-  const cw = IW, ch = IH + LBL;
+  const PAD = 10,
+    HEADER = 26,
+    LBL = 18,
+    GAP = 8,
+    TITLE = 40;
+  const cw = IW,
+    ch = IH + LBL;
   const gridW = SEEDS.length * cw + (SEEDS.length - 1) * GAP;
   const gridH = ROWS.length * ch + (ROWS.length - 1) * GAP;
   const svgW = PAD * 2 + gridW;
   const svgH = TITLE + HEADER + gridH + PAD;
   const parts: string[] = [];
-  parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" font-family="ui-sans-serif,system-ui,sans-serif">`);
+  parts.push(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" font-family="ui-sans-serif,system-ui,sans-serif">`
+  );
   parts.push(`<rect width="${svgW}" height="${svgH}" fill="#0e1116"/>`);
-  parts.push(`<text x="${PAD}" y="26" fill="#e6e6e6" font-size="18" font-weight="700">Crust-relief deep-ocean fix — final terrain (${W}×${H})</text>`);
+  parts.push(
+    `<text x="${PAD}" y="26" fill="#e6e6e6" font-size="18" font-weight="700">Crust-relief deep-ocean fix — final terrain (${W}×${H})</text>`
+  );
   // column headers (seeds)
   for (let c = 0; c < SEEDS.length; c++) {
     const cx = PAD + c * (cw + GAP) + cw / 2;
-    parts.push(`<text x="${cx}" y="${TITLE + 18}" fill="#9aa4b2" font-size="13" text-anchor="middle">seed ${SEEDS[c]}</text>`);
+    parts.push(
+      `<text x="${cx}" y="${TITLE + 18}" fill="#9aa4b2" font-size="13" text-anchor="middle">seed ${SEEDS[c]}</text>`
+    );
   }
   for (const cell of cells) {
     const x = PAD + cell.col * (cw + GAP);
     const y = TITLE + HEADER + cell.row * (ch + GAP);
-    parts.push(`<image x="${x}" y="${y}" width="${cw}" height="${IH}" image-rendering="pixelated" href="data:image/png;base64,${cell.png}"/>`);
-    parts.push(`<rect x="${x}" y="${y}" width="${cw}" height="${IH}" fill="none" stroke="#2a2f3a" stroke-width="1"/>`);
+    parts.push(
+      `<image x="${x}" y="${y}" width="${cw}" height="${IH}" image-rendering="pixelated" href="data:image/png;base64,${cell.png}"/>`
+    );
+    parts.push(
+      `<rect x="${x}" y="${y}" width="${cw}" height="${IH}" fill="none" stroke="#2a2f3a" stroke-width="1"/>`
+    );
     const deepColor = cell.deep >= 40 ? "#7fd1a6" : "#d9a05b";
-    parts.push(`<text x="${x + 4}" y="${y + IH + 13}" fill="#c9d1d9" font-size="12">${cell.label}</text>`);
-    parts.push(`<text x="${x + cw - 4}" y="${y + IH + 13}" fill="${deepColor}" font-size="12" text-anchor="end" font-weight="700">${cell.deep}% deep</text>`);
+    parts.push(
+      `<text x="${x + 4}" y="${y + IH + 13}" fill="#c9d1d9" font-size="12">${cell.label}</text>`
+    );
+    parts.push(
+      `<text x="${x + cw - 4}" y="${y + IH + 13}" fill="${deepColor}" font-size="12" text-anchor="end" font-weight="700">${cell.deep}% deep</text>`
+    );
   }
   parts.push(`</svg>`);
   const svg = parts.join("\n");

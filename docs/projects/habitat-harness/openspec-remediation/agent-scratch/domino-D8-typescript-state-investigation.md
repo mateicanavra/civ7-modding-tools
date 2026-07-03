@@ -49,7 +49,7 @@ The current disk state incompletely prevents bad promotion by runtime tests and 
 The current manifest layer already contains a useful discriminant, but it is not the complete Pattern Authority state machine D8 needs.
 
 - `PatternAuthorityLifecycle` is `"candidate" | "registered-advisory" | "registered-enforced"` in `tools/habitat/src/rules/pattern-authority/manifest.ts:5`.
-- `CandidatePatternAuthorityManifest` owns `candidateArtifacts`, `registration.accepted: false`, and `requiredForRegistration` at `manifest.ts:67-78`.
+- `CandidatePatternAuthorityManifest` owns `candidateAuthorityFiles`, `registration.accepted: false`, and `requiredForRegistration` at `manifest.ts:67-78`.
 - `RegisteredPatternAuthorityManifest` owns normative/proving sources, language, scan roots, fixture strategy, false-positive model, current-tree scan, baseline contract, hook scope, and apply safety at `manifest.ts:80-122`.
 - `PatternAuthorityApplySafety` separates `{ kind: "not-apply" }` from `{ kind: "apply"; dryRunCommand; noWriteProof; appliedDiffProof; rollbackProof; typeAndTestProof }` at `manifest.ts:34-43`.
 - `PatternAuthorityValidationResult` returns `ok: true`, a broad `manifest`, `state`, and `authorityAccepted: boolean`, or `ok: false` issues at `manifest.ts:176-186`.

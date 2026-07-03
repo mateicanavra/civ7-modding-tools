@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 2,
+  "id": "require_owner_workflow_for_host_protected_surfaces",
+  "title": "Require Owner Workflow For Host Protected Surfaces",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "_self",
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "staged hand-edits to host-declared protected surfaces",
+  "why": "Host-owned protected surfaces must be changed through their declared owner workflow.",
+  "remediate": "Use the recovery instruction from the host policy declaration.",
+  "message": "Host-declared protected surfaces are protected from hand edit.",
+  "pathCoverage": [
+    {
+      "kind": "workspace-gate"
+    }
+  ],
+  "hostSurfaceGuard": true,
+  "supportFiles": {
+    "baseline": ".habitat/global/workspace/rules/require_owner_workflow_for_host_protected_surfaces/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "file-layer",
+    "guard": "host-surface"
+  }
+}

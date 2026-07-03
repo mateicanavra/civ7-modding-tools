@@ -18,12 +18,12 @@ Use this order when sources disagree:
 2. Root `AGENTS.md`, closest subtree `AGENTS.md`, and repo process docs.
 3. `.habitat/FRAME.md` for the current authority-tree lens.
 4. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
-   `.habitat/ARTIFACT-KINDS.md`, `.habitat/SUBJECT-CATEGORIES.md`,
+   `.habitat/RULE-OPERATION-KINDS.md`, `.habitat/SUBJECT-CATEGORIES.md`,
    `.habitat/dominoes.md`, and `.habitat/config.md`.
 5. `docs/projects/habitat-harness/FRAME.md`,
    `docs/projects/habitat-harness/dra-takeover-frame.md`, and current
    Habitat recovery/workstream records.
-6. Current `.habitat/**/category.md` files, rule metadata, patterns,
+6. Current `.habitat` manifests, packet paths, generic role files, patterns,
    baselines, operation notes, and Toolkit discovery behavior.
 7. Current source code, tests, scripts, package metadata, Nx metadata, and
    fresh command behavior.
@@ -79,19 +79,37 @@ select, run, report, fix, generate, or migrate authority artifacts, but Toolkit
 internals, runner types, adapter names, and current implementation defects do
 not define the authority ontology.
 
-The current target tree remains:
+The current pruning target tree is:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
+.habitat/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/_blueprints/<candidate>/<packet>/
+.habitat/<niche>/rules/<packet>/
+.habitat/<niche>/_remainder/<packet>/
+.habitat/<niche>/<child-niche>/...
 ```
 
-The tree is intentionally decomposed:
+This tree is intentionally decomposed for the current gathered packet corpus:
 
 - niche: authored jurisdiction;
-- blueprint: the buildable or enforceable thing inside the niche;
-- category: universal engineering-purpose class;
-- kind: mutability and execution intent;
+- blueprint: affirmed constructible kind authority at top level;
+- _blueprints: niche-local candidate/likeness grouping, not affirmed
+  blueprint authority;
+- rules: transitional niche-local inventory, not blueprint authority;
+- _remainder: reviewed and sorted deferred inventory, not niche, blueprint,
+  capability, or final ontology;
+- category: universal engineering-purpose class in `rule.json`;
+- kind: mutability and execution intent in `rule.json`;
 - packet: current artifact bundle or authority unit.
+
+The durable ontology is narrower than this physical decomposition. Habitat,
+blueprint, instance, capability, and niche are conceptual authority types.
+Category, kind, and packet are current pruning axes and may change when typed
+blueprint, capability, niche, and instance manifests are designed.
+`_remainder` is visual debt for packets already reviewed by a bounded slice
+but not yet moved to a final owner; sorted-but-deferred packets must not remain
+under `rules/` where future agents would read them as intentional context
+authority.
 
 ## WHY
 
@@ -112,29 +130,31 @@ as architecture.
 
 Use this model when reading a packet:
 
-- `*.rule.json` is runner/catalog metadata. It tells the Toolkit how current
-  execution is wired; it is not the final source of policy truth.
+- `rule.json` is runner/catalog metadata. It tells the Toolkit how current
+  execution is wired. It now owns stable rule identity, current placement
+  inventory facts, explicit runner file references, and explicit artifact
+  references; the packet path is current placement evidence, not identity.
 - `.habitat/_support/execution/source-check/` was transitional source-check
   adapter support. It is now deleted: zero `ownerTool: source-check` records,
   zero central `.rule.mjs` adapters, and no `rule-runtime.policy.mjs` remain.
 - `.habitat/_support/execution/` is a temporary support island under the
-  authority tree. It is not a niche, blueprint, category, artifact kind, or
+  authority tree. It is not a niche, blueprint, category, operation kind, or
   final source of authored authority.
-- `*.pattern.md` is policy-pattern text. Grit examples or match/ignore blocks
+- `pattern.md` is policy-pattern text. Grit examples or match/ignore blocks
   that are part of the pattern packet stay with the pattern unless a runner
   consumes them as separate support files.
 - `fixtures/` or `support/` should mean runtime/test support needed to execute
   a flow, not examples embedded in policy-pattern authority.
-- `*.check.*` is a command-check executor. These files are the main suspect
+- `check.*` is a command-check executor. These files are the main suspect
   lane for package-local validators, generated-output currentness checks, and
   Nx-ordering issues.
-- `*.fix.*`, `*.generate.*`, and `*.operation.md` are operation surfaces, not
+- `fix.*`, `generate.*`, and `operation.md` are operation surfaces, not
   default enforcement rules.
 
 Do not recreate source-check adapter literals or move old adapter literals into
 `fixtures/`; the remaining policy payloads now belong in Grit patterns or the
 appropriate non-source-check owner.
-Do not move `.pattern.md` examples merely because they are examples.
+Do not move `pattern.md` examples merely because they are examples.
 
 ## Selection Commitments
 
@@ -178,9 +198,9 @@ Violating any of these forces a reframe:
 
 1. `.habitat` owns authored Habitat authority; `tools/habitat` owns execution
    mechanics.
-2. Niche is jurisdiction; blueprint is the thing being authored or enforced;
-   category is purpose; kind is mutability; packet is the current artifact
-   bundle.
+2. Niche and blueprint are durable ontology terms. Niche is jurisdiction;
+   blueprint is the constructible thing being authored or enforced. Category,
+   kind, and packet are current decomposition axes for gathered authority.
 3. Classify by assertion oracle and mutability, not by file name, target name,
    current path, runner type, or historical defect label.
 4. Habitat owns true structural authority. Package tests own runtime behavior,
@@ -202,15 +222,20 @@ Violating any of these forces a reframe:
 These can change without reframing while the hard core holds:
 
 - Exact subject names, human titles, and executable slugs.
-- The temporary `_self` blueprint placeholder.
-- Packet-local `category.md` records as the current metadata carrier.
+- The temporary `_self` niche-authority packet-placement placeholder.
+- Generic packet role filenames as the current colocated file convention.
+- `rule.json` as the current location-independent inventory manifest until
+  typed blueprint, instance, capability, and niche authority manifests replace
+  its transitional placement facts.
+- Exact blueprint-definition folder names, manifest schemas, same-kind nesting
+  cascade rules, conflict handling, and deprecation semantics.
 - Transitional command-check scripts for read-only authority that cannot yet be
   expressed through Grit, Nx, Biome, or another durable adapter.
 - Provisional operation notes for fix/generate behavior until typed operation
   manifests exist.
 - Selected-rule execution as the proven compatibility bridge while full-suite
   runner discovery is rebuilt.
-- Whether a pruning disposition is recorded in a packet `category.md`, a
+- Whether a pruning disposition is recorded in a packet role file, a
   higher authority doc, a workstream record, or a future OpenSpec packet.
 
 ## Pruning Classifier
@@ -241,7 +266,7 @@ been decomposed and labeled.
 
 Stage 1: inventory and decompose. Select one small suspect cluster and break
 each packet into assertion rows or operation rows. Record for each row the
-packet path, assertion text, current artifact kind, mutability, observed oracle,
+packet path, assertion text, current operation kind, mutability, observed oracle,
 current owner, candidate owner, proof class, and uncertainty. Do not remove or
 move authority in this stage unless the row is mechanically empty or already
 superseded by an adjacent row with identical owner and proof.
@@ -283,7 +308,7 @@ cluster:
 
 Stage 5: prove and record. Run focused proof for the touched authority unit and
 the smallest broader check that can catch owner or dependency mistakes. Update
-`category.md`, authority docs, or project records only when durable authority
+authority docs, role files, or project records only when durable authority
 changed. Commit each completed cluster as one Graphite layer.
 
 Decision pressure should move left to right. Early stages increase clarity;
@@ -314,9 +339,9 @@ and the completed transitional adapter ledger was removed. There are no current
   direct-control, control-oRPC, live-map, generated runtime output, resource
   distribution, and product/runtime tests that must remain outside Habitat.
 
-Search first in `.habitat/**/category.md` for `triage`, `provisional`,
-`transition`, `overlap`, `mixed`, `split`, `legacy`, `currentness`, `Nx`,
-`dependency`, `validator`, and `operation`.
+Search first in packet paths plus `rule.json` and `operation.md` for `triage`,
+`provisional`, `transition`, `overlap`, `mixed`, `split`, `legacy`,
+`currentness`, `Nx`, `dependency`, `validator`, and `operation`.
 
 ## Current Direction
 

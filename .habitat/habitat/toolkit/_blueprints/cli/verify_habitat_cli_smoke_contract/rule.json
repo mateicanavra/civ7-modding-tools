@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "verify_habitat_cli_smoke_contract",
+  "title": "Verify Habitat Cli Smoke Contract",
+  "placement": {
+    "niche": "habitat/toolkit",
+    "blueprint": "cli",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "Habitat CLI help or selected-check JSON output becoming unparseable",
+  "why": "The Toolkit package owns the CLI surface smoke proof.",
+  "remediate": "Restore the Habitat CLI help surface and CheckReport JSON schema compatibility.",
+  "message": "Habitat CLI smoke validation failed.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["tools/habitat/bin/**", "tools/habitat/src/cli/**"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/habitat/toolkit/_blueprints/cli/verify_habitat_cli_smoke_contract/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/habitat/toolkit/_blueprints/cli/verify_habitat_cli_smoke_contract/check.ts"
+    }
+  }
+}

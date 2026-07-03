@@ -8,40 +8,65 @@ import {
 import { applyAdmittedState } from "./pattern-admission.policy.js";
 import { applyAdmission } from "./pattern-view.policy.js";
 
-const BUILT_IN_APPLY_ADMISSIONS = [
+interface ApplyAdmissionRuleFacts {
+  readonly id: string;
+  readonly scanRoots: readonly string[];
+  readonly runner: {
+    readonly name: "grit";
+    readonly files: {
+      readonly pattern: string;
+      readonly applyPattern?: string;
+    };
+  };
+}
+
+const APPLY_ADMISSION_RULES = [
   {
-    kind: "apply-admission",
+    ruleId: "require_public_domain_surfaces_in_recipes_and_maps",
     patternId: "deep-import-to-public-surface",
-    manifestPath: ".habitat/patterns/apply/deep_import_to_public_surface.md",
     transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
-    transactionInputRuleIds: ["require_public_domain_surfaces_in_recipes_and_maps"],
-    dryRunRoots: ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
     dryRunOutput: "compact",
+    patternPath: (rule: ApplyAdmissionRuleFacts) => rule.runner.files.applyPattern,
   },
   {
-    kind: "apply-admission",
+    ruleId: "ensure_docs_checkout_paths_are_portable",
     patternId: "ensure_docs_checkout_paths_are_portable",
-    manifestPath:
-      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
     transactionInputRef: "patterns:ensure_docs_checkout_paths_are_portable:transaction-input",
-    transactionInputRuleIds: ["ensure_docs_checkout_paths_are_portable"],
-    dryRunRoots: ["docs"],
     dryRunOutput: "standard",
+    patternPath: (rule: ApplyAdmissionRuleFacts) => rule.runner.files.pattern,
   },
 ] as const;
 
-export function defaultApplyAdmissions(): ApplyAdmission[] {
-  return BUILT_IN_APPLY_ADMISSIONS.map((admission) => {
-    const input = applyAdmission(applyAdmittedState(Value.Parse(ApplyAdmissionSchema, admission)));
+export function defaultApplyAdmissions(
+  ruleFacts: readonly ApplyAdmissionRuleFacts[]
+): ApplyAdmission[] {
+  const rulesById = new Map(ruleFacts.map((rule) => [rule.id, rule]));
+  return APPLY_ADMISSION_RULES.flatMap((definition) => {
+    const rule = rulesById.get(definition.ruleId);
+    const patternPath = rule ? definition.patternPath(rule) : undefined;
+    if (!rule || !patternPath) return [];
+    const input = applyAdmission(
+      applyAdmittedState(
+        Value.Parse(ApplyAdmissionSchema, {
+          kind: "apply-admission",
+          patternId: definition.patternId,
+          manifestPath: patternPath,
+          transactionInputRef: definition.transactionInputRef,
+          transactionInputRuleIds: [definition.ruleId],
+          dryRunRoots: sortedUnique(rule.scanRoots),
+          dryRunOutput: definition.dryRunOutput,
+        })
+      )
+    );
     if (!input) throw new Error("internal error: apply admission did not resolve");
-    return input;
+    return [input];
   });
 }
 
 export function admittedApplyTransactionInputs(
-  ruleFacts: readonly { id: string }[]
+  ruleFacts: readonly ApplyAdmissionRuleFacts[]
 ): ApplyTransactionInput[] {
-  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), ruleFacts);
+  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(ruleFacts), ruleFacts);
 }
 
 export function applyTransactionInputsFromRuleFacts(

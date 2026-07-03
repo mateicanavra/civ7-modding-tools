@@ -14,7 +14,7 @@ export function candidateDraftState(candidate: CandidatePatternManifest): Patter
 export function candidateUnderReviewState(input: {
   candidate: Pick<
     CandidatePatternManifest,
-    "ruleId" | "patternName" | "openspecChangeId" | "ownerProject" | "ownerTool"
+    "ruleId" | "patternName" | "openspecChangeId" | "ownerProject" | "patternRole"
   >;
   missingInputs: [string, ...string[]];
 }): PatternState {

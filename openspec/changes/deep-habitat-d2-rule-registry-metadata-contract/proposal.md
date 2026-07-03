@@ -22,7 +22,7 @@ An agent classifies a path, selects rules, runs `habitat check`, inspects inferr
 
 ## What Changes
 
-- Define `RuleRegistryDocumentV1` as the canonical registry contract.
+- Define `RuleRegistryDocument` as the canonical registry contract.
 - Define closed rule states keyed by the current public selector vocabulary `ownerTool`.
 - Define typed facets for identity, reporting, execution, path coverage, graph target reference, baseline reference, Grit relation, generated/protected-zone relation, Pattern Authority relation, and local-feedback eligibility.
 - Define consumer projections as the only cross-domain read surface.

@@ -2,7 +2,7 @@
 
 ## Why
 
-Generators, scaffold refusal logic, and authored artifact fences are the places
+Generators, scaffold refusal logic, and authored authority-data fences are the places
 most likely to smuggle product-specific authoring language into generic
 Habitat. They need a named domain boundary before the Effect-first train closes.
 

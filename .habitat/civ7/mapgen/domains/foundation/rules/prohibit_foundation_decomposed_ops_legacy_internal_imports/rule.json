@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
+  "title": "Prohibit Foundation Decomposed Ops Legacy Internal Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domains/foundation",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "decomposed foundation tectonics ops importing legacy compute-tectonic-history internals",
+  "why": "Decomposed tectonics operations own their local contracts and rules instead of reaching into the retired aggregate implementation.",
+  "remediate": null,
+  "message": "Do not import legacy compute-tectonic-history internals from decomposed foundation ops.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*"]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/pattern.md"
+    },
+    "patternName": "prohibit_foundation_decomposed_ops_legacy_internal_imports"
+  }
+}

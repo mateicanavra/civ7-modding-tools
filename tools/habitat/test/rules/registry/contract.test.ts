@@ -1,5 +1,5 @@
 import path from "node:path";
-import { ruleRegistryRepoPath } from "@habitat/cli/resources/artifact-paths";
+import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import {
   isDirectorySync,
@@ -8,63 +8,48 @@ import {
 } from "@habitat/cli/resources/platform/filesystem";
 import {
   loadRuleRegistryDocument,
-  loadRuleRegistryDocumentEffect,
   parseRuleRegistryDocument,
   parseRuleRegistryText,
-  type RuleRegistryDirectoryEntry,
-  type RuleRegistryFileSystem,
 } from "@habitat/cli/service/model/rules/index";
-import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
-import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
+import {
+  baseRule,
+  expectInvalid,
+  gritRunner,
+  habitatFileLayerRunner,
+  habitatScriptRunner,
+  habitatStructureRunner,
+  nxRunner,
+  registryDocument,
+} from "./helpers.js";
 
 describe("rule registry contract", () => {
-  test("loads the current registry through the TypeBox schema", () => {
+  test("loads the current manifest corpus through the TypeBox schema", () => {
     const rules = loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
       isDirectory: isDirectorySync,
       readDirectory: readDirectorySync,
       readText: readTextSync,
     }).rules;
 
-    expect(rules).toHaveLength(124);
-    expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(0);
-    expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(30);
-    expect(rules.filter((rule) => rule.ownerTool === "structure-check")).toHaveLength(8);
-    expect(rules.filter((rule) => rule.ownerTool === "file-layer")).toHaveLength(5);
-    expect(rules.filter((rule) => rule.ownerTool === "format-check")).toHaveLength(1);
-    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(79);
-    expect(rules.filter((rule) => rule.ownerTool === "nx")).toHaveLength(1);
-    expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
+    expect(rules).toHaveLength(126);
+    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(79);
     expect(
-      rules
-        .filter((rule) => rule.ownerTool === "source-check")
-        .every((rule) => rule.scanRoots.length > 0)
-    ).toBe(true);
-    expect(rules.every((rule) => rule.pathCoverage.length > 0)).toBe(true);
-  });
-
-  test("async directory loading uses the root registry index", async () => {
-    const registryDir = "/repo/.habitat";
-    const rootIndex = path.join(registryDir, "index.json");
-    const rulePath = path.join(
-      registryDir,
-      "global/workspace/blueprints/project-boundary-model/structure/check/sample-rule/sample-rule.rule.json"
+      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
+    ).toHaveLength(33);
+    expect(
+      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure")
+    ).toHaveLength(8);
+    expect(
+      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer")
+    ).toHaveLength(5);
+    expect(rules.filter((rule) => rule.runner.name === "nx")).toHaveLength(1);
+    expect(rules.every((rule) => rule.schemaVersion === 2)).toBe(true);
+    expect(rules.every((rule) => rule.operation.kind === "check")).toBe(true);
+    expect(rules.every((rule) => rule.id && rule.title && rule.placement && rule.runner)).toBe(
+      true
     );
-    const fileSystem = virtualRegistryFileSystem({
-      [rootIndex]: JSON.stringify({
-        schemaVersion: 1,
-        ownerRoots: {
-          habitat: "tools/habitat",
-        },
-      }),
-      [rulePath]: JSON.stringify(baseRule()),
-    });
-
-    const document = await Effect.runPromise(
-      loadRuleRegistryDocumentEffect(registryDir, fileSystem)
-    );
-
-    expect(document.rules.map((rule) => rule.id)).toEqual(["sample-rule"]);
+    expect(rules.every((rule) => rule.supportFiles?.baseline)).toBe(true);
+    expect(rules.every((rule) => rule.manifestFilePath?.endsWith("/rule.json"))).toBe(true);
   });
 
   test("rejects invalid JSON before schema validation", () => {
@@ -103,21 +88,28 @@ describe("rule registry contract", () => {
         {
           code: "registry-duplicate-rule-id",
           path: "inline-registry.json",
-          message: 'Duplicate Habitat rule id: "duplicate-rule".',
+          message:
+            'Duplicate Habitat rule id: "duplicate-rule" in inline-registry.json, inline-registry.json.',
         },
       ],
     });
   });
 
-  test("rejects unknown adapters and unsupported lanes", () => {
+  test.each([
+    ["ownerTool", "unknown-tool"],
+    ["detect", ["fixture", "command"]],
+    ["scope", "tools/habitat/**"],
+  ])("rejects stale execution metadata field %s", (field, value) => {
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule(), ownerTool: "unknown-tool" }]),
+        registryDocument([{ ...baseRule(), [field]: value }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"
     );
+  });
 
+  test("rejects unsupported lanes", () => {
     expectInvalid(
       parseRuleRegistryDocument(
         registryDocument([{ ...baseRule(), lane: "experimental" }]),
@@ -127,22 +119,18 @@ describe("rule registry contract", () => {
     );
   });
 
-  test("rejects missing identity facts", () => {
+  test("rejects missing manifest identity, placement, and runner facts", () => {
     const { id: _id, ...missingId } = baseRule();
+    const { title: _title, ...missingTitle } = baseRule();
+    const { placement: _placement, ...missingPlacement } = baseRule();
+    const { runner: _runner, ...missingRunner } = baseRule();
 
-    expectInvalid(
-      parseRuleRegistryDocument(registryDocument([missingId]), "inline-registry.json"),
-      "registry-schema-invalid"
-    );
-  });
-
-  test("rejects missing routing facts", () => {
-    const { pathCoverage: _pathCoverage, ...missingRouting } = baseRule();
-
-    expectInvalid(
-      parseRuleRegistryDocument(registryDocument([missingRouting]), "inline-registry.json"),
-      "registry-schema-invalid"
-    );
+    for (const candidate of [missingId, missingTitle, missingPlacement, missingRunner]) {
+      expectInvalid(
+        parseRuleRegistryDocument(registryDocument([candidate]), "inline-registry.json"),
+        "registry-schema-invalid"
+      );
+    }
   });
 
   test("rejects malformed routing facts", () => {
@@ -164,15 +152,10 @@ describe("rule registry contract", () => {
     }
   });
 
-  test("rejects contradicted variant fields", () => {
+  test("rejects contradicted runner-specific fields", () => {
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([
-          {
-            ...baseRule(),
-            ownerTool: "nx",
-          },
-        ]),
+        registryDocument([{ ...baseRule(), runner: nxRunner() }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"
@@ -183,8 +166,8 @@ describe("rule registry contract", () => {
         registryDocument([
           {
             ...baseRule(),
-            ownerTool: "nx",
-            nxTarget: "habitat:test:wrapped",
+            runner: nxRunner(),
+            graphTarget: { project: "habitat", target: "different" },
           },
         ]),
         "inline-registry.json"
@@ -194,15 +177,7 @@ describe("rule registry contract", () => {
 
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule({ ownerTool: "source-check" }) }]),
-        "inline-registry.json"
-      ),
-      "registry-schema-invalid"
-    );
-
-    expectInvalid(
-      parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule({ ownerTool: "structure-check" }) }]),
+        registryDocument([{ ...baseRule({ runner: gritRunner("sample-rule") }) }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"
@@ -212,8 +187,7 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "structure-check" }),
-            structureFile: ".habitat/sample/sample.structure.toml",
+            ...baseRule({ runner: habitatStructureRunner("sample-rule") }),
             patternName: "not_structure_authority",
           },
         ]),
@@ -226,7 +200,7 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "source-check" }),
+            ...baseRule({ runner: gritRunner("sample-rule") }),
             patternName: "sample_pattern",
           },
         ]),
@@ -239,7 +213,7 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "file-layer" }),
+            ...baseRule({ runner: habitatFileLayerRunner("generated-zone") }),
             generatedZone: "generated-zone",
             forbiddenFileNames: ["pnpm-lock.yaml"],
           },
@@ -250,80 +224,27 @@ describe("rule registry contract", () => {
     );
   });
 
-  test("rejects malformed downstream metadata ownership", () => {
-    expectInvalid(
-      parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule(), exceptionPath: "" }]),
-        "inline-registry.json"
-      ),
-      "registry-schema-invalid"
+  test("accepts each explicit runner shape", () => {
+    const result = parseRuleRegistryDocument(
+      registryDocument([
+        { ...baseRule({ id: "grit-rule", runner: gritRunner("grit-rule") }), scanRoots: ["src"] },
+        baseRule({ id: "script-rule", runner: habitatScriptRunner("script-rule") }),
+        baseRule({ id: "structure-rule", runner: habitatStructureRunner("structure-rule") }),
+        {
+          ...baseRule({
+            id: "generated-zone-rule",
+            runner: habitatFileLayerRunner("generated-zone"),
+          }),
+          generatedZone: "dist/generated",
+        },
+        {
+          ...baseRule({ id: "nx-rule", runner: nxRunner("habitat", "check") }),
+          graphTarget: { project: "habitat", target: "check" },
+        },
+      ]),
+      "inline-registry.json"
     );
 
-    expectInvalid(
-      parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule(), generatedZone: "swooper-map-generated" }]),
-        "inline-registry.json"
-      ),
-      "registry-schema-invalid"
-    );
-
-    expectInvalid(
-      parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule(), manifestPath: "tools/habitat/rule.json" }]),
-        "inline-registry.json"
-      ),
-      "registry-schema-invalid"
-    );
-
-    expectInvalid(
-      parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule(), hookCheck: true }]),
-        "inline-registry.json"
-      ),
-      "registry-schema-invalid"
-    );
+    expect(result).toMatchObject({ ok: true });
   });
 });
-
-function virtualRegistryFileSystem(files: Record<string, string>): RuleRegistryFileSystem<never> {
-  const filePaths = Object.keys(files);
-  const directories = new Set<string>();
-  for (const filePath of filePaths) {
-    let current = path.dirname(filePath);
-    while (current !== path.dirname(current)) {
-      directories.add(current);
-      current = path.dirname(current);
-    }
-  }
-
-  return {
-    isDirectory: (registryPath) => Effect.succeed(directories.has(registryPath)),
-    readDirectory: (registryPath) =>
-      directories.has(registryPath)
-        ? Effect.succeed(directoryEntries(registryPath, directories, filePaths))
-        : Effect.fail(new Error(`not a directory: ${registryPath}`)),
-    readText: (registryPath) =>
-      registryPath in files
-        ? Effect.succeed(files[registryPath] as string)
-        : Effect.fail(new Error(`missing file: ${registryPath}`)),
-  };
-}
-
-function directoryEntries(
-  directory: string,
-  directories: ReadonlySet<string>,
-  filePaths: readonly string[]
-): RuleRegistryDirectoryEntry[] {
-  const entries = new Map<string, RuleRegistryDirectoryEntry>();
-  for (const child of directories) {
-    if (path.dirname(child) === directory) {
-      entries.set(path.basename(child), { name: path.basename(child), kind: "directory" });
-    }
-  }
-  for (const filePath of filePaths) {
-    if (path.dirname(filePath) === directory) {
-      entries.set(path.basename(filePath), { name: path.basename(filePath), kind: "file" });
-    }
-  }
-  return [...entries.values()].sort((left, right) => left.name.localeCompare(right.name));
-}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_ambient_rng_in_authored_generation",
+  "title": "Prohibit Ambient Rng In Authored Generation",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_remainder",
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "authored generation source calling engine RNG, Math.random, official generators, or internal mapgen-core RNG",
+  "why": "Swooper authored generation owns deterministic RNG policy instead of reaching through engine/runtime generator APIs.",
+  "remediate": null,
+  "message": "Keep authored generation off engine RNG and official generators.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs"
+    }
+  }
+}

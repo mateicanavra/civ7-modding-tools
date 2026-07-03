@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "verify_standard_recipe_public_authoring_surface",
+  "title": "Verify Standard Recipe Public Authoring Surface",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "standard stages exposing raw op envelopes, open public config schemas, unexpected public keys, or step focus paths that bypass named public config fields",
+  "why": "The standard recipe authoring surface is structural authority. Product tests should not own its canonical public schema shape.",
+  "remediate": "Update the standard stage public surface intentionally and keep raw operation envelopes behind named public config keys.",
+  "message": "Standard stage public authoring surface drifted.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**",
+        "packages/mapgen-core/src/authoring/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts"
+    }
+  }
+}

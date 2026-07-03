@@ -132,7 +132,7 @@ describe("Habitat oclif commands", () => {
       ruleRouting: [
         {
           ruleId: "block_unapproved_base_standard_boundary_leaks",
-          ownerTool: "command-check",
+          runner: "habitat",
           ownerProject: "habitat",
           coverageKind: "workspace-gate",
           reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
@@ -191,8 +191,8 @@ describe("Habitat oclif commands", () => {
       "block_unapproved_base_standard_boundary_leaks",
       "--owner",
       "habitat",
-      "--tool",
-      "source-check",
+      "--runner",
+      "grit",
       "--staged",
       "--base",
       "HEAD",
@@ -214,19 +214,19 @@ describe("Habitat oclif commands", () => {
             "block_unapproved_base_standard_boundary_leaks",
             "--owner",
             "habitat",
-            "--tool",
-            "source-check",
+            "--runner",
+            "grit",
             "--staged",
             "--base",
             "HEAD",
           ],
           serialized:
-            "habitat check --json --output /tmp/report.json --rule block_unapproved_base_standard_boundary_leaks --owner habitat --tool source-check --staged --base HEAD",
+            "habitat check --json --output /tmp/report.json --rule block_unapproved_base_standard_boundary_leaks --owner habitat --runner grit --staged --base HEAD",
         },
         selectors: {
           owner: "habitat",
           rule: "block_unapproved_base_standard_boundary_leaks",
-          tool: "source-check",
+          runner: "grit",
         },
         staged: true,
       })
@@ -253,8 +253,12 @@ describe("Habitat oclif commands", () => {
       expect.objectContaining({
         selectors: {
           owner: undefined,
-          rules: ["prohibit_cross_op_runtime_calls", "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases", "preserve_standard_stage_topology_and_path_invariants"],
-          tool: undefined,
+          rules: [
+            "prohibit_cross_op_runtime_calls",
+            "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+            "preserve_standard_stage_topology_and_path_invariants",
+          ],
+          runner: undefined,
         },
         command: {
           bin: "habitat",
@@ -282,7 +286,7 @@ describe("Habitat oclif commands", () => {
         selectors: {
           owner: undefined,
           rule: "demo-rule",
-          tool: undefined,
+          runner: undefined,
         },
         base: "main",
       })

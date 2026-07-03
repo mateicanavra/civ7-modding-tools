@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "block_hand_edits_to_generated_civ7_types",
+  "title": "Block Hand Edits To Generated Civ7 Types",
+  "placement": {
+    "niche": "civ7/resources",
+    "blueprint": "civ7-types",
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "staged hand-edits to generated Civ7 declaration files",
+  "why": "Civ7 generated types are produced by the external resources workflow.",
+  "remediate": "Use the resources workflow documented in docs/process/resources-submodule.md.",
+  "message": "Generated Civ7 declaration files are protected from hand edit.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/civ7-types/generated/**"]
+    }
+  ],
+  "generatedZone": "civ7-types-generated",
+  "supportFiles": {
+    "baseline": ".habitat/civ7/resources/_blueprints/civ7-types/block_hand_edits_to_generated_civ7_types/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "file-layer",
+    "guard": "generated-zone"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_narrative_swatches_stage_token",
+  "title": "Prohibit Narrative Swatches Stage Token",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "the retired narrative-swatches stage token",
+  "why": "Narrative swatches are not part of the current standard stage topology.",
+  "remediate": null,
+  "message": "Do not reference the retired narrative-swatches stage token.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.ts",
+        "mods/mod-swooper-maps/test/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/test"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_narrative_swatches_stage_token/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_narrative_swatches_stage_token/pattern.md"
+    },
+    "patternName": "prohibit_narrative_swatches_stage_token"
+  }
+}

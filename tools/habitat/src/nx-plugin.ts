@@ -7,10 +7,10 @@ import {
   type NxRuleRegistryRecord,
 } from "./providers/nx/rule-registry-loader.ts";
 import {
-  habitatArtifactsProjectName,
-  habitatArtifactsRoot,
+  habitatAuthorityProjectName,
+  habitatAuthorityRoot,
   ruleRegistryRepoPath,
-} from "./resources/artifact-paths.ts";
+} from "./resources/authority-paths.ts";
 import { repoRoot } from "./resources/paths.ts";
 import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
@@ -30,7 +30,6 @@ import {
   ownerCheckTarget,
   sourceCheckTarget,
 } from "./service/model/graph/policy/target-definitions.policy.ts";
-import { sourceCheckRuleModuleRepoPath } from "./service/model/source-check/policy/source/module-paths.policy.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
@@ -99,8 +98,8 @@ function buildInferredProjects(input: {
   const ownerRoots = new Map(Object.entries(input.registry.ownerRoots));
   const recordsById = new Map(input.registry.rules.map((rule) => [rule.id, rule]));
   const projects: InferredProjects = {};
-  projects[habitatArtifactsRoot] = {
-    name: habitatArtifactsProjectName,
+  projects[habitatAuthorityRoot] = {
+    name: habitatAuthorityProjectName,
     tags: ["kind:tooling"],
     targets: {},
   };
@@ -258,27 +257,24 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   const inputs = new Set<string>([
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
-    `{workspaceRoot}/.habitat/**/${rule.id}/**`,
     ...covered.inputs,
   ]);
+  if (rule.manifestFilePath) inputs.add(workspaceInput(rule.manifestFilePath));
+  if (rule.supportFiles?.baseline) inputs.add(workspaceInput(rule.supportFiles.baseline));
   if (rule.ownerProject === "habitat") {
     inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }
-  if (rule.ownerTool === "source-check") {
-    inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
-    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
+  if (isPatternBackedRule(rule)) {
+    inputs.add(workspaceInput(rule.runner.files.pattern));
+    if (rule.runner.files.applyPattern) inputs.add(workspaceInput(rule.runner.files.applyPattern));
+    for (const scopeInput of gritRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
-  if (rule.ownerTool === "grit-check") {
-    inputs.add(workspaceInput(`.habitat/**/${rule.id}/${rule.id}.pattern.md`));
-    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
-    if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
+  if (rule.runner.name === "habitat" && rule.runner.mode === "structure") {
+    inputs.add(workspaceInput(rule.runner.files.structure));
   }
-  if (rule.ownerTool === "structure-check") {
-    inputs.add(workspaceInput(rule.structureFile));
-  }
-  if (rule.ownerTool === "habitat" || rule.ownerTool === "command-check") {
-    inputs.add(`{workspaceRoot}/.habitat/**/${rule.id}/**`);
+  if (rule.runner.name === "habitat" && rule.runner.mode === "script") {
+    inputs.add(workspaceInput(rule.runner.files.script));
   }
   return [...inputs];
 }
@@ -301,25 +297,30 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
     "{workspaceRoot}/.habitat/**",
   ]);
   for (const rule of rules) {
-    if (rule.ownerTool !== "source-check") continue;
-    inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
-    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
+    if (!isPatternBackedRule(rule)) continue;
+    inputs.add(workspaceInput(rule.runner.files.pattern));
+    if (rule.runner.files.applyPattern) inputs.add(workspaceInput(rule.runner.files.applyPattern));
+    for (const scopeInput of gritRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   return [...inputs];
 }
 
-type PatternBackedRegistryRecord = Extract<
-  NxRuleRegistryRecord,
-  { ownerTool: "source-check" | "grit-check" }
->;
+type PatternBackedRegistryRecord =
+  Extract<NxRuleRegistryRecord["runner"], { name: "grit" }> extends infer GritRunner
+    ? NxRuleRegistryRecord & { runner: GritRunner; scanRoots?: string[] }
+    : never;
 
-function sourceCheckRuleScopeInputs(rule: PatternBackedRegistryRecord): string[] {
+function gritRuleScopeInputs(rule: PatternBackedRegistryRecord): string[] {
   const exactPathInputs = rule.pathCoverage.flatMap((entry) =>
     entry.kind === "exact-path" ? entry.patterns.map(workspaceInput) : []
   );
   if (exactPathInputs.length > 0) return exactPathInputs;
   return (rule.scanRoots ?? []).map(workspaceScanRootInput);
+}
+
+function isPatternBackedRule(rule: NxRuleRegistryRecord): rule is PatternBackedRegistryRecord {
+  return rule.runner.name === "grit";
 }
 
 function pathCoverageInputs(
@@ -338,7 +339,7 @@ function pathCoverageInputs(
       case "workspace-gate":
         return { kind: "workspace-gate" };
       case "unresolved-metadata":
-        if (rule.ownerTool !== "source-check") inputs.push(workspaceInput(`${ownerRoot}/**`));
+        if (rule.runner.name !== "grit") inputs.push(workspaceInput(`${ownerRoot}/**`));
         break;
     }
   }

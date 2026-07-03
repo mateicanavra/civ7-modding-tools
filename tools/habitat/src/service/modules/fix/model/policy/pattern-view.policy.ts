@@ -18,7 +18,7 @@ export function patternView(state: PatternState): PatternView {
     case "candidate-draft":
       return parsePatternView({
         patternId: state.candidate.ruleId,
-        manifestPath: state.candidate.candidateArtifacts.manifestPath,
+        manifestPath: state.candidate.candidateAuthorityFiles.manifestPath,
         lifecycle: state.kind,
         admittedCapabilities: [],
       });
@@ -78,7 +78,7 @@ export function candidateHandoff(state: PatternState): CandidateHandoff | undefi
     return Value.Parse(CandidateHandoffSchema, {
       kind: "candidate-handoff",
       patternId: state.candidate.ruleId,
-      candidatePaths: state.candidate.candidateArtifacts,
+      candidatePaths: state.candidate.candidateAuthorityFiles,
       registrationPrerequisites: state.candidate.requiredForRegistration,
     });
   }

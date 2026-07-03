@@ -34,14 +34,14 @@ D10 should be repaired as the single authority for generic protected mutation de
 
 ## Competency Questions D10 Must Answer
 
-1. Given a repo-relative path in a staged diff, what mutation surface does it belong to: generated surface, protected non-generated surface, host-owned surface, forbidden artifact, unknown surface, or ordinary unprotected path?
-2. Which owner can approve a mutation to that surface: a declared generator authority, a host policy declaration, a forbidden-artifact policy, or no owner?
+1. Given a repo-relative path in a staged diff, what mutation surface does it belong to: generated surface, protected non-generated surface, host-owned surface, forbidden file, unknown surface, or ordinary unprotected path?
+2. Which owner can approve a mutation to that surface: a declared generator authority, a host policy declaration, a forbidden-file policy, or no owner?
 3. Is a staged mutation allowed, refused, or blocked by missing authority, and what exact recovery instruction should be reported?
 4. When a rule registry row references a generated-zone id, how is that id resolved through D2 projection into a D10 zone declaration without D7/D9/D11 reading whole registry rows?
 5. When a host-specific generated/protected path is touched, which G-HOST declaration supplies the host owner, regeneration/remediation action, and non-claims?
 6. How does D10 distinguish direct hand edits from declared generator writes without asserting that generated files are fresh or product-correct?
 7. How does D10 distinguish staged mutation guards from generated drift checks?
-8. What is the closed D10 refusal taxonomy for unknown zone id, missing host declaration, missing generator authority, direct protected edit, forbidden artifact, declaration conflict, declaration overlap, and public-surface compatibility missing?
+8. What is the closed D10 refusal taxonomy for unknown zone id, missing host declaration, missing generator authority, direct protected edit, forbidden file, declaration conflict, declaration overlap, and public-surface compatibility missing?
 9. What projection does D10 publish to D7 for check/report rendering?
 10. What projection does D10 publish to D9 for transaction path approval before live writes?
 11. What projection does D10 publish to D11 so hooks can report local feedback without owning zone policy?
@@ -52,7 +52,7 @@ D10 should be repaired as the single authority for generic protected mutation de
 ### D10 Owns
 
 - Protected mutation authority for repo-local file surfaces.
-- The vocabulary and state model for generated surfaces, protected surfaces, forbidden artifacts, unknown mutation surfaces, and D10 guard decisions.
+- The vocabulary and state model for generated surfaces, protected surfaces, forbidden files, unknown mutation surfaces, and D10 guard decisions.
 - Zone declaration identity and overlap/conflict validation.
 - Mapping from D2 `ruleGeneratedZoneFacts` or equivalent D2 projection to D10 zone declarations.
 - Consumption of G-HOST host declarations for host-owned surfaces.
@@ -107,7 +107,7 @@ Terms to reject or confine:
 - `declared-generated-surface`: zone id resolves to a generated surface with path match rule, generator authority, recovery instruction, and non-claims.
 - `declared-protected-surface`: zone id resolves to a protected non-generated surface with owner authority and recovery instruction.
 - `declared-host-owned-surface`: G-HOST supplies host owner/remediation/policy; D10 wraps it as a protected mutation input without copying host semantics.
-- `declared-forbidden-artifact`: exact filename/path policy refuses presence or staged mutation and reports removal/remediation.
+- `declared-forbidden-file`: exact filename/path policy refuses presence or staged mutation and reports removal/remediation.
 - `declaration-conflict`: overlapping declarations with incompatible authority, policy, or recovery instruction.
 - `declaration-missing`: a D2 generated-zone reference, staged protected path, or host-required surface lacks a usable declaration.
 
@@ -117,7 +117,7 @@ Terms to reject or confine:
 - `allowed-generator-write`: mutation is from a declared generator authority lane. Non-claim: generated freshness/product correctness is not proven.
 - `allowed-host-policy-write`: mutation is allowed by host declaration consumed from G-HOST. Non-claim: host product/runtime behavior is not proven.
 - `refused-direct-protected-edit`: staged/user/apply mutation touches a generated/protected surface without the allowed authority lane.
-- `refused-forbidden-artifact`: staged mutation introduces or modifies a forbidden artifact.
+- `refused-forbidden-file`: staged mutation introduces or modifies a forbidden file.
 - `blocked-missing-host-declaration`: path requires host policy but G-HOST declaration is absent or unavailable.
 - `blocked-unknown-zone`: D2/rule metadata references a zone id D10 cannot resolve.
 - `blocked-declaration-conflict`: declarations overlap or contradict and D10 cannot pick a winner.
@@ -177,9 +177,9 @@ Repair demand: specify `ruleGeneratedZoneFacts` or the accepted D2 projection na
 
 ### P1-4: Generated, Protected, Host-Owned, Forbidden, And Unknown Are Collapsed
 
-The source packet mentions "generated, protected, forbidden artifact, missing host declaration"; the current OpenSpec packet reduces this to generated/protected and guard decisions. The current source also handles `pnpm` artifacts beside generated zones, but those are forbidden artifacts, not generated surfaces.
+The source packet mentions "generated, protected, forbidden file, missing host declaration"; the current OpenSpec packet reduces this to generated/protected and guard decisions. The current source also handles `pnpm` artifacts beside generated zones, but those are forbidden files, not generated surfaces.
 
-Repair demand: define separate state families for generated surfaces, protected non-generated surfaces, host-owned surfaces, forbidden artifacts, and unknown mutation surfaces. Do not model `pnpm-lock.yaml` as a generated/protected zone.
+Repair demand: define separate state families for generated surfaces, protected non-generated surfaces, host-owned surfaces, forbidden files, and unknown mutation surfaces. Do not model `pnpm-lock.yaml` as a generated/protected zone.
 
 ### P1-5: D7/D9/D11 Handoffs Are Not Concrete
 
@@ -211,7 +211,7 @@ The proposal/tasks cite `bun run habitat check --json`, which is too broad and d
 Repair demand: replace generic gates with design-time and later implementation gates:
 
 - OpenSpec strict validation and wording audit for design acceptance.
-- Later implementation: generated-zone declaration schema tests, staged protected mutation tests, unknown zone id tests, missing host declaration refusal tests, declaration overlap/conflict tests, forbidden artifact tests, generated drift check separation tests, hook consumer tests, and D9 transaction path-authority tests.
+- Later implementation: generated-zone declaration schema tests, staged protected mutation tests, unknown zone id tests, missing host declaration refusal tests, declaration overlap/conflict tests, forbidden file tests, generated drift check separation tests, hook consumer tests, and D9 transaction path-authority tests.
 - Command scenarios must include `bun run habitat check --staged --tool file-layer --json` for clean and injected bad staged states, plus `nx run @habitat/cli:generated:check` or its accepted successor for drift check non-claim.
 
 ## P2 Blockers In Current D10 Packet

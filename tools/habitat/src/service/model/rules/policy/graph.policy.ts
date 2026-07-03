@@ -4,10 +4,10 @@ import {
 } from "@habitat/cli/service/model/workspace/index";
 import type { Static } from "typebox";
 import { Value } from "typebox/value";
-import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../dto/registry.schema.js";
+import type { RuleGraphFacts, RuleRegistryRecord } from "../dto/registry.schema.js";
 
 export function ruleGraphFacts(
-  records: readonly RuleRegistryRecordV1[],
+  records: readonly RuleRegistryRecord[],
   ownerRoots: ReadonlyMap<string, string>,
   targetNames: RuleGraphTargetNames | WorkspaceGraphTargetNames
 ): RuleGraphFacts[] {
@@ -26,6 +26,8 @@ export function ruleGraphFacts(
       id: rule.id,
       ownerProject: rule.ownerProject,
       ownerRoot: root,
+      lane: rule.lane,
+      message: rule.message,
       alias: ruleGraphAlias(rule, graphTargetNames),
     };
   });
@@ -34,7 +36,7 @@ export function ruleGraphFacts(
 type RuleGraphTargetNames = Static<typeof RuleGraphTargetNamesSchema>;
 
 function ruleGraphAlias(
-  rule: RuleRegistryRecordV1,
+  rule: RuleRegistryRecord,
   targetNames: RuleGraphTargetNames
 ): RuleGraphFacts["alias"] {
   if (rule.id === "enforce_formatting_and_import_hygiene") {
@@ -43,15 +45,10 @@ function ruleGraphAlias(
       target: { project: "habitat", target: targetNames.biomeCi },
     };
   }
-  if (rule.ownerTool === "nx") {
-    if (!rule.graphTarget) {
-      throw new Error(
-        `Habitat graph metadata contract failure: missing graphTarget for nx rule '${rule.id}'.`
-      );
-    }
+  if (rule.runner.name === "nx") {
     return {
       kind: "depends-on",
-      target: { ...rule.graphTarget },
+      target: { ...rule.runner.target },
     };
   }
   return { kind: "direct-rule-check" };

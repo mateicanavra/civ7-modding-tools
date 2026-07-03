@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "validate_docs_site_config_inputs",
+  "title": "Validate Docs Site Config Inputs",
+  "placement": {
+    "niche": "docs",
+    "blueprint": "docs-site",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "civ7-docs",
+  "lane": "enforced",
+  "forbids": "docs site configuration without a structured navigation object",
+  "why": "The docs app must keep the Mintlify navigation input semantically structured.",
+  "remediate": "Restore a docs.json name and navigation object. Root file presence is owned by require_docs_site_root_inputs.",
+  "message": "Docs site configuration has invalid navigation shape.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["apps/docs/docs.json"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/docs/_blueprints/docs-site/validate_docs_site_config_inputs/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/docs/_blueprints/docs-site/validate_docs_site_config_inputs/check.ts"
+    }
+  }
+}

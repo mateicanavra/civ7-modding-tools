@@ -183,7 +183,10 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("projects exact Grit pattern identities to Habitat rule ids", () => {
-    const rule = fakeGritRule("enforce_adapter_only_base_standard_imports", "adapter_base_standard_import");
+    const rule = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
     const diagnosticResults = gritRuleResultsFromReport([rule], {
       paths: ["packages/example/src/demo.ts"],
       results: [
@@ -217,8 +220,14 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("keeps wrong, missing, duplicate, and outside requested pattern findings distinct", () => {
-    const requested = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import");
-    const other = fakeGritRule("enforce_adapter_only_base_standard_imports", "adapter_base_standard_import");
+    const requested = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import"
+    );
+    const other = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
     const diagnosticResults = gritRuleResultsFromReport([requested, other], {
       paths: ["mods/mod-swooper-maps/src/recipes/demo.ts", "packages/example/src/demo.ts"],
       results: [
@@ -250,15 +259,24 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("keeps valid zero findings distinct from provider failure", () => {
-    const rule = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import");
+    const rule = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import"
+    );
     const result = gritRuleResultsFromReport([rule], { paths: [], results: [] }).get(rule.id);
 
     expect(result).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
   test("strict diagnostic matching distinguishes missing and unexpected pattern identities", () => {
-    const requested = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import");
-    const other = fakeGritRule("enforce_adapter_only_base_standard_imports", "adapter_base_standard_import");
+    const requested = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import"
+    );
+    const other = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
 
     const missing = gritRuleResultsFromReport(
       [requested],
@@ -287,7 +305,10 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("rejects conflicting observed Grit identity fields", () => {
-    const rule = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import");
+    const rule = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import"
+    );
     const diagnosticResults = gritRuleResultsFromReport([rule], {
       paths: ["mods/mod-swooper-maps/src/recipes/demo.ts"],
       results: [
@@ -311,7 +332,10 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("rejects empty scan roots before command execution", async () => {
-    const rule = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import");
+    const rule = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import"
+    );
     const results = await runGritRules([rule], { scanRoots: [] });
 
     expect(results.get(rule.id)?.exitCode).toBe(1);
@@ -319,7 +343,10 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("surfaces scan-root refusal as a diagnostic outcome", async () => {
-    const rule = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import");
+    const rule = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import"
+    );
     const outcomes = await runGritDiagnosticOutcomes([rule], { scanRoots: [] });
 
     const outcome = outcomes.get(rule.id);
@@ -430,7 +457,10 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("runs selected Grit rules through one argument-array command request", async () => {
-    const rule = fakeGritRule("enforce_adapter_only_base_standard_imports", "adapter_base_standard_import");
+    const rule = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeGrit = makeFakeGritProviderService(
       (request) => {
@@ -635,7 +665,10 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("fresh cache mode uses a scoped isolated cache with observable freshness", async () => {
-    const rule = fakeGritRule("enforce_adapter_only_base_standard_imports", "adapter_base_standard_import");
+    const rule = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequest = request;
@@ -661,13 +694,21 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("activates docs roots only for Grit rules that declare docs scan roots", () => {
-    const sourceRule = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import", {
-      scanRoots: ["mods/mod-swooper-maps/src/maps"],
-    });
-    const docsRule = fakeGritRule("ensure_docs_checkout_paths_are_portable", "docs_local_checkout_paths", {
-      lane: "advisory",
-      scanRoots: ["docs"],
-    });
+    const sourceRule = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import",
+      {
+        scanRoots: ["mods/mod-swooper-maps/src/maps"],
+      }
+    );
+    const docsRule = fakeGritRule(
+      "ensure_docs_checkout_paths_are_portable",
+      "docs_local_checkout_paths",
+      {
+        lane: "advisory",
+        scanRoots: ["docs"],
+      }
+    );
 
     expect(discoverPatternScanRoots([sourceRule], { repoRoot })).not.toContain("docs");
     const docsRoots = discoverPatternScanRoots([docsRule], { repoRoot });
@@ -679,10 +720,20 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("projects selected docs local-path findings from Grit rewrite dry-run output", async () => {
-    const rule = fakeGritRule("ensure_docs_checkout_paths_are_portable", "docs_local_checkout_paths", {
-      lane: "advisory",
-      scanRoots: ["docs"],
-    });
+    const relocatedPatternPath = ".habitat/future/docs-portability/pattern.md";
+    const rule = fakeGritRule(
+      "ensure_docs_checkout_paths_are_portable",
+      "docs_local_checkout_paths",
+      {
+        lane: "advisory",
+        scanRoots: ["docs"],
+        runner: {
+          name: "grit",
+          files: { pattern: relocatedPatternPath },
+          patternName: "docs_local_checkout_paths",
+        },
+      }
+    );
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequest = request;
@@ -700,10 +751,7 @@ Processed 1 files and found 1 matches
 
     const results = await runGritRules([rule], { grit: fakeGrit });
 
-    expect(observedRequest?.argv.slice(0, 2)).toEqual([
-      "apply",
-      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
-    ]);
+    expect(observedRequest?.argv.slice(0, 2)).toEqual(["apply", relocatedPatternPath]);
     expect(observedRequest?.argv).toContain("docs");
     expect(observedRequest?.argv.slice(-4)).toEqual([
       "--dry-run",
@@ -723,10 +771,14 @@ Processed 1 files and found 1 matches
   });
 
   test("projects docs local-path diagnostics as native diagnostic outcomes", async () => {
-    const rule = fakeGritRule("ensure_docs_checkout_paths_are_portable", "docs_local_checkout_paths", {
-      lane: "advisory",
-      scanRoots: ["docs"],
-    });
+    const rule = fakeGritRule(
+      "ensure_docs_checkout_paths_are_portable",
+      "docs_local_checkout_paths",
+      {
+        lane: "advisory",
+        scanRoots: ["docs"],
+      }
+    );
     const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         stdout: output(`docs/PROCESS.md
@@ -771,10 +823,14 @@ Processed 1 files and found 1 matches
   });
 
   test("ignores docs dry-run files with host paths but no rewrite hunk", async () => {
-    const rule = fakeGritRule("ensure_docs_checkout_paths_are_portable", "docs_local_checkout_paths", {
-      lane: "advisory",
-      scanRoots: ["docs"],
-    });
+    const rule = fakeGritRule(
+      "ensure_docs_checkout_paths_are_portable",
+      "docs_local_checkout_paths",
+      {
+        lane: "advisory",
+        scanRoots: ["docs"],
+      }
+    );
     const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         stdout: output(`docs/FALSE-POSITIVE.md
@@ -790,13 +846,27 @@ Processed 1 files and found 1 matches
   });
 
   test("splits mixed source and docs Grit selections by output contract", async () => {
-    const sourceRule = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import", {
-      scanRoots: ["mods/mod-swooper-maps/src/maps"],
-    });
-    const docsRule = fakeGritRule("ensure_docs_checkout_paths_are_portable", "docs_local_checkout_paths", {
-      lane: "advisory",
-      scanRoots: ["docs"],
-    });
+    const relocatedPatternPath = ".habitat/future/docs-portability/pattern.md";
+    const sourceRule = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import",
+      {
+        scanRoots: ["mods/mod-swooper-maps/src/maps"],
+      }
+    );
+    const docsRule = fakeGritRule(
+      "ensure_docs_checkout_paths_are_portable",
+      "docs_local_checkout_paths",
+      {
+        lane: "advisory",
+        scanRoots: ["docs"],
+        runner: {
+          name: "grit",
+          files: { pattern: relocatedPatternPath },
+          patternName: "docs_local_checkout_paths",
+        },
+      }
+    );
     const observedRequests: HabitatProcessRequest[] = [];
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
@@ -838,10 +908,7 @@ Processed 2 files and found 1 matches
       "error",
       "mods/mod-swooper-maps/src/maps",
     ]);
-    expect(observedRequests[1]?.argv.slice(0, 2)).toEqual([
-      "apply",
-      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
-    ]);
+    expect(observedRequests[1]?.argv.slice(0, 2)).toEqual(["apply", relocatedPatternPath]);
     expect(observedRequests[1]?.argv).toContain("docs");
     expect(observedRequests[1]?.argv.slice(-4)).toEqual([
       "--dry-run",
@@ -862,9 +929,13 @@ Processed 2 files and found 1 matches
   });
 
   test("splits diagnostic outcomes for mixed source and docs text selections", async () => {
-    const sourceRule = fakeGritRule("require_public_domain_surfaces_in_recipes_and_maps", "domain_deep_import", {
-      scanRoots: ["packages"],
-    });
+    const sourceRule = fakeGritRule(
+      "require_public_domain_surfaces_in_recipes_and_maps",
+      "domain_deep_import",
+      {
+        scanRoots: ["packages"],
+      }
+    );
     const docsRule = fakeGritRule("docs-policy", "docs_policy", {
       lane: "advisory",
       scanRoots: ["docs/PROCESS.md"],
@@ -929,7 +1000,10 @@ Processed 2 files and found 1 matches
   });
 
   test("fails paths that require observable cache provenance when status is unknown", async () => {
-    const rule = fakeGritRule("enforce_adapter_only_base_standard_imports", "adapter_base_standard_import");
+    const rule = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
     const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         cachePolicy: {
@@ -952,7 +1026,10 @@ Processed 2 files and found 1 matches
   });
 
   test("surfaces missing cache provenance as a diagnostic outcome", async () => {
-    const rule = fakeGritRule("enforce_adapter_only_base_standard_imports", "adapter_base_standard_import");
+    const rule = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
     const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         cachePolicy: {
@@ -1036,6 +1113,11 @@ function fakeGritRule(
     patternName: pattern,
     lane: "enforced",
     message: "test rule",
+    runner: {
+      name: "grit",
+      files: { pattern: `.habitat/test/${pattern}/pattern.md` },
+      patternName: pattern,
+    },
     scanRoots: ["packages"],
     ...overrides,
   };

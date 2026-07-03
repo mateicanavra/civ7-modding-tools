@@ -55,13 +55,13 @@ function selectorsFromInput(input: {
     readonly owner?: string;
     readonly rule?: string;
     readonly rules?: readonly string[];
-    readonly tool?: string;
+    readonly runner?: string;
   };
 }) {
   return {
     ...(input.selectors?.owner ? { owner: input.selectors.owner } : {}),
     ...(input.selectors?.rule ? { rule: input.selectors.rule } : {}),
     ...(input.selectors?.rules ? { rules: input.selectors.rules } : {}),
-    ...(input.selectors?.tool ? { tool: input.selectors.tool } : {}),
+    ...(input.selectors?.runner ? { runner: input.selectors.runner } : {}),
   };
 }

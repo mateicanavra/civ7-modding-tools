@@ -117,7 +117,7 @@ export interface HookReporterPort {
   readonly emit: (event: HookReportEvent) => Effect.Effect<void>;
 }
 
-export type StagedHookCheckTool = "file-layer" | "source-check";
+export type StagedHookCheckPhase = "file-layer" | "source-check";
 
 export type StagedHookCheckResult = SpawnResult & {
   readonly check: {
@@ -209,7 +209,7 @@ export interface HookModuleContext {
       state: PreCommitBiomeState
     ) => HookRouterEffect<PreCommitStep<PreCommitSourceCheckState>>;
     readonly stagedCheck: (
-      tool: StagedHookCheckTool,
+      phase: StagedHookCheckPhase,
       stagedPaths: readonly string[]
     ) => HookRouterEffect<StagedHookCheckResult>;
     readonly summaryAllowsNextStage: (result: HookCheckCommandResult) => boolean;

@@ -13,15 +13,9 @@
   "disposition": {
     "prRange": "#1831-#1883",
     "policy": "superseded-by replacement 17-PR stack",
-    "excludedBranches": [
-      "studio_runner_parked"
-    ],
-    "referenceOnlyBranches": [
-      "claude/*"
-    ],
-    "conditionalAdoption": [
-      "codex/recover-d0-public-surface-matrix"
-    ]
+    "excludedBranches": ["studio_runner_parked"],
+    "referenceOnlyBranches": ["claude/*"],
+    "conditionalAdoption": ["codex/recover-d0-public-surface-matrix"]
   },
   "groups": [
     {

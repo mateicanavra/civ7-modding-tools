@@ -11,49 +11,76 @@ The key distinction:
 
 Do not introduce a separate `.habitat` tooling config just to map operations to commands. Generic Habitat dispatch belongs in Toolkit code. Repo-authored policy needs a Habitat packet identity.
 
-## Provisional Niche/Blueprint Hierarchy
+## Provisional Niche/Blueprint/Rules Hierarchy
 
-The current `.habitat` tree groups authority packets by niche, then by blueprint, then by universal category, then by artifact kind. This is a provisional classification layout, not a parseable manifest and not a completed runtime migration.
+The current `.habitat` tree groups authority packets by affirmed blueprint,
+niche, or transient niche-local lanes. Category and operation kind are manifest
+placement facts, not physical directories. This is a provisional
+classification layout, not a parseable manifest and not a completed runtime
+migration.
 
 ```text
 .habitat
+  blueprints
+    <affirmed-blueprint>
+      <artifact-packet>
   <niche>
-    blueprints
-      <blueprint>
-        <category>
-          <kind>
-            <artifact-packet>
+    _blueprints
+      <candidate>
+        <artifact-packet>
+    rules
+      <artifact-packet>
+    _remainder
+      <artifact-packet>
+    <child-niche>
+      rules
+        <artifact-packet>
+      _remainder
+        <artifact-packet>
 
   civ7
     mapgen
+      domain
+        foundation
+          rules
+            preserve_decomposed_foundation_contract_surfaces
+          _remainder
+            prohibit_foundation_contract_config_bags
       pipeline
-        blueprints
-          standard-recipe
-            boundary
-              check
-                prohibit_sibling_stage_private_step_imports
-            execution
-              check
-                prohibit_runtime_calls_to_runvalidated
-          _self
-            policy
-              check
-                prohibit_ambient_rng_in_authored_generation
+        runtime
+          rules
+            prohibit_runtime_calls_to_runvalidated
+          _remainder
+            prohibit_ambient_rng_in_authored_generation
+        contracts
+          rules
+            prohibit_empty_object_defaults_in_contract_schemas
+        swooper-maps-standard-recipe
+          rules
+            preserve_standard_stage_topology_and_path_invariants
 ```
 
-Niches are authored jurisdictions. Blueprints are buildable or enforceable things inside those jurisdictions. `_self` is the temporary blueprint placeholder for niche-wide authority. Neither niches nor blueprints should encode a runner, file type, current defect, or narrow maintenance task. Categories describe universal engineering purpose; artifact kinds define mutability.
+Niches are authored jurisdictions and may nest when a current context becomes a
+clearer child jurisdiction. Top-level `blueprints/` holds affirmed
+constructible kind authority. Niche-local `_blueprints/` holds candidate
+blueprint-shaped inventory that must not yet be called blueprint authority.
+`rules` holds niche-local inventory, and `_remainder` holds reviewed deferred
+inventory inside the smallest honest niche.
+Neither niches nor blueprints should encode a runner, file type, current
+defect, or narrow maintenance task. Categories describe universal engineering
+purpose; operation kinds define mutability.
 
-Rule-owned files use the same packet-name prefix:
+Packet child files use generic role names:
 
-- `<packet>.rule.json`
-- `<packet>.baseline.json`
-- `<packet>.pattern.md`
-- `<packet>.check.{sh,mjs,py,ts}` for transitional read-only command checks
-- `<packet>.operation.md` for provisional non-check operation identity
+- `rule.json`
+- `baseline.json`
+- `pattern.md`
+- `check.{sh,mjs,ts}` for transitional read-only command checks
+- `operation.md` for provisional non-check operation identity
 
 ## Domain Operations
 
-Habitat's current working artifact-kind vocabulary is defined in `ARTIFACT-KINDS.md`. The accepted executable kinds are `check`, `fix`, `generate`, and `migrate`; `triage` is a non-default holding area.
+Habitat's current working operation-kind vocabulary is defined in `RULE-OPERATION-KINDS.md`. The accepted executable kinds are `check`, `fix`, `generate`, and `migrate`; `triage` is a non-default holding area.
 
 This section is a human sketch only. It must not become parseable dispatch schema, and it must not encode support artifact types or implementation adapters.
 
@@ -75,10 +102,14 @@ Structural transition. A migrate operation answers how Habitat may move authored
 
 ## Naming Rules
 
-- Artifact kind names are verbs: `check`, `fix`, `generate`, `migrate`.
+- Operation kind names are verbs: `check`, `fix`, `generate`, `migrate`.
 - Category names are single-word universal purposes: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, `policy`.
-- Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
-- Blueprint names are constructible or enforceable things such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `ensure_studio_worker_bundle_is_browser_safe`.
+- Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domains`.
+- Current blueprint placement labels are transitional evidence. Do not promote a
+  label such as `standard-recipe`, `domain-public-surface`, `map-projection`,
+  or `ensure_studio_worker_bundle_is_browser_safe` into an accepted blueprint
+  unless the bounded slice proves a constructible kind with its own lifecycle.
+  See `AUTHORITY-SLICE-FRAME.md` for the active slice criteria.
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
 - Rule IDs are stable registry handles, not ontology roots.
 - Narrow rule handles do not become blueprints unless a later domain pass proves a distinct authored concept with its own lifecycle.
@@ -89,4 +120,6 @@ If future parseable config is introduced, it should store authored repository po
 
 ## Compatibility Debt
 
-Toolkit discovery still needs a dedicated resolver pass for the niche/blueprint path shape. Curated `habitat check --rule <id>` is the proven bridge; broad full-suite execution remains a rebuild target.
+Toolkit discovery reads location-independent `rule.json` manifests. Curated
+`habitat check --rule <id>` is the proven bridge; broad full-suite execution
+remains a rebuild target.

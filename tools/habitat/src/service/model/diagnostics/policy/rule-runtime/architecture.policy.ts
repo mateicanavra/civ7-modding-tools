@@ -1,13 +1,21 @@
 import type { SpawnResult } from "@habitat/cli/resources/command/index";
 import type { HabitatDiagnostic } from "@habitat/cli/service/model/diagnostics/index";
-import type { RuleCommandExecutionFacts } from "@habitat/cli/service/model/rules/index";
+import type {
+  RuleCommandExecutionFacts,
+  RuleGraphFacts,
+} from "@habitat/cli/service/model/rules/index";
 
 /**
  * The rule pack is authored in .habitat and consumed through the registry
  * schema boundary. This module supplies per-rule output parsers.
  */
 
-function coarse(rule: RuleCommandExecutionFacts, res: SpawnResult): HabitatDiagnostic[] {
+type CommandResultRuleFacts = Pick<
+  RuleCommandExecutionFacts | RuleGraphFacts,
+  "id" | "lane" | "message"
+>;
+
+function coarse(rule: CommandResultRuleFacts, res: SpawnResult): HabitatDiagnostic[] {
   if (res.exitCode === 0) return [];
   const tail = (res.stdout + res.stderr).trim().split("\n").slice(-12).join("\n");
   return [
@@ -27,15 +35,16 @@ export interface RuleRunResult {
 }
 
 export function ruleDiagnosticsFromCommandResult(
-  rule: RuleCommandExecutionFacts,
+  rule: CommandResultRuleFacts,
   res: SpawnResult
 ): HabitatDiagnostic[] {
-  if (rule.id === "ensure_docs_checkout_paths_are_portable") return docsLocalCheckoutPathDiagnostics(rule, res);
+  if (rule.id === "ensure_docs_checkout_paths_are_portable")
+    return docsLocalCheckoutPathDiagnostics(rule, res);
   return coarse(rule, res);
 }
 
 function docsLocalCheckoutPathDiagnostics(
-  rule: RuleCommandExecutionFacts,
+  rule: CommandResultRuleFacts,
   res: SpawnResult
 ): HabitatDiagnostic[] {
   if (res.exitCode === 0) return [];

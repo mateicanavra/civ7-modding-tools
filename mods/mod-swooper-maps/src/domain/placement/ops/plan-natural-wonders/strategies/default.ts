@@ -88,9 +88,15 @@ type WonderGroupDefinition = {
  */
 export const WONDER_GROUPS: Readonly<Record<WonderGroup, WonderGroupDefinition>> = {
   // volcano subaerial (Kilimanjaro, Fuji)
-  A: { features: [35, 41], suitability: (s) => clamp01(0.55 * s.relief + 0.35 * s.elevN + 0.1 * s.warm) },
+  A: {
+    features: [35, 41],
+    suitability: (s) => clamp01(0.55 * s.relief + 0.35 * s.elevN + 0.1 * s.warm),
+  },
   // volcano caldera coast (Thera)
-  B: { features: [37], suitability: (s) => clamp01(0.5 * s.shelfN + 0.3 * s.relief + 0.2 * s.warm) },
+  B: {
+    features: [37],
+    suitability: (s) => clamp01(0.5 * s.shelfN + 0.3 * s.relief + 0.2 * s.warm),
+  },
   // reef / shallow marine (Barrier Reef, Great Blue Hole, Mapu'a Vaea)
   C: {
     features: [29, 44, 45],
@@ -99,18 +105,30 @@ export const WONDER_GROUPS: Readonly<Record<WonderGroup, WonderGroupDefinition>>
   // deep ocean (Bermuda)
   D: { features: [0], suitability: (s) => clamp01(0.7 * s.deepN + 0.3 * (1 - s.arid)) },
   // waterfall / river-fed (Gullfoss, Iguazu)
-  E: { features: [32, 34], suitability: (s) => clamp01(0.45 * s.dischN + 0.3 * s.slopeN + 0.25 * s.relief) },
+  E: {
+    features: [32, 34],
+    suitability: (s) => clamp01(0.45 * s.dischN + 0.3 * s.slopeN + 0.25 * s.relief),
+  },
   // mountain monolith (Everest, Hoerikwaggo, Zhangjiajie, Torres, Machapuchare, Vihren, Vinicunca)
   F: {
     features: [1, 33, 36, 38, 40, 42, 43],
     suitability: (s) => clamp01(0.5 * s.elevN + 0.4 * s.relief + 0.1 * (1 - s.vegN)),
   },
   // mountain-adjacent lowland (Valley of Flowers)
-  G: { features: [28], suitability: (s) => clamp01(0.45 * s.fertN + 0.3 * s.moist + 0.25 * (1 - s.relief)) },
+  G: {
+    features: [28],
+    suitability: (s) => clamp01(0.45 * s.fertN + 0.3 * s.moist + 0.25 * (1 - s.relief)),
+  },
   // arid relief — canyon / inselberg (Grand Canyon, Uluru)
-  H: { features: [31, 39], suitability: (s) => clamp01(0.5 * s.arid + 0.3 * s.elevN + 0.2 * s.relief) },
+  H: {
+    features: [31, 39],
+    suitability: (s) => clamp01(0.5 * s.arid + 0.3 * s.elevN + 0.2 * s.relief),
+  },
   // forest (Redwood)
-  I: { features: [30], suitability: (s) => clamp01(0.55 * s.vegN + 0.3 * s.moist + 0.15 * s.temperate) },
+  I: {
+    features: [30],
+    suitability: (s) => clamp01(0.55 * s.vegN + 0.3 * s.moist + 0.15 * s.temperate),
+  },
 };
 
 /** Unknown feature ids fall back to the mountain-monolith profile. */
@@ -129,7 +147,10 @@ function wonderGroup(featureType: number): WonderGroup {
 }
 
 type FootprintOffset = { dx: number; dy: number };
-type FootprintOffsetsByParity = { even: readonly FootprintOffset[]; odd: readonly FootprintOffset[] };
+type FootprintOffsetsByParity = {
+  even: readonly FootprintOffset[];
+  odd: readonly FootprintOffset[];
+};
 
 type NaturalWonderFeatureCandidate = {
   featureType: number;
@@ -199,7 +220,9 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
               : null,
             noLake: entry.noLake === true,
             featureTags: sanitizeStringArray(entry.featureTags),
-            footprintOffsetsByParity: sanitizeFootprintOffsetsByParity(entry.footprintOffsetsByParity),
+            footprintOffsetsByParity: sanitizeFootprintOffsetsByParity(
+              entry.footprintOffsetsByParity
+            ),
           }))
           .filter((entry) => entry.featureType >= 0)
           .filter(
@@ -398,7 +421,9 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
         if (minSpacing > 0) {
           let tooClose = false;
           for (const placed of selected) {
-            if (hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacing) {
+            if (
+              hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacing
+            ) {
               tooClose = true;
               break;
             }
@@ -450,7 +475,10 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
         let tooClose = false;
         if (minSpacingTiles > 0) {
           for (const placed of selected) {
-            if (hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacingTiles) {
+            if (
+              hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) <
+              minSpacingTiles
+            ) {
               tooClose = true;
               break;
             }
@@ -489,8 +517,7 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
      * `groupSelectedCount` changes as wonders are placed.
      */
     const effectiveScore = (plan: WonderPlan): number => {
-      const alreadyFromGroup =
-        groupSelectedCount.get(wonderGroup(plan.feature.featureType)) ?? 0;
+      const alreadyFromGroup = groupSelectedCount.get(wonderGroup(plan.feature.featureType)) ?? 0;
       const bonus = plan.feature.placeFirst ? PLACE_FIRST_BONUS : 0;
       return bonus + plan.bestSuitability * GROUP_DISCOUNT ** alreadyFromGroup;
     };
@@ -585,7 +612,12 @@ function sanitizeFootprintOffsetList(
 }
 
 function sanitizeFootprintOffsetsByParity(
-  value: { even?: readonly { dx?: number; dy?: number }[]; odd?: readonly { dx?: number; dy?: number }[] } | undefined
+  value:
+    | {
+        even?: readonly { dx?: number; dy?: number }[];
+        odd?: readonly { dx?: number; dy?: number }[];
+      }
+    | undefined
 ): FootprintOffsetsByParity {
   return {
     even: sanitizeFootprintOffsetList(value?.even),
@@ -631,7 +663,8 @@ function getFootprintIndices(args: {
   const x = args.plotIndex - y * args.width;
   // Resolve parity at the concrete anchor (odd-R): odd rows and even rows use
   // distinct offset sets (map-policy byParity helper).
-  const offsets = (y & 1) === 1 ? args.footprintOffsetsByParity.odd : args.footprintOffsetsByParity.even;
+  const offsets =
+    (y & 1) === 1 ? args.footprintOffsetsByParity.odd : args.footprintOffsetsByParity.even;
   const indices: number[] = [];
   const seen = new Set<number>();
   for (const offset of offsets) {

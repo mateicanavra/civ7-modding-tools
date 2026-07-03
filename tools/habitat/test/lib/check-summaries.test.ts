@@ -15,7 +15,7 @@ describe("check summaries", () => {
         ok: false,
         rules: [
           rule({
-            ownerTool: "source-check",
+            runner: "grit",
             status: "fail",
             diagnostics: [
               diagnostic(
@@ -37,12 +37,15 @@ describe("check summaries", () => {
       report({
         ok: false,
         rules: [
-          rule({ ruleId: "block_unapproved_base_standard_boundary_leaks", ownerTool: "command-check", status: "pass" }),
+          rule({
+            ruleId: "block_unapproved_base_standard_boundary_leaks",
+            runner: "habitat",
+            status: "pass",
+          }),
           rule({
             ruleId: "baseline-integrity",
-            ownerTool: "habitat-builtin",
+            runner: "habitat",
             status: "fail",
-            detect: ["habitat", "check", "(built-in)"],
             diagnostics: [diagnostic("baseline contract refused")],
           }),
         ],
@@ -51,7 +54,10 @@ describe("check summaries", () => {
     );
 
     expect(summary.reportSchemaVersion).toBe(1);
-    expect(summary.selectedRuleIds).toEqual(["block_unapproved_base_standard_boundary_leaks", "baseline-integrity"]);
+    expect(summary.selectedRuleIds).toEqual([
+      "block_unapproved_base_standard_boundary_leaks",
+      "baseline-integrity",
+    ]);
     expect(summary.selectedRealRuleIds).toEqual(["block_unapproved_base_standard_boundary_leaks"]);
     expect(summary.builtInRuleIds).toEqual(["baseline-integrity"]);
     expect(summary.failingCount).toBe(1);
@@ -125,13 +131,12 @@ function report(options: { ok: boolean; rules: RuleReport[] }): CheckReport {
 function rule(options: Partial<RuleReport> = {}): RuleReport {
   return {
     ruleId: options.ruleId ?? "demo-rule",
-    ownerTool: options.ownerTool ?? "command-check",
+    runner: options.runner ?? "habitat",
     lane: options.lane ?? "enforced",
     status: options.status ?? "pass",
     locked: options.locked ?? true,
     durationMs: options.durationMs ?? 1,
     diagnostics: options.diagnostics ?? [],
-    detect: options.detect ?? ["habitat", "check"],
     message: options.message ?? "demo rule",
     remediate: options.remediate ?? null,
   };

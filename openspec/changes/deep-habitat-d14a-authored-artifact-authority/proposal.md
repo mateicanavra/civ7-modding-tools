@@ -11,7 +11,7 @@ source layout as artifact authority.
 ## What Changes
 
 - Introduce checked-in `.habitat/` as the repository-local home for authored
-  Habitat artifacts.
+  Habitat authority data.
 - Move the active rule registry to `.habitat/rules/index.json` plus
   `.habitat/rules/<rule-id>/rule.json` files.
 - Move explicit rule baselines to `.habitat/baselines/*.json`.
@@ -34,6 +34,6 @@ source layout as artifact authority.
 ## Out Of Scope
 
 - No MapGen authoring generator.
-- No new vendor-named authored artifact hierarchy under `.habitat`.
-- No schema rewrite beyond paths needed to read authored artifacts through
+- No new vendor-named authored authority data hierarchy under `.habitat`.
+- No schema rewrite beyond paths needed to read authored authority data through
   existing TypeBox schemas.

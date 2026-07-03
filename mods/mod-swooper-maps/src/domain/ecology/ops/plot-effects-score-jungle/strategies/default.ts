@@ -40,7 +40,11 @@ export const defaultStrategy = createStrategy(PlotEffectsScoreJungleContract, "d
 
         // Hotter, wetter, denser = deeper jungle = higher stress.
         const tempFactor = normalizeRange(temp, config.minTemperature, config.minTemperature + 10);
-        const moistureFactor = normalizeRange(moisture, config.minMoisture, config.minMoisture + 80);
+        const moistureFactor = normalizeRange(
+          moisture,
+          config.minMoisture,
+          config.minMoisture + 80
+        );
         const vegetationFactor = normalizeRange(vegetation, config.minVegetation, 1);
         const score = clamp01((tempFactor + moistureFactor + vegetationFactor) / 3);
         score01[idx] = score;

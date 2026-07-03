@@ -89,7 +89,10 @@ function mean(xs: number[]): number {
 function main(): number {
   const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
   const configId = process.env.CENSUS_CONFIG ?? "swooper-earthlike";
-  const cfgPath = resolve(repoRoot, `mods/mod-swooper-maps/src/maps/configs/${configId}.config.json`);
+  const cfgPath = resolve(
+    repoRoot,
+    `mods/mod-swooper-maps/src/maps/configs/${configId}.config.json`
+  );
   const file = JSON.parse(readFileSync(cfgPath, "utf8")) as { config?: unknown };
   const config = file.config ?? file;
 
@@ -137,9 +140,7 @@ function main(): number {
           row.deep.push(hist.deepShare);
           row.shelf.push(hist.shelfShare);
           row.land.push(hist.landPct);
-          console.log(
-            JSON.stringify({ scenario, size: sizeKey, seed, ...hist })
-          );
+          console.log(JSON.stringify({ scenario, size: sizeKey, seed, ...hist }));
         }
         rows.push(row);
       }

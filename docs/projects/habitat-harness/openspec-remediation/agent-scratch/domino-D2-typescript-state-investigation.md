@@ -178,7 +178,7 @@ Leaving `plugin.js` to reimplement a TS-only parser is not acceptable.
 The canonical data shape should be versioned:
 
 ```ts
-interface RuleRegistryDocumentV1 {
+interface RuleRegistryDocument {
   schemaVersion: 1;
   rules: readonly RuleRegistryRecord[];
 }

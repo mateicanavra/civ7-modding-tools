@@ -26,7 +26,7 @@ export default class Check extends HabitatCommand {
       description: "Run only the requested Habitat rule id. Repeat to run a curated rule group.",
       multiple: true,
     }),
-    tool: Flags.string({ description: "Run only rules owned by this enforcement tool." }),
+    runner: Flags.string({ description: "Run only rules with this derived runner." }),
     staged: Flags.boolean({ description: "Check staged file-layer protected zones." }),
     "expand-baseline": Flags.boolean({
       description: "Authoring-only: write current uncovered errors into selected rule baselines.",
@@ -46,7 +46,7 @@ export default class Check extends HabitatCommand {
       owner: flags.owner,
       ...(requestedRules.length === 1 ? { rule: requestedRules[0] } : {}),
       ...(requestedRules.length > 1 ? { rules: requestedRules } : {}),
-      tool: flags.tool,
+      runner: flags.runner,
     };
     const base = flags.base ?? "main";
     const context = await this.habitatServiceContext();

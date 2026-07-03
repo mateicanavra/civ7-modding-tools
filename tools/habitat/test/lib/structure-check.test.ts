@@ -14,7 +14,11 @@ const rule = {
   lane: "enforced",
   message: "Fix file topology.",
   pathCoverage: [{ kind: "project-owner" as const }],
-  structureFile: ".habitat/sample/sample.structure.toml",
+  runner: {
+    name: "habitat" as const,
+    mode: "structure" as const,
+    files: { structure: ".habitat/sample/sample.structure.toml" },
+  },
 };
 
 describe("structure-check TOML contract", () => {
@@ -107,9 +111,7 @@ describe("structure-check evaluator", () => {
     const open = await runWithFs(
       {
         schemaVersion: 1,
-        scopes: [
-          { name: "open", root: "pkg", kind: "directory", mode: "open", required: ["src"] },
-        ],
+        scopes: [{ name: "open", root: "pkg", kind: "directory", mode: "open", required: ["src"] }],
       },
       fixtures()
     );
@@ -237,23 +239,23 @@ function fixtures(
     files:
       overrides.files ??
       new Map([
-      [`${repoRoot}/pkg/README.md`, ""],
-      [`${repoRoot}/pkg/package.json`, "{}"],
-      [`${repoRoot}/pkg/src/index.ts`, ""],
-    ]),
+        [`${repoRoot}/pkg/README.md`, ""],
+        [`${repoRoot}/pkg/package.json`, "{}"],
+        [`${repoRoot}/pkg/src/index.ts`, ""],
+      ]),
     directories:
       overrides.directories ??
       new Map([
-      [
-        `${repoRoot}/pkg`,
         [
-          { name: "src", kind: "directory" },
-          { name: "README.md", kind: "file" },
-          { name: "package.json", kind: "file" },
+          `${repoRoot}/pkg`,
+          [
+            { name: "src", kind: "directory" },
+            { name: "README.md", kind: "file" },
+            { name: "package.json", kind: "file" },
+          ],
         ],
-      ],
-      [`${repoRoot}/pkg/src`, [{ name: "index.ts", kind: "file" }]],
-    ]),
+        [`${repoRoot}/pkg/src`, [{ name: "index.ts", kind: "file" }]],
+      ]),
   };
 }
 

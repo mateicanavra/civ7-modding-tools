@@ -7,7 +7,7 @@ of always running generic product `check`.
 
 #### Scenario: Ordinary source changes keep generic check
 
-- **WHEN** pre-push sees changed paths outside Habitat artifact roots
+- **WHEN** pre-push sees changed paths outside Habitat authority roots
 - **THEN** it SHALL run generic `check`, `validate:boundary-taxonomy`, and
   `validate:grit-patterns` through Nx affected.
 

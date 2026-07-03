@@ -50,7 +50,7 @@ Parallelism: can proceed after G-HOST contract and D2 metadata facets stabilize.
 ## Current State-Space Problem
 
 `generated-zones.ts` contains generated zones for Swooper map entrypoints, Civ7
-types, Civ7 map policy tables, and pnpm artifacts in one generic library. The
+types, Civ7 map policy tables, and pnpm files in one generic library. The
 rule registry also has generated-zone references. Hooks invoke staged checks but
 do not own zone truth.
 

@@ -7,7 +7,7 @@ generic Habitat vocabulary drift after domain/provider migration.
 
 ## What Changes
 
-- Add guardrails for authored artifact placement.
+- Add guardrails for authored authority data placement.
 - Add guardrails for public/internal and domain/provider import boundaries.
 - Add guardrails for host/product/process vocabulary in generic Habitat code and
   public surfaces.

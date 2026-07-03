@@ -69,6 +69,6 @@ rerun successfully.
 ## Artifacts
 
 - `workstream/static-inventory.md`: current direct-use and smell inventory.
-- `workstream/guardrail-owner-map.md`: owner layer and intended artifact paths
+- `workstream/guardrail-owner-map.md`: owner layer and intended authority paths
   for each recurring guardrail class.
 - `workstream/review-disposition-ledger.md`: review findings and dispositions.

@@ -1,12 +1,17 @@
 # Structure-Check Runner Spec Shape
 
-Status: prep input for the next implementation workstream
+Status: historical prep note, superseded by location-independent rule manifests
 
 ## Intent
 
-Create a small Habitat runner for declarative file-tree topology checks. The
-runner should replace bespoke command-check scripts whose only real job is to
+Create a small Habitat-native mode for declarative file-tree topology checks.
+The mode should replace bespoke script checks whose only real job is to
 validate filesystem shape.
+
+Current implementation note: active rules are now location-independent
+`rule.json` manifests. Identity, placement, runner, and artifact references are
+declared in the manifest; the physical packet path is not the execution
+contract.
 
 This is not an AST matcher, regex scanner, package validator, graph validator,
 or build freshness checker.
@@ -26,24 +31,45 @@ or build freshness checker.
 A structure-backed rule packet should contain:
 
 ```text
-<packet>.rule.json
-<packet>.structure.toml
-<packet>.baseline.json
-category.md
+rule.json
+structure.toml
+baseline.json
 ```
 
-`rule.json` selects the runner and points to the TOML authority file:
+`rule.json` records the current inventory placement and points to the TOML
+authority file:
 
 ```json
 {
   "schemaVersion": 1,
-  "ruleId": "preserve_standard_stage_topology_and_path_invariants",
-  "ownerTool": "structure-check",
-  "detect": ["habitat", "check", "--tool", "structure-check"],
-  "structureFile": "preserve_standard_stage_topology_and_path_invariants.structure.toml",
-  "severity": "error",
+  "id": "preserve_standard_stage_topology_and_path_invariants",
+  "title": "Preserve Standard Stage Topology And Path Invariants",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "standard-recipe",
+    "category": "structure",
+    "operationKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
   "message": "Standard recipe file topology drifted.",
-  "remediate": "Update the structure manifest intentionally when changing standard recipe stage topology."
+  "remediate": "Update the structure manifest intentionally when changing standard recipe stage topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/.../baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/.../structure.toml"
+    }
+  }
 }
 ```
 

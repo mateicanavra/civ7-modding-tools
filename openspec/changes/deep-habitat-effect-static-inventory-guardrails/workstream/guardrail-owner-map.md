@@ -3,13 +3,13 @@
 ## Acceptance Boundary
 
 This packet does not enable new blocking guardrails. It records owner decisions
-and intended artifact paths so implementation packets can enable them with
+and intended authority paths so implementation packets can enable them with
 injected violation fixtures and baselines in the correct layer.
 
 Any guardrail enabled later must include:
 
 - owner layer;
-- artifact path;
+- authority path;
 - injected violation fixture;
 - current-tree proof;
 - baseline decision;
@@ -17,7 +17,7 @@ Any guardrail enabled later must include:
 
 ## Owner Decisions
 
-| Guardrail class | Owner layer | Intended artifact path | First enabling packet | Non-claims |
+| Guardrail class | Owner layer | Intended authority path | First enabling packet | Non-claims |
 |---|---|---|---|---|
 | `Effect.run*` outside host/runtime/test zones | GritQL pattern plus Habitat rule | `.habitat/patterns/checks/habitat_effect_runtime_edges.md`, `.habitat/rules/habitat-effect-runtime-edges/rule.json` | `deep-habitat-effect-runtime-config-errors` or static guardrail follow-up if split | Does not prove resource finalizers or typed error quality. |
 | Direct process execution outside command provider/scripts/tests | GritQL pattern plus Habitat rule | `.habitat/patterns/checks/habitat_direct_process_execution.md`, `.habitat/rules/habitat-direct-process-execution/rule.json` | `deep-habitat-effect-command-result-model` | Does not prove command output parity. |

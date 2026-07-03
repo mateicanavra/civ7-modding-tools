@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_contract_roots_in_step_contracts",
+  "title": "Require Domain Contract Roots In Step Contracts",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-step",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "step contracts deep-importing domain internals or runtime ops",
+  "why": "Step contracts bind to domain contracts, not runtime implementation surfaces.",
+  "remediate": null,
+  "message": "Step contracts must import only from @mapgen/domain/<domain>.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/**/stages/**/steps/**/contract.ts",
+        "mods/*/src/recipes/**/stages/**/steps/**/*.contract.ts"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md"
+    },
+    "patternName": "require_domain_contract_roots_in_step_contracts"
+  }
+}

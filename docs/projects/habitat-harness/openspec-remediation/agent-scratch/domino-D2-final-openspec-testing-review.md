@@ -85,7 +85,7 @@ results.
 | --- | --- | --- |
 | Facet/projection contract missing | Yes | `design.md:144-195` records field inventory, facet contract, and projection matrix; `spec.md:34-45` forbids whole-row leakage. |
 | Target ontology and inherited terms unresolved | Yes | `design.md:46-91` defines D2 ownership and target ontology; `design.md:197-215` classifies inherited terms. |
-| TypeScript state model left to implementation | Yes | `design.md:93-142` chooses `RuleRegistryDocumentV1`, `schemaVersion: 1`, closed `ownerTool` union, and variant constraints; `tasks.md:17-30` requires parser/projection tests and malformed cases. |
+| TypeScript state model left to implementation | Yes | `design.md:93-142` chooses `RuleRegistryDocument`, `schemaVersion: 1`, closed `ownerTool` union, and variant constraints; `tasks.md:17-30` requires parser/projection tests and malformed cases. |
 | D0/D1 dependency semantics unresolved | Yes | `proposal.md:44-49`, `design.md:217-243`, and `tasks.md:10-15` block source implementation until concrete D0 rows exist and D1 output families are cited. |
 | Spec delta too thin | Yes | `spec.md:3-169` now has separate requirements/scenarios for schema, terms, projections, selectors, routing, graph, baseline, Grit, generated-zone, governance, malformed metadata, and downstream use. |
 | Validation gates not falsifying enough | Yes for design/spec | `proposal.md:90-100`, `tasks.md:52-65`, and `phase-record.md:39-54` name focused gates, bad-case intent, freshness/non-claims, OpenSpec checks, and `git diff --check`. Implementation behavior gates remain later by design. |

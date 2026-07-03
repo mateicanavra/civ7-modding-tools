@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "id": "protect_generated_map_entrypoints_from_hand_edits",
+  "title": "Protect Generated Map Entrypoints From Hand Edits",
+  "placement": {
+    "niche": "civ7/mapgen/map-output",
+    "blueprint": "mod-map",
+    "category": "output"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "staged hand-edits to generated Swooper map entrypoints",
+  "why": "Generated map entrypoints must be regenerated from canonical map configs.",
+  "remediate": "bun run --cwd mods/mod-swooper-maps gen:maps",
+  "message": "Generated Swooper map entrypoints are protected from hand edit.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/maps/generated/**"]
+    }
+  ],
+  "generatedZone": "swooper-map-generated",
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "file-layer",
+    "guard": "generated-zone"
+  }
+}

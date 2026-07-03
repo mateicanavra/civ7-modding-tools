@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_recipe_dag_runtime_source_dependencies",
+  "title": "Prohibit Recipe Dag Runtime Source Dependencies",
+  "placement": {
+    "niche": "civ7/mapgen/studio/recipe-dag",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "direct recipe-DAG service imports from runtime recipe roots or studio contract source using runtime authoring/build helpers",
+  "why": "The Studio recipe-DAG service consumes contract metadata through source-shaped contract surfaces, not runtime recipe implementation.",
+  "remediate": "Route recipe-DAG metadata through contract-only studio contract surfaces.",
+  "message": "Recipe-DAG source crossed into runtime recipe implementation.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/src/server/recipeDag/service.ts",
+        "mods/mod-swooper-maps/src/recipes/studio-contracts/**/*.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "apps/mapgen-studio/src/server/recipeDag",
+    "mods/mod-swooper-maps/src/recipes/studio-contracts"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md"
+    },
+    "patternName": "prohibit_recipe_dag_runtime_source_dependencies"
+  }
+}

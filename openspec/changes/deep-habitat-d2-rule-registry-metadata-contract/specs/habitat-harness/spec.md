@@ -2,7 +2,7 @@
 
 ### Requirement: D2 Rule Registry Schema Is Versioned And Faceted
 
-Habitat SHALL parse rule metadata through a canonical versioned registry document before consumers use registry facts. The target document SHALL be `RuleRegistryDocumentV1` with `schemaVersion: 1` and a closed `RuleRegistryRecord` union keyed by the current public selector vocabulary `ownerTool`.
+Habitat SHALL parse rule metadata through a canonical versioned registry document before consumers use registry facts. The target document SHALL be `RuleRegistryDocument` with `schemaVersion: 1` and a closed `RuleRegistryRecord` union keyed by the current public selector vocabulary `ownerTool`.
 
 Each registry row SHALL carry identity/report facts and only the variant-specific facts valid for its execution adapter. `grit-check` rows SHALL require Grit pattern facts. `file-layer` rows SHALL contain exactly one file-layer policy: a generated/protected-zone reference or a forbidden-file-name policy. `wrapped-test` rows SHALL carry a structured graph target reference. Unknown adapters, unsupported enforcement dispositions, duplicate ids, and contradicted variant fields SHALL fail before rule execution.
 

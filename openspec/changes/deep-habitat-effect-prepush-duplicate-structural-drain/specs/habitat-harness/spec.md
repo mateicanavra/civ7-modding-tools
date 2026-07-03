@@ -18,7 +18,7 @@ same hook path.
 - **AND** Habitat MAY request distinct affected structural targets that do not
   re-enter Habitat rule execution.
 
-#### Scenario: Rule artifact-only changes keep artifact validation
+#### Scenario: Rule authority-only changes keep artifact validation
 
 - **WHEN** pre-push changed paths are all Habitat rule or pattern artifacts
 - **THEN** Habitat SHALL continue selecting artifact-specific affected Habitat
@@ -26,6 +26,6 @@ same hook path.
 
 #### Scenario: Ordinary repo changes keep broad affected verification
 
-- **WHEN** pre-push changed paths are not Habitat artifact-only or Habitat
+- **WHEN** pre-push changed paths are not Habitat authority-only or Habitat
   tooling-only changes
 - **THEN** Habitat SHALL preserve the existing generic affected target plan.

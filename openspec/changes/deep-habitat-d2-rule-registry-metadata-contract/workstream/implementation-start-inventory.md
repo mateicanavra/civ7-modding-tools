@@ -87,7 +87,7 @@ local feedback or staged hook execution.
 D2 implementation starts with these product constraints:
 
 - Create the canonical registry owner under `tools/habitat-harness/src/rules/`.
-- Define `RuleRegistryDocumentV1` as standalone TypeBox schemas plus derived
+- Define `RuleRegistryDocument` as standalone TypeBox schemas plus derived
   `Static` types.
 - Validate registry JSON with TypeBox `Value` or compiled validators at the
   serialized registry boundary.

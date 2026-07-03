@@ -23,11 +23,11 @@ export type PatternScaffoldDecision =
   | {
       readonly kind: "write-pattern-candidate";
       readonly options: NormalizedPatternScaffoldOptions;
-      readonly paths: PatternCandidateArtifactPaths;
+      readonly paths: PatternCandidateAuthorityPaths;
       readonly writeSet: readonly string[];
     };
 
-export interface PatternCandidateArtifactPaths {
+export interface PatternCandidateAuthorityPaths {
   readonly patternPath: string;
   readonly manifestPath: string;
 }
@@ -37,15 +37,12 @@ export interface PatternScaffoldHostFacts {
   readonly activePatternPath: (
     options: Pick<NormalizedPatternScaffoldOptions, "patternName">
   ) => string;
-  readonly activeBaselinePath: (
+  readonly ruleManifestIdCollisionPath: (
     options: Pick<NormalizedPatternScaffoldOptions, "ruleId">
-  ) => string;
-  readonly registeredRulePath: (
-    options: Pick<NormalizedPatternScaffoldOptions, "ruleId">
-  ) => string;
-  readonly candidateArtifactPaths: (
+  ) => string | null;
+  readonly candidateAuthorityPaths: (
     options: Pick<NormalizedPatternScaffoldOptions, "ruleId" | "patternName">
-  ) => PatternCandidateArtifactPaths;
+  ) => PatternCandidateAuthorityPaths;
 }
 
 export function decidePatternScaffold(
@@ -71,7 +68,7 @@ export function decidePatternScaffold(
     };
   }
 
-  const paths = facts.candidateArtifactPaths(options);
+  const paths = facts.candidateAuthorityPaths(options);
   const candidateCollisionDecision = firstCandidateCollision(paths, facts);
   if (candidateCollisionDecision) return candidateCollisionDecision;
 
@@ -101,7 +98,7 @@ export function normalizePatternScaffoldOptions(
 
 export function candidateManifest(
   options: NormalizedPatternScaffoldOptions,
-  paths: PatternCandidateArtifactPaths
+  paths: PatternCandidateAuthorityPaths
 ) {
   return {
     schemaVersion: 1,
@@ -110,8 +107,8 @@ export function candidateManifest(
     lifecycle: "candidate",
     openspecChangeId: options.openspecChangeId,
     ownerProject: options.ownerProject,
-    ownerTool: "source-check",
-    candidateArtifacts: {
+    patternRole: "diagnostic",
+    candidateAuthorityFiles: {
       patternPath: paths.patternPath,
       manifestPath: paths.manifestPath,
     },
@@ -141,19 +138,16 @@ function firstActiveCollision(
   facts: PatternScaffoldHostFacts
 ): PatternScaffoldDecision | null {
   const activePatternPath = facts.activePatternPath(options);
-  const baselinePath = facts.activeBaselinePath(options);
   if (facts.pathExists(activePatternPath)) return refuseCandidateCollision(activePatternPath);
-  if (options.lifecycle === "candidate" && facts.pathExists(baselinePath)) {
-    return refuseCandidateCollision(baselinePath);
-  }
-  if (facts.pathExists(facts.registeredRulePath(options))) {
-    return refuseCandidateCollision(`registered rule ${options.ruleId}`);
+  const collisionPath = facts.ruleManifestIdCollisionPath(options);
+  if (collisionPath) {
+    return refuseCandidateCollision(`registered rule ${options.ruleId} at ${collisionPath}`);
   }
   return null;
 }
 
 function firstCandidateCollision(
-  paths: PatternCandidateArtifactPaths,
+  paths: PatternCandidateAuthorityPaths,
   facts: PatternScaffoldHostFacts
 ): PatternScaffoldDecision | null {
   if (facts.pathExists(paths.patternPath)) return refuseCandidateCollision(paths.patternPath);

@@ -61,7 +61,7 @@ describe("Habitat hook resource policy", () => {
       "hook result: workstation check only; CI remains authoritative."
     );
     expect(result.stdout).toContain("habitat hook pre-commit: PASS");
-    expect(fake.checkRequests.map((request) => request.tool)).toContain("file-layer");
+    expect(fake.checkRequests.map((request) => request.runner)).toContain("habitat");
   });
 
   test("fails dirty resources before file-layer, Biome, Grit, or publish commands", async () => {
@@ -132,7 +132,7 @@ describe("Habitat hook resource policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: staged-gitlink");
-    expect(fake.checkRequests.map((request) => request.tool)).toContain("file-layer");
+    expect(fake.checkRequests.map((request) => request.runner)).toContain("habitat");
   });
 
   test("prefers dirty-submodule refusal over staged-gitlink allowance", async () => {
@@ -211,12 +211,12 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
 
-  test("propagates package-manager artifact file-layer failure before Biome, Grit, or publish commands", async () => {
+  test("propagates package-manager file-layer failure before Biome, Grit, or publish commands", async () => {
     const fake = makeFakeRuntime({
       fileLayerStdout: fileLayerCheckReport({
         ok: false,
         status: "fail",
-        diagnosticMessage: "package manager artifact",
+        diagnosticMessage: "package manager file",
       }),
       stagedPaths: ["pnpm-lock.yaml"],
     });
@@ -225,7 +225,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[file-layer staged check]");
-    expect(result.stdout).toContain("package manager artifact");
+    expect(result.stdout).toContain("package manager file");
     expect(fake.biomeRequests).toEqual([]);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
@@ -278,7 +278,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
         paths: ["packages/example/src/index.ts", "packages/example/src/unchanged.ts"],
       }),
     ]);
-    expect(fake.checkRequests.map((request) => request.tool)).toContain("source-check");
+    expect(fake.checkRequests.map((request) => request.runner)).toContain("grit");
   });
 
   test("fails closed when source checks report diagnostic-unavailable", async () => {
@@ -333,7 +333,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
         paths: ["tools/habitat/src/service/modules/hook/router.ts"],
       })
     );
-    expect(fake.checkRequests.map((request) => request.tool)).not.toContain("source-check");
+    expect(fake.checkRequests.map((request) => request.runner)).not.toContain("grit");
   });
 
   test("reports pre-commit output through an injected reporter service", async () => {
@@ -402,7 +402,7 @@ async function runPreCommitInTest(
   resourcePolicy: HookResourcePolicy | undefined = fake.resourcePolicy,
   reporterEvents?: HabitatReportEvent[]
 ): Promise<SpawnResult> {
-  useStructuralCheckPolicy(makeStructuralCheckPolicy(fake));
+  installStructuralCheckPolicy(makeStructuralCheckPolicy(fake));
   const layer = Layer.mergeAll(
     makeGitLayer(fake),
     makeFakeGraphiteProviderLayer(() => null),
@@ -446,16 +446,16 @@ function runHookProcedure(options: {
               ...(options.pathExists ? { pathExists: options.pathExists } : {}),
               repoRoot,
             },
-              ...(options.reporterEvents
-                ? {
-                    reporter: {
-                      emit: (event: HabitatReportEvent) =>
-                        Effect.sync(() => {
-                          options.reporterEvents?.push(event);
-                        }),
-                    },
-                  }
-                : {}),
+            ...(options.reporterEvents
+              ? {
+                  reporter: {
+                    emit: (event: HabitatReportEvent) =>
+                      Effect.sync(() => {
+                        options.reporterEvents?.push(event);
+                      }),
+                  },
+                }
+              : {}),
             ...(options.sourceCheckHookEnabled
               ? { rules: makeSyntheticSourceCheckHookRules() }
               : {}),
@@ -476,12 +476,12 @@ function makeStructuralCheckPolicy(fake: FakeHookHarness): StructuralCheckPolicy
     createReport: (options = {}) =>
       Effect.sync(() => {
         fake.checkRequests.push(options);
-        if (options.tool === "file-layer") {
+        if (options.runner === "habitat") {
           return parseCheckReport(
             fake.options.fileLayerStdout ?? fileLayerCheckReport({ ok: true, status: "pass" })
           );
         }
-        if (options.tool === "source-check") {
+        if (options.runner === "grit") {
           return parseCheckReport(
             fake.options.sourceCheckStdout ?? sourceCheckReport({ ok: true, status: "pass" })
           );
@@ -491,7 +491,7 @@ function makeStructuralCheckPolicy(fake: FakeHookHarness): StructuralCheckPolicy
   };
 }
 
-function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
+function installStructuralCheckPolicy(policy: StructuralCheckPolicy) {
   mockCreateCheckReportEffect.mockImplementation(policy.createReport);
 }
 
@@ -499,11 +499,16 @@ function makeSyntheticSourceCheckHookRules() {
   const rules = makeTestRuleFacts();
   return {
     ...rules,
-    source: [
+    grit: [
       {
         id: "hook-source-check-probe",
         lane: "enforced" as const,
         message: "source-check hook check probe",
+        runner: {
+          name: "grit" as const,
+          patternPath: ".habitat/fixtures/rules/hook-source-check-probe/pattern.md",
+          patternName: "hook-source-check-probe",
+        },
         patternName: "hook-source-check-probe",
         pathCoverage: [{ kind: "exact-path" as const, patterns: ["packages/example/src/**"] }],
         scanRoots: ["packages/example/src"],
@@ -660,11 +665,10 @@ function sourceCheckReport(options: {
 }): string {
   return checkReport({
     ...options,
-    command: "habitat check --staged --tool source-check --json",
+    command: "habitat check --staged --runner grit --json",
     ruleId: "hook-source-check-probe",
-    ownerTool: "source-check",
+    runner: "grit",
     message: "source-check hook check probe",
-    detect: ["habitat", "check", "--tool", "source-check"],
   });
 }
 
@@ -675,11 +679,10 @@ function fileLayerCheckReport(options: {
 }): string {
   return checkReport({
     ...options,
-    command: "habitat check --staged --tool file-layer --json",
+    command: "habitat check --staged --runner habitat --json",
     ruleId: "file-layer-hook-check-probe",
-    ownerTool: "file-layer",
+    runner: "habitat",
     message: "File-layer hook check probe",
-    detect: ["habitat", "check", "--tool", "file-layer"],
   });
 }
 
@@ -688,9 +691,8 @@ function checkReport(options: {
   status: "pass" | "fail" | "advisory-findings";
   command: string;
   ruleId: string;
-  ownerTool: string;
+  runner: string;
   message: string;
-  detect: string[];
   diagnosticMessage?: string;
 }): string {
   return `${JSON.stringify(
@@ -702,7 +704,7 @@ function checkReport(options: {
       rules: [
         {
           ruleId: options.ruleId,
-          ownerTool: options.ownerTool,
+          runner: options.runner,
           lane: "enforced",
           status: options.status,
           locked: true,
@@ -718,7 +720,6 @@ function checkReport(options: {
                 },
               ]
             : [],
-          detect: options.detect,
           message: options.message,
           remediate: null,
         },

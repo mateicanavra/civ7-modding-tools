@@ -59,9 +59,7 @@ function ecologyDocumentationTargets(): readonly string[] {
         const isEcologyOpRuleOrStrategy =
           normalized.includes("/domain/ecology/ops/") &&
           (normalized.includes("/rules/") || normalized.includes("/strategies/"));
-        const isEcologyRecipeStep = normalized.includes(
-          "/recipes/standard/stages/ecology/steps/"
-        );
+        const isEcologyRecipeStep = normalized.includes("/recipes/standard/stages/ecology/steps/");
         return isEcologyOpRuleOrStrategy || isEcologyRecipeStep;
       })
     )

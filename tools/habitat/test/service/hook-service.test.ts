@@ -53,9 +53,9 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
 });
 
 const prePushAffectedTargets = "check,lint";
-const prePushGritRuleArtifactTargets = "habitat:rule:require_runtime_domain_op_bundle_imports";
-const prePushNonSourceRuleArtifactTargets = "habitat:rule:enforce_workspace_import_boundaries";
-const prePushMixedRuleArtifactTargets =
+const prePushGritRuleAuthorityTargets = "habitat:rule:require_runtime_domain_op_bundle_imports";
+const prePushNonSourceRuleAuthorityTargets = "habitat:rule:enforce_workspace_import_boundaries";
+const prePushMixedRuleAuthorityTargets =
   "habitat:rule:enforce_workspace_import_boundaries,habitat:rule:require_runtime_domain_op_bundle_imports";
 const prePushBoundaryTaxonomyTargets = "lint";
 const prePushStructuralTargetDeclarationTargets = "lint";
@@ -65,7 +65,7 @@ const prePushNoChangedSourceCheck =
 describe("Habitat hook service", () => {
   beforeEach(() => {
     mockCreateCheckReportEffect.mockReset();
-    useStructuralCheckPolicy(defaultStructuralCheckPolicy());
+    installStructuralCheckPolicy(defaultStructuralCheckPolicy());
   });
 
   test("runs owned hook orchestration from service input", async () => {
@@ -270,7 +270,7 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain("[source-check changed-path hook check]");
     expect(checkRequests).toEqual([
       expect.objectContaining({
-        tool: "source-check",
+        runner: "grit",
         hookCheck: true,
         staged: true,
         stagedPaths: [changedPath],
@@ -278,10 +278,11 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("uses the owning Grit rule target for migrated source rule artifact pre-push changes", async () => {
+  test("uses the owning Grit rule target for migrated source rule authority-file pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath = ".habitat/rules/require_runtime_domain_op_bundle_imports/rule.json";
+    const changedPath =
+      ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -309,17 +310,18 @@ describe("Habitat hook service", () => {
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
-        targets: prePushGritRuleArtifactTargets.split(","),
+        targets: prePushGritRuleAuthorityTargets.split(","),
         head: "HEAD",
         excludeTaskDependencies: true,
       },
     ]);
   });
 
-  test("uses the owning rule target for non-source rule artifact pre-push changes", async () => {
+  test("uses the owning rule target for non-source rule authority-file pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath = ".habitat/rules/enforce_workspace_import_boundaries/rule.json";
+    const changedPath =
+      ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -346,19 +348,19 @@ describe("Habitat hook service", () => {
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
-        targets: prePushNonSourceRuleArtifactTargets.split(","),
+        targets: prePushNonSourceRuleAuthorityTargets.split(","),
         head: "HEAD",
         excludeTaskDependencies: true,
       },
     ]);
   });
 
-  test("uses owning rule targets for mixed rule artifact pre-push changes", async () => {
+  test("uses owning rule targets for mixed rule authority-file pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPaths = [
-      ".habitat/rules/require_runtime_domain_op_bundle_imports/rule.json",
-      ".habitat/rules/enforce_workspace_import_boundaries/rule.json",
+      ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json",
+      ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json",
     ];
 
     const result = await runPrePushHookServiceInTest(
@@ -388,7 +390,7 @@ describe("Habitat hook service", () => {
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
-        targets: prePushMixedRuleArtifactTargets.split(","),
+        targets: prePushMixedRuleAuthorityTargets.split(","),
         head: "HEAD",
         excludeTaskDependencies: true,
       },
@@ -447,7 +449,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts";
+    const changedPath =
+      "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -549,7 +552,7 @@ describe("Habitat hook service", () => {
 
   test("runs pre-commit through the in-process Habitat service router", async () => {
     const fake = makePreCommitFixture();
-    useStructuralCheckPolicy({
+    installStructuralCheckPolicy({
       createReport: (options = {}) =>
         Effect.succeed(fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check")),
     });
@@ -593,8 +596,8 @@ describe("Habitat hook service", () => {
     expect(result.stderr).toBe("");
     expect(result.stdout).toContain("habitat hook pre-commit\n");
     expect(result.stdout).toContain("\n[file-layer staged check]\n");
-    expect(result.stdout).toContain('"command": "habitat check --staged --tool file-layer --json"');
-    expect(result.stdout).toContain('"ruleId": "prohibit_pnpm_artifacts_in_bun_workspace"');
+    expect(result.stdout).toContain('"command": "habitat check --staged --runner habitat --json"');
+    expect(result.stdout).toContain('"ruleId": "prohibit_pnpm_files_in_bun_workspace"');
     expect(result.stdout).toContain("biome: no staged supported files\n");
     expect(result.stdout).toContain(
       "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
@@ -661,7 +664,7 @@ function defaultStructuralCheckPolicy(): StructuralCheckPolicy {
   };
 }
 
-function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
+function installStructuralCheckPolicy(policy: StructuralCheckPolicy) {
   mockCreateCheckReportEffect.mockImplementation(policy.createReport);
 }
 
@@ -680,7 +683,7 @@ function runPrePushHookServiceInTest(
   biome = biomeLayer(),
   graphite = makeFakeGraphiteProviderLayer(() => null)
 ) {
-  if (structuralCheck) useStructuralCheckPolicy(structuralCheck);
+  if (structuralCheck) installStructuralCheckPolicy(structuralCheck);
   const layer = Layer.mergeAll(gitLayer, nx, biome, graphite);
   return Effect.runPromise(
     Effect.gen(function* () {
@@ -706,7 +709,7 @@ function runPreCommitHookServiceInTest(
   biome = biomeLayer(),
   graphite = makeFakeGraphiteProviderLayer(() => null)
 ) {
-  if (structuralCheck) useStructuralCheckPolicy(structuralCheck);
+  if (structuralCheck) installStructuralCheckPolicy(structuralCheck);
   const layer = Layer.mergeAll(gitLayer, nx, biome, graphite);
   return Effect.runPromise(
     Effect.gen(function* () {
@@ -756,9 +759,7 @@ function hookServiceContext(options: {
                 },
               }
             : {}),
-          ...(options.sourceCheckHookEnabled
-            ? { rules: makeSyntheticSourceCheckHookRules() }
-            : {}),
+          ...(options.sourceCheckHookEnabled ? { rules: makeSyntheticSourceCheckHookRules() } : {}),
         }),
       },
     };
@@ -982,15 +983,14 @@ function fileLayerPassingCheckReport(command: string): CheckReport {
     ok: true,
     rules: [
       {
-        ruleId: "prohibit_pnpm_artifacts_in_bun_workspace",
-        ownerTool: "file-layer",
+        ruleId: "prohibit_pnpm_files_in_bun_workspace",
+        runner: "habitat",
         lane: "enforced",
         status: "pass",
         locked: true,
         durationMs: 1,
         diagnostics: [],
-        detect: ["habitat", "check", "--tool", "file-layer"],
-        message: "File-layer pnpm artifacts are controlled by package manager commands.",
+        message: "File-layer pnpm files are controlled by package manager commands.",
         remediate: null,
       },
     ],

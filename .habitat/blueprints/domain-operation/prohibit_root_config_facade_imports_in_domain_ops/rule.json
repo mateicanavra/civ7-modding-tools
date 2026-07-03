@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_root_config_facade_imports_in_domain_ops",
+  "title": "Prohibit Root Config Facade Imports In Domain Ops",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "ops importing domain-root config facades via parent traversal",
+  "why": "Ops receive normalized config contracts; root config facades are composition surfaces.",
+  "remediate": null,
+  "message": "Do not import domain-root config facades from ops.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md"
+    },
+    "patternName": "prohibit_root_config_facade_imports_in_domain_ops"
+  }
+}

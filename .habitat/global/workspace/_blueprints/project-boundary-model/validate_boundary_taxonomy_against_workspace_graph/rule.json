@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "validate_boundary_taxonomy_against_workspace_graph",
+  "title": "Validate Boundary Taxonomy Against Workspace Graph",
+  "placement": {
+    "niche": "global/workspace",
+    "blueprint": "project-boundary-model",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "drift between declared project kinds, Nx graph tags, boundary config, and taxonomy documentation",
+  "why": "Project-kind taxonomy is Habitat Toolkit authority over workspace boundary facts.",
+  "remediate": "Align package manifests, nx.json/project metadata, eslint.boundaries.config.mjs, and docs/projects/habitat-harness/taxonomy.md.",
+  "message": "Habitat boundary taxonomy validation failed.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/**/package.json",
+        "mods/**/package.json",
+        "packages/**/package.json",
+        "tools/**/package.json",
+        "nx.json",
+        "eslint.boundaries.config.mjs",
+        "docs/projects/habitat-harness/taxonomy.md"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/global/workspace/_blueprints/project-boundary-model/validate_boundary_taxonomy_against_workspace_graph/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bash",
+    "files": {
+      "script": ".habitat/global/workspace/_blueprints/project-boundary-model/validate_boundary_taxonomy_against_workspace_graph/check.sh"
+    }
+  }
+}

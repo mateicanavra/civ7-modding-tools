@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_foundation_projection_legacy_motion_source",
+  "title": "Prohibit Foundation Projection Legacy Motion Source",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "projection source reads from legacy plateGraph.plates velocity fields",
+  "why": "Projection must consume canonical foundation plate-motion artifacts.",
+  "remediate": null,
+  "message": "Read projection motion from the canonical plate-motion artifact surface.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_foundation_projection_legacy_motion_source/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_foundation_projection_legacy_motion_source/pattern.md"
+    },
+    "patternName": "prohibit_foundation_projection_legacy_motion_source"
+  }
+}

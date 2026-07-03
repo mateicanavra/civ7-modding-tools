@@ -580,7 +580,9 @@ describe("world balance stats", () => {
   // representative seeds they are present on 6/8 (0 only on 1018 and 3), 2..117 elsewhere. A floor of
   // >=4 present guards against a regression that ELIMINATES cold reefs (would read 0/8) while
   // tolerating the genuine bimodality. Carpeting is gated by coldReefShareOfCoastWater<=0.15 above.
-  it("keeps earthlike cold-reef ocean accents present across seed rolls", { timeout: 30_000 }, () => {
+  it("keeps earthlike cold-reef ocean accents present across seed rolls", {
+    timeout: 30_000,
+  }, () => {
     const seeds = [1018, 1, 2, 3, 42, 99, 1234, 7777];
     const present = seeds.filter((seed) => {
       const stats = collectWorldBalanceStats({
@@ -592,9 +594,10 @@ describe("world balance stats", () => {
       });
       return (stats.featureCounts.FEATURE_COLD_REEF ?? 0) > 0;
     }).length;
-    expect(present, "earthlike cold-reef presence across seed rolls (>=4 of 8)").toBeGreaterThanOrEqual(
-      4
-    );
+    expect(
+      present,
+      "earthlike cold-reef presence across seed rolls (>=4 of 8)"
+    ).toBeGreaterThanOrEqual(4);
   });
 
   // SKIPPED (live-integration 2026-06-11): this gate arrived RED on the rivers

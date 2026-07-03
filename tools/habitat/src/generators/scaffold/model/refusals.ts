@@ -38,7 +38,7 @@ export function productAuthoringRefusal(input: {
     requestClass: "unsupported-product-authoring",
     reason: "unsupported-product-authoring",
     recovery:
-      "Use a future accepted product authoring domain; generic Habitat scaffolding only creates supported project and pattern artifacts.",
+      "Use a future accepted product authoring domain; generic Habitat scaffolding only creates supported project and pattern authority files.",
     retryCondition:
       "Retry after a product authoring packet defines the domain, schema, ownership, and generator surface.",
   });

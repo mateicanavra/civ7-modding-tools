@@ -1,7 +1,7 @@
 import {
-  type HabitatArtifactRulePathInput,
-  habitatArtifactPathPlan,
-} from "../../rules/policy/artifact-paths.policy.ts";
+  type HabitatAuthorityRulePathInput,
+  habitatAuthorityPathPlan,
+} from "../../rules/policy/authority-paths.policy.ts";
 import type { WorkspaceGraphTargetNames } from "../../workspace/index.ts";
 
 export interface ValidationRunTarget {
@@ -45,19 +45,20 @@ export function prePushAffectedTargetNames(
 export function prePushTargetNamesForChangedPaths(
   changedPaths: readonly string[],
   targetNames: WorkspaceGraphTargetNames,
-  artifactRules: readonly HabitatArtifactRulePathInput[]
+  authorityRules: readonly HabitatAuthorityRulePathInput[]
 ): readonly string[] {
-  return prePushTargetPlanForChangedPaths(changedPaths, targetNames, artifactRules).affectedTargets;
+  return prePushTargetPlanForChangedPaths(changedPaths, targetNames, authorityRules)
+    .affectedTargets;
 }
 
 export function prePushTargetPlanForChangedPaths(
   changedPaths: readonly string[],
   targetNames: WorkspaceGraphTargetNames,
-  artifactRules: readonly HabitatArtifactRulePathInput[]
+  authorityRules: readonly HabitatAuthorityRulePathInput[]
 ): ValidationTargetPlan {
-  const plan = habitatArtifactPathPlan(changedPaths, artifactRules);
-  if (plan.allHabitatArtifacts) {
-    return { runTargets: [], affectedTargets: artifactAffectedTargets(plan, targetNames) };
+  const plan = habitatAuthorityPathPlan(changedPaths, authorityRules);
+  if (plan.allHabitatAuthorityFiles) {
+    return { runTargets: [], affectedTargets: authorityAffectedTargets(plan, targetNames) };
   }
 
   if (plan.paths.length > 0 && plan.paths.every(isHabitatToolingPath)) {
@@ -70,16 +71,16 @@ export function prePushTargetPlanForChangedPaths(
   return { runTargets: [], affectedTargets: prePushAffectedTargetNames(targetNames) };
 }
 
-function artifactAffectedTargets(
-  plan: ReturnType<typeof habitatArtifactPathPlan>,
+function authorityAffectedTargets(
+  plan: ReturnType<typeof habitatAuthorityPathPlan>,
   targetNames: WorkspaceGraphTargetNames
 ): readonly string[] {
   const targets = new Set<string>();
-  if (plan.hasSourceCheckArtifact) targets.add(targetNames.sourceCheck);
-  for (const ruleId of plan.nonSourceCheckRuleArtifactIds) {
+  if (plan.hasSourceCheckAuthorityFile) targets.add(targetNames.sourceCheck);
+  for (const ruleId of plan.nonSourceCheckRuleIds) {
     targets.add(`${targetNames.rulePrefix}${ruleId}`);
   }
-  if (plan.hasUnclassifiedArtifact || targets.size === 0) targets.add(targetNames.check);
+  if (plan.hasUnclassifiedAuthorityFile || targets.size === 0) targets.add(targetNames.check);
   return [...targets];
 }
 
@@ -102,8 +103,10 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath === "tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts" ||
-    filePath === "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts" ||
-    filePath === "tools/habitat/src/validation/validate_boundary_taxonomy_against_workspace_graph-inputs.ts"
+    filePath ===
+      "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts" ||
+    filePath ===
+      "tools/habitat/src/validation/validate_boundary_taxonomy_against_workspace_graph-inputs.ts"
   );
 }
 
@@ -117,7 +120,7 @@ function isStructuralTargetDeclarationPath(filePath: string): boolean {
 function isServiceModuleShapeToolingPath(filePath: string): boolean {
   return (
     filePath ===
-      ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_file_shape/validate_habitat_service_module_file_shape.check.ts" ||
+      ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.ts" ||
     filePath.startsWith("tools/habitat/src/service/modules/")
   );
 }

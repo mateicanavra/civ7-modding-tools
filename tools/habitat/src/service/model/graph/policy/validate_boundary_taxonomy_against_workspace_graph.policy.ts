@@ -1,8 +1,8 @@
 import path from "node:path";
 import {
-  habitatArtifactsProjectName,
-  habitatArtifactsRoot,
-} from "../../../../resources/artifact-paths.ts";
+  habitatAuthorityProjectName,
+  habitatAuthorityRoot,
+} from "../../../../resources/authority-paths.ts";
 import type { WorkspaceProject } from "../../workspace/index.ts";
 
 export interface TaxonomyProject {
@@ -58,7 +58,7 @@ export interface BoundaryTaxonomyIssue {
 export interface BoundaryTaxonomyNote {
   reason:
     | "workspace-root-not-nx-project"
-    | "nx-inferred-artifact-project"
+    | "nx-inferred-authority-project"
     | "nx-inferred-habitat-internal-project"
     | "nx-inferred-habitat-service-module-project";
   message: string;
@@ -181,7 +181,7 @@ export function auditBoundaryTaxonomy(input: {
     const manifest = manifestByRoot.get(taxonomyProject.root);
     if (!manifest) {
       if (
-        !isNxInferredArtifactProject(taxonomyProject) &&
+        !isNxInferredAuthorityProject(taxonomyProject) &&
         !isNxInferredHabitatInternalProject(taxonomyProject)
       ) {
         issues.push({
@@ -193,11 +193,11 @@ export function auditBoundaryTaxonomy(input: {
         continue;
       }
       notes.push({
-        reason: isNxInferredArtifactProject(taxonomyProject)
-          ? "nx-inferred-artifact-project"
+        reason: isNxInferredAuthorityProject(taxonomyProject)
+          ? "nx-inferred-authority-project"
           : "nx-inferred-habitat-internal-project",
-        message: isNxInferredArtifactProject(taxonomyProject)
-          ? "The Habitat artifact root is an inferred Nx project-plane node, not a package manifest workspace."
+        message: isNxInferredAuthorityProject(taxonomyProject)
+          ? "The Habitat authority root is an inferred Nx project-plane node, not a package manifest workspace."
           : "The Habitat internal root is an inferred Nx project-plane node, not a package manifest workspace.",
         project: taxonomyProject.name,
         root: taxonomyProject.root,
@@ -381,8 +381,8 @@ function sameTags(left: readonly string[], right: readonly string[]): boolean {
   return sortedUnique(left).join("\0") === sortedUnique(right).join("\0");
 }
 
-function isNxInferredArtifactProject(project: TaxonomyProject): boolean {
-  return project.name === habitatArtifactsProjectName && project.root === habitatArtifactsRoot;
+function isNxInferredAuthorityProject(project: TaxonomyProject): boolean {
+  return project.name === habitatAuthorityProjectName && project.root === habitatAuthorityRoot;
 }
 
 function isNxInferredHabitatInternalProject(project: TaxonomyProject): boolean {
