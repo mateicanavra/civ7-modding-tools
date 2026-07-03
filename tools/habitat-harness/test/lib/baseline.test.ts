@@ -8,6 +8,7 @@ import {
   type HabitatCommandResult,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/index";
 import {
   applyBaseline,
   type BaselineAuthorityContext,
@@ -22,7 +23,6 @@ import {
   checkBaselineIntegrityEffect,
   guardBaselineExpansionEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/operations.policy";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import { Effect, Layer } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 

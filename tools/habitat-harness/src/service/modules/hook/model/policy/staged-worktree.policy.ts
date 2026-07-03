@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import type {
   GitProviderRequirements,
@@ -14,9 +12,9 @@ import {
   repoRoot as defaultRepoRoot,
   toRepoRelative,
 } from "@internal/habitat-harness/resources/paths";
-import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { pathExistsSync } from "@internal/habitat-harness/resources/platform/index";
+import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/index";
 import { Effect } from "effect";
-import type { HookRuntime } from "./runtime.policy.js";
 
 const biomeCandidateExtensions = new Set([
   ".cjs",
@@ -37,9 +35,8 @@ const biomeCandidateExtensions = new Set([
 export function existingStagedPathsEffect(
   git: GitProviderService,
   repoRoot: string,
-  runtime: HookRuntime = {}
+  pathExists: (targetPath: string) => boolean = pathExistsSync
 ): Effect.Effect<string[], never, GitProviderRequirements> {
-  const pathExists = runtime.pathExists ?? existsSync;
   return stagedPathsEffect(git, repoRoot).pipe(
     Effect.map((paths) => paths.filter((candidate) => pathExists(path.join(repoRoot, candidate))))
   );
@@ -82,12 +79,6 @@ export function gitAddEffect(
       })
     );
   });
-}
-
-export function fileHash(repoRelativePath: string): string | null {
-  const absolute = path.join(defaultRepoRoot, repoRelativePath);
-  if (!existsSync(absolute)) return null;
-  return createHash("sha256").update(readFileSync(absolute)).digest("hex");
 }
 
 function stagedPathsEffect(

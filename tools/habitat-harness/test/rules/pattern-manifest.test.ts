@@ -1,9 +1,9 @@
+import type { RegisteredPatternManifest } from "@internal/habitat-harness/service/modules/fix/model/dto/index";
 import {
   patternManifestPath,
   patternRuleReferenceFromRule,
-  type RegisteredPatternManifest,
   validatePatternManifest,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/index";
 import { describe, expect, test } from "vitest";
 
 describe("pattern manifest validator", () => {

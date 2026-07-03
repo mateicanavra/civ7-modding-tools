@@ -1,5 +1,8 @@
 import {
   ApplyPatternPathSchema,
+  RepoRelativePathSchema,
+} from "@internal/habitat-harness/service/modules/fix/model/dto/index";
+import {
   activeApplyTransactionInputs,
   applyAdmission,
   applyAdmittedState,
@@ -13,9 +16,8 @@ import {
   patternAdmissionRefusal,
   patternRecovery,
   patternView,
-  RepoRelativePathSchema,
   retiredPatternState,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 

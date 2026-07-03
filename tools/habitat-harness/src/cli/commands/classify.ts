@@ -1,5 +1,5 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { stringifyClassifyResult } from "@internal/habitat-harness/service/modules/classify/model/dto/classify.schema";
+import { stringifyClassifyResult } from "@internal/habitat-harness/service/model/classify/index";
 import { Args } from "@oclif/core";
 
 export default class Classify extends HabitatCommand {

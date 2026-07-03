@@ -9,6 +9,7 @@ import { GritProviderLive } from "@internal/habitat-harness/providers/grit/index
 import { NxProviderLive } from "@internal/habitat-harness/providers/nx/index";
 import { CommandRunnerLive } from "@internal/habitat-harness/resources/command/index";
 import { HabitatConfigLive } from "@internal/habitat-harness/resources/config/index";
+import { HabitatPlatformLive } from "@internal/habitat-harness/resources/platform/index";
 import { HabitatReporterLive } from "@internal/habitat-harness/resources/reporter/index";
 import { BaselineAuthorityLive } from "@internal/habitat-harness/service/model/check/policy/baseline/service.policy";
 import {
@@ -32,6 +33,7 @@ export const HabitatRuntimeLive = Layer.mergeAll(
   BiomeProviderLive,
   NxProviderLive,
   HabitatReporterLive,
+  HabitatPlatformLive,
   GritProviderLive,
   BaselineAuthorityLive,
   SourceCheckLive,

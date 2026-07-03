@@ -21,6 +21,7 @@ export {
   classifyPathResult,
   classifyTarget,
   classifyTargetResult,
+  classifyTargetResultEffect,
   commandSummary,
   stringifyClassifyResult,
   validateClassifyResult,

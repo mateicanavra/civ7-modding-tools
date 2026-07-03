@@ -2,7 +2,6 @@ import { module } from "./module.js";
 
 export const verifyRouter = {
   run: module.run.effect(function* ({ context, input }) {
-    const { structuralCheck } = context;
     const startedMs = yield* context.currentTimeMillis;
     const startedAt = context.epochMillisToIsoString(startedMs);
     const baseDecision = yield* context.resolveVerifyBase(input.base);
@@ -11,7 +10,7 @@ export const verifyRouter = {
     }
 
     const base = baseDecision.base;
-    const checkReport = yield* structuralCheck.createReport({
+    const checkReport = yield* context.createCheckReport({
       base,
       baselineIntegrity: true,
       command: context.checkCommandContext(),

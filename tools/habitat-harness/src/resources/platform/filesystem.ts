@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
@@ -96,6 +97,15 @@ export function readDirectorySync(targetPath: string): readonly HabitatDirectory
 
 export function readTextSync(targetPath: string): string {
   return readFileSync(targetPath, "utf8");
+}
+
+export function pathExistsSync(targetPath: string): boolean {
+  return statKindSync(targetPath) !== undefined;
+}
+
+export function hashFileSync(targetPath: string): string | null {
+  if (!isFileSync(targetPath)) return null;
+  return createHash("sha256").update(readFileSync(targetPath)).digest("hex");
 }
 
 export function statKindSync(targetPath: string): FileSystem.File.Type | undefined {

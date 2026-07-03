@@ -2,11 +2,11 @@ import {
   candidateArtifactPaths,
   patternGenerator,
 } from "@internal/habitat-harness/generators/scaffold/pattern/support/generator";
+import type { RegisteredPatternManifest } from "@internal/habitat-harness/service/modules/fix/model/dto/index";
 import {
   patternManifestPath,
-  type RegisteredPatternManifest,
   validatePatternManifest,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/index";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";

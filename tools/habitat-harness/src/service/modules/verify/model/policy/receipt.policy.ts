@@ -6,15 +6,9 @@ import {
   type CheckReport,
   type VerifyCheckSummary,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/model/check/index";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
-import {
-  type VerifyTargetPlan,
-  VerifyTargetPlanSchema,
-  verifyTargetPlan,
-} from "@internal/habitat-harness/service/model/workspace/index";
-import { Value } from "typebox/value";
 import {
   type VerifyBaseResolution,
   VerifyHabitatCheckSummarySchema,
@@ -22,7 +16,13 @@ import {
   VerifyReceiptSchema,
   VerifySelectorStateSchema,
   VerifyTargetPlanConsumptionSchema,
-} from "../dto/verify.schema.js";
+} from "@internal/habitat-harness/service/model/verify/index";
+import {
+  type VerifyTargetPlan,
+  VerifyTargetPlanSchema,
+  verifyTargetPlan,
+} from "@internal/habitat-harness/service/model/workspace/index";
+import { Value } from "typebox/value";
 import { selectedVerifyEnv } from "./command-output.policy.js";
 import {
   affectedVerificationArgv,

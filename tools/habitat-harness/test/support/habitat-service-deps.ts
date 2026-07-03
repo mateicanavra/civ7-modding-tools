@@ -12,15 +12,15 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatProcessRequest } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
-import type { CheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import type { CheckReport } from "@internal/habitat-harness/service/model/check/index";
 import { Effect } from "effect";
 
 export function makeTestHabitatServiceDeps(
   overrides: Partial<HabitatServiceDeps> = {}
 ): HabitatServiceDeps {
   return {
-    acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
     biome: {
       run: (request) =>
         Effect.succeed(
@@ -53,7 +53,6 @@ export function makeTestHabitatServiceDeps(
         Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
     },
-    hookRuntime: {},
     nx: {
       affected: (request) =>
         Effect.succeed(
@@ -95,18 +94,30 @@ export function makeTestHabitatServiceDeps(
           })
         ),
       runTargetArgv,
+      workspaceGraph: () =>
+        Effect.succeed({
+          kind: "graph-ready",
+          snapshot: { projects: [] },
+        }),
     },
-    readText: () => Effect.succeed(""),
-    repoRoot,
-    structuralCheck: {
-      createReport: (options = {}) =>
-        Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
-      expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
+    platform: {
+      acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
+      hashFile: () => null,
+      pathExists: () => false,
+      readText: () => Effect.succeed(""),
+      repoRoot,
     },
-    workspaceProjects: {
-      readProjects: async () => [],
-    },
+    reporter: fakeReporter(),
     ...overrides,
+  };
+}
+
+function fakeReporter(events: HabitatReportEvent[] = []) {
+  return {
+    emit: (event: HabitatReportEvent) =>
+      Effect.sync(() => {
+        events.push(event);
+      }),
   };
 }
 

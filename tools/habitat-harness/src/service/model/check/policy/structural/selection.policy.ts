@@ -2,12 +2,16 @@ import {
   currentTimeMillis,
   epochMillisToIsoString,
 } from "@internal/habitat-harness/resources/platform/index";
+import type {
+  CheckReport,
+  RuleReport,
+  StructuralCheckRequest,
+} from "@internal/habitat-harness/service/model/check/index";
 import {
   describeRuleSelectionFailure,
   type RuleSelectionResult,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
-import type { CheckReport, RuleReport, StructuralCheckRequest } from "./schema.js";
 
 export function selectorRefusalReport(
   failure: Extract<RuleSelectionResult, { ok: false }>,

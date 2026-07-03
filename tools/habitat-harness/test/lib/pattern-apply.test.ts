@@ -9,13 +9,13 @@ import {
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+  PatternApplyRequest,
+} from "@internal/habitat-harness/service/modules/fix/model/dto/index";
+import { PatternApplyRequestSchema } from "@internal/habitat-harness/service/modules/fix/model/dto/index";
 import {
-  type PatternApplyRequest,
-  PatternApplyRequestSchema,
   renderPatternApply,
   runPatternApplyTransaction,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/transactions/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/index";
 import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -303,10 +303,10 @@ function applyTransaction(
   layer?: Layer.Layer<never>
 ) {
   const program = Effect.gen(function* () {
-    const grit = layer ? yield* GritProvider : undefined;
+    const grit = layer ? yield* GritProvider : makeTestHabitatServiceDeps().grit;
     return yield* runPatternApplyTransaction(input, {
       ...options,
-      ...(grit ? { grit } : {}),
+      grit,
     });
   });
   return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);

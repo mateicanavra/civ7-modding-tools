@@ -27,20 +27,25 @@ import {
 } from "@internal/habitat-harness/resources/errors/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import {
+  approvedSourceScanRootsForRules,
+  type CheckOptions,
+  type HabitatDiagnostic,
+  notApplicableDiagnostic,
+  type RuleExecutionDisposition,
+  type RuleExecutionTiming,
+  stagedSourceScanRoots,
+} from "@internal/habitat-harness/service/model/check/index";
+import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
+import {
+  type RuleRunResult,
+  ruleDiagnosticsFromCommandResult,
+} from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import {
   modifiedStagedPaths,
   runFileLayerProtectedMutationRule,
   type StagedMutationPath,
   stagedPathsFromNameStatus,
-} from "@internal/habitat-harness/service/model/check/index";
-import {
-  type RuleRunResult,
-  ruleDiagnosticsFromCommandResult,
-} from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture.policy";
-import {
-  approvedSourceScanRootsForRules,
-  SourceCheck,
-  stagedSourceScanRoots,
-} from "@internal/habitat-harness/service/model/check/policy/source/index";
+} from "@internal/habitat-harness/service/model/host/index";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
@@ -59,9 +64,6 @@ import {
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
-import { notApplicableDiagnostic } from "./disposition-diagnostics.policy.js";
-import type { CheckOptions } from "./request.policy.js";
-import type { HabitatDiagnostic, RuleExecutionDisposition, RuleExecutionTiming } from "./schema.js";
 
 export interface RuleExecutionRecord {
   result: RuleRunResult;

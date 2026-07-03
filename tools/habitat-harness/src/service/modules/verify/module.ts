@@ -3,14 +3,22 @@ import type { GraphiteProviderService } from "@internal/habitat-harness/provider
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import { spawnResultFromCommandResult } from "@internal/habitat-harness/resources/command/index";
 import { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
+import type {
+  HabitatServiceContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError,
+} from "@internal/habitat-harness/service/base";
+import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
+  type CheckOptions,
   checkCommandContext,
-  type StructuralCheckService,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/model/check/index";
+import { StructuralCheck } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
+import type { EffectImplementerInternal } from "effect-orpc";
 import {
   createVerifyReceipt,
   readVerifyTargetPlan,
@@ -19,6 +27,7 @@ import {
 
 export interface VerifyModuleContext {
   readonly checkCommandContext: typeof checkCommandContext;
+  readonly createCheckReport: typeof createCheckReport;
   readonly createVerifyReceipt: typeof createVerifyReceipt;
   readonly currentTimeMillis: typeof Clock.currentTimeMillis;
   readonly epochMillisToIsoString: typeof epochMillisToIsoString;
@@ -26,24 +35,32 @@ export interface VerifyModuleContext {
   readonly readVerifyTargetPlan: typeof readVerifyTargetPlanEffect;
   readonly resolveVerifyBase: ReturnType<typeof makeResolveVerifyBase>;
   readonly runAffectedVerification: ReturnType<typeof makeRunAffectedVerification>;
-  readonly structuralCheck: StructuralCheckService;
   readonly verifyCheckSummary: typeof verifyCheckSummary;
 }
 
-export const module = service.verify.use(({ context, next }) => {
+type VerifyModule = EffectImplementerInternal<
+  HabitatServiceContract["verify"],
+  HabitatServiceContext,
+  HabitatServiceContext & VerifyModuleContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError
+>;
+
+export const module: VerifyModule = service.verify.use(({ context, next }) => {
   const resolveVerifyBase = makeResolveVerifyBase({
     git: context.deps.git,
     graphite: context.deps.graphite,
-    repoRoot: context.deps.repoRoot,
+    repoRoot: context.deps.platform.repoRoot,
   });
   const runAffectedVerification = makeRunAffectedVerification(context.deps.nx);
   const observeGitStatus = makeObserveGitStatus({
     git: context.deps.git,
-    repoRoot: context.deps.repoRoot,
+    repoRoot: context.deps.platform.repoRoot,
   });
   return next({
     context: {
       checkCommandContext,
+      createCheckReport,
       createVerifyReceipt,
       currentTimeMillis: Clock.currentTimeMillis,
       epochMillisToIsoString,
@@ -51,11 +68,14 @@ export const module = service.verify.use(({ context, next }) => {
       readVerifyTargetPlan: readVerifyTargetPlanEffect,
       resolveVerifyBase,
       runAffectedVerification,
-      structuralCheck: context.deps.structuralCheck,
       verifyCheckSummary,
     } satisfies VerifyModuleContext,
   });
 });
+
+function createCheckReport(options?: CheckOptions) {
+  return Effect.flatMap(StructuralCheck, (service) => service.createReport(options));
+}
 
 function readVerifyTargetPlanEffect() {
   return Effect.promise(() => readVerifyTargetPlan());

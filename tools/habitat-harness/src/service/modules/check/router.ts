@@ -2,8 +2,8 @@ import { module } from "./module.js";
 
 export const checkRouter = {
   run: module.run.effect(function* ({ context, input }) {
-    const { checkCommandContext, selectorsFromInput, structuralCheck } = context;
-    return yield* structuralCheck.createReport({
+    const { checkCommandContext, createCheckReport, selectorsFromInput } = context;
+    return yield* createCheckReport({
       ...selectorsFromInput(input),
       ...(input.base ? { base: input.base } : {}),
       baselineIntegrity: input.baselineIntegrity ?? false,
@@ -13,8 +13,8 @@ export const checkRouter = {
     });
   }),
   expandBaseline: module.expandBaseline.effect(function* ({ context, input }) {
-    const { describeRuleSelectionFailure, selectorsFromInput, structuralCheck } = context;
-    const expansion = yield* structuralCheck.expandBaselines(selectorsFromInput(input), {
+    const { describeRuleSelectionFailure, expandBaselines, selectorsFromInput } = context;
+    const expansion = yield* expandBaselines(selectorsFromInput(input), {
       base: input.base ?? "main",
     });
     if (expansion.ok) return { kind: "expanded", messages: expansion.messages };
