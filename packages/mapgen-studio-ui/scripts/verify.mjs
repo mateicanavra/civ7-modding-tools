@@ -40,7 +40,9 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // parseArtifactPresentation (the app's recipe-corpus classification test's
 // import) = 99. (recipe-dag layout/presentation modules + PIPELINE_EDGE_INK
 // stay internal — package tests import them relatively.)
-const EXPECTED_MIN_EXPORTS = 99;
+// B6 (AppHeader, E4a redesign): AppHeader = 100. (AppHeaderProps /
+// AppHeaderSetupState are type-only — no runtime export.)
+const EXPECTED_MIN_EXPORTS = 100;
 
 const failures = [];
 const assert = (cond, msg) => {

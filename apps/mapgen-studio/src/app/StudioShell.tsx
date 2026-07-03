@@ -1,6 +1,7 @@
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import {
   AppFooter,
+  AppHeader,
   ErrorBanner,
   ExplorePanel,
   GameConsole,
@@ -28,7 +29,6 @@ import type { VizEvent } from "../shared/vizEvents";
 import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
 import { useViewStore } from "../stores/viewStore";
-import { AppHeader } from "../ui/components/AppHeader";
 import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../ui/constants";
 import { configsEqual } from "../ui/utils/config";
 import { CanvasStage } from "./CanvasStage";
@@ -596,8 +596,13 @@ export function StudioShell(props: StudioShellProps) {
   // `useStudioOperations`, so this must follow those hooks (and `useSetupDataQueries`).
   const {
     setupControlOptions,
+    headerSetupState,
     savedSetupConfigModified,
     handleSavedSetupConfigChange,
+    handleLeaderChange,
+    handleCivilizationChange,
+    handleDifficultyChange,
+    handleGameSpeedChange,
     handleToggleAutoplay,
     handleExplore,
     autoplayActionRunning,
@@ -735,11 +740,14 @@ export function StudioShell(props: StudioShellProps) {
       onThemeCycle={cyclePreference}
       showGrid={showGrid}
       onShowGridChange={setShowGrid}
-      setupConfig={setupConfig}
+      setup={headerSetupState}
       setupOptions={setupControlOptions}
       savedConfigModified={savedSetupConfigModified}
-      onSetupConfigChange={setSetupConfig}
       onSavedConfigChange={handleSavedSetupConfigChange}
+      onLeaderChange={handleLeaderChange}
+      onCivilizationChange={handleCivilizationChange}
+      onDifficultyChange={handleDifficultyChange}
+      onGameSpeedChange={handleGameSpeedChange}
       onHeaderHeightChange={handleHeaderHeightChange}
       gameConsole={
         <GameConsole

@@ -1,21 +1,11 @@
-import {
-  AppBrand,
-  Button,
-  OptionSelect,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  ViewControls,
-} from "@swooper/mapgen-studio-ui";
-import type { ThemePreference } from "@swooper/mapgen-studio-ui/types";
 import { Gamepad2, Settings } from "lucide-react";
 import React from "react";
-import {
-  type Civ7StudioSetupConfig,
-  getLocalPlayerSetup,
-  updateStudioSetupGameOption,
-  updateStudioSetupPlayerOption,
-} from "../../features/civ7Setup/setupConfig";
+import type { ThemePreference } from "../../types/index.js";
+import { Button } from "../ui/button.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
+import { AppBrand } from "./AppBrand.js";
+import { OptionSelect } from "./OptionSelect.js";
+import { ViewControls } from "./ViewControls.js";
 
 /**
  * Sentinel selector value for the drifted state: the authored game setup no
@@ -25,12 +15,30 @@ import {
  */
 const CUSTOM_SETUP_VALUE = "__custom-setup__";
 
+/**
+ * The header's game-setup view-model (E4a redesign — structure-rewire §5).
+ * A props-driven projection of the app's authored setup state: the app
+ * container derives it (saved-config ref plus the four current select values,
+ * including the difficulty game-over-player fallback) and owns every update;
+ * the header only presents it and reports intents.
+ */
+export interface AppHeaderSetupState {
+  /** Selected saved config, or null when none. displayName feeds the Re-apply affordance copy. */
+  savedConfig: { id: string; displayName: string } | null;
+  /** "" = unset. */
+  leaderId: string;
+  civilizationId: string;
+  difficultyId: string;
+  gameSpeedId: string;
+}
+
 export interface AppHeaderProps {
   themePreference: ThemePreference;
   onThemeCycle: () => void;
   showGrid: boolean;
   onShowGridChange: (show: boolean) => void;
-  setupConfig: Civ7StudioSetupConfig;
+  /** View-model for the Game bar + setup panel (package-owned, structural). */
+  setup: AppHeaderSetupState;
   setupOptions: {
     savedConfigOptions: ReadonlyArray<{ value: string; label: string }>;
     leaderOptions: ReadonlyArray<{ value: string; label: string }>;
@@ -38,8 +46,6 @@ export interface AppHeaderProps {
     difficultyOptions: ReadonlyArray<{ value: string; label: string }>;
     gameSpeedOptions: ReadonlyArray<{ value: string; label: string }>;
   };
-  onSetupConfigChange: (config: Civ7StudioSetupConfig) => void;
-  onSavedConfigChange: (configId: string) => void;
   /**
    * Config precedence: true when the authored setup state no longer equals
    * the selected saved config's file-derived state (any dropdown edit, live
@@ -48,6 +54,13 @@ export interface AppHeaderProps {
    * re-apply affordance restores the file exactly.
    */
   savedConfigModified?: boolean;
+  onSavedConfigChange: (configId: string) => void;
+  /** "" = clear. */
+  onLeaderChange: (value: string) => void;
+  onCivilizationChange: (value: string) => void;
+  /** The app container owns the game+player difficulty double-write. */
+  onDifficultyChange: (value: string) => void;
+  onGameSpeedChange: (value: string) => void;
   onHeaderHeightChange?: (height: number) => void;
   /**
    * The live-game command cluster (Pass-5 zoning v2: top = Game, bottom =
@@ -61,11 +74,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onThemeCycle,
   showGrid,
   onShowGridChange,
-  setupConfig,
+  setup,
   setupOptions,
   savedConfigModified = false,
-  onSetupConfigChange,
   onSavedConfigChange,
+  onLeaderChange,
+  onCivilizationChange,
+  onDifficultyChange,
+  onGameSpeedChange,
   onHeaderHeightChange,
   gameConsole,
 }) => {
@@ -78,26 +94,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const textSecondary = "text-muted-foreground";
   const textMuted = "text-muted-foreground/70";
   const dividerColor = "bg-border";
-  const localPlayerSetup = getLocalPlayerSetup(setupConfig);
-  const updateLeader = (value: string) => {
-    onSetupConfigChange(
-      updateStudioSetupPlayerOption(setupConfig, "PlayerLeader", value || undefined)
-    );
-  };
-  const updateCivilization = (value: string) => {
-    onSetupConfigChange(
-      updateStudioSetupPlayerOption(setupConfig, "PlayerCivilization", value || undefined)
-    );
-  };
-  const updateDifficulty = (value: string) => {
-    const nextGame = updateStudioSetupGameOption(setupConfig, "Difficulty", value || undefined);
-    onSetupConfigChange(
-      updateStudioSetupPlayerOption(nextGame, "PlayerDifficulty", value || undefined)
-    );
-  };
-  const updateGameSpeed = (value: string) => {
-    onSetupConfigChange(updateStudioSetupGameOption(setupConfig, "GameSpeeds", value || undefined));
-  };
   React.useEffect(() => {
     const element = headerRef.current;
     if (!element || !onHeaderHeightChange) return;
@@ -151,7 +147,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 selector itself says "Custom" (the launch is no longer the
                 file). Picking the config again re-applies the file exactly. */}
             <OptionSelect
-              value={savedConfigModified ? CUSTOM_SETUP_VALUE : (setupConfig.savedConfig?.id ?? "")}
+              value={savedConfigModified ? CUSTOM_SETUP_VALUE : (setup.savedConfig?.id ?? "")}
               onValueChange={(value) => {
                 if (value !== CUSTOM_SETUP_VALUE) onSavedConfigChange(value);
               }}
@@ -166,12 +162,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               ariaLabel="Saved config"
               className={`w-44 max-w-[34vw] ${savedConfigModified ? "border-warning text-warning ring-1 ring-warning/40" : ""}`}
             />
-            {savedConfigModified && setupConfig.savedConfig ? (
+            {savedConfigModified && setup.savedConfig ? (
               <button
                 type="button"
-                onClick={() => onSavedConfigChange(setupConfig.savedConfig!.id)}
-                aria-label={`Game setup is Custom (drifted from ${setupConfig.savedConfig.displayName}) — click to re-apply the saved config`}
-                title={`Game setup is Custom (drifted from ${setupConfig.savedConfig.displayName}) — click to re-apply the saved config`}
+                onClick={() => onSavedConfigChange(setup.savedConfig!.id)}
+                aria-label={`Game setup is Custom (drifted from ${setup.savedConfig.displayName}) — click to re-apply the saved config`}
+                title={`Game setup is Custom (drifted from ${setup.savedConfig.displayName}) — click to re-apply the saved config`}
                 className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning cursor-pointer transition-colors hover:bg-warning/10"
               >
                 Re-apply
@@ -219,8 +215,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 Leader
               </span>
               <OptionSelect
-                value={String(localPlayerSetup.options.PlayerLeader ?? "")}
-                onValueChange={(value) => updateLeader(value)}
+                value={setup.leaderId}
+                onValueChange={(value) => onLeaderChange(value)}
                 options={setupOptions.leaderOptions}
                 ariaLabel="Leader"
                 className="w-32"
@@ -236,8 +232,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 Civ
               </span>
               <OptionSelect
-                value={String(localPlayerSetup.options.PlayerCivilization ?? "")}
-                onValueChange={(value) => updateCivilization(value)}
+                value={setup.civilizationId}
+                onValueChange={(value) => onCivilizationChange(value)}
                 options={setupOptions.civilizationOptions}
                 ariaLabel="Civilization"
                 className="w-32"
@@ -253,12 +249,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 Difficulty
               </span>
               <OptionSelect
-                value={String(
-                  setupConfig.gameOptions.Difficulty ??
-                    localPlayerSetup.options.PlayerDifficulty ??
-                    ""
-                )}
-                onValueChange={(value) => updateDifficulty(value)}
+                value={setup.difficultyId}
+                onValueChange={(value) => onDifficultyChange(value)}
                 options={setupOptions.difficultyOptions}
                 ariaLabel="Difficulty"
                 className="w-28"
@@ -274,8 +266,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 Speed
               </span>
               <OptionSelect
-                value={String(setupConfig.gameOptions.GameSpeeds ?? "")}
-                onValueChange={(value) => updateGameSpeed(value)}
+                value={setup.gameSpeedId}
+                onValueChange={(value) => onGameSpeedChange(value)}
                 options={setupOptions.gameSpeedOptions}
                 ariaLabel="Game speed"
                 className="w-28"
