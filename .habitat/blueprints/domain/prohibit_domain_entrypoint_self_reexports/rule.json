@@ -27,7 +27,6 @@
     "mods/mod-swooper-maps/src/domain/foundation/index.ts",
     "mods/mod-swooper-maps/src/domain/hydrology/index.ts",
     "mods/mod-swooper-maps/src/domain/morphology/index.ts",
-    "mods/mod-swooper-maps/src/domain/narrative/index.ts",
     "mods/mod-swooper-maps/src/domain/placement/index.ts",
     "mods/mod-swooper-maps/src/domain/resources/index.ts"
   ],

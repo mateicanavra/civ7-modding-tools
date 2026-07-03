@@ -20,7 +20,7 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/domain/{ecology,foundation,hydrology,morphology,narrative,placement,resources}/ops"
+        "mods/mod-swooper-maps/src/domain/{ecology,foundation,hydrology,morphology,placement,resources}/ops"
       ]
     }
   ],
