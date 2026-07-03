@@ -6,10 +6,10 @@ import {
   ruleFileLayerFacts,
   ruleGraphFacts,
   ruleHookCheckFacts,
-  rulePatternFacts,
   ruleReportFacts,
   ruleRoutingFacts,
   ruleSelectorFacts,
+  ruleSourceFacts,
 } from "./index.js";
 
 const records = activeRuleRegistryDocument.rules;
@@ -18,7 +18,7 @@ export const activeRuleSelectorFacts = ruleSelectorFacts(records);
 export const activeRuleReportFacts = ruleReportFacts(records);
 export const activeRuleBaselineFacts = ruleBaselineFacts(records);
 export const activeRuleCommandExecutionFacts = ruleCommandExecutionFacts(records);
-export const activeRulePatternFacts = rulePatternFacts(records);
+export const activeRuleSourceFacts = ruleSourceFacts(records);
 export const activeRuleFileLayerFacts = ruleFileLayerFacts(records);
 export const activeRuleHookCheckFacts = ruleHookCheckFacts(records);
 export const activeRuleRoutingFacts = ruleRoutingFacts(records);

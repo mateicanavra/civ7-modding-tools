@@ -1,8 +1,9 @@
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import type { HookRuntime } from "../../src/domains/hook-runtime/runtime.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
 import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
+import { affectedArgv, makeFakeNxProviderLayer } from "../../src/providers/nx/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runHookService } from "../../src/service/modules/hook/router.js";
 
@@ -21,9 +22,7 @@ describe("Habitat hook service", () => {
         "hook result: workstation check only; CI remains authoritative.\nhabitat hook pre-push: repo Nx affected base=HEAD~1\naffected ok\n",
       stderr: "",
     });
-    expect(fake.calls).toEqual([
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static",
-    ]);
+    expect(fake.calls).toEqual([]);
   });
 
   test("preserves unknown hook stream behavior", async () => {
@@ -45,10 +44,7 @@ describe("Habitat hook service", () => {
     );
 
     expect(result.stdout).toContain("base=agent-parent");
-    expect(fake.calls).toEqual([
-      "gt branch info --no-interactive",
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base agent-parent --head HEAD --outputStyle=static",
-    ]);
+    expect(fake.calls).toEqual(["gt branch info --no-interactive"]);
   });
 
   test("resolves pre-push merge-base through GitProvider when Graphite parent is absent", async () => {
@@ -72,28 +68,24 @@ describe("Habitat hook service", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("base=abc123mergebase");
-    expect(fake.calls).toEqual([
-      "gt branch info --no-interactive",
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base abc123mergebase --head HEAD --outputStyle=static",
-    ]);
+    expect(fake.calls).toEqual(["gt branch info --no-interactive"]);
     expect(gitCalls).toEqual([
       "symbolic-ref --quiet --short refs/remotes/origin/HEAD",
       "merge-base HEAD origin/main",
     ]);
   });
 
-  test("runs through the in-process Habitat service client", async () => {
+  test("runs pre-push through provider-backed service execution", async () => {
     const fake = makePrePushRuntime();
 
-    const result = await createHabitatServiceClient({
-      hook: { runtime: fake.runtime },
-    }).hook.run({ name: "pre-push", base: "HEAD~1" });
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime }
+    );
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("base=HEAD~1");
-    expect(fake.calls).toEqual([
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static",
-    ]);
+    expect(fake.calls).toEqual([]);
   });
 
   test("runs pre-commit through the in-process Habitat service client", async () => {
@@ -103,24 +95,18 @@ describe("Habitat hook service", () => {
       hook: { runtime: fake.runtime },
     }).hook.run({ name: "pre-commit" });
 
-    expect(result).toEqual({
-      exitCode: 0,
-      stdout: [
-        "habitat hook pre-commit\n",
-        "hook result: workstation check only; CI remains authoritative.\n",
-        "resources: not-configured\n",
-        "\n[file-layer staged check]\n",
-        fileLayerCheckReport(),
-        "biome: no staged supported files\n",
-        "patterns: no staged TypeScript/JavaScript files in approved scan roots\n",
-        "habitat hook pre-commit: PASS\n",
-      ].join(""),
-      stderr: "",
-    });
-    expect(fake.calls).toEqual([
-      "git diff --cached --name-status -z",
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json",
-    ]);
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("habitat hook pre-commit\n");
+    expect(result.stdout).toContain("\n[file-layer staged check]\n");
+    expect(result.stdout).toContain('"command": "habitat check --staged --tool file-layer --json"');
+    expect(result.stdout).toContain('"ruleId": "file-layer-pnpm-artifacts"');
+    expect(result.stdout).toContain("biome: no staged supported files\n");
+    expect(result.stdout).toContain(
+      "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
+    );
+    expect(result.stdout).toContain("habitat hook pre-commit: PASS\n");
+    expect(fake.calls).toEqual(["git diff --cached --name-status -z"]);
   });
 });
 
@@ -129,7 +115,9 @@ function runHookServiceInTest(
   options: Parameters<typeof runHookService>[1] = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, ""))
 ) {
-  return Effect.runPromise(runHookService(input, options).pipe(Effect.provide(gitLayer)));
+  return Effect.runPromise(
+    runHookService(input, options).pipe(Effect.provide(Layer.merge(gitLayer, nxLayer())))
+  );
 }
 
 function commandResult(argv: readonly string[], cwd: string, stdout: string) {
@@ -170,6 +158,17 @@ function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
       nowMs: () => 1_000,
     },
   };
+}
+
+function nxLayer() {
+  return makeFakeNxProviderLayer({
+    affected: (request) =>
+      commandResult(affectedArgv(request), repoRootForTestCommand(), "affected ok\n"),
+  });
+}
+
+function repoRootForTestCommand(): string {
+  return process.cwd().replace(/\/tools\/habitat-harness$/, "");
 }
 
 function makePreCommitRuntime(): {

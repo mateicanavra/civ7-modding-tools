@@ -12,7 +12,7 @@ export const patternCandidateRoot = `${patternRoot}/candidates`;
 
 export const checkPatternRoot = `${patternRoot}/checks`;
 export const applyPatternRoot = `${patternRoot}/apply`;
-export const sourceCheckPolicyRepoPath = `${habitatArtifactsRoot}/source-check/pattern-rules.mjs`;
+export const sourceCheckPolicyRepoPath = `${habitatArtifactsRoot}/source-check/source-rules.mjs`;
 
 export function baselineRepoPath(ruleId: string): string {
   return `${baselinesRepoPath}/${ruleId}.json`;

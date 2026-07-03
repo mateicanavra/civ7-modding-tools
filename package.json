@@ -9,7 +9,8 @@
     "build": "nx run-many --targets=build",
     "build:cli": "nx run @mateicanavra/civ7-cli:build",
     "build:sdk": "nx run @mateicanavra/civ7-sdk:build",
-    "check": "nx run-many --targets=build,check,lint,test,verify,validate:boundary-taxonomy,validate:grit-patterns",
+    "check": "bun run habitat:check",
+    "check:graph": "nx affected --targets=check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns --excludeTaskDependencies",
     "check-types": "nx run-many --targets=check",
     "check:cli": "nx run @mateicanavra/civ7-cli:check",
     "check:sdk": "nx run @mateicanavra/civ7-sdk:check",
@@ -48,7 +49,7 @@
     "build:mapgen": "nx run @swooper/mapgen-core:build",
     "lint:adapter-boundary": "nx run --project=@internal/habitat-harness --target=habitat:rule:adapter-boundary",
     "lint:domain-refactor-guardrails": "nx run --project=mod-swooper-maps --target=habitat:rule:domain-refactor-guardrails",
-    "lint:mapgen-recipe-imports": "nx run --project=@internal/habitat-harness --target=grit:check",
+    "lint:mapgen-recipe-imports": "nx run --project=@internal/habitat-harness --target=source:check",
     "lint:domain-refactor-guardrails:strict-core": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 ./scripts/lint/lint-domain-refactor-guardrails.sh",
     "ci:architecture-strict-core": "bun run lint:domain-refactor-guardrails:strict-core",
     "lint:mapgen-docs": "nx run --project=@internal/habitat-harness --target=habitat:rule:mapgen-docs",
@@ -63,7 +64,7 @@
     "habitat": "bun tools/habitat-harness/bin/dev.ts",
     "habitat:check": "bun run habitat check",
     "habitat:fix": "bun run habitat fix",
-    "ci": "bun run check",
+    "ci": "nx run-many --targets=build,check,lint,test,validate:boundary-taxonomy,validate:grit-patterns",
     "verify": "nx run-many --targets=verify"
   },
   "workspaces": [

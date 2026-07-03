@@ -6,8 +6,8 @@ import {
   ruleGraphFacts,
   ruleHookCheckFacts,
   ruleManifestFacts,
-  rulePatternFacts,
   ruleRoutingFacts,
+  ruleSourceFacts,
 } from "../../../src/domains/rule-registry/index.js";
 import { workspaceGraphTargetNames } from "../../../src/providers/nx/targets.js";
 import { baseRule } from "./helpers.js";
@@ -15,18 +15,19 @@ import { baseRule } from "./helpers.js";
 describe("rule registry facts", () => {
   test("keeps hook check out of Grit execution facts", () => {
     const rule = baseRule({
-      ownerTool: "pattern-check",
+      ownerTool: "source-check",
       patternName: "sample_pattern",
       scanRoots: ["packages"],
       hookCheck: true,
     });
 
-    expect(rulePatternFacts([rule])).toEqual([
+    expect(ruleSourceFacts([rule])).toEqual([
       {
         id: "sample-rule",
         lane: "enforced",
         message: "Fix the structural issue.",
         patternName: "sample_pattern",
+        pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
       },
     ]);
@@ -42,7 +43,7 @@ describe("rule registry facts", () => {
     const commandRule = baseRule();
     const gritRule = baseRule({
       id: "rule",
-      ownerTool: "pattern-check",
+      ownerTool: "source-check",
       patternName: "sample_pattern",
       scanRoots: ["packages"],
       hookCheck: true,
@@ -62,12 +63,13 @@ describe("rule registry facts", () => {
         message: "Fix the structural issue.",
       },
     ]);
-    expect(rulePatternFacts([commandRule, gritRule, fileLayerRule])).toEqual([
+    expect(ruleSourceFacts([commandRule, gritRule, fileLayerRule])).toEqual([
       {
         id: "rule",
         lane: "enforced",
         message: "Fix the structural issue.",
         patternName: "sample_pattern",
+        pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
       },
     ]);
@@ -106,7 +108,7 @@ describe("rule registry facts", () => {
       ruleBaselineFacts([
         baseRule({
           exceptionPath: "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST",
-          ownerTool: "pattern-check",
+          ownerTool: "source-check",
           patternName: "sample_pattern",
           scanRoots: ["packages"],
           hookCheck: true,
@@ -126,14 +128,14 @@ describe("rule registry facts", () => {
       ruleManifestFacts([
         baseRule({
           id: "registered-rule",
-          ownerTool: "pattern-check",
+          ownerTool: "source-check",
           patternName: "registered_grit_rule",
           scanRoots: ["packages"],
           manifestPath: ".habitat/patterns/manifests/registered-rule.json",
         }),
         baseRule({
           id: "metadata-only-rule",
-          ownerTool: "pattern-check",
+          ownerTool: "source-check",
           patternName: "metadata_only_grit_rule",
           scanRoots: ["packages"],
         }),

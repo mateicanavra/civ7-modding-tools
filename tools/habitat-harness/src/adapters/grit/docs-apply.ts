@@ -4,7 +4,7 @@ import {
   diagnosticCatalogEntryFromNativeRule,
   renderDiagnosticScanRootRefusal,
 } from "../../domains/diagnostic-pattern-catalog/index.js";
-import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
+import type { RuleSourceFacts } from "../../domains/rule-registry/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import { infrastructureFailure } from "./failure.js";
@@ -18,7 +18,7 @@ import {
 } from "./scan-roots/index.js";
 
 export async function runDocsApplyBackedGritRules(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: {
     scanRoots?: readonly string[];
     providerLayer?: Layer.Layer<GritProvider>;
@@ -69,7 +69,7 @@ export async function runDocsApplyBackedGritRules(
 }
 
 export async function runDocsApplyBackedDiagnosticOutcomes(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: {
     scanRoots?: readonly string[];
     providerLayer?: Layer.Layer<GritProvider>;
@@ -85,7 +85,7 @@ export async function runDocsApplyBackedDiagnosticOutcomes(
 }
 
 export function runDocsApplyBackedDiagnosticOutcomesEffect(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: {
     scanRoots?: readonly string[];
   } = {}
@@ -161,7 +161,7 @@ export function runDocsApplyBackedDiagnosticOutcomesEffect(
   );
 }
 
-function nativeDiagnosticEntry(rule: RulePatternFacts) {
+function nativeDiagnosticEntry(rule: RuleSourceFacts) {
   return diagnosticCatalogEntryFromNativeRule({
     ruleId: rule.id,
     nativeDiagnosticIdentity: "docs-local-checkout-paths",
@@ -184,7 +184,7 @@ function docsApplyDryRunProgram(scanRoots: readonly string[]) {
 }
 
 function adapterFailedOutcomes(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   failure: "GritToolUnavailable" | "GritCommandFailed",
   detail: string
 ): Map<string, DiagnosticRunOutcome> {

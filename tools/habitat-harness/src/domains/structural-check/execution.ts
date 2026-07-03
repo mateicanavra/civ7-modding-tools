@@ -17,43 +17,46 @@ import {
   type GitProviderRequirements,
   type GitStateProvider,
 } from "../../providers/git/index.js";
-import { readWorkspaceGraph } from "../../providers/nx/graph.js";
-import { NxProvider, spawnResultFromCommandResult } from "../../providers/nx/index.js";
+import {
+  NxProvider,
+  type NxProviderService,
+  spawnResultFromCommandResult,
+} from "../../providers/nx/index.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
 import {
   activeRuleCommandExecutionFacts,
   activeRuleFileLayerFacts,
   activeRuleGraphFacts,
-  activeRulePatternFacts,
+  activeRuleSourceFacts,
   factsForRuleIds,
 } from "../rule-registry/active-facts.js";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RuleGraphFacts,
-  RulePatternFacts,
   RuleSelectorFacts,
+  RuleSourceFacts,
 } from "../rule-registry/index.js";
 import {
   approvedSourceScanRootsForRules,
   SourceCheck,
   stagedSourceScanRoots,
 } from "../source-check/index.js";
-import { ruleAliasTargetState } from "../workspace-graph-integration/index.js";
-import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
+import { notApplicableDiagnostic } from "./disposition-diagnostics.js";
 import type { CheckOptions } from "./request.js";
-import type { HabitatDiagnostic, RuleExecutionDisposition } from "./schema.js";
+import type { HabitatDiagnostic, RuleExecutionDisposition, RuleExecutionTiming } from "./schema.js";
 
 export interface RuleExecutionRecord {
   result: RuleRunResult;
   durationMs: number;
+  timing?: RuleExecutionTiming;
   disposition: RuleExecutionDisposition;
 }
 
 export function rulesForExecution(
   selectedRules: readonly RuleSelectorFacts[],
   _options: {
-    gritFacts?: readonly RulePatternFacts[];
+    sourceRuleFacts?: readonly RuleSourceFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
   } = {}
@@ -61,24 +64,24 @@ export function rulesForExecution(
   return [...selectedRules];
 }
 
-export function stagedPatternScanRoots(
+export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRulePatternFacts)
+  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleSourceFacts)
 ): string[] {
   return stagedSourceScanRoots(stagedPaths, approvedScanRoots);
 }
 
-export function approvedScanRootsForRules(rules: readonly RulePatternFacts[]): string[] {
+export function approvedScanRootsForRules(rules: readonly RuleSourceFacts[]): string[] {
   return approvedSourceScanRootsForRules(rules);
 }
 
-export function stagedPatternNotApplicableRecords(
-  gritRules: readonly RulePatternFacts[],
+export function stagedSourceCheckNotApplicableRecords(
+  sourceRules: readonly RuleSourceFacts[],
   scanRoots: readonly string[]
 ): Map<string, RuleExecutionRecord> | undefined {
   if (scanRoots.length > 0) return undefined;
   return new Map(
-    gritRules.map((rule) => [
+    sourceRules.map((rule) => [
       rule.id,
       {
         result: {
@@ -111,34 +114,35 @@ export function executeSelectedRulesEffect(
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
-    const gritRules = factsForRuleIds(activeRulePatternFacts, selectedRuleIds);
-    if (gritRules.length > 0) {
+    const sourceRules = factsForRuleIds(activeRuleSourceFacts, selectedRuleIds);
+    if (sourceRules.length > 0) {
       const scanRoots = options.staged
-        ? stagedPatternScanRoots(
+        ? stagedSourceCheckPaths(
             options.stagedPaths ?? (yield* currentStagedPathsEffect()),
-            approvedScanRootsForRules(gritRules)
+            approvedScanRootsForRules(sourceRules)
           )
         : undefined;
       const stagedNotApplicable =
         options.staged && scanRoots
-          ? stagedPatternNotApplicableRecords(gritRules, scanRoots)
+          ? stagedSourceCheckNotApplicableRecords(sourceRules, scanRoots)
           : undefined;
       if (stagedNotApplicable) {
         for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
         const sourceCheck = yield* SourceCheck;
         const started = yield* Clock.currentTimeMillis;
-        const sourceResults = yield* sourceCheck.runPatternRules(
-          gritRules,
+        const sourceResults = yield* sourceCheck.runSourceRules(
+          sourceRules,
           scanRoots ? { scanRoots } : {}
         );
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-        for (const rule of gritRules) {
+        for (const rule of sourceRules) {
           const result = sourceResults.get(rule.id);
           if (result) {
             results.set(rule.id, {
               result,
               durationMs,
+              timing: sharedExecutionTiming("source-check:source-rules", durationMs, sourceRules),
               disposition: { kind: "executed", durationMs },
             });
           }
@@ -153,28 +157,11 @@ export function executeSelectedRulesEffect(
         commandRules.map((rule) => rule.id)
       )
     );
-    const graphRefusals = yield* Effect.promise(() => graphDependencyRefusals(commandRules));
-    for (const rule of commandRules) {
-      const refusal = graphRefusals.get(rule.id);
-      if (refusal) {
-        results.set(rule.id, {
-          result: {
-            exitCode: 1,
-            diagnostics: [dependencyRefusalDiagnostic(rule, refusal)],
-          },
-          durationMs: 0,
-          disposition: { kind: "dependency-refused", owner: "workspace-graph", reason: refusal },
-        });
-      }
-    }
-    const executableCommandRules = commandRules.filter((rule) => !graphRefusals.has(rule.id));
     yield* executeFormatRulesEffect(
-      executableCommandRules.filter((rule) => rule.ownerTool === "format-check"),
+      commandRules.filter((rule) => rule.ownerTool === "format-check"),
       results
     );
-    const remainingCommandRules = executableCommandRules.filter(
-      (rule) => rule.ownerTool !== "format-check"
-    );
+    const remainingCommandRules = commandRules.filter((rule) => rule.ownerTool !== "format-check");
     const graphBackedRules = remainingCommandRules.filter((rule) =>
       isGraphBackedCommandRule(rule, graphRulesById)
     );
@@ -237,37 +224,20 @@ function isGraphBackedCommandRule(
   return graphRulesById.get(rule.id)?.alias.kind === "depends-on";
 }
 
-async function graphDependencyRefusals(
-  commandRules: readonly RuleCommandExecutionFacts[]
-): Promise<Map<string, string>> {
-  const graphRules = factsForRuleIds(
-    activeRuleGraphFacts,
-    commandRules.map((rule) => rule.id)
-  ).filter((rule) => rule.alias.kind !== "direct-rule-check");
-  if (graphRules.length === 0) return new Map();
-
-  const graph = await readWorkspaceGraph();
-  if (graph.kind !== "graph-ready") {
-    return new Map(graphRules.map((rule) => [rule.id, graph.message]));
-  }
-
-  const refusals = new Map<string, string>();
-  for (const rule of graphRules) {
-    const state = ruleAliasTargetState({ projects: graph.snapshot.projects, rule });
-    if (state?.kind === "graph-refusal") refusals.set(rule.id, state.message);
-  }
-  return refusals;
-}
-
 function executeCommandRulesEffect(
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>
 ): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
   return Effect.gen(function* () {
-    const records = yield* Effect.all(commandRules.map(executeCommandRuleEffect), {
-      concurrency: "unbounded",
-    });
-    for (const [ruleId, record] of records) results.set(ruleId, record);
+    const groupResults = yield* Effect.all(
+      commandRuleExecutionGroups(commandRules).map(executeCommandRuleGroupEffect),
+      {
+        concurrency: "unbounded",
+      }
+    );
+    for (const groupResult of groupResults) {
+      for (const [ruleId, record] of groupResult) results.set(ruleId, record);
+    }
   });
 }
 
@@ -305,20 +275,15 @@ function runGraphBackedCommandRuleGroup(
     const targets = graphTargetsForRules(rules, graphRulesById);
     const nx = yield* NxProvider;
     const started = yield* Clock.currentTimeMillis;
-    const execution = yield* nx
-      .runMany({
-        projects: sortedUnique(targets.map((target) => target.project)),
-        targets: sortedUnique(targets.map((target) => target.target)),
+    const execution = yield* runGraphTargetsEffect(nx, targets).pipe(
+      Effect.match({
+        onFailure: (error) => ({ kind: "provider-failure" as const, error }),
+        onSuccess: (commandResult) => ({
+          kind: "completed" as const,
+          result: spawnResultFromCommandResult(commandResult),
+        }),
       })
-      .pipe(
-        Effect.match({
-          onFailure: (error) => ({ kind: "provider-failure" as const, error }),
-          onSuccess: (commandResult) => ({
-            kind: "completed" as const,
-            result: spawnResultFromCommandResult(commandResult),
-          }),
-        })
-      );
+    );
     const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
     const records = new Map<string, RuleExecutionRecord>();
     for (const rule of rules) {
@@ -332,11 +297,55 @@ function runGraphBackedCommandRuleGroup(
       records.set(rule.id, {
         result: ruleResult,
         durationMs,
+        timing: sharedExecutionTiming("nx:graph-targets", durationMs, rules),
         disposition: { kind: "executed", durationMs },
       });
     }
     return records;
   });
+}
+
+function sharedExecutionTiming(
+  groupId: string,
+  durationMs: number,
+  rules: readonly { id: string }[]
+): RuleExecutionTiming | undefined {
+  if (rules.length < 2) return undefined;
+  return {
+    kind: "shared",
+    groupId,
+    durationMs,
+    ruleCount: rules.length,
+  };
+}
+
+function runGraphTargetsEffect(
+  nx: NxProviderService,
+  targets: readonly { project: string; target: string }[]
+) {
+  const uniqueTargets = uniqueGraphTargets(targets);
+  if (uniqueTargets.length === 1) {
+    const [target] = uniqueTargets;
+    return nx.runTarget(target);
+  }
+  return nx.runMany({
+    projects: sortedUnique(uniqueTargets.map((target) => target.project)),
+    targets: sortedUnique(uniqueTargets.map((target) => target.target)),
+  });
+}
+
+function uniqueGraphTargets(
+  targets: readonly { project: string; target: string }[]
+): Array<{ project: string; target: string }> {
+  const seen = new Set<string>();
+  const unique: Array<{ project: string; target: string }> = [];
+  for (const target of targets) {
+    const key = `${target.project}:${target.target}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(target);
+  }
+  return unique;
 }
 
 function groupedGraphBackedCommandRules(
@@ -364,10 +373,36 @@ function graphTargetsForRules(
   });
 }
 
-function executeCommandRuleEffect(
-  rule: RuleCommandExecutionFacts
+interface CommandRuleExecutionGroup {
+  readonly executable: string;
+  readonly argv: readonly string[];
+  readonly cwd: string;
+  readonly rules: readonly RuleCommandExecutionFacts[];
+}
+
+function commandRuleExecutionGroups(
+  rules: readonly RuleCommandExecutionFacts[]
+): CommandRuleExecutionGroup[] {
+  const groups = new Map<string, CommandRuleExecutionGroup>();
+  for (const rule of rules) {
+    const executable = rule.detect[0] ?? "";
+    const argv = rule.detect.slice(1);
+    const key = JSON.stringify({ executable, argv, cwd: repoRoot });
+    const current = groups.get(key);
+    groups.set(key, {
+      executable,
+      argv,
+      cwd: repoRoot,
+      rules: current ? [...current.rules, rule] : [rule],
+    });
+  }
+  return [...groups.values()];
+}
+
+function executeCommandRuleGroupEffect(
+  group: CommandRuleExecutionGroup
 ): Effect.Effect<
-  [string, RuleExecutionRecord],
+  Map<string, RuleExecutionRecord>,
   never,
   CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
 > {
@@ -376,22 +411,43 @@ function executeCommandRuleEffect(
     const started = yield* Clock.currentTimeMillis;
     const result = yield* runner
       .run({
-        commandId: rule.id,
+        commandId: commandRuleGroupId(group),
         kind: "workspace-tool",
-        executable: rule.detect[0] ?? "",
-        argv: rule.detect.slice(1),
-        cwd: repoRoot,
+        executable: group.executable,
+        argv: group.argv,
+        cwd: group.cwd,
         captureGitState: false,
       })
       .pipe(
         Effect.match({
-          onFailure: (error) => commandProviderFailureResult(rule, error),
-          onSuccess: (commandResult) => commandRuleResult(rule, commandResult),
+          onFailure: (error) => ({ kind: "provider-failure" as const, error }),
+          onSuccess: (commandResult) => ({ kind: "completed" as const, commandResult }),
         })
       );
     const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-    return [rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } }];
+    const records = new Map<string, RuleExecutionRecord>();
+    for (const rule of group.rules) {
+      records.set(rule.id, {
+        result:
+          result.kind === "provider-failure"
+            ? commandProviderFailureResult(rule, result.error)
+            : commandRuleResult(rule, result.commandResult),
+        durationMs,
+        timing: sharedExecutionTiming(commandTimingGroupId(group), durationMs, group.rules),
+        disposition: { kind: "executed", durationMs },
+      });
+    }
+    return records;
   });
+}
+
+function commandRuleGroupId(group: CommandRuleExecutionGroup): string {
+  if (group.rules.length === 1) return group.rules[0]?.id ?? "command-rule";
+  return `command-rules:${group.rules.map((rule) => rule.id).join("+")}`;
+}
+
+function commandTimingGroupId(group: CommandRuleExecutionGroup): string {
+  return `command:${[group.executable, ...group.argv].join(" ")}`;
 }
 
 function commandRuleResult(

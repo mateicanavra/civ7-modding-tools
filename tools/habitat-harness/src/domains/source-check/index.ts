@@ -14,4 +14,4 @@ export {
   type SourceCheckRequirements,
   type SourceCheckService,
 } from "./service.js";
-export { runSourcePatternRulesEffect } from "./source-patterns.js";
+export { runSourceRulesEffect } from "./source-rules.js";

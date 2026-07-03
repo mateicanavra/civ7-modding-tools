@@ -11,7 +11,7 @@ import {
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import { isDirectory, isFile, readDirectory, readText } from "../../resources/filesystem.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../rule-registry/index.js";
+import { pathCoveragePatternMatches, type RuleSourceFacts } from "../rule-registry/index.js";
 import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import {
   pathsOverlap,
@@ -30,14 +30,14 @@ interface SourceFileRecord {
 interface SourceCheckPolicy {
   readonly sourceCheckRuleIds: readonly string[];
   readonly diagnosticsForRule: (
-    rule: RulePatternFacts,
+    rule: RuleSourceFacts,
     file: SourceFileRecord
   ) => readonly HabitatDiagnostic[];
   readonly loadFailure?: string;
 }
 
-export function runSourcePatternRulesEffect(
-  rules: readonly RulePatternFacts[],
+export function runSourceRulesEffect(
+  rules: readonly RuleSourceFacts[],
   options: SourceCheckOptions = {}
 ) {
   return Effect.gen(function* () {
@@ -49,7 +49,7 @@ export function runSourcePatternRulesEffect(
       rules.map((rule) => {
         if (!policyRuleIds.has(rule.id)) return [rule.id, unsupportedNativeRule(rule, policy)];
         const diagnostics = files
-          .filter((file) => rule.scanRoots.some((scanRoot) => pathsOverlap(file.path, scanRoot)))
+          .filter((file) => ruleMatchesSourceFile(rule, file.path))
           .flatMap((file) => [...policy.diagnosticsForRule(rule, file)]);
         return [rule.id, { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics }];
       })
@@ -90,6 +90,16 @@ function sourceCheckPolicyFromModule(module: unknown): SourceCheckPolicy {
   };
 }
 
+function ruleMatchesSourceFile(rule: RuleSourceFacts, filePath: string): boolean {
+  const exactPathPatterns = rule.pathCoverage.flatMap((coverage) =>
+    coverage.kind === "exact-path" ? coverage.patterns : []
+  );
+  if (exactPathPatterns.length > 0) {
+    return exactPathPatterns.some((pattern) => pathCoveragePatternMatches(pattern, filePath));
+  }
+  return rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
+}
+
 function readSourceFiles(scanRoots: readonly string[]) {
   return Effect.gen(function* () {
     const paths = yield* Effect.forEach(sortedUnique(scanRoots), collectSourcePaths, {
@@ -99,28 +109,27 @@ function readSourceFiles(scanRoots: readonly string[]) {
       sortedUnique(paths.flat()),
       (relativePath) =>
         readText(path.join(repoRoot, relativePath)).pipe(
-          Effect.map(
-            (text): SourceFileRecord => ({
-              path: relativePath,
-              text,
-              ...(isTsLikeFile(relativePath)
-                ? {
-                    sourceFile: ts.createSourceFile(
-                      relativePath,
-                      text,
-                      ts.ScriptTarget.Latest,
-                      true
-                    ),
-                  }
-                : {}),
-            })
-          ),
+          Effect.map((text) => sourceFileRecord(relativePath, text)),
           Effect.catchAll(() => Effect.succeed(undefined))
         ),
       { concurrency: 16 }
     );
     return files.filter((file): file is SourceFileRecord => Boolean(file));
   });
+}
+
+function sourceFileRecord(relativePath: string, text: string): SourceFileRecord {
+  if (!isTsLikeFile(relativePath)) return { path: relativePath, text };
+
+  let sourceFile: ts.SourceFile | undefined;
+  return {
+    path: relativePath,
+    text,
+    get sourceFile() {
+      sourceFile ??= ts.createSourceFile(relativePath, text, ts.ScriptTarget.Latest, true);
+      return sourceFile;
+    },
+  };
 }
 
 function collectSourcePaths(
@@ -165,7 +174,7 @@ function collectDirectory(
   );
 }
 
-function unsupportedNativeRule(rule: RulePatternFacts, policy: SourceCheckPolicy): RuleRunResult {
+function unsupportedNativeRule(rule: RuleSourceFacts, policy: SourceCheckPolicy): RuleRunResult {
   const loadReason = policy.loadFailure
     ? ` ${sourceCheckPolicyRepoPath} failed to load: ${policy.loadFailure}`
     : "";

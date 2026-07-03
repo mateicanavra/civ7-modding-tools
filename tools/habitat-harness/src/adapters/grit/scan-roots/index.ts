@@ -4,7 +4,7 @@ import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
 } from "../../../domains/diagnostic-pattern-catalog/index.js";
-import type { RulePatternFacts } from "../../../domains/rule-registry/index.js";
+import type { RuleSourceFacts } from "../../../domains/rule-registry/index.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
 import { decideScanRootProtection } from "../../../lib/protected-zones/index.js";
 import { protectedScanRootPrefixes } from "../provider/constants.js";
@@ -17,7 +17,7 @@ export interface PatternScanRootValidationOptions {
 }
 
 export function selectedScanRootsForRules(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   scanRoots: readonly string[] | undefined
 ): string[] {
   if (!scanRoots) return discoverPatternScanRoots(selectedRules);
@@ -30,7 +30,7 @@ export function selectedScanRootsForRules(
 }
 
 export function discoverPatternScanRoots(
-  selectedRules: readonly RulePatternFacts[] = [],
+  selectedRules: readonly RuleSourceFacts[] = [],
   options: Pick<PatternScanRootValidationOptions, "pathExists"> = {}
 ): string[] {
   const pathExists = options.pathExists ?? existsSync;
@@ -81,11 +81,11 @@ export function decidePatternScanRoots(
   return { kind: "accepted", roots: [...scanRoots], source: "rule-registry-facts" };
 }
 
-export function ruleHasDocsScanRoot(rule: RulePatternFacts): boolean {
+export function ruleHasDocsScanRoot(rule: RuleSourceFacts): boolean {
   return declaredScanRootsForRule(rule).some(isDocsScanRoot);
 }
 
-export function ruleUsesDocsApplyDryRun(rule: RulePatternFacts): boolean {
+export function ruleUsesDocsApplyDryRun(rule: RuleSourceFacts): boolean {
   return rule.patternName === "docs_local_checkout_paths";
 }
 
@@ -107,7 +107,7 @@ function uniqueRepoRelative(values: readonly string[]): string[] {
   return [...new Set(values.map(toRepoRelative))];
 }
 
-function declaredScanRootsForRule(rule: RulePatternFacts): string[] {
+function declaredScanRootsForRule(rule: RuleSourceFacts): string[] {
   return [...rule.scanRoots];
 }
 

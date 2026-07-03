@@ -14,6 +14,9 @@ import { runPreCommit, runPrePush } from "../../src/service/modules/hook/router.
 
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 
+const prePushAffectedTargets =
+  "check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns";
+
 describe("Habitat hook resource policy", () => {
   test("passes clean resources without invoking the publish script", () => {
     const fake = makeFakeRuntime({ resourcePolicy: true });
@@ -234,15 +237,15 @@ describe("Habitat pre-commit staged mutation policy", () => {
       "biome check --no-errors-on-unmatched packages/example/src/index.ts packages/example/src/unchanged.ts"
     );
     expect(fake.calls).toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool source-check --json"
     );
   });
 
-  test("fails closed when pattern checks emit malformed JSON", () => {
+  test("fails closed when source checks emit malformed JSON", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritExitCode: 1,
-      gritStdout: gritCheckReport({
+      sourceCheckExitCode: 1,
+      sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
         diagnosticMessage:
@@ -253,14 +256,14 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("could not parse pattern check JSON output");
+    expect(result.stderr).toContain("could not parse source check JSON output");
   });
 
-  test("fails closed when pattern checks report findings", () => {
+  test("fails closed when source checks report findings", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritExitCode: 1,
-      gritStdout: gritCheckReport({
+      sourceCheckExitCode: 1,
+      sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
         diagnosticMessage: "finding",
@@ -270,10 +273,10 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
-    expect(result.stdout).toContain("[pattern check]");
+    expect(result.stdout).toContain("[source check]");
   });
 
-  test("does not run staged pattern checks for JavaScript files outside approved scan roots", () => {
+  test("does not run staged source checks for JavaScript files outside approved source-check roots", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["tools/habitat-harness/src/service/modules/hook/router.ts"],
     });
@@ -282,13 +285,13 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain(
-      "patterns: no staged TypeScript/JavaScript files in approved scan roots"
+      "source checks: no staged TypeScript/JavaScript files in approved source-check roots"
     );
     expect(fake.calls).toContain(
       "biome check --no-errors-on-unmatched tools/habitat-harness/src/service/modules/hook/router.ts"
     );
     expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool source-check --json"
     );
   });
 
@@ -323,7 +326,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       resourceState: "not-configured",
       stagedPaths: ["packages/example/src/index.ts", "README.md"],
       biomePaths: ["packages/example/src/index.ts"],
-      gritPaths: ["packages/example/src/index.ts"],
+      sourceCheckPaths: ["packages/example/src/index.ts"],
       partialPaths: [],
       formatterTouchedPaths: ["packages/example/src/index.ts"],
       restagedPaths: ["packages/example/src/index.ts"],
@@ -341,17 +344,17 @@ describe("Habitat pre-commit staged mutation policy", () => {
         "biome-format",
         "formatter-restage",
         "biome-check",
-        "pattern-check",
+        "source-check",
       ])
     );
-    expect(trace.commands.find((command) => command.phase === "pattern-check")).toMatchObject({
+    expect(trace.commands.find((command) => command.phase === "source-check")).toMatchObject({
       argv: [
         "bun",
         "tools/habitat-harness/bin/dev.ts",
         "check",
         "--staged",
         "--tool",
-        "pattern-check",
+        "source-check",
         "--json",
       ],
       cwd: repoRoot,
@@ -364,8 +367,8 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const trace = createHookTrace();
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritExitCode: 1,
-      gritStdout: gritCheckReport({
+      sourceCheckExitCode: 1,
+      sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
         diagnosticMessage:
@@ -377,7 +380,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(1);
     expect(trace.preCommit).toMatchObject({
-      gritPaths: ["packages/example/src/index.ts"],
+      sourceCheckPaths: ["packages/example/src/index.ts"],
       outcome: "parse-failed",
       exitCode: 1,
       postState: {
@@ -392,8 +395,8 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const events: HookReportEvent[] = [];
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritExitCode: 1,
-      gritStdout: gritCheckReport({
+      sourceCheckExitCode: 1,
+      sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
         diagnosticMessage:
@@ -415,7 +418,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
     });
     expect(events).toContainEqual({
       channel: "stderr",
-      text: "habitat hook pre-commit: could not parse pattern check JSON output.\n",
+      text: "habitat hook pre-commit: could not parse source check JSON output.\n",
     });
   });
 });
@@ -432,7 +435,7 @@ describe("Habitat pre-push base policy", () => {
       "hook result: workstation check only; CI remains authoritative."
     );
     expect(fake.calls).toContain(
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static"
+      `nx affected -t ${prePushAffectedTargets} --base HEAD~1 --head HEAD --outputStyle=static --excludeTaskDependencies`
     );
     expect(fake.calls).not.toContain("gt branch info --no-interactive");
     expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
@@ -447,7 +450,7 @@ describe("Habitat pre-push base policy", () => {
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
     expect(fake.calls).toContain("gt branch info --no-interactive");
     expect(fake.calls).toContain(
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base agent-HR-parent --head HEAD --outputStyle=static"
+      `nx affected -t ${prePushAffectedTargets} --base agent-HR-parent --head HEAD --outputStyle=static --excludeTaskDependencies`
     );
     expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
   });
@@ -463,7 +466,7 @@ describe("Habitat pre-push base policy", () => {
     expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
     expect(fake.calls).toContain("git merge-base HEAD origin/main");
     expect(fake.calls).toContain(
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base abc123mergebase --head HEAD --outputStyle=static"
+      `nx affected -t ${prePushAffectedTargets} --base abc123mergebase --head HEAD --outputStyle=static --excludeTaskDependencies`
     );
   });
 
@@ -530,12 +533,13 @@ describe("Habitat pre-push base policy", () => {
         "nx",
         "affected",
         "-t",
-        "biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns",
+        prePushAffectedTargets,
         "--base",
         "agent-HR-parent",
         "--head",
         "HEAD",
         "--outputStyle=static",
+        "--excludeTaskDependencies",
       ],
       cwd: repoRoot,
       env: undefined,
@@ -589,9 +593,9 @@ interface FakeRuntimeOptions {
   fileHashes?: Record<string, string[]>;
   biomeFormatExitCode?: number;
   biomeCheckExitCode?: number;
-  gritExitCode?: number;
-  gritStdout?: string;
-  gritStderr?: string;
+  sourceCheckExitCode?: number;
+  sourceCheckStdout?: string;
+  sourceCheckStderr?: string;
   graphiteParent?: string;
   mergeBase?: string;
   mergeBaseExitCode?: number;
@@ -667,13 +671,11 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call.startsWith("biome check --no-errors-on-unmatched")) {
       return options.biomeCheckExitCode ? failure(options.biomeCheckExitCode) : ok();
     }
-    if (
-      call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
-    ) {
+    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool source-check --json") {
       return {
-        exitCode: options.gritExitCode ?? 0,
-        stdout: options.gritStdout ?? gritCheckReport({ ok: true, status: "pass" }),
-        stderr: options.gritStderr ?? "",
+        exitCode: options.sourceCheckExitCode ?? 0,
+        stdout: options.sourceCheckStdout ?? sourceCheckReport({ ok: true, status: "pass" }),
+        stderr: options.sourceCheckStderr ?? "",
       };
     }
     if (call === "gt branch info --no-interactive") {
@@ -753,18 +755,18 @@ function renderReported(events: HookReportEvent[], channel: HookReportEvent["cha
     .join("");
 }
 
-function gritCheckReport(options: {
+function sourceCheckReport(options: {
   ok: boolean;
   status: "pass" | "fail" | "advisory-findings";
   diagnosticMessage?: string;
 }): string {
   return checkReport({
     ...options,
-    command: "habitat check --staged --tool pattern-check --json",
+    command: "habitat check --staged --tool source-check --json",
     ruleId: "hook-runtime-probe",
-    ownerTool: "pattern-check",
-    message: "Grit hook check probe",
-    detect: ["habitat", "check", "--tool", "pattern-check"],
+    ownerTool: "source-check",
+    message: "source-check hook check probe",
+    detect: ["habitat", "check", "--tool", "source-check"],
   });
 }
 

@@ -1,6 +1,6 @@
 {
   "id": "docs-local-checkout-paths",
-  "ownerTool": "pattern-check",
+  "ownerTool": "source-check",
   "ownerProject": "@internal/habitat-harness",
   "lane": "advisory",
   "scope": "docs/**/*.md",

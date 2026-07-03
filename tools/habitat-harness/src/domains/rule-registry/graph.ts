@@ -43,24 +43,6 @@ function ruleGraphAlias(
       target: { project: "@internal/habitat-harness", target: targetNames.biomeCi },
     };
   }
-  if (rule.id === "import-boundaries") {
-    return {
-      kind: "depends-on",
-      target: { project: "@internal/habitat-harness", target: targetNames.boundaries },
-    };
-  }
-  if (rule.ownerTool === "pattern-check") {
-    return {
-      kind: "depends-on",
-      target: { project: "@internal/habitat-harness", target: targetNames.gritCheck },
-    };
-  }
-  if (rule.ownerTool === "file-layer") {
-    return {
-      kind: "depends-on",
-      target: { project: "@internal/habitat-harness", target: targetNames.generatedCheck },
-    };
-  }
   if (rule.ownerTool === "target-check") {
     if (!rule.graphTarget) {
       throw new Error(

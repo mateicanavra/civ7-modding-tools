@@ -17,7 +17,7 @@ describe("pattern manifest validator", () => {
           ruleId: manifest.ruleId,
           patternName: manifest.patternName,
           manifestPath: patternManifestPath(manifest.ruleId),
-          ownerTool: "pattern-check",
+          ownerTool: "source-check",
           lifecycle: "advisory",
         },
       ],
@@ -38,7 +38,7 @@ describe("pattern manifest validator", () => {
       lifecycle: "candidate",
       openspecChangeId: "habitat-pattern-generator-metadata-repair",
       ownerProject: "@internal/habitat-harness",
-      ownerTool: "pattern-check",
+      ownerTool: "source-check",
       candidateArtifacts: {
         patternPath: ".habitat/patterns/candidates/candidate_probe.md",
         manifestPath: ".habitat/patterns/candidates/candidate-probe.json",
@@ -71,7 +71,7 @@ describe("pattern manifest validator", () => {
       ruleId: "malformed-probe",
       patternName: "malformed_probe",
       lifecycle: "registered-advisory",
-      ownerTool: "pattern-check",
+      ownerTool: "source-check",
     });
 
     expect(issueReasons(result)).toContain("malformed-manifest");
@@ -114,7 +114,7 @@ describe("pattern manifest validator", () => {
           ruleId: manifest.ruleId,
           patternName: manifest.patternName,
           manifestPath: ".habitat/patterns/candidates/registration-probe.json",
-          ownerTool: "pattern-check",
+          ownerTool: "source-check",
           lifecycle: "advisory",
         },
       ],
@@ -133,7 +133,7 @@ describe("pattern manifest validator", () => {
           ruleId: manifest.ruleId,
           patternName: manifest.patternName,
           manifestPath: "",
-          ownerTool: "pattern-check",
+          ownerTool: "source-check",
           lifecycle: "advisory",
         },
       ],
@@ -164,14 +164,14 @@ describe("pattern manifest validator", () => {
         id: "registration-probe",
         patternName: "registration_probe",
         manifestPath: patternManifestPath("registration-probe"),
-        ownerTool: "pattern-check",
+        ownerTool: "source-check",
         lane: "advisory",
       })
     ).toEqual({
       ruleId: "registration-probe",
       patternName: "registration_probe",
       manifestPath: patternManifestPath("registration-probe"),
-      ownerTool: "pattern-check",
+      ownerTool: "source-check",
       lifecycle: "advisory",
     });
   });
@@ -230,7 +230,7 @@ function registeredManifest(
     lifecycle: "registered-advisory",
     openspecChangeId: "habitat-pattern-generator-metadata-repair",
     ownerProject: "@internal/habitat-harness",
-    ownerTool: "pattern-check",
+    ownerTool: "source-check",
     normativeSources: [
       {
         kind: "accepted-spec",

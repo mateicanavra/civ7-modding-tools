@@ -165,7 +165,7 @@ describe("Habitat oclif commands", () => {
       "--owner",
       "@internal/habitat-harness",
       "--tool",
-      "pattern-check",
+      "source-check",
       "--staged",
       "--base",
       "HEAD",
@@ -179,7 +179,7 @@ describe("Habitat oclif commands", () => {
         selectors: {
           owner: "@internal/habitat-harness",
           rule: "adapter-boundary",
-          tool: "pattern-check",
+          tool: "source-check",
         },
         staged: true,
         command: expect.objectContaining({

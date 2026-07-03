@@ -1,25 +1,25 @@
 import {
   type DiagnosticFinding,
   type DiagnosticRunOutcome,
-  diagnosticCatalogEntryFromRulePatternFacts,
+  diagnosticCatalogEntryFromRuleSourceFacts,
   type ObservedGritDiagnosticIdentity,
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
 } from "../../domains/diagnostic-pattern-catalog/index.js";
-import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
+import type { RuleSourceFacts } from "../../domains/rule-registry/index.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import { infrastructureFailure } from "./failure.js";
 import type { GritDiagnosticOptions, GritReport, GritResult } from "./provider/types.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
 
 export function gritDiagnosticOutcomesFromReport(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   report: GritReport,
   options: GritDiagnosticOptions = {}
 ): Map<string, DiagnosticRunOutcome> {
   const entries = new Map(
-    selectedRules.map((rule) => [rule.id, diagnosticCatalogEntryFromRulePatternFacts(rule)])
+    selectedRules.map((rule) => [rule.id, diagnosticCatalogEntryFromRuleSourceFacts(rule)])
   );
   const selectedPatterns = new Set(
     [...entries.values()].map((entry) => entry.diagnosticIdentity.patternIdentity)
@@ -48,7 +48,7 @@ export function gritDiagnosticOutcomesFromReport(
 }
 
 export function gritRuleResultsFromReport(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   report: GritReport,
   options: GritDiagnosticOptions = {}
 ): Map<string, RuleRunResult> {
@@ -59,7 +59,7 @@ export function gritRuleResultsFromReport(
 }
 
 export function ruleRunResultsFromDiagnosticOutcomes(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   outcomes: ReadonlyMap<string, DiagnosticRunOutcome>
 ): Map<string, RuleRunResult> {
   return new Map(
@@ -76,7 +76,7 @@ export function ruleRunResultsFromDiagnosticOutcomes(
 }
 
 export function ruleRunResultFromDiagnosticOutcome(
-  rule: RulePatternFacts,
+  rule: RuleSourceFacts,
   outcome: DiagnosticRunOutcome
 ): RuleRunResult {
   switch (outcome.kind) {
@@ -130,11 +130,11 @@ function renderExpectedIdentity(
 }
 
 function gritRuleOutcomeFromReport(
-  rule: RulePatternFacts,
+  rule: RuleSourceFacts,
   report: GritReport,
   options: GritDiagnosticOptions
 ): DiagnosticRunOutcome {
-  const entry = diagnosticCatalogEntryFromRulePatternFacts(rule);
+  const entry = diagnosticCatalogEntryFromRuleSourceFacts(rule);
   const diagnostics = report.results
     .filter((result) =>
       observedGritIdentityMatches(observedGritDiagnosticIdentity(result), entry.diagnosticIdentity)
@@ -154,8 +154,8 @@ function gritRuleOutcomeFromReport(
 }
 
 function diagnosticFindingFromGritResult(
-  rule: RulePatternFacts,
-  entry: ReturnType<typeof diagnosticCatalogEntryFromRulePatternFacts>,
+  rule: RuleSourceFacts,
+  entry: ReturnType<typeof diagnosticCatalogEntryFromRuleSourceFacts>,
   result: GritResult
 ): DiagnosticFinding {
   return {
@@ -170,12 +170,12 @@ function diagnosticFindingFromGritResult(
 }
 
 function unexpectedIdentityOutcome(
-  rule: RulePatternFacts,
+  rule: RuleSourceFacts,
   unexpectedIdentity: ObservedGritDiagnosticIdentity
 ): DiagnosticRunOutcome {
   return {
     kind: "unexpected-diagnostic-identity",
-    entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+    entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
     unexpectedIdentity,
   };
 }
