@@ -1,22 +1,98 @@
-# Habitat Authored Artifacts
+# Habitat Authority Tree
 
-This directory contains checked-in Habitat data authored for this repository.
+This directory is the repository's authority tree for Habitat enforcement.
 The Habitat SDK code under `tools/habitat-harness` manages, validates, and
-reads these artifacts, but the package source tree is not the owner of the
-authored rule pack, patterns, or baselines.
+executes these artifacts, but package source, root scripts, tests, CI, hooks,
+and tool configs are not independent sources of enforcement truth.
 
-Current artifact planes:
+The current layout is a provisional domain-niche hierarchy. Niches are domain
+nouns. Exact-niche-owned artifact packets live under `_self/<kind>/`, where
+`<kind>` is `check`, `fix`, `generate`, `migrate`, or `triage`.
 
-- `rules/index.json`: shared rule registry metadata.
-- `rules/<rule-id>/rule.json`: one self-contained record per registered Habitat
-  rule, parsed through the
-  TypeBox registry schema in
-  `tools/habitat-harness/src/service/model/rules/dto/registry.schema.ts`.
-- `baselines/*.json`: explicit baseline files for registered rules, parsed
-  through the baseline contract.
-- `patterns/checks/*.md`: active Habitat check patterns.
-- `patterns/apply/*.md`: active Habitat apply patterns.
+This is not a final ontology, and it is not evidence that runtime integration
+has been fully rewired.
 
-Executor compatibility views are outside this authored artifact tree. Habitat
-owns the rule, pattern, and baseline hierarchy here; adapter-specific paths are
-implementation details.
+Current niche roots:
+
+- `global/repository/**`: repo-wide policy for formatting, import boundaries,
+  host-protected surfaces, and package-manager artifacts.
+- `habitat/toolkit/**`: Habitat's own Toolkit authority, service shape,
+  provider paths, generator schemas, rule-pack registry, and transitional
+  runtime adapters.
+- `docs/content/**`: documentation content hygiene, including portable docs
+  references.
+- `docs/projects/**`: documentation project maintenance operations such as
+  issue-link fixing.
+- `docs/site/**`: documentation site generation operations such as sidebar
+  refresh.
+- `civ7/resources/**`: official-resource-derived Civ7 generated projections
+  and generated resource surfaces.
+- `civ7/platform/**`: Civ7 adapter, control, and oRPC integration surfaces.
+- `civ7/mapgen/core/**`: MapGen package/runtime core, SDK entrypoint, and docs
+  surface.
+- `civ7/mapgen/pipeline/**`: MapGen pipeline policy subjects, including stage
+  contracts, domain/recipe imports, runtime capability access, RNG/config,
+  schema defaults, and cutover guardrails.
+- `civ7/mapgen/studio/**`: MapGen Studio integration with recipe artifacts.
+
+Within a niche, `_self/` separates packets owned by that exact niche from child
+niches. Artifact-kind folders under `_self/` carry mutability and runner intent:
+
+- `check`: read-only evaluation.
+- `fix`: idempotent repair of existing authored files.
+- `generate`: materialization of declared generated or scaffolded outputs.
+- `migrate`: intentional transition from one accepted authored shape to another.
+- `triage`: holding area for mixed, legacy, or not-yet-admitted packets.
+
+Each artifact packet remains the unit of evidence. Packet folders live under
+`<niche>/_self/<kind>/` and use a shared filename prefix for related rule-owned
+artifacts:
+
+- `<subject-name>.rule.json`: rule metadata.
+- `<subject-name>.baseline.json`: baseline, fixture, current-tree, or
+  generated-artifact policy data.
+- `<subject-name>.pattern.md`: primary check or apply pattern source.
+- `<subject-name>.apply.pattern.md`: secondary apply pattern source when a rule
+  also has a primary diagnostic pattern.
+- `<subject-name>.check.{sh,mjs,py,ts}`: subject-local transitional read-only
+  command adapter when the policy has not yet been expressed as Grit, Biome,
+  Nx, or a typed Habitat provider.
+- `<subject-name>.operation.md`: provisional identity for Habitat-owned
+  non-check operations until typed operation admission exists.
+
+Authority planes:
+
+- `AUTHORITY.md`: the contract for what may be authoritative here and what
+  remains Toolkit execution mechanics elsewhere.
+- `ARTIFACT-KINDS.md`: the working reference for Habitat artifact kinds and
+  their mutability rules.
+- `AUTHORITY-TREE-SHAPE.md`: the working reference for the current flattened
+  authority-tree shape.
+- `config.md`: a human-readable sketch of the Habitat operation model. It is
+  not consumed programmatically.
+- `<niche>/_self/check/<packet>/<packet>.rule.json`: provisional rule metadata.
+- `<niche>/_self/check/<packet>/<packet>.pattern.md`: provisional check or apply
+  pattern source.
+- `<niche>/_self/check/<packet>/<packet>.baseline.json`: provisional baseline,
+  fixture, current-tree, or generated-artifact policy data.
+- `<niche>/_self/check/<packet>/<packet>.check.{sh,mjs,py,ts}`: transitional
+  packet-local read-only command check.
+- `<niche>/_self/<fix|generate|migrate>/<packet>/<packet>.operation.md`:
+  provisional non-check operation identity.
+- `<niche>/_self/triage/<packet>/**`: mixed, unclear, legacy, or
+  not-yet-admitted packet material excluded from default execution.
+- Normal directories under a niche remain child niches. `_self/` separates
+  exact-niche-owned packets from child niches.
+
+Executor compatibility views are outside this authority tree. Habitat owns the
+rule, pattern, baseline, and subject-folder hierarchy here; Grit, Biome, Nx,
+Vitest, Husky, CI, and shell/Node/Python scripts are execution mechanisms. The
+dispatch logic that invokes those mechanisms belongs in Habitat Toolkit source,
+not in a separate `.habitat` tooling configuration layer.
+
+Compatibility note: several Toolkit paths still reference the old flat
+`.habitat/rules`, `.habitat/patterns`, `.habitat/baselines`, and
+`.habitat/tooling/components` shapes. Those references are follow-up integration
+work for the Toolkit resolver, package scripts, target routing, source-check
+loader, generator schema bridge, tests, and docs. This hierarchy pass is
+classification and authority layout only.

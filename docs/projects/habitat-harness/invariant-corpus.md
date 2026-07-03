@@ -48,12 +48,12 @@ survives only in `eslint.boundaries.config.mjs`, whose sole rule is
 | ID | File | Invariant | Disposition |
 |---|---|---|---|
 | core-purity | `packages/mapgen-core/test/architecture/core-purity.test.ts` | mapgen-core prod code has no Civ7 runtime refs | keep-as-test; **duplicated intent** with nx-boundaries tag rule (`kind:core` ↛ `kind:adapter`) — once the tag rule is locked, slim the test or retire (decided in H6) |
-| rng-authority-boundary | `mods/.../test/pipeline/rng-authority-boundary.test.ts` | no engine RNG / official generators in standard recipe + domain | keep-as-test (runtime semantics) |
+| rng-authority-static | `.habitat/civ7/mapgen/pipeline/_self/check/rng-authority-static/rng-authority-static.check.mjs` | no engine RNG / official generators in standard recipe + domain source | migrated from package test to Habitat command-check in hidden-test-authority batch; runtime RNG execution proof stays in `standard-rng-authority.test.ts` |
 | recipe-import-boundary | retired H6 (`mods/.../test/pipeline/recipe-import-boundary.test.ts`) | recipes use public domain surfaces | grit-check equivalent locked; retired in H6 |
-| ecology-step-import-guardrails | `mods/.../test/ecology/ecology-step-import-guardrails.test.ts` | retired stage dirs absent | slimmed in H6: deep-import half retired to Grit; directory-absence half stays (no grit/file rule covers directory absence) |
+| ecology-step-imports | `.habitat/civ7/mapgen/pipeline/_self/check/ecology-step-imports/ecology-step-imports.check.mjs` | retired stage dirs absent; active ecology stages avoid ecology ops/rules internals | migrated from package test to Habitat command-check in hidden-test-authority audit; `.pattern.md` remains future Grit source while source-check path compatibility is repaired |
 | m11-projection-boundary-band | `mods/.../test/foundation/m11-projection-boundary-band.test.ts` | projection algorithm correctness | keep-as-test (domain logic, not structure) |
 | map-bundle-runtime-imports | `mods/.../test/build/map-bundle-runtime-imports.test.ts` | built bundles embed workspace packages; TextEncoder bootstrap; river markers | keep-as-test (build output correctness) |
-| cutover-tests (×4) | `mods/mod-swooper-maps` `test:architecture-cutover` → `no-op-calls-op-tectonics`, `no-dual-contract-paths`, `no-shim-surfaces`, `foundation-topology-lock` | M-cutover structural invariants (distinct from the six rows above) | keep-as-test; coarse-wrapped via the script target in H2 (the six rows above need per-file `bun test` invocations — see H2 task 2.4) |
+| cutover-tests | `mods/mod-swooper-maps` `test:architecture-cutover` → Habitat-owned `op-calls-op`, `cutover-source-guardrails`, and `standard-stage-topology` command-checks | M-cutover structural invariants (distinct from the six rows above) | migrated to Habitat command-checks in hidden-test-authority audit/batch; package-local cutover tests retired |
 
 ## D. CI wiring
 

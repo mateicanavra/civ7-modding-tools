@@ -3,7 +3,7 @@ import { checkRouter } from "@internal/habitat-harness/service/modules/check/rou
 import { classifyRouter } from "@internal/habitat-harness/service/modules/classify/router";
 import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
-import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router/index";
 import { verifyRouter } from "@internal/habitat-harness/service/modules/verify/router";
 
 export const habitatServiceRouter = service.router({

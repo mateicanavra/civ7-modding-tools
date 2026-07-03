@@ -1,6 +1,4 @@
-import type { HabitatModule } from "@internal/habitat-harness/service/base";
-import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
-import { service } from "@internal/habitat-harness/service/impl";
+import { service, type HabitatModule } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import { type ClassifyResult, classifyTargetResultEffect } from "./model/index.js";
 
@@ -8,8 +6,8 @@ export interface ClassifyModuleContext {
   readonly classifyTargetResult: (target: string) => Effect.Effect<ClassifyResult>;
 }
 
-export const module: HabitatModule<HabitatServiceContract["classify"], ClassifyModuleContext> =
-  service.classify.use(({ context, next }) =>
+export const module: HabitatModule<"classify", ClassifyModuleContext> = service.classify.use(
+  ({ context, next }) =>
     next({
       context: {
         classifyTargetResult: (target: string) =>
@@ -24,4 +22,4 @@ export const module: HabitatModule<HabitatServiceContract["classify"], ClassifyM
           }),
       } satisfies ClassifyModuleContext,
     })
-  );
+);

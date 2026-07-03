@@ -26,17 +26,10 @@ export function loadRuleRegistryDocumentForNxPlugin(registryPath: string): NxRul
 }
 
 function loadRuleRegistryDirectory(registryDir: string): NxRuleRegistryDocument {
-  const indexPath = path.join(registryDir, "index.json");
+  const indexPath = findRuleRegistryIndexPath(registryDir);
   const index = parseJsonFile<RuleRegistryIndexV1>(indexPath, RuleRegistryIndexV1Schema);
-  const rules = fs
-    .readdirSync(registryDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) =>
-      parseJsonFile<NxRuleRegistryRecord>(
-        path.join(registryDir, entry.name, "rule.json"),
-        RuleRegistryRecordV1Schema
-      )
-    )
+  const rules = findRuleRecordPaths(registryDir)
+    .map((rulePath) => parseJsonFile<NxRuleRegistryRecord>(rulePath, RuleRegistryRecordV1Schema))
     .sort((left, right) => left.id.localeCompare(right.id));
 
   return parseRuleRegistryDocument(
@@ -45,8 +38,47 @@ function loadRuleRegistryDirectory(registryDir: string): NxRuleRegistryDocument 
       ownerRoots: index.ownerRoots,
       rules,
     },
-    registryDir
+    indexPath
   );
+}
+
+function findRuleRegistryIndexPath(registryDir: string): string {
+  const directIndex = path.join(registryDir, "index.json");
+  if (fs.existsSync(directIndex)) return directIndex;
+
+  const candidates = findFiles(registryDir, (filePath) => filePath.endsWith("/rule-pack-index/index.json"));
+  if (candidates.length === 1) return candidates[0] as string;
+  if (candidates.length > 1) {
+    throw registryLoadError("Habitat rule registry is invalid", [
+      {
+        path: registryDir,
+        message: `Expected one rule-pack index, found ${candidates.length}.`,
+      },
+    ]);
+  }
+  throw registryLoadError("Habitat rule registry is invalid", [
+    {
+      path: registryDir,
+      message: "Missing rule-pack index.json.",
+    },
+  ]);
+}
+
+function findRuleRecordPaths(registryDir: string): string[] {
+  return findFiles(registryDir, (filePath) => filePath.endsWith(".rule.json")).sort();
+}
+
+function findFiles(root: string, predicate: (filePath: string) => boolean): string[] {
+  const out: string[] = [];
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    const absolute = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...findFiles(absolute, predicate));
+      continue;
+    }
+    if (entry.isFile() && predicate(absolute.split(path.sep).join("/"))) out.push(absolute);
+  }
+  return out;
 }
 
 function parseJsonFile<T>(filePath: string, schema: TSchema): T {
