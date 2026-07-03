@@ -17,7 +17,8 @@ Current burn-down categories:
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
-- Follow-up: active rule registry loading still uses an import-time singleton rooted through `resources/paths`; replace it with an explicit registry input/read path or generated artifact so rule facts are not coupled to global checkout state.
+- Follow-up: rule facts and registry loading are now input-driven; continue applying the same pattern to any remaining shared policies that read repo/process state at import time.
+- Follow-up: provider/runtime root handling is now input-driven; keep future provider helpers from importing global checkout paths except at runtime realization.
 
 Completed burn-downs:
 
@@ -26,6 +27,32 @@ Completed burn-downs:
 - Hook staged-worktree and resource-inspection policies now derive repo-relative paths from their module-projected repo root; hook module policy no longer imports global path helpers.
 - Verify receipt command metadata now receives an allowlisted environment snapshot from the platform resource; verify policy no longer reads `process.env`.
 - Boundary taxonomy policy now requires callers to pass the repo root/config path explicitly; the service-model graph policy no longer imports the global repo root.
+- Rule facts now have an explicit `RuleFactsCatalog` derived from a registry document; live service context reads `.habitat/rules` through the platform repo root, and structural check, hook, verify, and source-scope execution consume module-projected rule facts instead of active registry singletons.
+- Classify path/routing policy now consumes module-projected rule facts; classify no longer imports active registry facts for rule count, graph-target refusals, or routing.
+- Fix apply admissions now derive transaction inputs from module-projected selector facts; fix module no longer imports active registry facts for apply planning.
+- Diagnostic rule runtime now only owns command-result diagnostic parsing; it no longer loads or exports active registry rules at module import time.
+- Artifact-path routing now has an explicit rule-fact facet in `RuleFactsCatalog`; pre-push routing receives artifact facts from hook module context instead of loading the active registry from shared policy.
+- Rule selection policy now requires explicit selector facts; shared rule selection can no longer fall back to active checkout facts.
+- Active rule fact singletons and the active registry document export are deleted; tests now build explicit rule facts from an explicit registry path at the test edge.
+- Rule registry loaders now require an explicit registry path; runtime and tests choose the path at their edges instead of the shared repository importing global repo-root state.
+- Git, Git state, Graphite, Biome, Nx, and Grit live provider layers now receive repo root from runtime realization instead of importing the global repo-root singleton inside provider live constructors.
+- Grit scan-root and text-output path normalization now use explicit provider/local path context; provider code no longer imports global repo path helpers.
+- Fix apply planning now names transaction inputs by admitted pattern policy and explicit rule facts; the old “active apply transaction inputs” language is removed.
+- Deleted the unused service-model Nx project reader bridge; Nx graph acquisition stays behind the Nx provider and module-projected context.
+- Structural check execution now receives the provisioned Grit service through module context; shared structural policy no longer asks Effect to resolve the Grit provider tag.
+- Hook pre-push base recording now asks the Graphite provider for the parent command argv; the hook module no longer hardcodes Graphite command vocabulary.
+- Classify model helpers now consume service-owned workspace graph state instead of importing Nx graph reader/provider seams.
+- Verify target planning now consumes graph state supplied by the Nx provider through module context; receipt policy no longer imports Nx graph acquisition.
+- Service callers now import workspace target-name policy from `service/model/workspace`; direct Nx target helper imports are no longer spread into hook, verify receipt, or rule fact catalog code.
+- Classify path and diff policy now receive filesystem capability through module-projected platform context; classify model no longer imports platform filesystem helpers directly.
+- Workspace graph DTOs, target-name defaults, graph refusal shapes, and verify target-plan schemas now live under `service/model/workspace`; the Nx provider only owns graph reading and package-inventory parsing.
+- Nx rule registry loading now validates against service-owned rule registry schemas; graph facts consume service registry records instead of provider-local duplicate record types.
+- Rule registry repository loading now receives explicit async/sync filesystem capabilities; runtime and tests provide platform filesystem at the edge instead of the shared rules model importing platform helpers.
+- Source-rule native execution now receives an explicit source filesystem capability from module-projected platform context; source policy no longer imports platform filesystem helpers directly.
+- Hook staged path filtering now requires explicit path-existence context from the hook module; the staged-worktree policy no longer carries a platform fallback import.
+- Fix worktree observation now runs through module-projected Git provider context; the sync worktree repository wrapper around provider internals is deleted.
+- Structural selector refusal reports now use the Effect clock path only; the sync report builder and direct platform time import were removed.
+- Verify receipt timing now formats timestamps locally in the verify module; verify module code no longer imports platform time helpers.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.

@@ -8,8 +8,8 @@ import {
   type GitStateProvider,
 } from "@internal/habitat-harness/providers/git/index";
 import {
-  GritProvider,
   type GritProviderRequirements,
+  type GritProviderService,
   runGritRulesEffect,
 } from "@internal/habitat-harness/providers/grit/index";
 import {
@@ -35,7 +35,10 @@ import {
   type RuleExecutionTiming,
   stagedSourceScanRoots,
 } from "@internal/habitat-harness/service/model/check/index";
-import { runSourceRulesEffect } from "@internal/habitat-harness/service/model/check/policy/source/index";
+import {
+  runSourceRulesEffect,
+  type SourceRuleFileSystem,
+} from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   type RuleRunResult,
   ruleDiagnosticsFromCommandResult,
@@ -50,18 +53,14 @@ import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RuleGraphFacts,
+  RuleHookCheckFacts,
   RuleSelectorFacts,
   RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/index";
 import {
-  activeRuleCommandExecutionFacts,
-  activeRuleFileLayerFacts,
-  activeRuleGraphFacts,
-  activeRuleGritFacts,
-  activeRuleHookCheckFacts,
-  activeRuleSourceFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+  type RuleFactsCatalog,
+} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
 
@@ -77,7 +76,10 @@ export interface StructuralExecutionContext {
   readonly biome: BiomeProviderService;
   readonly commandRunner: CommandRunnerService;
   readonly git: GitProviderService;
+  readonly grit: GritProviderService;
   readonly nx: NxProviderService;
+  readonly rules: RuleFactsCatalog;
+  readonly sourceFileSystem: SourceRuleFileSystem<FileSystem.FileSystem>;
 }
 
 export function rulesForExecution(
@@ -85,6 +87,7 @@ export function rulesForExecution(
   options: {
     selection?: RuleSelection;
     hookCheck?: boolean;
+    hookCheckFacts?: readonly RuleHookCheckFacts[];
     sourceRuleFacts?: readonly RuleSourceFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
@@ -94,7 +97,7 @@ export function rulesForExecution(
     ? selectedRules.filter((rule) => defaultLocalRuleTools.has(rule.ownerTool))
     : [...selectedRules];
   if (!options.hookCheck) return rules;
-  const hookRuleIds = new Set(activeRuleHookCheckFacts.map((rule) => rule.id));
+  const hookRuleIds = new Set((options.hookCheckFacts ?? []).map((rule) => rule.id));
   return rules.filter(
     (rule) =>
       (rule.ownerTool !== "source-check" && rule.ownerTool !== "grit-check") ||
@@ -118,7 +121,7 @@ function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?
 
 export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleSourceFacts),
+  approvedScanRoots: readonly string[],
   context: { readonly repoRoot: string }
 ): string[] {
   return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);
@@ -157,7 +160,6 @@ export function executeSelectedRulesEffect(
   never,
   | CommandRunner
   | CommandExecutor
-  | GritProvider
   | GritProviderRequirements
   | HabitatConfig
   | FileSystem.FileSystem
@@ -166,7 +168,7 @@ export function executeSelectedRulesEffect(
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
-    const sourceRules = factsForRuleIds(activeRuleSourceFacts, selectedRuleIds);
+    const sourceRules = factsForRuleIds(context.rules.source, selectedRuleIds);
     if (sourceRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
@@ -184,6 +186,7 @@ export function executeSelectedRulesEffect(
       } else {
         const started = yield* Clock.currentTimeMillis;
         const sourceResults = yield* runSourceRulesEffect(sourceRules, {
+          fileSystem: context.sourceFileSystem,
           repoRoot: context.repoRoot,
           ...(scanRoots ? { scanRoots } : {}),
         });
@@ -202,7 +205,7 @@ export function executeSelectedRulesEffect(
       }
     }
 
-    const gritRules = factsForRuleIds(activeRuleGritFacts, selectedRuleIds);
+    const gritRules = factsForRuleIds(context.rules.grit, selectedRuleIds);
     if (gritRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
@@ -219,7 +222,11 @@ export function executeSelectedRulesEffect(
         for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
         const started = yield* Clock.currentTimeMillis;
-        const gritResults = yield* runGritRulesEffect(gritRules, scanRoots ? { scanRoots } : {});
+        const gritResults = yield* runGritRulesEffect(gritRules, {
+          repoRoot: context.repoRoot,
+          grit: context.grit,
+          ...(scanRoots ? { scanRoots } : {}),
+        });
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
         for (const rule of gritRules) {
           const result = gritResults.get(rule.id);
@@ -235,10 +242,10 @@ export function executeSelectedRulesEffect(
       }
     }
 
-    const commandRules = factsForRuleIds(activeRuleCommandExecutionFacts, selectedRuleIds);
+    const commandRules = factsForRuleIds(context.rules.commandExecution, selectedRuleIds);
     const graphRulesById = factsByRuleId(
       factsForRuleIds(
-        activeRuleGraphFacts,
+        context.rules.graph,
         commandRules.map((rule) => rule.id)
       )
     );
@@ -258,7 +265,7 @@ export function executeSelectedRulesEffect(
       context
     );
     yield* executeFileLayerRulesEffect(
-      factsForRuleIds(activeRuleFileLayerFacts, selectedRuleIds),
+      factsForRuleIds(context.rules.fileLayer, selectedRuleIds),
       results,
       options,
       context

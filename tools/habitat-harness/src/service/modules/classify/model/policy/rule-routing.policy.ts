@@ -1,14 +1,17 @@
-import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
 import type {
   RuleCoverageKind,
   RuleRouting,
 } from "@internal/habitat-harness/service/model/classify/index";
 import type { RuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/index";
-import { activeRuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { pathCoveragePatternMatches } from "@internal/habitat-harness/service/model/rules/policy/path-coverage.policy";
 
-export function rulesForPath(pathInRepo: string, owner?: WorkspaceProject): RuleRouting[] {
-  return activeRuleRoutingFacts
+export function rulesForPath(
+  pathInRepo: string,
+  rules: readonly RuleRoutingFacts[],
+  owner?: WorkspaceProject
+): RuleRouting[] {
+  return rules
     .map((rule) => routeRule(rule, pathInRepo, owner))
     .filter((rule): rule is RuleRouting => Boolean(rule))
     .sort((a, b) => a.ruleId.localeCompare(b.ruleId));

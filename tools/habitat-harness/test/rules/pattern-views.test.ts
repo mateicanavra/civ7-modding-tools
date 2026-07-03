@@ -3,7 +3,7 @@ import {
   RepoRelativePathSchema,
 } from "@internal/habitat-harness/service/modules/fix/model/dto/index";
 import {
-  activeApplyTransactionInputs,
+  admittedApplyTransactionInputs,
   applyAdmission,
   applyAdmittedState,
   applyTransactionInputsFromRuleFacts,
@@ -20,6 +20,7 @@ import {
 } from "@internal/habitat-harness/service/modules/fix/model/policy/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
+import { makeTestRuleFacts } from "../support/habitat-service-deps.js";
 
 describe("pattern management views", () => {
   test("returns candidate drafts as candidate-only handoff state", () => {
@@ -63,7 +64,7 @@ describe("pattern management views", () => {
     });
   });
 
-  test("projects refused and invalid candidate states as recovery, not active admission", () => {
+  test("projects refused and invalid candidate states as recovery, not admitted apply state", () => {
     const refusal = patternAdmissionRefusal({
       reason: "manifest-invalid-candidate",
       patternId: "bad",
@@ -86,7 +87,7 @@ describe("pattern management views", () => {
     expect(applyAdmission(state)).toBeUndefined();
   });
 
-  test("retired patterns do not return active admission", () => {
+  test("retired patterns do not return admitted apply state", () => {
     const state = retiredPatternState({
       patternId: "retired-probe",
       manifestPath: ".habitat/patterns/manifests/retired-probe.json",
@@ -109,7 +110,7 @@ describe("pattern management views", () => {
 
   test("default apply admissions return through admitted state", () => {
     const admissions = defaultApplyAdmissions();
-    const transactionInputs = activeApplyTransactionInputs();
+    const transactionInputs = admittedApplyTransactionInputs(makeTestRuleFacts().selector);
 
     expect(admissions.length).toBeGreaterThan(0);
     for (const admission of admissions) {

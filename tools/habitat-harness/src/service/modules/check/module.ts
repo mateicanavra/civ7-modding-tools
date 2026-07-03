@@ -84,8 +84,16 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
     biome: deps.biome,
     commandRunner: deps.commandRunner,
     git: deps.git,
+    grit: deps.grit,
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
+    rules: deps.rules,
+    sourceFileSystem: {
+      isDirectory: deps.platform.isDirectory,
+      isFile: deps.platform.isFileEffect,
+      readDirectory: deps.platform.readDirectory,
+      readText: deps.platform.readText,
+    },
   };
 }
 

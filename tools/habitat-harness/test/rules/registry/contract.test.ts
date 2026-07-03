@@ -1,5 +1,13 @@
-import { rules } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import path from "node:path";
+import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
+  isDirectorySync,
+  readDirectorySync,
+  readTextSync,
+} from "@internal/habitat-harness/resources/platform/filesystem";
+import {
+  loadRuleRegistryDocument,
   parseRuleRegistryDocument,
   parseRuleRegistryText,
 } from "@internal/habitat-harness/service/model/rules/index";
@@ -8,6 +16,12 @@ import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
+    const rules = loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
+      isDirectory: isDirectorySync,
+      readDirectory: readDirectorySync,
+      readText: readTextSync,
+    }).rules;
+
     expect(rules).toHaveLength(46);
     expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(33);
     expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(5);

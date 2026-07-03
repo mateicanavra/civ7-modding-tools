@@ -1,5 +1,3 @@
-export type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
-
 export type {
   ClassifiedTarget,
   ClassifyDiffResult,

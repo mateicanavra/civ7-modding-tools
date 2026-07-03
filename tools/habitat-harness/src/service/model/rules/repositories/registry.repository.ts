@@ -1,14 +1,4 @@
 import path from "node:path";
-import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import {
-  isDirectory,
-  isDirectorySync,
-  readDirectory,
-  readDirectorySync,
-  readText,
-  readTextSync,
-} from "@internal/habitat-harness/resources/platform/filesystem";
 import { Data, Effect } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
@@ -37,6 +27,25 @@ export interface RuleRegistryIssue {
 export type RuleRegistryParseResult =
   | { ok: true; document: RuleRegistryDocumentV1 }
   | { ok: false; issues: RuleRegistryIssue[] };
+
+export interface RuleRegistryDirectoryEntry {
+  readonly name: string;
+  readonly kind: "directory" | "file" | "other";
+}
+
+export interface RuleRegistryFileSystem<R = never> {
+  readonly isDirectory: (registryPath: string) => Effect.Effect<boolean, unknown, R>;
+  readonly readDirectory: (
+    registryPath: string
+  ) => Effect.Effect<readonly RuleRegistryDirectoryEntry[], unknown, R>;
+  readonly readText: (registryPath: string) => Effect.Effect<string, unknown, R>;
+}
+
+export interface RuleRegistrySyncFileSystem {
+  readonly isDirectory: (registryPath: string) => boolean;
+  readonly readDirectory: (registryPath: string) => readonly RuleRegistryDirectoryEntry[];
+  readonly readText: (registryPath: string) => string;
+}
 
 export class RuleRegistryLoadFailed extends Data.TaggedError("RuleRegistryLoadFailed")<{
   readonly issues: readonly RuleRegistryIssue[];
@@ -88,38 +97,41 @@ export function parseRuleRegistryDocument(
 }
 
 export function loadRuleRegistryDocument(
-  registryPath = defaultRuleRegistryPath()
+  registryPath: string,
+  fileSystem: RuleRegistrySyncFileSystem
 ): RuleRegistryDocumentV1 {
-  return isDirectorySync(registryPath)
-    ? loadRuleRegistryDirectorySync(registryPath)
-    : parseRuleRegistryTextOrThrow(readTextSync(registryPath), registryPath);
+  return fileSystem.isDirectory(registryPath)
+    ? loadRuleRegistryDirectorySync(registryPath, fileSystem)
+    : parseRuleRegistryTextOrThrow(fileSystem.readText(registryPath), registryPath);
 }
 
-export function loadRuleRegistryDocumentEffect(registryPath = defaultRuleRegistryPath()) {
+export function loadRuleRegistryDocumentEffect<R>(
+  registryPath: string,
+  fileSystem: RuleRegistryFileSystem<R>
+) {
   return Effect.gen(function* () {
-    if (yield* isDirectory(registryPath)) return yield* loadRuleRegistryDirectory(registryPath);
+    if (yield* fileSystem.isDirectory(registryPath)) {
+      return yield* loadRuleRegistryDirectory(registryPath, fileSystem);
+    }
 
-    const result = parseRuleRegistryText(yield* readText(registryPath), registryPath);
+    const result = parseRuleRegistryText(yield* fileSystem.readText(registryPath), registryPath);
     if (result.ok) return result.document;
     return yield* Effect.fail(new RuleRegistryLoadFailed({ issues: result.issues }));
   });
 }
 
-export function defaultRuleRegistryPath(): string {
-  return path.join(repoRoot, ruleRegistryRepoPath);
-}
-
-function loadRuleRegistryDirectory(registryDir: string) {
+function loadRuleRegistryDirectory<R>(registryDir: string, fileSystem: RuleRegistryFileSystem<R>) {
   const indexPath = path.join(registryDir, "index.json");
   return Effect.gen(function* () {
-    const index = yield* parseRegistryJson<RuleRegistryIndexV1>(
+    const index = yield* parseRegistryJson<RuleRegistryIndexV1, R>(
       indexPath,
-      RuleRegistryIndexV1Schema
+      RuleRegistryIndexV1Schema,
+      fileSystem
     );
-    const rulePaths = yield* ruleFilePaths(registryDir);
+    const rulePaths = yield* ruleFilePaths(registryDir, fileSystem);
     const rules = yield* Effect.all(
       rulePaths.map((rulePath) =>
-        parseRegistryJson<RuleRegistryRecordV1>(rulePath, RuleRegistryRecordV1Schema)
+        parseRegistryJson<RuleRegistryRecordV1, R>(rulePath, RuleRegistryRecordV1Schema, fileSystem)
       )
     );
     const result = parseRuleRegistryDocument(
@@ -135,15 +147,24 @@ function loadRuleRegistryDirectory(registryDir: string) {
   });
 }
 
-function loadRuleRegistryDirectorySync(registryDir: string): RuleRegistryDocumentV1 {
+function loadRuleRegistryDirectorySync(
+  registryDir: string,
+  fileSystem: RuleRegistrySyncFileSystem
+): RuleRegistryDocumentV1 {
   const indexPath = path.join(registryDir, "index.json");
-  const index = parseRegistryJsonSync<RuleRegistryIndexV1>(indexPath, RuleRegistryIndexV1Schema);
-  const rules = readDirectorySync(registryDir)
+  const index = parseRegistryJsonSync<RuleRegistryIndexV1>(
+    indexPath,
+    RuleRegistryIndexV1Schema,
+    fileSystem
+  );
+  const rules = fileSystem
+    .readDirectory(registryDir)
     .filter((entry) => entry.kind === "directory")
     .map((entry) =>
       parseRegistryJsonSync<RuleRegistryRecordV1>(
         path.join(registryDir, entry.name, "rule.json"),
-        RuleRegistryRecordV1Schema
+        RuleRegistryRecordV1Schema,
+        fileSystem
       )
     )
     .sort((left, right) => left.id.localeCompare(right.id));
@@ -159,10 +180,14 @@ function loadRuleRegistryDirectorySync(registryDir: string): RuleRegistryDocumen
   throw new RuleRegistryLoadFailed({ issues: result.issues });
 }
 
-function parseRegistryJsonSync<T>(filePath: string, schema: TSchema): T {
+function parseRegistryJsonSync<T>(
+  filePath: string,
+  schema: TSchema,
+  fileSystem: RuleRegistrySyncFileSystem
+): T {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(readTextSync(filePath)) as unknown;
+    parsed = JSON.parse(fileSystem.readText(filePath)) as unknown;
   } catch (error) {
     throw new RuleRegistryLoadFailed({
       issues: [
@@ -193,11 +218,15 @@ function parseRuleRegistryTextOrThrow(text: string, sourcePath: string): RuleReg
   throw new RuleRegistryLoadFailed({ issues: result.issues });
 }
 
-function parseRegistryJson<T>(filePath: string, schema: TSchema) {
+function parseRegistryJson<T, R = never>(
+  filePath: string,
+  schema: TSchema,
+  fileSystem: RuleRegistryFileSystem<R>
+) {
   return Effect.gen(function* () {
     let parsed: unknown;
     try {
-      parsed = JSON.parse(yield* readText(filePath)) as unknown;
+      parsed = JSON.parse(yield* fileSystem.readText(filePath)) as unknown;
     } catch (error) {
       return yield* Effect.fail(
         new RuleRegistryLoadFailed({
@@ -227,9 +256,9 @@ function parseRegistryJson<T>(filePath: string, schema: TSchema) {
   });
 }
 
-function ruleFilePaths(registryDir: string) {
+function ruleFilePaths<R>(registryDir: string, fileSystem: RuleRegistryFileSystem<R>) {
   return Effect.gen(function* () {
-    const entries = yield* readDirectory(registryDir);
+    const entries = yield* fileSystem.readDirectory(registryDir);
     return entries
       .filter((entry) => entry.kind === "directory")
       .map((entry) => path.join(registryDir, entry.name, "rule.json"))
@@ -257,5 +286,3 @@ function duplicateRuleIdIssues(
     message: `Duplicate Habitat rule id: ${JSON.stringify(id)}.`,
   }));
 }
-
-export const activeRuleRegistryDocument = loadRuleRegistryDocument();

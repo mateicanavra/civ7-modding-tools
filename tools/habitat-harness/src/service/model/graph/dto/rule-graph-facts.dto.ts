@@ -1,5 +1,8 @@
-import type { NxRuleRegistryRecord } from "@internal/habitat-harness/providers/nx/rule-registry-loader";
-import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/schema";
+import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
+import type {
+  RuleGraphFacts,
+  RuleRegistryRecordV1,
+} from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
 
 type RuleGraphTargetNames = Pick<
   WorkspaceGraphTargetNames,
@@ -7,10 +10,10 @@ type RuleGraphTargetNames = Pick<
 >;
 
 export function ruleGraphFactsForNxPlugin(
-  records: readonly NxRuleRegistryRecord[],
+  records: readonly RuleRegistryRecordV1[],
   ownerRoots: ReadonlyMap<string, string>,
   targetNames: RuleGraphTargetNames
-): NxRuleGraphFacts[] {
+): RuleGraphFacts[] {
   return records.map((rule) => {
     const root = ownerRoots.get(rule.ownerProject);
     if (!root) {
@@ -28,9 +31,9 @@ export function ruleGraphFactsForNxPlugin(
 }
 
 function ruleGraphAlias(
-  rule: NxRuleRegistryRecord,
+  rule: RuleRegistryRecordV1,
   targetNames: RuleGraphTargetNames
-): NxRuleGraphFacts["alias"] {
+): RuleGraphFacts["alias"] {
   if (rule.id === "format-ci") {
     return {
       kind: "depends-on",
@@ -49,16 +52,4 @@ function ruleGraphAlias(
     };
   }
   return { kind: "direct-rule-check" };
-}
-
-export interface NxRuleGraphFacts {
-  readonly id: string;
-  readonly ownerProject: string;
-  readonly ownerRoot: string;
-  readonly alias:
-    | { readonly kind: "direct-rule-check" }
-    | {
-        readonly kind: "depends-on";
-        readonly target: { readonly project: string; readonly target: string };
-      };
 }

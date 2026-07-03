@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
@@ -10,6 +9,7 @@ import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/ru
 import { protectedScanRootPrefixes } from "../constants.js";
 
 export interface PatternScanRootValidationOptions {
+  repoRoot: string;
   requireExisting?: boolean;
   allowDocsRoot?: boolean;
   approvedScanRoots?: readonly string[];
@@ -18,9 +18,10 @@ export interface PatternScanRootValidationOptions {
 
 export function selectedScanRootsForRules(
   selectedRules: readonly RuleSourceFacts[],
-  scanRoots: readonly string[] | undefined
+  scanRoots: readonly string[] | undefined,
+  options: Pick<PatternScanRootValidationOptions, "repoRoot" | "pathExists">
 ): string[] {
-  if (!scanRoots) return discoverPatternScanRoots(selectedRules);
+  if (!scanRoots) return discoverPatternScanRoots(selectedRules, options);
   const declaredRoots = selectedRules.flatMap((rule) => rule.scanRoots);
   if (declaredRoots.length === 0) return [...scanRoots];
   const matchingRoots = scanRoots.filter((scanRoot) =>
@@ -31,18 +32,18 @@ export function selectedScanRootsForRules(
 
 export function discoverPatternScanRoots(
   selectedRules: readonly RuleSourceFacts[] = [],
-  options: Pick<PatternScanRootValidationOptions, "pathExists"> = {}
+  options: Pick<PatternScanRootValidationOptions, "repoRoot" | "pathExists">
 ): string[] {
   const pathExists = options.pathExists ?? existsSync;
   const declaredRoots = selectedRules.flatMap(declaredScanRootsForRule);
   return uniqueRepoRelative(declaredRoots).filter((scanPath) =>
-    pathExists(path.join(repoRoot, scanPath))
+    pathExists(path.join(options.repoRoot, scanPath))
   );
 }
 
 export function validateScanRoots(
   scanRoots: readonly string[],
-  options: PatternScanRootValidationOptions = {}
+  options: PatternScanRootValidationOptions
 ): string | null {
   const decision = decidePatternScanRoots(scanRoots, options);
   return decision.kind === "refused" ? renderDiagnosticScanRootRefusal(decision) : null;
@@ -50,14 +51,14 @@ export function validateScanRoots(
 
 export function decidePatternScanRoots(
   scanRoots: readonly string[],
-  options: PatternScanRootValidationOptions = {}
+  options: PatternScanRootValidationOptions
 ): DiagnosticScanRootDecision {
   const requireExisting = options.requireExisting ?? true;
   const pathExists = options.pathExists ?? existsSync;
   if (scanRoots.length === 0) return { kind: "refused", reason: "empty" };
   for (const scanRoot of scanRoots) {
-    const absolute = path.resolve(repoRoot, scanRoot);
-    const relative = toRepoRelative(absolute);
+    const absolute = path.resolve(options.repoRoot, scanRoot);
+    const relative = toRepoRelative(options.repoRoot, absolute);
     if (relative === ".." || relative.startsWith("../"))
       return { kind: "refused", reason: "outside-repo", root: scanRoot };
     if (requireExisting && !pathExists(absolute))
@@ -90,21 +91,21 @@ export function ruleUsesDocsApplyDryRun(rule: RuleSourceFacts): boolean {
 }
 
 export function isDocsScanRoot(scanRoot: string): boolean {
-  const relative = toRepoRelative(scanRoot);
+  const relative = normalizeGritPath(scanRoot);
   return relative === "docs" || relative.startsWith("docs/") || path.extname(relative) === ".md";
 }
 
 export function normalizeGritPath(gritPath: string | undefined): string {
   if (!gritPath) return ".";
-  return toRepoRelative(gritPath.replace(/^\.\//, ""));
+  return normalizeRepoPath(gritPath.replace(/^\.\//, ""));
 }
 
 export function sortedUnique(values: readonly string[]): string[] {
-  return [...new Set(values.map(toRepoRelative))].sort((a, b) => a.localeCompare(b));
+  return [...new Set(values.map(normalizeRepoPath))].sort((a, b) => a.localeCompare(b));
 }
 
 function uniqueRepoRelative(values: readonly string[]): string[] {
-  return [...new Set(values.map(toRepoRelative))];
+  return [...new Set(values.map(normalizeRepoPath))];
 }
 
 function declaredScanRootsForRule(rule: RuleSourceFacts): string[] {
@@ -123,11 +124,19 @@ function isApprovedScanRoot(
 }
 
 export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
-  const normalizedCandidate = toRepoRelative(candidate);
-  const normalizedRoot = toRepoRelative(declaredRoot);
+  const normalizedCandidate = normalizeRepoPath(candidate);
+  const normalizedRoot = normalizeRepoPath(declaredRoot);
   return (
     normalizedCandidate === normalizedRoot ||
     normalizedCandidate.startsWith(`${normalizedRoot}/`) ||
     normalizedRoot.startsWith(`${normalizedCandidate}/`)
   );
+}
+
+function normalizeRepoPath(candidate: string): string {
+  return candidate.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/$/, "");
+}
+
+function toRepoRelative(repoRoot: string, candidate: string): string {
+  return path.relative(repoRoot, path.resolve(repoRoot, candidate)).split(path.sep).join("/");
 }

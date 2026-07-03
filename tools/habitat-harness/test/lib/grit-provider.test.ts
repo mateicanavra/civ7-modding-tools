@@ -2,7 +2,7 @@ import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/providers
 import { gritRuleResultsFromReport } from "@internal/habitat-harness/providers/grit/diagnostics";
 import {
   discoverPatternScanRoots,
-  makeFakeGritProviderLayer,
+  makeFakeGritProviderService,
   runGritDiagnosticOutcomesEffect,
   runGritRulesEffect,
   validateScanRoots,
@@ -31,37 +31,38 @@ import {
   renderDiagnosticProviderFailure,
 } from "@internal/habitat-harness/service/model/diagnostics/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
-import { Effect, type Layer } from "effect";
+import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
-type GritProviderLayer = ReturnType<typeof makeFakeGritProviderLayer>;
-type TestGritOptions = NonNullable<Parameters<typeof runGritRulesEffect>[1]> & {
-  layer?: GritProviderLayer;
+type GritProviderService = ReturnType<typeof makeFakeGritProviderService>;
+type TestGritOptions = Omit<
+  NonNullable<Parameters<typeof runGritRulesEffect>[1]>,
+  "grit" | "repoRoot"
+> & {
+  grit?: GritProviderService;
 };
 
-const unusedGritProviderLayer = makeFakeGritProviderLayer((request) => {
-  throw new Error(`Unexpected Grit provider request: ${request.argv.join(" ")}`);
-});
+const unusedGritProvider = makeFakeGritProviderService(
+  (request) => {
+    throw new Error(`Unexpected Grit provider request: ${request.argv.join(" ")}`);
+  },
+  { repoRoot }
+);
 
 function runGritRules(selectedRules: readonly RuleSourceFacts[], options: TestGritOptions = {}) {
-  const { layer = unusedGritProviderLayer, ...runOptions } = options;
-  return Effect.runPromise(runGritRulesEffect(selectedRules, runOptions).pipe(provide(layer)));
+  const { grit = unusedGritProvider, ...runOptions } = options;
+  return Effect.runPromise(runGritRulesEffect(selectedRules, { repoRoot, grit, ...runOptions }));
 }
 
 function runGritDiagnosticOutcomes(
   selectedRules: readonly RuleSourceFacts[],
   options: TestGritOptions = {}
 ) {
-  const { layer = unusedGritProviderLayer, ...runOptions } = options;
+  const { grit = unusedGritProvider, ...runOptions } = options;
   return Effect.runPromise(
-    runGritDiagnosticOutcomesEffect(selectedRules, runOptions).pipe(provide(layer))
+    runGritDiagnosticOutcomesEffect(selectedRules, { repoRoot, grit, ...runOptions })
   );
-}
-
-function provide(layer: GritProviderLayer) {
-  return <A, E, R>(program: Effect.Effect<A, E, R>) =>
-    Effect.provide(program, layer as Layer.Layer<R>);
 }
 
 describe("Grit check provider parser and diagnostics", () => {
@@ -337,6 +338,7 @@ describe("Grit check provider parser and diagnostics", () => {
 
   test("validates missing, outside, generated, protected, and approved scan roots", () => {
     const options = {
+      repoRoot,
       pathExists: fakeExistingScanRoots([
         ".git",
         "docs/PROCESS.md",
@@ -361,18 +363,18 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("keeps scan-root refusal reasons as closed decisions", () => {
-    expect(decidePatternScanRoots([])).toEqual({ kind: "refused", reason: "empty" });
-    expect(decidePatternScanRoots(["../outside"])).toEqual({
+    expect(decidePatternScanRoots([], { repoRoot })).toEqual({ kind: "refused", reason: "empty" });
+    expect(decidePatternScanRoots(["../outside"], { repoRoot })).toEqual({
       kind: "refused",
       reason: "outside-repo",
       root: "../outside",
     });
-    expect(decidePatternScanRoots(["missing-root"])).toEqual({
+    expect(decidePatternScanRoots(["missing-root"], { repoRoot })).toEqual({
       kind: "refused",
       reason: "missing",
       root: "missing-root",
     });
-    expect(decidePatternScanRoots(["packages"])).toEqual({
+    expect(decidePatternScanRoots(["packages"], { repoRoot })).toEqual({
       kind: "accepted",
       roots: ["packages"],
       source: "rule-registry-facts",
@@ -433,28 +435,31 @@ describe("Grit check provider parser and diagnostics", () => {
   test("runs selected Grit rules through one argument-array command request", async () => {
     const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
     let observedRequest: HabitatProcessRequest | undefined;
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
-      observedRequest = request;
-      return makeHabitatCommandResult(request, {
-        stderr: output(
-          JSON.stringify({
-            paths: ["packages/example/src/demo.ts"],
-            results: [
-              {
-                local_name: "adapter_base_standard_import",
-                path: "packages/example/src/demo.ts",
-                start: { line: 1 },
-                extra: { message: "adapter finding" },
-              },
-            ],
-          })
-        ),
-      });
-    });
+    const fakeGrit = makeFakeGritProviderService(
+      (request) => {
+        observedRequest = request;
+        return makeHabitatCommandResult(request, {
+          stderr: output(
+            JSON.stringify({
+              paths: ["packages/example/src/demo.ts"],
+              results: [
+                {
+                  local_name: "adapter_base_standard_import",
+                  path: "packages/example/src/demo.ts",
+                  start: { line: 1 },
+                  extra: { message: "adapter finding" },
+                },
+              ],
+            })
+          ),
+        });
+      },
+      { repoRoot }
+    );
 
     const results = await runGritRules([rule], {
       scanRoots: ["packages"],
-      layer: fakeLayer,
+      grit: fakeGrit,
     });
 
     expect(observedRequest).toMatchObject({
@@ -482,7 +487,7 @@ describe("Grit check provider parser and diagnostics", () => {
     const firstRule = fakeGritRule("source-one", "source_one", { scanRoots: ["packages"] });
     const secondRule = fakeGritRule("source-two", "source_two", { scanRoots: ["packages"] });
     const observedRequests: HabitatProcessRequest[] = [];
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
+    const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
       return makeHabitatCommandResult(request, {
         stderr: output(
@@ -509,7 +514,7 @@ describe("Grit check provider parser and diagnostics", () => {
 
     const results = await runGritRules([firstRule, secondRule], {
       scanRoots: ["packages"],
-      layer: fakeLayer,
+      grit: fakeGrit,
     });
 
     expect(observedRequests).toHaveLength(1);
@@ -528,7 +533,7 @@ describe("Grit check provider parser and diagnostics", () => {
       scanRoots: ["mods/mod-swooper-maps/src/domain"],
     });
     const observedRequests: HabitatProcessRequest[] = [];
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
+    const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
       return makeHabitatCommandResult(request, {
         stderr: output(
@@ -557,7 +562,7 @@ describe("Grit check provider parser and diagnostics", () => {
     });
 
     const results = await runGritRules([packagesRule, domainRule], {
-      layer: fakeLayer,
+      grit: fakeGrit,
     });
 
     expect(observedRequests.map((request) => request.argv).sort()).toEqual(
@@ -592,7 +597,7 @@ describe("Grit check provider parser and diagnostics", () => {
     const rule = fakeGritRule("multi-root-rule", "multi_root_rule", {
       scanRoots: ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
     });
-    const fakeLayer = makeFakeGritProviderLayer((request) =>
+    const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         stderr: output(
           JSON.stringify({
@@ -610,7 +615,7 @@ describe("Grit check provider parser and diagnostics", () => {
       })
     );
 
-    const results = await runGritRules([rule], { layer: fakeLayer });
+    const results = await runGritRules([rule], { grit: fakeGrit });
 
     expect(results.get(rule.id)?.diagnostics).toEqual([
       {
@@ -635,7 +640,7 @@ describe("Grit check provider parser and diagnostics", () => {
   test("fresh cache mode uses a scoped isolated cache with observable freshness", async () => {
     const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
     let observedRequest: HabitatProcessRequest | undefined;
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
+    const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequest = request;
       return makeHabitatCommandResult(request, {
         stderr: output(JSON.stringify({ paths: [], results: [] })),
@@ -644,7 +649,7 @@ describe("Grit check provider parser and diagnostics", () => {
 
     const results = await runGritRules([rule], {
       scanRoots: ["packages"],
-      layer: fakeLayer,
+      grit: fakeGrit,
       cacheMode: "fresh",
       requireObservableCacheStatus: true,
     });
@@ -667,11 +672,11 @@ describe("Grit check provider parser and diagnostics", () => {
       scanRoots: ["docs"],
     });
 
-    expect(discoverPatternScanRoots([sourceRule])).not.toContain("docs");
-    const docsRoots = discoverPatternScanRoots([docsRule]);
+    expect(discoverPatternScanRoots([sourceRule], { repoRoot })).not.toContain("docs");
+    const docsRoots = discoverPatternScanRoots([docsRule], { repoRoot });
     expect(docsRoots).toEqual(["docs"]);
-    expect(discoverPatternScanRoots([sourceRule, docsRule])).toContain("docs");
-    expect(discoverPatternScanRoots([sourceRule, docsRule])).toContain(
+    expect(discoverPatternScanRoots([sourceRule, docsRule], { repoRoot })).toContain("docs");
+    expect(discoverPatternScanRoots([sourceRule, docsRule], { repoRoot })).toContain(
       "mods/mod-swooper-maps/src/maps"
     );
   });
@@ -682,7 +687,7 @@ describe("Grit check provider parser and diagnostics", () => {
       scanRoots: ["docs"],
     });
     let observedRequest: HabitatProcessRequest | undefined;
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
+    const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequest = request;
       return makeHabitatCommandResult(request, {
         stdout: output(`docs/PROCESS.md
@@ -696,7 +701,7 @@ Processed 1 files and found 1 matches
       });
     });
 
-    const results = await runGritRules([rule], { layer: fakeLayer });
+    const results = await runGritRules([rule], { grit: fakeGrit });
 
     expect(observedRequest?.argv.slice(0, 2)).toEqual([
       "apply",
@@ -725,7 +730,7 @@ Processed 1 files and found 1 matches
       lane: "advisory",
       scanRoots: ["docs"],
     });
-    const fakeLayer = makeFakeGritProviderLayer((request) =>
+    const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         stdout: output(`docs/PROCESS.md
     -See \`/Users/alice/dev/repo/docs/PROCESS.md\`.
@@ -736,7 +741,7 @@ Processed 1 files and found 1 matches
       })
     );
 
-    const outcomes = await runGritDiagnosticOutcomes([rule], { layer: fakeLayer });
+    const outcomes = await runGritDiagnosticOutcomes([rule], { grit: fakeGrit });
 
     const outcome = outcomes.get(rule.id);
     expect(outcome?.kind).toBe("findings");
@@ -773,7 +778,7 @@ Processed 1 files and found 1 matches
       lane: "advisory",
       scanRoots: ["docs"],
     });
-    const fakeLayer = makeFakeGritProviderLayer((request) =>
+    const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         stdout: output(`docs/FALSE-POSITIVE.md
 
@@ -782,7 +787,7 @@ Processed 1 files and found 1 matches
       })
     );
 
-    const results = await runGritRules([rule], { layer: fakeLayer });
+    const results = await runGritRules([rule], { grit: fakeGrit });
 
     expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
@@ -796,7 +801,7 @@ Processed 1 files and found 1 matches
       scanRoots: ["docs"],
     });
     const observedRequests: HabitatProcessRequest[] = [];
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
+    const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
       if (request.argv[0] === "--json") {
         return makeHabitatCommandResult(request, {
@@ -827,7 +832,7 @@ Processed 2 files and found 1 matches
       });
     });
 
-    const results = await runGritRules([sourceRule, docsRule], { layer: fakeLayer });
+    const results = await runGritRules([sourceRule, docsRule], { grit: fakeGrit });
 
     expect(observedRequests[0]?.argv).toEqual([
       "--json",
@@ -868,7 +873,7 @@ Processed 2 files and found 1 matches
       scanRoots: ["docs/PROCESS.md"],
     });
     const observedRequests: HabitatProcessRequest[] = [];
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
+    const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
       if (request.argv[0] === "--json") {
         return makeHabitatCommandResult(request, {
@@ -895,7 +900,7 @@ Processed 2 files and found 1 matches
     });
 
     const outcomes = await runGritDiagnosticOutcomes([sourceRule, docsRule], {
-      layer: fakeLayer,
+      grit: fakeGrit,
     });
 
     expect(observedRequests.map((request) => request.argv[0])).toEqual(["--json", "check"]);
@@ -928,7 +933,7 @@ Processed 2 files and found 1 matches
 
   test("fails paths that require observable cache provenance when status is unknown", async () => {
     const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
-    const fakeLayer = makeFakeGritProviderLayer((request) =>
+    const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         cachePolicy: {
           mode: request.cachePolicy?.mode ?? "isolated",
@@ -941,7 +946,7 @@ Processed 2 files and found 1 matches
 
     const results = await runGritRules([rule], {
       scanRoots: ["packages"],
-      layer: fakeLayer,
+      grit: fakeGrit,
       requireObservableCacheStatus: true,
     });
 
@@ -951,7 +956,7 @@ Processed 2 files and found 1 matches
 
   test("surfaces missing cache provenance as a diagnostic outcome", async () => {
     const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
-    const fakeLayer = makeFakeGritProviderLayer((request) =>
+    const fakeGrit = makeFakeGritProviderService((request) =>
       makeHabitatCommandResult(request, {
         cachePolicy: {
           mode: request.cachePolicy?.mode ?? "isolated",
@@ -964,7 +969,7 @@ Processed 2 files and found 1 matches
 
     const outcomes = await runGritDiagnosticOutcomes([rule], {
       scanRoots: ["packages"],
-      layer: fakeLayer,
+      grit: fakeGrit,
       requireObservableCacheStatus: true,
     });
 

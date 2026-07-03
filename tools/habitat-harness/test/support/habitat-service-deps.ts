@@ -1,3 +1,4 @@
+import path from "node:path";
 import { biomeArgv } from "@internal/habitat-harness/providers/biome/index";
 import { makeGitProviderFromCommandHandler } from "@internal/habitat-harness/providers/git/index";
 import {
@@ -6,16 +7,36 @@ import {
   runManyArgv,
   runTargetArgv,
 } from "@internal/habitat-harness/providers/nx/index";
+import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
 import {
   captureOutput,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatProcessRequest } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import {
+  isDirectorySync,
+  readDirectorySync,
+  readTextSync,
+} from "@internal/habitat-harness/resources/platform/filesystem";
 import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import type { CheckReport } from "@internal/habitat-harness/service/model/check/index";
+import {
+  loadRuleRegistryDocument,
+  ruleFactsCatalog,
+} from "@internal/habitat-harness/service/model/rules/index";
 import { Effect } from "effect";
+
+export function makeTestRuleFacts() {
+  return ruleFactsCatalog(
+    loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
+      isDirectory: isDirectorySync,
+      readDirectory: readDirectorySync,
+      readText: readTextSync,
+    })
+  );
+}
 
 export function makeTestHabitatServiceDeps(
   overrides: Partial<HabitatServiceDeps> = {}
@@ -108,11 +129,20 @@ export function makeTestHabitatServiceDeps(
       acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
       env: {},
       hashFile: () => null,
+      isDirectory: () => Effect.succeed(false),
+      isDirectorySync: () => false,
+      isFile: () => false,
+      isFileEffect: () => Effect.succeed(false),
       pathExists: () => false,
+      readDirectory: () => Effect.succeed([]),
+      readDirectorySync: () => [],
       readText: () => Effect.succeed(""),
+      readTextSync: () => "",
       repoRoot,
+      statKind: () => undefined,
     },
     reporter: fakeReporter(),
+    rules: makeTestRuleFacts(),
     ...overrides,
   };
 }

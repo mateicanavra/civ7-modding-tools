@@ -1,10 +1,7 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
-import type {
-  GritProvider,
-  GritProviderRequirements,
-} from "@internal/habitat-harness/providers/grit/index";
+import type { GritProviderRequirements } from "@internal/habitat-harness/providers/grit/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
@@ -17,10 +14,9 @@ import {
   writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import {
-  activeRuleBaselineFacts,
-  activeRuleSelectorFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+  type RuleFactsCatalog,
+} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import {
   type RuleSelectionResult,
@@ -51,18 +47,20 @@ export function expandBaselinesEffect(
   | HabitatConfig
   | FileSystem.FileSystem
   | GitProviderRequirements
-  | GritProvider
   | GritProviderRequirements
 > {
   return Effect.gen(function* () {
-    const selected = selectRules(selection);
+    const selected = selectRules(selection, executionContext.rules.selector);
     if (!selected.ok) return selected;
 
     const context = baselineContext(executionContext);
     const messages: string[] = [];
     const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {}, executionContext);
     const baselinesByRuleId = factsByRuleId(
-      baselineContractInputs(selected.rules.map((rule) => rule.id))
+      baselineContractInputs(
+        executionContext.rules,
+        selected.rules.map((rule) => rule.id)
+      )
     );
     for (const rule of selected.rules) {
       const baselineFacts = baselinesByRuleId.get(rule.id);
@@ -95,7 +93,7 @@ export function expandBaselinesEffect(
       if (keys.length > 0) {
         const guard = yield* guardBaselineExpansionEffect(rule.id, keys, options.base ?? "main", {
           ...context,
-          registry: baselineContractInputs(),
+          registry: baselineContractInputs(executionContext.rules),
         });
         if (guard.status === "refused") {
           return {
@@ -128,12 +126,10 @@ function baselineContext(context: StructuralExecutionContext): BaselineAuthority
   return { git: context.git, repoRoot: context.repoRoot };
 }
 
-export function baselineContractInputs(ruleIds?: readonly string[]) {
-  const baselineFacts = ruleIds
-    ? factsForRuleIds(activeRuleBaselineFacts, ruleIds)
-    : activeRuleBaselineFacts;
+export function baselineContractInputs(rules: RuleFactsCatalog, ruleIds?: readonly string[]) {
+  const baselineFacts = ruleIds ? factsForRuleIds(rules.baseline, ruleIds) : rules.baseline;
   const selectorsByRuleId = factsByRuleId(
-    ruleIds ? factsForRuleIds(activeRuleSelectorFacts, ruleIds) : activeRuleSelectorFacts
+    ruleIds ? factsForRuleIds(rules.selector, ruleIds) : rules.selector
   );
   return baselineFacts.map((fact) => {
     const selector = selectorsByRuleId.get(fact.id);

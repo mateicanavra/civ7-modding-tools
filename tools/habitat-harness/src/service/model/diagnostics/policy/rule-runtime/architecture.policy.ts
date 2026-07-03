@@ -1,27 +1,11 @@
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/diagnostics/index";
-import {
-  activeRuleRegistryDocument,
-  type RuleCommandExecutionFacts,
-  type RuleRegistryRecordV1,
-} from "@internal/habitat-harness/service/model/rules/index";
+import type { RuleCommandExecutionFacts } from "@internal/habitat-harness/service/model/rules/index";
 
 /**
  * The rule pack is authored in .habitat and consumed through the registry
  * schema boundary. This module supplies per-rule output parsers.
  */
-
-export type HarnessRule = RuleRegistryRecordV1;
-
-export const rules: HarnessRule[] = activeRuleRegistryDocument.rules.map(toHarnessRule);
-
-export function ruleById(id: string): HarnessRule | undefined {
-  return rules.find((r) => r.id === id);
-}
-
-function toHarnessRule(rule: RuleRegistryRecordV1): HarnessRule {
-  return { ...rule };
-}
 
 function coarse(rule: RuleCommandExecutionFacts, res: SpawnResult): HabitatDiagnostic[] {
   if (res.exitCode === 0) return [];

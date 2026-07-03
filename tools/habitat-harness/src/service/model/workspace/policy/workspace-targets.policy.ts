@@ -7,14 +7,12 @@ import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
   type WorkspaceGraphTargetNames,
+  type WorkspaceGraphTargetNameOptions,
   type WorkspaceProject,
   type WorkspaceTargetState,
+  WorkspaceGraphTargetNamesSchema,
   WorkspaceTargetStateSchema,
-} from "@internal/habitat-harness/providers/nx/schema";
-import {
-  classifyTargetNames,
-  workspaceGraphTargetNames,
-} from "@internal/habitat-harness/providers/nx/targets";
+} from "../dto/workspace.schema.ts";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
 import { Value } from "typebox/value";
@@ -23,7 +21,24 @@ import {
   graphRefusalMessage,
   resolveTargetDependencyDeclaration,
   sameProjectTargetDependency,
-} from "./target-dependencies.policy.js";
+} from "./target-dependencies.policy.ts";
+
+export function workspaceGraphTargetNames(
+  options: WorkspaceGraphTargetNameOptions = {}
+): WorkspaceGraphTargetNames {
+  return Value.Parse(WorkspaceGraphTargetNamesSchema, {
+    aggregateCheck: options.aggregateCheckTargetName ?? "habitat:check:all",
+    biomeCheck: options.biomeCheckTargetName ?? "biome:check",
+    biomeCi: options.biomeCiTargetName ?? "biome:ci",
+    biomeFormat: options.biomeFormatTargetName ?? "biome:format",
+    boundaries: options.boundariesTargetName ?? "boundaries",
+    check: options.checkTargetName ?? "habitat:check",
+    generatedCheck: options.generatedCheckTargetName ?? "generated:check",
+    sourceCheck: options.sourceCheckTargetName ?? "source:check",
+    lint: options.lintTargetName ?? "lint",
+    rulePrefix: options.ruleTargetPrefix ?? "habitat:rule:",
+  });
+}
 
 export function findWorkspaceOwningProject(
   repoRelativePath: string,
@@ -42,7 +57,7 @@ export function workspaceProjectHasTarget(project: WorkspaceProject, targetName:
 }
 
 export function projectTargetStates(project: WorkspaceProject): WorkspaceTargetState[] {
-  return classifyTargetNames().map((target) =>
+  return classifyTargetNames.map((target) =>
     workspaceProjectHasTarget(project, target)
       ? parseTargetState({
           kind: "available-project-target",
@@ -60,6 +75,8 @@ export function projectTargetStates(project: WorkspaceProject): WorkspaceTargetS
         })
   );
 }
+
+const classifyTargetNames = ["check", "test"] as const;
 
 export function workspaceTargetStates(
   projects: readonly WorkspaceProject[] = [],

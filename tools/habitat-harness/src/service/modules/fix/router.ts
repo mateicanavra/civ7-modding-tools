@@ -11,7 +11,7 @@ export const fixRouter = {
     const records = yield* context.runPatternApplyTransactions(
       input,
       admissions,
-      context.activeApplyTransactionInputs()
+      context.admittedApplyTransactionInputs()
     );
     const rendered = records.map(context.renderPatternApply);
     const failed = rendered.find((result) => result.exitCode !== 0);

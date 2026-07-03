@@ -1,9 +1,7 @@
 export type {
   AggregateWorkspaceTargetDeclaration,
   GraphRefusalState,
-  PackageJsonTargetInventory,
   ResolvedTargetDependency,
-  RootPackageJsonWorkspace,
   RuleGraphTargetNames,
   TargetDependencyDeclaration,
   TargetDependencyResolution,
@@ -14,11 +12,21 @@ export type {
   WorkspaceGraphTargetNames,
   WorkspaceProject,
   WorkspaceTargetState,
-} from "@internal/habitat-harness/providers/nx/schema";
+} from "./dto/workspace.schema.js";
 export {
+  GraphRefusalReasonSchema,
+  GraphRefusalStateSchema,
   RuleGraphTargetNamesSchema,
+  TargetDependencyDeclarationSchema,
+  TargetDependencyResolutionSchema,
   VerifyTargetPlanSchema,
-} from "@internal/habitat-harness/providers/nx/schema";
+  WorkspaceGraphTargetNameOptionsSchema,
+  WorkspaceGraphTargetNamesSchema,
+  WorkspaceGraphReadStateSchema,
+  WorkspaceGraphSnapshotSchema,
+  WorkspaceProjectSchema,
+  WorkspaceTargetStateSchema,
+} from "./dto/workspace.schema.js";
 export {
   aggregateWorkspaceDependency,
   aggregateWorkspaceTarget,
@@ -38,6 +46,7 @@ export {
   ruleAliasTargetState,
   ruleGraphTargetStates,
   verifyTargetPlan,
+  workspaceGraphTargetNames,
   workspaceProjectHasTarget,
   workspaceTargetStates,
 } from "./policy/workspace-targets.policy.js";

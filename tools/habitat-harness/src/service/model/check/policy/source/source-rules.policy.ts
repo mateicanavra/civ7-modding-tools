@@ -1,16 +1,9 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import type { FileSystem } from "@effect/platform";
 import {
   habitatCacheRepoPath,
   habitatCacheRepoPathPrefix,
 } from "@internal/habitat-harness/resources/artifact-paths";
-import {
-  isDirectory,
-  isFile,
-  readDirectory,
-  readText,
-} from "@internal/habitat-harness/resources/platform/filesystem";
 import {
   collapsedSourceScanRoots,
   type HabitatDiagnostic,
@@ -28,7 +21,22 @@ import { sourceCheckRuleModuleRepoPath } from "./module-paths.policy.js";
 
 export interface SourceCheckOptions {
   readonly repoRoot: string;
+  readonly fileSystem: SourceRuleFileSystem<any>;
   readonly scanRoots?: readonly string[];
+}
+
+export interface SourceRuleDirectoryEntry {
+  readonly name: string;
+  readonly kind: "directory" | "file" | "other";
+}
+
+export interface SourceRuleFileSystem<R = never> {
+  readonly isDirectory: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
+  readonly isFile: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
+  readonly readDirectory: (
+    targetPath: string
+  ) => Effect.Effect<readonly SourceRuleDirectoryEntry[], unknown, R>;
+  readonly readText: (targetPath: string) => Effect.Effect<string, unknown, R>;
 }
 
 interface SourceFileRecord {
@@ -235,7 +243,7 @@ function sourceRuleExactPathPatterns(rule: RuleSourceFacts): string[] {
 function readPlannedSourceFiles(
   plans: readonly SourceRuleFilePlan[],
   options: SourceCheckOptions
-): Effect.Effect<PlannedSourceFileRecord[], never, FileSystem.FileSystem> {
+): Effect.Effect<PlannedSourceFileRecord[], never, any> {
   return Effect.gen(function* () {
     if (plans.length === 0) return [];
     const scanRoots = collapsedSourceScanRoots(plans.flatMap((plan) => plan.scanRoots));
@@ -254,7 +262,7 @@ function readPlannedSourceFiles(
     const files = yield* Effect.forEach(
       plannedPaths,
       (plannedPath) =>
-        readText(path.join(options.repoRoot, plannedPath.path)).pipe(
+        options.fileSystem.readText(path.join(options.repoRoot, plannedPath.path)).pipe(
           Effect.map((text) => ({
             file: sourceFileRecord(plannedPath.path, text),
             plans: plannedPath.plans,
@@ -285,19 +293,23 @@ function collectSourcePaths(
   scanRoot: string,
   candidateExtensions: ReadonlySet<string>,
   options: SourceCheckOptions
-): Effect.Effect<string[], never, FileSystem.FileSystem> {
+): Effect.Effect<string[], never, any> {
   const absolute = path.join(options.repoRoot, scanRoot);
-  return isFile(absolute).pipe(
+  return options.fileSystem.isFile(absolute).pipe(
     Effect.flatMap((file) => {
       if (file)
         return Effect.succeed(
           isCandidateFile(scanRoot, candidateExtensions) ? [toRepoRelative(options, scanRoot)] : []
         );
-      return isDirectory(absolute).pipe(
-        Effect.flatMap((directory) =>
-          directory ? collectDirectory(absolute, candidateExtensions, options) : Effect.succeed([])
-        )
-      );
+      return options.fileSystem
+        .isDirectory(absolute)
+        .pipe(
+          Effect.flatMap((directory) =>
+            directory
+              ? collectDirectory(absolute, candidateExtensions, options)
+              : Effect.succeed([])
+          )
+        );
     }),
     Effect.catchAll(() => Effect.succeed([]))
   );
@@ -307,8 +319,8 @@ function collectDirectory(
   absoluteDirectory: string,
   candidateExtensions: ReadonlySet<string>,
   options: SourceCheckOptions
-): Effect.Effect<string[], never, FileSystem.FileSystem> {
-  return readDirectory(absoluteDirectory).pipe(
+): Effect.Effect<string[], never, any> {
+  return options.fileSystem.readDirectory(absoluteDirectory).pipe(
     Effect.flatMap((entries) =>
       Effect.forEach(
         entries,

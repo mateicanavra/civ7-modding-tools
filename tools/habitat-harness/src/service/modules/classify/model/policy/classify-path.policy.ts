@@ -3,13 +3,12 @@ import type {
   GraphRefusalState,
   WorkspaceGraphReadState,
   WorkspaceProject,
-} from "@internal/habitat-harness/providers/nx/schema";
-import { statKindSync } from "@internal/habitat-harness/resources/platform/filesystem";
+} from "@internal/habitat-harness/service/model/workspace/index";
 import {
   type PathClassification,
   parsePathClassification,
 } from "@internal/habitat-harness/service/model/classify/index";
-import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import {
   findWorkspaceOwningProject,
   ruleGraphTargetStates,
@@ -17,19 +16,25 @@ import {
 } from "@internal/habitat-harness/service/model/workspace/index";
 import { rulesForPath } from "./rule-routing.policy.js";
 import { projectTargets, workspaceTargets } from "./target-plan.policy.js";
+import type { ClassifyFileSystem } from "./diff-target.policy.js";
 
 export function classifyPathFromProjects(
   target: string,
   projects: readonly WorkspaceProject[],
-  context: { readonly repoRoot: string }
+  context: {
+    readonly repoRoot: string;
+    readonly rules: RuleFactsCatalog;
+    readonly fileSystem: ClassifyFileSystem;
+  }
 ): PathClassification {
   const rel = toRepoRelative(context.repoRoot, target);
-  const graphRefusal = firstGraphRefusal(projects);
+  const graphRefusal = firstGraphRefusal(projects, context.rules);
   if (graphRefusal) return graphRefusalResult(target, graphRefusal);
 
   const owner = findWorkspaceOwningProject(rel, projects);
-  if (owner) return projectPathResult(target, rel, owner, projects);
-  if (isWorkspaceSurface(rel, context)) return workspacePathResult(target, rel, projects);
+  if (owner) return projectPathResult(target, rel, owner, projects, context.rules);
+  if (isWorkspaceSurface(rel, context))
+    return workspacePathResult(target, rel, projects, context.rules);
   return unresolvedOwnerResult(target, rel);
 }
 
@@ -57,7 +62,8 @@ function projectPathResult(
   input: string,
   rel: string,
   owner: WorkspaceProject,
-  projects: readonly WorkspaceProject[]
+  projects: readonly WorkspaceProject[],
+  rules: RuleFactsCatalog
 ): PathClassification {
   const targetGuidance = projectTargets(owner);
   return parsePathClassification({
@@ -70,7 +76,7 @@ function projectPathResult(
       projectRoot: owner.root,
       tags: owner.tags,
     },
-    ruleRouting: rulesForPath(rel, owner),
+    ruleRouting: rulesForPath(rel, rules.routing, owner),
     runnableTargets: [...targetGuidance.targets, ...workspaceTargets(projects)],
     unavailableTargets: targetGuidance.unavailableTargets,
     recoveryInstructions: [],
@@ -80,7 +86,8 @@ function projectPathResult(
 function workspacePathResult(
   input: string,
   rel: string,
-  projects: readonly WorkspaceProject[]
+  projects: readonly WorkspaceProject[],
+  rules: RuleFactsCatalog
 ): PathClassification {
   return parsePathClassification({
     schemaVersion: 1,
@@ -88,7 +95,7 @@ function workspacePathResult(
     input,
     path: rel,
     workspaceOwner: "workspace",
-    ruleRouting: rulesForPath(rel),
+    ruleRouting: rulesForPath(rel, rules.routing),
     runnableTargets: workspaceTargets(projects),
     recoveryInstructions: [],
   });
@@ -107,19 +114,25 @@ function unresolvedOwnerResult(input: string, rel: string): PathClassification {
   });
 }
 
-function firstGraphRefusal(projects: readonly WorkspaceProject[]): GraphRefusalState | undefined {
+function firstGraphRefusal(
+  projects: readonly WorkspaceProject[],
+  rules: RuleFactsCatalog
+): GraphRefusalState | undefined {
   return [
     ...workspaceTargetStates(projects),
-    ...ruleGraphTargetStates({ projects, rules: activeRuleGraphFacts }),
+    ...ruleGraphTargetStates({ projects, rules: rules.graph }),
   ].find((state): state is GraphRefusalState => state.kind === "graph-refusal");
 }
 
-function isWorkspaceSurface(pathInRepo: string, context: { readonly repoRoot: string }): boolean {
+function isWorkspaceSurface(
+  pathInRepo: string,
+  context: { readonly repoRoot: string; readonly fileSystem: ClassifyFileSystem }
+): boolean {
   const [rootSegment] = pathInRepo.split("/");
   if (!rootSegment || rootSegment === "." || rootSegment === "..") return false;
 
   const rootSurfacePath = path.join(context.repoRoot, rootSegment);
-  const rootKind = statKindSync(rootSurfacePath);
+  const rootKind = context.fileSystem.statKind(rootSurfacePath);
   const rootIsFile = rootKind === "File";
   const rootIsDirectory = rootKind === "Directory";
   if (pathInRepo === rootSegment) return rootIsFile || rootIsDirectory;

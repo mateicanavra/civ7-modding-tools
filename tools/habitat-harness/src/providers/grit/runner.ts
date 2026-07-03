@@ -18,7 +18,7 @@ import { runDocsApplyBackedDiagnosticOutcomesEffect } from "./docs-apply.js";
 import { infrastructureFailure } from "./failure.js";
 import type { GritDiagnosticAcquisition } from "./output.js";
 import { gritCheckProgram } from "./request.js";
-import { GritProvider, type GritProviderRequirements } from "./resource.js";
+import type { GritProviderRequirements, GritProviderService } from "./resource.js";
 import {
   decidePatternScanRoots,
   pathsOverlap,
@@ -29,6 +29,8 @@ import {
 import type { GritCheckCacheMode, GritCheckOutputFormat, GritDiagnosticOptions } from "./types.js";
 
 interface GritRunOptions {
+  repoRoot: string;
+  grit: GritProviderService;
   scanRoots?: readonly string[];
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
@@ -37,8 +39,8 @@ interface GritRunOptions {
 
 export function runGritRulesEffect(
   selectedRules: readonly RuleSourceFacts[],
-  options: GritRunOptions = {}
-): Effect.Effect<Map<string, RuleRunResult>, never, GritProvider | GritProviderRequirements> {
+  options: GritRunOptions
+): Effect.Effect<Map<string, RuleRunResult>, never, GritProviderRequirements> {
   return runGritDiagnosticOutcomesEffect(selectedRules, options).pipe(
     Effect.map((outcomes) => ruleRunResultsFromDiagnosticOutcomes(selectedRules, outcomes))
   );
@@ -46,12 +48,8 @@ export function runGritRulesEffect(
 
 export function runGritDiagnosticOutcomesEffect(
   selectedRules: readonly RuleSourceFacts[],
-  options: GritRunOptions = {}
-): Effect.Effect<
-  Map<string, DiagnosticRunOutcome>,
-  never,
-  GritProvider | GritProviderRequirements
-> {
+  options: GritRunOptions
+): Effect.Effect<Map<string, DiagnosticRunOutcome>, never, GritProviderRequirements> {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
   const docsRules = selectedRules.filter(ruleHasDocsScanRoot);
   const docsApplyBackedRules = docsRules.filter(ruleUsesDocsApplyDryRun);
@@ -71,13 +69,11 @@ function runGritRuleOutcomeGroupEffect(
   selectedRules: readonly RuleSourceFacts[],
   options: GritRunOptions,
   outputFormat: GritCheckOutputFormat
-): Effect.Effect<
-  Map<string, DiagnosticRunOutcome>,
-  never,
-  GritProvider | GritProviderRequirements
-> {
+): Effect.Effect<Map<string, DiagnosticRunOutcome>, never, GritProviderRequirements> {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
-  const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
+  const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots, {
+    repoRoot: options.repoRoot,
+  });
   if (requestedScanRoots.length === 0) {
     return runGritScanRootBatchEffect(selectedRules, [], options, outputFormat);
   }
@@ -112,13 +108,10 @@ function runGritScanRootBatchEffect(
   scanRoots: readonly string[],
   options: GritRunOptions,
   outputFormat: GritCheckOutputFormat
-): Effect.Effect<
-  Map<string, DiagnosticRunOutcome>,
-  never,
-  GritProvider | GritProviderRequirements
-> {
+): Effect.Effect<Map<string, DiagnosticRunOutcome>, never, GritProviderRequirements> {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
   const scanRootDecision = decidePatternScanRoots(scanRoots, {
+    repoRoot: options.repoRoot,
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
@@ -151,6 +144,8 @@ function runGritScanRootBatchEffect(
     );
   }
   const program = gritCheckProgram(scanRoots, {
+    repoRoot: options.repoRoot,
+    grit: options.grit,
     cacheMode: options.cacheMode,
     requireObservableCacheStatus: options.requireObservableCacheStatus,
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),

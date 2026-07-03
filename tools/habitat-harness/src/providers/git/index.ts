@@ -6,17 +6,16 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Context, Effect, Layer } from "effect";
 import type { GitStateProvider } from "./state.js";
 
 export {
   GitStateProvider,
-  GitStateProviderLive,
   type GitStateProviderService,
   type HabitatCommandGitState,
   type HabitatGitState,
   makeFakeGitStateProviderLayer,
+  makeGitStateProviderLayer,
   readGitState,
   unknownGitState,
 } from "./state.js";
@@ -63,23 +62,27 @@ export class GitProvider extends Context.Tag("@internal/habitat-harness/GitProvi
   GitProviderService
 >() {}
 
-export const GitProviderLive = Layer.succeed(GitProvider, makeLiveGitProvider());
+export function makeGitProviderLayer(repoRoot: string): Layer.Layer<GitProvider> {
+  return Layer.succeed(GitProvider, makeLiveGitProvider(repoRoot));
+}
 
 export function makeFakeGitProviderLayer(
-  handler: (argv: readonly string[], options: Required<GitCommandOptions>) => HabitatCommandResult
+  handler: (argv: readonly string[], options: Required<GitCommandOptions>) => HabitatCommandResult,
+  options: { readonly repoRoot?: string } = {}
 ) {
-  return Layer.succeed(GitProvider, makeGitProviderFromCommandHandler(handler));
+  return Layer.succeed(GitProvider, makeGitProviderFromCommandHandler(handler, options));
 }
 
 export function makeGitProviderFromCommandHandler(
-  handler: (argv: readonly string[], options: Required<GitCommandOptions>) => HabitatCommandResult
+  handler: (argv: readonly string[], options: Required<GitCommandOptions>) => HabitatCommandResult,
+  { repoRoot = "." }: { readonly repoRoot?: string } = {}
 ): GitProviderService {
   const command: GitProviderService["command"] = (argv, options = {}) =>
     Effect.sync(() => handler(argv, { cwd: options.cwd ?? repoRoot }));
   return providerFromCommand(command);
 }
 
-function makeLiveGitProvider(): GitProviderService {
+function makeLiveGitProvider(repoRoot: string): GitProviderService {
   const command: GitProviderService["command"] = (argv, options = {}) =>
     CommandRunner.pipe(
       Effect.flatMap((runner) =>

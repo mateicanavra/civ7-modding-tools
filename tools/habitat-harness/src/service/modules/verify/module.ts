@@ -1,7 +1,6 @@
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
-import { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
 import type {
   HabitatServiceContext,
   HabitatServiceDeps,
@@ -39,7 +38,7 @@ export interface VerifyModuleContext {
   readonly currentTimeMillis: typeof Clock.currentTimeMillis;
   readonly epochMillisToIsoString: typeof epochMillisToIsoString;
   readonly observeGitStatus: ReturnType<typeof makeObserveGitStatus>;
-  readonly readVerifyTargetPlan: typeof readVerifyTargetPlanEffect;
+  readonly readVerifyTargetPlan: ReturnType<typeof readVerifyTargetPlanEffect>;
   readonly resolveVerifyBase: ReturnType<typeof makeResolveVerifyBase>;
   readonly runAffectedVerification: ReturnType<typeof makeRunAffectedVerification>;
   readonly verifyCheckSummary: typeof verifyCheckSummary;
@@ -80,7 +79,10 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
       currentTimeMillis: Clock.currentTimeMillis,
       epochMillisToIsoString,
       observeGitStatus,
-      readVerifyTargetPlan: readVerifyTargetPlanEffect,
+      readVerifyTargetPlan: readVerifyTargetPlanEffect({
+        nx: context.deps.nx,
+        rules: context.deps.rules,
+      }),
       resolveVerifyBase,
       runAffectedVerification,
       verifyCheckSummary,
@@ -92,18 +94,34 @@ function createCheckReport(options: CheckOptions, context: StructuralExecutionCo
   return createCheckReportEffect(options, context);
 }
 
+function epochMillisToIsoString(epochMillis: number): string {
+  return new Date(epochMillis).toISOString();
+}
+
 function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
   return {
     biome: deps.biome,
     commandRunner: deps.commandRunner,
     git: deps.git,
+    grit: deps.grit,
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
+    rules: deps.rules,
+    sourceFileSystem: {
+      isDirectory: deps.platform.isDirectory,
+      isFile: deps.platform.isFileEffect,
+      readDirectory: deps.platform.readDirectory,
+      readText: deps.platform.readText,
+    },
   };
 }
 
-function readVerifyTargetPlanEffect() {
-  return Effect.promise(() => readVerifyTargetPlan());
+function readVerifyTargetPlanEffect(input: {
+  readonly rules: HabitatServiceDeps["rules"];
+  readonly nx: NxProviderService;
+}) {
+  return () =>
+    input.nx.workspaceGraph().pipe(Effect.map((graph) => readVerifyTargetPlan(input.rules, graph)));
 }
 
 function makeCreateVerifyReceipt(context: {
