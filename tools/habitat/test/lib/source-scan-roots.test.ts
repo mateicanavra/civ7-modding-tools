@@ -8,11 +8,11 @@ describe("source-check scan root planning", () => {
         "packages/mapgen-core/src",
         "packages/mapgen-core",
         "./packages/mapgen-core/src/core",
-        ".habitat/tooling/components/legacy-source-check",
+        ".habitat/tooling/components/preserve_legacy_source_check_runtime_during_cutover",
         "tools/habitat/src",
       ])
     ).toEqual([
-      ".habitat/tooling/components/legacy-source-check",
+      ".habitat/tooling/components/preserve_legacy_source_check_runtime_during_cutover",
       "packages/mapgen-core",
       "tools/habitat/src",
     ]);

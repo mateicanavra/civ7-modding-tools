@@ -315,6 +315,7 @@ export function prePushHookSourceCheckPaths(
   context: HookProcedureContext,
   changedPaths: readonly string[]
 ): readonly string[] {
+  if (!hookSourceCheckEnabled(context)) return [];
   return stagedSourceCheckPaths(changedPaths, hookSourceCheckApprovedRoots(context), {
     repoRoot: context.platform.repoRoot,
   });
@@ -452,11 +453,9 @@ function continuePreCommitAfterBiome(
   state: PreCommitBiomeState
 ): PreCommitStep<PreCommitSourceCheckState> {
   const { context, staged } = state;
-  const sourceCheckPaths = hookSourceCheckPaths(
-    staged,
-    context.platform.repoRoot,
-    hookSourceCheckApprovedRoots(context)
-  );
+  const sourceCheckPaths = hookSourceCheckEnabled(context)
+    ? hookSourceCheckPaths(staged, context.platform.repoRoot, hookSourceCheckApprovedRoots(context))
+    : [];
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
 }
 
@@ -470,6 +469,10 @@ function hashRepoRelativeFile(
 function hookSourceCheckApprovedRoots(context: HookProcedureContext): string[] {
   const hookRuleIds = context.rules.hookCheck.map((rule) => rule.id);
   return approvedScanRootsForRules(factsForRuleIds(context.rules.source, hookRuleIds));
+}
+
+function hookSourceCheckEnabled(context: HookProcedureContext): boolean {
+  return context.rules.hookCheck.length > 0;
 }
 
 function spawnResultFromCheckReport(report: CheckReport): SpawnResult {

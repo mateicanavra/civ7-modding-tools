@@ -1,0 +1,16 @@
+{
+  "$comment": "Single source of truth for the habitat rule pack. H2 wrapped existing rules; later slices add owning-tool gates such as H3 enforce_workspace_import_boundaries and H4 format hygiene. Consumed by src/rules/architecture.ts (CLI, typed) and src/plugin.ts (workspace target inference). Field semantics: docs/projects/habitat-harness/ + openspec/changes/habitat-harness-scaffold/design.md. ownerProject = the workspace project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only (matching pre-harness enforcement reality). detect runs from the repo root unless cwd is set.",
+  "schemaVersion": 1,
+  "ownerRoots": {
+    "control-orpc": "packages/civ7-control-orpc",
+    "civ7-adapter": "packages/civ7-adapter",
+    "civ7-map-policy": "packages/civ7-map-policy",
+    "civ7-docs": "apps/docs",
+    "habitat": "tools/habitat",
+    "civ7-sdk": "packages/sdk",
+    "mapgen-core": "packages/mapgen-core",
+    "mapgen-studio": "apps/mapgen-studio",
+    "mod-intelligence-bridge": "mods/mod-civ7-intelligence-bridge",
+    "mod-swooper-maps": "mods/mod-swooper-maps"
+  }
+}

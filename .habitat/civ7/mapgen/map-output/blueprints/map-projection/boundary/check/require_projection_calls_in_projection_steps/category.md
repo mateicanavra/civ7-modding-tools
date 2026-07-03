@@ -1,0 +1,29 @@
+# Require Projection Calls In Projection Steps
+
+Subject ID: `require_projection_calls_in_projection_steps`
+
+Title: Require Projection Calls In Projection Steps
+
+Blueprint: `map-projection`
+
+Primary category: `boundary`
+
+Secondary categories: none
+
+Artifact kind: `check`
+
+Lifecycle: `steady`
+
+Admission: `admitted`
+
+Authority path: `.habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps`
+
+Files:
+- `require_projection_calls_in_projection_steps.baseline.json`
+- `require_projection_calls_in_projection_steps.check.mjs`
+- `require_projection_calls_in_projection_steps.rule.json`
+
+Evidence: The check pins adapter projection callsites to dedicated projection steps and prevents physics-stage direct reads.
+
+Notes:
+- none

@@ -27,11 +27,11 @@ describe("rule registry contract", () => {
     }).rules;
 
     expect(rules).toHaveLength(73);
-    expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(29);
+    expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(0);
     expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(36);
     expect(rules.filter((rule) => rule.ownerTool === "file-layer")).toHaveLength(5);
     expect(rules.filter((rule) => rule.ownerTool === "format-check")).toHaveLength(1);
-    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(1);
+    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(30);
     expect(rules.filter((rule) => rule.ownerTool === "nx")).toHaveLength(1);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
     expect(
@@ -46,11 +46,11 @@ describe("rule registry contract", () => {
     const registryDir = "/repo/.habitat";
     const fallbackIndex = path.join(
       registryDir,
-      "habitat/toolkit/_self/triage/rule-pack-index/index.json"
+      "habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json"
     );
     const rulePath = path.join(
       registryDir,
-      "global/repository/_self/check/sample-rule/sample-rule.rule.json"
+      "global/workspace/blueprints/project-boundary-model/structure/check/sample-rule/sample-rule.rule.json"
     );
     const fileSystem = virtualRegistryFileSystem({
       [fallbackIndex]: JSON.stringify({

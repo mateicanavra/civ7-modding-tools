@@ -276,7 +276,7 @@ function ruleRegistryIndexPath<R>(
     }
 
     const candidates = yield* findFiles(registryDir, fileSystem, (filePath) =>
-      filePath.endsWith("/rule-pack-index/index.json")
+      filePath.endsWith("/preserve_transitional_rule_pack_owner_roots/index.json")
     );
     if (candidates.length === 1) return candidates[0] as string;
     return yield* Effect.fail(
@@ -309,7 +309,7 @@ function ruleRegistryIndexPathSync(
   }
 
   const candidates = findFilesSync(registryDir, fileSystem, (filePath) =>
-    filePath.endsWith("/rule-pack-index/index.json")
+    filePath.endsWith("/preserve_transitional_rule_pack_owner_roots/index.json")
   );
   if (candidates.length === 1) return candidates[0] as string;
   throw new RuleRegistryLoadFailed({

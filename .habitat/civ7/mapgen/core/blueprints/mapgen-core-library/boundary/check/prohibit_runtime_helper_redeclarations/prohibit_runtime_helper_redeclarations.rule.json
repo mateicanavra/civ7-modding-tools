@@ -1,0 +1,34 @@
+{
+  "id": "prohibit_runtime_helper_redeclarations",
+  "title": "Prohibit Runtime Helper Redeclarations",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "runtime recipe steps and domain strategies",
+  "forbids": "runtime layers redeclaring shared clamp/range/roll helpers",
+  "why": "Shared deterministic helpers live in @swooper/mapgen-core.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Use shared helpers from @swooper/mapgen-core instead of redeclaring them.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_runtime_helper_redeclarations",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/**/stages/**/steps/**/*.ts",
+        "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
+      ]
+    }
+  ]
+}

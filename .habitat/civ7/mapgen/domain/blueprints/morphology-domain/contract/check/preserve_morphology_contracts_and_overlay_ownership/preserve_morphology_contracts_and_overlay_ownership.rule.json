@@ -1,0 +1,28 @@
+{
+  "id": "preserve_morphology_contracts_and_overlay_ownership",
+  "title": "Preserve Morphology Contracts And Overlay Ownership",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "morphology stage contracts, morphology stage implementations, map-hydrology migrated consumers, maps, and narrative hotspot producer ownership",
+  "forbids": "runtime continent ids, LandmassRegionId contracts, morphology dual reads, overlay leakage, legacy morphology imports/config keys, or legacy plate-driver dependencies",
+  "why": "Morphology contract surfaces are structural boundaries between physics stages, map projection, and narrative-owned overlays.",
+  "detect": [
+    ".habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/preserve_morphology_contracts_and_overlay_ownership/preserve_morphology_contracts_and_overlay_ownership.check.mjs"
+  ],
+  "remediate": null,
+  "message": "Route morphology data through canonical artifacts and keep overlay/effect ownership at its owning stage.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.ts"
+      ]
+    }
+  ]
+}

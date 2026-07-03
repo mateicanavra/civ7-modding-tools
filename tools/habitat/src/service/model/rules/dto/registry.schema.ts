@@ -3,6 +3,7 @@ import { type Static, Type } from "typebox";
 const RuleIdentitySchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
+    title: Type.Optional(Type.String({ minLength: 1 })),
     ownerProject: Type.String({ minLength: 1 }),
     ownerTool: Type.Union([
       Type.Literal("format-check"),

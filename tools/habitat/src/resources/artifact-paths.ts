@@ -4,7 +4,7 @@ export const habitatCacheRepoPath = `${habitatArtifactsRoot}/cache`;
 export const habitatCacheRepoPathPrefix = `${habitatCacheRepoPath}/`;
 
 export const ruleRegistryRepoPath = habitatArtifactsRoot;
-export const ruleRegistryIndexRepoPath = `${habitatArtifactsRoot}/habitat/toolkit/_self/triage/rule-pack-index/index.json`;
+export const ruleRegistryIndexRepoPath = `${habitatArtifactsRoot}/habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json`;
 export const baselinesRepoPath = `${habitatArtifactsRoot}/baselines`;
 
 export const patternRoot = `${habitatArtifactsRoot}/patterns`;

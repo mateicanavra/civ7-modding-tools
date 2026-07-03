@@ -11,12 +11,12 @@ import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("source-check rule execution", () => {
-  test("refuses native source rules without exact path coverage", async () => {
+  test("reports missing implementations for retired native source rules", async () => {
     const results = await Effect.runPromise(
       runSourceRulesEffect(
         [
           {
-            id: "adapter-base-standard-import",
+            id: "enforce_adapter_only_base_standard_imports",
             lane: "enforced",
             message: "test rule",
             patternName: "adapter_base_standard_import",
@@ -31,14 +31,15 @@ describe("source-check rule execution", () => {
       ).pipe(Effect.provide(NodeContext.layer))
     );
 
-    expect(results.get("adapter-base-standard-import")).toMatchObject({
+    expect(results.get("enforce_adapter_only_base_standard_imports")).toMatchObject({
       exitCode: 1,
       diagnostics: [
         {
-          ruleId: "adapter-base-standard-import",
-          path: ".habitat/tooling/components/legacy-source-check/rules/adapter-base-standard-import.rule.mjs",
-          message:
-            "Source-check rules must declare exact path coverage before native source execution.",
+          ruleId: "enforce_adapter_only_base_standard_imports",
+          path: ".habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs",
+          message: expect.stringContaining(
+            "No repo source-check implementation is registered for enforce_adapter_only_base_standard_imports."
+          ),
           severity: "error",
           baselined: false,
         },

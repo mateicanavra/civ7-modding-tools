@@ -67,7 +67,7 @@ describe("Habitat classify D4 result model", () => {
       projectRoot: "tools/habitat",
       tags: ["kind:tooling"],
     });
-    expect(result.ruleRouting.map((rule) => rule.ruleId)).toContain("adapter-boundary");
+    expect(result.ruleRouting.map((rule) => rule.ruleId)).toContain("block_unapproved_base_standard_boundary_leaks");
     expect(result.runnableTargets).toContainEqual(
       expect.objectContaining({
         command: "nx run habitat:check",
@@ -106,7 +106,7 @@ describe("Habitat classify D4 result model", () => {
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.ruleRouting).toContainEqual(
       expect.objectContaining({
-        ruleId: "runtime-validation-imports",
+        ruleId: "prohibit_runtime_validation_and_compiler_imports",
         coverageKind: "exact-path",
       })
     );
@@ -330,7 +330,7 @@ describe("Habitat classify public API", () => {
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.owner.project).toBe("habitat");
     expect(result.ruleRouting).toContainEqual(
-      expect.objectContaining({ ruleId: "adapter-boundary", coverageKind: "project-owner" })
+      expect.objectContaining({ ruleId: "block_unapproved_base_standard_boundary_leaks", coverageKind: "project-owner" })
     );
     expect(result.ruleRouting).toContainEqual(
       expect.objectContaining({ coverageKind: "workspace-gate" })

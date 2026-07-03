@@ -68,7 +68,7 @@ export function selectRules(
   const selected = selectedRuleIds
     .map((ruleId) => registry.find((rule) => rule.id === ruleId))
     .filter((rule): rule is RegistryRuleSelectorFacts => Boolean(rule));
-  if (facts.length > 0 && selected.length === 0) {
+  if (facts.length > 0 && selected.length === 0 && !isKnownEmptyToolSelection(facts)) {
     return {
       ok: false,
       requested: selection,
@@ -138,10 +138,33 @@ function selectorFact(
   return {
     kind,
     requestedValue,
-    known: matchingRuleIds.length > 0,
+    known: matchingRuleIds.length > 0 || isKnownToolSelector(kind, requestedValue),
     matchedNamespace,
     matchingRuleIds,
   };
+}
+
+const knownToolSelectors = new Set([
+  "command-check",
+  "file-layer",
+  "format-check",
+  "grit-check",
+  "habitat",
+  "nx",
+  "source-check",
+]);
+
+function isKnownToolSelector(kind: RuleSelectorKind, value: string): boolean {
+  return kind === "tool" && knownToolSelectors.has(value);
+}
+
+function isKnownEmptyToolSelection(facts: readonly RuleSelectorFact[]): boolean {
+  return (
+    facts.length === 1 &&
+    facts[0]?.kind === "tool" &&
+    facts[0].known &&
+    facts[0].matchingRuleIds.length === 0
+  );
 }
 
 function matchingRulesForKind(
