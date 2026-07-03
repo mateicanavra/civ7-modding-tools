@@ -1,0 +1,36 @@
+{
+  "id": "prohibit_hydrology_climate_intervention_tokens",
+  "title": "Prohibit Hydrology Climate Intervention Tokens",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "hydrology domain and standard hydrology stages",
+  "forbids": "climate.swatches and climate.story authored in hydrology surfaces",
+  "why": "Narrative intervention tokens do not belong in hydrology domain or hydrology runtime stage authority.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not author narrative climate intervention tokens in hydrology.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_hydrology_climate_intervention_tokens",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/hydrology",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/hydrology/**",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-*"
+      ]
+    }
+  ]
+}

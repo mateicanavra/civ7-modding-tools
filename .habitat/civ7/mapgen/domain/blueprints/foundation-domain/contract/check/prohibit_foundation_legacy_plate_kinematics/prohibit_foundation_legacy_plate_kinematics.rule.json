@@ -1,0 +1,32 @@
+{
+  "id": "prohibit_foundation_legacy_plate_kinematics",
+  "title": "Prohibit Foundation Legacy Plate Kinematics",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "compute-plate-graph contract",
+  "forbids": "legacy velocityX, velocityY, and rotation contract fields",
+  "why": "Plate graph contracts must use the decomposed plate-motion surface.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Remove legacy plate kinematics fields from compute-plate-graph contracts.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_foundation_legacy_plate_kinematics",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts"
+      ]
+    }
+  ]
+}

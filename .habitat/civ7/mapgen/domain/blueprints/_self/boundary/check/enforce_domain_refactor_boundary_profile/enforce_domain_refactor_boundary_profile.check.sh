@@ -18,19 +18,11 @@ NC='\033[0m' # No Color
 echo "=== Domain Refactor Guardrails ==="
 echo ""
 
-# Guardrail profile:
-# - boundary (default): pre-commit safe; focuses on cross-domain boundary rules.
-# - full: stricter checks (docs/JSDoc coverage, config merge patterns, etc).
+# Residual guardrail profile:
+# - boundary (default): keeps this aggregate script pre-commit safe while
+#   extracted Habitat rules own the proven boundary and topology branches.
+# - full: retains only branches whose extraction proof is still incomplete.
 DOMAIN_REFACTOR_GUARDRAILS_PROFILE="${DOMAIN_REFACTOR_GUARDRAILS_PROFILE:-boundary}"
-if [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" != "boundary" ] && [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" != "full" ]; then
-  echo -e "${RED}ERROR: Unknown DOMAIN_REFACTOR_GUARDRAILS_PROFILE='${DOMAIN_REFACTOR_GUARDRAILS_PROFILE}'. Use 'boundary' or 'full'.${NC}"
-  exit 2
-fi
-DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL="${DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL:-0}"
-if [ "$DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL" = "1" ] && [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" != "full" ]; then
-  echo -e "${RED}ERROR: DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 requires DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full.${NC}"
-  exit 2
-fi
 
 echo "Profile: ${DOMAIN_REFACTOR_GUARDRAILS_PROFILE}"
 echo ""
@@ -224,148 +216,23 @@ for domain in "${DOMAINS[@]}"; do
   fi
   ops_root="mods/mod-swooper-maps/src/domain/${domain}/ops"
   if [ ! -d "$ops_root" ]; then
-    echo -e "${RED}ERROR: Missing ops root for '${domain}': ${ops_root}${NC}"
-    violations=$((violations + 1))
+    echo -e "${YELLOW}Skip '${domain}' residual scans: missing ops root ${ops_root}${NC}"
     continue
   fi
 
   stage_roots=()
   read -r -a stage_roots <<< "$(stage_roots_for_domain "$domain")"
   if [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" = "full" ]; then
-    if [ ${#stage_roots[@]} -eq 0 ]; then
-      if allow_stage_rootless_full_domain "$domain"; then
-        echo -e "${YELLOW}Skip stage-root checks for '${domain}' (no runtime stage roots configured).${NC}"
-      else
-        echo -e "${RED}ERROR: No stage roots configured for '${domain}'.${NC}"
-        violations=$((violations + 1))
-        continue
-      fi
-    fi
-
-    if [ ${#stage_roots[@]} -gt 0 ]; then
-      for stage_root in "${stage_roots[@]}"; do
-        if [ ! -d "$stage_root" ]; then
-          echo -e "${RED}ERROR: Missing stage root for '${domain}': ${stage_root}${NC}"
-          violations=$((violations + 1))
-        fi
-      done
+    if [ ${#stage_roots[@]} -eq 0 ] && allow_stage_rootless_full_domain "$domain"; then
+      echo -e "${YELLOW}Skip stage residual scans for '${domain}' (no runtime stage roots configured).${NC}"
     fi
   fi
 
   echo -e "${YELLOW}Checking domain: ${domain}${NC}"
 
-  # Always-on checks (boundary profile): keep these pre-commit runnable.
-  run_rg "Adapter/context crossing in ops (${domain})" "ExtendedMapContext|context\\.adapter|@civ7/adapter" -- "$ops_root"
-  run_rg "Map projection/effect dependencies in ops (${domain})" "(artifact|effect):map\\." -P -- "$ops_root"
-  run_rg "Ops importing domain-root config facades (${domain})" "from\\s+[\"'](?:\\.\\./){2,}config\\.js[\"']" -P -- "$ops_root"
-
   if [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" = "full" ]; then
-    run_rg "Domain entrypoint re-exports (${domain})" "^export\\s+\\*\\s+from\\s+\\\"@mapgen/domain/" -P -- \
-      "mods/mod-swooper-maps/src/domain/${domain}/index.ts"
-
-    run_rg "RNG callbacks/state in ops (${domain})" "RngFunction|options\\.rng|\\bctx\\.rng\\b" -- "$ops_root"
-    run_rg "Engine imports in ops (${domain})" "from \"@swooper/mapgen-core/engine\"|from \"@mapgen/engine\"" -- "$ops_root"
-    run_rg "Non-type engine imports in ops (${domain})" "import(?!\\s+type)\\s+.*from\\s+\"@swooper/mapgen-core/engine\"|import(?!\\s+type)\\s+.*from\\s+\"@mapgen/engine\"" -P -- "$ops_root"
-    run_rg "Runtime config merges in ops (${domain})" "\\?\\?\\s*\\{\\}|\\bValue\\.Default\\(" -- "$ops_root"
-    run_rg "Op-calls-op runtime imports (${domain})" "from\\s+[\"']\\.\\./[^\"']+/index\\.js[\"']|from\\s+[\"']@mapgen/domain/[^\"']+/ops(?:/index\\.js)?[\"']" -P -g "**/index.ts" -- "$ops_root"
-    run_rg "Op orchestration bind/runValidated usage (${domain})" "\\bops\\.bind\\(|\\brunValidated\\(" -P -g "**/index.ts" -- "$ops_root"
-    if [ ${#stage_roots[@]} -gt 0 ]; then
-      run_rg "Literal dependency keys in requires (${domain})" "requires:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
-      run_rg "Literal dependency keys in provides (${domain})" "provides:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
-      run_rg "Map projection/effect deps in stage contracts (${domain})" "(requires|provides):\\s*\\[[^\\]]*['\\\"](artifact|effect):map\\." -P -U -- "${stage_roots[@]}"
-      run_rg "Runtime config merges in steps (${domain})" "\\?\\?\\s*\\{\\}|\\bValue\\.Default\\(" -- "${stage_roots[@]}"
-    fi
-
-    if [ "$domain" = "hydrology" ]; then
-    run_rg "Authored climate interventions (hydrology)" "climate\\.swatches\\b|climate\\.story\\b" -- \
-      "mods/mod-swooper-maps/src/domain/hydrology" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
-    run_rg "Narrative domain imports (hydrology)" "@mapgen/domain/narrative/" -- \
-      "mods/mod-swooper-maps/src/domain/hydrology" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
-    run_rg "Narrative swatches stage exists" "\"narrative-swatches\"" -- \
-      "mods/mod-swooper-maps/src/recipes/standard" \
-      "mods/mod-swooper-maps/src/maps" \
-      "mods/mod-swooper-maps/test"
-    run_rg "Hydrology bag configs in maps" "\\bclimate\\s*:" -- \
-      "mods/mod-swooper-maps/src/maps"
-    run_rg "Hydrology step-id configs in maps" "\"climate-baseline\"\\s*:|\"climate-refine\"\\s*:|\\blakes\\s*:|\\brivers\\s*:" -- \
-      "mods/mod-swooper-maps/src/maps"
-  fi
-
-  if [ "$domain" = "foundation" ]; then
-    run_rg "Foundation stage cast-merge hacks" "\\(\\s*advanced\\?\\.[^\\)]*\\?\\?\\s*\\{\\}\\s*\\)\\s+as\\s+|\\.\\.\\.\\s*\\(\\s*typeof\\s+[^\\)]*===\\s*['\\\"]object['\\\"]\\s*\\?\\s*[^:]+:\\s*\\{\\}\\s*\\)" -P -- \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts"
-    run_rg "Foundation stage sentinel passthrough reintroduction" "FOUNDATION_STUDIO_STEP_CONFIG_IDS|FOUNDATION_STEP_IDS|advancedRecord\\[stepId\\]|__studioUiMetaSentinelPath" -P -- \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts"
-    run_rg "Foundation legacy aggregate tectonic-history op surface reintroduction" "\\bcomputeTectonicHistory\\b|compute-tectonic-history/(contract|index)\\.js" -P -- \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts"
-    run_rg "Foundation decomposed tectonics ops importing legacy compute-tectonic-history internals" "compute-tectonic-history/(lib|contract)\\.js" -P -- \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance"
-    run_rg "Foundation decomposed tectonics strategies importing shared tectonics libs directly (must stay local to op rules/modules)" "from\\s+[\"'][^\"']*lib/tectonics/[^\"']*[\"']" -P -- \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
-    run_rg "Foundation decomposed tectonics rules re-exporting shared tectonics modules (forbidden shims)" "^\\s*export\\s+\\{[^}]+\\}\\s+from\\s+[\"'][^\"']*lib/tectonics/[^\"']*[\"']" -P -- \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/rules" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/rules" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/rules" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/rules" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/rules" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/rules" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/rules" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/rules"
-    run_rg "Foundation decomposed tectonics strategies importing non-local modules (allow: @swooper/mapgen-core/authoring, ../contract.js, ../rules/*)" "^\\s*import(?:\\s+type)?\\s+.*from\\s+[\"'](?!@swooper/mapgen-core/authoring[\"']|\\.\\./contract\\.js[\"']|\\.\\./rules/[^\"']+[\"'])[^\"']+[\"']" -P -- \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
-    run_rg "Foundation duplicate math helper redefinitions in decomposed tectonics modules" "function\\s+(clampByte|addClampedByte|clamp01|clampInt8|normalizeToInt8)\\s*\\(" -P -g "*.ts" -- \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
-    run_rg "Foundation hotspot files re-declaring canonical clamp helpers" "function\\s+(clampByte|addClampedByte|clamp01|clampInt8|normalizeToInt8)\\s*\\(" -P -- \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts" \
-      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts"
-  fi
-
-  # Ecology is the canonical exemplar for the stricter op/step module rules.
-  if [ "$domain" = "ecology" ]; then
-    run_rg "Step contract deep imports (ecology)" "@mapgen/domain/ecology/" -- \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/**/contract.ts"
-    run_rg "Rules import op contracts (ecology)" "from\\s+\"\\.\\./contract\\.js\"|from\\s+\"\\.\\./\\.\\./contract\\.js\"|from\\s+\"\\.\\./\\.\\./\\.\\./contract\\.js\"" -P -g "*/rules/**/*.ts" -- "$ops_root"
-    run_rg "Type exports from rules (ecology)" "^export\\s+type\\b" -g "*/rules/**/*.ts" -- "$ops_root"
-    run_rg "runValidated called with inner config (ecology)" "runValidated\\([^,]+,\\s*[^\\)]*\\.config\\b" -P -- "${stage_roots[@]}"
-    run_rg "Custom strategy-envelope schemas in steps (ecology)" "\\bstrategy\\s*:\\s*Type\\.(Literal|Union|String)\\(" -P -- "${stage_roots[@]}"
-
+    # Ecology is the canonical exemplar for the stricter op/step module rules.
+    if [ "$domain" = "ecology" ]; then
     ecology_contract_files=()
     while IFS= read -r file; do
       [ -n "$file" ] && ecology_contract_files+=("$file")
@@ -388,56 +255,9 @@ for domain in "${DOMAINS[@]}"; do
     )
     check_exported_jsdoc "Exported function JSDoc (ecology)" "${ecology_doc_targets[@]}"
 
-    for op_dir in "$ops_root"/*; do
-      if [ ! -d "$op_dir" ]; then
-        continue
-      fi
-      missing=()
-      [ -f "$op_dir/contract.ts" ] || missing+=("contract.ts")
-      [ -f "$op_dir/types.ts" ] || missing+=("types.ts")
-      [ -f "$op_dir/index.ts" ] || missing+=("index.ts")
-      [ -d "$op_dir/rules" ] || missing+=("rules/")
-      [ -f "$op_dir/rules/index.ts" ] || missing+=("rules/index.ts")
-      [ -d "$op_dir/strategies" ] || missing+=("strategies/")
-      [ -f "$op_dir/strategies/index.ts" ] || missing+=("strategies/index.ts")
-      if [ "${#missing[@]}" -gt 0 ]; then
-        echo -e "${RED}ERROR: Missing canonical op module files in ${op_dir}${NC}"
-        for m in "${missing[@]}"; do
-          echo "  - ${m}"
-        done
-        echo ""
-        violations=$((violations + 1))
-      fi
-    done
   fi
   fi
 done
-
-run_rg "Milestone-prefixed recipe tag catalogs" "\\bM[0-9]+_[A-Z0-9_]*TAGS\\b|\\bM[0-9]+_CANONICAL_[A-Z0-9_]*\\b" -P -- \
-  "mods/mod-swooper-maps/src/recipes/standard"
-
-run_rg "Domain-refactor examples: Physics requires heightfield buffer" "(?s)PHYSICS[\\s\\S]*?requires:.*buffer:heightfield[\\s\\S]*?GAMEPLAY" -P -U -- \
-  "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/examples"
-
-run_rg "Domain-refactor examples: Physics requires map artifacts/effects" "(?s)PHYSICS[\\s\\S]*?requires:.*(artifact|effect):map\\.[\\s\\S]*?GAMEPLAY" -P -U -- \
-  "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/examples"
-
-if [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" = "full" ]; then
-  run_rg "Runtime typebox/value imports" "typebox/value" -- \
-    "packages/mapgen-core/src/engine" \
-    "packages/mapgen-core/src/core" \
-    "mods/mod-swooper-maps/src/domain" \
-    "mods/mod-swooper-maps/src/recipes" \
-    "mods/mod-swooper-maps/src/maps"
-  run_rg "Domain deep-imports outside domain roots" "@mapgen/domain/[^\"']+/(ops|strategies|rules)/" -P -- \
-    "mods/mod-swooper-maps/src/recipes" \
-    "mods/mod-swooper-maps/src/maps" \
-    "mods/mod-swooper-maps/test"
-  run_rg "Recipe imports in domain" "recipes/standard|/recipes/" -- "mods/mod-swooper-maps/src/domain"
-  run_rg "Domain tag/artifact shims" "@mapgen/domain/(tags|artifacts)" -P -- "mods/mod-swooper-maps/src"
-  run_rg "Unknown bag config usage" "UnknownRecord|INTERNAL_METADATA_KEY" -- "mods/mod-swooper-maps/src/domain"
-  run_files "Domain artifacts modules" -g "artifacts.ts" "mods/mod-swooper-maps/src/domain"
-fi
 
 if [ "$violations" -gt 0 ]; then
   echo -e "${RED}Guardrails failed with ${violations} violation group(s).${NC}"

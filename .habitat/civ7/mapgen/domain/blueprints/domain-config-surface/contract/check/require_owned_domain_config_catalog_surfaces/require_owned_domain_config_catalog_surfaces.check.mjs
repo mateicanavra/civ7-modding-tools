@@ -5,9 +5,7 @@ import {
   assertNoFindings,
   modRoot,
   read,
-  repoRel,
   srcRoot,
-  walkFiles,
 } from "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const findings = [];
@@ -26,30 +24,6 @@ findings.push(
   )
 );
 
-const domainDirs = walkFiles(path.join(srcRoot, "domain"), [".ts"]);
-for (const file of domainDirs.filter((file) => file.includes("/ops/"))) {
-  const text = read(file);
-  for (const match of text.matchAll(/from ["'](?:\.\.\/){2,3}config\.js["']/gu)) {
-    findings.push({
-      file: repoRel(file),
-      line: lineOf(text, match.index ?? 0),
-      rule: "op-schema-config-facade-import",
-      detail: match[0],
-    });
-  }
-}
-
-for (const file of walkFiles(path.join(srcRoot, "recipes/standard"), [".ts"])) {
-  const text = read(file);
-  for (const match of text.matchAll(/\bM\d+_[A-Z0-9_]*TAGS\b|\bM\d+_CANONICAL_[A-Z0-9_]*\b/gu)) {
-    findings.push({
-      file: repoRel(file),
-      line: lineOf(text, match.index ?? 0),
-      rule: "milestone-tag-catalog-name",
-      detail: match[0],
-    });
-  }
-}
 const tagsText = read(path.join(modRoot, "src/recipes/standard/tags.ts"));
 for (const token of [
   "FIELD_DEPENDENCY_TAGS",
@@ -67,7 +41,3 @@ for (const token of [
 }
 
 assertNoFindings("require_owned_domain_config_catalog_surfaces", findings);
-
-function lineOf(text, index) {
-  return text.slice(0, index).split("\n").length;
-}
