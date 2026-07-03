@@ -34,11 +34,11 @@ bunx knip --no-progress --no-exit-code --reporter compact --include files,export
 
 ## Raw Relevant Findings
 
-Scoped local report:
+Scoped local report after Slice 1 shell deletion:
 
 ```text
-Unused files (66)
-Unused exports (68)
+Unused files (64)
+Unused exports (65)
 Unused exported types (101)
 ```
 
@@ -46,8 +46,6 @@ Narrative-specific scoped hits:
 
 ```text
 Unused files:
-mods/mod-swooper-maps/src/domain/narrative/ops.ts
-mods/mod-swooper-maps/src/domain/narrative/ops/index.ts
 mods/mod-swooper-maps/src/domain/narrative/tagging/hotspots.ts
 mods/mod-swooper-maps/src/domain/narrative/tagging/index.ts
 mods/mod-swooper-maps/src/domain/narrative/tagging/margins.ts
@@ -61,9 +59,6 @@ mods/mod-swooper-maps/src/domain/narrative/corridors/config.ts: SeaCorridorPolic
 mods/mod-swooper-maps/src/domain/narrative/corridors/runtime.ts: isCoastalLand, isWaterAt
 mods/mod-swooper-maps/src/domain/narrative/corridors/sea-lanes.ts: hasPerpWidth, longestWaterRunColumn, longestWaterRunRow, longestWaterRunDiagSum, longestWaterRunDiagDiff
 mods/mod-swooper-maps/src/domain/narrative/corridors/style-cache.ts: fetchCorridorStylePrimitive
-mods/mod-swooper-maps/src/domain/narrative/index.ts: default
-mods/mod-swooper-maps/src/domain/narrative/ops/contracts.ts: contracts
-mods/mod-swooper-maps/src/domain/narrative/orogeny/wind.ts: zonalWindStep
 mods/mod-swooper-maps/src/domain/narrative/overlays/index.ts: default
 
 Unused exported types:
@@ -82,7 +77,8 @@ binding and Habitat manifests provide entry surfaces KNIP did not model.
 
 KNIP supports these claims:
 
-- narrative ops are not reached by the current workspace entry model;
+- narrative ops were not reached by the current workspace entry model and were
+  deleted in Slice 1;
 - tagging helpers are especially stale because no current production or test
   caller reaches them;
 - root narrative/default and config exports are public-surface collars, not
@@ -90,13 +86,19 @@ KNIP supports these claims:
 - KNIP alone is insufficient deletion proof for Habitat rules, placement ops,
   or other repo-specific execution surfaces.
 
-The strongest deletion candidates are:
+The empty shell and unused wind helper were deleted in Slice 1:
 
 - `domain/narrative/ops.ts`;
 - `domain/narrative/ops/index.ts`;
 - `domain/narrative/ops/contracts.ts`;
+- `domain/narrative/orogeny/wind.ts`.
+
+The remaining strongest story-network deletion candidates are:
+
 - `domain/narrative/tagging/**`;
-- `domain/narrative/utils/latitude.ts` if tagging/rifts are deleted.
+- `domain/narrative/utils/latitude.ts` with tagging/rifts;
+- the test-live corridor, orogeny, overlay, config, and helper network assigned
+  to Slice 3 deletion by the disposition table.
 
 The broader narrative source network is test-live through story tests, but the
 tests exercise legacy/story behavior rather than current standard recipe wiring.

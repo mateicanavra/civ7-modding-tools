@@ -2,7 +2,7 @@
 
 Status: source corpus artifact
 
-Expanded source corpus: 36 files under
+Expanded source corpus after Slice 1 shell deletion: 32 files under
 `mods/mod-swooper-maps/src/domain/narrative/**`.
 
 ## Evidence Summary
@@ -16,6 +16,7 @@ Expanded source corpus: 36 files under
   narrative.
 - No production TypeScript caller outside `domain/narrative/**` was found for
   narrative behavior exports.
+- Slice 1 removed the empty `ops` shell and unused `orogeny/wind.ts` helper.
 - Current story tests import and call narrative surfaces under
   `mods/mod-swooper-maps/test/story/**`.
 
@@ -42,10 +43,10 @@ Expanded source corpus: 36 files under
 
 | Path | Current role | Exported symbols | External importers/callers found | Evidence tag |
 | --- | --- | --- | --- | --- |
-| `mods/mod-swooper-maps/src/domain/narrative/index.ts` | Root narrative facade | default `domain`; corridor/orogeny/overlay exports | `domain/index.ts`; story tests through package alias | public-collar-only; test-live |
-| `mods/mod-swooper-maps/src/domain/narrative/ops.ts` | Runtime domain binding | default `createDomain(...)` | No standard recipe import found | empty-domain-shell |
-| `mods/mod-swooper-maps/src/domain/narrative/ops/contracts.ts` | Empty op contracts | `contracts`; default | Internal only | empty-domain-shell |
-| `mods/mod-swooper-maps/src/domain/narrative/ops/index.ts` | Empty op implementations | default `implementations` | Internal only | empty-domain-shell |
+| `mods/mod-swooper-maps/src/domain/narrative/index.ts` | Root narrative facade after Slice 1 shell deletion | corridor/orogeny/overlay exports | `domain/index.ts`; story tests through package alias | public-collar-only; test-live |
+| `mods/mod-swooper-maps/src/domain/narrative/ops.ts` | Deleted in Slice 1 | none | No standard recipe import found | empty-domain-shell-deleted |
+| `mods/mod-swooper-maps/src/domain/narrative/ops/contracts.ts` | Deleted in Slice 1 | none | Internal only before deletion | empty-domain-shell-deleted |
+| `mods/mod-swooper-maps/src/domain/narrative/ops/index.ts` | Deleted in Slice 1 | none | Internal only before deletion | empty-domain-shell-deleted |
 | `mods/mod-swooper-maps/src/domain/narrative/config.ts` | Root story config aggregate | `NarrativeConfigSchema`; `StoryConfig`; subconfig exports | `domain/config.ts`; test imports direct corridor schema through this path | public-collar-only; test-live |
 | `mods/mod-swooper-maps/src/domain/narrative/models.ts` | Story motif/corridor model types | motif and corridor interfaces | Internal only | internal-composition-live |
 | `mods/mod-swooper-maps/src/domain/narrative/overlays/keys.ts` | Overlay key constants | `STORY_OVERLAY_KEYS`; `StoryOverlayKey` | Root story tests through facade | test-live |
@@ -75,9 +76,9 @@ Expanded source corpus: 36 files under
 | `mods/mod-swooper-maps/src/domain/narrative/corridors/index.ts` | Strategic corridor entry and overlay publisher | `storyTagStrategicCorridors`; result/input types | Root facade; story corridor test | test-live |
 | `mods/mod-swooper-maps/src/domain/narrative/orogeny/config.ts` | Orogeny tunables schema | `OrogenyTunablesSchema`; `OrogenyTunables` | Root config facade; internal orogeny | behavior-bearing-no-prod-caller |
 | `mods/mod-swooper-maps/src/domain/narrative/orogeny/cache.ts` | Orogeny cache keyed by context | `OrogenyCacheInstance`; `getOrogenyCache` | Internal through belts; broad public sub-barrel | module-cache-evidence |
-| `mods/mod-swooper-maps/src/domain/narrative/orogeny/wind.ts` | Zonal wind helper | `zonalWindStep` | Broad public sub-barrel; no caller found; KNIP unused export | possible-unused-helper |
+| `mods/mod-swooper-maps/src/domain/narrative/orogeny/wind.ts` | Deleted in Slice 1 | none | Broad public sub-barrel before deletion; no caller found; KNIP unused export | possible-unused-helper-deleted |
 | `mods/mod-swooper-maps/src/domain/narrative/orogeny/belts.ts` | Orogeny belt motif generator and overlay publisher | `OrogenySummary`; `storyTagOrogenyBelts` | Root facade; story orogeny test | test-live |
-| `mods/mod-swooper-maps/src/domain/narrative/orogeny/index.ts` | Orogeny wildcard barrel | `belts`, `cache`, `wind` wildcard exports | Root facade | broad sub-barrel |
+| `mods/mod-swooper-maps/src/domain/narrative/orogeny/index.ts` | Orogeny wildcard barrel after Slice 1 wind deletion | `belts`, `cache` wildcard exports | Root facade | broad sub-barrel |
 
 ## Evidence Tags
 
@@ -87,9 +88,9 @@ Expanded source corpus: 36 files under
 | public-collar-only | Publicly exported by a barrel, with no production caller found. |
 | behavior-bearing-no-prod-caller | Implements story behavior, usually overlay publication, with no production recipe/stage caller found. |
 | internal-composition-live | Supports test-live or public behavior through internal imports. |
-| empty-domain-shell | Domain contract/implementation binding has no ops and is absent from standard recipe. |
-| module-cache-evidence | Uses module-level or context-keyed cache material relevant to story-artifact ownership. |
-| possible-unused-helper | Exported helper with no current caller found. |
+| empty-domain-shell-deleted | Domain contract/implementation binding had no ops, was absent from the standard recipe, and was deleted in Slice 1. |
+| module-cache-evidence | Uses module-level or context-keyed cache material inside the retired story network. |
+| possible-unused-helper-deleted | Exported helper with no caller found and deleted in Slice 1. |
 | placement-name-collar | Current placement source mentions Civ7 narrative-system concepts while remaining owned by placement/adapter law. |
 | hydrology-name-collar | Current hydrology source mentions Narrative as a consumer/bias target while remaining owned by hydrology stage/artifact law. |
 | runtime-name-collar | Runtime/control code uses Civ7 narrative UI terminology while remaining outside the MapGen narrative-domain source network. |

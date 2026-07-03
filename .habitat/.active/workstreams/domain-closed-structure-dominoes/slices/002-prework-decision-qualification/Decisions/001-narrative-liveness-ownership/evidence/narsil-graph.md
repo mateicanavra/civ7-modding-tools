@@ -22,9 +22,14 @@ mcp__narsil_code_intel_civ7.get_callers(repo="civ7-modding-tools", function="pub
 
 ## Raw Returned Evidence
 
+The `defineDomain` and `orogeny/wind.ts` evidence below was captured before
+Slice 1 removed the empty narrative shell and unused wind helper. It remains
+historical justification for the deletion, not a statement that those surfaces
+still exist after Slice 1.
+
 | Symbol | References returned | Callers returned |
 | --- | --- | --- |
-| `defineDomain` | `mods/mod-swooper-maps/src/domain/narrative/index.ts` defines `defineDomain({ id: "narrative", ops })`; indexed docs include prior architecture review rows describing narrative as dead code with zero recipe wiring and empty ops. | Not queried as a recipe liveness target. |
+| `defineDomain` | Pre-Slice 1, `mods/mod-swooper-maps/src/domain/narrative/index.ts` defined `defineDomain({ id: "narrative", ops })`; indexed docs include prior architecture review rows describing narrative as dead code with zero recipe wiring and empty ops. | Not queried as a recipe liveness target. |
 | `storyTagStrategicCorridors` | Archived JS, docs, `mods/mod-swooper-maps/test/story/corridors.test.ts`, `mods/mod-swooper-maps/src/domain/narrative/corridors/index.ts`, and root narrative facade. | Only transitive caller returned was archived original JS `generateMap`; current TypeScript callers are tests/re-exports, corroborated by `rg`. |
 | `storyTagOrogenyBelts` | Archived JS, docs, `mods/mod-swooper-maps/test/story/orogeny.test.ts`, `mods/mod-swooper-maps/src/domain/narrative/orogeny/belts.ts`, and root narrative facade. | Only transitive caller returned was archived original JS `generateMap`; current TypeScript caller is test/re-export. |
 | `publishStoryOverlay` | Current TypeScript references are narrative internals and story tests, plus docs/Habitat evidence. | Callers are narrative internals plus archived JS; no current standard recipe stage caller returned. |
@@ -34,7 +39,7 @@ mcp__narsil_code_intel_civ7.get_callers(repo="civ7-modding-tools", function="pub
 
 | Symbol | Decision implication |
 | --- | --- |
-| `defineDomain` | Narrative has a domain shell, while current source/docs indicate no recipe binding. |
+| `defineDomain` | Narrative had a domain shell before Slice 1, while source/docs indicated no recipe binding. |
 | `storyTagStrategicCorridors` | Current production recipe does not call this behavior. |
 | `storyTagOrogenyBelts` | Current production recipe does not call this behavior. |
 | `publishStoryOverlay` | Overlay publication is internal to the narrative source network and tests. |
