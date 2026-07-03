@@ -24,7 +24,7 @@ execution from the current packet directory grammar.
 
 1. Direct current user instructions.
 2. Root `AGENTS.md` and repo process docs.
-3. `.habitat/FRAME.md` and `.habitat/dominoes.md`.
+3. `.habitat/.active/frames/FRAME.md` and `.habitat/.active/dominoes/README.md`.
 4. Current Habitat code/tests as evidence.
 5. OpenSpec records as downstream implementation-control artifacts.
 

@@ -1,0 +1,31 @@
+# Domino 039: Gather The Dependency-Tag Blueprint Kind
+
+Status: active sequence record
+
+Source: extracted from the former monolithic domino ledger.
+
+## Indexed Result
+
+`dependency-tag` was affirmed as the constructible/governable kind for registered dependency-edge IDs. The whole-rule typed `requires`/`provides` constant guard moved to `.habitat/blueprints/dependency-tag/`; touched effect-tag, tag-catalog, projection-contract, config-surface, and artifact-contract labels were rejected as sibling blueprints for this slice, while context/projection/config/artifact-value rows stayed in their honest lanes.
+
+## Detail
+
+#### Domino 39 Disposition Receipt
+
+This table is a receipt for physical sorting, not a second authority surface.
+`dependency-tag` is now an affirmed blueprint lane for MapGen dependency-edge
+IDs. The slice moved only the row whose whole predicate governs dependency-tag
+usage in `requires` and `provides`; touched rows that merely mention tags stay
+in their current lanes until a later artifact, projection, config, or cleanup
+slice can own them honestly.
+
+| Rule id | Start path | Signals | Bucket | Target path | Whole-rule reason | Proof run | Next trigger |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `require_typed_dependency_and_effect_tag_constants` | `.habitat/blueprints/recipe-step/require_typed_dependency_and_effect_tag_constants` | `requires`/`provides`; string literal `artifact:*`, `field:*`, and `effect:*` dependency keys; Grit proof | affirmed dependency-tag blueprint | `.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants` | The row forbids raw dependency-edge strings inside top-level step contract `requires` and `provides`. It governs dependency-tag use as a kind of edge ID, while preserving the artifact-contract-reference exception for artifact value authority. | selected-rule proof passed; path refs repaired | Generalize if dependency-tag rules later cover non-standard recipes or registry registration directly. |
+| `prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names` | tag catalog naming; `field:*`; `effect:*` | retained honest standard-recipe context | unchanged | The row governs current standard-recipe catalog variable names, not dependency-tag validity across every tag definition. `tag-catalog` was rejected as a sibling blueprint in this slice. | no-move review; selected-rule proof not required | Revisit if catalog-file grammar becomes a dependency-tag blueprint rule instead of standard-recipe currentness. |
+| `require_standard_recipe_map_effect_name_suffixes` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes` | `effect:map.*` suffix grammar in `tag-contracts.ts` | retained honest standard-recipe context | unchanged | The row governs current map-effect suffix families for the standard recipe. `effect:*` is a dependency-tag kind, but this predicate is current projection/tag-contract naming, not universal dependency-tag authority. | no-move review; selected-rule proof not required | Revisit if map effect naming becomes a positive dependency-tag naming rule or projection surface rule. |
+| `prohibit_migrated_consumer_effect_gating_tokens` | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_migrated_consumer_effect_gating_tokens` | retired effect gates and one migrated lakes contract | retained honest standard-recipe context | unchanged | The row is exact migration/currentness pressure around one standard-recipe consumer contract, not dependency-tag kind governance. | no-move review; selected-rule proof not required | Revisit during cleanup or if retired effect gates are replaced by a positive dependency-tag lifecycle rule. |
+| `prohibit_legacy_morphology_effect_gating_tokens` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_morphology_effect_gating_tokens` | retired effect gates in morphology stages and standard tags | retained `_remainder` cleanup pressure | unchanged | The row is a negative migration cleanup guard for retired effect tokens. Moving it would turn concrete cutover history into blueprint authority. `effect-tag` was rejected as a sibling blueprint. | no-move review; selected-rule proof not required | Revisit during garbage collection or when positive dependency-tag lifecycle/deprecation rules exist. |
+| `prohibit_realized_map_artifact_tags` | `.habitat/civ7/mapgen/map-output/_remainder/prohibit_realized_map_artifact_tags` | `artifact:map.realized.` namespace across mod and core source | retained `_remainder` projection/artifact pressure | unchanged | The row is unresolved realized-map truth/projection boundary pressure, not dependency-tag governance. `projection-contract` and `artifact-contract` were rejected as sibling blueprints in this slice. | no-move review; selected-rule proof not required | Revisit in artifact gathering or projection-surface/garbage decision. |
+| `require_owned_domain_config_catalog_surfaces` | `.habitat/civ7/mapgen/domains/morphology/_remainder/require_owned_domain_config_catalog_surfaces` | mixed morphology config facade and tag catalog checks | retained `_remainder` mixed-owner pressure | unchanged | The row mixes config-surface and tag-catalog assertions, so no whole-rule dependency-tag move is truthful. `config-surface` was rejected as a blueprint in this slice. | no-move review; selected-rule proof not required | Revisit when config cleanup or dependency-tag catalog grammar is split. |
+| `prohibit_domain_ops_projection_effect_dependencies` | `.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies` | `artifact:map.*` and `effect:map.*` inside domain ops | retained domain-operation authority | unchanged | The row governs operation purity: domain operations must not depend on map projection/effect tags. The owner is `domain-operation`, not dependency-tag. | no-move review; selected-rule proof not required | Revisit only if a future dependency-tag import/placement rule can absorb this without weakening operation authority. |

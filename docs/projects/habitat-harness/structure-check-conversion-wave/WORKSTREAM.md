@@ -20,7 +20,7 @@ loop over bounded segments, not a different process.
 ## Source Order
 
 1. Current user direction for the structure-check conversion wave.
-2. `.habitat/FRAME.md`.
+2. `.habitat/.active/frames/FRAME.md`.
 3. `.habitat/AUTHORITY-TOOL-SEPARATION.md`.
 4. `docs/projects/habitat-harness/structure-check/structure-check-runner-spec-shape.md`.
 5. `openspec/changes/habitat-structure-check-runner/workstream/closure.md`.

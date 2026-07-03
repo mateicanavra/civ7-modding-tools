@@ -19,7 +19,7 @@ surfaces so the following turn can make those moves mechanically.
 Use this order when sources disagree:
 
 1. Current user direction for this workstream.
-2. `.habitat/FRAME.md`, `.habitat/AUTHORITY.md`, and
+2. `.habitat/.active/frames/FRAME.md`, `.habitat/AUTHORITY.md`, and
    `.habitat/AUTHORITY-TREE-SHAPE.md`.
 3. Current `.habitat/**/*.rule.json` records and adjacent authority files.
 4. Centralized source-check adapters in

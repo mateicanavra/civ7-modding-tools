@@ -50,7 +50,7 @@ Source pointers:
 - `.habitat/AUTHORITY.md`
 - `.habitat/RULE-OPERATION-KINDS.md`
 - `.habitat/AUTHORITY-TREE-SHAPE.md`
-- `.habitat/dominoes.md`
+- `.habitat/.active/dominoes/README.md`
 - `docs/projects/habitat-harness/hidden-test-authority/ledger.md`
 - `docs/projects/habitat-harness/hidden-test-authority/workstream.md`
 - `docs/projects/habitat-harness/task-graph-cleanup/edge-miss-stabilization.md`

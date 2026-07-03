@@ -9,7 +9,7 @@ Close the known residual `command-check` owner confusion after the 74-row extrac
 ## Source Order
 
 1. User plan: Command-Check Residual Owner Closure Plan.
-2. `.habitat/FRAME.md` and `.habitat/AUTHORITY-TOOL-SEPARATION.md`.
+2. `.habitat/.active/frames/FRAME.md` and `.habitat/AUTHORITY-TOOL-SEPARATION.md`.
 3. Current `category.md` packet metadata and rule records.
 4. Prior structure-check conversion closure and mechanical extraction ledgers.
 5. Focused Habitat proofs and package/Nx proofs from this branch.

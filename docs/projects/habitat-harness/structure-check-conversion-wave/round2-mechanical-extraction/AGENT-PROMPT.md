@@ -15,7 +15,7 @@ verify they still match disk, then implement those rows end-to-end.
 
 Read first:
 
-- `.habitat/FRAME.md`
+- `.habitat/.active/frames/FRAME.md`
 - `.habitat/AUTHORITY-TOOL-SEPARATION.md`
 - `docs/projects/habitat-harness/structure-check-conversion-wave/N-OF-1-WORKFLOW.md`
 - `docs/projects/habitat-harness/structure-check-conversion-wave/MECHANICAL-EXTRACTION-PREP.md`

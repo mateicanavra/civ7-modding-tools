@@ -11,7 +11,7 @@ The goal is state-space collapse, not a blanket command-check-to-Grit conversion
 ## Source Order
 
 1. User direction for the command-check split wave.
-2. `.habitat/FRAME.md`.
+2. `.habitat/.active/frames/FRAME.md`.
 3. `docs/projects/habitat-harness/command-check-split-canary/vertical-slice-reference.md`.
 4. `docs/projects/habitat-harness/command-check-split-canary/insights.md`.
 5. `docs/projects/habitat-harness/source-check-conversion-inventory/matrix.md`.

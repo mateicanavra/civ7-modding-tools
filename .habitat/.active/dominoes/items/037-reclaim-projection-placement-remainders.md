@@ -1,0 +1,36 @@
+# Domino 037: Reclaim Projection/Placement Remainders
+
+Status: active sequence record
+
+Source: extracted from the former monolithic domino ledger.
+
+## Indexed Result
+
+The map-output projection/placement remainder was re-read with the Remainder Reclamation frame: three exact standard-recipe projection/placement rows and one foundation projection adjacent row moved to `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/`; the broad physics-to-map contract seam stayed under `.habitat/civ7/mapgen/map-output/_remainder/` as future split or projection-surface pressure. No `recipe-step`, `map-projection`, or `placement-outcome` authority was invented.
+
+## Detail
+
+#### Domino 37 Disposition Receipt
+
+This table is a receipt for remainder reclamation, not a new classification
+ledger. The branch started from the map-output projection/placement remainder
+after `mod-map` moved generated and shipped output authority away. Disposable
+metrics and fresh review agents found one primary row that still needs a future
+split or surface frame, three primary rows that are exact standard-recipe
+context authority, and one adjacent foundation row with the same exact
+projection-step proof shape. Rows moved under
+`.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/` use
+`placement.blueprint: "_self"`. The retained map-output row still uses
+`placement.blueprint: "_remainder"`.
+
+| Rule id | Start path | Signals | Bucket | Target path | Whole-rule reason | Proof run | Next trigger |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `preserve_physics_to_map_projection_contracts` | `.habitat/civ7/mapgen/map-output/_remainder/preserve_physics_to_map_projection_contracts` | broad exact globs; script proof; high mixed-surface penalty | retained `_remainder` | `.habitat/civ7/mapgen/map-output/_remainder/preserve_physics_to_map_projection_contracts` | The whole rule spans physics-stage contracts, all mod source, `packages/mapgen-core/src`, realized-map artifact tags, and map-effect naming. It is too broad for `recipe`, `recipe-stage`, `recipe-step`, or standard-recipe context as one executable predicate. | selected-rule proof passed; path refs exist | Revisit when a projection contract surface is framed or when the row can be behavior-preservingly split into contract, tag-naming, and source-leakage owners. |
+| `prohibit_misplaced_projection_adapter_calls` | `.habitat/civ7/mapgen/map-output/_remainder/prohibit_misplaced_projection_adapter_calls` | exact standard-stage paths; Grit proof; adapter-callsite predicate; medium mixed-surface penalty | honest standard-recipe context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_misplaced_projection_adapter_calls` | The whole rule hard-codes current standard recipe projection callsites, upstream physics-stage exclusions, and `tile.hexOddR` stage cleanup. It protects the current standard recipe topology rather than every valid recipe step. | selected-rule proof passed; path refs repaired | Revisit only after a parameterized projection-step or recipe-step callsite model exists. |
+| `require_projection_calls_in_projection_steps` | `.habitat/civ7/mapgen/map-output/_remainder/require_projection_calls_in_projection_steps` | exact files; Habitat script proof; required projection/materialization tokens | honest standard-recipe context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_projection_calls_in_projection_steps` | The executable asserts exact standard recipe files and exact `plotRivers` contract tokens. It is not reusable `recipe-step` blueprint authority as written. | selected-rule proof passed; path refs repaired | Revisit after projection-step parameterization or split work can name generic required-callsite governance. |
+| `require_typed_placement_outcomes_before_apply` | `.habitat/civ7/mapgen/map-output/_remainder/require_typed_placement_outcomes_before_apply` | single exact file; Grit proof; typed placement outcome boundary | honest standard-recipe context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_typed_placement_outcomes_before_apply` | The whole rule forbids direct official generator calls in one current standard placement apply file. It is a real step-boundary signal, but not enough to invent `placement-outcome` or promote a whole `recipe-step` rule. | selected-rule proof passed; path refs repaired | Revisit if direct official generator calls become a broader runtime, adapter, or parameterized step policy. |
+| `prohibit_foundation_projection_legacy_motion_source` | `.habitat/civ7/mapgen/domains/foundation/_remainder/prohibit_foundation_projection_legacy_motion_source` | single exact projection step; adjacent Grit proof shape; low mixed-surface penalty | honest standard-recipe context | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_foundation_projection_legacy_motion_source` | Domino 27 already identified this as recipe projection implementation cleanup, not foundation-domain authority. It shares the exact standard recipe projection-step ownership shape with the primary moved rows. | selected-rule proof passed; path refs repaired | Revisit only if a later projection-step surface absorbs the standard-recipe projection cleanup rows together. |
+| `preserve_morphology_contracts_and_overlay_ownership` | `.habitat/civ7/mapgen/domains/morphology/_remainder/preserve_morphology_contracts_and_overlay_ownership` | morphology contracts plus narrative overlay ownership; high mixed-surface penalty | excluded from this slice | unchanged | The row mixes morphology contract assertions with HOTSPOTS/narrative overlay ownership and does not share the projection/placement destination or proof shape. | no-move review only | Future split or narrative/overlay boundary frame. |
+| `prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_legacy_plate_driver_and_plot_mountains_dependencies` | exact morphology contracts plus one map-morphology implementation file | excluded from this slice | unchanged | The row is adjacent-looking but still mixes morphology contract cleanup with one map-morphology implementation cleanup. It is not a clean projection/placement reclamation row without split work. | no-move review only | Future split may reclaim the `plotMountains` half into standard-recipe context. |
+| `prohibit_morphology_overlay_implementation_reads` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_overlay_implementation_reads` | morphology step implementations; overlay/story boundary | excluded from this slice | unchanged | The predicate is overlay implementation ownership, not projection/placement callsite ownership. | no-move review only | Future recipe-step implementation-boundary or story/overlay frame. |
+| `prohibit_morphology_story_overlay_contract_artifact` | `.habitat/civ7/mapgen/domains/morphology/_remainder/prohibit_morphology_story_overlay_contract_artifact` | morphology contracts; story overlay artifact boundary | excluded from this slice | unchanged | The predicate is narrative/story artifact ownership, not projection/placement callsite ownership. | no-move review only | Future story/narrative artifact boundary frame. |
