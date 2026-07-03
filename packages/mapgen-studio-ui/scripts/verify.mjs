@@ -3,7 +3,7 @@
 // Asserts the built package still honors its published contract:
 //   1. dist/index.js exists and carries at least EXPECTED_MIN_EXPORTS named
 //      exports (the floor RISES as each extraction branch lands components —
-//      final: 46 components + TooltipProvider + lib exports).
+//      currently: 47 components + TooltipProvider + lib exports).
 //   2. No `@civ7/studio-server` specifier anywhere in dist JS (unconditional),
 //      and no RUNTIME `@civ7/studio-contract` specifier either — contract
 //      usage is type-position only, so it must compile away entirely.
@@ -42,7 +42,9 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // stay internal — package tests import them relatively.)
 // B6 (AppHeader, E4a redesign): AppHeader = 100. (AppHeaderProps /
 // AppHeaderSetupState are type-only — no runtime export.)
-const EXPECTED_MIN_EXPORTS = 100;
+// Operating-model wave (templates group): StudioShellLayout = 101.
+// (StudioShellGeometry / StudioShellLayoutProps are type-only.)
+const EXPECTED_MIN_EXPORTS = 101;
 
 const failures = [];
 const assert = (cond, msg) => {

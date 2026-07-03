@@ -243,3 +243,42 @@ historical.
   deleted (glob-fenced plan); token consumption in explorations MUST be
   `hsl(var(--token))` — bare `var(--token)` computes to transparent and only
   *looks* right because `color-scheme: dark` darkens the canvas.
+
+- **2026-07-02 — operating structure made concrete (47th component + nested
+  explorations + cloud fixtures).** The operating model is now enforced by
+  structure, not just prose:
+  - **`templates` picker group is real.** `StudioShellLayout`
+    (`src/components/templates/StudioShellLayout.tsx` + story
+    `templates/StudioShellLayout`) is the studio shell graduated INTO the
+    package as a slot-based component — the 47th synced component. Verify floor
+    raised to 101; `docsMap`/`overrides` + `groups/templates.md` added; every
+    "46" in living docs (package/app README, EXCLUSIONS, package.json,
+    index.ts, verify.mjs) bumped to 47 (historical NOTES/FRAME entries left).
+    Graded `match` on the storybook-vs-preview raw pair (gradeKey
+    7e1732f0093d9aae); design-sync:check verdict clean (added:[StudioShellLayout],
+    pendingGrade:[], canary churned:[]); upload partition bundle+styling+aux.
+  - **`explorations/` restructured to nested-by-subject + clean names.**
+    `proposals/<subject>/` (`legend/new-panel.html`,
+    `legend/merge-into-explore-panel.html`, `recipe-panel/flat-and-flush.html`),
+    `references/studio-shell.html` (rebuilt on `StudioShellLayout`),
+    `explorations/README.md` index, `explorations/fixtures/`. Kebab-case, no
+    spaces. Subject-folder rule: keyed by the primary thing designed; a
+    cross-cutting proposal files under its DRIVING subject (the merge is under
+    `legend/`), never duplicated. Replaces the 3 old flat files (`Legend
+    panel.html`, `Studio shell mock.html`, `RecipePanel flat and flush.html`) —
+    delete those remote paths on upload.
+  - **Cloud fixtures channel added.** `explorations/fixtures/map-layers.js`
+    assigns `window.__dsFixtures`; both `legend/` proposals `<script src>` it
+    (new-panel full depth, merge derives a coarse 3-tick view). Editable in the
+    project, NOT repo-compiled — the channel for reshaping exploration data /
+    depth variants without a resync. The sync driver ignores `explorations/**`
+    (recon-confirmed: no glob touches it, deletePaths only ever contains
+    `components/**`), so fixtures are safe from clobber.
+  - **Two verification gotchas.** (1) A relocated exploration that renders a
+    tooltip-bearing preview (`RecipePanel flat and flush`) paints BLANK without
+    an ambient provider — wrap the render in `window.MapGenStudio.TooltipProvider`
+    like every other exploration (fixed here; the original lacked it). (2)
+    Headless-chrome `--virtual-time-budget` hangs intermittently on
+    concurrent-React `createRoot` pages; run one Chrome per invocation with a
+    unique `--user-data-dir` and a hard background `kill -9` after ~12s, then
+    read the written PNG.

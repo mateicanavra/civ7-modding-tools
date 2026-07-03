@@ -24,8 +24,11 @@
  * B6 surface: AppHeader (E4a redesign — props-driven view over the
  * `AppHeaderSetupState` view-model + intent callbacks; the app container owns
  * the setup-config updates and the difficulty double-write).
+ * Templates surface (operating-model wave): StudioShellLayout — the studio
+ * shell as a slot-based canonical assembly (the graduation path for
+ * reference explorations; README.md → Operating model).
  * Each branch adds its exports here and raises the `verify` export floor.
- * Final surface: the 46 design-synced components (+ TooltipProvider and the
+ * Final surface: the 47 design-synced components (+ TooltipProvider and the
  * lib exports — `cn`, `useResolvedTheme`, `LAYOUT`, statusLabels formatters,
  * `useConfigCollapse`).
  *
@@ -128,6 +131,13 @@ export {
 } from "./components/panels/statusLabels.js";
 // primitives — the shadcn sub-barrel (15 components + families)
 export * from "./components/ui/index.js";
+// templates — canonical assemblies (the graduation target for reference
+// explorations that earn reuse; operating model in README.md)
+export {
+  type StudioShellGeometry,
+  StudioShellLayout,
+  type StudioShellLayoutProps,
+} from "./components/templates/StudioShellLayout.js";
 
 // lib foundation
 export { LAYOUT, type LayoutConfig } from "./lib/layout.js";

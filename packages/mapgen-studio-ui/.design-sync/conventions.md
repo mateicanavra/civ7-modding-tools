@@ -69,10 +69,24 @@ design-system project is a regenerated build artifact of it, except
 `explorations/` and `scraps/`.
 
 - **Work in the design-system project is about evolving the library itself.**
-  `explorations/` holds only system proposals: a candidate new component
-  (`Legend panel.html`), a before/after for changing an existing component, or
-  a canonical assembly reference (`Studio shell mock.html`). Every exploration
-  states its intent, status, and pull-down path in a header comment.
+  `explorations/` wears its taxonomy in the file tree (`explorations/README.md`
+  indexes every open item): `explorations/proposals/<subject>/` holds candidate
+  new components (`legend/new-panel.html`) and before/after changes
+  (`recipe-panel/flat-and-flush.html`), nested by design subject;
+  `explorations/references/` holds canonical assemblies (`studio-shell.html`);
+  `explorations/fixtures/` holds shared data the explorations load. Every
+  exploration states its intent, status, and pull-down path in a manifest
+  header. Filenames are kebab-case, no spaces.
+- **Assemblies that earn reuse graduate into the package.** They become real
+  slot-based components in the `templates` picker group — `StudioShellLayout`
+  is the studio shell. Start a whole-app composition from a template card and
+  fill its slots; don't hand-assemble the chrome.
+- **Exploration data can live in the cloud.** `explorations/fixtures/*.js`
+  assign onto `window.__dsFixtures` and are loaded via `<script src>`; edit
+  them here to reshape a legend/inspector across every proposal that reads
+  them, or keep simpler/denser variants for different depths. (The fixtures
+  that back graded component *cards* still come from the repo's typed story
+  args — those are the sync's oracle and can't move.)
 - **Product design happens in consuming projects.** Screens, flows, feature
   concepts, and design-space exploration belong in a Claude Design project
   that attaches this design system (e.g. "App Shell") — never here.
