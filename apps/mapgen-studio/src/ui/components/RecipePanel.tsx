@@ -7,8 +7,6 @@
 // ============================================================================
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
-import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
-import React, { useMemo, useRef, useState } from "react";
 import {
   Button,
   Dialog,
@@ -23,16 +21,18 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  LAYOUT,
   Switch,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "../../components/ui";
+} from "@swooper/mapgen-studio-ui";
+import type { PipelineConfig, RecipeSettings, SelectOption } from "@swooper/mapgen-studio-ui/types";
+import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
+import React, { useMemo, useRef, useState } from "react";
 import { SchemaConfigForm } from "../../features/configOverrides/SchemaConfigForm";
 import { useConfigCollapse } from "../../features/configOverrides/useConfigCollapse";
 import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
-import { LAYOUT } from "../constants";
-import type { PipelineConfig, RecipeSettings, SelectOption } from "../types";
 import { DisclosureHeader } from "./DisclosureHeader";
 import { OptionSelect } from "./OptionSelect";
 // ============================================================================

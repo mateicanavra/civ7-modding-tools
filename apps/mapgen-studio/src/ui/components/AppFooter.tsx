@@ -1,16 +1,21 @@
-import { Bolt, Dices, Globe, History, Play } from "lucide-react";
-import React from "react";
 import {
   Button,
   Input,
+  LAYOUT,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../components/ui";
+} from "@swooper/mapgen-studio-ui";
+import type {
+  GenerationStatus,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
+import { Bolt, Dices, Globe, History, Play } from "lucide-react";
+import React from "react";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../../features/civ7Setup/seedPolicy";
-import { LAYOUT, MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../constants";
-import type { GenerationStatus, RecipeSettings, WorldSettings } from "../types";
+import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../constants";
 import { OptionSelect } from "./OptionSelect";
 
 // ============================================================================

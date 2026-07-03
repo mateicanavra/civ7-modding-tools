@@ -1,7 +1,6 @@
+import type { DataTypeOption, StageOption, StepOption } from "@swooper/mapgen-studio-ui/types";
 import { useEffect } from "react";
-
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "../../shared/shortcuts/shortcutPolicy";
-import type { DataTypeOption, StageOption, StepOption } from "../../ui/types";
 import { useLatestRef } from "./useLatestRef";
 
 /**

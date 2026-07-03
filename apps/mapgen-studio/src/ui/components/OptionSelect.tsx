@@ -1,4 +1,10 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@swooper/mapgen-studio-ui";
 
 export interface OptionSelectProps {
   /** Current selected value (controlled). */
@@ -19,7 +25,7 @@ export interface OptionSelectProps {
 
 /**
  * `OptionSelect` — a thin, token-driven adapter over the design-system Radix
- * `Select` (`src/components/ui/select`). It preserves the simple
+ * `Select` (`@swooper/mapgen-studio-ui`). It preserves the simple
  * `value` / `onValueChange` / `options` shape the studio chrome used with the
  * legacy native `<select>`, so call sites migrate without restructuring while
  * dropping the off-token hex + `lightMode` prop. Radix requires non-empty

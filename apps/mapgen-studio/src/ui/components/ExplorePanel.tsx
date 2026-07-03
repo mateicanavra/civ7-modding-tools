@@ -4,6 +4,17 @@
 // Stage selector, step list, data type list, and view controls.
 // Fully controlled component - all options passed via props.
 // ============================================================================
+
+import { LAYOUT, Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
+import type {
+  DataTypeOption,
+  OverlayOption,
+  RenderModeOption,
+  SpaceOption,
+  StageOption,
+  StepOption,
+  VariantOption,
+} from "@swooper/mapgen-studio-ui/types";
 import {
   Activity,
   Bug,
@@ -17,21 +28,10 @@ import {
   SquareStack,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import type {
   RiverLakeFloodplainInspectorSummary,
   RiverLakeInspectorLayerRef,
 } from "../../features/viz/riverLakeInspector";
-import { LAYOUT } from "../constants";
-import type {
-  DataTypeOption,
-  OverlayOption,
-  RenderModeOption,
-  SpaceOption,
-  StageOption,
-  StepOption,
-  VariantOption,
-} from "../types";
 import { DisclosureHeader } from "./DisclosureHeader";
 import { WaterStatsSection } from "./WaterStatsSection";
 // ============================================================================

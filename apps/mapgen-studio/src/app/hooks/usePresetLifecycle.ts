@@ -2,8 +2,12 @@ import {
   type StudioPresetExportFileV1,
   stripSchemaMetadataRoot,
 } from "@swooper/mapgen-core/authoring";
+import type {
+  PipelineConfig,
+  RecipeSettings,
+  WorldSettings,
+} from "@swooper/mapgen-studio-ui/types";
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-
 import { type Civ7StudioSetupConfig } from "../../features/civ7Setup/setupConfig";
 import {
   type AppliedPresetSnapshot,
@@ -25,7 +29,6 @@ import { type LivePreset, usePresets } from "../../features/presets/usePresets";
 import { type BuiltInPreset, findRecipeArtifacts, getRecipeArtifacts } from "../../recipes/catalog";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
-import type { PipelineConfig, RecipeSettings, WorldSettings } from "../../ui/types";
 import type { ToastFn } from "./useToast";
 
 /**

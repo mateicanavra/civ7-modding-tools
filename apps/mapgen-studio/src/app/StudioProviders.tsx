@@ -1,6 +1,5 @@
+import { Toaster, TooltipProvider } from "@swooper/mapgen-studio-ui";
 import { useEffect } from "react";
-
-import { Toaster, TooltipProvider } from "../components/ui";
 import { useThemePreference } from "../ui/hooks";
 
 import { StudioShell } from "./StudioShell";

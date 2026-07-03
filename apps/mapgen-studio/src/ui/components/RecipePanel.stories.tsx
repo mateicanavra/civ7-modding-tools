@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { PipelineConfig, SelectOption } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
 import { RecipePanel, type RecipePanelProps } from "@/ui/components/RecipePanel";
-import type { PipelineConfig, SelectOption } from "@/ui/types";
 
 /**
  * Adapted from `.design-sync/previews/RecipePanel.tsx`. The 340px Recipe dock:

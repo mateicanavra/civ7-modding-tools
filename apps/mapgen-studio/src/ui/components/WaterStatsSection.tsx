@@ -9,9 +9,10 @@
 // the run compares to its baseline (plan vs engine counts, mismatches) plus
 // jump-to-layer chips for the underlying evidence.
 // ============================================================================
+
+import { Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
 import { Droplets } from "lucide-react";
 import React from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import type {
   RiverLakeFloodplainInspectorSummary,
   RiverLakeInspectorLayerRef,

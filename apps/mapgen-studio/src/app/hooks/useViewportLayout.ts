@@ -1,5 +1,5 @@
+import { LAYOUT } from "@swooper/mapgen-studio-ui";
 import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
-
 import { prunePipelineExpandedStageIds } from "../../features/recipeDag/prunePipelineExpansion";
 import {
   type RecipeDagQueryView,
@@ -7,7 +7,6 @@ import {
 } from "../../features/recipeDag/useRecipeDagQuery";
 import { type DeckCanvasApi } from "../../features/viz/DeckCanvas";
 import { type StageView, useViewStore } from "../../stores/viewStore";
-import { LAYOUT } from "../../ui/constants/layout";
 
 export type ViewportLayout = Readonly<{
   /** Attach to the canvas container; its measured rect drives `viewportSize`. */

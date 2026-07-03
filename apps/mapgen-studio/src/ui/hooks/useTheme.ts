@@ -1,13 +1,14 @@
+import type { ThemePreference } from "@swooper/mapgen-studio-ui/types";
 import { useEffect, useMemo, useState } from "react";
-import type { ThemePreference } from "../types";
 
 // ============================================================================
 // Theme Preference Hook
 // ============================================================================
 //
-// The app is themed by a single `.dark` class on `<html>` (shadcn strategy) —
-// CSS tokens in `index.css` resolve per-class, so the chrome carries NO runtime
-// theme object and NO `lightMode` prop threading. The boolean this hook derives
+// The app is themed by explicit `.dark`/`.light` classes on `<html>` (dark is
+// the default; index.html pre-paints the class) — the CSS tokens ship with
+// `@swooper/mapgen-studio-ui/theme.css` and resolve per-class, so the chrome
+// carries NO runtime theme object and NO `lightMode` prop threading. The boolean this hook derives
 // (`isLightMode`) survives ONLY because the deck.gl canvas grid color is drawn
 // into a `<canvas>` with literal RGBA and cannot read a CSS class — it is a
 // render input for `DeckCanvas`, not a theming prop for the chrome.

@@ -35,21 +35,41 @@ function parsePort(value: string | undefined, fallback: number, label: string): 
 export default defineConfig(({ command }) => ({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: {
+    alias: [
       // deck.gl -> loaders.gl includes a Node-only helper that imports `child_process`.
       // In the browser, this path is never executed, but Rollup warns because the
       // `child_process` "browser external" stub has no exports. Alias to a tiny
       // browser shim so builds stay clean (and failures are explicit if it ever runs).
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-      child_process: fileURLToPath(new URL("./src/shims/child_process.ts", import.meta.url)),
+      { find: "@", replacement: fileURLToPath(new URL("./src", import.meta.url)) },
+      {
+        find: "child_process",
+        replacement: fileURLToPath(new URL("./src/shims/child_process.ts", import.meta.url)),
+      },
       ...(command === "serve"
-        ? {
-            "@swooper/mapgen-viz": fileURLToPath(
-              new URL("../../packages/mapgen-viz/src/index.ts", import.meta.url)
-            ),
-          }
-        : {}),
-    },
+        ? [
+            {
+              find: "@swooper/mapgen-viz",
+              replacement: fileURLToPath(
+                new URL("../../packages/mapgen-viz/src/index.ts", import.meta.url)
+              ),
+            },
+            // DEV-ONLY source alias (DESIGN.md §2 adjudication 7): HMR against
+            // the UI package's source barrel; the production build resolves
+            // dist via the exports map so the shipped app consumes the real
+            // artifact. MUST stay an exact-match regex: string aliases also
+            // capture subpaths, and the package's `theme.css`/`fonts.css` are
+            // runtime `@import`s in src/index.css that must keep resolving
+            // through the exports map (a string key rewrites them under
+            // src/index.ts and 500s the dev stylesheet).
+            {
+              find: /^@swooper\/mapgen-studio-ui$/,
+              replacement: fileURLToPath(
+                new URL("../../packages/mapgen-studio-ui/src/index.ts", import.meta.url)
+              ),
+            },
+          ]
+        : []),
+    ],
   },
   build: {
     outDir: "dist",

@@ -1,13 +1,13 @@
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
+import type { ThemePreference } from "@swooper/mapgen-studio-ui/types";
 import { Gamepad2, Settings } from "lucide-react";
 import React from "react";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import {
   type Civ7StudioSetupConfig,
   getLocalPlayerSetup,
   updateStudioSetupGameOption,
   updateStudioSetupPlayerOption,
 } from "../../features/civ7Setup/setupConfig";
-import type { ThemePreference } from "../types";
 import { AppBrand } from "./AppBrand";
 import { OptionSelect } from "./OptionSelect";
 import { ViewControls } from "./ViewControls";

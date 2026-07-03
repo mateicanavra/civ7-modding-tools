@@ -16,11 +16,11 @@ vi.mock("../../src/features/mapConfigSave/api", async (importOriginal) => {
   };
 });
 
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import { type UseSaveDeployArgs, useSaveDeploy } from "../../src/app/hooks/useSaveDeploy";
 import { saveRepoBackedConfig } from "../../src/features/mapConfigSave/api";
 import { createMapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
 import { DEFAULT_RECIPE_SETTINGS } from "../../src/ui/constants/defaults";
-import type { PipelineConfig } from "../../src/ui/types";
 
 const saveRpc = vi.mocked(saveRepoBackedConfig);
 

@@ -11,6 +11,7 @@ vi.mock("../../src/features/runInGame/api", () => ({
   runCurrentConfigInGame: vi.fn(),
 }));
 
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
 import { LIVE_GAME_PRESET_KEY } from "../../src/features/civ7Setup/livePreset";
 import type { Civ7StudioSetupConfig } from "../../src/features/civ7Setup/setupConfig";
@@ -18,7 +19,6 @@ import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/mode
 import { runCurrentConfigInGame } from "../../src/features/runInGame/api";
 import type { RunInGameSourceSnapshot } from "../../src/features/runInGame/clientState";
 import { DEFAULT_RECIPE_SETTINGS, DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
-import type { PipelineConfig } from "../../src/ui/types";
 
 const runRpc = vi.mocked(runCurrentConfigInGame);
 
