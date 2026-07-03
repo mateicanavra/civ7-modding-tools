@@ -1,27 +1,11 @@
 import path from "node:path";
 import type { FileSystem } from "@effect/platform";
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { BiomeProviderService } from "@internal/habitat-harness/providers/biome/index";
 import {
-  type GitProviderRequirements,
-  type GitProviderService,
-  type GitStateProvider,
-} from "@internal/habitat-harness/providers/git/index";
-import {
-  type GritProviderRequirements,
-  type GritProviderService,
-  runGritRulesEffect,
-} from "@internal/habitat-harness/providers/grit/index";
-import {
-  type NxProviderService,
-  spawnResultFromCommandResult,
-} from "@internal/habitat-harness/providers/nx/index";
-import {
-  type CommandRunner,
-  type CommandRunnerService,
+  type CommandProviderError,
   type HabitatCommandResult,
+  type HabitatProcessRequest,
+  spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import {
   type HabitatError,
   renderHabitatError,
@@ -63,6 +47,7 @@ import {
 } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
+import type { BaselineFileSystemPort } from "../baseline/index.js";
 
 export interface RuleExecutionRecord {
   result: RuleRunResult;
@@ -72,14 +57,78 @@ export interface RuleExecutionRecord {
 }
 
 export interface StructuralExecutionContext {
+  readonly baselineFileSystem: BaselineFileSystemPort;
   readonly repoRoot: string;
-  readonly biome: BiomeProviderService;
-  readonly commandRunner: CommandRunnerService;
-  readonly git: GitProviderService;
-  readonly grit: GritProviderService;
-  readonly nx: NxProviderService;
+  readonly biome: StructuralBiomePort;
+  readonly command: StructuralCommandPort;
+  readonly git: StructuralGitPort;
+  readonly grit: StructuralGritPort;
+  readonly nx: StructuralNxPort;
   readonly rules: RuleFactsCatalog;
   readonly sourceFileSystem: SourceRuleFileSystem<FileSystem.FileSystem>;
+}
+
+interface StructuralBiomePort {
+  readonly run: (request: {
+    readonly kind: "ci";
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+}
+
+interface StructuralCommandPort {
+  readonly run: (
+    request: HabitatProcessRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+}
+
+interface StructuralGitPort {
+  readonly diffNameOnly: (input?: {
+    readonly cached?: boolean;
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly diffNameStatus: (input?: {
+    readonly cached?: boolean;
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly lsTreeNameOnly: (
+    ref: string,
+    repoPath: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<readonly string[] | null, never, any>;
+  readonly mergeBase: (
+    ref: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+  readonly show: (
+    ref: string,
+    repoPath: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+}
+
+interface StructuralGritPort {
+  readonly runRules: (
+    selectedRules: readonly RuleSourceFacts[],
+    options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
+  ) => Effect.Effect<Map<string, RuleRunResult>, never, any>;
+}
+
+interface StructuralNxPort {
+  readonly runMany: (
+    request: StructuralNxRunManyRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly runTarget: (
+    request: StructuralNxRunTargetRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+}
+
+interface StructuralNxRunManyRequest {
+  readonly projects: readonly string[];
+  readonly targets: readonly string[];
+}
+
+interface StructuralNxRunTargetRequest {
+  readonly project: string;
+  readonly target: string;
 }
 
 export function rulesForExecution(
@@ -155,16 +204,7 @@ export function executeSelectedRulesEffect(
   selectedRules: readonly RuleSelectorFacts[],
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
   context: StructuralExecutionContext
-): Effect.Effect<
-  Map<string, RuleExecutionRecord>,
-  never,
-  | CommandRunner
-  | CommandExecutor
-  | GritProviderRequirements
-  | HabitatConfig
-  | FileSystem.FileSystem
-  | GitProviderRequirements
-> {
+): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
@@ -222,9 +262,8 @@ export function executeSelectedRulesEffect(
         for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
         const started = yield* Clock.currentTimeMillis;
-        const gritResults = yield* runGritRulesEffect(gritRules, {
+        const gritResults = yield* context.grit.runRules(gritRules, {
           repoRoot: context.repoRoot,
-          grit: context.grit,
           ...(scanRoots ? { scanRoots } : {}),
         });
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
@@ -285,7 +324,7 @@ function executeFormatRulesEffect(
   formatRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>,
   context: StructuralExecutionContext
-): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
+): Effect.Effect<void, never, any> {
   return Effect.gen(function* () {
     const records = yield* Effect.all(
       formatRules.map((rule) => executeFormatRuleEffect(rule, context)),
@@ -300,11 +339,7 @@ function executeFormatRulesEffect(
 function executeFormatRuleEffect(
   rule: RuleCommandExecutionFacts,
   context: StructuralExecutionContext
-): Effect.Effect<
-  [string, RuleExecutionRecord],
-  never,
-  CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
-> {
+): Effect.Effect<[string, RuleExecutionRecord], never, any> {
   return Effect.gen(function* () {
     const started = yield* Clock.currentTimeMillis;
     const result = yield* context.biome.run({ kind: "ci" }).pipe(
@@ -329,7 +364,7 @@ function executeCommandRulesEffect(
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>,
   context: StructuralExecutionContext
-): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
+): Effect.Effect<void, never, any> {
   return Effect.gen(function* () {
     const groupResults = yield* Effect.all(
       commandRuleExecutionGroups(commandRules, context).map((group) =>
@@ -350,7 +385,7 @@ function executeGraphBackedCommandRulesEffect(
   graphRulesById: ReadonlyMap<string, RuleGraphFacts>,
   results: Map<string, RuleExecutionRecord>,
   context: StructuralExecutionContext
-): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
+): Effect.Effect<void, never, any> {
   if (rules.length === 0) return Effect.void;
   const groups = groupedGraphBackedCommandRules(rules);
   return Effect.gen(function* () {
@@ -368,11 +403,7 @@ function runGraphBackedCommandRuleGroup(
   rules: readonly RuleCommandExecutionFacts[],
   graphRulesById: ReadonlyMap<string, RuleGraphFacts>,
   context: StructuralExecutionContext
-): Effect.Effect<
-  Map<string, RuleExecutionRecord>,
-  never,
-  CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
-> {
+): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
   return Effect.gen(function* () {
     const targets = graphTargetsForRules(rules, graphRulesById);
     const started = yield* Clock.currentTimeMillis;
@@ -421,7 +452,7 @@ function sharedExecutionTiming(
 }
 
 function runGraphTargetsEffect(
-  nx: NxProviderService,
+  nx: StructuralNxPort,
   targets: readonly { project: string; target: string }[]
 ) {
   const uniqueTargets = uniqueGraphTargets(targets);
@@ -504,14 +535,10 @@ function commandRuleExecutionGroups(
 function executeCommandRuleGroupEffect(
   group: CommandRuleExecutionGroup,
   context: StructuralExecutionContext
-): Effect.Effect<
-  Map<string, RuleExecutionRecord>,
-  never,
-  CommandExecutor | HabitatConfig | GitStateProvider
-> {
+): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
   return Effect.gen(function* () {
     const started = yield* Clock.currentTimeMillis;
-    const result = yield* context.commandRunner
+    const result = yield* context.command
       .run({
         commandId: commandRuleGroupId(group),
         kind: "workspace-tool",
@@ -609,7 +636,7 @@ function executeFileLayerRulesEffect(
   results: Map<string, RuleExecutionRecord>,
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
   context: StructuralExecutionContext
-): Effect.Effect<void, never, GitProviderRequirements> {
+): Effect.Effect<void, never, any> {
   return Effect.gen(function* () {
     const stagedPathsResult =
       options.staged && options.stagedPaths
@@ -652,8 +679,8 @@ function isStagedPathReadFailure(
 
 function currentStagedPathActionsEffect(context: {
   readonly repoRoot: string;
-  readonly git: GitProviderService;
-}): Effect.Effect<StagedPathActionReadResult, never, GitProviderRequirements> {
+  readonly git: StructuralGitPort;
+}): Effect.Effect<StagedPathActionReadResult, never, any> {
   return Effect.gen(function* () {
     const result = yield* context.git
       .diffNameStatus({ cached: true, cwd: context.repoRoot })
@@ -692,8 +719,8 @@ function stagedPathReadFailureDiagnostic(
 
 function currentStagedPathsEffect(context: {
   readonly repoRoot: string;
-  readonly git: GitProviderService;
-}): Effect.Effect<string[], never, GitProviderRequirements> {
+  readonly git: StructuralGitPort;
+}): Effect.Effect<string[], never, any> {
   return Effect.gen(function* () {
     const result = yield* context.git
       .diffNameOnly({ cached: true, cwd: context.repoRoot })

@@ -32,7 +32,7 @@ import type {
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
 import type { BaselineExpansionResult } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
+import type { HookExecuteInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { Effect, Layer } from "effect";
@@ -596,7 +596,7 @@ describe("Habitat hook service", () => {
         const git = yield* GitProvider;
         const graphite = yield* GraphiteProvider;
         const nx = yield* NxProvider;
-        const runHook = hookRouter.run.callable({
+        const executeHook = hookRouter.execute.callable({
           context: {
             deps: makeTestHabitatServiceDeps({
               biome,
@@ -612,7 +612,7 @@ describe("Habitat hook service", () => {
             }),
           },
         });
-        return yield* withFiberContext(() => runHook({ name: "pre-commit" }));
+        return yield* withFiberContext(() => executeHook({ name: "pre-commit" }));
       }).pipe(
         Effect.provide(
           Layer.mergeAll(
@@ -709,7 +709,7 @@ function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
 }
 
 function runHookServiceInTest(
-  input: HookServiceRunInput,
+  input: HookExecuteInput,
   options: {
     readonly hashFile?: (targetPath: string) => string | null;
     readonly pathExists?: (targetPath: string) => boolean;
@@ -730,7 +730,7 @@ function runHookServiceInTest(
       const git = yield* GitProvider;
       const graphite = yield* GraphiteProvider;
       const nx = yield* NxProvider;
-      const runHook = hookRouter.run.callable({
+      const executeHook = hookRouter.execute.callable({
         context: {
           deps: {
             ...makeTestHabitatServiceDeps({
@@ -759,7 +759,7 @@ function runHookServiceInTest(
         },
       });
       return yield* withFiberContext(() =>
-        runHook({
+        executeHook({
           ...input,
           ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
         })

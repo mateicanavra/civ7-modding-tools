@@ -1,10 +1,7 @@
-import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
-import type {
-  RuleCoverageKind,
-  RuleRouting,
-} from "@internal/habitat-harness/service/model/classify/index";
 import type { RuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { pathCoveragePatternMatches } from "@internal/habitat-harness/service/model/rules/policy/path-coverage.policy";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
+import type { RuleCoverageKind, RuleRouting } from "../dto/classify.schema.js";
 
 export function rulesForPath(
   pathInRepo: string,

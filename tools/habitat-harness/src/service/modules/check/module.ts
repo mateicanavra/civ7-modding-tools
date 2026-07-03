@@ -23,7 +23,7 @@ import {
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
 import type { EffectImplementerInternal } from "effect-orpc";
-import type { CheckServiceRunInput } from "./contract.js";
+import type { CheckReportInput } from "./contract.js";
 
 type CheckModuleEffect<T> = Effect.Effect<T, never, any>;
 
@@ -81,10 +81,20 @@ function expandBaselines(
 
 function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
   return {
+    baselineFileSystem: {
+      isDirectory: deps.platform.isDirectory,
+      isFile: deps.platform.isFileEffect,
+      makeDirectory: deps.platform.makeDirectory,
+      readDirectory: deps.platform.readDirectory,
+      readText: deps.platform.readText,
+      writeText: deps.platform.writeText,
+    },
     biome: deps.biome,
-    commandRunner: deps.commandRunner,
+    command: deps.commandRunner,
     git: deps.git,
-    grit: deps.grit,
+    grit: {
+      runRules: deps.grit.runRules,
+    },
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
     rules: deps.rules,
@@ -97,7 +107,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
   };
 }
 
-function selectorsFromInput(input: Pick<CheckServiceRunInput, "selectors">) {
+function selectorsFromInput(input: Pick<CheckReportInput, "selectors">) {
   return {
     ...(input.selectors?.owner ? { owner: input.selectors.owner } : {}),
     ...(input.selectors?.rule ? { rule: input.selectors.rule } : {}),

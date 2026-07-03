@@ -1,3 +1,4 @@
+import { Value } from "typebox/value";
 import {
   type TargetDependencyDeclaration,
   TargetDependencyDeclarationSchema,
@@ -5,7 +6,6 @@ import {
   TargetDependencyResolutionSchema,
   type WorkspaceProject,
 } from "../dto/workspace.schema.ts";
-import { Value } from "typebox/value";
 
 export function sameProjectTargetDependency(target: string): TargetDependencyDeclaration {
   return parseDeclaration({ kind: "same-project-target-dependency", target });

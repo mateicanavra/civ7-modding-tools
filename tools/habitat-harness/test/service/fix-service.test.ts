@@ -53,7 +53,7 @@ describe("Habitat fix service", () => {
         return yield* Effect.promise(() =>
           createRouterClient(habitatServiceRouter, {
             context: { deps: makeTestHabitatServiceDeps({ grit }) },
-          }).fix.run({ kind: "dry-run-intent" })
+          }).fix.applyPatterns({ kind: "dry-run-intent" })
         );
       }).pipe(Effect.provide(layer))
     );
@@ -69,9 +69,9 @@ describe("Habitat fix service", () => {
 function runFixProcedure(input = { kind: "dry-run-intent" as const }) {
   return Effect.gen(function* () {
     const grit = yield* GritProvider;
-    const runFix = fixRouter.run.callable({
+    const applyPatterns = fixRouter.applyPatterns.callable({
       context: { deps: makeTestHabitatServiceDeps({ grit }) },
     });
-    return yield* withFiberContext(() => runFix(input));
+    return yield* withFiberContext(() => applyPatterns(input));
   });
 }

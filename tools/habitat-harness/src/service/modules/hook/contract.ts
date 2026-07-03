@@ -4,7 +4,7 @@ import { toStandardSchema } from "@internal/habitat-harness/service/typebox-stan
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
 
-const HookServiceRunInputSchema = Type.Object(
+const HookExecuteInputSchema = Type.Object(
   {
     name: Type.Optional(Type.String()),
     base: Type.Optional(Type.String()),
@@ -26,31 +26,31 @@ const HookServiceRunInputSchema = Type.Object(
       )
     ),
   },
-  { additionalProperties: false, description: "Habitat hook service run request." }
+  { additionalProperties: false, description: "Habitat hook execution request." }
 );
-export type HookServiceRunInput = Static<typeof HookServiceRunInputSchema>;
+export type HookExecuteInput = Static<typeof HookExecuteInputSchema>;
 
-const HookServiceRunOutputSchema = Type.Object(
+const HookExecuteOutputSchema = Type.Object(
   {
     exitCode: Type.Integer(),
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Habitat hook service execution result." }
+  { additionalProperties: false, description: "Habitat hook execution result." }
 );
-export type HookServiceRunOutput = Static<typeof HookServiceRunOutputSchema>;
+export type HookExecuteOutput = Static<typeof HookExecuteOutputSchema>;
 
-const HookServiceRunInputStandardSchema = toStandardSchema(HookServiceRunInputSchema);
-const HookServiceRunOutputStandardSchema = toStandardSchema(HookServiceRunOutputSchema);
+const HookExecuteInputStandardSchema = toStandardSchema(HookExecuteInputSchema);
+const HookExecuteOutputStandardSchema = toStandardSchema(HookExecuteOutputSchema);
 
-export const hookServiceRunContract: HabitatServiceProcedureContract<
-  typeof HookServiceRunInputStandardSchema,
-  typeof HookServiceRunOutputStandardSchema
+export const hookExecuteContract: HabitatServiceProcedureContract<
+  typeof HookExecuteInputStandardSchema,
+  typeof HookExecuteOutputStandardSchema
 > = eoc
   .errors(habitatServiceErrorMap)
-  .input(HookServiceRunInputStandardSchema)
-  .output(HookServiceRunOutputStandardSchema);
+  .input(HookExecuteInputStandardSchema)
+  .output(HookExecuteOutputStandardSchema);
 
 export const hookServiceContract = {
-  run: hookServiceRunContract,
+  execute: hookExecuteContract,
 };

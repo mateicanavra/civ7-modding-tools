@@ -4,6 +4,10 @@ import {
   readTextSync,
   statKindSync,
 } from "@internal/habitat-harness/resources/platform/filesystem";
+import type {
+  WorkspaceGraphReadState,
+  WorkspaceProject,
+} from "@internal/habitat-harness/service/model/workspace/index";
 import {
   classifyPath,
   classifyPathResult,
@@ -11,10 +15,6 @@ import {
   classifyTargetResult,
   validateClassifyResult,
 } from "@internal/habitat-harness/service/modules/classify/model/index";
-import type {
-  WorkspaceGraphReadState,
-  WorkspaceProject,
-} from "@internal/habitat-harness/service/model/workspace/index";
 import { describe, expect, test } from "vitest";
 import { makeTestRuleFacts } from "../support/habitat-service-deps.js";
 

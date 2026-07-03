@@ -7,21 +7,21 @@ import {
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import {
+  type VerifyTargetPlan,
+  VerifyTargetPlanSchema,
+  verifyTargetPlan,
+  type WorkspaceGraphReadState,
+  workspaceGraphTargetNames,
+} from "@internal/habitat-harness/service/model/workspace/index";
+import { Value } from "typebox/value";
+import {
   type VerifyBaseResolution,
   VerifyHabitatCheckSummarySchema,
   type VerifyReceipt,
   VerifyReceiptSchema,
   VerifySelectorStateSchema,
   VerifyTargetPlanConsumptionSchema,
-} from "@internal/habitat-harness/service/model/verify/index";
-import {
-  type WorkspaceGraphReadState,
-  type VerifyTargetPlan,
-  VerifyTargetPlanSchema,
-  verifyTargetPlan,
-  workspaceGraphTargetNames,
-} from "@internal/habitat-harness/service/model/workspace/index";
-import { Value } from "typebox/value";
+} from "../dto/verify.schema.js";
 import { selectedVerifyEnv } from "./command-output.policy.js";
 import {
   affectedVerificationArgv,

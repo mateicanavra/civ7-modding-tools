@@ -1,9 +1,7 @@
 import path from "node:path";
-import type {
-  GitProviderRequirements,
-  GitProviderService,
-} from "@internal/habitat-harness/providers/git/index";
 import {
+  CommandProviderError,
+  HabitatCommandResult,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
@@ -27,11 +25,37 @@ const biomeCandidateExtensions = new Set([
   ".tsx",
 ]);
 
+interface HookStagedGitPort<R = never> {
+  readonly add: (
+    paths: readonly string[],
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
+  readonly diffNameOnly: (input?: {
+    readonly cached?: boolean;
+    readonly paths?: readonly string[];
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
+  readonly diffNameStatus: (input?: {
+    readonly cached?: boolean;
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
+}
+
 export function existingStagedPathsEffect(
-  git: GitProviderService,
+  git: HookStagedGitPort,
   repoRoot: string,
   pathExists: (targetPath: string) => boolean
-): Effect.Effect<string[], never, GitProviderRequirements> {
+): Effect.Effect<string[]>;
+export function existingStagedPathsEffect<R>(
+  git: HookStagedGitPort<R>,
+  repoRoot: string,
+  pathExists: (targetPath: string) => boolean
+): Effect.Effect<string[], never, R>;
+export function existingStagedPathsEffect<R>(
+  git: HookStagedGitPort<R>,
+  repoRoot: string,
+  pathExists: (targetPath: string) => boolean
+): Effect.Effect<string[], never, R> {
   return stagedPathsEffect(git, repoRoot).pipe(
     Effect.map((paths) => paths.filter((candidate) => pathExists(path.join(repoRoot, candidate))))
   );
@@ -50,10 +74,20 @@ export function hookSourceCheckPaths(
 }
 
 export function unstagedAmongEffect(
-  git: GitProviderService,
+  git: HookStagedGitPort,
   repoRoot: string,
   paths: string[]
-): Effect.Effect<string[], never, GitProviderRequirements> {
+): Effect.Effect<string[]>;
+export function unstagedAmongEffect<R>(
+  git: HookStagedGitPort<R>,
+  repoRoot: string,
+  paths: string[]
+): Effect.Effect<string[], never, R>;
+export function unstagedAmongEffect<R>(
+  git: HookStagedGitPort<R>,
+  repoRoot: string,
+  paths: string[]
+): Effect.Effect<string[], never, R> {
   if (paths.length === 0) return Effect.succeed([]);
   return Effect.gen(function* () {
     const result = yield* git
@@ -68,10 +102,20 @@ export function unstagedAmongEffect(
 }
 
 export function gitAddEffect(
-  git: GitProviderService,
+  git: HookStagedGitPort,
   repoRoot: string,
   paths: string[]
-): Effect.Effect<SpawnResult, never, GitProviderRequirements> {
+): Effect.Effect<SpawnResult>;
+export function gitAddEffect<R>(
+  git: HookStagedGitPort<R>,
+  repoRoot: string,
+  paths: string[]
+): Effect.Effect<SpawnResult, never, R>;
+export function gitAddEffect<R>(
+  git: HookStagedGitPort<R>,
+  repoRoot: string,
+  paths: string[]
+): Effect.Effect<SpawnResult, never, R> {
   if (paths.length === 0) return Effect.succeed({ exitCode: 0, stdout: "", stderr: "" });
   return Effect.gen(function* () {
     return yield* git.add(paths, { cwd: repoRoot }).pipe(
@@ -83,10 +127,15 @@ export function gitAddEffect(
   });
 }
 
-function stagedPathsEffect(
-  git: GitProviderService,
+function stagedPathsEffect(git: HookStagedGitPort, repoRoot: string): Effect.Effect<string[]>;
+function stagedPathsEffect<R>(
+  git: HookStagedGitPort<R>,
   repoRoot: string
-): Effect.Effect<string[], never, GitProviderRequirements> {
+): Effect.Effect<string[], never, R>;
+function stagedPathsEffect<R>(
+  git: HookStagedGitPort<R>,
+  repoRoot: string
+): Effect.Effect<string[], never, R> {
   return Effect.gen(function* () {
     const result = yield* git
       .diffNameStatus({ cached: true, cwd: repoRoot })

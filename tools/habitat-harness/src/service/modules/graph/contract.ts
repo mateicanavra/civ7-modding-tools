@@ -11,32 +11,32 @@ const graphServiceErrorMap = {
   INTERNAL_SERVER_ERROR: GraphServiceInternalError,
 } as const;
 
-const GraphServiceRunInputSchema = Type.Object(
+const GraphWorkspaceGraphInputSchema = Type.Object(
   {
     json: Type.Optional(Type.Boolean()),
   },
-  { additionalProperties: false, description: "Habitat graph service run request." }
+  { additionalProperties: false, description: "Habitat workspace graph request." }
 );
-export type GraphServiceRunInput = Static<typeof GraphServiceRunInputSchema>;
+export type GraphWorkspaceGraphInput = Static<typeof GraphWorkspaceGraphInputSchema>;
 
-const GraphServiceRunOutputSchema = Type.Object(
+const GraphWorkspaceGraphOutputSchema = Type.Object(
   {
     exitCode: Type.Integer(),
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Habitat graph service execution result." }
+  { additionalProperties: false, description: "Habitat workspace graph result." }
 );
-export type GraphServiceRunOutput = Static<typeof GraphServiceRunOutputSchema>;
+export type GraphWorkspaceGraphOutput = Static<typeof GraphWorkspaceGraphOutputSchema>;
 
-const GraphServiceRunInputStandardSchema = toStandardSchema(GraphServiceRunInputSchema);
-const GraphServiceRunOutputStandardSchema = toStandardSchema(GraphServiceRunOutputSchema);
+const GraphWorkspaceGraphInputStandardSchema = toStandardSchema(GraphWorkspaceGraphInputSchema);
+const GraphWorkspaceGraphOutputStandardSchema = toStandardSchema(GraphWorkspaceGraphOutputSchema);
 
-export const graphServiceRunContract = eoc
+export const graphWorkspaceGraphContract = eoc
   .errors(graphServiceErrorMap)
-  .input(GraphServiceRunInputStandardSchema)
-  .output(GraphServiceRunOutputStandardSchema);
+  .input(GraphWorkspaceGraphInputStandardSchema)
+  .output(GraphWorkspaceGraphOutputStandardSchema);
 
 export const graphServiceContract = {
-  run: graphServiceRunContract,
+  workspaceGraph: graphWorkspaceGraphContract,
 };

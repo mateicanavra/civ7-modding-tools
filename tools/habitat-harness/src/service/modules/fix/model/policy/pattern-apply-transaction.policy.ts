@@ -1,9 +1,11 @@
-import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
 import {
+  type CommandProviderError,
   captureOutput,
+  type HabitatCommandResult,
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
+import type { FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
 import { Effect } from "effect";
 import {
   type GritDryRunCommandInput,
@@ -17,11 +19,24 @@ import {
 import type { ApplyTransactionInput } from "../dto/pattern-management.schema.js";
 import { resolveTransactionInput } from "./transaction-input.policy.js";
 
-type ResolvedGritProvider = GritProviderService;
+interface PatternApplyGritDryRunRequest {
+  commandId: string;
+  patternPath: string;
+  scanRoots: readonly string[];
+  output: "compact" | "standard";
+  cacheMode?: "disabled" | "isolated";
+}
+
+export interface PatternApplyGritPort {
+  readonly applyDryRun: (
+    request: PatternApplyGritDryRunRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError | FileWriteFailed, any>;
+  readonly applyDryRunRequest: (request: PatternApplyGritDryRunRequest) => HabitatProcessRequest;
+}
 
 export function runPatternApplyTransaction(
   input: PatternApplyRequest,
-  options: { readonly grit: ResolvedGritProvider } & Partial<{
+  options: { readonly grit: PatternApplyGritPort } & Partial<{
     readonly transactionInputs: readonly ApplyTransactionInput[];
   }>
 ) {
@@ -222,14 +237,14 @@ function pathInRoot(candidate: string, root: string): boolean {
 
 function runDryRunCommands(
   commands: readonly GritDryRunCommandInput[],
-  grit: ResolvedGritProvider
+  grit: PatternApplyGritPort
 ) {
   return Effect.forEach(commands, (command) => runDryRunCommand(command, grit), {
     concurrency: 1,
   });
 }
 
-function runDryRunCommand(input: GritDryRunCommandInput, grit: ResolvedGritProvider) {
+function runDryRunCommand(input: GritDryRunCommandInput, grit: PatternApplyGritPort) {
   return Effect.gen(function* () {
     const providerRequest = {
       commandId: input.commandId,

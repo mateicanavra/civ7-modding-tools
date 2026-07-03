@@ -1,11 +1,22 @@
-import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
-import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
-import {
-  type VerifyBaseResolution,
-  VerifyBaseResolutionSchema,
-} from "@internal/habitat-harness/service/model/verify/index";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
+import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "../dto/verify.schema.js";
+
+export interface VerifyBaseGitPort {
+  readonly remoteDefaultBranch: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<string | null, never, any>;
+  readonly mergeBase: (
+    ref: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+}
+
+export interface VerifyBaseGraphitePort {
+  readonly parent: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<string | null, never, any>;
+}
 
 /**
  * Resolves the affected base for verify.
@@ -20,8 +31,8 @@ import { Value } from "typebox/value";
  */
 export function resolveVerifyBaseEffect(
   context: {
-    readonly git: GitProviderService;
-    readonly graphite: GraphiteProviderService;
+    readonly git: VerifyBaseGitPort;
+    readonly graphite: VerifyBaseGraphitePort;
     readonly repoRoot: string;
   },
   base?: string

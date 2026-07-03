@@ -1,10 +1,3 @@
-import type { FileSystem } from "@effect/platform";
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
-import type { GritProviderRequirements } from "@internal/habitat-harness/providers/grit/index";
-import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
-import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
   applyBaseline,
   type BaselineAuthorityContext,
@@ -23,6 +16,7 @@ import {
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
+import { errorMessage } from "../baseline/context.policy.js";
 import { executeSelectedRulesEffect, type StructuralExecutionContext } from "./execution.policy.js";
 
 export type BaselineExpansionResult =
@@ -39,16 +33,7 @@ export function expandBaselinesEffect(
   selection: RuleSelection = {},
   options: { base?: string; repoRoot: string },
   executionContext: StructuralExecutionContext
-): Effect.Effect<
-  BaselineExpansionResult,
-  never,
-  | CommandRunner
-  | CommandExecutor
-  | HabitatConfig
-  | FileSystem.FileSystem
-  | GitProviderRequirements
-  | GritProviderRequirements
-> {
+): Effect.Effect<BaselineExpansionResult, never, any> {
   return Effect.gen(function* () {
     const selected = selectRules(selection, executionContext.rules.selector);
     if (!selected.ok) return selected;
@@ -112,7 +97,7 @@ export function expandBaselinesEffect(
             ok: false,
             requested: selection,
             reason: "baseline-contract",
-            message: `Unable to write baseline for '${rule.id}': ${renderHabitatError(writeFailure)}`,
+            message: `Unable to write baseline for '${rule.id}': ${errorMessage(writeFailure)}`,
           };
         }
         messages.push(`baseline written: ${rule.id} (${keys.length} entries)`);
@@ -123,7 +108,11 @@ export function expandBaselinesEffect(
 }
 
 function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
-  return { git: context.git, repoRoot: context.repoRoot };
+  return {
+    fileSystem: context.baselineFileSystem,
+    git: context.git,
+    repoRoot: context.repoRoot,
+  };
 }
 
 export function baselineContractInputs(rules: RuleFactsCatalog, ruleIds?: readonly string[]) {

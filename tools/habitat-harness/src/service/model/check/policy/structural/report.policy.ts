@@ -1,9 +1,4 @@
 import type { FileSystem } from "@effect/platform";
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
-import type { GritProviderRequirements } from "@internal/habitat-harness/providers/grit/index";
-import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import type {
   CheckReport,
   RuleExecutionDisposition,
@@ -47,16 +42,7 @@ import {
 export function createCheckReportEffect(
   options: CheckOptions = {},
   context: StructuralExecutionContext
-): Effect.Effect<
-  CheckReport,
-  never,
-  | CommandRunner
-  | CommandExecutor
-  | HabitatConfig
-  | FileSystem.FileSystem
-  | GitProviderRequirements
-  | GritProviderRequirements
-> {
+): Effect.Effect<CheckReport, never, any> {
   return Effect.gen(function* () {
     const request = structuralCheckRequest(options);
     const selection = selectRules(request.selectors, context.rules.selector);
@@ -221,7 +207,7 @@ function ruleReportFromDiagnostics(input: {
 function baselineIntegrityReportEffect(
   base: string,
   context: StructuralExecutionContext
-): Effect.Effect<RuleReport, never, FileSystem.FileSystem | GitProviderRequirements> {
+): Effect.Effect<RuleReport, never, any> {
   return Effect.gen(function* () {
     const integrityStarted = yield* Clock.currentTimeMillis;
     const integrity = yield* checkBaselineIntegrityEffect(base, {
@@ -252,7 +238,11 @@ function baselineIntegrityReportEffect(
 }
 
 function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
-  return { git: context.git, repoRoot: context.repoRoot };
+  return {
+    fileSystem: context.baselineFileSystem,
+    git: context.git,
+    repoRoot: context.repoRoot,
+  };
 }
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {

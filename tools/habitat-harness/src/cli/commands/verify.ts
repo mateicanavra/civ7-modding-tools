@@ -3,7 +3,7 @@ import {
   renderCheckReport,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
-import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/model/verify/index";
+import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/modules/verify/model/index";
 import { Flags } from "@oclif/core";
 
 export default class Verify extends HabitatCommand {
@@ -27,7 +27,7 @@ export default class Verify extends HabitatCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(Verify);
     const service = await this.habitatServiceClient();
-    const result = await service.verify.run({
+    const result = await service.verify.changes({
       base: flags.base,
       affectedExecution: flags.json ? "plan-only" : "run",
     });

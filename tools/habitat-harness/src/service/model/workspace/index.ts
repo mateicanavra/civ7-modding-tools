@@ -20,10 +20,10 @@ export {
   TargetDependencyDeclarationSchema,
   TargetDependencyResolutionSchema,
   VerifyTargetPlanSchema,
-  WorkspaceGraphTargetNameOptionsSchema,
-  WorkspaceGraphTargetNamesSchema,
   WorkspaceGraphReadStateSchema,
   WorkspaceGraphSnapshotSchema,
+  WorkspaceGraphTargetNameOptionsSchema,
+  WorkspaceGraphTargetNamesSchema,
   WorkspaceProjectSchema,
   WorkspaceTargetStateSchema,
 } from "./dto/workspace.schema.js";

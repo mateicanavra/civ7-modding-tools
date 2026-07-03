@@ -1,14 +1,20 @@
 import {
-  type GitProviderService,
+  type SpawnResult,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/providers/git/index";
-import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import type { VerifyReceipt } from "@internal/habitat-harness/service/model/verify/index";
+} from "@internal/habitat-harness/resources/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import { Effect } from "effect";
+import type { VerifyReceipt } from "../dto/verify.schema.js";
 import { boundedPreview } from "./command-output.policy.js";
 
+export interface VerifyGitStatusPort {
+  readonly statusShortBranch: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, unknown, any>;
+}
+
 export function observeGitStatusEffect(context: {
-  readonly git: GitProviderService;
+  readonly git: VerifyGitStatusPort;
   readonly repoRoot: string;
 }) {
   return context.git

@@ -11,7 +11,7 @@ import {
 import { CommandUnavailable } from "@internal/habitat-harness/resources/errors/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
-import type { GraphServiceRunInput } from "@internal/habitat-harness/service/modules/graph/contract";
+import type { GraphWorkspaceGraphInput } from "@internal/habitat-harness/service/modules/graph/contract";
 import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -204,10 +204,10 @@ function graphDeps(
   };
 }
 
-function runGraphProcedure(input: GraphServiceRunInput, deps: GraphTestDeps) {
+function runGraphProcedure(input: GraphWorkspaceGraphInput, deps: GraphTestDeps) {
   return Effect.gen(function* () {
     const baseDeps = makeTestHabitatServiceDeps();
-    const runGraph = graphRouter.run.callable({
+    const readWorkspaceGraph = graphRouter.workspaceGraph.callable({
       context: {
         deps: {
           ...baseDeps,
@@ -217,6 +217,6 @@ function runGraphProcedure(input: GraphServiceRunInput, deps: GraphTestDeps) {
         },
       },
     });
-    return yield* withFiberContext(() => runGraph(input));
+    return yield* withFiberContext(() => readWorkspaceGraph(input));
   });
 }

@@ -60,11 +60,11 @@ describe("Habitat check service", () => {
     mockExpandBaselinesEffect.mockImplementation(() => Effect.succeed({ ok: true, messages: [] }));
     const result = await Effect.runPromise(
       Effect.gen(function* () {
-        const runCheck = checkRouter.run.callable({
+        const reportCheck = checkRouter.report.callable({
           context: { deps: makeTestHabitatServiceDeps() },
         });
         return yield* withFiberContext(() =>
-          runCheck({
+          reportCheck({
             selectors: { rule: "format-ci", tool: "biome" },
             baselineIntegrity: true,
             base: "origin/main",
