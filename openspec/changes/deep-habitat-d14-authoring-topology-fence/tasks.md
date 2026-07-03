@@ -24,9 +24,9 @@
   Studio artifact, and broad topology migration requests.
 - [x] 2.4 Define the closed request state model and the TypeScript state-space
   reduction it requires for later implementation.
-- [x] 2.5 Define the authoring-specific D13 refusal field values: blocked action,
-  request class, reason, owning authority, recovery instruction, retry
-  condition, empty write set, and non-claims.
+- [x] 2.5 Define the D13/D14 handoff: current D13 stays generic and refuses
+  unsupported project kinds before writes; D14's authoring-specific vocabulary is
+  reserved for a later accepted authoring surface.
 - [x] 2.6 Define future Authoring Topology acceptance criteria and the first
   vertical-slice bar.
 - [x] 2.7 Define later source write set and protected paths.
@@ -59,17 +59,16 @@
   `$REMEDIATION_DIR/packet-index.md` only after review and validation support
   the status.
 
-## 5. Later Source Implementation Gates
+## 5. Current Implementation Boundary
 
-- [ ] 5.1 Do not start source implementation until concrete D0 rows exist for
-  touched generator schema/help/output/docs/export/script surfaces.
-- [ ] 5.2 Implement D14 only through D13's generic scaffold refusal envelope or a
-  later accepted Authoring Topology packet.
-- [ ] 5.3 Add/repair a D13 parser/refusal fixture for request text such as
-  `generate a MapGen recipe with a new domain operation and recipe stage`,
-  asserting D14 blocked action, owner, recovery, retry condition, empty write
-  set, no MapGen source/registry/generated writes, and D4/D12 non-claims.
-- [ ] 5.4 Use Nx generator dry-run records for supported uniform project preview
-  and generated-output no-write validation where generator behavior is touched.
-- [ ] 5.5 Preserve D4 classify and D12 verify non-claims; do not treat their
-  success as authoring readiness.
+- [x] 5.1 Keep D14 source-neutral: no new product-specific authoring parser,
+  request class, DTO, authoring data file, or source branch is introduced.
+- [x] 5.2 Preserve D13's generic unsupported-project-kind refusal envelope as the
+  current no-write behavior for unsupported project scaffolds.
+- [x] 5.3 Keep product docs aligned with current Habitat terms: supported
+  uniform project scaffolding is `plugin` only; authoring topology remains
+  unsupported.
+- [x] 5.4 Preserve D4 classify and D12 verify support boundaries; do not treat
+  their success as authoring readiness.
+- [x] 5.5 Validate the current boundary with focused generator tests, supported
+  project dry-run, OpenSpec validation, and diff hygiene before closure.

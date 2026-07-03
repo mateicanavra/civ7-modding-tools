@@ -1,18 +1,31 @@
+import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import {
-  discoverGritScanRoots,
-  effectiveGritScanRoots,
   parseGritCheckOutput,
   parseGritCheckTextOutput,
-  projectGritResults,
+} from "../../src/adapters/grit/output/index.js";
+import { gritRuleResultsFromReport } from "../../src/adapters/grit/diagnostics.js";
+import { decidePatternScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
+import {
+  DiagnosticCatalogEntrySchema,
+  diagnosticAdapterFailureKinds,
+  diagnosticCacheRequirementForGritCheck,
+  diagnosticCatalogEntryFromNativeRule,
+  diagnosticCatalogEntryFromRulePatternFacts,
+  diagnosticConsumerResultFromOutcome,
+  GritDiagnosticCatalogEntrySchema,
+  NativeDiagnosticCatalogEntrySchema,
+  observedNativeDiagnosticIdentity,
+  renderDiagnosticAdapterFailure,
+} from "../../src/lib/diagnostic-catalog/index.js";
+import {
+  decideEffectivePatternScanRoots,
+  discoverPatternScanRoots,
+  effectivePatternScanRoots,
+  runGritDiagnosticOutcomes,
   runGritRules,
   validateScanRoots,
 } from "../../src/lib/grit.js";
-import {
-  createGritAdapterFailure,
-  gritAdapterFailureTags,
-  renderGritAdapterFailure,
-} from "../../src/lib/grit-failures.js";
 import {
   type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
@@ -20,9 +33,9 @@ import {
   type OutputCapture,
 } from "../../src/lib/habitat-process.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import type { HarnessRule } from "../../src/rules/architecture.js";
+import type { RulePatternFacts } from "../../src/rules/registry/index.js";
 
-describe("Grit check adapter parser and projection", () => {
+describe("Grit check adapter parser and diagnostics", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {
     const parsed = parseGritCheckOutput(
       commandResult({
@@ -42,26 +55,54 @@ describe("Grit check adapter parser and projection", () => {
       })
     );
 
-    expect(parsed.ok).toBe(true);
-    if (!parsed.ok) return;
+    expect(parsed.kind).toBe("parsed");
+    if (parsed.kind !== "parsed") return;
     expect(parsed.parseStatus).toBe("parsed");
+    expect(parsed.request).toMatchObject({
+      commandFamily: "current-tree-json-check",
+      outputContract: "json-report",
+      cacheRequirement: { kind: "workspace-cache-allowed", observable: false },
+    });
+    expect("stdout" in parsed.request).toBe(false);
+    expect("stderr" in parsed.request).toBe(false);
     expect(parsed.report.results[0]?.local_name).toBe("adapter_base_standard_import");
   });
 
-  test("fails closed for no JSON, malformed JSON, and wrapper text", () => {
-    expect(parseGritCheckOutput(commandResult()).ok && "unexpected").toBe(false);
-    expect(parseGritCheckOutput(commandResult()).failureTag).toBe("GritNoJson");
+  test("records freshness-required native request state", () => {
+    const parsed = parseGritCheckOutput(
+      commandResult({
+        stderr: JSON.stringify({ paths: [], results: [] }),
+      }),
+      diagnosticCacheRequirementForGritCheck({
+        cacheMode: "fresh",
+        requireObservableCacheStatus: true,
+      })
+    );
 
-    const malformed = parseGritCheckOutput(commandResult({ stderr: '{"results":' }));
-    expect(malformed.ok && "unexpected").toBe(false);
-    expect(malformed.failureTag).toBe("GritMalformedJson");
-
-    const wrapped = parseGritCheckOutput(commandResult({ stderr: 'prefix {"results":[]} suffix' }));
-    expect(wrapped.ok && "unexpected").toBe(false);
-    expect(wrapped.failureTag).toBe("GritMalformedJson");
+    expect(parsed.kind).toBe("parsed");
+    if (parsed.kind !== "parsed") return;
+    expect(parsed.request.cacheRequirement).toEqual({ kind: "fresh-required", observable: true });
   });
 
-  test("treats nonzero Grit exits as command failures before projection", () => {
+  test("fails closed for no JSON, malformed JSON, and wrapper text", () => {
+    const noJson = parseGritCheckOutput(commandResult());
+    expect(noJson.kind).toBe("adapter-failed");
+    expect(noJson.kind === "adapter-failed" ? noJson.failure : "unexpected").toBe("GritNoJson");
+
+    const malformed = parseGritCheckOutput(commandResult({ stderr: '{"results":' }));
+    expect(malformed.kind).toBe("adapter-failed");
+    expect(malformed.kind === "adapter-failed" ? malformed.failure : "unexpected").toBe(
+      "GritMalformedJson"
+    );
+
+    const wrapped = parseGritCheckOutput(commandResult({ stderr: 'prefix {"results":[]} suffix' }));
+    expect(wrapped.kind).toBe("adapter-failed");
+    expect(wrapped.kind === "adapter-failed" ? wrapped.failure : "unexpected").toBe(
+      "GritMalformedJson"
+    );
+  });
+
+  test("treats nonzero Grit exits as command failures before diagnostic mapping", () => {
     const failed = parseGritCheckOutput(
       commandResult({
         stderr: '{"paths":[],"results":[]}',
@@ -69,8 +110,10 @@ describe("Grit check adapter parser and projection", () => {
       })
     );
 
-    expect(failed.ok && "unexpected").toBe(false);
-    expect(failed.failureTag).toBe("GritCommandFailed");
+    expect(failed.kind).toBe("adapter-failed");
+    expect(failed.kind === "adapter-failed" ? failed.failure : "unexpected").toBe(
+      "GritCommandFailed"
+    );
     expect(failed.parseStatus).toBe("unparsed");
   });
 
@@ -78,8 +121,8 @@ describe("Grit check adapter parser and projection", () => {
     const truncated = parseGritCheckOutput(
       makeHabitatCommandResult(
         {
-          commandId: "grit-parser-truncated",
-          kind: "grit-check",
+          commandId: "parser-truncated",
+          kind: "pattern-check",
           executable: "grit",
           argv: ["--json", "check"],
           cwd: repoRoot,
@@ -90,25 +133,31 @@ describe("Grit check adapter parser and projection", () => {
       )
     );
 
-    expect(truncated.ok && "unexpected").toBe(false);
-    expect(truncated.failureTag).toBe("GritAdapterInternalContractViolation");
+    expect(truncated.kind).toBe("adapter-failed");
+    expect(truncated.kind === "adapter-failed" ? truncated.failure : "unexpected").toBe(
+      "GritAdapterInternalContractViolation"
+    );
   });
 
   test("distinguishes missing results from unexpected result shape", () => {
     const missingResults = parseGritCheckOutput(commandResult({ stderr: '{"paths":[]}' }));
-    expect(missingResults.ok && "unexpected").toBe(false);
-    expect(missingResults.failureTag).toBe("GritSchemaDrift");
+    expect(missingResults.kind).toBe("adapter-failed");
+    expect(missingResults.kind === "adapter-failed" ? missingResults.failure : "unexpected").toBe(
+      "GritSchemaDrift"
+    );
 
     const wrongShape = parseGritCheckOutput(
       commandResult({ stderr: '{"paths":[],"results":[{"local_name":5}]}' })
     );
-    expect(wrongShape.ok && "unexpected").toBe(false);
-    expect(wrongShape.failureTag).toBe("GritUnexpectedResultShape");
+    expect(wrongShape.kind).toBe("adapter-failed");
+    expect(wrongShape.kind === "adapter-failed" ? wrongShape.failure : "unexpected").toBe(
+      "GritUnexpectedResultShape"
+    );
   });
 
   test("projects exact Grit pattern identities to Habitat rule ids", () => {
-    const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
-    const projected = projectGritResults([rule], {
+    const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
+    const diagnosticResults = gritRuleResultsFromReport([rule], {
       paths: ["packages/example/src/demo.ts"],
       results: [
         {
@@ -126,7 +175,7 @@ describe("Grit check adapter parser and projection", () => {
       ],
     });
 
-    const result = projected.get(rule.id);
+    const result = diagnosticResults.get(rule.id);
     expect(result?.exitCode).toBe(1);
     expect(result?.diagnostics).toEqual([
       {
@@ -141,9 +190,9 @@ describe("Grit check adapter parser and projection", () => {
   });
 
   test("keeps wrong, missing, duplicate, and outside requested pattern findings distinct", () => {
-    const requested = fakeGritRule("grit-domain-deep-import", "domain_deep_import");
-    const other = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
-    const projected = projectGritResults([requested, other], {
+    const requested = fakeGritRule("domain-deep-import", "domain_deep_import");
+    const other = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
+    const diagnosticResults = gritRuleResultsFromReport([requested, other], {
       paths: ["mods/mod-swooper-maps/src/recipes/demo.ts", "packages/example/src/demo.ts"],
       results: [
         {
@@ -168,30 +217,30 @@ describe("Grit check adapter parser and projection", () => {
     });
 
     expect(
-      projected.get(requested.id)?.diagnostics.map((diagnostic) => diagnostic.message)
+      diagnosticResults.get(requested.id)?.diagnostics.map((diagnostic) => diagnostic.message)
     ).toEqual(["first domain finding", "duplicate domain finding"]);
-    expect(projected.get(other.id)).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(diagnosticResults.get(other.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
   test("keeps valid zero findings distinct from adapter failure", () => {
-    const rule = fakeGritRule("grit-domain-deep-import", "domain_deep_import");
-    const result = projectGritResults([rule], { paths: [], results: [] }).get(rule.id);
+    const rule = fakeGritRule("domain-deep-import", "domain_deep_import");
+    const result = gritRuleResultsFromReport([rule], { paths: [], results: [] }).get(rule.id);
 
     expect(result).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
-  test("proof projection mode distinguishes missing and unexpected pattern identities", () => {
-    const requested = fakeGritRule("grit-domain-deep-import", "domain_deep_import");
-    const other = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
+  test("strict diagnostic matching distinguishes missing and unexpected pattern identities", () => {
+    const requested = fakeGritRule("domain-deep-import", "domain_deep_import");
+    const other = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
 
-    const missing = projectGritResults(
+    const missing = gritRuleResultsFromReport(
       [requested],
       { paths: [], results: [] },
       { requirePatternFinding: true }
     ).get(requested.id);
-    expect(missing?.diagnostics[0]?.message).toContain("GritPatternProjectionMiss");
+    expect(missing?.diagnostics[0]?.message).toContain("GritPatternMatchMissing");
 
-    const unexpected = projectGritResults(
+    const unexpected = gritRuleResultsFromReport(
       [requested],
       {
         paths: ["packages/example/src/demo.ts"],
@@ -205,17 +254,56 @@ describe("Grit check adapter parser and projection", () => {
       { rejectUnexpectedPatternIdentity: true }
     );
     expect(unexpected.get(requested.id)?.diagnostics[0]?.message).toContain(
-      "GritUnexpectedPatternIdentity"
+      "GritUnexpectedDiagnosticIdentity"
     );
     expect(unexpected.get(other.id)).toBeUndefined();
   });
 
+  test("rejects conflicting observed Grit identity fields", () => {
+    const rule = fakeGritRule("domain-deep-import", "domain_deep_import");
+    const diagnosticResults = gritRuleResultsFromReport([rule], {
+      paths: ["mods/mod-swooper-maps/src/recipes/demo.ts"],
+      results: [
+        {
+          local_name: "domain_deep_import",
+          check_id: "github.com/mateicanavra/civ7-modding-tools#different_pattern/js",
+          path: "mods/mod-swooper-maps/src/recipes/demo.ts",
+          start: { line: 1 },
+          extra: { message: "conflicting identity" },
+        },
+      ],
+    });
+
+    expect(diagnosticResults.get(rule.id)?.exitCode).toBe(1);
+    expect(diagnosticResults.get(rule.id)?.diagnostics[0]?.message).toContain(
+      "GritUnexpectedDiagnosticIdentity"
+    );
+    expect(diagnosticResults.get(rule.id)?.diagnostics[0]?.message).toContain(
+      "local_name=domain_deep_import"
+    );
+  });
+
   test("rejects empty scan roots before command execution", async () => {
-    const rule = fakeGritRule("grit-domain-deep-import", "domain_deep_import");
+    const rule = fakeGritRule("domain-deep-import", "domain_deep_import");
     const results = await runGritRules([rule], { scanRoots: [] });
 
     expect(results.get(rule.id)?.exitCode).toBe(1);
     expect(results.get(rule.id)?.diagnostics[0]?.message).toContain("GritEmptyScanRoots");
+  });
+
+  test("surfaces scan-root refusal as a diagnostic outcome", async () => {
+    const rule = fakeGritRule("domain-deep-import", "domain_deep_import");
+    const outcomes = await runGritDiagnosticOutcomes([rule], { scanRoots: [] });
+
+    const outcome = outcomes.get(rule.id);
+    expect(outcome?.kind).toBe("scan-root-refused");
+    if (outcome?.kind !== "scan-root-refused") return;
+    expect(outcome.decision).toEqual({ kind: "refused", reason: "empty" });
+    expect(diagnosticConsumerResultFromOutcome(outcome)).toMatchObject({
+      kind: "scan-root-refused",
+      decision: { kind: "refused", reason: "empty" },
+      detail: "Grit scan roots are empty.",
+    });
   });
 
   test("validates missing, outside, generated, protected, and approved scan roots", () => {
@@ -227,13 +315,83 @@ describe("Grit check adapter parser and projection", () => {
     expect(validateScanRoots(["mods/mod-swooper-maps/src/maps/generated"])).toContain(
       "generated output"
     );
-    expect(validateScanRoots([".civ7"])).toContain("protected");
-    expect(validateScanRoots(["docs"])).toContain("not approved");
-    expect(validateScanRoots(["docs"], { allowDocsRoot: true })).toBeNull();
+    expect(validateScanRoots([".git"])).toContain("protected");
+    expect(validateScanRoots(["docs/PROCESS.md"])).toContain("not approved");
+    expect(validateScanRoots(["docs/PROCESS.md"], { allowDocsRoot: true })).toBeNull();
+  });
+
+  test("keeps scan-root refusal reasons as closed decisions", () => {
+    expect(decidePatternScanRoots([])).toEqual({ kind: "refused", reason: "empty" });
+    expect(decidePatternScanRoots(["../outside"])).toEqual({
+      kind: "refused",
+      reason: "outside-repo",
+      root: "../outside",
+    });
+    expect(decidePatternScanRoots(["missing-root"])).toEqual({
+      kind: "refused",
+      reason: "missing",
+      root: "missing-root",
+    });
+    expect(decidePatternScanRoots(["packages"])).toEqual({
+      kind: "accepted",
+      roots: ["packages"],
+      source: "rule-registry-facts",
+    });
+  });
+
+  test("creates native diagnostic catalog entries without Grit pattern identity", () => {
+    const entry = diagnosticCatalogEntryFromNativeRule({
+      ruleId: "docs-local-checkout-paths",
+      nativeDiagnosticIdentity: "docs-local-checkout-paths",
+    });
+
+    expect(entry.kind).toBe("native-diagnostic");
+    expect(entry.diagnosticIdentity).toEqual({
+      kind: "native-rule",
+      nativeDiagnosticIdentity: "docs-local-checkout-paths",
+      source: "native-habitat-rule",
+    });
+    expect(entry.matchContract).toEqual({
+      kind: "native-rule-match",
+      identity: entry.diagnosticIdentity,
+    });
+    expect("patternIdentity" in entry.diagnosticIdentity).toBe(false);
+  });
+
+  test("validates diagnostic catalog branches with TypeBox-specific contracts", () => {
+    const gritEntry = diagnosticCatalogEntryFromRulePatternFacts(
+      fakeGritRule("domain-deep-import", "domain_deep_import")
+    );
+    const nativeEntry = diagnosticCatalogEntryFromNativeRule({
+      ruleId: "docs-local-checkout-paths",
+      nativeDiagnosticIdentity: "docs-local-checkout-paths",
+    });
+
+    expect(Value.Check(GritDiagnosticCatalogEntrySchema, gritEntry)).toBe(true);
+    expect(Value.Check(NativeDiagnosticCatalogEntrySchema, nativeEntry)).toBe(true);
+    expect(Value.Check(DiagnosticCatalogEntrySchema, gritEntry)).toBe(true);
+    expect(Value.Check(DiagnosticCatalogEntrySchema, nativeEntry)).toBe(true);
+    expect(
+      Value.Check(GritDiagnosticCatalogEntrySchema, {
+        ...gritEntry,
+        scanContract: nativeEntry.scanContract,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(NativeDiagnosticCatalogEntrySchema, {
+        ...nativeEntry,
+        matchContract: gritEntry.matchContract,
+      })
+    ).toBe(false);
+    expect(observedNativeDiagnosticIdentity("docs-local-checkout-paths")).toEqual({
+      kind: "observed-native-rule",
+      observedNativeDiagnosticIdentity: "docs-local-checkout-paths",
+      source: "native-habitat-rule",
+    });
   });
 
   test("runs selected Grit rules through one argument-array command request", async () => {
-    const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
+    const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
       observedRequest = request;
@@ -269,7 +427,7 @@ describe("Grit check adapter parser and projection", () => {
         observableStatus: "unknown",
       },
     });
-    expect(observedRequest?.cachePolicy?.cacheDir).toBe(`${repoRoot}/.grit/cache`);
+    expect(observedRequest?.cachePolicy?.cacheDir).toBe(`${repoRoot}/.habitat/cache/patterns`);
     expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
     expect(observedRequest?.env).toMatchObject({
       CLICOLOR: "0",
@@ -279,8 +437,8 @@ describe("Grit check adapter parser and projection", () => {
     expect(results.get(rule.id)?.diagnostics[0]?.message).toBe("adapter finding");
   });
 
-  test("fresh proof mode uses a scoped isolated cache with observable freshness", async () => {
-    const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
+  test("fresh cache mode uses a scoped isolated cache with observable freshness", async () => {
+    const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
       observedRequest = request;
@@ -300,27 +458,27 @@ describe("Grit check adapter parser and projection", () => {
       mode: "isolated",
       observableStatus: "fresh",
     });
-    expect(observedRequest?.cachePolicy?.cacheDir).toContain("habitat-grit-check-");
+    expect(observedRequest?.cachePolicy?.cacheDir).toContain("habitat-pattern-check-");
     expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
     expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
-  test("activates docs roots only for Grit rules that declare docs scope", () => {
-    const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
-      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+  test("activates docs roots only for Grit rules that declare docs scan roots", () => {
+    const sourceRule = fakeGritRule("domain-deep-import", "domain_deep_import", {
+      scanRoots: ["mods/mod-swooper-maps/src/maps"],
     });
     const docsRule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
 
-    expect(discoverGritScanRoots([sourceRule])).not.toContain("docs");
-    const docsRoots = discoverGritScanRoots([docsRule]);
+    expect(discoverPatternScanRoots([sourceRule])).not.toContain("docs");
+    const docsRoots = discoverPatternScanRoots([docsRule]);
     expect(docsRoots.length).toBeGreaterThan(0);
     expect(docsRoots.every((root) => root.startsWith("docs/") && root.endsWith(".md"))).toBe(true);
     expect(docsRoots).toContain("docs/PROCESS.md");
-    expect(discoverGritScanRoots([sourceRule, docsRule])).toContain("docs/PROCESS.md");
-    expect(discoverGritScanRoots([sourceRule, docsRule])).toContain(
+    expect(discoverPatternScanRoots([sourceRule, docsRule])).toContain("docs/PROCESS.md");
+    expect(discoverPatternScanRoots([sourceRule, docsRule])).toContain(
       "mods/mod-swooper-maps/src/maps"
     );
   });
@@ -328,7 +486,7 @@ describe("Grit check adapter parser and projection", () => {
   test("projects selected docs local-path findings from Grit rewrite dry-run output", async () => {
     const rule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
@@ -349,7 +507,7 @@ Processed 1 files and found 1 matches
 
     expect(observedRequest?.argv.slice(0, 2)).toEqual([
       "apply",
-      ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md",
+      ".habitat/patterns/apply/docs_local_checkout_paths_rewrite.md",
     ]);
     expect(observedRequest?.argv).toContain("docs/PROCESS.md");
     expect(observedRequest?.argv.slice(-4)).toEqual([
@@ -369,10 +527,58 @@ Processed 1 files and found 1 matches
     ]);
   });
 
+  test("projects docs local-path diagnostics as native diagnostic outcomes", async () => {
+    const rule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
+      lane: "advisory",
+      scanRoots: ["docs"],
+    });
+    const fakeLayer = makeFakeHabitatProcessLayer((request) =>
+      makeHabitatCommandResult(request, {
+        stdout: output(`docs/PROCESS.md
+    -See \`/Users/alice/dev/repo/docs/PROCESS.md\`.
+    +See \`docs/PROCESS.md\`.
+
+Processed 1 files and found 1 matches
+`),
+      })
+    );
+
+    const outcomes = await runGritDiagnosticOutcomes([rule], { processLayer: fakeLayer });
+
+    const outcome = outcomes.get(rule.id);
+    expect(outcome?.kind).toBe("findings");
+    if (outcome?.kind !== "findings") return;
+    expect(outcome.entry).toMatchObject({
+      kind: "native-diagnostic",
+      diagnosticIdentity: {
+        kind: "native-rule",
+        nativeDiagnosticIdentity: "docs-local-checkout-paths",
+      },
+    });
+    expect(outcome.diagnostics).toEqual([
+      {
+        kind: "diagnostic-finding",
+        ruleId: rule.id,
+        path: "docs/PROCESS.md",
+        message: rule.message,
+        severity: "advisory",
+        baselineState: "unbaselined",
+      },
+    ]);
+    expect(diagnosticConsumerResultFromOutcome(outcome)).toMatchObject({
+      kind: "findings",
+      diagnosticIdentity: {
+        kind: "native-rule",
+        nativeDiagnosticIdentity: "docs-local-checkout-paths",
+      },
+      diagnostics: outcome.diagnostics,
+    });
+  });
+
   test("ignores docs dry-run files with host paths but no rewrite hunk", async () => {
     const rule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
     const fakeLayer = makeFakeHabitatProcessLayer((request) =>
       makeHabitatCommandResult(request, {
@@ -389,12 +595,18 @@ Processed 1 files and found 1 matches
   });
 
   test("splits mixed source and docs Grit selections by output contract", async () => {
-    const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
-      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+    const sourceRule = fakeGritRule("domain-deep-import", "domain_deep_import", {
+      scanRoots: [
+        "packages",
+        "apps/mapgen-studio/src",
+        "mods/mod-swooper-maps/src/recipes",
+        "mods/mod-swooper-maps/src/maps",
+        "mods/mod-swooper-maps/src/domain",
+      ],
     });
     const docsRule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
     const observedRequests: HabitatProcessRequest[] = [];
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
@@ -443,7 +655,7 @@ Processed 2 files and found 1 matches
     ]);
     expect(observedRequests[1]?.argv.slice(0, 2)).toEqual([
       "apply",
-      ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md",
+      ".habitat/patterns/apply/docs_local_checkout_paths_rewrite.md",
     ]);
     expect(observedRequests[1]?.argv).toContain("docs/PROCESS.md");
     expect(observedRequests[1]?.argv.slice(-4)).toEqual([
@@ -464,6 +676,52 @@ Processed 2 files and found 1 matches
     });
   });
 
+  test("splits diagnostic outcomes for mixed source and docs text selections", async () => {
+    const sourceRule = fakeGritRule("domain-deep-import", "domain_deep_import", {
+      scanRoots: ["packages"],
+    });
+    const docsRule = fakeGritRule("docs-policy", "docs_policy", {
+      lane: "advisory",
+      scanRoots: ["docs/PROCESS.md"],
+    });
+    const observedRequests: HabitatProcessRequest[] = [];
+    const fakeLayer = makeFakeHabitatProcessLayer((request) => {
+      observedRequests.push(request);
+      if (request.argv[0] === "--json") {
+        return makeHabitatCommandResult(request, {
+          stderr: output(
+            JSON.stringify({
+              paths: ["packages/example/src/demo.ts"],
+              results: [
+                {
+                  local_name: "domain_deep_import",
+                  path: "packages/example/src/demo.ts",
+                  start: { line: 4 },
+                  extra: { message: "source finding" },
+                },
+              ],
+            })
+          ),
+        });
+      }
+      return makeHabitatCommandResult(request, {
+        stdout: output(`docs/PROCESS.md
+  3:2    match    Docs finding.    docs_policy
+`),
+      });
+    });
+
+    const outcomes = await runGritDiagnosticOutcomes([sourceRule, docsRule], {
+      processLayer: fakeLayer,
+    });
+
+    expect(observedRequests.map((request) => request.argv[0])).toEqual(["--json", "check"]);
+    expect(observedRequests[0]?.scanRoots).toEqual(["packages"]);
+    expect(observedRequests[1]?.scanRoots).toEqual(["docs/PROCESS.md"]);
+    expect(outcomes.get(sourceRule.id)?.kind).toBe("findings");
+    expect(outcomes.get(docsRule.id)?.kind).toBe("findings");
+  });
+
   test("parses Grit text output by reported path, position, and pattern id", () => {
     const parsed = parseGritCheckTextOutput(
       commandResult({
@@ -474,8 +732,8 @@ Processed 2 files and found 1 matches
       })
     );
 
-    expect(parsed.ok).toBe(true);
-    if (!parsed.ok) return;
+    expect(parsed.kind).toBe("parsed");
+    if (parsed.kind !== "parsed") return;
     expect(parsed.report.results).toEqual([
       {
         local_name: "docs_local_checkout_paths",
@@ -485,8 +743,8 @@ Processed 2 files and found 1 matches
     ]);
   });
 
-  test("fails proof paths that require observable cache provenance when status is unknown", async () => {
-    const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
+  test("fails paths that require observable cache provenance when status is unknown", async () => {
+    const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
     const fakeLayer = makeFakeHabitatProcessLayer((request) =>
       makeHabitatCommandResult(request, {
         cachePolicy: {
@@ -508,18 +766,56 @@ Processed 2 files and found 1 matches
     expect(results.get(rule.id)?.diagnostics[0]?.message).toContain("GritCacheProvenanceMissing");
   });
 
-  test("activates ignored test roots only for rules that declare test scope", async () => {
-    const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
-      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
-    });
-    const testRule = fakeGritRule("grit-domain-deep-import-tests", "domain_deep_import_tests", {
-      scope: "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+  test("surfaces missing cache provenance as a diagnostic outcome", async () => {
+    const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
+    const fakeLayer = makeFakeHabitatProcessLayer((request) =>
+      makeHabitatCommandResult(request, {
+        cachePolicy: {
+          mode: request.cachePolicy?.mode ?? "isolated",
+          cacheDir: request.cachePolicy?.cacheDir,
+          observableStatus: "unknown",
+        },
+        stderr: output(JSON.stringify({ paths: [], results: [] })),
+      })
+    );
+
+    const outcomes = await runGritDiagnosticOutcomes([rule], {
+      scanRoots: ["packages"],
+      processLayer: fakeLayer,
+      requireObservableCacheStatus: true,
     });
 
-    expect(discoverGritScanRoots([sourceRule])).not.toContain("mods/mod-swooper-maps/test");
-    expect(discoverGritScanRoots([testRule])).toContain("mods/mod-swooper-maps/test");
+    const outcome = outcomes.get(rule.id);
+    expect(outcome?.kind).toBe("cache-observation-missing");
+    if (outcome?.kind !== "cache-observation-missing") return;
+    expect(outcome.cache).toMatchObject({
+      kind: "missing-required-observation",
+      failure: "GritCacheProvenanceMissing",
+    });
+    expect(diagnosticConsumerResultFromOutcome(outcome)).toMatchObject({
+      kind: "cache-observation-missing",
+      failure: "GritCacheProvenanceMissing",
+      detail: "Grit cache/fresh status is not observable for this command result.",
+    });
+  });
 
-    const effectiveRoots = effectiveGritScanRoots(
+  test("activates ignored test roots only for rules that declare test expansion", async () => {
+    const sourceRule = fakeGritRule("domain-deep-import", "domain_deep_import", {
+      scanRoots: ["mods/mod-swooper-maps/src/recipes"],
+    });
+    const testRule = fakeGritRule("domain-deep-import-tests", "domain_deep_import_tests", {
+      scanRoots: ["packages", "mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/test"],
+      expandIgnoredTestDirectories: true,
+    });
+
+    expect(discoverPatternScanRoots([sourceRule])).not.toContain("mods/mod-swooper-maps/test");
+    expect(discoverPatternScanRoots([testRule])).toContain("mods/mod-swooper-maps/test");
+
+    const effectiveRoots = effectivePatternScanRoots(
+      [testRule],
+      ["packages", "mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/test"]
+    );
+    const decision = decideEffectivePatternScanRoots(
       [testRule],
       ["packages", "mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/test"]
     );
@@ -528,6 +824,17 @@ Processed 2 files and found 1 matches
     expect(effectiveRoots).toContain("mods/mod-swooper-maps/test/hydrology-ocean-geometry.test.ts");
     expect(effectiveRoots).toContain("packages/civ7-map-policy/test/map-policy.test.ts");
     expect(effectiveRoots).not.toContain("mods/mod-swooper-maps/test");
+    expect(decision).toMatchObject({
+      kind: "expanded-test-files",
+      requestedRoots: [
+        "packages",
+        "mods/mod-swooper-maps/src/recipes",
+        "mods/mod-swooper-maps/test",
+      ],
+    });
+    expect(decision.kind === "expanded-test-files" && decision.effectiveRoots).toEqual(
+      effectiveRoots
+    );
 
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
@@ -574,20 +881,10 @@ Processed 2 files and found 1 matches
     ]);
   });
 
-  test("implements and renders every accepted adapter failure tag", () => {
-    for (const tag of gritAdapterFailureTags) {
-      const failure = createGritAdapterFailure(tag, {
-        detail: "adapter failure test",
-        commandId: "failure-tag-test",
-        executable: "grit",
-        argv: ["--version"],
-        cwd: repoRoot,
-        cause: "missing executable",
-      });
-
-      expect(failure._tag).toBe(tag);
-      expect(renderGritAdapterFailure(tag, "adapter failure test")).toBe(
-        `--- grit adapter failure (${tag}) ---\nadapter failure test`
+  test("renders diagnostic adapter failures", () => {
+    for (const kind of diagnosticAdapterFailureKinds) {
+      expect(renderDiagnosticAdapterFailure(kind, "adapter failure test")).toBe(
+        `--- grit adapter failure (${kind}) ---\nadapter failure test`
       );
     }
   });
@@ -596,8 +893,8 @@ Processed 2 files and found 1 matches
 function commandResult(options: { stdout?: string; stderr?: string; exitCode?: number } = {}) {
   return makeHabitatCommandResult(
     {
-      commandId: "grit-parser-test",
-      kind: "grit-check",
+      commandId: "parser-test",
+      kind: "pattern-check",
       executable: "grit",
       argv: ["--json", "check"],
       cwd: repoRoot,
@@ -606,8 +903,6 @@ function commandResult(options: { stdout?: string; stderr?: string; exitCode?: n
       exit: { code: options.exitCode ?? 0, signal: null, interrupted: false },
       stdout: output(options.stdout ?? ""),
       stderr: output(options.stderr ?? ""),
-      failureTag:
-        options.exitCode === undefined || options.exitCode === 0 ? null : "GritCommandFailed",
     }
   );
 }
@@ -624,21 +919,14 @@ function output(text: string): OutputCapture {
 function fakeGritRule(
   id: string,
   pattern: string,
-  overrides: Partial<HarnessRule> = {}
-): HarnessRule {
+  overrides: Partial<RulePatternFacts> = {}
+): RulePatternFacts {
   return {
     id,
-    gritPattern: pattern,
-    ownerTool: "grit-check",
-    ownerProject: "@internal/habitat-harness",
+    patternName: pattern,
     lane: "enforced",
-    scope: "test",
-    forbids: "test",
-    why: "test",
-    detect: ["habitat", "check", "--tool", "grit-check"],
-    remediate: null,
     message: "test rule",
-    exceptionPath: "none",
+    scanRoots: ["packages"],
     ...overrides,
   };
 }

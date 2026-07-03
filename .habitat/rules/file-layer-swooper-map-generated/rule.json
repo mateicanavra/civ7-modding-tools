@@ -1,0 +1,34 @@
+{
+  "id": "file-layer-swooper-map-generated",
+  "ownerTool": "file-layer",
+  "ownerProject": "@internal/habitat-harness",
+  "lane": "enforced",
+  "scope": "staged changes under mods/mod-swooper-maps/src/maps/generated/**",
+  "forbids": "staged hand-edits to generated Swooper map entrypoints",
+  "why": "Generated map entrypoints must be regenerated from canonical map configs.",
+  "detect": [
+    "habitat",
+    "check",
+    "--staged",
+    "--tool",
+    "file-layer"
+  ],
+  "remediate": "bun run --cwd mods/mod-swooper-maps gen:maps",
+  "message": "Generated Swooper map entrypoints are protected from hand edit.",
+  "exceptionPath": "none",
+  "generatedZone": "swooper-map-generated",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/maps/generated/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    },
+    {
+      "kind": "workspace-gate"
+    }
+  ]
+}

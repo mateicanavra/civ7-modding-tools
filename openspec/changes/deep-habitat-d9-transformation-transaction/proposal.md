@@ -47,8 +47,8 @@ Habitat does not own.
   into protected/generated or host-specific surfaces.
 - Treats Grit, Biome, Git, and Nx as vendor/tool owners whose command outcomes
   D9 records without reimplementing their semantics.
-- Classifies legacy `GritApply*` exports and proof-shaped names as D0/D1
-  compatibility surfaces, not target terminology.
+- Removes `GritApply*` exports and proof-shaped names from the D9 implementation
+  surface.
 
 ## What Does Not Change
 
@@ -66,8 +66,8 @@ Habitat does not own.
 
 - D0 for every public command, package export, JSON/human output, script, docs
   example, or durable behavior surface touched by D9.
-- D1 for `ApplyTransactionRecord`, D1 non-claim identifiers, refusal record
-  relationships, and compatibility wrapper rules.
+- D1 for `ApplyTransactionRecord`, D1 non-claim identifiers, and refusal record
+  relationships.
 - D6 for diagnostic identity and limitations only; D6 diagnostics do not
   authorize writes.
 - D8 for `ApplyAdmissionProjection` and apply-refusal projections.
@@ -82,19 +82,19 @@ Habitat does not own.
 - D13 may consume D9 transaction-input prerequisites for future apply-capable
   candidates, while D13 still owns candidate generation.
 - Future apply packet work may rely on the D9 closed state model instead of
-  parsing legacy proof/result objects.
+  parsing process-shaped proof/result objects.
 
 ## Affected Public And Durable Surfaces
 
 These surfaces require D0 row citation before source implementation may change
-or rely on compatibility handling:
+or remove them:
 
 - `habitat fix` and `habitat fix --dry-run` CLI behavior, human output, exit
   status, and Oclif help text.
 - Any new `habitat fix --json` flag or JSON output. D9 does not treat JSON as a
   current command surface; adding it requires an explicit D0-backed public
   contract.
-- Package exports from `$HABITAT_TOOL/src/index.ts`: `GritApplyTransactionOptions`,
+- Removed package exports from `$HABITAT_TOOL/src/index.ts`: `GritApplyTransactionOptions`,
   `GritApplyTransactionProof`, `GritApplyTransactionResult`,
   `GritApplyRewriteInventoryEntry`, `classifyApplyRewriteInventory`,
   `parseApplyRewriteInventory`, and `runGritApplyTransaction`.
@@ -115,11 +115,11 @@ projection surfaces:
   rollback/recovery.
 - `$HABITAT_TOOL/src/lib/command-engine.ts` and `$HABITAT_TOOL/src/commands/fix.ts`
   only to construct explicit D9 request variants and render D9 outcomes.
-- `$HABITAT_TOOL/src/index.ts` only under D0/D1 compatibility rules.
-- `$HABITAT_TOOL/test/lib/grit-apply.test.ts` and D9-specific follow-on test
-  files. The implementation should reduce the large single-file test burden
-  by moving transaction state, write-set approval, handoff, and integration
-  tests into owned files where practical.
+- `$HABITAT_TOOL/src/index.ts` only to remove old D9 transaction exports or add
+  a future D0-backed public record surface.
+- `$HABITAT_TOOL/test/lib/transformation-transaction.test.ts` and D9-specific
+  follow-on test files. The implementation should keep product behavior tests
+  close to the transaction module and avoid reviving deleted monolith fixtures.
 - Grit apply pattern fixture tests only when the D9 transaction contract changes
   invocation or inventory expectations; Grit pattern semantics remain Grit/D8
   owned.
@@ -143,8 +143,8 @@ Design-time gates before D9 acceptance:
 
 Later implementation gates:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`
-  plus any D9-owned split tests introduced by the implementation.
+- `bun run --cwd tools/habitat-harness test -- test/lib/transformation-transaction.test.ts`
+  plus any future D9-owned split tests introduced by the implementation.
 - `bun run --cwd tools/habitat-harness test -- test/grit/grit-patterns.test.ts`
   when apply pattern invocation or fixtures change.
 - `bun tools/habitat-harness/bin/dev.ts fix --dry-run` with
@@ -165,6 +165,6 @@ Later implementation gates:
 - D9 embeds Civ7/MapGen public-ops validation as generic transaction policy
   instead of consuming a declared host gate.
 - `habitat fix --json` appears as a gate or output without an explicit D0
-  compatibility decision.
+  public contract decision.
 - Formatter, gate, rollback, or vendor command success is reported as product
   correctness, current-tree diagnostic cleanliness, or runtime proof.

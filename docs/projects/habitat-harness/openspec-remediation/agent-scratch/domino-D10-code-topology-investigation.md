@@ -52,7 +52,7 @@
 - The same file has a separate hard-coded protected root prefix list:
   - `.civ7/`
   - `.git/`
-  - `.grit/cache/`
+  - `.habitat/cache/patterns/`
   - `dist/`
   - `node_modules/`
   - `tools/habitat-harness/dist/`

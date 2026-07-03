@@ -144,7 +144,7 @@ Current candidate generation:
 - Normalizes `ruleId`, `patternName`, lifecycle, owner project, OpenSpec change
   id, manifest path, and hook scope.
 - Defaults lifecycle to `candidate`.
-- Refuses active rule collisions in `.grit/patterns/habitat/checks`, baseline
+- Refuses active rule collisions in `.habitat/patterns/active/checks`, baseline
   collisions under `tools/habitat-harness/baselines`, and duplicate `rules.json`
   ids.
 - Writes candidate pattern and candidate manifest under
@@ -160,7 +160,7 @@ Current registered promotion:
 - Requires an explicit baseline file and rule-introduction baseline manifest
   before writing registered output.
 - Refuses active pattern collisions and candidate-artifact collisions.
-- Writes `.grit/patterns/habitat/checks/<pattern>.md`.
+- Writes `.habitat/patterns/active/checks/<pattern>.md`.
 - Appends a rule entry to `tools/habitat-harness/src/rules/rules.json`.
 - Records `hookScope: "pre-commit"` only when the accepted manifest and
   invocation agree.
@@ -184,9 +184,9 @@ Current disk inventory:
 - `docs-local-checkout-paths` is the advisory `grit-check` rule and is not
   hook-scoped.
 - Current Grit check pattern directory contains 32 Markdown files under
-  `.grit/patterns/habitat/checks`.
+  `.habitat/patterns/active/checks`.
 - Current Grit apply pattern directory contains 3 Markdown files under
-  `.grit/patterns/habitat/apply`.
+  `.habitat/patterns/active/apply`.
 - No committed candidate files currently exist under
   `tools/habitat-harness/src/rules/pattern-authority/candidates`.
 - No committed registered Pattern Authority JSON manifests currently exist
@@ -249,8 +249,8 @@ trust.
 - Current active rule registry fields in `rules.json`: `id`, `ownerTool`,
   `ownerProject`, `lane`, `scope`, `forbids`, `why`, `detect`, `remediate`,
   `message`, `exceptionPath`, `gritPattern`, `manifestPath`, and `hookScope`.
-- Grit pattern file paths under `.grit/patterns/habitat/checks/**` and
-  `.grit/patterns/habitat/apply/**`.
+- Grit pattern file paths under `.habitat/patterns/active/checks/**` and
+  `.habitat/patterns/active/apply/**`.
 - Baseline JSON files under `tools/habitat-harness/baselines/<rule-id>.json`.
 - Human guidance in `tools/habitat-harness/README.md`,
   `tools/habitat-harness/docs/SCENARIOS.md`, and
@@ -340,9 +340,9 @@ Conditional write set requiring extra authority:
 - `tools/habitat-harness/src/rules/rules.json` only when D2 registry facts,
   D5 baseline contract, and D8 admission state explicitly authorize a rule
   registration or migration.
-- `.grit/patterns/habitat/checks/**` only when D6 diagnostic catalog and D8
+- `.habitat/patterns/active/checks/**` only when D6 diagnostic catalog and D8
   admission both authorize active pattern creation or migration.
-- `.grit/patterns/habitat/apply/**` only when D9 apply-safety authority
+- `.habitat/patterns/active/apply/**` only when D9 apply-safety authority
   authorizes a transformation pattern; D8 alone cannot approve apply writes.
 - `tools/habitat-harness/baselines/**` only through D5-approved
   rule-introduction or baseline-integrity paths.
@@ -354,15 +354,15 @@ explicitly authorizes the change:
 
 - `tools/habitat-harness/dist/**` and
   `tools/habitat-harness/oclif.manifest.json`: generated build artifacts.
-- `node_modules/**`, `.nx/**`, `.grit/cache/**`, and `.grit/.gritmodules/**`:
+- `node_modules/**`, `.nx/**`, `.habitat/cache/patterns/**`, and `.grit/.gritmodules/**`:
   vendor/cache output.
 - Root lockfiles and package manager generated state.
 - `tools/habitat-harness/baselines/**`: D5 baseline authority. Do not edit
   baseline JSON as a side effect of Pattern Governance design.
-- Existing `.grit/patterns/habitat/checks/**`: D6 diagnostic catalog and
+- Existing `.habitat/patterns/active/checks/**`: D6 diagnostic catalog and
   current enforcement state. D8 must not treat file presence as lifecycle
   authority.
-- Existing `.grit/patterns/habitat/apply/**`: D9 transformation authority.
+- Existing `.habitat/patterns/active/apply/**`: D9 transformation authority.
   Diagnostic registration does not imply apply approval.
 - `tools/habitat-harness/src/rules/rules.json`: D2 rule registry metadata.
   D8 may consume and reference registry facts, but schema/row changes need D2

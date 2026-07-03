@@ -15,9 +15,9 @@ apply safety disposition, and review.
 ## Corpus Seed Summary
 
 - Current implemented corpus: 22 check patterns under
-  `.grit/patterns/habitat/checks/`.
+  `.habitat/patterns/checks/`.
 - Current implemented apply corpus: 1 apply pattern under
-  `.grit/patterns/habitat/apply/`.
+  `.habitat/patterns/apply/`.
 - Rule-pack owner: `tools/habitat-harness/src/rules/rules.json`.
 - Current scan adapter: `tools/habitat-harness/src/lib/grit.ts`.
 - Current scan roots: `packages`, `apps/mapgen-studio/src`,

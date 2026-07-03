@@ -3,7 +3,7 @@
 ## Intent
 
 Turn the rule registry from a prose-heavy shared object into typed metadata
-facets consumed by graph, classify, check, baseline, Pattern Governance, hooks,
+facets consumed by graph, classify, check, baseline, Patterns, hooks,
 and generated-zone guards.
 
 ## Product Scenario
@@ -20,14 +20,14 @@ Forbidden owners:
 
 - `plugin.js` may not hard-code owner roots as registry truth.
 - `classify` may not parse prose `scope` as semantic routing authority.
-- baseline and Pattern Governance may not infer admission state from file
+- baseline and Patterns may not infer admission state from file
   presence alone.
 
 ## Consumers
 
 Structural Enforcement, Orientation and Routing, Workspace Graph Integration,
-Baseline Authority, Diagnostic Pattern Catalog, Pattern Governance,
-Generated/Protected Zone Authority, Local Feedback.
+Baseline Authority, Diagnostic Pattern Catalog, Patterns,
+Protected Zones, Hook Runtime.
 
 ## Contract
 
@@ -40,7 +40,7 @@ Define minimal typed facets:
 - baseline facet: baseline state contract and introduction manifest relation;
 - Grit facet: `gritPattern`, scan root, hook scope;
 - generated-zone facet: `generatedZone` and host declaration link;
-- governance facet: Pattern Authority manifest status.
+- governance facet: Patterns manifest status.
 
 Consumers receive projections. They do not consume the whole registry unless a
 packet proves that is the smaller state.
@@ -98,21 +98,21 @@ Internal registry shape changes are possible. Public command output may gain
 more precise facts but must preserve D0-classified stable fields. Package export
 impact depends on whether registry types are public or internal after D0.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - registry field inventory;
 - consumer projection matrix;
 - malformed rule scenarios.
 
-Later implementation proof:
+Later implementation receipt:
 
 - schema validation tests;
 - projection tests per consumer;
 - classify scope tests;
 - Nx target alias metadata tests;
-- baseline and Pattern Authority tests that consume facets;
+- baseline and Patterns tests that consume facets;
 - command behavior for selector errors.
 
 Non-claims:
@@ -126,7 +126,7 @@ Non-claims:
 - Metadata minimization review.
 - API/schema compatibility review.
 - Graph consumer review.
-- Pattern Governance review.
+- Patterns review.
 - TypeScript state-space review.
 
 ## Downstream Realignment
@@ -139,15 +139,15 @@ Update:
 - OpenSpec packets that cite rule metadata;
 - tests that fixture registry records.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`:
-  expected exit 0; schema and selector proof for registry facets.
+  expected exit 0; schema and selector receipt for registry facets.
 - `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/rules/rules.json`:
-  expected exit 0; command behavior proof that registry ownership remains
+  expected exit 0; command behavior receipt that registry ownership remains
   discoverable.
 - `nx show project @internal/habitat-harness`: expected exit 0; graph metadata
-  proof that registry-derived targets remain visible.
+  receipt that registry-derived targets remain visible.
 - Cache stance: graph metadata may be cached, but the packet must record the
   exact JSON target metadata used.
 - Injected bad case: include one rule row missing owner/tool/lane metadata and

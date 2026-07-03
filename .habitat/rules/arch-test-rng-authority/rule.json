@@ -1,0 +1,28 @@
+{
+  "id": "arch-test-rng-authority",
+  "ownerTool": "target-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "standard recipe + domain",
+  "forbids": "engine RNG / official generators in authored generation",
+  "why": "Deterministic, seed-stable generation requires the authored RNG authority.",
+  "detect": [
+    "target-check",
+    "run",
+    "mod-swooper-maps:test:architecture-rng-authority",
+    "--outputStyle=static"
+  ],
+  "remediate": null,
+  "message": "Use the recipe RNG authority, never engine RNG.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "unresolved-metadata",
+      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+    }
+  ],
+  "graphTarget": {
+    "project": "mod-swooper-maps",
+    "target": "test:architecture-rng-authority"
+  }
+}

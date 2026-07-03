@@ -2,8 +2,9 @@
 
 ## State
 
-- Status: accepted for design/specification only after final D14 rereview;
-  implementation not started or authorized.
+- Status: current implementation boundary in progress. D14 remains
+  source-neutral: no product-specific parser, DTO, or authoring data file
+  is added to generic Habitat.
 - Worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
 - Branch: `$ACTIVE_REMEDIATION_BRANCH`.
 - Source packet: `$D14_SOURCE_PACKET`.
@@ -11,19 +12,18 @@
 
 ## Objective
 
-Convert D14 into a review-gated OpenSpec packet for Authoring Topology Fence
-without reopening implementation or carrying forward inherited domain language.
-The repaired packet must define the complete blocked-action inventory, complete
-future acceptance criteria, D13 refusal handoff, D4/D12/D13 consumption limits,
-later validation gates, and source/protected path boundary for D14's current
-authority.
+Close D14 as the current Authoring Topology Fence without carrying forward
+inherited domain language or adding product-specific parsing to generic Habitat.
+The packet must define the blocked-action inventory, future acceptance criteria,
+D13 refusal handoff, D4/D12/D13 consumption limits, validation gates, and
+source/protected path boundary for D14's current contract.
 
 ## Current Gate
 
-Design/specification gate closed for D14. First-wave findings were imported as
-negative repair input, the active packet was repaired, and fresh final rereview
-lanes read the repaired disk state with no unresolved P1/P2 findings. D14 is
-accepted for design/specification only and remains not implementation-complete.
+Design/specification gate closed for D14. Current implementation closure keeps
+D14 source-neutral: D13's existing unsupported-project-kind refusal remains the
+only implemented no-write scaffold fence, and MapGen recipe/domain/op/stage/step
+authoring remains unsupported until a future structured command/API exists.
 
 ## First-Wave Review Inputs
 
@@ -54,9 +54,9 @@ accepted for design/specification only and remains not implementation-complete.
 
 ## Design-Time Validation Gates
 
-- `bun run openspec -- validate deep-habitat-d14-authoring-topology-fence --strict`
-- `bun run openspec:validate`
-- `git diff --check`
+- `bun run openspec -- validate deep-habitat-d14-authoring-topology-fence --strict`: passed.
+- `bun run openspec:validate`: passed, 250 items.
+- `git diff --check`: passed.
 - Complete-standard wording/stale-status audit over `$D14_CHANGE/**`,
   `$REMEDIATION_DIR/packet-index.md`, `$REMEDIATION_DIR/context.md`, and
   `$AGENT_SCRATCH/domino-D14-*.md`: passed with no hits for the D14
@@ -65,25 +65,28 @@ accepted for design/specification only and remains not implementation-complete.
 
 ## Later Implementation Gates
 
-- `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts`
-  with supported scaffold cases plus authoring-refusal/no-write cases if source
-  behavior changes.
-- Supported uniform project dry-run remains supported and does not imply
-  authoring support.
-- D13 authoring refusal fixture uses request text such as `generate a MapGen
-  recipe with a new domain operation and recipe stage` and exits through the
-  D13/D14 refusal shape with empty write set, D14 recovery/retry language, and
-  D4/D12 non-claims.
+- `bun run --cwd tools/habitat-harness test --run test/generators/project-generator.test.ts`:
+  passed, 16 tests.
+- `bun run --cwd tools/habitat-harness check`: passed.
+- `nx g @internal/habitat-harness:project d14-smoke --kind=plugin --dry-run`:
+  passed, listed only supported plugin scaffold writes.
+- `nx g @internal/habitat-harness:project mapgen-recipe --kind=mod --dry-run`:
+  exited 1 with `unsupported-project-kind` refusal before writes.
+- `bun run --cwd tools/habitat-harness validate:cli-smoke`: passed.
+- Supported uniform project dry-run remains supported and does not imply authoring
+  support.
+- D13 unsupported-project-kind behavior exits through the generic scaffold
+  refusal shape with an empty write set and no authoring-support claim.
 - `bun run habitat classify mods/mod-swooper-maps/src/recipes/standard` remains
   D4 orientation context only and does not claim authoring readiness.
 
-## Non-Claims
+## Support Boundaries
 
-- This remediation packet does not implement Habitat source changes.
+- This layer does not add Habitat source changes.
 - This packet does not approve MapGen recipe/domain/operation/stage/step
   generation.
-- This packet does not make D4 classify, D12 verify, D13 scaffolding, D8 Pattern
-  Governance, D10 protected-zone, or G-HOST facts sufficient for Authoring
+- This packet does not make D4 classify, D12 verify, D13 scaffolding, D8 pattern
+  registration, D10 protected-zone, or G-HOST facts sufficient for Authoring
   Topology support.
-- This packet does not authorize source implementation without concrete D0 rows
-  and the live upstream facts named in the packet.
+- Future authoring source implementation still requires concrete D0 rows and a
+  later accepted authoring packet with a structured command/API surface.

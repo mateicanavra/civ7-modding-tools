@@ -2,11 +2,10 @@
 
 ## Status
 
-D3 downstream handoffs are accepted for design/specification after final D3
-rereview found no unresolved P1/P2 blockers. Downstream packet design may
-consume these accepted D3 facts; source implementation that depends on live
-graph facts waits for D3 implementation, concrete D0 rows, and D2 graph
-projection implementation facts.
+D3 downstream handoffs are backed by local source implementation. Downstream
+packet design may consume the accepted D3 facts; downstream source
+implementation may consume live D3 graph facts after the D3 Graphite layer lands
+and after each downstream packet satisfies its own D0/D1/D2 readiness gates.
 
 ## Downstream Consumers
 
@@ -27,23 +26,26 @@ projection implementation facts.
 | `@internal/habitat-harness/plugin` export | plugin target inference may consume Workspace Graph contract helpers | Concrete D0 rows for package export compatibility if export shape changes. |
 | Docs/examples | guidance may show graph refusal/unavailable target facts | Concrete D0 rows if public examples change. |
 
-## D0/D2 Dependency State
+## D0/D2/D3 Dependency State
 
 - D3 design may consume accepted D0/D2 design language.
-- D3 source implementation remains blocked until concrete D0 rows cover every
-  touched public/durable surface.
-- D3 source implementation remains blocked until D2 graph projection facts exist
-  wherever D3 consumes live registry graph declarations.
+- D3 source implementation consumed concrete D0 rows and live D2 graph
+  projection facts from `workstream/implementation-start-inventory.md`.
+- D3 source implementation and boundary-review repairs supply live Workspace
+  Graph facts to D4, D7, and D12 after the D3 Graphite layer lands.
 
 ## Index Alignment
 
-- D3 is accepted for design/specification only.
-- D3 status is `accepted for design/specification; final review found no unresolved P1/P2 blockers; not implementation-complete`.
+- D3 is source-implemented, boundary-review repaired, locally validated, and
+  submitted through draft PR #1838 v3.
+- D3 status is `source implementation locally validated; src/plugin.js is a
+  D0/Nx compatibility adapter while Nx plugin implementation and graph/service
+  contracts are TypeScript/TypeBox-owned;
+  broad MapGen/generated-output/Biome drift remains outside D3`.
 - D4, D7, and D12 remain draft/blocking until their own per-domino gates close.
 
 ## Non-Claims
 
-- This ledger does not make D3 implementation-complete.
-- This ledger does not implement graph facts.
 - This ledger does not accept, repair, or close D4, D7, or D12.
-- This ledger does not authorize source implementation from D3 design alone.
+- This ledger does not authorize downstream packets to skip their own
+  public-surface, review, validation, or Graphite closure gates.

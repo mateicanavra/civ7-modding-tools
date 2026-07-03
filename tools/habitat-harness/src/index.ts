@@ -1,12 +1,27 @@
 export type {
-  BaselineContractFailure,
-  BaselineContractFailureReason,
+  BaselineApplicationResult,
+  BaselineAuthorityResult,
+  BaselineAuthorityState,
   BaselineContractValidation,
-  BaselineState,
+  BaselineExpansionDecision,
+  BaselineIntegrityFinding,
+  BaselineIntegrityResult,
+  BaselineRefusal,
+  BaselineRefusalReason,
+  BaselineRuleContractInput,
   RuleIntroductionBaselineManifest,
 } from "./lib/baseline.js";
 export {
   applyBaseline,
+  BaselineApplicationResultSchema,
+  BaselineAuthorityResultSchema,
+  BaselineAuthorityStateSchema,
+  BaselineExpansionDecisionSchema,
+  BaselineIntegrityFindingSchema,
+  BaselineIntegrityResultSchema,
+  BaselineRefusalReasonSchema,
+  BaselineRefusalSchema,
+  BaselineRuleContractInputSchema,
   baselineFailureDiagnostic,
   checkBaselineIntegrity,
   guardBaselineExpansion,
@@ -14,34 +29,40 @@ export {
   loadBaseline,
   loadBaselineState,
   mergeBase,
+  RuleIntroductionBaselineManifestSchema,
   validateBaselineContract,
   violationKey,
+  writeBaseline,
 } from "./lib/baseline.js";
 export type {
-  Classification,
-  ClassifiedTarget,
-  ClassifyOptions,
-  DiffClassification,
-  RuleScopeKind,
-  ScopedRule,
-  UnavailableClassifiedTarget,
-} from "./lib/command-engine.js";
+  BaselineExpansionResult,
+  CheckOptions,
+  EmitCheckOptions,
+} from "./lib/check-report.js";
 export {
-  buildHabitatCommand,
-  classifyPath,
-  classifyTarget,
-  commandSummary,
   createCheckReport,
   expandBaselines,
   renderCheckReport,
-  resolveVerifyBase,
-  runAffectedVerification,
-  runFix,
-  runGraph,
-  runHook,
-  selectRules,
   stringifyCheckReport,
-} from "./lib/command-engine.js";
+} from "./lib/check-report.js";
+export type {
+  ClassifiedTarget,
+  ClassifyOptions,
+  ClassifyResult,
+  PathClassification,
+  RuleCoverageKind,
+  RuleRouting,
+  UnavailableClassifiedTarget,
+} from "./lib/classify.js";
+export {
+  classifyPath,
+  classifyPathResult,
+  classifyTarget,
+  classifyTargetResult,
+  commandSummary,
+  stringifyClassifyResult,
+  validateClassifyResult,
+} from "./lib/classify.js";
 export type {
   CheckReport,
   HabitatDiagnostic,
@@ -49,21 +70,10 @@ export type {
   RuleReport,
 } from "./lib/diagnostics.js";
 export { validateCheckReport } from "./lib/diagnostics.js";
-export { effectParityProbeProgram, runEffectParityProbe } from "./lib/effect-parity.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
+export { runFix } from "./lib/fix.js";
 export { readGitState } from "./lib/git-state.js";
-export { injectedProbeRoot } from "./lib/grit.js";
-export type {
-  GritApplyRewriteInventoryEntry,
-  GritApplyTransactionOptions,
-  GritApplyTransactionProof,
-  GritApplyTransactionResult,
-} from "./lib/grit-apply.js";
-export {
-  classifyApplyRewriteInventory,
-  parseApplyRewriteInventory,
-  runGritApplyTransaction,
-} from "./lib/grit-apply.js";
+export { runGraph } from "./lib/graph.js";
 export type { GritAdapterFailure, GritAdapterFailureTag } from "./lib/grit-failures.js";
 export {
   createGritAdapterFailure,
@@ -71,16 +81,6 @@ export {
   isGritAdapterFailureTag,
   renderGritAdapterFailure,
 } from "./lib/grit-failures.js";
-export type {
-  InjectedGritProbeFailure,
-  InjectedGritProbeInput,
-  InjectedGritProbeResult,
-  InjectedProbeScope,
-} from "./lib/grit-injected-probe.js";
-export {
-  injectedGritProbeProgram,
-  runInjectedGritProbe,
-} from "./lib/grit-injected-probe.js";
 export type {
   CommandCachePolicy,
   GritParseStatus,
@@ -96,38 +96,59 @@ export {
   makeHabitatCommandResult,
 } from "./lib/habitat-process.js";
 export type {
-  AdapterProofArtifact,
-  AdapterProofClass,
-  WriteAdapterProofArtifactInput,
-} from "./lib/proof-artifact.js";
+  RuleSelection,
+  RuleSelectionEmptyIntersection,
+  RuleSelectionFailureReason,
+  RuleSelectionResult,
+  RuleSelectorFact,
+  RuleSelectorKind,
+} from "./lib/rule-selection.js";
+export { describeRuleSelectionFailure, selectRules } from "./lib/rule-selection.js";
+export type { VerifyBaseResolution, VerifyOptions, VerifyReceipt } from "./lib/verify/index.js";
 export {
-  adapterProofArtifactPath,
-  buildAdapterProofArtifact,
-  ProofArtifactWriteFailure,
-  ProofArtifactWriter,
-  ProofArtifactWriterLive,
-  writeAdapterProofArtifact,
-} from "./lib/proof-artifact.js";
+  createVerifyReceipt,
+  isVerifyReceipt,
+  readVerifyTargetPlan,
+  resolveVerifyBase,
+  runAffectedVerification,
+  stringifyVerifyReceipt,
+  VerifyBaseSchema,
+  VerifyBaseResolutionSchema,
+  VerifyCommandRecordSchema,
+  VerifyHabitatCheckSummarySchema,
+  VerifyNxAffectedSchema,
+  VerifyNxCacheTaskSchema,
+  VerifyPostStateSchema,
+  VerifyReceiptSchema,
+  validateVerifyReceipt,
+  verifyAffectedTargets,
+} from "./lib/verify/index.js";
 export type {
   HabitatToolExecutionPlane,
   MaterializedHabitatCommand,
+  WorkspaceToolProviderService,
 } from "./lib/workspace-tools.js";
-export { materializeHabitatCommand } from "./lib/workspace-tools.js";
+export {
+  materializeHabitatCommand,
+  materializeWorkspaceToolCommand,
+  WorkspaceToolProvider,
+  WorkspaceToolProviderLive,
+} from "./lib/workspace-tools.js";
 export { executeRule, type HarnessRule, ruleById, rules } from "./rules/architecture.js";
 export type {
-  CandidatePatternAuthorityManifest,
-  PatternAuthorityManifest,
-  PatternAuthorityRuleReference,
-  PatternAuthorityValidationFailureReason,
-  PatternAuthorityValidationIssue,
-  PatternAuthorityValidationOptions,
-  PatternAuthorityValidationResult,
-  RegisteredPatternAuthorityManifest,
-} from "./rules/pattern-authority/manifest.js";
+  CandidatePatternManifest,
+  PatternManifest,
+  PatternRuleReference,
+  PatternValidationFailureReason,
+  PatternValidationIssue,
+  PatternValidationOptions,
+  PatternValidationResult,
+  RegisteredPatternManifest,
+} from "./rules/patterns/index.js";
 export {
-  patternAuthorityCandidateRoot,
-  patternAuthorityManifestPath,
-  patternAuthorityManifestRoot,
-  patternAuthorityManifestSchemaVersion,
-  validatePatternAuthorityManifest,
-} from "./rules/pattern-authority/manifest.js";
+  patternCandidateRoot,
+  patternManifestPath,
+  patternManifestRoot,
+  patternManifestSchemaVersion,
+  validatePatternManifest,
+} from "./rules/patterns/index.js";

@@ -6,14 +6,14 @@ specific local worktree path, branch name, or shared path segment.
 
 ## Operational Fixture
 
-These values describe the active remediation checkout. Update this section when
-the remediation work moves, then keep durable packet artifacts pointed at the
-variables below.
+These values describe the active Deep Habitat packet checkout. Update this
+section when the remediation or implementation work moves, then keep durable
+packet artifacts pointed at the variables below.
 
 | Variable | Value |
 | --- | --- |
-| `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d15-execution-provenance-trigger-packet` |
+| `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `agent-DRA-d15-execution-provenance-trigger` |
 
 ## Path Variables
 
@@ -145,7 +145,7 @@ variables below.
 | Variable | Meaning |
 | --- | --- |
 | `$D8_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d8-pattern-governance`. |
-| `$D8_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D8-pattern-governance.md`. |
+| `$D8_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D8-patterns.md`. |
 | `$D8_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D8-domain-ontology-investigation.md`. |
 | `$D8_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D8-typescript-state-investigation.md`. |
 | `$D8_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D8-code-vendor-topology-investigation.md`. |
@@ -165,8 +165,8 @@ variables below.
 
 | Variable | Meaning |
 | --- | --- |
-| `$D9_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d9-transformation-transaction`. |
-| `$D9_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D9-transformation-transaction.md`. |
+| `$D9_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d9-pattern-apply`. |
+| `$D9_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D9-pattern-apply.md`. |
 | `$D9_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D9-domain-ontology-investigation.md`. |
 | `$D9_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D9-typescript-state-investigation.md`. |
 | `$D9_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D9-code-vendor-topology-investigation.md`. |
@@ -186,8 +186,8 @@ variables below.
 
 | Variable | Meaning |
 | --- | --- |
-| `$D10_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d10-protected-zone-authority`. |
-| `$D10_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D10-generated-protected-zone-authority.md`. |
+| `$D10_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d10-protected-zones`. |
+| `$D10_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D10-generated-protected-zones.md`. |
 | `$D10_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D10-domain-ontology-investigation.md`. |
 | `$D10_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D10-typescript-state-investigation.md`. |
 | `$D10_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D10-code-topology-investigation.md`. |
@@ -209,7 +209,7 @@ variables below.
 | Variable | Meaning |
 | --- | --- |
 | `$D11_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d11-local-feedback`. |
-| `$D11_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D11-local-feedback.md`. |
+| `$D11_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D11-hook-runtime.md`. |
 | `$D11_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D11-domain-ontology-investigation.md`. |
 | `$D11_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D11-typescript-state-investigation.md`. |
 | `$D11_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D11-code-vendor-topology-investigation.md`. |
@@ -230,7 +230,7 @@ variables below.
 | Variable | Meaning |
 | --- | --- |
 | `$D12_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d12-verify-handoff-receipt`. |
-| `$D12_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D12-proof-handoff-verify-command.md`. |
+| `$D12_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D12-verify-handoff-command.md`. |
 | `$D12_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D12-domain-ontology-investigation.md`. |
 | `$D12_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D12-typescript-state-investigation.md`. |
 | `$D12_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D12-code-vendor-topology-investigation.md`. |

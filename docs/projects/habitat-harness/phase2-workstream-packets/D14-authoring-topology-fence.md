@@ -10,7 +10,7 @@ generation as part of the structural substrate refactor.
 
 An agent asks Habitat to create MapGen authoring topology. Habitat refuses or
 routes to future investigation because current Habitat owns structural
-orientation, enforcement, proof, guarded repair, and narrow scaffolding, not
+orientation, enforcement, receipt, guarded repair, and narrow scaffolding, not
 domain-specific authoring workflows.
 
 ## Domain Owner
@@ -22,7 +22,7 @@ Forbidden owners:
 - Scaffolding cannot absorb domain authoring because it can create generic
   project shells.
 - Orientation cannot imply authoring support because it can classify paths.
-- Pattern Governance cannot imply full authoring because it admits structural
+- Patterns cannot imply full authoring because it admits structural
   rules.
 
 ## Consumers
@@ -35,7 +35,7 @@ Define:
 
 - explicit unsupported authoring actions;
 - future acceptance criteria;
-- required investigation/proof for authoring;
+- required investigation/receipt for authoring;
 - refusal output;
 - downstream deferral record.
 
@@ -59,7 +59,7 @@ can also invent MapGen domain topology."
 
 1. List unsupported authoring actions explicitly.
 2. Define future acceptance criteria: product convention, target topology,
-   generator proof, classify/check proof, compile proof, and product acceptance.
+   generator receipt, classify/check receipt, compile receipt, and product acceptance.
 3. Connect unsupported requests to D13 refusal shape.
 4. Record deferral with trigger rather than implementation tasks.
 5. Ensure no Phase 3 packet adds authoring generators.
@@ -77,18 +77,18 @@ The rejected alternative is to leave authoring as a prose gap in docs only.
 
 May affect generator refusal output and docs. No authoring command is added.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - unsupported action inventory;
 - future acceptance criteria;
 - refusal examples.
 
-Later implementation proof:
+Later implementation receipt:
 
 - refusal tests through D13;
-- docs/deferral record truth proof;
+- docs/deferral record truth receipt;
 - classify/verify examples that state non-support.
 
 Non-claims:
@@ -113,13 +113,13 @@ Update:
 - scenario corpus if future criteria change;
 - AGENTS guidance only if durable generic guidance changes.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/lib/classify.test.ts`:
-  expected exit 0; refusal and orientation proof for out-of-scope authoring
+  expected exit 0; refusal and orientation receipt for out-of-scope authoring
   topology requests.
 - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`:
-  expected exit 0; docs orientation proof for future-trigger records.
+  expected exit 0; docs orientation receipt for future-trigger records.
 - `git status --short --branch`: expected exit 0; fence records must be docs or
   explicit OpenSpec changes only.
 - Cache stance: refusal tests must run fresh.

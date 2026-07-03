@@ -79,7 +79,7 @@ Habitat SHALL replace prose `scope` routing with `ruleRoutingFacts` derived from
 
 ### Requirement: Graph Facts Own Rule Graph Declarations
 
-Habitat SHALL expose `ruleGraphFacts` for graph/Nx consumers. Graph facts SHALL declare owner/root relation, rule target alias policy, and structured dependency targets. `plugin.js` SHALL NOT use an independent owner-root table as authority, silently skip unknown owner roots, or parse colon strings as graph truth after D2 implementation.
+Habitat SHALL expose `ruleGraphFacts` for graph/Nx consumers. Graph facts SHALL declare owner/root relation from the registry document `ownerRoots` table, rule target alias policy, and structured dependency targets. `plugin.js` SHALL NOT use an independent owner-root table as authority, silently skip unknown owner roots, or parse colon strings as graph truth after D2 implementation.
 
 #### Scenario: Nx target alias uses structured graph facts
 - **WHEN** the Nx plugin creates `habitat:rule:<id>` targets
@@ -98,16 +98,12 @@ Habitat SHALL expose `ruleBaselineFacts` for D5 and baseline consumers. D2 SHALL
 #### Scenario: Baseline relation is explicit
 - **WHEN** baseline integrity reads a rule
 - **THEN** it receives only `ruleBaselineFacts`
-- **AND** it does not parse whole registry rows or infer admission from file presence alone
-
-#### Scenario: Introduced baseline lacks manifest relation
-- **WHEN** a new baseline relation requires a rule-introduction manifest and the relation is missing or contradicted
-- **THEN** D5 receives a D2 malformed baseline relation
-- **AND** the check/report output follows D1 boundaries
+- **AND** the D2 facts contain the rule id and registry baseline relation currently represented by `exceptionPath`
+- **AND** it does not parse whole registry rows, infer admission from file presence alone, or receive D5-owned baseline lifecycle state from D2
 
 ### Requirement: Grit Facts Own Pattern Identity And Scan Metadata
 
-Habitat SHALL expose `ruleGritFacts` for Grit, diagnostic, governance, and hook consumers. Grit facts SHALL include pattern identity, scan metadata, exclusions, hook eligibility metadata, and Pattern Authority reference when present. Grit consumers SHALL NOT fall back from missing pattern identity to rule id, parse Grit markdown prose/frontmatter as registry authority, or infer scan roots from legacy `scope` prose.
+Habitat SHALL expose `ruleGritFacts` for Grit, diagnostic, and governance consumers. Grit facts SHALL include pattern identity, scan metadata, exclusions, and Pattern Authority reference when present. Local feedback eligibility SHALL be exposed through `ruleLocalFeedbackFacts`, not through Grit execution facts. Grit consumers SHALL NOT fall back from missing pattern identity to rule id, parse Grit markdown prose/frontmatter as registry authority, or infer scan roots from legacy `scope` prose.
 
 #### Scenario: Grit pattern identity is missing
 - **WHEN** a `grit-check` rule lacks a Grit pattern identity
@@ -120,7 +116,7 @@ Habitat SHALL expose `ruleGritFacts` for Grit, diagnostic, governance, and hook 
 
 ### Requirement: Generated-Zone Facts Link To Host Declarations
 
-Habitat SHALL expose `ruleGeneratedZoneFacts` for file-layer/generated-zone consumers. D2 SHALL record a rule's generated/protected-zone reference or forbidden-file-name policy. G-HOST and D10 own the host policy and protected-zone decision semantics.
+Habitat SHALL expose `ruleFileLayerFacts` for file-layer/generated-zone consumers. D2 SHALL record a rule's generated/protected-zone reference or forbidden-file-name policy. G-HOST and D10 own the host policy and protected-zone decision semantics.
 
 #### Scenario: Known protected-zone reference
 - **WHEN** a file-layer rule references a generated/protected-zone declaration
@@ -133,15 +129,15 @@ Habitat SHALL expose `ruleGeneratedZoneFacts` for file-layer/generated-zone cons
 
 ### Requirement: Pattern Authority Facts Project Manifest Relations
 
-Habitat SHALL expose `ruleGovernanceFacts` for Pattern Governance and scaffolding consumers. D2 SHALL record registry-to-Pattern-Authority references and manifest status projections where present. D8 owns lifecycle admission, fixture sufficiency, false-positive model, and governance approval.
+Habitat SHALL expose `ruleGovernanceFacts` for Pattern Governance and scaffolding consumers. D2 SHALL record registry-to-Pattern-Authority references where present. D8 owns lifecycle admission, fixture sufficiency, false-positive model, and governance approval.
 
 #### Scenario: Registered Pattern Authority reference is consistent
 - **WHEN** a Grit rule references a registered Pattern Authority manifest
-- **THEN** `ruleGovernanceFacts` includes the rule id, pattern name, manifest path, expected lifecycle, and authority-accepted projection
+- **THEN** `ruleGovernanceFacts` includes only the D2-owned registry relation facts: rule id, lane, pattern name, and manifest path
 - **AND** D8 still owns whether the manifest is admitted
 
 #### Scenario: Manifest reference is contradicted
-- **WHEN** registry metadata and Pattern Authority manifest metadata disagree on rule id, pattern name, lifecycle, or hook eligibility
+- **WHEN** registry metadata and Pattern Authority manifest metadata disagree on rule id, pattern name, or lifecycle
 - **THEN** Habitat reports a Pattern Authority contract failure
 - **AND** the rule is not treated as admitted by file presence alone
 
@@ -152,6 +148,15 @@ Habitat SHALL route malformed registry metadata through D1 command/report/refusa
 #### Scenario: Malformed metadata blocks execution
 - **WHEN** a consumer requires a D2 projection and the registry row is malformed for that projection
 - **THEN** Habitat reports the appropriate metadata failure before executing that rule
+
+### Requirement: Registry Metadata Is Allowlist-Only
+
+Habitat SHALL define the allowed rule registry document shape and reject anything outside that shape. D2 SHALL NOT rely on enumerating known bad structures as the primary registry guard; TypeBox schemas and downstream structural enforcement SHALL encode the accepted shape and deny everything else by default.
+
+#### Scenario: Unknown registry field is present
+- **WHEN** a rule registry document includes a field outside the accepted D2 schema
+- **THEN** Habitat rejects the registry document before consumers infer behavior from that field
+- **AND** future exceptions require changing the allowed shape, not adding ad hoc blocklist checks
 - **AND** the result is distinguishable from an ordinary structural rule violation
 
 ### Requirement: Downstream Dominoes Consume Named D2 Projections
@@ -165,5 +170,5 @@ Downstream packets SHALL consume D2 through named projections. D2 SHALL NOT clai
 
 #### Scenario: D10 consumes generated-zone facts
 - **WHEN** D10 designs protected-zone guard behavior
-- **THEN** it consumes `ruleGeneratedZoneFacts` plus G-HOST policy declarations
+- **THEN** it consumes `ruleFileLayerFacts` plus G-HOST policy declarations
 - **AND** it owns guard/refusal behavior rather than D2

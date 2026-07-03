@@ -5,7 +5,7 @@
 Habitat SHALL classify MapGen recipe, domain, operation, stage, step, contract,
 default, schema, registry, public-surface, Studio artifact, and topology-wiring
 generation requests as unsupported Authoring Topology requests unless a later
-accepted Authoring Topology authority opens implementation.
+accepted Authoring Topology packet opens implementation.
 
 #### Scenario: Recipe/domain/stage/step generation is requested
 - **WHEN** an agent asks current Habitat to create a MapGen recipe, domain,
@@ -39,34 +39,31 @@ accepted Authoring Topology authority opens implementation.
 
 D13 SHALL own the generic scaffold refusal envelope. D14 SHALL own the
 authoring-specific `blocked_action`, `request_class`, recovery instruction,
-retry condition, and non-claim language for Authoring Topology refusals.
+retry condition, and support-boundary language for Authoring Topology refusals.
 
-#### Scenario: D13 receives an authoring-looking scaffold request
-- **WHEN** D13 receives a request whose matched signals include recipe, domain,
-  operation, stage, step, contract, default, schema, registry, public export,
-  Studio artifact, or topology wiring generation
-- **THEN** the request is represented as an `authoring-topology-request` or
-  `ambiguous-authoring-topology-request`
-- **AND** the D13 refusal uses reason `authoring-topology-owned`
-- **AND** `owning_authority` names D14 or future Authoring Topology
-- **AND** `write_set` is empty
-- **AND** `retry_condition` names the future accepted Authoring Topology packet
-  criteria rather than a local command flag or hidden fallback
+#### Scenario: D13 receives an unsupported scaffold request
+- **WHEN** D13 receives a project generator request outside the supported
+  generic scaffold contract
+- **THEN** Habitat refuses through the D13 scaffold refusal envelope
+- **AND** the write set is empty
+- **AND** the recovery text does not claim authoring topology support
+- **AND** the implementation does not infer product-specific topology from
+  generator input strings
 
-#### Scenario: D13 cannot classify whether the request is authoring-specific
-- **WHEN** a request includes ambiguous authoring signals but does not map to a
-  supported D13 scaffold contract
-- **THEN** Habitat refuses as an ambiguous Authoring Topology request before
-  writes
-- **AND** the recovery instruction asks for an explicit future authoring design
-  or a supported D13 scaffold request
+#### Scenario: A product-specific authoring request appears before a future authoring surface
+- **WHEN** a request asks current Habitat to create product-specific topology
+  that is not part of the supported generic scaffold contract
+- **THEN** Habitat refuses before writes through the generic unsupported
+  scaffold boundary
+- **AND** product-specific authoring support remains blocked until a future
+  accepted authoring contract owns the command/API surface
 
 ### Requirement: Future Authoring Topology Has Explicit Acceptance Criteria
 
-Habitat SHALL NOT open authoring implementation until a later accepted authority
+Habitat SHALL NOT open authoring implementation until a later accepted packet
 defines a current-topology investigation, target topology model, first vertical
 slice, generator write contract, D0 public compatibility handling, validation
-matrix, and non-claim set.
+matrix, and current support-boundary set.
 
 #### Scenario: Future work proposes a MapGen authoring generator
 - **WHEN** a future packet proposes generating MapGen authoring structures
@@ -87,23 +84,26 @@ matrix, and non-claim set.
 - **WHEN** a future packet uses D4 orientation, D12 verify handoff, or D13
   scaffold behavior as acceptance input
 - **THEN** it SHALL state the exact consumed fact
-- **AND** it SHALL preserve the D14 non-claim that those upstream packets do not
+- **AND** it SHALL preserve the D14 support boundary that those upstream packets do not
   themselves prove authoring readiness
 
-### Requirement: D14 Acceptance Does Not Authorize Source Implementation
+### Requirement: D14 Does Not Open Authoring Implementation
 
-D14 design/specification acceptance SHALL NOT mean implementation completion.
-Source implementation remains blocked behind concrete D0 rows, D13 source
-refusal implementation, live D4/D12 facts where consumed, and any later accepted
-Authoring Topology authority.
+D14 acceptance SHALL NOT mean Authoring Topology implementation exists.
+Current Habitat source remains limited to the supported generic scaffold
+contract and D13 unsupported-project-kind refusals. Future authoring
+implementation remains blocked behind concrete D0 rows and a later accepted
+Authoring Topology packet with a structured command/API surface.
 
-#### Scenario: D14 design/specification is accepted
+#### Scenario: D14 current boundary is accepted
 - **WHEN** D14 final rereviews and validations pass
-- **THEN** packet index and workstream records state D14 is accepted for
-  design/specification only
-- **AND** D14 remains not implementation-complete
-- **AND** source work remains blocked behind concrete D0 rows and live upstream
-  implementation facts
+- **THEN** packet index and workstream records state D14 keeps current Habitat
+  source free of product-specific authoring parsers, DTOs, and authoring data
+  files
+- **AND** current unsupported project scaffolds continue to refuse before writes
+  through D13's generic refusal envelope
+- **AND** future authoring source work remains blocked behind concrete D0 rows
+  and a later accepted authoring command/API contract
 
 #### Scenario: Implementation tries to add authoring files during Phase 3
 - **WHEN** a Phase 3 implementation packet adds MapGen recipe/domain/operation/

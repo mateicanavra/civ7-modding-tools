@@ -1,0 +1,57 @@
+export { type BaselineExpansionResult, expandBaselines } from "./baseline.js";
+export {
+  executeSelectedRules,
+  rulesForExecution,
+  stagedPatternScanRoots,
+} from "./execution.js";
+export {
+  checkOutcomeFromReport,
+  isDiagnosticUnavailableSummary,
+  hookCheckSummary,
+  verifyCheckSummary,
+} from "./summaries.js";
+export { renderCheckReport, stringifyCheckReport } from "./render.js";
+export { createCheckReport } from "./report.js";
+export {
+  baselineAuthoringRequest,
+  type CheckOptions,
+  checkCommandContext,
+  type EmitCheckOptions,
+  normalizeSelectorRequest,
+  structuralCheckRequest,
+} from "./request.js";
+export type {
+  CheckCommandContext,
+  CheckOutcome,
+  CheckReport,
+  HabitatDiagnostic,
+  HabitatSeverity,
+  HookCheckSummary,
+  RuleExecutionDisposition,
+  RuleLane,
+  RuleReport,
+  RuleStatus,
+  SelectorRefusal,
+  SelectorRequest,
+  StructuralCheckRequest,
+  VerifyCheckSummary,
+} from "./schema.js";
+export {
+  CheckOutcomeSchema,
+  HookCheckSummarySchema,
+  VerifyCheckSummarySchema,
+} from "./schema.js";
+export type {
+  BaselineApplicationOutcome,
+  DiagnosticConsumptionOutcome,
+  RuleExecutionPlan,
+  RuleSelectionOutcome,
+  StructuralRuleOutcome,
+} from "./state.js";
+export {
+  BaselineApplicationOutcomeSchema,
+  DiagnosticConsumptionOutcomeSchema,
+  RuleExecutionPlanSchema,
+  RuleSelectionOutcomeSchema,
+  StructuralRuleOutcomeSchema,
+} from "./state.js";

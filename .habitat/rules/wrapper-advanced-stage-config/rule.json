@@ -1,0 +1,33 @@
+{
+  "id": "wrapper-advanced-stage-config",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "standard recipe and map config source",
+  "forbids": "wrapper-only advanced stage config surfaces",
+  "why": "Standard recipe config must use supported step/domain config paths.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Do not reintroduce wrapper-only `advanced` stage config surfaces.",
+  "exceptionPath": "none",
+  "patternName": "wrapper_advanced_stage_config",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "unresolved-metadata",
+      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+    }
+  ]
+}

@@ -22,7 +22,7 @@ upstream projections, and making illegal combinations unrepresentable.
   write path to look safe while missing D8 admission, D10/G-HOST authority, or
   rollback recovery.
 - **Aspiration threshold:** implementation agents can execute the packet without
-  inventing state variants, public compatibility decisions, path authority,
+  inventing state variants, public contract decisions, path authority,
   vendor boundaries, or validation oracles.
 - **Constraint reality:** D0-D8 are accepted for design/specification only; D10
   and G-HOST are still blocking. D9 may design against D10/G-HOST projection
@@ -100,26 +100,26 @@ for the CLI/native operation and `Transformation Transaction` for the D9 domain.
 
 | Current term | Target disposition |
 | --- | --- |
-| `GritApplyTransactionOptions` | D0/D1 compatibility DTO. Replace target construction with request variants. |
-| `dryRun?: boolean` | Compatibility flag. Target is `DryRunIntent` or `LiveWriteIntent`, followed by a D9-produced `LiveWriteAttempt` only after planning approves a write set. |
-| `allowDirtyWorktree?: boolean` | Compatibility escape hatch. Target is explicit dirty-worktree state: dry-run allowed, live refused, isolated copy allowed. |
-| `rollbackAfterApply?: boolean` | Compatibility test/probe flag. Target is rollback policy plus rollback outcome. |
+| `GritApplyTransactionOptions` | Removed package export. Target construction uses request variants. |
+| `dryRun?: boolean` | Removed option flag. Target is `DryRunIntent` or `LiveWriteIntent`, followed by a D9-produced `LiveWriteAttempt` only after planning approves a write set. |
+| `allowDirtyWorktree?: boolean` | Removed escape hatch. Target is explicit dirty-worktree state: dry-run allowed, live refused, isolated copy allowed. |
+| `rollbackAfterApply?: boolean` | Removed test/probe flag. Target is rollback policy plus rollback outcome. |
 | `gateCommands?: HabitatProcessRequest[]` | Compatibility injection seam. Target is declared `GateHandoff` input from pattern/host policy. |
-| `GritApplyTransactionResult extends SpawnResult` | Compatibility output wrapper. Target is `ApplyTransactionRecord` / `TransactionOutcome`; process projection is derived. |
+| `GritApplyTransactionResult extends SpawnResult` | Removed output wrapper. Target is `ApplyTransactionRecord` / `TransactionOutcome`; process projection is derived. |
 | `ok: boolean` | Rejected target shape. Use discriminated terminal outcomes. |
-| `proof` / `GritApplyTransactionProof` | Compatibility language. Target is transaction record, outcome, command observation, recovery record, and non-claim. |
+| `proof` / `GritApplyTransactionProof` | Removed proof language. Target is transaction record, outcome, command observation, recovery record, and non-claim. |
 | `diffEvidence` | Compatibility detail. Target is isolated-copy diff observation or write-set diff observation. |
 | `fileDigests` | Observation detail for rollback/recovery, not transaction identity. |
-| `transactionCopyCommand` | Compatibility name. Target is `IsolatedCopyCheck`. |
-| `biomeCommand` | Compatibility field. Target is `FormatterHandoff`. |
+| `transactionCopyCommand` | Removed process-shaped name. Target is `IsolatedCopyCheck`. |
+| `biomeCommand` | Removed process-shaped field. Target is `FormatterHandoff`. |
 | `GritApplyDirtyWorktree` | Compatibility failure tag. Target is `dirty-worktree-refusal`. |
 | `GritApplyDryRunMismatch` | Compatibility failure tag. Target distinguishes inventory parse failure, dry-run/copy mismatch, and unapproved inventory refusal. |
 | `GritApplyUnexpectedFile` | Compatibility failure tag. Target distinguishes outside root, protected-zone refusal, create/delete not admitted, and unexpected live path. |
-| `GritApplyMissingTargetExport` | Host/MapGen gate compatibility tag. Target is a G-HOST-declared apply gate failure/refusal. |
+| `GritApplyMissingTargetExport` | Removed host/MapGen gate tag. Target is a G-HOST-declared apply gate failure/refusal. |
 | `GritApplyRollbackFailed` | Compatibility failure tag. Target is `rollback-failed` with residual path and recovery state. |
 | `HABITAT_REWRITE` | Current structured dry-run inventory protocol. Target is a pattern-owned inventory observation contract. |
-| `approvedByPattern` | Compatibility field. Target consumes D8 apply admission and D9/D10 path decisions. |
-| `classification: expected/pre-approved/rejected/blocked` | Compatibility labels. Target uses parsed observation, approved write, blocked write, or refusal states. |
+| `approvedByPattern` | Removed field. Target consumes D8 apply admission and D9/D10 path decisions. |
+| `classification: expected/pre-approved/rejected/blocked` | Removed labels. Target uses parsed observation, approved write, blocked write, or refusal states. |
 | `mods/mod-swooper-maps/**` and `@mapgen/domain/**/ops` validation | Host-specific current evidence. Target consumes G-HOST/D10 gate declarations. |
 
 ## TypeScript State-Space Reduction
@@ -143,8 +143,8 @@ Required safe moves:
 - introduce branded ids for public/authority boundaries;
 - use non-empty arrays for live write sets, blocked writes, recovery
   instructions, rollback paths, and D0 citations;
-- preserve or version legacy exports only through D0/D1 facades;
-- compile exhaustively with `never` guards in command rendering and legacy
+- remove old transaction exports;
+- compile exhaustively with `never` guards in command rendering and downstream
   projection.
 
 ## Target State Families
@@ -338,7 +338,7 @@ Required brands:
 | `ApprovedWriteSetId` | Link live writes, formatter handoff, gates, and rollback to one approval. |
 | `CommandId` | Prevent free-form gate command ids from becoming behavior selectors. |
 | `Sha256Digest` | Keep digests distinct from arbitrary strings. |
-| `D0SurfaceId` | Require public compatibility citation. |
+| `D0SurfaceId` | Require public contract citation. |
 | `D1NonClaimId` | Use canonical non-claims, not prose arrays. |
 | `ApplyAdmissionProjectionId` | Consume D8 admission without owning governance. |
 | `D10ProtectedZoneDecisionId` | Consume D10 policy without reimplementing it. |
@@ -350,7 +350,7 @@ Required non-empty arrays:
 - rollback changed paths;
 - recovery instructions for refusals and rollback failures;
 - gate command records when gates ran;
-- D0 surface ids on compatibility projections touched by D9.
+- D0 surface ids on package exports, commands, and durable outputs touched by D9.
 
 ## Vendor Boundary
 
@@ -388,12 +388,12 @@ D9 does not add `habitat fix --json` by default. Current `fix` supports
 `--dry-run` only. A JSON output surface is a separate D0-controlled public
 contract decision:
 
-- if preserved, D9 keeps human stdout/stderr compatibility and exposes the new
-  target record through internal/package exports only under D0 rows;
+- if preserved, D9 keeps human stdout/stderr behavior and exposes any new target
+  record only through an explicit D0-backed public surface;
 - if versioned or added, D9 must define schema version, terminal `kind` field,
   non-claim ids, recovery shape, and bad-case JSON tests;
-- if facaded, legacy `GritApplyTransactionProof` projects from
-  `ApplyTransactionRecord` and cannot be authoritative;
+- old `GritApplyTransactionProof` remains removed unless a later packet
+  explicitly creates a D0-backed replacement;
 - if deferred, remove any `--json` validation gate from D9 and record the owner
   of that later decision.
 
@@ -412,7 +412,7 @@ Until D0 rows exist, source implementation remains blocked for changes to
 | Formatter handoff | Formatter handoff adapter | Transaction success semantics or product correctness. |
 | Gate handoff | Gate handoff adapter | Gate declaration ownership. |
 | CLI request/rendering | `fix` command / command engine | Transaction authority. |
-| Legacy export compatibility | D0/D1 facade | Target transaction model source of truth. |
+| Removed transaction exports | D0/D1 removal rows | Target transaction model source of truth. |
 
 ## Downstream Projections
 
@@ -434,7 +434,7 @@ contradiction that cannot be represented inside D9-owned transaction records.
 D9 is implementation-ready only after:
 
 - final D9 rereviews record no unresolved P1/P2 findings;
-- D0 compatibility rows exist for every touched public/durable surface;
+- D0 public contract rows exist for every touched public/durable surface;
 - D8 live apply-admission projection exists where D9 consumes apply admission;
 - D10/G-HOST live path/host projections exist where D9 touches protected,
   generated, or host-specific surfaces;

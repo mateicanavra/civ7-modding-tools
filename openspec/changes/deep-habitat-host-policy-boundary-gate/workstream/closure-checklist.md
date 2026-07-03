@@ -25,14 +25,19 @@
 - [x] Packet index marks G-HOST accepted for design/specification only after all
   final gates above pass.
 
-## Implementation Closure (Later)
+## Implementation Closure
 
-- [ ] Source changes stay inside the approved write set.
-- [ ] Concrete D0 rows exist for every touched public/durable surface.
-- [ ] D1 output-family/non-claim handling is cited for changed output.
-- [ ] Accepted/live G-HOST projections are consumed by D9/D10/D13/D14 where
-  required.
-- [ ] Runtime/source validation gates in `tasks.md` pass with exact command
-  output recorded.
-- [ ] Generated outputs, lockfiles, `dist/**`, `mod/**`, `.civ7/outputs/**`, and
+- [x] Source changes stay inside the approved write set.
+- [x] Concrete D0 rows exist for every touched public/durable surface.
+- [x] D1 output-family/non-claim handling is cited for changed output; this
+  layer changes no command JSON or human-output surface.
+- [x] Accepted/live G-HOST projections are consumed by generated-zone and
+  scan-root consumers touched in this layer. D9/D13/D14 consumption remains
+  downstream packet-local work and is not claimed closed here.
+- [x] Runtime/source validation gates in `tasks.md` pass for the focused G-HOST
+  slice. Full package test remains non-closure evidence because it still records
+  the known D13 pattern-generator TS/CJS loader residual, and a temporary
+  reviewer observed one intermittent injected-probe full-suite failure while the
+  focused injected-probe suite passes.
+- [x] Generated outputs, lockfiles, `dist/**`, `mod/**`, `.civ7/outputs/**`, and
   external resource outputs are not hand-edited.
