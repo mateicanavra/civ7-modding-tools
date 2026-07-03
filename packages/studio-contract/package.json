@@ -3,11 +3,6 @@
   "version": "0.1.0",
   "description": "MapGen Studio contract: the studio-owned oRPC contract artifact (TypeBox schemas, phase unions, DTO types) implemented by @civ7/studio-server and consumed by its clients",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:foundation"
-    ]
-  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
