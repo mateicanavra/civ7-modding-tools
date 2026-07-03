@@ -16,8 +16,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | check-script | 31 |
 | structure-spec | 8 |
 | fix-script | 1 |
-| operation-note | 2 |
-| generate-script | 1 |
+| operation-note | 3 |
+| generate-script | 2 |
 | package-script | 136 |
 | nx-target | 55 |
 | nx-plugin | 1 |
@@ -32,7 +32,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | runner_metadata | 125 |
 | command_check_executor | 31 |
 | structure_authority | 8 |
-| operation_surface | 4 |
+| operation_surface | 6 |
 | workspace_entrypoint | 201 |
 | toolkit_runner | 124 |
 
@@ -43,8 +43,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | policy-predicate | 92 |
 | transient-dependency | 182 |
 | adapter | 125 |
-| entrypoint | 233 |
-| fixture-support | 9 |
+| entrypoint | 234 |
+| fixture-support | 11 |
 | runner-runtime | 124 |
 
 ## `.rule.mjs` Anatomy
@@ -72,23 +72,23 @@ _None._
 
 | invoker | count |
 | --- | --- |
-| unknown | 8 |
+| unknown | 9 |
 | habitat | 367 |
 | direct-script | 34 |
-| package | 137 |
+| package | 138 |
 | nx | 65 |
 
 ## Buckets
 
 | bucket | count |
 | --- | --- |
-| mutation_surface | 123 |
+| mutation_surface | 126 |
 | package_boundary_tie | 101 |
-| unknown_invocation | 8 |
+| unknown_invocation | 9 |
 | habitat_invoked | 367 |
 | nx_ordering_tie | 111 |
 | direct_script_invoked | 34 |
-| package_invoked | 202 |
+| package_invoked | 203 |
 
 ## Top Cross-Boundary Ties By Fanout
 
@@ -125,7 +125,7 @@ _None._
 | package | script | command |
 | --- | --- | --- |
 | package.json | docs:project | ./.habitat/docs/blueprints/docs-site/artifact/generate/generate_docs_sidebar_from_docs_tree/generate_docs_sidebar_from_docs_tree.generate.sh && bunx docsify-cli serve ./docs --port 7979 |
-| tools/habitat/package.json | generate:schemas | bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts |
+| tools/habitat/package.json | generate:schemas | bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts |
 
 ## `.rule.mjs` Files Importing Transitional Habitat Runtime
 
@@ -155,6 +155,7 @@ _None._
 | .habitat/docs/blueprints/_self/quality/fix/repair_docs_issue_links_and_dependency_metadata/repair_docs_issue_links_and_dependency_metadata.fix.mjs | fix-script | node:fs/promises; node:path; --write |
 | .habitat/docs/blueprints/_self/quality/fix/repair_docs_issue_links_and_dependency_metadata/repair_docs_issue_links_and_dependency_metadata.operation.md | operation-note | --write; > |
 | .habitat/docs/blueprints/docs-site/artifact/generate/generate_docs_sidebar_from_docs_tree/generate_docs_sidebar_from_docs_tree.operation.md | operation-note | generate |
+| .habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md | operation-note | bash<br>bun run --cwd tools/habitat generate:schemas; generate; .habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json |
 | .habitat/habitat/toolkit/blueprints/service-module/structure/check/enforce_habitat_orpc_service_wiring_shape/enforce_habitat_orpc_service_wiring_shape.pattern.md | pattern | >; ../../impl.js; ../module.js |
 
 ## Stale Detect Targets

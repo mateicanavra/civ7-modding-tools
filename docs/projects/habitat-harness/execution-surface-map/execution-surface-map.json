@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 577,
+    "totalSurfaces": 579,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
@@ -12,8 +12,8 @@
       "check-script": 31,
       "structure-spec": 8,
       "fix-script": 1,
-      "operation-note": 2,
-      "generate-script": 1,
+      "operation-note": 3,
+      "generate-script": 2,
       "package-script": 136,
       "nx-target": 55,
       "nx-plugin": 1,
@@ -25,25 +25,25 @@
       "runner_metadata": 125,
       "command_check_executor": 31,
       "structure_authority": 8,
-      "operation_surface": 4,
+      "operation_surface": 6,
       "workspace_entrypoint": 201,
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
-      "unknown": 8,
+      "unknown": 9,
       "habitat": 367,
       "direct-script": 34,
-      "package": 137,
+      "package": 138,
       "nx": 65
     },
     "surfacesByBucket": {
-      "mutation_surface": 123,
+      "mutation_surface": 126,
       "package_boundary_tie": 101,
-      "unknown_invocation": 8,
+      "unknown_invocation": 9,
       "habitat_invoked": 367,
       "nx_ordering_tie": 111,
       "direct_script_invoked": 34,
-      "package_invoked": 202
+      "package_invoked": 203
     },
     "sanityAssertions": []
   },
@@ -52,8 +52,8 @@
       "policy-predicate": 92,
       "transient-dependency": 182,
       "adapter": 125,
-      "entrypoint": 233,
-      "fixture-support": 9,
+      "entrypoint": 234,
+      "fixture-support": 11,
       "runner-runtime": 124
     },
     "ruleModule": {
@@ -1241,6 +1241,17 @@
       ]
     },
     {
+      "target": "tools/habitat/package.json",
+      "targetClass": "habitat-toolkit",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/cli/contract/check/verify_habitat_cli_smoke_contract/verify_habitat_cli_smoke_contract.check.ts",
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+        ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_file_shape/validate_habitat_service_module_file_shape.check.ts"
+      ]
+    },
+    {
       "target": "../dto/pattern-apply.schema.js",
       "targetClass": "relative",
       "references": 4,
@@ -1571,6 +1582,26 @@
       ]
     },
     {
+      "target": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+      "targetClass": "habitat-authority",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
+      ]
+    },
+    {
+      "target": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json",
+      "targetClass": "habitat-authority",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
+      ]
+    },
+    {
       "target": "@habitat/cli/resources/artifact-paths",
       "targetClass": "habitat-toolkit",
       "references": 2,
@@ -1618,6 +1649,16 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md",
         ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts"
+      ]
+    },
+    {
+      "target": "biome",
+      "targetClass": "workspace-tool",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+        "tools/habitat/src/providers/biome/index.ts"
       ]
     },
     {
@@ -2121,13 +2162,23 @@
       ]
     },
     {
-      "target": "tools/habitat/package.json",
+      "target": "tools/habitat/src/generators/scaffold/pattern/support/schema.ts",
       "targetClass": "habitat-toolkit",
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        ".habitat/habitat/toolkit/blueprints/cli/contract/check/verify_habitat_cli_smoke_contract/verify_habitat_cli_smoke_contract.check.ts",
-        ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_file_shape/validate_habitat_service_module_file_shape.check.ts"
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
+      ]
+    },
+    {
+      "target": "tools/habitat/src/generators/scaffold/project/support/schema.ts",
+      "targetClass": "habitat-toolkit",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
       ]
     },
     {
@@ -3059,6 +3110,15 @@
       ]
     },
     {
+      "target": "bash\nbun run --cwd tools/habitat generate:schemas",
+      "targetClass": "habitat-toolkit",
+      "references": 2,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
+      ]
+    },
+    {
       "target": "../../../../../../config.js",
       "targetClass": "relative",
       "references": 1,
@@ -3230,7 +3290,7 @@
       ]
     },
     {
-      "target": "../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
+      "target": "../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
       "targetClass": "habitat-authority",
       "references": 1,
       "sourceCount": 1,
@@ -4499,15 +4559,6 @@
       ]
     },
     {
-      "target": "biome",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/providers/biome/index.ts"
-      ]
-    },
-    {
       "target": "biome check",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -4697,7 +4748,7 @@
       ]
     },
     {
-      "target": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
+      "target": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
       "targetClass": "habitat-authority",
       "references": 1,
       "sourceCount": 1,
@@ -4829,6 +4880,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/resources/command/materialize.ts"
+      ]
+    },
+    {
+      "target": "bunx",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
       ]
     },
     {
@@ -8747,12 +8807,30 @@
       ]
     },
     {
+      "target": "tools/habitat",
+      "targetClass": "habitat-toolkit",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
+      ]
+    },
+    {
       "target": "tools/habitat/bin/dev.ts",
       "targetClass": "habitat-toolkit",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
         "package.json#scripts.habitat"
+      ]
+    },
+    {
+      "target": "tools/habitat/generators.json",
+      "targetClass": "habitat-toolkit",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
       ]
     },
     {
@@ -9112,34 +9190,41 @@
         "packagePath": "tools/habitat/package.json",
         "packageName": "@habitat/cli",
         "name": "generate:schemas",
-        "command": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+        "command": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
       },
       "isDirectEntrypoint": true,
       "staticTies": {
         "imports": [],
         "relativeHabitatImports": [
-          "../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+          "../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
         ],
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
         ],
         "directHabitatPathCalls": [
-          "../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
-          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+          "../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
         ],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "generate"
+        ],
         "all": [
           {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
             "kind": "path-reference",
-            "value": "../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
+            "value": "../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
             "targetClass": "habitat-authority"
           },
           {
             "kind": "shell-command",
-            "value": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
+            "value": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
             "targetClass": "habitat-authority"
           }
         ]
@@ -9154,6 +9239,7 @@
       },
       "buckets": [
         "direct_script_invoked",
+        "mutation_surface",
         "package_invoked"
       ]
     }
@@ -10592,6 +10678,96 @@
         "roles": [],
         "summary": "Classified execution surface.",
         "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "mutation_surface",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md",
+      "path": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md",
+      "surfaceKind": "operation-note",
+      "surfaceRole": "operation_surface",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bash\nbun run --cwd tools/habitat generate:schemas"
+        ],
+        "directHabitatPathCalls": [
+          ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+          ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json"
+        ],
+        "cwdAssumptions": [
+          "bash\nbun run --cwd tools/habitat generate:schemas"
+        ],
+        "knownMutationVerbs": [
+          "generate"
+        ],
+        "all": [
+          {
+            "kind": "cwd-assumption",
+            "value": "bash\nbun run --cwd tools/habitat generate:schemas",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/generators.json",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/generators/scaffold/pattern/support/schema.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/generators/scaffold/project/support/schema.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bash\nbun run --cwd tools/habitat generate:schemas",
+            "targetClass": "habitat-toolkit"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "fixture-support"
+        ],
+        "summary": "Classified execution surface.",
+        "supportSignals": [
+          "references fixture/support path"
+        ],
         "transientSignals": []
       },
       "buckets": [
@@ -29926,6 +30102,260 @@
       ]
     },
     {
+      "id": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+      "path": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+      "surfaceKind": "generate-script",
+      "surfaceRole": "operation_surface",
+      "invokedBy": [
+        "package"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "node:child_process",
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [
+          "\"bunx\" [\"biome\", \"format\", \"--write\", ...schemaPaths] {\n  cwd: repoRoot,\n  stdio: \"inherit\",\n}"
+        ],
+        "shellCommandCalls": [
+          "biome",
+          "bunx",
+          "node:child_process",
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
+        "directHabitatPathCalls": [
+          ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+          ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json"
+        ],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "--write",
+          "generate",
+          "rm",
+          "writeFileSync"
+        ],
+        "all": [
+          {
+            "kind": "child-process",
+            "value": "\"bunx\" [\"biome\", \"format\", \"--write\", ...schemaPaths] {\n  cwd: repoRoot,\n  stdio: \"inherit\",\n}",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "import",
+            "value": "node:child_process",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:url",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "--write",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "writeFileSync",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/package.json",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/generators/scaffold/pattern/support/schema.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/generators/scaffold/project/support/schema.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "shell-command",
+            "value": "biome",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bunx",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:child_process",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:url",
+            "targetClass": "node-builtin"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "fixture-support"
+        ],
+        "summary": "Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.",
+        "supportSignals": [
+          "references fixture/support path"
+        ],
+        "transientSignals": []
+      },
+      "buckets": [
+        "mutation_surface",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md",
+      "path": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md",
+      "surfaceKind": "operation-note",
+      "surfaceRole": "operation_surface",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bash\nbun run --cwd tools/habitat generate:schemas"
+        ],
+        "directHabitatPathCalls": [
+          ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+          ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json"
+        ],
+        "cwdAssumptions": [
+          "bash\nbun run --cwd tools/habitat generate:schemas"
+        ],
+        "knownMutationVerbs": [
+          "generate"
+        ],
+        "all": [
+          {
+            "kind": "cwd-assumption",
+            "value": "bash\nbun run --cwd tools/habitat generate:schemas",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/generators.json",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/generators/scaffold/pattern/support/schema.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/generators/scaffold/project/support/schema.ts",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bash\nbun run --cwd tools/habitat generate:schemas",
+            "targetClass": "habitat-toolkit"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "fixture-support"
+        ],
+        "summary": "Classified execution surface.",
+        "supportSignals": [
+          "references fixture/support path"
+        ],
+        "transientSignals": []
+      },
+      "buckets": [
+        "mutation_surface",
+        "unknown_invocation"
+      ]
+    },
+    {
       "id": ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md",
       "path": ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md",
       "surfaceKind": "pattern",
@@ -40371,34 +40801,41 @@
         "packagePath": "tools/habitat/package.json",
         "packageName": "@habitat/cli",
         "name": "generate:schemas",
-        "command": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+        "command": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
       },
       "isDirectEntrypoint": true,
       "staticTies": {
         "imports": [],
         "relativeHabitatImports": [
-          "../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+          "../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
         ],
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
         ],
         "directHabitatPathCalls": [
-          "../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
-          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts"
+          "../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
+          "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts"
         ],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "generate"
+        ],
         "all": [
           {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
             "kind": "path-reference",
-            "value": "../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
+            "value": "../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
             "targetClass": "habitat-authority"
           },
           {
             "kind": "shell-command",
-            "value": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
+            "value": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.generate.ts",
             "targetClass": "habitat-authority"
           }
         ]
@@ -40413,6 +40850,7 @@
       },
       "buckets": [
         "direct_script_invoked",
+        "mutation_surface",
         "package_invoked"
       ]
     },
