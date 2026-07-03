@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 473,
+    "totalSurfaces": 475,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "apply-pattern": 2,
-      "pattern": 36,
-      "rule-json": 73,
-      "check-script": 33,
+      "pattern": 39,
+      "rule-json": 74,
+      "check-script": 31,
       "fix-script": 1,
       "operation-note": 2,
       "generate-script": 1,
@@ -20,37 +20,37 @@
       "habitat-cli-source": 124
     },
     "surfacesByRole": {
-      "policy_pattern": 38,
-      "runner_metadata": 73,
-      "command_check_executor": 33,
+      "policy_pattern": 41,
+      "runner_metadata": 74,
+      "command_check_executor": 31,
       "operation_surface": 4,
       "workspace_entrypoint": 201,
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
       "unknown": 8,
-      "habitat": 263,
-      "direct-script": 36,
+      "habitat": 265,
+      "direct-script": 34,
       "package": 137,
       "nx": 65
     },
     "surfacesByBucket": {
-      "mutation_surface": 119,
-      "package_boundary_tie": 61,
+      "mutation_surface": 118,
+      "package_boundary_tie": 60,
       "unknown_invocation": 8,
-      "habitat_invoked": 263,
-      "nx_ordering_tie": 105,
-      "direct_script_invoked": 36,
+      "habitat_invoked": 265,
+      "nx_ordering_tie": 106,
+      "direct_script_invoked": 34,
       "package_invoked": 202
     },
     "sanityAssertions": []
   },
   "executionAnatomy": {
     "roleCounts": {
-      "policy-predicate": 38,
+      "policy-predicate": 41,
       "transient-dependency": 141,
-      "adapter": 73,
-      "entrypoint": 235,
+      "adapter": 74,
+      "entrypoint": 233,
       "fixture-support": 9,
       "runner-runtime": 124
     },
@@ -67,8 +67,8 @@
     {
       "target": "grit-check",
       "targetClass": "workspace-tool",
-      "references": 71,
-      "sourceCount": 38,
+      "references": 77,
+      "sourceCount": 41,
       "sampleSources": [
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.rule.json",
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.rule.json",
@@ -80,24 +80,6 @@
         ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_runtime_orchestration_helpers_in_domain_ops/prohibit_runtime_orchestration_helpers_in_domain_ops.rule.json",
         ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_recipe_imports_in_domain_source/prohibit_recipe_imports_in_domain_source.rule.json",
         ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_relative_domain_reaches_from_recipes_and_maps/prohibit_relative_domain_reaches_from_recipes_and_maps.rule.json"
-      ]
-    },
-    {
-      "target": "git",
-      "targetClass": "workspace-tool",
-      "references": 23,
-      "sourceCount": 23,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.check.mjs",
-        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
-        ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
-        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
       ]
     },
     {
@@ -119,6 +101,24 @@
       ]
     },
     {
+      "target": "git",
+      "targetClass": "workspace-tool",
+      "references": 22,
+      "sourceCount": 22,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.check.mjs",
+        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
+        ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts"
+      ]
+    },
+    {
       "target": "@habitat/cli/service/model/check/index",
       "targetClass": "habitat-toolkit",
       "references": 21,
@@ -137,28 +137,10 @@
       ]
     },
     {
-      "target": "bun",
-      "targetClass": "workspace-tool",
-      "references": 38,
-      "sourceCount": 20,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.rule.json",
-        ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.rule.json",
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.rule.json",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.rule.json",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.rule.json",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.rule.json",
-        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.rule.json",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.rule.json",
-        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.rule.json",
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/prohibit_adapter_local_legacy_generator_logic/prohibit_adapter_local_legacy_generator_logic.rule.json"
-      ]
-    },
-    {
       "target": "grit\nlanguage js(typescript)\n\nor {",
       "targetClass": "workspace-tool",
-      "references": 18,
-      "sourceCount": 18,
+      "references": 20,
+      "sourceCount": 20,
       "sampleSources": [
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md",
         ".habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/block_adapter_context_imports_from_domain_ops/block_adapter_context_imports_from_domain_ops.pattern.md",
@@ -168,8 +150,26 @@
         ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/require_public_domain_surfaces_in_recipes_and_maps.apply.pattern.md",
         ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/restrict_recipes_to_public_domain_surfaces/restrict_recipes_to_public_domain_surfaces.pattern.md",
         ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_domain_ops_projection_effect_dependencies/prohibit_domain_ops_projection_effect_dependencies.pattern.md",
-        ".habitat/civ7/mapgen/map-output/blueprints/placement-outcome/boundary/check/require_typed_placement_outcomes_before_apply/require_typed_placement_outcomes_before_apply.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_wrapper_only_advanced_config/prohibit_wrapper_only_advanced_config.pattern.md"
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md",
+        ".habitat/civ7/mapgen/map-output/blueprints/placement-outcome/boundary/check/require_typed_placement_outcomes_before_apply/require_typed_placement_outcomes_before_apply.pattern.md"
+      ]
+    },
+    {
+      "target": "bun",
+      "targetClass": "workspace-tool",
+      "references": 36,
+      "sourceCount": 19,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.rule.json",
+        ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.rule.json",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.rule.json",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.rule.json",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.rule.json",
+        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.rule.json",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.rule.json",
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.rule.json",
+        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/prohibit_adapter_local_legacy_generator_logic/prohibit_adapter_local_legacy_generator_logic.rule.json",
+        ".habitat/civ7/platform/blueprints/intelligence-bridge/boundary/check/require_narrow_game_ui_bridge_bootstrap/require_narrow_game_ui_bridge_bootstrap.rule.json"
       ]
     },
     {
@@ -512,20 +512,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps",
-      "targetClass": "mod",
-      "references": 6,
-      "sourceCount": 6,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
-        ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs",
-        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
       "targetClass": "mod",
       "references": 6,
@@ -628,6 +614,32 @@
         "tools/habitat/src/service/modules/hook/model/policy/procedure-context.policy.ts",
         "tools/habitat/src/service/modules/hook/model/policy/procedure-operations.policy.ts",
         "tools/habitat/src/service/modules/verify/model/policy/receipt.policy.ts"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps",
+      "targetClass": "mod",
+      "references": 5,
+      "sourceCount": 5,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
+        ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs",
+        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/",
+      "targetClass": "mod",
+      "references": 5,
+      "sourceCount": 5,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ambient_rng_in_authored_generation/prohibit_ambient_rng_in_authored_generation.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_wrapper_only_advanced_config/prohibit_wrapper_only_advanced_config.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/prohibit_runtime_local_config_default_merging/prohibit_runtime_local_config_default_merging.pattern.md"
       ]
     },
     {
@@ -911,18 +923,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/",
-      "targetClass": "mod",
-      "references": 4,
-      "sourceCount": 4,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ambient_rng_in_authored_generation/prohibit_ambient_rng_in_authored_generation.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_wrapper_only_advanced_config/prohibit_wrapper_only_advanced_config.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/prohibit_runtime_local_config_default_merging/prohibit_runtime_local_config_default_merging.pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain",
       "targetClass": "mod",
       "references": 4,
@@ -978,8 +978,20 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.check.ts",
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/require_runtime_domain_op_bundle_imports.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md",
         ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/",
+      "targetClass": "mod",
+      "references": 4,
+      "sourceCount": 4,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/boundary/check/require_public_ecology_surfaces_and_retired_topology_removal/require_public_ecology_surfaces_and_retired_topology_removal.pattern.md",
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/prohibit_sibling_stage_private_step_imports/prohibit_sibling_stage_private_step_imports.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/require_shared_visualization_contracts_at_stage_surfaces.pattern.md"
       ]
     },
     {
@@ -1118,6 +1130,17 @@
       ]
     },
     {
+      "target": "apps/mapgen-studio/src/server/recipeDag/service.ts",
+      "targetClass": "app",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/boundary/check/require_studio_ui_recipe_artifact_imports/require_studio_ui_recipe_artifact_imports.pattern.md",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/maps/demo.ts",
       "targetClass": "mod",
       "references": 3,
@@ -1137,17 +1160,6 @@
         ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
         ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
         "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/",
-      "targetClass": "mod",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/boundary/check/require_public_ecology_surfaces_and_retired_topology_removal/require_public_ecology_surfaces_and_retired_topology_removal.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/prohibit_sibling_stage_private_step_imports/prohibit_sibling_stage_private_step_imports.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/require_shared_visualization_contracts_at_stage_surfaces.pattern.md"
       ]
     },
     {
@@ -1445,6 +1457,16 @@
       ]
     },
     {
+      "target": "../standard/contract-manifest.js",
+      "targetClass": "relative",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
+      ]
+    },
+    {
       "target": "./builders",
       "targetClass": "relative",
       "references": 2,
@@ -1552,16 +1574,6 @@
       "sampleSources": [
         ".habitat/docs/blueprints/docs-site/contract/check/validate_docs_site_config_inputs/validate_docs_site_config_inputs.check.ts",
         ".habitat/docs/blueprints/docs-site/quality/check/verify_docs_site_link_integrity/verify_docs_site_link_integrity.check.ts"
-      ]
-    },
-    {
-      "target": "apps/mapgen-studio/src/server/recipeDag/service.ts",
-      "targetClass": "app",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/boundary/check/require_studio_ui_recipe_artifact_imports/require_studio_ui_recipe_artifact_imports.pattern.md",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
       ]
     },
     {
@@ -1695,6 +1707,16 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/ops/",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
+        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/contract.ts",
       "targetClass": "mod",
       "references": 2,
@@ -1765,6 +1787,16 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/.",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/require_typed_dependency_and_effect_tag_constants/require_typed_dependency_and_effect_tag_constants.pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx",
       "targetClass": "mod",
       "references": 2,
@@ -1820,8 +1852,18 @@
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs",
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md",
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/require_typed_dependency_and_effect_tag_constants/require_typed_dependency_and_effect_tag_constants.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
       ]
     },
     {
@@ -1872,16 +1914,6 @@
       "sampleSources": [
         "tools/habitat/src/providers/nx/graph.ts",
         "tools/habitat/src/service/modules/verify/model/policy/receipt.policy.ts"
-      ]
-    },
-    {
-      "target": "packages/civ7-map-policy/src/civ7-tables.gen.ts",
-      "targetClass": "package",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-        ".habitat/civ7/resources/blueprints/civ7-map-policy/artifact/check/preserve_evidence_provenance_labels/preserve_evidence_provenance_labels.check.ts"
       ]
     },
     {
@@ -2664,15 +2696,6 @@
       ]
     },
     {
-      "target": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-      "targetClass": "habitat-authority",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.rule.json"
-      ]
-    },
-    {
       "target": ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.check.mjs",
       "targetClass": "habitat-authority",
       "references": 2,
@@ -2769,15 +2792,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.rule.json"
-      ]
-    },
-    {
-      "target": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-      "targetClass": "habitat-authority",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.rule.json"
       ]
     },
     {
@@ -3318,15 +3332,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_relative_domain_reaches_from_recipes_and_maps/prohibit_relative_domain_reaches_from_recipes_and_maps.pattern.md"
-      ]
-    },
-    {
-      "target": "../standard/contract-manifest.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
       ]
     },
     {
@@ -4167,6 +4172,24 @@
       ]
     },
     {
+      "target": "apps/mapgen-studio/src/server/recipeDag/service",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/server/recipeDag/service.tsx",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md"
+      ]
+    },
+    {
       "target": "apps/mapgen-studio/src/server/runInGame/session.ts",
       "targetClass": "app",
       "references": 1,
@@ -4680,6 +4703,15 @@
       ]
     },
     {
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  contains r\"\\brollPercent\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\bcoverageChance\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\b[Cc][Hh][Aa][Nn][Cc][Ee]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\b[Mm][Uu][Ll][Tt][Ii][Pp][Ll][Ii][Ee][Rr]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\bcreateLabelRng\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brng\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Bb][Aa][Nn][Dd][Pp][Aa][Ss][Ss]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brampUp01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brampDown01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bwindow01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Bb][Oo][Nn][Uu][Ss]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Pp][Ee][Nn][Aa][Ll][Tt][Yy]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bminScore01\\b.*[<>]=?|[<>]=?.*\\bminScore01\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bcreateLabelRng\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\brng\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\brollPercent\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bcoverageChance\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\baddNaturalWonders\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bgenerateResources\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bgenerateDiscoveries\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"natural-wonder-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"resource-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"discovery-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  }\n}",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.pattern.md"
+      ]
+    },
+    {
       "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) as $import where {\n    $filename <: r\".*packages/mapgen-core/src/.*\\.ts$\",\n    ! $filename <: r\".*packages/mapgen-core/src/dev/.*\",\n    $source <: r\"^[\\\"']?(?:@civ7/adapter(?:/civ7)?|/base-standard/.+)[\\\"']?$\",\n    ! $import <: includes \"import type\",\n    ! $import <: includes \"import { type\",\n    ! $import <: includes \"import {type\"\n  },",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -5073,15 +5105,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/ecology/ops/",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
       ]
     },
     {
@@ -5976,15 +5999,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/.",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/require_typed_dependency_and_effect_tag_constants/require_typed_dependency_and_effect_tag_constants.pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/a/config.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6207,6 +6221,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/features.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
       ]
     },
     {
@@ -6957,6 +6980,15 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/steps/rivers.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/config.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6966,12 +6998,48 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs"
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/demo.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/demo.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
       ]
     },
     {
@@ -6980,7 +7048,25 @@
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs"
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/demo.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
       ]
     },
     {
@@ -6999,6 +7085,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/require_typed_dependency_and_effect_tag_constants/require_typed_dependency_and_effect_tag_constants.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.tsx",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
       ]
     },
     {
@@ -7101,12 +7196,12 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts",
+      "target": "mods/mod-swooper-maps/src/recipes/studio-contracts/.",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md"
       ]
     },
     {
@@ -7242,6 +7337,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/prohibit_runtime_validation_and_compiler_imports/prohibit_runtime_validation_and_compiler_imports.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/other-mod/src/recipes/standard/stages/map-rivers/steps/demo.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md"
       ]
     },
     {
@@ -7461,15 +7565,6 @@
       ]
     },
     {
-      "target": "packages/",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-      ]
-    },
-    {
       "target": "packages/.",
       "targetClass": "package",
       "references": 1,
@@ -7623,15 +7718,6 @@
       ]
     },
     {
-      "target": "packages/civ7-map-policy/scripts/verify.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-      ]
-    },
-    {
       "target": "packages/civ7-map-policy/src",
       "targetClass": "package",
       "references": 1,
@@ -7641,48 +7727,12 @@
       ]
     },
     {
-      "target": "packages/civ7-map-policy/src/coast-classification.ts",
+      "target": "packages/civ7-map-policy/src/civ7-tables.gen.ts",
       "targetClass": "package",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-      ]
-    },
-    {
-      "target": "packages/civ7-map-policy/src/resource-constants.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-      ]
-    },
-    {
-      "target": "packages/civ7-map-policy/src/river-constants.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-      ]
-    },
-    {
-      "target": "packages/civ7-map-policy/src/river-type-metadata.source.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-      ]
-    },
-    {
-      "target": "packages/civ7-map-policy/test/map-policy.test.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
+        ".habitat/civ7/resources/blueprints/civ7-map-policy/artifact/check/preserve_evidence_provenance_labels/preserve_evidence_provenance_labels.check.ts"
       ]
     },
     {
@@ -8187,15 +8237,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md"
-      ]
-    },
-    {
-      "target": "packages/mapgen-core/test/setup.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
       ]
     },
     {
@@ -9407,108 +9448,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs",
-      "path": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:path"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "build",
-          "generate"
-        ],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "build",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "generate",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "fixture-support",
-          "transient-dependency"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": [
-          "build/currentness or ordering tie",
-          "reaches package/app/mod boundary"
-        ]
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked",
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
       "path": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
       "surfaceKind": "check-script",
@@ -10318,115 +10257,6 @@
         "habitat_invoked",
         "mutation_surface",
         "nx_ordering_tie"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-      "path": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "packages/",
-          "packages/civ7-map-policy/scripts/verify.ts",
-          "packages/civ7-map-policy/src/civ7-tables.gen.ts",
-          "packages/civ7-map-policy/src/coast-classification.ts",
-          "packages/civ7-map-policy/src/resource-constants.ts",
-          "packages/civ7-map-policy/src/river-constants.ts",
-          "packages/civ7-map-policy/src/river-type-metadata.source.ts",
-          "packages/civ7-map-policy/test/map-policy.test.ts",
-          "packages/mapgen-core/test/setup.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "path-reference",
-            "value": "dist/",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/scripts/verify.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/civ7-tables.gen.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/coast-classification.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/resource-constants.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/river-constants.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/river-type-metadata.source.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/test/map-policy.test.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/test/setup.ts",
-            "targetClass": "package"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie",
-          "reaches package/app/mod boundary"
-        ]
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked",
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie"
       ]
     }
   ],
@@ -15599,6 +15429,225 @@
       ]
     },
     {
+      "id": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md",
+      "path": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/src/recipes/standard/stages/",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/.",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/features.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/steps/rivers.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/demo.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.tsx",
+          "mods/other-mod/src/recipes/standard/stages/map-rivers/steps/demo.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "build",
+          "generate"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "generate",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/.",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/features.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/steps/rivers.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.tsx",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/other-mod/src/recipes/standard/stages/map-rivers/steps/demo.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie",
+          "reaches package/app/mod boundary"
+        ]
+      },
+      "buckets": [
+        "habitat_invoked",
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.rule.json",
+      "path": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_misplaced_projection_adapter_calls/prohibit_misplaced_projection_adapter_calls.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "grit-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        "--tool",
+        "check",
+        "grit-check",
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit-check"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "check",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
       "id": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs",
       "path": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs",
       "surfaceKind": "check-script",
@@ -15614,11 +15663,7 @@
           "node:path"
         ],
         "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts"
-        ],
+        "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
           "node:path"
@@ -15626,8 +15671,7 @@
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [
-          "build",
-          "generate"
+          "build"
         ],
         "all": [
           {
@@ -15646,29 +15690,9 @@
             "targetClass": "external"
           },
           {
-            "kind": "mutation-verb",
-            "value": "generate",
-            "targetClass": "external"
-          },
-          {
             "kind": "path-reference",
             "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
             "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts",
-            "targetClass": "mod"
           },
           {
             "kind": "shell-command",
@@ -15688,16 +15712,14 @@
           "references fixture/support path"
         ],
         "transientSignals": [
-          "build/currentness or ordering tie",
-          "reaches package/app/mod boundary"
+          "build/currentness or ordering tie"
         ]
       },
       "buckets": [
         "direct_script_invoked",
         "habitat_invoked",
         "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie"
+        "nx_ordering_tie"
       ]
     },
     {
@@ -16401,60 +16423,36 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-      "path": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
+      "id": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
       "invokedBy": [
-        "direct-script",
         "habitat"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
+        "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "mods/mod-swooper-maps"
+          "mods/mod-swooper-maps/src/",
+          "mods/mod-swooper-maps/src/domain/ecology/ops/"
         ],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
+        "childProcessCalls": [],
         "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:fs",
-          "node:path"
+          "grit\nlanguage js(typescript)\n\nor {\n  contains r\"\\brollPercent\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\bcoverageChance\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\b[Cc][Hh][Aa][Nn][Cc][Ee]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\b[Mm][Uu][Ll][Tt][Ii][Pp][Ll][Ii][Ee][Rr]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\bcreateLabelRng\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brng\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Bb][Aa][Nn][Dd][Pp][Aa][Ss][Ss]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brampUp01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brampDown01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bwindow01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Bb][Oo][Nn][Uu][Ss]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Pp][Ee][Nn][Aa][Ll][Tt][Yy]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bminScore01\\b.*[<>]=?|[<>]=?.*\\bminScore01\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bcreateLabelRng\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\brng\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\brollPercent\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bcoverageChance\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\baddNaturalWonders\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bgenerateResources\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bgenerateDiscoveries\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"natural-wonder-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"resource-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"discovery-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  }\n}"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [
-          "generate",
-          "rm"
+          ">",
+          "generate"
         ],
         "all": [
           {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
+            "kind": "mutation-verb",
+            "value": ">",
             "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
           },
           {
             "kind": "mutation-verb",
@@ -16462,50 +16460,34 @@
             "targetClass": "external"
           },
           {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/",
+            "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/ops/",
             "targetClass": "mod"
           },
           {
             "kind": "shell-command",
-            "value": "git",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  contains r\"\\brollPercent\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\bcoverageChance\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\b[Cc][Hh][Aa][Nn][Cc][Ee]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\b[Mm][Uu][Ll][Tt][Ii][Pp][Ll][Ii][Ee][Rr]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/ecology|recipes/standard/stages/(?:ecology|ecology-pedology|ecology-biomes|ecology-features|map-ecology))/.*\\.(?:ts|json)$\"\n  },\n  contains r\"\\bcreateLabelRng\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brng\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Bb][Aa][Nn][Dd][Pp][Aa][Ss][Ss]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brampUp01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\brampDown01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bwindow01\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Bb][Oo][Nn][Uu][Ss]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\b[Pp][Ee][Nn][Aa][Ll][Tt][Yy]\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bminScore01\\b.*[<>]=?|[<>]=?.*\\bminScore01\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/ecology/ops/(?:classify-biomes/(?:layers|rules)|features-plan-(?:vegetation|wetlands|reefs|ice)/strategies)/.*\\.ts$\",\n    not { $filename <: r\".*\\.schema\\.ts$\" }\n  },\n  contains r\"\\bcreateLabelRng\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\brng\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\brollPercent\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bcoverageChance\\b\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\baddNaturalWonders\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bgenerateResources\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"\\bgenerateDiscoveries\\s*\\(\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"natural-wonder-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"resource-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  },\n  contains r\"discovery-generator\\.js\" where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain/hydrology/ops/plan-lakes|domain/placement|recipes/standard/stages/(?:map-hydrology/steps|map-rivers/steps|placement))/.*\\.ts$\"\n  }\n}",
             "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
           }
         ]
       },
       "anatomy": {
         "roles": [
-          "entrypoint",
+          "policy-predicate",
           "transient-dependency"
         ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
         "supportSignals": [],
         "transientSignals": [
           "reaches package/app/mod boundary"
         ]
       },
       "buckets": [
-        "direct_script_invoked",
         "habitat_invoked",
         "mutation_surface",
         "package_boundary_tie"
@@ -16516,13 +16498,15 @@
       "path": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
-      "declaredOwnerTool": "command-check",
+      "declaredOwnerTool": "grit-check",
       "invokedBy": [
         "habitat"
       ],
       "detectCommand": [
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-        "bun"
+        "--tool",
+        "check",
+        "grit-check",
+        "habitat"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -16531,40 +16515,35 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bun"
+          "grit-check"
         ],
-        "directHabitatPathCalls": [
-          ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-          ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts"
-        ],
+        "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
+        "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "mutation-verb",
-            "value": "rm",
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "check",
             "targetClass": "external"
           },
           {
-            "kind": "path-reference",
-            "value": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-            "targetClass": "habitat-authority"
-          },
-          {
             "kind": "rule-detect-command",
-            "value": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": "bun",
+            "value": "grit-check",
             "targetClass": "workspace-tool"
           },
           {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
             "kind": "shell-command",
-            "value": "bun",
+            "value": "grit-check",
             "targetClass": "workspace-tool"
           }
         ]
@@ -16579,8 +16558,7 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
+        "habitat_invoked"
       ]
     },
     {
@@ -19296,9 +19274,7 @@
           "node:path"
         ],
         "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/recipes/standard/recipe.ts"
-        ],
+        "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
           "node:fs",
@@ -19329,11 +19305,6 @@
             "targetClass": "relative"
           },
           {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
-            "targetClass": "mod"
-          },
-          {
             "kind": "shell-command",
             "value": "node:fs",
             "targetClass": "node-builtin"
@@ -19348,21 +19319,17 @@
       "anatomy": {
         "roles": [
           "entrypoint",
-          "fixture-support",
-          "transient-dependency"
+          "fixture-support"
         ],
         "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
         "supportSignals": [
           "references fixture/support path"
         ],
-        "transientSignals": [
-          "reaches package/app/mod boundary"
-        ]
+        "transientSignals": []
       },
       "buckets": [
         "direct_script_invoked",
-        "habitat_invoked",
-        "package_boundary_tie"
+        "habitat_invoked"
       ]
     },
     {
@@ -20582,6 +20549,170 @@
       ]
     },
     {
+      "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md",
+      "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "apps/mapgen-studio/src/server/recipeDag/service",
+          "apps/mapgen-studio/src/server/recipeDag/service.ts",
+          "apps/mapgen-studio/src/server/recipeDag/service.tsx",
+          "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+          "mods/mod-swooper-maps/src/recipes/studio-contracts/.",
+          "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "build"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../standard/contract-manifest.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/recipeDag/service",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/recipeDag/service.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/recipeDag/service.tsx",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/studio-contracts/.",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie",
+          "reaches package/app/mod boundary"
+        ]
+      },
+      "buckets": [
+        "habitat_invoked",
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.rule.json",
+      "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "grit-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        "--tool",
+        "check",
+        "grit-check",
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit-check"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "check",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
       "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
       "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
       "surfaceKind": "check-script",
@@ -21358,174 +21489,6 @@
         "habitat_invoked",
         "mutation_surface",
         "nx_ordering_tie"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-      "path": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "packages/",
-          "packages/civ7-map-policy/scripts/verify.ts",
-          "packages/civ7-map-policy/src/civ7-tables.gen.ts",
-          "packages/civ7-map-policy/src/coast-classification.ts",
-          "packages/civ7-map-policy/src/resource-constants.ts",
-          "packages/civ7-map-policy/src/river-constants.ts",
-          "packages/civ7-map-policy/src/river-type-metadata.source.ts",
-          "packages/civ7-map-policy/test/map-policy.test.ts",
-          "packages/mapgen-core/test/setup.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "path-reference",
-            "value": "dist/",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/scripts/verify.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/civ7-tables.gen.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/coast-classification.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/resource-constants.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/river-constants.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/src/river-type-metadata.source.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/civ7-map-policy/test/map-policy.test.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/test/setup.ts",
-            "targetClass": "package"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie",
-          "reaches package/app/mod boundary"
-        ]
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked",
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.rule.json",
-      "path": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "declaredOwnerTool": "command-check",
-      "invokedBy": [
-        "habitat"
-      ],
-      "detectCommand": [
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [
-          ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-          ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh"
-        ],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh",
-            "targetClass": "habitat-authority"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
       ]
     },
     {

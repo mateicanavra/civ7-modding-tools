@@ -1,19 +1,19 @@
 {
-  "ruleRecords": 73,
+  "ruleRecords": 74,
   "adapters": 0,
   "sourceCheckRules": 0,
   "activeSourceCheckAdapters": 0,
   "staleAdaptersForNonSourceRules": [],
   "dispositions": {
-    "grit_pattern_authority": 41,
-    "data_driven_import_path_rule": 8,
-    "needs_split": 12,
-    "package_local_test_or_validator": 12
+    "grit_pattern_authority": 44,
+    "data_driven_import_path_rule": 11,
+    "needs_split": 5,
+    "package_local_test_or_validator": 14
   },
   "lanes": {
     "mapgen-domain": 17,
-    "platform-resources": 10,
-    "mapgen-other": 17,
+    "platform-resources": 9,
+    "mapgen-other": 19,
     "global-docs-toolkit": 12,
     "mapgen-pipeline": 17
   },
@@ -59,8 +59,8 @@
     "restrict_recipes_to_public_domain_surfaces"
   ],
   "ownerToolCounts": {
-    "grit-check": 33,
-    "command-check": 33,
+    "grit-check": 36,
+    "command-check": 31,
     "file-layer": 5,
     "format-check": 1,
     "nx": 1
@@ -72,5 +72,25 @@
     "ensure_docs_checkout_paths_are_portable",
     "prohibit_cross_op_runtime_calls",
     "require_public_ecology_surfaces_and_retired_topology_removal"
+  ],
+  "convertedCommandCheckSplitSystematicWaveRules": [
+    "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+    "prohibit_misplaced_projection_adapter_calls",
+    "prohibit_recipe_dag_runtime_source_dependencies"
+  ],
+  "deletedCommandCheckSplitSystematicWaveRules": [
+    "block_unapproved_base_standard_boundary_leaks"
+  ],
+  "retainedCommandCheckSplitSystematicWaveRules": [
+    "enforce_domain_refactor_boundary_profile",
+    "enforce_studio_dev_runner_topology",
+    "preserve_decomposed_foundation_contract_surfaces",
+    "preserve_morphology_contracts_and_overlay_ownership",
+    "preserve_standard_stage_topology_and_path_invariants",
+    "require_owned_domain_config_catalog_surfaces",
+    "require_projection_calls_in_projection_steps",
+    "require_recipe_dag_contract_metadata",
+    "validate_mapgen_docs_anchors_and_references",
+    "verify_standard_recipe_public_authoring_surface"
   ]
 }

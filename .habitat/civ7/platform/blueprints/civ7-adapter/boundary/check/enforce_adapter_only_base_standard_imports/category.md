@@ -26,4 +26,4 @@ Files:
 Evidence: The pattern confines runtime base-standard imports to the adapter package.
 
 Notes:
-- Overlaps with block_unapproved_base_standard_boundary_leaks; likely consolidation candidate.
+- Consolidated the former `block_unapproved_base_standard_boundary_leaks` runtime-import assertion; the former broad provenance-string scan was demoted as non-runtime-import authority.

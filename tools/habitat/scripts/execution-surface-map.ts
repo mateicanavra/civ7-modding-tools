@@ -1085,7 +1085,7 @@ function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
       surface.packageScript.command.includes(".habitat/")
   );
 
-  if (ruleJsonCount !== 73) errors.push(`Expected 73 .rule.json files, found ${ruleJsonCount}.`);
+  if (ruleJsonCount !== 74) errors.push(`Expected 74 .rule.json files, found ${ruleJsonCount}.`);
   if (ruleModuleCount !== activeSourceCheckRuleCount) {
     errors.push(
       `Expected ${activeSourceCheckRuleCount} active source-check .rule.mjs files, found ${ruleModuleCount}.`
