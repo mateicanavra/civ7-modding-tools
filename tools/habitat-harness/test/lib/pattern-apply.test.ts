@@ -1,20 +1,21 @@
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+} from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
 import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "@internal/habitat-harness/core/domains/transformation-transaction/index";
-import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
-import type { TransactionsServiceModuleContext } from "@internal/habitat-harness/service/modules/transactions/context";
-import { transactionsRouter } from "@internal/habitat-harness/service/modules/transactions/router";
+} from "@internal/habitat-harness/service/model/fix/policy/transactions/index";
+import {
+  fixRouter,
+  runPatternApplyTransaction,
+} from "@internal/habitat-harness/service/modules/fix/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/providers/grit/index";
 import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
@@ -30,19 +31,25 @@ describe("pattern apply", () => {
     ).toBe(false);
   });
 
-  test("refuses fix at the command boundary before apply admission", async () => {
+  test("fix command boundary consumes service-owned apply admissions", async () => {
+    const requests: HabitatProcessRequest[] = [];
+    const layer = makeFakeGritProviderLayer((request) => {
+      requests.push(request);
+      return makeHabitatCommandResult(request);
+    });
+
     const result = await Effect.runPromise(
       Effect.gen(function* () {
-        const runFix = fixRouter.run.callable({ context: { fix: { admissions: [] } } });
+        const runFix = fixRouter.run.callable({ context: { fix: {} } });
         return yield* withFiberContext(() => runFix({ kind: "dry-run-intent" }));
-      })
+      }).pipe(Effect.provide(layer))
     );
 
     expect(result).toMatchObject({
-      exitCode: 1,
-      stdout: "",
-      stderr: expect.stringContaining("missing-apply-admission"),
+      exitCode: 0,
+      stderr: "",
     });
+    expect(requests).toHaveLength(2);
   });
 
   test("rejects unsupported request properties through TypeBox", () => {
@@ -287,13 +294,10 @@ describe("pattern apply", () => {
 
 function applyTransaction(
   input: PatternApplyRequest,
-  options?: TransactionsServiceModuleContext,
+  options?: { readonly transactionInputs?: readonly ApplyTransactionInput[] },
   layer?: Layer.Layer<never>
 ) {
-  const program = Effect.gen(function* () {
-    const apply = transactionsRouter.apply.callable({ context: { transactions: options ?? {} } });
-    return yield* withFiberContext(() => apply(input));
-  });
+  const program = runPatternApplyTransaction(input, options);
   return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);
 }
 

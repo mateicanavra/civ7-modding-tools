@@ -1,4 +1,4 @@
-import { collapsedSourceScanRoots } from "@internal/habitat-harness/core/domains/source-check/index";
+import { collapsedSourceScanRoots } from "@internal/habitat-harness/service/model/check/source/index";
 import { describe, expect, test } from "vitest";
 
 describe("source-check scan root planning", () => {
@@ -8,7 +8,7 @@ describe("source-check scan root planning", () => {
         "packages/mapgen-core/src",
         "packages/mapgen-core",
         "./packages/mapgen-core/src/core",
-        "tools/habitat-harness/src/core/domains/source-check",
+        "tools/habitat-harness/src/service/model/check/source",
         "tools/habitat-harness/src",
       ])
     ).toEqual(["packages/mapgen-core", "tools/habitat-harness/src"]);

@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   auditBoundaryTaxonomy,
   extractBoundaryConfigConstraints,
@@ -8,8 +7,9 @@ import {
   parseBoundaryTaxonomy,
   readWorkspaceManifestProjects,
   type TaxonomyConstraint,
-} from "@internal/habitat-harness/workspace/taxonomy/boundary-taxonomy";
-import type { NxProjectMetadata } from "@internal/habitat-harness/workspace/taxonomy/nx-projects";
+} from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy";
+import type { NxProjectMetadata } from "@internal/habitat-harness/service/model/graph/policy/nx-projects";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { describe, expect, test } from "vitest";
 
 describe("boundary taxonomy verifier", () => {
@@ -22,9 +22,24 @@ describe("boundary taxonomy verifier", () => {
       tags: ["kind:tooling"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "@internal/habitat-harness-substrate",
-      root: "tools/habitat-harness/src/substrate",
-      tags: ["kind:tooling", "habitat:substrate"],
+      name: "@internal/habitat-harness-providers",
+      root: "tools/habitat-harness/src/providers",
+      tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+    });
+    expect(taxonomy.projects).toContainEqual({
+      name: "@internal/habitat-harness-resources",
+      root: "tools/habitat-harness/src/resources",
+      tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+    });
+    expect(taxonomy.projects).toContainEqual({
+      name: "@internal/habitat-harness-runtime",
+      root: "tools/habitat-harness/src/runtime",
+      tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+    });
+    expect(taxonomy.projects).toContainEqual({
+      name: "@internal/habitat-harness-service-model",
+      root: "tools/habitat-harness/src/service/model",
+      tags: ["kind:tooling", "habitat:service", "layer:service-model"],
     });
     expect(taxonomy.projects).toContainEqual({
       name: "@internal/habitat-artifacts",
@@ -41,8 +56,8 @@ describe("boundary taxonomy verifier", () => {
       onlyDependOnLibsWithTags: ["kind:adapter", "kind:control", "kind:engine", "kind:foundation"],
     });
     expect(taxonomy.constraints).toContainEqual({
-      sourceTag: "habitat:substrate",
-      onlyDependOnLibsWithTags: ["habitat:substrate"],
+      sourceTag: "habitat:service",
+      onlyDependOnLibsWithTags: ["habitat:runtime", "habitat:service"],
     });
   });
 
@@ -87,8 +102,8 @@ describe("boundary taxonomy verifier", () => {
       reason: "nx-inferred-habitat-internal-project",
       message:
         "The Habitat internal root is an inferred Nx project-plane node, not a package manifest workspace.",
-      project: "@internal/habitat-harness-substrate",
-      root: "tools/habitat-harness/src/substrate",
+      project: "@internal/habitat-harness-service-shell",
+      root: "tools/habitat-harness/src/service",
     });
   });
 

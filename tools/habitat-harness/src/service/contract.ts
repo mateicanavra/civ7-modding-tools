@@ -1,34 +1,17 @@
-import { eoc } from "effect-orpc";
-import { type CheckServiceContract, checkServiceContract } from "./modules/check/contract.js";
-import {
-  type ClassifyServiceContract,
-  classifyServiceContract,
-} from "./modules/classify/contract.js";
-import { type FixServiceContract, fixServiceContract } from "./modules/fix/contract.js";
-import { type GraphServiceContract, graphServiceContract } from "./modules/graph/contract.js";
-import { type HookServiceContract, hookServiceContract } from "./modules/hook/contract.js";
-import {
-  type TransactionsServiceContract,
-  transactionsServiceContract,
-} from "./modules/transactions/contract.js";
-import { type VerifyServiceContract, verifyServiceContract } from "./modules/verify/contract.js";
+import { checkServiceContract } from "@internal/habitat-harness/service/modules/check/contract";
+import { classifyServiceContract } from "@internal/habitat-harness/service/modules/classify/contract";
+import { fixServiceContract } from "@internal/habitat-harness/service/modules/fix/contract";
+import { graphServiceContract } from "@internal/habitat-harness/service/modules/graph/contract";
+import { hookServiceContract } from "@internal/habitat-harness/service/modules/hook/contract";
+import { verifyServiceContract } from "@internal/habitat-harness/service/modules/verify/contract";
 
-export type HabitatServiceContract = Readonly<{
-  check: CheckServiceContract;
-  classify: ClassifyServiceContract;
-  fix: FixServiceContract;
-  graph: GraphServiceContract;
-  hook: HookServiceContract;
-  transactions: TransactionsServiceContract;
-  verify: VerifyServiceContract;
-}>;
-
-export const habitatServiceContract: HabitatServiceContract = eoc.router({
+export const habitatServiceContract = {
   check: checkServiceContract,
   classify: classifyServiceContract,
   fix: fixServiceContract,
   graph: graphServiceContract,
   hook: hookServiceContract,
-  transactions: transactionsServiceContract,
   verify: verifyServiceContract,
-});
+};
+
+export type HabitatServiceContract = typeof habitatServiceContract;

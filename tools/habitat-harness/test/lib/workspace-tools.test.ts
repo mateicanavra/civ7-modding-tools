@@ -1,6 +1,6 @@
-import { defaultWorkspaceToolPolicies } from "@internal/habitat-harness/substrate/config/index";
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
-import { materializeDefaultHabitatCommand } from "@internal/habitat-harness/substrate/providers/command/index";
+import { materializeDefaultHabitatCommand } from "@internal/habitat-harness/resources/command/index";
+import { defaultWorkspaceToolPolicies } from "@internal/habitat-harness/resources/config/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { describe, expect, test } from "vitest";
 
 describe("workspace tool command materialization", () => {

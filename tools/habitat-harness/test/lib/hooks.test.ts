@@ -1,33 +1,36 @@
 import {
+  type CheckOptions,
+  type CheckReport,
+  makeFakeStructuralCheckLayer,
+} from "@internal/habitat-harness/service/model/check/structural/index";
+import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
+import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
-} from "@internal/habitat-harness/core/domains/hook-runtime/resource-inspection";
+} from "@internal/habitat-harness/service/model/hook/runtime/resource-inspection";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
-import {
-  type CheckOptions,
-  type CheckReport,
-  makeFakeStructuralCheckLayer,
-} from "@internal/habitat-harness/core/domains/structural-check/index";
-import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
+} from "@internal/habitat-harness/service/model/hook/runtime/runtime";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   type BiomeCommandRequest,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "@internal/habitat-harness/substrate/providers/biome/index";
+} from "@internal/habitat-harness/providers/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
   type SpawnResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/providers/command/types";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
-import { makeFakeNxProviderLayer } from "@internal/habitat-harness/substrate/providers/nx/index";
+} from "@internal/habitat-harness/resources/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
+import {
+  GitProvider,
+  makeFakeGitProviderLayer,
+} from "@internal/habitat-harness/providers/git/index";
+import { makeFakeNxProviderLayer } from "@internal/habitat-harness/providers/nx/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
@@ -126,7 +129,10 @@ describe("Habitat hook resource policy", () => {
     });
 
     const decision = await Effect.runPromise(
-      classifyResourcePreCommitDecisionEffect(fake.runtime).pipe(Effect.provide(makeGitLayer(fake)))
+      Effect.gen(function* () {
+        const git = yield* GitProvider;
+        return yield* classifyResourcePreCommitDecisionEffect({ git, repoRoot }, fake.runtime);
+      }).pipe(Effect.provide(makeGitLayer(fake)))
     );
 
     expect(decision).toMatchObject({
