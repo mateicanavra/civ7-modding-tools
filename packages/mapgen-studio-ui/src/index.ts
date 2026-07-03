@@ -6,7 +6,13 @@
  * B3 surface: the composites (12: AppBrand, AppFooter, StageViewTabs,
  * ViewControls, WaterStatsSection, OptionSelect, DisclosureHeader, EmptyState,
  * ErrorBanner, the 3 preset dialogs) + layout (LeftDock, RightDock).
- * Components land branch-by-branch (B4 forms → B5 panels → B6 AppHeader);
+ * B4 surface: the forms group (11: the 7 config widgets + the 3 BrowserConfig
+ * templates + SchemaConfigForm) with `configWidgets` and the public
+ * `useConfigCollapse` collapse engine (SchemaConfigForm's documented
+ * `data-config-*`/`configContentId` counterpart — structure-rewire §3.5).
+ * SchemaForm stays internal: it is the five-module unit's private core
+ * (SchemaConfigForm is the public engine; §3.5 lists no SchemaForm export).
+ * Components land branch-by-branch (B5 panels → B6 AppHeader);
  * each branch adds its exports here and raises the `verify` export floor.
  * Final surface: the 46 design-synced components (+ TooltipProvider and the
  * lib exports — `cn`, `useResolvedTheme`, `LAYOUT`, statusLabels formatters,
@@ -50,6 +56,32 @@ export {
 } from "./components/composites/WaterStatsSection.js";
 // forms — FieldRow (homed with the forms group; story title stays `primitives/FieldRow`)
 export { FieldRow, type FieldRowProps } from "./components/forms/FieldRow.js";
+// forms — the five-module cohesive unit's public surface (structure-rewire §3.5)
+export {
+  BrowserConfigArrayFieldTemplate,
+  BrowserConfigFieldTemplate,
+  type BrowserConfigFormContext,
+  BrowserConfigObjectFieldTemplate,
+  type ConfigCollapseContext,
+} from "./components/forms/rjsfTemplates.js";
+export {
+  CheckboxWidget,
+  configWidgets,
+  NumberWidget,
+  SelectWidget,
+  SwitchWidget,
+  TagSelectWidget,
+  TextareaWidget,
+  TextWidget,
+} from "./components/forms/rjsfWidgets.js";
+export {
+  SchemaConfigForm,
+  type SchemaConfigFormProps,
+} from "./components/forms/SchemaConfigForm.js";
+export {
+  type UseConfigCollapseArgs,
+  useConfigCollapse,
+} from "./components/forms/useConfigCollapse.js";
 // layout
 export { LeftDock, type LeftDockProps } from "./components/layout/LeftDock.js";
 export { RightDock, type RightDockProps } from "./components/layout/RightDock.js";

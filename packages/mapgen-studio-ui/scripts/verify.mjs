@@ -28,7 +28,12 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // ViewControls, WaterStatsSection, OptionSelect, DisclosureHeader, EmptyState,
 // ErrorBanner, PresetErrorDialog, PresetSaveDialog, PresetConfirmDialog,
 // LeftDock, RightDock = 77.
-const EXPECTED_MIN_EXPORTS = 77;
+// B4 (forms 11 + engine): TextWidget, TextareaWidget, NumberWidget,
+// SelectWidget, CheckboxWidget, SwitchWidget, TagSelectWidget, configWidgets,
+// BrowserConfigFieldTemplate, BrowserConfigObjectFieldTemplate,
+// BrowserConfigArrayFieldTemplate, SchemaConfigForm, useConfigCollapse = 90.
+// (SchemaForm stays internal — structure-rewire §3.5 lists no export for it.)
+const EXPECTED_MIN_EXPORTS = 90;
 
 const failures = [];
 const assert = (cond, msg) => {

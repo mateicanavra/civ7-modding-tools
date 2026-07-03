@@ -1,10 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { SchemaConfigForm, type SchemaConfigFormProps } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import {
-  SchemaConfigForm,
-  type SchemaConfigFormProps,
-} from "@/features/configOverrides/SchemaConfigForm";
-import { alwaysExpandedCollapse, noop } from "@/storybook/mockWidgetProps";
+import { alwaysExpandedCollapse, noop } from "../../storybook/mockWidgetProps.js";
 
 /**
  * SchemaConfigForm is the config-authoring ENGINE: it takes a JSON-schema-ish

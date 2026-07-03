@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { TagSelectWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { TagSelectWidget } from "@/features/configOverrides/rjsfWidgets";
-import { widgetProps } from "@/storybook/mockWidgetProps";
+import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
 /**
  * TagSelectWidget is the multi-select pill row — the RJSF registry's Checkboxes/

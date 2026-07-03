@@ -1,16 +1,10 @@
 import type { RJSFSchema, WidgetProps } from "@rjsf/utils";
-import {
-  Checkbox,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Switch,
-  Textarea,
-} from "@swooper/mapgen-studio-ui";
-import type { BrowserConfigFormContext } from "./rjsfTemplates";
+import { Checkbox } from "../ui/checkbox.js";
+import { Input } from "../ui/input.js";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
+import { Switch } from "../ui/switch.js";
+import { Textarea } from "../ui/textarea.js";
+import type { BrowserConfigFormContext } from "./rjsfTemplates.js";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 

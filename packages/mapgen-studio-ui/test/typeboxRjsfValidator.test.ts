@@ -21,8 +21,8 @@
 import type { RJSFSchema } from "@rjsf/utils";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import { describe, expect, it } from "vitest";
-import { normalizeSchemaForRjsf } from "./schemaPresentation";
-import { createTypeboxValidator } from "./typeboxRjsfValidator";
+import { normalizeSchemaForRjsf } from "../src/components/forms/schemaPresentation.js";
+import { createTypeboxValidator } from "../src/components/forms/typeboxRjsfValidator.js";
 
 const ajv = customizeValidator();
 const tb = createTypeboxValidator();
@@ -159,52 +159,214 @@ type Case = {
 const cases: Case[] = [
   // --- storybook fixture ---
   { name: "story: valid", schema: storyFixture, data: storyGood },
-  { name: "story: model out of enum", schema: storyFixture, data: { ...storyGood, climate: { ...storyGood.climate, model: "zzz" } } },
-  { name: "story: rainfall wrong type", schema: storyFixture, data: { ...storyGood, climate: { ...storyGood.climate, rainfall: "wet" } } },
-  { name: "story: biomes non-unique", schema: storyFixture, data: { ...storyGood, climate: { ...storyGood.climate, biomes: ["desert", "desert"] } } },
-  { name: "story: biome item out of enum", schema: storyFixture, data: { ...storyGood, climate: { ...storyGood.climate, biomes: ["nope"] } } },
-  { name: "story: notes too long", schema: storyFixture, data: { ...storyGood, climate: { ...storyGood.climate, notes: "x".repeat(201) } } },
-  { name: "story: island size out of enum", schema: storyFixture, data: { ...storyGood, landmass: { ...storyGood.landmass, islands: [{ name: "i", size: "huge" }] } } },
+  {
+    name: "story: model out of enum",
+    schema: storyFixture,
+    data: { ...storyGood, climate: { ...storyGood.climate, model: "zzz" } },
+  },
+  {
+    name: "story: rainfall wrong type",
+    schema: storyFixture,
+    data: { ...storyGood, climate: { ...storyGood.climate, rainfall: "wet" } },
+  },
+  {
+    name: "story: biomes non-unique",
+    schema: storyFixture,
+    data: { ...storyGood, climate: { ...storyGood.climate, biomes: ["desert", "desert"] } },
+  },
+  {
+    name: "story: biome item out of enum",
+    schema: storyFixture,
+    data: { ...storyGood, climate: { ...storyGood.climate, biomes: ["nope"] } },
+  },
+  {
+    name: "story: notes too long",
+    schema: storyFixture,
+    data: { ...storyGood, climate: { ...storyGood.climate, notes: "x".repeat(201) } },
+  },
+  {
+    name: "story: island size out of enum",
+    schema: storyFixture,
+    data: {
+      ...storyGood,
+      landmass: { ...storyGood.landmass, islands: [{ name: "i", size: "huge" }] },
+    },
+  },
 
   // --- real-shape fixture ---
   { name: "recipe: valid (default strategy)", schema: recipeShape, data: recipeGood },
-  { name: "recipe: valid (tectonic strategy)", schema: recipeShape, data: { ...recipeGood, crust: { strategy: "tectonic", config: { plateCount: 8 } } } },
-  { name: "recipe: plateCount below min", schema: recipeShape, data: { ...recipeGood, mesh: { ...recipeGood.mesh, plateCount: 1 } } },
-  { name: "recipe: plateCount not integer", schema: recipeShape, data: { ...recipeGood, mesh: { ...recipeGood.mesh, plateCount: 8.5 } } },
-  { name: "recipe: eraWeights too few items", schema: recipeShape, data: { ...recipeGood, mesh: { ...recipeGood.mesh, eraWeights: [0.5] } } },
-  { name: "recipe: eraWeights item out of range", schema: recipeShape, data: { ...recipeGood, mesh: { ...recipeGood.mesh, eraWeights: [0.5, 2] } } },
-  { name: "recipe: missing required mesh child", schema: recipeShape, data: { ...recipeGood, mesh: { plateCount: 8 } } },
-  { name: "recipe: extra property (additionalProperties:false)", schema: recipeShape, data: { ...recipeGood, mesh: { ...recipeGood.mesh, bogus: 1 } } },
-  { name: "recipe: crust strategy out of union", schema: recipeShape, data: { ...recipeGood, crust: { strategy: "nope", config: {} } }, anyOfFuzzy: true },
-  { name: "recipe: crust config violates matched variant", schema: recipeShape, data: { ...recipeGood, crust: { strategy: "default", config: { intensity: 5 } } }, anyOfFuzzy: true },
+  {
+    name: "recipe: valid (tectonic strategy)",
+    schema: recipeShape,
+    data: { ...recipeGood, crust: { strategy: "tectonic", config: { plateCount: 8 } } },
+  },
+  {
+    name: "recipe: plateCount below min",
+    schema: recipeShape,
+    data: { ...recipeGood, mesh: { ...recipeGood.mesh, plateCount: 1 } },
+  },
+  {
+    name: "recipe: plateCount not integer",
+    schema: recipeShape,
+    data: { ...recipeGood, mesh: { ...recipeGood.mesh, plateCount: 8.5 } },
+  },
+  {
+    name: "recipe: eraWeights too few items",
+    schema: recipeShape,
+    data: { ...recipeGood, mesh: { ...recipeGood.mesh, eraWeights: [0.5] } },
+  },
+  {
+    name: "recipe: eraWeights item out of range",
+    schema: recipeShape,
+    data: { ...recipeGood, mesh: { ...recipeGood.mesh, eraWeights: [0.5, 2] } },
+  },
+  {
+    name: "recipe: missing required mesh child",
+    schema: recipeShape,
+    data: { ...recipeGood, mesh: { plateCount: 8 } },
+  },
+  {
+    name: "recipe: extra property (additionalProperties:false)",
+    schema: recipeShape,
+    data: { ...recipeGood, mesh: { ...recipeGood.mesh, bogus: 1 } },
+  },
+  {
+    name: "recipe: crust strategy out of union",
+    schema: recipeShape,
+    data: { ...recipeGood, crust: { strategy: "nope", config: {} } },
+    anyOfFuzzy: true,
+  },
+  {
+    name: "recipe: crust config violates matched variant",
+    schema: recipeShape,
+    data: { ...recipeGood, crust: { strategy: "default", config: { intensity: 5 } } },
+    anyOfFuzzy: true,
+  },
 
   // --- keyword coverage singletons ---
   { name: "kw: number minimum", schema: { type: "number", minimum: 0 }, data: -1 },
   { name: "kw: number maximum", schema: { type: "number", maximum: 10 }, data: 11 },
   { name: "kw: integer type", schema: { type: "integer" }, data: 1.5 },
   { name: "kw: enum reject", schema: { type: "string", enum: ["a", "b"] }, data: "c" },
-  { name: "kw: required missing (top-level)", schema: { type: "object", properties: { a: { type: "string" } }, required: ["a"] }, data: {} },
-  { name: "kw: required missing (two props)", schema: { type: "object", properties: { a: { type: "string" }, b: { type: "number" } }, required: ["a", "b"] }, data: {} },
-  { name: "kw: nested required", schema: { type: "object", properties: { a: { type: "object", properties: { b: { type: "string" } }, required: ["b"] } }, required: ["a"] }, data: { a: {} } },
-  { name: "kw: array minItems", schema: { type: "array", items: { type: "number" }, minItems: 2 }, data: [1] },
-  { name: "kw: array uniqueItems", schema: { type: "array", items: { type: "number" }, uniqueItems: true }, data: [1, 1] },
-  { name: "kw: additionalProperties false", schema: { type: "object", properties: { a: { type: "string" } }, additionalProperties: false }, data: { a: "x", b: "y" } },
+  {
+    name: "kw: required missing (top-level)",
+    schema: { type: "object", properties: { a: { type: "string" } }, required: ["a"] },
+    data: {},
+  },
+  {
+    name: "kw: required missing (two props)",
+    schema: {
+      type: "object",
+      properties: { a: { type: "string" }, b: { type: "number" } },
+      required: ["a", "b"],
+    },
+    data: {},
+  },
+  {
+    name: "kw: nested required",
+    schema: {
+      type: "object",
+      properties: { a: { type: "object", properties: { b: { type: "string" } }, required: ["b"] } },
+      required: ["a"],
+    },
+    data: { a: {} },
+  },
+  {
+    name: "kw: array minItems",
+    schema: { type: "array", items: { type: "number" }, minItems: 2 },
+    data: [1],
+  },
+  {
+    name: "kw: array uniqueItems",
+    schema: { type: "array", items: { type: "number" }, uniqueItems: true },
+    data: [1, 1],
+  },
+  {
+    name: "kw: additionalProperties false",
+    schema: { type: "object", properties: { a: { type: "string" } }, additionalProperties: false },
+    data: { a: "x", b: "y" },
+  },
   // scalar const-union that normalizeSchemaForRjsf flattens to an enum
-  { name: "kw: anyOf-const normalized to enum (valid)", schema: { anyOf: [{ const: "a" }, { const: "b" }] }, data: "a" },
-  { name: "kw: anyOf-const normalized to enum (invalid)", schema: { anyOf: [{ const: "a" }, { const: "b" }] }, data: "z" },
+  {
+    name: "kw: anyOf-const normalized to enum (valid)",
+    schema: { anyOf: [{ const: "a" }, { const: "b" }] },
+    data: "a",
+  },
+  {
+    name: "kw: anyOf-const normalized to enum (invalid)",
+    schema: { anyOf: [{ const: "a" }, { const: "b" }] },
+    data: "z",
+  },
 
   // real-schema features the first matrix missed (surfaced by review): `pattern`,
   // `minLength`, and tuple `items: [...]` with `additionalItems: false` (used by
   // standard-map-config.schema.json, e.g. biomeClassification moisture thresholds).
-  { name: "kw: pattern reject", schema: { type: "string", pattern: "^RESOURCE_[A-Z0-9_]+$" }, data: "nope" },
-  { name: "kw: pattern accept", schema: { type: "string", pattern: "^RESOURCE_[A-Z0-9_]+$" }, data: "RESOURCE_IRON" },
+  {
+    name: "kw: pattern reject",
+    schema: { type: "string", pattern: "^RESOURCE_[A-Z0-9_]+$" },
+    data: "nope",
+  },
+  {
+    name: "kw: pattern accept",
+    schema: { type: "string", pattern: "^RESOURCE_[A-Z0-9_]+$" },
+    data: "RESOURCE_IRON",
+  },
   { name: "kw: minLength reject", schema: { type: "string", minLength: 1 }, data: "" },
-  { name: "kw: tuple item wrong type", schema: { type: "array", additionalItems: false, minItems: 2, items: [{ type: "number" }, { type: "number" }] }, data: ["x", 2] },
-  { name: "kw: tuple overflow (1 extra)", schema: { type: "array", additionalItems: false, minItems: 2, items: [{ type: "number" }, { type: "number" }] }, data: [1, 2, 3] },
-  { name: "kw: tuple overflow (2 extra)", schema: { type: "array", additionalItems: false, minItems: 2, items: [{ type: "number" }, { type: "number" }] }, data: [1, 2, 3, 4] },
-  { name: "kw: tuple valid", schema: { type: "array", additionalItems: false, minItems: 2, items: [{ type: "number" }, { type: "number" }] }, data: [1, 2] },
+  {
+    name: "kw: tuple item wrong type",
+    schema: {
+      type: "array",
+      additionalItems: false,
+      minItems: 2,
+      items: [{ type: "number" }, { type: "number" }],
+    },
+    data: ["x", 2],
+  },
+  {
+    name: "kw: tuple overflow (1 extra)",
+    schema: {
+      type: "array",
+      additionalItems: false,
+      minItems: 2,
+      items: [{ type: "number" }, { type: "number" }],
+    },
+    data: [1, 2, 3],
+  },
+  {
+    name: "kw: tuple overflow (2 extra)",
+    schema: {
+      type: "array",
+      additionalItems: false,
+      minItems: 2,
+      items: [{ type: "number" }, { type: "number" }],
+    },
+    data: [1, 2, 3, 4],
+  },
+  {
+    name: "kw: tuple valid",
+    schema: {
+      type: "array",
+      additionalItems: false,
+      minItems: 2,
+      items: [{ type: "number" }, { type: "number" }],
+    },
+    data: [1, 2],
+  },
   // nested tuple overflow must attach to the array field (`t`), not a phantom `t.2`
-  { name: "nested tuple overflow", schema: { type: "object", properties: { t: { type: "array", additionalItems: false, items: [{ type: "number" }, { type: "number" }] } } }, data: { t: [1, 2, 3] } },
+  {
+    name: "nested tuple overflow",
+    schema: {
+      type: "object",
+      properties: {
+        t: {
+          type: "array",
+          additionalItems: false,
+          items: [{ type: "number" }, { type: "number" }],
+        },
+      },
+    },
+    data: { t: [1, 2, 3] },
+  },
 ];
 
 describe("TypeboxValidator vs @rjsf/validator-ajv8 (parity)", () => {

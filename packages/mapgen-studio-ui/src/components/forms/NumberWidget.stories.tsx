@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { NumberWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { NumberWidget } from "@/features/configOverrides/rjsfWidgets";
-import { widgetProps } from "@/storybook/mockWidgetProps";
+import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
 /**
  * NumberWidget is the RJSF numeric control (type=number, inputMode=decimal) on the

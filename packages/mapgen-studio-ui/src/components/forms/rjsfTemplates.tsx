@@ -4,10 +4,10 @@ import type {
   ObjectFieldTemplateProps,
   RJSFSchema,
 } from "@rjsf/utils";
-import { FieldRow } from "@swooper/mapgen-studio-ui";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
-import { pathToPointer } from "./schemaPresentation";
+import { FieldRow } from "./FieldRow.js";
+import { pathToPointer } from "./schemaPresentation.js";
 
 /**
  * Collapse state for the form's config objects (Pass-4 config-collapse

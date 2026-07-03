@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { SelectWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { SelectWidget } from "@/features/configOverrides/rjsfWidgets";
-import { widgetProps } from "@/storybook/mockWidgetProps";
+import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
 /**
  * SelectWidget maps an RJSF enum onto the DS `Select` — the schema's "no selection"

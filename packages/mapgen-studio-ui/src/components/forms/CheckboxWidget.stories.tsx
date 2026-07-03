@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { CheckboxWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { CheckboxWidget } from "@/features/configOverrides/rjsfWidgets";
-import { widgetProps } from "@/storybook/mockWidgetProps";
+import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
 /**
  * CheckboxWidget is the RJSF boolean control on the DS `Checkbox`. Adapted from
