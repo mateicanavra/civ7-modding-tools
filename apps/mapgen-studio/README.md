@@ -5,7 +5,7 @@ The MapGen Studio frontend (React 19 + Vite + Tailwind v4). See
 
 ## UI components, Storybook, and the design sync live in the package
 
-The studio's 46-component presentational surface is
+The studio's 47-component presentational surface is
 **`@swooper/mapgen-studio-ui`** (`packages/mapgen-studio-ui`) — a real workspace
 package with a compiled dist, generated `.d.ts`, and a compiled stylesheet. The
 app imports it like any dependency; its theme/fonts seams feed this app's

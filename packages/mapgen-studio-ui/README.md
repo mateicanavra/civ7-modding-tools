@@ -1,6 +1,6 @@
 # @swooper/mapgen-studio-ui
 
-MapGen Studio's UI component library: the 46 design-synced components as a real
+MapGen Studio's UI component library: the 47 design-synced components as a real
 package — compiled `dist/index.js`, a strict generated `.d.ts` tree
 (`dist/types/`), a compiled stylesheet (`dist/styles.css`), and the theme/fonts
 seams the app and the Claude Design sync both consume. Single source of truth;
@@ -14,7 +14,7 @@ The frame everything below hangs off:
 - **This is a product design system.** It deliberately carries MapGen Studio's
   composites and panels alongside the generic primitives (the same shape as
   Shopify Polaris or GitHub Primer). The picker groups — `primitives / forms /
-  layout / composites / panels` — are the internal layering. Only a real
+  layout / composites / panels / templates` — are the internal layering. Only a real
   second consumer justifies splitting a primitives-only package with its own
   synced project (the B0 contract extraction is the mechanical precedent);
   don't pre-split for a consumer that doesn't exist.
@@ -35,22 +35,51 @@ Three surfaces, three owners:
 | DS project `explorations/` | humans + agents | **system proposals only** (lifecycle below) |
 | Consuming projects (e.g. "App Shell") | humans + agents | product design; attach the DS and explore freely |
 
-**Exploration lifecycle — the anti-dumping-ground rule.** A file in the DS
-project's `explorations/` must be one of exactly three things, each declaring
-its intent + pull-down path in a header comment:
+**Exploration lifecycle — the anti-dumping-ground rule.** The DS project's
+`explorations/` wears its taxonomy in the file tree — `explorations/README.md`
+is the living index (every open item, its type, its status, its target):
 
-1. **Proposal: new component** (e.g. `Legend panel.html`) — built on the live
-   bundle, names its intended package home and carries story-ready fixtures.
-   Lands as a package component → prune the exploration or flip it to a
-   reference.
-2. **Proposal: change to an existing component** — the before/after idiom. The
-   "Current" pane renders the live bundle *by reference* (so the before is
+```
+explorations/
+  proposals/<subject>/<proposal>.html   change or new-component proposals,
+                                         nested by design SUBJECT
+  references/<assembly>.html             canonical assemblies
+  fixtures/<data>.js                     shared cloud-side data (see below)
+```
+
+A proposal/reference must be one of exactly three things, each declaring its
+intent + pull-down path in a manifest header (filenames are kebab-case, no
+spaces):
+
+1. **Proposal: new component** (`proposals/<subject>/…`, e.g.
+   `proposals/legend/new-panel.html`) — built on the live bundle, names its
+   intended package home and carries story-ready fixtures. Lands as a package
+   component → prune the exploration or flip it to a reference.
+2. **Proposal: change to an existing component** (`proposals/<subject>/…`, e.g.
+   `proposals/recipe-panel/flat-and-flush.html`) — the before/after idiom.
+   The "Current" pane renders the live bundle *by reference* (so the before is
    automatically true forever); the "Proposed" pane carries consumer-side
-   overrides that annotate the exact repo edit. Landed = the panes render
-   identically → prune.
-3. **Reference: canonical assembly** (e.g. `Studio shell mock.html`) — bare
-   package components composed exactly as the app composes them; auto-tracks
-   every sync.
+   overrides or mocks that annotate the exact repo edit. Landed = the panes
+   render identically → prune.
+3. **Reference: canonical assembly** (`references/…`, e.g.
+   `references/studio-shell.html`) — bare package components composed exactly
+   as the app composes them; auto-tracks every sync.
+
+**Subject folders.** `proposals/<subject>/` is keyed by the primary thing being
+designed — a component name (`recipe-panel/`) or a net-new concept with no
+component yet (`legend/`). A cross-cutting proposal files under its *driving*
+subject, never both (`legend/merge-into-explore-panel.html` is legend-driven,
+so it is not duplicated under an `explore-panel/`). One concept, one folder.
+
+**Fixtures** (`explorations/fixtures/`) hold shared data the explorations load
+via `<script src>` global-assignment (`window.__dsFixtures`) — cloud-side and
+editable in the project, NOT compiled from the repo. This is the one exception
+to "exploration data is repo-sourced": it exists so a dataset reused across
+proposals (both `legend/` files read `map-layers.js`) is edited once, and so
+you can keep simpler/denser variants for different depths. The fixtures that
+back *graded component cards* still live in the repo as typed story args (the
+oracle grades cards against a Storybook render of those exact args); fixtures
+here never feed a graded card.
 
 Anything else — a screen idea, a flow, a feature sketch — belongs in a
 consuming project.
@@ -58,10 +87,15 @@ consuming project.
 Two deliberate non-features: there is **no standing `before/` snapshot
 structure** (the component cards ARE the always-current "before" for every
 component; maintained snapshots would only rot), and there is **no
-`templates/` directory of loose HTML** (an assembly that earns reuse graduates
-INTO the package as a real slot-based component with a story, surfaced in a
-`templates` picker group; loose HTML in the project is unindexed dead weight
-the design agent never reads).
+`templates/` directory of loose HTML** — an assembly that earns reuse
+graduates INTO the package as a real slot-based component with a story,
+surfaced in the `templates` picker group. `StudioShellLayout`
+(`src/components/templates/`) is the first graduation: the studio shell as a
+slot-based template, with `references/studio-shell.html` composing it in the
+project. Loose HTML would be unindexed dead weight the design agent never
+reads. (Free-form prototyping is *not* limited by this — you compose any new
+assembly you want as a cloud exploration on the live bundle; graduation only
+codifies the ones that earn reuse.)
 
 **Where new work starts.** Product-shaped ideas start in a consuming project —
 hacky is fine there. When a direction is worth locking, restate it as a DS
@@ -130,7 +164,7 @@ last `_ds-compiled.css` the retired pipeline shipped.
 This package IS the synced artifact: `.design-sync/` (config, notes,
 conventions) and `.ds-sync/` (the vendored converter) live here, and the
 config consumes the real build (`entry: dist/index.js`, `cssEntry:
-dist/styles.css`, `buildCmd: bunx nx run mapgen-studio-ui:build`). The 46
+dist/styles.css`, `buildCmd: bunx nx run mapgen-studio-ui:build`). The 47
 co-located stories are the fidelity oracle; story titles are the sync's
 grouping authority (byte-frozen).
 

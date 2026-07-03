@@ -42,7 +42,8 @@
     "BrowserConfigArrayFieldTemplate": { "cardMode": "column" },
     "PipelineStage": { "cardMode": "single", "viewport": "1080x620" },
     "SchemaConfigForm": { "cardMode": "column" },
-    "TagSelectWidget": { "cardMode": "column" }
+    "TagSelectWidget": { "cardMode": "column" },
+    "StudioShellLayout": { "cardMode": "single", "viewport": "1280x800" }
   },
   "docsMap": {
     "Button": ".design-sync/groups/primitives.md",
@@ -90,6 +91,7 @@
     "BrowserConfigObjectFieldTemplate": ".design-sync/groups/forms.md",
     "BrowserConfigArrayFieldTemplate": ".design-sync/groups/forms.md",
     "PipelineStage": ".design-sync/groups/panels.md",
-    "SchemaConfigForm": ".design-sync/groups/forms.md"
+    "SchemaConfigForm": ".design-sync/groups/forms.md",
+    "StudioShellLayout": ".design-sync/groups/templates.md"
   }
 }
