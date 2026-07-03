@@ -227,10 +227,23 @@ describe("Studio default config", () => {
   });
 
   it("keeps the default config on the public authoring surface", () => {
-    expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("version");
-    expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("profiles");
-    expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("advanced");
-    expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("projection");
+    expect(STANDARD_RECIPE_CONFIG).not.toHaveProperty("foundation");
+    for (const stageId of [
+      "foundation-mantle",
+      "foundation-lithosphere",
+      "foundation-tectonics",
+      "foundation-orogeny",
+      "foundation-projection",
+    ]) {
+      const stageConfig = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[
+        stageId
+      ];
+      expect(stageConfig, `${stageId} config`).toBeTruthy();
+      expect(stageConfig, `${stageId} config`).not.toHaveProperty("version");
+      expect(stageConfig, `${stageId} config`).not.toHaveProperty("profiles");
+      expect(stageConfig, `${stageId} config`).not.toHaveProperty("advanced");
+      expect(stageConfig, `${stageId} config`).not.toHaveProperty("projection");
+    }
   });
 
   it("exposes semantic Morphology authoring keys instead of internal op envelopes", () => {
@@ -242,11 +255,12 @@ describe("Studio default config", () => {
         "waterCoverage",
         "continents",
         "coastlineShape",
-        "shelf",
+        "continentalMargin",
       ],
       "morphology-routing": ["knobs"],
       "morphology-erosion": ["knobs", "geomorphicCycle"],
       "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
+      "morphology-shelf": ["knobs", "shelf"],
     };
 
     for (const [stageId, expectedKeys] of Object.entries(expected)) {
@@ -277,11 +291,12 @@ describe("Studio default config", () => {
         "waterCoverage",
         "continents",
         "coastlineShape",
-        "shelf",
+        "continentalMargin",
       ],
       "morphology-routing": ["knobs"],
       "morphology-erosion": ["knobs", "geomorphicCycle"],
       "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
+      "morphology-shelf": ["knobs", "shelf"],
     };
 
     for (const [stageId, publicKeys] of Object.entries(expected)) {
@@ -613,6 +628,7 @@ describe("Studio default config", () => {
       "morphology-routing": ["routing"],
       "morphology-erosion": ["geomorphology"],
       "morphology-features": ["islands", "mountains", "volcanoes", "landmasses"],
+      "morphology-shelf": ["compute-shelf"],
     };
 
     const publicKeysByStage: Record<string, readonly string[]> = {
@@ -622,11 +638,12 @@ describe("Studio default config", () => {
         "waterCoverage",
         "continents",
         "coastlineShape",
-        "shelf",
+        "continentalMargin",
       ],
       "morphology-routing": [],
       "morphology-erosion": ["geomorphicCycle"],
       "morphology-features": ["islandChains", "mountainRanges", "volcanoes"],
+      "morphology-shelf": ["shelf"],
     };
 
     for (const [stageId, stepIds] of Object.entries(expectedSteps)) {
@@ -761,78 +778,102 @@ describe("Studio default config", () => {
   });
 
   it("exposes semantic Foundation authoring keys instead of internal op envelopes", () => {
-    const foundationSchema = (
-      STANDARD_RECIPE_CONFIG_SCHEMA as { properties?: Record<string, unknown> }
-    ).properties?.foundation;
-    expect(foundationSchema).toBeTruthy();
-    const foundationProps =
-      (foundationSchema as { properties?: Record<string, unknown> }).properties ?? {};
-    expect(Object.keys(foundationProps).sort()).toEqual(
-      [
+    const expected: Record<string, readonly string[]> = {
+      "foundation-mantle": ["knobs", "mantleForcing", "mantleSources", "meshResolution"],
+      "foundation-lithosphere": ["knobs", "lithosphere", "platePartition"],
+      "foundation-tectonics": [
         "knobs",
-        "lithosphere",
-        "mantleForcing",
-        "mantleSources",
-        "meshResolution",
         "plateMotion",
-        "platePartition",
         "tectonicEras",
         "tectonicFields",
         "tectonicRollups",
         "tectonicSegmentation",
-      ].sort()
-    );
-    expect(foundationProps).not.toHaveProperty("version");
-    expect(foundationProps).not.toHaveProperty("profiles");
-    expect(foundationProps).not.toHaveProperty("advanced");
-    expect(foundationProps).not.toHaveProperty("projection");
-    expect(foundationProps).not.toHaveProperty("mesh");
-    expect(foundationProps).not.toHaveProperty("mantle-potential");
-    expect(foundationProps).not.toHaveProperty("mantle-forcing");
-    expect(foundationProps).not.toHaveProperty("crust");
-    expect(foundationProps).not.toHaveProperty("plate-graph");
-    expect(foundationProps).not.toHaveProperty("plate-motion");
-    expect(foundationProps).not.toHaveProperty("tectonics");
+      ],
+      "foundation-orogeny": ["knobs", "crust-evolution"],
+      "foundation-projection": ["knobs"],
+    };
+
+    const rootProps =
+      (STANDARD_RECIPE_CONFIG_SCHEMA as { properties?: Record<string, unknown> }).properties ?? {};
+    expect(rootProps).not.toHaveProperty("foundation");
+    for (const [stageId, expectedKeys] of Object.entries(expected)) {
+      const stageProps = (rootProps[stageId] as { properties?: Record<string, unknown> })
+        .properties;
+      expect(Object.keys(stageProps ?? {}).sort()).toEqual([...expectedKeys].sort());
+      expect(stageProps).not.toHaveProperty("version");
+      expect(stageProps).not.toHaveProperty("profiles");
+      expect(stageProps).not.toHaveProperty("advanced");
+      expect(stageProps).not.toHaveProperty("projection");
+      expect(stageProps).not.toHaveProperty("mesh");
+      expect(stageProps).not.toHaveProperty("mantle-potential");
+      expect(stageProps).not.toHaveProperty("mantle-forcing");
+      expect(stageProps).not.toHaveProperty("crust");
+      expect(stageProps).not.toHaveProperty("plate-graph");
+      expect(stageProps).not.toHaveProperty("plate-motion");
+      expect(stageProps).not.toHaveProperty("tectonics");
+      if (stageId !== "foundation-orogeny") {
+        expect(JSON.stringify(stageProps)).not.toContain('"strategy"');
+        expect(JSON.stringify(stageProps)).not.toContain('"config"');
+      }
+    }
+    const foundationProps = (
+      rootProps["foundation-mantle"] as { properties?: Record<string, unknown> }
+    ).properties;
     const meshResolutionProps =
-      (foundationProps.meshResolution as { properties?: Record<string, unknown> }).properties ?? {};
+      (foundationProps?.meshResolution as { properties?: Record<string, unknown> }).properties ??
+      {};
     expect(meshResolutionProps).not.toHaveProperty("cellCount");
-    expect(JSON.stringify(foundationProps)).not.toContain('"strategy"');
-    expect(JSON.stringify(foundationProps)).not.toContain('"config"');
   });
 
   it("documents split Foundation controls with schema descriptions", () => {
-    const foundation = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation"]);
     expectSchemaHasDescription(
-      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "knobs"]),
-      "foundation.knobs"
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation-mantle", "knobs"]),
+      "foundation-mantle.knobs"
     );
     expectSchemaHasDescription(
-      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "knobs", "plateCount"]),
-      "foundation.knobs.plateCount"
-    );
-    expectSchemaHasDescription(
-      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "knobs", "plateActivity"]),
-      "foundation.knobs.plateActivity"
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation-mantle", "knobs", "plateCount"]),
+      "foundation-mantle.knobs.plateCount"
     );
     expectSchemaHasDescription(
       getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [
-        "foundation",
+        "foundation-tectonics",
+        "knobs",
+        "plateActivity",
+      ]),
+      "foundation-tectonics.knobs.plateActivity"
+    );
+    expectSchemaHasDescription(
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [
+        "foundation-mantle",
         "mantleForcing",
         "velocityScale",
       ]),
-      "foundation.mantleForcing.velocityScale"
+      "foundation-mantle.mantleForcing.velocityScale"
     );
     expectSchemaHasDescription(
       getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [
-        "foundation",
+        "foundation-tectonics",
         "tectonicSegmentation",
         "regimeMinIntensity",
       ]),
-      "foundation.tectonicSegmentation.regimeMinIntensity"
+      "foundation-tectonics.tectonicSegmentation.regimeMinIntensity"
     );
 
-    const foundationNode = foundation as { properties?: Record<string, unknown>; gs?: unknown };
-    expect(foundationNode.gs).toBeUndefined();
-    expect(foundationNode.properties ?? {}).not.toHaveProperty("advanced");
+    const rootProps =
+      (STANDARD_RECIPE_CONFIG_SCHEMA as { properties?: Record<string, unknown> }).properties ?? {};
+    for (const stageId of [
+      "foundation-mantle",
+      "foundation-lithosphere",
+      "foundation-tectonics",
+      "foundation-orogeny",
+      "foundation-projection",
+    ]) {
+      const foundationNode = rootProps[stageId] as {
+        properties?: Record<string, unknown>;
+        gs?: unknown;
+      };
+      expect(foundationNode.gs).toBeUndefined();
+      expect(foundationNode.properties ?? {}).not.toHaveProperty("advanced");
+    }
   });
 });

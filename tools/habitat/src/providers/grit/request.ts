@@ -56,7 +56,9 @@ export function gritCheckProgram(
           : { outputFormat: options.outputFormat };
       const processRequest = options.grit.checkRequest({
         scanRoots,
+        cwd: options.cwd,
         cacheMode: requestOptions.cacheMode,
+        gritDir: options.gritDir,
         observableCacheStatus: requestOptions.observableCacheStatus,
         outputFormat: requestOptions.outputFormat,
       });
@@ -69,7 +71,9 @@ export function gritCheckProgram(
       const result = yield* options.grit
         .check({
           scanRoots,
+          cwd: options.cwd,
           cacheMode: requestOptions.cacheMode,
+          gritDir: options.gritDir,
           observableCacheStatus: requestOptions.observableCacheStatus,
           outputFormat: requestOptions.outputFormat,
         })

@@ -22,15 +22,15 @@ export function toStandardSchema<TypeSchema extends TSchema>(
       version: 1,
       vendor: "typebox",
       validate(value) {
+        const cleaned = Value.Clean(schema, value);
         try {
-          return { value: Value.Parse(schema, value) as Static<TypeSchema> };
+          return { value: Value.Parse(schema, cleaned) as Static<TypeSchema> };
         } catch {
-          // Fall through to TypeBox's structural errors. `Value.Parse` is used
-          // first so contract schemas retain parser behavior such as stripping
-          // closed-object extras where the existing Studio wire surface depends on it.
+          // Fall through to TypeBox's structural errors after cleanup so closed
+          // object extras keep the existing Studio wire-surface strip behavior.
         }
         return {
-          issues: [...validator.Errors(value)].map((error) => ({
+          issues: [...validator.Errors(cleaned)].map((error) => ({
             message: error.message,
             path: pathSegments(error.instancePath),
           })),

@@ -58,7 +58,7 @@ completed implementation record.
 
 - Habitat command guardrails:
   `.habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json` and
-  `.habitat/civ7/platform/_blueprints/civ7-adapter/enforce_adapter_only_base_standard_imports/rule.json`
+  `.habitat/civ7/platform/adapter/rules/enforce_adapter_only_base_standard_imports/rule.json`
 - Pattern rule catalog: `.habitat/patterns/checks/`
 - Guard command wiring: `package.json`
 - Normalization packet source table:

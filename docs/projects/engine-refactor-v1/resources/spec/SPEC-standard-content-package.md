@@ -40,13 +40,12 @@
 - Step config schemas are owned by steps (`src/recipes/**/stages/**/steps/*/contract.ts`).
 - Shared config schema fragments live with the closest owner:
   - stage scope (`stages/<stageId>/shared/**`) when stage-local
-  - domain scope (`src/domain/**`) when domain-owned and not purely “schema-only”
-  - mod scope uses a thin barrel only (`src/domain/config.ts`) for cross-domain imports
-- A mod-wide `@mapgen/domain/config` path alias is allowed and canonical for importing shared schema fragments and types.
+  - domain model scope (`src/domain/<domain>/model/config/<part>.config.ts`) when domain-owned and not purely stage-local
+- The old mod-wide `@mapgen/domain/config` path alias is not a target surface; target imports use named domain model config surfaces.
 - Cross-module consumers (steps/tests/other domains) import ops through the domain public surface `@mapgen/domain/<domain>` (keep relative imports inside a single op module).
-- `@mapgen/domain/config` is **schema/type-only**:
-  - it must not become a grab-bag “global runtime config blob”,
-  - it must not own map instances, step orchestration, or registry assembly.
+- Domain model config files are **one object per file**:
+  - they must not become grab-bag runtime config blobs,
+  - they must not own map instances, step orchestration, or registry assembly.
 - Domain config schemas must stay explicit:
   - no open-ended “unknown bag” fields (`UnknownRecord`-style placeholders),
   - no internal-only config fields in the public schema surface.

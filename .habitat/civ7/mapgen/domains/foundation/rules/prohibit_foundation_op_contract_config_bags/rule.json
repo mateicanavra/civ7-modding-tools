@@ -12,8 +12,8 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "foundation operation contracts importing domain config bags or using FoundationConfigSchema",
-  "why": "Foundation operation contracts must expose decomposed typed inputs rather than root config-bag surfaces.",
+  "forbids": "foundation operation contracts importing root or foundation domain config facades, or using FoundationConfigSchema",
+  "why": "Foundation operation contracts must expose local decomposed typed inputs rather than pulling config facade shapes into contract surfaces.",
   "remediate": null,
   "message": "Remove foundation config-bag references from operation contract surfaces.",
   "pathCoverage": [

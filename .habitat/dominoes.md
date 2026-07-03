@@ -509,7 +509,7 @@ Stage 2: bounded artifact-vocabulary sweep.
     artifact authority;
   - do not introduce `_triage`; the existing `_remainder` lane is the visual
     marker for reviewed-but-not-admitted debt.
-- Update `.habitat/frames/AUTHORITY-TREE-RULE-LEDGER.md` for every inspected
+- Update `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` for every inspected
   row, including explicit non-moves and pending actions.
 - Record the disposition receipt in this file so future agents can tell which
   artifact-vocabulary rows have been processed.
@@ -985,7 +985,7 @@ survivor-authority work.
 
 Controlling records:
 
-- `.habitat/workstreams/rule-remediation-layer1-action-matrix.md`
+- `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
 - `.habitat/workstreams/rule-remediation-retirement-slice.md`
 
 Decision matrix:
@@ -1069,7 +1069,7 @@ Review disposition:
 | --- | --- | --- | --- | --- |
 | `domain-operation-strategy` is constructible and product-backed. | P2 | accepted | Authority lane and tree-shape docs created. | Generic strategy-locality or strategy-contract rules still need decision packets before movement. |
 | No current live rule moves whole into the new authority. | P2 | accepted | Explicit non-move dispositions recorded in slice, ledger, and blueprint README. | Avoid using `strategies/**/*.ts` scan roots as an owner test. |
-| The old authority-tree rule ledger still looked like a second current-state matrix. | P2 | accepted | Absorbed its unique process data into `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` under `processLedger`; replaced the Markdown ledger with a pointer. | None; JSON is the active source of truth. |
+| The old authority-tree rule ledger still looked like a second current-state matrix. | P2 | accepted | Absorbed its unique process data into `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` and removed the Markdown ledger. | None; JSON is the active source of truth. |
 
 Closure note:
 
@@ -1087,18 +1087,18 @@ Disposition:
 
 | Record | Decision | Reason | Follow-up |
 | --- | --- | --- | --- |
-| `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` | extend canonical union | The same JSON record now owns the Layer 1 matrix, former process ledger, stale references, Layer 2 packet index, blockers, and next queue. | Future agents should query `layer2PacketIndex` instead of creating a separate packet-index table. |
+| `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` | canonical operational ledger | The same JSON record now owns live rule rows, retired/stale references, queued/completed slices, blockers, findings, and counts. | Future agents should query `rules`, `slices`, `blockers`, `findings`, and `counts`; do not create a separate matrix or packet-index table. |
 | `.habitat/workstreams/rule-remediation-retirement-slice.md` | source reference repair | The receipt still named the archived Markdown matrix as its source. | Slice receipts may reference the canonical JSON, but they are not operational sources of truth. |
 
 Moves it forward:
 
-- Adds `layer2PacketIndex` inside the canonical JSON union record.
+- Normalizes the canonical JSON into one operational ledger.
 - Records the two closed Layer 2/3 slices: garbage collection and
   domain-operation-strategy authority admission.
 - Records the only immediately implementation-ready slice as low-leverage
   metadata repair.
-- Records the next packet candidates and sealed blockers without duplicating
-  the full current rule matrix.
+- Records packet candidates and sealed blockers without duplicating the full
+  current rule matrix anywhere else.
 
 Closure note:
 
@@ -1124,9 +1124,8 @@ Disposition:
 
 Moves it forward:
 
-- Records the full decision packet under
-  `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`
-  `layer2PacketIndex.decisionPacketBatches`.
+- Records the packet outcome in
+  `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`.
 - Initially moved the config-key slice into the implementation-ready queue;
   Domino 55 corrected this and returned the slice to Layer 2.
 
@@ -1603,6 +1602,665 @@ Closure note:
 - No rule behavior changed in this reconciliation slice.
 - The next deterministic move is Layer 3 implementation for the first queued
   boundary slice.
+
+## Domino 71: Foundation Config Boundary Rail
+
+Status: closed on `codex/habitat-foundation-config-boundary-rail`.
+
+Purpose: implement the first queued boundary-inversion slice without moving
+static source-pattern authority into package tests or MJS scripts.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_foundation_op_contract_config_bags` | Preserved in foundation domain rules and widened to executable Grit authority against root/foundation config facade imports in operation contracts. | `.habitat/workstreams/rule-remediation-foundation-config-boundary-rail.md` |
+| `prohibit_foundation_step_contract_config_bags` | Preserved in Swooper Maps standard recipe foundation-stage rules and widened to executable Grit authority against root/foundation config facade imports in step contracts. | `.habitat/workstreams/rule-remediation-foundation-config-boundary-rail.md` |
+
+Moves it forward:
+
+- Repairs selected packet-local source Grit execution so rule packet patterns
+  are actually run by native Grit.
+- Captures the tool-separation correction: source syntax stays in Grit,
+  project graph law stays in Nx, and package tests do not become junk drawers
+  for retired static assertions.
+- Removes the duplicate package-test config-bag assertions now owned by the
+  two Habitat Grit rails.
+- Closes two implementation-ready boundary rows in the canonical remediation
+  JSON.
+
+Closure note:
+
+- Injected bad imports failed both rules, then the temporary probes were
+  removed and focused clean checks passed.
+- No product behavior changed.
+
+## Domino 72: Projection And Morphology Boundary Rails
+
+Status: closed on `codex/habitat-foundation-config-boundary-rail`.
+
+Purpose: close the remaining internally decidable boundary rows from the
+boundary review queue without crossing into the sealed morphology overlay
+semantic blockers.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_misplaced_projection_adapter_calls` | Admitted as exact Grit callsite authority for projection/materialization adapter call owners. | `.habitat/workstreams/rule-remediation-projection-and-morphology-boundary-rails.md` |
+| `prohibit_morphology_stage_config_bag_imports` | Repaired as a Grit boundary over all `morphology*` standard-recipe stages, allowing the morphology-specific config facade while forbidding the root config bag. | `.habitat/workstreams/rule-remediation-projection-and-morphology-boundary-rails.md` |
+
+Moves it forward:
+
+- Closes the implementation-ready boundary queue from Domino 70.
+- Keeps source-pattern import/callsite authority in Grit rather than package
+  tests or project-graph policy.
+- Leaves the three morphology overlay/story rows as explicit semantic blockers
+  instead of smuggling them into this mechanical slice.
+
+Closure note:
+
+- Focused checks passed for both selected rules.
+- Injected morphology bad/allowed import probes proved the repaired pattern.
+- No product behavior changed.
+
+## Domino 73: Foundation Retired Token Garbage Collection
+
+Status: closed on `codex/habitat-foundation-retired-token-garbage-collection`.
+
+Purpose: delete Foundation retired-literal assertions that no longer deserve
+live Habitat or package-test enforcement.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_removed_foundation_profile_config_tokens` | Deleted without replacement; duplicate package-test blacklist assertions removed. | `.habitat/workstreams/rule-remediation-foundation-retired-token-garbage-collection.md` |
+| `prohibit_removed_foundation_wrap_polar_maturity_tokens` | Deleted without replacement; duplicate package-test blacklist assertions removed. | `.habitat/workstreams/rule-remediation-foundation-retired-token-garbage-collection.md` |
+
+Moves it forward:
+
+- Applies retired-literal state collapse: old config/profile/wrap/polar token
+  names are not live source authority.
+- Keeps valid Foundation state owned by current schemas, contracts, artifacts,
+  and compilation code.
+- Removes package-test junk-drawer coverage for the deleted static assertions.
+
+Closure note:
+
+- `prohibit_legacy_compute_tectonics_token` remains as the separate accepted
+  Habitat Grit recurrence guard for the retired monolithic tectonics token.
+- No replacement negative assertion was created.
+
+## Domino 74: Runtime Helper Redeclaration Source Validation
+
+Status: closed on `codex/habitat-runtime-helper-redeclaration-source`.
+
+Purpose: close the source/baseline contradiction for the already-admitted
+MapGen core helper redeclaration Grit rule.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_runtime_helper_redeclarations` | Repaired source and Grit pattern; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-runtime-helper-redeclaration-source-slice.md` |
+
+Moves it forward:
+
+- Keeps helper redeclaration enforcement in Habitat/Grit, not MJS and not
+  package-owned tests.
+- Removes the local `compute-shelf-mask` `clamp01` helper while preserving its
+  non-finite fallback semantics via `clampPct(..., 0, 1, 0)`.
+- Repairs the Grit pattern so TypeScript return-typed helper declarations are
+  caught.
+
+Closure note:
+
+- A temporary in-scope probe proved the repaired Grit pattern fails on
+  `function clamp01(value: number): number`.
+- Broader helper declarations under domain `rules/` folders remain excluded;
+  that would be a separate positive-helper authority slice, not this
+  source-validation repair.
+
+## Domino 75: Standard Recipe Map Effect Name Grit Rail
+
+Status: closed on `codex/habitat-standard-recipe-map-effect-grit-rail`.
+
+Purpose: replace a bespoke Habitat script for standard recipe map-effect suffix
+validation with the native Grit source-check rail.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `require_standard_recipe_map_effect_name_suffixes` | Converted runner from Node script to packet-local Grit pattern; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-standard-recipe-map-effect-name-grit-slice.md` |
+
+Moves it forward:
+
+- Applies the Grit/Nx/source-rail correction directly: static source literal
+  naming belongs in Grit, not in package tests, not Nx, and not a custom MJS
+  script.
+- Preserves standard-recipe context authority without pretending this is a full
+  dependency-tag or projection-surface positive authority.
+- Removes one runtime/source-validation packet-needed row from the cascade.
+
+Closure note:
+
+- Current source passed with the Grit runner.
+- A temporary `effect:map.landmassApplied` probe in `standard/tag-contracts.ts`
+  failed the rule as expected and was removed.
+
+## Domino 76: Physics Map Projection Dependency Grit Rail
+
+Status: closed on `codex/habitat-physics-map-dependency-grit-rail`.
+
+Purpose: replace a bespoke Habitat script for standard recipe physics contract
+map-projection dependency validation with the native Grit source-check rail.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_map_projection_dependencies_in_physics_contracts` | Converted runner from Node script to packet-local Grit pattern; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-physics-map-projection-dependency-grit-slice.md` |
+
+Moves it forward:
+
+- Keeps source-shape architecture authority in Habitat/Grit rather than package
+  tests or a custom MJS script.
+- Preserves standard-recipe context authority without pretending this settles
+  the broader projection contract surface.
+- Removes one runtime/source-validation packet-needed row from the cascade.
+
+Closure note:
+
+- Current source passed with the Grit runner.
+- A temporary `artifact:map.invalidProbe` probe in
+  `foundation-tectonics/steps/tectonics.contract.ts` failed the rule as
+  expected and was removed.
+
+## Domino 77: Existing Grit Rails Reconciliation
+
+Status: closed on `codex/habitat-existing-grit-rails-reconciliation`.
+
+Purpose: close stale packet-needed state for source-validation rows that
+already use the correct packet-local Grit source-check rail.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_foundation_projection_legacy_motion_source` | Retained existing Grit rail; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-existing-grit-rails-reconciliation.md` |
+| `prohibit_morphology_stage_legacy_effect_gates` | Retained existing Grit rail; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-existing-grit-rails-reconciliation.md` |
+
+Moves it forward:
+
+- Removes stale remediation work from the queue without mutating correct
+  authority.
+- Keeps concrete recurrence-risk source-token checks in Habitat/Grit.
+- Leaves broader tag/effect family positive authority as a separate future
+  slice.
+
+Closure note:
+
+- Focused Habitat checks passed for both retained rules.
+
+## Domino 78: Existing Grit Rail Contexts
+
+Status: closed on `codex/habitat-existing-grit-rail-contexts`.
+
+Purpose: close stale packet-needed state for additional runtime/source
+validation rows that already use exact packet-local Grit source-check rails over
+concrete recurrence-risk contexts.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_morphology_runtime_continent_step_tokens` | Retained existing Grit rail; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-existing-grit-rail-contexts.md` |
+| `prohibit_runtime_continent_contract_tokens` | Retained existing Grit rail; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-existing-grit-rail-contexts.md` |
+| `prohibit_rng_callback_state_in_ops` | Retained existing domain-operation Grit rail; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-existing-grit-rail-contexts.md` |
+| `prohibit_studio_rpc_eventhub_lifecycle_leaks` | Retained existing Studio server Grit rail; row is now live no-action source-check authority. | `.habitat/workstreams/rule-remediation-existing-grit-rail-contexts.md` |
+
+Moves it forward:
+
+- Removes stale remediation work from the queue without mutating correct
+  authority.
+- Keeps concrete recurrence-risk source-token checks in Habitat/Grit instead of
+  moving them into package-owned behavior tests.
+- Separates exact source-shape recurrence rails from Nx project-boundary law and
+  from future positive authority creation.
+
+Closure note:
+
+- Focused Habitat checks passed for all four retained rules.
+- Current source scans for the guarded token families produced no live
+  violations.
+
+## Domino 79: Native Validation Surfaces
+
+Status: closed on `codex/habitat-native-validation-surfaces`.
+
+Purpose: close stale packet-needed state for runtime/source validation rows
+whose existing Habitat-native validation surfaces are the correct owner rails.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `require_owner_workflow_for_host_protected_surfaces` | Retained Habitat file-layer host-surface guard; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-native-validation-surfaces.md` |
+| `validate_boundary_taxonomy_against_workspace_graph` | Retained Habitat boundary taxonomy script; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-native-validation-surfaces.md` |
+| `verify_docs_site_link_integrity` | Retained docs-site native link-integrity validation; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-native-validation-surfaces.md` |
+| `verify_habitat_cli_smoke_contract` | Retained Habitat Toolkit CLI smoke validation; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-native-validation-surfaces.md` |
+| `validate_docs_site_config_inputs` | Retained docs-site native config-shape validation; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-native-validation-surfaces.md` |
+| `verify_visualization_runtime_build_artifacts` | Retained MapGen visualization runtime preflight; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-native-validation-surfaces.md` |
+
+Moves it forward:
+
+- Removes stale remediation work from the queue without mutating correct
+  authority.
+- Keeps workspace metadata, docs-site, CLI smoke, host-surface, and runtime
+  preflight checks in Habitat-native rails instead of pushing them into package
+  behavior tests.
+- Separates native validation surfaces from Grit source matching and Nx
+  project-boundary enforcement.
+
+Closure note:
+
+- Focused Habitat checks passed for all six retained rules.
+
+## Domino 80: Generated Output And Projection Native Rails
+
+Status: closed on `codex/habitat-generated-output-projection-rails`.
+
+Purpose: close stale packet-needed state for runtime/source validation rows
+whose current Habitat scripts are the correct rails for generated output, built
+bundle output, generated entrypoint currentness, and required projection
+callsite proof.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `block_studio_config_leakage_into_shipped_catalog` | Retained generated mod catalog leakage guard; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-generated-output-and-projection-native-rails.md` |
+| `validate_generated_map_entrypoint_contracts` | Retained generated map entrypoint contract validator; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-generated-output-and-projection-native-rails.md` |
+| `ensure_studio_worker_bundle_is_browser_safe` | Retained Studio browser-worker built-bundle preflight; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-generated-output-and-projection-native-rails.md` |
+| `require_projection_calls_in_projection_steps` | Retained map projection owner-callsite/currentness validator; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-generated-output-and-projection-native-rails.md` |
+
+Moves it forward:
+
+- Removes stale remediation work from the queue without mutating correct
+  authority.
+- Keeps generated-output and built-output currentness checks in Habitat-native
+  rails instead of moving them into package-owned behavior tests.
+- Separates required-presence/currentness proof from Grit source matching and
+  Nx project-boundary enforcement.
+
+Closure note:
+
+- Focused Habitat checks passed for all four retained rules.
+- Direct source/output token scans matched the retained proof shape where
+  applicable.
+
+## Domino 81: Positive Currentness Native Rails
+
+Status: closed on `codex/habitat-positive-currentness-rails`.
+
+Purpose: close stale packet-needed state for runtime/source validation rows
+whose current Habitat scripts are the correct rails for positive source
+topology/currentness and generated-output label proof.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `enforce_studio_rpc_eventhub_topology` | Retained Studio server topology validator; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-positive-currentness-native-rails.md` |
+| `preserve_decomposed_foundation_contract_surfaces` | Retained foundation decomposed contract-surface validator; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-positive-currentness-native-rails.md` |
+| `preserve_evidence_provenance_labels` | Retained map-policy generated-output provenance label validator; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-positive-currentness-native-rails.md` |
+
+Moves it forward:
+
+- Removes stale remediation work from the queue without mutating correct
+  authority.
+- Keeps positive/currentness proof in Habitat-native rails instead of moving it
+  into package-owned behavior tests.
+- Leaves the broad runtime/config `_remainder` row and currently red
+  formatting/import hygiene gate as explicit remaining runtime/source work.
+
+Closure note:
+
+- Focused Habitat checks passed for all three retained rules.
+
+## Domino 82: Rule Remediation Cascade Stop Gate
+
+Status: closed on `codex/habitat-cascade-stop-gate`.
+
+Purpose: record the point where the Layer 3 cascade exhausted clean,
+high-confidence implementation slices and reached semantic/user-decision
+classes.
+
+Disposition receipt:
+
+| Remaining class | Count | Boundary |
+| --- | ---: | --- |
+| `boundary inversion` | 3 | Morphology/story/overlay and declared-dependency authority require semantic ownership decisions. |
+| `positive authority creation` | 4 | Positive authority plus deletion/retention pairs require explicit authority design. |
+| `runtime/source validation` | 2 | Formatting/import hygiene is currently red from broad workspace drift; runtime-local config defaulting remains a broad `_remainder` proxy. |
+| `split by owner` | 6 | Clause-level owner splits required before mutation. |
+
+Moves it forward:
+
+- Prevents the next agent from continuing opportunistic Layer 3 mutation after
+  the clean queue is exhausted.
+- Records the remaining work as semantic split, positive authority/deletion-pair,
+  boundary inversion, or separately scoped hygiene/config-defaulting work.
+
+Closure note:
+
+- Canonical JSON resume state now records this stop gate.
+
+## Domino 83: Map Policy Import Independence Grit Rail
+
+Status: closed on `codex/habitat-map-policy-import-independence-grit`.
+
+Purpose: resume the cascade for one deterministic split-by-owner row and resolve
+it as a packet-local Grit source rail rather than a semantic owner split.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `ensure_map_policy_dependency_independence` | Replaced Bun script runner with a Grit import-specifier rail; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-map-policy-import-independence-grit-rail.md` |
+
+Moves it forward:
+
+- Keeps `@civ7/map-policy` dependency independence in Habitat/Grit, not package
+  tests.
+- Separates package-specific import independence from the global Nx
+  `kind:foundation` dependency plane.
+- Reduces the split-by-owner packet-needed count by one without making a
+  product/architecture semantic decision.
+
+Closure note:
+
+- Focused Habitat check passed with the Grit runner.
+- A temporary `@swooper/mapgen-core` import probe failed at
+  `packages/civ7-map-policy/src/index.ts:1` and was removed.
+
+## Domino 84: Placement Apply Grit Rail
+
+Status: closed on `codex/habitat-placement-apply-grit-rail`.
+
+Purpose: resume the cascade for one deterministic split-by-owner row and close
+it as an already-atomized terminal placement apply Grit rail.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `require_typed_placement_outcomes_before_apply` | Retained existing terminal `placement/apply.ts` Grit rail; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-placement-apply-grit-rail.md` |
+
+Moves it forward:
+
+- Separates terminal apply typed-outcome consumption from resource/discovery
+  materialization substeps without creating a new rule split.
+- Reduces the split-by-owner packet-needed count by one without making a
+  product/architecture semantic decision.
+
+Closure note:
+
+- Focused Habitat check passed.
+- A temporary `generateOfficialResources()` probe in terminal apply failed the
+  Grit rule and was removed.
+
+## Domino 85: MapGen Docs Anchor Rail
+
+Status: closed on `codex/habitat-mapgen-docs-anchor-rail`.
+
+Purpose: resume the cascade for one deterministic split-by-owner row and repair
+the concrete stale docs anchor that kept the MapGen canonical-docs validator
+red.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `validate_mapgen_docs_anchors_and_references` | Repaired stale adapter rule anchor and retained existing MapGen canonical-docs validator; row is now live no-action authority. | `.habitat/workstreams/rule-remediation-mapgen-docs-anchor-rail.md` |
+
+Moves it forward:
+
+- Fixes a real failing docs authority anchor.
+- Keeps MapGen canonical-docs anchor/reference hardening in the native docs
+  validator instead of splitting warning policy prematurely.
+- Reduces the split-by-owner packet-needed count by one without making a
+  product/architecture semantic decision.
+
+Closure note:
+
+- Focused Habitat check passed after the anchor repair.
+
+## Domino 86: Public Domain Test Imports Grit Falsifier
+
+Status: closed on `codex/habitat-public-domain-test-imports-falsifier`.
+
+Purpose: test whether `require_public_domain_surfaces_in_tests` could become a
+single packet-local Grit rule without moving the predicate into package-owned
+tests or keeping unnecessary MJS.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `require_public_domain_surfaces_in_tests` | Retained as packet-needed blocker with current Habitat script runner. | `.habitat/workstreams/rule-remediation-public-domain-test-imports-grit-falsifier.md` |
+
+Moves it forward:
+
+- Confirms the semantic predicate is static import/export source shape, but the
+  current Habitat/Grit execution plane cannot prove it because `.gritignore`
+  excludes `**/test/` and `**/*.test.ts`.
+- Prevents a false green Grit conversion: a temporary forbidden deep import in
+  a Swooper test file was ignored by Grit.
+- Keeps the operational finding in the canonical remediation JSON and does not
+  create a second Markdown matrix.
+
+Closure note:
+
+- The current Habitat script was restored and focused check passed.
+- No package-owned tests were added, and Nx project-boundary policy was not
+  changed.
+
+## Domino 87: Admit Runtime Local Config Defaulting Rail
+
+Status: closed on `codex/habitat-runtime-local-config-defaulting-rail`.
+
+Purpose: resolve `prohibit_runtime_local_config_default_merging` without turning
+runtime config/defaulting authority into package tests, a broad config
+blueprint, or a custom script.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_runtime_local_config_default_merging` | Moved from runtime `_remainder` to runtime `rules/` as live Grit source authority. | `.habitat/workstreams/rule-remediation-runtime-local-config-defaulting-rail.md` |
+
+Moves it forward:
+
+- Removes one runtime/source-validation packet-needed row.
+- Keeps static source-shape recurrence protection in Habitat/Grit.
+- Preserves the compile/runtime boundary: stage compile helpers may translate
+  public config into explicit runtime config; runtime steps and domain ops must
+  not hide normalization behind local `?? {}` or `Value.Default(...)`.
+
+Closure note:
+
+- Focused Habitat check passed after the move.
+- A temporary in-scope `args ?? {}` probe failed the rule and was removed.
+- No package-owned tests or replacement MJS script were introduced.
+
+## Domino 88: Re-Read Residual Cascade Stop Gates
+
+Status: closed on `codex/habitat-cascade-residual-reread`.
+
+Purpose: after the runtime local config defaulting slice, re-read the residual
+canonical remediation queue and remove stale resolved blockers from the JSON
+source of truth.
+
+Disposition receipt:
+
+| Scope | Action | Receipt |
+| --- | --- | --- |
+| residual packet-needed rows | Re-read and repaired canonical blocker list; no authority mutation. | `.habitat/workstreams/rule-remediation-residual-cascade-reread.md` |
+
+Moves it forward:
+
+- Keeps `.habitat/workstreams/rule-remediation-layer1-action-matrix.json` as
+  the single operational matrix.
+- Removes resolved names from the sealed blocker list so later resumes do not
+  reprocess closed Grit/native-rail slices.
+- Confirms that the remaining queue has no clean Layer 3 implementation slice:
+  the residual rows are semantic split, positive-authority/deletion-pair,
+  overlay/story ownership, declared-dependency authority, test-file scan
+  capability, or workspace hygiene drift gates.
+
+Closure note:
+
+- Live manifests and current JSON rows still reconcile at 113.
+- No package-owned tests, replacement MJS scripts, or authority-tree moves were
+  introduced.
+
+## Domino 89: Repair Morphology Overlay Implementation Rail
+
+Status: closed on `codex/habitat-morphology-overlay-implementation-rail`.
+
+Purpose: close `prohibit_morphology_overlay_implementation_reads` as a live
+Morphology no-overlay implementation rail instead of treating it as a user
+semantic gate or converting the static assertion into package tests or an MJS
+script.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_morphology_overlay_implementation_reads` | Retained in the standard recipe Morphology rules lane; repaired the Grit predicate to cover `morphology*` step files and exact `./overlays.js` imports. | `.habitat/workstreams/rule-remediation-morphology-overlay-implementation-rail.md` |
+
+Moves it forward:
+
+- Removes one stale boundary-inversion packet-needed row from the canonical
+  remediation JSON.
+- Keeps the rule in Habitat/Grit, where intra-project static source-shape
+  assertions belong.
+- Avoids moving retired/static source-policy assertions into package-owned
+  tests.
+
+Closure note:
+
+- A temporary `./overlays.js` import probe in
+  `morphology-shelf/steps/computeShelf.ts` failed the repaired Habitat/Grit
+  rule and was removed.
+- Focused Habitat check passed after probe removal.
+- Broader overlay/story ownership rows remain separate semantic gates.
+
+## Domino 90: Delete Standard Tag Catalog Retired Effect-Gate Guard
+
+Status: closed on `codex/habitat-standard-tag-catalog-retired-token-gc`.
+
+Purpose: remove `prohibit_standard_tag_catalog_legacy_morphology_effect_gates`
+as retired migration vocabulary rather than preserving old effect-gate names as
+live Habitat law.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_standard_tag_catalog_legacy_morphology_effect_gates` | Deleted without replacement. | `.habitat/workstreams/rule-remediation-standard-tag-catalog-retired-token-gc.md` |
+
+Moves it forward:
+
+- Removes one stale positive-authority/deletion-pair row from the canonical
+  remediation JSON.
+- Applies the retired-literal state-collapse rule: the current tag catalog is
+  constructible from closed source constants, so old `landmassApplied` and
+  `coastlinesApplied` catalog names do not need a replacement negative rule.
+- Keeps adjacent live recurrence guards separate: morphology-stage legacy
+  effect gates and migrated map-consumer effect gates remain in their own
+  honest source scopes.
+
+Closure note:
+
+- No package-owned tests, replacement MJS scripts, or new Habitat negative
+  assertions were introduced.
+- Focused checks for the retained adjacent rules passed after deletion.
+
+## Domino 91: Admit Foundation Helper Redeclaration Rail
+
+Status: closed on `codex/habitat-foundation-helper-rail-admission`.
+
+Purpose: move `prohibit_foundation_duplicate_math_helper_redefinitions` out of
+Foundation `_remainder` and into the live Foundation rules lane as an existing
+Grit source rail.
+
+Disposition receipt:
+
+| Rule id | Action | Receipt |
+| --- | --- | --- |
+| `prohibit_foundation_duplicate_math_helper_redefinitions` | Moved from `foundation/_remainder` to `foundation/rules`; id preserved and Grit predicate repaired for typed helper declarations. | `.habitat/workstreams/rule-remediation-foundation-helper-rail-admission.md` |
+
+Moves it forward:
+
+- Removes one stale positive-authority/deletion-pair row from the canonical
+  remediation JSON.
+- Treats helper redeclaration prevention as live Foundation context authority,
+  not as a new blueprint-kind assertion.
+- Keeps the rule in Habitat/Grit, where this exact intra-domain source-shape
+  recurrence guard belongs.
+
+Closure note:
+
+- Focused pre- and post-move Habitat checks passed.
+- A temporary typed `clampByte` helper declaration probe failed the repaired
+  Grit rule and was removed.
+- No package-owned tests, replacement MJS scripts, or broad helper blueprint
+  authority were introduced.
+
+## Domino 92: Reopen Local-Proxy Authority Rows
+
+Status: closed on `codex/habitat-local-proxy-authority-rereview`.
+
+Purpose: correct the Layer 1 / Layer 2 decision record after the user
+identified the missing rule: a specially owned boundary in one repeated niche
+instance is usually a design smell and should be checked against architecture
+docs before being admitted locally.
+
+Disposition receipt:
+
+| Corpus | Action | Receipt |
+| --- | --- | --- |
+| Previously settled local/context rows that looked like repeated-kind special cases | Reopened 26 rows as packet-needed and repopulated the canonical Layer 2 queue. No rule packets were moved or deleted. | Recorded directly in `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`; this domino is the narrative receipt. |
+
+Canonical queue repair:
+
+- The queue is operational only in `.habitat/workstreams/rule-remediation-layer1-action-matrix.json`.
+- Query queued Layer 2 work from `slices[] | select(.status == "queued")`.
+- Do not copy the queue, counts, or packet-needed rows into domino receipts.
+
+Moves it forward:
+
+- Reopens the Foundation helper decision from Domino 91: the row is now paired
+  with `prohibit_runtime_helper_redeclarations` for broader MapGen
+  helper-surface authority consolidation.
+- Reopens additional local proxy clusters around domain-operation surfaces,
+  standard stage-kind truth/projection authority, dependency/effect tag family
+  authority, generated-zone/resource package authority, and Studio/platform
+  mixed-owner rails.
+- Updates the canonical remediation JSON instead of creating a second matrix.
+
+Closure note:
+
+- Fresh review lanes inspected actual rule packets, source, and architecture
+  docs.
+- The re-review evidence was consolidated into the canonical JSON and this
+  domino; no separate workstream matrix/receipt document is retained.
+- The next deterministic move is Layer 2 decision-packet work for the reopened
+  broader-authority slices, not Layer 3 mutation from the previous empty queue.
 
 ### 46. Resume Authority Activation Projection Work
 

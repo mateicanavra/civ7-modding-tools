@@ -420,7 +420,10 @@ const standardDefaultMapConfig = validateCanonicalMapConfig({
   recipeSchema: standardSchema,
   stages: standardMod.STANDARD_STAGES,
 });
-const standardDefaultPresetClean = stripSchemaMetadataRoot(standardDefaultMapConfig.config);
+const standardDefaultPresetClean = {
+  ...buildDefaultsSkeleton(standardUiMeta),
+  ...stripSchemaMetadataRoot(standardDefaultMapConfig.config),
+};
 const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<
   Record<string, unknown>
 >(standardSchema, standardDefaultPresetClean, "/defaults");

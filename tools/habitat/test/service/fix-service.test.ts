@@ -32,7 +32,7 @@ describe("Habitat fix service", () => {
     expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       commandId: "habitat-fix-ensure_docs_checkout_paths_are_portable-dry-run",
-      executable: "grit",
+      executable: expect.stringMatching(/(^|\/)grit$/),
       kind: "pattern-apply",
     });
   });

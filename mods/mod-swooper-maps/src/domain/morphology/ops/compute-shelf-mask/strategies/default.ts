@@ -1,16 +1,11 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { clampInt16 } from "@swooper/mapgen-core/lib/math";
+import { clampInt16, clampPct } from "@swooper/mapgen-core/lib/math";
 
 import ComputeShelfMaskContract from "../contract.js";
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_TRANSFORM = 3;
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.max(0, Math.min(1, value));
-}
 
 function clampNonNegative(value: number, fallback: number): number {
   if (!Number.isFinite(value) || value < 0) return fallback;
@@ -24,7 +19,7 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
     ...config,
     breakGradient: clampNonNegative(config.breakGradient, 8),
     breakGradientScale: clampNonNegative(config.breakGradientScale, 1),
-    activeClosenessThreshold: clamp01(config.activeClosenessThreshold),
+    activeClosenessThreshold: clampPct(config.activeClosenessThreshold, 0, 1, 0),
   }),
   run: (input, config) => {
     const { width, height } = input;

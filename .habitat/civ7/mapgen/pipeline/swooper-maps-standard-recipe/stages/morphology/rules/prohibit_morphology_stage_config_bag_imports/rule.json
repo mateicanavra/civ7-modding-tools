@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "@mapgen/domain/config in morphology stage files",
-  "why": "Morphology stage source should consume typed contract and artifact surfaces instead of the legacy domain config bag.",
-  "remediate": null,
-  "message": "Do not import @mapgen/domain/config from morphology stage files.",
+  "forbids": "@mapgen/domain/config imports in morphology stage files",
+  "why": "Morphology stage source may consume the morphology-specific config facade, but must not reach into the legacy root domain config bag.",
+  "remediate": "Import morphology-specific typed config surfaces from @mapgen/domain/morphology/config.js or op-local contract surfaces.",
+  "message": "Do not import the root @mapgen/domain/config bag from morphology stage files.",
   "pathCoverage": [
     {
       "kind": "exact-path",

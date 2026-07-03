@@ -99,7 +99,7 @@ describe("pattern apply", () => {
     expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       commandId: "habitat-fix-runtime-helper-dry-run",
-      executable: "grit",
+      executable: expect.stringMatching(/(^|\/)grit$/),
       argv: expect.arrayContaining(["apply", "--dry-run"]),
       kind: "pattern-apply",
     });

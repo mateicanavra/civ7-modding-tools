@@ -62,6 +62,8 @@ export type GritParseFailureStatus = Static<typeof GritParseFailureStatusSchema>
 export interface GritCheckOptions {
   repoRoot: string;
   cacheMode?: GritCheckCacheMode;
+  cwd?: string;
+  gritDir?: string;
   requireObservableCacheStatus?: boolean;
   allowDocsRoot?: boolean;
   outputFormat?: GritCheckOutputFormat;
@@ -71,7 +73,9 @@ export type GritCheckCacheMode = "workspace" | "fresh";
 export type GritCheckOutputFormat = "json" | "text";
 
 export interface GritCheckRequestOptions {
+  cwd?: string;
   cacheDir?: string;
+  gritDir?: string;
   observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
   outputFormat?: GritCheckOutputFormat;
   timeoutMs?: number;

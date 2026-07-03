@@ -85,9 +85,17 @@ STANDARD_CONTENT_ROOT/
 │  │           │        └─ <helper>.ts
 │  │           └─ *.ts               # stage-scoped helpers/contracts (optional)
 │  └─ domain/
-│     ├─ config.ts                   # schema/type-only barrel for shared fragments
 │     ├─ <domain>/
 │     │  ├─ index.ts
+│     │  ├─ ops.ts
+│     │  ├─ model/
+│     │  │  ├─ config/
+│     │  │  │  └─ <part>.config.ts   # one exported domain authoring config object
+│     │  │  ├─ policy/
+│     │  │  │  └─ <concern>.ts       # domain model policy
+│     │  │  └─ data/
+│     │  │     └─ <collection>/
+│     │  │        └─ <clear-name>.ts # domain-owned data / expectation table
 │     │  └─ ops/
 │     │     └─ <op-slug>/
 │     │        ├─ contract.ts
@@ -100,7 +108,7 @@ STANDARD_CONTENT_ROOT/
 │     │        │  ├─ <strategy>.ts
 │     │        │  └─ index.ts
 │     │        └─ index.ts
-│     └─ **/**                       # other domain logic + shared contracts
+│     └─ **/**                       # explicit domain-owned slots only
 └─ test/
    └─ **/**
 ```
@@ -128,10 +136,13 @@ STANDARD_CONTENT_ROOT/
 - Domain is the home for:
   - domain algorithms
   - operation modules under `<domain>/ops/<op>/` with `contract.ts`, `types.ts`, `rules/**` + `rules/index.ts`, and `strategies/**` + `strategies/index.ts`
-  - shared config schema fragments (`src/domain/**/config.ts`) when used by more than one step
+  - domain model config objects under `<domain>/model/config/*.config.ts` when owned by the domain model
+  - domain model policy under `<domain>/model/policy/*.ts` when it is domain-owned interpretation, classification, scoring, or selection policy
+  - domain model data under `<domain>/model/data/<collection>/<clear-name>.ts` only for domain-owned authored data or expectation tables
 - Domain modules may be used by a single step; reuse is not the criterion for domain placement. The criterion is recipe-independence and a clean separation between step orchestration and content logic.
 - Domain must not import from `recipes/**` or `maps/**`.
 - Dependency IDs (tags/artifacts/effects) are recipe-owned; domain modules must not re-export recipe shims.
+- Reusable/generated Civ7 policy tables, shared resource/feature catalogs, engine declarations, and adapter behavior are not domain model data. They belong to `@civ7/map-policy`, `@civ7/types`, or `@civ7/adapter` by owner.
 - Rules never import `contract.ts` and never export types; shared op types live in `types.ts`.
 
 **Barrels (`index.ts`)**
@@ -142,9 +153,9 @@ STANDARD_CONTENT_ROOT/
 - Step config schemas are step-owned (`stages/<stageId>/steps/<stepId>/contract.ts`).
 - Shared config schema fragments live with the *closest* real owner:
   - stage scope when shared within a stage (`stages/<stageId>/shared/**`)
-  - domain scope when shared across stages/recipes (prefer `src/domain/<domain>/config.ts` for config-oriented fragments)
+  - domain model scope when shared across stages/recipes (prefer `src/domain/<domain>/model/config/<part>.config.ts` for config-oriented fragments)
 - Step schemas must not depend on a centralized “global runtime config blob” module.
-- Importing shared **schema/type-only** fragments from a mod-owned `@mapgen/domain/config` alias is allowed when the fragment is truly cross-domain and does not introduce recipe/map coupling.
+- Target config imports point at named domain model config surfaces, not a mod-wide config barrel.
 - Domain config schemas must not use open-ended “unknown bag” fields or internal-only metadata fields.
 
 ---

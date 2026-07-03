@@ -31,7 +31,9 @@ export interface GritCheckProviderRequest {
   scanRoots: readonly string[];
   outputFormat?: "json" | "text";
   cacheMode?: "fresh" | "isolated";
+  cwd?: string;
   cacheDir?: string;
+  gritDir?: string;
   timeoutMs?: number;
   observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
 }
@@ -167,7 +169,9 @@ export function gritCheckRequest(
   scanRoots: readonly string[],
   options: {
     repoRoot: string;
+    cwd?: string;
     cacheDir?: string;
+    gritDir?: string;
     outputFormat?: "json" | "text";
     timeoutMs?: number;
     observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
@@ -178,12 +182,25 @@ export function gritCheckRequest(
   return {
     commandId: "pattern-check-current-tree",
     kind: "pattern-check",
-    executable: gritBin,
+    executable: path.join(repoRoot, "node_modules", ".bin", gritBin),
     argv:
       options.outputFormat === "text"
-        ? ["check", "--level", "error", ...scanRoots]
-        : ["--json", "check", "--level", "error", ...scanRoots],
-    cwd: repoRoot,
+        ? [
+            "check",
+            "--level",
+            "error",
+            ...(options.gritDir ? ["--grit-dir", options.gritDir] : []),
+            ...scanRoots,
+          ]
+        : [
+            "--json",
+            "check",
+            "--level",
+            "error",
+            ...(options.gritDir ? ["--grit-dir", options.gritDir] : []),
+            ...scanRoots,
+          ],
+    cwd: options.cwd ?? repoRoot,
     env: {
       ...gritMachineOutputEnv,
       GRIT_CACHE_DIR: cacheDir,
@@ -205,7 +222,9 @@ function gritProviderCheckRequest(
 ): HabitatProcessRequest {
   return gritCheckRequest(request.scanRoots, {
     repoRoot,
+    cwd: request.cwd,
     cacheDir: request.cacheDir,
+    gritDir: request.gritDir,
     observableCacheStatus: request.observableCacheStatus,
     outputFormat: request.outputFormat,
     timeoutMs: request.timeoutMs,
@@ -224,7 +243,7 @@ export function gritApplyDryRunRequest(
   return {
     commandId: request.commandId,
     kind: "pattern-apply",
-    executable: gritBin,
+    executable: path.join(repoRoot, "node_modules", ".bin", gritBin),
     argv: [
       "apply",
       request.patternPath,

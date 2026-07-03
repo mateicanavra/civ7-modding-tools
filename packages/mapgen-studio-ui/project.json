@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "mapgen-studio-ui",
+  "tags": ["kind:foundation"],
+  "targets": {
+    "test": {
+      "dependsOn": ["build", "^build"]
+    },
+    "design-sync:check": {
+      "dependsOn": ["build", "^build"],
+      "cache": false
+    }
+  }
+}
