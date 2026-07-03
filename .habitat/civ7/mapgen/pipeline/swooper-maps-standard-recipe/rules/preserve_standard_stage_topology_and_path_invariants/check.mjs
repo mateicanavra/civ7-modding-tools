@@ -93,15 +93,6 @@ if (JSON.stringify(runtimeStageIds) !== JSON.stringify(manifestStageIds)) {
 
 const activeStageIds = new Set(manifestStageIds);
 const allowedSupportDirectories = new Set(["ecology", "foundation", "morphology"]);
-const retiredStageRoots = new Set([
-  "advanced",
-  "hydrology-core",
-  "hydrology-post",
-  "hydrology-pre",
-  "narrative-mid",
-  "narrative-post",
-  "narrative-pre",
-]);
 
 for (const stageId of manifestStageIds) {
   const stageDir = join(stagesRoot, stageId);
@@ -120,10 +111,6 @@ for (const child of readdirSync(stagesRoot, { withFileTypes: true })) {
   if (child.isDirectory()) {
     if (activeStageIds.has(name)) continue;
     if (allowedSupportDirectories.has(name)) continue;
-    if (retiredStageRoots.has(name) || name.startsWith("_legacy-")) {
-      failures.push(`${name}: retired stage root must not exist`);
-      continue;
-    }
     failures.push(`${name}: unexpected standard stage-root directory`);
     continue;
   }
