@@ -7,7 +7,7 @@ work begins. They are ordered from least defined to more defined. Completed
 prework decisions stay in the completed section as proof pointers, not as active
 queue items.
 
-Current next move: `Foundation lib/ / Tectonics Disposition`.
+Current next move: `Domain Model Config Law`.
 
 ## Completed Decisions
 
@@ -32,33 +32,30 @@ every narrative path has liveness evidence and one disposition. The selected
 disposition was deletion of the current implementation plus protected retention
 of separate runtime-control narrative-choice surfaces.
 
-## 1. Foundation `lib/` / Tectonics Disposition
+### Foundation `lib/` / Tectonics Disposition
 
 Decision:
 classify each foundation `lib/**` file as domain model policy/data,
 operation-local implementation, artifact contract, core mechanics, or deletion.
 
-Inspect:
+Result:
+the current `foundation/lib/**` tree is not a legal owner in the closed domain
+blueprint. Live rows split into named foundation model policy, foundation
+artifact contracts, operation-local guard/support work, and core-candidate
+helpers that require later execution proof. Unimported tectonics implementation
+files are qualified for deletion because active operation-local rule owners
+already exist.
 
-- `mods/mod-swooper-maps/src/domain/foundation/lib/**`
-- foundation operation consumers
-- downstream recipe/stage consumers
-- `packages/mapgen-core` ownership and existing grid/math/mechanics surfaces
-
-Choices:
-
-- promote to named `foundation/model/policy/<concern>.ts`;
-- move domain-authored data to `foundation/model/data/<collection>/<name>.ts`;
-- move pure reusable mechanics to `packages/mapgen-core/src/lib/**`;
-- move operation-owned logic under a specific operation `rules/`;
-- delete duplicate or dead helper files.
+Proof packet:
+`Decisions/002-foundation-lib-tectonics-disposition/`
 
 Done:
-every foundation `lib/**` file has an exact destination or delete action. No
-row lands in generic `model/data`, `model/policy`, or `core` without a named
-file path.
+every current `foundation/lib/**` file has a row disposition. Mixed constants
+and helper files are split by symbol group. No row lands in generic
+`model/data`, `model/policy`, `artifacts/contract`, `core`, or shared `lib`
+without a named destination or a named authority gap before execution.
 
-## 2. Domain Model Config Law
+## 1. Domain Model Config Law
 
 Decision:
 decide whether `model/config/` is required for every domain root covered by the
@@ -95,7 +92,7 @@ row has an exact destination: `model/config/<part>.config.ts`, operation
 and resources are explicitly resolved as real config-object domains or as
 domains with an optional `model/config/` law.
 
-## 3. Placement Status
+## 2. Placement Status
 
 Decision:
 determine the owner status of current `placement` material under the selected
@@ -120,7 +117,7 @@ Done:
 current `placement` material has a declared owner status, and
 `placement/config.ts` has one exact landing or delete path.
 
-## 4. Resources Initial Map Authoring
+## 3. Resources Initial Map Authoring
 
 Decision:
 split `resources/policy/initial-map-authoring.ts` into its true owners.
@@ -144,7 +141,7 @@ Done:
 each exported symbol or behavior-bearing definition has an exact destination.
 The file is not moved whole into `resources/model/policy/`.
 
-## 5. Morphology `ops.ts` Non-Binding Exports
+## 4. Morphology `ops.ts` Non-Binding Exports
 
 Decision:
 place the config schema exports and `DEFAULT_ELEVATION_SCALE` currently living
@@ -169,7 +166,7 @@ every non-binding export has an exact destination or delete action, and
 `morphology/ops.ts` can become only the `createDomain(domain, implementations)`
 binding surface.
 
-## 6. Domain Public / Import Surface
+## 5. Domain Public / Import Surface
 
 Decision:
 define what remains public after root helper exports and config barrels move.
