@@ -1,5 +1,4 @@
 import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-contract";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@swooper/mapgen-studio-ui";
 import {
   Bug,
   ChevronDown,
@@ -12,12 +11,14 @@ import {
   Square,
 } from "lucide-react";
 import React from "react";
-import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
-import type { RunInGameCurrentRelation } from "../../features/runInGame/clientState";
+import { Button } from "../ui/button.js";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import {
+  formatMapConfigSaveDeployPhaseLabel,
   formatRunInGamePhaseLabel,
+  type RunInGameRelation,
   runInGamePrimaryActionLabel,
-} from "../../features/runInGame/status";
+} from "./statusLabels.js";
 
 // ============================================================================
 // GAME CONSOLE
@@ -81,7 +82,7 @@ export interface GameConsoleProps {
   /** Request-correlated Civ7 Run in Game status */
   runInGameStatus?: RunInGameOperationStatus | null;
   /** Whether the recorded operation matches the current authored Studio state */
-  runInGameCurrentRelation?: RunInGameCurrentRelation;
+  runInGameCurrentRelation?: RunInGameRelation;
   /** Callback to launch the current map config in Civ7 */
   onRunInGame: () => void;
   /** Callback to copy current Civ7 Run in Game diagnostics */

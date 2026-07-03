@@ -1,8 +1,11 @@
+// The phase-label formatter moved to the package with the B5 statusLabels
+// split; its pin stays in this suite and exercises the package's public
+// surface.
+import { formatMapConfigSaveDeployPhaseLabel } from "@swooper/mapgen-studio-ui";
 import { describe, expect, it } from "vitest";
 
 import {
   createMapConfigSaveDeployStatus,
-  formatMapConfigSaveDeployPhaseLabel,
   isSaveDeployTerminal,
   kindForMapConfigSaveDeployPhase,
   saveDeployResultFromTerminalStatus,

@@ -1,5 +1,5 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
-import { formatArtifactGroupLabel, formatArtifactLabel } from "./artifactPresentation";
+import { formatArtifactGroupLabel, formatArtifactLabel } from "./artifactPresentation.js";
 
 export type DagPoint = Readonly<{
   x: number;

@@ -1,7 +1,10 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { PIPELINE_EDGE_INK, PipelineStage } from "../../src/features/recipeDag/PipelineStage";
+import {
+  PIPELINE_EDGE_INK,
+  PipelineStage,
+} from "../src/components/panels/recipe-dag/PipelineStage.js";
 
 // Behavioral pins PORTED from the merged feature's RecipeDagView.test.tsx
 // (handoff §1/§4: the chrome was re-expressed in the redesign's language, so
@@ -17,7 +20,6 @@ describe("PipelineStage", () => {
         dag={recipeDag()}
         status="ready"
         error={null}
-        isLightMode={false}
         expandedStageIds={new Set(["shape"])}
         selectedStageId="shape"
         onToggleStage={vi.fn()}
@@ -52,7 +54,6 @@ describe("PipelineStage", () => {
         dag={recipeDag()}
         status="ready"
         error={null}
-        isLightMode={false}
         expandedStageIds={new Set()}
         selectedStageId={null}
         onToggleStage={vi.fn()}
@@ -88,7 +89,6 @@ describe("PipelineStage", () => {
         dag={withDiagnostics}
         status="ready"
         error={null}
-        isLightMode={false}
         expandedStageIds={new Set()}
         selectedStageId={null}
         onToggleStage={vi.fn()}

@@ -4,9 +4,10 @@ import type {
   MapConfigSaveDeployStatus,
   StudioRecoveryAction,
 } from "@civ7/studio-contract";
-import { MAP_CONFIG_SAVE_DEPLOY_PHASES } from "@civ7/studio-contract";
 
-export { MAP_CONFIG_SAVE_DEPLOY_PHASES };
+// The presentation half of this module (`formatMapConfigSaveDeployPhaseLabel`)
+// lives in `@swooper/mapgen-studio-ui` (panels/statusLabels — B5 split); this
+// file keeps the status CONSTRUCTORS the save/deploy hooks build state with.
 
 export function kindForMapConfigSaveDeployPhase(
   phase: MapConfigSaveDeployPhase
@@ -15,23 +16,6 @@ export function kindForMapConfigSaveDeployPhase(
   if (phase === "complete") return "complete";
   if (phase === "failed") return "failed";
   return "running";
-}
-
-export function formatMapConfigSaveDeployPhaseLabel(phase: MapConfigSaveDeployPhase): string {
-  switch (phase) {
-    case "idle":
-      return "Save";
-    case "queued":
-      return "Queued";
-    case "saving":
-      return "Saving";
-    case "deploying":
-      return "Deploying";
-    case "complete":
-      return "Saved";
-    case "failed":
-      return "Save Failed";
-  }
 }
 
 export function createMapConfigSaveDeployStatus(args: {

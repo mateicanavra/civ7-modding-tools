@@ -5,8 +5,13 @@ import {
   formatArtifactLabel,
   parseArtifactPresentation,
   resolveArtifactGroupDomainId,
-} from "../../src/features/recipeDag/artifactPresentation";
-import { createRecipeDagService } from "../../src/server/recipeDag/service";
+} from "../src/components/panels/recipe-dag/artifactPresentation.js";
+
+// The bundled-recipe corpus classification test (every artifact id the app's
+// DAG service serves classifies into a semantic icon domain) STAYS app-side —
+// apps/mapgen-studio/test/recipeDag/artifactDomainCoverage.test.ts — because
+// it pairs `createRecipeDagService` (app server code) with the package's
+// public `parseArtifactPresentation`.
 
 describe("recipe DAG artifact presentation", () => {
   it("uses artifact domains as icon metadata and keeps visible labels local", () => {
@@ -71,20 +76,4 @@ describe("recipe DAG artifact presentation", () => {
       resolveArtifactGroupDomainId(["artifact:hydrology.hydrography", "artifact:ecology.biomes"])
     ).toBeNull();
   });
-
-  it("classifies every bundled standard recipe artifact into a semantic icon domain", async () => {
-    const dag = await createRecipeDagService().getRecipeDag("mod-swooper-maps/standard");
-    const artifactIds = new Set<string>();
-    for (const stage of dag.stages) {
-      for (const artifact of stage.artifactRequires) artifactIds.add(artifact.id);
-      for (const artifact of stage.artifactProvides) artifactIds.add(artifact.id);
-    }
-
-    expect(artifactIds.size).toBeGreaterThan(60);
-    const generic = Array.from(artifactIds)
-      .map((id) => parseArtifactPresentation(id))
-      .filter((artifact) => !artifact.domainId || artifact.domainId === "artifact");
-
-    expect(generic).toEqual([]);
-  }, 15_000);
 });

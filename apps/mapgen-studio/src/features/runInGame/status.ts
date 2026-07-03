@@ -3,9 +3,13 @@ import type {
   RunInGameOperationStatus,
   RunInGamePhase,
 } from "@civ7/studio-contract";
-import { RUN_IN_GAME_PHASES } from "@civ7/studio-contract";
+import type { RunInGameRelation } from "@swooper/mapgen-studio-ui";
 
-export { RUN_IN_GAME_PHASES };
+// The presentation half of this module (`formatRunInGamePhaseLabel`,
+// `runInGamePrimaryActionLabel`, `runInGameRequiresProcessRestart`) lives in
+// `@swooper/mapgen-studio-ui` (panels/statusLabels — B5 split); this file
+// keeps the phase classification + diagnostics serialization the run-in-game
+// hooks build state with.
 
 const TERMINAL_PHASES = new Set<RunInGamePhase>(["complete", "blocked", "failed", "uncertain"]);
 
@@ -20,7 +24,9 @@ const RUNNING_PHASES = new Set<RunInGamePhase>([
   "waiting-for-proof",
 ]);
 
-export type RunInGameActionRelation = "current" | "stale" | "unknown";
+// Alias of the package's re-homed relation union (adjudication 7 — never a
+// third copy); kept so app call sites keep their vocabulary.
+export type RunInGameActionRelation = RunInGameRelation;
 
 export function isRunInGameTerminalPhase(phase: RunInGamePhase): boolean {
   return TERMINAL_PHASES.has(phase);
@@ -33,60 +39,6 @@ export function kindForRunInGamePhase(phase: RunInGamePhase): RunInGameOperation
   if (phase === "failed") return "failed";
   if (phase === "uncertain") return "uncertain";
   return RUNNING_PHASES.has(phase) ? "running" : "running";
-}
-
-export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
-  switch (phase) {
-    case "idle":
-      return "Run in Game";
-    case "materializing":
-      return "Materializing";
-    case "deploying":
-      return "Deploying";
-    case "restarting-civ":
-      return "Restarting Civ";
-    case "checking-civ7":
-      return "Checking Civ7";
-    case "reload-needed":
-      return "Reload Needed";
-    case "preparing-setup":
-      return "Preparing Setup";
-    case "starting-game":
-      return "Starting Game";
-    case "waiting-for-proof":
-      return "Waiting for Proof";
-    case "complete":
-      return "Complete";
-    case "blocked":
-      return "Blocked";
-    case "failed":
-      return "Failed";
-    case "uncertain":
-      return "Uncertain";
-  }
-}
-
-export function runInGameRequiresProcessRestart(
-  status?: RunInGameOperationStatus | null,
-  relation: RunInGameActionRelation = "unknown"
-): boolean {
-  return relation !== "stale" && status?.details?.reloadBoundary === "process-restart-required";
-}
-
-export function runInGamePrimaryActionLabel(
-  status?: RunInGameOperationStatus | null,
-  relation: RunInGameActionRelation = "unknown"
-): string {
-  if (status?.status === "running") return formatRunInGamePhaseLabel(status.phase);
-  if (status && runInGameRequiresProcessRestart(status, relation)) return "Restart Civ & Run";
-  if (
-    status?.status === "failed" ||
-    status?.status === "blocked" ||
-    status?.status === "uncertain"
-  ) {
-    return relation === "stale" ? "Run Current" : "Retry Run";
-  }
-  return "Run in Game";
 }
 
 export function formatRunInGameDiagnostics(status: RunInGameOperationStatus): string {

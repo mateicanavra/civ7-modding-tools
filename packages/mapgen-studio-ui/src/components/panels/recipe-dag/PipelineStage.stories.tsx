@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { PipelineStage, type PipelineStageProps } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
-import { PipelineStage, type PipelineStageProps } from "@/features/recipeDag/PipelineStage";
-import { recipeDagFixture } from "@/storybook/recipeDagFixture";
+import { recipeDagFixture } from "../../../storybook/recipeDagFixture.js";
 
 /**
  * Adapted from `.design-sync/previews/PipelineStage.tsx`. The recipe dependency

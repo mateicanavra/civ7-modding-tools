@@ -33,7 +33,14 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // BrowserConfigFieldTemplate, BrowserConfigObjectFieldTemplate,
 // BrowserConfigArrayFieldTemplate, SchemaConfigForm, useConfigCollapse = 90.
 // (SchemaForm stays internal — structure-rewire §3.5 lists no export for it.)
-const EXPECTED_MIN_EXPORTS = 90;
+// B5 (panels 4 + splits): ExplorePanel, GameConsole, RecipePanel,
+// PipelineStage + the four statusLabels formatters
+// (formatMapConfigSaveDeployPhaseLabel, formatRunInGamePhaseLabel,
+// runInGamePrimaryActionLabel, runInGameRequiresProcessRestart) +
+// parseArtifactPresentation (the app's recipe-corpus classification test's
+// import) = 99. (recipe-dag layout/presentation modules + PIPELINE_EDGE_INK
+// stay internal — package tests import them relatively.)
+const EXPECTED_MIN_EXPORTS = 99;
 
 const failures = [];
 const assert = (cond, msg) => {

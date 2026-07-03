@@ -2,11 +2,16 @@ import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import {
   AppFooter,
   ErrorBanner,
+  ExplorePanel,
+  GameConsole,
   LeftDock,
+  PipelineStage,
   PresetConfirmDialog,
   PresetErrorDialog,
   PresetSaveDialog,
+  RecipePanel,
   RightDock,
+  runInGameRequiresProcessRestart,
   StageViewTabs,
 } from "@swooper/mapgen-studio-ui";
 import type { GenerationStatus, PipelineConfig } from "@swooper/mapgen-studio-ui/types";
@@ -16,9 +21,7 @@ import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
 import { buildDefaultConfig } from "../features/configOverrides/configBuilders";
 import { type PresetKey, parsePresetKey } from "../features/presets/types";
-import { PipelineStage } from "../features/recipeDag/PipelineStage";
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
-import { runInGameRequiresProcessRestart } from "../features/runInGame/status";
 import { orpcClient } from "../lib/orpc";
 import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
 import type { VizEvent } from "../shared/vizEvents";
@@ -26,9 +29,6 @@ import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
 import { useViewStore } from "../stores/viewStore";
 import { AppHeader } from "../ui/components/AppHeader";
-import { ExplorePanel } from "../ui/components/ExplorePanel";
-import { GameConsole } from "../ui/components/GameConsole";
-import { RecipePanel } from "../ui/components/RecipePanel";
 import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../ui/constants";
 import { configsEqual } from "../ui/utils/config";
 import { CanvasStage } from "./CanvasStage";
