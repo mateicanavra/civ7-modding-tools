@@ -12,6 +12,10 @@ one-decision pass method. It selects no enforcement scopes and has no
 implementation write set. It does not need `scope-set.md` or `execution.md`
 until a later slice activates scopes or source changes.
 
+Use `decision-packet-skeleton/` when opening a new decision packet under
+`Decisions/`. Use `decision-runner-brief.md` when handing one inventory item to
+a fresh DRA.
+
 ## Purpose
 
 Slice 001 has a defined target shape, but several red rows still point at
