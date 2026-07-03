@@ -11,10 +11,11 @@ leaving graph/currentness/package-runtime assertions out of structure-check.
 This wave is assertion-driven. A command script is deleted or shrunk only when
 every branch inside it has a recorded owner.
 
-For the reusable single-agent execution loop, use
-`N-OF-1-WORKFLOW.md`. The multi-agent version of this work is parallel
-execution of that same N-of-1 loop over bounded segments, not a different
-process.
+For the reusable single-agent prep/extraction loop, use
+`N-OF-1-WORKFLOW.md`. For the current Round 1 prep corpus, use
+`MECHANICAL-EXTRACTION-PREP.md` and `mechanical-extraction-inputs.jsonl`.
+The multi-agent version of this work is parallel execution of that same N-of-1
+loop over bounded segments, not a different process.
 
 ## Source Order
 
