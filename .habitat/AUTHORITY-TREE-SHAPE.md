@@ -2,7 +2,13 @@
 
 Status: working normative reference for the current niche/blueprint authority tree
 
-This document defines the current target shape for `.habitat` authority artifacts. It captures the corrected organization where niches are jurisdictions and blueprints are buildable/enforceable things inside those jurisdictions. It does not define final resolver metadata, support-file ontology, cascade semantics, or typed blueprint manifests.
+This document defines the current physical target shape for `.habitat`
+authority artifacts. It captures the transitional organization where niches are
+jurisdictions and blueprints are buildable/enforceable things inside those
+jurisdictions. The normative conceptual model for Habitat, blueprints,
+instances, capabilities, niches, admission, and authority activation lives in
+`AUTHORITY-ONTOLOGY.md`. This document does not define final resolver metadata,
+support-file ontology, cascade semantics, or typed blueprint manifests.
 
 `.habitat/_support/execution/` is a temporary execution-support bridge outside
 the authority hierarchy. It is not a niche and must not be used as a precedent

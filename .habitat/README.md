@@ -20,6 +20,7 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 ## Authority Planes
 
 - `AUTHORITY.md`: what may be authoritative here and what remains Toolkit execution machinery.
+- `AUTHORITY-ONTOLOGY.md`: normative conceptual model for Habitat, blueprints, instances, capabilities, niches, admission, and authority activation.
 - `AUTHORITY-TREE-SHAPE.md`: the current niche/blueprint tree shape.
 - `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
 - `SUBJECT-CATEGORIES.md`: universal category model plus the current packet ledger.
