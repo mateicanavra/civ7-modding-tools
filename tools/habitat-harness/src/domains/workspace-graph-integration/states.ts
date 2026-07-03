@@ -12,12 +12,9 @@ import {
   type WorkspaceTargetState,
   WorkspaceTargetStateSchema,
 } from "../../providers/nx/schema.js";
-import {
-  classifyTargetNames,
-  verifyTargetNames,
-  workspaceGraphTargetNames,
-} from "../../providers/nx/targets.js";
+import { classifyTargetNames, workspaceGraphTargetNames } from "../../providers/nx/targets.js";
 import type { RuleGraphFacts } from "../rule-registry/schema.js";
+import { verifyAffectedTargetNames } from "../validation-routing/index.js";
 import {
   explicitProjectTargetDependency,
   graphRefusalMessage,
@@ -180,7 +177,7 @@ function verifyProjectTargetStates(
     targetNames.generatedCheck,
     targetNames.sourceCheck,
   ]);
-  return verifyTargetNames(targetNames).flatMap((target) => {
+  return verifyAffectedTargetNames(targetNames).flatMap((target) => {
     const owners = projects.filter((project) => workspaceProjectHasTarget(project, target));
     if (owners.length > 0) {
       return owners.map((project) =>

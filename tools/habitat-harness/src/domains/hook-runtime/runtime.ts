@@ -1,10 +1,6 @@
 import type { SpawnResult } from "../../providers/command/index.js";
 import type { HookReportChannel, HookTrace } from "./schema.js";
 
-export interface HookOptions {
-  base?: string;
-}
-
 export type RunCommand = (
   argv: string[],
   opts: { cwd: string; env?: Record<string, string>; captureGitState?: boolean }

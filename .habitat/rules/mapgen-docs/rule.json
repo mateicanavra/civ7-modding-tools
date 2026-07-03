@@ -14,12 +14,6 @@
     {
       "kind": "exact-path",
       "patterns": ["docs/system/libs/mapgen/**"]
-    },
-    {
-      "kind": "project-owner"
-    },
-    {
-      "kind": "workspace-gate"
     }
   ]
 }

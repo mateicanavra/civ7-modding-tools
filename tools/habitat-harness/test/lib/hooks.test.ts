@@ -1,3 +1,4 @@
+import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import {
   classifyResourcePreCommitDecision,
@@ -8,20 +9,34 @@ import {
   type HookReportEvent,
   type HookRuntime,
 } from "../../src/domains/hook-runtime/runtime.js";
+import {
+  type CheckOptions,
+  type CheckReport,
+  makeFakeStructuralCheckLayer,
+} from "../../src/domains/structural-check/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import type { SpawnResult } from "../../src/providers/command/index.js";
-import { runPreCommit, runPrePush } from "../../src/service/modules/hook/router.js";
+import {
+  type BiomeCommandRequest,
+  biomeArgv,
+  makeFakeBiomeProviderLayer,
+} from "../../src/providers/biome/index.js";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+  type SpawnResult,
+} from "../../src/providers/command/index.js";
+import type { HabitatCommandResult } from "../../src/providers/command/types.js";
+import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
+import { makeFakeNxProviderLayer } from "../../src/providers/nx/index.js";
+import { runHookService } from "../../src/service/modules/hook/router.js";
 
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 
-const prePushAffectedTargets =
-  "check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns";
-
 describe("Habitat hook resource policy", () => {
-  test("passes clean resources without invoking the publish script", () => {
+  test("passes clean resources without invoking the publish script", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: clean");
@@ -29,92 +44,78 @@ describe("Habitat hook resource policy", () => {
       "hook result: workstation check only; CI remains authoritative."
     );
     expect(result.stdout).toContain("habitat hook pre-commit: PASS");
-    expect(fake.calls).toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
+    expect(fake.checkRequests.map((request) => request.tool)).toContain("file-layer");
   });
 
-  test("fails dirty resources before file-layer, Biome, Grit, or publish commands", () => {
+  test("fails dirty resources before file-layer, Biome, Grit, or publish commands", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true, submoduleStatus: " M resources.xml\n" });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: dirty-submodule");
     expect(result.stderr).toContain("resource publish");
     expect(result.stderr).toContain("resource status");
-    expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
-    expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
+    expect(fake.checkRequests).toEqual([]);
+    expect(fake.biomeRequests).toEqual([]);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
 
-  test("fails uninitialized resources with init and status remediation", () => {
+  test("fails uninitialized resources with init and status remediation", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true, resourcesRootExists: false });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: uninitialized");
     expect(result.stderr).toContain("resource init");
     expect(result.stderr).toContain("resource status");
-    expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
+    expect(fake.checkRequests).toEqual([]);
   });
 
-  test("fails a present resources directory that resolves to the monorepo Git root", () => {
+  test("fails a present resources directory that resolves to the monorepo Git root", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true, resourcesTopLevel: "/repo" });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: uninitialized");
     expect(result.stderr).toContain("exists but is not an initialized resource Git worktree");
-    expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
+    expect(fake.checkRequests).toEqual([]);
   });
 
-  test("fails locked resources with unlock and status remediation", () => {
+  test("fails locked resources with unlock and status remediation", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true, indexLockExists: true });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: locked");
     expect(result.stderr).toContain("resource unlock");
     expect(result.stderr).toContain("resource status");
-    expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
+    expect(fake.checkRequests).toEqual([]);
   });
 
-  test("fails an unstaged resources gitlink before file-layer checks", () => {
+  test("fails an unstaged resources gitlink before file-layer checks", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true, unstagedGitlink: true });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: unstaged-gitlink");
     expect(result.stderr).toContain("git add vendor/resources");
     expect(result.stderr).toContain("resource status");
-    expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
+    expect(fake.checkRequests).toEqual([]);
   });
 
-  test("allows a staged clean resources gitlink as an explicit pointer update", () => {
+  test("allows a staged clean resources gitlink as an explicit pointer update", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true, stagedGitlink: true });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: staged-gitlink");
-    expect(fake.calls).toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
+    expect(fake.checkRequests.map((request) => request.tool)).toContain("file-layer");
   });
 
   test("prefers dirty-submodule refusal over staged-gitlink allowance", () => {
@@ -148,71 +149,75 @@ describe("Habitat hook resource policy", () => {
     expect(fake.calls).toEqual([]);
   });
 
-  test("renders resource remediation through the configured policy commands", () => {
+  test("renders resource remediation through the configured policy commands", async () => {
     const fake = makeFakeRuntime({ resourcePolicy: true, submoduleStatus: " M resources.xml\n" });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: dirty-submodule");
     expect(result.stderr).toContain("- resource publish");
     expect(result.stderr).toContain("- resource status");
-    expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-    );
+    expect(fake.checkRequests).toEqual([]);
   });
 });
 
 describe("Habitat pre-commit staged mutation policy", () => {
-  test("propagates generated-zone file-layer failure before Biome, Grit, or publish commands", () => {
+  test("propagates generated-zone file-layer failure before Biome, Grit, or publish commands", async () => {
     const fake = makeFakeRuntime({
-      fileLayerExitCode: 1,
-      fileLayerStdout: '{"ok":false,"diagnostics":[{"message":"generated zone"}]}\n',
+      fileLayerStdout: fileLayerCheckReport({
+        ok: false,
+        status: "fail",
+        diagnosticMessage: "generated zone",
+      }),
       stagedPaths: ["mods/mod-swooper-maps/mod/maps/studio-current.js"],
     });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[file-layer staged check]");
     expect(result.stdout).toContain("generated zone");
-    expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
+    expect(fake.biomeRequests).toEqual([]);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
 
-  test("propagates package-manager artifact file-layer failure before Biome, Grit, or publish commands", () => {
+  test("propagates package-manager artifact file-layer failure before Biome, Grit, or publish commands", async () => {
     const fake = makeFakeRuntime({
-      fileLayerExitCode: 1,
-      fileLayerStdout: '{"ok":false,"diagnostics":[{"message":"package manager artifact"}]}\n',
+      fileLayerStdout: fileLayerCheckReport({
+        ok: false,
+        status: "fail",
+        diagnosticMessage: "package manager artifact",
+      }),
       stagedPaths: ["pnpm-lock.yaml"],
     });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[file-layer staged check]");
     expect(result.stdout).toContain("package manager artifact");
-    expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
+    expect(fake.biomeRequests).toEqual([]);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
 
-  test("refuses partially staged Biome-supported files before formatting", () => {
+  test("refuses partially staged Biome-supported files before formatting", async () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
       unstagedPaths: ["packages/example/src/index.ts"],
     });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("refusing to format partially staged files");
     expect(result.stderr).toContain("- packages/example/src/index.ts");
-    expect(fake.calls.some((call) => call.startsWith("biome format"))).toBe(false);
+    expect(fake.biomeRequests).toEqual([]);
     expect(fake.calls.some((call) => call.startsWith("git add --"))).toBe(false);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
 
-  test("restages only formatter-touched Biome paths and leaves foreign staged paths untouched", () => {
+  test("restages only formatter-touched Biome paths and leaves foreign staged paths untouched", async () => {
     const fake = makeFakeRuntime({
       stagedPaths: [
         "packages/example/src/index.ts",
@@ -226,25 +231,29 @@ describe("Habitat pre-commit staged mutation policy", () => {
       },
     });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("formatter restage: 1 path(s)");
     expect(fake.calls).toContain("git add -- packages/example/src/index.ts");
     expect(fake.calls).not.toContain("git add -- packages/example/src/unchanged.ts");
     expect(fake.calls).not.toContain("git add -- README.md");
-    expect(fake.calls).toContain(
-      "biome check --no-errors-on-unmatched packages/example/src/index.ts packages/example/src/unchanged.ts"
-    );
-    expect(fake.calls).toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool source-check --json"
-    );
+    expect(fake.biomeRequests).toEqual([
+      expect.objectContaining({
+        kind: "format",
+        paths: ["packages/example/src/index.ts", "packages/example/src/unchanged.ts"],
+      }),
+      expect.objectContaining({
+        kind: "check",
+        paths: ["packages/example/src/index.ts", "packages/example/src/unchanged.ts"],
+      }),
+    ]);
+    expect(fake.checkRequests.map((request) => request.tool)).toContain("source-check");
   });
 
-  test("fails closed when source checks emit malformed JSON", () => {
+  test("fails closed when source checks report diagnostic-unavailable", async () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      sourceCheckExitCode: 1,
       sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
@@ -253,16 +262,15 @@ describe("Habitat pre-commit staged mutation policy", () => {
       }),
     });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("could not parse source check JSON output");
   });
 
-  test("fails closed when source checks report findings", () => {
+  test("fails closed when source checks report findings", async () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      sourceCheckExitCode: 1,
       sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
@@ -270,32 +278,33 @@ describe("Habitat pre-commit staged mutation policy", () => {
       }),
     });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[source check]");
   });
 
-  test("does not run staged source checks for JavaScript files outside approved source-check roots", () => {
+  test("does not run staged source checks for JavaScript files outside approved source-check roots", async () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["tools/habitat-harness/src/service/modules/hook/router.ts"],
     });
 
-    const result = runPreCommit(fake.runtime);
+    const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain(
       "source checks: no staged TypeScript/JavaScript files in approved source-check roots"
     );
-    expect(fake.calls).toContain(
-      "biome check --no-errors-on-unmatched tools/habitat-harness/src/service/modules/hook/router.ts"
+    expect(fake.biomeRequests).toContainEqual(
+      expect.objectContaining({
+        kind: "check",
+        paths: ["tools/habitat-harness/src/service/modules/hook/router.ts"],
+      })
     );
-    expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool source-check --json"
-    );
+    expect(fake.checkRequests.map((request) => request.tool)).not.toContain("source-check");
   });
 
-  test("records typed pre-commit state and command provenance through fake services", () => {
+  test("records typed pre-commit state and command provenance through fake services", async () => {
     const trace = createHookTrace();
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts", "README.md"],
@@ -305,7 +314,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       },
     });
 
-    const result = runPreCommit({ ...fake.runtime, trace });
+    const result = await runPreCommitInTest(fake, { ...fake.runtime, trace });
 
     expect(result.exitCode).toBe(0);
     expect(trace.preCommit).toMatchObject({
@@ -348,26 +357,17 @@ describe("Habitat pre-commit staged mutation policy", () => {
       ])
     );
     expect(trace.commands.find((command) => command.phase === "source-check")).toMatchObject({
-      argv: [
-        "bun",
-        "tools/habitat-harness/bin/dev.ts",
-        "check",
-        "--staged",
-        "--tool",
-        "source-check",
-        "--json",
-      ],
+      argv: ["habitat", "check", "--staged", "--tool", "source-check", "--json"],
       cwd: repoRoot,
       env: undefined,
       exitCode: 0,
     });
   });
 
-  test("records Grit parse failure as an explicit pre-commit outcome", () => {
+  test("records source-check diagnostic-unavailable as an explicit pre-commit outcome", async () => {
     const trace = createHookTrace();
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      sourceCheckExitCode: 1,
       sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
@@ -376,7 +376,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       }),
     });
 
-    const result = runPreCommit({ ...fake.runtime, trace });
+    const result = await runPreCommitInTest(fake, { ...fake.runtime, trace });
 
     expect(result.exitCode).toBe(1);
     expect(trace.preCommit).toMatchObject({
@@ -391,11 +391,10 @@ describe("Habitat pre-commit staged mutation policy", () => {
     });
   });
 
-  test("reports pre-commit output through an injected reporter service", () => {
+  test("reports pre-commit output through an injected reporter service", async () => {
     const events: HookReportEvent[] = [];
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      sourceCheckExitCode: 1,
       sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
@@ -404,7 +403,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       }),
     });
 
-    const result = runPreCommit({
+    const result = await runPreCommitInTest(fake, {
       ...fake.runtime,
       reporter: { write: (event) => events.push(event) },
     });
@@ -423,161 +422,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
   });
 });
 
-describe("Habitat pre-push base policy", () => {
-  test("uses the explicit base override without probing Graphite or merge-base", () => {
-    const fake = makeFakeRuntime();
-
-    const result = runPrePush({ base: "HEAD~1" }, fake.runtime);
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
-    expect(result.stdout).toContain(
-      "hook result: workstation check only; CI remains authoritative."
-    );
-    expect(fake.calls).toContain(
-      `nx affected -t ${prePushAffectedTargets} --base HEAD~1 --head HEAD --outputStyle=static --excludeTaskDependencies`
-    );
-    expect(fake.calls).not.toContain("gt branch info --no-interactive");
-    expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
-  });
-
-  test("uses the Graphite parent as the default affected base when available", () => {
-    const fake = makeFakeRuntime({ graphiteParent: "agent-HR-parent" });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
-    expect(fake.calls).toContain("gt branch info --no-interactive");
-    expect(fake.calls).toContain(
-      `nx affected -t ${prePushAffectedTargets} --base agent-HR-parent --head HEAD --outputStyle=static --excludeTaskDependencies`
-    );
-    expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
-  });
-
-  test("falls back to the remote default branch merge-base when Graphite parent is unavailable", () => {
-    const fake = makeFakeRuntime({ mergeBase: "abc123mergebase" });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=abc123mergebase");
-    expect(fake.calls).toContain("gt branch info --no-interactive");
-    expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
-    expect(fake.calls).toContain("git merge-base HEAD origin/main");
-    expect(fake.calls).toContain(
-      `nx affected -t ${prePushAffectedTargets} --base abc123mergebase --head HEAD --outputStyle=static --excludeTaskDependencies`
-    );
-  });
-
-  test("refuses pre-push when no affected base can be resolved", () => {
-    const fake = makeFakeRuntime({ mergeBaseExitCode: 1 });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("could not resolve an affected base");
-    expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
-    expect(fake.calls).toContain("git merge-base HEAD origin/main");
-    expect(fake.calls.some((call) => call.startsWith("nx affected "))).toBe(false);
-  });
-
-  test("propagates Nx affected failures with base provenance", () => {
-    const fake = makeFakeRuntime({
-      graphiteParent: "agent-HR-parent",
-      nxAffectedExitCode: 1,
-      nxAffectedStdout: "affected failed\n",
-      nxAffectedStderr: "target failed\n",
-    });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(1);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
-    expect(result.stdout).toContain("affected failed");
-    expect(result.stderr).toContain("target failed");
-  });
-
-  test("records pre-push base and affected command provenance through fake services", () => {
-    const trace = createHookTrace();
-    const fake = makeFakeRuntime({ graphiteParent: "agent-HR-parent" });
-
-    const result = runPrePush({}, { ...fake.runtime, trace });
-
-    expect(result.exitCode).toBe(0);
-    expect(trace.prePush).toMatchObject({
-      base: "agent-HR-parent",
-      baseSource: "graphite-parent",
-      outcome: "pass",
-      exitCode: 0,
-      preState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        resourceState: "not-configured",
-      },
-      postState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        resourceState: "not-configured",
-      },
-    });
-    expect(trace.prePush?.durationMs).toBeGreaterThan(0);
-    expect(trace.commands.find((command) => command.phase === "pre-push-base")).toMatchObject({
-      argv: ["gt", "branch", "info", "--no-interactive"],
-      cwd: repoRoot,
-      env: undefined,
-      exitCode: 0,
-    });
-    expect(trace.commands.find((command) => command.phase === "pre-push-affected")).toMatchObject({
-      argv: [
-        "nx",
-        "affected",
-        "-t",
-        prePushAffectedTargets,
-        "--base",
-        "agent-HR-parent",
-        "--head",
-        "HEAD",
-        "--outputStyle=static",
-        "--excludeTaskDependencies",
-      ],
-      cwd: repoRoot,
-      env: undefined,
-      exitCode: 0,
-    });
-  });
-
-  test("reports pre-push output through an injected reporter service", () => {
-    const events: HookReportEvent[] = [];
-    const fake = makeFakeRuntime({
-      graphiteParent: "agent-HR-parent",
-      nxAffectedExitCode: 1,
-      nxAffectedStdout: "affected failed\n",
-      nxAffectedStderr: "target failed\n",
-    });
-
-    const result = runPrePush(
-      {},
-      {
-        ...fake.runtime,
-        reporter: { write: (event) => events.push(event) },
-      }
-    );
-
-    expect(result.exitCode).toBe(1);
-    expect(renderReported(events, "stdout")).toBe(result.stdout);
-    expect(renderReported(events, "stderr")).toBe(result.stderr);
-    expect(events).toContainEqual({
-      channel: "stdout",
-      text: "hook result: workstation check only; CI remains authoritative.\n",
-    });
-    expect(events).toContainEqual({
-      channel: "stderr",
-      text: "target failed\n",
-    });
-  });
-});
-
 interface FakeRuntimeOptions {
   resourcePolicy?: boolean;
   resourcesRootExists?: boolean;
@@ -588,32 +432,85 @@ interface FakeRuntimeOptions {
   resourcesTopLevel?: string;
   stagedPaths?: string[];
   unstagedPaths?: string[];
-  fileLayerExitCode?: number;
   fileLayerStdout?: string;
   fileHashes?: Record<string, string[]>;
   biomeFormatExitCode?: number;
   biomeCheckExitCode?: number;
-  sourceCheckExitCode?: number;
   sourceCheckStdout?: string;
   sourceCheckStderr?: string;
-  graphiteParent?: string;
-  mergeBase?: string;
-  mergeBaseExitCode?: number;
-  remoteDefaultBranch?: string;
-  remoteDefaultBranchExitCode?: number;
-  nxAffectedExitCode?: number;
-  nxAffectedStdout?: string;
-  nxAffectedStderr?: string;
   branch?: string;
   head?: string;
   allUnstagedPaths?: string[];
 }
 
-function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
-  runtime: HookRuntime;
-  calls: string[];
-} {
+interface FakeHookRuntime {
+  readonly runtime: HookRuntime;
+  readonly calls: string[];
+  readonly checkRequests: CheckOptions[];
+  readonly biomeRequests: BiomeCommandRequest[];
+  readonly options: FakeRuntimeOptions;
+}
+
+async function runPreCommitInTest(
+  fake: FakeHookRuntime,
+  runtime: HookRuntime = fake.runtime
+): Promise<SpawnResult> {
+  const layer = Layer.mergeAll(
+    makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
+    makeFakeNxProviderLayer(),
+    makeStructuralCheckLayer(fake),
+    makeBiomeLayer(fake)
+  );
+  return Effect.runPromise(
+    runHookService({ name: "pre-commit" }, { runtime }).pipe(Effect.provide(layer))
+  );
+}
+
+function makeStructuralCheckLayer(fake: FakeHookRuntime) {
+  return makeFakeStructuralCheckLayer({
+    createReport: (options = {}) =>
+      Effect.sync(() => {
+        fake.checkRequests.push(options);
+        if (options.tool === "file-layer") {
+          return parseCheckReport(
+            fake.options.fileLayerStdout ?? fileLayerCheckReport({ ok: true, status: "pass" })
+          );
+        }
+        if (options.tool === "source-check") {
+          return parseCheckReport(
+            fake.options.sourceCheckStdout ?? sourceCheckReport({ ok: true, status: "pass" })
+          );
+        }
+        return passingCheckReport(options.command?.serialized ?? "habitat check");
+      }),
+    expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
+  });
+}
+
+function makeBiomeLayer(fake: FakeHookRuntime) {
+  return makeFakeBiomeProviderLayer((request) => {
+    fake.biomeRequests.push(request);
+    const exitCode =
+      request.kind === "format"
+        ? (fake.options.biomeFormatExitCode ?? 0)
+        : request.kind === "check"
+          ? (fake.options.biomeCheckExitCode ?? 0)
+          : 0;
+    return commandResult(
+      biomeArgv(request),
+      repoRootForTestCommand(),
+      exitCode === 0 ? `${request.kind} ok\n` : "",
+      exitCode,
+      exitCode === 0 ? "" : `${request.kind} failed\n`,
+      "biome"
+    );
+  });
+}
+
+function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
   const calls: string[] = [];
+  const checkRequests: CheckOptions[] = [];
+  const biomeRequests: BiomeCommandRequest[] = [];
   const hashReads = new Map<string, number>();
   let nowMs = 1_000;
   const runCommand: RunCommand = (argv, _opts) => {
@@ -652,59 +549,20 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call === "git diff --cached --name-status -z") {
       return ok(renderNameStatus(options.stagedPaths ?? []));
     }
-    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json") {
-      return {
-        exitCode: options.fileLayerExitCode ?? 0,
-        stdout: options.fileLayerStdout ?? fileLayerCheckReport({ ok: true, status: "pass" }),
-        stderr: "",
-      };
-    }
     if (call.startsWith("git diff --name-only -z --")) {
       return ok(renderPathList(options.unstagedPaths ?? []));
     }
-    if (call.startsWith("biome format --write --no-errors-on-unmatched")) {
-      return options.biomeFormatExitCode ? failure(options.biomeFormatExitCode) : ok();
-    }
     if (call.startsWith("git add --")) {
       return ok();
-    }
-    if (call.startsWith("biome check --no-errors-on-unmatched")) {
-      return options.biomeCheckExitCode ? failure(options.biomeCheckExitCode) : ok();
-    }
-    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool source-check --json") {
-      return {
-        exitCode: options.sourceCheckExitCode ?? 0,
-        stdout: options.sourceCheckStdout ?? sourceCheckReport({ ok: true, status: "pass" }),
-        stderr: options.sourceCheckStderr ?? "",
-      };
-    }
-    if (call === "gt branch info --no-interactive") {
-      return options.graphiteParent
-        ? ok(`Parent: ${options.graphiteParent}\n`)
-        : failure(1, "", "no graphite parent\n");
-    }
-    if (call === "git symbolic-ref --quiet --short refs/remotes/origin/HEAD") {
-      return options.remoteDefaultBranchExitCode
-        ? failure(options.remoteDefaultBranchExitCode)
-        : ok(`${options.remoteDefaultBranch ?? "origin/main"}\n`);
-    }
-    if (call === "git merge-base HEAD origin/main") {
-      return options.mergeBaseExitCode
-        ? failure(options.mergeBaseExitCode)
-        : ok(`${options.mergeBase ?? "originmainmergebase"}\n`);
-    }
-    if (call.startsWith("nx affected ")) {
-      return {
-        exitCode: options.nxAffectedExitCode ?? 0,
-        stdout: options.nxAffectedStdout ?? "affected ok\n",
-        stderr: options.nxAffectedStderr ?? "",
-      };
     }
     throw new Error(`Unexpected hook test command: ${call}`);
   };
 
   return {
     calls,
+    checkRequests,
+    biomeRequests,
+    options,
     runtime: {
       runCommand,
       pathExists: (target) => {
@@ -829,6 +687,49 @@ function checkReport(options: {
     null,
     2
   )}\n`;
+}
+
+function parseCheckReport(report: string): CheckReport {
+  return JSON.parse(report) as CheckReport;
+}
+
+function passingCheckReport(command: string): CheckReport {
+  return {
+    schemaVersion: 1,
+    command,
+    startedAt: "2026-06-21T00:00:00.000Z",
+    ok: true,
+    rules: [],
+  };
+}
+
+function commandResult(
+  argv: readonly string[],
+  cwd: string,
+  stdout: string,
+  exitCode = 0,
+  stderr = "",
+  executable = "git"
+): HabitatCommandResult {
+  return makeHabitatCommandResult(
+    {
+      commandId: `${executable}-${argv.join("-")}`,
+      kind: executable === "git" ? "git-state" : "workspace-tool",
+      executable,
+      argv,
+      cwd,
+      captureGitState: false,
+    },
+    {
+      exit: { code: exitCode, signal: null, interrupted: false },
+      stdout: captureOutput(stdout),
+      stderr: captureOutput(stderr),
+    }
+  );
+}
+
+function repoRootForTestCommand(): string {
+  return process.cwd().replace(/\/tools\/habitat-harness$/, "");
 }
 
 function ok(stdout = ""): SpawnResult {

@@ -286,6 +286,7 @@ export const ApplyAdmissionSchema = Type.Object(
     manifestPath: ApplyPatternPathSchema,
     transactionInputRef: NonEmptyStringSchema,
     transactionInputRuleIds: Type.Array(NonEmptyStringSchema, { minItems: 1 }),
+    dryRunRoots: Type.Array(RepoRelativePathSchema, { minItems: 1 }),
     protectedZoneRef: Type.Optional(NonEmptyStringSchema),
     hostPolicyRef: Type.Optional(NonEmptyStringSchema),
     dryRunOutput: ApplyDryRunOutputModeSchema,

@@ -122,6 +122,26 @@ describe("pattern management views", () => {
         )
       ).toBe(true);
     }
+    expect(transactionInputs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          patternId: "deep-import-to-public-surface",
+          dryRunCommands: [
+            expect.objectContaining({
+              roots: ["mods/mod-swooper-maps/src/maps", "mods/mod-swooper-maps/src/recipes"],
+            }),
+          ],
+        }),
+        expect.objectContaining({
+          patternId: "docs-local-checkout-paths",
+          dryRunCommands: [
+            expect.objectContaining({
+              roots: ["docs"],
+            }),
+          ],
+        }),
+      ])
+    );
   });
 
   test("missing rule facts do not synthesize transaction inputs", () => {

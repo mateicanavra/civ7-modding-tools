@@ -23,6 +23,11 @@ describe("boundary taxonomy verifier", () => {
       tags: ["kind:tooling"],
     });
     expect(taxonomy.projects).toContainEqual({
+      name: "@internal/habitat-artifacts",
+      root: ".habitat",
+      tags: ["kind:tooling"],
+    });
+    expect(taxonomy.projects).toContainEqual({
       name: "mod-civ7-intelligence-bridge",
       root: "mods/mod-civ7-intelligence-bridge",
       tags: ["kind:mod", "kind:control"],
@@ -35,11 +40,7 @@ describe("boundary taxonomy verifier", () => {
 
   test("audits provided manifests, resolved Nx tags, config constraints, and graph edges", async () => {
     const taxonomy = parseBoundaryTaxonomy(await readTaxonomyMarkdown());
-    const manifests = taxonomy.projects.map((project) => ({
-      name: project.name,
-      root: project.root,
-      tags: project.root === "." ? [] : project.tags,
-    }));
+    const manifests = manifestBackedProjects(taxonomy.projects);
 
     const audit = auditBoundaryTaxonomy({
       taxonomy,
@@ -55,15 +56,22 @@ describe("boundary taxonomy verifier", () => {
 
     expect(audit.ok).toBe(true);
     expect(audit.issues).toEqual([]);
-    expect(audit.projectCount).toBe(25);
-    expect(audit.nxProjectCount).toBe(24);
-    expect(audit.graphEdgeCount).toBeGreaterThan(0);
+    expect(audit.projectCount).toBe(26);
+    expect(audit.nxProjectCount).toBe(25);
+    expect(audit.graphEdgeCount).toBe(1);
     expect(audit.notes).toContainEqual({
       reason: "workspace-root-not-nx-project",
       message:
         "The repo root is taxonomy guidance for workspace orchestration, but it is not a resolved Nx project-plane node.",
       project: "civ7-modding-tools",
       root: ".",
+    });
+    expect(audit.notes).toContainEqual({
+      reason: "nx-inferred-artifact-project",
+      message:
+        "The Habitat artifact root is an inferred Nx project-plane node, not a package manifest workspace.",
+      project: "@internal/habitat-artifacts",
+      root: ".habitat",
     });
   });
 
@@ -81,11 +89,7 @@ describe("boundary taxonomy verifier", () => {
     const taxonomy = parseBoundaryTaxonomy(await readTaxonomyMarkdown());
     const audit = auditBoundaryTaxonomy({
       taxonomy,
-      manifests: taxonomy.projects.map((project) => ({
-        name: project.name,
-        root: project.root,
-        tags: project.root === "." ? [] : project.tags,
-      })),
+      manifests: manifestBackedProjects(taxonomy.projects),
       nxProjects: fakeNxProjects([
         ["@civ7/types", "packages/civ7-types", ["kind:foundation"]],
         ["@civ7/adapter", "packages/civ7-adapter", ["kind:adapter"]],
@@ -123,11 +127,7 @@ describe("boundary taxonomy verifier", () => {
     const taxonomy = parseBoundaryTaxonomy(await readTaxonomyMarkdown());
     const audit = auditBoundaryTaxonomy({
       taxonomy,
-      manifests: taxonomy.projects.map((project) => ({
-        name: project.name,
-        root: project.root,
-        tags: project.root === "." ? [] : project.tags,
-      })),
+      manifests: manifestBackedProjects(taxonomy.projects),
       nxProjects: fakeNxProjects(
         taxonomy.projects
           .filter((project) => project.root !== ".")
@@ -192,4 +192,14 @@ function fakeNxProjects(
     tags,
     targets: [],
   }));
+}
+
+function manifestBackedProjects(projects: Array<{ name: string; root: string; tags: string[] }>) {
+  return projects
+    .filter((project) => project.root !== ".habitat")
+    .map((project) => ({
+      name: project.name,
+      root: project.root,
+      tags: project.root === "." ? [] : project.tags,
+    }));
 }

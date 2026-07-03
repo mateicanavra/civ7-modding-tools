@@ -87,6 +87,7 @@ function applyAdmission(overrides: Partial<ApplyAdmission> = {}): ApplyAdmission
     manifestPath: ".habitat/patterns/apply/deep_import_to_public_surface.md",
     transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
     transactionInputRuleIds: ["domain-deep-import"],
+    dryRunRoots: ["tools/habitat-harness/test/fixtures"],
     dryRunOutput: "compact",
     ...overrides,
   };

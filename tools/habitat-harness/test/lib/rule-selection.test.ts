@@ -215,6 +215,29 @@ describe("rule selector boundary", () => {
     ).toEqual(["hook", "current-tree", "file-layer-rule"]);
   });
 
+  test("default local execution excludes graph and hygiene proof rules", () => {
+    const local = fakeRule("local-source", "source-check", "@internal/habitat-harness");
+    const fileLayer = fakeRule("local-file", "file-layer", "@internal/habitat-harness");
+    const graph = fakeRule("graph-proof", "target-check", "@internal/habitat-harness");
+    const hygiene = fakeRule("format-proof", "format-check", "@internal/habitat-harness");
+    const target = fakeRule("target-proof", "target-check", "@internal/habitat-harness");
+
+    expect(
+      rulesForExecution([local, fileLayer, graph, hygiene, target]).map((rule) => rule.id)
+    ).toEqual(["local-source", "local-file"]);
+  });
+
+  test("explicit selectors preserve graph and hygiene proof rules", () => {
+    const graph = fakeRule("graph-proof", "target-check", "@internal/habitat-harness");
+    const hygiene = fakeRule("format-proof", "format-check", "@internal/habitat-harness");
+
+    expect(
+      rulesForExecution([graph, hygiene], { selection: { tool: "target-check" } }).map(
+        (rule) => rule.id
+      )
+    ).toEqual(["graph-proof", "format-proof"]);
+  });
+
   test("staged execution does not drop source-check rules when staged paths are outside approved roots", () => {
     const stagedEligible = fakeRule("hook", "source-check", "@internal/habitat-harness", {
       hookCheck: true,

@@ -15,8 +15,8 @@
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
-      "kind": "unresolved-metadata",
-      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
     }
   ]
 }

@@ -83,6 +83,10 @@ the change needs affected package type-check and structural coverage, and
 `bun run verify` when it needs the heavier build/check/test aggregate. CI runs
 the full graph without re-entering `verify`.
 
+Pre-push is a local feedback path, not a synonym for `check:graph`: it checks
+changed hook source paths in process, then runs affected package `check` and
+explicit validation targets.
+
 ### Run Diagnostic Habitat Verify
 
 Use:

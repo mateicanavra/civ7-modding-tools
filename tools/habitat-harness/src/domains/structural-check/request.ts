@@ -5,6 +5,7 @@ export interface CheckOptions extends RuleSelection {
   base?: string;
   baselineIntegrity?: boolean;
   command?: CheckCommandContext;
+  hookCheck?: boolean;
   staged?: boolean;
   stagedPaths?: readonly string[];
 }
