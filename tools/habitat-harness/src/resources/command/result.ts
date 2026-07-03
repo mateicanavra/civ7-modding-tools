@@ -1,5 +1,5 @@
-import type { HabitatToolExecutionPlane } from "@internal/habitat-harness/resources/config/index";
 import type { HabitatCommandGitState } from "@internal/habitat-harness/providers/git/state";
+import type { HabitatToolExecutionPlane } from "@internal/habitat-harness/resources/config/index";
 import type { CommandObservation } from "./observation.js";
 import type { CommandCachePolicy, HabitatCommandKind } from "./request.js";
 

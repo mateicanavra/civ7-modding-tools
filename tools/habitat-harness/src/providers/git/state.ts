@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
+import { runSyncHostCommand } from "@internal/habitat-harness/resources/command/sync";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Context, Effect, Layer } from "effect";
-import { runSyncHostCommand } from "@internal/habitat-harness/resources/command/sync";
 
 export interface HabitatGitState {
   branch: string | null;

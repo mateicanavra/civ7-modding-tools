@@ -1,8 +1,8 @@
-import { rules } from "@internal/habitat-harness/service/model/check/rule-runtime/architecture";
+import { rules } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture.policy";
 import {
   parseRuleRegistryDocument,
   parseRuleRegistryText,
-} from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/index";
 import { describe, expect, test } from "vitest";
 import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 

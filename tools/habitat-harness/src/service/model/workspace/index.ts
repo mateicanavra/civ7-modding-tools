@@ -19,31 +19,6 @@ export {
   RuleGraphTargetNamesSchema,
   VerifyTargetPlanSchema,
 } from "@internal/habitat-harness/providers/nx/schema";
-export type {
-  ClassifiedTarget,
-  ClassifyDiffResult,
-  ClassifyOptions,
-  ClassifyResult,
-  GraphRefusalClassification,
-  MalformedOrPathlessDiffResult,
-  PathClassification,
-  ProjectPathClassification,
-  RuleCoverageKind,
-  RuleRouting,
-  UnavailableClassifiedTarget,
-  UnresolvedOwnerClassification,
-  WorkspacePathClassification,
-} from "./classify.js";
-export {
-  ClassifyResultSchema,
-  classifyPath,
-  classifyPathResult,
-  classifyTarget,
-  classifyTargetResult,
-  commandSummary,
-  stringifyClassifyResult,
-  validateClassifyResult,
-} from "./classify.js";
 export {
   aggregateWorkspaceDependency,
   aggregateWorkspaceTarget,
@@ -56,7 +31,7 @@ export {
   resolveTargetDependencyDeclaration,
   sameProjectTarget,
   sameProjectTargetDependency,
-} from "./dependencies.js";
+} from "./policy/target-dependencies.policy.js";
 export {
   findWorkspaceOwningProject,
   projectTargetStates,
@@ -65,4 +40,4 @@ export {
   verifyTargetPlan,
   workspaceProjectHasTarget,
   workspaceTargetStates,
-} from "./states.js";
+} from "./policy/workspace-targets.policy.js";

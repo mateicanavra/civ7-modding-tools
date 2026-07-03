@@ -1,8 +1,15 @@
-import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
-import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
+import {
+  GraphServiceBadRequestError,
+  GraphServiceInternalError,
+} from "./model/errors/graph.errors.js";
+
+const graphServiceErrorMap = {
+  BAD_REQUEST: GraphServiceBadRequestError,
+  INTERNAL_SERVER_ERROR: GraphServiceInternalError,
+} as const;
 
 const GraphServiceRunInputSchema = Type.Object(
   {
@@ -25,11 +32,8 @@ export type GraphServiceRunOutput = Static<typeof GraphServiceRunOutputSchema>;
 const GraphServiceRunInputStandardSchema = toStandardSchema(GraphServiceRunInputSchema);
 const GraphServiceRunOutputStandardSchema = toStandardSchema(GraphServiceRunOutputSchema);
 
-export const graphServiceRunContract: HabitatServiceProcedureContract<
-  typeof GraphServiceRunInputStandardSchema,
-  typeof GraphServiceRunOutputStandardSchema
-> = eoc
-  .errors(habitatServiceErrorMap)
+export const graphServiceRunContract = eoc
+  .errors(graphServiceErrorMap)
   .input(GraphServiceRunInputStandardSchema)
   .output(GraphServiceRunOutputStandardSchema);
 

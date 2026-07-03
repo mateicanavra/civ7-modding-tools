@@ -3,6 +3,7 @@ import path from "node:path";
 
 const repoRoot = path.resolve(import.meta.dir, "../../..");
 const modulesRoot = path.join(repoRoot, "tools/habitat-harness/src/service/modules");
+const serviceModelRoot = path.join(repoRoot, "tools/habitat-harness/src/service/model");
 
 const moduleRootFiles = new Set(["contract.ts", "module.ts", "project.json", "router.ts"]);
 const moduleRootDirectories = new Set([
@@ -62,6 +63,19 @@ for (const moduleName of sortedChildren(modulesRoot)) {
   }
 }
 
+for (const domainName of sortedChildren(serviceModelRoot)) {
+  const domainPath = path.join(serviceModelRoot, domainName);
+  const relativePath = repoPath(domainPath);
+  const stat = fs.statSync(domainPath);
+  if (stat.isDirectory()) {
+    validateModelDirectory(domainPath, { strictPolicyNames: true });
+    continue;
+  }
+  if (domainName !== "IMPORTANT.md") {
+    report(relativePath, `unknown loose service model file '${domainName}'.`);
+  }
+}
+
 if (issues.length > 0) {
   console.error("Habitat service module shape violations:");
   for (const issue of issues) {
@@ -74,7 +88,7 @@ console.log("Habitat service module shape ok.");
 
 function validateKnownDirectory(directory: string, kind: string): void {
   if (kind === "model") {
-    validateModelDirectory(directory);
+    validateModelDirectory(directory, { strictPolicyNames: false });
     return;
   }
 
@@ -132,7 +146,11 @@ function validateKnownDirectory(directory: string, kind: string): void {
   }
 }
 
-function validateModelDirectory(directory: string): void {
+interface ModelDirectoryOptions {
+  readonly strictPolicyNames: boolean;
+}
+
+function validateModelDirectory(directory: string, options: ModelDirectoryOptions): void {
   for (const child of sortedChildren(directory)) {
     const childPath = path.join(directory, child);
     const relativePath = repoPath(childPath);
@@ -142,7 +160,7 @@ function validateModelDirectory(directory: string): void {
         report(relativePath, `unknown model directory '${child}'.`);
         continue;
       }
-      validateModelKindDirectory(childPath, child);
+      validateModelKindDirectory(childPath, child, options);
       continue;
     }
     if (!isNamedModelFile(child)) {
@@ -151,7 +169,11 @@ function validateModelDirectory(directory: string): void {
   }
 }
 
-function validateModelKindDirectory(directory: string, kind: string): void {
+function validateModelKindDirectory(
+  directory: string,
+  kind: string,
+  options: ModelDirectoryOptions
+): void {
   for (const entry of walk(directory)) {
     if (fs.statSync(entry).isDirectory()) continue;
     const relativePath = repoPath(entry);
@@ -164,10 +186,12 @@ function validateModelKindDirectory(directory: string, kind: string): void {
       );
       continue;
     }
-    if (kind === "policy" && !isPolicyFile(relativeToKind)) {
+    if (kind === "policy" && !isPolicyFile(relativeToKind, options)) {
       report(
         relativePath,
-        "model/policy files must be policy implementation files, schemas, or index.ts."
+        options.strictPolicyNames
+          ? "shared service model/policy files must be index.ts, schemas, *.policy.ts, *.policy.mjs, *.policy.json, or *.rule.mjs rule adapters."
+          : "model/policy files must be policy implementation files, schemas, or index.ts."
       );
       continue;
     }
@@ -216,13 +240,22 @@ function isDtoFile(relativePath: string): boolean {
   );
 }
 
-function isPolicyFile(relativePath: string): boolean {
+function isPolicyFile(relativePath: string, options: ModelDirectoryOptions): boolean {
   const basename = path.posix.basename(relativePath);
-  return (
+  const namedPolicyFile =
     basename === "index.ts" ||
     basename === "schema.ts" ||
     basename.endsWith(".policy.ts") ||
+    basename.endsWith(".policy.mjs") ||
+    basename.endsWith(".policy.json") ||
+    basename.endsWith(".rule.mjs") ||
     basename.endsWith(".schema.ts") ||
+    basename.endsWith(".schema.json");
+  if (options.strictPolicyNames) {
+    return namedPolicyFile;
+  }
+  return (
+    namedPolicyFile ||
     basename.endsWith(".ts") ||
     basename.endsWith(".mjs") ||
     basename.endsWith(".json")

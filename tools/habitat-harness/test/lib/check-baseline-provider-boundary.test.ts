@@ -1,14 +1,14 @@
-import {
-  BaselineAuthority,
-  BaselineAuthorityLive,
-} from "@internal/habitat-harness/service/model/check/baseline/index";
-import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/structural/execution";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import {
+  BaselineAuthority,
+  BaselineAuthorityLive,
+} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/execution.policy";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";

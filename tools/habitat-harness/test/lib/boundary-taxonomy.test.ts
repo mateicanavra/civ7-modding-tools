@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   auditBoundaryTaxonomy,
   extractBoundaryConfigConstraints,
@@ -7,9 +8,8 @@ import {
   parseBoundaryTaxonomy,
   readWorkspaceManifestProjects,
   type TaxonomyConstraint,
-} from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy";
-import type { NxProjectMetadata } from "@internal/habitat-harness/service/model/graph/policy/nx-projects";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
+} from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy.policy";
+import type { NxProjectMetadata } from "@internal/habitat-harness/service/model/graph/policy/nx-projects.policy";
 import { describe, expect, test } from "vitest";
 
 describe("boundary taxonomy verifier", () => {
@@ -34,7 +34,7 @@ describe("boundary taxonomy verifier", () => {
     expect(taxonomy.projects).toContainEqual({
       name: "@internal/habitat-harness-runtime",
       root: "tools/habitat-harness/src/runtime",
-      tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+      tags: ["kind:tooling", "habitat:runtime"],
     });
     expect(taxonomy.projects).toContainEqual({
       name: "@internal/habitat-harness-service-model",

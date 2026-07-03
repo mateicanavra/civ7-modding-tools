@@ -106,7 +106,7 @@ treatment without adding a concrete tag or constraint row.
 | @internal/habitat-harness-service-model | `tools/habitat-harness/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |
 | @internal/habitat-harness-providers | `tools/habitat-harness/src/providers` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
 | @internal/habitat-harness-resources | `tools/habitat-harness/src/resources` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
-| @internal/habitat-harness-runtime | `tools/habitat-harness/src/runtime` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| @internal/habitat-harness-runtime | `tools/habitat-harness/src/runtime` | `kind:tooling`, `habitat:runtime` |
 | @internal/habitat-harness-cli | `tools/habitat-harness/src/cli` | `kind:tooling`, `habitat:cli` |
 
 Habitat service module projects are inferred from
@@ -137,9 +137,9 @@ owned by their Grit/file-layer rules.
 | `kind:tooling` | `kind:tooling`, `kind:foundation` | harness stays out of product graph |
 | `habitat:runtime` | `habitat:runtime`, `habitat:service` | runtime owns resource/provider integration and may consume service-owned structural facts needed to translate Habitat requests into vendor calls |
 | `habitat:service` | `habitat:runtime`, `habitat:service` | service modules own Habitat logic and consume runtime resources/providers |
-| `habitat:cli` | `habitat:service`, `habitat:cli` | CLI commands call service routers and keep command parsing/output at the edge |
+| `habitat:cli` | `habitat:runtime`, `habitat:service`, `habitat:cli` | CLI commands parse user flags, acquire runtime-backed service context, and call service routers while keeping command output at the edge |
 | `layer:service-entry` | `layer:service-shell`, `layer:service-entry` | public service/CLI entry code may call the service shell but not service module internals directly |
-| `layer:service-shell` | `layer:service-model`, `layer:service-module`, `layer:resource-provider` | root service composition owns contract/implementer/router assembly over modules, shared service model, and runtime |
+| `layer:service-shell` | `habitat:runtime`, `layer:service-model`, `layer:service-module`, `layer:resource-provider` | root service composition owns contract/implementer/router assembly over modules, shared service model, and the Effect/oRPC managed runtime |
 | `layer:service-module` | `layer:service-shell`, `layer:service-model`, `layer:resource-provider` | modules use the service implementer seam, shared service model, and runtime resources; same-module local imports stay inside one inferred project, while sibling module imports are red because `layer:service-module` cannot depend on `layer:service-module` |
 | `layer:service-model` | `layer:service-model`, `layer:resource-provider` | service-wide facts, DTOs, and read models may reuse resource contracts but do not import module internals |
 | `layer:resource-provider` | `layer:resource-provider`, `layer:service-model` | runtime providers may consume shared service model facts but must not import service module internals |

@@ -1,17 +1,18 @@
-import type { FixServiceModuleContext } from "@internal/habitat-harness/service/base";
-import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
-import {
-  type HabitatProcessRequest,
-  makeHabitatCommandResult,
-} from "@internal/habitat-harness/resources/command/index";
 import {
   GritProvider,
   makeFakeGritProviderLayer,
 } from "@internal/habitat-harness/providers/grit/index";
+import {
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/resources/command/index";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
+import { createRouterClient } from "@orpc/server";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("Habitat fix service", () => {
   test("runs dry-run intent through admitted pattern transactions", async () => {
@@ -39,7 +40,7 @@ describe("Habitat fix service", () => {
     });
   });
 
-  test("routes through the in-process Habitat service client", async () => {
+  test("routes through the in-process Habitat service router", async () => {
     const requests: HabitatProcessRequest[] = [];
     const layer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
@@ -50,7 +51,9 @@ describe("Habitat fix service", () => {
       Effect.gen(function* () {
         const grit = yield* GritProvider;
         return yield* Effect.promise(() =>
-          createHabitatServiceClient({ fix: { grit } }).fix.run({ kind: "dry-run-intent" })
+          createRouterClient(habitatServiceRouter, {
+            context: { deps: makeTestHabitatServiceDeps({ grit }) },
+          }).fix.run({ kind: "dry-run-intent" })
         );
       }).pipe(Effect.provide(layer))
     );
@@ -63,12 +66,12 @@ describe("Habitat fix service", () => {
   });
 });
 
-function runFixProcedure(
-  context: FixServiceModuleContext = {},
-  input = { kind: "dry-run-intent" as const }
-) {
+function runFixProcedure(input = { kind: "dry-run-intent" as const }) {
   return Effect.gen(function* () {
-    const runFix = fixRouter.run.callable({ context: { fix: context } });
+    const grit = yield* GritProvider;
+    const runFix = fixRouter.run.callable({
+      context: { deps: makeTestHabitatServiceDeps({ grit }) },
+    });
     return yield* withFiberContext(() => runFix(input));
   });
 }

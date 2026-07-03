@@ -1,48 +1,59 @@
-import type { HookServiceModuleContext } from "@internal/habitat-harness/service/base";
-import {
-  type CheckOptions,
-  type CheckReport,
-  makeFakeStructuralCheckLayer,
-} from "@internal/habitat-harness/service/model/check/structural/index";
-import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
-import {
-  createHookTrace,
-  type HookReportEvent,
-  type HookRuntime,
-} from "@internal/habitat-harness/service/model/hook/runtime/runtime";
-import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import {
   type BiomeCommandRequest,
+  BiomeProvider,
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "@internal/habitat-harness/providers/biome/index";
+import {
+  GitProvider,
+  makeFakeGitProviderLayer,
+} from "@internal/habitat-harness/providers/git/index";
+import {
+  GraphiteProvider,
+  makeFakeGraphiteProviderLayer,
+} from "@internal/habitat-harness/providers/graphite/index";
+import {
+  affectedArgv,
+  makeFakeNxProviderLayer,
+  type NxAffectedRequest,
+  NxProvider,
+  type NxRunTargetRequest,
+  runTargetArgv,
+} from "@internal/habitat-harness/providers/nx/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
-import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/providers/graphite/index";
-import {
-  affectedArgv,
-  makeFakeNxProviderLayer,
-  type NxAffectedRequest,
-  type NxRunTargetRequest,
-  runTargetArgv,
-} from "@internal/habitat-harness/providers/nx/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import {
+  type CheckOptions,
+  type CheckReport,
+  makeFakeStructuralCheckLayer,
+  StructuralCheck,
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
+import {
+  createHookTrace,
+  type HookReportEvent,
+  type HookRuntime,
+} from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
+import { createRouterClient } from "@orpc/server";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
-const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
+const prePushAffectedTargets =
+  "check,validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
 const prePushSourceArtifactTargets = "source:check";
 const prePushNonSourceRuleArtifactTargets = "habitat:rule:import-boundaries";
 const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:import-boundaries";
 const prePushBoundaryTaxonomyTargets = "validate:boundary-taxonomy";
 const prePushStructuralTargetDeclarationTargets =
-  "validate:boundary-taxonomy,validate:grit-patterns";
+  "validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
 const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
@@ -456,7 +467,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/service/model/check/source/source-rules.ts";
+    const changedPath =
+      "tools/habitat-harness/src/service/model/check/policy/source/source-rules.policy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -507,7 +519,7 @@ describe("Habitat hook service", () => {
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath =
-      "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts";
+      "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -607,12 +619,55 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("runs pre-commit through the in-process Habitat service client", async () => {
+  test("runs pre-commit through the in-process Habitat service router", async () => {
     const fake = makePreCommitRuntime();
 
-    const result = await createHabitatServiceClient({
-      hook: { runtime: fake.runtime },
-    }).hook.run({ name: "pre-commit" });
+    const result = await Effect.runPromise(
+      Effect.gen(function* () {
+        const biome = yield* BiomeProvider;
+        const git = yield* GitProvider;
+        const graphite = yield* GraphiteProvider;
+        const nx = yield* NxProvider;
+        const structuralCheck = yield* StructuralCheck;
+        return yield* Effect.promise(() =>
+          createRouterClient(habitatServiceRouter, {
+            context: {
+              deps: {
+                ...makeTestHabitatServiceDeps({
+                  biome,
+                  git,
+                  graphite,
+                  hookRuntime: fake.runtime,
+                  nx,
+                  repoRoot,
+                  structuralCheck,
+                }),
+              },
+            },
+          }).hook.run({ name: "pre-commit" })
+        );
+      }).pipe(
+        Effect.provide(
+          Layer.mergeAll(
+            prePushGitLayer(makePrePushRuntime()),
+            nxLayer(),
+            makeFakeStructuralCheckLayer({
+              createReport: (options = {}) =>
+                Effect.succeed(
+                  fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check")
+                ),
+              expandBaselines: () =>
+                Effect.succeed({
+                  kind: "expanded",
+                  messages: [],
+                }),
+            }),
+            biomeLayer(),
+            makeFakeGraphiteProviderLayer(() => null)
+          )
+        )
+      )
+    );
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
@@ -686,7 +741,7 @@ describe("Habitat hook service", () => {
 
 function runHookServiceInTest(
   input: HookServiceRunInput,
-  options: HookServiceModuleContext = {},
+  options: { readonly runtime?: HookRuntime } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
   structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>,
@@ -695,10 +750,43 @@ function runHookServiceInTest(
 ) {
   const layer = structuralCheck
     ? Layer.mergeAll(gitLayer, nx, structuralCheck, biome, graphite)
-    : Layer.mergeAll(gitLayer, nx, biome, graphite);
+    : Layer.mergeAll(
+        gitLayer,
+        nx,
+        makeFakeStructuralCheckLayer({
+          createReport: (options = {}) =>
+            Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
+          expandBaselines: () =>
+            Effect.succeed({
+              kind: "expanded",
+              messages: [],
+            }),
+        }),
+        biome,
+        graphite
+      );
   return Effect.runPromise(
     Effect.gen(function* () {
-      const runHook = hookRouter.run.callable({ context: { hook: options } });
+      const biome = yield* BiomeProvider;
+      const git = yield* GitProvider;
+      const graphite = yield* GraphiteProvider;
+      const nx = yield* NxProvider;
+      const resolvedStructuralCheck = yield* StructuralCheck;
+      const runHook = hookRouter.run.callable({
+        context: {
+          deps: {
+            ...makeTestHabitatServiceDeps({
+              biome,
+              git,
+              graphite,
+              hookRuntime: options.runtime ?? {},
+              nx,
+              repoRoot,
+              structuralCheck: resolvedStructuralCheck,
+            }),
+          },
+        },
+      });
       return yield* withFiberContext(() => runHook(input));
     }).pipe(Effect.provide(layer))
   );
@@ -885,5 +973,28 @@ function passingCheckReport(command: string): CheckReport {
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,
     rules: [],
+  };
+}
+
+function fileLayerPassingCheckReport(command: string): CheckReport {
+  return {
+    schemaVersion: 1,
+    command,
+    startedAt: "2026-06-21T00:00:00.000Z",
+    ok: true,
+    rules: [
+      {
+        ruleId: "file-layer-pnpm-artifacts",
+        ownerTool: "file-layer",
+        lane: "enforced",
+        status: "pass",
+        locked: true,
+        durationMs: 1,
+        diagnostics: [],
+        detect: ["habitat", "check", "--tool", "file-layer"],
+        message: "File-layer pnpm artifacts are controlled by package manager commands.",
+        remediate: null,
+      },
+    ],
   };
 }

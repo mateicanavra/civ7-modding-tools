@@ -1,5 +1,4 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import { Flags } from "@oclif/core";
 
 export default class Fix extends HabitatCommand {
@@ -17,7 +16,7 @@ export default class Fix extends HabitatCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Fix);
-    const client = createHabitatServiceClient();
+    const client = await this.habitatServiceClient();
     const result = await client.fix.run({
       kind: flags["dry-run"] ? "dry-run-intent" : "live-write-intent",
     });

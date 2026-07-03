@@ -64,7 +64,7 @@
     "habitat": "bun tools/habitat-harness/bin/dev.ts",
     "habitat:check": "bun run habitat check",
     "habitat:fix": "bun run habitat fix",
-    "ci": "nx run-many --targets=build,check,lint,test,validate:boundary-taxonomy,validate:grit-patterns",
+    "ci": "nx run-many --targets=build,check,lint,test,validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape",
     "verify": "nx run-many --targets=verify"
   },
   "workspaces": [

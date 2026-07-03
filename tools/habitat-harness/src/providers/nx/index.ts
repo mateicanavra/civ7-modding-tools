@@ -1,7 +1,5 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import { Context, Effect, Layer } from "effect";
+import type { GitStateProvider } from "@internal/habitat-harness/providers/git/index";
 import {
   type CommandProviderError,
   CommandRunner,
@@ -9,7 +7,9 @@ import {
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
-import type { GitStateProvider } from "@internal/habitat-harness/providers/git/index";
+import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import { Context, Effect, Layer } from "effect";
 
 type NxProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
 

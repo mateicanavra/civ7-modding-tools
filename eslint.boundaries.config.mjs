@@ -77,7 +77,7 @@ const depConstraints = [
   },
   {
     sourceTag: "habitat:cli",
-    onlyDependOnLibsWithTags: ["habitat:service", "habitat:cli"],
+    onlyDependOnLibsWithTags: ["habitat:runtime", "habitat:service", "habitat:cli"],
   },
   {
     sourceTag: "layer:service-entry",
@@ -86,6 +86,7 @@ const depConstraints = [
   {
     sourceTag: "layer:service-shell",
     onlyDependOnLibsWithTags: [
+      "habitat:runtime",
       "layer:service-model",
       "layer:service-module",
       "layer:resource-provider",

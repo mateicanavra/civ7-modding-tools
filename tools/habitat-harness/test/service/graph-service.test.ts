@@ -1,55 +1,51 @@
 import path from "node:path";
-import type { GraphServiceRunInput } from "@internal/habitat-harness/service/modules/graph/contract";
-import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
+import {
+  affectedArgv,
+  graphArgv,
+  type NxGraphRequest,
+} from "@internal/habitat-harness/providers/nx/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import { CommandUnavailable } from "@internal/habitat-harness/resources/errors/index";
-import {
-  affectedArgv,
-  graphArgv,
-  makeFakeNxProviderLayer,
-  type NxGraphRequest,
-  NxProvider,
-} from "@internal/habitat-harness/providers/nx/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import { Effect, Layer } from "effect";
+import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
+import type { GraphServiceRunInput } from "@internal/habitat-harness/service/modules/graph/contract";
+import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
+import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
-import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("Habitat graph service", () => {
   test("runs Nx graph through providers and returns compact CLI JSON", async () => {
     const events: string[] = [];
     const graphRequests: NxGraphRequest[] = [];
     const graphPath = path.join("/tmp/habitat-graph-fake", "graph.json");
-    const layer = Layer.mergeAll(
-      makeFakeNxProviderLayer({
-        graph: (request) => {
-          graphRequests.push(request);
-          return makeHabitatCommandResult(
-            {
-              commandId: "nx-project-graph",
-              kind: "workspace-tool",
-              executable: "nx",
-              argv: ["graph", "--file", request.outputPath],
-              cwd: repoRoot,
-              captureGitState: false,
-            },
-            { stdout: captureOutput("graph written\n") }
-          );
-        },
-      }),
-      makeFakePlatformFileSystemLayer(
-        events,
-        new Map([[graphPath, JSON.stringify({ graph: { nodes: { app: {} } } })]])
-      )
+    const deps = graphDeps(
+      events,
+      new Map([[graphPath, JSON.stringify({ graph: { nodes: { app: {} } } })]]),
+      {
+        graph: (request) =>
+          Effect.sync(() => {
+            graphRequests.push(request);
+            return makeHabitatCommandResult(
+              {
+                commandId: "nx-project-graph",
+                kind: "workspace-tool",
+                executable: "nx",
+                argv: ["graph", "--file", request.outputPath],
+                cwd: repoRoot,
+                captureGitState: false,
+              },
+              { stdout: captureOutput("graph written\n") }
+            );
+          }),
+      }
     );
 
-    const result = await Effect.runPromise(
-      runGraphProcedure({ json: true }).pipe(Effect.provide(layer))
-    );
+    const result = await Effect.runPromise(runGraphProcedure({ json: true }, deps));
 
     expect(result).toEqual({
       exitCode: 0,
@@ -66,34 +62,34 @@ describe("Habitat graph service", () => {
 
   test("rejects nullish graph payloads instead of falling back to raw JSON", async () => {
     const graphPath = path.join("/tmp/habitat-graph-fake", "graph.json");
-    const layer = Layer.mergeAll(
-      makeFakeNxProviderLayer({
+    const deps = graphDeps(
+      [],
+      new Map([[graphPath, JSON.stringify({ graph: null, nodes: { root: {} } })]]),
+      {
         graph: (request) =>
-          makeHabitatCommandResult({
-            commandId: "nx-project-graph",
-            kind: "workspace-tool",
-            executable: "nx",
-            argv: ["graph", "--file", request.outputPath],
-            cwd: repoRoot,
-            captureGitState: false,
-          }),
-      }),
-      makeFakePlatformFileSystemLayer(
-        [],
-        new Map([[graphPath, JSON.stringify({ graph: null, nodes: { root: {} } })]])
-      )
+          Effect.succeed(
+            makeHabitatCommandResult({
+              commandId: "nx-project-graph",
+              kind: "workspace-tool",
+              executable: "nx",
+              argv: ["graph", "--file", request.outputPath],
+              cwd: repoRoot,
+              captureGitState: false,
+            })
+          ),
+      }
     );
 
-    await expect(
-      Effect.runPromise(runGraphProcedure({ json: true }).pipe(Effect.provide(layer)))
-    ).rejects.toThrow("Habitat graph service failed.");
+    await expect(Effect.runPromise(runGraphProcedure({ json: true }, deps))).rejects.toThrow(
+      "Habitat graph service read invalid Nx graph JSON at /tmp/habitat-graph-fake/graph.json: graph must be a non-null object."
+    );
   });
 
   test("returns failed Nx command streams without reading graph JSON", async () => {
     const events: string[] = [];
-    const layer = Layer.mergeAll(
-      makeFakeNxProviderLayer({
-        graph: (request) =>
+    const deps = graphDeps(events, new Map(), {
+      graph: (request) =>
+        Effect.succeed(
           makeHabitatCommandResult(
             {
               commandId: "nx-project-graph",
@@ -107,12 +103,11 @@ describe("Habitat graph service", () => {
               exit: { code: 2, signal: null, interrupted: false },
               stderr: captureOutput("nx graph failed\n"),
             }
-          ),
-      }),
-      makeFakePlatformFileSystemLayer(events)
-    );
+          )
+        ),
+    });
 
-    const result = await Effect.runPromise(runGraphProcedure({}).pipe(Effect.provide(layer)));
+    const result = await Effect.runPromise(runGraphProcedure({}, deps));
 
     expect(result).toEqual({
       exitCode: 2,
@@ -124,35 +119,32 @@ describe("Habitat graph service", () => {
 
   test("returns provider infrastructure failures as command streams", async () => {
     const events: string[] = [];
-    const layer = Layer.mergeAll(
-      Layer.succeed(NxProvider, {
-        affected: (request) =>
-          Effect.fail(
-            new CommandUnavailable({
-              commandId: "nx-affected",
-              executable: "nx",
-              argv: affectedArgv(request).slice(1),
-              cwd: repoRoot,
-              cause: "nx unavailable",
-            })
-          ),
-        affectedArgv,
-        graph: (request) =>
-          Effect.fail(
-            new CommandUnavailable({
-              commandId: "nx-project-graph",
-              executable: "nx",
-              argv: graphArgv(request).slice(1),
-              cwd: repoRoot,
-              cause: "nx unavailable",
-            })
-          ),
-        graphArgv,
-      }),
-      makeFakePlatformFileSystemLayer(events)
-    );
+    const deps = graphDeps(events, new Map(), {
+      affected: (request) =>
+        Effect.fail(
+          new CommandUnavailable({
+            commandId: "nx-affected",
+            executable: "nx",
+            argv: affectedArgv(request).slice(1),
+            cwd: repoRoot,
+            cause: "nx unavailable",
+          })
+        ),
+      affectedArgv,
+      graph: (request) =>
+        Effect.fail(
+          new CommandUnavailable({
+            commandId: "nx-project-graph",
+            executable: "nx",
+            argv: graphArgv(request).slice(1),
+            cwd: repoRoot,
+            cause: "nx unavailable",
+          })
+        ),
+      graphArgv,
+    });
 
-    const result = await Effect.runPromise(runGraphProcedure({}).pipe(Effect.provide(layer)));
+    const result = await Effect.runPromise(runGraphProcedure({}, deps));
 
     expect(result).toEqual({
       exitCode: 127,
@@ -163,9 +155,55 @@ describe("Habitat graph service", () => {
   });
 });
 
-function runGraphProcedure(input: GraphServiceRunInput) {
+type GraphTestDeps = Pick<HabitatServiceDeps, "acquireTempDirectory" | "nx" | "readText">;
+
+function graphDeps(
+  events: string[],
+  files: ReadonlyMap<string, string>,
+  nx: Partial<GraphTestDeps["nx"]>
+): GraphTestDeps {
+  const tempDir = "/tmp/habitat-graph-fake";
+  return {
+    acquireTempDirectory: () =>
+      Effect.acquireRelease(
+        Effect.sync(() => {
+          events.push(`mkdtemp:${tempDir}`);
+          return tempDir;
+        }),
+        () =>
+          Effect.sync(() => {
+            events.push(`remove:${tempDir}`);
+          })
+      ),
+    nx: {
+      affected: () =>
+        Effect.succeed(
+          makeHabitatCommandResult({
+            commandId: "nx-affected",
+            kind: "workspace-tool",
+            executable: "nx",
+            argv: [],
+            cwd: repoRoot,
+            captureGitState: false,
+          })
+        ),
+      affectedArgv,
+      graphArgv,
+      ...nx,
+    },
+    readText: (targetPath) =>
+      Effect.sync(() => {
+        events.push(`read:${targetPath}`);
+        return files.get(targetPath) ?? "";
+      }),
+  };
+}
+
+function runGraphProcedure(input: GraphServiceRunInput, deps: GraphTestDeps) {
   return Effect.gen(function* () {
-    const runGraph = graphRouter.run.callable({ context: {} });
+    const runGraph = graphRouter.run.callable({
+      context: { deps: makeTestHabitatServiceDeps(deps) },
+    });
     return yield* withFiberContext(() => runGraph(input));
   });
 }
