@@ -1,6 +1,7 @@
 import { Bolt, Dices, Globe, History, Play } from "lucide-react";
 import React from "react";
 import { LAYOUT } from "../../lib/layout.js";
+import { cn } from "../../lib/utils.js";
 import type {
   GenerationStatus,
   MapSize,
@@ -80,6 +81,12 @@ export interface AppFooterProps {
    */
   seedMin: number;
   seedMax: number;
+  /**
+   * Placement override (positioning-as-chrome): the default absolute
+   * bottom-docked placement is app chrome; hosts embedding the console in a
+   * different layout override it here (merged via `cn`).
+   */
+  className?: string;
 }
 const FOOTER_HEIGHT = LAYOUT.FOOTER_HEIGHT;
 export const AppFooter: React.FC<AppFooterProps> = ({
@@ -105,6 +112,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   playerCountOptions,
   seedMin,
   seedMax,
+  className,
 }) => {
   // Token-driven chrome; theme follows the single `.dark` class. The footer
   // docks float over the deck.gl map, so they ride the `popover` tier.
@@ -171,7 +179,10 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     // for assistive tech and for the static markup — not hidden inside
     // hover-only Tooltip content.
     <footer
-      className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center"
+      className={cn(
+        "absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center",
+        className
+      )}
       style={{
         height: FOOTER_HEIGHT,
       }}

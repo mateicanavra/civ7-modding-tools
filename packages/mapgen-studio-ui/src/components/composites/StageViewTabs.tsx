@@ -1,5 +1,6 @@
 import { Map as MapIcon, Workflow } from "lucide-react";
 import React from "react";
+import { cn } from "../../lib/utils.js";
 
 /**
  * Which view the center stage presents: the generated map, or the authored
@@ -42,14 +43,28 @@ export interface StageViewTabsProps {
   onValueChange: (view: StageView) => void;
   /** Top offset (px) so the pill clears the floating header. */
   top: number;
+  /**
+   * Placement override (positioning-as-chrome): the default absolute
+   * top-centered stage placement is app chrome; hosts embedding the switcher
+   * elsewhere override it here (merged via `cn`).
+   */
+  className?: string;
 }
 
-export const StageViewTabs: React.FC<StageViewTabsProps> = ({ value, onValueChange, top }) => {
+export const StageViewTabs: React.FC<StageViewTabsProps> = ({
+  value,
+  onValueChange,
+  top,
+  className,
+}) => {
   return (
     <div
       role="group"
       aria-label="Stage view"
-      className="absolute left-1/2 z-20 -translate-x-1/2 inline-flex items-center rounded-lg border border-border bg-popover/95 p-1 backdrop-blur-sm"
+      className={cn(
+        "absolute left-1/2 z-20 -translate-x-1/2 inline-flex items-center rounded-lg border border-border bg-popover/95 p-1 backdrop-blur-sm",
+        className
+      )}
       style={{ top }}
     >
       {VIEWS.map(({ id, label, description, Icon }) => {

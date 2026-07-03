@@ -1,19 +1,21 @@
 import type { RJSFSchema, WidgetProps } from "@rjsf/utils";
+import { cn } from "../../lib/utils.js";
 import { Checkbox } from "../ui/checkbox.js";
 import { Input } from "../ui/input.js";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
 import { Switch } from "../ui/switch.js";
 import { Textarea } from "../ui/textarea.js";
+import { errorFieldId } from "./fieldIds.js";
 import type { BrowserConfigFormContext } from "./rjsfTemplates.js";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
 
 /**
- * RJSF widgets re-skinned onto the canonical design-system primitives
- * (`@swooper/mapgen-studio-ui`) — token-driven, dark-first, no `lightMode` prop and no
- * off-token `ring-gray-400`. Only presentation changed: the value plumbing
- * (`onChange`, `emptyValue` normalization, enum mapping) is preserved, so the
- * authored config the form emits is byte-for-byte what it produced before.
+ * RJSF widgets skinned onto this package's ui primitives — token-driven,
+ * dark-first, no `lightMode` prop and no off-token `ring-gray-400`. The value
+ * plumbing (`onChange`, `emptyValue` normalization, enum mapping) is the
+ * contract: the authored config the form emits is exactly what the schema
+ * round-trip expects.
  */
 
 // Radix Select disallows an empty `value`; the schema enum's "no selection"
@@ -26,15 +28,15 @@ function normalizeEmptyValue(next: string, emptyValue: unknown): string | unknow
 }
 
 // Validation a11y: when RJSF reports `rawErrors` for a field, mark the control
-// invalid and point it at the FieldTemplate's `id="${id}__error"` live region
-// (see `rjsfTemplates.tsx`) so assistive tech announces the error against the
-// input. Presentation only — no value plumbing changes.
+// invalid and point it at the FieldTemplate's error live region (the shared
+// `errorFieldId` contract — see `fieldIds.ts`) so assistive tech announces the
+// error against the input. Presentation only — no value plumbing changes.
 function errorA11yProps(
   id: string,
   rawErrors: ReadonlyArray<string> | undefined
 ): { "aria-invalid"?: true; "aria-describedby"?: string } {
   return rawErrors && rawErrors.length > 0
-    ? { "aria-invalid": true, "aria-describedby": `${id}__error` }
+    ? { "aria-invalid": true, "aria-describedby": errorFieldId(id) }
     : {};
 }
 
@@ -219,7 +221,11 @@ export function TagSelectWidget(props: ConfigWidgetProps) {
   const selectedKeys = new Set(selected.map((entry) => String(entry)));
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
   // Token-driven pill: muted inset substrate, primary fill when active, the
-  // luminance contour ring on focus.
+  // luminance contour ring on focus. Active pills merge through `cn` so the
+  // active bg/border/text/hover utilities RESOLVE over the base ones
+  // (tailwind-merge last-wins) instead of emitting both and leaning on
+  // stylesheet order — this was the one render-affecting manual join in the
+  // package (LEDGER adjudication 4).
   const baseTag =
     "px-2 py-1 text-data rounded-full border border-input bg-input-background text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
   const activeTag = "bg-primary text-primary-foreground border-primary hover:bg-primary/90";
@@ -233,7 +239,7 @@ export function TagSelectWidget(props: ConfigWidgetProps) {
           <button
             key={key}
             type="button"
-            className={[baseTag, isActive ? activeTag : null].filter(Boolean).join(" ")}
+            className={cn(baseTag, isActive && activeTag)}
             aria-pressed={isActive}
             disabled={!allowMutations}
             onClick={() => {

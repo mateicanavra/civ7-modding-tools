@@ -41,7 +41,8 @@
     "BrowserConfigObjectFieldTemplate": { "cardMode": "column" },
     "BrowserConfigArrayFieldTemplate": { "cardMode": "column" },
     "PipelineStage": { "cardMode": "single", "viewport": "1080x620" },
-    "SchemaConfigForm": { "cardMode": "column" }
+    "SchemaConfigForm": { "cardMode": "column" },
+    "TagSelectWidget": { "cardMode": "column" }
   },
   "docsMap": {
     "Button": ".design-sync/groups/primitives.md",

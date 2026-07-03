@@ -1,5 +1,6 @@
 import { Gamepad2, Settings } from "lucide-react";
 import React from "react";
+import { cn } from "../../lib/utils.js";
 import type { ThemePreference } from "../../types/index.js";
 import { Button } from "../ui/button.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
@@ -68,6 +69,12 @@ export interface AppHeaderProps {
    * cluster (selector + setup gear, Z-wave Game bar v3).
    */
   gameConsole?: React.ReactNode;
+  /**
+   * Placement override (positioning-as-chrome): the default absolute
+   * top-docked placement is app chrome; hosts embedding the header in a
+   * different layout override it here (merged via `cn`).
+   */
+  className?: string;
 }
 export const AppHeader: React.FC<AppHeaderProps> = ({
   themePreference,
@@ -84,6 +91,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onGameSpeedChange,
   onHeaderHeightChange,
   gameConsole,
+  className,
 }) => {
   const headerRef = React.useRef<HTMLElement | null>(null);
   const [setupOpen, setSetupOpen] = React.useState(false);
@@ -112,7 +120,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <header
       ref={headerRef}
-      className="absolute top-4 left-4 right-4 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3"
+      className={cn(
+        "absolute top-4 left-4 right-4 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3",
+        className
+      )}
     >
       {/* Left: App Brand */}
       <div className="shrink-0">

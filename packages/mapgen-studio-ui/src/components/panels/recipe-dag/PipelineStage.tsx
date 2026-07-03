@@ -1,7 +1,8 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useResolvedTheme } from "../../../lib/useResolvedTheme.js";
+import { cn } from "../../../lib/utils.js";
 import { EmptyState } from "../../composites/EmptyState.js";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation.js";
 import {
@@ -132,16 +133,27 @@ export function PipelineStage(props: PipelineStageProps) {
     return [...edgeLayerGroups].sort((a, b) => score(a) - score(b) || a.id.localeCompare(b.id));
   }, [edgeLayerGroups, selectedLabel, selectedStageId]);
   const focusActive = Boolean(selectedLabel || selectedStageId);
-  const getStageAccent = (stageId: string) =>
-    getRecipeDagPhaseLaneColors(phaseIdByStageId.get(stageId) ?? null, isLightMode).accent;
-  const handleSelectStage = (stageId: string, options?: { keepSelected?: boolean }) => {
-    setSelectedLabelId(null);
-    if (!options?.keepSelected && !selectedLabel && selectedStageId === stageId) {
-      onSelectStage("");
-      return;
-    }
-    onSelectStage(stageId);
-  };
+  // Stable callbacks (memoization wave): the list-rendered subcomponents below
+  // are React.memo'd, so the handlers they receive must not be per-render
+  // closures — a fresh identity would re-render the ENTIRE DAG on every
+  // selection/expansion change.
+  const getStageAccent = useCallback(
+    (stageId: string) =>
+      getRecipeDagPhaseLaneColors(phaseIdByStageId.get(stageId) ?? null, isLightMode).accent,
+    [phaseIdByStageId, isLightMode]
+  );
+  const handleSelectStage = useCallback(
+    (stageId: string, options?: { keepSelected?: boolean }) => {
+      setSelectedLabelId(null);
+      if (!options?.keepSelected && !selectedLabel && selectedStageId === stageId) {
+        onSelectStage("");
+        return;
+      }
+      onSelectStage(stageId);
+    },
+    [selectedLabel, selectedStageId, onSelectStage]
+  );
+  const handleSelectLabel = useCallback((labelId: string) => setSelectedLabelId(labelId), []);
 
   return (
     <section
@@ -318,32 +330,19 @@ export function PipelineStage(props: PipelineStageProps) {
                     : !selectedStageId ||
                       edge.fromStageId === selectedStageId ||
                       edge.toStageId === selectedStageId;
-                  const edgeAccent = getStageAccent(edge.fromStageId);
-                  const stroke = focusActive && related ? edgeAccent : PIPELINE_EDGE_INK;
                   return (
-                    <g key={edge.id}>
-                      <path
-                        d={pointsToPath(edge.points)}
-                        fill="none"
-                        stroke={stroke}
-                        strokeWidth={selected ? "3" : focusActive && related ? "2.4" : "1.35"}
-                        markerEnd={
-                          focusActive && related
-                            ? "url(#recipe-dag-arrow-active)"
-                            : "url(#recipe-dag-arrow)"
-                        }
-                        opacity={
-                          selected
-                            ? "0.96"
-                            : focusActive && related
-                              ? "0.82"
-                              : focusActive
-                                ? "0.22"
-                                : "0.42"
-                        }
-                      />
-                      <title>{`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}</title>
-                    </g>
+                    <StageEdge
+                      key={edge.id}
+                      edge={edge}
+                      selected={selected}
+                      related={related}
+                      focusActive={focusActive}
+                      accent={
+                        focusActive && related
+                          ? getStageAccent(edge.fromStageId)
+                          : PIPELINE_EDGE_INK
+                      }
+                    />
                   );
                 })}
               </svg>
@@ -357,10 +356,10 @@ export function PipelineStage(props: PipelineStageProps) {
                     label.toStageIds.includes(selectedStageId);
                 const visible = selectedLabel ? selected : !selectedStageId || related;
                 if (!visible) return null;
-                const edgeAccent = getStageAccent(label.fromStageId);
                 return (
                   <ArtifactEdgeLabel
                     key={label.id}
+                    id={label.id}
                     label={label.label}
                     domainId={resolveArtifactGroupDomainId(label.artifacts)}
                     title={`${label.fromStageId} provides ${label.artifact} to ${label.toStageIds.join(", ")}`}
@@ -369,8 +368,12 @@ export function PipelineStage(props: PipelineStageProps) {
                     related={related}
                     selected={selected}
                     focused={focusActive}
-                    accent={focusActive && (selected || related) ? edgeAccent : PIPELINE_EDGE_INK}
-                    onSelect={() => setSelectedLabelId(label.id)}
+                    accent={
+                      focusActive && (selected || related)
+                        ? getStageAccent(label.fromStageId)
+                        : PIPELINE_EDGE_INK
+                    }
+                    onSelect={handleSelectLabel}
                   />
                 );
               })}
@@ -388,128 +391,19 @@ export function PipelineStage(props: PipelineStageProps) {
               {dag.stages.map((stage) => {
                 const position = layout.positions.get(stage.stageId);
                 if (!position) return null;
-                const expanded = expandedStageIds.has(stage.stageId);
-                const selected = !selectedLabel && selectedStageId === stage.stageId;
-                const edgeActive = Boolean(selectedLabel && neighborStageIds?.has(stage.stageId));
-                const dimmed = Boolean(neighborStageIds && !neighborStageIds.has(stage.stageId));
-                const stageClass = dimmed
-                  ? "border-border/60 bg-card/70 shadow-none"
-                  : "border-border bg-card";
-                const headingClass = dimmed ? "text-muted-foreground/70" : "text-foreground";
-                const bodyClass = dimmed ? "text-muted-foreground/50" : "text-muted-foreground";
-                const iconClass = dimmed ? "text-muted-foreground/50" : "text-muted-foreground";
-                const stageDomainId = chooseRecipeDagDomainId(stage.phases);
-                const stageAccent = getRecipeDagPhaseLaneColors(stageDomainId, isLightMode).accent;
-                const activeNodeAccent = selected || edgeActive ? stageAccent : null;
-                const zIndex =
-                  selected || edgeActive ? (expanded ? 95 : 85) : expanded ? 70 : dimmed ? 20 : 30;
-                const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
                 return (
-                  <article
+                  <StageNode
                     key={stage.stageId}
-                    className={`absolute rounded-lg border shadow-sm transition-[background-color,border-color,box-shadow,color,transform] duration-200 ${expanded ? "shadow-2xl" : ""} ${stageClass}`}
-                    style={{
-                      left: position.x,
-                      top: position.y,
-                      width: position.width,
-                      zIndex,
-                      borderColor: activeNodeAccent ?? undefined,
-                      boxShadow: activeNodeAccent
-                        ? `0 0 0 2px ${activeNodeAccent}38, 0 16px 42px ${activeNodeAccent}18`
-                        : undefined,
-                    }}
-                    data-stage-id={stage.stageId}
-                    data-stage-selected={selected || edgeActive ? "true" : "false"}
-                    data-stage-edge-active={edgeActive ? "true" : "false"}
-                    data-stage-expanded={expanded ? "true" : "false"}
-                  >
-                    <div className="flex items-start gap-1.5 px-3 py-2">
-                      <button
-                        type="button"
-                        className="flex min-w-0 flex-1 items-start gap-2 text-left"
-                        aria-pressed={selected}
-                        onClick={() => handleSelectStage(stage.stageId)}
-                      >
-                        <DomainInlineIcon
-                          domainId={stageDomainId}
-                          className={`mt-0.5 h-4 w-4 ${iconClass}`}
-                          style={activeNodeAccent ? { color: activeNodeAccent } : undefined}
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span
-                            className={`block truncate text-data font-semibold ${headingClass}`}
-                          >
-                            {stage.stageId}
-                          </span>
-                          <span className={`mt-0.5 block truncate text-label ${bodyClass}`}>
-                            Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"};
-                            creates {stage.artifactProvides.length}; needs{" "}
-                            {stage.artifactRequires.length}
-                          </span>
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:bg-accent hover:text-foreground"
-                        aria-expanded={expanded}
-                        aria-controls={expandedPanelId}
-                        aria-label={`${expanded ? "Collapse" : "Expand"} ${stage.stageId} steps`}
-                        onClick={() => {
-                          handleSelectStage(stage.stageId, { keepSelected: true });
-                          onToggleStage(stage.stageId);
-                        }}
-                      >
-                        <ChevronDown
-                          className={`h-4 w-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""} ${iconClass}`}
-                        />
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-border text-center text-label text-muted-foreground">
-                      <StageCounter label="In" value={stage.inboundArtifactEdgeCount} />
-                      <StageCounter label="Out" value={stage.outboundArtifactEdgeCount} />
-                      <StageCounter label="Internal" value={stage.internalArtifactEdgeCount} />
-                    </div>
-
-                    <div
-                      id={expandedPanelId}
-                      aria-hidden={!expanded}
-                      className={`origin-top overflow-hidden border-t border-border transition-[max-height,opacity,transform] duration-200 ${
-                        expanded
-                          ? "max-h-[340px] opacity-100 translate-y-0"
-                          : "max-h-0 opacity-0 -translate-y-1"
-                      }`}
-                    >
-                      <div className="max-h-[320px] overflow-auto px-3 py-2 custom-scrollbar">
-                        <ol className="space-y-2">
-                          {stage.steps.map((step) => (
-                            <li
-                              key={step.fullStepId}
-                              className="rounded border border-border bg-muted/40 px-2 py-1.5"
-                            >
-                              <div className={`truncate text-label font-medium ${headingClass}`}>
-                                Step {step.orderInStage + 1}: {step.stepId}
-                              </div>
-                              <div
-                                className={`mt-1 flex items-center gap-1 truncate text-label ${bodyClass}`}
-                              >
-                                <DomainInlineIcon domainId={step.phase} className="h-2.5 w-2.5" />
-                                <span className="truncate">Phase: {step.phase}</span>
-                              </div>
-                              <ArtifactList
-                                label="Needs"
-                                values={step.artifactRequires.map((artifact) => artifact.id)}
-                              />
-                              <ArtifactList
-                                label="Creates"
-                                values={step.artifactProvides.map((artifact) => artifact.id)}
-                              />
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-                    </div>
-                  </article>
+                    stage={stage}
+                    position={position}
+                    expanded={expandedStageIds.has(stage.stageId)}
+                    selected={!selectedLabel && selectedStageId === stage.stageId}
+                    edgeActive={Boolean(selectedLabel && neighborStageIds?.has(stage.stageId))}
+                    dimmed={Boolean(neighborStageIds && !neighborStageIds.has(stage.stageId))}
+                    isLightMode={isLightMode}
+                    onSelectStage={handleSelectStage}
+                    onToggleStage={onToggleStage}
+                  />
                 );
               })}
 
@@ -546,11 +440,194 @@ export function PipelineStage(props: PipelineStageProps) {
   );
 }
 
-function PipelineMetric(props: { label: string; value: number; warn?: boolean }) {
+// ============================================================================
+// Memoized subcomponents (E3 memoization wave). Every list-rendered node below
+// is `React.memo`'d so a selection/hover/expansion change re-renders only the
+// nodes whose visual state actually changed — not the entire DAG (SVG + stage
+// cards). The parent passes stable callbacks (`useCallback`) and memoized
+// layout objects, so the shallow prop compare holds between interactions.
+// Rendered markup is byte-identical to the pre-memo inline JSX.
+// ============================================================================
+
+/** One routed artifact edge group (SVG path + hover title). */
+const StageEdge = React.memo(function StageEdge(props: {
+  edge: RoutedStageEdgeGroup;
+  selected: boolean;
+  related: boolean;
+  focusActive: boolean;
+  accent: string;
+}) {
+  const { edge, selected, related, focusActive, accent } = props;
+  return (
+    <g>
+      <path
+        d={pointsToPath(edge.points)}
+        fill="none"
+        stroke={accent}
+        strokeWidth={selected ? "3" : focusActive && related ? "2.4" : "1.35"}
+        markerEnd={
+          focusActive && related ? "url(#recipe-dag-arrow-active)" : "url(#recipe-dag-arrow)"
+        }
+        opacity={
+          selected ? "0.96" : focusActive && related ? "0.82" : focusActive ? "0.22" : "0.42"
+        }
+      />
+      <title>{`${edge.fromStageId} provides ${edge.artifacts.join(", ")} to ${edge.toStageId}`}</title>
+    </g>
+  );
+});
+
+/** One stage card (header button, counters, expandable step list). */
+const StageNode = React.memo(function StageNode(props: {
+  stage: RecipeDagResult["stages"][number];
+  position: { x: number; y: number; width: number };
+  expanded: boolean;
+  selected: boolean;
+  edgeActive: boolean;
+  dimmed: boolean;
+  isLightMode: boolean;
+  onSelectStage: (stageId: string, options?: { keepSelected?: boolean }) => void;
+  onToggleStage: (stageId: string) => void;
+}) {
+  const {
+    stage,
+    position,
+    expanded,
+    selected,
+    edgeActive,
+    dimmed,
+    isLightMode,
+    onSelectStage,
+    onToggleStage,
+  } = props;
+  const stageClass = dimmed ? "border-border/60 bg-card/70 shadow-none" : "border-border bg-card";
+  const headingClass = dimmed ? "text-muted-foreground/70" : "text-foreground";
+  const bodyClass = dimmed ? "text-muted-foreground/50" : "text-muted-foreground";
+  const iconClass = dimmed ? "text-muted-foreground/50" : "text-muted-foreground";
+  const stageDomainId = chooseRecipeDagDomainId(stage.phases);
+  const stageAccent = getRecipeDagPhaseLaneColors(stageDomainId, isLightMode).accent;
+  const activeNodeAccent = selected || edgeActive ? stageAccent : null;
+  const zIndex = selected || edgeActive ? (expanded ? 95 : 85) : expanded ? 70 : dimmed ? 20 : 30;
+  const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
+  return (
+    <article
+      className={cn(
+        "absolute rounded-lg border shadow-sm transition-[background-color,border-color,box-shadow,color,transform] duration-200",
+        expanded && "shadow-2xl",
+        stageClass
+      )}
+      style={{
+        left: position.x,
+        top: position.y,
+        width: position.width,
+        zIndex,
+        borderColor: activeNodeAccent ?? undefined,
+        boxShadow: activeNodeAccent
+          ? `0 0 0 2px ${activeNodeAccent}38, 0 16px 42px ${activeNodeAccent}18`
+          : undefined,
+      }}
+      data-stage-id={stage.stageId}
+      data-stage-selected={selected || edgeActive ? "true" : "false"}
+      data-stage-edge-active={edgeActive ? "true" : "false"}
+      data-stage-expanded={expanded ? "true" : "false"}
+    >
+      <div className="flex items-start gap-1.5 px-3 py-2">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-start gap-2 text-left"
+          aria-pressed={selected}
+          onClick={() => onSelectStage(stage.stageId)}
+        >
+          <DomainInlineIcon
+            domainId={stageDomainId}
+            className={cn("mt-0.5 h-4 w-4", iconClass)}
+            style={activeNodeAccent ? { color: activeNodeAccent } : undefined}
+          />
+          <span className="min-w-0 flex-1">
+            <span className={cn("block truncate text-data font-semibold", headingClass)}>
+              {stage.stageId}
+            </span>
+            <span className={cn("mt-0.5 block truncate text-label", bodyClass)}>
+              Runs {stage.steps.length} {stage.steps.length === 1 ? "step" : "steps"}; creates{" "}
+              {stage.artifactProvides.length}; needs {stage.artifactRequires.length}
+            </span>
+          </span>
+        </button>
+        <button
+          type="button"
+          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:bg-accent hover:text-foreground"
+          aria-expanded={expanded}
+          aria-controls={expandedPanelId}
+          aria-label={`${expanded ? "Collapse" : "Expand"} ${stage.stageId} steps`}
+          onClick={() => {
+            onSelectStage(stage.stageId, { keepSelected: true });
+            onToggleStage(stage.stageId);
+          }}
+        >
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform duration-200",
+              expanded && "rotate-180",
+              iconClass
+            )}
+          />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 border-t border-border text-center text-label text-muted-foreground">
+        <StageCounter label="In" value={stage.inboundArtifactEdgeCount} />
+        <StageCounter label="Out" value={stage.outboundArtifactEdgeCount} />
+        <StageCounter label="Internal" value={stage.internalArtifactEdgeCount} />
+      </div>
+
+      <div
+        id={expandedPanelId}
+        aria-hidden={!expanded}
+        className={cn(
+          "origin-top overflow-hidden border-t border-border transition-[max-height,opacity,transform] duration-200",
+          expanded ? "max-h-[340px] opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-1"
+        )}
+      >
+        <div className="max-h-[320px] overflow-auto px-3 py-2 custom-scrollbar">
+          <ol className="space-y-2">
+            {stage.steps.map((step) => (
+              <li
+                key={step.fullStepId}
+                className="rounded border border-border bg-muted/40 px-2 py-1.5"
+              >
+                <div className={cn("truncate text-label font-medium", headingClass)}>
+                  Step {step.orderInStage + 1}: {step.stepId}
+                </div>
+                <div className={cn("mt-1 flex items-center gap-1 truncate text-label", bodyClass)}>
+                  <DomainInlineIcon domainId={step.phase} className="h-2.5 w-2.5" />
+                  <span className="truncate">Phase: {step.phase}</span>
+                </div>
+                <ArtifactList
+                  label="Needs"
+                  values={step.artifactRequires.map((artifact) => artifact.id)}
+                />
+                <ArtifactList
+                  label="Creates"
+                  values={step.artifactProvides.map((artifact) => artifact.id)}
+                />
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </article>
+  );
+});
+
+const PipelineMetric = React.memo(function PipelineMetric(props: {
+  label: string;
+  value: number;
+  warn?: boolean;
+}) {
   return (
     <div className="flex items-baseline gap-1.5">
       <span
-        className={`text-data font-semibold ${props.warn ? "text-warning" : "text-foreground"}`}
+        className={cn("text-data font-semibold", props.warn ? "text-warning" : "text-foreground")}
       >
         {props.value}
       </span>
@@ -559,18 +636,19 @@ function PipelineMetric(props: { label: string; value: number; warn?: boolean })
       </span>
     </div>
   );
-}
+});
 
-function StageCounter(props: { label: string; value: number }) {
+const StageCounter = React.memo(function StageCounter(props: { label: string; value: number }) {
   return (
     <div className="px-1.5 py-1">
       <div className="text-data font-semibold text-foreground">{props.value}</div>
       <div className="uppercase">{props.label}</div>
     </div>
   );
-}
+});
 
-function ArtifactEdgeLabel(props: {
+const ArtifactEdgeLabel = React.memo(function ArtifactEdgeLabel(props: {
+  id: string;
   label: string;
   domainId: string | null;
   title: string;
@@ -580,7 +658,7 @@ function ArtifactEdgeLabel(props: {
   selected: boolean;
   focused: boolean;
   accent: string;
-  onSelect: () => void;
+  onSelect: (labelId: string) => void;
 }) {
   const className = props.focused
     ? props.related
@@ -590,7 +668,10 @@ function ArtifactEdgeLabel(props: {
   return (
     <button
       type="button"
-      className={`absolute flex max-w-[190px] cursor-pointer items-center gap-1 rounded-full border px-[6.5px] py-0.5 text-label font-semibold shadow-sm transition-[left,top,border-color,box-shadow,color,background-color] duration-200 ${className}`}
+      className={cn(
+        "absolute flex max-w-[190px] cursor-pointer items-center gap-1 rounded-full border px-[6.5px] py-0.5 text-label font-semibold shadow-sm transition-[left,top,border-color,box-shadow,color,background-color] duration-200",
+        className
+      )}
       style={{
         left: props.x,
         top: props.y,
@@ -604,15 +685,18 @@ function ArtifactEdgeLabel(props: {
       aria-pressed={props.selected}
       aria-label={`Select dependency ${props.label}`}
       data-edge-label-selected={props.selected ? "true" : "false"}
-      onClick={props.onSelect}
+      onClick={() => props.onSelect(props.id)}
     >
       <DomainInlineIcon domainId={props.domainId} className="h-[11px] w-[11px]" />
       <span className="truncate">{props.label}</span>
     </button>
   );
-}
+});
 
-function ArtifactList(props: { label: string; values: readonly string[] }) {
+const ArtifactList = React.memo(function ArtifactList(props: {
+  label: string;
+  values: readonly string[];
+}) {
   if (props.values.length === 0) return null;
   const chip = "border-border bg-muted/40 text-muted-foreground";
   return (
@@ -622,7 +706,10 @@ function ArtifactList(props: { label: string; values: readonly string[] }) {
         {props.values.slice(0, 5).map((value) => (
           <span
             key={value}
-            className={`flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-label ${chip}`}
+            className={cn(
+              "flex max-w-full items-center gap-1 truncate rounded border px-1 py-0.5 text-label",
+              chip
+            )}
             title={value}
           >
             <DomainInlineIcon
@@ -633,16 +720,16 @@ function ArtifactList(props: { label: string; values: readonly string[] }) {
           </span>
         ))}
         {props.values.length > 5 ? (
-          <span className={`rounded border px-1 py-0.5 text-label ${chip}`}>
+          <span className={cn("rounded border px-1 py-0.5 text-label", chip)}>
             +{props.values.length - 5}
           </span>
         ) : null}
       </div>
     </div>
   );
-}
+});
 
-function DomainInlineIcon(props: {
+const DomainInlineIcon = React.memo(function DomainInlineIcon(props: {
   domainId: string | null;
   className: string;
   style?: React.CSSProperties;
@@ -650,15 +737,20 @@ function DomainInlineIcon(props: {
   const { Icon, strokeWidth } = getRecipeDagDomainPresentation(props.domainId);
   return (
     <Icon
-      className={`shrink-0 text-current ${props.className}`}
+      className={cn("shrink-0 text-current", props.className)}
       strokeWidth={strokeWidth}
       style={props.style}
       aria-hidden="true"
     />
   );
-}
+});
 
-function PhaseLaneLabel(props: { phaseId: string; x: number; y: number; accent: string }) {
+const PhaseLaneLabel = React.memo(function PhaseLaneLabel(props: {
+  phaseId: string;
+  x: number;
+  y: number;
+  accent: string;
+}) {
   const { Icon, label, strokeWidth } = getRecipeDagDomainPresentation(props.phaseId);
   return (
     <div
@@ -675,4 +767,4 @@ function PhaseLaneLabel(props: { phaseId: string; x: number; y: number; accent: 
       <span>{props.phaseId}</span>
     </div>
   );
-}
+});

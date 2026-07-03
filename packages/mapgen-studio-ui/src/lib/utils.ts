@@ -4,7 +4,7 @@ import { extendTailwindMerge } from "tailwind-merge";
 /**
  * tailwind-merge, taught about the project's named type scale. `text-data`
  * (11px) and `text-label` (10px) are custom font-size utilities (defined as
- * `--text-*` theme tokens in index.css). Without registering them in the
+ * `--text-*` theme tokens in `styles/theme.css`). Without registering them in the
  * `font-size` group, twMerge treats them as generic `text-*` classes and lets
  * a later color utility (`text-foreground`) clobber the size. Registering them
  * keeps size and color independent.

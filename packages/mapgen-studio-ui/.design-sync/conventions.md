@@ -58,3 +58,27 @@ const { Button, Input } = window.MapGenStudio;
   </div>
 </div>
 ```
+
+## How this design system is operated
+
+This is a **product design system**: it deliberately carries MapGen Studio's
+app-level composites and panels alongside the generic primitives — that is the
+point, not a mistake. It is a **library, not a workspace**. The single source
+of truth is the repo package `@swooper/mapgen-studio-ui`; everything in the
+design-system project is a regenerated build artifact of it, except
+`explorations/` and `scraps/`.
+
+- **Work in the design-system project is about evolving the library itself.**
+  `explorations/` holds only system proposals: a candidate new component
+  (`Legend panel.html`), a before/after for changing an existing component, or
+  a canonical assembly reference (`Studio shell mock.html`). Every exploration
+  states its intent, status, and pull-down path in a header comment.
+- **Product design happens in consuming projects.** Screens, flows, feature
+  concepts, and design-space exploration belong in a Claude Design project
+  that attaches this design system (e.g. "App Shell") — never here.
+- **The component cards are always the current state.** They are regenerated
+  from the repo on every sync. A proposal's "before" is the live render by
+  reference, never a maintained snapshot.
+- **Nothing here is hand-edited.** Changing a component means changing the
+  package and re-syncing; direct edits outside `explorations/` are overwritten
+  by the next sync.

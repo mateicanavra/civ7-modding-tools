@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { LAYOUT } from "../../lib/layout.js";
+import { cn } from "../../lib/utils.js";
 import type {
   DataTypeOption,
   OverlayOption,
@@ -29,6 +30,7 @@ import type {
   VariantOption,
 } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
+import { OptionSelect } from "../composites/OptionSelect.js";
 import {
   type WaterStatsLayerRef,
   WaterStatsSection,
@@ -285,22 +287,24 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   // (Pass-2 explore-toolbar spec). Independent toggles keep `iconBtn`.
   // Toolbar cluster anatomy (Pass-3): a cluster heading names the target
   // (View = camera/map, Layer = selected data); row labels sit a tier below.
-  const clusterHeading = `text-label font-semibold uppercase tracking-wider ${textSecondary}`;
-  const rowLabel = `text-label uppercase tracking-wider ${textMuted}`;
+  const clusterHeading = cn("text-label font-semibold uppercase tracking-wider", textSecondary);
+  const rowLabel = cn("text-label uppercase tracking-wider", textMuted);
   const segGroup =
     "inline-flex items-center rounded border border-border-subtle bg-input-background p-0.5";
   const segBtn =
     "h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-muted-foreground hover:text-foreground";
   const segBtnActive =
     "h-6 w-6 flex items-center justify-center rounded-sm transition-colors shrink-0 text-foreground bg-muted";
-  const stageBadge = (isActive: boolean) => `
-    w-5 h-5 flex items-center justify-center rounded-full text-label font-semibold shrink-0
-    ${isActive ? "bg-muted text-foreground" : "bg-muted/50 text-muted-foreground"}
-  `;
-  const stepBadge = (isActive: boolean) => `
-    w-4 h-4 flex items-center justify-center rounded text-[9px] font-mono shrink-0
-    ${isActive ? "bg-muted text-foreground" : "bg-muted/50 text-muted-foreground"}
-  `;
+  const stageBadge = (isActive: boolean) =>
+    cn(
+      "w-5 h-5 flex items-center justify-center rounded-full text-label font-semibold shrink-0",
+      isActive ? "bg-muted text-foreground" : "bg-muted/50 text-muted-foreground"
+    );
+  const stepBadge = (isActive: boolean) =>
+    cn(
+      "w-4 h-4 flex items-center justify-center rounded text-[9px] font-mono shrink-0",
+      isActive ? "bg-muted text-foreground" : "bg-muted/50 text-muted-foreground"
+    );
   // Render mode icons map
   const getRenderModeIcon = (value: string) => {
     const kind = value.split(":")[0] ?? value;
@@ -376,36 +380,48 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   return (
     <div
       style={{ width: LAYOUT.EXPLORE_PANEL_WIDTH }}
-      className={`flex flex-col max-h-full rounded-lg border overflow-y-auto overflow-x-hidden custom-scrollbar shadow-lg backdrop-blur-sm pointer-events-auto ${panelBg} ${panelBorder}`}
+      className={cn(
+        "flex flex-col max-h-full rounded-lg border overflow-y-auto overflow-x-hidden custom-scrollbar shadow-lg backdrop-blur-sm pointer-events-auto",
+        panelBg,
+        panelBorder
+      )}
     >
       {/* 1. STAGE SECTION */}
-      <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+      <div className={cn("flex-shrink-0 border-b", borderSubtle)}>
         <DisclosureHeader
           className="px-3 py-2.5"
           expanded={isStageExpanded}
           onToggle={setIsStageExpanded}
           controls="explore-stage-list"
-          icon={<Compass className={`w-4 h-4 shrink-0 ${textSecondary}`} />}
-          title={<span className={`text-[13px] font-semibold ${textPrimary}`}>Stage</span>}
+          icon={<Compass className={cn("w-4 h-4 shrink-0", textSecondary)} />}
+          title={<span className={cn("text-[13px] font-semibold", textPrimary)}>Stage</span>}
           summary={
-            <span className={`text-[12px] font-semibold ${textPrimary} truncate`}>
+            <span className={cn("text-[12px] font-semibold", textPrimary, "truncate")}>
               {currentStage?.label ?? ""}
             </span>
           }
-          trailing={<span className={`text-label ${textMuted}`}>{stages.length}</span>}
+          trailing={<span className={cn("text-label", textMuted)}>{stages.length}</span>}
         />
       </div>
       {isStageExpanded ? (
         <div
           id="explore-stage-list"
-          className={`flex-shrink-0 py-1 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}
+          className={cn(
+            "flex-shrink-0 py-1 border-b",
+            borderSubtle,
+            listMaxHeight,
+            "overflow-y-auto custom-scrollbar"
+          )}
         >
           {stages.map((stage, index) => (
             <button
               key={stage.value}
               onClick={() => handleSelectStage(stage.value)}
               aria-current={stage.value === selectedStage ? "true" : undefined}
-              className={`${stageItemBase} ${stage.value === selectedStage ? stageItemActive : stageItemInactive}`}
+              className={cn(
+                stageItemBase,
+                stage.value === selectedStage ? stageItemActive : stageItemInactive
+              )}
             >
               <span className={stageBadge(stage.value === selectedStage)}>{index + 1}</span>
               <span className="truncate">{stage.label}</span>
@@ -415,30 +431,37 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
       ) : null}
 
       {/* 2. STEP SECTION */}
-      <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+      <div className={cn("flex-shrink-0 border-b", borderSubtle)}>
         <DisclosureHeader
           className="px-3 py-2"
           expanded={isStepExpanded}
           onToggle={setIsStepExpanded}
           controls="explore-step-list"
-          icon={<Layers className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />}
+          icon={<Layers className={cn("w-3.5 h-3.5 shrink-0", textSecondary)} />}
           title={
-            <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
+            <span
+              className={cn("text-data font-semibold", textSecondary, "uppercase tracking-wider")}
+            >
               Step
             </span>
           }
           summary={
-            <span className={`text-data font-mono ${textPrimary} truncate`}>
+            <span className={cn("text-data font-mono", textPrimary, "truncate")}>
               {currentStep?.label ?? ""}
             </span>
           }
-          trailing={<span className={`text-label ${textMuted}`}>{steps.length}</span>}
+          trailing={<span className={cn("text-label", textMuted)}>{steps.length}</span>}
         />
       </div>
       {isStepExpanded ? (
         <div
           id="explore-step-list"
-          className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}
+          className={cn(
+            "flex-shrink-0 pb-2 border-b",
+            borderSubtle,
+            listMaxHeight,
+            "overflow-y-auto custom-scrollbar"
+          )}
         >
           {steps.length > 0 ? (
             steps.map((step, index) => (
@@ -446,14 +469,17 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
                 key={`${step.category}-${step.value}`}
                 onClick={() => handleSelectStep(step.value)}
                 aria-current={step.value === selectedStep ? "true" : undefined}
-                className={`${stepItemBase} ${step.value === selectedStep ? stepItemActive : stepItemInactive}`}
+                className={cn(
+                  stepItemBase,
+                  step.value === selectedStep ? stepItemActive : stepItemInactive
+                )}
               >
                 <span className={stepBadge(step.value === selectedStep)}>{index + 1}</span>
                 <span className="truncate">{step.label}</span>
               </button>
             ))
           ) : (
-            <div className={`px-3 py-2 text-data ${textMuted} italic`}>No steps available</div>
+            <div className={cn("px-3 py-2 text-data", textMuted, "italic")}>No steps available</div>
           )}
         </div>
       ) : null}
@@ -470,24 +496,26 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           which entries the data list shows (`includeDebug`), so it belongs to
           the list, not to the view toolbar (Pass-3 explore-toolbar spec). It is
           a sibling of the disclosure button, never nested inside it. */}
-      <div className={`flex-shrink-0 border-b ${borderSubtle} flex items-center`}>
+      <div className={cn("flex-shrink-0 border-b", borderSubtle, "flex items-center")}>
         <DisclosureHeader
           className="w-auto flex-1 min-w-0 pl-3 pr-2 py-2"
           expanded={isLayersExpanded}
           onToggle={setIsLayersExpanded}
           controls="explore-layers-list"
-          icon={<SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />}
+          icon={<SquareStack className={cn("w-3.5 h-3.5 shrink-0", textSecondary)} />}
           title={
-            <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
+            <span
+              className={cn("text-data font-semibold", textSecondary, "uppercase tracking-wider")}
+            >
               Data
             </span>
           }
           summary={
-            <span className={`text-data font-mono ${textPrimary} truncate`}>
+            <span className={cn("text-data font-mono", textPrimary, "truncate")}>
               {currentLayer?.label ?? ""}
             </span>
           }
-          trailing={<span className={`text-label ${textMuted}`}>{dataTypeOptions.length}</span>}
+          trailing={<span className={cn("text-label", textMuted)}>{dataTypeOptions.length}</span>}
         />
         <Tooltip>
           <TooltipTrigger asChild>
@@ -495,7 +523,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
               onClick={() => onShowDebugLayersChange(!showDebugLayers)}
               aria-label={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
               aria-pressed={showDebugLayers}
-              className={`mr-2 ${showDebugLayers ? iconBtnActive : iconBtn}`}
+              className={cn("mr-2", showDebugLayers ? iconBtnActive : iconBtn)}
             >
               <Bug className="w-3.5 h-3.5" />
             </button>
@@ -508,7 +536,12 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
       {isLayersExpanded ? (
         <div
           id="explore-layers-list"
-          className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}
+          className={cn(
+            "flex-shrink-0 pb-2 border-b",
+            borderSubtle,
+            listMaxHeight,
+            "overflow-y-auto custom-scrollbar"
+          )}
         >
           {groupedDataTypes.map((group) => {
             const expanded = !group.key || isGroupExpanded(group.key);
@@ -532,7 +565,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
                       </span>
                     }
                     trailing={
-                      <span className={`text-label ${textMuted}`}>{group.items.length}</span>
+                      <span className={cn("text-label", textMuted)}>{group.items.length}</span>
                     }
                   />
                 ) : null}
@@ -545,9 +578,10 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
                           key={dataType.value}
                           onClick={() => handleSelectLayer(dataType.value)}
                           aria-current={dataType.value === selectedDataType ? "true" : undefined}
-                          className={`${stepItemBase} ${
+                          className={cn(
+                            stepItemBase,
                             dataType.value === selectedDataType ? stepItemActive : stepItemInactive
-                          }`}
+                          )}
                         >
                           <span className={stepBadge(dataType.value === selectedDataType)}>
                             {idx}
@@ -596,7 +630,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           </div>
         </div>
 
-        <div className={`border-t ${borderSubtle}`} />
+        <div className={cn("border-t", borderSubtle)} />
 
         {/* LAYER cluster: how the selected data layer renders. ("Layer", not
             "Data" — the Data list section sits directly above this toolbar.) */}
@@ -647,17 +681,18 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
         {eraEnabled ? (
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className={`text-label uppercase tracking-wider ${textMuted}`}>Era</span>
+              <span className={cn("text-label uppercase tracking-wider", textMuted)}>Era</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
                     type="button"
                     onClick={() => onEraModeChange(eraMode === "auto" ? "fixed" : "auto")}
-                    className={`px-2 h-6 rounded text-label font-semibold uppercase tracking-wider transition-colors ${
+                    className={cn(
+                      "px-2 h-6 rounded text-label font-semibold uppercase tracking-wider transition-colors",
                       eraMode === "auto"
                         ? "bg-muted text-foreground"
                         : "bg-input-background border border-input text-muted-foreground"
-                    }`}
+                    )}
                   >
                     Auto
                   </button>
@@ -685,41 +720,37 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           </div>
         ) : null}
 
+        {/* Variant/Overlay ride the design-system Radix Select (via OptionSelect,
+            the same idiom as the footer's Size/Players controls) instead of raw
+            native <select>s — the natives depended on unlayered global element
+            resets and diverged from every other picker in the surface (E3
+            native->Radix lift). OptionSelect renders a button trigger, so the
+            caption is a sibling span and the accessible name rides ariaLabel. */}
         {variantOptions.length > 1 ? (
-          <label className="flex flex-col gap-1">
-            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Variant</span>
-            <select
+          <div className="flex flex-col gap-1">
+            <span className={cn("text-label uppercase tracking-wider", textMuted)}>Variant</span>
+            <OptionSelect
               value={selectedVariant}
-              onChange={(e) => onSelectedVariantChange(e.target.value)}
-              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground"
-            >
-              {variantOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <span className={`text-label ${textMuted}`}>
+              onValueChange={onSelectedVariantChange}
+              options={variantOptions}
+              ariaLabel="Variant"
+            />
+            <span className={cn("text-label", textMuted)}>
               Semantic slices like <span className="text-muted-foreground">era:2</span>, not
               styling.
             </span>
-          </label>
+          </div>
         ) : null}
 
         {overlayOptions.length ? (
-          <label className="flex flex-col gap-1">
-            <span className={`text-label uppercase tracking-wider ${textMuted}`}>Overlay</span>
-            <select
+          <div className="flex flex-col gap-1">
+            <span className={cn("text-label uppercase tracking-wider", textMuted)}>Overlay</span>
+            <OptionSelect
               value={selectedOverlay}
-              onChange={(e) => onSelectedOverlayChange(e.target.value)}
-              className="h-8 rounded px-2 text-data bg-input-background border border-input text-foreground"
-            >
-              {overlayOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onValueChange={onSelectedOverlayChange}
+              options={overlayOptions}
+              ariaLabel="Overlay"
+            />
             {selectedOverlay ? (
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between text-label">
@@ -738,7 +769,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
                 />
               </div>
             ) : null}
-          </label>
+          </div>
         ) : null}
       </div>
     </div>

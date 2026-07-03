@@ -11,13 +11,14 @@ import { useSyncExternalStore } from "react";
 // value. Reading it from the DOM root (rather than from a preference/prop) makes
 // them follow whatever the host puts on the root, with no prop threading.
 //
-// Robust to BOTH class conventions in play, which is the whole point:
-//   - the app + Storybook use a `.dark` class on <html> (absence => light `:root`)
-//   - the design-sync bundle re-targets `:root` to dark and toggles a `.light`
-//     class (absence => dark)
-// Reading the winning `color-scheme` (which every one of those :root/.dark/.light
-// rules declares) resolves correctly under either — so a component follows the
-// app toolbar, the Storybook toolbar, OR claude.ai/design identically.
+// The package theme source (`styles/theme.css`) is dark-default: `:root, .dark`
+// own the dark palette and `.light` re-skins — hosts (the app pre-paint script,
+// the Storybook decorator, claude.ai/design's toggle) set an explicit class, and
+// a class-less document renders dark. This resolver stays robust to any of those
+// hosts: an explicit `.dark`/`.light` class wins, and otherwise the winning
+// `color-scheme` (declared by every :root/.dark/.light rule) decides — so a
+// component follows the app toolbar, the Storybook toolbar, OR claude.ai/design
+// identically.
 
 export type ResolvedTheme = "light" | "dark";
 
