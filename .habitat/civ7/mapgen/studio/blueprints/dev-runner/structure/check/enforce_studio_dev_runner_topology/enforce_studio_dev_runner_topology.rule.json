@@ -4,14 +4,14 @@
   "ownerTool": "command-check",
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "scope": "MapGen Studio dev target and Vite watch topology",
+  "scope": "MapGen Studio dev target, package scripts, daemon tokens, and Vite watch config",
   "forbids": "root dev aliases, package daemon watcher scripts, dev target topology drift, or generated/deploy outputs triggering Vite reloads",
   "why": "Studio dev execution topology is structural task authority and should not live in package tests.",
   "detect": [
     "bun",
     ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts"
   ],
-  "remediate": "Keep Studio dev orchestration in Nx project targets and keep generated/deploy outputs ignored by Vite watch.",
+  "remediate": "Keep Studio dev orchestration in Nx project targets and keep generated/deploy outputs ignored by Vite watch. Retired daemon file absence is owned by prohibit_retired_studio_devlive_daemon_file.",
   "message": "MapGen Studio dev runner topology drifted.",
   "exceptionPath": "none",
   "pathCoverage": [

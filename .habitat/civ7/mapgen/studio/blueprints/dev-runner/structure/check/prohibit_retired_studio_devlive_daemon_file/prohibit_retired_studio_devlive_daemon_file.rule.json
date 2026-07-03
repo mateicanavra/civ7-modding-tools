@@ -1,0 +1,31 @@
+{
+  "id": "prohibit_retired_studio_devlive_daemon_file",
+  "title": "Prohibit Retired Studio DevLive Daemon File",
+  "ownerTool": "structure-check",
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "scope": "apps/mapgen-studio/src/server/daemon",
+  "forbids": "the retired devLive.ts daemon file",
+  "why": "Studio dev execution no longer uses a package-local devLive daemon surface.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "structure-check"
+  ],
+  "structureFile": ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/prohibit_retired_studio_devlive_daemon_file/prohibit_retired_studio_devlive_daemon_file.structure.toml",
+  "remediate": "Keep Studio dev orchestration in Nx targets and the current daemon entrypoint.",
+  "message": "Retired Studio devLive daemon file is present.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/src/server/daemon/devLive.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}
