@@ -1,0 +1,32 @@
+{
+  "id": "validate_ecology_op_contract_quality",
+  "title": "Validate Ecology Op Contract Quality",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/ecology/ops/**, mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/**",
+  "forbids": "ecology contract schemas missing descriptions and exported ecology operation functions missing JSDoc",
+  "why": "Ecology is the canonical decomposed op exemplar; contract and source quality stays package-local while topology is enforced by structure-check.",
+  "detect": [
+    "bun",
+    "run",
+    "--cwd",
+    "mods/mod-swooper-maps",
+    "validate:ecology-op-contract-quality"
+  ],
+  "remediate": "Add schema descriptions and exported-function JSDoc to the reported ecology op or step source.",
+  "message": "Ecology op contract quality validation failed.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/ecology/ops/**",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

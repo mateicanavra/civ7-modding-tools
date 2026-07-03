@@ -28,6 +28,7 @@
     "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
     "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
     "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
+    "validate:ecology-op-contract-quality": "bun ./scripts/validate-ecology-op-contract-quality.ts",
     "verify": "bun ./scripts/verify.ts"
   },
   "dependencies": {

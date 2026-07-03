@@ -26,5 +26,6 @@ Files:
 Evidence: The check enforces Studio dev/serve-daemon Nx/package-script topology and Vite generated/deploy output ignores.
 
 Notes:
+- Residual owner class: future owner gap; remaining file-shape assertions are structure-check candidates but not converted in this closure slice.
 - Retired `devLive.ts` file absence moved to `prohibit_retired_studio_devlive_daemon_file`.
 - Remaining package script, Nx target, evaluated Vite config, and source-token assertions are not `structure-check` ownership.

@@ -2,6 +2,9 @@ import { clampInt } from "@swooper/mapgen-core/lib/math";
 
 import { isAnyRiverClass } from "../../../../hydrology/index.js";
 
+/**
+ * Marks tiles that are within the configured radius of any river class.
+ */
 export function computeRiverAdjacencyMask(args: {
   width: number;
   height: number;

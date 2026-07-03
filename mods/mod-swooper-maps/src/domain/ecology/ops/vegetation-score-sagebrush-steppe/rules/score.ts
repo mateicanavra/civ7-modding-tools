@@ -11,6 +11,9 @@ function bandpass(x: number, lo: number, hi: number, s: number): number {
   return clamp01(inLo * outHi);
 }
 
+/**
+ * Scores sagebrush steppe suitability from semiarid stress and open cover.
+ */
 export function scoreSagebrushSteppeSuitability(args: {
   size: number;
   landMask: Uint8Array;

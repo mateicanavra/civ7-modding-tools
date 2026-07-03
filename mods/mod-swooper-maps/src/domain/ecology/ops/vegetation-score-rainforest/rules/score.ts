@@ -11,6 +11,9 @@ function bandpass(x: number, lo: number, hi: number, s: number): number {
   return clamp01(inLo * outHi);
 }
 
+/**
+ * Scores rainforest suitability from warm, wet, biomass-heavy land fields.
+ */
 export function scoreRainforestSuitability(args: {
   size: number;
   landMask: Uint8Array;

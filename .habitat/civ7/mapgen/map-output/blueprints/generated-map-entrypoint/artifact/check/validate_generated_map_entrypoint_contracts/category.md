@@ -26,4 +26,5 @@ Files:
 Evidence: The check validates generated map config envelopes and rejects inline raw recipe operation envelopes in generated entrypoints.
 
 Notes:
+- Residual owner class: package-local artifact validator; generated entrypoint contract correctness is verified against generated outputs.
 - none

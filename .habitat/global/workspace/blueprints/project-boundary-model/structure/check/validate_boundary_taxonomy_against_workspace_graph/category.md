@@ -20,10 +20,9 @@ Authority path: `.habitat/global/workspace/blueprints/project-boundary-model/str
 
 Files:
 - `validate_boundary_taxonomy_against_workspace_graph.baseline.json`
-- `validate_boundary_taxonomy_against_workspace_graph.check.ts`
 - `validate_boundary_taxonomy_against_workspace_graph.rule.json`
 
 Evidence: The check audits package manifests, Nx metadata, boundary config, and taxonomy docs for graph/model consistency.
 
 Notes:
-- none
+- Residual owner class: workspace graph validator. The executable adapter lives in `tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts`; this packet is Habitat authority metadata/delegation.

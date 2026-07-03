@@ -11,6 +11,9 @@ function bandpass(x: number, lo: number, hi: number, s: number): number {
   return clamp01(inLo * outHi);
 }
 
+/**
+ * Scores taiga suitability from cold forest habitat evidence.
+ */
 export function scoreTaigaSuitability(args: {
   size: number;
   landMask: Uint8Array;

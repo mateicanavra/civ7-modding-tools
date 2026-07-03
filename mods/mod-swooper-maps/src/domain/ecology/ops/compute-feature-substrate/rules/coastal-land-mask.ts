@@ -1,5 +1,8 @@
 import { clampInt } from "@swooper/mapgen-core/lib/math";
 
+/**
+ * Marks land tiles that sit within the configured radius of water.
+ */
 export function computeCoastalLandMask(args: {
   width: number;
   height: number;

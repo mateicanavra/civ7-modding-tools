@@ -26,4 +26,5 @@ Files:
 Evidence: The check prevents transient Studio config identifiers from leaking into shipped mod catalog artifacts.
 
 Notes:
+- Residual owner class: package-local artifact validator; shipped catalog content is generated-output correctness.
 - none

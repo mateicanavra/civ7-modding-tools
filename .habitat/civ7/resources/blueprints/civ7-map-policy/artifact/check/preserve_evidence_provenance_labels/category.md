@@ -26,4 +26,5 @@ Files:
 Evidence: The check requires generated map policy tables to use evidence/provenance labels rather than source-of-truth claims.
 
 Notes:
+- Residual owner class: package-local artifact validator; generated provenance text correctness belongs to the map-policy generator/verify path.
 - none
