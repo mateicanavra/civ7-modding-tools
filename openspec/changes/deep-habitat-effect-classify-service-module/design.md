@@ -24,15 +24,12 @@ Classify CLI -> Habitat service client -> classify service module -> classify-co
 ```text
 tools/habitat-harness/src/service/modules/classify/contract.ts
 tools/habitat-harness/src/service/modules/classify/context.ts
-tools/habitat-harness/src/service/modules/classify/module.ts
 tools/habitat-harness/src/service/modules/classify/router.ts
-tools/habitat-harness/src/service/modules/classify/run.ts
 tools/habitat-harness/src/service/contract.ts
 tools/habitat-harness/src/service/router.ts
-tools/habitat-harness/src/service/base.ts
+tools/habitat-harness/src/service/context.ts
 tools/habitat-harness/src/commands/classify.ts
 tools/habitat-harness/test/service/classify-service.test.ts
-tools/habitat-harness/test/service/service-architecture.test.ts
 tools/habitat-harness/test/commands/habitat-commands.test.ts
 ```
 

@@ -1,1 +1,1 @@
-export * from "./public/index.js";
+export * from "@internal/habitat-harness/host/public/index";

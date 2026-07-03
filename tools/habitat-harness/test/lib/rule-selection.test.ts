@@ -1,6 +1,8 @@
-import { describe, expect, test } from "vitest";
-import type { RuleSourceFacts } from "../../src/domains/rule-registry/index.js";
-import { type RuleSelection, selectRules } from "../../src/domains/rule-selection/index.js";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import {
+  type RuleSelection,
+  selectRules,
+} from "@internal/habitat-harness/core/domains/rule-selection/index";
 import {
   approvedScanRootsForRules,
   checkCommandContext,
@@ -10,9 +12,10 @@ import {
   stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
   structuralCheckRequest,
-} from "../../src/domains/structural-check/index.js";
-import { validateCheckReport } from "../../src/domains/structural-check/schema.js";
-import type { HarnessRule } from "../../src/rules/architecture.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import { validateCheckReport } from "@internal/habitat-harness/core/domains/structural-check/schema";
+import type { HarnessRule } from "@internal/habitat-harness/core/rules/architecture";
+import { describe, expect, test } from "vitest";
 
 const fakeRules: HarnessRule[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
@@ -218,9 +221,9 @@ describe("rule selector boundary", () => {
   test("default local execution excludes graph and hygiene proof rules", () => {
     const local = fakeRule("local-source", "source-check", "@internal/habitat-harness");
     const fileLayer = fakeRule("local-file", "file-layer", "@internal/habitat-harness");
-    const graph = fakeRule("graph-proof", "target-check", "@internal/habitat-harness");
+    const graph = fakeRule("graph-proof", "nx", "@internal/habitat-harness");
     const hygiene = fakeRule("format-proof", "format-check", "@internal/habitat-harness");
-    const target = fakeRule("target-proof", "target-check", "@internal/habitat-harness");
+    const target = fakeRule("target-proof", "nx", "@internal/habitat-harness");
 
     expect(
       rulesForExecution([local, fileLayer, graph, hygiene, target]).map((rule) => rule.id)
@@ -228,13 +231,11 @@ describe("rule selector boundary", () => {
   });
 
   test("explicit selectors preserve graph and hygiene proof rules", () => {
-    const graph = fakeRule("graph-proof", "target-check", "@internal/habitat-harness");
+    const graph = fakeRule("graph-proof", "nx", "@internal/habitat-harness");
     const hygiene = fakeRule("format-proof", "format-check", "@internal/habitat-harness");
 
     expect(
-      rulesForExecution([graph, hygiene], { selection: { tool: "target-check" } }).map(
-        (rule) => rule.id
-      )
+      rulesForExecution([graph, hygiene], { selection: { tool: "nx" } }).map((rule) => rule.id)
     ).toEqual(["graph-proof", "format-proof"]);
   });
 

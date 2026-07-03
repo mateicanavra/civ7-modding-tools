@@ -74,8 +74,9 @@ Husky delegators must be modeled as:
 Effect.Effect<Success, HabitatError, Requirements>
 ```
 
-`Effect.run*` is allowed only at host adapters, tests, and the named runtime
-edge. Feature/domain code may construct Effect programs; it may not run them.
+`Effect.run*` is allowed only at service runtime, host/framework entrypoints,
+and tests. Feature/domain code may construct Effect programs; it may not run
+them.
 
 | Service | Owner | Required capability | Test requirement |
 |---|---|---|---|
@@ -86,8 +87,9 @@ edge. Feature/domain code may construct Effect programs; it may not run them.
 | `HabitatReporter` | `src/resources/**` | stdout/stderr/report events, bounded output, JSON/text rendering hooks | event-capturing fake layer |
 | `ResourceScope` | `src/resources/**` | temp dirs, caches, locks, snapshots, subprocess lifetime, cleanup finalizers | finalizer-order tests |
 
-`src/runtime/**` owns only Effect program execution, layer assembly, and
-host-edge run functions. `src/resources/**` owns scoped filesystem, clock, temp,
+`src/substrate/runtime/**` owns substrate layer assembly. `src/service/runtime/**`
+owns service implementer runtime composition. No substrate module exposes a
+generic run helper. `src/resources/**` owns scoped filesystem, clock, temp,
 cache, write-set, and lock resources. It does not own process execution.
 
 Expected failures use tagged variants under `HabitatError`:
@@ -117,7 +119,6 @@ domains decide Habitat policy.
 | `GritProvider` | `src/adapters/grit/provider/**` | pattern discovery, scan-root admission, check, dry-run apply, pattern tests, cache acquisition, diagnostics/output parsing | `GritProviderError` |
 | `BiomeProvider` | `src/providers/biome/**` | format write, check read-only, CI read-only, safe fix write, reporter parse, safe/unsafe fix classification, file-set discovery | `BiomeProviderError` |
 | `NxProvider` | `src/providers/nx/**` | project graph, target metadata, affected scope, `show project`, `show projects --with-target`, sync check, generator metadata | `NxProviderError` |
-| `HuskyHookProvider` | `src/providers/husky/**` | hook name validation, hook environment facts, delegation receipt, non-claim labeling | `HuskyProviderError` |
 
 Provider tests must compose fake Layers through Effect requirements. They must
 not patch module imports or pass loose dependency bags into feature code.
@@ -152,7 +153,7 @@ closure.
 
 | Priority | Smell | Exact evidence | State-space defect | Collapse move | Public-contract risk | Required tests/commands |
 |---|---|---|---|---|---|---|
-| P0 | Library-local runtime execution | `tools/habitat-harness/src/lib/workspace-tools.ts` `materializeHabitatCommand()` calls `Effect.runSync`; `src/lib/effect-runtime.ts` exposes `runHabitatEffect()` | Any library can become its own runtime edge and bypass shared lifecycle/error policy | Keep `Effect.run*` only in runtime adapters; replace materialization with provider service calls | Package consumers import `materializeHabitatCommand`; hooks and spawn depend on it | Static guard for `Effect.run*`; `bun run --cwd tools/habitat-harness check`; public export audit |
+| P0 | Library-local runtime execution | `tools/habitat-harness/src/lib/workspace-tools.ts` `materializeHabitatCommand()` calls `Effect.runSync`; historical `src/lib/effect-runtime.ts`/`src/substrate/runtime/run.ts` exposed `runHabitatEffect()` | Any library can become its own runtime edge and bypass shared lifecycle/error policy | Keep `Effect.run*` only at service runtime, host/framework entrypoints, and tests; replace materialization with provider service calls; keep the generic runner deleted | Package consumers import `materializeHabitatCommand`; hooks and spawn depend on it | Static guard for `Effect.run*`; `bun run --cwd tools/habitat-harness check`; public export audit |
 | P0 | Process execution duplication | `src/lib/spawn.ts`; `src/lib/habitat-process.ts`; `src/lib/hook-runtime/command-runner.ts`; `src/lib/baseline-core/context.ts` | Multiple command result shapes hide exit, signal, env, cwd, cache, timing, and failure distinctions | One `CommandRunner` Effect service with live/fake layers; provider-specific command builders consume it | CLI, hooks, baseline integrity, verify, graph, and Grit can change stdout/stderr/exit behavior | Command parity for `check`, `fix --dry-run`, `verify`, `graph --json`, hooks; fake CommandRunner unit matrix |
 | P0 | Direct mutable IO in domain modules | `rules/registry/load.ts`; `baseline-core/state.ts`; `baseline-core/integrity.ts`; `workspace-graph/inventory.ts`; `adapters/grit/request.ts`; `adapters/grit/scan-roots/index.ts`; `hook-runtime/staged-worktree.ts`; `check/render.ts`; `graph.ts` | Domain functions can read/write current checkout or temp dirs outside resource scopes | Move fs/time/temp writes into `FileSystemProvider`, `WorkspaceProvider`, `ResourceScope`; keep pure parse functions | Baseline writes, report output, graph temp cleanup, registry load, Grit cache paths | Fake FS tests, malformed JSON tests, temp finalizer tests, final clean worktree proof |
 | P0 | Direct clock use | `habitat-process.ts`; `check/execution.ts`; `check/report.ts`; `check/selection.ts`; `commands/verify.ts`; `hook-runtime/runtime.ts` | Time becomes nondeterministic data and cannot be tested or replayed | Use Effect `Clock`/`TestClock` behind `HabitatClock` service | Duration fields in reports/receipts/hooks may change shape or precision | TestClock unit tests, golden shape checks, no direct `Date.now` outside providers |
@@ -160,7 +161,7 @@ closure.
 | P0 | Public barrel leaks internals | `tools/habitat-harness/src/index.ts` exports runtime, process, workspace tool provider, registry internals, Grit failure helpers, rule execution, host policy schema; `rules/registry/index.ts`, `lib/classify.ts`, `lib/host-policy.ts` use broad barrels | Any internal type becomes de facto public contract and blocks refactor | Create explicit public contract exports; move test/internal imports to internal paths; forbid `export *` from internal modules | External package imports may break; package `exports` points at `src/index.ts` | Public-surface compatibility matrix update; `rg` callsite audit; package build/typecheck |
 | P1 | Option/flag soup instead of services | `HookRuntime` has optional `runCommand`, `pathExists`, `fileHash`, `nowMs`, `reporter`, `resourcePolicy`, `trace`; Grit options include optional process layer/cache/diagnostic flags; baseline context takes optional `runCommand`/paths/registry | Objects can represent partially provided runtimes and untested combinations | Replace option bags with request discriminated unions and provided services/layers | Existing tests may rely on ad hoc injection | Fake layer tests for hooks/Grit/baseline; constructors reject invalid states |
 | P1 | One-implementation abstractions | `WorkspaceToolProvider` wraps a fixed map and is also materialized sync; `NxWorkspaceGraphProjectReader` is the only reader class; `HookReporter` is a one-method object | Extra abstraction increases states without capability boundaries | Convert to functions where pure or service tags where provider-owned; remove one-method interfaces unless identity/lifecycle exists | Test helpers and package exports may import them | Type-only callsite audit; refactor tests for live/fake services |
-| P1 | Vendor names used as domain ownership | `rules/registry/schema.ts` `ownerTool` combines authority and executable; `check/report.ts` emits `ownerTool`; workspace tools map `format-check`, `pattern-check`, `target-check`; pattern validation has `ownerTool` | Records cannot distinguish domain authority, provider, and proof class | Replace with `domainAuthorityId`, `providerId`, `capabilityId`, and render-facing tool labels where needed | CheckReport v1 includes `ownerTool`; changing it is a compatibility event | D0 public JSON decision; if preserved, map new internals back to v1 label |
+| P1 | Vendor names used as domain ownership | `rules/registry/schema.ts` `ownerTool` combines authority and executable; `check/report.ts` emits `ownerTool`; workspace tools still map render/tool labels such as `format-check`; pattern validation has `ownerTool` | Records cannot distinguish domain authority, provider, and proof class | Replace with `domainAuthorityId`, `providerId`, `capabilityId`, and render-facing tool labels where needed | CheckReport v1 includes `ownerTool`; changing it is a compatibility event | D0 public JSON decision; if preserved, map new internals back to v1 label |
 | P1 | Hook local feedback is manual transaction code | `lib/hooks.ts`; `hook-runtime/*`; `.husky/pre-commit`; `.husky/pre-push` | Staged state, resource publish, formatter writes, restage, Grit scan, and pre-push affected state are mutable steps with nullable helper injection | `LocalFeedback` domain service plus `GitProvider`, `BiomeProvider`, `GritProvider`, `NxProvider`, scoped write-set resource | Hooks are local-only but can mutate staged index | Staged/unstaged/partial/restage tests; hook non-claim receipt; pre-push base proof |
 | P1 | Grit Effect island is not a provider model | `adapters/grit/runner.ts`; `adapters/grit/request.ts`; `habitat-process.ts`; `workspace-tools.ts` | Grit has more structure than other vendors, but provider concepts are not reusable | Enclose Grit under `adapters/grit/**` with a nested provider surface for version, command, config, parse, cache, failure, proof | Current Grit CheckReport behavior and apply dry-run behavior | Grit parser matrix, scan-root matrix, native pattern tests, current-tree check |
 | P1 | Nx graph and workspace inventory mix direct APIs and direct fs | `workspace-graph/reader.ts` calls `createProjectGraphAsync`; `workspace-graph/inventory.ts` crawls package JSON; `states.ts` throws on invalid alias dependency | Graph truth, package inventory, target naming, and fallback inventory can diverge | `NxProvider` owns graph/target facts; `WorkspaceInventory` is a separate read-only provider | Classify output and verify target plans | H8 classify matrix; `nx show projects --with-target`; workspace graph tests |
@@ -271,7 +272,6 @@ tools/habitat-harness/src/
       generators.ts
       errors.ts
       test-layer.ts
-    husky/
       index.ts
       provider.ts
       errors.ts
@@ -415,7 +415,7 @@ Delete or collapse:
 | 3 | `deep-habitat-effect-static-inventory-guardrails` | Add direct-use and language guardrails before source migration | 2 |
 | 4 | `deep-habitat-effect-runtime-config-errors` | Build shared runtime, config, error, resource, command services | 2, 3 |
 | 5 | `deep-habitat-effect-command-result-model` | Replace uneven command outcomes with typed request/result/error observations | 4 |
-| 6 | `deep-habitat-effect-vendor-providers` | Promote Grit and add Git/Biome/Nx/Husky provider boundaries | 4, 5 |
+| 6 | `deep-habitat-effect-vendor-providers` | Promote Grit and add Git/Biome/Nx provider boundaries | 4, 5 |
 | 7 | `deep-habitat-effect-public-surface-facade` | Create explicit `src/public/**` facade before moving internals | 4, 6 |
 | 8 | `deep-habitat-effect-rule-registry-domain` | Move registry, rule facts, graph facts, and selection to domains | 4, 7 |
 | 9 | `deep-habitat-effect-check-baseline-cutover` | Move structural check and baseline authority to domains | 5, 6, 8 |

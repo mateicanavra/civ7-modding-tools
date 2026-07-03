@@ -20,12 +20,13 @@ Implementation SHALL converge on these top-level source domains:
 - `src/config/**`
 - `src/errors/**`
 - `src/resources/**`
-- `src/providers/{command,fs,clock,git,grit,biome,nx,husky,reporter,workspace-tools}/**`
+- `src/providers/{command,fs,clock,git,grit,biome,nx,reporter,workspace-tools}/**`
 - `src/domains/**`
 - `src/public/**`
 
-Existing `src/lib/**`, `src/base/**`, and `src/adapters/**` files remain only
-until their logic is moved or their public adapter role is made explicit.
+Existing `src/lib/**`, `src/base/**`, and any old adapter roots remain only
+until their logic is moved into named substrate, provider, domain, service, or
+host owners.
 
 The current-to-target movement map for this packet is
 `workstream/source-movement-map.md`. That file is controlling for later source
@@ -42,7 +43,7 @@ deleted.
 - Replace mixed `ownerTool` internals with domain authority plus provider
   capability fields.
 - Replace broad public barrels with explicit public contracts.
-- Replace `src/lib`, `src/base`, and old `src/adapters` ownership with named
+- Replace `src/lib`, `src/base`, and old adapter ownership with named
   runtime, provider, domain, command, and public homes.
 
 ## Ownership Model
@@ -86,8 +87,8 @@ move runtime/provider/domain modules.
 
 Source implementation packets SHALL NOT:
 
-- add new feature ownership under `src/lib/**`, `src/base/**`, or
-  `src/adapters/**`;
+- add new feature ownership under `src/lib/**`, `src/base/**`, or old adapter
+  roots;
 - create `src/domain/**` instead of `src/domains/**`;
 - add a provider that also owns Habitat domain policy;
 - add a domain service that reconstructs vendor command semantics locally;

@@ -15,9 +15,7 @@
 ## 3. Verification
 
 - [x] 3.1 `bun run check`
-- [ ] 3.2 `bun run check:graph` attempted; currently blocked by existing
-  `mod-swooper-maps:test` failures unrelated to this root script contract
-  change.
+- [x] 3.2 `bun run check:graph`
 - [x] 3.3 `bun run openspec -- validate deep-habitat-effect-root-check-verify-split --strict`
 - [x] 3.4 `bun run openspec:validate`
 - [x] 3.5 `git diff --check`

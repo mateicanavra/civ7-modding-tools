@@ -1,13 +1,13 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   auditBoundaryTaxonomy,
   parseBoundaryTaxonomy,
   readBoundaryConfigConstraints,
   readNxProjectMetadataFromGraph,
   readWorkspaceManifestProjects,
-} from "../src/lib/boundary-taxonomy.js";
-import { repoRoot } from "../src/lib/paths.js";
+} from "@internal/habitat-harness/workspace/taxonomy/boundary-taxonomy";
 
 const taxonomy = parseBoundaryTaxonomy(
   await readFile(path.join(repoRoot, "docs/projects/habitat-harness/taxonomy.md"), "utf8")

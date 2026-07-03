@@ -1,9 +1,9 @@
+import { VerifyReceiptSchema } from "@internal/habitat-harness/core/domains/proof-contract/schema";
+import { CheckReportSchema } from "@internal/habitat-harness/core/domains/structural-check/schema";
+import { VerifyTargetPlanSchema } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
 import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { VerifyReceiptSchema } from "../../../domains/proof-contract/schema.js";
-import { CheckReportSchema } from "../../../domains/structural-check/schema.js";
-import { VerifyTargetPlanSchema } from "../../../domains/workspace-graph-integration/index.js";
 import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
 import type { HabitatServiceProcedureMeta } from "../../metadata.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";

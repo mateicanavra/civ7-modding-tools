@@ -2,8 +2,9 @@
 
 ### Requirement: External Tools Are Habitat Providers
 
-Habitat SHALL expose Git, Grit, Biome, Nx, and Husky through provider services
-with typed commands, config, failures, resource policy, and fake test layers.
+Habitat SHALL expose consumed external tools such as Git, Grit, Biome, and Nx
+through provider services with typed commands, config, failures, resource
+policy, and fake test layers.
 
 #### Scenario: Habitat runs a vendor command
 
@@ -20,3 +21,10 @@ with typed commands, config, failures, resource policy, and fake test layers.
   are Habitat-owned
 - **AND** providers do not claim baseline policy, architecture proof, staged
   transaction policy, or product behavior outside their vendor boundary
+
+#### Scenario: Unconsumed hook delegators are not providers
+
+- **WHEN** a repository hook is a static `.husky` delegator into `habitat hook`
+- **THEN** Habitat SHALL preserve that public hook behavior at the hook surface
+- **AND** it SHALL NOT keep an unused Husky provider service or fake provider
+  layer without a runtime consumer

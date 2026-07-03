@@ -1,5 +1,3 @@
-import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
 import {
   ApplyPatternPathSchema,
   activeApplyTransactionInputs,
@@ -17,7 +15,9 @@ import {
   patternView,
   RepoRelativePathSchema,
   retiredPatternState,
-} from "../../src/domains/pattern-governance/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 describe("pattern management views", () => {
   test("returns candidate drafts as candidate-only handoff state", () => {

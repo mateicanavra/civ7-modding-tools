@@ -1,8 +1,9 @@
-import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
-import { describe, expect, test } from "vitest";
-import { makeHabitatConfig } from "../../src/config/index.js";
-import { CommandInterrupted, CommandUnavailable } from "../../src/errors/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
+import { makeHabitatConfig } from "@internal/habitat-harness/substrate/config/index";
+import {
+  CommandInterrupted,
+  CommandUnavailable,
+} from "@internal/habitat-harness/substrate/errors/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   CommandRunner,
   captureCommandGitStateAround,
@@ -15,9 +16,10 @@ import {
   materializeHabitatCommandWithConfig,
   redactEnvDelta,
   renderCommandObservation,
-} from "../../src/providers/command/index.js";
-import { makeFakeGitStateProviderLayer } from "../../src/providers/git/index.js";
-import { runHabitatEffect } from "../../src/runtime/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { makeFakeGitStateProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
+import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
+import { describe, expect, test } from "vitest";
 
 describe("CommandRunner", () => {
   test("materializes workspace tools from HabitatConfig policy", () => {
@@ -33,7 +35,7 @@ describe("CommandRunner", () => {
   });
 
   test("fake layer models command observations without spawning", async () => {
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const runner = yield* CommandRunner;
         return yield* runner.run({
@@ -130,7 +132,7 @@ describe("CommandRunner", () => {
         branch: "after-branch",
         head: "after-head",
         dirty: true,
-        statusShort: " M tools/habitat-harness/src/providers/command/runner.ts\n",
+        statusShort: " M tools/habitat-harness/src/substrate/providers/command/runner.ts\n",
         statusDigest: "after-digest",
       },
     ];

@@ -1,17 +1,22 @@
 import path from "node:path";
-import { Effect, Layer } from "effect";
-import { describe, expect, test } from "vitest";
-import { CommandUnavailable } from "../../src/errors/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
-import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
+import type { GraphServiceRunInput } from "@internal/habitat-harness/service/modules/graph/contract";
+import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
+import { CommandUnavailable } from "@internal/habitat-harness/substrate/errors/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/substrate/providers/command/index";
 import {
   affectedArgv,
   graphArgv,
   makeFakeNxProviderLayer,
   type NxGraphRequest,
   NxProvider,
-} from "../../src/providers/nx/index.js";
-import { runGraphService } from "../../src/service/modules/graph/router.js";
+} from "@internal/habitat-harness/substrate/providers/nx/index";
+import { Effect, Layer } from "effect";
+import { withFiberContext } from "effect-orpc/node";
+import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
 describe("Habitat graph service", () => {
@@ -43,7 +48,7 @@ describe("Habitat graph service", () => {
     );
 
     const result = await Effect.runPromise(
-      runGraphService({ json: true }).pipe(Effect.provide(layer))
+      runGraphProcedure({ json: true }).pipe(Effect.provide(layer))
     );
 
     expect(result).toEqual({
@@ -59,7 +64,7 @@ describe("Habitat graph service", () => {
     ]);
   });
 
-  test("keeps the legacy nullish graph projection contract", async () => {
+  test("rejects nullish graph payloads instead of falling back to raw JSON", async () => {
     const graphPath = path.join("/tmp/habitat-graph-fake", "graph.json");
     const layer = Layer.mergeAll(
       makeFakeNxProviderLayer({
@@ -79,11 +84,9 @@ describe("Habitat graph service", () => {
       )
     );
 
-    const result = await Effect.runPromise(
-      runGraphService({ json: true }).pipe(Effect.provide(layer))
-    );
-
-    expect(result.stdout).toBe('{"graph":null,"nodes":{"root":{}}}\n');
+    await expect(
+      Effect.runPromise(runGraphProcedure({ json: true }).pipe(Effect.provide(layer)))
+    ).rejects.toThrow("Habitat graph service failed.");
   });
 
   test("returns failed Nx command streams without reading graph JSON", async () => {
@@ -109,7 +112,7 @@ describe("Habitat graph service", () => {
       makeFakePlatformFileSystemLayer(events)
     );
 
-    const result = await Effect.runPromise(runGraphService({}).pipe(Effect.provide(layer)));
+    const result = await Effect.runPromise(runGraphProcedure({}).pipe(Effect.provide(layer)));
 
     expect(result).toEqual({
       exitCode: 2,
@@ -149,7 +152,7 @@ describe("Habitat graph service", () => {
       makeFakePlatformFileSystemLayer(events)
     );
 
-    const result = await Effect.runPromise(runGraphService({}).pipe(Effect.provide(layer)));
+    const result = await Effect.runPromise(runGraphProcedure({}).pipe(Effect.provide(layer)));
 
     expect(result).toEqual({
       exitCode: 127,
@@ -159,3 +162,10 @@ describe("Habitat graph service", () => {
     expect(events).toEqual(["mkdtemp:/tmp/habitat-graph-fake", "remove:/tmp/habitat-graph-fake"]);
   });
 });
+
+function runGraphProcedure(input: GraphServiceRunInput) {
+  return Effect.gen(function* () {
+    const runGraph = graphRouter.run.callable({ context: {} });
+    return yield* withFiberContext(() => runGraph(input));
+  });
+}

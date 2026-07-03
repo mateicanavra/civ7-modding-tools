@@ -21,9 +21,8 @@ stable command result for CLI rendering.
 
 ```text
 tools/habitat-harness/src/service/modules/graph/contract.ts
-tools/habitat-harness/src/service/modules/graph/module.ts
+tools/habitat-harness/src/service/modules/graph/context.ts
 tools/habitat-harness/src/service/modules/graph/router.ts
-tools/habitat-harness/src/service/modules/graph/run.ts
 tools/habitat-harness/src/providers/nx/index.ts
 tools/habitat-harness/src/resources/filesystem.ts
 tools/habitat-harness/src/commands/graph.ts

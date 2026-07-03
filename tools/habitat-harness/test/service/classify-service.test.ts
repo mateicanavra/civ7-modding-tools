@@ -1,7 +1,7 @@
+import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
+import type { WorkspaceProject } from "@internal/habitat-harness/substrate/providers/nx/schema";
 import { describe, expect, test } from "vitest";
-import type { WorkspaceGraphProjectReader } from "../../src/domains/workspace-graph-integration/index.js";
-import type { WorkspaceProject } from "../../src/providers/nx/schema.js";
-import { createHabitatServiceClient } from "../../src/service/client.js";
 
 const nxProjects: WorkspaceGraphProjectReader = {
   async readProjects() {
@@ -49,7 +49,7 @@ describe("Habitat classify service", () => {
   test("classifies targets through the in-process Habitat service client", async () => {
     const result = await createHabitatServiceClient({
       classify: { options: { nxProjects } },
-    }).classify.run({ target: "tools/habitat-harness/src/commands/classify.ts" });
+    }).classify.run({ target: "tools/habitat-harness/src/host/commands/classify.ts" });
 
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
@@ -60,10 +60,12 @@ describe("Habitat classify service", () => {
   });
 
   test("routes classify through the in-process Habitat service client", async () => {
-    const client = createHabitatServiceClient({ classify: { options: { nxProjects } } });
+    const client = createHabitatServiceClient({
+      classify: { options: { nxProjects } },
+    });
 
     const result = await client.classify.run({
-      target: "tools/habitat-harness/src/commands/classify.ts",
+      target: "tools/habitat-harness/src/host/commands/classify.ts",
     });
 
     expect(result.state).toBe("project-path");
@@ -72,7 +74,9 @@ describe("Habitat classify service", () => {
   });
 
   test("preserves diff classification through the service contract boundary", async () => {
-    const client = createHabitatServiceClient({ classify: { options: { nxProjects } } });
+    const client = createHabitatServiceClient({
+      classify: { options: { nxProjects } },
+    });
 
     const result = await client.classify.run({
       target: `diff --git a/apps/mapgen-studio/src/main.tsx b/apps/mapgen-studio/src/main.tsx
@@ -123,7 +127,9 @@ index 3333333..4444444 100644
   });
 
   test("preserves unresolved-owner path states through the service boundary", async () => {
-    const client = createHabitatServiceClient({ classify: { options: { nxProjects } } });
+    const client = createHabitatServiceClient({
+      classify: { options: { nxProjects } },
+    });
 
     const result = await client.classify.run({ target: "notes/not-yet-created.md" });
 
@@ -154,7 +160,7 @@ index 3333333..4444444 100644
     });
 
     const result = await client.classify.run({
-      target: "tools/habitat-harness/src/commands/classify.ts",
+      target: "tools/habitat-harness/src/host/commands/classify.ts",
     });
 
     expect(result.state).toBe("graph-refusal");

@@ -1,6 +1,7 @@
+import { defaultWorkspaceToolPolicies } from "@internal/habitat-harness/substrate/config/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+import { materializeDefaultHabitatCommand } from "@internal/habitat-harness/substrate/providers/command/index";
 import { describe, expect, test } from "vitest";
-import { repoRoot } from "../../src/lib/paths.js";
-import { materializeDefaultHabitatCommand } from "../../src/providers/command/index.js";
 
 describe("workspace tool command materialization", () => {
   test("routes repo-local tools through Bun's workspace command plane", () => {
@@ -17,18 +18,16 @@ describe("workspace tool command materialization", () => {
       argv: ["run", "--cwd", repoRoot, "biome", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeDefaultHabitatCommand("target-check", ["--version"])).toMatchObject({
-      executable: "bun",
-      cwd: repoRoot,
-      argv: ["run", "--cwd", repoRoot, "nx", "--version"],
-      executionPlane: "workspace-bun-run",
-    });
     expect(materializeDefaultHabitatCommand("nx", ["--version"])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
       argv: ["run", "--cwd", repoRoot, "nx", "--version"],
       executionPlane: "workspace-bun-run",
     });
+  });
+
+  test("does not keep a legacy target-check alias for Nx", () => {
+    expect(defaultWorkspaceToolPolicies.has("target-check")).toBe(false);
   });
 
   test("keeps system prerequisites direct", () => {

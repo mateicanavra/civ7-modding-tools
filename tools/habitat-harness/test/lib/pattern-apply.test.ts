@@ -1,22 +1,24 @@
-import { Effect } from "effect";
-import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
-import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "../../src/domains/pattern-governance/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
 import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "../../src/domains/transformation-transaction/index.js";
+} from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
+import type { TransactionsServiceModuleContext } from "@internal/habitat-harness/service/modules/transactions/context";
+import { transactionsRouter } from "@internal/habitat-harness/service/modules/transactions/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "../../src/providers/command/index.js";
-import type { TransactionsServiceOptions } from "../../src/service/modules/transactions/context.js";
-import { runTransactionApplyService } from "../../src/service/modules/transactions/router.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
+import { Effect, type Layer } from "effect";
+import { withFiberContext } from "effect-orpc/node";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -29,10 +31,11 @@ describe("pattern apply", () => {
   });
 
   test("refuses fix at the command boundary before apply admission", async () => {
-    const { runFixService } = await import("../../src/service/modules/fix/router.js");
-
     const result = await Effect.runPromise(
-      runFixService({ kind: "dry-run-intent" }, { admissions: [] })
+      Effect.gen(function* () {
+        const runFix = fixRouter.run.callable({ context: { fix: { admissions: [] } } });
+        return yield* withFiberContext(() => runFix({ kind: "dry-run-intent" }));
+      })
     );
 
     expect(result).toMatchObject({
@@ -55,7 +58,7 @@ describe("pattern apply", () => {
 
   test("runs admitted dry-run commands through GritProvider", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const providerLayer = makeFakeGritProviderLayer((request) => {
+    const layer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -73,7 +76,8 @@ describe("pattern apply", () => {
         worktree: cleanWorktree(),
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
-      { providerLayer, transactionInputs: [transactionInput()] }
+      { transactionInputs: [transactionInput()] },
+      layer
     );
 
     expect(record.outcome).toMatchObject({
@@ -95,7 +99,7 @@ describe("pattern apply", () => {
   });
 
   test("refuses failed dry-run commands without writing", async () => {
-    const providerLayer = makeFakeGritProviderLayer((request) =>
+    const layer = makeFakeGritProviderLayer((request) =>
       makeHabitatCommandResult(request, {
         exit: { code: 2, signal: null, interrupted: false },
         stderr: { text: "grit failed\n", truncated: false, sha256: "", bytes: 12 },
@@ -108,7 +112,8 @@ describe("pattern apply", () => {
         worktree: cleanWorktree(),
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
-      { providerLayer, transactionInputs: [transactionInput()] }
+      { transactionInputs: [transactionInput()] },
+      layer
     );
 
     expect(record.outcome).toMatchObject({
@@ -141,7 +146,7 @@ describe("pattern apply", () => {
 
   test("invalid transaction input paths refuse before GritProvider", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const providerLayer = makeFakeGritProviderLayer((request) => {
+    const layer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request);
     });
@@ -163,7 +168,8 @@ describe("pattern apply", () => {
         worktree: cleanWorktree(),
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
-      { providerLayer, transactionInputs: [unsafeInput] }
+      { transactionInputs: [unsafeInput] },
+      layer
     );
 
     expect(record.outcome).toMatchObject({
@@ -279,8 +285,16 @@ describe("pattern apply", () => {
   });
 });
 
-function applyTransaction(input: unknown, options?: TransactionsServiceOptions) {
-  return Effect.runPromise(runTransactionApplyService(input, options));
+function applyTransaction(
+  input: PatternApplyRequest,
+  options?: TransactionsServiceModuleContext,
+  layer?: Layer.Layer<never>
+) {
+  const program = Effect.gen(function* () {
+    const apply = transactionsRouter.apply.callable({ context: { transactions: options ?? {} } });
+    return yield* withFiberContext(() => apply(input));
+  });
+  return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);
 }
 
 function cleanWorktree() {

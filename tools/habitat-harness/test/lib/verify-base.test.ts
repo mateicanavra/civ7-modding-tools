@@ -1,13 +1,13 @@
-import { Effect, Layer } from "effect";
-import { describe, expect, test } from "vitest";
-import { resolveVerifyBaseEffect } from "../../src/domains/proof-contract/index.js";
+import { resolveVerifyBaseEffect } from "@internal/habitat-harness/core/domains/proof-contract/index";
 import {
   captureOutput,
   makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
-} from "../../src/providers/command/index.js";
-import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
-import { runHabitatEffect } from "../../src/runtime/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
+import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/substrate/providers/graphite/index";
+import { Effect, Layer } from "effect";
+import { describe, expect, test } from "vitest";
 
 describe("verify base resolution", () => {
   test("prefers explicit base", async () => {
@@ -66,7 +66,12 @@ function resolveBase(base?: string, options: { graphiteExitCode?: number } = {})
       }
     );
   });
-  return runHabitatEffect(
-    resolveVerifyBaseEffect(base).pipe(Effect.provide(Layer.merge(commandLayer, gitLayer)))
+  const graphiteLayer = makeFakeGraphiteProviderLayer(() =>
+    options.graphiteExitCode === 0 || options.graphiteExitCode === undefined ? "agent-parent" : null
+  );
+  return Effect.runPromise(
+    resolveVerifyBaseEffect(base).pipe(
+      Effect.provide(Layer.mergeAll(commandLayer, gitLayer, graphiteLayer))
+    )
   );
 }

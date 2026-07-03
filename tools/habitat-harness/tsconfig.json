@@ -11,6 +11,11 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@internal/habitat-harness": ["src/index.ts"],
+      "@internal/habitat-harness/*": ["src/*"]
+    },
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true
   },
