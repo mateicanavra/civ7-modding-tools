@@ -1,4 +1,17 @@
-# Storybook build output (smoke-built per branch; the design-sync reference
-# is rebuilt into .design-sync/sb-reference at the B7 repoint)
+# Storybook build output (smoke builds; the design-sync reference render is a
+# separate build into .design-sync/sb-reference)
 storybook-static
 *storybook.log
+
+# design-sync (claude.ai/design). The converter scripts (.ds-sync/*.mjs, lib/,
+# storybook/, package-lock.json) are a committed REQUIREMENT of the documented
+# resync routine — vendored so any worktree can run it. Only their installed deps
+# (reproducible via `npm ci` from the committed lockfile) and the uploaded bundle
+# output are ignored.
+.ds-sync/node_modules/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+# storybook-shape reference render (the fidelity oracle; never uploaded, never committed)
+.design-sync/sb-reference/

@@ -14,3 +14,37 @@
 @import "./theme.css";
 
 @source "../";
+
+/* ----------------------------------------------------------------------------
+   Cutover class-set safelist (B7 sync repoint, 2026-07-02).
+
+   The retired app-era pipeline compiled utilities from the WHOLE app source;
+   the design project's hand-authored explorations/ were written against that
+   superset. The package-scoped @source scan above no longer generates the 38
+   app-only utilities below (verified by the old-uploaded-stylesheet vs
+   package-compile class-set diff). Safelist them so no exploration can lose
+   styling — the DESIGN §3 sanctioned remedy is exactly this authored
+   `@source inline()` list, never re-scanning app code. Trim only with a fresh
+   class-set diff + explorations grep proving a class is unused.
+   ------------------------------------------------------------------------- */
+@source inline("bg-background/40");
+@source inline("bg-black/50");
+@source inline("bg-red-500");
+@source inline("filter");
+@source inline("flex-row");
+@source inline("font-sans");
+@source inline("invisible");
+@source inline("max-w-[320px]");
+@source inline("min-h-screen");
+@source inline("opacity-30");
+@source inline("p-5");
+@source inline("paused");
+@source inline("ring-warning");
+@source inline("shadow-xl");
+@source inline("table");
+@source inline("text-[11px]");
+@source inline("text-blue-500");
+@source inline("text-emerald-500");
+@source inline("text-red-600");
+@source inline("text-rose-400");
+@source inline("focus:{absolute,bg-popover,border,border-border,font-medium,left-4,not-sr-only,outline-none,px-3,py-2,ring-1,ring-ring,rounded-md,shadow-md,text-data,text-foreground,top-4,z-50}");

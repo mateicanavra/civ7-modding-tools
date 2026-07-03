@@ -1,3 +1,5 @@
+> **HISTORICAL — retired app-hosted/package-shape pipeline (pre-extraction, superseded at B7 2026-07-02). Kept for the record; NOT a runbook.**
+
 # Frame — Complete the MapGen Studio design-sync surface
 
 > Standalone frame (framing-design). Object: **solution reframe**. Durability: **standalone** — must survive compaction/handoff. Carries WHAT + WHY + hard core + falsifier + scope + assumptions; **not** HOW (the HOW lives in the continuation snippet + `NOTES.md`).

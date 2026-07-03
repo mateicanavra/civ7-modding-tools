@@ -58,3 +58,21 @@ the shadcn CLI in a scratch app and relativize its imports on the way in.
 transforms. `bun run verify` asserts the artifact contract; the committed
 token fixture (`test/fixtures/token-contract.json`) pins theme parity with the
 last `_ds-compiled.css` the retired pipeline shipped.
+
+## Design sync (claude.ai/design)
+
+This package IS the synced artifact: `.design-sync/` (config, notes,
+conventions) and `.ds-sync/` (the vendored converter) live here, and the
+config consumes the real build (`entry: dist/index.js`, `cssEntry:
+dist/styles.css`, `buildCmd: bunx nx run mapgen-studio-ui:build`). The 46
+co-located stories are the fidelity oracle; story titles are the sync's
+grouping authority (byte-frozen).
+
+- `bunx nx run 'mapgen-studio-ui:"design-sync:check"'` (colon-named target —
+  quote it) — the CI-runnable local
+  verdict: package build (Nx edge) → reference Storybook rebuild → resync
+  driver (converter build → anchored diff → chromium render check → scoped
+  capture). Deliberately outside the CI five-target graph (chromium weight).
+- Operational truth lives in `.design-sync/NOTES.md` (append-only — read
+  bottom-up; the extraction-repoint section is the current runbook). Uploads
+  to the pinned project are gated on explicit go-ahead — never automatic.
