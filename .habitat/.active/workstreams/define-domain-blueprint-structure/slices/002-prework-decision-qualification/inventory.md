@@ -7,7 +7,8 @@ work begins. They are ordered from least defined to more defined. Completed
 prework decisions stay in the completed section as proof pointers, not as active
 queue items.
 
-Current next move: `Domain Model Config Law`.
+Current next move: resolve the open dominoes in
+`Decisions/002-foundation-lib-tectonics-disposition/`.
 
 ## Completed Decisions
 
@@ -32,28 +33,33 @@ every narrative path has liveness evidence and one disposition. The selected
 disposition was deletion of the current implementation plus protected retention
 of separate runtime-control narrative-choice surfaces.
 
+## Active Decision
+
 ### Foundation `lib/` / Tectonics Disposition
 
 Decision:
 classify each foundation `lib/**` file as domain model policy/data,
 operation-local implementation, artifact contract, core mechanics, or deletion.
 
-Result:
+Current result:
 the current `foundation/lib/**` tree is not a legal owner in the closed domain
-blueprint. Live rows split into named foundation model policy, foundation
-artifact contracts, operation-local guard/support work, and core-candidate
-helpers that require later execution proof. Unimported tectonics implementation
-files are qualified for deletion because active operation-local rule owners
-already exist.
+blueprint. Most rows split into named foundation model policy, foundation
+artifact contracts, operation-local rules, or deletion candidates. Two
+destination/decomposition classes remain unresolved inside the packet.
 
 Proof packet:
 `Decisions/002-foundation-lib-tectonics-disposition/`
 
-Done:
-every current `foundation/lib/**` file has a row disposition. Mixed constants
-and helper files are split by symbol group. No row lands in generic
-`model/data`, `model/policy`, `artifacts/contract`, `core`, or shared `lib`
-without a named destination or a named authority gap before execution.
+Open dominoes:
+
+- `Decisions/002-foundation-lib-tectonics-disposition/require-guards.domino.md`
+- `Decisions/002-foundation-lib-tectonics-disposition/tectonics-shared-core.domino.md`
+
+Done when:
+every current `foundation/lib/**` file has an exact destination, delete action,
+implementation-gated action, or closed domino. `require.ts` has per-export
+operation-local destinations, and `shared.ts` helpers have accepted core or
+operation-local destinations with proof requirements.
 
 ## 1. Domain Model Config Law
 

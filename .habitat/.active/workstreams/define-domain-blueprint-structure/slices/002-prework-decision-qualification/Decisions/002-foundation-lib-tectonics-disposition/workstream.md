@@ -1,8 +1,8 @@
 # Foundation Lib / Tectonics Disposition Workstream
 
-Status: closed prework decision
+Status: open prework decision
 
-This packet runs the completed `Foundation lib/ / Tectonics Disposition`
+This packet runs the active `Foundation lib/ / Tectonics Disposition`
 decision from `../../inventory.md`.
 
 Decision:
@@ -78,17 +78,24 @@ The steward also ran local relationship checks so synthesis could proceed while
 agent lanes were in flight. Agent results were used as cross-checking evidence,
 not as authority.
 
-## Closure
+## Closure State
 
-This packet is closed because:
+This packet is not closed yet. Most rows have exact dispositions, but two
+row classes remain open as first-class domino files:
+
+- `require-guards.domino.md`
+- `tectonics-shared-core.domino.md`
+
+The packet can close only after:
 
 - `synthesis/disposition-table.md` covers every row in
   `corpus/source-inventory.md`;
-- every row has an exact disposition or a named later domino;
+- every row has an exact disposition, delete action, implementation-gated row,
+  packet-linked execution slice, or closed domino;
 - raw evidence and interpretation are separated;
-- review findings are resolved in `reviews/review-findings.md`;
-- `../../inventory.md` now records this packet in the completed section and
-  advances the active queue.
+- accepted P1/P2 review findings are resolved in `reviews/review-findings.md`;
+- `../../inventory.md` records this packet as complete and advances the active
+  queue.
 
 ## Write Boundary
 

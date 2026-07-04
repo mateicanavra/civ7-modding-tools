@@ -1,6 +1,6 @@
 # Agent Briefs And Scratch Pads
 
-Status: closed coordination artifact
+Status: coordination artifact
 
 ## Steward Brief
 
@@ -18,8 +18,8 @@ Scratch pad:
   `tectonics/index.ts`, `events.ts`, `fields.ts`, `membership.ts`,
   `provenance.ts`, `rollups.ts`, `tracing.ts`.
 - Unimported implementation files have active operation-local counterparts.
-- No current row has enough evidence for `packages/mapgen-core` ownership in
-  this prework lane.
+- `shared.ts` helper rows need `tectonics-shared-core.domino.md` before any
+  core destination is accepted.
 
 ## Source Mapper Lane
 
@@ -50,8 +50,8 @@ Scratch pad:
 - `packages/mapgen-core/src/lib/**` owns pure math/grid/algorithmic mechanics
   only when domain semantics are absent.
 - `domain/lib` is not a target owner in the closed blueprint.
-- The scope law names destination classes, but some live foundation-wide helper
-  surfaces need narrower named reference updates before execution.
+- The scope law names destination classes, but `require.ts` and `shared.ts`
+  still need the packet's open dominoes closed before execution can move them.
 
 ## Unused-Code Auditor Lane
 

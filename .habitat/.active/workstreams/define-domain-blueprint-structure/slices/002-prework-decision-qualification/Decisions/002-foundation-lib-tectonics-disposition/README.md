@@ -1,8 +1,8 @@
 # Foundation Lib / Tectonics Disposition Decision Packet
 
-Status: closed prework decision
+Status: open prework decision
 
-This packet answers the completed `Foundation lib/ / Tectonics Disposition`
+This packet runs the active `Foundation lib/ / Tectonics Disposition`
 decision from `../../inventory.md`.
 
 Decision:
@@ -14,9 +14,13 @@ operation-local implementation, artifact contract, core mechanics, or deletion.
 
 ## Outcome
 
-The packet resolves the prework decision: `foundation/lib/**` is not a valid
-final owner. Future implementation should burn the current files down into the
-specific owners below instead of creating a replacement shared `lib` bucket.
+The packet resolves most rows: `foundation/lib/**` is not a valid final owner.
+Future implementation should burn the current files down into exact owners
+instead of creating a replacement shared `lib` bucket.
+
+The packet is not closed yet. Two unresolved row classes are tracked as
+first-class domino files in this directory and must be resolved within this
+prework decision slice before the inventory can advance.
 
 Concrete dispositions:
 
@@ -24,7 +28,7 @@ Concrete dispositions:
 | --- | --- |
 | `lib/crust/buoyancy.ts` | Promote to `foundation/model/policy/crust-buoyancy.ts`. |
 | `lib/normalize.ts` | Promote to `foundation/model/policy/reference-area.ts`. |
-| `lib/require.ts` | Block whole-file movement. Default disposition is operation-local decomposition: split guards into consuming operation `rules/input-guards.ts` files. Do not create a shared artifact-validation owner unless a later owner-law domino explicitly overrides this default. |
+| `lib/require.ts` | Unresolved prework domino: `require-guards.domino.md`. Whole-file movement is blocked; the accepted owner class is operation-local guard support, but the exact per-export decomposition is not closed. |
 | `lib/tectonics/constants.ts` / `EVENT_TYPE` | Promote to `foundation/model/policy/tectonic-event-types.ts`. |
 | `lib/tectonics/constants.ts` / reset thresholds | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. |
 | `lib/tectonics/constants.ts` / `ADVECTION_STEPS_PER_ERA` | Move to `foundation/ops/compute-tracer-advection/rules/constants.ts`. |
@@ -32,32 +36,21 @@ Concrete dispositions:
 | `lib/tectonics/constants.ts` / orogeny gain constants | Delete from `lib` unless a later recipe-stage or foundation-policy decision explicitly claims the duplicated recipe calculation. |
 | `lib/tectonics/internal-contract.ts` | Split to artifact contracts for `tectonic-events`, `tectonic-era-fields`, `plate-id-by-era`, and `tracer-index-by-era`. |
 | `lib/tectonics/schemas.ts` | Split to artifact contracts for `tectonic-history`, `current-tectonics`, and `tectonic-provenance`. |
-| `lib/tectonics/shared.ts` / byte, int8, vector, and mesh-neighborhood helpers | Out of the next mechanical source-moving slice. Assign to named later domino: `Core Mechanics Extraction Proof - foundation tectonics shared helpers`, with candidate destinations under `packages/mapgen-core/src/lib/math/**` and `packages/mapgen-core/src/lib/mesh/**`. |
+| `lib/tectonics/shared.ts` / byte, int8, vector, and mesh-neighborhood helpers | Unresolved prework domino: `tectonics-shared-core.domino.md`. Candidate core destinations exist, but the accepted destination API is not proven. |
 | `lib/tectonics/shared.ts` / `deriveResetThreshold` | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. |
 | `lib/tectonics/index.ts`, `events.ts`, `fields.ts`, `membership.ts`, `provenance.ts`, `rollups.ts`, `tracing.ts` | Delete in a later source slice after import proof and typecheck/test proof. Active operation-local replacements already exist. |
 
-This packet is complete as a decision packet. It deliberately does not perform
-source movement, deletion, Grit authoring, `structure.toml` edits, or runtime
-changes.
+This packet deliberately does not perform source movement, deletion, Grit
+authoring, `structure.toml` edits, or runtime changes.
 
-## Remaining Signals Before Implementation
+## Open Dominoes
 
-No remaining signal blocks this packet from being used as prework proof after
-the dispositions above. The remaining signals block only later implementation:
+- `require-guards.domino.md`
+- `tectonics-shared-core.domino.md`
 
-- **Operation guard decomposition:** `lib/require.ts` is not a shared owner.
-  The next source-moving slice should split its guards into operation-local
-  files. A shared artifact-validation owner would be a later explicit override,
-  not this packet's default.
-- **Core extraction proof:** `lib/tectonics/shared.ts` helpers that look generic
-  are excluded from the next mechanical source-moving slice and assigned to the
-  named later domino `Core Mechanics Extraction Proof - foundation tectonics
-  shared helpers`.
-- **Mixed-row execution shape:** `constants.ts`, `internal-contract.ts`,
-  `schemas.ts`, and `shared.ts` must be split by symbol group; none should move
-  as a whole file.
-- **Deletion proof:** unimported duplicate tectonics files should be deleted
-  only with source import proof plus the relevant foundation check/test proof.
+These domino files are the source of truth for unresolved prework in this
+packet. They are temporary: close them by resolving the decision in this packet,
+or by converting proved executable work into a packet-linked execution slice.
 
 ## Artifacts
 
@@ -75,6 +68,8 @@ synthesis/
   disposition-table.md
 reviews/
   review-findings.md
+require-guards.domino.md
+tectonics-shared-core.domino.md
 ```
 
 No `execution.md` is present. Source migration, deletions, `structure.toml`,

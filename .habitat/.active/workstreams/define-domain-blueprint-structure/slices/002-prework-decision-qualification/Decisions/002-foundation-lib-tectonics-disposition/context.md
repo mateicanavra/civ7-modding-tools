@@ -1,6 +1,6 @@
 # Context
 
-Status: closed packet context
+Status: packet context artifact
 
 ## Current Frame
 
@@ -32,7 +32,7 @@ unless explicitly converted into an implementation slice.
 - Active domain blueprint scope and decision-book owner classes.
 - `packages/mapgen-core` as a possible owner only where source is pure
   reusable mechanics with no foundation semantics.
-- Exact row dispositions and authority gaps.
+- Exact row dispositions and open dominoes.
 
 ## Out Of Frame
 
