@@ -2,7 +2,8 @@
 
 Status: closed prework decision
 
-This packet runs prework item 1 from `../inventory.md`.
+This packet runs the completed `Foundation lib/ / Tectonics Disposition`
+decision from `../../inventory.md`.
 
 Decision:
 
@@ -13,9 +14,9 @@ operation-local implementation, artifact contract, core mechanics, or deletion.
 
 The controlling method is:
 
-- `../frame.md`
-- `../single-prework-decision-frame.md`
-- `../decision-runner-brief.md`
+- `../../frame.md`
+- `../../single-prework-decision-frame.md`
+- `../../decision-runner-brief.md`
 
 ## Objective
 
@@ -42,7 +43,7 @@ relationships.
 
 Required evidence was gathered for:
 
-- selected inventory item;
+- selected inventory decision;
 - active domain scope/file law and decision-book criteria;
 - all current `foundation/lib/**` files;
 - exports, imports, callers, and adjacent operation consumers;
@@ -83,10 +84,10 @@ This packet is closed because:
 
 - `synthesis/disposition-table.md` covers every row in
   `corpus/source-inventory.md`;
-- every row has an exact disposition or a named authority/reference update;
+- every row has an exact disposition or a named later domino;
 - raw evidence and interpretation are separated;
 - review findings are resolved in `reviews/review-findings.md`;
-- `../inventory.md` now records this packet in the completed section and
+- `../../inventory.md` now records this packet in the completed section and
   advances the active queue.
 
 ## Write Boundary

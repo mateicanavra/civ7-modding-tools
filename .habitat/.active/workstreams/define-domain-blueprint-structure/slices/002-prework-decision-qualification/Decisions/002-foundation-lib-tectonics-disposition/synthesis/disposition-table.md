@@ -21,7 +21,8 @@ implementation-slice proof before execution.
 
 Item-level outcome:
 
-- `Reference update required before execution`
+- `Decision resolved for prework; implementation gated by row-specific owner-law,
+  proof, and verification requirements`
 
 ## Row Dispositions
 
@@ -29,7 +30,7 @@ Item-level outcome:
 | --- | --- | --- | --- | --- | --- | --- |
 | `lib/crust/buoyancy.ts` | live | Domain model policy | `packages/mapgen-core`; operation-local rules | Promote as `foundation/model/policy/crust-buoyancy.ts`. | verified | `decision-book/owner-boundaries.md`; `decision-book/move-classes.md` |
 | `lib/normalize.ts` | live | Domain model policy | generic op helper bucket; `packages/mapgen-core` | Promote as `foundation/model/policy/reference-area.ts`, preserving env-dimension validation plus reference-area derivation as one tested policy. | verified | `decision-book/owner-boundaries.md`; `mods/mod-swooper-maps/test/foundation/reference-area-policy.test.ts` |
-| `lib/require.ts` | live | Operation-local guard support | artifact contract; shared `foundation/lib` | Reference update required. Either decompose exported guards into consuming operations as `foundation/ops/<operation-id>/rules/input-guards.ts`, or first create a named artifact-validation owner law. No whole-file move. | corroborated | `decision-book/content-classes.md`; `decision-book/move-classes.md` |
+| `lib/require.ts` | live | Operation-local guard support | artifact contract; shared `foundation/lib` | Default disposition: decompose exported guards into consuming operations as `foundation/ops/<operation-id>/rules/input-guards.ts`. No whole-file move. A shared artifact-validation owner law would be a later explicit override, not this packet's default path. | corroborated | `decision-book/content-classes.md`; `decision-book/move-classes.md` |
 | `lib/tectonics/constants.ts` / `EVENT_TYPE` | live | Domain model policy | operation rules; artifact contracts | Promote as `foundation/model/policy/tectonic-event-types.ts`. | verified | `decision-book/owner-boundaries.md` |
 | `lib/tectonics/constants.ts` / reset threshold constants | live | Operation-local policy/rules | domain-wide policy bucket | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/constants.ts` / `ADVECTION_STEPS_PER_ERA` | live | Operation-local policy/rules | domain-wide policy bucket | Move to `foundation/ops/compute-tracer-advection/rules/constants.ts`. | verified | `decision-book/move-classes.md` |
@@ -42,8 +43,8 @@ Item-level outcome:
 | `lib/tectonics/schemas.ts` / history schema/type | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/contract/tectonic-history.contract.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/schemas.ts` / current tectonics schema/type | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/contract/current-tectonics.contract.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/schemas.ts` / provenance schema/type | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/contract/tectonic-provenance.contract.ts`. | verified | `decision-book/move-classes.md` |
-| `lib/tectonics/shared.ts` / byte, int8, and normalized-vector helpers | live | Core mechanics candidate | foundation model policy; artifact contracts | Core extraction candidate to `packages/mapgen-core/src/lib/math/clamp.ts`, `packages/mapgen-core/src/lib/math/int8.ts`, and `packages/mapgen-core/src/lib/math/int8-vector.ts`; execution requires exact core API proof because current consumers are foundation-only. | unresolved until execution proof | `decision-book/owner-boundaries.md`; `packages/mapgen-core/src/AGENTS.md` |
-| `lib/tectonics/shared.ts` / `NeighborhoodMesh`, `computeMeanEdgeLen`, `findNearestCell`, `chooseDriftNeighbor` | live | Core mechanics candidate | foundation model policy; artifact contracts | Core extraction candidate to `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`; execution requires proof the API is domain-free and belongs in core. | unresolved until execution proof | `decision-book/owner-boundaries.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / byte, int8, and normalized-vector helpers | live | Core mechanics candidate | foundation model policy; artifact contracts | Out of the next mechanical source-moving slice. Named later domino: `Core Mechanics Extraction Proof - foundation tectonics shared helpers`. Candidate destinations are `packages/mapgen-core/src/lib/math/clamp.ts`, `packages/mapgen-core/src/lib/math/int8.ts`, and `packages/mapgen-core/src/lib/math/int8-vector.ts`. | named later domino | `decision-book/owner-boundaries.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `NeighborhoodMesh`, `computeMeanEdgeLen`, `findNearestCell`, `chooseDriftNeighbor` | live | Core mechanics candidate | foundation model policy; artifact contracts | Out of the next mechanical source-moving slice. Named later domino: `Core Mechanics Extraction Proof - foundation tectonics shared helpers`. Candidate destination is `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`. | named later domino | `decision-book/owner-boundaries.md`; `packages/mapgen-core/src/AGENTS.md` |
 | `lib/tectonics/shared.ts` / `deriveResetThreshold` | live | Operation-local policy/rules | core mechanics | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/index.ts` | dead barrel | deletion | public domain surface | Delete after import proof and typecheck. | corroborated | `decision-book/move-classes.md` |
 | `lib/tectonics/events.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owners are `foundation/ops/compute-segment-events/rules/index.ts` and `foundation/ops/compute-hotspot-events/rules/index.ts`. | corroborated | `decision-book/move-classes.md` |
@@ -57,6 +58,6 @@ Item-level outcome:
 
 | Result | Owning reference | Update needed |
 | --- | --- | --- |
-| Packet closed and queue advanced | `../inventory.md` | Move item 1 to completed decisions with proof pointer; set current next move to `Domain Model Config Law`. |
+| Packet closed and queue advanced | `../../../inventory.md` | Completed decision recorded with proof pointer; current next move set to `Domain Model Config Law`. |
 | Mixed constants and shared-helper rows require follow-up law before movement | Future source-moving slice | Open exact implementation rows for constants and shared helpers; do not move whole files. |
 | Deletion candidates qualified but not executed | Future source-moving slice | Delete only with source import proof plus typecheck/test proof. |
