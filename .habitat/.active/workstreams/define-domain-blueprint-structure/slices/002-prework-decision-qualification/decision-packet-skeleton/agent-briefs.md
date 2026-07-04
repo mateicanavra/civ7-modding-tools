@@ -72,9 +72,13 @@ Prompt:
 You are the Relationship Tracer for one Habitat prework decision packet. Work
 read-only in the checkout path above.
 
-Use rg and source inspection by default. Use Narsil symbol/reference/call tools
-when relationship evidence affects ownership, liveness, or consumer impact.
-Use no hybrid search.
+Use Narsil MCP first for symbol/reference/caller/import/call-graph evidence
+when relationship evidence affects ownership, liveness, or consumer impact. The
+server is expected to be up, indexed on the primary worktree, and tracking the
+latest stack state; use repo id `civ7-modding-tools#2fa31857` unless
+`list_repos` reports a newer id. Use Narsil Git lenses plus local Git
+(`git blame`, `git log --follow`) when historical usage matters. Use rg and
+source inspection to corroborate and read exact source.
 
 Return evidence/relationship-evidence.md with exact commands or tool calls,
 raw relevant results, interpretation, and limits.
@@ -88,9 +92,10 @@ Prompt:
 You are the Unused-Code Auditor for one Habitat prework decision packet. Work
 read-only in the checkout path above.
 
-Use project-local evidence first. Use KNIP or an equivalent unused-code tool
-when deletion confidence depends on unused-file, unused-export, or caller
-absence evidence. Use no fix mode.
+Use KNIP when deletion confidence depends
+on unused-file, unused-export, or caller absence evidence. Use no fix mode.
+Corroborate deletion claims with Narsil references, rg scans, NX project
+context, and local Git history when relevant.
 
 Return evidence/unused-code-evidence.md. Separate raw findings, commands, and
 limits from interpretation.

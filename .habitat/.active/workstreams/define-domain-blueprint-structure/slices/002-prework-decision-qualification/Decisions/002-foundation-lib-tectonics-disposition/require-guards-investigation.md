@@ -129,6 +129,22 @@ Falsification questions:
 
 ## Step-By-Step Plan
 
+0. Run tool readiness and first-pass discovery.
+   - Confirm Narsil MCP repo id with `list_repos`; default expected repo id is
+     `civ7-modding-tools#2fa31857`.
+   - Confirm index readiness with `get_index_status`; the server is expected to
+     be up, indexed on the primary worktree, and tracking the latest stack
+     state.
+   - Use Narsil first for `require*` symbols: `find_references`, caller/import
+     graph tools, excerpts, and Git lenses such as file history/blame when
+     historical usage matters.
+   - Use NX for project target and dependency context before naming future
+     proof commands.
+   - Use local Git (`git blame`, `git log --follow`) to corroborate historical
+     owner or usage claims.
+   - Use KNIP dead-code analysis only as supporting deletion
+     evidence, with no fix mode and limitations recorded.
+
 1. Establish the corpus.
    - Record all nine exports from `require.ts`.
    - Record function signatures, checked fields, thrown error categories, and
@@ -140,7 +156,10 @@ Falsification questions:
      derived artifact, or mixed.
 
 2. Build the export-by-consumer matrix.
-   - Use `rg` or code-intelligence tools to find direct imports of each guard.
+   - Use Narsil `find_references` and import/call graph tools first to find
+     direct imports and call paths for each guard.
+   - Use `rg` and source inspection to corroborate direct imports, generated
+     gaps, and exact call-site context.
    - For each importer, record the exact file path, imported names, call sites,
      surrounding function, and operation id.
    - Include wrappers in `ops/**/rules/index.ts` or adjacent files even when

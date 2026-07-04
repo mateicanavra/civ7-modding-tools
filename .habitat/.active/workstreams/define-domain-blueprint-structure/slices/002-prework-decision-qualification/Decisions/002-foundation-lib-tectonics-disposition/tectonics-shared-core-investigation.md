@@ -139,6 +139,22 @@ Falsification questions:
 
 ## Step-By-Step Plan
 
+0. Run tool readiness and first-pass discovery.
+   - Confirm Narsil MCP repo id with `list_repos`; default expected repo id is
+     `civ7-modding-tools#2fa31857`.
+   - Confirm index readiness with `get_index_status`; the server is expected to
+     be up, indexed on the primary worktree, and tracking the latest stack
+     state.
+   - Use Narsil first for exported `shared.ts` symbols: `find_references`,
+     caller/import graph tools, excerpts, and Git lenses such as file
+     history/blame when historical usage matters.
+   - Use NX for `mapgen-core` and `mod-swooper-maps` project target/dependency
+     context before naming future proof commands.
+   - Use local Git (`git blame`, `git log --follow`) to corroborate historical
+     owner or usage claims.
+   - Use KNIP dead-code analysis only as supporting deletion
+     evidence, with no fix mode and limitations recorded.
+
 1. Establish the symbol corpus.
    - Record every export from `shared.ts`.
    - Record each symbol's signature, return shape, imported core helpers, and
@@ -147,8 +163,10 @@ Falsification questions:
      if evidence contradicts that classification.
 
 2. Build the symbol-by-consumer matrix.
-   - Use `rg` or code-intelligence tools to find importers and call sites for
-     each symbol.
+   - Use Narsil `find_references` and import/call graph tools first to find
+     importers, call paths, and related existing core helpers for each symbol.
+   - Use `rg` and source inspection to corroborate direct imports, generated
+     gaps, and exact call-site context.
    - Record caller path, owning operation, call context, and any tests that
      already pin behavior.
    - Distinguish direct use from pass-through wrapper or dead import.

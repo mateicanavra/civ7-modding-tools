@@ -157,6 +157,18 @@ rows share the same expected disposition.
 
 Trace the item far enough to decide who owns the material.
 
+Tool-first expectation:
+
+- Start with Narsil MCP for symbol/reference/caller/import/call-graph evidence.
+  The server is up for this repo, indexed on the primary worktree, and tracks
+  the latest stack state. Use repo id `civ7-modding-tools#2fa31857` unless
+  `list_repos` reports a newer id.
+- Use Narsil Git lenses and local Git for history: file history, blame, recent
+  changes, hotspots, `git blame`, and `git log --follow`.
+- Use NX for project ownership, dependency, target, and runnable-check analysis.
+- Use KNIP dead-code analysis before accepting deletion
+  confidence, and record tool limits.
+
 Required relationship checks:
 
 - exports and barrels;
@@ -165,8 +177,8 @@ Required relationship checks:
 - generated or artifact consumers when relevant;
 - dead or duplicate surfaces.
 
-Use `rg` and TypeScript/source inspection by default. Use Narsil references or
-symbol tools when a relationship claim needs graph evidence.
+Use `rg` and TypeScript/source inspection as corroboration and detail reading,
+not as the only first pass for graph-shaped questions.
 
 ## Stage 5: Decide Per-Row Disposition
 

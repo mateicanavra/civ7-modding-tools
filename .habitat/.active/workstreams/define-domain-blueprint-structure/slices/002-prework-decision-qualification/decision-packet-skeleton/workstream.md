@@ -59,9 +59,18 @@ Required:
 
 Add tool evidence when it affects the decision:
 
-- Narsil/source graph for symbol, reference, caller, or dependency claims;
-- KNIP or equivalent unused-code evidence for deletion claims;
-- package-local tests or build checks when source behavior is in question.
+- Narsil MCP first for symbol, reference, caller, import, call-graph, and code
+  history claims. Use repo id `civ7-modding-tools#2fa31857` unless `list_repos`
+  reports a newer id; the server is expected to be up, indexed on the primary
+  worktree, and tracking the latest stack state.
+- Narsil Git lenses and local Git for historical usage, file history, blame,
+  hotspots, and recent changes. Corroborate important history claims with local
+  `git blame` or `git log --follow`.
+- NX for project ownership, dependency shape, target availability, and runnable
+  checks.
+- KNIP unused-code evidence for deletion claims, with no fix
+  mode and with limits recorded.
+- Package-local tests or build checks when source behavior is in question.
 
 ## Team Lanes
 
@@ -71,7 +80,7 @@ The steward owns synthesis, write-back, and final decisions.
 | --- | --- | --- |
 | Authority Mapper | `corpus/architecture-authority.md` | Controlling owner criteria, source docs, non-owners, and authority gaps. |
 | Source Mapper | `corpus/source-inventory.md` | Exact paths/symbols, exports, imports, callers, collars, and initial role tags. |
-| Relationship Tracer | `evidence/relationship-evidence.md` | Graph/caller/import evidence for ownership and liveness claims. |
+| Relationship Tracer | `evidence/relationship-evidence.md` | Narsil-first graph/caller/import evidence for ownership and liveness claims, corroborated by source/Git as needed. |
 | Unused-Code Auditor | `evidence/unused-code-evidence.md` | Unused/dead-code findings, commands, limits, and interpretation. |
 | Owner Classifier | `synthesis/disposition-table.md` | One disposition per row, with owner, action, evidence strength, and governing authority. |
 | Fresh reviewers | `reviews/review-findings.md` | Findings on row coverage, invented destinations, weak evidence, and write-back readiness. |

@@ -54,6 +54,19 @@ not architecture authority. Destinations come from active law: scope/file/patter
 docs, decision-book criteria, product/architecture authority, or a named later
 owner-law domino. Directory-only destinations require a positive content law.
 
+Tool-first investigation:
+Before hand-reading broad surfaces, use the available code-intelligence and
+history tools to shape the investigation. Narsil MCP is up for this repo, indexed
+on the primary worktree, and configured to keep tracking the latest stack state.
+Use repo id `civ7-modding-tools#2fa31857` for Narsil calls unless
+`list_repos` reports a newer id. Treat Narsil as the first-pass engine for
+symbol/reference/caller/import/call-graph evidence and for Git history lenses
+such as file history, blame, hotspots, recent changes, and modified files. Use
+Git directly in the active worktree for corroborating commands, especially
+`git blame`, `git log --follow`, and path-specific history. Use NX for project
+analysis and runnable target discovery. Use KNIP dead-code
+analysis for deletion candidates, with no fix mode, and record limits.
+
 Packet work:
 - Copy the skeleton into the packet destination.
 - Fill context.md with the decision boundary, candidate owners, non-owners,
@@ -62,9 +75,11 @@ Packet work:
 - Write agent-briefs.md with exact prompts for the lanes you use.
 - Build corpus/source-inventory.md with exact paths/symbols and collars.
 - Build corpus/architecture-authority.md from controlling authority.
-- Build evidence files that match the selected decision. Use Narsil for
-  graph/reference/caller claims when those claims affect disposition. Use KNIP
-  or equivalent unused-code checks when deletion confidence depends on them.
+- Build evidence files that match the selected decision. Start with Narsil for
+  graph/reference/caller/import/call-history claims when those claims affect
+  disposition. Use KNIP unused-code checks when deletion
+  confidence depends on them. Use NX and Git history evidence when project
+  ownership, target availability, churn, or historical usage affects the row.
 - Write synthesis/disposition-table.md with one row per path or symbol.
 - Run fresh review and record findings in reviews/review-findings.md.
 - Apply accepted repairs to the packet.

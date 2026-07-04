@@ -48,6 +48,23 @@ authoring, `structure.toml` edits, or runtime changes.
 - `require-guards.domino.md`
 - `tectonics-shared-core.domino.md`
 
+## Investigation Tooling
+
+Start the remaining investigations with the toolchain, not with a broad manual
+read:
+
+- Narsil MCP is up, indexed on the primary worktree, and tracking the latest
+  stack state. Use repo id `civ7-modding-tools#2fa31857` unless `list_repos`
+  reports a newer id.
+- Use Narsil for symbols, references, callers, imports, call graphs, excerpts,
+  file history, blame, hotspots, recent changes, and modified-file checks.
+- Use KNIP dead-code analysis for deletion confidence, with no
+  fix mode and with limitations recorded.
+- Use NX for project ownership, dependency shape, target availability, and
+  runnable-check selection.
+- Use local Git, especially `git blame` and `git log --follow`, to corroborate
+  historical usage and ownership claims.
+
 Dedicated investigation plans:
 
 - `require-guards-investigation.md`
