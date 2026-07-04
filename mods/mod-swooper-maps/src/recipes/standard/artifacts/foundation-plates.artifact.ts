@@ -1,4 +1,6 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation plates artifact payload (tile-space plate tensors). */
 export const Schema = Type.Object(
@@ -42,3 +44,66 @@ export const artifact = defineArtifact({
   id: "artifact:map.foundationPlates",
   schema: Schema,
 });
+
+function validateTensorLength(
+  issues: { message: string }[],
+  name: string,
+  tensor: { length: number } | null | undefined,
+  size: number
+): void {
+  if (!tensor || typeof tensor.length !== "number") {
+    issues.push({ message: `[FoundationArtifact] Missing ${name} tensor.` });
+    return;
+  }
+  if (tensor.length !== size) {
+    issues.push({
+      message: `[FoundationArtifact] ${name} tensor length mismatch (expected ${size}, received ${tensor.length}).`,
+    });
+  }
+}
+
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const schemaIssues = validateArtifactSchema(Schema, value);
+  if (!context?.dimensions) return schemaIssues;
+  if (!value || typeof value !== "object") {
+    return Object.freeze([
+      ...schemaIssues,
+      { message: "[FoundationArtifact] Missing foundation plates artifact payload." },
+    ]);
+  }
+
+  const plates = value as {
+    id?: { length: number };
+    boundaryCloseness?: { length: number };
+    boundaryType?: { length: number };
+    tectonicStress?: { length: number };
+    upliftPotential?: { length: number };
+    riftPotential?: { length: number };
+    shieldStability?: { length: number };
+    volcanism?: { length: number };
+    movementU?: { length: number };
+    movementV?: { length: number };
+    rotation?: { length: number };
+  };
+  const width = context.dimensions.width | 0;
+  const height = context.dimensions.height | 0;
+  const size = Math.max(0, width * height) | 0;
+  const issues = [...schemaIssues];
+
+  validateTensorLength(issues, "plateId", plates.id, size);
+  validateTensorLength(issues, "boundaryCloseness", plates.boundaryCloseness, size);
+  validateTensorLength(issues, "boundaryType", plates.boundaryType, size);
+  validateTensorLength(issues, "tectonicStress", plates.tectonicStress, size);
+  validateTensorLength(issues, "upliftPotential", plates.upliftPotential, size);
+  validateTensorLength(issues, "riftPotential", plates.riftPotential, size);
+  validateTensorLength(issues, "shieldStability", plates.shieldStability, size);
+  validateTensorLength(issues, "volcanism", plates.volcanism, size);
+  validateTensorLength(issues, "plateMovementU", plates.movementU, size);
+  validateTensorLength(issues, "plateMovementV", plates.movementV, size);
+  validateTensorLength(issues, "plateRotation", plates.rotation, size);
+
+  return Object.freeze(issues);
+}

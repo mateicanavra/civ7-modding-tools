@@ -1,4 +1,5 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 const LandmassRegionSlotByTileArtifactSchema = Type.Object(
   {
@@ -20,3 +21,34 @@ export const artifact = defineArtifact({
   id: "artifact:map.landmassRegionSlotByTile",
   schema: Schema,
 });
+
+type ValidationIssue = { message: string };
+
+function issue(message: string): ValidationIssue {
+  return { message };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/** Validate hook for the projection metadata artifact (topology locks). */
+
+function validatePayload(value: unknown): ValidationIssue[] {
+  if (!isRecord(value)) return [issue("landmassRegionSlotByTile artifact must be an object.")];
+  const slotByTile = value.slotByTile;
+  if (!(slotByTile instanceof Uint8Array) || slotByTile.length === 0) {
+    return [issue("landmassRegionSlotByTile.slotByTile must be a non-empty Uint8Array.")];
+  }
+  for (let i = 0; i < slotByTile.length; i++) {
+    const slot = slotByTile[i] ?? 0;
+    if (slot > 2) {
+      return [issue(`slotByTile[${i}] = ${slot} outside the slot domain {0,1,2}.`)];
+    }
+  }
+  return [];
+}
+
+export function validate(value: unknown): readonly { message: string }[] {
+  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
+}

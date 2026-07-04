@@ -1,4 +1,4 @@
-import { validateMantlePotentialArtifact } from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../../foundation/artifacts.js";
@@ -10,7 +10,7 @@ const GROUP_MANTLE = "Foundation / Mantle";
 export default createStep(MantlePotentialStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mantlePotential], {
     foundationMantlePotential: {
-      validate: (value) => validateMantlePotentialArtifact(value),
+      validate: (value) => foundationArtifactValidators.mantlePotential(value),
     },
   }),
   run: (context, config, ops, deps) => {

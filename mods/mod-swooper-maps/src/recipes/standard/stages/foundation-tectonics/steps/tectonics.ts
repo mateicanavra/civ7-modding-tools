@@ -1,10 +1,5 @@
 import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
-import {
-  validateTectonicsArtifact,
-  validateTectonicHistoryArtifact,
-  validateTectonicProvenanceArtifact,
-  validateTectonicSegmentsArtifact,
-} from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/config.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
@@ -40,16 +35,16 @@ export default createStep(TectonicsStepContract, {
     ],
     {
       foundationTectonicSegments: {
-        validate: (value) => validateTectonicSegmentsArtifact(value),
+        validate: (value) => foundationArtifactValidators.tectonicSegments(value),
       },
       foundationTectonicHistory: {
-        validate: (value) => validateTectonicHistoryArtifact(value),
+        validate: (value) => foundationArtifactValidators.tectonicHistory(value),
       },
       foundationTectonicProvenance: {
-        validate: (value) => validateTectonicProvenanceArtifact(value),
+        validate: (value) => foundationArtifactValidators.tectonicProvenance(value),
       },
       foundationTectonics: {
-        validate: (value) => validateTectonicsArtifact(value),
+        validate: (value) => foundationArtifactValidators.currentTectonics(value),
       },
     }
   ),

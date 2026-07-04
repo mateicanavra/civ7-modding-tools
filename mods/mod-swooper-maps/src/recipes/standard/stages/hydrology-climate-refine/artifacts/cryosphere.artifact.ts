@@ -1,4 +1,6 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Cryosphere state products (snow/sea-ice/albedo proxies).
@@ -39,3 +41,58 @@ export const artifact = defineArtifact({
   id: "artifact:hydrology.cryosphere",
   schema: Schema,
 });
+
+type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function expectedSize(context: ArtifactValidationContext | undefined): number | undefined {
+  const width = context?.dimensions?.width;
+  const height = context?.dimensions?.height;
+  if (!Number.isFinite(width) || !Number.isFinite(height)) return undefined;
+  return Math.max(0, (width! | 0) * (height! | 0));
+}
+
+function validateTypedArray(
+  errors: ArtifactValidationIssue[],
+  label: string,
+  value: unknown,
+  ctor: { new (...args: any[]): { length: number } },
+  expectedLength?: number
+): void {
+  if (!(value instanceof ctor)) {
+    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
+    return;
+  }
+  if (expectedLength != null && value.length !== expectedLength) {
+    errors.push({
+      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
+    });
+  }
+}
+
+function validatePayload(
+  value: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  const size = expectedSize(context);
+  if (!isRecord(value)) return [{ message: "Missing hydrology cryosphere artifact payload." }];
+  const candidate = value as { snowCover?: unknown; seaIceCover?: unknown; albedo?: unknown };
+  validateTypedArray(errors, "cryosphere.snowCover", candidate.snowCover, Uint8Array, size);
+  validateTypedArray(errors, "cryosphere.seaIceCover", candidate.seaIceCover, Uint8Array, size);
+  validateTypedArray(errors, "cryosphere.albedo", candidate.albedo, Uint8Array, size);
+  return errors;
+}
+
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  return Object.freeze([
+    ...validateArtifactSchema(Schema, value),
+    ...validatePayload(value, context),
+  ]);
+}

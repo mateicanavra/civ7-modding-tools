@@ -1,4 +1,4 @@
-import { validatePlateMotionArtifact } from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
@@ -93,7 +93,7 @@ function buildVectorSegments(params: {
 export default createStep(PlateMotionStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateMotion], {
     foundationPlateMotion: {
-      validate: (value) => validatePlateMotionArtifact(value),
+      validate: (value) => foundationArtifactValidators.plateMotion(value),
     },
   }),
   run: (context, config, ops, deps) => {

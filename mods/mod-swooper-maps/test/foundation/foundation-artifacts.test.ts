@@ -21,27 +21,7 @@ type ArtifactModule = Readonly<{
   Schema: unknown;
   artifact: Readonly<{ id: string; name: string; schema: unknown }>;
   validate: (value: unknown) => readonly { message: string }[];
-  assert?: unknown;
 }>;
-
-const modules = [
-  ["mesh", mesh, "artifact:foundation.mesh"],
-  ["crust", crust, "artifact:foundation.crust"],
-  ["crust-init", crustInit, "artifact:foundation.crustInit"],
-  ["mantle-potential", mantlePotential, "artifact:foundation.mantlePotential"],
-  ["mantle-forcing", mantleForcing, "artifact:foundation.mantleForcing"],
-  ["plate-graph", plateGraph, "artifact:foundation.plateGraph"],
-  ["plate-motion", plateMotion, "artifact:foundation.plateMotion"],
-  ["plate-topology", plateTopology, "artifact:foundation.plateTopology"],
-  ["tectonic-segments", tectonicSegments, "artifact:foundation.tectonicSegments"],
-  ["current-tectonics", currentTectonics, "artifact:foundation.tectonics"],
-  ["tectonic-history", tectonicHistory, "artifact:foundation.tectonicHistory"],
-  ["tectonic-provenance", tectonicProvenance, "artifact:foundation.tectonicProvenance"],
-  ["tectonic-events", tectonicEvents, "artifact:foundation.tectonicEvents"],
-  ["tectonic-era-fields", tectonicEraFields, "artifact:foundation.tectonicEraFields"],
-  ["plate-id-by-era", plateIdByEra, "artifact:foundation.plateIdByEra"],
-  ["tracer-index-by-era", tracerIndexByEra, "artifact:foundation.tracerIndexByEra"],
-] as const satisfies readonly (readonly [string, ArtifactModule, string])[];
 
 function messages(issues: readonly { message: string }[]): string {
   return issues.map((issue) => issue.message).join("\n");
@@ -320,21 +300,6 @@ function validEvent() {
 }
 
 describe("foundation artifact contract files", () => {
-  it("exports exactly one stable artifact contract surface per file", () => {
-    for (const [name, module, id] of modules) {
-      expect(module.Schema, name).toBeDefined();
-      expect(module.artifact.id, name).toBe(id);
-      expect(module.artifact.schema, name).toBe(module.Schema);
-      expect(typeof module.validate, name).toBe("function");
-      expect(module.assert, name).toBeUndefined();
-
-      const semanticFunctionExports = Object.keys(module).filter((key) =>
-        /^(validate|assert)[A-Z]|validateFoundation|assertFoundation/.test(key)
-      );
-      expect(semanticFunctionExports, name).toEqual([]);
-    }
-  });
-
   it("validates direct foundation artifact payloads without mutating or throwing", () => {
     const validPayloads: readonly (readonly [ArtifactModule, unknown])[] = [
       [mesh, validMesh()],
@@ -449,11 +414,7 @@ describe("foundation artifact contract files", () => {
       },
       /id/
     );
-    expectInvalid(
-      tectonicSegments,
-      { ...validTectonicSegments(), driftV: i8(1) },
-      /driftV/
-    );
+    expectInvalid(tectonicSegments, { ...validTectonicSegments(), driftV: i8(1) }, /driftV/);
     expectInvalid(
       currentTectonics,
       { ...validCurrentTectonics(), shearStress: f32() },

@@ -1,4 +1,6 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 const MorphologyBeltComponentSummarySchema = Type.Object(
   {
@@ -104,3 +106,126 @@ export const artifact = defineArtifact({
   id: "artifact:morphology.beltDrivers",
   schema: Schema,
 });
+
+type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
+  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
+}
+
+function validateTypedArray(
+  errors: ArtifactValidationIssue[],
+  label: string,
+  value: unknown,
+  ctor: { new (...args: any[]): { length: number } },
+  expectedLength?: number
+): value is { length: number } {
+  if (!(value instanceof ctor)) {
+    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
+    return false;
+  }
+  if (expectedLength != null && value.length !== expectedLength) {
+    errors.push({
+      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
+    });
+  }
+  return true;
+}
+
+function validatePayload(
+  value: unknown,
+  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  if (!isRecord(value)) {
+    errors.push({ message: "Missing beltDrivers buffer." });
+    return errors;
+  }
+  const size = expectedSize(dimensions);
+  const candidate = value as {
+    boundaryCloseness?: unknown;
+    boundaryType?: unknown;
+    upliftPotential?: unknown;
+    collisionPotential?: unknown;
+    subductionPotential?: unknown;
+    riftPotential?: unknown;
+    tectonicStress?: unknown;
+    beltAge?: unknown;
+    dominantEra?: unknown;
+    beltMask?: unknown;
+    beltDistance?: unknown;
+    beltNearestSeed?: unknown;
+    beltComponents?: unknown;
+  };
+  validateTypedArray(
+    errors,
+    "beltDrivers.boundaryCloseness",
+    candidate.boundaryCloseness,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(errors, "beltDrivers.boundaryType", candidate.boundaryType, Uint8Array, size);
+  validateTypedArray(
+    errors,
+    "beltDrivers.upliftPotential",
+    candidate.upliftPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.collisionPotential",
+    candidate.collisionPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.subductionPotential",
+    candidate.subductionPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.riftPotential",
+    candidate.riftPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.tectonicStress",
+    candidate.tectonicStress,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(errors, "beltDrivers.beltAge", candidate.beltAge, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.dominantEra", candidate.dominantEra, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.beltMask", candidate.beltMask, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.beltDistance", candidate.beltDistance, Uint8Array, size);
+  validateTypedArray(
+    errors,
+    "beltDrivers.beltNearestSeed",
+    candidate.beltNearestSeed,
+    Int32Array,
+    size
+  );
+  if (!Array.isArray(candidate.beltComponents)) {
+    errors.push({ message: "Expected beltDrivers.beltComponents to be an array." });
+  }
+  return errors;
+}
+
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const schemaIssues = validateArtifactSchema(Schema, value);
+  if (!context?.dimensions) return schemaIssues;
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+}

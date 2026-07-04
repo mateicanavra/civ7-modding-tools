@@ -1,5 +1,5 @@
 import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/config.js";
-import { validateMeshArtifact } from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../../foundation/artifacts.js";
@@ -11,7 +11,7 @@ const GROUP_MESH = "Foundation / Mesh";
 export default createStep(MeshStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mesh], {
     foundationMesh: {
-      validate: (value) => validateMeshArtifact(value),
+      validate: (value) => foundationArtifactValidators.mesh(value),
     },
   }),
   normalize: (config, ctx) => {

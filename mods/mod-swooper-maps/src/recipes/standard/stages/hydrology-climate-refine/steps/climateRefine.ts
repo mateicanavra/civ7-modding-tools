@@ -19,8 +19,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { computeRiverAdjacencyMaskFromRiverClass } from "../../hydrology-hydrography/river-adjacency.js";
 import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
 import ClimateRefineStepContract from "./climateRefine.contract.js";
-
-type ArtifactValidationIssue = Readonly<{ message: string }>;
+import { validators as hydrologyClimateRefineArtifactValidators } from "../artifacts/index.js";
 
 const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_INDICES = "Hydrology / Climate Indices";
@@ -33,32 +32,6 @@ const EFFECTIVE_MOISTURE_RIPARIAN_RADIUS = 1;
 const EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS = 4;
 const EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS = 8;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function expectedSize(width: number, height: number): number {
-  return Math.max(0, (width | 0) * (height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): void {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-}
-
 export default createStep(ClimateRefineStepContract, {
   artifacts: implementArtifacts(
     [
@@ -68,107 +41,13 @@ export default createStep(ClimateRefineStepContract, {
     ],
     {
       climateIndices: {
-        validate: (value, context) => {
-          const errors: ArtifactValidationIssue[] = [];
-          const size = expectedSize(context.dimensions.width, context.dimensions.height);
-          if (!isRecord(value))
-            return [{ message: "Missing hydrology climate indices artifact payload." }];
-          const candidate = value as {
-            surfaceTemperatureC?: unknown;
-            effectiveMoisture?: unknown;
-            pet?: unknown;
-            aridityIndex?: unknown;
-            freezeIndex?: unknown;
-          };
-          validateTypedArray(
-            errors,
-            "climateIndices.surfaceTemperatureC",
-            candidate.surfaceTemperatureC,
-            Float32Array,
-            size
-          );
-          validateTypedArray(
-            errors,
-            "climateIndices.effectiveMoisture",
-            candidate.effectiveMoisture,
-            Float32Array,
-            size
-          );
-          validateTypedArray(errors, "climateIndices.pet", candidate.pet, Float32Array, size);
-          validateTypedArray(
-            errors,
-            "climateIndices.aridityIndex",
-            candidate.aridityIndex,
-            Float32Array,
-            size
-          );
-          validateTypedArray(
-            errors,
-            "climateIndices.freezeIndex",
-            candidate.freezeIndex,
-            Float32Array,
-            size
-          );
-          return errors;
-        },
+        validate: hydrologyClimateRefineArtifactValidators.climateIndices,
       },
       cryosphere: {
-        validate: (value, context) => {
-          const errors: ArtifactValidationIssue[] = [];
-          const size = expectedSize(context.dimensions.width, context.dimensions.height);
-          if (!isRecord(value))
-            return [{ message: "Missing hydrology cryosphere artifact payload." }];
-          const candidate = value as {
-            snowCover?: unknown;
-            seaIceCover?: unknown;
-            albedo?: unknown;
-          };
-          validateTypedArray(errors, "cryosphere.snowCover", candidate.snowCover, Uint8Array, size);
-          validateTypedArray(
-            errors,
-            "cryosphere.seaIceCover",
-            candidate.seaIceCover,
-            Uint8Array,
-            size
-          );
-          validateTypedArray(errors, "cryosphere.albedo", candidate.albedo, Uint8Array, size);
-          return errors;
-        },
+        validate: hydrologyClimateRefineArtifactValidators.cryosphere,
       },
       climateDiagnostics: {
-        validate: (value, context) => {
-          const errors: ArtifactValidationIssue[] = [];
-          const size = expectedSize(context.dimensions.width, context.dimensions.height);
-          if (!isRecord(value))
-            return [{ message: "Missing hydrology climate diagnostics artifact payload." }];
-          const candidate = value as {
-            rainShadowIndex?: unknown;
-            continentalityIndex?: unknown;
-            convergenceIndex?: unknown;
-          };
-          validateTypedArray(
-            errors,
-            "climateDiagnostics.rainShadowIndex",
-            candidate.rainShadowIndex,
-            Float32Array,
-            size
-          );
-          validateTypedArray(
-            errors,
-            "climateDiagnostics.continentalityIndex",
-            candidate.continentalityIndex,
-            Float32Array,
-            size
-          );
-          validateTypedArray(
-            errors,
-            "climateDiagnostics.convergenceIndex",
-            candidate.convergenceIndex,
-            Float32Array,
-            size
-          );
-          return errors;
-        },
+        validate: hydrologyClimateRefineArtifactValidators.climateDiagnostics,
       },
     }
   ),

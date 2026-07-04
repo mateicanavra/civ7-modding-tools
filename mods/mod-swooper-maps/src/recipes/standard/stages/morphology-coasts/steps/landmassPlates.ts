@@ -1,4 +1,3 @@
-import type { MapDimensions } from "@civ7/adapter";
 import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/config.js";
 import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/config.js";
 import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/ops";
@@ -15,172 +14,12 @@ import {
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import LandmassPlatesStepContract from "./landmassPlates.contract.js";
-
-type ArtifactValidationIssue = Readonly<{ message: string }>;
+import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
 
 const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";
 const GROUP_BELT_DRIVERS = "Morphology / Belt Drivers";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function expectedSize(dimensions: MapDimensions): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function validateHeightfieldBuffer(
-  value: unknown,
-  dimensions: MapDimensions
-): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing heightfield buffer." });
-    return errors;
-  }
-  const size = expectedSize(dimensions);
-  const candidate = value as {
-    elevation?: unknown;
-    seaLevel?: unknown;
-    landMask?: unknown;
-    bathymetry?: unknown;
-  };
-  validateTypedArray(errors, "topography.elevation", candidate.elevation, Int16Array, size);
-  if (typeof candidate.seaLevel !== "number" || !Number.isFinite(candidate.seaLevel)) {
-    errors.push({ message: "Expected topography.seaLevel to be a finite number." });
-  }
-  validateTypedArray(errors, "topography.landMask", candidate.landMask, Uint8Array, size);
-  validateTypedArray(errors, "topography.bathymetry", candidate.bathymetry, Int16Array, size);
-  return errors;
-}
-
-function validateSubstrateBuffer(
-  value: unknown,
-  dimensions: MapDimensions
-): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing substrate buffer." });
-    return errors;
-  }
-  const size = expectedSize(dimensions);
-  const candidate = value as { erodibilityK?: unknown; sedimentDepth?: unknown };
-  validateTypedArray(errors, "substrate.erodibilityK", candidate.erodibilityK, Float32Array, size);
-  validateTypedArray(
-    errors,
-    "substrate.sedimentDepth",
-    candidate.sedimentDepth,
-    Float32Array,
-    size
-  );
-  return errors;
-}
-
-function validateBeltDriversBuffer(
-  value: unknown,
-  dimensions: MapDimensions
-): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing beltDrivers buffer." });
-    return errors;
-  }
-  const size = expectedSize(dimensions);
-  const candidate = value as {
-    boundaryCloseness?: unknown;
-    boundaryType?: unknown;
-    upliftPotential?: unknown;
-    collisionPotential?: unknown;
-    subductionPotential?: unknown;
-    riftPotential?: unknown;
-    tectonicStress?: unknown;
-    beltAge?: unknown;
-    dominantEra?: unknown;
-    beltMask?: unknown;
-    beltDistance?: unknown;
-    beltNearestSeed?: unknown;
-    beltComponents?: unknown;
-  };
-  validateTypedArray(
-    errors,
-    "beltDrivers.boundaryCloseness",
-    candidate.boundaryCloseness,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(errors, "beltDrivers.boundaryType", candidate.boundaryType, Uint8Array, size);
-  validateTypedArray(
-    errors,
-    "beltDrivers.upliftPotential",
-    candidate.upliftPotential,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "beltDrivers.collisionPotential",
-    candidate.collisionPotential,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "beltDrivers.subductionPotential",
-    candidate.subductionPotential,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "beltDrivers.riftPotential",
-    candidate.riftPotential,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "beltDrivers.tectonicStress",
-    candidate.tectonicStress,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(errors, "beltDrivers.beltAge", candidate.beltAge, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.dominantEra", candidate.dominantEra, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.beltMask", candidate.beltMask, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.beltDistance", candidate.beltDistance, Uint8Array, size);
-  validateTypedArray(
-    errors,
-    "beltDrivers.beltNearestSeed",
-    candidate.beltNearestSeed,
-    Int32Array,
-    size
-  );
-  if (!Array.isArray(candidate.beltComponents)) {
-    errors.push({ message: "Expected beltDrivers.beltComponents to be an array." });
-  }
-  return errors;
-}
 
 function applyBaseTerrainBuffers(
   width: number,
@@ -215,13 +54,13 @@ function applyBaseTerrainBuffers(
 export default createStep(LandmassPlatesStepContract, {
   artifacts: implementArtifacts(LandmassPlatesStepContract.artifacts!.provides!, {
     topography: {
-      validate: (value, context) => validateHeightfieldBuffer(value, context.dimensions),
+      validate: morphologyArtifactValidators.topography,
     },
     substrate: {
-      validate: (value, context) => validateSubstrateBuffer(value, context.dimensions),
+      validate: morphologyArtifactValidators.substrate,
     },
     beltDrivers: {
-      validate: (value, context) => validateBeltDriversBuffer(value, context.dimensions),
+      validate: morphologyArtifactValidators.beltDrivers,
     },
   }),
   normalize: (config, ctx) => {

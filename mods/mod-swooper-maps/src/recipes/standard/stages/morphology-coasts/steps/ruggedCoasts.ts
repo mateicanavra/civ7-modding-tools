@@ -1,4 +1,3 @@
-import type { MapDimensions } from "@civ7/adapter";
 import type { MorphologyCoastRuggednessKnob } from "@mapgen/domain/morphology/config.js";
 import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
 import {
@@ -10,77 +9,10 @@ import {
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
-
-type ArtifactValidationIssue = Readonly<{ message: string }>;
+import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
 
 const GROUP_COASTLINES = "Morphology / Coastlines";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function expectedSize(dimensions: MapDimensions): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function validateCoastlineMetrics(
-  value: unknown,
-  dimensions: MapDimensions
-): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing coastline metrics." });
-    return errors;
-  }
-  const size = expectedSize(dimensions);
-  const candidate = value as {
-    coastalLand?: unknown;
-    coastalWater?: unknown;
-    distanceToCoast?: unknown;
-  };
-  validateTypedArray(
-    errors,
-    "coastlineMetrics.coastalLand",
-    candidate.coastalLand,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "coastlineMetrics.coastalWater",
-    candidate.coastalWater,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "coastlineMetrics.distanceToCoast",
-    candidate.distanceToCoast,
-    Uint16Array,
-    size
-  );
-  return errors;
-}
 
 /**
  * Carves the coastline into the heightfield and publishes the CARVED (pre-island)
@@ -92,7 +24,7 @@ function validateCoastlineMetrics(
 export default createStep(RuggedCoastsStepContract, {
   artifacts: implementArtifacts(RuggedCoastsStepContract.artifacts!.provides!, {
     coastlineMetrics: {
-      validate: (value, context) => validateCoastlineMetrics(value, context.dimensions),
+      validate: morphologyArtifactValidators.coastlineMetrics,
     },
   }),
   normalize: (config, ctx) => {

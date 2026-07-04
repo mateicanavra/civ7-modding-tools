@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "require_artifact_index_aggregate_shape",
+  "title": "Require Artifact Index Aggregate Shape",
+  "placement": {
+    "niche": "civ7/mapgen",
+    "blueprint": "artifact",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "artifacts/index.ts barrels that own schema, validation, or non-artifact wiring",
+  "why": "Artifact directory indexes are selection surfaces only. Artifact owner files define schemas and validators; indexes aggregate artifact modules and validator references without becoming a second validation owner.",
+  "remediate": "Keep artifacts/index.ts limited to sibling namespace imports from ./*.artifact.js, re-exported artifact modules, artifactContracts, and validators pointing to each artifact module's validate export.",
+  "message": "Artifact directory indexes must stay aggregate-only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/**/artifacts/index.ts"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 const EngineTerrainFactsSnapshotSchema = Type.Object(
   {
@@ -46,3 +47,58 @@ export const artifact = defineArtifact({
   id: "artifact:map.placementSurfaceValidationBoundary",
   schema: Schema,
 });
+
+type ValidationIssue = { message: string };
+
+function issue(message: string): ValidationIssue {
+  return { message };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isCount(value: unknown): value is number {
+  return Number.isInteger(value) && (value as number) >= 0;
+}
+
+/**
+ * Validate hook for the surface preparation evidence artifact
+ * (placement-realignment S6): slot counts must partition the grid and the
+ * lake drift counters must stay within the accepted lake corpus.
+ */
+
+function validatePayload(value: unknown): ValidationIssue[] {
+  if (!isRecord(value)) {
+    return [issue("placementSurfaceValidationBoundary artifact must be an object.")];
+  }
+  const issues: ValidationIssue[] = [];
+  const width = Number(value.width);
+  const height = Number(value.height);
+  const size = width * height;
+  if (!Number.isSafeInteger(size) || size <= 0) {
+    return [
+      issue(
+        `placementSurfaceValidationBoundary has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      ),
+    ];
+  }
+  for (const key of ["beforeValidate", "afterValidate", "afterMaintenance"] as const) {
+    const snapshot = isRecord(value[key]) ? (value[key] as Record<string, unknown>) : null;
+    if (!snapshot) {
+      issues.push(issue(`placementSurfaceValidationBoundary.${key} must be an object.`));
+      continue;
+    }
+    for (const field of ["terrain", "waterMask", "lakeMask", "areaId"] as const) {
+      const buffer = snapshot[field] as { length?: number } | undefined;
+      if (typeof buffer?.length !== "number" || buffer.length !== size) {
+        issues.push(issue(`${key}.${field} length ${String(buffer?.length)} != map size ${size}.`));
+      }
+    }
+  }
+  return issues;
+}
+
+export function validate(value: unknown): readonly { message: string }[] {
+  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
+}

@@ -1,4 +1,5 @@
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 const ProjectionMetaArtifactSchema = Type.Object(
   {
@@ -21,3 +22,36 @@ export const artifact = defineArtifact({
   id: "artifact:map.projectionMeta",
   schema: Schema,
 });
+
+type ValidationIssue = { message: string };
+
+function issue(message: string): ValidationIssue {
+  return { message };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/** Validate hook for the projection metadata artifact (topology locks). */
+
+function validatePayload(value: unknown): ValidationIssue[] {
+  if (!isRecord(value)) return [issue("projectionMeta artifact must be an object.")];
+  const issues: ValidationIssue[] = [];
+  if (!Number.isInteger(value.width) || (value.width as number) < 1) {
+    issues.push(issue(`projectionMeta.width ${String(value.width)} must be a positive integer.`));
+  }
+  if (!Number.isInteger(value.height) || (value.height as number) < 1) {
+    issues.push(issue(`projectionMeta.height ${String(value.height)} must be a positive integer.`));
+  }
+  if (value.wrapX !== true || value.wrapY !== false) {
+    issues.push(
+      issue("projectionMeta must carry the Civ7 topology locks (wrapX=true, wrapY=false).")
+    );
+  }
+  return issues;
+}
+
+export function validate(value: unknown): readonly { message: string }[] {
+  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
+}

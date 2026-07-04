@@ -1,12 +1,9 @@
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  validateFeatureIntentsListArtifact,
-  validateOccupancyArtifact,
-} from "../../../ecology/artifact-validation.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanFloodplainsStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const FLOODPLAIN_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
   FEATURE_DESERT_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_DESERT_FLOODPLAIN_MINOR ?? 0) + 1,
@@ -34,10 +31,10 @@ export default createStep(PlanFloodplainsStepContract, {
     [ecologyArtifacts.featureIntentsFloodplains, ecologyArtifacts.occupancyFloodplains],
     {
       featureIntentsFloodplains: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.featureIntentsFloodplains,
       },
       occupancyFloodplains: {
-        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.occupancyFloodplains,
       },
     }
   ),

@@ -9,12 +9,20 @@ Applies to:
 - `<domain>/artifacts/<artifact>.artifact.ts` within the MapGen domain
   blueprint.
 
+Generalization:
+- the admitted artifact blueprint rule
+  `.habitat/blueprints/artifact/require_artifact_file_shape/` now enforces the
+  stable artifact owner-file source shape across
+  `mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts`;
+- this domain-scope pattern remains the domain blueprint's local expression of
+  the same shape and its domain placement boundary.
+
 Does not apply to:
 - operation-local `contract.ts` files;
 - recipe step `*.contract.ts` files;
 - recipe or stage `artifacts.ts` registries;
-- recipe or stage artifact folders outside the domain blueprint;
-- broad artifact registries outside direct `*.artifact.ts` files.
+- artifact directory `index.ts` aggregates, which have their own file-shape
+  reference and must not define validation logic.
 
 Required behavior:
 - the file defines exactly one pipeline truth product artifact;
@@ -34,7 +42,10 @@ Stable export surface:
 export const Schema = ...;
 export type Artifact = Static<typeof Schema>;
 export const artifact = defineArtifact(...);
-export function validate(value: unknown): readonly { message: string }[];
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[];
 // Optional, only when contextual operation-boundary assertions are justified.
 export function assert(value: unknown, context: AssertionContext): Artifact;
 ```
@@ -73,6 +84,6 @@ Violation messages:
   law.
 
 Enforcement:
-Grit/source-shape gate over
-`mods/mod-swooper-maps/src/domain/*/artifacts/*.artifact.ts`, plus artifact
+Artifact blueprint Grit/source-shape gate over
+`mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts`, plus package behavior
 tests for validation and assertion behavior.

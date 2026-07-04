@@ -1,4 +1,6 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 const MorphologyShelfArtifactSchema = Type.Object(
   {
@@ -50,3 +52,78 @@ export const artifact = defineArtifact({
   id: "artifact:morphology.shelf",
   schema: Schema,
 });
+
+type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
+  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
+}
+
+function validateTypedArray(
+  errors: ArtifactValidationIssue[],
+  label: string,
+  value: unknown,
+  ctor: { new (...args: any[]): { length: number } },
+  expectedLength?: number
+): value is { length: number } {
+  if (!(value instanceof ctor)) {
+    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
+    return false;
+  }
+  if (expectedLength != null && value.length !== expectedLength) {
+    errors.push({
+      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
+    });
+  }
+  return true;
+}
+
+function validatePayload(
+  value: unknown,
+  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  if (!isRecord(value)) {
+    errors.push({ message: "Missing shelf artifact." });
+    return errors;
+  }
+  const size = expectedSize(dimensions);
+  const c = value as Record<string, unknown>;
+  validateTypedArray(errors, "shelf.shelfMask", c.shelfMask, Uint8Array, size);
+  validateTypedArray(errors, "shelf.coastalLand", c.coastalLand, Uint8Array, size);
+  validateTypedArray(errors, "shelf.coastalWater", c.coastalWater, Uint8Array, size);
+  validateTypedArray(errors, "shelf.distanceToCoast", c.distanceToCoast, Uint16Array, size);
+  validateTypedArray(errors, "shelf.activeMarginMask", c.activeMarginMask, Uint8Array, size);
+  validateTypedArray(errors, "shelf.depthGateMask", c.depthGateMask, Uint8Array, size);
+  validateTypedArray(
+    errors,
+    "shelf.nearshoreCandidateMask",
+    c.nearshoreCandidateMask,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "shelf.shelfBreakDepthByTile",
+    c.shelfBreakDepthByTile,
+    Int16Array,
+    size
+  );
+  if (!Number.isFinite(c.shallowCutoff) || (c.shallowCutoff as number) > 0) {
+    errors.push({ message: "shelf.shallowCutoff must be a finite number <= 0." });
+  }
+  return errors;
+}
+
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const schemaIssues = validateArtifactSchema(Schema, value);
+  if (!context?.dimensions) return schemaIssues;
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+}

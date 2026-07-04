@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "require_artifact_file_shape",
+  "title": "Require Artifact File Shape",
+  "placement": {
+    "niche": "civ7/mapgen",
+    "blueprint": "artifact",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "artifact owner files without the stable artifact contract export shape",
+  "why": "Artifact owner files are the reusable contract surface for immutable MapGen data products; every artifact file must expose the same stable owner API, including publish-time validation, rather than instance-specific validation or artifact aliases.",
+  "remediate": "Use one artifact owner per artifacts/*.artifact.ts file with exported Schema, exported artifact = defineArtifact(...), exported validate(...), generic assert names only when justified, and no semantic artifact alias exports.",
+  "message": "Artifact files must use the stable artifact contract file shape.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/artifact/require_artifact_file_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+    },
+    "patternName": "require_artifact_file_shape"
+  }
+}

@@ -1,4 +1,5 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 const MorphologyMountainsArtifactSchema = Type.Object(
   {
@@ -47,3 +48,7 @@ export const artifact = defineArtifact({
   id: "artifact:morphology.mountains",
   schema: Schema,
 });
+
+export function validate(value: unknown): readonly { message: string }[] {
+  return validateArtifactSchema(Schema, value);
+}

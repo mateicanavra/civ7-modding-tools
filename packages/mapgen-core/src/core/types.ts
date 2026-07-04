@@ -458,50 +458,6 @@ export function writeClimateField(
   }
 }
 
-// ============================================================================
-// Foundation Artifact Helpers
-// ============================================================================
-
-function ensureTensor<T extends { length: number }>(
-  name: string,
-  tensor: T | null | undefined,
-  size: number
-): T {
-  if (!tensor || typeof tensor.length !== "number") {
-    throw new Error(`[FoundationArtifact] Missing ${name} tensor.`);
-  }
-  if (tensor.length !== size) {
-    throw new Error(
-      `[FoundationArtifact] ${name} tensor length mismatch (expected ${size}, received ${tensor.length}).`
-    );
-  }
-  return tensor;
-}
-
-export function validateFoundationPlatesArtifact(
-  value: unknown,
-  dimensions: MapDimensions
-): asserts value is FoundationPlateFields {
-  if (!value || typeof value !== "object") {
-    throw new Error("[FoundationArtifact] Missing foundation plates artifact payload.");
-  }
-  const plates = value as FoundationPlateFields;
-  const width = dimensions.width | 0;
-  const height = dimensions.height | 0;
-  const size = Math.max(0, width * height) | 0;
-
-  ensureTensor("plateId", plates.id, size);
-  ensureTensor("boundaryCloseness", plates.boundaryCloseness, size);
-  ensureTensor("boundaryType", plates.boundaryType, size);
-  ensureTensor("tectonicStress", plates.tectonicStress, size);
-  ensureTensor("upliftPotential", plates.upliftPotential, size);
-  ensureTensor("riftPotential", plates.riftPotential, size);
-  ensureTensor("shieldStability", plates.shieldStability, size);
-  ensureTensor("volcanism", plates.volcanism, size);
-  ensureTensor("plateMovementU", plates.movementU, size);
-  ensureTensor("plateMovementV", plates.movementV, size);
-  ensureTensor("plateRotation", plates.rotation, size);
-}
 /**
  * Synchronize staged climate buffers from the current engine surface.
  */

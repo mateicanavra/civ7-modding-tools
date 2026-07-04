@@ -1,4 +1,4 @@
-import { validateCrustArtifact } from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import {
   resolveContinentalAbundance,
   resolveContinentalRelief,
@@ -15,7 +15,7 @@ const GROUP_CRUST = "Foundation / Crust";
 export default createStep(CrustEvolutionStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.crust], {
     foundationCrust: {
-      validate: (value) => validateCrustArtifact(value),
+      validate: (value) => foundationArtifactValidators.crust(value),
     },
   }),
   // The crust-character knobs are high-level coupled levers: each, when an author sets it, overrides

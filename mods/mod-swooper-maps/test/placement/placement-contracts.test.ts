@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import { startAssignment } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 import adjustResourcesStep from "../../src/recipes/standard/stages/placement/steps/adjust-resources/index.js";
 import assignAdvancedStartsStep from "../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/index.js";
 import assignStartsStep from "../../src/recipes/standard/stages/placement/steps/assign-starts/index.js";
@@ -182,15 +183,7 @@ describe("placement product/effect contracts", () => {
     const placementSources = listSourceFiles(PLACEMENT_STEPS_DIR)
       .map((file) => ({ file, source: readFileSync(file, "utf8") }))
       .filter(({ file }) => !file.endsWith("/placement-contracts.test.ts"));
-    // S6: artifact contracts are one-per-file under artifacts/*.artifact.ts;
-    // the start-assignment artifact carries the per-seat record schema.
-    const artifactSource = readFileSync(
-      join(
-        import.meta.dir,
-        "../../src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts"
-      ),
-      "utf8"
-    );
+    const startAssignmentSchema = JSON.stringify(startAssignment.Schema);
 
     for (const { file, source } of placementSources) {
       expect(source, file).not.toMatch(/fallbackAssigned|fallbackUsed|deterministic fallback/);
@@ -199,8 +192,10 @@ describe("placement product/effect contracts", () => {
       expect(source, file).not.toMatch(/desperation|chooseStartTiles|chooseRankedFromPool/);
       expect(source, file).not.toMatch(/startSector/);
     }
-    expect(artifactSource).not.toMatch(/fallbackAssigned|fallbackUsed|deterministic fallback/);
-    expect(artifactSource).toContain("rungCounts");
-    expect(artifactSource).toContain("fairnessReport");
+    expect(startAssignmentSchema).not.toMatch(
+      /fallbackAssigned|fallbackUsed|deterministic fallback/
+    );
+    expect(startAssignmentSchema).toContain("rungCounts");
+    expect(startAssignmentSchema).toContain("fairnessReport");
   });
 });

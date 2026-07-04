@@ -44,11 +44,12 @@ Violation messages:
 
 Import/export boundary:
 - exports the artifact contract owner surface using stable per-file names:
-  `Schema`, `artifact`, `validate`, and optional `assert`;
+  `Schema`, `artifact`, required `validate`, and optional `assert`;
 - semantically named artifact types are allowed only when they improve call-site
   readability or generated declaration output;
 - callers that need a semantic import name should namespace-import the module
   rather than require semantic function exports.
 
 Enforcement:
-structure for placement; `patterns/artifact-shape.md` for file grammar.
+domain structure for placement; artifact blueprint
+`require_artifact_file_shape` for generalized file grammar.

@@ -3,6 +3,8 @@ export { Type } from "typebox";
 export type {
   ArtifactContract,
   ArtifactReadValueOf,
+  ArtifactValidationContext,
+  ArtifactValidationIssue,
   ArtifactRuntimeImpl,
   ArtifactValueOf,
   DeepReadonly,
@@ -13,8 +15,10 @@ export {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
+  artifactCellCount,
   defineArtifact,
   implementArtifacts,
+  validateArtifactSchema,
 } from "./artifact/index.js";
 export type {
   DomainOpCompileAny,

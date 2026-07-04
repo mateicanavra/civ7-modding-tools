@@ -1,4 +1,4 @@
-import { validateMantleForcingArtifact } from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../../foundation/artifacts.js";
@@ -45,7 +45,7 @@ function buildVectorSegments(params: {
 export default createStep(MantleForcingStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mantleForcing], {
     foundationMantleForcing: {
-      validate: (value) => validateMantleForcingArtifact(value),
+      validate: (value) => foundationArtifactValidators.mantleForcing(value),
     },
   }),
   run: (context, config, ops, deps) => {

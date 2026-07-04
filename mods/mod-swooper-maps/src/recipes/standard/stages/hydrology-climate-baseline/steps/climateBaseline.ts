@@ -34,11 +34,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
 import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
 import ClimateBaselineStepContract from "./climateBaseline.contract.js";
-import {
-  validateClimateFieldArtifact,
-  validateClimateSeasonalityArtifact,
-  validateWindFieldArtifact,
-} from "./climateBaseline.validation.js";
+import { validators as hydrologyClimateBaselineArtifactValidators } from "../artifacts/index.js";
 
 const GROUP_SEASONALITY = "Hydrology / Seasonality";
 const GROUP_CLIMATE = "Hydrology / Climate";
@@ -66,13 +62,13 @@ export default createStep(ClimateBaselineStepContract, {
     ],
     {
       climateField: {
-        validate: (value, context) => validateClimateFieldArtifact(value, context.dimensions),
+        validate: hydrologyClimateBaselineArtifactValidators.climateField,
       },
       climateSeasonality: {
-        validate: (value, context) => validateClimateSeasonalityArtifact(value, context.dimensions),
+        validate: hydrologyClimateBaselineArtifactValidators.climateSeasonality,
       },
       windField: {
-        validate: (value, context) => validateWindFieldArtifact(value, context.dimensions),
+        validate: hydrologyClimateBaselineArtifactValidators.windField,
       },
     }
   ),

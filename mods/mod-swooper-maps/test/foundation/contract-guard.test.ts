@@ -58,13 +58,7 @@ function listImportSources(text: string, fileName: string): string[] {
 
 describe("foundation contract guardrails", () => {
   it("requires volcanism in foundation plates schema", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const artifactsFile = path.join(
-      repoRoot,
-      "src/recipes/standard/artifacts/foundation-plates.artifact.ts"
-    );
-    const text = readFileSync(artifactsFile, "utf8");
-    expect(text).toContain("volcanism");
+    expect(JSON.stringify(mapArtifacts.foundationPlates.schema)).toContain("volcanism");
   });
 
   it("does not reintroduce legacy plate kinematics on plateGraph", () => {

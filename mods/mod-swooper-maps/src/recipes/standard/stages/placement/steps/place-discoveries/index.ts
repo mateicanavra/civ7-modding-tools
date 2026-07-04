@@ -4,12 +4,12 @@ import { placementArtifacts } from "../../artifacts.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import PlaceDiscoveriesStepContract from "./contract.js";
 import { placeOfficialDiscoveries } from "./materialize.js";
-import { validateDiscoveryPlacementOutcomesArtifact } from "./validate.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 
 export default createStep(PlaceDiscoveriesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.discoveryPlacementOutcomes], {
     discoveryPlacementOutcomes: {
-      validate: (value) => validateDiscoveryPlacementOutcomesArtifact(value),
+      validate: (value) => placementArtifactValidators.discoveryPlacementOutcomes(value),
     },
   }),
   run: (context, _config, _ops, deps) => {

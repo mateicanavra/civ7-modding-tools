@@ -7,12 +7,12 @@ import {
   PLACEMENT_VIZ_GROUP,
 } from "../../viz.js";
 import PlaceNaturalWondersStepContract from "./contract.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
   logNaturalWonderPlacementRuntimeTelemetry,
   type NaturalWonderStampingStats,
   stampNaturalWondersFromPlan,
 } from "./materialize.js";
-import { validateNaturalWonderPlacementArtifact } from "./validate.js";
 
 const WONDER_OUTCOME_CATEGORIES = [
   { value: 1, label: "Placed", color: [34, 197, 94, 235] as [number, number, number, number] },
@@ -65,7 +65,7 @@ function emitNaturalWonderOutcomeViz(
 export default createStep(PlaceNaturalWondersStepContract, {
   artifacts: implementArtifacts([placementArtifacts.naturalWonderPlacement], {
     naturalWonderPlacement: {
-      validate: (value) => validateNaturalWonderPlacementArtifact(value),
+      validate: (value) => placementArtifactValidators.naturalWonderPlacement(value),
     },
   }),
   run: (context, _config, _ops, deps) => {

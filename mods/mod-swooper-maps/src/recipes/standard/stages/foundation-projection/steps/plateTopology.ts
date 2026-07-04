@@ -1,4 +1,4 @@
-import { validatePlateTopologyArtifact } from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
@@ -14,7 +14,7 @@ const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 export default createStep(PlateTopologyStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateTopology], {
     foundationPlateTopology: {
-      validate: (value) => validatePlateTopologyArtifact(value),
+      validate: (value) => foundationArtifactValidators.plateTopology(value),
     },
   }),
   run: (context, config, ops, deps) => {

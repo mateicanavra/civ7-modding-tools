@@ -5,7 +5,6 @@
  * across all other modules.
  */
 
-export * from "@mapgen/core/assertions.js";
 export * from "@mapgen/core/env.js";
 export * from "@mapgen/core/plot-tags.js";
 export * from "@mapgen/core/terrain-constants.js";

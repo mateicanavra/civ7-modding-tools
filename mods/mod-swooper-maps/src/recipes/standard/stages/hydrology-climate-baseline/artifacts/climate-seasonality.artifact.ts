@@ -1,5 +1,7 @@
 import { HydrologyWindFieldSchema } from "@mapgen/domain/hydrology";
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Seasonal amplitude for Hydrology’s climate field outputs.
@@ -43,3 +45,86 @@ export const artifact = defineArtifact({
   id: "artifact:hydrology.climateSeasonality",
   schema: Schema,
 });
+
+export type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+type TypedArrayConstructor = { new (...args: unknown[]): { length: number } };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
+  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
+}
+
+function validateTypedArray(
+  errors: ArtifactValidationIssue[],
+  label: string,
+  value: unknown,
+  ctor: TypedArrayConstructor,
+  expectedLength?: number
+): value is { length: number } {
+  if (!(value instanceof ctor)) {
+    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
+    return false;
+  }
+  if (expectedLength != null && value.length !== expectedLength) {
+    errors.push({
+      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
+    });
+  }
+  return true;
+}
+
+function validatePayload(
+  value: unknown,
+  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  const size = expectedSize(dimensions);
+  if (!isRecord(value)) {
+    errors.push({ message: "Missing hydrology climate seasonality artifact payload." });
+    return errors;
+  }
+
+  const candidate = value as {
+    modeCount?: unknown;
+    axialTiltDeg?: unknown;
+    rainfallAmplitude?: unknown;
+    humidityAmplitude?: unknown;
+  };
+
+  const modeCount = candidate.modeCount;
+  if (modeCount !== 2 && modeCount !== 4) {
+    errors.push({ message: "Expected climateSeasonality.modeCount to be 2 or 4." });
+  }
+  if (typeof candidate.axialTiltDeg !== "number" || !Number.isFinite(candidate.axialTiltDeg)) {
+    errors.push({ message: "Expected climateSeasonality.axialTiltDeg to be a finite number." });
+  }
+
+  validateTypedArray(
+    errors,
+    "climateSeasonality.rainfallAmplitude",
+    candidate.rainfallAmplitude,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "climateSeasonality.humidityAmplitude",
+    candidate.humidityAmplitude,
+    Uint8Array,
+    size
+  );
+  return errors;
+}
+
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const schemaIssues = validateArtifactSchema(Schema, value);
+  if (!context?.dimensions) return schemaIssues;
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+}

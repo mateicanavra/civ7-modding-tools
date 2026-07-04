@@ -3,12 +3,9 @@ import { isAnyRiverClass } from "@mapgen/domain/hydrology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import {
-  validateFeatureIntentsListArtifact,
-  validateOccupancyArtifact,
-} from "../../../ecology/artifact-validation.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanWetlandsStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const WETLANDS_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
   FEATURE_MARSH: (FEATURE_KEY_INDEX.FEATURE_MARSH ?? 0) + 1,
@@ -23,10 +20,10 @@ export default createStep(PlanWetlandsStepContract, {
     [ecologyArtifacts.featureIntentsWetlands, ecologyArtifacts.occupancyWetlands],
     {
       featureIntentsWetlands: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.featureIntentsWetlands,
       },
       occupancyWetlands: {
-        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.occupancyWetlands,
       },
     }
   ),

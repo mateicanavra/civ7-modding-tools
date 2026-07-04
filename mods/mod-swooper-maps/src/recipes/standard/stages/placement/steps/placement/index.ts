@@ -3,11 +3,8 @@ import { mapArtifacts } from "../../../../map-artifacts.js";
 import { placementArtifacts } from "../../artifacts.js";
 import { applyPlacementPlan } from "./apply.js";
 import PlacementStepContract from "./contract.js";
-import {
-  validatePlacementEngineStateArtifact,
-  validatePlacementEngineTerrainSnapshotArtifact,
-  validatePlacementOutputsArtifact,
-} from "./validate.js";
+import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 export default createStep(PlacementStepContract, {
   artifacts: implementArtifacts(
     [
@@ -17,13 +14,13 @@ export default createStep(PlacementStepContract, {
     ],
     {
       placementOutputs: {
-        validate: (value) => validatePlacementOutputsArtifact(value),
+        validate: (value) => placementArtifactValidators.placementOutputs(value),
       },
       engineState: {
-        validate: (value) => validatePlacementEngineStateArtifact(value),
+        validate: (value) => placementArtifactValidators.engineState(value),
       },
       placementEngineTerrainSnapshot: {
-        validate: (value) => validatePlacementEngineTerrainSnapshotArtifact(value),
+        validate: (value) => standardArtifactValidators.placementEngineTerrainSnapshot(value),
       },
     }
   ),

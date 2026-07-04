@@ -27,6 +27,7 @@ Current source-backed anchors:
 - `packages/mapgen-core/src/authoring/artifact/**`
 - `packages/mapgen-core/src/core/types.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/**/artifacts.ts`
+- `mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts`
 
 The initial bounded artifact-vocabulary sweep found no existing Habitat rule
 packet whose whole predicate could be admitted as live artifact blueprint
@@ -39,3 +40,18 @@ engine-derived observations use explicitly named `artifact:map.*` layers.
 
 Future artifact rules should be admitted here only when the whole rule applies
 to every valid artifact value or contract.
+
+## Admitted Rules
+
+- `require_artifact_file_shape`: source-shape contract for MapGen artifact
+  owner files. Any `mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts`
+  file must expose the stable `Schema`, `artifact = defineArtifact(...)`, and
+  `validate(...)` owner surface, use generic assertion names only when those
+  exports are justified, and avoid semantic artifact alias exports.
+- `require_artifact_index_aggregate_shape`: aggregate-shape contract for
+  artifact directory indexes. Any
+  `mods/mod-swooper-maps/src/**/artifacts/index.ts` file must stay a narrow
+  aggregate over sibling artifact modules, exporting `artifactContracts` and
+  `validators` without owning schemas or validation logic.
+- `prohibit_realized_map_artifact_tags`: artifact ID namespace rule for
+  realized-map projection claims.

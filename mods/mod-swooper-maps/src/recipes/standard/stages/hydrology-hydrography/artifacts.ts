@@ -1,13 +1,11 @@
-import { artifact as hydrographyArtifact } from "./artifacts/hydrography.artifact.js";
-import { artifact as lakePlanArtifact } from "./artifacts/lake-plan.artifact.js";
-import { artifact as riverNetworkMetricsArtifact } from "./artifacts/river-network-metrics.artifact.js";
+import { artifactContracts as hydrologyHydrographyArtifactContracts } from "./artifacts/index.js";
 
 export { HydrologyHydrographyArtifactSchema } from "./artifacts/hydrography.artifact.js";
 export { HydrologyLakePlanArtifactSchema } from "./artifacts/lake-plan.artifact.js";
 export { HydrologyRiverNetworkMetricsArtifactSchema } from "./artifacts/river-network-metrics.artifact.js";
 
 export const hydrologyHydrographyArtifacts = {
-  hydrography: hydrographyArtifact,
-  lakePlan: lakePlanArtifact,
-  riverNetworkMetrics: riverNetworkMetricsArtifact,
+  hydrography: hydrologyHydrographyArtifactContracts.hydrography.artifact,
+  lakePlan: hydrologyHydrographyArtifactContracts.lakePlan.artifact,
+  riverNetworkMetrics: hydrologyHydrographyArtifactContracts.riverNetworkMetrics.artifact,
 } as const;

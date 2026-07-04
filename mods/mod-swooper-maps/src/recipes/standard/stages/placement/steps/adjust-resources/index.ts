@@ -10,7 +10,7 @@ import {
   transparentNoneCategory,
 } from "../../viz.js";
 import AdjustResourcesStepContract from "./contract.js";
-import { validateResourcePlanAdjustedArtifact } from "./validate.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 
 const SUPPORT_ADJUSTMENT_CATEGORIES = [
   {
@@ -43,7 +43,7 @@ const SUPPORT_ADJUSTMENT_CATEGORIES = [
 export default createStep(AdjustResourcesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.resourcePlanAdjusted], {
     resourcePlanAdjusted: {
-      validate: (value) => validateResourcePlanAdjustedArtifact(value),
+      validate: (value) => placementArtifactValidators.resourcePlanAdjusted(value),
     },
   }),
   run: (context, config, ops, deps) => {

@@ -9,6 +9,7 @@ import {
 } from "../../viz.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import PlaceResourcesStepContract from "./contract.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
   logResourcePlacementRuntimeTelemetry,
   placeResourcesWithTypedOutcomes,
@@ -91,45 +92,10 @@ function emitResourceOutcomeViz(
   });
 }
 
-function validateResourcePlacementOutcomesArtifact(value: unknown): { message: string }[] {
-  if (typeof value !== "object" || value === null) {
-    return [{ message: "resourcePlacementOutcomes artifact must be an object." }];
-  }
-  const issues: { message: string }[] = [];
-  const artifact = value as {
-    summary?: { plannedCount?: number; placedCount?: number; mismatchCount?: number };
-    reconciliation?: { plannedCount?: number; placedCount?: number; rejectedCount?: number };
-    outcomes?: unknown[];
-  };
-  const outcomes = Array.isArray(artifact.outcomes) ? artifact.outcomes : [];
-  if (artifact.summary?.plannedCount !== outcomes.length) {
-    issues.push({
-      message: `summary.plannedCount ${String(artifact.summary?.plannedCount)} != outcomes.length ${outcomes.length}.`,
-    });
-  }
-  if ((artifact.summary?.mismatchCount ?? 0) !== 0) {
-    issues.push({
-      message: "mismatch outcomes are fail-hard and must never be published in the artifact.",
-    });
-  }
-  const reconciliation = artifact.reconciliation;
-  if (
-    reconciliation &&
-    (reconciliation.placedCount ?? 0) + (reconciliation.rejectedCount ?? 0) !==
-      (reconciliation.plannedCount ?? 0)
-  ) {
-    issues.push({ message: "reconciliation placed+rejected must equal planned." });
-  }
-  if (reconciliation && artifact.summary?.placedCount !== reconciliation.placedCount) {
-    issues.push({ message: "summary.placedCount != reconciliation.placedCount." });
-  }
-  return issues;
-}
-
 export default createStep(PlaceResourcesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.resourcePlacementOutcomes], {
     resourcePlacementOutcomes: {
-      validate: (value) => validateResourcePlacementOutcomesArtifact(value),
+      validate: (value) => placementArtifactValidators.resourcePlacementOutcomes(value),
     },
   }),
   run: (context, _config, _ops, deps) => {

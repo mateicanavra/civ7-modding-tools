@@ -73,6 +73,7 @@ scopes/domain/
       scope.md
       files/
         artifact-ts.md
+        index-ts.md
       patterns/
         artifact-shape.md
 ```

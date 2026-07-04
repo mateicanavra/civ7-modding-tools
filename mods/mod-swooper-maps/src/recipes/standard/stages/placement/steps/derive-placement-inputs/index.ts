@@ -10,17 +10,17 @@ import {
   traceNaturalWonderPlanInputRuntimeTelemetry,
 } from "./natural-wonder-plan-input-telemetry.js";
 import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
-import { validateNaturalWonderPlanArtifact, validatePlacementInputsArtifact } from "./validate.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 
 export default createStep(DerivePlacementInputsContract, {
   artifacts: implementArtifacts(
     [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
     {
       placementInputs: {
-        validate: (value) => validatePlacementInputsArtifact(value),
+        validate: (value) => placementArtifactValidators.placementInputs(value),
       },
       naturalWonderPlan: {
-        validate: (value) => validateNaturalWonderPlanArtifact(value),
+        validate: (value) => placementArtifactValidators.naturalWonderPlan(value),
       },
     }
   ),

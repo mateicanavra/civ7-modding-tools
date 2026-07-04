@@ -2,12 +2,12 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { placementArtifacts } from "../../artifacts.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import AssignAdvancedStartsStepContract from "./contract.js";
-import { validateAdvancedStartAssignmentArtifact } from "./validate.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 
 export default createStep(AssignAdvancedStartsStepContract, {
   artifacts: implementArtifacts([placementArtifacts.advancedStartAssignment], {
     advancedStartAssignment: {
-      validate: (value) => validateAdvancedStartAssignmentArtifact(value),
+      validate: (value) => placementArtifactValidators.advancedStartAssignment(value),
     },
   }),
   run: (context, _config, _ops, deps) => {

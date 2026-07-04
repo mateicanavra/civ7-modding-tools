@@ -11,6 +11,7 @@ import {
   UNIT_SCORE_VALUE_SPEC,
 } from "../../viz.js";
 import PlanResourcesStepContract from "./contract.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
   buildResourceDemands,
   buildRiverResourceExclusionMask,
@@ -19,11 +20,6 @@ import {
   type ResourceDemandBuildResult,
   readResourceLegalitySurface,
 } from "./planning.js";
-import {
-  validateResourceDemandPlanArtifact,
-  validateResourceEligibilityArtifact,
-  validateResourcePlanArtifact,
-} from "./validate.js";
 
 export default createStep(PlanResourcesStepContract, {
   artifacts: implementArtifacts(
@@ -34,13 +30,13 @@ export default createStep(PlanResourcesStepContract, {
     ],
     {
       resourceDemandPlan: {
-        validate: (value) => validateResourceDemandPlanArtifact(value),
+        validate: (value) => placementArtifactValidators.resourceDemandPlan(value),
       },
       resourcePlan: {
-        validate: (value) => validateResourcePlanArtifact(value),
+        validate: (value) => placementArtifactValidators.resourcePlan(value),
       },
       resourceEligibility: {
-        validate: (value) => validateResourceEligibilityArtifact(value),
+        validate: (value) => placementArtifactValidators.resourceEligibility(value),
       },
     }
   ),

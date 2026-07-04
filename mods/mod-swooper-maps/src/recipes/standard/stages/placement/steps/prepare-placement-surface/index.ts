@@ -13,14 +13,12 @@ import { logTerrainStats } from "../terrain-diagnostics.js";
 import PreparePlacementSurfaceStepContract from "./contract.js";
 import { readFinalLakeProjection } from "./lake-readback.js";
 import { applyLandmassRegionSlots } from "./landmass-regions.js";
+import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
   readTerrainValidationBoundarySnapshot,
   type TerrainValidationBoundarySnapshot,
 } from "./terrain-validation-readback.js";
-import {
-  validatePlacementSurfacePreparationArtifact,
-  validatePlacementSurfaceValidationBoundaryArtifact,
-} from "./validate.js";
 
 export default createStep(PreparePlacementSurfaceStepContract, {
   artifacts: implementArtifacts(
@@ -30,10 +28,10 @@ export default createStep(PreparePlacementSurfaceStepContract, {
     ],
     {
       placementSurfacePreparation: {
-        validate: (value) => validatePlacementSurfacePreparationArtifact(value),
+        validate: (value) => placementArtifactValidators.placementSurfacePreparation(value),
       },
       placementSurfaceValidationBoundary: {
-        validate: (value) => validatePlacementSurfaceValidationBoundaryArtifact(value),
+        validate: (value) => standardArtifactValidators.placementSurfaceValidationBoundary(value),
       },
     }
   ),

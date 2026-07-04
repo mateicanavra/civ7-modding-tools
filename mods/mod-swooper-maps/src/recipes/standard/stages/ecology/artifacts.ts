@@ -1,21 +1,4 @@
-import { artifact as biomeBindingsArtifact } from "./artifacts/biome-bindings.artifact.js";
-import { artifact as biomeClassificationArtifact } from "./artifacts/biome-classification.artifact.js";
-import { artifact as featureApplyDiagnosticsArtifact } from "./artifacts/feature-apply-diagnostics.artifact.js";
-import { artifact as featureIntentsFloodplainsArtifact } from "./artifacts/feature-intents-floodplains.artifact.js";
-import { artifact as featureIntentsIceArtifact } from "./artifacts/feature-intents-ice.artifact.js";
-import { artifact as featureIntentsReefsArtifact } from "./artifacts/feature-intents-reefs.artifact.js";
-import { artifact as featureIntentsVegetationArtifact } from "./artifacts/feature-intents-vegetation.artifact.js";
-import { artifact as featureIntentsWetlandsArtifact } from "./artifacts/feature-intents-wetlands.artifact.js";
-import { artifact as occupancyBaseArtifact } from "./artifacts/occupancy-base.artifact.js";
-import { artifact as occupancyFloodplainsArtifact } from "./artifacts/occupancy-floodplains.artifact.js";
-import { artifact as occupancyIceArtifact } from "./artifacts/occupancy-ice.artifact.js";
-import { artifact as occupancyReefsArtifact } from "./artifacts/occupancy-reefs.artifact.js";
-import { artifact as occupancyVegetationArtifact } from "./artifacts/occupancy-vegetation.artifact.js";
-import { artifact as occupancyWetlandsArtifact } from "./artifacts/occupancy-wetlands.artifact.js";
-import { artifact as pedologyArtifact } from "./artifacts/pedology.artifact.js";
-import { artifact as plotEffectPlanArtifact } from "./artifacts/plot-effect-plan.artifact.js";
-import { artifact as resourceBasinsArtifact } from "./artifacts/resource-basins.artifact.js";
-import { artifact as scoreLayersArtifact } from "./artifacts/score-layers.artifact.js";
+import { artifactContracts as ecologyArtifactContracts } from "./artifacts/index.js";
 
 export {
   type BiomeBindingsArtifact,
@@ -55,22 +38,22 @@ export {
 } from "./artifacts/score-layers.artifact.js";
 
 export const ecologyArtifacts = {
-  biomeClassification: biomeClassificationArtifact,
-  pedology: pedologyArtifact,
-  resourceBasins: resourceBasinsArtifact,
-  scoreLayers: scoreLayersArtifact,
-  occupancyBase: occupancyBaseArtifact,
-  occupancyFloodplains: occupancyFloodplainsArtifact,
-  occupancyIce: occupancyIceArtifact,
-  occupancyReefs: occupancyReefsArtifact,
-  occupancyWetlands: occupancyWetlandsArtifact,
-  occupancyVegetation: occupancyVegetationArtifact,
-  featureIntentsVegetation: featureIntentsVegetationArtifact,
-  featureIntentsWetlands: featureIntentsWetlandsArtifact,
-  featureIntentsFloodplains: featureIntentsFloodplainsArtifact,
-  featureIntentsReefs: featureIntentsReefsArtifact,
-  featureIntentsIce: featureIntentsIceArtifact,
-  plotEffectPlan: plotEffectPlanArtifact,
-  biomeBindings: biomeBindingsArtifact,
-  featureApplyDiagnostics: featureApplyDiagnosticsArtifact,
+  biomeClassification: ecologyArtifactContracts.biomeClassification.artifact,
+  pedology: ecologyArtifactContracts.pedology.artifact,
+  resourceBasins: ecologyArtifactContracts.resourceBasins.artifact,
+  scoreLayers: ecologyArtifactContracts.scoreLayers.artifact,
+  occupancyBase: ecologyArtifactContracts.occupancyBase.artifact,
+  occupancyFloodplains: ecologyArtifactContracts.occupancyFloodplains.artifact,
+  occupancyIce: ecologyArtifactContracts.occupancyIce.artifact,
+  occupancyReefs: ecologyArtifactContracts.occupancyReefs.artifact,
+  occupancyWetlands: ecologyArtifactContracts.occupancyWetlands.artifact,
+  occupancyVegetation: ecologyArtifactContracts.occupancyVegetation.artifact,
+  featureIntentsVegetation: ecologyArtifactContracts.featureIntentsVegetation.artifact,
+  featureIntentsWetlands: ecologyArtifactContracts.featureIntentsWetlands.artifact,
+  featureIntentsFloodplains: ecologyArtifactContracts.featureIntentsFloodplains.artifact,
+  featureIntentsReefs: ecologyArtifactContracts.featureIntentsReefs.artifact,
+  featureIntentsIce: ecologyArtifactContracts.featureIntentsIce.artifact,
+  plotEffectPlan: ecologyArtifactContracts.plotEffectPlan.artifact,
+  biomeBindings: ecologyArtifactContracts.biomeBindings.artifact,
+  featureApplyDiagnostics: ecologyArtifactContracts.featureApplyDiagnostics.artifact,
 } as const;

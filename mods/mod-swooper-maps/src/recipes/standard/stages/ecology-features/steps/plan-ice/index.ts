@@ -1,22 +1,19 @@
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  validateFeatureIntentsListArtifact,
-  validateOccupancyArtifact,
-} from "../../../ecology/artifact-validation.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import PlanIceStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 export default createStep(PlanIceStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsIce, ecologyArtifacts.occupancyIce],
     {
       featureIntentsIce: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.featureIntentsIce,
       },
       occupancyIce: {
-        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.occupancyIce,
       },
     }
   ),

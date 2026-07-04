@@ -1,4 +1,5 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Per-type eligibility fields (`artifact:placement.resourceEligibility`). One artifact per file by repo convention. */
 const ResourceEligibilityArtifactSchema = Type.Object(
@@ -40,4 +41,57 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export const resourceEligibilityArtifact = artifact;
+type ValidationIssue = { message: string };
+
+function issue(message: string): ValidationIssue {
+  return { message };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/**
+ * Validate hooks for the resource planning artifacts (placement-realignment
+ * S3 artifact hygiene: placement previously registered zero validators).
+ * These check cross-field invariants the schemas cannot express.
+ */
+
+function validatePayload(value: unknown): ValidationIssue[] {
+  if (!isRecord(value)) return [issue("resourceEligibility artifact must be an object.")];
+  const issues: ValidationIssue[] = [];
+  const width = Number(value.width);
+  const height = Number(value.height);
+  const size = width * height;
+  if (!Number.isSafeInteger(size) || size <= 0) {
+    return [
+      issue(
+        `resourceEligibility has invalid dimensions ${String(value.width)}x${String(value.height)}.`
+      ),
+    ];
+  }
+  const rows = Array.isArray(value.rows) ? value.rows : null;
+  if (!rows) return [issue("resourceEligibility.rows must be an array.")];
+  const seenTypes = new Set<string>();
+  for (const row of rows) {
+    if (!isRecord(row)) {
+      issues.push(issue("resourceEligibility row must be an object."));
+      continue;
+    }
+    const type = String(row.resourceType);
+    if (seenTypes.has(type))
+      issues.push(issue(`resourceEligibility row ${type} appears more than once.`));
+    seenTypes.add(type);
+    for (const field of ["habitatMask", "legalMask", "intensity"] as const) {
+      const mask = row[field] as { length?: number } | undefined;
+      if (!mask || mask.length !== size) {
+        issues.push(issue(`resourceEligibility ${type}.${field} length must equal ${size}.`));
+      }
+    }
+  }
+  return issues;
+}
+
+export function validate(value: unknown): readonly { message: string }[] {
+  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
+}

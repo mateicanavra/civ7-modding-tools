@@ -1,5 +1,5 @@
 import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/config.js";
-import { validatePlateGraphArtifact } from "@mapgen/domain/foundation";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
 import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../../foundation/artifacts.js";
@@ -11,7 +11,7 @@ const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
 export default createStep(PlateGraphStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateGraph], {
     foundationPlateGraph: {
-      validate: (value) => validatePlateGraphArtifact(value),
+      validate: (value) => foundationArtifactValidators.plateGraph(value),
     },
   }),
   normalize: (config, ctx) => {

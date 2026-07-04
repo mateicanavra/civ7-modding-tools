@@ -1,4 +1,6 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
+import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation tectonic history tiles era payload (tile-space era fields). */
 const FoundationTectonicHistoryTilesEraArtifactSchema = Type.Object(
@@ -125,3 +127,124 @@ export const artifact = defineArtifact({
   id: "artifact:map.foundationTectonicHistoryTiles",
   schema: Schema,
 });
+
+function wrapValidation(
+  value: unknown,
+  context: ArtifactValidationContext | undefined
+): readonly { message: string }[] {
+  const schemaIssues = validateArtifactSchema(Schema, value);
+  if (!context?.dimensions) return schemaIssues;
+  try {
+    validatePayload(value, context.dimensions);
+    return schemaIssues;
+  } catch (error) {
+    return Object.freeze([
+      ...schemaIssues,
+      { message: error instanceof Error ? error.message : String(error) },
+    ]);
+  }
+}
+
+function validatePayload(
+  value: unknown,
+  dims: NonNullable<ArtifactValidationContext["dimensions"]>
+): void {
+  if (!value || typeof value !== "object") {
+    throw new Error(
+      "[FoundationArtifact] Missing foundation tectonicHistoryTiles artifact payload."
+    );
+  }
+  const history = value as {
+    version?: unknown;
+    eraCount?: unknown;
+    perEra?: unknown;
+    rollups?: unknown;
+  };
+
+  const version = typeof history.version === "number" ? history.version | 0 : 0;
+  if (version <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.version.");
+  }
+  const eraCount = typeof history.eraCount === "number" ? history.eraCount | 0 : -1;
+  if (eraCount < 5 || eraCount > 8) {
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.eraCount (expected 5..8)."
+    );
+  }
+  if (!Array.isArray(history.perEra) || history.perEra.length !== eraCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.");
+  }
+
+  const expectedLen = Math.max(0, (dims.width | 0) * (dims.height | 0));
+  for (let e = 0; e < history.perEra.length; e++) {
+    const era = history.perEra[e] as Record<string, unknown> | undefined;
+    if (!era) {
+      throw new Error(
+        "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra payload."
+      );
+    }
+    const fields = [
+      "boundaryType",
+      "upliftPotential",
+      "collisionPotential",
+      "subductionPotential",
+      "riftPotential",
+      "shearStress",
+      "volcanism",
+      "fracture",
+    ] as const;
+    for (const field of fields) {
+      const v = era[field] as unknown;
+      if (!(v instanceof Uint8Array) || v.length !== expectedLen) {
+        throw new Error(
+          `[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.${field}.`
+        );
+      }
+    }
+  }
+
+  const rollups = history.rollups as Record<string, unknown> | undefined;
+  if (!rollups || typeof rollups !== "object") {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.");
+  }
+  const rollupFields = [
+    ["upliftTotal", rollups.upliftTotal],
+    ["collisionTotal", rollups.collisionTotal],
+    ["subductionTotal", rollups.subductionTotal],
+    ["fractureTotal", rollups.fractureTotal],
+    ["volcanismTotal", rollups.volcanismTotal],
+    ["upliftRecentFraction", rollups.upliftRecentFraction],
+    ["collisionRecentFraction", rollups.collisionRecentFraction],
+    ["subductionRecentFraction", rollups.subductionRecentFraction],
+    ["lastActiveEra", rollups.lastActiveEra],
+    ["lastCollisionEra", rollups.lastCollisionEra],
+    ["lastSubductionEra", rollups.lastSubductionEra],
+  ] as const;
+  for (const [label, arr] of rollupFields) {
+    if (!(arr instanceof Uint8Array) || arr.length !== expectedLen) {
+      throw new Error(
+        `[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.${label}.`
+      );
+    }
+  }
+
+  const movementU = (rollups as { movementU?: unknown }).movementU;
+  if (!(movementU instanceof Int8Array) || movementU.length !== expectedLen) {
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementU."
+    );
+  }
+  const movementV = (rollups as { movementV?: unknown }).movementV;
+  if (!(movementV instanceof Int8Array) || movementV.length !== expectedLen) {
+    throw new Error(
+      "[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementV."
+    );
+  }
+}
+
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  return wrapValidation(value, context);
+}

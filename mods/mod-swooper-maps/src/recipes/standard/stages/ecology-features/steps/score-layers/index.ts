@@ -4,12 +4,9 @@ import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import {
-  validateOccupancyArtifact,
-  validateScoreLayersArtifact,
-} from "../../../ecology/artifact-validation.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import ScoreLayersStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 const MINOR_FLOODPLAIN_DISCHARGE_NORMALIZER = 1000;
@@ -56,10 +53,10 @@ function localReliefM(
 export default createStep(ScoreLayersStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase], {
     scoreLayers: {
-      validate: (value, context) => validateScoreLayersArtifact(value, context.dimensions),
+      validate: ecologyArtifactValidators.scoreLayers,
     },
     occupancyBase: {
-      validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+      validate: ecologyArtifactValidators.occupancyBase,
     },
   }),
   run: (context, config, ops, deps) => {

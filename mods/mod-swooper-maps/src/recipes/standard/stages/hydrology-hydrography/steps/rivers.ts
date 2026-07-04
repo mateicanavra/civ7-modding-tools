@@ -7,7 +7,7 @@ import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
 import RiversStepContract from "./rivers.contract.js";
-import { validateHydrographyArtifact } from "./rivers.validation.js";
+import { validators as hydrologyHydrographyArtifactValidators } from "../artifacts/index.js";
 
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -15,7 +15,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export default createStep(RiversStepContract, {
   artifacts: implementArtifacts([hydrologyHydrographyArtifacts.hydrography], {
     hydrography: {
-      validate: (value, context) => validateHydrographyArtifact(value, context.dimensions),
+      validate: hydrologyHydrographyArtifactValidators.hydrography,
     },
   }),
   normalize: (config, ctx) => {
