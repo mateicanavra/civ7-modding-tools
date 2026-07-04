@@ -60,7 +60,7 @@
   (< 900 chars).
 - [x] 4.3 Old `domain/placement/ops/plan-resources` deleted with all wiring
   (no dual path); `stages/resources` deleted, artifact contracts absorbed
-  into `domain/resources/artifacts/contract/*.contract.ts`.
+  into `domain/resources/artifacts/*.artifact.ts`.
 
 ## 5. Knobs, artifacts, validators
 

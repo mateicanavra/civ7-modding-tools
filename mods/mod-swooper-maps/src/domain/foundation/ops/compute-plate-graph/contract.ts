@@ -1,7 +1,10 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FoundationCrustSchema } from "../compute-crust/contract.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+import { Schema as FoundationCrustSchema } from "../../artifacts/crust.artifact.js";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import type { Artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
+import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -60,29 +63,6 @@ const StrategySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const FoundationPlateSchema = Type.Object(
-  {
-    id: Type.Integer({ minimum: 0 }),
-    role: Type.Union([
-      Type.Literal("polarCap"),
-      Type.Literal("polarMicroplate"),
-      Type.Literal("tectonic"),
-    ]),
-    kind: Type.Union([Type.Literal("major"), Type.Literal("minor")]),
-    seedX: Type.Number({ description: "Seed location X in mesh hex space." }),
-    seedY: Type.Number({ description: "Seed location Y in mesh hex space." }),
-  },
-  { additionalProperties: false }
-);
-
-export const FoundationPlateGraphSchema = Type.Object(
-  {
-    cellToPlate: TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell." }),
-    plates: Type.Immutable(Type.Array(FoundationPlateSchema)),
-  },
-  { additionalProperties: false }
-);
-
 const ComputePlateGraphContract = defineOp({
   kind: "compute",
   id: "foundation/compute-plate-graph",
@@ -106,5 +86,4 @@ const ComputePlateGraphContract = defineOp({
 
 export default ComputePlateGraphContract;
 export type ComputePlateGraphConfig = Static<typeof StrategySchema>;
-export type FoundationPlate = Static<typeof FoundationPlateSchema>;
-export type FoundationPlateGraph = Static<typeof FoundationPlateGraphSchema>;
+export type FoundationPlate = FoundationPlateGraphArtifact["plates"][number];

@@ -1,9 +1,10 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
-import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
+import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
+import { Schema as FoundationPlateMotionSchema } from "../../artifacts/plate-motion.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -49,51 +50,6 @@ const StrategySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const FoundationPlateMotionSchema = Type.Object(
-  {
-    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
-    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
-    plateCount: Type.Integer({ minimum: 1, description: "Number of plates." }),
-    plateCenterX: TypedArraySchemas.f32({
-      shape: null,
-      description: "Plate rotation center X coordinate per plate (mesh space, unwrapped).",
-    }),
-    plateCenterY: TypedArraySchemas.f32({
-      shape: null,
-      description: "Plate rotation center Y coordinate per plate (mesh space, unwrapped).",
-    }),
-    plateVelocityX: TypedArraySchemas.f32({
-      shape: null,
-      description: "Plate translation X component per plate.",
-    }),
-    plateVelocityY: TypedArraySchemas.f32({
-      shape: null,
-      description: "Plate translation Y component per plate.",
-    }),
-    plateOmega: TypedArraySchemas.f32({
-      shape: null,
-      description: "Plate angular velocity per plate.",
-    }),
-    plateFitRms: TypedArraySchemas.f32({
-      shape: null,
-      description: "RMS fit error per plate (mesh-space residual magnitude).",
-    }),
-    plateFitP90: TypedArraySchemas.f32({
-      shape: null,
-      description: "P90 fit error per plate (mesh-space residual magnitude).",
-    }),
-    plateQuality: TypedArraySchemas.u8({
-      shape: null,
-      description: "Plate fit quality scalar per plate (0..255).",
-    }),
-    cellFitError: TypedArraySchemas.u8({
-      shape: null,
-      description: "Per-cell fit residual (normalized 0..255).",
-    }),
-  },
-  { additionalProperties: false }
-);
-
 const ComputePlateMotionContract = defineOp({
   kind: "compute",
   id: "foundation/compute-plate-motion",
@@ -116,4 +72,3 @@ const ComputePlateMotionContract = defineOp({
 
 export default ComputePlateMotionContract;
 export type ComputePlateMotionConfig = Static<typeof StrategySchema>;
-export type FoundationPlateMotion = Static<typeof FoundationPlateMotionSchema>;

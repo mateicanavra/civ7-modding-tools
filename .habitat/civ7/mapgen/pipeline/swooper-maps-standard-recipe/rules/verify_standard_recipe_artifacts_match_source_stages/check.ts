@@ -84,6 +84,36 @@ function deriveSourceStudioUiMeta() {
   };
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function setAtPath(root: Record<string, unknown>, path: readonly string[]): void {
+  let current = root;
+  for (const segment of path) {
+    const next = current[segment];
+    if (isPlainObject(next)) {
+      current = next;
+      continue;
+    }
+    const created: Record<string, unknown> = {};
+    current[segment] = created;
+    current = created;
+  }
+}
+
+function buildDefaultsSkeleton(uiMeta: ReturnType<typeof deriveSourceStudioUiMeta>) {
+  const out: Record<string, unknown> = {};
+  for (const stage of uiMeta.stages) {
+    const stageConfig: Record<string, unknown> = { knobs: {} };
+    for (const step of stage.steps) {
+      setAtPath(stageConfig, step.configFocusPathWithinStage);
+    }
+    out[stage.stageId] = stageConfig;
+  }
+  return out;
+}
+
 const ALLOWED_RAW_OP_ENVELOPE_PATHS = new Set([
   "foundation-orogeny.crust-evolution.computeCrustEvolution",
 ]);
@@ -116,8 +146,9 @@ function assertJsonEqual(actual: unknown, expected: unknown, label: string) {
 }
 
 const sourceSchema = stableJson(deriveRecipeConfigSchema(STANDARD_STAGES));
+const sourceUiMeta = deriveSourceStudioUiMeta();
 assertJsonEqual(STANDARD_RECIPE_CONFIG_SCHEMA, sourceSchema, "standard recipe schema");
-assertJsonEqual(STANDARD_RECIPE_UI_META, deriveSourceStudioUiMeta(), "standard recipe UI metadata");
+assertJsonEqual(STANDARD_RECIPE_UI_META, sourceUiMeta, "standard recipe UI metadata");
 
 const standardDefaultPreset = validateCanonicalMapConfig({
   fileName: "swooper-earthlike.config.json",
@@ -127,7 +158,10 @@ const standardDefaultPreset = validateCanonicalMapConfig({
 });
 const { value, errors } = normalizeStrict<Record<string, unknown>>(
   sourceSchema,
-  stripSchemaMetadataRoot(standardDefaultPreset.config),
+  {
+    ...buildDefaultsSkeleton(sourceUiMeta),
+    ...stripSchemaMetadataRoot(standardDefaultPreset.config),
+  },
   "/standard/defaults"
 );
 if (errors.length > 0) {

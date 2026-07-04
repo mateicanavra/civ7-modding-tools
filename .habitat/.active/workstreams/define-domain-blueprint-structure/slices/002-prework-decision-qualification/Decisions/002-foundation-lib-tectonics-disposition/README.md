@@ -1,6 +1,6 @@
 # Foundation Lib / Tectonics Disposition Decision Packet
 
-Status: resolved prework decision
+Status: resolved prework decision; execution closed through Slice 6
 
 This packet runs the active `Foundation lib/ / Tectonics Disposition`
 decision from `../../inventory.md`.
@@ -14,14 +14,16 @@ operation-local implementation, artifact contract, core mechanics, or deletion.
 
 ## Outcome
 
-The packet is now fully resolved at the prework decision layer:
+The packet is fully resolved at the prework decision layer:
 `foundation/lib/**` is not a valid final owner, and every row has an exact
 destination/action for execution.
 
-No owner-law blocker remains. The remaining work is implementation through the
-packet-linked execution workstream: complete the artifact-contract and core
-extraction slices, then move/delete source only under the proof gates named in
-that record.
+No owner-law blocker remains. Execution Slices 1-6 have completed the
+artifact-contract construction, artifact caller migration, vocabulary-free core
+API construction, core caller migration, and `foundation/lib/**` deletion under
+the proof gates named in `execution.md`. The final verification gate is green
+after the Slice 6 verifier repair recorded there, and final supervisor review
+accepted the repaired packet state.
 
 Concrete dispositions:
 
@@ -39,10 +41,11 @@ Concrete dispositions:
 | `lib/tectonics/schemas.ts` | Split to artifact contracts for `tectonic-history`, `current-tectonics`, and `tectonic-provenance`. |
 | `lib/tectonics/shared.ts` / `NeighborhoodMesh`, byte/int8/vector helpers, and mesh-neighborhood helpers | Resolved by `tectonics-shared-core.domino.md`: extract accepted vocabulary-free APIs into existing `@swooper/mapgen-core` `lib/math`, `lib/grid`, and `lib/mesh` subpaths, except replace local `clamp01` with existing core `clampFinite(value, 0, 1, 0)`. |
 | `lib/tectonics/shared.ts` / `deriveResetThreshold` | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. |
-| `lib/tectonics/index.ts`, `events.ts`, `fields.ts`, `membership.ts`, `provenance.ts`, `rollups.ts`, `tracing.ts` | Delete in a later source slice after import proof and typecheck/test proof. Active operation-local replacements already exist. |
+| `lib/tectonics/index.ts`, `events.ts`, `fields.ts`, `membership.ts`, `provenance.ts`, `rollups.ts`, `tracing.ts` | Deleted during execution after import proof and typecheck/test proof. Active operation-local replacements already exist. |
 
-This packet deliberately does not perform source movement, deletion, Grit
-authoring, `structure.toml` edits, or runtime changes.
+This packet did not authorize unrelated Grit authoring, `structure.toml` edits,
+runtime changes, or source movement outside the closed disposition rows. Source
+movement and deletion happened only through the packet-linked execution slices.
 
 ## Domino Closure
 
@@ -83,8 +86,8 @@ Dedicated investigation plans and evidence:
 - `evidence/tectonics-shared-core-agent-b.md`
 - `evidence/tectonics-shared-core-agent-c.md`
 
-The domino files are now closure records. They should feed the next
-packet-linked execution slices rather than remain as open trackers.
+The domino files are now closure records. They fed the packet-linked execution
+slices and no longer represent open trackers.
 
 ## Artifacts
 
@@ -115,8 +118,7 @@ tectonics-shared-core.domino.md
 tectonics-shared-core-investigation.md
 ```
 
-`execution.md` contains closed Slice 1 proof and an execution-ready workstream
-for the remaining artifact-contract and core-extraction slices. Source
-migration, deletions, `structure.toml`, Grit packets, and runtime changes must
-follow the gates in that record; `structure.toml`, Grit packets, and runtime
-changes remain out of scope unless a later accepted slice explicitly adds them.
+`execution.md` contains the execution record for Slices 1-6. The slices are
+closed after supervisor acceptance. `structure.toml`, Grit packets, runtime
+changes, and unrelated cleanup remain out of scope unless a later accepted
+slice explicitly adds them.

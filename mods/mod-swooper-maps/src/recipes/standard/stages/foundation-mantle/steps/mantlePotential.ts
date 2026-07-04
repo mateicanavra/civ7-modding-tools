@@ -1,10 +1,7 @@
+import { validateMantlePotentialArtifact } from "@mapgen/domain/foundation";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validateMantlePotentialArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
 import { interleaveXY } from "../../foundation/viz.js";
 import MantlePotentialStepContract from "./mantlePotential.contract.js";
 
@@ -13,7 +10,7 @@ const GROUP_MANTLE = "Foundation / Mantle";
 export default createStep(MantlePotentialStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mantlePotential], {
     foundationMantlePotential: {
-      validate: (value) => wrapFoundationValidateNoDims(value, validateMantlePotentialArtifact),
+      validate: (value) => validateMantlePotentialArtifact(value),
     },
   }),
   run: (context, config, ops, deps) => {

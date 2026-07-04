@@ -1,11 +1,8 @@
+import { validatePlateTopologyArtifact } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validatePlateTopologyArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
 import {
   pointsFromTileCentroids,
   segmentsFromTileTopologyNeighbors,
@@ -17,7 +14,7 @@ const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 export default createStep(PlateTopologyStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateTopology], {
     foundationPlateTopology: {
-      validate: (value) => wrapFoundationValidateNoDims(value, validatePlateTopologyArtifact),
+      validate: (value) => validatePlateTopologyArtifact(value),
     },
   }),
   run: (context, config, ops, deps) => {

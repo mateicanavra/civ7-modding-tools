@@ -1,34 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-/**
- * Plate topology node: per-plate adjacency + centroid/area derived from the
- * tile-space plate-id raster. `area`/`centroid` are tile-space aggregates;
- * `neighbors` is the sorted, unique set of bordering plate ids.
- */
-const FoundationPlateTopologyNodeSchema = Type.Object(
-  {
-    /** Plate id (0..plateCount-1). */
-    id: Type.Integer({ minimum: 0, description: "Plate id (0..plateCount-1)." }),
-    /** Plate area in tiles. */
-    area: Type.Integer({ minimum: 0, description: "Plate area in tiles." }),
-    /** Plate centroid in tile-space coordinates. */
-    centroid: Type.Object(
-      {
-        /** Plate centroid X (tile space). */
-        x: Type.Number({ description: "Plate centroid X (tile space)." }),
-        /** Plate centroid Y (tile space). */
-        y: Type.Number({ description: "Plate centroid Y (tile space)." }),
-      },
-      { description: "Plate centroid in tile-space coordinates." }
-    ),
-    /** Sorted, unique adjacent plate ids. */
-    neighbors: Type.Array(Type.Integer({ minimum: 0, description: "Neighbor plate id." }), {
-      default: [],
-      description: "Sorted, unique adjacent plate ids.",
-    }),
-  },
-  { description: "Plate topology node (adjacency + centroid/area)." }
-);
+import { Schema as FoundationPlateTopologySchema } from "../../artifacts/plate-topology.artifact.js";
 
 /**
  * compute-plate-topology — build the plate adjacency graph from the tile-space
@@ -57,19 +29,7 @@ const ComputePlateTopologyContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Object(
-    {
-      plateTopology: Type.Object(
-        {
-          /** Number of plates included in the topology payload. */
-          plateCount: Type.Integer({ minimum: 1, description: "Number of plates." }),
-          /** Plate topology nodes (indexed by plate id). */
-          plates: Type.Array(FoundationPlateTopologyNodeSchema, {
-            description: "Plate topology nodes (indexed by plate id).",
-          }),
-        },
-        { description: "Foundation plate topology (tile-derived adjacency + centroid/area)." }
-      ),
-    },
+    { plateTopology: FoundationPlateTopologySchema },
     { additionalProperties: false }
   ),
   strategies: {

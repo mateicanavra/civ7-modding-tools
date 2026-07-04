@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { Value } from "typebox/value";
 import {
-  ResourceCorpusArtifactSchema,
-  resourceCorpusArtifact,
-} from "../../src/domain/resources/artifacts/contract/corpus.contract.js";
+  artifact as resourceCorpusArtifact,
+  Schema as ResourceCorpusArtifactSchema,
+} from "../../src/domain/resources/artifacts/corpus.artifact.js";
 import { OFFICIAL_RESOURCE_CORPUS_ARTIFACT } from "../../src/domain/resources/index.js";
 
 describe("resources corpus artifact", () => {

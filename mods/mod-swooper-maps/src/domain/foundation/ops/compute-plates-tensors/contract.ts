@@ -6,10 +6,10 @@ import {
   type Artifact as FoundationTectonicProvenanceArtifact,
   Schema as FoundationTectonicProvenanceSchema,
 } from "../../artifacts/tectonic-provenance.artifact.js";
-import { FoundationCrustSchema } from "../compute-crust/contract.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
-import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
-import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
+import { Schema as FoundationCrustSchema } from "../../artifacts/crust.artifact.js";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
+import { Schema as FoundationPlateMotionSchema } from "../../artifacts/plate-motion.artifact.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;

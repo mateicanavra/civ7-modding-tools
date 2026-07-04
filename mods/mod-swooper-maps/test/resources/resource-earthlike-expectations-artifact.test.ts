@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Value } from "typebox/value";
 import {
-  ResourceEarthlikeExpectationsArtifactSchema,
-  resourceEarthlikeExpectationsArtifact,
-} from "../../src/domain/resources/artifacts/contract/earthlike-expectations.contract.js";
+  artifact as resourceEarthlikeExpectationsArtifact,
+  Schema as ResourceEarthlikeExpectationsArtifactSchema,
+} from "../../src/domain/resources/artifacts/earthlike-expectations.artifact.js";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,

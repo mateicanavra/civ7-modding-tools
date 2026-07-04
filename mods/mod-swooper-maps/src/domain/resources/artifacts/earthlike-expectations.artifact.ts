@@ -1,6 +1,6 @@
 import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
-import type { EarthlikeResourceExpectationsArtifact } from "../../lib/earthlike-expectations/types.js";
-import { PlacementConstraintsSchema } from "./corpus.contract.js";
+import type { EarthlikeResourceExpectationsArtifact } from "../lib/earthlike-expectations/types.js";
+import { PlacementConstraintsSchema } from "./corpus.artifact.js";
 
 /**
  * Artifact contract for the earthlike per-resource expectation corpus
@@ -201,37 +201,34 @@ const EarthlikeExpectationEntrySchema = Type.Union([
   ActiveExpectationEntrySchema,
 ]);
 
-export const ResourceEarthlikeExpectationsArtifactSchema =
-  Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
-    Type.Object(
-      {
-        source: Type.Object(
-          {
-            authority: Type.Literal("resource-earthlike-expectations"),
-            corpusArtifactId: Type.Literal("artifact:resources.corpus"),
-            artifactId: Type.Literal("artifact:resources.earthlikeExpectations"),
-            baseline: Type.Literal("standard-earthlike-map"),
-            runtimeIdStatus: Type.Literal("unverified"),
-            hardCountGateEvidence: Type.Literal("runtime-calibrated"),
-          },
-          { additionalProperties: false }
-        ),
-        resources: Type.Array(EarthlikeExpectationEntrySchema),
-      },
-      {
-        additionalProperties: false,
-        description:
-          "Per-resource earthlike expectation contract. Ranges remain provisional until runtime-calibrated telemetry exists; runtime numeric ids remain unverified.",
-      }
-    )
-  );
+export const Schema = Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
+  Type.Object(
+    {
+      source: Type.Object(
+        {
+          authority: Type.Literal("resource-earthlike-expectations"),
+          corpusArtifactId: Type.Literal("artifact:resources.corpus"),
+          artifactId: Type.Literal("artifact:resources.earthlikeExpectations"),
+          baseline: Type.Literal("standard-earthlike-map"),
+          runtimeIdStatus: Type.Literal("unverified"),
+          hardCountGateEvidence: Type.Literal("runtime-calibrated"),
+        },
+        { additionalProperties: false }
+      ),
+      resources: Type.Array(EarthlikeExpectationEntrySchema),
+    },
+    {
+      additionalProperties: false,
+      description:
+        "Per-resource earthlike expectation contract. Ranges remain provisional until runtime-calibrated telemetry exists; runtime numeric ids remain unverified.",
+    }
+  )
+);
 
-export type ResourceEarthlikeExpectationsArtifact = Static<
-  typeof ResourceEarthlikeExpectationsArtifactSchema
->;
+export type Artifact = Static<typeof Schema>;
 
-export const resourceEarthlikeExpectationsArtifact = defineArtifact({
+export const artifact = defineArtifact({
   name: "resourceEarthlikeExpectations",
   id: "artifact:resources.earthlikeExpectations",
-  schema: ResourceEarthlikeExpectationsArtifactSchema,
+  schema: Schema,
 });

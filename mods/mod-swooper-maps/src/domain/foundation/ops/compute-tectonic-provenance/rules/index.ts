@@ -3,8 +3,8 @@ import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../
 import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
-import type { FoundationMesh } from "../../compute-mesh/contract.js";
-import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
+import type { Artifact as FoundationMesh } from "../../../artifacts/mesh.artifact.js";
+import type { Artifact as FoundationPlateGraph } from "../../../artifacts/plate-graph.artifact.js";
 import {
   ARC_RESET_THRESHOLD_FRAC_OF_MAX,
   ARC_RESET_THRESHOLD_MIN,

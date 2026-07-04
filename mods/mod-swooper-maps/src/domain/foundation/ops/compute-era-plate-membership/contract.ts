@@ -1,9 +1,9 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { Schema as PlateIdByEraSchema } from "../../artifacts/plate-id-by-era.artifact.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
-import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
-import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
+import { Schema as FoundationPlateMotionSchema } from "../../artifacts/plate-motion.artifact.js";
 
 const StrategySchema = Type.Object(
   {

@@ -1,43 +1,7 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-export const BoundingBoxSchema = Type.Object(
-  {
-    xl: Type.Number(),
-    xr: Type.Number(),
-    yt: Type.Number(),
-    yb: Type.Number(),
-  },
-  { additionalProperties: false }
-);
-
-export type BoundingBox = Static<typeof BoundingBoxSchema>;
-
-export const FoundationMeshSchema = Type.Object(
-  {
-    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
-    wrapWidth: Type.Number({ description: "Periodic wrap width in mesh-space units (hex space)." }),
-    siteX: TypedArraySchemas.f32({
-      shape: null,
-      description: "X coordinate per mesh cell (hex space).",
-    }),
-    siteY: TypedArraySchemas.f32({
-      shape: null,
-      description: "Y coordinate per mesh cell (hex space).",
-    }),
-    neighborsOffsets: TypedArraySchemas.i32({
-      shape: null,
-      description: "CSR offsets into neighbors array (length = cellCount + 1).",
-    }),
-    neighbors: TypedArraySchemas.i32({ shape: null, description: "CSR neighbor indices." }),
-    areas: TypedArraySchemas.f32({
-      shape: null,
-      description: "Cell area per mesh cell (hex-space units).",
-    }),
-    bbox: BoundingBoxSchema,
-  },
-  { additionalProperties: false }
-);
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 
 const ComputeMeshContract = defineOp({
   kind: "compute",
@@ -93,4 +57,3 @@ const ComputeMeshContract = defineOp({
 
 export default ComputeMeshContract;
 export type ComputeMeshConfig = Static<(typeof ComputeMeshContract)["strategies"]["default"]>;
-export type FoundationMesh = Static<typeof FoundationMeshSchema> & Readonly<{ bbox: BoundingBox }>;

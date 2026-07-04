@@ -1,5 +1,5 @@
 import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
-import type { OfficialResourceCorpusArtifact } from "../../lib/corpus/types.js";
+import type { OfficialResourceCorpusArtifact } from "../lib/corpus/types.js";
 
 /**
  * Artifact contract for the official resource corpus
@@ -99,7 +99,7 @@ const ResourceCorpusEntrySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const ResourceCorpusArtifactSchema = Type.Unsafe<OfficialResourceCorpusArtifact>(
+export const Schema = Type.Unsafe<OfficialResourceCorpusArtifact>(
   Type.Object(
     {
       source: Type.Object(
@@ -122,10 +122,10 @@ export const ResourceCorpusArtifactSchema = Type.Unsafe<OfficialResourceCorpusAr
   )
 );
 
-export type ResourceCorpusArtifact = Static<typeof ResourceCorpusArtifactSchema>;
+export type Artifact = Static<typeof Schema>;
 
-export const resourceCorpusArtifact = defineArtifact({
+export const artifact = defineArtifact({
   name: "resourceCorpus",
   id: "artifact:resources.corpus",
-  schema: ResourceCorpusArtifactSchema,
+  schema: Schema,
 });

@@ -71,11 +71,42 @@ function deriveSourceStudioUiMeta() {
   };
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function setAtPath(root: Record<string, unknown>, path: readonly string[]): void {
+  let current = root;
+  for (const segment of path) {
+    const next = current[segment];
+    if (isPlainObject(next)) {
+      current = next;
+      continue;
+    }
+    const created: Record<string, unknown> = {};
+    current[segment] = created;
+    current = created;
+  }
+}
+
+function buildDefaultsSkeleton(uiMeta: ReturnType<typeof deriveSourceStudioUiMeta>) {
+  const out: Record<string, unknown> = {};
+  for (const stage of uiMeta.stages) {
+    const stageConfig: Record<string, unknown> = { knobs: {} };
+    for (const step of stage.steps) {
+      setAtPath(stageConfig, step.configFocusPathWithinStage);
+    }
+    out[stage.stageId] = stageConfig;
+  }
+  return out;
+}
+
 describe("standard recipe source artifact guards", () => {
   it("keeps generated standard schema and defaults aligned with source stages", () => {
     const sourceSchema = stableJson(deriveRecipeConfigSchema(STANDARD_STAGES as any)) as TSchema;
+    const sourceUiMeta = deriveSourceStudioUiMeta();
     expect(STANDARD_RECIPE_CONFIG_SCHEMA).toEqual(sourceSchema);
-    expect(STANDARD_RECIPE_UI_META).toEqual(deriveSourceStudioUiMeta());
+    expect(STANDARD_RECIPE_UI_META).toEqual(sourceUiMeta);
 
     const standardDefaultPreset = validateCanonicalMapConfig({
       fileName: "swooper-earthlike.config.json",
@@ -85,7 +116,10 @@ describe("standard recipe source artifact guards", () => {
     });
     const { value, errors } = normalizeStrict<Record<string, unknown>>(
       sourceSchema,
-      stripSchemaMetadataRoot(standardDefaultPreset.config),
+      {
+        ...buildDefaultsSkeleton(sourceUiMeta),
+        ...stripSchemaMetadataRoot(standardDefaultPreset.config),
+      },
       "/standard/defaults"
     );
     expect(errors).toEqual([]);

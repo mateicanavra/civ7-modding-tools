@@ -1,12 +1,9 @@
+import { validatePlateMotionArtifact } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validatePlateMotionArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
 import PlateMotionStepContract from "./plateMotion.contract.js";
 
 const GROUP_PLATE_MOTION = "Foundation / Plate Motion";
@@ -96,7 +93,7 @@ function buildVectorSegments(params: {
 export default createStep(PlateMotionStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateMotion], {
     foundationPlateMotion: {
-      validate: (value) => wrapFoundationValidateNoDims(value, validatePlateMotionArtifact),
+      validate: (value) => validatePlateMotionArtifact(value),
     },
   }),
   run: (context, config, ops, deps) => {

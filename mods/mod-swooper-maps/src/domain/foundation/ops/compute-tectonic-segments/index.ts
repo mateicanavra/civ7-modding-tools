@@ -3,7 +3,7 @@ import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
 import { clamp01, quantizeU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
-import type { FoundationPlateMotion } from "../compute-plate-motion/contract.js";
+import type { Artifact as FoundationPlateMotion } from "../../artifacts/plate-motion.artifact.js";
 import ComputeTectonicSegmentsContract from "./contract.js";
 
 function velocityAtPoint(params: {

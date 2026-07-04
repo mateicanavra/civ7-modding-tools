@@ -1,6 +1,6 @@
-import type { FoundationMesh } from "../compute-mesh/contract.js";
-import type { FoundationPlateGraph } from "../compute-plate-graph/contract.js";
-import type { FoundationPlateMotion } from "../compute-plate-motion/contract.js";
+import type { Artifact as FoundationMesh } from "../../artifacts/mesh.artifact.js";
+import type { Artifact as FoundationPlateGraph } from "../../artifacts/plate-graph.artifact.js";
+import type { Artifact as FoundationPlateMotion } from "../../artifacts/plate-motion.artifact.js";
 
 export type EraPlateMembershipMesh = Pick<
   FoundationMesh,

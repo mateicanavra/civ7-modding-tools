@@ -1,16 +1,15 @@
 import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
+import {
+  validateTectonicsArtifact,
+  validateTectonicHistoryArtifact,
+  validateTectonicProvenanceArtifact,
+  validateTectonicSegmentsArtifact,
+} from "@mapgen/domain/foundation";
 import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/config.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validateTectonicHistoryArtifact,
-  validateTectonicProvenanceArtifact,
-  validateTectonicSegmentsArtifact,
-  validateTectonicsArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
 import { interleaveXY, segmentsFromCellPairs } from "../../foundation/viz.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 
@@ -41,17 +40,16 @@ export default createStep(TectonicsStepContract, {
     ],
     {
       foundationTectonicSegments: {
-        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicSegmentsArtifact),
+        validate: (value) => validateTectonicSegmentsArtifact(value),
       },
       foundationTectonicHistory: {
-        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicHistoryArtifact),
+        validate: (value) => validateTectonicHistoryArtifact(value),
       },
       foundationTectonicProvenance: {
-        validate: (value) =>
-          wrapFoundationValidateNoDims(value, validateTectonicProvenanceArtifact),
+        validate: (value) => validateTectonicProvenanceArtifact(value),
       },
       foundationTectonics: {
-        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicsArtifact),
+        validate: (value) => validateTectonicsArtifact(value),
       },
     }
   ),

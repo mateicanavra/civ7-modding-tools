@@ -149,14 +149,13 @@ Plus:
   budgeted at 0.85 in the world-balance suite with rationale).
 - **stages/resources disposition: deleted.** Its orphan `artifacts.ts`
   content (corpus + earthlikeExpectations artifact contracts) is absorbed
-  into `domain/resources/artifacts/contract/<artifact>.contract.ts` (one
-  artifact per file, per the repo layout convention recorded in the
-  architecture-authority skill); consumers are the corpus contract-guard
-  tests.
+  into `domain/resources/artifacts/<artifact>.artifact.ts` (one artifact per
+  file, per the repo layout convention recorded in the architecture-authority
+  skill); consumers are the corpus contract-guard tests.
 - **Domain layout normalization (user-directed mid-slice):**
   `domain/resources` reorganized to `lib/` (corpus, expectations,
   runtime-ids), `policy/` (habitat-eligibility, resource-legality,
-  initial-map-authoring), `artifacts/contract/`, and per-op `policy/` files;
+  initial-map-authoring), `artifacts/`, and per-op `policy/` files;
   convention recorded in
   `.agents/skills/civ7-architecture-authority/references/ownership-boundaries.md`.
 - **Telemetry compatibility:** envelope-preserving replacement, not strictly

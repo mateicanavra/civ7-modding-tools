@@ -236,3 +236,38 @@ Lane results:
 
 No accepted P1/P2 findings remain open for Slice 5 local closure. Slice 6 is not
 allowed to open until independent supervisor review accepts this slice.
+
+## Execution Slice 6 Review
+
+Slice 6 is final packet closure only. Supervisor accepted repaired Slice 5 and
+opened Slice 6; the implementation DRA ran the final gates without source,
+test, package, runtime, or generated-output behavior changes.
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P1 | Final verification gate | `nx run mod-swooper-maps:habitat:check` initially failed on `verify_standard_recipe_artifacts_match_source_stages`, and `nx run mod-swooper-maps:test` later exposed the same defaults-oracle defect in `standard-recipe-artifact-guards.test.ts`. | Accepted and repaired. The Habitat rule oracle and package test now apply the same generated defaults skeleton as `generate-studio-recipe-types.ts` before comparing source defaults. `nx run mod-swooper-maps:habitat:check` now passes with 71 rules / 0 failing, and `nx run mod-swooper-maps:test` passes. |
+| P2 | Final scan shape | The exact broad old-path final scan reported self-guard assertions in `mods/mod-swooper-maps/test/foundation/contract-guard.test.ts` and unrelated resource-domain `../../lib/...` imports, even though the deleted foundation owner had no source/test importers. | Accepted and repaired as verification-contract shape. The final proof uses a narrower retired-owner import scan plus a source-only retired-owner reference scan and the old guard/shared scan; all pass with no output. |
+| P3 | Graphite status command compatibility | `gt status --no-interactive` is unsupported by the installed Graphite CLI and passes through to `git status --no-interactive`, which exits 129. | Accepted and repaired as verification-contract shape. The final packet verification now uses supported non-interactive stack proof via `gt log --no-interactive \| head -80` plus `git status --short --branch --untracked-files=all` and `test -z "$(git status --short)"` for cleanliness. |
+
+Final local review state:
+
+- Slices 1-5 are supervisor-accepted and remain closed.
+- No accepted P1/P2 implementation finding remains open for Slices 1-5.
+- Slice 6 final verification is green after verifier repair and proceeded to
+  final supervisor review below.
+
+## Execution Slice 6 Final Supervisor Review
+
+Final supervisor review accepted the Slice 6 verifier repair and source/test
+closure evidence, then found one record-truth repair before packet closure.
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P2 | Disposition-table record truth | `synthesis/disposition-table.md` still carried stale future-deletion wording, which contradicted the closed execution record and deleted `foundation/lib/**` owner path. | Accepted and repaired. The disposition write-back now records that deletion execution closed through Slices 3/5/6 under the proof gates in `execution.md`. |
+
+Final supervisor closure state:
+
+- Slices 1-6 are supervisor-accepted and remain closed.
+- No accepted P1/P2 implementation or final verification finding remains open.
+- No active deletion, artifact-contract, or core-extraction deferral remains in
+  this packet.

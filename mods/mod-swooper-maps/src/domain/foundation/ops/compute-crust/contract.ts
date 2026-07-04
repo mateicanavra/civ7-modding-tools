@@ -1,7 +1,9 @@
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring/contracts";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+import { Schema as FoundationCrustSchema } from "../../artifacts/crust.artifact.js";
+import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;
@@ -50,53 +52,6 @@ const StrategySchema = Type.Object(
   }
 );
 
-/** Crust truth + derived drivers per mesh cell. */
-export const FoundationCrustSchema = Type.Object(
-  {
-    /** Crust maturity per mesh cell (0=basaltic lid, 1=cratonic). */
-    maturity: TypedArraySchemas.f32({
-      shape: null,
-      description: "Crust maturity per mesh cell (0=basaltic lid, 1=cratonic).",
-    }),
-    /** Crust thickness proxy per mesh cell (0..1). */
-    thickness: TypedArraySchemas.f32({
-      shape: null,
-      description: "Crust thickness proxy per mesh cell (0..1).",
-    }),
-    /** Crust thermal age per mesh cell (0..255). */
-    thermalAge: TypedArraySchemas.u8({
-      shape: null,
-      description: "Crust thermal age per mesh cell (0..255).",
-    }),
-    /** Crust damage per mesh cell (0..255). */
-    damage: TypedArraySchemas.u8({
-      shape: null,
-      description: "Crust damage per mesh cell (0..255).",
-    }),
-    type: TypedArraySchemas.u8({
-      shape: null,
-      description: "Crust type per mesh cell (0=oceanic, 1=continental).",
-    }),
-    age: TypedArraySchemas.u8({
-      shape: null,
-      description: "Crust thermal age per mesh cell (0=new, 255=ancient).",
-    }),
-    buoyancy: TypedArraySchemas.f32({
-      shape: null,
-      description: "Crust buoyancy proxy per mesh cell (0..1).",
-    }),
-    baseElevation: TypedArraySchemas.f32({
-      shape: null,
-      description: "Isostatic base elevation proxy per mesh cell (0..1).",
-    }),
-    strength: TypedArraySchemas.f32({
-      shape: null,
-      description: "Lithospheric strength proxy per mesh cell (0..1).",
-    }),
-  },
-  { description: "Crust truth + derived drivers per mesh cell." }
-);
-
 /** Input payload for foundation/compute-crust. */
 const InputSchema = Type.Object(
   {
@@ -141,4 +96,3 @@ const ComputeCrustContract = defineOp({
 
 export default ComputeCrustContract;
 export type ComputeCrustConfig = Static<typeof StrategySchema>;
-export type FoundationCrust = Static<typeof FoundationCrustSchema>;
