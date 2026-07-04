@@ -42,6 +42,99 @@ Rejected owner classes:
 
 ## Mechanical Target Shape
 
+### Hardening Patterns Required Before Full Execution
+
+The full hardening pass must resolve three destination-pattern questions before
+mechanical source movement is treated as closed. These are Habitat pattern
+targets, not behavior tests. Tests may prove runtime behavior, but they must not
+be the structural ratchet for topology or file shape.
+
+#### 1. Operation Contract File Shape
+
+The operation contract destination must be patternable before operation
+`config.ts` files are inlined.
+
+Required direction:
+
+- operation input, output, strategy, and default schemas live in the owning
+  operation `contract.ts`;
+- operation contracts may import reusable domain schema primitives from
+  `model/schemas/`;
+- operation contracts may import reusable domain policy from `model/policy/`
+  only when the contract needs policy-owned constants or defaults;
+- operation contracts must not import operation input/output envelopes from a
+  sibling `config.ts`, shared operation-family config bucket, or root domain
+  config facade;
+- extracted full operation input/output schemas are forbidden outside the
+  operation contract definition site.
+
+Pattern intent:
+
+- primarily enforce forbidden imports and forbidden owner paths;
+- optionally enforce local contract export shape once the existing contract
+  pattern is reviewed;
+- prevent mechanical inlining from accumulating dead support files or new
+  config-shaped buckets.
+
+This pattern is the destination guard for Stage 1 and Stage 2.
+
+#### 2. Recipe Stage Authoring File Shape
+
+The recipe stage destination must be patternable before the public-authoring
+cleanup goes beyond obvious empty or wrapper-only cases.
+
+Required direction:
+
+- stages own `public`, `knobsSchema`, `compile`, and public-to-internal step
+  construction;
+- recipe stages may import domain schemas from the owning domain
+  `model/schemas/` barrel when composing a public authoring schema;
+- recipe stages may import domain policy from the owning domain
+  `model/policy/` when applying semantic policy to stage compile behavior;
+- recipe stages must not import root or per-domain `config.ts` facades;
+- recipe stages must not import operation-local `config.ts` files;
+- stage authoring helpers, if allowed outside `index.ts`, must live under the
+  owning stage directory and must not become a domain authority surface.
+
+Open shape choice for review:
+
+- strict inline model: `public`, `knobsSchema`, and `compile` are all defined
+  in the stage `index.ts`; or
+- stage-local support model: stage-local schema/helper files are allowed, but
+  only under the stage directory and only with constrained imports.
+
+Either model is acceptable if the pattern makes the stage the only owner of
+authoring configuration.
+
+This pattern is the destination guard for Stage 5 and for any reroute that
+moves config-shaped stage helper material.
+
+#### 3. Domain Schema And Policy Export Shape
+
+The domain primitive/policy destinations must be patternable before config
+facades are retired.
+
+Required direction:
+
+- reusable semantic schema primitives live under `model/schemas/`;
+- reusable semantic policy lives under `model/policy/`;
+- both areas may expose local `index.ts` barrels;
+- root/per-domain `config.ts` files are not replacement barrels for these
+  areas;
+- domain schemas must not contain full operation input/output envelopes;
+- domain policy must not contain stage-only public authoring composition.
+
+Pattern intent:
+
+- make recipe imports simple: stages import domain-owned primitives from one
+  domain schema source and policy from one policy source;
+- avoid swapping the old `config.ts` facade for a new broad bucket with a new
+  name;
+- leave topology ratcheting for the wider domain blueprint until the prework
+  rows have been burned down.
+
+This pattern is the destination guard for Stage 3 and Stage 4.
+
 ### Operation Contracts
 
 Operation input, output, and strategy schemas must be defined at the operation
@@ -184,6 +277,26 @@ Gate:
   classes above;
 - no document still presents `model/config/` as the target destination.
 
+### Stage 0.5: Destination Pattern Drafts
+
+Objective: draft the Habitat pattern destinations that make the mechanical
+cleanup enforceable while it runs.
+
+Changes:
+
+- draft the operation contract file-shape pattern;
+- draft the recipe stage authoring file-shape pattern;
+- draft the domain `model/schemas/` and `model/policy/` export-shape patterns;
+- keep these as draft or candidate pattern authority until reviewed.
+
+Gate:
+
+- each mechanical destination has a named pattern or an explicit accepted gap;
+- the patterns are focused on structural ownership and imports, not behavior;
+- the patterns do not enforce the full domain blueprint topology early;
+- implementation slices can use the patterns as local proof targets without
+  pulling unrelated existing code red.
+
 ### Stage 1: Operation Contract Consolidation
 
 Objective: remove operation-local `config.ts` files where they are merely split
@@ -318,6 +431,30 @@ Acceptance:
 - remaining messy public helper files are explicitly classified as semantic
   remainder, not hidden under config-law cleanup.
 
+## Mechanical End State
+
+When this draft is fully hardened and executed, the codebase should have only
+one remaining authoritative concept of config in this area: recipe/stage
+authoring config.
+
+Expected closure state:
+
+- operation files no longer use `config.ts` as a contract owner;
+- operation contracts define their own input/output/strategy schema envelopes;
+- reusable schema primitives are named as domain model schemas, not configs;
+- reusable constants/resolvers/defaults are named as domain model policy, not
+  configs;
+- stage public authoring, knobs, and compile behavior remain stage-owned;
+- root and per-domain `config.ts` facades are gone or explicitly preserved only
+  by a reviewed public API decision;
+- any remaining use of the runtime word `config` refers to the MapGen
+  recipe/stage/step authoring model, not domain authority.
+
+This is the stopping point for the mechanical bulk semantic resolution. After
+that, the remaining questions should be topology and file-shape questions that
+can be decided against clean owner classes rather than against an ambiguous
+`config` bucket.
+
 ## Semantic Remainder After Mechanical Pass
 
 This draft expects some rows to remain after the mechanical cleanup:
@@ -343,5 +480,8 @@ The next review team should evaluate:
 - whether forbidding extracted operation input/output schemas is too strict;
 - whether operation-family contract decomposition should happen before or after
   simple operation contract consolidation;
-- whether the stage authoring cleanup should be deferred entirely until the
-  stage-shape law is written.
+- whether the stage authoring cleanup should stop at pattern drafting or also
+  execute obvious empty/wrapper-only cleanup;
+- whether the operation contract, stage authoring, and domain schema/policy
+  destination patterns are strict enough to make the mechanical moves safe
+  without enforcing the whole domain blueprint too early.
