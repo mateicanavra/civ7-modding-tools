@@ -137,10 +137,10 @@ domain module, and migrate adjacent files you already own in the change):
   policy). One concern per file; no barrels beyond the domain index.
 - `lib/` — reference data corpora and their derivations (official corpus,
   earthlike expectations, runtime-id proofs). Data, not algorithms.
-- `artifacts/contract/` — artifact contracts, split into individual
-  `<artifact>.contract.ts` files (one `defineArtifact` per file). This
-  normalization applies to every artifact-contract collection: do not grow
-  multi-artifact `artifacts.ts` files.
+- `artifacts/` — artifact contracts, split into individual
+  `<artifact>.artifact.ts` files (one `defineArtifact` per file). Do not add a
+  `contract/` child unless a future accepted owner law introduces real sibling
+  classes under `artifacts/`; do not grow multi-artifact `artifacts.ts` files.
 
 ## Official Resources
 
@@ -166,4 +166,3 @@ Do not own:
 - executable behavior unless paired with source/tests;
 - volatile chat status in canonical docs;
 - project scratch as evergreen authority.
-

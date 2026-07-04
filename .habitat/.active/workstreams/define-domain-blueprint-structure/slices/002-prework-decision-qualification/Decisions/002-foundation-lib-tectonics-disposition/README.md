@@ -28,7 +28,7 @@ Concrete dispositions:
 | --- | --- |
 | `lib/crust/buoyancy.ts` | Promote to `foundation/model/policy/crust-buoyancy.ts`. |
 | `lib/normalize.ts` | Promote to `foundation/model/policy/reference-area.ts`. |
-| `lib/require.ts` | Resolved by `require-guards.domino.md`: route guard semantics to contract-owned artifact modules under `foundation/artifacts/contract/*.contract.ts`; concrete file/export shape is governed by the active artifact contract scope pattern. |
+| `lib/require.ts` | Resolved by `require-guards.domino.md`: route guard semantics to contract-owned artifact modules under `foundation/artifacts/*.artifact.ts`; concrete file/export shape is governed by the active artifact scope pattern. |
 | `lib/tectonics/constants.ts` / `EVENT_TYPE` | Promote to `foundation/model/policy/tectonic-event-types.ts`. |
 | `lib/tectonics/constants.ts` / reset thresholds | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. |
 | `lib/tectonics/constants.ts` / `ADVECTION_STEPS_PER_ERA` | Move to `foundation/ops/compute-tracer-advection/rules/constants.ts`. |

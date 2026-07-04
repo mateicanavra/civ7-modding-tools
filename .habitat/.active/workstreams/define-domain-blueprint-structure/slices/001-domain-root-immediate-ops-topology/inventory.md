@@ -50,7 +50,7 @@ rationale.
 | `mods/mod-swooper-maps/src/domain/ecology/types.ts`: `PlotEffectKey` | `Ready with owner law` | Civ7 runtime adapter ownership | `packages/civ7-adapter/src/types.ts`; plot-effect typing routes to adapter ownership. |
 | `mods/mod-swooper-maps/src/domain/ecology/feature-engine-legality.ts`: official feature terrain/biome legality derivation | `Ready with owner law` | Official Civ7 policy/resource ownership | `packages/civ7-map-policy/src/catalogs/feature-legality.ts`; ecology keeps internal-biome compatibility translation in `mods/mod-swooper-maps/src/domain/ecology/model/policy/feature-engine-legality.ts`. |
 | `mods/mod-swooper-maps/src/domain/ecology/biome-bindings.ts` | `Ready with owner law` | Stage/projection ownership | `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/biome-bindings.ts` |
-| `mods/mod-swooper-maps/src/domain/ecology/shared/placement-schema.ts` | `Ready` | Artifact contract extraction | `mods/mod-swooper-maps/src/domain/ecology/artifacts/contract/feature-intent-placement.contract.ts` |
+| `mods/mod-swooper-maps/src/domain/ecology/shared/placement-schema.ts` | `Ready` | Artifact contract extraction | `mods/mod-swooper-maps/src/domain/ecology/artifacts/feature-intent-placement.artifact.ts` |
 | `mods/mod-swooper-maps/src/domain/ecology/ops/score-shared/index.ts`: `validateGridSize` | `Ready with owner law` | Core mechanics extraction | `packages/mapgen-core/src/lib/grid/validation.ts` |
 | `mods/mod-swooper-maps/src/domain/ecology/ops/score-shared/index.ts`: `rampUp01`, `rampDown01`, `window01` | `Ready with owner law` | Core mechanics extraction | `packages/mapgen-core/src/lib/math/range.ts` |
 | `mods/mod-swooper-maps/src/domain/ecology/ops/score-shared/index.ts`: `PhysicalCandidate`, confidence/stress conversion, candidate comparison/selection | `Ready` | Domain model policy promotion | `mods/mod-swooper-maps/src/domain/ecology/model/policy/physical-candidate-selection.ts` |
@@ -86,7 +86,7 @@ rationale.
 | `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must name each config object destination. |
 | `HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY` | `Ready with owner law` | Stage/projection ownership | `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/config.ts` |
 | unused hydrology projection/refinement defaults in `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` | `Ready` | Duplicate authority deletion | Delete after import proof. |
-| `mods/mod-swooper-maps/src/domain/hydrology/ops/shared/wind-field.ts` | `Ready` | Artifact contract extraction | `mods/mod-swooper-maps/src/domain/hydrology/artifacts/contract/wind-field.contract.ts` |
+| `mods/mod-swooper-maps/src/domain/hydrology/ops/shared/wind-field.ts` | `Ready` | Artifact contract extraction | `mods/mod-swooper-maps/src/domain/hydrology/artifacts/wind-field.artifact.ts` |
 
 ## Morphology Rows
 

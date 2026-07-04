@@ -6,17 +6,23 @@ Subject:
 `<domain>/artifacts/`
 
 Ownership boundary:
-artifact namespace only. The domain owns artifact contract placement here, not
-runtime artifact helpers, markdown notes, or broad artifact implementation code.
+artifact files only. Each file defines one pipeline truth product contract and
+its schema, artifact definition, publish-time validator, and any narrow
+assertion surface justified by direct operation-boundary use.
 
 Architectural evidence:
 pipeline truth products need explicit contracts consumed by stages, steps, or
-artifact assemblers. Broad `artifacts/` contents outside contracts previously
-hid non-contract material.
+artifact assemblers. No accepted sibling class needs to live under
+`artifacts/`: implementation belongs to operations/model/core, aggregation
+belongs to recipe or registry surfaces, and examples/notes belong to evidence,
+tests, or docs.
 
 Controlling rationale:
-`artifacts/` exists as the route to `artifacts/contract/`. The domain artifact
-surface stays tied to explicit artifact contracts.
+the scope is closed to `*.artifact.ts` so every domain artifact surface is a
+named artifact file. The filename shape is the opt-in enforcement boundary:
+anything directly under a domain `artifacts/` directory with the
+`*.artifact.ts` shape must obey the artifact file grammar, while unrelated
+`contract.ts` files remain governed by their own operation or recipe scopes.
 
 Planned `structure.toml` fragment:
 
@@ -26,16 +32,19 @@ name = "mapgen-domain-artifacts-roots"
 root = "mods/mod-swooper-maps/src/domain/!(*.*)/artifacts"
 kind = "directory"
 mode = "closed"
-required = [
-  "contract",
+allowed = [
+  # Blueprint integration seam: the domain blueprint owns artifact placement
+  # and names artifact files here. Source-shape enforcement owns the artifact
+  # file grammar.
+  "*.artifact.ts",
 ]
 ```
 
 Nested scopes:
-- `scopes/contract/scope.md`
+none
 
 Files:
-none
+- `files/artifact-ts.md`
 
 Patterns:
-none
+- `patterns/artifact-shape.md`

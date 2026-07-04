@@ -1,9 +1,9 @@
-# Artifact Contract File
+# Artifact File
 
 Status: active working reference
 
 Subject:
-`<domain>/artifacts/contract/<artifact>.contract.ts`
+`<domain>/artifacts/<artifact>.artifact.ts`
 
 Role:
 one pipeline truth product contract.
@@ -26,7 +26,7 @@ Allowed contents:
 - small private helper functions used only by validation/assertion.
 
 Authority separation:
-- this file reference defines the allowed shape for any artifact contract file;
+- this file reference defines the allowed shape for any domain artifact file;
 - concrete artifact ids, payload fields, generated examples, and migration
   dispositions are not part of this file reference unless generalized into the
   reusable file shape;
@@ -51,5 +51,4 @@ Import/export boundary:
   rather than require semantic function exports.
 
 Enforcement:
-structure for placement; `patterns/artifact-contract-shape.md` for file
-grammar.
+structure for placement; `patterns/artifact-shape.md` for file grammar.

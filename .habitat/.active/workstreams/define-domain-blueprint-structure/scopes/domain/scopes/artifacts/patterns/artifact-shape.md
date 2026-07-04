@@ -1,19 +1,20 @@
-# Artifact Contract Shape
+# Artifact Shape
 
 Status: active working reference
 
 Subject:
-any `*.contract.ts` file under a nested `artifacts/contract/` directory.
+any `*.artifact.ts` file directly under a domain `artifacts/` directory.
 
 Applies to:
-- `<domain>/artifacts/contract/<artifact>.contract.ts`;
-- any other map-generation source subtree that intentionally uses the nested
-  `artifacts/contract/<artifact>.contract.ts` shape.
+- `<domain>/artifacts/<artifact>.artifact.ts` within the MapGen domain
+  blueprint.
 
 Does not apply to:
 - operation-local `contract.ts` files;
-- recipe step `*.contract.ts` files outside `artifacts/contract/`;
-- broad artifact registries outside `artifacts/contract/`.
+- recipe step `*.contract.ts` files;
+- recipe or stage `artifacts.ts` registries;
+- recipe or stage artifact folders outside the domain blueprint;
+- broad artifact registries outside direct `*.artifact.ts` files.
 
 Required behavior:
 - the file defines exactly one pipeline truth product artifact;
@@ -61,17 +62,17 @@ Authority separation:
   class-level structure or constraints.
 
 Violation messages:
-- artifact contract files with zero or multiple `defineArtifact(...)` values;
+- artifact files with zero or multiple `defineArtifact(...)` values;
 - semantic function exports for validation/assertion instead of stable
   `validate` / `assert`;
 - validators that normalize, repair, or silently coerce payloads;
-- operation implementation, strategy logic, or registries in artifact contract
-  files;
-- files under `artifacts/contract/` that are not artifact contract source;
+- operation implementation, strategy logic, or registries in artifact files;
+- non-artifact files directly under a closed domain `artifacts/` directory;
 - pattern authority that embeds one artifact's concrete payload shape, artifact
   id, domain-specific compatibility rule, or migration disposition as reusable
   law.
 
 Enforcement:
-Grit/source-shape gate over `**/artifacts/contract/*.contract.ts`, plus
-artifact-contract tests for validation and assertion behavior.
+Grit/source-shape gate over
+`mods/mod-swooper-maps/src/domain/*/artifacts/*.artifact.ts`, plus artifact
+tests for validation and assertion behavior.

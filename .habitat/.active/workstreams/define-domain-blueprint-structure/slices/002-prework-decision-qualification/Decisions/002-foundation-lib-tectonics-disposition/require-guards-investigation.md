@@ -364,7 +364,7 @@ Inputs:
 - Agent A consumer matrix
 - parent packet artifact-contract dispositions
 - `foundation/ops/**/contract.ts`
-- current or candidate `foundation/artifacts/contract/**` rows
+- current or candidate `foundation/artifacts/*.artifact.ts` rows
 - `decision-book/owner-boundaries.md`
 - `decision-book/move-classes.md`
 

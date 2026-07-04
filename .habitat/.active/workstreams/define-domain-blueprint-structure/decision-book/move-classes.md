@@ -11,7 +11,7 @@ these classes, then names exact current paths and exact destinations/actions.
 | Domain model config decomposition | Content is a domain-owned authoring config object or object-local schema/default/compile transform. | `<domain>/model/config/<part>.config.ts` |
 | Domain model policy promotion | Content is a named domain semantic policy concern. | `<domain>/model/policy/<concern>.ts` |
 | Domain model data move | Content is domain-owned authored data or expectation tables. | `<domain>/model/data/<collection>/<clear-name>.ts` |
-| Artifact contract extraction | Content defines a pipeline truth product contract. | `<domain>/artifacts/contract/<artifact>.contract.ts` |
+| Artifact contract extraction | Content defines a pipeline truth product contract. | `<domain>/artifacts/<artifact>.artifact.ts` |
 | Operation contract consolidation | Operation config or contract fragments belong in one operation contract surface. | `<domain>/ops/<operation-id>/contract.ts` |
 | Operation-local policy move | Content is policy for one operation only. | `<domain>/ops/<operation-id>/policy/<concern>.ts` |
 | Operation-local implementation move | Content is pure implementation logic for one operation. | `<domain>/ops/<operation-id>/rules/<concern>.ts` or another operation-local slot named by the operation scope. |

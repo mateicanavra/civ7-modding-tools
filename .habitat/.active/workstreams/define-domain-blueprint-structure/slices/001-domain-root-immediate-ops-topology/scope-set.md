@@ -21,7 +21,6 @@ fragment remain named deeper scopes, not live topology snippets.
 - `../../scopes/domain/scopes/model/scopes/data/scope.md`
 - `../../scopes/domain/scopes/model/scopes/data/scopes/collection/scope.md`
 - `../../scopes/domain/scopes/artifacts/scope.md`
-- `../../scopes/domain/scopes/artifacts/scopes/contract/scope.md`
 
 ## Activated File Patterns
 
@@ -35,11 +34,12 @@ fragment remain named deeper scopes, not live topology snippets.
 - `../../scopes/domain/scopes/model/scopes/config/files/config-part-ts.md`
 - `../../scopes/domain/scopes/model/scopes/policy/files/policy-concern-ts.md`
 - `../../scopes/domain/scopes/model/scopes/data/scopes/collection/files/data-file-ts.md`
-- `../../scopes/domain/scopes/artifacts/scopes/contract/files/artifact-contract-ts.md`
+- `../../scopes/domain/scopes/artifacts/files/artifact-ts.md`
 
 ## Activated Patterns
 
 - `../../scopes/domain/scopes/ops/patterns/registry-covers-operation-children.md`
+- `../../scopes/domain/scopes/artifacts/patterns/artifact-shape.md`
 
 ## Later Scope Work
 

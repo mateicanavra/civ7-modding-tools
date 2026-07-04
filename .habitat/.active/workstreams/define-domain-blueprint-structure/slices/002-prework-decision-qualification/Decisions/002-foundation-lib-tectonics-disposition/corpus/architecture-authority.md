@@ -29,8 +29,8 @@ Domain model data owns domain-authored data and expectation tables. No current
 
 Artifact contract owns pipeline truth product contracts. Foundation TypeBox
 schemas consumed by operation contracts and downstream artifact consumers route
-to exact `foundation/artifacts/contract/<artifact>.contract.ts` destinations or
-to a narrow artifact-contract reference update before execution.
+to exact `foundation/artifacts/<artifact>.artifact.ts` destinations or
+to a narrow artifact reference update before execution.
 
 Operation-local rules own implementation for one operation. Historical shared
 tectonics algorithms that are now implemented under operation `rules/` qualify
@@ -47,7 +47,7 @@ foundation code imports core mechanics; core does not import foundation
 `foundation/lib/**` is a current red source shape, not an authority owner.
 
 Generic destinations such as `foundation/model/policy/misc.ts`,
-`foundation/model/data/index.ts`, `foundation/artifacts/contract/shared.ts`, or
+`foundation/model/data/index.ts`, `foundation/artifacts/shared.artifact.ts`, or
 `packages/mapgen-core/src/lib/helpers.ts` are not acceptable dispositions.
 
 The standard recipe stages are downstream consumers for this decision. They do
@@ -58,7 +58,7 @@ not own the foundation domain semantics classified here.
 The destination classes exist, but several exact foundation-wide support
 surfaces need a reference update before source movement:
 
-- a named foundation artifact-contract surface for tectonic event records,
+- a named foundation artifact surface for tectonic event records,
   era-field payloads, tracer index arrays, plate-id-by-era arrays, tectonic
   history, current tectonics, and tectonic provenance;
 - a named foundation model policy surface for crust buoyancy/strength,
