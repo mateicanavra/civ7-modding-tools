@@ -15,9 +15,8 @@ Architectural evidence:
 - operation contracts are canonical in operation-local `contract.ts`;
 - the domain `ops/contracts.ts` registry names operation ids;
 - operation implementations are assembled through the domain operation registry;
-- current operation helper folders show that shared operation-family support
-  becomes ambiguous when it is not decomposed to this level or to a true external
-  owner.
+- operation-family support becomes ambiguous when it is not decomposed to this
+  level or to a true external owner.
 
 Controlling rationale:
 the operation root repeats the domain law at a smaller scale. A folder under
@@ -41,7 +40,7 @@ allowed = [
   "rules",
   # Blueprint integration seam: the domain-operation blueprint owns the
   # operation root and names `strategies` as the strategy container route. The
-  # strategy topology packet closes strategy internals.
+  # nested strategies scope closes strategy internals.
   "strategies",
   "policy",
 ]

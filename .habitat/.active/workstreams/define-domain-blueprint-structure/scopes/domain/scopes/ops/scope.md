@@ -15,9 +15,8 @@ Architectural evidence:
 - `ops/contracts.ts` is the registered operation contract surface;
 - root `ops.ts` binds the domain contract to implementations through
   `createDomain(...)`;
-- registered operation counts total `109`;
-- current immediate `ops/` folders exceed registered operation counts by the
-  three non-operation folders `score-shared`, `shared`, and `mountains-shared`.
+- immediate `ops/` children must be checked against the registered operation
+  surfaces before enforcement implementation.
 
 Controlling rationale:
 immediate `ops/` children are closed to registries and operation roots because
@@ -53,8 +52,8 @@ required = [
 allowed = [
   # Blueprint integration seam: selected child role is a registry-backed
   # domain-operation root. The no-dot glob is the structure expression paired
-  # with the registry coverage pattern; the domain-operation topology packet
-  # closes each operation root.
+  # with the registry coverage pattern; the nested operation scope closes each
+  # operation root.
   "!(*.*)",
 ]
 ```

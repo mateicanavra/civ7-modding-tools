@@ -20,11 +20,9 @@ Architectural evidence:
 - recipe assembly imports domain `/ops` modules for compile/runtime operation
   registration;
 - source evidence shows `collectCompileOps(...)` and `createRecipe(...)` consume
-  the domain operation surface rather than root helper files.
-- observed source metrics after the narrative burn-down: `6/6` current domain
-  runtime modules use `createDomain(...)`; morphology is the known content
-  violation because it also
-  exports config schemas/constants from the binding surface.
+  the domain operation surface rather than root helper files;
+- the evidence command below refreshes current domain implementation-binding
+  usage before enforcement implementation.
 
 Evidence command:
 

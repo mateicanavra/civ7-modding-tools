@@ -10,7 +10,7 @@ one named domain model data collection. The collection owns data records,
 expectation tables, and narrow types for that collection only.
 
 Architectural evidence:
-resource planning expectations need a stable domain-owned home, but reusable
+domain-authored data collections need stable domain-owned homes, while reusable
 official Civ7 catalogs route to map-policy ownership.
 
 Controlling rationale:

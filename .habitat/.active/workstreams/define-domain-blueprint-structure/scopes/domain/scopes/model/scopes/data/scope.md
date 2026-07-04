@@ -11,8 +11,8 @@ catalogs, policy-table proofs, runtime ids, and adapter catalogs belong to their
 external owners.
 
 Architectural evidence:
-- resource planning expectations are domain-authored and belong with the domain
-  model;
+- domain-authored data and expectation collections belong with the domain model
+  they describe;
 - official Base Standard resource corpus and runtime-id material route to
   Civ7 map-policy ownership instead.
 
@@ -36,9 +36,8 @@ kind = "directory"
 mode = "closed"
 allowed = [
   # Domain-owned data and expectation-table collections only. This replaces
-  # root lib/ for data that truly belongs to the domain, such as resource
-  # planning expectations. Reusable/generated Civ7 policy tables and legality
-  # helpers belong to @civ7/map-policy instead.
+  # root lib/ for data that truly belongs to the domain. Reusable/generated
+  # Civ7 policy tables and legality helpers belong to @civ7/map-policy instead.
   "!(*.*)",
 ]
 ```

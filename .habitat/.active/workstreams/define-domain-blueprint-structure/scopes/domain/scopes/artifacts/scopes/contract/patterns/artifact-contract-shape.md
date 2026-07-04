@@ -13,7 +13,7 @@ Applies to:
 Does not apply to:
 - operation-local `contract.ts` files;
 - recipe step `*.contract.ts` files outside `artifacts/contract/`;
-- broad `artifacts.ts` registries during their prework/migration period.
+- broad artifact registries outside `artifacts/contract/`.
 
 Required behavior:
 - the file defines exactly one pipeline truth product artifact;
@@ -22,8 +22,7 @@ Required behavior:
 - publish-time validation is exported as `validate(...)`;
 - contextual operation-boundary assertion is exported as `assert(...)` only
   when execution proves publish-time validation cannot know the required
-  context, such as compatibility with an already accepted mesh cell count or
-  plate count;
+  external compatibility context;
 - the contract owns validation rules for the artifact value; operation code
   owns call-site choice and contextual values, not reusable artifact-shape
   predicates.
@@ -34,16 +33,15 @@ Stable export surface:
 export const Schema = ...;
 export type Artifact = Static<typeof Schema>;
 export const artifact = defineArtifact(...);
-export function validate(value: unknown): readonly ValidationIssue[];
+export function validate(value: unknown): readonly { message: string }[];
 // Optional, only when contextual operation-boundary assertions are justified.
 export function assert(value: unknown, context: AssertionContext): Artifact;
 ```
 
 The type export may be semantically named when that materially improves
 call-site readability or generated declaration output. Validation and assertion
-exports must not use semantically unique names such as
-`validateFoundationPlateMotionArtifact` or
-`assertFoundationPlateMotionArtifact`. Callers that need semantic clarity should
+exports must not include the artifact name, domain name, migration source, or
+other instance-specific meaning. Callers that need semantic clarity should
 namespace-import the contract module.
 
 Validator shape:
@@ -54,82 +52,13 @@ Validator shape:
   return the narrowed artifact value;
 - contextual `assert` checks are not a substitute for publish-time validation.
 
-Representative destination shape:
-
-```ts
-import {
-  defineArtifact,
-  type Static,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-
-export type ValidationIssue = Readonly<{ message: string }>;
-
-export const Schema = Type.Object(
-  {
-    width: Type.Integer({ minimum: 1 }),
-    height: Type.Integer({ minimum: 1 }),
-    waterMask: TypedArraySchemas.u8({
-      shape: null,
-      description: "Water mask per tile (1 = water, 0 = land).",
-    }),
-  },
-  { additionalProperties: false }
-);
-
-export type Artifact = Static<typeof Schema>;
-
-export const artifact = defineArtifact({
-  name: "water",
-  id: "artifact:morphology.water",
-  schema: Schema,
-});
-
-export function validate(value: unknown): readonly ValidationIssue[] {
-  const issues: ValidationIssue[] = [];
-
-  if (!value || typeof value !== "object") {
-    return [{ message: "Missing water artifact payload." }];
-  }
-
-  const candidate = value as Partial<Artifact>;
-  const width = candidate.width;
-  const height = candidate.height;
-  const hasValidDimensions =
-    typeof width === "number" &&
-    typeof height === "number" &&
-    Number.isInteger(width) &&
-    Number.isInteger(height) &&
-    width > 0 &&
-    height > 0;
-  const expectedLength = hasValidDimensions ? width * height : 0;
-
-  if (typeof width !== "number" || !Number.isInteger(width) || width <= 0) {
-    issues.push({ message: "Invalid water.width." });
-  }
-  if (typeof height !== "number" || !Number.isInteger(height) || height <= 0) {
-    issues.push({ message: "Invalid water.height." });
-  }
-  if (!(candidate.waterMask instanceof Uint8Array)) {
-    issues.push({ message: "Invalid water.waterMask." });
-  } else if (candidate.waterMask.length !== expectedLength) {
-    issues.push({ message: "Invalid water.waterMask length." });
-  }
-
-  return issues;
-}
-
-export function assert(value: unknown, context: { scope: string }): Artifact {
-  const issues = validate(value);
-  if (issues.length > 0) {
-    throw new Error(
-      `[ArtifactContract:${context.scope}] ${issues.map((issue) => issue.message).join("; ")}`
-    );
-  }
-  return value as Artifact;
-}
-```
+Authority separation:
+- this pattern defines the artifact contract file class, not any particular
+  artifact payload, artifact id, field list, or domain migration decision;
+- concrete artifact examples belong in packet evidence, focused fixtures, or
+  tests that are explicitly labeled as examples;
+- examples do not become part of this pattern unless first generalized into
+  class-level structure or constraints.
 
 Violation messages:
 - artifact contract files with zero or multiple `defineArtifact(...)` values;
@@ -138,8 +67,11 @@ Violation messages:
 - validators that normalize, repair, or silently coerce payloads;
 - operation implementation, strategy logic, or registries in artifact contract
   files;
-- files under `artifacts/contract/` that are not artifact contract source.
+- files under `artifacts/contract/` that are not artifact contract source;
+- pattern authority that embeds one artifact's concrete payload shape, artifact
+  id, domain-specific compatibility rule, or migration disposition as reusable
+  law.
 
 Enforcement:
-Grit/source-shape gate over `**/artifacts/contract/*.contract.ts`, plus targeted
-tests for any contract whose validation semantics move from legacy guard code.
+Grit/source-shape gate over `**/artifacts/contract/*.contract.ts`, plus
+artifact-contract tests for validation and assertion behavior.

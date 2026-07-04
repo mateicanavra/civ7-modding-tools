@@ -18,11 +18,9 @@ Architectural evidence:
 - current domain roots already define domains through `defineDomain(...)` here;
 - step and recipe-facing code resolve domain contracts through named public
   surfaces;
-- root `index.ts` is the single domain contract owner.
-- observed source metrics after the narrative burn-down: `6/6` domain roots
-  use `defineDomain(...)`, and `6/6` are exported from the package domain
-  index. Source step and artifact-contract import counts should be refreshed
-  with the evidence command before enforcement implementation.
+- root `index.ts` is the single domain contract owner;
+- the evidence command below refreshes current domain contract-surface usage
+  before enforcement implementation.
 
 Evidence command:
 

@@ -71,8 +71,8 @@ Accepted owner: artifact contracts, not operation-local guard copies.
 The artifact contract shape is owned by the active artifact contract scope and
 pattern, not by this decision packet:
 
-- `scopes/domain/scopes/artifacts/scopes/contract/files/artifact-contract-ts.md`
-- `scopes/domain/scopes/artifacts/scopes/contract/patterns/artifact-contract-shape.md`
+- `../../../../scopes/domain/scopes/artifacts/scopes/contract/files/artifact-contract-ts.md`
+- `../../../../scopes/domain/scopes/artifacts/scopes/contract/patterns/artifact-contract-shape.md`
 
 Operation-local code still owns call-site choice, optionality, and the source of
 contextual counts. It should either rely on artifact publish validation and

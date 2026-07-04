@@ -25,12 +25,21 @@ Allowed contents:
 - artifact-local validation and assertion helpers;
 - small private helper functions used only by validation/assertion.
 
+Authority separation:
+- this file reference defines the allowed shape for any artifact contract file;
+- concrete artifact ids, payload fields, generated examples, and migration
+  dispositions are not part of this file reference unless generalized into the
+  reusable file shape;
+- artifact-specific examples belong in packet evidence, fixtures, or tests that
+  are clearly labeled as examples.
+
 Violation messages:
 - multiple artifact definitions;
 - artifact registries;
 - executable implementation logic unrelated to validation/assertion;
 - operation input normalization or repair logic;
 - semantically unique validation or assertion export names;
+- single-artifact example payloads encoded as file-shape requirements;
 - narrative notes or markdown-equivalent content.
 
 Import/export boundary:
