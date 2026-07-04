@@ -7,7 +7,8 @@ Subject:
 
 Ownership boundary:
 artifact contract files only. Each file defines one pipeline truth product
-contract and any schema/validator needed for that contract.
+contract and its schema, artifact definition, publish-time validator, and any
+narrow assertion surface justified by direct operation-boundary use.
 
 Architectural evidence:
 the source tree already distinguishes artifact contracts from notes and helper
@@ -16,7 +17,10 @@ folders require explicit disposition.
 
 Controlling rationale:
 the scope is closed to `*.contract.ts` so every artifact surface is a named
-contract file and non-contract material goes red.
+contract file and non-contract material goes red. The filename shape is also
+the opt-in enforcement boundary: any file under a nested `artifacts/contract/`
+directory must obey the artifact contract shape, while unrelated `contract.ts`
+files outside artifact contract directories are governed by their own scopes.
 
 Planned `structure.toml` fragment:
 
@@ -41,4 +45,4 @@ Files:
 - `files/artifact-contract-ts.md`
 
 Patterns:
-none
+- `patterns/artifact-contract-shape.md`

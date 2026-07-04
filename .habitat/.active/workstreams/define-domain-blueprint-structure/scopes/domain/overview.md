@@ -76,6 +76,8 @@ scopes/domain/
           scope.md
           files/
             artifact-contract-ts.md
+          patterns/
+            artifact-contract-shape.md
 ```
 
 Slices execute selected scope activation and inventory. This overview does not
