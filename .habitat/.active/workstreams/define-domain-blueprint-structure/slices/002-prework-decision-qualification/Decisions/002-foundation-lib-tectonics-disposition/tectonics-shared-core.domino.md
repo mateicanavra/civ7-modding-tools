@@ -1,8 +1,10 @@
-# Core Mechanics Extraction Proof - foundation tectonics shared helpers
+# Tectonics Shared Core
 
 Status: unresolved prework domino
 
 Parent packet: `Foundation Lib / Tectonics Disposition Decision Packet`
+
+Investigation plan: `tectonics-shared-core-investigation.md`
 
 ## Decision To Close
 
@@ -11,9 +13,10 @@ Resolve whether the generic-looking helpers in
 `packages/mapgen-core`, remain operation-local foundation implementation, or
 split across both.
 
-The candidate owner class is already identified: byte/int8/clamp/vector helpers
-and mesh-neighborhood helpers look like core mechanics, not foundation policy
-or artifact contracts. The remaining decision is the accepted destination API.
+Core is a candidate owner under test: byte/int8/clamp/vector helpers and
+mesh-neighborhood helpers may be core mechanics, but each symbol still needs
+owner proof. The remaining decision is per-symbol ownership first, then the
+accepted destination API only for symbols that enter core.
 
 ## Frame
 
@@ -53,7 +56,7 @@ operation sequencing, or domain policy rather than general math/mesh mechanics.
 
 ## Closure Test
 
-This domino closes when each helper or helper group has one exact row:
+This domino closes when each exported symbol has one exact row:
 
 - core destination path, operation-local destination path, or delete/inline
   decision;

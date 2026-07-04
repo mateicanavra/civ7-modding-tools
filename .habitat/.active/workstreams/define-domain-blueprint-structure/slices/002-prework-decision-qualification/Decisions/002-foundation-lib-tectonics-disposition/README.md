@@ -33,7 +33,7 @@ Concrete dispositions:
 | `lib/tectonics/constants.ts` / reset thresholds | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. |
 | `lib/tectonics/constants.ts` / `ADVECTION_STEPS_PER_ERA` | Move to `foundation/ops/compute-tracer-advection/rules/constants.ts`. |
 | `lib/tectonics/constants.ts` / `ERA_COUNT_MIN`, `ERA_COUNT_MAX` | Do not preserve from `lib`; the live owner is already `foundation/ops/compute-era-plate-membership/rules/constants.ts`. |
-| `lib/tectonics/constants.ts` / orogeny gain constants | Delete from `lib` unless a later recipe-stage or foundation-policy decision explicitly claims the duplicated recipe calculation. |
+| `lib/tectonics/constants.ts` / orogeny gain constants | Delete from `lib`; no current owner claims this duplicate export. Any future reintroduction requires a separate decision and is not part of this packet. |
 | `lib/tectonics/internal-contract.ts` | Split to artifact contracts for `tectonic-events`, `tectonic-era-fields`, `plate-id-by-era`, and `tracer-index-by-era`. |
 | `lib/tectonics/schemas.ts` | Split to artifact contracts for `tectonic-history`, `current-tectonics`, and `tectonic-provenance`. |
 | `lib/tectonics/shared.ts` / byte, int8, vector, and mesh-neighborhood helpers | Unresolved prework domino: `tectonics-shared-core.domino.md`. Candidate core destinations exist, but the accepted destination API is not proven. |
@@ -47,6 +47,11 @@ authoring, `structure.toml` edits, or runtime changes.
 
 - `require-guards.domino.md`
 - `tectonics-shared-core.domino.md`
+
+Dedicated investigation plans:
+
+- `require-guards-investigation.md`
+- `tectonics-shared-core-investigation.md`
 
 These domino files are the source of truth for unresolved prework in this
 packet. They are temporary: close them by resolving the decision in this packet,
@@ -69,7 +74,9 @@ synthesis/
 reviews/
   review-findings.md
 require-guards.domino.md
+require-guards-investigation.md
 tectonics-shared-core.domino.md
+tectonics-shared-core-investigation.md
 ```
 
 No `execution.md` is present. Source migration, deletions, `structure.toml`,

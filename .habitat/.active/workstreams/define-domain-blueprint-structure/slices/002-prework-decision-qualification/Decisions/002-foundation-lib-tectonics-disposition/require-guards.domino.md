@@ -4,17 +4,19 @@ Status: unresolved prework domino
 
 Parent packet: `Foundation Lib / Tectonics Disposition Decision Packet`
 
+Investigation plan: `require-guards-investigation.md`
+
 ## Decision To Close
 
 Resolve the exact destination topology for every export in
 `mods/mod-swooper-maps/src/domain/foundation/lib/require.ts`.
 
-The owner class is already decided: this is not a shared `foundation/lib`
-surface and it is not an artifact contract. The remaining decision is the
-per-export decomposition: which guards become operation-local
+The forbidden owner is already decided: this is not a shared `foundation/lib`
+surface and it must not become a broad shared validation bucket. The remaining
+decision is the per-export decomposition: which guards become operation-local
 `rules/input-guards.ts` files, which guards should be duplicated as tiny local
-checks, and whether any guard is replaced by an existing artifact contract or
-operation contract helper.
+checks, and whether any guard is replaced by an existing artifact contract,
+operation contract, or operation-normalization helper.
 
 ## Frame
 
