@@ -8,12 +8,6 @@ import {
   strengthFromThermalAge,
   strengthFromThickness,
 } from "../../model/policy/crust-buoyancy.js";
-import {
-  requireCrust,
-  requireMesh,
-  requireTectonicHistory,
-  requireTectonics,
-} from "../../lib/require.js";
 import ComputeCrustEvolutionContract from "./contract.js";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
@@ -159,24 +153,29 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           oceanicAbyssalDepth,
         } = config;
 
-        const mesh = requireMesh(input.mesh, "foundation/compute-crust-evolution");
+        const mesh = input.mesh;
         const cellCount = mesh.cellCount | 0;
 
-        const crustInit = requireCrust(
-          input.crustInit,
-          cellCount,
-          "foundation/compute-crust-evolution"
-        );
-        const tectonics = requireTectonics(
-          input.tectonics,
-          cellCount,
-          "foundation/compute-crust-evolution"
-        );
-        const tectonicHistory = requireTectonicHistory(
-          input.tectonicHistory,
-          cellCount,
-          "foundation/compute-crust-evolution"
-        );
+        const crustInit = input.crustInit;
+        const tectonics = input.tectonics;
+        const tectonicHistory = input.tectonicHistory;
+        if (crustInit.thickness.length !== cellCount || crustInit.strength.length !== cellCount) {
+          throw new Error("[Foundation] Invalid crustInit.cellCount for compute-crust-evolution.");
+        }
+        if (
+          tectonics.boundaryType.length !== cellCount ||
+          tectonics.cumulativeUplift.length !== cellCount
+        ) {
+          throw new Error("[Foundation] Invalid tectonics.cellCount for compute-crust-evolution.");
+        }
+        if (
+          tectonicHistory.upliftTotal.length !== cellCount ||
+          tectonicHistory.fractureTotal.length !== cellCount
+        ) {
+          throw new Error(
+            "[Foundation] Invalid tectonicHistory.cellCount for compute-crust-evolution."
+          );
+        }
 
         const maturity = new Float32Array(cellCount);
         const thickness = new Float32Array(cellCount);

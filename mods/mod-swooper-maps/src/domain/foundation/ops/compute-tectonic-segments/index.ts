@@ -2,12 +2,6 @@ import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
-import {
-  requireCrust,
-  requireMesh,
-  requirePlateGraph,
-  requirePlateMotion,
-} from "../../lib/require.js";
 import { clampByte, normalizeToInt8 } from "../../lib/tectonics/shared.js";
 import type { FoundationPlateMotion } from "../compute-plate-motion/contract.js";
 import ComputeTectonicSegmentsContract from "./contract.js";
@@ -55,25 +49,31 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
   strategies: {
     default: {
       run: (input, config) => {
-        const mesh = requireMesh(input.mesh, "foundation/compute-tectonic-segments");
-        const crust = requireCrust(
-          input.crust,
-          mesh.cellCount | 0,
-          "foundation/compute-tectonic-segments"
-        );
-        const plateGraph = requirePlateGraph(
-          input.plateGraph,
-          mesh.cellCount | 0,
-          "foundation/compute-tectonic-segments"
-        );
-        const plateMotion = requirePlateMotion(
-          input.plateMotion,
-          mesh.cellCount | 0,
-          plateGraph.plates.length | 0,
-          "foundation/compute-tectonic-segments"
-        );
+        const mesh = input.mesh;
+        const crust = input.crust;
+        const plateGraph = input.plateGraph;
+        const plateMotion = input.plateMotion;
 
         const cellCount = mesh.cellCount | 0;
+        if (crust.strength.length !== cellCount || crust.type.length !== cellCount) {
+          throw new Error("[Foundation] Invalid crust.cellCount for compute-tectonic-segments.");
+        }
+        if (plateGraph.cellToPlate.length !== cellCount) {
+          throw new Error(
+            "[Foundation] Invalid plateGraph.cellToPlate for compute-tectonic-segments."
+          );
+        }
+        if ((plateMotion.cellCount | 0) !== cellCount) {
+          throw new Error(
+            "[Foundation] Invalid plateMotion.cellCount for compute-tectonic-segments."
+          );
+        }
+        if ((plateMotion.plateCount | 0) !== (plateGraph.plates.length | 0)) {
+          throw new Error(
+            "[Foundation] Invalid plateMotion.plateCount for compute-tectonic-segments."
+          );
+        }
+
         const wrapWidth = mesh.wrapWidth;
         const intensityScale = config.intensityScale;
         const regimeMinIntensity = config.regimeMinIntensity | 0;

@@ -1,6 +1,6 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { PlateIdByEraSchema } from "../../lib/tectonics/internal-contract.js";
+import { Schema as PlateIdByEraSchema } from "../../artifacts/plate-id-by-era.artifact.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
 import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";

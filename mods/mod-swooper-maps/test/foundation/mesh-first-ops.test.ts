@@ -77,6 +77,68 @@ function deriveMantleForcing(mesh: any, rngSeed: number) {
     .mantleForcing;
 }
 
+function truncateMantleForcing(mantleForcing: any, cellCount: number) {
+  return {
+    ...mantleForcing,
+    cellCount,
+    stress: mantleForcing.stress.slice(0, cellCount),
+    forcingU: mantleForcing.forcingU.slice(0, cellCount),
+    forcingV: mantleForcing.forcingV.slice(0, cellCount),
+    forcingMag: mantleForcing.forcingMag.slice(0, cellCount),
+    upwellingClass: mantleForcing.upwellingClass.slice(0, cellCount),
+    divergence: mantleForcing.divergence.slice(0, cellCount),
+  };
+}
+
+function truncateTectonicProvenance(tectonicProvenance: any, cellCount: number) {
+  return {
+    ...tectonicProvenance,
+    cellCount,
+    tracerIndex: tectonicProvenance.tracerIndex.map((tracer: Uint32Array) =>
+      tracer.slice(0, cellCount)
+    ),
+    provenance: {
+      originEra: tectonicProvenance.provenance.originEra.slice(0, cellCount),
+      originPlateId: tectonicProvenance.provenance.originPlateId.slice(0, cellCount),
+      lastBoundaryEra: tectonicProvenance.provenance.lastBoundaryEra.slice(0, cellCount),
+      lastBoundaryType: tectonicProvenance.provenance.lastBoundaryType.slice(0, cellCount),
+      lastBoundaryPolarity: tectonicProvenance.provenance.lastBoundaryPolarity.slice(0, cellCount),
+      lastBoundaryIntensity: tectonicProvenance.provenance.lastBoundaryIntensity.slice(
+        0,
+        cellCount
+      ),
+      crustAge: tectonicProvenance.provenance.crustAge.slice(0, cellCount),
+    },
+  };
+}
+
+function appendPlateMotionPlate(plateMotion: any) {
+  const plateCount = (plateMotion.plateCount | 0) + 1;
+  const extendFloat = (values: Float32Array) => {
+    const next = new Float32Array(plateCount);
+    next.set(values);
+    return next;
+  };
+  const extendQuality = (values: Uint8Array) => {
+    const next = new Uint8Array(plateCount);
+    next.set(values);
+    return next;
+  };
+
+  return {
+    ...plateMotion,
+    plateCount,
+    plateCenterX: extendFloat(plateMotion.plateCenterX),
+    plateCenterY: extendFloat(plateMotion.plateCenterY),
+    plateVelocityX: extendFloat(plateMotion.plateVelocityX),
+    plateVelocityY: extendFloat(plateMotion.plateVelocityY),
+    plateOmega: extendFloat(plateMotion.plateOmega),
+    plateFitRms: extendFloat(plateMotion.plateFitRms),
+    plateFitP90: extendFloat(plateMotion.plateFitP90),
+    plateQuality: extendQuality(plateMotion.plateQuality),
+  };
+}
+
 describe("foundation mesh-first ops (slice 2)", () => {
   it("compute-mesh is deterministic and shape-correct", () => {
     const width = 40;
@@ -422,6 +484,31 @@ describe("foundation mesh-first ops (slice 2)", () => {
     expect(maxDamage - minDamage).toBeGreaterThanOrEqual(0);
   });
 
+  it("compute-crust rejects mantle forcing from a different mesh cell count", () => {
+    const width = 32;
+    const height = 20;
+
+    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
+    const meshConfig = computeMesh.normalize(
+      {
+        strategy: "default",
+        config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
+      },
+      ctx as any
+    );
+
+    const mesh = computeMesh.run({ width, height, rngSeed: 50 }, meshConfig).mesh;
+    const mantleForcing = deriveMantleForcing(mesh, 51);
+    const shorterMantleForcing = truncateMantleForcing(mantleForcing, mesh.cellCount - 1);
+
+    expect(() =>
+      computeCrust.run(
+        { mesh, mantleForcing: shorterMantleForcing, rngSeed: 51 },
+        computeCrust.defaultConfig
+      )
+    ).toThrow(/mantleForcing\.cellCount/);
+  });
+
   it("crust publishes an isostatic baseline and projects it to tiles (basaltic lid)", () => {
     const width = 60;
     const height = 40;
@@ -480,5 +567,73 @@ describe("foundation mesh-first ops (slice 2)", () => {
       expect(crustTiles.type[i]).toBe(0);
     }
     expect(maxDelta).toBeLessThan(1e-6);
+  });
+
+  it("compute-plates-tensors rejects truthy provenance and plate motion incompatible with projection inputs", () => {
+    const width = 36;
+    const height = 24;
+
+    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
+    const meshConfig = computeMesh.normalize(
+      {
+        strategy: "default",
+        config: { plateCount: 10, cellsPerPlate: 3, relaxationSteps: 2 },
+      },
+      ctx as any
+    );
+
+    const mesh = computeMesh.run({ width, height, rngSeed: 60 }, meshConfig).mesh;
+    const mantleForcing = deriveMantleForcing(mesh, 61);
+    const crust = computeCrust.run(
+      { mesh, mantleForcing, rngSeed: 61 },
+      computeCrust.defaultConfig
+    ).crust;
+    const plateGraph = computePlateGraph.run(
+      { mesh, crust, rngSeed: 62 },
+      { strategy: "default", config: { plateCount: 10 } }
+    ).plateGraph;
+    const plateMotion = derivePlateMotion(mesh, plateGraph, 63);
+    const historyResult = runTectonicHistoryChain({
+      mesh,
+      crust,
+      mantleForcing,
+      plateGraph,
+      plateMotion,
+    });
+
+    const baseInput = {
+      width,
+      height,
+      mesh,
+      crust,
+      plateGraph,
+      plateMotion,
+      tectonics: historyResult.tectonics,
+      tectonicHistory: historyResult.tectonicHistory,
+    };
+
+    expect(() =>
+      computePlatesTensors.run(
+        {
+          ...baseInput,
+          tectonicProvenance: truncateTectonicProvenance(
+            historyResult.tectonicProvenance,
+            mesh.cellCount - 1
+          ),
+        },
+        computePlatesTensors.defaultConfig
+      )
+    ).toThrow(/tectonicProvenance\.cellCount/);
+
+    expect(() =>
+      computePlatesTensors.run(
+        {
+          ...baseInput,
+          plateMotion: appendPlateMotionPlate(plateMotion),
+          tectonicProvenance: historyResult.tectonicProvenance,
+        },
+        computePlatesTensors.defaultConfig
+      )
+    ).toThrow(/plateMotion\.plateCount/);
   });
 });

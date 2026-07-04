@@ -1,8 +1,6 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  FoundationTectonicEraFieldsInternalListSchema,
-  TracerIndexByEraSchema,
-} from "../../lib/tectonics/internal-contract.js";
+import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { Schema as TracerIndexByEraSchema } from "../../artifacts/tracer-index-by-era.artifact.js";
 import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 

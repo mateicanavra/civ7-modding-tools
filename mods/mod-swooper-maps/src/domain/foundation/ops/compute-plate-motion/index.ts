@@ -1,7 +1,6 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampInt, clampU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
-import { requireMantleForcing, requireMesh, requirePlateGraph } from "../../lib/require.js";
 import ComputePlateMotionContract from "./contract.js";
 
 const EPS = 1e-9;
@@ -10,19 +9,18 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
   strategies: {
     default: {
       run: (input, config) => {
-        const mesh = requireMesh(input.mesh, "foundation/compute-plate-motion");
-        const plateGraph = requirePlateGraph(
-          input.plateGraph,
-          mesh.cellCount | 0,
-          "foundation/compute-plate-motion"
-        );
-        const mantleForcing = requireMantleForcing(
-          input.mantleForcing,
-          mesh.cellCount | 0,
-          "foundation/compute-plate-motion"
-        );
+        const mesh = input.mesh;
+        const plateGraph = input.plateGraph;
+        const mantleForcing = input.mantleForcing;
 
         const cellCount = mesh.cellCount | 0;
+        if (plateGraph.cellToPlate.length !== cellCount) {
+          throw new Error("[Foundation] Invalid plateGraph.cellToPlate for compute-plate-motion.");
+        }
+        if ((mantleForcing.cellCount | 0) !== cellCount) {
+          throw new Error("[Foundation] Invalid mantleForcing.cellCount for compute-plate-motion.");
+        }
+
         const plateCount = plateGraph.plates.length | 0;
         const wrapWidth = mesh.wrapWidth;
 

@@ -1,26 +1,11 @@
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
-
-import {
-  requireMantleForcing as requireMantleForcingInput,
-  requireMesh as requireMeshInput,
-} from "../../../lib/require.js";
-import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
-import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
+import type { Artifact as TectonicEvents } from "../../../artifacts/tectonic-events.artifact.js";
 import { clampByte, normalizeToInt8 } from "../../../lib/tectonics/shared.js";
+import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 import type { FoundationMantleForcing } from "../../compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 
-export function requireMesh(
-  ...args: Parameters<typeof requireMeshInput>
-): ReturnType<typeof requireMeshInput> {
-  return requireMeshInput(...args);
-}
-
-export function requireMantleForcing(
-  ...args: Parameters<typeof requireMantleForcingInput>
-): ReturnType<typeof requireMantleForcingInput> {
-  return requireMantleForcingInput(...args);
-}
+type TectonicEventRecord = TectonicEvents[number];
 
 export function buildHotspotEvents(params: {
   mesh: FoundationMesh;

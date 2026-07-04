@@ -1,15 +1,16 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeSegmentEventsContract from "../contract.js";
-import { buildBoundaryEventsFromSegments, requireCrust, requireMesh } from "../rules/index.js";
+import { buildBoundaryEventsFromSegments } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeSegmentEventsContract, "default", {
   run: (input) => {
-    const mesh = requireMesh(input.mesh, "foundation/compute-segment-events");
-    const crust = requireCrust(
-      input.crust,
-      mesh.cellCount | 0,
-      "foundation/compute-segment-events"
-    );
+    const mesh = input.mesh;
+    const crust = input.crust;
+    const cellCount = mesh.cellCount | 0;
+    if (crust.type.length !== cellCount || crust.strength.length !== cellCount) {
+      throw new Error("[Foundation] Invalid crust.cellCount for compute-segment-events.");
+    }
+
     const events = buildBoundaryEventsFromSegments({ mesh, crust, segments: input.segments });
     return { events } as const;
   },

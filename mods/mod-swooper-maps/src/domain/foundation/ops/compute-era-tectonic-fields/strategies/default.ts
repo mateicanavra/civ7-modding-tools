@@ -1,11 +1,11 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeEraTectonicFieldsContract from "../contract.js";
 import type { TectonicEventRecord } from "../rules/index.js";
-import { buildEraFields, deriveEmissionParams, requireMesh } from "../rules/index.js";
+import { buildEraFields, deriveEmissionParams } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeEraTectonicFieldsContract, "default", {
   run: (input, config) => {
-    const mesh = requireMesh(input.mesh, "foundation/compute-era-tectonic-fields");
+    const mesh = input.mesh;
     const segmentEvents = (input.segmentEvents ?? []) as TectonicEventRecord[];
     const hotspotEvents = (input.hotspotEvents ?? []) as TectonicEventRecord[];
     const events: TectonicEventRecord[] = [...segmentEvents, ...hotspotEvents];

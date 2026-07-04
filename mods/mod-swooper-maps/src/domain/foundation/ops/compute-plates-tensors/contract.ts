@@ -1,10 +1,11 @@
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { Schema as FoundationTectonicsSchema } from "../../artifacts/current-tectonics.artifact.js";
+import { Schema as FoundationTectonicHistorySchema } from "../../artifacts/tectonic-history.artifact.js";
 import {
-  FoundationTectonicHistorySchema,
-  FoundationTectonicProvenanceSchema,
-  FoundationTectonicsSchema,
-} from "../../lib/tectonics/schemas.js";
+  type Artifact as FoundationTectonicProvenanceArtifact,
+  Schema as FoundationTectonicProvenanceSchema,
+} from "../../artifacts/tectonic-provenance.artifact.js";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
@@ -359,6 +360,6 @@ const ComputePlatesTensorsContract = defineOp({
 
 export default ComputePlatesTensorsContract;
 export type ComputePlatesTensorsConfig = Static<typeof StrategySchema>;
-export type FoundationTectonicProvenance = Static<typeof FoundationTectonicProvenanceSchema>;
+export type FoundationTectonicProvenance = FoundationTectonicProvenanceArtifact;
 export type FoundationTectonicHistoryTiles = Static<typeof TectonicHistoryTilesSchema>;
 export type FoundationTectonicProvenanceTiles = Static<typeof TectonicProvenanceTilesSchema>;

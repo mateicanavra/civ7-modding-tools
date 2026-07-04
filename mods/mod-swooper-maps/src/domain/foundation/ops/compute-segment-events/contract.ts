@@ -1,5 +1,5 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { TectonicEventsSchema } from "../../lib/tectonics/internal-contract.js";
+import { Schema as TectonicEventsSchema } from "../../artifacts/tectonic-events.artifact.js";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationTectonicSegmentsSchema } from "../compute-tectonic-segments/contract.js";
