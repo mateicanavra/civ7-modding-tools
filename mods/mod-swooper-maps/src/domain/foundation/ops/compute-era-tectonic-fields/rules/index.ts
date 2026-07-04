@@ -2,7 +2,7 @@ import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../../constants.js";
 import { requireMesh as requireMeshInput } from "../../../lib/require.js";
-import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
+import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 import type {
   FoundationTectonicEraFieldsInternal,
   TectonicEventRecord,

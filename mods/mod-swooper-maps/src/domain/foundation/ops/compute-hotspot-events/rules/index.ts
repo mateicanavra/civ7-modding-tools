@@ -1,10 +1,12 @@
+import { clampFinite } from "@swooper/mapgen-core/lib/math";
+
 import {
   requireMantleForcing as requireMantleForcingInput,
   requireMesh as requireMeshInput,
 } from "../../../lib/require.js";
-import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
+import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
-import { clamp01, clampByte, normalizeToInt8 } from "../../../lib/tectonics/shared.js";
+import { clampByte, normalizeToInt8 } from "../../../lib/tectonics/shared.js";
 import type { FoundationMantleForcing } from "../../compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 
@@ -29,8 +31,8 @@ export function buildHotspotEvents(params: {
   const events: TectonicEventRecord[] = [];
   for (let i = 0; i < mesh.cellCount; i++) {
     if ((mantleForcing.upwellingClass[i] ?? 0) <= 0) continue;
-    const forcingMag = clamp01(mantleForcing.forcingMag[i] ?? 0);
-    const stress = clamp01(mantleForcing.stress[i] ?? 0);
+    const forcingMag = clampFinite(mantleForcing.forcingMag[i] ?? 0, 0, 1, 0);
+    const stress = clampFinite(mantleForcing.stress[i] ?? 0, 0, 1, 0);
     if (forcingMag <= 0) continue;
     const intensity = clampByte(forcingMag * (0.6 + 0.4 * stress) * 255);
     if (intensity <= 0) continue;

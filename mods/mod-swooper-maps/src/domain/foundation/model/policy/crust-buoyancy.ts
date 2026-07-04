@@ -7,8 +7,8 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
  * and the era-integrated evolution (`compute-crust-evolution`) so the two can no
  * longer silently diverge (they previously carried byte-identical private copies).
  *
- * WHY here: foundation-internal physical constants live under `domain/foundation/lib`
- * (cf. `lib/tectonics/constants.ts`). Buoyancy is NOT author-configurable — crust
+ * WHY here: foundation-internal physical constants live under `domain/foundation/model/policy`
+ * (cf. `tectonic-event-types.ts`). Buoyancy is NOT author-configurable — crust
  * evolution follows the tectonic history — so these are physical coefficients, never
  * authoring knobs, and must never be tuned to a downstream land/ocean output ratio.
  */

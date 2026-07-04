@@ -7,7 +7,7 @@ import {
   strengthFromMaturity,
   strengthFromThermalAge,
   strengthFromThickness,
-} from "../../lib/crust/buoyancy.js";
+} from "../../model/policy/crust-buoyancy.js";
 import {
   requireCrust,
   requireMesh,

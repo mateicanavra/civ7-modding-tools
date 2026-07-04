@@ -7,7 +7,7 @@ import {
   strengthFromMaturity,
   strengthFromThermalAge,
   strengthFromThickness,
-} from "../../lib/crust/buoyancy.js";
+} from "../../model/policy/crust-buoyancy.js";
 import { requireMantleForcing, requireMesh } from "../../lib/require.js";
 import ComputeCrustContract from "./contract.js";
 

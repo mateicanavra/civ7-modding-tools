@@ -3,7 +3,7 @@ import {
   requireCrust as requireCrustInput,
   requireMesh as requireMeshInput,
 } from "../../../lib/require.js";
-import { EVENT_TYPE } from "../../../lib/tectonics/constants.js";
+import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 import type { TectonicEventRecord } from "../../../lib/tectonics/internal-contract.js";
 import type { FoundationCrust } from "../../compute-crust/contract.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
