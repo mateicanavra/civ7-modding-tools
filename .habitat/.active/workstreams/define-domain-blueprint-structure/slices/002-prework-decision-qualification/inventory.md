@@ -7,8 +7,10 @@ work begins. They are ordered from least defined to more defined. Completed
 prework decisions stay in the completed section as proof pointers, not as active
 queue items.
 
-Current next move: resolve the open dominoes in
-`Decisions/002-foundation-lib-tectonics-disposition/`.
+Current next move: compose the packet-linked foundation-lib cleanup
+`execution.md` from
+`Decisions/002-foundation-lib-tectonics-disposition/`, then take the next
+standalone prework decision slice.
 
 ## Completed Decisions
 
@@ -33,35 +35,40 @@ every narrative path has liveness evidence and one disposition. The selected
 disposition was deletion of the current implementation plus protected retention
 of separate runtime-control narrative-choice surfaces.
 
-## Active Decision
-
 ### Foundation `lib/` / Tectonics Disposition
 
 Decision:
 classify each foundation `lib/**` file as domain model policy/data,
 operation-local implementation, artifact contract, core mechanics, or deletion.
 
-Current result:
+Result:
 the current `foundation/lib/**` tree is not a legal owner in the closed domain
-blueprint. Most rows split into named foundation model policy, foundation
-artifact contracts, operation-local rules, or deletion candidates. Two
-destination/decomposition classes remain unresolved inside the packet.
+blueprint. Every row now has an exact destination/action:
+
+- domain model policy rows for crust buoyancy, reference area, and tectonic
+  event types;
+- artifact contracts for foundation mesh, crust, mantle, plate, tectonics,
+  history, provenance, event, era-field, plate-id, and tracer-index products;
+- core mechanics APIs in existing `@swooper/mapgen-core` `lib/math`,
+  `lib/grid`, and `lib/mesh` subpaths;
+- operation-local provenance reset policy and tracer-advection constants;
+- delete actions for dead duplicate tectonics files and stale constants.
 
 Proof packet:
 `Decisions/002-foundation-lib-tectonics-disposition/`
 
-Open dominoes:
+Done:
+`require.ts` is resolved to artifact-contract assertion helpers, and
+`shared.ts` helpers are resolved to accepted core APIs, an existing core
+replacement, or operation-local provenance policy.
 
-- `Decisions/002-foundation-lib-tectonics-disposition/require-guards.domino.md`
-- `Decisions/002-foundation-lib-tectonics-disposition/tectonics-shared-core.domino.md`
+Next:
+compose the packet-linked cleanup `execution.md`; do not move source until the
+execution slice names write sets and proof gates.
 
-Done when:
-every current `foundation/lib/**` file has an exact destination, delete action,
-implementation-gated action, or closed domino. `require.ts` has per-export
-operation-local destinations, and `shared.ts` helpers have accepted core or
-operation-local destinations with proof requirements.
+## Active Decision
 
-## 1. Domain Model Config Law
+### 1. Domain Model Config Law
 
 Decision:
 decide whether `model/config/` is required for every domain root covered by the

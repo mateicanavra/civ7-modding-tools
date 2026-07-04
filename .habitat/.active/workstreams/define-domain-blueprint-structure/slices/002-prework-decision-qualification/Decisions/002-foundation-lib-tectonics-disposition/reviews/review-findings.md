@@ -1,6 +1,6 @@
 # Review Findings
 
-Status: open review artifact
+Status: closed review artifact
 
 ## Finding Dispositions
 
@@ -8,9 +8,9 @@ Status: open review artifact
 | --- | --- | --- | --- |
 | P2 | Entry-point usability | README outcome was too abstract and made the packet look like it deferred the decision. | Accepted and repaired. README now lists concrete row dispositions and separates packet closure from implementation gates. |
 | P2 | Row classification | Whole-file classification was too coarse for `lib/tectonics/constants.ts` and `lib/tectonics/shared.ts`. | Accepted and repaired. The disposition table splits mixed files by symbol group. |
-| P1 | Unresolved disposition class | Core-helper rows in `lib/tectonics/shared.ts` were marked `unresolved until execution proof`, which conflicted with packet closure. | Accepted. Tracked by `tectonics-shared-core.domino.md`; packet remains open until resolved. |
+| P1 | Unresolved disposition class | Core-helper rows in `lib/tectonics/shared.ts` were marked `unresolved until execution proof`, which conflicted with packet closure. | Accepted and repaired. `tectonics-shared-core.domino.md` now resolves every exported symbol to exact core, existing-core, or operation-local destinations. |
 | P2 | Evidence/proof boundary | Deletion evidence is strong but not tool-complete because no installed Knip, ts-prune, depcheck, or unimported binary was available. | Accepted and implementation-gated. Deletion candidates require source import proof plus relevant typecheck/test proof in the later deletion slice. |
-| P2 | Owner topology | `require.ts` has no legal whole-file destination in shared `foundation/lib`. | Accepted. Tracked by `require-guards.domino.md`; packet remains open until per-export destinations are resolved. |
+| P2 | Owner topology | `require.ts` has no legal whole-file destination in shared `foundation/lib`. | Accepted and repaired. `require-guards.domino.md` now resolves every guard to artifact-contract assertion helpers while preserving operation-local call-site policy. |
 | P2 | Record truth | Packet files referred to old item-number identity and incorrect relative inventory paths. | Accepted and repaired. Packet files now refer to the active decision title and the correct relative inventory paths. |
 | P2 | Review accounting | Accepted findings lacked severity/disposition classes while the final state claimed no accepted P1/P2 findings remained open. | Accepted and repaired in this table. |
 | P1 | Investigation closure semantics | Draft investigation plans allowed accepted blockers or authority gaps to count as packet closure. | Accepted and repaired. Both investigation plans now state blockers keep the domino, README, and inventory open; packet closure requires final destination/action rows. |
@@ -42,13 +42,20 @@ Initial P1/P2/P3 findings were accepted and repaired in the plan documents,
 domino files, README, and disposition table. The final review pass reported no
 remaining P1/P2 findings.
 
+## Investigation Execution Review Closure
+
+Fresh review lanes checked the executed investigation result and packet
+write-back:
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P2 | Stale raw-evidence interpretation | `evidence/relationship-evidence.md` still carried pre-adjudication conclusions that contradicted the final `require.ts` and `shared.ts` owners. | Accepted and repaired. The file is now marked raw evidence and points to the resolved dominoes and final disposition table for authoritative interpretation. |
+| P2 | Stale packet state | `workstream.md` and this review ledger still described both dominoes as open after they were resolved. | Accepted and repaired. Packet state now says the prework decision is resolved and the next work is a packet-linked execution slice. |
+| P2 | Tooling evidence precision | README overstated KNIP as completed deletion evidence even though the earlier unused-code pass found no installed analyzer. | Accepted and repaired. README now records the actual deletion evidence limit and treats KNIP as supporting evidence only if available during execution. |
+| P3 | Pre-adjudication source inventory | `corpus/source-inventory.md` still contained early owner-read notes that were superseded by deeper investigations. | Accepted and repaired. The file now labels those notes as initial inventory evidence superseded by the final synthesis and domino closure records. |
+
 ## Final Review State
 
-Accepted P1/P2 findings remain open for this packet:
-
-- `require-guards.domino.md`
-- `tectonics-shared-core.domino.md`
-
-The packet cannot be called closed until those dominoes are resolved or
-converted into explicit packet-linked execution slices with row-level closure
-criteria.
+No accepted P1/P2 findings remain open for this packet. Both domino files are
+resolved, every disposition-table row has an exact destination/action, and the
+remaining work belongs to a later execution slice.

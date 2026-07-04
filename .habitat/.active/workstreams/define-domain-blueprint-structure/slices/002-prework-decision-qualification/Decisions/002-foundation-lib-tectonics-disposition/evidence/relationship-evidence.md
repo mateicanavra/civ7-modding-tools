@@ -1,6 +1,12 @@
 # Relationship Evidence
 
-Status: closed evidence artifact
+Status: closed raw evidence artifact
+
+This file records the first relationship pass. Its interpretation column is
+pre-adjudication evidence, not final owner law. Final authority is recorded in
+`synthesis/disposition-table.md`, `require-guards.domino.md`, and
+`tectonics-shared-core.domino.md`; those resolved rows supersede any earlier
+directional interpretation below.
 
 ## Commands
 
@@ -23,11 +29,11 @@ generated-output proof.
 | --- | --- | --- |
 | Crust buoyancy policy | `compute-crust/index.ts` and `compute-crust-evolution/index.ts` import `lib/crust/buoyancy.js`. | Cross-operation foundation crust semantic policy, not deletion. |
 | Reference-area policy | `compute-mesh/index.ts`, `compute-plate-graph/index.ts`, and `test/foundation/reference-area-policy.test.ts` import `lib/normalize.js`. | Named foundation reference-area/dimension policy, not operation-private logic. |
-| Artifact input guards | fourteen foundation operations/rules import `lib/require.js`. | Live cross-operation guard support. It is not a truth contract owner because it consumes operation contract types and validates runtime payloads. |
+| Artifact input guards | fourteen foundation operations/rules import `lib/require.js`. | Live guard surface. Later authority review resolved this as artifact-contract assertion helper work: current `foundation/lib/require.ts` is not an owner, but the checked payloads are published foundation artifacts and route to `foundation/artifacts/contract/*.contract.ts`. |
 | Tectonics policy constants | hotspot, segment-events, era-fields, tracer-advection, and provenance rules import `lib/tectonics/constants.js`. | Shared foundation tectonics semantic policy. |
 | Tectonics internal contracts | event, era, membership, tracer, history, current, and provenance contracts/rules import `lib/tectonics/internal-contract.js`. | Artifact-contract surface, likely split by artifact in execution. |
 | Tectonics public schemas | crust-evolution, plates-tensors, history/current/provenance contracts and rules import `lib/tectonics/schemas.js`. | Artifact-contract surface, not operation-local deletion. |
-| Tectonics helper support | hotspot, provenance, era-fields, history, segments, plates-tensors, and tracer rules import `lib/tectonics/shared.js`. | Live helper surface. Current evidence is stronger for foundation operation-rule support than for core extraction. |
+| Tectonics helper support | hotspot, provenance, era-fields, history, segments, plates-tensors, and tracer rules import `lib/tectonics/shared.js`. | Live helper surface. Later core-comparison and ownership review resolved the pure helper symbols into exact `@swooper/mapgen-core` math/grid/mesh destinations, with `deriveResetThreshold` kept operation-local. |
 
 ## Duplicate Operation-Local Implementations
 
@@ -59,7 +65,8 @@ No evidence was found that `packages/mapgen-core/src/**` imports foundation
 artifact payload knowledge, operation contract knowledge, or tectonics
 meaning.
 
-Conclusion: this packet does not classify any current `foundation/lib/**` row
-as ready for `packages/mapgen-core` extraction. A later slice may split pure
-helpers only after proving the resulting symbol is domain-free and naming an
-exact core owner file.
+Conclusion superseded by later investigation: this first relationship pass did
+not by itself prove any current `foundation/lib/**` row was ready for
+`packages/mapgen-core` extraction. The dedicated `tectonics-shared-core`
+investigation later supplied the missing symbol-by-symbol proof and accepted
+exact core owner files for the pure helper rows.

@@ -1,6 +1,6 @@
 # Disposition Table
 
-Status: open synthesis artifact
+Status: closed synthesis artifact
 
 Decision answered:
 
@@ -12,15 +12,14 @@ operation-local implementation, artifact contract, core mechanics, or deletion.
 ## Decision Summary
 
 The current `foundation/lib/**` tree is not an owner in the closed domain
-blueprint. Most live rows split into exact policy, artifact-contract,
-operation-rule support, and deletion candidates. Two row classes remain open as
-first-class domino files: operation guard decomposition and core mechanics
-extraction proof.
+blueprint. All live rows now split into exact domain policy, artifact-contract,
+operation-local policy, core mechanics, or deletion destinations. The two
+previously open domino classes are resolved and no prework blocker remains.
 
 Item-level outcome:
 
-- `Decision not yet fully closed; all rows except the two open domino classes
-  have usable dispositions`
+- `Decision fully closed at the prework layer; implementation remains gated by
+  the future execution slice and proof commands`
 
 ## Row Dispositions
 
@@ -28,7 +27,7 @@ Item-level outcome:
 | --- | --- | --- | --- | --- | --- | --- |
 | `lib/crust/buoyancy.ts` | live | Domain model policy | `packages/mapgen-core`; operation-local rules | Promote as `foundation/model/policy/crust-buoyancy.ts`. | verified | `decision-book/owner-boundaries.md`; `decision-book/move-classes.md` |
 | `lib/normalize.ts` | live | Domain model policy | generic op helper bucket; `packages/mapgen-core` | Promote as `foundation/model/policy/reference-area.ts`, preserving env-dimension validation plus reference-area derivation as one tested policy. | verified | `decision-book/owner-boundaries.md`; `mods/mod-swooper-maps/test/foundation/reference-area-policy.test.ts` |
-| `lib/require.ts` | live | Operation-local guard support | artifact contract; shared `foundation/lib` | Unresolved prework domino: `require-guards.domino.md`. No whole-file move. | open domino | `decision-book/content-classes.md`; `decision-book/move-classes.md` |
+| `lib/require.ts` / all `require*` exports | live | Artifact contract assertion helpers | shared `foundation/lib`; broad validation bucket; operation-local copied guards as final owner | Replace with artifact-contract assertion helpers: `mesh.contract.ts`, `crust.contract.ts`, `mantle-potential.contract.ts`, `mantle-forcing.contract.ts`, `plate-graph.contract.ts`, `plate-motion.contract.ts`, `current-tectonics.contract.ts`, `tectonic-history.contract.ts`, and `tectonic-provenance.contract.ts`. Operation call sites supply scope, optionality, expected cell count, and expected plate count. | verified | `require-guards.domino.md`; `evidence/require-guards-agent-a.md`; `evidence/require-guards-agent-c.md`; `decision-book/move-classes.md` |
 | `lib/tectonics/constants.ts` / `EVENT_TYPE` | live | Domain model policy | operation rules; artifact contracts | Promote as `foundation/model/policy/tectonic-event-types.ts`. | verified | `decision-book/owner-boundaries.md` |
 | `lib/tectonics/constants.ts` / reset threshold constants | live | Operation-local policy/rules | domain-wide policy bucket | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/constants.ts` / `ADVECTION_STEPS_PER_ERA` | live | Operation-local policy/rules | domain-wide policy bucket | Move to `foundation/ops/compute-tracer-advection/rules/constants.ts`. | verified | `decision-book/move-classes.md` |
@@ -41,8 +40,14 @@ Item-level outcome:
 | `lib/tectonics/schemas.ts` / history schema/type | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/contract/tectonic-history.contract.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/schemas.ts` / current tectonics schema/type | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/contract/current-tectonics.contract.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/schemas.ts` / provenance schema/type | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/contract/tectonic-provenance.contract.ts`. | verified | `decision-book/move-classes.md` |
-| `lib/tectonics/shared.ts` / byte, int8, and normalized-vector helpers | live | Core mechanics candidate | foundation model policy; artifact contracts | Unresolved prework domino: `tectonics-shared-core.domino.md`. Candidate destinations are `packages/mapgen-core/src/lib/math/clamp.ts`, `packages/mapgen-core/src/lib/math/int8.ts`, and `packages/mapgen-core/src/lib/math/int8-vector.ts`. | open domino | `decision-book/owner-boundaries.md`; `packages/mapgen-core/src/AGENTS.md` |
-| `lib/tectonics/shared.ts` / `NeighborhoodMesh`, `computeMeanEdgeLen`, `findNearestCell`, `chooseDriftNeighbor` | live | Core mechanics candidate | foundation model policy; artifact contracts | Unresolved prework domino: `tectonics-shared-core.domino.md`. Candidate destination is `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`. | open domino | `decision-book/owner-boundaries.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `NeighborhoodMesh` | live | Core mesh mechanics | foundation model policy; artifact contracts; operation-local type bucket | Replace with `CsrPointMesh2D` exported from `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-b.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `clampByte` | live | Core scalar math | foundation model policy; artifact contracts; existing `clampU8` as exact replacement | Extract as `quantizeU8(value)` in `packages/mapgen-core/src/lib/math/quantize.ts`, exported by `lib/math/index.ts`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-b.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `clamp01` | live | Existing core scalar math | foundation shared wrapper; new core API | Delete wrapper and replace exact semantics with `clampFinite(value, 0, 1, 0)` from `@swooper/mapgen-core/lib/math`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-b.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `clampInt8` | live | Core scalar math | foundation model policy; artifact contracts; existing `clampInt` or `quantizeI8Signed` as exact replacement | Extract as `quantizeI8Symmetric(value)` in `packages/mapgen-core/src/lib/math/quantize.ts`, exported by `lib/math/index.ts`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-b.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `normalizeToInt8` | live | Core vector/grid mechanics | foundation event/tracing helper; artifact-specific `{ u, v }` API; new package subpath | Extract as `quantizeUnitVec2I8(vec, epsilon = 1e-9)` in `packages/mapgen-core/src/lib/grid/vector-field.ts`, returning core `x/y`; callers adapt to artifact `u/v`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-b.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `computeMeanEdgeLen` | live | Core mesh mechanics | duplicated operation-local copies; foundation shared helper | Extract as `meanMeshEdgeLength(mesh, maxEdges = 100_000)` in `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-a.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `findNearestCell` | live | Core mesh mechanics | duplicated operation-local copies; foundation shared helper | Extract as `findNearestMeshCell(mesh, x, y)` in `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-a.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
+| `lib/tectonics/shared.ts` / `chooseDriftNeighbor` | live | Core mesh mechanics | drift-named foundation helper; hex-grid direction helper as exact replacement | Extract as `selectMeshNeighborByVectorProjection(params)` in `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`; callers pass dequantized vector components. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-a.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
 | `lib/tectonics/shared.ts` / `deriveResetThreshold` | live | Operation-local policy/rules | core mechanics | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/index.ts` | dead barrel | deletion | public domain surface | Delete after import proof and typecheck. | corroborated | `decision-book/move-classes.md` |
 | `lib/tectonics/events.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owners are `foundation/ops/compute-segment-events/rules/index.ts` and `foundation/ops/compute-hotspot-events/rules/index.ts`. | corroborated | `decision-book/move-classes.md` |
@@ -56,7 +61,7 @@ Item-level outcome:
 
 | Result | Owning reference | Update needed |
 | --- | --- | --- |
-| Packet remains active | `../../inventory.md` | Inventory points back to this packet until both open dominoes close. |
-| Open operation guard decomposition | `require-guards.domino.md` | Resolve per-export destinations before moving or deleting `require.ts`. |
-| Open core mechanics extraction proof | `tectonics-shared-core.domino.md` | Resolve destination API before moving helper symbols. |
+| Packet closed at prework layer | `../../inventory.md` | Move this packet to completed decisions and point next work at the execution slice. |
+| Operation guard decomposition resolved | `require-guards.domino.md` | Use artifact-contract assertion helper rows to build `execution.md`. |
+| Core mechanics extraction proof resolved | `tectonics-shared-core.domino.md` | Use exact core API rows to build `execution.md`. |
 | Deletion candidates qualified but not executed | Future source-moving slice | Delete only with source import proof plus typecheck/test proof. |

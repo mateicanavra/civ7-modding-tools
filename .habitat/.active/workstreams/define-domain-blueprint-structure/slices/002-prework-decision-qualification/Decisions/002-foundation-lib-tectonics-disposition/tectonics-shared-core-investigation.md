@@ -467,22 +467,18 @@ Review disposition format:
 
 ## Completion Checklist
 
-- [ ] All nine symbols appear in the final proof table.
-- [ ] Every direct importer is accounted for.
-- [ ] Existing core equivalents are checked with semantic deltas.
-- [ ] Every core candidate has exact destination path and public API name.
-- [ ] Every rejected core candidate has an explicit non-owner reason.
-- [ ] `deriveResetThreshold` is confirmed operation-local or explicitly
-      reclassified with evidence.
-- [ ] Every row has an exact destination/action and verification label.
-- [ ] `synthesis/disposition-table.md` is updated.
-- [ ] `tectonics-shared-core.domino.md` is closed or still open with a named
-      authority blocker.
-- [ ] `README.md` open domino list is updated on closure or explicitly left
-      open with the named blocker.
-- [ ] `../../inventory.md` is updated on closure or explicitly left open with
-      the named blocker.
-- [ ] Review loop has no unresolved accepted P1/P2 findings.
+- [x] All nine symbols appear in the final proof table.
+- [x] Every direct importer is accounted for.
+- [x] Existing core equivalents are checked with semantic deltas.
+- [x] Every core candidate has exact destination path and public API name.
+- [x] Every rejected core candidate has an explicit non-owner reason.
+- [x] `deriveResetThreshold` is confirmed operation-local with evidence.
+- [x] Every row has an exact destination/action and verification label.
+- [x] `synthesis/disposition-table.md` is updated.
+- [x] `tectonics-shared-core.domino.md` is resolved with no authority blocker.
+- [x] `README.md` records domino closure.
+- [x] `../../inventory.md` records packet closure and advances the queue.
+- [x] Review loop has no unresolved accepted P1/P2 findings.
 
 ## Review Disposition
 

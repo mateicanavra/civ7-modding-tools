@@ -1,6 +1,11 @@
 # Source Inventory
 
-Status: closed evidence artifact
+Status: closed raw evidence artifact
+
+This file preserves the initial source inventory. Its initial role tags and
+evidence-limit notes are not final disposition authority. Later investigations
+resolved the final owners in `../synthesis/disposition-table.md`,
+`../require-guards.domino.md`, and `../tectonics-shared-core.domino.md`.
 
 Source set:
 
@@ -27,11 +32,11 @@ mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/tracing.ts
 | --- | --- | --- | --- | --- |
 | `lib/crust/buoyancy.ts` | crust buoyancy constants, strength thresholds, `deriveBuoyancy`, `isContinentalMaturity`, `strengthFrom*` | `compute-crust/index.ts`; `compute-crust-evolution/index.ts` | domain model policy | Current comments call it shared crust buoyancy/strength/classification model; no evidence of core ownership. |
 | `lib/normalize.ts` | `requireEnvDimensions`; `deriveFoundationReferenceArea` | `compute-mesh/index.ts`; `compute-plate-graph/index.ts`; `test/foundation/reference-area-policy.test.ts` | domain model policy | Live policy/test evidence; destination needs exact model-policy naming. |
-| `lib/require.ts` | `requireMesh`, `requireCrust`, `requireMantlePotential`, `requireMantleForcing`, `requirePlateGraph`, `requirePlateMotion`, `requireTectonics`, `requireTectonicHistory`, `requireTectonicProvenance` | fourteen foundation operation/rules consumers | operation-rule support | Live cross-operation guard support; not an artifact contract because it validates imported artifacts rather than defining their truth contracts. |
+| `lib/require.ts` | `requireMesh`, `requireCrust`, `requireMantlePotential`, `requireMantleForcing`, `requirePlateGraph`, `requirePlateMotion`, `requireTectonics`, `requireTectonicHistory`, `requireTectonicProvenance` | fourteen foundation operation/rules consumers | initial operation-rule support | Initial scan found live cross-operation guard support. Later authority review resolved these as artifact-contract assertion helpers with operation-local call-site policy retained. |
 | `lib/tectonics/constants.ts` | reset thresholds, `ADVECTION_STEPS_PER_ERA`, `EVENT_TYPE`, orogeny gain constants, era-count bounds | hotspot, segment-events, era-fields, tracer-advection, and provenance rules | domain model policy | Live shared semantic constants; no authored-data collection. |
 | `lib/tectonics/internal-contract.ts` | `TectonicEventSchema`, `TectonicEventsSchema`, era-field schemas, plate/tracer array schemas, record/types | event, era, tracer, history, current, and provenance contracts/rules | artifact contract | File mixes several internal product contracts; execution likely splits by artifact. |
 | `lib/tectonics/schemas.ts` | `FoundationTectonicHistorySchema`, `FoundationTectonicsSchema`, `FoundationTectonicProvenanceSchema`, corresponding types | crust-evolution contract, plates-tensors contract/lib, history/current/provenance contracts/rules | artifact contract | Live artifact schemas; exact extraction surface needs reference update. |
-| `lib/tectonics/shared.ts` | `NeighborhoodMesh`, byte/int8 clamp helpers, vector normalization, mean-edge, nearest-cell, drift neighbor, reset threshold | hotspot, provenance, era-fields, history, segments, plates-tensors, tracer rules | operation-rule support with possible later split | Some helpers are generic-looking, but no current core consumer or pure-core proof. |
+| `lib/tectonics/shared.ts` | `NeighborhoodMesh`, byte/int8 clamp helpers, vector normalization, mean-edge, nearest-cell, drift neighbor, reset threshold | hotspot, provenance, era-fields, history, segments, plates-tensors, tracer rules | initial operation-rule support | Initial scan found a mixed helper surface. Later core-mechanics investigation resolved exact symbol destinations across `mapgen-core`, existing core replacement, and operation-local policy. |
 | `lib/tectonics/index.ts` | barrel exports for tectonics helpers/contracts | none found | deletion | Delete only in later execution with typecheck. |
 | `lib/tectonics/events.ts` | `buildBoundaryEventsFromSegments`; `buildHotspotEvents` | none found | deletion | Active equivalents live under `compute-segment-events/rules` and `compute-hotspot-events/rules`. |
 | `lib/tectonics/fields.ts` | `deriveEmissionParams`; `buildEraFields` | none found | deletion | Active equivalent lives under `compute-era-tectonic-fields/rules`; docs call it a stale clone. |

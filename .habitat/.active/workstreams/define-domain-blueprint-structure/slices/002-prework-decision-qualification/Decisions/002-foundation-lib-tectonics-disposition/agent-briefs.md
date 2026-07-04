@@ -51,7 +51,8 @@ Scratch pad:
   only when domain semantics are absent.
 - `domain/lib` is not a target owner in the closed blueprint.
 - The scope law names destination classes, but `require.ts` and `shared.ts`
-  still need the packet's open dominoes closed before execution can move them.
+  now use the packet's resolved dominoes and disposition table before execution
+  can move them.
 
 ## Unused-Code Auditor Lane
 

@@ -32,7 +32,7 @@ unless explicitly converted into an implementation slice.
 - Active domain blueprint scope and decision-book owner classes.
 - `packages/mapgen-core` as a possible owner only where source is pure
   reusable mechanics with no foundation semantics.
-- Exact row dispositions and open dominoes.
+- Exact row dispositions and resolved dominoes.
 
 ## Out Of Frame
 

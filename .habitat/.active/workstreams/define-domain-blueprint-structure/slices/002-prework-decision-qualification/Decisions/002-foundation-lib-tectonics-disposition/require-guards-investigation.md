@@ -412,20 +412,17 @@ Review disposition format:
 
 ## Completion Checklist
 
-- [ ] All nine guards appear in the final matrix.
-- [ ] Every direct importer is accounted for.
-- [ ] Existing wrappers are classified as destination, pass-through, or delete.
-- [ ] Artifact-contract candidates are explicitly accepted or rejected.
-- [ ] Normalization behavior is separated from validation behavior.
-- [ ] Every row has an exact destination/action and verification label.
-- [ ] `synthesis/disposition-table.md` is updated.
-- [ ] `require-guards.domino.md` is closed or still open with a named authority
-      blocker.
-- [ ] `README.md` open domino list is updated on closure or explicitly left
-      open with the named blocker.
-- [ ] `../../inventory.md` is updated on closure or explicitly left open with
-      the named blocker.
-- [ ] Review loop has no unresolved accepted P1/P2 findings.
+- [x] All nine guards appear in the final matrix.
+- [x] Every direct importer is accounted for.
+- [x] Existing wrappers are classified as destination, pass-through, or delete.
+- [x] Artifact-contract candidates are explicitly accepted or rejected.
+- [x] Normalization behavior is separated from validation behavior.
+- [x] Every row has an exact destination/action and verification label.
+- [x] `synthesis/disposition-table.md` is updated.
+- [x] `require-guards.domino.md` is resolved with no authority blocker.
+- [x] `README.md` records domino closure.
+- [x] `../../inventory.md` records packet closure and advances the queue.
+- [x] Review loop has no unresolved accepted P1/P2 findings.
 
 ## Review Disposition
 
