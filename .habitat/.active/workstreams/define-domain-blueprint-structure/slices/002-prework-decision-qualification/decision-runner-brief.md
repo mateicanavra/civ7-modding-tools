@@ -42,7 +42,8 @@ Grounding:
   - .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/single-prework-decision-frame.md
   - .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/inventory.md
   - .habitat/.active/workstreams/define-domain-blueprint-structure/decision-book/*.md
-  - .habitat/.active/workstreams/define-domain-blueprint-structure/scopes/**/*.md as needed for candidate owners.
+  - .habitat/scopes/**/*.md as needed for candidate owners
+  - .habitat/.active/workstreams/define-domain-blueprint-structure/scopes/**/*.md if a legacy packet-local scope reference is still relevant.
 - Load the skills that change this decision. Use systematic-workstream for the
   pass, investigation-design for source/authority investigation, prompt-design
   for agent prompts, team-design if you fan out lanes, and architecture/product
@@ -53,6 +54,17 @@ The selected inventory item is the unit of work. Current paths are evidence,
 not architecture authority. Destinations come from active law: scope/file/pattern
 docs, decision-book criteria, product/architecture authority, or a named later
 owner-law domino. Directory-only destinations require a positive content law.
+
+Config-shaped rows:
+For the Domain Model Config Law item, do not classify by `config.ts` filenames.
+Classify by role. Stages own public authoring schemas, `knobsSchema`, optional
+public-to-internal `compile`, and local step composition. Operations own
+operation/strategy contract config. Domains may own reusable semantic
+primitives, schema fragments, enums, types, and invariants that stages or
+operations compose. Reusable semantic policy routes to `model/policy/`, not
+`model/config/`. Domains do not own stage authoring surfaces or public-to-step
+compilation mappings. Root `config.ts` barrels are source evidence or
+transitional import facades, not destination authority.
 
 Tool-first investigation:
 Before hand-reading broad surfaces, use the available code-intelligence and

@@ -6,22 +6,40 @@ Subject:
 `<domain>/model/config/`
 
 Ownership boundary:
-domain-owned authoring config objects only. This scope owns one exported config
-object per file: schema, type, defaults, and deterministic compile or
-normalization transforms local to that object.
+domain-owned reusable primitives and config contracts only. This scope owns one
+exported domain schema fragment, enum, type, invariant, defaults object, or
+config contract per file when that object is composed by stage authoring
+surfaces or operation contracts.
+
+This scope does not own stage authoring surfaces. Public stage schemas,
+`knobsSchema`, public-to-internal `compile` mappings, and local stage
+composition belong with the owning stage. Operation and strategy config belongs
+with operation contracts. Reusable semantic policy belongs under
+`model/policy/` unless the mapping is object-local to one primitive or config
+contract.
 
 Architectural evidence:
 - current root `config.ts` and `shared/knobs` files mix multiple config objects
   and make implementation agents guess where displaced config should land;
-- stages need config-facing authoring surfaces, but not a broad root facade.
+- stages need reusable domain primitives for authoring surfaces, but not a
+  broad root domain config facade;
+- the MapGen stage authoring model already makes stage public schemas, knobs,
+  and compile mappings stage-owned.
 
 Controlling rationale:
-the scope is closed to `*.config.ts` so config decomposition happens before
-movement. It anchors each config object under a named config-file law.
+the scope is closed to `*.config.ts` so primitive/config-contract
+decomposition happens before movement. It anchors each domain-owned primitive or
+contract under a named file law without creating a parallel domain-owned stage
+authoring surface.
+
+Presence is conditional until the Domain Model Config Law decision resolves it:
+this scope governs accepted domain-owned `model/config/` files, but it does not
+itself require every domain root to contain `model/config/`.
 
 Superseding decision:
 per-domain root `config.ts` facades are active source evidence, but the selected
-target shape is one config object per `*.config.ts` file under `model/config/`.
+target shape is one reusable domain primitive or config contract per
+`*.config.ts` file under `model/config/`.
 Root facade shims are outside this scope; any transitional shim requires a
 named public import-surface owner-law domino with shape, lifetime, and deletion
 trigger.
@@ -35,9 +53,9 @@ root = "mods/mod-swooper-maps/src/domain/!(*.*)/model/config"
 kind = "directory"
 mode = "closed"
 allowed = [
-  # One exported domain authoring config object per file. This replaces the
-  # former root config.ts facade and forces config-object decomposition before
-  # moved code can become green.
+  # One exported domain primitive or config contract per file. This replaces the
+  # former root config.ts facade and forces primitive/contract decomposition
+  # before moved code can become green.
   "*.config.ts",
 ]
 ```

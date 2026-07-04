@@ -7,10 +7,9 @@ work begins. They are ordered from least defined to more defined. Completed
 prework decisions stay in the completed section as proof pointers, not as active
 queue items.
 
-Current next move: compose the packet-linked foundation-lib cleanup
-`execution.md` from
-`Decisions/002-foundation-lib-tectonics-disposition/`, then take the next
-standalone prework decision slice.
+Current next move: open and run the Domain Model Config Law decision packet.
+Foundation-lib cleanup remains a completed-decision execution follow-up and is
+not the active prework decision.
 
 ## Completed Decisions
 
@@ -72,7 +71,12 @@ execution slice names write sets and proof gates.
 
 Decision:
 decide whether `model/config/` is required for every domain root covered by the
-selected scope and define what counts as a valid domain model config object.
+selected scope and define what counts as a valid domain model primitive or
+config contract. The decision must distinguish stage authoring surfaces from
+domain-owned reusable primitives: stages own public schemas, `knobsSchema`, and
+public-to-internal compile mappings; operation contracts own operation/strategy
+config; domain model files own reusable schemas, types, enums, invariants, and
+semantic policy fragments that stages or operations compose.
 
 Inspect:
 
@@ -82,6 +86,7 @@ Inspect:
 - `mods/mod-swooper-maps/src/domain/hydrology/shared/knobs.ts`
 - `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts`
 - `mods/mod-swooper-maps/src/domain/morphology/shared/**`
+- `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts`
 - `mods/mod-swooper-maps/src/domain/placement/config.ts`
 - current candidate `model/config/` rows for ecology, foundation, hydrology,
   morphology, placement, and resources
@@ -89,21 +94,26 @@ Inspect:
 
 Choices:
 
-- require `model/config/` only when the domain has real domain-authored config
-  objects;
-- require `model/config/` for every covered domain root and name real config
-  object files for each one;
+- require `model/config/` only when the domain has real domain-owned primitive
+  or config-contract objects;
+- require `model/config/` for every covered domain root and name real primitive
+  or config-contract files for each one;
 - move config-like material to the named standard recipe stage file when it is
-  projection/stage-facing;
+  a public authoring surface, knob surface, public-to-step compile mapping, or
+  projection/stage-facing concern;
+- route reusable semantic policy to `model/policy/`, not `model/config/`;
 - inline operation config fragments into operation `contract.ts`;
-- delete unused defaults and duplicate facades.
+- delete unused defaults and duplicate facades. Root or per-domain `config.ts`
+  facade deletion is gated by import-surface law unless caller proof shows no
+  public surface remains.
 
 Done:
-the `model/config/` requirement is decided, and every current config/shared-knob
-row has an exact destination: `model/config/<part>.config.ts`, operation
-`contract.ts`, a named standard recipe stage file, or delete action. Ecology
-and resources are explicitly resolved as real config-object domains or as
-domains with an optional `model/config/` law.
+the `model/config/` requirement is decided, and every current
+config/shared-knob row has an exact destination: domain primitive/config
+contract file, domain policy file, operation `contract.ts`, a named standard
+recipe stage file, or delete action. Ecology and resources are explicitly
+resolved as real primitive/config-contract domains or as domains with an
+optional `model/config/` law.
 
 ## 2. Placement Status
 

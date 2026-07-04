@@ -38,7 +38,8 @@ Read:
 - .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/frame.md
 - .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/single-prework-decision-frame.md
 - .habitat/.active/workstreams/define-domain-blueprint-structure/decision-book/*.md
-- .habitat/.active/workstreams/define-domain-blueprint-structure/scopes/**/*.md
+- .habitat/scopes/**/*.md
+- .habitat/.active/workstreams/define-domain-blueprint-structure/scopes/**/*.md if a legacy packet-local scope reference is still relevant
 - <decision-specific architecture/product docs>
 
 Return a markdown artifact body for corpus/architecture-authority.md. Include

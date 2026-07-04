@@ -61,6 +61,40 @@ Qualification results update the owning reference:
 Use the evidence policy in `single-prework-decision-frame.md`; that file remains
 the single evidence standard for this slice.
 
+## Config Decision Discriminator
+
+The domain model config-law item uses a stricter discriminator than a filename
+scan for `config.ts`.
+
+Stage authoring surfaces are not domain model owners. A stage owns its public
+authoring schema, `knobsSchema`, optional public-to-internal `compile` mapping,
+and local step composition. Operation and strategy config belongs to operation
+contracts. The domain may expose reusable semantic primitives, schemas, types,
+invariants, and policy fragments that stages or operation contracts compose, but
+that does not make the domain the owner of the stage authoring surface.
+
+For config-shaped rows, decide from the consumer role and semantic owner:
+
+- if the row defines what a recipe author supplies to a stage, it belongs to
+  the owning stage;
+- if the row maps public author intent into step or operation config, it
+  belongs to the owning stage or step normalization boundary unless it encodes
+  reusable domain semantic law;
+- if the row defines an operation or strategy input contract, it belongs to the
+  operation contract surface;
+- if the row defines a reusable domain primitive, schema fragment, enum, type,
+  or invariant that multiple domain/stage/operation surfaces compose, it belongs
+  to the domain model config/primitive owner;
+- if the row defines reusable semantic policy, it belongs to `model/policy/`,
+  not `model/config/`;
+- if the row is only a broad root `config.ts` re-export facade, it is source
+  evidence or a transitional import surface, not destination authority.
+
+This discriminator prevents a false third config model. The accepted
+architecture has stage authoring config, internal step config, and operation
+contract config; domain model files provide composable domain primitives and
+semantic law, not a parallel authoring surface.
+
 ## Skill Routing
 
 Use the smallest skill set required by the active inventory item. The

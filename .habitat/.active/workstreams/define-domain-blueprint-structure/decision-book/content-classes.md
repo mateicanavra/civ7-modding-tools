@@ -20,9 +20,15 @@ the operation contract set exposed from the domain `ops/` namespace.
 Operation implementation registry:
 the operation implementation set exposed from the domain `ops/` namespace.
 
-Domain authoring config object:
-one exported config object with object-local schema, type, defaults, and
-deterministic compile or normalization transforms.
+Domain model primitive or config contract:
+one exported reusable domain schema fragment, enum, type, invariant, defaults
+object, object-local normalizer, or config contract that stages or operation
+contracts compose. This is not a stage authoring surface or reusable semantic
+policy.
+
+Stage authoring config surface:
+one stage-owned public schema, `knobsSchema`, public-to-internal compile
+mapping, or local stage composition surface.
 
 Domain model policy concern:
 one named cross-operation semantic policy concern owned by the domain.
@@ -40,8 +46,17 @@ content owned by one operation module and not reusable as domain-wide policy.
 
 Root duplicate contract files resolve through duplicate authority deletion.
 
-Root config contents classify into config-object files, operation contracts,
-stage owners, or deletion.
+Root config contents classify into domain model primitives/config contracts,
+domain policy, operation contracts, stage authoring owners, or deletion.
+
+Stage public schemas, stage knobs, and public-to-step compile mappings stay
+with the owning stage. Operation/strategy config stays with operation
+contracts. Domain model files may expose primitives that those surfaces compose,
+but they do not own the stage authoring surface.
+
+Reusable semantic policy tables and mapping functions route to `model/policy/`
+unless they are object-local invariants or normalizers for one primitive/config
+contract.
 
 Root policy contents classify to domain model policy or operation-local policy.
 

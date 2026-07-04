@@ -71,8 +71,8 @@ rationale.
 | Current path or symbol | State | Move class | Exact destination or action |
 | --- | --- | --- | --- |
 | `mods/mod-swooper-maps/src/domain/foundation/constants.ts` | `Ready` | Domain model policy promotion | `mods/mod-swooper-maps/src/domain/foundation/model/policy/boundary-type.ts` |
-| `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must name each config object destination. |
-| `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must name each config object destination. |
+| `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` | `Owner-law pending` | Domain model config/primitive decomposition | Domain config-law domino must classify each export as stage authoring surface, operation contract, domain primitive/policy, facade residue, or deletion. |
+| `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` | `Owner-law pending` | Domain model config/primitive decomposition | Domain config-law domino must classify each export as stage authoring surface, operation contract, domain primitive/policy, facade residue, or deletion. |
 | `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/config.ts` | `Ready` | Operation contract consolidation | Inline config contract into `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts`. |
 | `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` | `Ready` | Operation-local implementation move | `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` |
 
@@ -82,8 +82,8 @@ rationale.
 | --- | --- | --- | --- |
 | `mods/mod-swooper-maps/src/domain/hydrology/river-class.ts` | `Ready` | Domain model policy promotion | `mods/mod-swooper-maps/src/domain/hydrology/model/policy/river-class.ts` |
 | `mods/mod-swooper-maps/src/domain/hydrology/river-network-metrics.ts` | `Ready` | Domain model policy promotion | `mods/mod-swooper-maps/src/domain/hydrology/model/policy/river-network-metrics.ts` |
-| `mods/mod-swooper-maps/src/domain/hydrology/shared/knobs.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must name each config object destination. |
-| `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must name each config object destination. |
+| `mods/mod-swooper-maps/src/domain/hydrology/shared/knobs.ts` | `Owner-law pending` | Domain model config/primitive decomposition | Domain config-law domino must classify each export as stage authoring surface, operation contract, domain primitive/policy, facade residue, or deletion. |
+| `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` | `Owner-law pending` | Domain model config/primitive decomposition | Domain config-law domino must classify each export as stage authoring surface, operation contract, domain primitive/policy, facade residue, or deletion. |
 | `HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY` | `Ready with owner law` | Stage/projection ownership | `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/config.ts` |
 | unused hydrology projection/refinement defaults in `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` | `Ready` | Duplicate authority deletion | Delete after import proof. |
 | `mods/mod-swooper-maps/src/domain/hydrology/ops/shared/wind-field.ts` | `Ready` | Artifact contract extraction | `mods/mod-swooper-maps/src/domain/hydrology/artifacts/wind-field.artifact.ts` |
@@ -92,8 +92,8 @@ rationale.
 
 | Current path or symbol | State | Move class | Exact destination or action |
 | --- | --- | --- | --- |
-| `mods/mod-swooper-maps/src/domain/morphology/shared/knobs.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must name each config object destination. |
-| `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must name each config object destination. |
+| `mods/mod-swooper-maps/src/domain/morphology/shared/knobs.ts` | `Owner-law pending` | Domain model config/primitive decomposition | Domain config-law domino must classify each export as stage authoring surface, operation contract, domain primitive/policy, facade residue, or deletion. |
+| `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts` | `Owner-law pending` | Domain model config/primitive decomposition | Domain config-law domino must classify each export as stage authoring surface, operation contract, domain primitive/policy, facade residue, or deletion. |
 | `mods/mod-swooper-maps/src/domain/morphology/ops.ts` config schema exports and `DEFAULT_ELEVATION_SCALE` | `Owner-law pending` | Operation-family decomposition | Morphology ops binding cleanup domino must split each export into an operation contract, model config file, or model policy file before root `ops.ts` enforcement. |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/config.ts` | `Ready` | Operation contract consolidation | Inline config contract into `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/contract.ts`. |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-coastline-metrics/config.ts` | `Ready` | Operation contract consolidation | Inline config contract into `mods/mod-swooper-maps/src/domain/morphology/ops/compute-coastline-metrics/contract.ts`. |
@@ -103,7 +103,7 @@ rationale.
 | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-island-chains/config.ts` | `Ready` | Operation contract consolidation | Inline config contract into `mods/mod-swooper-maps/src/domain/morphology/ops/plan-island-chains/contract.ts`. |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-volcanoes/config.ts` | `Ready` | Operation contract consolidation | Inline config contract into `mods/mod-swooper-maps/src/domain/morphology/ops/plan-volcanoes/contract.ts`. |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.ts` | `Ready` | Operation-local implementation move | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/rules/derive-from-history.ts` |
-| `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts`: `MountainsConfigSchema`, `MountainsConfig` | `Ready` | Domain model config decomposition | `mods/mod-swooper-maps/src/domain/morphology/model/config/mountains.config.ts` |
+| `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts`: `MountainsConfigSchema`, `MountainsConfig` | `Ready pending config-law confirmation` | Domain model config/primitive decomposition | Seeded destination: `mods/mod-swooper-maps/src/domain/morphology/model/config/mountains.config.ts`; Domain Model Config Law packet must confirm this row against the updated primitive/config-contract discriminator before implementation. |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts`: `assertSameMountainFamilySelection` and stable stringify helpers | `Ready with owner law` | Stage/projection ownership | `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/mountain-ranges-public-config.ts` |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/resolveBoundaryRegime.ts` and `resolveBoundaryStrength.ts` | `Ready` | Domain model policy promotion | `mods/mod-swooper-maps/src/domain/morphology/model/policy/boundary-regime.ts` |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/computeOrogenyPotential.ts` and `computeFracturePotential.ts` | `Ready` | Domain model policy promotion | `mods/mod-swooper-maps/src/domain/morphology/model/policy/orogenic-potential.ts` |
@@ -114,7 +114,7 @@ rationale.
 | `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/computeDistanceToMask.ts` | `Ready with owner law` | Core mechanics extraction | `packages/mapgen-core/src/lib/grid/distance/mask.ts` |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/isStrictLocalMaximumHex.ts` | `Ready with owner law` | Core mechanics extraction | `packages/mapgen-core/src/lib/grid/local-extrema.ts` |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/util.ts` | `Ready with owner law` | Core mechanics extraction | Delete local file; replace clamp imports with `packages/mapgen-core/src/lib/math/clamp.ts`. |
-| `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/types.ts` | `Ready` | Domain model config decomposition | Delete local file; imports use `MountainsConfig` from `mods/mod-swooper-maps/src/domain/morphology/model/config/mountains.config.ts`. |
+| `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/types.ts` | `Ready pending config-law confirmation` | Domain model config/primitive decomposition | Delete local file only after the Domain Model Config Law packet confirms the `MountainsConfig` destination; imports then use the confirmed owner. |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules.ts` and `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/index.ts` | `Ready` | Operation-family decomposition | Delete after imports point at exact policy/core destinations. |
 
 ## Resources Rows
@@ -143,27 +143,28 @@ rationale.
 | Current path | State | Move class | Exact destination or action |
 | --- | --- | --- | --- |
 | `mods/mod-swooper-maps/src/domain/config.ts` | `Owner-law pending` | Root aggregate disposition | Domain package public/import-surface domino must decide deletion or replacement. |
-| `mods/mod-swooper-maps/src/domain/foundation/config.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must finish `foundation/shared/*` destinations before this barrel can be deleted. |
-| `mods/mod-swooper-maps/src/domain/hydrology/config.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must finish `hydrology/shared/*` destinations before this barrel can be deleted. |
-| `mods/mod-swooper-maps/src/domain/morphology/config.ts` | `Owner-law pending` | Domain model config decomposition | Domain config object decomposition domino must finish `morphology/shared/*` destinations before this barrel can be deleted. |
+| `mods/mod-swooper-maps/src/domain/foundation/config.ts` | `Owner-law pending` | Facade residue / public import-surface disposition | Domain config-law domino must finish `foundation/shared/*` export dispositions before this barrel can be deleted or replaced. |
+| `mods/mod-swooper-maps/src/domain/hydrology/config.ts` | `Owner-law pending` | Facade residue / public import-surface disposition | Domain config-law domino must finish `hydrology/shared/*` export dispositions before this barrel can be deleted or replaced. |
+| `mods/mod-swooper-maps/src/domain/morphology/config.ts` | `Owner-law pending` | Facade residue / public import-surface disposition | Domain config-law domino must finish `morphology/shared/*` export dispositions before this barrel can be deleted or replaced. |
 | `mods/mod-swooper-maps/src/domain/placement/config.ts` | `Owner-law pending` | Placement model disposition | Placement model config domino must decide whether `PlacementConfigSchema` belongs in `placement/model/config/placement.config.ts` or a stage owner. |
 
 ## Model Config Requirement Decision Rows
 
 The planned domain-root TOML requires `model/`. The model scope currently names
 `model/config/` as an optional slot while the config-law decision remains open.
-Before implementation, current domain roots need exact config-object destinations
-for real config material, a selected required-slot law with named files, or a
-selected optional-slot treatment for domains without domain-authored config.
+Before implementation, current domain roots need exact destinations for domain
+primitives/config contracts, stage-owned authoring surfaces, operation-owned
+contracts, policy rows, delete actions, or a selected optional-slot treatment
+for domains without domain-owned primitive/config-contract material.
 
 | Candidate path | State | Blocking owner-law domino |
 | --- | --- | --- |
-| `mods/mod-swooper-maps/src/domain/ecology/model/config/` | `Owner-law pending` | Ecology model config requirement domino must name a real config object or select optional-slot treatment before implementation. |
-| `mods/mod-swooper-maps/src/domain/foundation/model/config/` | `Owner-law pending` | Domain config object decomposition domino must name foundation config object files before implementation. |
-| `mods/mod-swooper-maps/src/domain/hydrology/model/config/` | `Owner-law pending` | Domain config object decomposition domino must name hydrology config object files before implementation. |
-| `mods/mod-swooper-maps/src/domain/morphology/model/config/` | `Owner-law pending` | Domain config object decomposition domino must name morphology config object files before implementation. |
-| `mods/mod-swooper-maps/src/domain/placement/model/config/` | `Owner-law pending` | Placement model config domino must name the placement config object destination before implementation. |
-| `mods/mod-swooper-maps/src/domain/resources/model/config/` | `Owner-law pending` | Resources model config requirement domino must name a real config object or select optional-slot treatment before implementation. |
+| `mods/mod-swooper-maps/src/domain/ecology/model/config/` | `Owner-law pending` | Ecology model config requirement domino must name a real domain primitive/config-contract object or select optional-slot treatment before implementation. |
+| `mods/mod-swooper-maps/src/domain/foundation/model/config/` | `Owner-law pending` | Domain config-law domino must decide whether foundation has real domain primitive/config-contract files before implementation. |
+| `mods/mod-swooper-maps/src/domain/hydrology/model/config/` | `Owner-law pending` | Domain config-law domino must decide whether hydrology has real domain primitive/config-contract files before implementation. |
+| `mods/mod-swooper-maps/src/domain/morphology/model/config/` | `Owner-law pending` | Domain config-law domino must decide whether morphology has real domain primitive/config-contract files before implementation. |
+| `mods/mod-swooper-maps/src/domain/placement/model/config/` | `Owner-law pending` | Placement model config domino must name the placement primitive/config-contract destination or stage owner before implementation. |
+| `mods/mod-swooper-maps/src/domain/resources/model/config/` | `Owner-law pending` | Resources model config requirement domino must name a real domain primitive/config-contract object or select optional-slot treatment before implementation. |
 
 ## Foundation Root Library Rows
 

@@ -13,10 +13,12 @@ alone is not closure.
 
 Examples:
 
-- item 1 decides what `domain/narrative/**` is and who owns it;
-- item 3 decides whether `model/config/` is a required domain structure and
-  what exact current config material can land there;
-- item 5 decides the true owners of
+- completed narrative decision decides what `domain/narrative/**` is and who
+  owns it;
+- item 1 decides whether `model/config/` is a required domain structure and
+  what exact current config-shaped material is stage-owned, operation-owned,
+  domain primitive/policy material, facade residue, or deletion;
+- item 3 decides the true owners of
   `resources/policy/initial-map-authoring.ts`.
 
 The pass may be run by one steward or by a small agent team, but the decision
@@ -81,7 +83,8 @@ not load a skill just because it is named here.
 Authority order:
 
 1. direct user decisions in the active session;
-2. active scope, file, and pattern documents in this workstream;
+2. active `.habitat/scopes/**` scope, file, and pattern documents plus any
+   scope/file/pattern documents still local to this workstream;
 3. shared decision-book criteria in this workstream;
 4. canonical Civ7 product and architecture authority;
 5. current source, callers, tests, and generated/runtime evidence;
@@ -89,6 +92,44 @@ Authority order:
 
 Current location is evidence, not authority. Domain ownership comes from the
 owner law and source evidence. A helper name needs a named destination law.
+
+## Config-Shaped Row Discriminator
+
+For the domain model config-law item, do not treat the word `config` or a
+current `config.ts` filename as an owner. Decide by the architectural role.
+
+Recognized config-related owners:
+
+- stage authoring surface: public schema, `knobsSchema`, public-to-internal
+  `compile`, and local step composition owned by the stage;
+- internal step config: step contract schema and step normalization boundary;
+- operation or strategy contract config: operation contract surface;
+- domain model primitive or config contract: reusable schema fragments, enums,
+  types, and invariants that stages and operations compose;
+- domain model policy: reusable semantic policy tables or mapping functions
+  that encode domain law rather than object-local primitive validation;
+- facade residue: broad root `config.ts` barrels that only re-export other
+  material.
+
+Decision questions:
+
+1. Is this export the shape a recipe author supplies to one stage? If yes, it
+   is stage-owned.
+2. Is this export compiling public intent into step or operation config? If
+   yes, it is stage/step-owned unless it encodes reusable domain semantic law.
+3. Is this export a domain concept independent of one stage surface, such as a
+   primitive schema, enum, type, or invariant? If yes, it may be
+   domain-config-owned.
+4. Is this reusable semantic policy rather than a primitive or config contract?
+   If yes, route it to `model/policy/`, not `model/config/`.
+5. Is this file only a broad import facade? If yes, it is not an owner; classify
+   the underlying exports and delete or replace the facade through the public
+   import-surface law.
+
+This keeps the prework pass from creating a false third config model. Domains
+may export primitives used to compose stage public schemas and operation
+contracts, but domains do not own the stage authoring surface or the
+public-to-step compilation mapping.
 
 ## Required Evidence
 

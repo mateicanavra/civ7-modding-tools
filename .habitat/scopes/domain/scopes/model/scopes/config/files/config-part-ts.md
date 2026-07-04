@@ -6,27 +6,36 @@ Subject:
 `<domain>/model/config/<part>.config.ts`
 
 Role:
-one exported domain authoring config object.
+one exported reusable domain primitive or config contract.
 
 Required shape:
-- one exported config object or config contract per file.
+- one exported reusable schema fragment, enum, type, invariant, defaults object,
+  object-local normalizer, or config contract per file;
+- no stage authoring surface, stage public schema, or public-to-internal compile
+  mapping.
 
 Allowed contents:
-- schema, type, defaults, deterministic compile, and normalization transforms
-  local to that config object;
-- config-facing constants that exist only to define that object.
+- schema, type, enum, defaults, and invariant constants local to the primitive
+  or contract;
+- deterministic mapping functions only when they are object-local invariants or
+  normalizers for the primitive or contract;
+- config-facing constants that exist only to define that primitive or contract.
 
 Violation messages:
-- policy definitions;
+- stage authoring public schemas;
+- stage `knobsSchema` surfaces;
+- public-to-internal stage compile mappings;
+- broad config barrels;
+- reusable semantic policy definitions;
 - runtime algorithms;
 - operation implementation logic;
 - external official Civ7 facts;
 - adapter behavior;
-- broad config barrels.
 
 Import/export boundary:
-- consumed by domain authoring, operation contracts, or stage bindings only
-  through named owner surfaces.
+- consumed by operation contracts, domain policy, or stage authoring surfaces as
+  a primitive input;
+- not consumed as a domain-owned public authoring config surface.
 
 Enforcement:
 structure for placement; later Grit/source-shape if needed.
