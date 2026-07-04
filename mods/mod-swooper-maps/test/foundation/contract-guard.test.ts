@@ -61,7 +61,7 @@ describe("foundation contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const artifactsFile = path.join(
       repoRoot,
-      "src/recipes/standard/stages/foundation/artifacts.ts"
+      "src/recipes/standard/artifacts/foundation-plates.artifact.ts"
     );
     const text = readFileSync(artifactsFile, "utf8");
     expect(text).toContain("volcanism");

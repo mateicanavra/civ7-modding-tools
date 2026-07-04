@@ -1,24 +1,23 @@
 /**
  * Placement stage artifact collection (placement-realignment S6).
  *
- * Artifact contracts live one-per-file under `artifacts/contract/` per the
- * repo-wide artifact-contract normalization (ownership-boundaries layout);
+ * Artifact contracts live one-per-file under `artifacts/*.artifact.ts`;
  * this module only assembles the stage consumer surface.
  */
-import { advancedStartAssignmentArtifact } from "./artifacts/contract/advanced-start-assignment.contract.js";
-import { discoveryPlacementOutcomesArtifact } from "./artifacts/contract/discovery-placement-outcomes.contract.js";
-import { engineStateArtifact } from "./artifacts/contract/engine-state.contract.js";
-import { naturalWonderPlacementArtifact } from "./artifacts/contract/natural-wonder-placement.contract.js";
-import { naturalWonderPlanArtifact } from "./artifacts/contract/natural-wonder-plan.contract.js";
-import { placementInputsArtifact } from "./artifacts/contract/placement-inputs.contract.js";
-import { placementOutputsArtifact } from "./artifacts/contract/placement-outputs.contract.js";
-import { placementSurfacePreparationArtifact } from "./artifacts/contract/placement-surface-preparation.contract.js";
-import { resourceDemandPlanArtifact } from "./artifacts/contract/resource-demand-plan.contract.js";
-import { resourceEligibilityArtifact } from "./artifacts/contract/resource-eligibility.contract.js";
-import { resourcePlacementOutcomesArtifact } from "./artifacts/contract/resource-placement-outcomes.contract.js";
-import { resourcePlanArtifact } from "./artifacts/contract/resource-plan.contract.js";
-import { resourcePlanAdjustedArtifact } from "./artifacts/contract/resource-plan-adjusted.contract.js";
-import { startAssignmentArtifact } from "./artifacts/contract/start-assignment.contract.js";
+import { advancedStartAssignmentArtifact } from "./artifacts/advanced-start-assignment.artifact.js";
+import { discoveryPlacementOutcomesArtifact } from "./artifacts/discovery-placement-outcomes.artifact.js";
+import { engineStateArtifact } from "./artifacts/engine-state.artifact.js";
+import { naturalWonderPlacementArtifact } from "./artifacts/natural-wonder-placement.artifact.js";
+import { naturalWonderPlanArtifact } from "./artifacts/natural-wonder-plan.artifact.js";
+import { placementInputsArtifact } from "./artifacts/placement-inputs.artifact.js";
+import { placementOutputsArtifact } from "./artifacts/placement-outputs.artifact.js";
+import { placementSurfacePreparationArtifact } from "./artifacts/placement-surface-preparation.artifact.js";
+import { resourceDemandPlanArtifact } from "./artifacts/resource-demand-plan.artifact.js";
+import { resourceEligibilityArtifact } from "./artifacts/resource-eligibility.artifact.js";
+import { resourcePlacementOutcomesArtifact } from "./artifacts/resource-placement-outcomes.artifact.js";
+import { resourcePlanArtifact } from "./artifacts/resource-plan.artifact.js";
+import { resourcePlanAdjustedArtifact } from "./artifacts/resource-plan-adjusted.artifact.js";
+import { startAssignmentArtifact } from "./artifacts/start-assignment.artifact.js";
 
 export const placementArtifacts = {
   placementInputs: placementInputsArtifact,

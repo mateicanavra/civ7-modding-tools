@@ -182,12 +182,12 @@ describe("placement product/effect contracts", () => {
     const placementSources = listSourceFiles(PLACEMENT_STEPS_DIR)
       .map((file) => ({ file, source: readFileSync(file, "utf8") }))
       .filter(({ file }) => !file.endsWith("/placement-contracts.test.ts"));
-    // S6: artifact contracts are one-per-file under artifacts/contract/;
-    // the start-assignment contract carries the per-seat record schema.
+    // S6: artifact contracts are one-per-file under artifacts/*.artifact.ts;
+    // the start-assignment artifact carries the per-seat record schema.
     const artifactSource = readFileSync(
       join(
         import.meta.dir,
-        "../../src/recipes/standard/stages/placement/artifacts/contract/start-assignment.contract.ts"
+        "../../src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts"
       ),
       "utf8"
     );

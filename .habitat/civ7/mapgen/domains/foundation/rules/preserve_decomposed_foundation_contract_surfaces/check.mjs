@@ -6,8 +6,8 @@ import {
   importSources,
   modRoot,
   repoRel,
-  textFindings,
   stagesRoot,
+  textFindings,
 } from "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const foundationDomain = path.join(modRoot, "src/domain/foundation");
@@ -16,7 +16,13 @@ const findings = [];
 
 const artifactsFile = path.join(foundationStage, "artifacts.ts");
 const foundationValidationFile = path.join(foundationStage, "validation.ts");
-findings.push(...assertContains(artifactsFile, "volcanism", "foundation-plates-schema"));
+findings.push(
+  ...assertContains(
+    path.join(modRoot, "src/recipes/standard/artifacts/foundation-plates.artifact.ts"),
+    "volcanism",
+    "foundation-plates-schema"
+  )
+);
 
 const tectonicsContract = path.join(stagesRoot, "foundation-tectonics/steps/tectonics.contract.ts");
 for (const op of [
@@ -101,7 +107,11 @@ for (const [fileName, artifactTag] of foundationInternalArtifactSurfaces) {
 for (const [stageKey] of foundationStageArtifactSurfaces) {
   const importName = `${stageKey}Artifact`;
   findings.push(
-    ...assertContains(artifactsFile, `${stageKey}: ${importName}`, "foundation-stage-artifact-wiring"),
+    ...assertContains(
+      artifactsFile,
+      `${stageKey}: ${importName}`,
+      "foundation-stage-artifact-wiring"
+    ),
     ...assertContains(artifactsFile, importName, "foundation-stage-artifact-public-import")
   );
 }
@@ -123,17 +133,23 @@ findings.push(
       "validateTectonicsArtifact",
     ],
     "foundation-truth-validators-owned-by-domain-artifacts"
-  ),
+  )
 );
 
 findings.push(
   ...assertContains(
-    path.join(modRoot, "src/recipes/standard/map-artifacts.ts"),
+    path.join(
+      modRoot,
+      "src/recipes/standard/artifacts/foundation-tectonic-history-tiles.artifact.ts"
+    ),
     "artifact:map.foundationTectonicHistoryTiles",
     "foundation-map-artifact-tags"
   ),
   ...assertContains(
-    path.join(modRoot, "src/recipes/standard/map-artifacts.ts"),
+    path.join(
+      modRoot,
+      "src/recipes/standard/artifacts/foundation-tectonic-provenance-tiles.artifact.ts"
+    ),
     "artifact:map.foundationTectonicProvenanceTiles",
     "foundation-map-artifact-tags"
   )
