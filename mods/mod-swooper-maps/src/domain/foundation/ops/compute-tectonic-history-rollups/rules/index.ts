@@ -1,7 +1,6 @@
+import { quantizeU8 } from "@swooper/mapgen-core/lib/math";
 import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
-
-import { clampByte } from "../../../lib/tectonics/shared.js";
 
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 
@@ -30,11 +29,11 @@ export function buildTectonicHistoryRollups(params: {
     let volcSum = 0;
     for (let era = 0; era < eraCount; era++) {
       const e = eras[era]!;
-      upliftSum = clampByte(upliftSum + (e.upliftPotential[i] ?? 0));
-      collisionSum = clampByte(collisionSum + (e.collisionPotential[i] ?? 0));
-      subductionSum = clampByte(subductionSum + (e.subductionPotential[i] ?? 0));
-      fracSum = clampByte(fracSum + (e.fracture[i] ?? 0));
-      volcSum = clampByte(volcSum + (e.volcanism[i] ?? 0));
+      upliftSum = quantizeU8(upliftSum + (e.upliftPotential[i] ?? 0));
+      collisionSum = quantizeU8(collisionSum + (e.collisionPotential[i] ?? 0));
+      subductionSum = quantizeU8(subductionSum + (e.subductionPotential[i] ?? 0));
+      fracSum = quantizeU8(fracSum + (e.fracture[i] ?? 0));
+      volcSum = quantizeU8(volcSum + (e.volcanism[i] ?? 0));
     }
     upliftTotal[i] = upliftSum;
     collisionTotal[i] = collisionSum;
@@ -43,15 +42,15 @@ export function buildTectonicHistoryRollups(params: {
     volcanismTotal[i] = volcSum;
 
     const recent = eras[eraCount - 1]!.upliftPotential[i] ?? 0;
-    upliftRecentFraction[i] = upliftSum > 0 ? clampByte((recent / upliftSum) * 255) : 0;
+    upliftRecentFraction[i] = upliftSum > 0 ? quantizeU8((recent / upliftSum) * 255) : 0;
 
     const recentCollision = eras[eraCount - 1]!.collisionPotential[i] ?? 0;
     collisionRecentFraction[i] =
-      collisionSum > 0 ? clampByte((recentCollision / collisionSum) * 255) : 0;
+      collisionSum > 0 ? quantizeU8((recentCollision / collisionSum) * 255) : 0;
 
     const recentSubduction = eras[eraCount - 1]!.subductionPotential[i] ?? 0;
     subductionRecentFraction[i] =
-      subductionSum > 0 ? clampByte((recentSubduction / subductionSum) * 255) : 0;
+      subductionSum > 0 ? quantizeU8((recentSubduction / subductionSum) * 255) : 0;
   }
 
   const lastActiveEra = (() => {

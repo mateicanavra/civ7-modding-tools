@@ -1,15 +1,13 @@
-import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { quantizeI8Symmetric, quantizeU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import {
+  type CsrPointMesh2D,
+  meanMeshEdgeLength,
+  selectMeshNeighborByVectorProjection,
+} from "@swooper/mapgen-core/lib/mesh";
 
 import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import type { Artifact as TectonicEvents } from "../../../artifacts/tectonic-events.artifact.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import {
-  chooseDriftNeighbor,
-  clampByte,
-  clampInt8,
-  computeMeanEdgeLen,
-  type NeighborhoodMesh,
-} from "../../../lib/tectonics/shared.js";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
@@ -78,7 +76,7 @@ function driftSeedCells(
   driftU: number,
   driftV: number,
   steps: number,
-  mesh: NeighborhoodMesh
+  mesh: CsrPointMesh2D
 ): Int32Array {
   if (steps <= 0 || (driftU === 0 && driftV === 0)) {
     return Int32Array.from(seeds);
@@ -92,7 +90,12 @@ function driftSeedCells(
       continue;
     }
     for (let step = 0; step < steps; step++) {
-      cell = chooseDriftNeighbor({ cellId: cell, driftU, driftV, mesh });
+      cell = selectMeshNeighborByVectorProjection({
+        cellId: cell,
+        mesh,
+        vectorX: (driftU | 0) / 127,
+        vectorY: (driftV | 0) / 127,
+      });
     }
     out[i] = cell;
   }
@@ -100,7 +103,7 @@ function driftSeedCells(
 }
 
 export function buildEraFields(params: {
-  mesh: NeighborhoodMesh;
+  mesh: CsrPointMesh2D;
   events: ReadonlyArray<TectonicEventRecord>;
   weight: number;
   eraGain: number;
@@ -183,7 +186,7 @@ export function buildEraFields(params: {
   const distance = new Float32Array(cellCount);
 
   // Normalize edge lengths so authored radii remain approximately "in steps" while decay becomes continuous.
-  const meanEdgeLen = computeMeanEdgeLen(params.mesh);
+  const meanEdgeLen = meanMeshEdgeLength(params.mesh);
 
   type HeapEntry = { id: number; dist: number };
 
@@ -279,7 +282,7 @@ export function buildEraFields(params: {
     if (!replace) return;
 
     params.scores[cellId] = score;
-    params.values[cellId] = clampByte(score);
+    params.values[cellId] = quantizeU8(score);
     params.intensities[cellId] = intensity;
     params.eventTypes[cellId] = eventType;
     params.eventIndices[cellId] = eventIndex;
@@ -310,11 +313,11 @@ export function buildEraFields(params: {
     const upliftGain = isConvergent ? eraGain : 1;
     const volcanismGain = eventType === EVENT_TYPE.convergenceSubduction ? eraGain : 1;
 
-    const intensityUplift = clampByte((event.intensityUplift ?? 0) * weight * upliftGain);
-    const intensityRift = clampByte((event.intensityRift ?? 0) * weight);
-    const intensityShear = clampByte((event.intensityShear ?? 0) * weight);
-    const intensityVolcanism = clampByte((event.intensityVolcanism ?? 0) * weight * volcanismGain);
-    const intensityFracture = clampByte((event.intensityFracture ?? 0) * weight);
+    const intensityUplift = quantizeU8((event.intensityUplift ?? 0) * weight * upliftGain);
+    const intensityRift = quantizeU8((event.intensityRift ?? 0) * weight);
+    const intensityShear = quantizeU8((event.intensityShear ?? 0) * weight);
+    const intensityVolcanism = quantizeU8((event.intensityVolcanism ?? 0) * weight * volcanismGain);
+    const intensityFracture = quantizeU8((event.intensityFracture ?? 0) * weight);
 
     const maxRadius = Math.max(
       intensityUplift > 0 ? R.uplift : 0,
@@ -565,8 +568,8 @@ export function buildEraFields(params: {
 
     if (eventIndex >= 0 && eventIndex < params.events.length) {
       const event = params.events[eventIndex]!;
-      boundaryDriftU[i] = clampInt8(event.driftU ?? 0);
-      boundaryDriftV[i] = clampInt8(event.driftV ?? 0);
+      boundaryDriftU[i] = quantizeI8Symmetric(event.driftU ?? 0);
+      boundaryDriftV[i] = quantizeI8Symmetric(event.driftV ?? 0);
     }
   }
 

@@ -1,10 +1,13 @@
 import { forEachHexNeighborOddQ, projectOddqToHexSpace } from "@swooper/mapgen-core/lib/grid";
-import { wrapAbsDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import {
+  quantizeI8Symmetric,
+  quantizeU8,
+  wrapAbsDeltaPeriodic,
+} from "@swooper/mapgen-core/lib/math";
 import type { Artifact as FoundationTectonics } from "../../../artifacts/current-tectonics.artifact.js";
 import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
 import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import { clampByte, clampInt8 } from "../../../lib/tectonics/shared.js";
 import type { FoundationCrust } from "../../compute-crust/contract.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
@@ -158,9 +161,15 @@ export function projectPlatesFromModel(input: {
   const plateMovementV = new Int8Array(plateGraph.plates.length);
   const plateRotation = new Int8Array(plateGraph.plates.length);
   for (let p = 0; p < plateGraph.plates.length; p++) {
-    plateMovementU[p] = clampInt8((input.plateMotion.plateVelocityX[p] ?? 0) * input.movementScale);
-    plateMovementV[p] = clampInt8((input.plateMotion.plateVelocityY[p] ?? 0) * input.movementScale);
-    plateRotation[p] = clampInt8((input.plateMotion.plateOmega[p] ?? 0) * input.rotationScale);
+    plateMovementU[p] = quantizeI8Symmetric(
+      (input.plateMotion.plateVelocityX[p] ?? 0) * input.movementScale
+    );
+    plateMovementV[p] = quantizeI8Symmetric(
+      (input.plateMotion.plateVelocityY[p] ?? 0) * input.movementScale
+    );
+    plateRotation[p] = quantizeI8Symmetric(
+      (input.plateMotion.plateOmega[p] ?? 0) * input.rotationScale
+    );
   }
 
   const plateId = new Int16Array(size);
@@ -369,16 +378,16 @@ export function projectPlatesFromModel(input: {
 
     const dist = distanceField[i]!;
     const influence = dist >= maxDistance ? 0 : Math.exp(-dist * decay);
-    boundaryCloseness[i] = clampByte(influence * 255);
+    boundaryCloseness[i] = quantizeU8(influence * 255);
 
-    boundaryType[i] = clampByte(baseBoundaryType);
-    upliftPotential[i] = clampByte(baseUplift);
-    riftPotential[i] = clampByte(baseRift);
-    const shearValue = clampByte(baseShear);
-    volcanism[i] = clampByte(baseVolcanism);
+    boundaryType[i] = quantizeU8(baseBoundaryType);
+    upliftPotential[i] = quantizeU8(baseUplift);
+    riftPotential[i] = quantizeU8(baseRift);
+    const shearValue = quantizeU8(baseShear);
+    volcanism[i] = quantizeU8(baseVolcanism);
 
     const stress = Math.max(upliftPotential[i]!, riftPotential[i]!, shearValue);
-    tectonicStress[i] = clampByte(stress);
+    tectonicStress[i] = quantizeU8(stress);
     shieldStability[i] = 255 - boundaryCloseness[i]!;
   }
 

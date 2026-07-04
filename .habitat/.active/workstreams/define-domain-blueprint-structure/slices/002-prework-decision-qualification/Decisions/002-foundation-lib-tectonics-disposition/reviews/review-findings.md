@@ -194,3 +194,45 @@ Lane results:
 
 No accepted P1/P2 findings remain open for Slice 4 local closure. Slice 5 is not
 allowed to open until independent supervisor review accepts this slice.
+
+## Execution Slice 5 Review
+
+Fresh local review lanes checked Slice 5 core caller migration and
+`shared.ts` deletion. A subordinate agent launcher was still not available in
+the current tool surface, so the implementation DRA ran the packet-mandated
+review lanes directly against fresh command evidence. Supervisor independent
+review remains required before Slice 6 opens.
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P3 | Behavior proof coverage | Migrated drift adapter paths in tracer advection and era-field seed drift preserved sign inversion, x/y mapping, and signed-byte coercion in code, but operation-level tests did not directly pin nonzero drift behavior. | Accepted and repaired. Added `drift-adapters.test.ts` with exact selected-cell fixtures for tracer boundary drift sign inversion, tracer mantle fallback drift, era-field positive drift axis mapping, and era-field `(value | 0)` truncation before core mesh projection. |
+| P3 | Verification scan shape | The packet's broad helper-name scan matches protected same-name helpers outside the Slice 5 write set, including morphology-local `clampByte` helpers and a pre-existing mapgen-core comment. | Accepted as scan-truth disposition, not a source repair. The old-owner import scan, deleted-file check, and touched foundation caller scan prove the deleted `foundation/lib/tectonics/shared.ts` owner has no remaining callers or helper references. Non-foundation duplicate helpers remain protected by Slice 5 scope. |
+| P3 | Review mechanics | The review wave could not be delegated to separate launched agents because no subagent tool was available in this run. | Waived for local Slice 5 closure claim with supervisor-visible record. Risk is review independence rather than implementation correctness; re-entry trigger is supervisor independent review before Slice 6 opens. |
+
+Lane results:
+
+- Source/consumer: all direct callers of `foundation/lib/tectonics/shared.ts`
+  now import accepted core math/grid/mesh APIs, and
+  `mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts` is
+  deleted. Touched foundation callers have no old helper symbols or old-owner
+  imports.
+- Behavior semantics: core quantizer tests pin non-finite, rounding, and
+  saturation semantics; core vector tests pin `{ x, y }` quantization; core mesh
+  tests pin fallback, periodic wrap, duplicate/invalid/zero skip, max cap, and
+  strict ties. Mod foundation tests passed after migration, covering hotspot,
+  segment, era-field, tracer, provenance, rollup, and projection behavior.
+  Focused drift-adapter tests now pin the nonzero operation-local adapter paths
+  called out by supervisor review.
+- Architecture/proof: no compatibility wrapper or new shared owner was
+  introduced. Artifact `u/v` adaptation stays in operation callers at artifact
+  boundaries, and signed-byte drift-neighbor coercion remains operation-local.
+- Closure: `bun test mods/mod-swooper-maps/test/foundation/drift-adapters.test.ts`,
+  `bun test mods/mod-swooper-maps/test/foundation`,
+  `nx run mapgen-core:test`, `nx run mapgen-core:check`,
+  `nx run mapgen-core:habitat:check`, `nx run mod-swooper-maps:check`, Biome
+  check over touched files, deleted-file/import scans, touched-caller helper
+  scan, and `git diff --check` passed. The broad helper-name scan output is
+  dispositioned above as protected out-of-scope same-name matches.
+
+No accepted P1/P2 findings remain open for Slice 5 local closure. Slice 6 is not
+allowed to open until independent supervisor review accepts this slice.
