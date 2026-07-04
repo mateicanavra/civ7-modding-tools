@@ -4,6 +4,13 @@ Status: complete investigation artifact
 
 Scope: authority disposition only. No TypeScript source, tests, generated artifacts, Grit, structure metadata, or runtime behavior changed.
 
+Supersession note: this scratch evidence used provisional semantically named
+helper examples such as `assertFoundationPlateMotionArtifact`. The accepted
+packet convention is now the generic per-file export surface recorded in
+`../require-guards.domino.md`: `artifact`, `validate`, and optional `assert`.
+Treat the rows below as authority evidence for contract ownership, not as final
+export-name authority.
+
 ## Evidence Read
 
 - `mods/mod-swooper-maps/src/domain/foundation/lib/require.ts`

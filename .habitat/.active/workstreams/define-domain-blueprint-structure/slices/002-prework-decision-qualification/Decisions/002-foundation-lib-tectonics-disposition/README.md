@@ -28,7 +28,7 @@ Concrete dispositions:
 | --- | --- |
 | `lib/crust/buoyancy.ts` | Promote to `foundation/model/policy/crust-buoyancy.ts`. |
 | `lib/normalize.ts` | Promote to `foundation/model/policy/reference-area.ts`. |
-| `lib/require.ts` | Resolved by `require-guards.domino.md`: replace all guard exports with artifact-contract assertion helpers under `foundation/artifacts/contract/*.contract.ts`; operation call sites keep scope, optionality, and expected-count arguments. |
+| `lib/require.ts` | Resolved by `require-guards.domino.md`: route guard semantics to contract-owned artifact modules under `foundation/artifacts/contract/*.contract.ts`. Each module owns schema, artifact definition, and `validate`; a generic `assert` export is optional and only justified when execution still needs a contextual operation precondition such as cross-artifact count compatibility. |
 | `lib/tectonics/constants.ts` / `EVENT_TYPE` | Promote to `foundation/model/policy/tectonic-event-types.ts`. |
 | `lib/tectonics/constants.ts` / reset thresholds | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. |
 | `lib/tectonics/constants.ts` / `ADVECTION_STEPS_PER_ERA` | Move to `foundation/ops/compute-tracer-advection/rules/constants.ts`. |
@@ -45,8 +45,8 @@ authoring, `structure.toml` edits, or runtime changes.
 
 ## Domino Closure
 
-- `require-guards.domino.md` is resolved. Every guard has an artifact-contract
-  destination/action.
+- `require-guards.domino.md` is resolved. Every guard has a contract-owned
+  artifact destination/action.
 - `tectonics-shared-core.domino.md` is resolved. Every exported symbol has an
   accepted core, existing-core replacement, operation-local policy, or deletion
   action.
