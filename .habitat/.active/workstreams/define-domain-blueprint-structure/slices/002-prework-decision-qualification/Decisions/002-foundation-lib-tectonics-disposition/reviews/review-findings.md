@@ -58,4 +58,22 @@ write-back:
 
 No accepted P1/P2 findings remain open for this packet. Both domino files are
 resolved, every disposition-table row has an exact destination/action, and the
-remaining work belongs to a later execution slice.
+remaining source work belongs to the packet-linked execution workstream.
+
+## Execution Workstream Plan Review
+
+Fresh review lanes checked `execution.md` after the remaining-slice workstream
+was composed:
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P1 | Row visibility | Slice 2 could close after constructing only a subset of artifact rows because acceptance said "each constructed artifact file" instead of every artifact-ledger destination. | Accepted and repaired. Slice 2 now requires every artifact destination in the row ledger to be constructed with row status, tests, validation coverage, and proof label. |
+| P1 | Review gate determinism | Review loop language allowed accepted P1/P2 findings to be waived locally. | Accepted and repaired. Accepted P1/P2 findings now block the next slice unless repaired, rejected with source evidence, invalidated, or resolved by sealed authority or explicit user decision, with disposition recorded here. |
+| P1 | Closed-row authority | Artifact row-ledger language let execution decide whether closed artifact rows were actually operation-local, nested-only, or non-standalone. | Accepted and repaired. Those destinations are fixed; implementation decisions are limited to artifact id spelling, field coverage, validation/assertion behavior, import reconciliation, or stopping to reopen the row before implementation. |
+| P1 | Core ownership proof | Core construction and migration did not require `mapgen-core:habitat:check` even though the slice claims core owner neutrality. | Accepted and repaired. Slice 4, Slice 5, and final closure now require `nx run mapgen-core:habitat:check` or baseline-proved unchanged pre-existing failure. |
+| P2 | Final closure contradiction | Final closure allowed a named surviving `foundation/lib` file while verification required `foundation/lib` to be absent. | Accepted and repaired. Final closure now requires the directory to be absent; any survivor stops closure and requires sealed authority to reopen the packet. |
+| P2 | Tests-first gap | Slice 3 and Slice 5 had matrices but no explicit tests-first gates. | Accepted and repaired. Both slices now require row/caller-specific tests or named characterization coverage before import edits, guard deletion, adapter rewrites, or `shared.ts` deletion. |
+| P2 | Clean-state proof | Final verification used `git status --short`, which exits zero even when dirty. | Accepted and repaired. Final verification now uses `gt status --no-interactive` plus `test -z "$(git status --short)"`. |
+| P3 | Vocabulary scan noise | Slice 4's vocabulary scan was overbroad and non-deterministic, especially for `u`/`v`. | Accepted and repaired. Forbidden `foundation|tectonics|drift` vocabulary is a hard negative scan; `u/v` object-shape output is advisory and must be reviewer-dispositioned. |
+
+No accepted P1/P2 findings remain open after these repairs.

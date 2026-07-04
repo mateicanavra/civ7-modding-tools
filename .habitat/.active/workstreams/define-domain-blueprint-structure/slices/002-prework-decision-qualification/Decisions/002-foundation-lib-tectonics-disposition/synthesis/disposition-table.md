@@ -19,7 +19,7 @@ previously open domino classes are resolved and no prework blocker remains.
 Item-level outcome:
 
 - `Decision fully closed at the prework layer; implementation remains gated by
-  the future execution slice and proof commands`
+  the packet-linked execution workstream and proof commands`
 
 ## Row Dispositions
 
@@ -61,7 +61,7 @@ Item-level outcome:
 
 | Result | Owning reference | Update needed |
 | --- | --- | --- |
-| Packet closed at prework layer | `../../inventory.md` | Move this packet to completed decisions and point next work at the execution slice. |
+| Packet closed at prework layer | `../../inventory.md` | Move this packet to completed decisions and point next work at the packet-linked execution workstream. |
 | Operation guard decomposition resolved | `require-guards.domino.md` | Use contract-owned artifact validation rows to build `execution.md`; do not introduce assertion exports unless the execution proof shows they are still necessary. |
 | Core mechanics extraction proof resolved | `tectonics-shared-core.domino.md` | Use exact core API rows to build `execution.md`. |
-| Deletion candidates qualified but not executed | Future source-moving slice | Delete only with source import proof plus typecheck/test proof. |
+| Deletion candidates qualified but not executed | `execution.md` Slice 3, Slice 5, and Slice 6 | Delete only with source import proof plus typecheck/test proof. |

@@ -95,7 +95,8 @@ those existing surfaces.
 
 ## Closure
 
-No blocker remains. The later execution slice should create the named core APIs,
-replace existing wrappers/imports, delete duplicated operation-local copies where
-superseded, keep `deriveResetThreshold` operation-local, and prove the movement
-with the tests and import scans named above.
+No blocker remains. The packet-linked core execution slice should create the
+named core APIs, replace existing wrappers/imports, delete duplicated
+operation-local copies where superseded, keep the already-moved
+`deriveResetThreshold` operation-local, and prove the movement with the tests
+and import scans named above.
