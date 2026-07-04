@@ -12,8 +12,8 @@ Inputs:
 - `../../inventory.md`
 - `../../../../decision-book/content-classes.md`
 - `../../../../decision-book/owner-boundaries.md`
-- `.habitat/scopes/domain/scopes/model/scopes/config/scope.md`
-- `.habitat/scopes/domain/scopes/model/scopes/config/files/config-part-ts.md`
+- `.habitat/scopes/domain/scopes/model/scopes/schemas/scope.md`
+- `.habitat/scopes/domain/scopes/model/scopes/schemas/files/schema-primitive-ts.md`
 
 ## Executive Answer
 
@@ -29,16 +29,15 @@ The better next move is row-level disposition by content class:
   wrapper-only;
 - classify operation/strategy config with operation contracts or operation
   families;
-- promote only proven reusable semantic schemas into domain primitives/config
-  contracts;
+- promote only proven reusable semantic schemas into domain schema primitives;
 - route reusable semantic policy constants to `model/policy`, not
-  `model/config`;
+  `model/schemas`;
 - retire broad config facades only after their exports have direct owner paths
   and import pressure is rerouted.
 
 The main simplifying answer is that there is still no evidence for a third
 official config owner. Current surfaces collapse into stage authoring,
-operation contracts, domain primitives/config contracts, domain policy, and
+operation contracts, domain schema primitives, domain policy, and
 facade residue.
 
 ## Tools And Agent Lanes
@@ -102,13 +101,13 @@ The 14 domain `config.ts` files split into these classes:
 | `mods/mod-swooper-maps/src/domain/morphology/config.ts` | Star-only facade for morphology knobs and policy constants | Facade with existing Habitat rule | Direct owner paths, plus reconciliation with existing morphology facade rule | Not owner authority | corroborated | Existing `require_morphology_config_facade_exports` must be updated or retired later | Split contents by owner, then update enforcement |
 | `mods/mod-swooper-maps/src/domain/placement/config.ts` / `PlacementConfigSchema` | Aggregate placement domain config schema from operation default configs | Stale domain-owned config facade candidate | None unless public API pressure is found | Not stage authoring; not operation contract owner | verified for no source usage; deletion not KNIP-proven | Public/generated API check needed | Likely delete or replace with stage-local public config surfaces |
 | `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` / plate knobs | `FoundationPlateCountKnobSchema`, `FoundationPlateActivityKnobSchema` consumed by foundation stages | Stage authoring knob schema | Stage-authoring primitive or explicitly named domain authoring primitive | Not operation contract config | corroborated | Needs exact owner path before facade retirement | Reroute from `foundation/config.ts`; do not treat as operation config |
-| `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` / continental knobs | `FoundationContinentalAbundanceKnobSchema`, `FoundationContinentalReliefKnobSchema` consumed by knobs-only `foundation-orogeny` | Stage authoring knob schema | Stage-authoring primitive or explicitly named domain authoring primitive | Not generic model config | verified/corroborated | Needs exact owner path; see `foundation-orogeny` row | Keep as stage authoring surface input, reroute out of facade |
-| `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` | Resolver functions map continental/plate knobs into operation config effects | Stage transform policy helper | Foundation model policy or stage-local policy helper | Not `model/config` | corroborated | Needs policy-vs-stage-local decision | Move or keep as policy, but not via config facade authority |
-| `mods/mod-swooper-maps/src/domain/hydrology/shared/knobs.ts` | Hydrology dryness, temperature, seasonality, ocean-coupling, cryosphere, river-density, and lakeiness knob schemas | Stage authoring knob schema | Stage-authoring primitive or explicitly named domain authoring primitive | Not operation contract config | corroborated | Needs exact owner path before facade retirement | Reroute from `hydrology/config.ts`; do not promote wholesale to `model/config` |
-| `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` / climate and hydrography policy constants | Hydrology knob transforms and projection policy tables | Domain policy or stage-local policy | `model/policy` for hydrology-owned semantics; stage-local for projection-only semantics | Not `model/config` | corroborated | Several constants need per-symbol use proof | Split policy constants by semantic owner |
+| `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` / continental knobs | `FoundationContinentalAbundanceKnobSchema`, `FoundationContinentalReliefKnobSchema` consumed by knobs-only `foundation-orogeny` | Stage authoring knob schema | Stage-authoring primitive or explicitly named domain schema primitive | Not generic model schema | verified/corroborated | Needs exact owner path; see `foundation-orogeny` row | Keep as stage authoring surface input, reroute out of facade |
+| `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` | Resolver functions map continental/plate knobs into operation config effects | Stage transform policy helper | Foundation model policy or stage-local policy helper | Not `model/schemas` | corroborated | Needs policy-vs-stage-local decision | Move or keep as policy, but not via config facade authority |
+| `mods/mod-swooper-maps/src/domain/hydrology/shared/knobs.ts` | Hydrology dryness, temperature, seasonality, ocean-coupling, cryosphere, river-density, and lakeiness knob schemas | Stage authoring knob schema | Stage-authoring primitive or explicitly named domain schema primitive | Not operation contract config | corroborated | Needs exact owner path before facade retirement | Reroute from `hydrology/config.ts`; do not promote wholesale to `model/schemas` |
+| `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` / climate and hydrography policy constants | Hydrology knob transforms and projection policy tables | Domain policy or stage-local policy | `model/policy` for hydrology-owned semantics; stage-local for projection-only semantics | Not `model/schemas` | corroborated | Several constants need per-symbol use proof | Split policy constants by semantic owner |
 | `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts` / `HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY` | Imported by `map-rivers/index.ts` and selected by stage-local `NavigableRiverDensityKnobSchema` | Semantic collision: hydrology policy table consumed by map projection stage | Hydrology domain policy, map-rivers projection policy, or shared projection contract | Not config facade | verified | Blocker for clean reroute | Decide whether navigable projection policy is hydrology-owned or map-rivers-owned before moving |
-| `mods/mod-swooper-maps/src/domain/morphology/shared/knobs.ts` | Morphology sea-level, erosion, coast, shelf, volcanism, and orogeny knob schemas | Stage authoring knob schema | Stage-authoring primitive or explicitly named domain authoring primitive | Not operation contract config | corroborated | Needs exact owner path before facade retirement | Reroute from `morphology/config.ts`; do not promote wholesale to `model/config` |
-| `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts` | Morphology knob transform constants | Domain policy or stage-local transform policy | `model/policy` for reusable morphology semantics | Not `model/config` | corroborated | Needs per-family owner names | Move policy constants away from config facade |
+| `mods/mod-swooper-maps/src/domain/morphology/shared/knobs.ts` | Morphology sea-level, erosion, coast, shelf, volcanism, and orogeny knob schemas | Stage authoring knob schema | Stage-authoring primitive or explicitly named domain schema primitive | Not operation contract config | corroborated | Needs exact owner path before facade retirement | Reroute from `morphology/config.ts`; do not promote wholesale to `model/schemas` |
+| `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts` | Morphology knob transform constants | Domain policy or stage-local transform policy | `model/policy` for reusable morphology semantics | Not `model/schemas` | corroborated | Needs per-family owner names | Move policy constants away from config facade |
 | `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/config.ts` / `CrustEvolutionConfigSchema` | Operation-local strategy config schema | Operation contract config | `compute-crust-evolution` operation contract | Not stage authoring or domain config facade | verified | None for config law unless repeated primitive emerges | Keep operation-local |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/config.ts` / `ReliefConfigSchema` | Operation-local strategy config schema | Operation contract config | `compute-base-topography` operation contract | Not stage authoring or domain config facade | verified | None for config law unless repeated primitive emerges | Keep operation-local |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-coastline-metrics/config.ts` / coastline config schemas | Operation-local coast metric config family | Operation contract config | `compute-coastline-metrics` operation contract | Not stage authoring or domain config facade | verified | None for config law unless shared coast primitive is proven | Keep operation-local |
@@ -117,9 +116,9 @@ The 14 domain `config.ts` files split into these classes:
 | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/config.ts` / `HypsometryConfigSchema` | Operation-local sea-level config schema | Operation contract config | `compute-sea-level` operation contract | Not stage authoring or domain config facade | verified | None for config law unless hypsometry primitive is proven | Keep operation-local |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-island-chains/config.ts` / `IslandsConfigSchema`, `IslandChainsConfigSchema` | Operation-local island-chain config schema | Operation contract config | `plan-island-chains` operation contract | Not stage authoring or domain config facade | verified | None for config law unless island-chain primitive is proven | Keep operation-local |
 | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-volcanoes/config.ts` / `VolcanoesConfigSchema` | Operation-local volcano config schema | Operation contract config | `plan-volcanoes` operation contract | Not stage authoring or domain config facade | verified | None for config law unless volcanism primitive is proven | Keep operation-local |
-| `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts` / `MountainsConfigSchema` | Shared config schema used by ridge, foothill, and rough-land ops | Operation-family config contract | Morphology operation-family contract; possible domain primitive only if law accepts op-family primitives | Not stage public surface | verified | Needs row decision: operation-family vs model/config | Keep as named shared op-family contract unless promoted by explicit law |
-| `mods/mod-swooper-maps/src/domain/ecology/shared/placement-schema.ts` / `FeaturePlacementSchema` | Shared placement object schema reused across ecology plan/apply ops | Domain primitive/config contract candidate | Ecology model primitive or config contract | Not facade; not operation-local tuning | verified | Needs exact destination name/path | Strong candidate for model primitive promotion |
-| `mods/mod-swooper-maps/src/domain/ecology/biome-bindings.ts` / `BiomeEngineBindingsSchema` | Ecology binding schema consumed by map-ecology public config and `plot-biomes` step contract | Boundary candidate: domain primitive vs projection/stage contract | Ecology model primitive only if bindings are stable ecology vocabulary; otherwise map-ecology projection contract | Not automatic `model/config` just because a stage composes it | verified | Needs owner-boundary decision | Keep domain-owned for now; do not promote until projection-vs-domain boundary is settled |
+| `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts` / `MountainsConfigSchema` | Shared config schema used by ridge, foothill, and rough-land ops | Operation-family contract material | Morphology operation-family contract; possible domain schema primitive only if law accepts the underlying semantic fragment | Not stage public surface | verified | Needs row decision: operation-family vs schema primitive | Keep as named shared op-family contract unless promoted by explicit law |
+| `mods/mod-swooper-maps/src/domain/ecology/shared/placement-schema.ts` / `FeaturePlacementSchema` | Shared placement object schema reused across ecology plan/apply ops | Domain schema primitive candidate | Ecology model schema primitive | Not facade; not operation-local tuning | verified | Needs exact destination name/path | Strong candidate for model schema promotion |
+| `mods/mod-swooper-maps/src/domain/ecology/biome-bindings.ts` / `BiomeEngineBindingsSchema` | Ecology binding schema consumed by map-ecology public config and `plot-biomes` step contract | Boundary candidate: domain primitive vs projection/stage contract | Ecology model primitive only if bindings are stable ecology vocabulary; otherwise map-ecology projection contract | Not automatic `model/schemas` just because a stage composes it | verified | Needs owner-boundary decision | Keep domain-owned for now; do not promote until projection-vs-domain boundary is settled |
 | `mods/mod-swooper-maps/src/domain/hydrology/ops/shared/wind-field.ts` / `HydrologyWindFieldSchema` | Shared hydrology field schema reused by artifacts | Domain/artifact support primitive | Hydrology artifact contract support or model primitive | Not generic config | corroborated | Needs exact artifact-vs-model destination | Keep shared semantic schema, not root config |
 | `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-era-fields.artifact.ts` and `tectonic-history.artifact.ts` / tectonic scalar fields | Artifact-owned fields such as `boundaryType`, `upliftPotential`, `riftPotential`, `shearStress`, `volcanism`, `fracture` reused by morphology consumers | Artifact contract / domain primitive support lead | Foundation artifact contracts first; possible model primitive support only after artifact row proof | Not config facade | corroborated | Outside generic config unless row-level sweep promotes a support primitive | Lead with artifact ownership, not config law |
 | `mods/mod-swooper-maps/src/domain/resources/artifacts/earthlike-expectations.artifact.ts` / expected count ranges; `resources/ops/plan-*/contract.ts` local `ExpectedCountRangeSchema` | Repeated resource expectation shape across resource planning ops | Outside-scope lead for resource model policy/data contract | Resource policy/data contract if later resource slice accepts it | Not domain config law input unless explicitly pulled in | plausible/corroborated | Outside current config-law disposition unless resources row is selected | Record as evidence lead, not config-law blocker |
@@ -127,7 +126,7 @@ The 14 domain `config.ts` files split into these classes:
 | Ecology wet/reef scorer thresholds | Repeated threshold-like names across feature scorers | Operation-local tuning | Operation contracts | Not domain config | verified | None for config law | Keep operation-local |
 | `BiomeSymbolSchema` repeated in plot-effect score contracts | Repeated biome symbol enum | Domain semantic policy candidate | Biome classifier/model contract if shared semantics are proven | Not config facade | plausible | Needs classifier trace | Investigate only if row-level sweep reaches biome scorer symbols |
 | `recipes/standard/stages/**/*-public-config.ts` helpers | Stage-local authoring helpers | Stage authoring surface | Stage files/helpers | Not domain config | verified/corroborated | Some generated-from-op surfaces may simplify later | Keep with stages unless row proves wrapper-only deletion |
-| `recipes/standard/stages/*/index.ts` `public` + `compile` | Recipe authoring API and public-to-internal composition | Stage authoring surface | Stage | Not domain model config | verified | Some empty/mirror public schemas may simplify | Selective cleanup only after per-stage proof |
+| `recipes/standard/stages/*/index.ts` `public` + `compile` | Recipe authoring API and public-to-internal composition | Stage authoring surface | Stage | Not domain model schemas | verified | Some empty/mirror public schemas may simplify | Selective cleanup only after per-stage proof |
 
 ## Public Stage Surface Table
 
@@ -160,8 +159,8 @@ The 14 domain `config.ts` files split into these classes:
 
 | Concept / field group | Source paths | Current owner(s) | Candidate owner class | Why same/different | Disposition lead |
 | --- | --- | --- | --- | --- | --- |
-| Mountain-family terrain config | `domain/morphology/ops/mountains-shared/config.ts`; `plan-ridges/contract.ts`; `plan-foothills/contract.ts`; `plan-rough-lands/contract.ts` | Morphology op-family shared config | Operation-family config contract | Same schema is consumed by three ops and a guard enforces same family selection | Keep as shared op-family contract unless explicit model/config law promotes it |
-| Ecology feature placement shape | `domain/ecology/shared/placement-schema.ts`; feature plan/apply contracts | Ecology shared schema | Domain primitive/config contract | Same `{ x, y, feature, weight }` placement object crosses many ecology ops | Promote/classify as ecology model primitive candidate |
+| Mountain-family terrain config | `domain/morphology/ops/mountains-shared/config.ts`; `plan-ridges/contract.ts`; `plan-foothills/contract.ts`; `plan-rough-lands/contract.ts` | Morphology op-family shared config | Operation-family contract material | Same schema is consumed by three ops and a guard enforces same family selection | Keep as shared op-family contract unless explicit schema-primitive law promotes an underlying fragment |
+| Ecology feature placement shape | `domain/ecology/shared/placement-schema.ts`; feature plan/apply contracts | Ecology shared schema | Domain schema primitive | Same `{ x, y, feature, weight }` placement object crosses many ecology ops | Promote/classify as ecology model schema primitive candidate |
 | Foundation tectonic scalar fields | Foundation artifact files and downstream morphology consumers | Foundation artifacts and consumers | Artifact contract or domain primitive support | Same semantic field family flows as artifact truth, not authoring config | Lead with artifact ownership |
 | Hydrology wind field | `domain/hydrology/ops/shared/wind-field.ts`; hydrology climate artifacts | Hydrology shared op/artifact support | Artifact support primitive or domain primitive | Shared schema backs multiple artifacts | Keep semantic schema; classify owner outside generic config |
 | Biome engine bindings | `domain/ecology/biome-bindings.ts`; map-ecology public and step contract | Ecology domain root | Boundary candidate: domain primitive or projection/stage contract | Stage composes an existing domain schema, but the surface is engine-facing projection binding | Keep domain-owned for now; decide projection-vs-domain owner before moving |
@@ -236,7 +235,7 @@ Confidence: corroborated.
 
 Shared multiplier/policy files contain reusable semantic policy used by stage
 transforms. The target owner is likely `model/policy` or a stage-local policy
-file, not `model/config`. This lane is probably mechanical once row-level
+file, not `model/schemas`. This lane is probably mechanical once row-level
 classification names exact owner paths.
 
 ## Blockers And Evidence Gaps
@@ -250,8 +249,8 @@ classification names exact owner paths.
   operation contract config and should stay operation-local unless a row proves
   a reusable primitive or policy extraction.
 - `MountainsConfigSchema` needs a direct law decision: operation-family shared
-  contract stays under ops, or reusable operation-family config contracts get a
-  model/config destination.
+  contract stays under ops, or reusable operation-family schema fragments get a
+  model/schemas destination.
 - `FeaturePlacementSchema` needs an exact model primitive destination if
   promoted. `HydrologyWindFieldSchema` needs artifact-support versus model
   primitive classification. `BiomeEngineBindingsSchema` needs projection-stage
@@ -275,7 +274,7 @@ Use these containers instead:
 1. Facade import surfaces.
 2. Stage authoring surfaces.
 3. Operation-local and operation-family contracts.
-4. Domain primitives/config contracts.
+4. Domain schema primitives.
 5. Domain policy constants.
 6. Stale aggregate config surfaces.
 

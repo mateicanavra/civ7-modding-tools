@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_model_schema_policy_owner_shape",
+  "title": "Require Domain Model Schema And Policy Owner Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain model schemas or policy files that recreate config bags, operation envelopes, stage authoring surfaces, or imports from operation, recipe, adapter, runtime, or official resource owners",
+  "why": "Domain model schemas are reusable semantic primitives and domain model policy is reusable semantic law. Neither owner should become a renamed config facade, operation contract bucket, stage authoring helper, or official-resource wrapper.",
+  "remediate": "Move reusable TypeBox primitives to model/schemas/*.schema.ts, move semantic constants/functions to model/policy/*.ts, keep full operation envelopes in ops/<operation>/contract.ts, and keep stage public/knobs/compile composition with the owning stage.",
+  "message": "Domain model schemas and policy must not recreate config, operation, stage, adapter, or resource authority.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/model/config/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/**/model/config.ts",
+        "mods/mod-swooper-maps/src/domain/**/model/schemas/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/**/model/policy/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/pattern.md"
+    },
+    "patternName": "require_domain_model_schema_policy_owner_shape"
+  }
+}

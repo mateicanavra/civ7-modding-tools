@@ -70,13 +70,13 @@ execution slice names write sets and proof gates.
 ### 1. Domain Model Config Law
 
 Decision:
-decide whether `model/config/` is required for every domain root covered by the
-selected scope and define what counts as a valid domain model primitive or
-config contract. The decision must distinguish stage authoring surfaces from
-domain-owned reusable primitives: stages own public schemas, `knobsSchema`, and
-public-to-internal compile mappings; operation contracts own operation/strategy
-config; domain model files own reusable schemas, types, enums, invariants, and
-semantic policy fragments that stages or operations compose.
+decide which current config-shaped rows belong to stage authoring, operation
+contracts, `model/schemas`, `model/policy`, facade residue, or deletion. The
+decision must distinguish stage authoring surfaces from domain-owned reusable
+primitives: stages own public schemas, `knobsSchema`, and public-to-internal
+compile mappings; operation contracts own operation/strategy config; domain
+model files own reusable schemas, types, enums, invariants, and semantic policy
+fragments that stages or operations compose.
 
 Inspect:
 
@@ -88,32 +88,30 @@ Inspect:
 - `mods/mod-swooper-maps/src/domain/morphology/shared/**`
 - `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts`
 - `mods/mod-swooper-maps/src/domain/placement/config.ts`
-- current candidate `model/config/` rows for ecology, foundation, hydrology,
+- current candidate `model/schemas/` rows for ecology, foundation, hydrology,
   morphology, placement, and resources
 - stage and operation consumers of those config surfaces
 
 Choices:
 
-- require `model/config/` only when the domain has real domain-owned primitive
-  or config-contract objects;
-- require `model/config/` for every covered domain root and name real primitive
-  or config-contract files for each one;
+- create `model/schemas/` only when the domain has real domain-owned reusable
+  schema primitive objects;
+- name real schema primitive files for each accepted `model/schemas/` owner;
 - move config-like material to the named standard recipe stage file when it is
   a public authoring surface, knob surface, public-to-step compile mapping, or
   projection/stage-facing concern;
-- route reusable semantic policy to `model/policy/`, not `model/config/`;
+- route reusable semantic policy to `model/policy/`, not `model/schemas/`;
 - inline operation config fragments into operation `contract.ts`;
 - delete unused defaults and duplicate facades. Root or per-domain `config.ts`
   facade deletion is gated by import-surface law unless caller proof shows no
   public surface remains.
 
 Done:
-the `model/config/` requirement is decided, and every current
-config/shared-knob row has an exact destination: domain primitive/config
-contract file, domain policy file, operation `contract.ts`, a named standard
+every current config/shared-knob row has an exact destination: domain schema
+primitive file, domain policy file, operation `contract.ts`, a named standard
 recipe stage file, or delete action. Ecology and resources are explicitly
-resolved as real primitive/config-contract domains or as domains with an
-optional `model/config/` law.
+resolved as domains with real `model/schemas` primitives or no schema-primitive
+rows in this pass.
 
 ## 2. Placement Status
 
@@ -180,7 +178,7 @@ Inspect:
 Choices:
 
 - operation `contract.ts`;
-- `morphology/model/config/<part>.config.ts`;
+- `morphology/model/schemas/<part>.schema.ts`;
 - `morphology/model/policy/<concern>.ts`;
 - delete if duplicate.
 

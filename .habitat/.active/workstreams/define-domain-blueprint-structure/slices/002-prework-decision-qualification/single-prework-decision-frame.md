@@ -15,9 +15,9 @@ Examples:
 
 - completed narrative decision decides what `domain/narrative/**` is and who
   owns it;
-- item 1 decides whether `model/config/` is a required domain structure and
-  what exact current config-shaped material is stage-owned, operation-owned,
-  domain primitive/policy material, facade residue, or deletion;
+- item 1 decides which config-shaped material belongs to stage authoring,
+  operation contracts, `model/schemas`, `model/policy`, facade residue, or
+  deletion;
 - item 3 decides the true owners of
   `resources/policy/initial-map-authoring.ts`.
 
@@ -104,8 +104,8 @@ Recognized config-related owners:
   `compile`, and local step composition owned by the stage;
 - internal step config: step contract schema and step normalization boundary;
 - operation or strategy contract config: operation contract surface;
-- domain model primitive or config contract: reusable schema fragments, enums,
-  types, and invariants that stages and operations compose;
+- domain model schema primitive: reusable schema fragments, enums, types, and
+  invariants that stages and operations compose;
 - domain model policy: reusable semantic policy tables or mapping functions
   that encode domain law rather than object-local primitive validation;
 - facade residue: broad root `config.ts` barrels that only re-export other
@@ -118,10 +118,10 @@ Decision questions:
 2. Is this export compiling public intent into step or operation config? If
    yes, it is stage/step-owned unless it encodes reusable domain semantic law.
 3. Is this export a domain concept independent of one stage surface, such as a
-   primitive schema, enum, type, or invariant? If yes, it may be
-   domain-config-owned.
-4. Is this reusable semantic policy rather than a primitive or config contract?
-   If yes, route it to `model/policy/`, not `model/config/`.
+   primitive schema, enum, type, or invariant? If yes, it may belong in
+   `model/schemas/`.
+4. Is this reusable semantic policy rather than a schema primitive?
+   If yes, route it to `model/policy/`.
 5. Is this file only a broad import facade? If yes, it is not an owner; classify
    the underlying exports and delete or replace the facade through the public
    import-surface law.

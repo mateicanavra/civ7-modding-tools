@@ -61,8 +61,9 @@ Classify by role. Stages own public authoring schemas, `knobsSchema`, optional
 public-to-internal `compile`, and local step composition. Operations own
 operation/strategy contract config. Domains may own reusable semantic
 primitives, schema fragments, enums, types, and invariants that stages or
-operations compose. Reusable semantic policy routes to `model/policy/`, not
-`model/config/`. Domains do not own stage authoring surfaces or public-to-step
+operations compose. Reusable schema primitives route to `model/schemas/`.
+Reusable semantic policy routes to `model/policy/`. `model/config/` is not a
+destination. Domains do not own stage authoring surfaces or public-to-step
 compilation mappings. Root `config.ts` barrels are source evidence or
 transitional import facades, not destination authority.
 

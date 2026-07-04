@@ -16,7 +16,7 @@ Architectural evidence:
 - current domain roots all expose a runtime/compile binding through root
   `ops.ts`;
 - recipe and step code consume named domain surfaces rather than arbitrary root
-  helper paths;
+helper paths;
 - root `index.ts` is the contract surface;
 - architecture authority routes `shared`, `common`, `utils`, `internal`,
   `support`, broad barrels, and broad helper folders into exact owner
@@ -24,15 +24,16 @@ Architectural evidence:
 
 Controlling rationale:
 the domain root is closed because a domain is a cohesive owner. Defined slots
-carry named owner roles. Root helper symbols classify to model config, model
+carry named owner roles. Root helper symbols classify to model schemas, model
 policy, model data, artifact contract, operation-local slots, external owners,
 Gameplay/playability ownership, or deletion.
 
 Superseding decision:
 an earlier working grammar treated root `config.ts`, root `policy/`, and
 data-only root `lib/` as transitional direct slots. The current scope supersedes
-that grammar with `model/`: config, policy, and data must decompose under the
-domain model before they can become green. This is a stronger selected law.
+that grammar with `model/`: reusable schema primitives, policy, and data must
+decompose under the domain model before they can become green. This is a
+stronger selected law.
 
 Applicability boundary:
 this scope defines the target law for every domain root selected by the

@@ -20,11 +20,11 @@ the operation contract set exposed from the domain `ops/` namespace.
 Operation implementation registry:
 the operation implementation set exposed from the domain `ops/` namespace.
 
-Domain model primitive or config contract:
+Domain model schema primitive:
 one exported reusable domain schema fragment, enum, type, invariant, defaults
-object, object-local normalizer, or config contract that stages or operation
-contracts compose. This is not a stage authoring surface or reusable semantic
-policy.
+object, object-local normalizer, or object-local schema contract that stages or
+operation contracts compose. This is not a stage authoring surface, full
+operation envelope, or reusable semantic policy.
 
 Stage authoring config surface:
 one stage-owned public schema, `knobsSchema`, public-to-internal compile
@@ -46,8 +46,8 @@ content owned by one operation module and not reusable as domain-wide policy.
 
 Root duplicate contract files resolve through duplicate authority deletion.
 
-Root config contents classify into domain model primitives/config contracts,
-domain policy, operation contracts, stage authoring owners, or deletion.
+Root config contents classify into domain model schema primitives, domain
+policy, operation contracts, stage authoring owners, or deletion.
 
 Stage public schemas, stage knobs, and public-to-step compile mappings stay
 with the owning stage. Operation/strategy config stays with operation
@@ -61,8 +61,8 @@ contract.
 Root policy contents classify to domain model policy or operation-local policy.
 
 Root library, shared, common, utility, internal, support, public, vocabulary,
-semantics, constants, types, and model helper symbols classify to a recognized
-owner class or named owner-law work.
+semantics, constants, types, config-shaped files, and model helper symbols
+classify to a recognized owner class or named owner-law work.
 
 Generic operation-family shared folder contents decompose into operation-local,
 domain model, artifact contract, core, stage/projection, external Civ7, or

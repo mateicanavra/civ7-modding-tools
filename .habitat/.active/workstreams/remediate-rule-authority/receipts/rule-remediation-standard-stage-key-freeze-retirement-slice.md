@@ -37,7 +37,7 @@ authority surface.
 | Rule id | Reason |
 | --- | --- |
 | `verify_standard_recipe_artifacts_match_source_stages` | Still owns generated artifact parity and output currentness. |
-| `verify_standard_recipe_public_authoring_surface` | Still owns strict public authoring schema, public-key, and focus-path invariants. |
+| `verify_standard_recipe_public_authoring_surface` | Still owns derived strict schema, public-key, and focus-path currentness for the exact standard recipe; source/file-shape authority belongs to Grit-backed recipe-stage patterns. |
 
 ## Verification
 
@@ -45,4 +45,3 @@ authority surface.
   passed before this deletion on the same source-derived topology rail.
 - Deleted manifest is absent from the live authority tree.
 - Canonical JSON and live manifests reconcile at 117.
-

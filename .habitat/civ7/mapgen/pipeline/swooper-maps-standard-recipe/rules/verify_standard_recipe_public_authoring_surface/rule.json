@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "standard stages exposing raw op envelopes, open public config schemas, unexpected public keys, or step focus paths that bypass named public config fields",
-  "why": "The standard recipe authoring surface is structural authority. Product tests should not own its canonical public schema shape.",
-  "remediate": "Update the standard stage public surface intentionally and keep raw operation envelopes behind named public config keys.",
-  "message": "Standard stage public authoring surface drifted.",
+  "forbids": "standard stages deriving raw op envelopes, open public config schemas, unexpected public keys, or step focus paths that bypass named public config fields",
+  "why": "This rule is a package-derived authoring-model currentness guard over the exact standard recipe. Static source/file shape for stage authoring belongs to Grit-backed Habitat patterns.",
+  "remediate": "Update the standard stage authoring model intentionally, keep raw operation envelopes behind named public config keys, and use Grit-backed recipe-stage patterns for source/file-shape ownership.",
+  "message": "Standard stage derived authoring model drifted.",
   "pathCoverage": [
     {
       "kind": "exact-path",

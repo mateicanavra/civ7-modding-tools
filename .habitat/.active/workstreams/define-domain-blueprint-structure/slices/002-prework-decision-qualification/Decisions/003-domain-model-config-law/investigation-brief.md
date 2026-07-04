@@ -11,8 +11,8 @@ Frame source:
 - `../../inventory.md`
 - `../../../../decision-book/content-classes.md`
 - `../../../../decision-book/owner-boundaries.md`
-- `.habitat/scopes/domain/scopes/model/scopes/config/scope.md`
-- `.habitat/scopes/domain/scopes/model/scopes/config/files/config-part-ts.md`
+- `.habitat/scopes/domain/scopes/model/scopes/schemas/scope.md`
+- `.habitat/scopes/domain/scopes/model/scopes/schemas/files/schema-primitive-ts.md`
 
 ## Readiness
 
@@ -32,7 +32,7 @@ active `Domain Model Config Law` prework decision.
 
 WHY:
 the next prework pass needs to know which apparent config surfaces are real
-domain primitives/config contracts, which are stage-owned authoring surfaces,
+domain schema primitives, which are stage-owned authoring surfaces,
 which are operation/strategy contracts, which are domain policy, and which are
 facade residue or deletion candidates. The goal is to collapse ambiguity before
 row-level disposition, not to gather an unconstrained catalog.
@@ -76,6 +76,7 @@ Hard core:
   invariants, defaults objects, and object-local normalizers that stages and
   operations compose;
 - reusable semantic policy routes to `model/policy/`, not `model/config/`;
+- reusable schema primitives route to `model/schemas/`, not `model/config/`;
 - broad root/per-domain `config.ts` barrels are evidence or transitional import
   surfaces, not destination authority;
 - no false third config model should be invented.
@@ -157,8 +158,8 @@ ranking.
 ### Exclusion Questions
 
 - Do not ask how to implement the moves.
-- Do not ask whether every domain must contain `model/config/` before the
-  repeated primitive evidence exists.
+- Do not ask whether every domain must contain `model/schemas/` before the
+  repeated schema primitive evidence exists.
 - Do not ask whether public schemas should be globally banned.
 - Do not relitigate closed artifact contract shape or foundation-lib
   disposition.
@@ -172,7 +173,7 @@ ranking.
 - Are the apparent repeated operation fields only coincidental names with
   incompatible semantics?
 - Are any likely primitive candidates actually operation-local strategy tuning
-  or domain policy rather than object-local primitive/config contracts?
+  or domain policy rather than object-local schema primitives?
 
 ## Search Geometry
 
@@ -214,8 +215,8 @@ Required depth:
 
 Stop rule:
 stop when the corpus can classify every discovered config-shaped surface into
-one of: stage authoring, operation contract, domain primitive/config contract
-candidate, domain policy candidate, facade residue, delete candidate, or
+one of: stage authoring, operation contract, domain schema primitive candidate,
+domain policy candidate, facade residue, delete candidate, or
 blocked by a specific evidence gap. This applies to surfaces discovered within
 the Required breadth; outside discoveries are recorded only as evidence gaps or
 follow-up leads.

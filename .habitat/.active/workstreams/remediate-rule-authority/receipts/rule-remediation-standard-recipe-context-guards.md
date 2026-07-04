@@ -19,9 +19,11 @@ recipe artifact currentness against source stages, source-derived schema, UI
 metadata, defaults, canonical map config normalization, and the explicit
 foundation-orogeny raw-envelope exception.
 
-`verify_standard_recipe_public_authoring_surface` owns the exact standard
-recipe public authoring surface: stage public keys, strict schemas, step focus
-paths, and raw-envelope constraints.
+`verify_standard_recipe_public_authoring_surface` owns package-derived
+currentness for the exact standard recipe authoring model: stage public keys,
+strict derived schemas, step focus paths, and raw-envelope constraints. Static
+source/file shape for recipe stage authoring belongs to Grit-backed Habitat
+patterns, not this script.
 
 Both checks remain standard-recipe context authority until a future
 parameterized projection/output or authoring-surface authority exists.
@@ -31,7 +33,7 @@ parameterized projection/output or authoring-surface authority exists.
 | Rule id | Action | Reason |
 | --- | --- | --- |
 | `verify_standard_recipe_artifacts_match_source_stages` | reclassified to context admission | Generated artifact parity is a structural standard-recipe authority surface, not package-test residue. |
-| `verify_standard_recipe_public_authoring_surface` | reclassified to context admission | Public authoring shape is exact standard-recipe context authority until parameterized. |
+| `verify_standard_recipe_public_authoring_surface` | reclassified to context admission | Derived public keys, strict schemas, and focus paths are exact standard-recipe context currentness until parameterized; source/file shape belongs to Grit patterns. |
 
 ## Proof Scope
 

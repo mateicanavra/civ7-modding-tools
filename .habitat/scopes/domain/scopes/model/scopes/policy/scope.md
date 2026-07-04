@@ -8,8 +8,9 @@ Subject:
 Ownership boundary:
 domain semantic policy only: classification encodings, domain-owned legality
 interpretation, scoring policy, selection policy, and interpretation over domain
-artifacts. Official Civ7 facts, adapter behavior, stage projection, and
-operation-local policy are exterior.
+artifacts. Official Civ7 facts, adapter behavior, stage projection, TypeBox
+schema primitives, stage public authoring composition, and operation-local
+policy are exterior.
 
 Architectural evidence:
 - root helper files currently hold stable domain concepts such as biome
@@ -51,4 +52,4 @@ Files:
 - `files/policy-concern-ts.md`
 
 Patterns:
-none
+covered by `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/`.

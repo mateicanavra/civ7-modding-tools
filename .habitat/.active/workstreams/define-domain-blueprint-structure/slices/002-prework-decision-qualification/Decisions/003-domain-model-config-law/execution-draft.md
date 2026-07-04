@@ -77,6 +77,9 @@ Pattern intent:
   config-shaped buckets.
 
 This pattern is the destination guard for Stage 1 and Stage 2.
+It is admitted as an advisory Habitat rule while known current rows remain red;
+Stage 1/2 closure must promote it to enforced with an empty baseline after the
+contract cleanup burns down those rows.
 
 #### 2. Recipe Stage Authoring File Shape
 
@@ -94,7 +97,10 @@ Required direction:
 - recipe stages must not import root or per-domain `config.ts` facades;
 - recipe stages must not import operation-local `config.ts` files;
 - stage authoring helpers, if allowed outside `index.ts`, must live under the
-  owning stage directory and must not become a domain authority surface.
+  owning stage directory and must not become a recipe-wide or domain authority
+  surface;
+- root-level `*-public-config.ts` helpers under `recipes/standard/stages/` are
+  residue, not a destination pattern.
 
 Open shape choice for review:
 
@@ -108,6 +114,10 @@ authoring configuration.
 
 This pattern is the destination guard for Stage 5 and for any reroute that
 moves config-shaped stage helper material.
+It is admitted as an advisory Habitat rule while known current rows remain red;
+Stage 5 closure must promote it to enforced with an empty baseline after
+domain-config facade imports and recipe-root public-config helpers are burned
+down.
 
 #### 3. Domain Schema And Policy Export Shape
 
@@ -134,6 +144,8 @@ Pattern intent:
   rows have been burned down.
 
 This pattern is the destination guard for Stage 3 and Stage 4.
+It is admitted as an enforced Habitat rule now because the current tree is green
+for the accepted `model/schemas` and `model/policy` destinations.
 
 ### Operation Contracts
 
@@ -225,15 +237,18 @@ Stage-owned surfaces include:
 Mechanical draft rule:
 
 - all stage config construction should be owned by the stage directory;
-- external `*-public-config.ts` helper files are allowed only as stage-owned
-  helpers, not as domain authority;
+- root-level `*-public-config.ts` helper files are not the destination;
+  authoring helpers must be inline or stage-local under the owning stage
+  directory;
 - a later stage-shape law should decide whether those helpers must be folded
   into the stage `index.ts`, moved under a stage-local support file, or split by
   substage.
 
 This draft does not authorize global public-schema deletion. Empty or
 wrapper-only public schemas are cleanup candidates, but policy-bearing public
-schemas stay stage-owned until a stage-shape rule handles them.
+schemas stay stage-owned. The stage-shape rail for source/file ownership is a
+Habitat Grit pattern; runtime-derived authoring-model checks may corroborate
+currentness, but they are not the source/file-shape authority.
 
 ### Facade Residue
 

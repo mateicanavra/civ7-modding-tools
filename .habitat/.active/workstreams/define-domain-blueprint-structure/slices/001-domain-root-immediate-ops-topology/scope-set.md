@@ -16,7 +16,7 @@ fragment remain named deeper scopes, not live topology snippets.
 - `../../scopes/domain/scopes/ops/scope.md`
 - `../../scopes/domain/scopes/ops/scopes/operation/scope.md`
 - `../../scopes/domain/scopes/model/scope.md`
-- `../../scopes/domain/scopes/model/scopes/config/scope.md`
+- `../../scopes/domain/scopes/model/scopes/schemas/scope.md`
 - `../../scopes/domain/scopes/model/scopes/policy/scope.md`
 - `../../scopes/domain/scopes/model/scopes/data/scope.md`
 - `../../scopes/domain/scopes/model/scopes/data/scopes/collection/scope.md`
@@ -31,7 +31,7 @@ fragment remain named deeper scopes, not live topology snippets.
 - `../../scopes/domain/scopes/ops/scopes/operation/files/contract-ts.md`
 - `../../scopes/domain/scopes/ops/scopes/operation/files/index-ts.md`
 - `../../scopes/domain/scopes/ops/scopes/operation/files/types-ts.md`
-- `../../scopes/domain/scopes/model/scopes/config/files/config-part-ts.md`
+- `../../scopes/domain/scopes/model/scopes/schemas/files/schema-primitive-ts.md`
 - `../../scopes/domain/scopes/model/scopes/policy/files/policy-concern-ts.md`
 - `../../scopes/domain/scopes/model/scopes/data/scopes/collection/files/data-file-ts.md`
 - `../../scopes/domain/scopes/artifacts/files/artifact-ts.md`

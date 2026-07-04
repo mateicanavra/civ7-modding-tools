@@ -84,15 +84,15 @@ For config-shaped rows, decide from the consumer role and semantic owner:
   operation contract surface;
 - if the row defines a reusable domain primitive, schema fragment, enum, type,
   or invariant that multiple domain/stage/operation surfaces compose, it belongs
-  to the domain model config/primitive owner;
+  to the domain model schemas owner;
 - if the row defines reusable semantic policy, it belongs to `model/policy/`,
-  not `model/config/`;
+  not a config owner;
 - if the row is only a broad root `config.ts` re-export facade, it is source
   evidence or a transitional import surface, not destination authority.
 
 This discriminator prevents a false third config model. The accepted
 architecture has stage authoring config, internal step config, and operation
-contract config; domain model files provide composable domain primitives and
+contract config; domain model files provide composable schema primitives and
 semantic law, not a parallel authoring surface.
 
 ## Skill Routing

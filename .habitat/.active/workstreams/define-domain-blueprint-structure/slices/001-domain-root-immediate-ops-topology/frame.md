@@ -94,7 +94,7 @@ law.
 
 An earlier working grammar treated root `config.ts`, root `policy/`, and
 data-only root `lib/` as transitional direct slots. The selected target law now
-uses `model/config/`, `model/policy/`, and `model/data/`. Slice 001 treats old
+uses `model/schemas/`, `model/policy/`, and `model/data/`. Slice 001 treats old
 root config/policy/lib placements as source evidence and red inventory.
 
 ## Rule Packet Collapse Candidates

@@ -54,10 +54,10 @@ scopes/domain/
     model/
       scope.md
       scopes/
-        config/
+        schemas/
           scope.md
           files/
-            config-part-ts.md
+            schema-primitive-ts.md
         policy/
           scope.md
           files/

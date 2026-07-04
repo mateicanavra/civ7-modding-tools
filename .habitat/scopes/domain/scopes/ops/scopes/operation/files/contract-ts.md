@@ -12,7 +12,7 @@ Required shape:
 - defines the operation contract consumed by the domain operation registry.
 
 Allowed contents:
-- operation input/output/config contract declarations;
+- operation input/output/strategy contract declarations;
 - contract-local types required to express that operation contract.
 
 Violation messages:
@@ -23,6 +23,10 @@ Violation messages:
 
 Import/export boundary:
 - exports the operation contract surface for `ops/contracts.ts`.
+- may import reusable schema primitives from `<domain>/model/schemas/`;
+- may import reusable policy constants from `<domain>/model/policy/`;
+- must not import sibling or family `config.ts` bags.
 
 Enforcement:
-structure for existence; later Grit/source-shape gate for contract grammar.
+structure for existence; Grit/source-shape gate in
+`.habitat/blueprints/domain-operation/require_operation_contract_file_shape/`.
