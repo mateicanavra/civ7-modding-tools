@@ -3,10 +3,12 @@
 Copy this directory to `Decisions/<NNN>-<decision-slug>/` for one unresolved
 item from `../inventory.md`.
 
-The packet answers one `Decision:` line. It is complete when every source path
-or symbol in that item has an exact disposition, the governing evidence is
-recorded, fresh review has been resolved, and the owning workstream references
-have been updated.
+The packet answers one `Decision:` line. It is complete only when every source
+path or symbol in that item is fully resolved: exact destination, delete action,
+implementation-gated action, executable-now action, or explicitly tracked named
+later domino. The governing evidence must be recorded, fresh review must be
+resolved, and the owning workstream references must be updated. Packet files
+being filled out is not closure.
 
 ## Files
 
@@ -29,7 +31,9 @@ reviews/
 Add a narrow evidence file when the selected decision needs a specific tool or
 corpus that is not covered by the two default evidence files. Create
 `execution.md` only after this decision produces a source or enforcement slice
-that needs an executable plan.
+that needs an executable plan. Prefer an execution slice for easy, clearly
+proved deletions or splits when doing so burns down complexity and avoids
+unnecessary deferral.
 
 ## Source Method
 

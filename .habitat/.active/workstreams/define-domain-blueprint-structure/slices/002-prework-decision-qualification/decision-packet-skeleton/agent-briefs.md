@@ -21,6 +21,9 @@ Shared core:
 - Destinations come from active scope, file, pattern, decision-book, product,
   or architecture authority.
 - Directory-only destinations need a positive content law.
+- Rows are not resolved by being mentioned in the packet. Each row needs an
+  exact destination, delete action, implementation-gated action, executable-now
+  action, or tracked named later domino.
 - Artifact output is the working space.
 
 ## Authority Mapper
@@ -104,7 +107,8 @@ the packet artifacts and produce synthesis/disposition-table.md.
 For each path or symbol row, assign liveness, rightful owner, explicit
 non-owner when useful, exact destination/delete/later-domino action, evidence
 strength, and governing authority. Directory-only destinations are insufficient
-unless the directory has an active content law.
+unless the directory has an active content law. Later-domino actions are valid
+only when the tracking location is named.
 ```
 
 ## Adversarial Reviewer
@@ -116,7 +120,7 @@ You are a fresh adversarial reviewer. Read the completed decision packet.
 
 Check for invented destinations, fake buckets, current-path authority, weak
 liveness claims, missed collars, grouping that hides rows, and unresolved rows
-presented as decisions.
+presented as decisions. Treat untracked deferral as a blocker, not a decision.
 
 Return findings for reviews/review-findings.md. Cite packet paths and the
 evidence that would repair each finding.
@@ -131,7 +135,8 @@ You are a fresh process reviewer. Read the completed decision packet.
 
 Check that the packet answers the selected Decision line, preserves row-level
 obligations, separates evidence from interpretation, records review
-disposition, and writes results to the owning references.
+disposition, writes results to the owning references, and tracks every deferred
+row in an owning inventory, packet, or later-slice reference.
 
 Return actionable P1/P2/P3 findings for reviews/review-findings.md.
 ```

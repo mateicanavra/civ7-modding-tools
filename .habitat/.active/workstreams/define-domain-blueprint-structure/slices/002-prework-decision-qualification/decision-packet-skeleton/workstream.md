@@ -27,6 +27,9 @@ Accepted outcomes:
 - reference update required before execution, with the exact owner reference
   named;
 - out of Slice 001, assigned to a named later owner-law domino;
+- implementation-gated, with the exact reference update named before source
+  movement;
+- executable now through an execution slice tied to this packet;
 - delete action with consumer proof.
 
 ## Authority Order
@@ -82,11 +85,16 @@ This packet is closed when:
 
 - `synthesis/disposition-table.md` covers every row in
   `corpus/source-inventory.md`;
-- every row has an exact disposition or named later owner-law domino;
+- every row is fully resolved by exact destination, delete action,
+  implementation-gated action, executable-now action, or explicitly tracked
+  named later owner-law domino;
 - raw evidence and interpretation are separated;
 - review findings are accepted, rejected with evidence, or converted into
   packet edits;
 - owning workstream references are updated.
+
+Untracked deferrals are not closure. If a row is deferred, the later domino must
+be written to the owning inventory, packet, or later-slice reference.
 
 ## Write Boundary
 

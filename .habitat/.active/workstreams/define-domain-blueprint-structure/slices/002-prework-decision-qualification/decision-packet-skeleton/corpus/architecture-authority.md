@@ -33,4 +33,4 @@ Status: draft corpus artifact
 
 | Gap | Effect on decision | Required owner-law action |
 | --- | --- | --- |
-| `<gap>` | <blocked row or owner choice> | <named later domino or reference update> |
+| `<gap>` | <blocked row or owner choice> | <exact law update, tracked named later domino, or blocked decision> |

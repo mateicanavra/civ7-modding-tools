@@ -28,6 +28,12 @@ Create the decision packet from
 and run the selected decision through closure. The packet answers this one
 Decision line with exact row dispositions and write-back targets.
 
+Done means the decision disposition table is fully resolved, not merely that the
+packet files are filled out. Every row must either have an exact destination,
+delete action, executable-now action, implementation-gated action with the
+required reference update named, or an explicitly tracked named later domino.
+Untracked or implicit deferrals are not closure.
+
 Grounding:
 - Read root AGENTS.md and any nested AGENTS.md for files you touch.
 - Read the relevant Graphite/worktree docs before branch or commit work.
@@ -63,19 +69,32 @@ Packet work:
 - Run fresh review and record findings in reviews/review-findings.md.
 - Apply accepted repairs to the packet.
 - Update the owning workstream references named by the disposition table.
+- If any row is easy and clearly executable now, such as a straightforward
+  deletion or obvious split with proof, prefer opening an execution slice from
+  this prework packet instead of deferring it by default.
 
 Stop rules:
 Stop before source edits, enforcement packets, structure.toml, Grit packets, or
-runtime changes unless the user explicitly converts this decision into an
-implementation slice. Stop and report if authority cannot distinguish the owner,
-source evidence contradicts the inventory item, or a row needs a destination law
-that does not exist.
+runtime changes unless the user explicitly converts this decision into, or
+approves, an execution slice. Stop and report if authority cannot distinguish
+the owner, source evidence contradicts the inventory item, or a row needs a
+destination law that does not exist.
+
+Blocker definition:
+A blocker is any row-level destination, owner, proof, or execution-shape
+question that prevents the selected prework decision from being fully resolved.
+Packet incompleteness is only a process blocker. Do not answer "resolved" from
+packet status; answer from the disposition table.
 
 Closure:
-The run is complete when every row has an exact disposition or named later
-owner-law domino, review has no accepted unresolved P1/P2 findings, the owning
-references are updated, Habitat classify and diff checks pass for the touched
-authority tree, and the work is committed through the repo's Graphite workflow.
+The run is complete when every row is fully resolved: exact destination, delete
+action, executable-now action, implementation-gated action with the required
+reference update named, or explicitly tracked named later domino. Named later
+dominoes must be written to the owning inventory, packet, or later-slice
+reference so they cannot be dropped. Review must have no accepted unresolved
+P1/P2 findings, the owning references must be updated, Habitat classify and
+diff checks must pass for the touched authority tree, and the work must be
+committed through the repo's Graphite workflow.
 
 Return:
 - packet path;

@@ -7,7 +7,9 @@ This document defines how to resolve one unresolved prework decision from
 
 One pass takes one numbered item from `inventory.md`, answers that item's
 `Decision:` question, and records the result in the owning workstream
-reference. The pass is a single prework decision qualification.
+reference. The pass is a single prework decision qualification. It is not done
+until the disposition table is fully resolved for every row; packet completion
+alone is not closure.
 
 Examples:
 
@@ -32,9 +34,19 @@ For the selected inventory item, produce one of these outcomes:
    be updated before the item can become executable.
 3. **Out of Slice 001:** the item belongs to a named later owner-law domino
    and must stay out of the next mechanical implementation slice.
+4. **Implementation-gated:** the row owner and action are known, but execution
+   waits for a named scope, file, pattern, decision-book, or other authority
+   reference update.
+5. **Executable now:** an easy, clearly proved deletion, split, or other source
+   action should be executed through an execution slice tied to this prework
+   packet instead of being deferred by habit.
 
 The actual decision is the `Decision:` line in the selected inventory item.
 The pass exists to answer that line, not to discover a new category of work.
+
+Unresolved rows are not a success state. If a row cannot receive a destination,
+delete action, implementation-gated action, executable-now action, or tracked
+named later domino, the selected prework decision remains blocked.
 
 ## Skill Routing
 
@@ -123,8 +135,9 @@ Output:
 - product or architecture docs that apply;
 - authority gaps, if any.
 
-If no authority can distinguish the candidate owners, the pass records a
-blocking owner-law domino instead of inventing one.
+If no authority can distinguish the candidate owners, the pass records the row
+as blocked. It may become a tracked later domino only after that carrying
+inventory, packet, or later-slice reference is written.
 
 ## Stage 3: Inventory The Affected Source
 
@@ -161,13 +174,21 @@ For each source row, decide:
 
 - content class;
 - rightful owner and explicit non-owner;
-- exact destination path, delete action, or named later domino;
+- exact destination path, delete action, implementation-gated action,
+  executable-now action, or tracked named later domino;
 - governing scope/file/pattern/decision-book entry;
-- evidence strength: `verified`, `corroborated`, `unresolved`, or `blocked`.
+- evidence strength: `verified`, `corroborated`, or `blocked`.
 
 Rows land in exact destinations. If the destination is a directory, that
 directory must already have a scope or file-pattern law that positively defines
 the content.
+
+Use `blocked` only when the row is not resolved. A row with a named later domino
+is resolved for this prework decision only if that domino is written to an
+owning inventory, packet, or later-slice reference and removed from the next
+mechanical implementation slice. A row with an implementation-gated action is
+resolved only when the required reference update is named exactly enough for the
+next DRA to apply it.
 
 ## Stage 6: Decide The Inventory Item
 
@@ -176,6 +197,7 @@ Collapse the row dispositions into one item-level decision:
 - `Qualified for Slice 001`;
 - `Reference update required before execution`;
 - `Out of Slice 001: <named later domino>`;
+- `Executable now: <execution slice>`;
 - `Blocked: <specific authority gap>`.
 
 This item-level decision updates `inventory.md` or the relevant later slice
@@ -190,7 +212,12 @@ The pass writes results into the durable location that owns the result:
 - topology law goes to `scope.md`;
 - file law goes to `files/*.md`;
 - cross-file law goes to `patterns/*.md`;
-- unresolved external work becomes a named later domino.
+- unresolved external work either becomes a tracked named later domino written
+  to the owner that will carry it forward, or leaves the packet blocked;
+- implementation-gated work names the exact reference update needed before
+  execution;
+- easy, clearly executable rows may open a small execution slice from the
+  packet so the prework pass burns down complexity instead of preserving it.
 
 The decision does not live only in notes from the pass.
 
@@ -257,12 +284,16 @@ steward role.
 
 A pass is closed only when:
 
-- every row in the item corpus has a disposition;
-- every disposition cites its governing authority or marks a named later domino;
+- every row in the item corpus is fully resolved by exact destination, delete
+  action, implementation-gated action, executable-now action, or explicitly
+  tracked named later domino;
+- every disposition cites its governing authority, proof, or tracked later
+  domino;
 - the selected inventory item's `Decision:` line has been answered;
 - reusable criteria and scope/file/pattern laws are written to their owners;
 - fresh review has no accepted P1/P2 findings.
 
-If any row remains unresolved, the pass closes only by naming the blocking
-owner-law domino and removing that row from the next mechanical implementation
-slice.
+If any row remains unresolved, the pass does not close. The steward must either
+resolve it as a tracked later domino by writing it to the carrying
+inventory/packet/later-slice reference and removing it from the next mechanical
+implementation slice, or mark the selected decision blocked.
