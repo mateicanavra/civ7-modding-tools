@@ -267,9 +267,10 @@ classification names exact owner paths.
 
 ## Recommended Next Prework Action
 
-Run the actual `Domain Model Config Law` disposition pass with this corpus as
-the evidence base. The first row grouping should not be "all config files."
-Use these containers instead:
+Run `second-pass-disposition-brief.md` with this corpus as the evidence base.
+The second pass revisits every row using the accepted destination rails and
+writes a deterministic action ledger. The first row grouping should not be
+"all config files." Use these containers instead:
 
 1. Facade import surfaces.
 2. Stage authoring surfaces.
@@ -278,10 +279,10 @@ Use these containers instead:
 5. Domain policy constants.
 6. Stale aggregate config surfaces.
 
-The likely first deterministic move is to resolve facade surfaces and domain
-primitive candidates, because that turns the noisy `config.ts` question into
-named owner paths. Public schema cleanup should come after that, and only where
-the stage surface is proven wrapper-only or empty.
+The output should not mark rows as "mechanical now" or "mechanical later."
+Those are derived views. The row data must name exact actions: move, inline,
+recompose, reroute, delete, keep with exact owner, or `needs destination` with
+the missing owner-law question named.
 
 ## Agent Review Notes
 

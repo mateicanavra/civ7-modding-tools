@@ -95,6 +95,27 @@ architecture has stage authoring config, internal step config, and operation
 contract config; domain model files provide composable schema primitives and
 semantic law, not a parallel authoring surface.
 
+The current config-law packet has already installed the destination rails:
+
+- operation contract file shape;
+- recipe stage authoring owner shape;
+- domain `model/schemas` and `model/policy` owner shape.
+
+Those rails sharpen the next pass. The next disposition corpus must revisit the
+rows from ground up and write deterministic actions, not loose opportunity
+labels. A row is resolved only when it names one concrete action: move, inline,
+recompose, reroute, delete, keep with exact owner, track later, or
+`needs destination` with the missing law named. "Mechanical now" and
+"mechanical later" are downstream views over those actions; they are not row
+dispositions.
+
+Domain schema primitive rows require extra depth. Large shared schemas and
+schema-like helpers are not accepted as primitives by default. The pass must
+look below full-schema overlap into property keys, nested fragments, scalar and
+object constraints, and shared vocabulary, then decide whether to keep the
+larger schema whole, decompose it into smaller primitives, route pieces to
+policy or artifact support, or reject extraction.
+
 ## Skill Routing
 
 Use the smallest skill set required by the active inventory item. The
