@@ -8,7 +8,7 @@ Historical use only:
 the imperative language below is preserved as the executed prompt/brief record.
 Do not run it as current work. The current disposition authority is
 `disposition.md`, and the current execution-planning surface is
-`execution-draft.md`.
+`execution.md`.
 
 Purpose: run a full row-by-row disposition pass over the existing config-law
 corpus after the destination rails were clarified. This pass is investigation
@@ -64,7 +64,7 @@ Read these before source inspection:
 - `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/`
 - `investigation-brief.md`
 - first-pass investigation corpus, preserved in Git history
-- `execution-draft.md`
+- `execution.md`
 
 Treat the first-pass investigation corpus as evidence, not as final disposition
 authority.
