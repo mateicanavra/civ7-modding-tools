@@ -1,6 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { Value } from "typebox/value";
 import { earthlikeExpectations } from "@mapgen/domain/resources/artifacts";
 import {
@@ -23,12 +21,6 @@ const blockedResources = [
   "RESOURCE_NICKEL",
   "RESOURCE_SILVER_DISTANT_LANDS",
 ] as const;
-
-const repoRoot = join(import.meta.dir, "../../../..");
-const sourceRoot = join(
-  repoRoot,
-  "mods/mod-swooper-maps/src/domain/resources/model/data/earthlike-expectations"
-);
 
 describe("resource earthlike expectations artifact", () => {
   it("declares the resource-owned earthlike expectations artifact id", () => {
@@ -228,6 +220,21 @@ describe("resource earthlike expectations artifact", () => {
         },
       ],
     };
+    const invalidOrderedNonCorpusRange = {
+      ...EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
+      resources: [
+        {
+          ...first,
+          expectedCountRange: {
+            baseline: "standard-earthlike-map",
+            min: 1,
+            target: 1,
+            max: 2,
+            evidence: "inference-backed",
+          },
+        },
+      ],
+    };
     const invalidRuntimeCalibratedWithoutTelemetry = {
       ...EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
       resources: [
@@ -259,21 +266,13 @@ describe("resource earthlike expectations artifact", () => {
       false
     );
     expect(
+      Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidOrderedNonCorpusRange)
+    ).toBe(false);
+    expect(
       Value.Check(
         ResourceEarthlikeExpectationsArtifactSchema,
         invalidRuntimeCalibratedWithoutTelemetry
       )
     ).toBe(false);
-  });
-
-  it("keeps the expectation artifact outside placement runtime behavior", () => {
-    const source = ["index.ts", "official-earthlike.ts", "types.ts"]
-      .map((file) => readFileSync(join(sourceRoot, file), "utf8"))
-      .join("\n");
-
-    expect(source).not.toContain("@civ7/adapter");
-    expect(source).not.toContain("ResourceBuilder");
-    expect(source).not.toContain("placeResourceIntent");
-    expect(source).not.toContain("placement/ops");
   });
 });

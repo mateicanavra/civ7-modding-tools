@@ -8,9 +8,9 @@ Current outcome:
 
 - `require_recipe_stage_authoring_file_shape` is enforced and green.
 - `require_domain_operation_contract_file_shape` is enforced and green.
-- `require_domain_source_topology` remains advisory but is green with 0
-  diagnostics in the current tree. Historical path-level topology track-outs
-  live in `domain-source-topology.domino.md` as prior red evidence only.
+- `require_domain_source_topology` is enforced and green with 0 diagnostics in
+  the current tree. Historical path-level topology track-outs live in
+  `domain-source-topology.domino.md` as prior red evidence only.
 - `require_public_domain_surfaces_in_tests` is enforced and green after the
   detector was tightened to include relative deep imports. Static test module
   imports are closed. Structural source-text inspections in tests are tracked
@@ -97,7 +97,8 @@ What changes:
 
 - Harden the fixtures for `require_recipe_stage_authoring_file_shape`.
 - Harden the fixtures for `require_domain_operation_contract_file_shape`.
-- Confirm `require_domain_source_topology` remains advisory unless every advisory row is in the current execution set.
+- Confirm `require_domain_source_topology` is enforced only after every current
+  topology row is closed.
 - Do not revive `require_recipe_stage_root_topology`; if recipe child topology is needed, design it as source-derived authority or merge it into the existing standard recipe topology rail.
 - Do not overclaim standard-stage topology. The file-shape rail may ban ad hoc stage-root helper files as destination law; `preserve_standard_stage_topology_and_path_invariants` proves only its source-derived standard stage topology checks.
 - Refresh `red-ledger.md` if the final Stage 0 rule split changes diagnostic counts.
@@ -119,7 +120,7 @@ Required proof matrix:
 | `S0-PROBE-STAGE` | Disposable bad/clean files under the scanned standard stage tree, followed by `bun habitat check --rule require_recipe_stage_authoring_file_shape --json --output /tmp/habitat-red-experiment/stage-authoring-probe.json`, then cleanup and `git status --short`. | good `createStage({ id, steps })`; wrong root helper carrier; outsourced `createStage(StageDefinition)` with sentinel constructor; forbidden operation mirror; re-export carrier; dynamic import carrier. | Bad probes appear in diagnostics, clean probe does not, and cleanup leaves no untracked or modified probe files. |
 | `S0-PROBE-OP` | Disposable bad/clean files under the scanned domain operation contract tree, followed by `bun habitat check --rule require_domain_operation_contract_file_shape --json --output /tmp/habitat-red-experiment/op-contract-probe.json`, then cleanup and `git status --short`. | good direct `defineOp({ input, output, strategies })`; good const + default export; outsourced `defineOp(DemoDefinition)` with sentinel constructor; sibling/cross-op contract import; re-export carrier; dynamic import carrier; `createOp`/`createStage` inside contract. | Bad probes appear in diagnostics, clean probe does not, and cleanup leaves no untracked or modified probe files. |
 | `S0-TOPO-STAGE` | `bun habitat check --rule preserve_standard_stage_topology_and_path_invariants --json --output /tmp/habitat-red-experiment/standard-stage-topology.json` plus source inspection. | source-derived standard stage topology owner; no static copied stage-root list. | Existing topology rail is green and execution record states that per-stage helper child-file bans remain owned by `require_recipe_stage_authoring_file_shape`, not this rule. |
-| `S0-TOPO-DOMAIN` | `bun habitat check --rule require_domain_source_topology --json --output /tmp/habitat-red-experiment/domain-topology.json` | domain root, ops root, operation root, model root, and artifacts root topology. | Count matches `red-ledger.md`; advisory status remains explicit until Stage 3 closure or exact track-outs. |
+| `S0-TOPO-DOMAIN` | `bun habitat check --rule require_domain_source_topology --json --output /tmp/habitat-red-experiment/domain-topology.json` | domain root, ops root, operation root, model root, and artifacts root topology. | Count matches `red-ledger.md`; enforced status requires zero current topology diagnostics. |
 | `S0-COUNT-STAGE` | `bun habitat check --rule require_recipe_stage_authoring_file_shape --json --output /tmp/habitat-red-experiment/stage-authoring.json` | current-tree enforced stage authoring red. | Diagnostic count and path set reconcile with `execution-status-register.md`. |
 | `S0-COUNT-OP` | `bun habitat check --rule require_domain_operation_contract_file_shape --json --output /tmp/habitat-red-experiment/op-contract.json` | current-tree enforced operation contract red. | Diagnostic count and path set reconcile with `execution-status-register.md`. |
 | `S0-DESTINATION-PREFLIGHT` | `execution-status-register.md` exact destination audit plus row-owner review. | every Stage 1-3 row. | Every executable row has an exact destination path, `deletion`, or exact track-out target before source edits. Rows needing symbol discovery are classified in Stage 0, not launched as edit lanes. |
@@ -219,7 +220,8 @@ Review loop:
 
 ## Stage 3: Domain Source Topology Burn-Down
 
-Objective: close every current-scope `require_domain_source_topology` advisory red row or track it out with a named domino.
+Objective: close every current-scope `require_domain_source_topology` red row
+before the topology rule is enforced.
 
 Rows: every Stage 3 row ID in `execution-status-register.md`.
 
@@ -246,7 +248,7 @@ Decision criteria:
 
 Acceptance:
 
-- PASS if `require_domain_source_topology` has no current-scope advisory red left.
+- PASS if `require_domain_source_topology` has no current-scope red left.
 - PASS if any remaining advisory red is explicitly recorded with current path and the next discriminator required before symbol-level movement.
 - PASS only if every Stage 3 row in `execution-status-register.md` has final status `closed` or path-level tracked-out proof in the execution record.
 - FAIL if a red topology path is described narratively but not row-classified.
@@ -273,7 +275,9 @@ What changes:
 Acceptance:
 
 - PASS if file-shape rules are green.
-- PASS if domain topology is green. If it remains advisory red, this repair may close only by recording exact current red paths plus the next required discriminator; do not claim symbol-level topology closure.
+- PASS if domain topology is green. If topology red remains, this repair may
+  close only by recording exact current red paths plus the next required
+  discriminator; do not claim symbol-level topology closure.
 - PASS if `git diff --check -- .habitat mods/mod-swooper-maps/src mods/mod-swooper-maps/test` passes.
 - FAIL if any prior red path lacks final disposition.
 - FAIL if the final execution record lacks a one-to-one mapping from `execution-status-register.md` row to `closed` or path-level `tracked-out`.
@@ -297,13 +301,12 @@ bun habitat check --rule require_public_domain_surfaces_in_tests --json
 git diff --check -- .habitat mods/mod-swooper-maps/src mods/mod-swooper-maps/test
 ```
 
-Required advisory-red accounting:
+Required topology accounting:
 
-- `require_domain_source_topology` must report 0 diagnostics. It remains
-  advisory until intentionally promoted to enforced.
+- `require_domain_source_topology` must report 0 diagnostics in enforced mode.
 - `require_public_domain_surfaces_in_tests` must report 0 diagnostics in enforced mode.
-- A zero exit from an advisory rule is not proof. The test import-boundary proof
-  is the enforced Habitat rule reporting zero diagnostics.
+- A zero exit is not enough by itself; the proof is the enforced Habitat rule
+  reporting zero diagnostics.
 
 Required import scans:
 
@@ -334,6 +337,6 @@ Final closure requires:
 - fresh-agent review findings repaired or explicitly rejected with reason;
 - `red-ledger.md` shows zero unclassified rows;
 - `execution-status-register.md` current closure overlay matches the final proof outputs; historical row tables are not active status unless explicitly reopened;
-- `require_domain_source_topology` remains advisory with the exact current diagnostic/path count recorded in `red-ledger.md`, unless the topology corpus is burned down to zero in this execution;
+- `require_domain_source_topology` is enforced green with the exact current diagnostic/path count recorded in `red-ledger.md`;
 - Graphite commit if the user asks to land the work;
 - no dirty worktree except intentional uncommitted user changes.

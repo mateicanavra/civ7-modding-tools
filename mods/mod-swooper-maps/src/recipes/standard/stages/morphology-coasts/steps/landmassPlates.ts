@@ -1,5 +1,5 @@
 import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/model/policy/coast-knob-policy.js";
-import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/ops";
+import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/model/policy/elevation-scale.js";
 // SINGLE SOURCE OF TRUTH for the absolute-elevation quantization scale: the same constant
 // base topography quantizes with, imported so the margin sculpt derives its profile on the
 // exact engine scale rather than mirroring it as a config field.

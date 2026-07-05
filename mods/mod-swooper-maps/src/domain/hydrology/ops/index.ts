@@ -43,25 +43,3 @@ const implementations = {
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
-
-export {
-  accumulateDischarge,
-  applyAlbedoFeedback,
-  computeAtmosphericCirculation,
-  computeClimateDiagnostics,
-  computeCryosphereState,
-  computeDrainageRouting,
-  computeEvaporationSources,
-  computeLandWaterBudget,
-  computeOceanGeometry,
-  computeOceanSurfaceCurrents,
-  computeOceanThermalState,
-  computePrecipitation,
-  computeRadiativeForcing,
-  computeRiverNetworkMetrics,
-  computeThermalState,
-  planLakes,
-  projectRiverNetwork,
-  selectNavigableRiverTerrain,
-  transportMoisture,
-};

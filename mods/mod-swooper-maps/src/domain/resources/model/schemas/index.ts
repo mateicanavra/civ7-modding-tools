@@ -1,4 +1,11 @@
 export {
+  ResourceExpectedCountRangeSchema,
+  ResourceExpectationRangeEvidenceSchema,
+  type ResourceExpectedCountRange,
+  type ResourceExpectationRangeEvidence,
+} from "./expected-count-range.schema.js";
+
+export {
   HABITAT_INTENSITY_FIELD_NAMES,
   HABITAT_MASK_FIELD_NAMES,
   type HabitatFieldsOutput,

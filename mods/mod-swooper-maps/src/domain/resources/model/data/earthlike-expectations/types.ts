@@ -1,5 +1,9 @@
 import type { InitialMapResourceAuthoringStatus } from "../../policy/initial-map-authoring.js";
 import type {
+  ResourceExpectationRangeEvidence,
+  ResourceExpectedCountRange,
+} from "../../schemas/expected-count-range.schema.js";
+import type {
   OfficialAgeType,
   OfficialPlacementConstraintSummary,
   OfficialResourceType,
@@ -12,16 +16,8 @@ export type ResourceExpectationGroupId =
   | "geological-mineral-gemstone-industrial";
 
 export type ResourceExpectationStatus = "expected" | "conditional" | "blocked";
-export type ResourceExpectationRangeEvidence = "source-backed" | "inference-backed" | "blocked";
+export type { ResourceExpectationRangeEvidence, ResourceExpectedCountRange };
 export type ResourceExpectationEvidenceStrength = "official" | "external" | "inferred";
-
-export type ResourceExpectedCountRange = {
-  readonly baseline: "standard-earthlike-map";
-  readonly min: number;
-  readonly target: number;
-  readonly max: number;
-  readonly evidence: ResourceExpectationRangeEvidence;
-};
 
 export type ResourceExpectationEvidence = {
   readonly legality: ResourceExpectationEvidenceStrength;

@@ -1,10 +1,38 @@
 # Slice 001 Red Inventory
 
-Status: active slice packet
+Status: closed historical inventory with closure overlay
 
 This inventory is slice-local. It lists current paths and symbols expected to
 go red when the selected scope set is activated. Shared criteria live in
 `../../decision-book/`.
+
+## Current Closure Overlay
+
+Status:
+historical red inventory with active cleanup overlay.
+
+The row tables below are retained as the original Slice 001 red corpus. They
+are not an active queue by themselves. Current executable cleanup rows are owned
+by `cleanup-execution.md`; rows still labeled `Ready`, `Ready with owner law`,
+or `Owner-law pending` below are historical labels unless named in the current
+overlay or in a later execution packet.
+
+Current overlay rows:
+
+| Row | Current state | Source of truth |
+| --- | --- | --- |
+| `R-MORPH-OPS` | source cleanup complete in current execution: root `morphology/ops.ts` is binding-only, `DEFAULT_ELEVATION_SCALE` moved to `morphology/model/policy/elevation-scale.ts`, and all domain `ops/index.ts` registries are default-export only. | `cleanup-execution.md` rows `M-001` through `M-007`; `require_domain_ops_binding_surface`; `require_domain_ops_registry_surface`. |
+| `R-RES-DATA-CONTRACT` | source cleanup complete in current execution: expected-count range primitive lives in `resources/model/schemas/expected-count-range.schema.ts`; operation contracts compose it; artifact strict corpus validation remains artifact-owned. | `cleanup-execution.md` rows `E-001` through `E-008`; `resource-policy-data-contract.domino.md`. |
+| `R-PLACEMENT` | closed-record-only for this cleanup; placement domain exists, `placement/config.ts` no longer exists, and no active placement prework decision remains in this packet. | Slice 002 inventory closure overlay. |
+| `R-DOMAIN-PUBLIC` | closed-record-only for this cleanup; public-surface import rules are green. | Domain Model Config Law execution status register. |
+| `R-SLICE001-PENDING` | closed; historical corpus labels retained below are not active work. Current source burn-down is captured by green enforced Habitat topology and file-shape rails. | `require_domain_source_topology`; current Habitat rule output; `cleanup-execution.md`. |
+
+Current topology ratchet:
+
+- `.habitat/blueprints/domain/require_domain_source_topology/` is enforced.
+- Current domain source topology has zero diagnostics.
+- The row tables below are historical red evidence and do not reopen prework or
+  source movement.
 
 ## State Labels
 

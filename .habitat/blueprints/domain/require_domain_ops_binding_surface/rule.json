@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_ops_binding_surface",
+  "title": "Require Domain Ops Binding Surface",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain root ops.ts files that do anything other than bind the domain contract to the operation implementation registry",
+  "why": "Root domain ops.ts is the executable domain binding surface. Config schemas, policy constants, helpers, operation bodies, and public convenience exports must live in their owning files instead of leaking through this binding point.",
+  "remediate": "Keep root ops.ts to createDomain(domain, implementations), move policy to model/policy, keep contract schemas in operation contracts, and keep operation implementations behind the domain ops object.",
+  "message": "Domain root ops.ts must be the binding-only createDomain surface.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/*/ops.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_ops_binding_surface/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain/require_domain_ops_binding_surface/pattern.md"
+    },
+    "patternName": "require_domain_ops_binding_surface"
+  }
+}

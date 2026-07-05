@@ -12,18 +12,23 @@ Required shape:
 - exports the implementation registry consumed by root `ops.ts`.
 
 Allowed contents:
-- operation implementation imports from operation-local entry surfaces;
-- registry assembly for operation implementations.
+- type imports for registry typing;
+- default imports from direct ops-child `index.js` surfaces;
+- shorthand registry assembly for operation implementations;
+- the default registry export.
 
 Violation messages:
 - operation implementation bodies;
 - config, policy, or data definitions;
 - cross-domain imports that bypass named owner surfaces.
+- named operation re-exports or convenience exports.
+- named, namespace, side-effect, or type-only imports from operation entry surfaces;
+- keyed, inline, spread, method, or accessor registry entries.
 
 Import/export boundary:
-- imports from operation-local `index.ts` surfaces;
-- exports the registry used by `<domain>/ops.ts`.
+- imports from direct ops-child `index.ts` surfaces;
+- exports only the registry used by `<domain>/ops.ts`.
 
 Enforcement:
-structure for existence; later Grit/source-shape or TypeScript/package check
-for registry shape.
+`require_domain_ops_registry_surface` enforces the source shape. Directory
+legality for the ops-child surfaces remains owned by domain topology.

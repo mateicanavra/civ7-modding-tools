@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { ResourceExpectedCountRangeSchema } from "../../model/schemas/expected-count-range.schema.js";
 import { ResourceSymbolSchema } from "../../model/schemas/resource-family.schema.js";
 
 const GeologicalLaneIdSchema = Type.Union([
@@ -20,21 +21,6 @@ const GeologicalLaneIdSchema = Type.Union([
   Type.Literal("ruby-metamorphic"),
 ]);
 
-const ExpectedCountRangeSchema = Type.Object(
-  {
-    baseline: Type.Literal("standard-earthlike-map"),
-    min: Type.Integer({ minimum: 0 }),
-    target: Type.Integer({ minimum: 0 }),
-    max: Type.Integer({ minimum: 0 }),
-    evidence: Type.Union([
-      Type.Literal("source-backed"),
-      Type.Literal("inference-backed"),
-      Type.Literal("blocked"),
-    ]),
-  },
-  { additionalProperties: false }
-);
-
 const GeologicalExpectationSchema = Type.Object(
   {
     resourceType: ResourceSymbolSchema,
@@ -45,7 +31,7 @@ const GeologicalExpectationSchema = Type.Object(
       Type.Literal("blocked"),
     ]),
     earthlikePredicate: Type.String(),
-    expectedCountRange: ExpectedCountRangeSchema,
+    expectedCountRange: ResourceExpectedCountRangeSchema,
     conditionMultipliers: Type.Array(Type.String()),
     signalRequirements: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
@@ -73,7 +59,7 @@ const GeologicalPlanRowSchema = Type.Object(
       Type.Literal("missing-expectation"),
       Type.Literal("blocked"),
     ]),
-    expectedCountRange: ExpectedCountRangeSchema,
+    expectedCountRange: ResourceExpectedCountRangeSchema,
     targetIntentCount: Type.Integer({ minimum: 0 }),
     eligibleTileCount: Type.Integer({ minimum: 0 }),
     rangeStatus: Type.Union([

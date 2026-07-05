@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_ops_registry_surface",
+  "title": "Require Domain Ops Registry Surface",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain ops/index.ts registries doing anything other than importing operation entrypoints and assembling the default implementation registry",
+  "why": "The domain operation registry assembles operation implementations for root ops.ts. Helper constants, reusable policy, contract schemas, data, source-forwarded details, and convenience operation exports must move to their owning files or be consumed through the domain ops object.",
+  "remediate": "Keep ops/index.ts to implementation imports, the implementations registry, and the default export. Move reusable helpers to model/policy or model/schemas, keep operation-local internals in operation-local files, and consume operations through the domain ops object.",
+  "message": "Domain ops/index.ts must be the implementation registry only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/*/ops/index.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/pattern.md"
+    },
+    "patternName": "require_domain_ops_registry_surface"
+  }
+}

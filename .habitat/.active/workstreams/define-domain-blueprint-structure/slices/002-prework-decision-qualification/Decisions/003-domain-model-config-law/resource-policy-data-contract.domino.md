@@ -1,9 +1,10 @@
 # Resource Policy Data Contract Domino
 
-Status: tracked later outside the active Domain Model Config Law execution.
+Status: closed by Slice 001 cleanup execution.
 
-This domino records the one durable corpus row that is intentionally not burned
-down by the current config-law pass: resource expected count ranges.
+This domino records the resource expected-count range row that was originally
+tracked outside the config-law pass, then closed by the Slice 001 cleanup
+execution.
 
 ## Trigger
 
@@ -27,8 +28,36 @@ Split the row into its actual owners:
 - resource operation contracts should recompose from accepted resource policy
   or data-contract fragments rather than each redefining local range envelopes.
 
-## Current Disposition
+## Closed Disposition
 
-The Domain Model Config Law pass records this as `track later`, not as a
-domain `model/schemas` primitive. The row is visible here so it is not hidden in
-the narrative corpus or dropped during execution-plan hardening.
+Accepted owners:
+
+- official `RESOURCE_*`, `AGE_*`, catalog slots, and official placement-policy
+  facts remain owned by `@civ7/map-policy` unless they are type-only runtime
+  declarations owned by `@civ7/types`;
+- the reusable expected-count range primitive is
+  `mods/mod-swooper-maps/src/domain/resources/model/schemas/expected-count-range.schema.ts`;
+- resource model data imports/re-exports the accepted primitive types from
+  `model/schemas`;
+- resource planning operation contracts compose
+  `ResourceExpectedCountRangeSchema` instead of cloning local
+  `ExpectedCountRangeSchema` definitions;
+- `earthlike-expectations.artifact.ts` keeps artifact-owned strict corpus
+  validation for blocked all-zero ranges and accepted active literal tuples.
+
+Closure proof:
+
+- `rg` clone scan reports zero `ExpectedCountRangeSchema` definitions under
+  `mods/mod-swooper-maps/src/domain/resources/ops`;
+- `bun habitat check --rule require_domain_model_schema_policy_owner_shape --json`
+  passes;
+- `bun habitat check --rule require_domain_operation_contract_file_shape --json`
+  passes;
+- `bun habitat check --rule require_artifact_file_shape --json` passes;
+- `bun test mods/mod-swooper-maps/test/resources/resource-earthlike-expectations-artifact.test.ts`
+  passes and includes strict rejection of an ordered non-corpus range.
+
+Narsil note:
+pre-edit Narsil reference output captured the four operation-local clone
+definitions. Post-edit uncommitted proof is current-source `rg` plus Habitat and
+test output; Narsil will see the accepted owner after the commit is indexed.

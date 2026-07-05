@@ -19,13 +19,14 @@ file-shape work.
 | `require_domain_model_schema_policy_owner_shape` | enforced green, 0 diagnostics | Domain model schema/policy owner-shape rows are closed for this repair; schema/policy destinations did not become renamed config buckets. |
 | `require_public_domain_surfaces_in_recipes_and_maps` | enforced green, 0 diagnostics | Recipe/map public-surface rows are closed for this repair. |
 | `require_artifact_index_aggregate_shape` | enforced green, 0 diagnostics | Artifact aggregate shape rows are closed for this repair. |
-| `require_domain_source_topology` | advisory green, 0 diagnostics | Current domain source topology is closed for this repair. The rule remains advisory until the broader blueprint topology ratchet is promoted intentionally. |
+| `require_domain_source_topology` | enforced green, 0 diagnostics | Current domain source topology is closed for this repair and ratcheted as live Habitat law. |
 | `require_public_domain_surfaces_in_tests` | enforced green, 0 diagnostics | Test import-boundary topology is closed for static module imports. Tests now use public domain surfaces instead of deep domain internals. Structural source-text inspections in package tests are a separate Habitat-authority follow-up, not an import-boundary diagnostic. |
 
-No direct red remains in this repair overlay. The only known non-closed row in
-this decision packet is `resource-policy-data-contract.domino.md`, which is an
-intentional resource policy/data-contract follow-up outside this repair's source
-burn-down.
+No direct red remains in this repair overlay. The former
+`resource-policy-data-contract.domino.md` follow-up is closed by the Slice 001
+cleanup execution: the reusable expected-count range primitive has a named
+resource model schema owner, resource operation contracts compose it, and
+artifact strictness remains artifact-owned.
 
 ## Status Schema
 
@@ -82,10 +83,10 @@ only as the original red capture.
 | --- | --- | --- | --- | --- | --- |
 | `S0-R00` | closed | file-shape rail proof for `require_recipe_stage_authoring_file_shape` | `NATIVE_GRIT_UNAVAILABLE_RECORDED`, `INJECTED_PROBE_STAGE_PASS`, `HABITAT_STAGE_GREEN` | `.grit/grit.yaml` has `patterns: []`; native Grit test returns no testable patterns; `/tmp/habitat-red-experiment/stage-authoring-probe.json` flags only bad probe files; `/tmp/habitat-red-experiment/file-shape-after-probe-cleanup.json` is green. | accepted |
 | `S0-R01` | closed | file-shape rail proof for `require_domain_operation_contract_file_shape` | `NATIVE_GRIT_UNAVAILABLE_RECORDED`, `INJECTED_PROBE_OP_PASS`, `HABITAT_OP_GREEN` | `.grit/grit.yaml` has `patterns: []`; native Grit test returns no testable patterns; `/tmp/habitat-red-experiment/op-contract-probe.json` flags only bad probe files; `/tmp/habitat-red-experiment/file-shape-after-probe-cleanup.json` is green. | accepted |
-| `S0-R02` | closed | current domain source topology is advisory green with zero diagnostics | `HABITAT_DOMAIN_TOPOLOGY_GREEN` | `bun habitat check --rule require_domain_source_topology --json` reports 0 diagnostics. Historical path-level rows remain in `domain-source-topology.domino.md` only as prior red evidence. | accepted |
+| `S0-R02` | closed | current domain source topology is enforced green with zero diagnostics | `HABITAT_DOMAIN_TOPOLOGY_GREEN` | `bun habitat check --rule require_domain_source_topology --json` reports 0 diagnostics. Historical path-level rows remain in `domain-source-topology.domino.md` only as prior red evidence. | accepted |
 | `S0-R03` | closed | source-derived standard stage topology rail; stage helper-file ban remains in `require_recipe_stage_authoring_file_shape` | `HABITAT_STANDARD_STAGE_TOPOLOGY_GREEN` | `/tmp/habitat-red-experiment/standard-stage-topology.json` is green for source-derived stage topology only; it does not claim ownership of per-stage helper child-file bans. | accepted |
 | `S0-R04` | closed | active exact row ledger plus topology domino | `REVIEW_ACCEPTED` | this `Active Exact Row Closure Ledger`; `domain-source-topology.domino.md`; `reviews/enforcement-review-findings.md`. | accepted |
-| `S0-R05` | closed | all executable file-shape, topology, recipe/map public-surface, artifact aggregate, and test import-boundary rows are green | `EXACT_DESTINATION_PREFLIGHT`, `REVIEW_ACCEPTED` | Stage 1 and Stage 2 tables below are closed; current topology and test import-boundary checks are green. `resource-policy-data-contract.domino.md` remains intentionally outside this repair closure. | accepted |
+| `S0-R05` | closed | all executable file-shape, topology, recipe/map public-surface, artifact aggregate, resource expected-count primitive, and test import-boundary rows are green | `EXACT_DESTINATION_PREFLIGHT`, `REVIEW_ACCEPTED` | Stage 1 and Stage 2 tables below are closed; current topology and test import-boundary checks are green. The former `resource-policy-data-contract.domino.md` follow-up is closed by Slice 001 cleanup execution. | accepted |
 
 ### Stage 1 Exact State: Recipe Stage Authoring
 
@@ -209,6 +210,5 @@ rows here created a false second source of truth.
 
 Closure may be claimed only against the active ledger and attached proof outputs.
 Current closure covers enforced file-shape rails, current advisory-green domain
-source topology, and enforced-green test import boundaries. The remaining
-non-closed item is the explicit resource policy/data-contract domino, which is
-outside this repair closure.
+source topology, enforced-green test import boundaries, root domain ops binding,
+domain ops registry shape, and the resource expected-count range owner cleanup.

@@ -12,10 +12,10 @@ Captured at: 2026-07-05
 
 Current refresh: 2026-07-05 repair execution closure pass.
 
-The repair burn-down changed the current rule state. All enforced rails that
-gate this repair are green, and the advisory domain source topology rule is also
-green in the current tree. This file retains the original red corpus below as
-historical evidence, but no current red class remains in this repair overlay.
+The repair burn-down changed the current rule state. All rails that gate this
+repair are enforced and green, including the domain source topology rule. This
+file retains the original red corpus below as historical evidence, but no
+current red class remains in this repair overlay.
 
 ## Rule Map
 
@@ -26,7 +26,7 @@ historical evidence, but no current red class remains in this repair overlay.
 | `require_domain_model_schema_policy_owner_shape` | enforced | Domain `model/schemas` and `model/policy` own primitives/policy only; they may not become renamed config buckets. | green |
 | `require_public_domain_surfaces_in_recipes_and_maps` | enforced | Recipes and map entrypoints must use public domain/package surfaces instead of deep domain internals. | green |
 | `require_artifact_index_aggregate_shape` | enforced | Artifact indexes aggregate artifact objects and validators through the accepted artifact shape. | green |
-| `require_domain_source_topology` | advisory | Domain source topology as the positive domain blueprint destination. | green; 0 diagnostics |
+| `require_domain_source_topology` | enforced | Domain source topology as the positive domain blueprint destination. | green; 0 diagnostics |
 | `require_public_domain_surfaces_in_tests` | enforced | Test source should use public domain surfaces instead of deep domain internals. | green; 0 diagnostics |
 
 Retired experiment:
@@ -58,7 +58,8 @@ Native Grit fixture status:
 
 - Native `grit patterns test --filter <rule>` is not the fixture source of truth in this checkout because `.grit/grit.yaml` currently registers `patterns: []`.
 - Stage 0 must record that unavailability explicitly, then use Habitat current-tree checks plus disposable injected bad/clean probes for `require_recipe_stage_authoring_file_shape` and `require_domain_operation_contract_file_shape`.
-- A zero exit from advisory `require_domain_source_topology` is not green. Green means zero diagnostics.
+- Green for `require_domain_source_topology` means the enforced rule reports
+  zero diagnostics.
 
 ## Current Counts
 
@@ -69,7 +70,7 @@ Native Grit fixture status:
 | `require_domain_model_schema_policy_owner_shape` | 0 | 0 | Closed for this repair; enforced green. |
 | `require_public_domain_surfaces_in_recipes_and_maps` | 0 | 0 | Closed for this repair; enforced green. |
 | `require_artifact_index_aggregate_shape` | 0 | 0 | Closed for this repair; enforced green. |
-| `require_domain_source_topology` | 0 | 0 | Closed for current repair; advisory green. Promotion to enforced remains a separate authority activation decision. |
+| `require_domain_source_topology` | 0 | 0 | Closed for current repair; enforced green. |
 | `require_public_domain_surfaces_in_tests` | 0 | 0 | Closed for static module imports; enforced green. Structural source-text inspections in tests are a separate Habitat-authority follow-up, not this rule's remaining red. |
 
 ## Current Remaining Red Classes
@@ -114,7 +115,7 @@ This register is the handoff matrix for `repair-execution.md`. A row is not clos
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `R00` | `require_recipe_stage_authoring_file_shape` | n/a | Stage 0 | Keep stage content checks as constructor-envelope assertions, including the positive assertion that stage authoring helper files do not live as ad hoc stage-root children. Do not claim the separate standard-stage topology rail proves that helper-file ban. | Habitat/Grit wrapper owns `index.ts` authoring envelope/import law and stage helper-file exclusion. `preserve_standard_stage_topology_and_path_invariants` owns only its source-derived standard stage topology checks. | Native fixture unavailability record, injected bad/clean probe, current-tree Habitat output, and explicit non-claim for standard-stage topology. | none |
 | `R01` | `require_domain_operation_contract_file_shape` | n/a | Stage 0 | Keep operation checks as `defineOp({ input, output, strategies })` envelope assertions. | Habitat/Grit wrapper owns operation `contract.ts` envelope/import law. | Native fixture unavailability record, injected bad/clean probe, and current-tree Habitat output. | none |
-| `R02` | `require_domain_source_topology` | n/a | Stage 0 | Keep advisory until all current-scope topology red is closed. Path-level track-outs are allowed as follow-up inventory but are not symbol-level closure. | Habitat structure rule owns domain topology. | Current-tree Habitat advisory output reconciled; topology closure requires zero diagnostics or symbol-level destination rows. | none |
+| `R02` | `require_domain_source_topology` | n/a | Stage 0 | Keep enforced now that all current-scope topology red is closed. Historical path-level rows are prior red evidence, not follow-up inventory. | Habitat structure rule owns domain topology. | Current-tree Habitat enforced output is green with zero diagnostics. | none |
 
 ### Stage 1 Recipe Stage Authoring Rows
 

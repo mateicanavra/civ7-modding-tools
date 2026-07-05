@@ -1,11 +1,12 @@
 # Domain Source Topology Domino
 
-Status: closed; current domain source topology rule is green.
+Status: closed; current domain source topology rule is enforced and green.
 
-This domino records the path-level `require_domain_source_topology` advisory red
-that existed after the config-law repair source burn-down. A later closure pass
-burned down that topology pressure; the rows below are retained as historical
-proof of what was tracked, not as current red paths.
+This domino records the path-level `require_domain_source_topology` red that
+existed after the config-law repair source burn-down. A later closure pass
+burned down that topology pressure and promoted the rule to enforced; the rows
+below are retained as historical proof of what was tracked, not as current red
+paths.
 
 Current proof:
 
@@ -13,14 +14,13 @@ Current proof:
 bun habitat check --rule require_domain_source_topology --json
 ```
 
-Current result: 0 diagnostics. The rule is still advisory, but the current tree
-passes the positive domain blueprint topology check.
+Current result: enforced, 0 diagnostics. The current tree passes the positive
+domain blueprint topology check.
 
 ## Re-entry Trigger
 
-Run this domino only if `require_domain_source_topology` goes red again or
-before promoting the rule from advisory to enforced. Do not treat the historical
-path rows below as current work.
+Run this domino only if `require_domain_source_topology` goes red again. Do not
+treat the historical path rows below as current work.
 
 ## Historical Path-Level Rows
 

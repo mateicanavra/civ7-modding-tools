@@ -1,17 +1,21 @@
 # Prework Decision Qualification Inventory
 
-Status: active slice checklist
+Status: historical checklist with closure overlay
 
 These are the unresolved decisions to walk before domain-blueprint source-moving
 work begins. They are ordered from least defined to more defined. Completed
 prework decisions stay in the completed section as proof pointers, not as active
 queue items.
 
-Current next move: open and run the Placement Status decision packet. Foundation
-Lib and Domain Model Config Law are completed decision/execution packets for
-the current repair scope; `resource-policy-data-contract.domino.md` remains a
-tracked later resource policy/data-contract follow-up, not hidden active
-config-law work.
+Current next move: none in this prework slice.
+
+Foundation Lib and Domain Model Config Law are completed
+decision/execution packets for the current repair scope. Placement Status,
+Resources Initial Map Authoring, Morphology `ops.ts` Non-Binding Exports, and
+Domain Public / Import Surface are superseded by the accepted config-law and
+cleanup execution records unless a future Habitat red surface creates a new
+owner question. The active next work is implementation/topology burn-down from
+the current execution packets, not another prework decision queue.
 
 ## Completed Decisions
 
@@ -117,15 +121,20 @@ rows in this pass.
 Result:
 the config-shaped confusion has been burned down for the current scope.
 Operation contract, recipe stage authoring, domain model schema/policy,
-artifact aggregate, recipe/map public-surface, test public-surface, and current
-domain source topology checks are green. The remaining tracked item is
-`Decisions/003-domain-model-config-law/resource-policy-data-contract.domino.md`,
-which belongs to later resource policy/data-contract work.
+artifact aggregate, recipe/map public-surface, test public-surface, current
+domain source topology, root domain ops binding, and domain ops registry checks
+are green. The former resource data-contract domino is closed by the Slice 001
+cleanup execution: the expected-count range primitive has a named resource
+model schema owner, operation contracts compose it, and the artifact keeps
+strict corpus validation.
 
 Proof packet:
 `Decisions/003-domain-model-config-law/`
 
-## Active Decision
+## Historical Candidate Decisions
+
+The sections below are retained as the original prework candidates. They are
+not the active queue after the closure overlay above.
 
 ### 2. Placement Status
 

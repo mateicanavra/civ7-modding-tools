@@ -38,7 +38,7 @@ Accepted owner classes:
 | Domain Primitive And Operation Overlap rows | Primitive hunter plus operation/policy lanes | covered |
 | Facade And Import Pressure rows | Facade lane plus policy lane | covered |
 | New primitive candidates discovered during second pass | Primitive hunter | covered |
-| Outside-scope resource expectation row | tracked in `resource-policy-data-contract.domino.md` | covered as `track later` |
+| Former outside-scope resource expectation row | closed in `resource-policy-data-contract.domino.md` | covered as `closed` |
 
 No canonical row is omitted. Group rows below are expanded where the action or
 proof differs by owner.
@@ -85,7 +85,7 @@ proof differs by owner.
 | S03 | `HydrologyWindFieldSchema` from `hydrology/ops/shared/wind-field.ts` | wind/current field artifact support schema | move | `recipes/standard/stages/hydrology-climate-baseline/artifacts/wind-field.schema.ts`, consumed by `wind-field.artifact.ts`, `climate-field.artifact.ts`, and `climate-seasonality.artifact.ts` | hydrology model schemas; config facade | artifact importer proof | corroborated | artifact payload support, not generic schema primitive |
 | S04 | foundation tectonic scalar fields | artifact payload fields consumed downstream | keep | foundation artifact files | domain config; generic model schema | artifact contract proof | verified | downstream consumption does not promote fields |
 | S05 | `BiomeEngineBindingsSchema` from `domain/ecology/biome-bindings.ts` | internal biome symbols to official `BIOME_*` engine globals | recompose | official biome-global vocabulary in `packages/civ7-map-policy/src/biome-globals.ts`; TypeBox binding schema/helper in `recipes/standard/stages/map-ecology/biome-bindings.ts`; adapter remains runtime lookup boundary | ecology model schemas; ecology domain config | map-policy export proof, stage import proof, adapter boundary proof | verified | official-vocabulary rail applies directly |
-| S06 | resource expected count ranges | resource expectation/data-contract shape plus official resource refs | track later | `resource-policy-data-contract.domino.md` | generic domain model schema | later resource owner-law pass | verified | outside current config-law execution |
+| S06 | resource expected count ranges | resource expectation/data-contract shape plus official resource refs | closed | `resources/model/schemas/expected-count-range.schema.ts` for the reusable expected-count range primitive; operation contracts compose it; `earthlike-expectations.artifact.ts` keeps strict corpus validation; official resource facts stay with `@civ7/map-policy` / `@civ7/types` | cloned operation-local `ExpectedCountRangeSchema`; generic loose artifact range validation | clone-zero scan, Habitat schema/contract/artifact rules, resource artifact behavior test | verified | closed by Slice 001 cleanup execution; see `resource-policy-data-contract.domino.md` |
 | S07 | hydrology snow/ice temperature thresholds | similar strategy parameters | keep | owning hydrology operation contracts | hydrology model/policy until synchronization is proven | shared-invariant proof before extraction | corroborated | repetition alone is not law |
 | S08 | ecology wet/reef scorer thresholds | family-local scoring/admission params | keep | owning ecology scorer/planner operation contracts | ecology model/policy | operation contract proof | verified | operation-local tuning |
 | ST01 | `foundation-lithosphere/index.ts` | stage public and plate-count knob authoring | keep | `foundation-lithosphere` stage | domain config | compile/knob proof | verified | real authoring surface |
@@ -122,7 +122,7 @@ proof differs by owner.
 | --- | --- | --- |
 | execution-ready after normal proof | D01-D05, K02-K03, K04b-K04d, K05a-K05d, P01-P04d, O01-O10, S01, S03-S05, S07-S08, ST01-ST22, MP01-MP05 | Each row has an accepted owner/destination and proof gate. Execution can be sliced by operation contracts, stage authoring, policy relocation, primitive extraction, and facade retirement. |
 | prerequisite-coupled | D02-D04, K01, K04a, O02-O09, S02, ST07-ST13, ST17-ST21, MP01-MP05 | These rows are mechanical only when paired with the corresponding import reroute, public-stage recomposition, classifier trace, or package-boundary update. |
-| tracked later domino | S06 | Resource expected count ranges are outside this config-law execution and are tracked in `resource-policy-data-contract.domino.md`. |
+| closed cleanup domino | S06 | Resource expected count ranges are closed by the Slice 001 cleanup execution and recorded in `resource-policy-data-contract.domino.md`. |
 | needs destination law | none | The official Civ7 vocabulary correction resolves the previously ambiguous `BiomeEngineBindingsSchema` class into map-policy plus stage projection ownership. |
 
 ## Execution-Plan Implications
@@ -147,6 +147,9 @@ mechanical, but not as one flat rename:
   rejected;
 - root/per-domain `config.ts` facades retire only after import reroutes and
   public/generated export checks.
+- resource expected-count ranges now have a reusable primitive owner under
+  `resources/model/schemas`; operation contracts compose that primitive and
+  artifact files retain stricter artifact-owned validation.
 
 No broad public-schema deletion is authorized. Public authoring surfaces stay
 with stages unless the stage-shape proof shows an empty/static or wrapper-only
