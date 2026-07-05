@@ -1,12 +1,18 @@
 # Domain Model Config Law Mechanical Execution Draft
 
-Status: draft, not yet reviewed
+Status: draft input, superseded for disposition by `second-pass-disposition.md`
 
 Prepared at: 2026-07-04
 
 Purpose: capture the mechanical execution sequence implied by the config-law
 discriminator before a fresh review team works it over. This is not final
 execution authority yet.
+
+Active disposition source of truth: `second-pass-disposition.md`.
+
+Before this draft can become an execution plan, it must be hardened against the
+final row-by-row ledger in `second-pass-disposition.md`. If this draft conflicts
+with that ledger, the ledger wins.
 
 ## Core Discriminator
 

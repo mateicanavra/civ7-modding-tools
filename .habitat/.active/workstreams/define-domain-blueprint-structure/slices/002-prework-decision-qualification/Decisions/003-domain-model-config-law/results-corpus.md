@@ -1,6 +1,13 @@
 # Domain Model Config Law Results Corpus
 
-Status: investigation corpus complete and reviewed
+Status: historical first-pass investigation input
+
+Active source of truth: `second-pass-disposition.md`.
+
+This document remains as provenance for the first investigation pass. Do not
+use it as the active row ledger or execution source. The final row-by-row
+disposition, accepted destinations, and derived execution views live in
+`second-pass-disposition.md`.
 
 Prepared at: 2026-07-04
 
