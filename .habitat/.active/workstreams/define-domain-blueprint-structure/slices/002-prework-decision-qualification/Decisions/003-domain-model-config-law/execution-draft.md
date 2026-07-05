@@ -276,181 +276,265 @@ Mechanical disposition:
 3. Delete the facade only after source, generated/public export, and package
    surface checks prove no live dependency remains.
 
-## Draft Execution Sequence
+## Draft Execution Workstream
 
-### Stage 0: Authority Patch
+### Scope Contract
 
-Objective: update the prework frame and Habitat scope language so the execution
-team is not implementing against stale `model/config/` authority.
+Objective: execute the complete active `Domain Model Config Law` disposition
+ledger in `second-pass-disposition.md`, not a smaller first mechanical slice.
+
+Included:
+
+- all active work rows in `second-pass-disposition.md`;
+- all keep/no-op proof rows needed to prove no accidental drift;
+- pure mechanical rows with exact destinations;
+- coupled mechanical rows where the destination is fixed but the executor must
+  move through caller, public-stage, import, package-boundary, or classifier
+  proof together.
+
+Excluded:
+
+- row `S06`, the resource expected-count/data-contract question, which is
+  explicitly tracked in `resource-policy-data-contract.domino.md`;
+- unrelated full domain-blueprint topology ratcheting outside this config-law
+  packet.
+
+The workstream is one end-to-end burn-down, but it is not one flat refactor.
+Each stage closes a class of rows, gets reviewed, runs its proof gates, and only
+then feeds the next stage. Agents may work in parallel inside a stage when
+their write sets are distinct, but row ownership remains visible throughout.
+
+### Workstream Operating Model
+
+Each stage uses a cascading-depth loop:
+
+1. Start from the final ledger rows, not from opportunistic source searches.
+2. Assign each row to one lane with a concrete owner and proof gate.
+3. Let the lane follow cascading references until that row class is fully
+   closed; do not stop at the first import rewrite if public exports, generated
+   surfaces, or stage compile paths still depend on the old shape.
+4. Run local checks for that lane, then a fresh review loop for the stage.
+5. Repair accepted findings before entering the next stage.
+
+Pure mechanical rows go first because they reduce import pressure and remove
+false owners. Coupled mechanical rows follow once their prerequisites are
+present; they are still deterministic, but they require deeper local proof.
+
+### Stage 0: Preflight And Pattern Readiness
+
+Objective: confirm the destination rails and ledger authority before source
+movement.
 
 Changes:
 
-- replace generic `model/config/` authority with `model/schemas/` and
-  `model/policy/`;
-- record that operations do not own config files, they own contracts;
-- record that extracted operation input/output schemas are forbidden;
-- record that shared semantic fragments are domain schema primitives and must
-  be recomposed by each operation contract.
-
-Gate:
-
-- all active packet, decision-book, and scope references agree on the owner
-  classes above;
-- no document still presents `model/config/` as the target destination.
-
-### Stage 0.5: Destination Pattern Drafts
-
-Objective: draft the Habitat pattern destinations that make the mechanical
-cleanup enforceable while it runs.
-
-Changes:
-
-- draft the operation contract file-shape pattern;
-- draft the recipe stage authoring file-shape pattern;
-- draft the domain `model/schemas/` and `model/policy/` export-shape patterns;
-- keep these as draft or candidate pattern authority until reviewed.
-
-Gate:
-
-- each mechanical destination has a named pattern or an explicit accepted gap;
-- the patterns are focused on structural ownership and imports, not behavior;
-- the patterns do not enforce the full domain blueprint topology early;
-- implementation slices can use the patterns as local proof targets without
-  pulling unrelated existing code red.
-
-### Stage 1: Operation Contract Consolidation
-
-Objective: remove operation-local `config.ts` files where they are merely split
-contract schema declarations.
-
-Known candidates from the corpus:
-
-- `foundation/ops/compute-crust-evolution/config.ts`
-- `morphology/ops/compute-base-topography/config.ts`
-- `morphology/ops/compute-coastline-metrics/config.ts`
-- `morphology/ops/compute-geomorphic-cycle/config.ts`
-- `morphology/ops/compute-sculpt-continental-margin/config.ts`
-- `morphology/ops/compute-sea-level/config.ts`
-- `morphology/ops/plan-island-chains/config.ts`
-- `morphology/ops/plan-volcanoes/config.ts`
-
-Decision criteria:
-
-- if all exported schemas describe only the owning operation's strategy/default
-  contract, inline them into that operation's `contract.ts`;
-- if a nested schema is used by multiple operations because it represents a
-  semantic concept, extract only that nested semantic primitive to
-  `model/schemas/`;
-- if a nested value is policy/default logic, extract to `model/policy/`;
-- do not extract the operation's full input/output/strategy envelope.
-
-Acceptance:
-
-- candidate `config.ts` files are deleted or explicitly blocked with a named
-  semantic reason;
-- affected contracts own their schema definitions directly;
-- imports no longer point to deleted operation config files;
-- operation behavior and public contract shape remain equivalent.
-
-### Stage 2: Operation-Family Shared Contract Decomposition
-
-Objective: remove the generic operation-family config bucket without losing
-shared semantic primitives.
-
-Known candidate:
-
-- `morphology/ops/mountains-shared/config.ts`
-
-Decision criteria:
-
-- operation-family full contract envelopes are not extracted as a shared config
+- treat `second-pass-disposition.md` as the active ledger;
+- treat `results-corpus.md` as historical first-pass input only;
+- treat this document as the execution plan draft to be hardened, not source
   authority;
-- stable semantic primitives move to `morphology/model/schemas/`;
-- policy/defaults/guards move to `morphology/model/policy/` or the owning stage
-  if they are public-authoring mapping logic;
-- each operation contract recomposes its own contract from the accepted
-  primitives.
+- confirm the operation contract, recipe stage authoring, and domain
+  schema/policy patterns are available as execution proof rails;
+- confirm `S06` remains the only tracked-later row.
+
+Gate:
+
+- no active document presents `model/config/` as a destination;
+- every non-`S06` row has a stage assignment or explicit no-op proof role;
+- pattern checks are structural Habitat checks, not behavior tests.
+
+### Stage 1: Pure Mechanical Owner Materialization
+
+Objective: materialize exact owners for rows that do not require public-stage
+recomposition or package-boundary splits.
+
+Lane A, direct policy moves:
+
+- `P01`;
+- `P02`;
+- `P04a` through `P04d`;
+- any exact policy import rewrites needed by those rows.
+
+Lane B, exact stage knob reroutes:
+
+- `K02`;
+- `K03`;
+- `K04b` through `K04d`;
+- `K05a` through `K05d`.
+
+Lane C, single-owner operation contract inlines:
+
+- `O01`;
+- `O04`;
+- `O08`;
+- any other operation-local config file proven not to participate in a coupled
+  stage public surface during execution.
+
+Lane D, exact local helper cleanup:
+
+- `O10`, inlining `assertSameMountainFamilySelection` into
+  `morphology-features/steps/mountains.ts`;
+- no operation-family config bucket remains for that helper.
 
 Acceptance:
 
-- no generic `mountains-shared/config.ts` owner remains;
-- `plan-ridges`, `plan-foothills`, and `plan-rough-lands` each own their
-  operation contract shape;
-- any shared schema material has semantic names and domain model schema owner
-  paths;
-- any stage-only mountain public mapping remains in the
-  `morphology-features` stage.
+- all lane rows import from their exact owner destinations;
+- old source exports have zero importers or are carried forward only for a
+  later stage explicitly named below;
+- operation/stage behavior checks remain green for touched projects;
+- review verifies no coupled row was partially changed and left unresolved.
 
-### Stage 3: Domain Schema And Policy Owner Paths
+### Stage 2: Coupled Operation Contract And Stage Public Recomposition
 
-Objective: create the direct owner paths needed to retire config facades.
+Objective: close the operation rows whose config files are entangled with stage
+public authoring surfaces or operation-family contract recomposition.
 
-Changes:
+Lane A, operation contract plus stage-public recomposition:
 
-- create domain-local `model/schemas/` barrels where real reusable schemas
-  exist;
-- route reusable semantic policy to `model/policy/`;
-- do not create empty schema folders just to satisfy topology.
+- `O02`;
+- `O03`;
+- `O05`;
+- `O06`;
+- `O07`;
+- affected stage rows `ST07` through `ST10` where their public authoring
+  surface composes the old operation config material.
 
-Decision criteria:
+Lane B, operation-family contract decomposition:
 
-- schema if it defines reusable object shape or semantic vocabulary;
-- policy if it defines reusable semantics, constants, lookup tables, or
-  resolvers;
-- stage-local if it only translates one stage's authoring surface;
-- delete if no live caller and no accepted authority role.
+- `O09`;
+- the `plan-ridges`, `plan-foothills`, and `plan-rough-lands` contract
+  destinations;
+- any stage-local mountain public mapping needed by `ST10`.
 
-Acceptance:
+Lane C, duplicated/localized stage knobs:
 
-- each moved export has a real owner class;
-- recipe stages import schemas from one domain schema source where applicable;
-- no broad per-domain config facade is needed for schema or policy imports.
-
-### Stage 4: Facade Retirement
-
-Objective: remove or narrow root/per-domain config facades after owner paths are
-available.
-
-Changes:
-
-- reroute imports away from `@mapgen/domain/<domain>/config.js`;
-- delete `domain/config.ts` if source and public export checks permit;
-- delete or replace per-domain `config.ts` files after imports route to
-  `model/schemas/`, `model/policy/`, or stage-local files.
+- `K01`;
+- `K04a`;
+- affected stage rows `ST01`, `ST02`, `ST11`, and `ST12`.
 
 Acceptance:
 
-- no stage or domain source imports from per-domain config facades;
-- no root domain config facade exists unless a public API decision explicitly
-  keeps it;
-- generated/public package export checks are recorded before deletion claims.
+- operation `contract.ts` files own their input/output/strategy/default schema
+  envelopes;
+- no full operation envelope is extracted to `model/schemas`;
+- stage public surfaces still own authoring UX and compile behavior;
+- all old operation `config.ts` imports are zero or assigned to the next
+  facade-retirement stage with an explicit dependency.
 
-### Stage 5: Stage Authoring Surface Cleanup
+### Stage 3: Domain Primitive And Artifact-Support Extraction
 
-Objective: only after operation/domain owner paths are clean, simplify
-stage-owned authoring surfaces where clearly mechanical.
+Objective: extract the narrow accepted primitives/support schemas and prove the
+rejected candidates stayed with their owners.
 
-Allowed now:
+Lane A, accepted domain schema primitives:
 
-- delete empty public schemas where the stage has no authoring inputs;
-- remove wrapper-only public schemas when the compiled result is identical to
-  step defaults and no UX/policy is carried;
-- move stage-only helper logic under the owning stage if it currently looks
-  detached.
+- `S01`, moving `FeaturePlacementSchema` to
+  `ecology/model/schemas/feature-placement.schema.ts`;
+- `S02`, moving internal `BiomeSymbolSchema` to
+  `ecology/model/schemas/biome-symbol.schema.ts` only after classifier trace
+  proof against `BiomeSymbol` and `BIOME_SYMBOL_ORDER`.
 
-Forbidden in this mechanical pass:
+Lane B, artifact-owned support:
 
-- global public-schema deletion;
-- moving public-authoring logic into domain model;
-- extracting full operation contracts into shared domain schemas;
-- using tests as structural/topology law.
+- `S03`, moving `HydrologyWindFieldSchema` to
+  `hydrology-climate-baseline/artifacts/wind-field.schema.ts`;
+- `S04`, proving foundation tectonic scalar fields remain artifact-owned.
+
+Lane C, rejected primitive proof:
+
+- `S07`;
+- `S08`;
+- any broad config envelope encountered during Stage 2 that looks reusable by
+  name but is operation-local or scorer-local by semantics.
 
 Acceptance:
 
-- every changed stage still owns its authoring surface;
-- policy-bearing compile behavior is preserved;
-- remaining messy public helper files are explicitly classified as semantic
-  remainder, not hidden under config-law cleanup.
+- accepted primitives have semantic names and owner barrels only where useful;
+- artifact support stays with artifact files, not domain model schemas;
+- rejected primitives are documented as keep/no-op proof rows, not ignored.
+
+### Stage 4: Projection Boundary And Recipe-Root Helper Split
+
+Objective: split projection-facing config residue into owning map stages and
+external Civ7 package boundaries.
+
+Lane A, Civ-visible projection policy:
+
+- `P03`, moving navigable river projection policy to
+  `map-rivers/riverProjectionPolicy.ts`;
+- `ST20`, proving map-rivers remains the owner of projection authoring.
+
+Lane B, official biome binding boundary:
+
+- `S05`, splitting official biome-global vocabulary to
+  `packages/civ7-map-policy/src/biome-globals.ts`;
+- `MP05` and `ST21`, moving the TypeBox binding schema/helper to
+  `map-ecology/biome-bindings.ts` and keeping runtime/global access at the
+  adapter boundary.
+
+Lane C, recipe-root map projection helper split:
+
+- `MP01` plus `ST17`;
+- `MP02` plus `ST18`;
+- `MP03` plus `ST19`;
+- `MP04` plus `ST20`;
+- import-zero proof for `map-projection-public-config.ts`.
+
+Acceptance:
+
+- no domain model/schema file owns official Civ7 vocabulary or engine globals;
+- no recipe-root `map-projection-public-config.ts` helper remains as a durable
+  authority surface;
+- each map stage owns its own public/knob projection surface or proves the
+  surface is empty and removable under stage-shape law.
+
+### Stage 5: Facade Retirement And Deletion Residue
+
+Objective: delete config facades and stale aggregate files only after all owner
+paths are live.
+
+Rows:
+
+- `D01`;
+- `D02`;
+- `D03`;
+- `D04`;
+- `D05`;
+- any old operation-local `config.ts`, shared knob/multiplier, or recipe-root
+  helper files left empty by Stages 1-4.
+
+Acceptance:
+
+- no source or generated/public export imports from root/per-domain
+  `config.ts` facades unless a reviewed public API decision explicitly keeps
+  one;
+- deleted files have source import-zero proof and generated/public surface
+  proof where relevant;
+- old facade paths are not replaced by a new broad bucket under another name.
+
+### Stage 6: Keep-Row Proof And Closure
+
+Objective: prove the rows intentionally left in place did not move by accident
+and still match their accepted owner class.
+
+Rows:
+
+- `ST01` through `ST06`;
+- `ST09` through `ST16`;
+- `ST18`;
+- `ST20`;
+- `ST22`;
+- `S04`;
+- `S07`;
+- `S08`;
+- any keep/no-op row touched indirectly by implementation.
+
+Acceptance:
+
+- keep rows have explicit proof labels in the execution record;
+- P1/P2 review findings are repaired before closure;
+- behavior tests, TypeScript checks, Habitat pattern checks, and import scans
+  are recorded separately;
+- `S06` remains the only non-closed row and is visibly tracked in its domino
+  file.
 
 ## Mechanical End State
 
@@ -471,38 +555,24 @@ Expected closure state:
 - any remaining use of the runtime word `config` refers to the MapGen
   recipe/stage/step authoring model, not domain authority.
 
-This is the stopping point for the mechanical bulk semantic resolution. After
-that, the remaining questions should be topology and file-shape questions that
-can be decided against clean owner classes rather than against an ambiguous
-`config` bucket.
+This is the stopping point for the full config-law execution pass. There should
+be no active config-law row left unresolved except `S06`, which is deliberately
+outside this slice and tracked as its own domino.
 
-## Semantic Remainder After Mechanical Pass
-
-This draft expects some rows to remain after the mechanical cleanup:
-
-- exact stage definition file law;
-- whether stage public helpers must be inline in `index.ts` or may live in
-  stage-local support files;
-- projection-vs-domain ownership for boundary schemas such as biome bindings;
-- exact artifact-support-vs-model-schema ownership for reusable artifact field
-  schemas;
-- any repeated primitive that is semantically similar but not yet proven shared.
-
-Those remainders should be smaller after the mechanical pass because operation
-contract splits, generic config facades, and false `model/config/` authority
-will no longer be obscuring the real questions.
+Remaining work after this execution is not config-law disposition. It belongs
+to later full topology ratcheting or to the resource data-contract domino.
 
 ## Review Target For Next Turn
 
 The next review team should evaluate:
 
-- whether the owner classes are complete and mutually exclusive;
-- whether `model/schemas/` is the right destination name;
-- whether forbidding extracted operation input/output schemas is too strict;
-- whether operation-family contract decomposition should happen before or after
-  simple operation contract consolidation;
-- whether the stage authoring cleanup should stop at pattern drafting or also
-  execute obvious empty/wrapper-only cleanup;
-- whether the operation contract, stage authoring, and domain schema/policy
-  destination patterns are strict enough to make the mechanical moves safe
-  without enforcing the whole domain blueprint too early.
+- whether this stage structure covers every non-`S06` row in
+  `second-pass-disposition.md`;
+- whether the pure-mechanical and coupled-mechanical split is useful for agent
+  lane assignment;
+- whether any coupled stage needs to be split further to avoid write-set
+  collision;
+- whether the operation contract, stage authoring, domain schema/policy, and
+  projection-boundary patterns are strict enough to make execution mechanical;
+- whether the proof gates are sufficient to close the whole config-law packet
+  without slipping into unrelated domain-blueprint topology enforcement.
