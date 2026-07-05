@@ -87,6 +87,11 @@ For config-shaped rows, decide from the consumer role and semantic owner:
   to the domain model schemas owner;
 - if the row defines reusable semantic policy, it belongs to `model/policy/`,
   not a config owner;
+- if the row encodes official Civilization 7 vocabulary, engine globals,
+  resource identifiers, adapter-facing ids, or map-policy translation, test
+  `@civ7/types`, `@civ7/map-policy`, and adapter ownership before any domain
+  destination; domain schemas may compose those surfaces, but they do not own
+  the official vocabulary;
 - if the row is only a broad root `config.ts` re-export facade, it is source
   evidence or a transitional import surface, not destination authority.
 
@@ -100,6 +105,9 @@ The current config-law packet has already installed the destination rails:
 - operation contract file shape;
 - recipe stage authoring owner shape;
 - domain `model/schemas` and `model/policy` owner shape.
+- official Civ7 vocabulary boundary: type declarations belong to
+  `@civ7/types`, pure official map policy facts belong to `@civ7/map-policy`,
+  and runtime/global access belongs to the adapter boundary.
 
 Those rails sharpen the next pass. The next disposition corpus must revisit the
 rows from ground up and write deterministic actions, not loose opportunity

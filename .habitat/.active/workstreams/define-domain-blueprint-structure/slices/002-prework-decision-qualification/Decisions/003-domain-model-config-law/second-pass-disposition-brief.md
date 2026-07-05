@@ -102,6 +102,10 @@ The pass uses these accepted destinations:
   artifact contract or artifact-owned validation shape. Artifact-owned
   fragments are not promoted to `model/schemas` just because an operation or
   stage also references them.
+- Official Civilization 7 vocabulary, engine globals, resource identifiers,
+  adapter-facing ids, and map-policy translation do not default to domain
+  owners. Test `@civ7/types`, `@civ7/map-policy`, and adapter ownership before
+  assigning any domain `model/schemas` or `model/policy` destination.
 - Recipe stages own public schemas, `knobsSchema`, public-to-internal
   `compile`, projection-facing authoring behavior, and stage-local helpers.
 - Root/per-domain `config.ts` files are transitional import facades or stale
