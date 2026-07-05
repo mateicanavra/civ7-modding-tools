@@ -1,8 +1,14 @@
-# Domain Model Config Law Second-Pass Disposition Brief
+# Domain Model Config Law Disposition Brief
 
-Status: draft reviewed brief for the next investigation team
+Status: historical executed brief; final ledger is `disposition.md`
 
 Prepared at: 2026-07-04
+
+Historical use only:
+the imperative language below is preserved as the executed prompt/brief record.
+Do not run it as current work. The current disposition authority is
+`disposition.md`, and the current execution-planning surface is
+`execution-draft.md`.
 
 Purpose: run a full row-by-row disposition pass over the existing config-law
 corpus after the destination rails were clarified. This pass is investigation
@@ -11,8 +17,8 @@ advisory rules, or harden the execution plan.
 
 ## Objective
 
-Produce a deterministic disposition table for every row in
-`results-corpus.md`.
+Produce a deterministic disposition table for every row from the first-pass
+investigation corpus.
 
 Each row must end in one concrete action:
 
@@ -57,10 +63,11 @@ Read these before source inspection:
 - `.habitat/blueprints/recipe-stage/require_stage_authoring_owner_shape/`
 - `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/`
 - `investigation-brief.md`
-- `results-corpus.md`
+- first-pass investigation corpus, preserved in Git history
 - `execution-draft.md`
 
-Treat `results-corpus.md` as evidence, not as final disposition authority.
+Treat the first-pass investigation corpus as evidence, not as final disposition
+authority.
 Earlier "candidate owner" and "disposition lead" cells may be wrong under the
 new destination rails and must be re-evaluated.
 
@@ -68,7 +75,7 @@ new destination rails and must be re-evaluated.
 
 The required disposition ledger covers:
 
-- every row in `results-corpus.md` under `Durable Row-Level Corpus`;
+- every row from the first-pass corpus under `Durable Row-Level Corpus`;
 - every row in `Public Stage Surface Table`;
 - every row in `Domain Primitive And Operation Overlap Table` that is not
   already represented by a durable row;
@@ -126,7 +133,7 @@ not let a group hide a path, symbol, import surface, or missing proof.
 
 ## Required Output
 
-Create `second-pass-disposition.md` in this packet with:
+Create `disposition.md` in this packet with:
 
 1. A short frame confirming the accepted owner classes.
 2. A row disposition table with these columns:
@@ -323,7 +330,7 @@ Stop and report rather than forcing a destination if:
 
 ## Review Loop
 
-After the steward drafts `second-pass-disposition.md`, run a fresh review set:
+After the steward drafts `disposition.md`, run a fresh review set:
 
 - Review 1: row completeness and no hidden grouped rows.
 - Review 2: owner-law correctness against the destination rails.
@@ -340,22 +347,22 @@ This brief was reviewed by three fresh agents before use. Accepted findings
 were repaired:
 
 - the canonical input row set is now explicit, so agents do not choose their
-  own subset of `results-corpus.md`;
+  own subset of the first-pass corpus;
 - `track later` is a valid action for outside-scope evidence rows;
 - primitive candidates must map back to original source rows;
 - artifact support is a valid owner destination;
 - the embedded handoff prompt now uses root-correct paths, requires lane
   assignment, and names the steward synthesis artifact;
-- the reusable runner now has a second-pass config-law override preventing
+- the reusable runner now has a final config-law override preventing
   accidental execution-slice creation.
 
-## Handoff Prompt For The Second-Pass Team
+## Handoff Prompt For The Final Disposition Team
 
 Use this prompt for the implementation-neutral investigation team. Fill the
 `Lane assignment` field before sending it to any agent.
 
 ```text
-You are running the second-pass Domain Model Config Law disposition for the
+You are running the final Domain Model Config Law disposition for the
 Civ7 Modding Tools Habitat workstream.
 
 Assume no prior thread context. Work in:
@@ -373,8 +380,8 @@ Read:
 - .habitat/scopes/domain/;
 - the three config-law Habitat rule packets under .habitat/blueprints/;
 - .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/003-domain-model-config-law/investigation-brief.md;
-- .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/003-domain-model-config-law/results-corpus.md;
-- .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/003-domain-model-config-law/second-pass-disposition-brief.md.
+- first-pass investigation corpus preserved in Git history;
+- .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/003-domain-model-config-law/disposition-brief.md.
 
 Lane assignment:
 <Agent A Operation Contract Rows | Agent B Primitive Hunter | Agent C Domain
@@ -398,5 +405,5 @@ non-owner, proof needed before implementation, and any `needs destination`
 question stated narrowly.
 
 The steward synthesizes lane outputs into
-.habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/003-domain-model-config-law/second-pass-disposition.md.
+.habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/003-domain-model-config-law/disposition.md.
 ```

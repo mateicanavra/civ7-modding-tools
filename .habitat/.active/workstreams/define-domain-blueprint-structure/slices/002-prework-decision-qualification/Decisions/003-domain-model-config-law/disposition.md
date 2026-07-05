@@ -1,4 +1,4 @@
-# Domain Model Config Law Second-Pass Disposition
+# Domain Model Config Law Disposition
 
 Status: reviewed and accepted for execution-plan hardening
 

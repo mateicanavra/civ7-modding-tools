@@ -1,6 +1,6 @@
 # Domain Model Config Law Investigation Brief
 
-Status: reviewed and executed
+Status: historical executed brief; output was absorbed into `disposition.md`
 
 Prepared at: 2026-07-04
 
@@ -371,10 +371,9 @@ Output:
 
 ## Merge Protocol
 
-Agents return lane findings to the steward. They do not edit source and do not
-write `results-corpus.md` directly unless explicitly reassigned. The steward
-deduplicates the lane outputs into one row-level corpus and preserves source
-agent provenance in the evidence column.
+Agents return lane findings to the steward. They do not edit source. The
+steward deduplicates the lane outputs into one row-level corpus and preserves
+source agent provenance in the evidence column.
 
 Every durable corpus row must use this shape:
 
@@ -389,8 +388,10 @@ census.
 
 ## Artifact Contract
 
-Required artifact:
-`results-corpus.md` in this packet directory.
+Required artifact at the time of execution:
+a first-pass results corpus in this packet directory. That intermediate corpus
+has since been absorbed into the final `disposition.md` ledger and removed from
+the active packet; Git history preserves the original artifact.
 
 Intended reader:
 the steward and future agents running the actual `Domain Model Config Law`
@@ -483,4 +484,5 @@ added.
 
 Execution outcome:
 fresh investigation agents then ran the three independent lanes named above.
-Their findings were steward-merged into `results-corpus.md`.
+Their findings were steward-merged into the first-pass results corpus, then
+absorbed into `disposition.md`.

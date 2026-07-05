@@ -1,6 +1,6 @@
 # Domain Model Config Law Mechanical Execution Draft
 
-Status: draft input, superseded for disposition by `second-pass-disposition.md`
+Status: draft input, superseded for disposition by `disposition.md`
 
 Prepared at: 2026-07-04
 
@@ -8,10 +8,10 @@ Purpose: capture the mechanical execution sequence implied by the config-law
 discriminator before a fresh review team works it over. This is not final
 execution authority yet.
 
-Active disposition source of truth: `second-pass-disposition.md`.
+Active disposition source of truth: `disposition.md`.
 
 Before this draft can become an execution plan, it must be hardened against the
-final row-by-row ledger in `second-pass-disposition.md`. If this draft conflicts
+final row-by-row ledger in `disposition.md`. If this draft conflicts
 with that ledger, the ledger wins.
 
 ## Core Discriminator
@@ -281,11 +281,11 @@ Mechanical disposition:
 ### Scope Contract
 
 Objective: execute the complete active `Domain Model Config Law` disposition
-ledger in `second-pass-disposition.md`, not a smaller first mechanical slice.
+ledger in `disposition.md`, not a smaller first mechanical slice.
 
 Included:
 
-- all active work rows in `second-pass-disposition.md`;
+- all active work rows in `disposition.md`;
 - all keep/no-op proof rows needed to prove no accidental drift;
 - pure mechanical rows with exact destinations;
 - coupled mechanical rows where the destination is fixed but the executor must
@@ -327,8 +327,7 @@ movement.
 
 Changes:
 
-- treat `second-pass-disposition.md` as the active ledger;
-- treat `results-corpus.md` as historical first-pass input only;
+- treat `disposition.md` as the active ledger;
 - treat this document as the execution plan draft to be hardened, not source
   authority;
 - confirm the operation contract, recipe stage authoring, and domain
@@ -567,7 +566,7 @@ to later full topology ratcheting or to the resource data-contract domino.
 The next review team should evaluate:
 
 - whether this stage structure covers every non-`S06` row in
-  `second-pass-disposition.md`;
+  `disposition.md`;
 - whether the pure-mechanical and coupled-mechanical split is useful for agent
   lane assignment;
 - whether any coupled stage needs to be split further to avoid write-set
