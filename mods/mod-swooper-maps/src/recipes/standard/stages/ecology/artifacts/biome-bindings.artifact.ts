@@ -1,4 +1,3 @@
-import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
 import {
   defineArtifact,
   type Static,

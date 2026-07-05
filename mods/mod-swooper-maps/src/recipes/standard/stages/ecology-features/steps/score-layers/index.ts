@@ -4,7 +4,7 @@ import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import ScoreLayersStepContract from "./contract.js";
 import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
@@ -279,16 +279,16 @@ export default createStep(ScoreLayersStepContract, {
     ).score01;
 
     const floodplainScores = {
-      FEATURE_DESERT_FLOODPLAIN_MINOR: new Float32Array(size),
-      FEATURE_DESERT_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
-      FEATURE_GRASSLAND_FLOODPLAIN_MINOR: new Float32Array(size),
-      FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
-      FEATURE_PLAINS_FLOODPLAIN_MINOR: new Float32Array(size),
-      FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
-      FEATURE_TROPICAL_FLOODPLAIN_MINOR: new Float32Array(size),
-      FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
-      FEATURE_TUNDRA_FLOODPLAIN_MINOR: new Float32Array(size),
-      FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE: new Float32Array(size),
+      "desert-floodplain-minor": new Float32Array(size),
+      "desert-floodplain-navigable": new Float32Array(size),
+      "grassland-floodplain-minor": new Float32Array(size),
+      "grassland-floodplain-navigable": new Float32Array(size),
+      "plains-floodplain-minor": new Float32Array(size),
+      "plains-floodplain-navigable": new Float32Array(size),
+      "tropical-floodplain-minor": new Float32Array(size),
+      "tropical-floodplain-navigable": new Float32Array(size),
+      "tundra-floodplain-minor": new Float32Array(size),
+      "tundra-floodplain-navigable": new Float32Array(size),
     } as const;
     const floodplainNoise = new PerlinNoise(
       ctxStepSeed(context, ScoreLayersStepContract.id, "ecology/floodplain-alluvial-patches")
@@ -347,52 +347,52 @@ export default createStep(ScoreLayersStepContract, {
       switch (classification.biomeIndex[i]) {
         case BIOME_SYMBOL_TO_INDEX.desert:
           (isNavigableFloodplain
-            ? floodplainScores.FEATURE_DESERT_FLOODPLAIN_NAVIGABLE
-            : floodplainScores.FEATURE_DESERT_FLOODPLAIN_MINOR)[i] = score;
+            ? floodplainScores["desert-floodplain-navigable"]
+            : floodplainScores["desert-floodplain-minor"])[i] = score;
           break;
         case BIOME_SYMBOL_TO_INDEX.temperateHumid:
           (isNavigableFloodplain
-            ? floodplainScores.FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE
-            : floodplainScores.FEATURE_GRASSLAND_FLOODPLAIN_MINOR)[i] = score;
+            ? floodplainScores["grassland-floodplain-navigable"]
+            : floodplainScores["grassland-floodplain-minor"])[i] = score;
           break;
         case BIOME_SYMBOL_TO_INDEX.temperateDry:
         case BIOME_SYMBOL_TO_INDEX.tropicalSeasonal:
           (isNavigableFloodplain
-            ? floodplainScores.FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE
-            : floodplainScores.FEATURE_PLAINS_FLOODPLAIN_MINOR)[i] = score;
+            ? floodplainScores["plains-floodplain-navigable"]
+            : floodplainScores["plains-floodplain-minor"])[i] = score;
           break;
         case BIOME_SYMBOL_TO_INDEX.tropicalRainforest:
           (isNavigableFloodplain
-            ? floodplainScores.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE
-            : floodplainScores.FEATURE_TROPICAL_FLOODPLAIN_MINOR)[i] = score;
+            ? floodplainScores["tropical-floodplain-navigable"]
+            : floodplainScores["tropical-floodplain-minor"])[i] = score;
           break;
         case BIOME_SYMBOL_TO_INDEX.snow:
         case BIOME_SYMBOL_TO_INDEX.tundra:
         case BIOME_SYMBOL_TO_INDEX.boreal:
           (isNavigableFloodplain
-            ? floodplainScores.FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE
-            : floodplainScores.FEATURE_TUNDRA_FLOODPLAIN_MINOR)[i] = score;
+            ? floodplainScores["tundra-floodplain-navigable"]
+            : floodplainScores["tundra-floodplain-minor"])[i] = score;
           break;
       }
     }
 
     const layers = {
-      FEATURE_FOREST: forestScore,
-      FEATURE_RAINFOREST: rainforestScore,
-      FEATURE_TAIGA: taigaScore,
-      FEATURE_SAVANNA_WOODLAND: savannaWoodlandScore,
-      FEATURE_SAGEBRUSH_STEPPE: sagebrushSteppeScore,
-      FEATURE_MARSH: marshScore,
-      FEATURE_TUNDRA_BOG: tundraBogScore,
-      FEATURE_MANGROVE: mangroveScore,
-      FEATURE_OASIS: oasisScore,
-      FEATURE_WATERING_HOLE: wateringHoleScore,
+      forest: forestScore,
+      rainforest: rainforestScore,
+      taiga: taigaScore,
+      "savanna-woodland": savannaWoodlandScore,
+      "sagebrush-steppe": sagebrushSteppeScore,
+      marsh: marshScore,
+      "tundra-bog": tundraBogScore,
+      mangrove: mangroveScore,
+      oasis: oasisScore,
+      "watering-hole": wateringHoleScore,
       ...floodplainScores,
-      FEATURE_REEF: reefScore,
-      FEATURE_COLD_REEF: coldReefScore,
-      FEATURE_ATOLL: atollScore,
-      FEATURE_LOTUS: lotusScore,
-      FEATURE_ICE: iceScore,
+      reef: reefScore,
+      "cold-reef": coldReefScore,
+      atoll: atollScore,
+      lotus: lotusScore,
+      ice: iceScore,
     } as const;
 
     // Score layers are a primary debugging surface in M3; dump them for deterministic diffs.
@@ -413,7 +413,7 @@ export default createStep(ScoreLayersStepContract, {
       layers,
     });
 
-    const featureIndex = new Uint16Array(size);
+    const featureOccupancyMask = new Uint8Array(size);
     const reserved = new Uint8Array(size);
 
     reserved.fill(0);
@@ -430,7 +430,7 @@ export default createStep(ScoreLayersStepContract, {
     deps.artifacts.occupancyBase.publish(context, {
       width,
       height,
-      featureIndex,
+      featureOccupancyMask,
       reserved,
     });
   },

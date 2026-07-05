@@ -1,13 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
-import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
+const { computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph, computePlateMotion, computePlatesTensors } = foundationOpsPublic.ops;
 function computeBoundaryTiles(width: number, height: number, plateId: Int16Array): Uint8Array {
   const size = width * height;
   const boundary = new Uint8Array(size);

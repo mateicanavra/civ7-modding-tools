@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "require_recipe_stage_authoring_file_shape",
+  "title": "Require Recipe Stage Authoring File Shape",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-stage",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "standard recipe stage root files that are not the authoring owner shape: createStage must be present, imports must be from stage rails or domain model/artifact surfaces, and operation contract internals must not be mirrored into stage authoring",
+  "why": "A recipe stage root index.ts is the authoring surface. Public schema, knobs, compile mapping, and step selection belong at that surface; domain modules provide reusable model schemas, model policy, artifact contracts, and public domain surfaces. Stage-local public-config, knobs, and binding helper files are topology residue, not extra authority.",
+  "remediate": "Inline stage authoring schema/knob/compile surfaces into the owning stage index.ts, move reusable primitives to domain model/schemas or model/policy, and stop mirroring operation input/output/config/strategy members in stage authoring.",
+  "message": "Stage root index.ts must be the positive authoring owner shape.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md"
+    },
+    "patternName": "require_recipe_stage_authoring_file_shape"
+  }
+}

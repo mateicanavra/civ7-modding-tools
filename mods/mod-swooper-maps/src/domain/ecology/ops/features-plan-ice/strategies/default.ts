@@ -1,8 +1,9 @@
+import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { confidenceFromScore01, validateGridSize } from "../../score-shared/index.js";
+import { confidenceFromScore01, validateGridSize } from "../../../model/policy/feature-score-selection.js";
 import PlanIceContract from "../contract.js";
-import { admitIceIntent } from "../policies/index.js";
+import { admitIceIntent } from "../policy/index.js";
 
 export const defaultStrategy = createStrategy(PlanIceContract, "default", {
   run: (input, config) => {
@@ -13,23 +14,24 @@ export const defaultStrategy = createStrategy(PlanIceContract, "default", {
       height,
       fields: [
         { label: "score01", arr: input.score01 as Float32Array },
-        { label: "featureIndex", arr: input.featureIndex as Uint16Array },
+        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
         { label: "reserved", arr: input.reserved as Uint8Array },
       ],
     });
 
-    const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
+    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
+      [];
     void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.reserved[i] !== 0) continue;
-      if (input.featureIndex[i] !== 0) continue;
+      if (input.featureOccupancyMask[i] !== 0) continue;
       const score = input.score01[i] ?? 0;
       const confidence01 = confidenceFromScore01(score);
       if (!admitIceIntent({ confidence01 }, config)) continue;
       const x = i % width;
       const y = (i / width) | 0;
-      placements.push({ x, y, feature: "FEATURE_ICE" });
+      placements.push({ x, y, feature: "ice" });
     }
 
     return { placements };

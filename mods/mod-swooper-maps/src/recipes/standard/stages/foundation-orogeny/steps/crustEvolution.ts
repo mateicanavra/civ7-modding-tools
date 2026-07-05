@@ -1,12 +1,12 @@
-import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
 import {
   resolveContinentalAbundance,
   resolveContinentalRelief,
-} from "@mapgen/domain/foundation/config.js";
+} from "@mapgen/domain/foundation/model/policy/crust-character.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { foundationArtifacts } from "../../foundation/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY } from "../../foundation/viz.js";
 import CrustEvolutionStepContract from "./crustEvolution.contract.js";
 

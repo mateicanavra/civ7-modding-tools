@@ -1,10 +1,19 @@
 # Domain Model Config Law Execution Workstream
 
-Status: ready for execution after final review
+Status: superseded for closure by `repair-execution.md`; retained as historical execution record
 
 Prepared at: 2026-07-04
 
+> Supersession warning: do not use closure rows, `closed-*` statuses, or proof
+> claims below as active truth. They are historical evidence of the pass that
+> produced the repair. Current red rows live in `red-ledger.md`; current
+> execution gates live in `repair-execution.md`.
+
 Active disposition source of truth: `disposition.md`
+
+Current repair red source of truth: `red-ledger.md`
+
+Current repair execution source of truth: `repair-execution.md`
 
 Tracked-later domino: `resource-policy-data-contract.domino.md`
 
@@ -503,8 +512,9 @@ Decision criteria:
 
 - contracts may compose accepted primitives, but full operation envelopes stay
   local;
-- stage public schema names may remain stable for call sites, but ownership
-  must move to the stage directory;
+- operation-mirror public schema names do not remain stable for call sites;
+  they close by deletion/no public schema. Only independently proven,
+  non-mirror stage UX may remain in the stage `index.ts`;
 - duplication is preferred over inventing a cross-stage authoring owner when
   two stages share a knob shape;
 - `O08` and `O10` stay in this coupled stage because their disposition requires
@@ -871,31 +881,98 @@ Stop the current stage if:
 
 ## Implementation Row Ledger
 
-Fill this during execution.
+Execution filled this ledger on 2026-07-04/2026-07-05. Rows share proof
+commands where a stage moved a coherent owner class; row state still remains
+row-level.
 
 | Row | Stage | Final state | Owner path or delete proof | Behavior proof | Structure/import proof | Review disposition |
 | --- | --- | --- | --- | --- | --- | --- |
+| `P01` | Stage 1 | closed-moved | `mods/mod-swooper-maps/src/domain/foundation/model/policy/plate-activity.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_domain_model_schema_policy_owner_shape`; old config import scans | fresh review clean; accepted review findings repaired |
+| `P02` | Stage 1 | closed-moved | `mods/mod-swooper-maps/src/domain/hydrology/model/policy/climate-knob-policy.ts`; `mods/mod-swooper-maps/src/domain/hydrology/model/policy/hydrography-knob-policy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_domain_model_schema_policy_owner_shape`; old config import scans | fresh review clean; accepted review findings repaired |
+| `P03` | Stage 5 | closed-moved | `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/riverProjectionPolicy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | map projection helper scans; recipe-root helper import-zero scan | fresh review clean; accepted review findings repaired |
+| `P04a` | Stage 1 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/coast-knob-policy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_domain_model_schema_policy_owner_shape`; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `P04b` | Stage 1 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/erosion-knob-policy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_domain_model_schema_policy_owner_shape`; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `P04c` | Stage 1 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/shelf-knob-policy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_domain_model_schema_policy_owner_shape`; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `P04d` | Stage 1 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/landform-knob-policy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_domain_model_schema_policy_owner_shape`; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `O01` | Stage 1 | closed-inline | `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts`; deleted `compute-crust-evolution/config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; foundation config-bag Grit checks | fresh review clean; accepted review findings repaired |
+| `O02` | Stage 3 | closed-inline | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/contract.ts`; deleted op `config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; `require_morphology_public_surface_imports` | fresh review clean; accepted review findings repaired |
+| `O03` | Stage 3 | closed-inline | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-coastline-metrics/contract.ts`; deleted op `config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; morphology pattern checks | fresh review clean; accepted review findings repaired |
+| `O04` | Stage 1 | closed-inline | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-geomorphic-cycle/contract.ts`; deleted op `config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; TypeScript export proof through `domain/morphology/ops.ts` | fresh review clean; accepted review findings repaired |
+| `O05` | Stage 3 | closed-inline | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sculpt-continental-margin/contract.ts`; deleted op `config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; morphology pattern checks | fresh review clean; accepted review findings repaired |
+| `O06` | Stage 3 | closed-inline | `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/contract.ts`; deleted op `config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; morphology pattern checks | fresh review clean; accepted review findings repaired |
+| `O07` | Stage 3 | closed-inline | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-island-chains/contract.ts`; deleted op `config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; morphology pattern checks | fresh review clean; accepted review findings repaired |
+| `O08` | Stage 3 | closed-inline | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-volcanoes/contract.ts`; deleted op `config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation config import-zero scan; morphology pattern checks | fresh review clean; accepted review findings repaired |
+| `O09` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges/contract.ts`; `mods/mod-swooper-maps/src/domain/morphology/ops/plan-foothills/contract.ts`; deleted `mountains-shared/config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test`; `test/morphology/mountain-family-controls.test.ts` through Nx | shared config import-zero scan; public `MountainsConfig` exported through `@mapgen/domain/morphology/ops` | fresh review clean; accepted review findings repaired |
+| `O10` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/domain/morphology/ops/plan-rough-lands/contract.ts`; deleted `mountains-shared/config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test`; `test/morphology/mountain-family-controls.test.ts` through Nx | shared config import-zero scan; morphology pattern checks | fresh review clean; accepted review findings repaired |
+| `K01` | Stage 3 | closed-recomposed | foundation plate-count authoring localized to owning foundation stages | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old shared knob scan | fresh review clean; accepted review findings repaired |
+| `K02` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/domain/foundation/model/policy/plate-activity.ts`; foundation-tectonics stage wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old foundation config/shared scans | fresh review clean; accepted review findings repaired |
+| `K03` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/domain/foundation/model/policy/crust-character.ts`; foundation-orogeny stage wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old foundation config/shared scans | fresh review clean; accepted review findings repaired |
+| `K04a` | Stage 3 | closed-recomposed | hydrology stage-local authoring plus `domain/hydrology/model/policy/*` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old hydrology shared scans | fresh review clean; accepted review findings repaired |
+| `K04b` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/knobs.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old hydrology shared scans | fresh review clean; accepted review findings repaired |
+| `K04c` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/knobs.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old hydrology shared scans | fresh review clean; accepted review findings repaired |
+| `K04d` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/knobs.ts`; `domain/hydrology/model/policy/hydrography-knob-policy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old hydrology shared scans | fresh review clean; accepted review findings repaired |
+| `K05a` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/coast-knob-policy.ts`; morphology-coasts stage wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `K05b` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/erosion-knob-policy.ts`; morphology-erosion stage wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `K05c` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/shelf-knob-policy.ts`; morphology-shelf stage wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `K05d` | Stage 2 | closed-moved | `mods/mod-swooper-maps/src/domain/morphology/model/policy/landform-knob-policy.ts`; morphology-features stage wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `S01` | Stage 4 | closed-moved | `mods/mod-swooper-maps/src/domain/ecology/model/schemas/feature-placement.schema.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | domain model schema pattern; deleted `ecology/shared/placement-schema.ts` import-zero proof | fresh review clean; accepted review findings repaired |
+| `S02` | Stage 4 | closed-moved | `mods/mod-swooper-maps/src/domain/ecology/model/schemas/biome-symbol.schema.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | domain model schema pattern; official vocabulary remains outside domain primitive | fresh review clean; accepted review findings repaired |
+| `S03` | Stage 4 | closed-moved | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/artifacts/wind-field.schema.ts`; deleted `domain/hydrology/ops/shared/wind-field.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | artifact/stage support import-zero scan | fresh review clean; accepted review findings repaired |
+| `S04` | Stage 4 | closed-keep-proof | foundation tectonic scalar artifact fields remain artifact-owned | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `preserve_decomposed_foundation_contract_surfaces`; `require_artifact_file_shape` | fresh review clean; accepted review findings repaired |
+| `S05` | Stage 5 | closed-moved | `packages/civ7-map-policy/src/biome-globals.ts`; `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/biome-bindings.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `@civ7/map-policy` export proof; deleted domain ecology binding import-zero scan | fresh review clean; accepted review findings repaired |
 | `S06` | outside scope | tracked-later | `resource-policy-data-contract.domino.md` | n/a | excluded from this execution | n/a |
+| `S07` | Stage 4 | closed-keep-proof | snow/ice thresholds remain with owning operation contracts: ice planning thresholds stay in `domain/ecology/ops/features-plan-ice/contract.ts`; stage caller only supplies authored settings | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation contract keep proof; no shared domain primitive extracted because the values are operation-local planning policy, not reusable schema vocabulary | fresh review clean; accepted review findings repaired |
+| `S08` | Stage 4 | closed-keep-proof | ecology scorer thresholds remain operation-local: burned/jungle/sand scoring settings stay in their respective `domain/ecology/ops/plot-effects-score-*` contracts; stage public config only composes authored UX | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | operation contract keep proof; no shared domain primitive extracted because the values tune individual scorers rather than define reusable ecology model vocabulary | fresh review clean; accepted review findings repaired |
+| `MP01` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/index.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted `map-projection-public-config.ts` import-zero scan | fresh review clean; accepted review findings repaired |
+| `MP02` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted recipe-root projection helper scan | fresh review clean; accepted review findings repaired |
+| `MP03` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/index.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted recipe-root projection helper scan | fresh review clean; accepted review findings repaired |
+| `MP04` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/index.ts`; `riverProjectionPolicy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted recipe-root projection helper scan | fresh review clean; accepted review findings repaired |
+| `MP05` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/index.ts`; `biome-bindings.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | map-policy/domain import split; deleted domain ecology binding scan | fresh review clean; accepted review findings repaired |
+| `ST01` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/index.ts` and stage-local step wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old config/shared scans | fresh review clean; accepted review findings repaired |
+| `ST02` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts` and stage-local step wiring | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old config/shared scans | fresh review clean; accepted review findings repaired |
+| `ST03` | Stage 2 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts` and steps | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old foundation shared scans | fresh review clean; accepted review findings repaired |
+| `ST04` | Stage 2 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/index.ts` and steps | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; old foundation shared scans | fresh review clean; accepted review findings repaired |
+| `ST05` | Stage 6 | closed-keep-proof | static map-elevation stage remains stage-owned | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_recipe_stage_authoring_file_shape`; recipe-root helper import-zero scan | fresh review clean; accepted review findings repaired |
+| `ST06` | Stage 6 | closed-keep-proof | static map-morphology stage remains stage-owned | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_recipe_stage_authoring_file_shape`; recipe-root helper import-zero scan | fresh review clean; accepted review findings repaired |
+| `ST07` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-shelf/index.ts` and steps | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `ST08` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts` and steps | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `ST09` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/index.ts` and steps | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `ST10` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/index.ts`; `mountain-ranges-public-config.ts`; steps | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test`; mountain-family tests through Nx | stage authoring pattern; morphology public surface rule | fresh review clean; accepted review findings repaired |
+| `ST11` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/public-config.ts`; `knobs.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; deleted hydrology root helper scan | fresh review clean; accepted review findings repaired |
+| `ST12` | Stage 3 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/public-config.ts`; `knobs.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; deleted hydrology root helper scan | fresh review clean; accepted review findings repaired |
+| `ST13` | Stage 2 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/public-config.ts`; `knobs.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | stage authoring pattern; deleted hydrology root helper scan | fresh review clean; accepted review findings repaired |
+| `ST14` | Stage 6 | closed-keep-proof | `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/public-config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `verify_standard_recipe_public_authoring_surface`; stage authoring pattern | fresh review clean; accepted review findings repaired |
+| `ST15` | Stage 6 | closed-keep-proof | `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/public-config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `verify_standard_recipe_public_authoring_surface`; stage authoring pattern | fresh review clean; accepted review findings repaired |
+| `ST16` | Stage 6 | closed-keep-proof | `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology/public-config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `verify_standard_recipe_public_authoring_surface`; stage authoring pattern | fresh review clean; accepted review findings repaired |
+| `ST17` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/index.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted `map-projection-public-config.ts` import-zero scan | fresh review clean; accepted review findings repaired |
+| `ST18` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted `map-projection-public-config.ts` import-zero scan | fresh review clean; accepted review findings repaired |
+| `ST19` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/index.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted `map-projection-public-config.ts` import-zero scan | fresh review clean; accepted review findings repaired |
+| `ST20` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/index.ts`; `riverProjectionPolicy.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | deleted `map-projection-public-config.ts` import-zero scan | fresh review clean; accepted review findings repaired |
+| `ST21` | Stage 5 | closed-recomposed | `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/index.ts`; `biome-bindings.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | map-policy/domain import split; deleted `domain/ecology/biome-bindings.ts` scan | fresh review clean; accepted review findings repaired |
+| `ST22` | Stage 6 | closed-keep-proof | `mods/mod-swooper-maps/src/recipes/standard/stages/placement/public-config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `verify_standard_recipe_public_authoring_surface`; deleted recipe-root helper scan | fresh review clean; accepted review findings repaired |
+| `D01` | Stage 7 | closed-deleted | deleted `mods/mod-swooper-maps/src/domain/config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | root/domain config import-zero scan | fresh review clean; accepted review findings repaired |
+| `D02` | Stage 7 | closed-deleted | deleted `mods/mod-swooper-maps/src/domain/foundation/config.ts`; foundation shared knob files | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | old foundation config/shared import-zero scan | fresh review clean; accepted review findings repaired |
+| `D03` | Stage 7 | closed-deleted | deleted `mods/mod-swooper-maps/src/domain/hydrology/config.ts`; hydrology shared knob files; recipe-root `hydrology-public-config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | old hydrology config/shared import-zero scan | fresh review clean; accepted review findings repaired |
+| `D04` | Stage 7 | closed-deleted | deleted `mods/mod-swooper-maps/src/domain/morphology/config.ts`; morphology shared knob files | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | `require_morphology_config_facade_exports`; old morphology config/shared import-zero scan | fresh review clean; accepted review findings repaired |
+| `D05` | Stage 7 | closed-deleted | deleted `mods/mod-swooper-maps/src/domain/placement/config.ts`; recipe-root `placement-public-config.ts` | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` | old placement config/root helper import-zero scan | fresh review clean; accepted review findings repaired |
 
 ## Final Closure Record
 
-Fill this before claiming the workstream is closed:
-
-```text
 | Closure item | Evidence |
 | --- | --- |
-| Branch | <branch name> |
-| Commit | <Graphite/git commit> |
-| Graphite state | <stack/submission state or explicit not-submitted state> |
-| Worktree state | <clean/dirty with explanation> |
-| Final row matrix | <link/section covering every non-S06 row> |
-| Proof matrix | <static/import, TS/check, behavior, Habitat pattern, review, Graphite/worktree> |
-| Preservation matrix | <every moved source path enumerates exported symbols and behavior-bearing definitions as preserved or intentional loss; no unresolved loss> |
-| Review disposition summary | <no open accepted P1/P2; P3 waivers listed with risk/trigger if any> |
-| Stale-record audit | <documents scanned/updated> |
+| Branch | `codex/foundation-lib-tectonics-s6-closure` |
+| Commit | Graphite closure commit for this execution slice |
+| Graphite state | committed after final verification gates |
+| Worktree state | clean after Graphite closure commit |
+| Final row matrix | `Implementation Row Ledger`; every non-`S06` row is closed |
+| Proof matrix | `nx run mod-swooper-maps:check`; `nx run mod-swooper-maps:test` (`552 pass`, `2 skip`, `0 fail`); `bun tools/habitat/bin/dev.ts check --owner mod-swooper-maps --json`; targeted pattern checks for artifact, operation contract, stage authoring, domain model schema/policy, public domain imports, morphology public imports; retired path `rg` scans; `git diff --check` |
+| Preservation matrix | Moves preserve exported schema/policy/contract symbols through exact owners; intentional losses are deleted facades/shared buckets/config files after import-zero proof; no unresolved loss found by implementation review before final agent review |
+| Review disposition summary | Fresh review completed. Row coverage/import reviewer found no issues. Boundary reviewer raised stale public-domain/morphology/test import-surface rules; accepted and repaired. Closure reviewer raised stale execution record language and weak `S07`/`S08` keep-proof wording; accepted and repaired. |
+| Structural advisories | Full owner check is green with advisory-only operation-contract file-shape findings for `domain/morphology/ops/compute-belt-drivers/contract.ts`, `domain/ecology/ops/plan-plot-effects/contract.ts`, and `domain/resources/ops/adjust-resource-support/contract.ts`; these are outside this config-law row set and are not execution blockers. |
+| KNIP report-only support | `bunx --bun knip --workspace mods/mod-swooper-maps --include files --no-progress` ran as a non-gating support check and returned broad pre-existing unused-file noise across generated/scripts/contracts/tests; it was not used as a closure gate. |
+| Stale-record audit | Updated stale Habitat rules that still required deleted morphology config facades, stage-level foundation validation, old public-domain import surfaces, old public-test import surfaces, and old morphology public import surfaces |
 | S06 deferral | `resource-policy-data-contract.domino.md` |
-| Excluded claims | <runtime/product/topology claims not proved here> |
-```
+| Excluded claims | `S06`; full domain-blueprint topology ratchet beyond these config-law rows; product/runtime claims beyond green project checks/tests |
 
 Do not claim product/runtime readiness beyond the named evidence.
 

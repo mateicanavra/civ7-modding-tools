@@ -38,7 +38,13 @@ import {
   isAnyRiverClass,
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_NONE,
-} from "../../../../hydrology/index.js";
+} from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import {
+  type GroupSuitabilitySignals,
+  type WonderGroup,
+  wonderGroup,
+  WONDER_GROUPS,
+} from "../../../model/policy/natural-wonder-groups.js";
 import PlanNaturalWondersContract from "../contract.js";
 
 type Candidate = {
@@ -46,105 +52,6 @@ type Candidate = {
   relief: number;
   elevation: number;
 };
-
-type WonderGroup = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I";
-
-/**
- * Normalized physical signals a requirement group's suitability formula reads,
- * each in [0,1] (built per candidate tile in `suitabilityAt` from the forwarded
- * truth signals). Passing an explicit signals object — rather than each formula
- * closing over the raw input arrays — keeps every group formula a pure,
- * unit-testable function of its inputs.
- */
-type GroupSuitabilitySignals = {
-  relief: number;
-  elevN: number;
-  arid: number;
-  warm: number;
-  temperate: number;
-  vegN: number;
-  fertN: number;
-  dischN: number;
-  slopeN: number;
-  shelfN: number;
-  deepN: number;
-  moist: number;
-};
-
-/** A requirement group: its member `Feature_NaturalWonders` ids + its formula. */
-type WonderGroupDefinition = {
-  features: readonly number[];
-  suitability: (signals: GroupSuitabilitySignals) => number;
-};
-
-/**
- * Requirement groups (A-I) for natural-wonder suitability — the SINGLE SOURCE OF
- * TRUTH for both group membership (`features`, by `Feature_NaturalWonders` row id)
- * and the per-group suitability formula. Each formula is a weighted blend of
- * normalized signals encoding what that wonder class physically wants; the WEIGHTS
- * ARE LOAD-BEARING (retune deliberately, never loosen to admit a tile).
- * `WONDER_GROUP_BY_FEATURE` is DERIVED from this table, so membership and formula
- * cannot drift apart. Exported for direct unit testing of the formulas.
- */
-export const WONDER_GROUPS: Readonly<Record<WonderGroup, WonderGroupDefinition>> = {
-  // volcano subaerial (Kilimanjaro, Fuji)
-  A: {
-    features: [35, 41],
-    suitability: (s) => clamp01(0.55 * s.relief + 0.35 * s.elevN + 0.1 * s.warm),
-  },
-  // volcano caldera coast (Thera)
-  B: {
-    features: [37],
-    suitability: (s) => clamp01(0.5 * s.shelfN + 0.3 * s.relief + 0.2 * s.warm),
-  },
-  // reef / shallow marine (Barrier Reef, Great Blue Hole, Mapu'a Vaea)
-  C: {
-    features: [29, 44, 45],
-    suitability: (s) => clamp01(0.55 * s.shelfN + 0.3 * s.warm + 0.15 * (1 - s.arid)),
-  },
-  // deep ocean (Bermuda)
-  D: { features: [0], suitability: (s) => clamp01(0.7 * s.deepN + 0.3 * (1 - s.arid)) },
-  // waterfall / river-fed (Gullfoss, Iguazu)
-  E: {
-    features: [32, 34],
-    suitability: (s) => clamp01(0.45 * s.dischN + 0.3 * s.slopeN + 0.25 * s.relief),
-  },
-  // mountain monolith (Everest, Hoerikwaggo, Zhangjiajie, Torres, Machapuchare, Vihren, Vinicunca)
-  F: {
-    features: [1, 33, 36, 38, 40, 42, 43],
-    suitability: (s) => clamp01(0.5 * s.elevN + 0.4 * s.relief + 0.1 * (1 - s.vegN)),
-  },
-  // mountain-adjacent lowland (Valley of Flowers)
-  G: {
-    features: [28],
-    suitability: (s) => clamp01(0.45 * s.fertN + 0.3 * s.moist + 0.25 * (1 - s.relief)),
-  },
-  // arid relief — canyon / inselberg (Grand Canyon, Uluru)
-  H: {
-    features: [31, 39],
-    suitability: (s) => clamp01(0.5 * s.arid + 0.3 * s.elevN + 0.2 * s.relief),
-  },
-  // forest (Redwood)
-  I: {
-    features: [30],
-    suitability: (s) => clamp01(0.55 * s.vegN + 0.3 * s.moist + 0.15 * s.temperate),
-  },
-};
-
-/** Unknown feature ids fall back to the mountain-monolith profile. */
-const DEFAULT_WONDER_GROUP: WonderGroup = "F";
-
-/** Feature id → group, DERIVED from {@link WONDER_GROUPS} (one source of truth). */
-const WONDER_GROUP_BY_FEATURE: ReadonlyMap<number, WonderGroup> = new Map(
-  (Object.entries(WONDER_GROUPS) as Array<[WonderGroup, WonderGroupDefinition]>).flatMap(
-    ([group, definition]) =>
-      definition.features.map((featureType): [number, WonderGroup] => [featureType, group])
-  )
-);
-
-function wonderGroup(featureType: number): WonderGroup {
-  return WONDER_GROUP_BY_FEATURE.get(featureType) ?? DEFAULT_WONDER_GROUP;
-}
 
 type FootprintOffset = { dx: number; dy: number };
 type FootprintOffsetsByParity = {
@@ -596,7 +503,7 @@ function sanitizeIdArray(values: readonly number[] | undefined): number[] {
 function sanitizeFootprintOffsetList(
   values: readonly { dx?: number; dy?: number }[] | undefined
 ): FootprintOffset[] {
-  if (!Array.isArray(values)) return [{ dx: 0, dy: 0 }];
+  if (!Array.isArray(values)) return [];
   const offsets: FootprintOffset[] = [];
   const seen = new Set<string>();
   for (const value of values) {

@@ -3,7 +3,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import featuresApplyStep from "../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -56,7 +56,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
     expect(() => featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep))).toThrow(
-      /unknown feature keys/i
+      /unknown feature intent/i
     );
   });
 
@@ -95,7 +95,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     );
 
     stageArtifacts.featureIntentsVegetation.publish(ctx, [
-      { x: 0, y: 0, feature: "FEATURE_FOREST" },
+      { x: 0, y: 0, feature: "forest" },
     ]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);
     stageArtifacts.featureIntentsFloodplains.publish(ctx, []);

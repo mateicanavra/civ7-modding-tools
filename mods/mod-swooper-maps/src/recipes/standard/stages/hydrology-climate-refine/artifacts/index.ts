@@ -10,6 +10,12 @@ export const artifactContracts = {
   cryosphere,
 } as const;
 
+export const artifacts = {
+  climateDiagnostics: climateDiagnostics.artifact,
+  climateIndices: climateIndices.artifact,
+  cryosphere: cryosphere.artifact,
+} as const;
+
 export const validators = {
   climateDiagnostics: climateDiagnostics.validate,
   climateIndices: climateIndices.validate,

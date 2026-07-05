@@ -1,7 +1,7 @@
 import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import PedologyStepContract from "./contract.js";
 import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 

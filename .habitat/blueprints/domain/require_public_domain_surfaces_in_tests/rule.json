@@ -14,16 +14,20 @@
   "lane": "enforced",
   "forbids": "test files deep-importing domain internals instead of public domain surfaces",
   "why": "Tests should exercise domain contracts through the same public surfaces as product code unless an explicit architecture decision owns a deeper reach.",
-  "remediate": null,
-  "message": "Use @mapgen/domain/<domain>, /ops, or /config.js from tests instead of domain internals.",
+  "remediate": "Replace each violating test import with a public domain surface only after the corresponding domain public surface exists. Do not widen domain public surfaces just to satisfy tests; operation-internal white-box tests require their own topology decision.",
+  "message": "Use @mapgen/domain/<domain>, /ops, /artifacts, /model/schemas, /model/policy, or approved /model/data collections from tests instead of domain internals.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
         "mods/mod-swooper-maps/test/**/*.ts",
         "mods/mod-swooper-maps/test/**/*.tsx",
+        "mods/mod-swooper-maps/test/**/*.js",
+        "mods/mod-swooper-maps/test/**/*.jsx",
         "packages/*/test/**/*.ts",
-        "packages/*/test/**/*.tsx"
+        "packages/*/test/**/*.tsx",
+        "packages/*/test/**/*.js",
+        "packages/*/test/**/*.jsx"
       ]
     }
   ],

@@ -1,8 +1,8 @@
-import type {
-  FoundationTectonicHistoryTiles,
-  FoundationTectonicProvenanceTiles,
-} from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type {
+  TectonicHistorySourceTiles,
+  TectonicProvenanceSourceTiles,
+} from "../../model/schemas/tectonic-source-tiles.js";
 
 const BeltComponentSummarySchema = Type.Object(
   {
@@ -62,10 +62,10 @@ const ComputeBeltDriversContract = defineOp({
     {
       width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
       height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
-      historyTiles: Type.Unsafe<FoundationTectonicHistoryTiles>({
+      historyTiles: Type.Unsafe<TectonicHistorySourceTiles>({
         description: "Tile-space tectonic history fields (per-era + rollups).",
       }),
-      provenanceTiles: Type.Unsafe<FoundationTectonicProvenanceTiles>({
+      provenanceTiles: Type.Unsafe<TectonicProvenanceSourceTiles>({
         description: "Tile-space tectonic provenance scalars (origin + last-boundary state).",
       }),
     },

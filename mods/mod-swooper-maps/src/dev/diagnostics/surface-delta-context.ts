@@ -1884,8 +1884,8 @@ function readResourcePlanEvidence(evidence: unknown): {
   const plan = isRecord(evidenceRecord?.resourcePlanAdjusted)
     ? evidenceRecord.resourcePlanAdjusted
     : evidenceRecord?.resourcePlan;
-  // S3 plan shape: typed per-plot intents (plan authority); the planned type
-  // IS the stamped type, so "preferred" == planned resourceTypeId.
+  // S3 plan shape: typed per-plot symbolic intents (plan authority); resolve
+  // to runtime ids only when comparing against engine outcomes.
   const intents = isRecord(plan) && Array.isArray(plan.intents) ? plan.intents : [];
   // siteSpacingTiles lives on the BASE plan (the adjusted plan does not
   // re-declare selection settings).
@@ -1894,7 +1894,8 @@ function readResourcePlanEvidence(evidence: unknown): {
   for (const intent of intents) {
     if (!isRecord(intent)) continue;
     const plotIndex = finiteInteger(intent.plotIndex);
-    const resourceTypeId = finiteInteger(intent.resourceTypeId);
+    const resourceTypeId =
+      typeof intent.resourceType === "string" ? resourceTypeIdForSymbol(intent.resourceType) : null;
     if (plotIndex === null || resourceTypeId === null || preferredByPlot.has(plotIndex)) {
       continue;
     }
@@ -1944,7 +1945,8 @@ function readResourcePlanIntentEvidence(evidence: unknown): {
   for (const row of intents) {
     if (!isRecord(row)) continue;
     const plotIndex = finiteInteger(row.plotIndex);
-    const resourceType = finiteInteger(row.resourceTypeId);
+    const resourceType =
+      typeof row.resourceType === "string" ? resourceTypeIdForSymbol(row.resourceType) : null;
     if (plotIndex === null || resourceType === null || byPlot.has(plotIndex)) {
       continue;
     }
@@ -2050,6 +2052,13 @@ function resourceFeasibilityCellKey(x: number, y: number, plotIndex: number): st
 
 function finiteInteger(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? Math.trunc(value) : null;
+}
+
+function resourceTypeIdForSymbol(resourceType: string): number | null {
+  const id = (CIV7_BROWSER_TABLES_V0.resourceTypes as Readonly<Record<string, number>>)[
+    resourceType
+  ];
+  return typeof id === "number" && Number.isFinite(id) ? Math.trunc(id) : null;
 }
 
 function numberValue(value: unknown): number | null {

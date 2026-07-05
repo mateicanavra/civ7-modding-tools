@@ -6,7 +6,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
-import { mapElevationArtifacts } from "../artifacts.js";
+import { artifacts as mapElevationArtifacts } from "../artifacts/index.js";
 import BuildElevationStepContract from "./buildElevation.contract.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";

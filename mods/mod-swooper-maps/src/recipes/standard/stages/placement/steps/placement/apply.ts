@@ -2,7 +2,7 @@ import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
-import type { PlacementOutputsV1 } from "../../placement-outputs.js";
+import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artifact.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
@@ -14,28 +14,28 @@ type LandmassRegionSlotByTile = Static<
   typeof import("../../../../map-artifacts.js").mapArtifacts["landmassRegionSlotByTile"]["schema"]
 >;
 type NaturalWonderPlacement = Static<
-  typeof import("../../artifacts.js").placementArtifacts["naturalWonderPlacement"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["naturalWonderPlacement"]["Schema"]
 >;
 type EngineTerrainSnapshot = Static<
   typeof import("../../../../map-artifacts.js").mapArtifacts["placementEngineTerrainSnapshot"]["schema"]
 >;
 type PlacementEngineState = Static<
-  typeof import("../../artifacts.js").placementArtifacts["engineState"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["engineState"]["Schema"]
 >;
 type PlacementSurfacePreparation = Static<
-  typeof import("../../artifacts.js").placementArtifacts["placementSurfacePreparation"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["placementSurfacePreparation"]["Schema"]
 >;
 type ResourcePlacementOutcomes = Static<
-  typeof import("../../artifacts.js").placementArtifacts["resourcePlacementOutcomes"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["resourcePlacementOutcomes"]["Schema"]
 >;
 type DiscoveryPlacementOutcomes = Static<
-  typeof import("../../artifacts.js").placementArtifacts["discoveryPlacementOutcomes"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["discoveryPlacementOutcomes"]["Schema"]
 >;
 type AdvancedStartAssignment = Static<
-  typeof import("../../artifacts.js").placementArtifacts["advancedStartAssignment"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["advancedStartAssignment"]["Schema"]
 >;
 type StartAssignment = Static<
-  typeof import("../../artifacts.js").placementArtifacts["startAssignment"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["startAssignment"]["Schema"]
 >;
 
 type ApplyPlacementArgs = {

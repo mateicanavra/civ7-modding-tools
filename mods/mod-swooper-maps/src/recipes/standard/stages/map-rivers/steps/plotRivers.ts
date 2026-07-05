@@ -5,7 +5,7 @@ import {
   HYDROLOGY_MOUTH_CLOSED_BASIN,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
-} from "@mapgen/domain/hydrology";
+} from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
 import {
   defineVizMeta,
   HILL_TERRAIN,
@@ -15,7 +15,11 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../projection-policies/coastProjectionParity.js";
-import { mapRiversArtifacts } from "../artifacts.js";
+import { artifacts as mapRiversArtifacts } from "../artifacts/index.js";
+import {
+  NAVIGABLE_RIVER_PROJECTION_POLICY,
+  type NavigableRiverDensityKnob,
+} from "./navigable-river-projection-policy.js";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 
 const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
@@ -118,6 +122,23 @@ export default createStep(PlotRiversStepContract, {
       riversEngineTerrainSnapshot: {},
     }
   ),
+  normalize: (config, ctx) => {
+    if (config.selectNavigableRiverTerrain.strategy !== "default") return config;
+    const { navigableRiverDensity = "normal" as NavigableRiverDensityKnob } = ctx.knobs as {
+      navigableRiverDensity?: NavigableRiverDensityKnob;
+    };
+
+    return {
+      ...config,
+      selectNavigableRiverTerrain: {
+        ...config.selectNavigableRiverTerrain,
+        config: {
+          ...config.selectNavigableRiverTerrain.config,
+          ...NAVIGABLE_RIVER_PROJECTION_POLICY[navigableRiverDensity],
+        },
+      },
+    };
+  },
   run: (context, config, ops, deps) => {
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);

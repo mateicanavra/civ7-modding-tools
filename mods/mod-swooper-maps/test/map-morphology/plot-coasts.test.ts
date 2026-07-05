@@ -8,7 +8,7 @@ import {
   OCEAN_TERRAIN,
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts.js";
+import { artifacts as mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import plotCoasts from "../../src/recipes/standard/stages/map-morphology/steps/plotCoasts.js";
 import plotContinents from "../../src/recipes/standard/stages/map-morphology/steps/plotContinents.js";
 import { buildTestDeps } from "../support/step-deps.js";

@@ -4,11 +4,11 @@ import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import biomesStep from "../../src/recipes/standard/stages/ecology-biomes/steps/biomes/index.js";
-import { hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
+import { artifacts as hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
 import plotBiomesStep from "../../src/recipes/standard/stages/map-ecology/steps/plotBiomes.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 

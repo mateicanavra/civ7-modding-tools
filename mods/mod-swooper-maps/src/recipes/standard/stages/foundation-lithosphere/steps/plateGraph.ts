@@ -1,8 +1,7 @@
-import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/config.js";
-import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
 import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../../foundation/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY, pointsFromPlateSeeds } from "../../foundation/viz.js";
 import PlateGraphStepContract from "./plateGraph.contract.js";
 
@@ -15,7 +14,7 @@ export default createStep(PlateGraphStepContract, {
     },
   }),
   normalize: (config, ctx) => {
-    const { plateCount } = ctx.knobs as Readonly<{ plateCount?: FoundationPlateCountKnob }>;
+    const { plateCount } = ctx.knobs as Readonly<{ plateCount?: number }>;
     const override =
       typeof plateCount === "number" && Number.isFinite(plateCount) ? plateCount : undefined;
 

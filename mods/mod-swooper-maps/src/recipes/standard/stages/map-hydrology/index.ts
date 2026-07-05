@@ -1,10 +1,23 @@
-import { createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import {
-  MapHydrologyKnobsSchema,
-  MapHydrologyPublicSchema,
-} from "../map-projection-public-config.js";
 import { lakes } from "./steps/index.js";
+
+const MapHydrologyKnobsSchema = Type.Object(
+  {},
+  {
+    additionalProperties: false,
+    description: "Map hydrology knobs. Lake projection currently has no author-facing stage knobs.",
+  }
+);
+
+const MapHydrologyPublicSchema = Type.Object(
+  {},
+  {
+    additionalProperties: false,
+    description:
+      "Map hydrology projection controls. This stage stamps Hydrology lake intent into Civ7 water state and always records readback evidence.",
+  }
+);
 
 export default createStage({
   id: "map-hydrology",

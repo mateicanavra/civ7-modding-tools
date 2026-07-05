@@ -59,8 +59,8 @@ Read these before source inspection:
 - `../../../../decision-book/move-classes.md`
 - `../../../../decision-book/owner-boundaries.md`
 - `.habitat/scopes/domain/`
-- `.habitat/blueprints/domain-operation/require_operation_contract_file_shape/`
-- `.habitat/blueprints/recipe-stage/require_stage_authoring_owner_shape/`
+- `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/`
+- `.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/`
 - `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/`
 - `investigation-brief.md`
 - first-pass investigation corpus, preserved in Git history

@@ -53,6 +53,25 @@ export const artifactContracts = {
   tracerIndexByEra,
 } as const;
 
+export const artifacts = {
+  crust: crust.artifact,
+  crustInit: crustInit.artifact,
+  currentTectonics: currentTectonics.artifact,
+  mantleForcing: mantleForcing.artifact,
+  mantlePotential: mantlePotential.artifact,
+  mesh: mesh.artifact,
+  plateGraph: plateGraph.artifact,
+  plateIdByEra: plateIdByEra.artifact,
+  plateMotion: plateMotion.artifact,
+  plateTopology: plateTopology.artifact,
+  tectonicEraFields: tectonicEraFields.artifact,
+  tectonicEvents: tectonicEvents.artifact,
+  tectonicHistory: tectonicHistory.artifact,
+  tectonicProvenance: tectonicProvenance.artifact,
+  tectonicSegments: tectonicSegments.artifact,
+  tracerIndexByEra: tracerIndexByEra.artifact,
+} as const;
+
 export const validators = {
   crust: crust.validate,
   crustInit: crustInit.validate,

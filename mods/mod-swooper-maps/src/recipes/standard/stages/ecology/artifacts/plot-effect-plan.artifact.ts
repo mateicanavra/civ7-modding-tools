@@ -1,4 +1,3 @@
-import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
 import {
   defineArtifact,
   type Static,
@@ -6,11 +5,21 @@ import {
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
 
-const PlotEffectKeyArtifactSchema = Type.Unsafe<PlotEffectKey>(
+const PlotEffectIntentKeyArtifactSchema = Type.Unsafe<PlotEffectIntentKey>(
   Type.String({
-    description: "Engine plot-effect key planned by Ecology and later projected by map-ecology.",
-    pattern: "^PLOTEFFECT_",
+    description: "Abstract plot-effect intent planned by Ecology and later projected by map-ecology.",
+    enum: [
+      "snow-light",
+      "snow-medium",
+      "snow-heavy",
+      "sand",
+      "burned",
+      "frostbite",
+      "desert-heat",
+      "jungle-fever",
+    ],
   })
 );
 
@@ -24,7 +33,7 @@ export const PlotEffectPlacementIntentSchema = Type.Object(
   {
     x: Type.Integer({ minimum: 0 }),
     y: Type.Integer({ minimum: 0 }),
-    plotEffect: PlotEffectKeyArtifactSchema,
+    plotEffect: PlotEffectIntentKeyArtifactSchema,
   },
   { additionalProperties: false }
 );

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import { defaultStrategy } from "../src/domain/hydrology/ops/compute-precipitation/strategies/vector.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
+const { computePrecipitation } = hydrologyOpsPublic.ops;
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }
@@ -35,7 +36,7 @@ describe("hydrology/compute-precipitation (default)", () => {
     const humidityF32 = new Float32Array(size);
     humidityF32.fill(0.7);
 
-    const out = defaultStrategy.run(
+    const out = computePrecipitation.run(
       {
         width,
         height,
@@ -48,6 +49,8 @@ describe("hydrology/compute-precipitation (default)", () => {
         humidityF32,
       },
       {
+        strategy: "default",
+        config: {
         rainfallScale: 180,
         humidityExponent: 1,
         noiseAmplitude: 0,
@@ -55,6 +58,7 @@ describe("hydrology/compute-precipitation (default)", () => {
         waterGradient: { radius: 5, perRingBonus: 4, lowlandBonus: 2, lowlandElevationMax: 150 },
         upliftStrength: 40,
         convergenceStrength: 0,
+        },
       }
     );
 

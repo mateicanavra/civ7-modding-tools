@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import {
   deriveFoundationReferenceArea,
   requireEnvDimensions,
-} from "../../src/domain/foundation/model/policy/reference-area.js";
+} from "@mapgen/domain/foundation/model/policy/reference-area.js";
 
 describe("foundation reference-area policy", () => {
   it("derives reference area exactly from validated map dimensions", () => {

@@ -51,7 +51,7 @@ to every valid artifact value or contract.
 - `require_artifact_index_aggregate_shape`: aggregate-shape contract for
   artifact directory indexes. Any
   `mods/mod-swooper-maps/src/**/artifacts/index.ts` file must stay a narrow
-  aggregate over sibling artifact modules, exporting `artifactContracts` and
-  `validators` without owning schemas or validation logic.
+  aggregate over sibling artifact modules, exporting `artifactContracts`,
+  `artifacts`, and `validators` without owning schemas or validation logic.
 - `prohibit_realized_map_artifact_tags`: artifact ID namespace rule for
   realized-map projection claims.

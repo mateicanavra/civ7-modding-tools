@@ -1,7 +1,7 @@
 import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
-import { findInvalidRiverClassIndex } from "@mapgen/domain/hydrology";
+import { findInvalidRiverClassIndex } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 
 /**
  * Snapshot of Hydrology hydrography derived from Morphology topography + Hydrology discharge projection.

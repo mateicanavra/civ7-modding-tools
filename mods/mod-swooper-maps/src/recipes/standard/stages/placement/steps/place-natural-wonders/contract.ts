@@ -1,7 +1,7 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Natural wonders are a placement product boundary, not a maintenance helper.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import computeSubstrate from "../../src/domain/morphology/ops/compute-substrate/index.js";
+import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
 
+const { computeSubstrate } = morphologyOpsPublic.ops;
 describe("m11 substrate (material-driven)", () => {
   it("changes erodibilityK when crust/material differs (uplift/rift held constant)", () => {
     const width = 2;

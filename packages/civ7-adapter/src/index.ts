@@ -25,11 +25,7 @@ export {
   getNaturalWonderFootprintIndices,
   getNaturalWonderFootprintOffsets,
   hasUnsupportedNaturalWonderPolicyTags,
-  isResourceAdjacentToLandRuntimeOptional,
   NATURAL_WONDER_CATALOG,
-  NO_RESOURCE,
-  PLACEABLE_RESOURCE_TYPE_IDS,
-  RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
   resolveNaturalWonderPlacementDirection,
 } from "@civ7/map-policy";
 export type { EngineEffectTagId } from "./effects.js";

@@ -1,8 +1,23 @@
-import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
-import { PlacementOutputsV1Schema } from "../placement-outputs.js";
+import {
+  defineArtifact,
+  type Static,
+  Type,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Terminal placement summary (`artifact:placementOutputs`). One artifact per file by repo convention. */
+
+export const PlacementOutputsV1Schema = Type.Object(
+  {
+    naturalWondersCount: Type.Number(),
+    resourcesCount: Type.Number(),
+    startsAssigned: Type.Number(),
+    discoveriesCount: Type.Number(),
+  },
+  { additionalProperties: false }
+);
+
+export type PlacementOutputsV1 = Static<typeof PlacementOutputsV1Schema>;
 
 export const Schema = PlacementOutputsV1Schema;
 

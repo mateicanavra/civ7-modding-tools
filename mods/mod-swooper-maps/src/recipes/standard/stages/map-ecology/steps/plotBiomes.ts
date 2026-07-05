@@ -1,10 +1,10 @@
 import * as ecology from "@mapgen/domain/ecology";
 import { defineVizMeta, logBiomeSummary } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { ecologyArtifacts } from "../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../ecology/artifacts/index.js";
 import { buildEngineBiomeIdVizCategories } from "../viz.js";
 import { clampToByte } from "./plot-biomes/helpers/apply.js";
-import { resolveEngineBiomeIds } from "./plot-biomes/helpers/engine-bindings.js";
+import { resolveEngineBiomeIds } from "./plot-biomes/engine-biome-bindings.js";
 import PlotBiomesStepContract from "./plotBiomes.contract.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
@@ -18,10 +18,7 @@ export default createStep(PlotBiomesStepContract, {
     const { width, height } = context.dimensions;
     const classification = deps.artifacts.biomeClassification.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const { land: engineBindings, marine: marineBiome } = resolveEngineBiomeIds(
-      context.adapter,
-      config.bindings
-    );
+    const { land: engineBindings, marine: marineBiome } = resolveEngineBiomeIds(context.adapter);
     const biomeIdCategories = buildEngineBiomeIdVizCategories({
       land: engineBindings,
       marine: marineBiome,

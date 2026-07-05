@@ -9,7 +9,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
 
 import { standardConfig } from "./standard-config.js";
 import { computeArtifactFingerprints } from "./validation-harness.js";

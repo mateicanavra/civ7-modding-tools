@@ -1,5 +1,4 @@
-import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/config.js";
-import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/config.js";
+import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/model/policy/coast-knob-policy.js";
 import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/ops";
 // SINGLE SOURCE OF TRUTH for the absolute-elevation quantization scale: the same constant
 // base topography quantizes with, imported so the margin sculpt derives its profile on the
@@ -13,8 +12,9 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
-import LandmassPlatesStepContract from "./landmassPlates.contract.js";
 import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import type { MorphologySeaLevelKnob } from "../index.js";
+import LandmassPlatesStepContract from "./landmassPlates.contract.js";
 
 const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
+import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import {

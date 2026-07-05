@@ -15,18 +15,22 @@ official Civ7 catalogs route to map-policy ownership.
 
 Controlling rationale:
 the collection scope makes domain data explicit and named. A data file belongs
-inside a collection that describes what the data is for.
+inside a collection that describes what the data is for. A collection becomes an
+executable destination only when its concrete name and file set are admitted by
+the domain topology rule.
 
-Planned `structure.toml` fragment:
+Executable topology:
 
 ```toml
 [[scopes]]
-name = "mapgen-domain-model-data-entry-roots"
-root = "mods/mod-swooper-maps/src/domain/!(*.*)/model/data/!(*.*)"
+name = "mapgen-resources-earthlike-expectations-data-root"
+root = "mods/mod-swooper-maps/src/domain/resources/model/data/earthlike-expectations"
 kind = "directory"
 mode = "closed"
 allowed = [
-  "*.ts",
+  "index.ts",
+  "official-earthlike.ts",
+  "types.ts",
 ]
 ```
 

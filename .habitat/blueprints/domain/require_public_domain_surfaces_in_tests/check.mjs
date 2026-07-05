@@ -61,7 +61,7 @@ function scanFile(file) {
       const moduleSpecifier = node.moduleSpecifier;
       if (moduleSpecifier && ts.isStringLiteral(moduleSpecifier)) {
         const source = moduleSpecifier.text;
-        if (isForbiddenDomainSource(source)) {
+        if (isForbiddenDomainSource(source, file)) {
           const position = sourceFile.getLineAndCharacterOfPosition(moduleSpecifier.getStart());
           violations.push({
             file: path.relative(repoRoot, file),
@@ -76,14 +76,44 @@ function scanFile(file) {
   }
 }
 
-function isForbiddenDomainSource(source) {
-  const match = /^@mapgen\/domain\/[^/]+(?:\/(.+))?$/.exec(source);
-  if (!match) return false;
-  const tail = match[1];
+function isForbiddenDomainSource(source, file) {
+  const match = /^@mapgen\/domain\/([^/]+)(?:\/(.+))?$/.exec(source);
+  if (!match) return relativeDomainImport(source, file) !== undefined;
+  const domain = match[1];
+  const tail = match[2] ?? "";
   if (!tail) return false;
-  return tail !== "ops" && tail !== "ops/index.js" && tail !== "config.js";
+  if (tail === "ops" || tail === "ops/index.js") return false;
+  if (tail === "artifacts" || tail === "artifacts/index.js") return false;
+  if (tail === "model/schemas" || tail.startsWith("model/schemas/")) return false;
+  if (tail === "model/policy" || tail.startsWith("model/policy/")) return false;
+  if (domain === "resources" && (
+    tail === "model/data/earthlike-expectations" ||
+    tail.startsWith("model/data/earthlike-expectations/")
+  )) {
+    return false;
+  }
+  return true;
+}
+
+function relativeDomainImport(source, file) {
+  if (!source.startsWith(".")) return undefined;
+  const absolute = path.resolve(path.dirname(file), source);
+  const marker = `${path.sep}mods${path.sep}mod-swooper-maps${path.sep}src${path.sep}domain${path.sep}`;
+  const index = absolute.indexOf(marker);
+  if (index < 0) return undefined;
+  const afterDomain = absolute.slice(index + marker.length).split(path.sep);
+  if (afterDomain.length < 1 || !afterDomain[0]) return { domain: "", tail: "" };
+  return {
+    domain: afterDomain[0],
+    tail: afterDomain.slice(1).join("/").replace(/\.(?:ts|tsx|js|jsx)$/, ""),
+  };
 }
 
 function isSourceFile(file) {
-  return file.endsWith(".ts") || file.endsWith(".tsx");
+  return (
+    file.endsWith(".ts") ||
+    file.endsWith(".tsx") ||
+    file.endsWith(".js") ||
+    file.endsWith(".jsx")
+  );
 }

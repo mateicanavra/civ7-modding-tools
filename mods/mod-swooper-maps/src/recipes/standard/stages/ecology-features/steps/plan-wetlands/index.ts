@@ -1,19 +1,18 @@
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
-import { isAnyRiverClass } from "@mapgen/domain/hydrology";
+import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import PlanWetlandsStepContract from "./contract.js";
 import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
-const WETLANDS_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
-  FEATURE_MARSH: (FEATURE_KEY_INDEX.FEATURE_MARSH ?? 0) + 1,
-  FEATURE_TUNDRA_BOG: (FEATURE_KEY_INDEX.FEATURE_TUNDRA_BOG ?? 0) + 1,
-  FEATURE_MANGROVE: (FEATURE_KEY_INDEX.FEATURE_MANGROVE ?? 0) + 1,
-  FEATURE_OASIS: (FEATURE_KEY_INDEX.FEATURE_OASIS ?? 0) + 1,
-  FEATURE_WATERING_HOLE: (FEATURE_KEY_INDEX.FEATURE_WATERING_HOLE ?? 0) + 1,
-};
+const WETLANDS_FEATURE_INTENTS = new Set([
+  "marsh",
+  "tundra-bog",
+  "mangrove",
+  "oasis",
+  "watering-hole",
+]);
 
 export default createStep(PlanWetlandsStepContract, {
   artifacts: implementArtifacts(
@@ -29,7 +28,6 @@ export default createStep(PlanWetlandsStepContract, {
   ),
   run: (context, config, ops, deps) => {
     const prev = deps.artifacts.occupancyReefs.read(context);
-    const classification = deps.artifacts.biomeClassification.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const topography = deps.artifacts.topography.read(context);
@@ -57,14 +55,13 @@ export default createStep(PlanWetlandsStepContract, {
         width,
         height,
         seed,
-        scoreMarsh01: scoreLayers.layers.FEATURE_MARSH,
-        scoreTundraBog01: scoreLayers.layers.FEATURE_TUNDRA_BOG,
-        scoreMangrove01: scoreLayers.layers.FEATURE_MANGROVE,
-        scoreOasis01: scoreLayers.layers.FEATURE_OASIS,
-        scoreWateringHole01: scoreLayers.layers.FEATURE_WATERING_HOLE,
+        scoreMarsh01: scoreLayers.layers.marsh,
+        scoreTundraBog01: scoreLayers.layers["tundra-bog"],
+        scoreMangrove01: scoreLayers.layers.mangrove,
+        scoreOasis01: scoreLayers.layers.oasis,
+        scoreWateringHole01: scoreLayers.layers["watering-hole"],
         flatLandMask,
-        biomeIndex: classification.biomeIndex,
-        featureIndex: prev.featureIndex,
+        featureOccupancyMask: prev.featureOccupancyMask,
         reserved: prev.reserved,
       },
       config.planWetlands
@@ -72,13 +69,12 @@ export default createStep(PlanWetlandsStepContract, {
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
 
-    const featureIndex = new Uint16Array(prev.featureIndex);
+    const featureOccupancyMask = new Uint8Array(prev.featureOccupancyMask);
     const reserved = new Uint8Array(prev.reserved);
 
     for (const placement of placements) {
       const feature = placement.feature;
-      const index = WETLANDS_FEATURE_INDEX_BY_KEY[feature];
-      if (!index) {
+      if (!WETLANDS_FEATURE_INTENTS.has(feature)) {
         throw new Error(`plan-wetlands expected wet-family placements (received ${feature})`);
       }
       const x = placement.x | 0;
@@ -90,17 +86,17 @@ export default createStep(PlanWetlandsStepContract, {
       if (reserved[idx] !== 0) {
         throw new Error(`plan-wetlands attempted to claim reserved tileIndex=${idx} (${x},${y})`);
       }
-      if (featureIndex[idx] !== 0) {
+      if (featureOccupancyMask[idx] !== 0) {
         throw new Error(`plan-wetlands attempted to claim occupied tileIndex=${idx} (${x},${y})`);
       }
-      featureIndex[idx] = index;
+      featureOccupancyMask[idx] = 1;
     }
 
     deps.artifacts.featureIntentsWetlands.publish(context, placements);
     deps.artifacts.occupancyWetlands.publish(context, {
       width,
       height,
-      featureIndex,
+      featureOccupancyMask,
       reserved,
     });
   },

@@ -1,7 +1,7 @@
-import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation/artifacts";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../../foundation/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY } from "../../foundation/viz.js";
 import CrustStepContract from "./crust.contract.js";
 

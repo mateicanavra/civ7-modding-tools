@@ -10,6 +10,12 @@ export const artifactContracts = {
   continentValidationTerrainSnapshot,
 } as const;
 
+export const artifacts = {
+  coastClassification: coastClassification.artifact,
+  coastEngineTerrainSnapshot: coastEngineTerrainSnapshot.artifact,
+  continentValidationTerrainSnapshot: continentValidationTerrainSnapshot.artifact,
+} as const;
+
 export const validators = {
   coastClassification: coastClassification.validate,
   coastEngineTerrainSnapshot: coastEngineTerrainSnapshot.validate,

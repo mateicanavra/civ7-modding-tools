@@ -1,13 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-import computeEraPlateMembership from "../../src/domain/foundation/ops/compute-era-plate-membership/index.js";
-import computeEraTectonicFields from "../../src/domain/foundation/ops/compute-era-tectonic-fields/index.js";
-import computeHotspotEvents from "../../src/domain/foundation/ops/compute-hotspot-events/index.js";
-import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computeSegmentEvents from "../../src/domain/foundation/ops/compute-segment-events/index.js";
-import computeTectonicHistoryRollups from "../../src/domain/foundation/ops/compute-tectonic-history-rollups/index.js";
-import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
-
+const { computeEraPlateMembership, computeEraTectonicFields, computeHotspotEvents, computePlateMotion, computeSegmentEvents, computeTectonicHistoryRollups, computeTectonicSegments } = foundationOpsPublic.ops;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 

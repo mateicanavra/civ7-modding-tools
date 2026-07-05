@@ -1,21 +1,5 @@
 import { describe, expect, it } from "bun:test";
-
-import * as crustInit from "../../src/domain/foundation/artifacts/crust-init.artifact.js";
-import * as crust from "../../src/domain/foundation/artifacts/crust.artifact.js";
-import * as currentTectonics from "../../src/domain/foundation/artifacts/current-tectonics.artifact.js";
-import * as mantleForcing from "../../src/domain/foundation/artifacts/mantle-forcing.artifact.js";
-import * as mantlePotential from "../../src/domain/foundation/artifacts/mantle-potential.artifact.js";
-import * as mesh from "../../src/domain/foundation/artifacts/mesh.artifact.js";
-import * as plateGraph from "../../src/domain/foundation/artifacts/plate-graph.artifact.js";
-import * as plateIdByEra from "../../src/domain/foundation/artifacts/plate-id-by-era.artifact.js";
-import * as plateMotion from "../../src/domain/foundation/artifacts/plate-motion.artifact.js";
-import * as plateTopology from "../../src/domain/foundation/artifacts/plate-topology.artifact.js";
-import * as tectonicEraFields from "../../src/domain/foundation/artifacts/tectonic-era-fields.artifact.js";
-import * as tectonicEvents from "../../src/domain/foundation/artifacts/tectonic-events.artifact.js";
-import * as tectonicHistory from "../../src/domain/foundation/artifacts/tectonic-history.artifact.js";
-import * as tectonicProvenance from "../../src/domain/foundation/artifacts/tectonic-provenance.artifact.js";
-import * as tectonicSegments from "../../src/domain/foundation/artifacts/tectonic-segments.artifact.js";
-import * as tracerIndexByEra from "../../src/domain/foundation/artifacts/tracer-index-by-era.artifact.js";
+import { crust, crustInit, currentTectonics, mantleForcing, mantlePotential, mesh, plateGraph, plateIdByEra, plateMotion, plateTopology, tectonicEraFields, tectonicEvents, tectonicHistory, tectonicProvenance, tectonicSegments, tracerIndexByEra } from "@mapgen/domain/foundation/artifacts";
 
 type ArtifactModule = Readonly<{
   Schema: unknown;

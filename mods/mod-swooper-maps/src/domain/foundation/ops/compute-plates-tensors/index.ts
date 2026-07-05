@@ -1,6 +1,6 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputePlatesTensorsContract from "./contract.js";
-import { projectPlatesFromModel } from "./lib/project-plates.js";
+import { projectPlatesFromModel } from "./rules/project-plates.js";
 
 const computePlatesTensors = createOp(ComputePlatesTensorsContract, {
   strategies: {

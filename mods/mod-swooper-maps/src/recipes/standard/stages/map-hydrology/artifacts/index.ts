@@ -8,6 +8,11 @@ export const artifactContracts = {
   hydrologyLakesEngineTerrainSnapshot,
 } as const;
 
+export const artifacts = {
+  engineProjectionLakes: engineProjectionLakes.artifact,
+  hydrologyLakesEngineTerrainSnapshot: hydrologyLakesEngineTerrainSnapshot.artifact,
+} as const;
+
 export const validators = {
   engineProjectionLakes: engineProjectionLakes.validate,
   hydrologyLakesEngineTerrainSnapshot: hydrologyLakesEngineTerrainSnapshot.validate,

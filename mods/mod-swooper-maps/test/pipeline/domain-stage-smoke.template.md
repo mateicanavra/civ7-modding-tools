@@ -22,7 +22,7 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { normalizeStrictOrThrow } from "../support/compiler-helpers.js";
 
 import { STANDARD_ENGINE_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
-import { __STAGE__Artifacts } from "../../src/recipes/standard/stages/__STAGE__/artifacts.js";
+import { artifacts as __STAGE__Artifacts } from "../../src/recipes/standard/stages/__STAGE__/artifacts/index.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";

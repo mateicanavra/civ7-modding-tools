@@ -1,7 +1,8 @@
 import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
-import type { EarthlikeResourceExpectationsArtifact } from "../lib/earthlike-expectations/types.js";
-import { PlacementConstraintsSchema } from "./corpus.artifact.js";
+import type { OfficialResourceType } from "@civ7/map-policy";
+import type { EarthlikeResourceExpectationsArtifact } from "../model/data/earthlike-expectations/types.js";
+import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "../model/data/earthlike-expectations/official-earthlike.js";
 
 /**
  * Artifact contract for the earthlike per-resource expectation corpus
@@ -21,66 +22,22 @@ const EvidenceStrengthSchema = Type.Union([
   Type.Literal("inferred"),
 ]);
 
-const BlockedExpectationResourceTypeSchema = Type.Union([
-  Type.Literal("RESOURCE_CLOVES"),
-  Type.Literal("RESOURCE_GOLD_DISTANT_LANDS"),
-  Type.Literal("RESOURCE_LAPIS_LAZULI"),
-  Type.Literal("RESOURCE_NICKEL"),
-  Type.Literal("RESOURCE_SILVER_DISTANT_LANDS"),
-]);
+const closedStringEnum = <T extends string>(values: readonly T[]) =>
+  Type.Unsafe<T>({ type: "string", enum: [...values] });
 
-const ActiveExpectationResourceTypeSchema = Type.Union([
-  Type.Literal("RESOURCE_COTTON"),
-  Type.Literal("RESOURCE_DATES"),
-  Type.Literal("RESOURCE_DYES"),
-  Type.Literal("RESOURCE_FISH"),
-  Type.Literal("RESOURCE_GOLD"),
-  Type.Literal("RESOURCE_GYPSUM"),
-  Type.Literal("RESOURCE_INCENSE"),
-  Type.Literal("RESOURCE_IVORY"),
-  Type.Literal("RESOURCE_JADE"),
-  Type.Literal("RESOURCE_KAOLIN"),
-  Type.Literal("RESOURCE_MARBLE"),
-  Type.Literal("RESOURCE_PEARLS"),
-  Type.Literal("RESOURCE_SILK"),
-  Type.Literal("RESOURCE_SILVER"),
-  Type.Literal("RESOURCE_WINE"),
-  Type.Literal("RESOURCE_CAMELS"),
-  Type.Literal("RESOURCE_HIDES"),
-  Type.Literal("RESOURCE_HORSES"),
-  Type.Literal("RESOURCE_IRON"),
-  Type.Literal("RESOURCE_SALT"),
-  Type.Literal("RESOURCE_WOOL"),
-  Type.Literal("RESOURCE_COCOA"),
-  Type.Literal("RESOURCE_FURS"),
-  Type.Literal("RESOURCE_SPICES"),
-  Type.Literal("RESOURCE_SUGAR"),
-  Type.Literal("RESOURCE_TEA"),
-  Type.Literal("RESOURCE_TRUFFLES"),
-  Type.Literal("RESOURCE_NITER"),
-  Type.Literal("RESOURCE_WHALES"),
-  Type.Literal("RESOURCE_COFFEE"),
-  Type.Literal("RESOURCE_TOBACCO"),
-  Type.Literal("RESOURCE_CITRUS"),
-  Type.Literal("RESOURCE_COAL"),
-  Type.Literal("RESOURCE_OIL"),
-  Type.Literal("RESOURCE_QUININE"),
-  Type.Literal("RESOURCE_RUBBER"),
-  Type.Literal("RESOURCE_MANGOS"),
-  Type.Literal("RESOURCE_CLAY"),
-  Type.Literal("RESOURCE_FLAX"),
-  Type.Literal("RESOURCE_RUBIES"),
-  Type.Literal("RESOURCE_RICE"),
-  Type.Literal("RESOURCE_LIMESTONE"),
-  Type.Literal("RESOURCE_TIN"),
-  Type.Literal("RESOURCE_LLAMAS"),
-  Type.Literal("RESOURCE_HARDWOOD"),
-  Type.Literal("RESOURCE_WILD_GAME"),
-  Type.Literal("RESOURCE_CRABS"),
-  Type.Literal("RESOURCE_COWRIE"),
-  Type.Literal("RESOURCE_TURTLES"),
-  Type.Literal("RESOURCE_PITCH"),
-]);
+const expectationResourceTypes = EARTHLIKE_RESOURCE_EXPECTATIONS.map(
+  (entry) => entry.resourceType
+) as OfficialResourceType[];
+const blockedExpectationResourceTypes = EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
+  (entry) => entry.status === "blocked"
+).map((entry) => entry.resourceType) as OfficialResourceType[];
+const activeExpectationResourceTypes = EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
+  (entry) => entry.status !== "blocked"
+).map((entry) => entry.resourceType) as OfficialResourceType[];
+
+const ExpectationResourceTypeSchema = closedStringEnum(expectationResourceTypes);
+const BlockedExpectationResourceTypeSchema = closedStringEnum(blockedExpectationResourceTypes);
+const ActiveExpectationResourceTypeSchema = closedStringEnum(activeExpectationResourceTypes);
 
 const ExpectationEvidenceSchema = Type.Object(
   {
@@ -91,11 +48,34 @@ const ExpectationEvidenceSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const ExpectationCorpusRefSchema = Type.Object(
+const SourceRefSchema = Type.Object(
   {
-    resourceType: Type.String({ pattern: "^RESOURCE_" }),
-    staticResourceRowSlot: Type.Integer({ minimum: 0 }),
-    runtimeIdStatus: Type.Literal("unverified"),
+    file: Type.String(),
+    table: Type.String(),
+  },
+  { additionalProperties: false }
+);
+
+const ResourceDistributionFactsSchema = Type.Object(
+  {
+    adjacentToLand: Type.Optional(Type.Boolean()),
+    lakeEligible: Type.Optional(Type.Boolean()),
+    staple: Type.Optional(Type.Boolean()),
+    minimumPerHemisphere: Type.Optional(Type.Integer({ minimum: 0 })),
+    hemisphereUnique: Type.Optional(Type.Boolean()),
+    bonusResourceSlots: Type.Optional(Type.Integer({ minimum: 0 })),
+    unlocksCiv: Type.Optional(Type.Boolean()),
+    tradeable: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
+
+const PlacementConstraintsSchema = Type.Object(
+  {
+    hasOfficialBiomeConstraints: Type.Boolean(),
+    validBiomeConstraintCount: Type.Integer({ minimum: 0 }),
+    sourceTables: Type.Array(SourceRefSchema),
+    placementFlags: ResourceDistributionFactsSchema,
   },
   { additionalProperties: false }
 );
@@ -162,7 +142,6 @@ const ActiveExpectedCountRangeSchema = Type.Union([
 const BaseExpectationFieldsSchema = {
   resourceType: Type.String({ pattern: "^RESOURCE_" }),
   groupId: ExpectationGroupIdSchema,
-  corpusRef: ExpectationCorpusRefSchema,
   initialMapAuthoring: InitialMapAuthoringSchema,
   eligibleAges: Type.Array(Type.String({ pattern: "^AGE_" })),
   officialConstraintSummary: PlacementConstraintsSchema,
@@ -171,7 +150,7 @@ const BaseExpectationFieldsSchema = {
   operationObligation: Type.String(),
   statsProof: Type.String(),
   evidenceStrength: ExpectationEvidenceSchema,
-  proxyRequirements: Type.Array(Type.String()),
+  signalRequirements: Type.Array(Type.String()),
   caveats: Type.Array(Type.String()),
 } as const;
 
@@ -208,10 +187,8 @@ export const Schema = Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
       source: Type.Object(
         {
           authority: Type.Literal("resource-earthlike-expectations"),
-          corpusArtifactId: Type.Literal("artifact:resources.corpus"),
           artifactId: Type.Literal("artifact:resources.earthlikeExpectations"),
           baseline: Type.Literal("standard-earthlike-map"),
-          runtimeIdStatus: Type.Literal("unverified"),
           hardCountGateEvidence: Type.Literal("runtime-calibrated"),
         },
         { additionalProperties: false }
@@ -221,7 +198,7 @@ export const Schema = Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
     {
       additionalProperties: false,
       description:
-        "Per-resource earthlike expectation contract. Ranges remain provisional until runtime-calibrated telemetry exists; runtime numeric ids remain unverified.",
+        "Per-resource earthlike expectation contract. Ranges remain provisional until runtime-calibrated telemetry exists; runtime numeric ids are resolved by map-policy proof.",
     }
   )
 );

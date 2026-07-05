@@ -1,6 +1,6 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 import { applyPlacementPlan } from "./apply.js";
 import PlacementStepContract from "./contract.js";
 import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";

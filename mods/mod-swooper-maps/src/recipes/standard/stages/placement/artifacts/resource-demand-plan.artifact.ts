@@ -13,7 +13,6 @@ const ResourceFamilySchema = Type.Union([
 const ResourceDemandSummaryRowSchema = Type.Object(
   {
     resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
-    resourceTypeId: Type.Integer({ minimum: 0 }),
     family: ResourceFamilySchema,
     laneId: Type.String(),
     laneKind: Type.Union([Type.Literal("land"), Type.Literal("water")]),
@@ -33,13 +32,6 @@ const ResourceDemandSummaryRowSchema = Type.Object(
 const ResourceDemandPlanArtifactSchema = Type.Object(
   {
     age: Type.String({ pattern: "^AGE_[A-Z_]+$" }),
-    runtimeIdResolution: Type.Object(
-      {
-        status: Type.Literal("verified"),
-        checkedCount: Type.Integer({ minimum: 0 }),
-      },
-      { additionalProperties: false }
-    ),
     minimumAmountModifier: Type.Integer(),
     groups: resources.ops.planResourceGroups.output,
     demands: Type.Array(ResourceDemandSummaryRowSchema),
@@ -56,7 +48,7 @@ const ResourceDemandPlanArtifactSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Per-type resource demand/eligibility plan from the domain/resources family planners: symbolic group rollup plus proven-runtime-id demand rows (weight, range gates, region-minimum facts) feeding site selection.",
+      "Per-type resource demand/eligibility plan from the domain/resources family planners. Rows stay symbolic; runtime ids are resolved only at map-policy/materialization boundaries.",
   }
 );
 
@@ -90,32 +82,17 @@ function validatePayload(value: unknown): ValidationIssue[] {
   const demands = Array.isArray(value.demands) ? value.demands : null;
   if (!demands) return [issue("resourceDemandPlan.demands must be an array.")];
 
-  const resolution = isRecord(value.runtimeIdResolution) ? value.runtimeIdResolution : null;
-  if (!resolution || resolution.status !== "verified") {
-    issues.push(issue("resourceDemandPlan.runtimeIdResolution.status must be 'verified'."));
-  } else if (resolution.checkedCount !== demands.length) {
-    issues.push(
-      issue(
-        `resourceDemandPlan runtimeIdResolution.checkedCount ${String(resolution.checkedCount)} != demands.length ${demands.length}.`
-      )
-    );
-  }
-
-  const seenIds = new Set<number>();
+  const seenTypes = new Set<string>();
   for (const row of demands) {
     if (!isRecord(row)) {
       issues.push(issue("resourceDemandPlan demand row must be an object."));
       continue;
     }
-    const id = typeof row.resourceTypeId === "number" ? row.resourceTypeId : -1;
-    if (id < 0) {
-      issues.push(issue(`Demand ${String(row.resourceType)} has no proven runtime id.`));
-      continue;
+    const resourceType = String(row.resourceType);
+    if (seenTypes.has(resourceType)) {
+      issues.push(issue(`Demand ${resourceType} appears more than once.`));
     }
-    if (seenIds.has(id)) {
-      issues.push(issue(`Demand runtime id ${id} appears more than once.`));
-    }
-    seenIds.add(id);
+    seenTypes.add(resourceType);
     const minCount = Number(row.minCount);
     const maxCount = Number(row.maxCount);
     const targetCount = Number(row.targetCount);

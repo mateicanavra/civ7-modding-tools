@@ -2,7 +2,7 @@ import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,

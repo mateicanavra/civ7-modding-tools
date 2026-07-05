@@ -3,7 +3,7 @@ import resources from "@mapgen/domain/resources/ops";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
-} from "../../src/domain/resources/index.js";
+} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
@@ -80,7 +80,6 @@ describe("geological resource operation contract", () => {
     );
 
     expect(result.groupId).toBe("geological-mineral-gemstone-industrial");
-    expect(result.runtimeIdStatus).toBe("unverified");
     expect(result.proofStatus).toBe("warning-only");
     expect(result.missingResourceTypes).toEqual([]);
     expect(result.plans.map((plan) => plan.resourceType)).toEqual([...GEOLOGICAL_RESOURCE_TYPES]);
@@ -122,7 +121,7 @@ describe("geological resource operation contract", () => {
     }
   });
 
-  it("preserves hydrothermal, carbonate, hydrocarbon, granite, and metamorphic proxy families", () => {
+  it("preserves hydrothermal, carbonate, hydrocarbon, granite, and metamorphic signal families", () => {
     const size = 9;
     const alluvial = new Uint8Array(size);
     const closedBasin = new Uint8Array(size);
@@ -161,19 +160,19 @@ describe("geological resource operation contract", () => {
     const rubies = result.plans.find((plan) => plan.resourceType === "RESOURCE_RUBIES");
 
     expect(gold?.signalFields).toContain("alluvialPlacerMask");
-    expect(gold?.proxyRequirements).toContain("orogeny or alluvial proxy");
+    expect(gold?.signalRequirements).toContain("orogeny or alluvial signal");
     expect(salt?.signalFields).toContain("closedBasinMask");
-    expect(salt?.proxyRequirements).toContain("closed basin or evaporite proxy");
+    expect(salt?.signalRequirements).toContain("closed basin or evaporite signal");
     expect(oil?.signalFields).toContain("hydrocarbonBasinMask");
-    expect(oil?.proxyRequirements).toContain("sedimentary basin or hydrocarbon basin proxy");
+    expect(oil?.signalRequirements).toContain("sedimentary basin or hydrocarbon basin signal");
     expect(pitch?.signalFields).toContain("hydrocarbonBasinMask");
-    expect(pitch?.proxyRequirements).toContain("hydrocarbon basin proxy");
+    expect(pitch?.signalRequirements).toContain("hydrocarbon basin signal");
     expect(tin?.signalFields).toContain("graniteBeltMask");
-    expect(tin?.proxyRequirements).toContain("granite, orogeny, or placer proxy");
+    expect(tin?.signalRequirements).toContain("granite, orogeny, or placer signal");
     expect(limestone?.signalFields).toContain("carbonateBeltMask");
-    expect(limestone?.proxyRequirements).toContain("carbonate basin proxy");
+    expect(limestone?.signalRequirements).toContain("carbonate basin signal");
     expect(rubies?.signalFields).toContain("metamorphicBeltMask");
-    expect(rubies?.proxyRequirements).toContain("metamorphic, marble, or collision-belt proxy");
+    expect(rubies?.signalRequirements).toContain("metamorphic, marble, or collision-belt signal");
   });
 
   it("keeps narrow geological proxies from broadening into generic terrain signals", () => {
@@ -199,18 +198,18 @@ describe("geological resource operation contract", () => {
     const limestone = result.plans.find((plan) => plan.resourceType === "RESOURCE_LIMESTONE");
     const rubies = result.plans.find((plan) => plan.resourceType === "RESOURCE_RUBIES");
 
-    expect(jade?.status).toBe("proxy-gap");
+    expect(jade?.status).toBe("missing-signal");
     expect(jade?.signalFields).not.toContain("alluvialPlacerMask");
     expect(silver?.signalFields).toEqual(["tundraDesertHillMask"]);
     expect(silver?.signalFields).not.toContain("hillMask");
     expect(coal?.signalFields).toEqual(["sedimentaryBasinMask", "forestWetlandBasinMask"]);
     expect(coal?.signalFields).not.toContain("forestMask");
     expect(coal?.signalFields).not.toContain("wetlandMask");
-    expect(niter?.status).toBe("proxy-gap");
+    expect(niter?.status).toBe("missing-signal");
     expect(niter?.signalFields).not.toContain("wetAlluvialMask");
     expect(limestone?.signalFields).toEqual(["carbonateBeltMask"]);
     expect(limestone?.signalFields).not.toContain("tundraDesertHillMask");
-    expect(rubies?.status).toBe("proxy-gap");
+    expect(rubies?.status).toBe("missing-signal");
     expect(rubies?.signalFields).not.toContain("carbonateBeltMask");
   });
 
@@ -279,7 +278,7 @@ describe("geological resource operation contract", () => {
     }
   });
 
-  it("marks active rows as proxy gaps when no geological signal mask is supplied", () => {
+  it("marks active rows as signal gaps when no geological signal mask is supplied", () => {
     const result = resources.ops.planGeologicalResources.run(
       {
         width: 2,
@@ -290,7 +289,7 @@ describe("geological resource operation contract", () => {
     );
 
     expect(result.missingResourceTypes).toEqual([]);
-    expect(result.plans.filter((plan) => plan.status === "proxy-gap")).toHaveLength(16);
+    expect(result.plans.filter((plan) => plan.status === "missing-signal")).toHaveLength(16);
     for (const blockedResourceType of BLOCKED_GEOLOGICAL_RESOURCE_TYPES) {
       expect(result.plans.find((plan) => plan.resourceType === blockedResourceType)?.status).toBe(
         "blocked"

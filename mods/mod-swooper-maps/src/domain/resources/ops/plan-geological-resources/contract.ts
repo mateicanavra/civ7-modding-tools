@@ -1,27 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const GeologicalResourceTypeSchema = Type.Union([
-  Type.Literal("RESOURCE_GOLD"),
-  Type.Literal("RESOURCE_GOLD_DISTANT_LANDS"),
-  Type.Literal("RESOURCE_SILVER"),
-  Type.Literal("RESOURCE_SILVER_DISTANT_LANDS"),
-  Type.Literal("RESOURCE_GYPSUM"),
-  Type.Literal("RESOURCE_JADE"),
-  Type.Literal("RESOURCE_KAOLIN"),
-  Type.Literal("RESOURCE_MARBLE"),
-  Type.Literal("RESOURCE_IRON"),
-  Type.Literal("RESOURCE_SALT"),
-  Type.Literal("RESOURCE_LAPIS_LAZULI"),
-  Type.Literal("RESOURCE_NITER"),
-  Type.Literal("RESOURCE_COAL"),
-  Type.Literal("RESOURCE_NICKEL"),
-  Type.Literal("RESOURCE_OIL"),
-  Type.Literal("RESOURCE_CLAY"),
-  Type.Literal("RESOURCE_LIMESTONE"),
-  Type.Literal("RESOURCE_TIN"),
-  Type.Literal("RESOURCE_PITCH"),
-  Type.Literal("RESOURCE_RUBIES"),
-]);
+import { ResourceSymbolSchema } from "../../model/schemas/resource-family.schema.js";
 
 const GeologicalLaneIdSchema = Type.Union([
   Type.Literal("orogenic-hydrothermal"),
@@ -59,7 +37,7 @@ const ExpectedCountRangeSchema = Type.Object(
 
 const GeologicalExpectationSchema = Type.Object(
   {
-    resourceType: GeologicalResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     groupId: Type.Literal("geological-mineral-gemstone-industrial"),
     status: Type.Union([
       Type.Literal("expected"),
@@ -69,29 +47,29 @@ const GeologicalExpectationSchema = Type.Object(
     earthlikePredicate: Type.String(),
     expectedCountRange: ExpectedCountRangeSchema,
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
   },
   {
-    additionalProperties: true,
+    additionalProperties: false,
     description:
-      "Geological rows projected from artifact:resources.earthlikeExpectations. Extra source fields may travel with the row, but the op only consumes symbolic expectations.",
+      "Geological rows projected from artifact:resources.earthlikeExpectations. The op consumes only the family-owned symbolic expectation fields.",
   }
 );
 
 const GeologicalPlanRowSchema = Type.Object(
   {
-    resourceType: GeologicalResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     laneId: GeologicalLaneIdSchema,
     status: Type.Union([
       Type.Literal("planned"),
       Type.Literal("blocked"),
       Type.Literal("missing-expectation"),
-      Type.Literal("proxy-gap"),
+      Type.Literal("missing-signal"),
     ]),
     eligibilityStatus: Type.Union([
       Type.Literal("observed"),
-      Type.Literal("proxy-incomplete"),
+      Type.Literal("missing-signal"),
       Type.Literal("missing-expectation"),
       Type.Literal("blocked"),
     ]),
@@ -105,10 +83,9 @@ const GeologicalPlanRowSchema = Type.Object(
       Type.Literal("not-gated"),
     ]),
     proofStatus: Type.Literal("warning-only"),
-    runtimeIdStatus: Type.Literal("unverified"),
     earthlikePredicate: Type.String(),
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     signalFields: Type.Array(Type.String()),
     blockers: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
@@ -140,7 +117,7 @@ const PlanGeologicalResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Sedimentary basin mask." })
       ),
       ultramaficMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Ultramafic, serpentinite, or jade-host proxy mask." })
+        TypedArraySchemas.u8({ description: "Ultramafic, serpentinite, or jade-host signal mask." })
       ),
       weatheringClayFlatMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Weathering, clay-flat, or kaolinized terrain mask." })
@@ -149,17 +126,17 @@ const PlanGeologicalResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Carbonate belt, limestone, or marble source mask." })
       ),
       cratonMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Craton, BIF, or stable shield proxy mask." })
+        TypedArraySchemas.u8({ description: "Craton, BIF, or stable shield signal mask." })
       ),
       closedBasinMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Closed basin or arid basin mask." })
       ),
       aridSoilMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Arid soil or nitrate soil proxy mask." })
+        TypedArraySchemas.u8({ description: "Arid soil or nitrate soil signal mask." })
       ),
       forestWetlandBasinMask: Type.Optional(
         TypedArraySchemas.u8({
-          description: "Ancient swamp, forest, wetland, or peat basin proxy mask.",
+          description: "Ancient swamp, forest, wetland, or peat basin signal mask.",
         })
       ),
       hydrocarbonBasinMask: Type.Optional(
@@ -217,10 +194,9 @@ const PlanGeologicalResourcesContract = defineOp({
   output: Type.Object(
     {
       groupId: Type.Literal("geological-mineral-gemstone-industrial"),
-      runtimeIdStatus: Type.Literal("unverified"),
       proofStatus: Type.Literal("warning-only"),
       plans: Type.Array(GeologicalPlanRowSchema),
-      missingResourceTypes: Type.Array(GeologicalResourceTypeSchema),
+      missingResourceTypes: Type.Array(ResourceSymbolSchema),
     },
     { additionalProperties: false }
   ),

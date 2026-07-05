@@ -1,13 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const AquaticResourceTypeSchema = Type.Union([
-  Type.Literal("RESOURCE_FISH"),
-  Type.Literal("RESOURCE_PEARLS"),
-  Type.Literal("RESOURCE_WHALES"),
-  Type.Literal("RESOURCE_CRABS"),
-  Type.Literal("RESOURCE_COWRIE"),
-  Type.Literal("RESOURCE_TURTLES"),
-]);
+import { ResourceSymbolSchema } from "../../model/schemas/resource-family.schema.js";
 
 const ExpectedCountRangeSchema = Type.Object(
   {
@@ -26,7 +18,7 @@ const ExpectedCountRangeSchema = Type.Object(
 
 const AquaticExpectationSchema = Type.Object(
   {
-    resourceType: AquaticResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     groupId: Type.Literal("aquatic-coastal-navigable-river"),
     status: Type.Union([
       Type.Literal("expected"),
@@ -36,28 +28,28 @@ const AquaticExpectationSchema = Type.Object(
     earthlikePredicate: Type.String(),
     expectedCountRange: ExpectedCountRangeSchema,
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
   },
   {
-    additionalProperties: true,
+    additionalProperties: false,
     description:
-      "Aquatic rows projected from artifact:resources.earthlikeExpectations. Extra source fields may travel with the row, but the op only consumes symbolic expectations.",
+      "Aquatic rows projected from artifact:resources.earthlikeExpectations. The op consumes only the family-owned symbolic expectation fields.",
   }
 );
 
 const AquaticPlanRowSchema = Type.Object(
   {
-    resourceType: AquaticResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     status: Type.Union([
       Type.Literal("planned"),
       Type.Literal("blocked"),
       Type.Literal("missing-expectation"),
-      Type.Literal("proxy-gap"),
+      Type.Literal("missing-signal"),
     ]),
     eligibilityStatus: Type.Union([
       Type.Literal("observed"),
-      Type.Literal("proxy-incomplete"),
+      Type.Literal("missing-signal"),
       Type.Literal("missing-expectation"),
       Type.Literal("blocked"),
     ]),
@@ -71,10 +63,9 @@ const AquaticPlanRowSchema = Type.Object(
       Type.Literal("not-gated"),
     ]),
     proofStatus: Type.Literal("warning-only"),
-    runtimeIdStatus: Type.Literal("unverified"),
     earthlikePredicate: Type.String(),
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     signalFields: Type.Array(Type.String()),
     blockers: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
@@ -109,7 +100,7 @@ const PlanAquaticResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Estuary, delta, brackish bay, or river-mouth mask." })
       ),
       navigableRiverMouthMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Navigable-river mouth or floodplain proxy mask." })
+        TypedArraySchemas.u8({ description: "Navigable-river mouth or floodplain signal mask." })
       ),
       lakeMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Lake mask to suppress marine resources." })
@@ -125,10 +116,9 @@ const PlanAquaticResourcesContract = defineOp({
   output: Type.Object(
     {
       groupId: Type.Literal("aquatic-coastal-navigable-river"),
-      runtimeIdStatus: Type.Literal("unverified"),
       proofStatus: Type.Literal("warning-only"),
       plans: Type.Array(AquaticPlanRowSchema),
-      missingResourceTypes: Type.Array(AquaticResourceTypeSchema),
+      missingResourceTypes: Type.Array(ResourceSymbolSchema),
     },
     { additionalProperties: false }
   ),

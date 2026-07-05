@@ -1,4 +1,3 @@
-import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
   defineArtifact,

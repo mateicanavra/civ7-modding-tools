@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import computeCryosphereState from "../src/domain/hydrology/ops/compute-cryosphere-state/index.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
+const { computeCryosphereState } = hydrologyOpsPublic.ops;
 describe("hydrology cryosphere truth proxies", () => {
   it("is deterministic and not solely temperature-derived", () => {
     const width = 2;

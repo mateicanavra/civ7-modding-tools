@@ -1,8 +1,13 @@
 import { describe, expect, it } from "bun:test";
-import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
-import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/river-class.js";
-import { HYDROLOGY_MOUTH_OCEAN } from "../../src/domain/hydrology/river-network-metrics.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_MINOR,
+} from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { HYDROLOGY_MOUTH_OCEAN } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
+
+const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
 
 describe("select navigable river terrain", () => {
   it("prefers the strongest major-discharge trunk when density only allows one chain", () => {

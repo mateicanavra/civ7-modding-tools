@@ -1,6 +1,14 @@
 import { describe, expect, it } from "bun:test";
 
-import { defaultStrategy as planLakes } from "../../src/domain/hydrology/ops/plan-lakes/strategies/default.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+
+const { planLakes } = hydrologyOpsPublic.ops;
+function runPlanLakes(
+  input: Parameters<typeof planLakes.run>[0],
+  config: (typeof planLakes.defaultConfig)["config"]
+) {
+  return planLakes.run(input, { strategy: "default", config });
+}
 
 /**
  * Plan-lakes strategy tests.
@@ -24,7 +32,7 @@ describe("hydrology/plan-lakes", () => {
     discharge[5] = 100;
     discharge[6] = 100;
 
-    const result = planLakes.run(
+    const result = runPlanLakes(
       {
         width,
         height,
@@ -52,7 +60,7 @@ describe("hydrology/plan-lakes", () => {
     const discharge = new Float32Array(size);
     discharge[4] = 100;
 
-    const result = planLakes.run(
+    const result = runPlanLakes(
       {
         width,
         height,
@@ -78,7 +86,7 @@ describe("hydrology/plan-lakes", () => {
     const discharge = new Float32Array(size);
     discharge[4] = 100;
 
-    const result = planLakes.run(
+    const result = runPlanLakes(
       {
         width,
         height,
@@ -108,7 +116,7 @@ describe("hydrology/plan-lakes", () => {
     discharge[3] = 10;
     discharge[5] = 100;
 
-    const result = planLakes.run(
+    const result = runPlanLakes(
       {
         width,
         height,

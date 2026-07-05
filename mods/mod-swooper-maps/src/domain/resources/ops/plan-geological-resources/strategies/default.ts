@@ -7,7 +7,7 @@ import {
   type GeologicalMaskField,
   type GeologicalResourceSignals,
   type GeologicalResourceType,
-} from "../signals.js";
+} from "../../../model/policy/geological-resource-signals.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -39,10 +39,9 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
           eligibleTileCount: 0,
           rangeStatus: "not-gated" as const,
           proofStatus: "warning-only" as const,
-          runtimeIdStatus: "unverified" as const,
           earthlikePredicate: "",
           conditionMultipliers: [],
-          proxyRequirements: [],
+          signalRequirements: [],
           signalFields: [],
           blockers: ["Missing geological earthlike expectation row."],
           caveats: [],
@@ -61,10 +60,9 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
           eligibleTileCount: 0,
           rangeStatus: "not-gated" as const,
           proofStatus: "warning-only" as const,
-          runtimeIdStatus: "unverified" as const,
           earthlikePredicate: expectation.earthlikePredicate,
           conditionMultipliers: [...expectation.conditionMultipliers],
-          proxyRequirements: [...expectation.proxyRequirements],
+          signalRequirements: [...expectation.signalRequirements],
           signalFields: [],
           blockers: ["Expectation row is blocked by official corpus disposition."],
           caveats: [...expectation.caveats],
@@ -74,8 +72,8 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
 
       const signalFields = presentFields(input, signals.primary);
       const eligibleTileCount = countEligibleTiles(input, size, signals);
-      const proxyIncomplete = signalFields.length === 0;
-      const targetIntentCount = proxyIncomplete
+      const missingSignal = signalFields.length === 0;
+      const targetIntentCount = missingSignal
         ? 0
         : Math.min(
             expectation.expectedCountRange.max,
@@ -83,10 +81,10 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
             expectation.expectedCountRange.target
           );
       const blockers = [];
-      if (proxyIncomplete) {
+      if (missingSignal) {
         blockers.push(`Missing geological signal masks: ${signals.primary.join(", ")}.`);
       }
-      if (!proxyIncomplete && eligibleTileCount === 0) {
+      if (!missingSignal && eligibleTileCount === 0) {
         blockers.push(
           "No eligible geological tiles observed for this resource under supplied masks."
         );
@@ -95,19 +93,18 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
       plans.push({
         resourceType,
         laneId: signals.laneId,
-        status: proxyIncomplete ? ("proxy-gap" as const) : ("planned" as const),
-        eligibilityStatus: proxyIncomplete ? ("proxy-incomplete" as const) : ("observed" as const),
+        status: missingSignal ? ("missing-signal" as const) : ("planned" as const),
+        eligibilityStatus: missingSignal ? ("missing-signal" as const) : ("observed" as const),
         expectedCountRange: expectation.expectedCountRange,
         targetIntentCount,
         eligibleTileCount,
-        rangeStatus: proxyIncomplete
+        rangeStatus: missingSignal
           ? ("not-gated" as const)
           : compareRange(targetIntentCount, expectation.expectedCountRange),
         proofStatus: "warning-only" as const,
-        runtimeIdStatus: "unverified" as const,
         earthlikePredicate: expectation.earthlikePredicate,
         conditionMultipliers: [...expectation.conditionMultipliers],
-        proxyRequirements: [...expectation.proxyRequirements],
+        signalRequirements: [...expectation.signalRequirements],
         signalFields,
         blockers,
         caveats: [...expectation.caveats],
@@ -116,7 +113,6 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
 
     return {
       groupId: "geological-mineral-gemstone-industrial" as const,
-      runtimeIdStatus: "unverified" as const,
       proofStatus: "warning-only" as const,
       plans,
       missingResourceTypes,

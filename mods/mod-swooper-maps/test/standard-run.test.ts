@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { requireResourceRuntimeId } from "@civ7/map-policy";
 import {
   createExtendedMapContext,
   HILL_TERRAIN,
@@ -9,18 +10,18 @@ import {
   VOLCANO_FEATURE,
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { isAnyRiverClass } from "../src/domain/hydrology/index.js";
-import { DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS } from "../src/domain/resources/policy/initial-map-authoring.js";
+import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { DEFERRED_INITIAL_MAP_RESOURCE_TYPES } from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
 import { mapArtifacts } from "../src/recipes/standard/map-artifacts.js";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
-import { foundationArtifacts } from "../src/recipes/standard/stages/foundation/artifacts.js";
-import { hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
-import { hydrologyClimateRefineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
-import { computeRiverAdjacencyMaskFromRiverClass } from "../src/recipes/standard/stages/hydrology-hydrography/river-adjacency.js";
-import { placementArtifacts } from "../src/recipes/standard/stages/placement/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
+import { artifacts as hydrologyClimateRefineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
+import { artifacts as placementArtifacts } from "../src/recipes/standard/stages/placement/artifacts/index.js";
 import { standardConfig } from "./support/standard-config.js";
 
 describe("standard recipe execution", () => {
@@ -300,7 +301,11 @@ describe("standard recipe execution", () => {
     expect(context.artifacts.get(foundationArtifacts.plateTopology.id)).toBeTruthy();
     expect(context.artifacts.get(placementArtifacts.placementOutputs.id)).toBeTruthy();
 
-    const deferredResourceTypes = new Set(DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS);
+    const deferredResourceTypes = new Set(
+      DEFERRED_INITIAL_MAP_RESOURCE_TYPES.map(
+        (resourceType) => requireResourceRuntimeId(resourceType).resourceTypeId
+      )
+    );
     const placementInputs = context.artifacts.get(placementArtifacts.placementInputs.id) as
       | {
           resources?: {

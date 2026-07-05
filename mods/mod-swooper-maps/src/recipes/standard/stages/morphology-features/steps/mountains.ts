@@ -1,10 +1,8 @@
-import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/config.js";
 import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
-} from "@mapgen/domain/morphology/config.js";
-import { assertSameMountainFamilySelection } from "@mapgen/domain/morphology/ops";
+} from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
 import {
   BYTE_SHADE_RAMP,
   computeSampleStep,
@@ -17,7 +15,8 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import type { MorphologyOrogenyKnob } from "../index.js";
 import MountainsStepContract from "./mountains.contract.js";
 
 const GROUP_MORPHOLOGY_FEATURES = "Morphology / Features";
@@ -36,6 +35,44 @@ function buildFractalArray(width: number, height: number, seed: number, grain: n
     }
   }
   return fractal;
+}
+
+type MountainFamilySelection = Readonly<{
+  strategy?: unknown;
+  config?: unknown;
+}>;
+
+function stableConfigString(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableConfigString).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, item]) => `${JSON.stringify(key)}:${stableConfigString(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function stableRootConfigString(value: unknown): string {
+  return stableConfigString(value === undefined ? {} : value);
+}
+
+export function assertSameMountainFamilySelection(
+  ridges: MountainFamilySelection,
+  foothills: MountainFamilySelection
+): void {
+  if (ridges.strategy !== foothills.strategy) {
+    throw new Error(
+      `[Morphology] Mountain-family config requires identical ridge/foothill strategies (ridges=${String(ridges.strategy)}, foothills=${String(foothills.strategy)}).`
+    );
+  }
+  const ridgeConfig = stableRootConfigString(ridges.config);
+  const foothillConfig = stableRootConfigString(foothills.config);
+  if (ridgeConfig !== foothillConfig) {
+    throw new Error(
+      "[Morphology] Mountain-family config requires identical ridge/foothill config; tune the shared terrain-classification posture once, not as divergent op-local worlds."
+    );
+  }
 }
 
 export default createStep(MountainsStepContract, {

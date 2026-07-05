@@ -1,25 +1,30 @@
 #!/usr/bin/env node
 import path from "node:path";
 import {
-  assertEqual,
   assertNoFindings,
-  read,
+  pathExists,
+  repoRel,
   srcRoot,
 } from "../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
-const morphologyConfig = path.join(srcRoot, "domain/morphology/config.ts");
-const configExports = read(morphologyConfig)
-  .split(/\r?\n/u)
-  .map((line) => line.trim())
-  .filter(Boolean)
-  .sort();
+const retiredConfigSurfaces = [
+  path.join(srcRoot, "domain/morphology/config.ts"),
+  path.join(srcRoot, "domain/morphology/shared/knobs.ts"),
+  path.join(srcRoot, "domain/morphology/shared/knob-multipliers.ts"),
+];
 
-const findings = assertEqual(
-  configExports,
-  ['export * from "./shared/knob-multipliers.js";', 'export * from "./shared/knobs.js";'].sort(),
-  "morphology-config-facade",
-  "morphology config exports"
+const findings = retiredConfigSurfaces.flatMap((file) =>
+  pathExists(file)
+    ? [
+        {
+          file: repoRel(file),
+          line: 1,
+          rule: "retired-morphology-config-surface",
+          detail:
+            "morphology config facades are retired; move reusable domain policy to domain/morphology/model/policy and stage authoring knobs to the owning stage",
+        },
+      ]
+    : []
 );
 
 assertNoFindings("require_morphology_config_facade_exports", findings);
-

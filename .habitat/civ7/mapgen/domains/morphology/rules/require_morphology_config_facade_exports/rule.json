@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "require_morphology_config_facade_exports",
-  "title": "Require Morphology Config Facade Exports",
+  "title": "Forbid Retired Morphology Config Facades",
   "placement": {
     "niche": "civ7/mapgen/domains/morphology",
     "blueprint": "_self",
@@ -12,15 +12,19 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "missing required morphology config facade exports",
-  "why": "The morphology domain config facade must expose only its owned shared knob surfaces.",
-  "remediate": null,
-  "message": "Keep the morphology config facade exports exact.",
+  "forbids": "retired morphology config facade or shared knob bucket files",
+  "why": "Morphology no longer owns config facades. Reusable domain policy belongs under domain/morphology/model/policy, and recipe authoring knobs belong with the owning stage.",
+  "remediate": "Delete the retired config facade/shared knob bucket and route imports to domain model policy or stage-local authoring owners.",
+  "message": "Do not recreate morphology config facades.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/domain/morphology/config.ts"
+        "mods/mod-swooper-maps/src/domain/morphology/config.ts",
+        "mods/mod-swooper-maps/src/domain/morphology/shared/knobs.ts",
+        "mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts",
+        "mods/mod-swooper-maps/src/domain/morphology/model/policy/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-*/**/*.ts"
       ]
     }
   ],

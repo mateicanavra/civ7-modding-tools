@@ -1,7 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import { BOUNDARY_TYPE } from "../../src/domain/foundation/constants.js";
-import planRoughLands from "../../src/domain/morphology/ops/plan-rough-lands/index.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
+import morphology from "@mapgen/domain/morphology/ops";
+
+const { planRoughLands } = morphology.ops;
 
 function countMask(mask: Uint8Array): number {
   let count = 0;

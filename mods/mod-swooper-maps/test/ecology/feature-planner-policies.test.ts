@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ecology from "@mapgen/domain/ecology/ops";
 
-import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function f32(size: number, value: number): Float32Array {
@@ -39,7 +39,7 @@ describe("ecology feature planner policies", () => {
         scoreAtoll01: f32(size, weakPositive),
         scoreLotus01: f32(size, weakPositive),
         lakeMask: new Uint8Array(size),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} })
@@ -56,8 +56,7 @@ describe("ecology feature planner policies", () => {
         scoreOasis01: f32(size, weakPositive),
         scoreWateringHole01: f32(size, weakPositive),
         flatLandMask: new Uint8Array(size).fill(1),
-        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       normalizeOpSelectionOrThrow(ecology.ops.planWetlands, { strategy: "default", config: {} })
@@ -75,7 +74,7 @@ describe("ecology feature planner policies", () => {
         scoreSagebrushSteppe01: f32(size, weakPositive),
         landMask: new Uint8Array(size).fill(1),
         ...broadVegetationHabitatFields(size),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       normalizeOpSelectionOrThrow(ecology.ops.planVegetation, { strategy: "default", config: {} })
@@ -87,7 +86,7 @@ describe("ecology feature planner policies", () => {
         height,
         seed: 1,
         score01: f32(size, weakPositive),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "default", config: {} })
@@ -99,7 +98,7 @@ describe("ecology feature planner policies", () => {
         height,
         seed: 1,
         score01: f32(size, weakPositive),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "continentality", config: {} })
@@ -125,10 +124,9 @@ describe("ecology feature planner policies", () => {
     // This is a category guard: future ecology feature families should attach
     // planner policy locally instead of restoring a generic routing owner.
     expect(existsSync(path.join(opsRoot, "features-plan-shared"))).toBe(false);
-    const scoreShared = readFileSync(path.join(opsRoot, "score-shared", "index.ts"), "utf8");
-    expect(scoreShared).not.toContain("confidenceBeatsStress");
+    expect(existsSync(path.join(opsRoot, "score-shared"))).toBe(false);
     for (const family of families) {
-      const policyDir = path.join(opsRoot, family, "policies");
+      const policyDir = path.join(opsRoot, family, "policy");
       expect(existsSync(policyDir), `${family} should own local policies`).toBe(true);
       const strategyDir = path.join(opsRoot, family, "strategies");
       const strategyFiles = readdirSync(strategyDir).filter(
@@ -136,7 +134,7 @@ describe("ecology feature planner policies", () => {
       );
       for (const strategyFile of strategyFiles) {
         const strategy = readFileSync(path.join(strategyDir, strategyFile), "utf8");
-        expect(strategy).toContain("../policies/index.js");
+        expect(strategy).toContain("../policy/index.js");
       }
     }
   });

@@ -98,3 +98,4 @@ Each row links to the individual domino file under `items/`.
 | [090](items/090-delete-standard-tag-catalog-retired-effect-gate-guard.md) | Delete Standard Tag Catalog Retired Effect-Gate Guard | See domino file. | expanded |
 | [091](items/091-admit-foundation-helper-redeclaration-rail.md) | Admit Foundation Helper Redeclaration Rail | See domino file. | expanded |
 | [092](items/092-reopen-local-proxy-authority-rows.md) | Reopen Local-Proxy Authority Rows | See domino file. | expanded |
+| [093](items/093-move-structural-test-debt-into-habitat-authority.md) | Move Structural Test Debt Into Habitat Authority | Package tests that read source files for topology/source-shape assertions are tracked for migration into Habitat rules/patterns before final Habitat authority closure. | expanded |

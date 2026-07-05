@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
 import { RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import {
   createExtendedMapContext,
   FLAT_TERRAIN,
@@ -9,12 +10,16 @@ import {
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
-import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
-import { mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts.js";
-import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_MINOR,
+} from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { artifacts as mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
+
+const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
 
 class RiverCacheRefreshAdapter extends MockAdapter {
   private cachedWater: Uint8Array;

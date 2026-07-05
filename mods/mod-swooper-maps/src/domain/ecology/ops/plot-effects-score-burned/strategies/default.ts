@@ -1,4 +1,4 @@
-import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/types.js";
+import { biomeSymbolFromIndex } from "../../../model/schemas/index.js";
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
 import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
 

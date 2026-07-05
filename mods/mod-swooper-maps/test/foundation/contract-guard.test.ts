@@ -11,9 +11,9 @@ import {
   FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
 import * as ts from "typescript";
-import foundation from "../../src/domain/foundation/index.js";
+import foundation from "@mapgen/domain/foundation";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
-import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import ProjectionStepContract from "../../src/recipes/standard/stages/foundation-projection/steps/projection.contract.js";
 import TectonicsStepContract from "../../src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.js";
 

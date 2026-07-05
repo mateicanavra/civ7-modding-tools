@@ -29,4 +29,4 @@ Import/export boundary:
 
 Enforcement:
 structure for existence; Grit/source-shape gate in
-`.habitat/blueprints/domain-operation/require_operation_contract_file_shape/`.
+`.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/`.

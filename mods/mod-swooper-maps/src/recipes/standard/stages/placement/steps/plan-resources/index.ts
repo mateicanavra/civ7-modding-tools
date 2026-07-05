@@ -1,7 +1,6 @@
-import resourcesDomain from "@mapgen/domain/resources";
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 import {
   buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
@@ -13,10 +12,12 @@ import {
 import PlanResourcesStepContract from "./contract.js";
 import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
+  assertHabitatFieldsOutput,
   buildResourceDemands,
   buildRiverResourceExclusionMask,
   expectationsForGroup,
-  pickPlannerMasks,
+  type HabitatFields,
+  type HabitatIntensityFields,
   type ResourceDemandBuildResult,
   readResourceLegalitySurface,
 } from "./planning.js";
@@ -86,44 +87,100 @@ export default createStep(PlanResourcesStepContract, {
       },
       config.habitat
     );
+    const plannerHabitat = assertHabitatFieldsOutput(habitat, width * height);
 
     // --- step 1: family demand/eligibility planners (domain/resources ops) ------------------
-    const aquatic = ops.aquatic(
-      {
-        width,
-        height,
-        expectations: expectationsForGroup("aquatic-coastal-navigable-river"),
-        ...pickPlannerMasks(resourcesDomain.ops.planAquaticResources.input, habitat),
-      } as unknown as Parameters<typeof ops.aquatic>[0],
-      config.aquatic
-    );
-    const cultivated = ops.cultivated(
-      {
-        width,
-        height,
-        expectations: expectationsForGroup("cultivated-plantation-medicinal"),
-        ...pickPlannerMasks(resourcesDomain.ops.planCultivatedResources.input, habitat),
-      } as unknown as Parameters<typeof ops.cultivated>[0],
-      config.cultivated
-    );
-    const terrestrial = ops.terrestrial(
-      {
-        width,
-        height,
-        expectations: expectationsForGroup("terrestrial-animal-forest-wild"),
-        ...pickPlannerMasks(resourcesDomain.ops.planTerrestrialResources.input, habitat),
-      } as unknown as Parameters<typeof ops.terrestrial>[0],
-      config.terrestrial
-    );
-    const geological = ops.geological(
-      {
-        width,
-        height,
-        expectations: expectationsForGroup("geological-mineral-gemstone-industrial"),
-        ...pickPlannerMasks(resourcesDomain.ops.planGeologicalResources.input, habitat),
-      } as unknown as Parameters<typeof ops.geological>[0],
-      config.geological
-    );
+    const aquaticInput: Parameters<typeof ops.aquatic>[0] = {
+      width,
+      height,
+      expectations: expectationsForGroup("aquatic-coastal-navigable-river"),
+      coastalWaterMask: plannerHabitat.coastalWaterMask,
+      shelfMask: plannerHabitat.shelfMask,
+      warmShallowWaterMask: plannerHabitat.warmShallowWaterMask,
+      coldProductiveWaterMask: plannerHabitat.coldProductiveWaterMask,
+      reefOrProtectedShallowsMask: plannerHabitat.reefOrProtectedShallowsMask,
+      estuaryMask: plannerHabitat.estuaryMask,
+      navigableRiverMouthMask: plannerHabitat.navigableRiverMouthMask,
+      lakeMask: plannerHabitat.lakeMask,
+      iceMask: plannerHabitat.iceMask,
+    };
+    const aquatic = ops.aquatic(aquaticInput, config.aquatic);
+
+    const cultivatedInput: Parameters<typeof ops.cultivated>[0] = {
+      width,
+      height,
+      expectations: expectationsForGroup("cultivated-plantation-medicinal"),
+      warmAlluvialMask: plannerHabitat.warmAlluvialMask,
+      floodplainOrRiverMask: plannerHabitat.floodplainOrRiverMask,
+      warmGrassPlainsMask: plannerHabitat.warmGrassPlainsMask,
+      oasisOrDesertWaterMask: plannerHabitat.oasisOrDesertWaterMask,
+      aridDryWoodlandMask: plannerHabitat.aridDryWoodlandMask,
+      coastalMarineMask: plannerHabitat.coastalMarineMask,
+      humidTropicalForestMask: plannerHabitat.humidTropicalForestMask,
+      wetTropicsMask: plannerHabitat.wetTropicsMask,
+      highlandOrReliefMask: plannerHabitat.highlandOrReliefMask,
+      temperateDryPlainsMask: plannerHabitat.temperateDryPlainsMask,
+      savannaForestMask: plannerHabitat.savannaForestMask,
+      tropicalFruitMask: plannerHabitat.tropicalFruitMask,
+      wetlandPaddyMask: plannerHabitat.wetlandPaddyMask,
+      coolTemperatePlainsMask: plannerHabitat.coolTemperatePlainsMask,
+      coldMask: plannerHabitat.coldMask,
+      aridWithoutWaterMask: plannerHabitat.aridWithoutWaterMask,
+      waterloggedMask: plannerHabitat.waterloggedMask,
+    };
+    const cultivated = ops.cultivated(cultivatedInput, config.cultivated);
+
+    const terrestrialInput: Parameters<typeof ops.terrestrial>[0] = {
+      width,
+      height,
+      expectations: expectationsForGroup("terrestrial-animal-forest-wild"),
+      aridRangelandMask: plannerHabitat.aridRangelandMask,
+      openGrassPlainsMask: plannerHabitat.openGrassPlainsMask,
+      tundraColdEdgeMask: plannerHabitat.tundraColdEdgeMask,
+      hillHighlandMask: plannerHabitat.hillHighlandMask,
+      savannaWateringHoleMask: plannerHabitat.savannaWateringHoleMask,
+      tropicalForestEdgeMask: plannerHabitat.tropicalForestEdgeMask,
+      taigaBorealForestMask: plannerHabitat.taigaBorealForestMask,
+      moistWoodlandEdgeMask: plannerHabitat.moistWoodlandEdgeMask,
+      tropicalForestMask: plannerHabitat.tropicalForestMask,
+      diverseWildHabitatMask: plannerHabitat.diverseWildHabitatMask,
+      tropicalHighlandMask: plannerHabitat.tropicalHighlandMask,
+      coldMask: plannerHabitat.coldMask,
+      aridWithoutWaterMask: plannerHabitat.aridWithoutWaterMask,
+      denseForestMask: plannerHabitat.denseForestMask,
+      cultivatedPressureMask: plannerHabitat.cultivatedPressureMask,
+    };
+    const terrestrial = ops.terrestrial(terrestrialInput, config.terrestrial);
+
+    const geologicalInput: Parameters<typeof ops.geological>[0] = {
+      width,
+      height,
+      expectations: expectationsForGroup("geological-mineral-gemstone-industrial"),
+      orogenyMask: plannerHabitat.orogenyMask,
+      alluvialPlacerMask: plannerHabitat.alluvialPlacerMask,
+      tundraDesertHillMask: plannerHabitat.tundraDesertHillMask,
+      evaporiteBasinMask: plannerHabitat.evaporiteBasinMask,
+      sedimentaryBasinMask: plannerHabitat.sedimentaryBasinMask,
+      ultramaficMask: plannerHabitat.ultramaficMask,
+      weatheringClayFlatMask: plannerHabitat.weatheringClayFlatMask,
+      carbonateBeltMask: plannerHabitat.carbonateBeltMask,
+      cratonMask: plannerHabitat.cratonMask,
+      closedBasinMask: plannerHabitat.closedBasinMask,
+      aridSoilMask: plannerHabitat.aridSoilMask,
+      forestWetlandBasinMask: plannerHabitat.forestWetlandBasinMask,
+      hydrocarbonBasinMask: plannerHabitat.hydrocarbonBasinMask,
+      wetAlluvialMask: plannerHabitat.wetAlluvialMask,
+      graniteBeltMask: plannerHabitat.graniteBeltMask,
+      oilAdjacencyMask: plannerHabitat.oilAdjacencyMask,
+      metamorphicBeltMask: plannerHabitat.metamorphicBeltMask,
+      collisionBeltMask: plannerHabitat.collisionBeltMask,
+      flatNonGeologicMask: plannerHabitat.flatNonGeologicMask,
+      wetSuppressionMask: plannerHabitat.wetSuppressionMask,
+      humidSuppressionMask: plannerHabitat.humidSuppressionMask,
+      offshoreMask: plannerHabitat.offshoreMask,
+      igneousTerrainMask: plannerHabitat.igneousTerrainMask,
+    };
+    const geological = ops.geological(geologicalInput, config.geological);
     const groups = ops.groups(
       {
         aquaticPlan: aquatic,
@@ -150,7 +207,7 @@ export default createStep(PlanResourcesStepContract, {
       width,
       height,
       plannedRows,
-      habitat,
+      habitat: plannerHabitat,
       legalitySurface,
       riverResourceExclusionMask,
     });
@@ -175,10 +232,6 @@ export default createStep(PlanResourcesStepContract, {
 
     const demandPlan = {
       age: demandResult.age,
-      runtimeIdResolution: {
-        status: "verified" as const,
-        checkedCount: demandResult.summaries.length,
-      },
       minimumAmountModifier: demandResult.minimumAmountModifier,
       groups,
       demands: demandResult.summaries,
@@ -195,7 +248,6 @@ export default createStep(PlanResourcesStepContract, {
       height,
       rows: demandResult.demands.map((row) => ({
         resourceType: row.resourceType,
-        resourceTypeId: row.resourceTypeId,
         habitatMask: row.habitatMask,
         legalMask: row.legalMask,
         intensity: row.intensity,
@@ -216,11 +268,7 @@ export default createStep(PlanResourcesStepContract, {
     // S7 (E4.2/E4.3): the selected plan, the habitat fields it was thinned
     // by, and the policy eligibility surface it was constrained by.
     emitResourcePlanViz(context, { width, height }, plan.intents, demandResult);
-    emitHabitatIntensityViz(
-      context,
-      { width, height },
-      habitat as unknown as Record<string, unknown>
-    );
+    emitHabitatIntensityViz(context, { width, height }, habitat);
   },
 });
 
@@ -341,7 +389,7 @@ const HABITAT_FAMILY_FIELDS = [
 function emitHabitatIntensityViz(
   context: ExtendedMapContext,
   dims: { width: number; height: number },
-  habitat: Record<string, unknown>
+  habitat: HabitatIntensityFields
 ): void {
   if (!context.viz) return;
   const { width, height } = dims;

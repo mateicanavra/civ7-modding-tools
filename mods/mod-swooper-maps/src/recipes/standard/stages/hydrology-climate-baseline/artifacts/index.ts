@@ -10,6 +10,12 @@ export const artifactContracts = {
   windField,
 } as const;
 
+export const artifacts = {
+  climateField: climateField.artifact,
+  climateSeasonality: climateSeasonality.artifact,
+  windField: windField.artifact,
+} as const;
+
 export const validators = {
   climateField: climateField.validate,
   climateSeasonality: climateSeasonality.validate,

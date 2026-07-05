@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "missing decomposed foundation operation names, artifact tags, required strategy rules imports, or projection plate-motion/provenance currentness",
-  "why": "Foundation contract currentness is a package-local validator for MapGen pipeline composition; source-token bans are owned by narrow Grit packets.",
+  "forbids": "missing decomposed foundation operation names, domain artifact contract tags/validators, required strategy rules imports, or projection plate-motion/provenance currentness",
+  "why": "Foundation contract currentness is a package-local validator for MapGen pipeline composition; artifact validation is owned by domain artifact files and exposed through the domain artifact aggregate.",
   "remediate": null,
-  "message": "Keep foundation positive/currentness contract surfaces aligned with decomposed foundation outputs.",
+  "message": "Keep foundation positive/currentness surfaces aligned with decomposed foundation outputs and domain-owned artifact validators.",
   "pathCoverage": [
     {
       "kind": "exact-path",

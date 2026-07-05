@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import { computeWindsEarthlike } from "../src/domain/hydrology/ops/compute-atmospheric-circulation/rules/index.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
+const { computeAtmosphericCirculation } = hydrologyOpsPublic.ops;
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }
@@ -27,20 +28,24 @@ describe("hydrology/compute-atmospheric-circulation (default)", () => {
     for (let y = 0; y < height; y++) lat[y] = lerp(-60, 60, y / Math.max(1, height - 1));
 
     const run = () =>
-      computeWindsEarthlike(width, height, lat, {
-        seed: 123,
-        seasonPhase01: 0.25,
-        maxSpeed: 110,
-        zonalStrength: 90,
-        meridionalStrength: 30,
-        geostrophicStrength: 70,
-        pressureNoiseScale: 18,
-        pressureNoiseAmp: 55,
-        waveStrength: 45,
-        landHeatStrength: 20,
-        mountainDeflectStrength: 18,
-        smoothIters: 4,
-      });
+      computeAtmosphericCirculation.run(
+        { width, height, latitudeByRow: lat, rngSeed: 123, seasonPhase01: 0.25 },
+        {
+          strategy: "default",
+          config: {
+            maxSpeed: 110,
+            zonalStrength: 90,
+            meridionalStrength: 30,
+            geostrophicStrength: 70,
+            pressureNoiseScale: 18,
+            pressureNoiseAmp: 55,
+            waveStrength: 45,
+            landHeatStrength: 20,
+            mountainDeflectStrength: 18,
+            smoothIters: 4,
+          },
+        }
+      );
 
     const a = run();
     const b = run();

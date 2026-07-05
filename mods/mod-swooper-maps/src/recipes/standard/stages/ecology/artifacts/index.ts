@@ -40,6 +40,27 @@ export const artifactContracts = {
   scoreLayers,
 } as const;
 
+export const artifacts = {
+  biomeBindings: biomeBindings.artifact,
+  biomeClassification: biomeClassification.artifact,
+  featureApplyDiagnostics: featureApplyDiagnostics.artifact,
+  featureIntentsFloodplains: featureIntentsFloodplains.artifact,
+  featureIntentsIce: featureIntentsIce.artifact,
+  featureIntentsReefs: featureIntentsReefs.artifact,
+  featureIntentsVegetation: featureIntentsVegetation.artifact,
+  featureIntentsWetlands: featureIntentsWetlands.artifact,
+  occupancyBase: occupancyBase.artifact,
+  occupancyFloodplains: occupancyFloodplains.artifact,
+  occupancyIce: occupancyIce.artifact,
+  occupancyReefs: occupancyReefs.artifact,
+  occupancyVegetation: occupancyVegetation.artifact,
+  occupancyWetlands: occupancyWetlands.artifact,
+  pedology: pedology.artifact,
+  plotEffectPlan: plotEffectPlan.artifact,
+  resourceBasins: resourceBasins.artifact,
+  scoreLayers: scoreLayers.artifact,
+} as const;
+
 export const validators = {
   biomeBindings: biomeBindings.validate,
   biomeClassification: biomeClassification.validate,

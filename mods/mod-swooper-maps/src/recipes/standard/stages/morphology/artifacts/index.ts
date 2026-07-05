@@ -22,6 +22,18 @@ export const artifactContracts = {
   volcanoes,
 } as const;
 
+export const artifacts = {
+  beltDrivers: beltDrivers.artifact,
+  coastlineMetrics: coastlineMetrics.artifact,
+  landmasses: landmasses.artifact,
+  mountains: mountains.artifact,
+  routing: routing.artifact,
+  shelf: shelf.artifact,
+  substrate: substrate.artifact,
+  topography: topography.artifact,
+  volcanoes: volcanoes.artifact,
+} as const;
+
 export const validators = {
   beltDrivers: beltDrivers.validate,
   coastlineMetrics: coastlineMetrics.validate,

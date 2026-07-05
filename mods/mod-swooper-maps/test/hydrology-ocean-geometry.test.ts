@@ -1,9 +1,31 @@
 import { describe, expect, it } from "bun:test";
 
-import { computeOceanGeometry } from "../src/domain/hydrology/ops/compute-ocean-geometry/rules/index.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
+const { computeOceanGeometry } = hydrologyOpsPublic.ops;
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
+}
+
+function runOceanGeometry(
+  width: number,
+  height: number,
+  isWaterMask: Uint8Array,
+  coastalWaterMask: Uint8Array,
+  config: Readonly<{ maxCoastDistance: number; maxCoastVectorDistance: number }>
+) {
+  const size = width * height;
+  return computeOceanGeometry.run(
+    {
+      width,
+      height,
+      isWaterMask,
+      coastalWaterMask,
+      distanceToCoast: new Uint16Array(size),
+      shelfMask: new Uint8Array(size),
+    },
+    { strategy: "default", config }
+  );
 }
 
 describe("hydrology/compute-ocean-geometry", () => {
@@ -19,7 +41,7 @@ describe("hydrology/compute-ocean-geometry", () => {
     coastalWaterMask[idx(0, 1, width)] = 1;
     coastalWaterMask[idx(5, 1, width)] = 1;
 
-    const out = computeOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
+    const out = runOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
       maxCoastDistance: 16,
       maxCoastVectorDistance: 8,
     });
@@ -48,7 +70,7 @@ describe("hydrology/compute-ocean-geometry", () => {
       }
     }
 
-    const out = computeOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
+    const out = runOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
       maxCoastDistance: 64,
       maxCoastVectorDistance: 10,
     });
@@ -72,7 +94,7 @@ describe("hydrology/compute-ocean-geometry", () => {
     for (let x = 0; x < width; x++) coastalWaterMask[idx(x, 0, width)] = 1;
 
     const maxCoastDistance = 8;
-    const out = computeOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
+    const out = runOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
       maxCoastDistance,
       maxCoastVectorDistance: 0,
     });
@@ -84,7 +106,7 @@ describe("hydrology/compute-ocean-geometry", () => {
 
     // If a land tile exists, it must still be the sentinel.
     isWaterMask[idx(0, height - 1, width)] = 0;
-    const out2 = computeOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
+    const out2 = runOceanGeometry(width, height, isWaterMask, coastalWaterMask, {
       maxCoastDistance,
       maxCoastVectorDistance: 0,
     });

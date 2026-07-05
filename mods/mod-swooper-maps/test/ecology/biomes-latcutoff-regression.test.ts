@@ -8,7 +8,7 @@ import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
 
 describe("biomes latitude-cutoff regression (M3-013)", () => {
   it("does not hard-cut rainforest into latitude stripes (and still produces cold biomes)", {

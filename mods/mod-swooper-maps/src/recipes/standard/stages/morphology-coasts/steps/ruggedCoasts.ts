@@ -1,5 +1,4 @@
-import type { MorphologyCoastRuggednessKnob } from "@mapgen/domain/morphology/config.js";
-import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
+import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/coast-knob-policy.js";
 import {
   computeSampleStep,
   defineVizMeta,
@@ -8,8 +7,9 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
-import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import type { MorphologyCoastRuggednessKnob } from "../index.js";
+import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 
 const GROUP_COASTLINES = "Morphology / Coastlines";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

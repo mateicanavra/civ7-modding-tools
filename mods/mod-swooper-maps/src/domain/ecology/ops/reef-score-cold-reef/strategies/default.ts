@@ -1,7 +1,7 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { rampDown01, validateGridSize, window01 } from "../../score-shared/index.js";
+import { rampDown01, validateGridSize, window01 } from "../../../model/policy/feature-score-selection.js";
 import ScoreColdReefContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreColdReefContract, "default", {

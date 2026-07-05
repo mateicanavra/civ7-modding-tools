@@ -5,8 +5,8 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
-import { hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
-import { hydrologyClimateRefineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
+import { artifacts as hydrologyClimateRefineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
 
 describe("hydrology dryness knob effects (integration)", () => {
   it("yields wetter climate signals for wet vs dry (same seed)", () => {

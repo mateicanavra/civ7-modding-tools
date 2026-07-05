@@ -1,7 +1,6 @@
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import PlanIceStepContract from "./contract.js";
 import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
@@ -28,8 +27,8 @@ export default createStep(PlanIceStepContract, {
         width,
         height,
         seed,
-        score01: scoreLayers.layers.FEATURE_ICE,
-        featureIndex: base.featureIndex,
+        score01: scoreLayers.layers.ice,
+        featureOccupancyMask: base.featureOccupancyMask,
         reserved: base.reserved,
       },
       config.planIce
@@ -37,13 +36,12 @@ export default createStep(PlanIceStepContract, {
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
 
-    const iceIndex = (FEATURE_KEY_INDEX.FEATURE_ICE ?? 0) + 1;
-    const featureIndex = new Uint16Array(base.featureIndex);
+    const featureOccupancyMask = new Uint8Array(base.featureOccupancyMask);
     const reserved = new Uint8Array(base.reserved);
 
     for (const placement of placements) {
-      if (placement.feature !== "FEATURE_ICE") {
-        throw new Error(`plan-ice expected FEATURE_ICE placements (received ${placement.feature})`);
+      if (placement.feature !== "ice") {
+        throw new Error(`plan-ice expected ice placements (received ${placement.feature})`);
       }
       const x = placement.x | 0;
       const y = placement.y | 0;
@@ -54,17 +52,17 @@ export default createStep(PlanIceStepContract, {
       if (reserved[idx] !== 0) {
         throw new Error(`plan-ice attempted to claim reserved tileIndex=${idx} (${x},${y})`);
       }
-      if (featureIndex[idx] !== 0) {
+      if (featureOccupancyMask[idx] !== 0) {
         throw new Error(`plan-ice attempted to claim occupied tileIndex=${idx} (${x},${y})`);
       }
-      featureIndex[idx] = iceIndex;
+      featureOccupancyMask[idx] = 1;
     }
 
     deps.artifacts.featureIntentsIce.publish(context, placements);
     deps.artifacts.occupancyIce.publish(context, {
       width,
       height,
-      featureIndex,
+      featureOccupancyMask,
       reserved,
     });
   },

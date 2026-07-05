@@ -1,4 +1,3 @@
-import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
   defineArtifact,
@@ -11,8 +10,8 @@ import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts
 export const OccupancyArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
-  featureIndex: TypedArraySchemas.u16({
-    description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
+  featureOccupancyMask: TypedArraySchemas.u8({
+    description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent",
   }),
   reserved: TypedArraySchemas.u8({
     description: "0 = tile can be claimed, 1 = permanently blocked",
@@ -64,7 +63,7 @@ function isOccupancyArtifact(value: unknown): value is OccupancyArtifact {
   return (
     typeof candidate.width === "number" &&
     typeof candidate.height === "number" &&
-    candidate.featureIndex instanceof Uint16Array &&
+    candidate.featureOccupancyMask instanceof Uint8Array &&
     candidate.reserved instanceof Uint8Array
   );
 }
@@ -82,7 +81,7 @@ function validatePayload(
   if (value.width !== dimensions.width || value.height !== dimensions.height) {
     errors.push({ message: "Occupancy dimensions mismatch." });
   }
-  validateTypedArray(errors, "featureIndex", value.featureIndex, Uint16Array, size);
+  validateTypedArray(errors, "featureOccupancyMask", value.featureOccupancyMask, Uint8Array, size);
   validateTypedArray(errors, "reserved", value.reserved, Uint8Array, size);
   return errors;
 }

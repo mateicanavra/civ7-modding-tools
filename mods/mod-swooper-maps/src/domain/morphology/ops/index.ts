@@ -44,7 +44,6 @@ const implementations = {
 
 export default implementations;
 
-export type { MountainsConfig } from "./mountains-shared/config.js";
 export { DEFAULT_ELEVATION_SCALE } from "./compute-base-topography/rules/index.js";
 export {
   computeBaseTopography,

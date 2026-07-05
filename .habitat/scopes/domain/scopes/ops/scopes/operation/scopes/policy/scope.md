@@ -11,8 +11,8 @@ the domain model policy scope, and official Civ7 facts belong to external Civ7
 owners.
 
 Architectural evidence:
-current operation-local `policies/` folders contain intent acceptance and
-substrate rules that serve one operation and route to operation-local policy.
+operation-local `policy/` folders contain intent acceptance and substrate rules
+that serve one operation and route to operation-local policy.
 
 Controlling rationale:
 operation-local policy belongs under the operation that owns it. This keeps

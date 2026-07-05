@@ -1,21 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-const BiomeSymbolSchema = Type.Union(
-  [
-    Type.Literal("snow"),
-    Type.Literal("tundra"),
-    Type.Literal("boreal"),
-    Type.Literal("temperateDry"),
-    Type.Literal("temperateHumid"),
-    Type.Literal("tropicalSeasonal"),
-    Type.Literal("tropicalRainforest"),
-    Type.Literal("desert"),
-  ],
-  {
-    description:
-      "Biome symbol names used by the ecology classifier (maps to engine biome bindings).",
-  }
-);
+import { BiomeSymbolSchema } from "../../model/schemas/index.js";
 
 const PlotEffectsScoreSandConfigSchema = Type.Object({
   minAridity: Type.Number({

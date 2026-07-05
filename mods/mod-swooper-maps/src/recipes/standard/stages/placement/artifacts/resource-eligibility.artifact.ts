@@ -10,7 +10,6 @@ const ResourceEligibilityArtifactSchema = Type.Object(
       Type.Object(
         {
           resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
-          resourceTypeId: Type.Integer({ minimum: 0 }),
           habitatMask: TypedArraySchemas.u8({
             description: "Habitat lane eligibility (1=in-lane).",
           }),

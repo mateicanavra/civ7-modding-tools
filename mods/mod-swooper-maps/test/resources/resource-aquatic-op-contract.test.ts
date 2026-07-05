@@ -3,7 +3,7 @@ import resources from "@mapgen/domain/resources/ops";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
-} from "../../src/domain/resources/index.js";
+} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
@@ -45,7 +45,6 @@ describe("aquatic resource operation contract", () => {
     );
 
     expect(result.groupId).toBe("aquatic-coastal-navigable-river");
-    expect(result.runtimeIdStatus).toBe("unverified");
     expect(result.proofStatus).toBe("warning-only");
     expect(result.missingResourceTypes).toEqual([]);
     expect(result.plans.map((plan) => plan.resourceType)).toEqual([...AQUATIC_RESOURCE_TYPES]);
@@ -62,7 +61,7 @@ describe("aquatic resource operation contract", () => {
     }
   });
 
-  it("keeps crabs navigable-river proxy visible", () => {
+  it("keeps crabs navigable-river signal visible", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
@@ -82,7 +81,7 @@ describe("aquatic resource operation contract", () => {
     const crabs = result.plans.find((plan) => plan.resourceType === "RESOURCE_CRABS");
     expect(crabs).toBeDefined();
     expect(crabs?.signalFields).toContain("navigableRiverMouthMask");
-    expect(crabs?.proxyRequirements).toContain("navigable-river mouth or floodplain proxy");
+    expect(crabs?.signalRequirements).toContain("navigable-river mouth or floodplain signal");
     expect(crabs?.eligibleTileCount).toBe(1);
     expect(crabs?.status).toBe("planned");
   });
@@ -118,7 +117,7 @@ describe("aquatic resource operation contract", () => {
     ).toThrow(TestCompileError);
   });
 
-  it("marks rows as proxy gaps when no aquatic signal mask is supplied", () => {
+  it("marks rows as signal gaps when no aquatic signal mask is supplied", () => {
     const result = resources.ops.planAquaticResources.run(
       {
         width: 2,
@@ -129,7 +128,7 @@ describe("aquatic resource operation contract", () => {
     );
 
     expect(result.missingResourceTypes).toEqual([]);
-    expect(result.plans.every((plan) => plan.status === "proxy-gap")).toBe(true);
+    expect(result.plans.every((plan) => plan.status === "missing-signal")).toBe(true);
     expect(result.plans.every((plan) => plan.rangeStatus === "not-gated")).toBe(true);
     expect(result.plans.every((plan) => plan.targetIntentCount === 0)).toBe(true);
   });

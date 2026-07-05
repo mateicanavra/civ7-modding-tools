@@ -534,9 +534,6 @@ export interface EngineAdapter {
   /** Validate resource placement for a tile/resource combination. */
   canHaveResource(x: number, y: number, resourceType: number): boolean;
 
-  /** Adapter-owned placeable resource type catalog used by deterministic placement. */
-  getPlaceableResourceTypes(): number[];
-
   /**
    * Adapter-owned symbolic resource catalog (id, RESOURCE_* type, class,
    * display name) used by placement telemetry. Keeps GameInfo access at the

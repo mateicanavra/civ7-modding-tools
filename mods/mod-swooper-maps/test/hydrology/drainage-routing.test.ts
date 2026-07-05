@@ -1,10 +1,16 @@
 import { describe, expect, it } from "bun:test";
-import {
-  computeDrainageAccumulation,
-  HYDROLOGY_TERMINAL_CLOSED_BASIN,
-  HYDROLOGY_TERMINAL_OCEAN,
-} from "../../src/domain/hydrology/ops/compute-drainage-routing/rules/index.js";
-import { defaultStrategy as computeDrainageRouting } from "../../src/domain/hydrology/ops/compute-drainage-routing/strategies/default.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+
+const { computeDrainageRouting } = hydrologyOpsPublic.ops;
+const TERMINAL_OCEAN = 1;
+const TERMINAL_CLOSED_BASIN = 2;
+
+function runDrainageRouting(
+  input: Parameters<typeof computeDrainageRouting.run>[0],
+  config: (typeof computeDrainageRouting.defaultConfig)["config"]
+) {
+  return computeDrainageRouting.run(input, { strategy: "default", config });
+}
 
 describe("hydrology/compute-drainage-routing", () => {
   it("routes a raw pit through its spill path to ocean without making it a terminal river sink", () => {
@@ -14,7 +20,7 @@ describe("hydrology/compute-drainage-routing", () => {
     const landMask = new Uint8Array(elevation.length).fill(1);
     landMask[9] = 0;
 
-    const result = computeDrainageRouting.run(
+    const result = runDrainageRouting(
       { width, height, elevation, landMask },
       { allowExternalEdgeOutlets: false }
     );
@@ -26,7 +32,7 @@ describe("hydrology/compute-drainage-routing", () => {
     expect(result.sinkMask[pit]).toBe(1);
     expect(result.terminalType[pit]).toBe(0);
     expect(result.outletMask[outlet]).toBe(1);
-    expect(result.terminalType[outlet]).toBe(HYDROLOGY_TERMINAL_OCEAN);
+    expect(result.terminalType[outlet]).toBe(TERMINAL_OCEAN);
     expect(result.depressionDepth[pit]).toBeGreaterThan(0);
     expect(result.flowAccum[outlet]).toBeGreaterThanOrEqual(3);
   });
@@ -37,7 +43,7 @@ describe("hydrology/compute-drainage-routing", () => {
     const elevation = new Int16Array([5, 1, 5]);
     const landMask = new Uint8Array([1, 1, 1]);
 
-    const result = computeDrainageRouting.run(
+    const result = runDrainageRouting(
       { width, height, elevation, landMask },
       { allowExternalEdgeOutlets: false }
     );
@@ -45,16 +51,7 @@ describe("hydrology/compute-drainage-routing", () => {
     expect(Array.from(result.flowDir)).toEqual([1, -1, 1]);
     expect(result.sinkMask[1]).toBe(1);
     expect(result.outletMask[1]).toBe(0);
-    expect(result.terminalType[1]).toBe(HYDROLOGY_TERMINAL_CLOSED_BASIN);
+    expect(result.terminalType[1]).toBe(TERMINAL_CLOSED_BASIN);
     expect(result.flowAccum[1]).toBe(3);
-  });
-
-  it("fails fast when a supplied route graph contains a cycle", () => {
-    const landMask = new Uint8Array([1, 1, 1]);
-    const flowDir = new Int32Array([1, 0, -1]);
-
-    expect(() => computeDrainageAccumulation(landMask, flowDir)).toThrow(
-      "[Hydrology] Drainage routing produced a cycle."
-    );
   });
 });

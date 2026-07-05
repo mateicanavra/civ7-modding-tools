@@ -17,11 +17,11 @@ or {
   },
   import_statement(source=$source) where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\.ts$",
-    $source <: r"^[\"']?.*(?:/ops/|/recipes/|/stages/|@civ7/map-policy|@civ7/types|base-standard|adapter).*[\"']?$"
+    $source <: r"^[\"']?.*(?:@mapgen/domain/[^/]+(?:/index\.js)?|/ops/|/recipes/|/stages/|@civ7/map-policy|@civ7/types|base-standard|adapter).*[\"']?$"
   },
   import_statement(source=$source) where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/policy/.*\.ts$",
-    $source <: r"^[\"']?.*(?:/ops/|/recipes/|/stages/|@civ7/map-policy|@civ7/types|base-standard|adapter).*[\"']?$"
+    $source <: r"^[\"']?.*(?:@mapgen/domain/[^/]+(?:/index\.js)?|/ops/|/recipes/|/stages/|@civ7/types|base-standard|adapter).*[\"']?$"
   },
   `defineOp($args)` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:schemas|policy)/.*\.ts$"
@@ -53,6 +53,22 @@ or {
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:schemas|policy)/.*\.ts$",
     $body <: contains `compile: $value`
+  },
+  program(statements=$body) where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:schemas|policy)/.*\.ts$",
+    $body <: contains `.ops`
+  },
+  program(statements=$body) where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:schemas|policy)/.*\.ts$",
+    $body <: contains `.config`
+  },
+  program(statements=$body) where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:schemas|policy)/.*\.ts$",
+    $body <: contains `["input"]`
+  },
+  program(statements=$body) where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:schemas|policy)/.*\.ts$",
+    $body <: contains `["output"]`
   }
 }
 ```
@@ -90,6 +106,15 @@ export const PlateSchema = Type.Object({ contract: ComputeCrustContract });
 import { RESOURCE_CLASSES } from "@civ7/map-policy";
 
 export const ResourceClassSchema = RESOURCE_CLASSES;
+
+// @filename: mods/mod-swooper-maps/src/domain/placement/model/schemas/placement-inputs.ts
+import placement from "@mapgen/domain/placement";
+
+export const PlacementInputsSchema = Type.Object({
+  starts: placement.ops.planStarts["input"].properties.baseStarts,
+  config: placement.ops.planWonders.config,
+  output: placement.ops.planWonders["output"],
+});
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/model/policy/plate-activity.ts
 import { Type } from "@swooper/mapgen-core/authoring/contracts";

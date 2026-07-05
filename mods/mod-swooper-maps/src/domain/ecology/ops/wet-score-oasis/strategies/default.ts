@@ -1,7 +1,7 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { rampUp01, validateGridSize } from "../../score-shared/index.js";
+import { rampUp01, validateGridSize } from "../../../model/policy/feature-score-selection.js";
 import ScoreWetOasisContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreWetOasisContract, "default", {

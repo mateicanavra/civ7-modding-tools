@@ -1,15 +1,35 @@
 import { describe, expect, it } from "bun:test";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "../src/domain/hydrology/config.js";
-import { defaultStrategy as accumulateDischarge } from "../src/domain/hydrology/ops/accumulate-discharge/strategies/default.js";
-import { defaultStrategy as planLakes } from "../src/domain/hydrology/ops/plan-lakes/strategies/default.js";
-import { defaultStrategy as projectRiverNetwork } from "../src/domain/hydrology/ops/project-river-network/strategies/default.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
 
+const { accumulateDischarge, planLakes, projectRiverNetwork } = hydrologyOpsPublic.ops;
 const SIMPLE_DISCHARGE_CONFIG = {
   runoffScale: 1,
   infiltrationFraction: 0,
   humidityDampening: 0,
   minRunoff: 0,
 };
+
+function runAccumulateDischarge(
+  input: Parameters<typeof accumulateDischarge.run>[0],
+  config: (typeof accumulateDischarge.defaultConfig)["config"]
+) {
+  return accumulateDischarge.run(input, { strategy: "default", config });
+}
+
+function runProjectRiverNetwork(
+  input: Parameters<typeof projectRiverNetwork.run>[0],
+  config: (typeof projectRiverNetwork.defaultConfig)["config"]
+) {
+  return projectRiverNetwork.run(input, { strategy: "default", config });
+}
+
+function runPlanLakes(
+  input: Parameters<typeof planLakes.run>[0],
+  config: (typeof planLakes.defaultConfig)["config"]
+) {
+  return planLakes.run(input, { strategy: "default", config });
+}
 
 function count(mask: Uint8Array, value = 1): number {
   let total = 0;
@@ -25,7 +45,7 @@ function dischargeFor(input: {
   rainfall?: Uint8Array;
 }) {
   const size = input.width * input.height;
-  return accumulateDischarge.run(
+  return runAccumulateDischarge(
     {
       width: input.width,
       height: input.height,
@@ -170,7 +190,7 @@ describe("hydrology physical river benchmarks", () => {
     flowDir[confluence] = outletLand;
     flowDir[outletLand] = oceanOutlet;
 
-    const accumulated = accumulateDischarge.run(
+    const accumulated = runAccumulateDischarge(
       {
         width,
         height,
@@ -189,7 +209,7 @@ describe("hydrology physical river benchmarks", () => {
     expect(accumulated.discharge[outletLand]).toBeGreaterThan(accumulated.discharge[confluence]);
     assertDrainageInvariants({ width, height, landMask, flowDir, ...accumulated });
 
-    const projected = projectRiverNetwork.run(
+    const projected = runProjectRiverNetwork(
       {
         width,
         height,
@@ -234,7 +254,7 @@ describe("hydrology physical river benchmarks", () => {
     flowDir[16] = 17;
 
     const accumulated = dischargeFor({ width, height, landMask, flowDir });
-    const projected = projectRiverNetwork.run(
+    const projected = runProjectRiverNetwork(
       {
         width,
         height,
@@ -268,7 +288,7 @@ describe("hydrology physical river benchmarks", () => {
     const landMask = new Uint8Array(size).fill(1);
     const flowDir = new Int32Array([1, 2, 3, sink, -1]);
 
-    const accumulated = accumulateDischarge.run(
+    const accumulated = runAccumulateDischarge(
       {
         width,
         height,
@@ -284,7 +304,7 @@ describe("hydrology physical river benchmarks", () => {
     expect(count(accumulated.outletMask)).toBe(0);
     expect(accumulated.discharge[sink]).toBe(50);
 
-    const lakes = planLakes.run(
+    const lakes = runPlanLakes(
       {
         width,
         height,
@@ -322,7 +342,7 @@ describe("hydrology physical river benchmarks", () => {
     const rainfall = new Uint8Array([10, 10, 10, 20, 20, 20, 20]);
     const accumulated = dischargeFor({ width, height, landMask, flowDir, rainfall });
 
-    const lakes = planLakes.run(
+    const lakes = runPlanLakes(
       {
         width,
         height,
@@ -367,7 +387,7 @@ describe("hydrology physical river benchmarks", () => {
       rainfall,
     });
 
-    const projected = projectRiverNetwork.run(
+    const projected = runProjectRiverNetwork(
       {
         width,
         height,
@@ -405,7 +425,7 @@ describe("hydrology physical river benchmarks", () => {
       rainfall: new Uint8Array(size).fill(2),
     });
 
-    const projected = projectRiverNetwork.run(
+    const projected = runProjectRiverNetwork(
       {
         width,
         height,
@@ -440,8 +460,8 @@ describe("hydrology physical river benchmarks", () => {
       humidity: new Uint8Array(size),
     };
 
-    const wet = accumulateDischarge.run(input, SIMPLE_DISCHARGE_CONFIG);
-    const dry = accumulateDischarge.run(input, {
+    const wet = runAccumulateDischarge(input, SIMPLE_DISCHARGE_CONFIG);
+    const dry = runAccumulateDischarge(input, {
       ...SIMPLE_DISCHARGE_CONFIG,
       runoffScale: 0.5,
     });
@@ -465,7 +485,7 @@ describe("hydrology physical river benchmarks", () => {
     const sinksBeforeLakePlanning = Array.from(accumulated.sinkMask);
     const outletsBeforeLakePlanning = Array.from(accumulated.outletMask);
 
-    const few = planLakes.run(
+    const few = runPlanLakes(
       {
         width,
         height,
@@ -476,7 +496,7 @@ describe("hydrology physical river benchmarks", () => {
       },
       HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY.few
     );
-    const many = planLakes.run(
+    const many = runPlanLakes(
       {
         width,
         height,

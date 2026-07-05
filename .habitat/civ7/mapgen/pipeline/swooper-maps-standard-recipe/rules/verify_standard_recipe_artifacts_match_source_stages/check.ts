@@ -114,10 +114,6 @@ function buildDefaultsSkeleton(uiMeta: ReturnType<typeof deriveSourceStudioUiMet
   return out;
 }
 
-const ALLOWED_RAW_OP_ENVELOPE_PATHS = new Set([
-  "foundation-orogeny.crust-evolution.computeCrustEvolution",
-]);
-
 function collectRawOpEnvelopePaths(value: unknown, path: string[] = []): string[] {
   if (!value || typeof value !== "object") return [];
   if (Array.isArray(value)) {
@@ -147,6 +143,11 @@ function assertJsonEqual(actual: unknown, expected: unknown, label: string) {
 
 const sourceSchema = stableJson(deriveRecipeConfigSchema(STANDARD_STAGES));
 const sourceUiMeta = deriveSourceStudioUiMeta();
+const semanticPublicStageIds = new Set(
+  STANDARD_STAGES.filter((stage: { public?: unknown }) => Boolean(stage.public)).map(
+    (stage: { id: string }) => stage.id
+  )
+);
 assertJsonEqual(STANDARD_RECIPE_CONFIG_SCHEMA, sourceSchema, "standard recipe schema");
 assertJsonEqual(STANDARD_RECIPE_UI_META, sourceUiMeta, "standard recipe UI metadata");
 
@@ -169,11 +170,11 @@ if (errors.length > 0) {
 }
 assertJsonEqual(STANDARD_RECIPE_CONFIG, stripSchemaMetadataRoot(value), "standard recipe defaults");
 const unexpectedRawEnvelopePaths = collectRawOpEnvelopePaths(STANDARD_RECIPE_CONFIG).filter(
-  (path) => !ALLOWED_RAW_OP_ENVELOPE_PATHS.has(path)
+  (path) => semanticPublicStageIds.has(path.split(".")[0] ?? "")
 );
 if (unexpectedRawEnvelopePaths.length > 0) {
   failures.push(
-    `standard recipe defaults contain unexpected raw operation envelopes: ${unexpectedRawEnvelopePaths.join(", ")}`
+    `semantic public stage defaults contain raw operation envelopes: ${unexpectedRawEnvelopePaths.join(", ")}`
   );
 }
 

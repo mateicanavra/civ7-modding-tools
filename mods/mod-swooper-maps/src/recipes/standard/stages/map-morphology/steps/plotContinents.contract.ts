@@ -1,8 +1,8 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
-import { mapMorphologyArtifacts } from "../artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../artifacts/index.js";
 
 const PlotContinentsStepContract = defineStep({
   id: "plot-continents",

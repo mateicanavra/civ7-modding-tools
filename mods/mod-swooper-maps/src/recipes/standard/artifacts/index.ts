@@ -22,6 +22,18 @@ export const artifactContracts = {
   projectionMeta,
 } as const;
 
+export const artifacts = {
+  foundationCrustTiles: foundationCrustTiles.artifact,
+  foundationPlates: foundationPlates.artifact,
+  foundationTectonicHistoryTiles: foundationTectonicHistoryTiles.artifact,
+  foundationTectonicProvenanceTiles: foundationTectonicProvenanceTiles.artifact,
+  foundationTileToCellIndex: foundationTileToCellIndex.artifact,
+  landmassRegionSlotByTile: landmassRegionSlotByTile.artifact,
+  placementEngineTerrainSnapshot: placementEngineTerrainSnapshot.artifact,
+  placementSurfaceValidationBoundary: placementSurfaceValidationBoundary.artifact,
+  projectionMeta: projectionMeta.artifact,
+} as const;
+
 export const validators = {
   foundationCrustTiles: foundationCrustTiles.validate,
   foundationPlates: foundationPlates.validate,

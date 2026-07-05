@@ -4,9 +4,9 @@ import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { mapHydrologyArtifacts } from "../../../map-hydrology/artifacts.js";
-import { mapMorphologyArtifacts } from "../../../map-morphology/artifacts.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as mapHydrologyArtifacts } from "../../../map-hydrology/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Surface preparation is the transactional boundary that makes the engine safe

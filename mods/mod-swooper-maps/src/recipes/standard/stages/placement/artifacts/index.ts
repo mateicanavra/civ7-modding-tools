@@ -32,6 +32,23 @@ export const artifactContracts = {
   startAssignment,
 } as const;
 
+export const artifacts = {
+  advancedStartAssignment: advancedStartAssignment.artifact,
+  discoveryPlacementOutcomes: discoveryPlacementOutcomes.artifact,
+  engineState: engineState.artifact,
+  naturalWonderPlacement: naturalWonderPlacement.artifact,
+  naturalWonderPlan: naturalWonderPlan.artifact,
+  placementInputs: placementInputs.artifact,
+  placementOutputs: placementOutputs.artifact,
+  placementSurfacePreparation: placementSurfacePreparation.artifact,
+  resourceDemandPlan: resourceDemandPlan.artifact,
+  resourceEligibility: resourceEligibility.artifact,
+  resourcePlacementOutcomes: resourcePlacementOutcomes.artifact,
+  resourcePlan: resourcePlan.artifact,
+  resourcePlanAdjusted: resourcePlanAdjusted.artifact,
+  startAssignment: startAssignment.artifact,
+} as const;
+
 export const validators = {
   advancedStartAssignment: advancedStartAssignment.validate,
   discoveryPlacementOutcomes: discoveryPlacementOutcomes.validate,

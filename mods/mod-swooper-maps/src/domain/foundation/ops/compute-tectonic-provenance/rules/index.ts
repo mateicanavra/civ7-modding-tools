@@ -1,7 +1,7 @@
 import { quantizeU8 } from "@swooper/mapgen-core/lib/math";
 import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
-import { BOUNDARY_TYPE } from "../../../constants.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 import type { Artifact as FoundationMesh } from "../../../artifacts/mesh.artifact.js";
 import type { Artifact as FoundationPlateGraph } from "../../../artifacts/plate-graph.artifact.js";

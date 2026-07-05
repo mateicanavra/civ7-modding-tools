@@ -1,7 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import BiomeClassificationContract from "../contract.js";
-import { classifyBiomesFromFields } from "../layers/classify.js";
+import { classifyBiomesFromFields } from "../rules/classify.js";
 
 function refineBiomeIndexGaussian(args: {
   width: number;

@@ -10,17 +10,21 @@ import {
   hexDistanceOddQPeriodicX,
 } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { getEngineFeatureLegality } from "../../src/domain/ecology/feature-engine-legality.js";
-import { biomeSymbolFromIndex } from "../../src/domain/ecology/types.js";
+import {
+  getEngineFeatureLegality,
+  requireResourceRuntimeId,
+  type OfficialResourceType,
+} from "@civ7/map-policy";
+import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/model/schemas/index.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
-import { hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
-import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts.js";
-import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { artifacts as hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 export type WorldBalanceStats = Readonly<{
   label: string;
@@ -1046,15 +1050,15 @@ export function collectWorldBalanceStats(
   }
   const resourceIntentByPlot = new Map<number, { resourceTypeId: number; inHabitat: boolean }>();
   for (const intent of stampedResourceIntents) {
-    if (Number.isFinite(intent.resourceTypeId)) {
-      incrementCount(resourcePlanTypeCounts, intent.resourceTypeId as number);
-    }
+    const resourceTypeId = requireResourceRuntimeId(intent.resourceType as OfficialResourceType)
+      .resourceTypeId;
+    incrementCount(resourcePlanTypeCounts, resourceTypeId);
     const plotIndex = Number.isFinite(intent.plotIndex)
       ? Math.trunc(intent.plotIndex as number)
       : -1;
     if (plotIndex >= 0 && plotIndex < width * height) {
       resourceIntentByPlot.set(plotIndex, {
-        resourceTypeId: Math.trunc(intent.resourceTypeId ?? -1),
+        resourceTypeId,
         inHabitat: intent.inHabitat === true,
       });
     }

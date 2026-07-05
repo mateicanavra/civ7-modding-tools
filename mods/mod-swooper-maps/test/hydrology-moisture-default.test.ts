@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import { defaultStrategy } from "../src/domain/hydrology/ops/transport-moisture/strategies/vector-advection.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
+const { transportMoisture } = hydrologyOpsPublic.ops;
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }
@@ -26,9 +27,12 @@ describe("hydrology/transport-moisture (default)", () => {
     const evaporation = new Float32Array(size);
     for (let y = 0; y < height; y++) evaporation[idx(0, y, width)] = 1;
 
-    const out = defaultStrategy.run(
+    const out = transportMoisture.run(
       { width, height, latitudeByRow, landMask, windU, windV, evaporation },
-      { iterations: 48, advection: 1, retention: 1, secondaryWeightMin: 0.2 }
+      {
+        strategy: "default",
+        config: { iterations: 48, advection: 1, retention: 1, secondaryWeightMin: 0.2 },
+      }
     );
 
     expect(out.humidity[idx(0, Math.floor(height / 2), width)]).toBeGreaterThan(0.5);

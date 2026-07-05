@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_source_topology",
+  "title": "Require Domain Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "domain roots, ops roots, operation roots, model roots, or artifact roots outside the positive domain blueprint topology",
+  "why": "The domain blueprint is a closed authority plane. Root helper surfaces, shared buckets, config facades, operation-family buckets, and broad artifacts modules must resolve to model schemas, model policy, model data, artifact owners, operation-local owners, external resource owners, or deletion.",
+  "remediate": "Move each red entry to its named owner slot, split broad helper buckets into primitives/policy/data, inline operation contract envelopes, or delete residue that has no destination.",
+  "message": "Domain source must match the positive domain blueprint topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain/require_domain_source_topology/structure.toml"
+    }
+  }
+}

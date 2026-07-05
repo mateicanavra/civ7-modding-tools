@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../shared/placement-schema.js";
+import { FeaturePlacementSchema } from "../../model/schemas/index.js";
 
 const PlanReefsContract = defineOp({
   kind: "plan",
@@ -22,8 +22,8 @@ const PlanReefsContract = defineOp({
       description:
         "Hydrology lake mask per tile (1=lake, 0=non-lake); gates lake-only Lotus placement.",
     }),
-    featureIndex: TypedArraySchemas.u16({
-      description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
+    featureOccupancyMask: TypedArraySchemas.u8({
+      description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent.",
     }),
     reserved: TypedArraySchemas.u8({
       description: "0 = tile can be claimed, 1 = permanently blocked",

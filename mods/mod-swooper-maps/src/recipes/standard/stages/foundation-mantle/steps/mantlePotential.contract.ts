@@ -1,7 +1,7 @@
 import foundation from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { foundationArtifacts } from "../../foundation/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 
 const MantlePotentialStepContract = defineStep({
   id: "mantle-potential",

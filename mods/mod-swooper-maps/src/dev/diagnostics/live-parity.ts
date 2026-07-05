@@ -22,14 +22,14 @@ import {
 import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
-import { mapElevationArtifacts } from "../../recipes/standard/stages/map-elevation/artifacts.js";
-import { mapHydrologyArtifacts } from "../../recipes/standard/stages/map-hydrology/artifacts.js";
-import { mapMorphologyArtifacts } from "../../recipes/standard/stages/map-morphology/artifacts.js";
-import { mapRiversArtifacts } from "../../recipes/standard/stages/map-rivers/artifacts.js";
-import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
-import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapElevationArtifacts } from "../../recipes/standard/stages/map-elevation/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../recipes/standard/stages/map-hydrology/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../../recipes/standard/stages/map-morphology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../recipes/standard/stages/map-rivers/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../recipes/standard/stages/placement/artifacts/index.js";
 import { isPlainObject, mergeDeep } from "./shared.js";
 
 export const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
@@ -3152,13 +3152,14 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     number,
     { preferredResourceType: number; preferredTypeOffset?: number; priority?: number }
   >();
-  // S3 plan shape: typed per-plot intents (plan authority); the planned type
-  // IS the stamped type, so "preferred" == planned resourceTypeId.
+  // S3 plan shape: typed per-plot symbolic intents (plan authority); resolve
+  // to runtime ids only when comparing against engine outcomes.
   const intents = Array.isArray(resourcePlan?.intents) ? resourcePlan.intents : [];
   for (const intent of intents) {
     if (!isPlainObject(intent)) continue;
     const plotIndex = numberValue(intent.plotIndex);
-    const preferredResourceType = numberValue(intent.resourceTypeId);
+    const preferredResourceType =
+      typeof intent.resourceType === "string" ? resourceTypeIdForSymbol(intent.resourceType) : undefined;
     if (
       plotIndex === undefined ||
       preferredResourceType === undefined ||
@@ -3220,7 +3221,10 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
   for (const planIntent of intents) {
     if (!isPlainObject(planIntent)) continue;
     const plotIndex = numberValue(planIntent.plotIndex);
-    const resourceType = numberValue(planIntent.resourceTypeId);
+    const resourceType =
+      typeof planIntent.resourceType === "string"
+        ? resourceTypeIdForSymbol(planIntent.resourceType)
+        : undefined;
     const phase = stringValue(planIntent.phase);
     if (
       plotIndex === undefined ||
@@ -3353,4 +3357,11 @@ function hasFileIdentity(value: FileIdentityLike | undefined): boolean {
 
 function numberValue(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function resourceTypeIdForSymbol(resourceType: string): number | undefined {
+  const id = (CIV7_BROWSER_TABLES_V0.resourceTypes as Readonly<Record<string, number>>)[
+    resourceType
+  ];
+  return typeof id === "number" && Number.isFinite(id) ? id : undefined;
 }

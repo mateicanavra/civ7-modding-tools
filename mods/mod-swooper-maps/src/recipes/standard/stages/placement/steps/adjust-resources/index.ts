@@ -1,7 +1,8 @@
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import { placementArtifacts } from "../../artifacts.js";
+import { OFFICIAL_RESOURCE_BY_TYPE, type OfficialResourceType } from "@civ7/map-policy";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 import { warnLog } from "../../log.js";
 import {
   buildPlacementPointBuffers,
@@ -53,22 +54,45 @@ export default createStep(AdjustResourcesStepContract, {
     const regionSlots = deps.artifacts.landmassRegionSlotByTile.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
 
-    const adjusted = ops.support(
-      {
-        seed: deriveStepSeed(context.env.seed, "resources:adjustResourceSupport"),
-        plan,
-        eligibility: eligibility.rows,
-        starts: startAssignment.seats.map((seat) => ({
-          seatIndex: seat.seatIndex,
-          playerId: seat.playerId,
-          plotIndex: seat.plotIndex,
+    const supportInput: Parameters<typeof ops.support>[0] = {
+      seed: deriveStepSeed(context.env.seed, "resources:adjustResourceSupport"),
+      plan: {
+        ...plan,
+        intents: plan.intents.map((intent) => ({ ...intent })),
+        perType: plan.perType.map((row) => ({
+          ...row,
+          shortfalls: row.shortfalls.map((shortfall) => ({ ...shortfall })),
         })),
-        landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
-        landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
-        regionSlotByTile: regionSlots.slotByTile as Uint8Array,
-      } as unknown as Parameters<typeof ops.support>[0],
-      config.support
-    );
+        regionMinimums: plan.regionMinimums.map((row) => ({ ...row })),
+        settings: {
+          ...plan.settings,
+          affinityRules: plan.settings.affinityRules.map((rule) => ({ ...rule })),
+        },
+      },
+      eligibility: eligibility.rows.map((row) => {
+        const resourceType = row.resourceType as OfficialResourceType;
+        if (!Object.hasOwn(OFFICIAL_RESOURCE_BY_TYPE, resourceType)) {
+          throw new Error(
+            `[Placement] Unsupported resource eligibility type ${row.resourceType}; adjust-resource-support only accepts official resource types.`
+          );
+        }
+        return {
+          resourceType,
+          habitatMask: row.habitatMask as Uint8Array,
+          legalMask: row.legalMask as Uint8Array,
+          intensity: row.intensity as Float32Array,
+        };
+      }),
+      starts: startAssignment.seats.map((seat) => ({
+        seatIndex: seat.seatIndex,
+        playerId: seat.playerId,
+        plotIndex: seat.plotIndex,
+      })),
+      landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
+      landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
+      regionSlotByTile: regionSlots.slotByTile as Uint8Array,
+    };
+    const adjusted = ops.support(supportInput, config.support);
 
     if (adjusted.shortfalls.length > 0) {
       // Typed shortfalls (S5): adjustments that would violate an S3 plan

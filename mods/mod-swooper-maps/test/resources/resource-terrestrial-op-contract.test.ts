@@ -3,7 +3,7 @@ import resources from "@mapgen/domain/resources/ops";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
-} from "../../src/domain/resources/index.js";
+} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
@@ -56,7 +56,6 @@ describe("terrestrial resource operation contract", () => {
     );
 
     expect(result.groupId).toBe("terrestrial-animal-forest-wild");
-    expect(result.runtimeIdStatus).toBe("unverified");
     expect(result.proofStatus).toBe("warning-only");
     expect(result.missingResourceTypes).toEqual([]);
     expect(result.plans.map((plan) => plan.resourceType)).toEqual([...TERRESTRIAL_RESOURCE_TYPES]);
@@ -69,7 +68,7 @@ describe("terrestrial resource operation contract", () => {
     }
   });
 
-  it("keeps woodland-host and tropical-highland proxy requirements visible", () => {
+  it("keeps woodland-host and tropical-highland signal requirements visible", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
@@ -93,11 +92,11 @@ describe("terrestrial resource operation contract", () => {
     const llamas = result.plans.find((plan) => plan.resourceType === "RESOURCE_LLAMAS");
     expect(truffles?.laneId).toBe("woodland-host");
     expect(truffles?.signalFields).toContain("moistWoodlandEdgeMask");
-    expect(truffles?.proxyRequirements).toContain("woodland or host-tree proxy");
+    expect(truffles?.signalRequirements).toContain("woodland or host-tree signal");
     expect(truffles?.eligibleTileCount).toBe(1);
     expect(llamas?.laneId).toBe("tropical-highland-pastoral");
     expect(llamas?.signalFields).toContain("tropicalHighlandMask");
-    expect(llamas?.proxyRequirements).toContain("tropical hill or highland candidate histogram");
+    expect(llamas?.signalRequirements).toContain("tropical hill or highland candidate histogram");
     expect(llamas?.eligibleTileCount).toBe(1);
   });
 
@@ -237,7 +236,7 @@ describe("terrestrial resource operation contract", () => {
     }
   });
 
-  it("marks rows as proxy gaps when no terrestrial signal mask is supplied", () => {
+  it("marks rows as signal gaps when no terrestrial signal mask is supplied", () => {
     const result = resources.ops.planTerrestrialResources.run(
       {
         width: 2,
@@ -248,7 +247,7 @@ describe("terrestrial resource operation contract", () => {
     );
 
     expect(result.missingResourceTypes).toEqual([]);
-    expect(result.plans.every((plan) => plan.status === "proxy-gap")).toBe(true);
+    expect(result.plans.every((plan) => plan.status === "missing-signal")).toBe(true);
     expect(result.plans.every((plan) => plan.rangeStatus === "not-gated")).toBe(true);
     expect(result.plans.every((plan) => plan.targetIntentCount === 0)).toBe(true);
   });

@@ -1,13 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
 
-import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function broadWetlandHabitatFields(size: number) {
   return {
     flatLandMask: new Uint8Array(size).fill(1),
-    biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
   };
 }
 
@@ -36,13 +34,10 @@ describe("planWetlands (joint resolver)", () => {
     // tileIndex 3 -> mangrove (but reserved should block it)
     scoreMangrove01[3] = 1;
 
-    const featureIndex = new Uint16Array(size);
+    const featureOccupancyMask = new Uint8Array(size);
     const reserved = new Uint8Array(size);
     reserved[3] = 1;
     const habitat = broadWetlandHabitatFields(size);
-    habitat.biomeIndex[1] = BIOME_SYMBOL_TO_INDEX.desert;
-    habitat.biomeIndex[2] = BIOME_SYMBOL_TO_INDEX.tundra;
-    habitat.biomeIndex[3] = BIOME_SYMBOL_TO_INDEX.tropicalRainforest;
 
     const result = ecology.ops.planWetlands.run(
       {
@@ -55,16 +50,16 @@ describe("planWetlands (joint resolver)", () => {
         scoreOasis01,
         scoreWateringHole01,
         ...habitat,
-        featureIndex,
+        featureOccupancyMask,
         reserved,
       },
       selection
     );
 
     expect(result.placements.map((p) => p.feature)).toEqual([
-      "FEATURE_MARSH",
-      "FEATURE_OASIS",
-      "FEATURE_TUNDRA_BOG",
+      "marsh",
+      "oasis",
+      "tundra-bog",
     ]);
   });
 
@@ -86,7 +81,7 @@ describe("planWetlands (joint resolver)", () => {
       scoreOasis01: new Float32Array(size).fill(1),
       scoreWateringHole01: new Float32Array(size).fill(1),
       ...broadWetlandHabitatFields(size),
-      featureIndex: new Uint16Array(size),
+      featureOccupancyMask: new Uint8Array(size),
       reserved: new Uint8Array(size),
     } as const;
 

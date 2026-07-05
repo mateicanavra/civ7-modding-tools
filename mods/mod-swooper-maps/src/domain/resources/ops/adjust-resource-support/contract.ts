@@ -1,6 +1,12 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-import SelectResourceSitesContract from "../select-resource-sites/contract.js";
+import {
+  ResourceFamilySchema,
+  ResourceSymbolSchema,
+} from "../../model/schemas/resource-family.schema.js";
+import {
+  ResourceLaneKindSchema,
+  ResourceSitePlanSchema,
+} from "../../model/schemas/resource-site-plan.schema.js";
 
 /**
  * Resource↔start support pass (placement-realignment S5, E3.1–E3.3).
@@ -21,15 +27,6 @@ import SelectResourceSitesContract from "../select-resource-sites/contract.js";
  * is rejected — the engine has no resource-removal adapter capability and a
  * stamped surface would need its own typed outcome surface.
  */
-
-const FamilySchema = Type.Union([
-  Type.Literal("aquatic"),
-  Type.Literal("cultivated"),
-  Type.Literal("terrestrial"),
-  Type.Literal("geological"),
-]);
-
-const LaneKindSchema = Type.Union([Type.Literal("land"), Type.Literal("water")]);
 
 const AdjustedPhaseSchema = Type.Union(
   [
@@ -73,11 +70,10 @@ const AdjustedIntentSchema = Type.Object(
     plotIndex: Type.Integer({ minimum: 0 }),
     x: Type.Integer({ minimum: 0 }),
     y: Type.Integer({ minimum: 0 }),
-    resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
-    resourceTypeId: Type.Integer({ minimum: 0 }),
-    family: FamilySchema,
+    resourceType: ResourceSymbolSchema,
+    family: ResourceFamilySchema,
     laneId: Type.String(),
-    laneKind: LaneKindSchema,
+    laneKind: ResourceLaneKindSchema,
     phase: AdjustedPhaseSchema,
     order: Type.Integer({ minimum: 0 }),
     regionSlot: Type.Integer({ minimum: 0, maximum: 2 }),
@@ -92,8 +88,7 @@ const AdjustmentSchema = Type.Object(
   {
     action: Type.Union([Type.Literal("move"), Type.Literal("add")]),
     reason: Type.Union([Type.Literal("support-floor"), Type.Literal("support-equity")]),
-    resourceType: Type.String(),
-    resourceTypeId: Type.Integer({ minimum: 0 }),
+    resourceType: ResourceSymbolSchema,
     fromPlotIndex: Type.Optional(Type.Integer({ minimum: 0 })),
     toPlotIndex: Type.Integer({ minimum: 0 }),
     seatIndex: Type.Integer({ minimum: 0 }),
@@ -123,8 +118,7 @@ const SupportShortfallSchema = Type.Object(
 
 const EligibilityRowSchema = Type.Object(
   {
-    resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
-    resourceTypeId: Type.Integer({ minimum: 0 }),
+    resourceType: ResourceSymbolSchema,
     habitatMask: TypedArraySchemas.u8({
       shape: null,
       description: "Habitat lane eligibility (1=in-lane); preferred for adjusted destinations.",
@@ -160,7 +154,7 @@ const AdjustResourceSupportContract = defineOp({
   input: Type.Object(
     {
       seed: Type.Integer({ description: "Deterministic seed (from env.seed)." }),
-      plan: SelectResourceSitesContract.output,
+      plan: ResourceSitePlanSchema,
       eligibility: Type.Array(EligibilityRowSchema, {
         description:
           "Per-type habitat/legality/intensity fields from the planning step, so adjusted destinations obey the same policy tables.",

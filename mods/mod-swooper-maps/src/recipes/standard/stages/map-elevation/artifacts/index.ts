@@ -6,6 +6,10 @@ export const artifactContracts = {
   elevationEngineTerrainSnapshot,
 } as const;
 
+export const artifacts = {
+  elevationEngineTerrainSnapshot: elevationEngineTerrainSnapshot.artifact,
+} as const;
+
 export const validators = {
   elevationEngineTerrainSnapshot: elevationEngineTerrainSnapshot.validate,
 } as const;

@@ -1,7 +1,12 @@
-import { HydrologyWindFieldSchema } from "@mapgen/domain/hydrology";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+import { HydrologyWindFieldSchema } from "./wind-field.schema.js";
 
 export const Schema = HydrologyWindFieldSchema;
 

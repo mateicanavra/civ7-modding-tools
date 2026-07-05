@@ -1,6 +1,6 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import ResourceBasinsStepContract from "./contract.js";
 import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 

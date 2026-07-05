@@ -1,11 +1,24 @@
-import {
-  HydrologyLakeinessKnobSchema,
-  HydrologyRiverDensityKnobSchema,
-} from "@mapgen/domain/hydrology/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { HydrologyHydrographyPublicSchema } from "../hydrology-public-config.js";
 import { lakes, rivers } from "./steps/index.js";
+
+const HydrologyRiverDensityKnobSchema = Type.Union(
+  [Type.Literal("sparse"), Type.Literal("normal"), Type.Literal("dense")],
+  {
+    default: "normal",
+    description:
+      "Physical river-network classification density preset (sparse/normal/dense). Applies as a deterministic transform over Hydrology river classification thresholds; Civ-visible projection remains downstream.",
+  }
+);
+
+const HydrologyLakeinessKnobSchema = Type.Union(
+  [Type.Literal("few"), Type.Literal("normal"), Type.Literal("many")],
+  {
+    default: "normal",
+    description:
+      "Lake intent preset (few/normal/many). Applies as a deterministic transform over sink-derived lake planning; engine projection remains downstream.",
+  }
+);
 
 const knobsSchema = Type.Object(
   {
@@ -35,17 +48,5 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "hydrology-hydrography",
   knobsSchema,
-  public: HydrologyHydrographyPublicSchema,
   steps: orderStandardStageSteps("hydrology-hydrography", { rivers, lakes }),
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    rivers: {
-      drainageRouting: { strategy: "default", config: config.drainageRouting ?? {} },
-      accumulateDischarge: { strategy: "default", config: config.runoff ?? {} },
-      projectRiverNetwork: { strategy: "default", config: config.riverNetwork ?? {} },
-    },
-    lakes: {
-      planLakes: { strategy: "default", config: config.lakes ?? {} },
-      computeRiverNetworkMetrics: { strategy: "default", config: {} },
-    },
-  }),
 } as const);

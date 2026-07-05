@@ -1,7 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeFeatureSubstrateContract from "../contract.js";
-import { computeWetlandSubstrateMasks } from "../policies/index.js";
+import { computeWetlandSubstrateMasks } from "../policy/index.js";
 import {
   computeCoastalLandMask,
   computeRiverAdjacencyMask,

@@ -1,6 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
+import type { OfficialResourceType } from "@civ7/map-policy";
 import SelectResourceSitesContract from "../contract.js";
 import { spacingFloorFor } from "../policy/spacing-floors.js";
 
@@ -15,8 +16,8 @@ import { spacingFloorFor } from "../policy/spacing-floors.js";
 
 type DemandState = {
   readonly index: number;
-  readonly resourceType: string;
-  readonly resourceTypeId: number;
+  readonly resourceType: OfficialResourceType;
+  readonly resourceSalt: number;
   readonly family: "aquatic" | "cultivated" | "terrestrial" | "geological";
   readonly laneId: string;
   readonly laneKind: "land" | "water";
@@ -47,8 +48,7 @@ type Intent = {
   plotIndex: number;
   x: number;
   y: number;
-  resourceType: string;
-  resourceTypeId: number;
+  resourceType: OfficialResourceType;
   family: DemandState["family"];
   laneId: string;
   laneKind: "land" | "water";
@@ -71,6 +71,15 @@ function hash32(seed: number, a: number, b: number): number {
 
 function hash01(seed: number, a: number, b: number): number {
   return hash32(seed, a, b) / 0x100000000;
+}
+
+function resourceSalt(resourceType: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < resourceType.length; i++) {
+    hash ^= resourceType.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash >>> 0;
 }
 
 function countMask(mask: Uint8Array): number {
@@ -148,7 +157,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
       return {
         index,
         resourceType: row.resourceType,
-        resourceTypeId: row.resourceTypeId,
+        resourceSalt: resourceSalt(row.resourceType),
         family: row.family,
         laneId: row.laneId,
         laneKind: row.laneKind,
@@ -184,10 +193,14 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     });
 
     // --- affinity / exclusion rules -----------------------------------------------------------
-    type CompiledRule = { partner: string; relation: "affinity" | "exclusion"; radius: number };
-    const rulesByType = new Map<string, CompiledRule[]>();
+    type CompiledRule = {
+      partner: OfficialResourceType;
+      relation: "affinity" | "exclusion";
+      radius: number;
+    };
+    const rulesByType = new Map<OfficialResourceType, CompiledRule[]>();
     for (const rule of config.affinityRules ?? []) {
-      const push = (from: string, partner: string) => {
+      const push = (from: OfficialResourceType, partner: OfficialResourceType) => {
         const list = rulesByType.get(from) ?? [];
         list.push({ partner, relation: rule.relation, radius: rule.radiusTiles });
         rulesByType.set(from, list);
@@ -200,7 +213,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     const usedPlots = new Set<number>();
     const sitePlots: number[] = [];
     const intents: Intent[] = [];
-    const plotsByType = new Map<string, number[]>();
+    const plotsByType = new Map<OfficialResourceType, number[]>();
 
     const totalQualifyingLand = (() => {
       const totalLand = input.landmassTileCounts.reduce((acc, count) => acc + count, 0);
@@ -277,7 +290,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         x,
         y,
         resourceType: demand.resourceType,
-        resourceTypeId: demand.resourceTypeId,
         family: demand.family,
         laneId: demand.laneId,
         laneKind: demand.laneKind,
@@ -364,7 +376,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
             demand.runningWeight +
             ruleState.affinityBonus +
             deficit * 1e-3 +
-            hash01(seed, plotIndex, demand.resourceTypeId) * 1e-6;
+            hash01(seed, plotIndex, demand.resourceSalt) * 1e-6;
           if (score > chosenScore) {
             chosen = demand;
             chosenScore = score;
@@ -415,7 +427,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
               (demand.habitatMask[plotIndex] !== 0 ? 10 : 0) +
               (demand.intensity[plotIndex] ?? 0) -
               contested * 0.05 +
-              hash01(seed, plotIndex, 0xf100 + demand.resourceTypeId) * 1e-3;
+              hash01(seed, plotIndex, (0xf100 ^ demand.resourceSalt) >>> 0) * 1e-3;
             if (score > bestScore) {
               best = plotIndex;
               bestScore = score;
@@ -440,7 +452,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     // MapResourceMinimumAmountModifier, gated by isResourceRequiredForAge,
     // forced onto legal plots with no adjacent resource.
     const regionMinimums: Array<{
-      resourceType: string;
+      resourceType: OfficialResourceType;
       regionSlot: number;
       required: number;
       fromRotation: number;
@@ -471,7 +483,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
             const score =
               (demand.habitatMask[plotIndex] !== 0 ? 1 : 0) +
               (demand.intensity[plotIndex] ?? 0) +
-              hash01(seed, plotIndex, 0x4e6 + demand.resourceTypeId) * 1e-3;
+              hash01(seed, plotIndex, (0x4e6 ^ demand.resourceSalt) >>> 0) * 1e-3;
             if (score > bestScore) {
               best = plotIndex;
               bestScore = score;
@@ -506,7 +518,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
 
     const perType = demands.map((demand) => ({
       resourceType: demand.resourceType,
-      resourceTypeId: demand.resourceTypeId,
       family: demand.family,
       laneId: demand.laneId,
       laneKind: demand.laneKind,

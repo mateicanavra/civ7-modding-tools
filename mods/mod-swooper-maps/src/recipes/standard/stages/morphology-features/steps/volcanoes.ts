@@ -1,9 +1,8 @@
-import type { MorphologyVolcanismKnob } from "@mapgen/domain/morphology/config.js";
 import {
   MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_HOTSPOT_WEIGHT_MULTIPLIER,
-} from "@mapgen/domain/morphology/config.js";
+} from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
 import {
   computeSampleStep,
   defineVizMeta,
@@ -13,8 +12,9 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
-import VolcanoesStepContract from "./volcanoes.contract.js";
 import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import type { MorphologyVolcanismKnob } from "../index.js";
+import VolcanoesStepContract from "./volcanoes.contract.js";
 
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 

@@ -10,6 +10,12 @@ export const artifactContracts = {
   riversEngineTerrainSnapshot,
 } as const;
 
+export const artifacts = {
+  engineProjectionRivers: engineProjectionRivers.artifact,
+  projectedNavigableRivers: projectedNavigableRivers.artifact,
+  riversEngineTerrainSnapshot: riversEngineTerrainSnapshot.artifact,
+} as const;
+
 export const validators = {
   engineProjectionRivers: engineProjectionRivers.validate,
   projectedNavigableRivers: projectedNavigableRivers.validate,

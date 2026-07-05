@@ -1,5 +1,4 @@
-import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/config.js";
-import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
+import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/erosion-knob-policy.js";
 import {
   BYTE_SHADE_RAMP,
   computeSampleStep,
@@ -10,6 +9,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import type { MorphologyErosionKnob } from "../index.js";
 import GeomorphologyStepContract from "./geomorphology.contract.js";
 
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";

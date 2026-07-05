@@ -5,16 +5,19 @@ import {
   hexDistanceOddQPeriodicX,
   resolveTileAreaSpacingTarget,
 } from "@swooper/mapgen-core/lib/grid";
-import {
-  computeFracturePotential,
-  computeMountainScore,
-  computeOrogenyPotential,
-  encodeNormalizedToU8,
-  isStrictLocalMaximumHexWithTies,
-  normalizeMountainFractal,
-  resolveBoundaryStrength,
-  resolveDriverStrength,
-} from "../../mountains-shared/rules.js";
+import { resolveBoundaryStrength } from "../../../model/policy/boundary-strength.js";
+import { resolveDriverStrength } from "../../../model/policy/driver-strength.js";
+import { normalizeMountainFractal } from "../../../model/policy/mountain-fractal.js";
+import type {
+  FracturePotentialPolicy,
+  MountainScorePolicy,
+  OrogenyPotentialPolicy,
+} from "../../../model/policy/mountain-scoring-policy.js";
+import { encodeNormalizedToU8 } from "../../../model/policy/normalized-byte.js";
+import { computeOrogenyPotential } from "../../../model/policy/orogeny-potential.js";
+import { computeFracturePotential } from "../rules/fracture-potential.js";
+import { isStrictLocalMaximumHexWithTies } from "../rules/local-maximum.js";
+import { computeMountainScore } from "../rules/mountain-score.js";
 import PlanRidgesContract from "../contract.js";
 import type { PlanRidgesTypes } from "../types.js";
 
@@ -234,6 +237,37 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const mountainShoulderThreshold =
       mountainThreshold * Math.max(0, Math.min(1, config.mountainShoulderThresholdScale));
     const mountainFloorDriverByteMin = Math.max(0, Math.round(config.driverSignalByteMin)) | 0;
+    const orogenyPolicy: OrogenyPotentialPolicy = {
+      orogenyCollisionStressWeight: config.orogenyCollisionStressWeight,
+      orogenyCollisionUpliftWeight: config.orogenyCollisionUpliftWeight,
+      orogenyTransformStressWeight: config.orogenyTransformStressWeight,
+      orogenyDivergentRiftWeight: config.orogenyDivergentRiftWeight,
+      orogenyDivergentStressWeight: config.orogenyDivergentStressWeight,
+    };
+    const fracturePolicy: FracturePotentialPolicy = {
+      fractureBoundaryWeight: config.fractureBoundaryWeight,
+      fractureStressWeight: config.fractureStressWeight,
+      fractureRiftWeight: config.fractureRiftWeight,
+    };
+    const mountainScorePolicy: MountainScorePolicy = {
+      ...orogenyPolicy,
+      tectonicIntensity: config.tectonicIntensity,
+      boundaryWeight: config.boundaryWeight,
+      convergenceBonus: config.convergenceBonus,
+      upliftWeight: config.upliftWeight,
+      fractalWeight: config.fractalWeight,
+      riftPenalty: config.riftPenalty,
+      transformPenalty: config.transformPenalty,
+      interiorPenaltyWeight: config.interiorPenaltyWeight,
+      mountainFractalScale: config.mountainFractalScale,
+      mountainInteriorUpliftScale: config.mountainInteriorUpliftScale,
+      mountainCollisionStressWeight: config.mountainCollisionStressWeight,
+      mountainCollisionUpliftWeight: config.mountainCollisionUpliftWeight,
+      mountainSubductionUpliftWeight: config.mountainSubductionUpliftWeight,
+      mountainConvergenceFractalBase: config.mountainConvergenceFractalBase,
+      mountainConvergenceFractalSpan: config.mountainConvergenceFractalSpan,
+      riftDepth: config.riftDepth,
+    };
     const dilationSteps =
       Math.max(0, Math.min(6, Math.round(config.mountainSpineDilationSteps))) | 0;
     const spineMinDistance =
@@ -292,7 +326,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         uplift,
         stress,
         rift,
-        config,
+        config: orogenyPolicy,
       });
       orogenyPotential[i] = encodeNormalizedToU8(orogeny);
 
@@ -300,7 +334,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         boundaryStrength: boundaryInfluence,
         stress,
         rift,
-        config,
+        config: fracturePolicy,
       });
       fracturePotential[i] = encodeNormalizedToU8(fracture);
 
@@ -314,7 +348,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         rift,
         fractal,
         driverStrength,
-        config,
+        config: mountainScorePolicy,
       });
 
       // Age attenuation: old belts should transition from "mountain" ridges to hills/plateaus.

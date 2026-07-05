@@ -17,7 +17,7 @@ import ComputeCrustEvolutionContract from "./contract.js";
 //     under-differentiated crust, and how they feed thickness → buoyancy). They define HOW crust evolves
 //     and hold for EVERY map class; never tune them to a land/ocean output ratio.
 //   • The per-map-class CHARACTER knobs — continental abundance, freeboard, fragmentation, shelf depth —
-//     are real author-facing config (see ./config.ts), read from `config` in the strategy below. A
+//     are real author-facing config (see ./contract.ts), read from `config` in the strategy below. A
 //     different class (archipelago, pangaea, desert, …) is the SAME structure with DIFFERENT config,
 //     never a different algorithm. Do NOT fix a class-tuning miss by bending a STRUCTURE constant.
 // ─────────────────────────────────────────────────────────────────────────────────────────────────

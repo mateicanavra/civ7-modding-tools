@@ -11,14 +11,13 @@ const ResourceRowStatusSchema = Type.Union([
   Type.Literal("planned"),
   Type.Literal("blocked"),
   Type.Literal("missing-expectation"),
-  Type.Literal("proxy-gap"),
+  Type.Literal("missing-signal"),
 ]);
 
 const ResourcePlanRowSchema = Type.Object(
   {
     resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
     status: ResourceRowStatusSchema,
-    runtimeIdStatus: Type.Literal("unverified"),
     proofStatus: Type.Literal("warning-only"),
     targetIntentCount: Type.Integer({ minimum: 0 }),
     eligibleTileCount: Type.Integer({ minimum: 0 }),
@@ -26,14 +25,13 @@ const ResourcePlanRowSchema = Type.Object(
   {
     additionalProperties: true,
     description:
-      "Symbolic row emitted by a resource group planner. Extra lane/proxy fields remain group-owned.",
+      "Symbolic row emitted by a resource group planner. Extra lane/signal fields remain group-owned.",
   }
 );
 
 const ResourceGroupPlanInputSchema = Type.Object(
   {
     groupId: ResourceGroupIdSchema,
-    runtimeIdStatus: Type.Literal("unverified"),
     proofStatus: Type.Literal("warning-only"),
     plans: Type.Array(ResourcePlanRowSchema),
     missingResourceTypes: Type.Array(Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" })),
@@ -48,7 +46,7 @@ const ResourceGroupSummarySchema = Type.Object(
     resourceCount: Type.Integer({ minimum: 0 }),
     plannedCount: Type.Integer({ minimum: 0 }),
     blockedCount: Type.Integer({ minimum: 0 }),
-    proxyGapCount: Type.Integer({ minimum: 0 }),
+    missingSignalCount: Type.Integer({ minimum: 0 }),
     missingExpectationCount: Type.Integer({ minimum: 0 }),
     targetIntentCount: Type.Integer({ minimum: 0 }),
     eligibleTileCount: Type.Integer({ minimum: 0 }),
@@ -74,13 +72,12 @@ const PlanResourceGroupsContract = defineOp({
   output: Type.Object(
     {
       artifactId: Type.Literal("artifact:resources.groupPlans"),
-      runtimeIdStatus: Type.Literal("unverified"),
       proofStatus: Type.Literal("warning-only"),
       groupCount: Type.Integer({ minimum: 0 }),
       resourceCount: Type.Integer({ minimum: 0 }),
       plannedCount: Type.Integer({ minimum: 0 }),
       blockedCount: Type.Integer({ minimum: 0 }),
-      proxyGapCount: Type.Integer({ minimum: 0 }),
+      missingSignalCount: Type.Integer({ minimum: 0 }),
       missingExpectationCount: Type.Integer({ minimum: 0 }),
       targetIntentCount: Type.Integer({ minimum: 0 }),
       eligibleTileCount: Type.Integer({ minimum: 0 }),

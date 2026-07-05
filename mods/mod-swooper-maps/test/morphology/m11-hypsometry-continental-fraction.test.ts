@@ -1,16 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
-import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
-import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
-import computeBaseTopography from "../../src/domain/morphology/ops/compute-base-topography/index.js";
-import computeLandmask from "../../src/domain/morphology/ops/compute-landmask/index.js";
-import computeSeaLevel from "../../src/domain/morphology/ops/compute-sea-level/index.js";
 import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
 
+const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph, computePlateMotion, computePlatesTensors } = foundationOpsPublic.ops;
+const { computeBaseTopography, computeLandmask, computeSeaLevel } = morphologyOpsPublic.ops;
 function share(numerator: number, denominator: number): number {
   if (denominator <= 0) return 0;
   return numerator / denominator;

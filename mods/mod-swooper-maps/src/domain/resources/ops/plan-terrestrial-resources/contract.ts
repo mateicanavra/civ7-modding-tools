@@ -1,18 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const TerrestrialResourceTypeSchema = Type.Union([
-  Type.Literal("RESOURCE_CAMELS"),
-  Type.Literal("RESOURCE_HIDES"),
-  Type.Literal("RESOURCE_HORSES"),
-  Type.Literal("RESOURCE_WOOL"),
-  Type.Literal("RESOURCE_IVORY"),
-  Type.Literal("RESOURCE_FURS"),
-  Type.Literal("RESOURCE_TRUFFLES"),
-  Type.Literal("RESOURCE_RUBBER"),
-  Type.Literal("RESOURCE_HARDWOOD"),
-  Type.Literal("RESOURCE_WILD_GAME"),
-  Type.Literal("RESOURCE_LLAMAS"),
-]);
+import { ResourceSymbolSchema } from "../../model/schemas/resource-family.schema.js";
 
 const TerrestrialLaneIdSchema = Type.Union([
   Type.Literal("arid-rangeland"),
@@ -43,7 +30,7 @@ const ExpectedCountRangeSchema = Type.Object(
 
 const TerrestrialExpectationSchema = Type.Object(
   {
-    resourceType: TerrestrialResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     groupId: Type.Literal("terrestrial-animal-forest-wild"),
     status: Type.Union([
       Type.Literal("expected"),
@@ -53,29 +40,29 @@ const TerrestrialExpectationSchema = Type.Object(
     earthlikePredicate: Type.String(),
     expectedCountRange: ExpectedCountRangeSchema,
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
   },
   {
-    additionalProperties: true,
+    additionalProperties: false,
     description:
-      "Terrestrial rows projected from artifact:resources.earthlikeExpectations. Extra source fields may travel with the row, but the op only consumes symbolic expectations.",
+      "Terrestrial rows projected from artifact:resources.earthlikeExpectations. The op consumes only the family-owned symbolic expectation fields.",
   }
 );
 
 const TerrestrialPlanRowSchema = Type.Object(
   {
-    resourceType: TerrestrialResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     laneId: TerrestrialLaneIdSchema,
     status: Type.Union([
       Type.Literal("planned"),
       Type.Literal("blocked"),
       Type.Literal("missing-expectation"),
-      Type.Literal("proxy-gap"),
+      Type.Literal("missing-signal"),
     ]),
     eligibilityStatus: Type.Union([
       Type.Literal("observed"),
-      Type.Literal("proxy-incomplete"),
+      Type.Literal("missing-signal"),
       Type.Literal("missing-expectation"),
       Type.Literal("blocked"),
     ]),
@@ -89,10 +76,9 @@ const TerrestrialPlanRowSchema = Type.Object(
       Type.Literal("not-gated"),
     ]),
     proofStatus: Type.Literal("warning-only"),
-    runtimeIdStatus: Type.Literal("unverified"),
     earthlikePredicate: Type.String(),
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     signalFields: Type.Array(Type.String()),
     blockers: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
@@ -131,7 +117,7 @@ const PlanTerrestrialResourcesContract = defineOp({
       ),
       tropicalForestEdgeMask: Type.Optional(
         TypedArraySchemas.u8({
-          description: "Tropical forest-edge or wooded savanna megafauna proxy mask.",
+          description: "Tropical forest-edge or wooded savanna megafauna signal mask.",
         })
       ),
       taigaBorealForestMask: Type.Optional(
@@ -140,7 +126,7 @@ const PlanTerrestrialResourcesContract = defineOp({
         })
       ),
       moistWoodlandEdgeMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Moist woodland edge or host-tree proxy mask." })
+        TypedArraySchemas.u8({ description: "Moist woodland edge or host-tree signal mask." })
       ),
       tropicalForestMask: Type.Optional(
         TypedArraySchemas.u8({
@@ -180,10 +166,9 @@ const PlanTerrestrialResourcesContract = defineOp({
   output: Type.Object(
     {
       groupId: Type.Literal("terrestrial-animal-forest-wild"),
-      runtimeIdStatus: Type.Literal("unverified"),
       proofStatus: Type.Literal("warning-only"),
       plans: Type.Array(TerrestrialPlanRowSchema),
-      missingResourceTypes: Type.Array(TerrestrialResourceTypeSchema),
+      missingResourceTypes: Type.Array(ResourceSymbolSchema),
     },
     { additionalProperties: false }
   ),

@@ -1,27 +1,17 @@
+import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { isEngineCompatibleInternalBiome } from "../../../feature-engine-legality.js";
-import { BIOME_SYMBOL_TO_INDEX } from "../../../types.js";
+import { BIOME_SYMBOL_TO_INDEX } from "../../../model/schemas/index.js";
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
   validateGridSize,
-} from "../../score-shared/index.js";
+} from "../../../model/policy/feature-score-selection.js";
 import PlanVegetationContract from "../contract.js";
-import { admitVegetationIntent } from "../policies/index.js";
-
-function isEngineCompatibleVegetationSurface(
-  feature: string,
-  tileIndex: number,
-  flatLandMask: Uint8Array,
-  biomeIndex: Uint8Array
-): boolean {
-  if (flatLandMask[tileIndex] !== 1) return false;
-  return isEngineCompatibleInternalBiome(feature, biomeIndex[tileIndex] ?? 255);
-}
+import { admitVegetationIntent } from "../policy/index.js";
 
 function isBroadVegetationHabitat(
-  feature: string,
+  feature: FeatureIntentKey,
   tileIndex: number,
   fields: Readonly<{
     biomeIndex: Uint8Array;
@@ -38,29 +28,29 @@ function isBroadVegetationHabitat(
   const vegetation = fields.vegetationDensity[tileIndex] ?? 0;
 
   switch (feature) {
-    case "FEATURE_FOREST":
+    case "forest":
       return biome === BIOME_SYMBOL_TO_INDEX.temperateHumid && vegetation >= 0.08;
-    case "FEATURE_RAINFOREST":
+    case "rainforest":
       return (
         biome === BIOME_SYMBOL_TO_INDEX.tropicalRainforest &&
         temp >= 16 &&
         moisture >= 85 &&
         vegetation >= 0.18
       );
-    case "FEATURE_TAIGA":
+    case "taiga":
       return (
         biome === BIOME_SYMBOL_TO_INDEX.snow ||
         biome === BIOME_SYMBOL_TO_INDEX.tundra ||
         biome === BIOME_SYMBOL_TO_INDEX.boreal
       );
-    case "FEATURE_SAVANNA_WOODLAND":
+    case "savanna-woodland":
       return (
         biome === BIOME_SYMBOL_TO_INDEX.tropicalSeasonal &&
         temp >= 12 &&
         aridity <= 0.9 &&
         vegetation <= 0.78
       );
-    case "FEATURE_SAGEBRUSH_STEPPE":
+    case "sagebrush-steppe":
       return (
         biome === BIOME_SYMBOL_TO_INDEX.desert && temp >= -12 && temp <= 32 && vegetation <= 0.72
       );
@@ -89,7 +79,7 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
         { label: "effectiveMoisture", arr: input.effectiveMoisture as Float32Array },
         { label: "aridityIndex", arr: input.aridityIndex as Float32Array },
         { label: "vegetationDensity", arr: input.vegetationDensity as Float32Array },
-        { label: "featureIndex", arr: input.featureIndex as Uint16Array },
+        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
         { label: "reserved", arr: input.reserved as Uint8Array },
       ],
     });
@@ -103,13 +93,15 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
       vegetationDensity: input.vegetationDensity as Float32Array,
     };
 
-    const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
+    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
+      [];
     void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] === 0) continue;
+      if (flatLandMask[i] !== 1) continue;
       if (input.reserved[i] !== 0) continue;
-      if (input.featureIndex[i] !== 0) continue;
+      if (input.featureOccupancyMask[i] !== 0) continue;
 
       const forest = input.scoreForest01[i] ?? 0;
       const rainforest = input.scoreRainforest01[i] ?? 0;
@@ -125,31 +117,31 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
 
       const candidates = [
         {
-          feature: "FEATURE_FOREST",
+          feature: "forest",
           confidence01: forestConfidence01,
           stress01: stressFromConfidence01(forestConfidence01),
           tileIndex: i,
         },
         {
-          feature: "FEATURE_RAINFOREST",
+          feature: "rainforest",
           confidence01: rainforestConfidence01,
           stress01: stressFromConfidence01(rainforestConfidence01),
           tileIndex: i,
         },
         {
-          feature: "FEATURE_TAIGA",
+          feature: "taiga",
           confidence01: taigaConfidence01,
           stress01: stressFromConfidence01(taigaConfidence01),
           tileIndex: i,
         },
         {
-          feature: "FEATURE_SAVANNA_WOODLAND",
+          feature: "savanna-woodland",
           confidence01: savannaConfidence01,
           stress01: stressFromConfidence01(savannaConfidence01),
           tileIndex: i,
         },
         {
-          feature: "FEATURE_SAGEBRUSH_STEPPE",
+          feature: "sagebrush-steppe",
           confidence01: steppeConfidence01,
           stress01: stressFromConfidence01(steppeConfidence01),
           tileIndex: i,
@@ -162,7 +154,6 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
       const best = choosePhysicalCandidate(
         candidates.filter(
           (candidate) =>
-            isEngineCompatibleVegetationSurface(candidate.feature, i, flatLandMask, biomeIndex) &&
             isBroadVegetationHabitat(candidate.feature, i, broadHabitatFields) &&
             admitVegetationIntent(candidate, config)
         )

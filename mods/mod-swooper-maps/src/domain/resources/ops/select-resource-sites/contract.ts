@@ -1,4 +1,13 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  ResourceFamilySchema,
+  ResourceSymbolSchema,
+} from "../../model/schemas/resource-family.schema.js";
+import {
+  ResourceAffinityRuleSchema,
+  ResourceLaneKindSchema,
+  ResourceSitePlanSchema,
+} from "../../model/schemas/resource-site-plan.schema.js";
 
 /**
  * Resource site selection (placement-realignment S3 step 3).
@@ -16,22 +25,12 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
  * silently rescued.
  */
 
-const FamilySchema = Type.Union([
-  Type.Literal("aquatic"),
-  Type.Literal("cultivated"),
-  Type.Literal("terrestrial"),
-  Type.Literal("geological"),
-]);
-
-const LaneKindSchema = Type.Union([Type.Literal("land"), Type.Literal("water")]);
-
 const DemandRowSchema = Type.Object(
   {
-    resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
-    resourceTypeId: Type.Integer({ minimum: 0, description: "Proven runtime resource id." }),
-    family: FamilySchema,
+    resourceType: ResourceSymbolSchema,
+    family: ResourceFamilySchema,
     laneId: Type.String(),
-    laneKind: LaneKindSchema,
+    laneKind: ResourceLaneKindSchema,
     weight: Type.Number({
       minimum: 1,
       description: "Official GameInfo.Resources Weight (deficit-rotation denominator).",
@@ -56,114 +55,6 @@ const DemandRowSchema = Type.Object(
       shape: null,
       description: "Habitat intensity (0..1) modulating site acceptance within the lane.",
     }),
-  },
-  { additionalProperties: false }
-);
-
-export const AffinityRuleSchema = Type.Object(
-  {
-    resourceA: Type.String({
-      pattern: "^RESOURCE_[A-Z0-9_]+$",
-      description: "First resource type symbol of the rule pair (RESOURCE_*).",
-    }),
-    resourceB: Type.String({
-      pattern: "^RESOURCE_[A-Z0-9_]+$",
-      description: "Second resource type symbol of the rule pair (RESOURCE_*).",
-    }),
-    relation: Type.Union([Type.Literal("affinity"), Type.Literal("exclusion")], {
-      description:
-        "Pair relation: affinity biases selection toward placing the pair within the radius; exclusion forbids it.",
-    }),
-    radiusTiles: Type.Integer({
-      minimum: 1,
-      maximum: 8,
-      default: 3,
-      description: "Hex radius within which the pair relation applies.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "One resource-resource affinity/exclusion rule (E3.4).",
-  }
-);
-
-export type ResourceSitePhase = "rotation" | "range-floor" | "region-minimum";
-
-const PhaseSchema = Type.Union([
-  Type.Literal("rotation"),
-  Type.Literal("range-floor"),
-  Type.Literal("region-minimum"),
-]);
-
-const IntentSchema = Type.Object(
-  {
-    plotIndex: Type.Integer({ minimum: 0 }),
-    x: Type.Integer({ minimum: 0 }),
-    y: Type.Integer({ minimum: 0 }),
-    resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
-    resourceTypeId: Type.Integer({ minimum: 0 }),
-    family: FamilySchema,
-    laneId: Type.String(),
-    laneKind: LaneKindSchema,
-    phase: PhaseSchema,
-    order: Type.Integer({ minimum: 0 }),
-    regionSlot: Type.Integer({ minimum: 0, maximum: 2 }),
-    landmassId: Type.Integer({ minimum: -1 }),
-    inHabitat: Type.Boolean(),
-  },
-  { additionalProperties: false }
-);
-
-const ShortfallSchema = Type.Object(
-  {
-    resourceType: Type.String(),
-    reason: Type.Union([
-      Type.Literal("eligible-tiles-exhausted"),
-      Type.Literal("spacing-floor-preserved"),
-      Type.Literal("max-count-reached"),
-      Type.Literal("region-tiles-exhausted"),
-    ]),
-    count: Type.Integer({ minimum: 0 }),
-  },
-  { additionalProperties: false }
-);
-
-const PerTypeSchema = Type.Object(
-  {
-    resourceType: Type.String(),
-    resourceTypeId: Type.Integer({ minimum: 0 }),
-    family: FamilySchema,
-    laneId: Type.String(),
-    laneKind: LaneKindSchema,
-    weight: Type.Number(),
-    effectiveWeight: Type.Number({
-      description: "Weight after rarityFidelity exponent; rotation subtracts this.",
-    }),
-    authoredTargetCount: Type.Integer({ minimum: 0 }),
-    effectiveTargetCount: Type.Integer({ minimum: 0 }),
-    minCount: Type.Integer({ minimum: 0 }),
-    maxCount: Type.Integer({ minimum: 0 }),
-    spacingFloorTiles: Type.Integer({ minimum: 0 }),
-    habitatTileCount: Type.Integer({ minimum: 0 }),
-    legalTileCount: Type.Integer({ minimum: 0 }),
-    eligibleTileCount: Type.Integer({ minimum: 0 }),
-    plannedCount: Type.Integer({ minimum: 0 }),
-    rotationCount: Type.Integer({ minimum: 0 }),
-    rangeFloorCount: Type.Integer({ minimum: 0 }),
-    regionMinimumCount: Type.Integer({ minimum: 0 }),
-    shortfalls: Type.Array(ShortfallSchema),
-  },
-  { additionalProperties: false }
-);
-
-const RegionMinimumSchema = Type.Object(
-  {
-    resourceType: Type.String(),
-    regionSlot: Type.Integer({ minimum: 1, maximum: 2 }),
-    required: Type.Integer({ minimum: 0 }),
-    fromRotation: Type.Integer({ minimum: 0 }),
-    forced: Type.Integer({ minimum: 0 }),
-    shortfall: Type.Integer({ minimum: 0 }),
   },
   { additionalProperties: false }
 );
@@ -195,38 +86,7 @@ const SelectResourceSitesContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Object(
-    {
-      width: Type.Integer({ minimum: 1 }),
-      height: Type.Integer({ minimum: 1 }),
-      seed: Type.Integer(),
-      plannedCount: Type.Integer({ minimum: 0 }),
-      rotationCount: Type.Integer({ minimum: 0 }),
-      rangeFloorCount: Type.Integer({ minimum: 0 }),
-      regionMinimumCount: Type.Integer({ minimum: 0 }),
-      siteSpacingTiles: Type.Integer({ minimum: 0 }),
-      equitySkippedSiteCount: Type.Integer({ minimum: 0 }),
-      intents: Type.Array(IntentSchema),
-      perType: Type.Array(PerTypeSchema),
-      regionMinimums: Type.Array(RegionMinimumSchema),
-      settings: Type.Object(
-        {
-          density: Type.Number(),
-          sparsity: Type.Number(),
-          rarityFidelity: Type.Number(),
-          perTypeSpacingFloorScale: Type.Number(),
-          equityMaxDensityRatio: Type.Number(),
-          affinityRuleCount: Type.Integer({ minimum: 0 }),
-          affinityRules: Type.Array(AffinityRuleSchema, {
-            description:
-              "Echo of the affinity/exclusion rules the plan was selected under, so downstream plan adjusters (S5 support pass) respect the same rules without duplicating config.",
-          }),
-        },
-        { additionalProperties: false }
-      ),
-    },
-    { additionalProperties: false }
-  ),
+  output: ResourceSitePlanSchema,
   strategies: {
     default: Type.Object(
       {
@@ -304,7 +164,7 @@ const SelectResourceSitesContract = defineOp({
             description: "Per-family density overrides multiplying targets before range clamping.",
           }
         ),
-        affinityRules: Type.Array(AffinityRuleSchema, {
+        affinityRules: Type.Array(ResourceAffinityRuleSchema, {
           default: [],
           description:
             "Resource-resource affinity/exclusion rules (E3.4). Exclusion makes a type ineligible within radius of the partner; affinity biases the rotation toward it.",

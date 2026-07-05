@@ -12,7 +12,7 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "generated standard recipe artifacts that drift from source stages or contain unexpected raw operation envelopes outside the explicit internal-as-public foundation-orogeny exception",
+  "forbids": "generated standard recipe artifacts that drift from source stages or expose raw operation envelopes through semantic-public stage surfaces",
   "why": "Standard recipe artifacts are structural authoring outputs consumed by Studio and SDK surfaces.",
   "remediate": "Regenerate standard recipe artifacts from source stages and canonical defaults.",
   "message": "Standard recipe generated artifacts drifted from source stages.",

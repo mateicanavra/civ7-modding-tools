@@ -1,6 +1,6 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 import {
   buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,

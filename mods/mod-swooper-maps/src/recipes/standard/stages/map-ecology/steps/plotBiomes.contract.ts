@@ -1,4 +1,3 @@
-import { BiomeEngineBindingsSchema } from "@mapgen/domain/ecology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import {
@@ -6,8 +5,8 @@ import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../tag-contracts.js";
-import { ecologyArtifacts } from "../../ecology/artifacts.js";
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../ecology/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 
 const PlotBiomesStepContract = defineStep({
   id: "plot-biomes",
@@ -22,14 +21,7 @@ const PlotBiomesStepContract = defineStep({
     requires: [ecologyArtifacts.biomeClassification, morphologyArtifacts.topography],
     provides: [ecologyArtifacts.biomeBindings],
   },
-  schema: Type.Object(
-    {
-      bindings: Type.Optional(BiomeEngineBindingsSchema),
-    },
-    {
-      description: "Optional overrides for binding biome symbols to engine biome globals.",
-    }
-  ),
+  schema: Type.Object({}, { additionalProperties: false }),
 });
 
 export default PlotBiomesStepContract;

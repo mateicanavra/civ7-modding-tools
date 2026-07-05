@@ -5,8 +5,8 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
-import { hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
-import { morphologyArtifacts } from "../src/recipes/standard/stages/morphology/artifacts.js";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../src/recipes/standard/stages/morphology/artifacts/index.js";
 
 const env = {
   seed: 123,
@@ -54,7 +54,9 @@ function runWithTilt(axialTiltDeg: number): {
     {
       "hydrology-climate-baseline": {
         knobs: { seasonality: "normal" },
-        seasonalCycle: { modeCount: 2, axialTiltDeg },
+        "climate-baseline": {
+          seasonality: { modeCount: 2, axialTiltDeg },
+        },
       },
     },
     { log: () => {} }

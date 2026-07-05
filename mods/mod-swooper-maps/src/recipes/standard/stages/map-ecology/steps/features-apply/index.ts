@@ -1,8 +1,8 @@
-import type { FeatureKey } from "@mapgen/domain/ecology";
+import type { FeatureKey } from "@civ7/map-policy";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
-import { reifyFeatureField } from "../features/apply.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import { reifyFeatureField, resolveFeatureKeyForIntent } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
 import FeaturesApplyStepContract from "./contract.js";
 import { buildFeatureTypeVizCategories } from "./viz.js";
@@ -37,7 +37,8 @@ export default createStep(FeaturesApplyStepContract, {
     const lookups = resolveFeatureKeyLookups(context.adapter);
     const unknown: string[] = [];
     for (const placement of merged.placements) {
-      if (!(placement.feature in lookups.byKey)) unknown.push(placement.feature);
+      const feature = resolveFeatureKeyForIntent(placement.feature);
+      if (!(feature in lookups.byKey)) unknown.push(feature);
     }
     if (unknown.length > 0) {
       const unique = [...new Set(unknown)].sort((a, b) => a.localeCompare(b));
@@ -48,12 +49,17 @@ export default createStep(FeaturesApplyStepContract, {
       );
     }
 
-    const resolvedPlacements = merged.placements as Array<{
+    const resolvedPlacements: Array<{
       x: number;
       y: number;
       feature: FeatureKey;
       weight?: number;
-    }>;
+    }> = merged.placements.map((placement) => ({
+      x: placement.x,
+      y: placement.y,
+      feature: resolveFeatureKeyForIntent(placement.feature),
+      weight: placement.weight,
+    }));
 
     resolvedPlacements.sort(
       (a, b) => a.y * context.dimensions.width + a.x - (b.y * context.dimensions.width + b.x)

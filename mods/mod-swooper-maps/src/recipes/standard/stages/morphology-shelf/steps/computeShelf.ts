@@ -1,10 +1,10 @@
-import type { MorphologyShelfWidthKnob } from "@mapgen/domain/morphology/config.js";
-import { MORPHOLOGY_SHELF_WIDTH_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
+import { MORPHOLOGY_SHELF_WIDTH_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/shelf-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
-import ComputeShelfStepContract from "./computeShelf.contract.js";
 import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import type { MorphologyShelfWidthKnob } from "../index.js";
+import ComputeShelfStepContract from "./computeShelf.contract.js";
 
 const GROUP_SHELF = "Morphology / Shelf";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

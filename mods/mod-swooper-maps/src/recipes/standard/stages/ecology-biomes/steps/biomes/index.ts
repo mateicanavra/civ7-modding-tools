@@ -1,7 +1,7 @@
 import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import {
   assertBiomeIndexVizCategoriesCoverSymbols,
   BIOME_INDEX_VIZ_CATEGORIES,

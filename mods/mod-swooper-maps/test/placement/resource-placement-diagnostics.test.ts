@@ -13,7 +13,6 @@ type PlanIntent = {
   x: number;
   y: number;
   resourceType: string;
-  resourceTypeId: number;
   family: "aquatic" | "cultivated" | "terrestrial" | "geological";
   laneId: string;
   laneKind: "land" | "water";
@@ -33,7 +32,7 @@ type PlanIntent = {
 function intent(
   plotIndex: number,
   width: number,
-  resourceTypeId: number,
+  resourceType: string,
   phase: PlanIntent["phase"] = "rotation"
 ): PlanIntent {
   const y = (plotIndex / width) | 0;
@@ -41,8 +40,7 @@ function intent(
     plotIndex,
     x: plotIndex - y * width,
     y,
-    resourceType: `RESOURCE_${resourceTypeId}`,
-    resourceTypeId,
+    resourceType,
     family: "geological",
     laneId: "test-lane",
     laneKind: "land",
@@ -96,10 +94,10 @@ describe("resource placement diagnostics", () => {
       width,
       height,
       plan: plan(width, height, [
-        intent(0, width, 4),
-        intent(1, width, 9),
-        intent(5, width, 9, "range-floor"),
-        intent(6, width, 4),
+        intent(0, width, "RESOURCE_GOLD"),
+        intent(1, width, "RESOURCE_JADE"),
+        intent(5, width, "RESOURCE_JADE", "range-floor"),
+        intent(6, width, "RESOURCE_GOLD"),
       ]),
     });
 
@@ -139,7 +137,9 @@ describe("resource placement diagnostics", () => {
       mapSizeId: 1,
       rng: createLabelRng(1932),
     });
-    const broken = plan(width, height, [intent(0, width, 4)]) as { plannedCount: number };
+    const broken = plan(width, height, [intent(0, width, "RESOURCE_GOLD")]) as {
+      plannedCount: number;
+    };
     broken.plannedCount = 2;
 
     expect(() =>
@@ -177,7 +177,10 @@ describe("resource placement diagnostics", () => {
       adapter,
       width,
       height,
-      plan: plan(width, height, [intent(2, width, 4), intent(3, width, 4)]),
+      plan: plan(width, height, [
+        intent(2, width, "RESOURCE_GOLD"),
+        intent(3, width, "RESOURCE_GOLD"),
+      ]),
     });
 
     expect(outcomes.summary.placedCount).toBe(0);

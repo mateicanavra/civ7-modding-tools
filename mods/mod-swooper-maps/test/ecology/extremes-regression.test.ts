@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import ecology from "@mapgen/domain/ecology/ops";
-import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 describe("ecology defaults regression", () => {
@@ -39,7 +39,7 @@ describe("ecology defaults regression", () => {
         scoreWateringHole01: new Float32Array([0]),
         flatLandMask: new Uint8Array([1]),
         biomeIndex: new Uint8Array([BIOME_SYMBOL_TO_INDEX.temperateHumid]),
-        featureIndex: new Uint16Array([0]),
+        featureOccupancyMask: new Uint8Array([0]),
         reserved: new Uint8Array([0]),
       },
       { strategy: "default", config: {} }

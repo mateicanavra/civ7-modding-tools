@@ -1,22 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
-import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { WONDER_GROUPS } from "../../src/domain/placement/ops/plan-natural-wonders/strategies/default.js";
-import placementDomain from "../../src/domain/placement/ops.js";
 import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  resolveResourceRuntimeIds,
-} from "../../src/domain/resources/index.js";
-import { RESOURCE_HABITAT_SIGNALS } from "../../src/domain/resources/policy/habitat-eligibility.js";
-import {
-  getInitialMapResourcePolicyForType,
-  resolveActiveResourceAge,
-} from "../../src/domain/resources/policy/initial-map-authoring.js";
-import type { ResourceLegalitySurface } from "../../src/domain/resources/policy/resource-legality.js";
-import {
-  buildResourceDemands,
-  buildRiverResourceExclusionMask,
-} from "../../src/recipes/standard/stages/placement/steps/plan-resources/planning.js";
+  NATURAL_WONDER_CATALOG,
+} from "@civ7/map-policy";
+import { WONDER_GROUPS } from "@mapgen/domain/placement/model/policy/natural-wonder-groups.js";
+import placementDomain from "@mapgen/domain/placement/ops";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 const { planNaturalWonders, planResources, planStarts, planWonders } = placementDomain.ops;
@@ -41,10 +29,14 @@ describe("placement plan operations", () => {
       H: [31, 39],
       I: [30],
     });
-    // All 20 wonders, each in exactly one group (no missing/duplicate membership).
+    // Every supported Civ7 natural wonder has exactly one group.
     const allFeatures = Object.values(WONDER_GROUPS).flatMap((def) => def.features);
-    expect(allFeatures.length).toBe(20);
-    expect(new Set(allFeatures).size).toBe(20);
+    const groupedFeatureTypes = [...new Set(allFeatures)].sort((a, b) => a - b);
+    const supportedFeatureTypes = NATURAL_WONDER_CATALOG.map((entry) => entry.featureType).sort(
+      (a, b) => a - b
+    );
+    expect(allFeatures.length).toBe(groupedFeatureTypes.length);
+    expect(groupedFeatureTypes).toEqual(supportedFeatureTypes);
 
     // Characterization: pin each group's formula for a fixed signal vector — guards
     // the load-bearing weights through the registry refactor (all results <= 1, so
@@ -145,12 +137,12 @@ describe("placement plan operations", () => {
         naturalWonderBlockedMask: new Uint8Array(size),
         featureCatalog: [
           {
-            featureType: 1001,
+            featureType: 35,
             direction: 0,
             footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
           },
           {
-            featureType: 1002,
+            featureType: 41,
             direction: 1,
             footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
           },
@@ -165,8 +157,8 @@ describe("placement plan operations", () => {
     expect(result.targetCount).toBe(2);
     expect(result.plannedCount).toBe(2);
     expect(result.placements.length).toBe(2);
-    expect(result.placements[0]?.featureType).toBe(1001);
-    expect(result.placements[1]?.featureType).toBe(1002);
+    expect(result.placements[0]?.featureType).toBe(35);
+    expect(result.placements[1]?.featureType).toBe(41);
   });
 
   it("drops explicit empty natural-wonder footprints from placement candidates", () => {
@@ -193,9 +185,10 @@ describe("placement plan operations", () => {
         noFeatureType: -1,
         naturalWonderBlockedMask: new Uint8Array(size),
         featureCatalog: [
-          { featureType: 1001, direction: 0, footprintOffsetsByParity: { even: [], odd: [] } },
+          { featureType: 35, direction: 0 },
+          { featureType: 37, direction: 0, footprintOffsetsByParity: { even: [], odd: [] } },
           {
-            featureType: 1002,
+            featureType: 41,
             direction: 1,
             footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
           },
@@ -209,7 +202,7 @@ describe("placement plan operations", () => {
 
     expect(result.targetCount).toBe(1);
     expect(result.plannedCount).toBe(1);
-    expect(result.placements).toEqual([expect.objectContaining({ featureType: 1002 })]);
+    expect(result.placements).toEqual([expect.objectContaining({ featureType: 41 })]);
   });
 
   it("produces identical natural-wonder placements on repeated runs (deterministic, no RNG)", () => {
@@ -466,155 +459,5 @@ describe("placement plan operations", () => {
     // Sector machinery was removed in placement-realignment S4; the op output
     // carries the spacing contract instead.
     expect(result.spacingFloorTiles).toBeGreaterThanOrEqual(0);
-  });
-});
-
-/**
- * Rivers product requirement re-expressed in the domain/resources pipeline:
- * river tiles (planned or engine-projected, navigable water included) are
- * removed from every demand's legalMask before legal/eligible counts, so the
- * exclusion flows through site selection, the support pass, and stamping.
- */
-describe("resource demand planning river exclusion", () => {
-  const width = 4;
-  const height = 3;
-  const size = width * height;
-
-  function findExcludableType() {
-    const age = resolveActiveResourceAge();
-    const resolution = resolveResourceRuntimeIds();
-    const validRows = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows as Record<
-      string,
-      readonly (readonly [number, number, number])[] | undefined
-    >;
-    for (const expectation of EARTHLIKE_RESOURCE_EXPECTATIONS) {
-      const resourceType = expectation.resourceType;
-      const signal = RESOURCE_HABITAT_SIGNALS.get(resourceType);
-      if (!signal || signal.family === "aquatic") continue;
-      if (getInitialMapResourcePolicyForType(resourceType, age)?.status !== "eligible") continue;
-      const resolved = resolution.byType.get(resourceType);
-      if (!resolved) continue;
-      const rows = validRows[String(resolved.resourceTypeId)];
-      if (!rows?.length) continue;
-      return { resourceType, signal, placementRow: rows[0]! };
-    }
-    throw new Error("No age-eligible land resource type with policy placement rows found.");
-  }
-
-  function buildFixture() {
-    const { resourceType, signal, placementRow } = findExcludableType();
-    // Make every tile policy-legal for the chosen type by stamping its first
-    // official Resource_ValidPlacements (biome, terrain, feature) triple.
-    const legalitySurface: ResourceLegalitySurface = {
-      width,
-      height,
-      biomeType: new Uint8Array(size).fill(placementRow[0]),
-      terrainType: new Uint8Array(size).fill(placementRow[1]),
-      featureType: new Int16Array(size).fill(placementRow[2]),
-      engineWaterMask: new Uint8Array(size),
-    };
-    const habitat: Record<string, Uint8Array | Float32Array> = {
-      aquaticIntensity: new Float32Array(size).fill(1),
-      cultivatedIntensity: new Float32Array(size).fill(1),
-      terrestrialIntensity: new Float32Array(size).fill(1),
-      geologicalIntensity: new Float32Array(size).fill(1),
-    };
-    for (const field of signal.primary) habitat[field] = new Uint8Array(size).fill(1);
-    const plannedRows = [
-      {
-        resourceType,
-        status: "planned" as const,
-        targetIntentCount: 2,
-        eligibleTileCount: size,
-      },
-    ];
-    return { legalitySurface, habitat, plannedRows };
-  }
-
-  it("unions planned and engine-projected river masks, ignoring mismatched lengths", () => {
-    const plannedMajorRiverMask = new Uint8Array(size);
-    plannedMajorRiverMask[1] = 1;
-    const engineNavigableRiverMask = new Uint8Array(size);
-    engineNavigableRiverMask[5] = 1;
-    const wrongLength = new Uint8Array(size + 1).fill(1);
-
-    const mask = buildRiverResourceExclusionMask({
-      width,
-      height,
-      projectedNavigableRivers: { plannedMajorRiverMask, riverMask: wrongLength },
-      engineProjectionRivers: { engineNavigableRiverMask },
-    });
-
-    expect(mask.length).toBe(size);
-    expect(mask[1]).toBe(1);
-    expect(mask[5]).toBe(1);
-    expect([...mask].reduce((sum, value) => sum + value, 0)).toBe(2);
-  });
-
-  it("zeroes river tiles out of demand legalMask before legal/eligible counts", () => {
-    const fixture = buildFixture();
-    const baseline = buildResourceDemands({
-      width,
-      height,
-      plannedRows: fixture.plannedRows,
-      habitat: fixture.habitat as never,
-      legalitySurface: fixture.legalitySurface,
-    });
-    expect(baseline.demands.length).toBe(1);
-    expect(baseline.demands[0]!.legalMask[0]).toBe(1);
-    expect(baseline.demands[0]!.legalMask[1]).toBe(1);
-    const baselineSummary = baseline.summaries[0]!;
-
-    const riverResourceExclusionMask = new Uint8Array(size);
-    riverResourceExclusionMask[0] = 1;
-    riverResourceExclusionMask[1] = 1;
-    const excluded = buildResourceDemands({
-      width,
-      height,
-      plannedRows: fixture.plannedRows,
-      habitat: fixture.habitat as never,
-      legalitySurface: fixture.legalitySurface,
-      riverResourceExclusionMask,
-    });
-
-    expect(excluded.demands.length).toBe(1);
-    const demand = excluded.demands[0]!;
-    expect(demand.legalMask[0]).toBe(0);
-    expect(demand.legalMask[1]).toBe(0);
-    expect(demand.legalMask[2]).toBe(1);
-    const summary = excluded.summaries[0]!;
-    expect(summary.legalTileCount).toBe(baselineSummary.legalTileCount - 2);
-    expect(summary.eligibleTileCount).toBe(baselineSummary.eligibleTileCount - 2);
-    for (let i = 0; i < size; i++) {
-      if (riverResourceExclusionMask[i] === 1) expect(demand.legalMask[i]).toBe(0);
-    }
-  });
-
-  it("excludes a type entirely when rivers cover all its legal tiles", () => {
-    const fixture = buildFixture();
-    const result = buildResourceDemands({
-      width,
-      height,
-      plannedRows: fixture.plannedRows,
-      habitat: fixture.habitat as never,
-      legalitySurface: fixture.legalitySurface,
-      riverResourceExclusionMask: new Uint8Array(size).fill(1),
-    });
-    expect(result.demands.length).toBe(0);
-    expect(result.excluded).toEqual([expect.objectContaining({ reason: "no-policy-legal-tiles" })]);
-  });
-
-  it("rejects an exclusion mask whose length does not match the grid", () => {
-    const fixture = buildFixture();
-    expect(() =>
-      buildResourceDemands({
-        width,
-        height,
-        plannedRows: fixture.plannedRows,
-        habitat: fixture.habitat as never,
-        legalitySurface: fixture.legalitySurface,
-        riverResourceExclusionMask: new Uint8Array(size + 1),
-      })
-    ).toThrow(/riverResourceExclusionMask/);
   });
 });

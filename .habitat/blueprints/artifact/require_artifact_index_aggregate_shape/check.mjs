@@ -45,6 +45,7 @@ function scanFile(file) {
   const sourceFile = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
   const importedArtifacts = new Set();
   const artifactContractKeys = new Map();
+  const artifactKeys = new Map();
   const validatorKeys = new Map();
   const violations = [];
 
@@ -63,16 +64,20 @@ function scanFile(file) {
     }
     addViolation(
       statement,
-      "artifacts/index.ts may contain only imports, re-exports, artifactContracts, and validators."
+      "artifacts/index.ts may contain only imports, re-exports, artifactContracts, artifacts, and validators."
     );
   }
 
   if (!artifactContractKeys.size) addFileViolation("missing exported artifactContracts aggregate");
+  if (!artifactKeys.size) addFileViolation("missing exported artifacts aggregate");
   if (!validatorKeys.size) addFileViolation("missing exported validators aggregate");
 
   for (const binding of importedArtifacts) {
     if (!artifactContractKeys.has(binding)) {
       addFileViolation(`artifactContracts is missing imported artifact module '${binding}'`);
+    }
+    if (!artifactKeys.has(binding)) {
+      addFileViolation(`artifacts is missing imported artifact module '${binding}'`);
     }
     if (!validatorKeys.has(binding)) {
       addFileViolation(`validators is missing imported artifact module '${binding}'`);
@@ -123,13 +128,17 @@ function scanFile(file) {
         scanArtifactContracts(declaration);
         continue;
       }
+      if (name === "artifacts") {
+        scanArtifacts(declaration);
+        continue;
+      }
       if (name === "validators") {
         scanValidators(declaration);
         continue;
       }
       addViolation(
         declaration,
-        "artifact index may export only artifactContracts and validators variables"
+        "artifact index may export only artifactContracts, artifacts, and validators variables"
       );
     }
   }
@@ -155,6 +164,32 @@ function scanFile(file) {
         continue;
       }
       artifactContractKeys.set(value.text, entry.key);
+    }
+  }
+
+  function scanArtifacts(declaration) {
+    const objectLiteral = unwrapAsConst(declaration.initializer);
+    if (!objectLiteral || !ts.isObjectLiteralExpression(objectLiteral)) {
+      addViolation(declaration, "artifacts must be an object literal");
+      return;
+    }
+    for (const property of objectLiteral.properties) {
+      const entry = objectEntry(property);
+      if (!entry) {
+        addViolation(property, "artifacts entries must be direct artifact value references");
+        continue;
+      }
+      const value = entry.value;
+      if (
+        !ts.isPropertyAccessExpression(value) ||
+        value.name.text !== "artifact" ||
+        !ts.isIdentifier(value.expression) ||
+        !importedArtifacts.has(value.expression.text)
+      ) {
+        addViolation(property, "artifacts values must be importedArtifact.artifact references");
+        continue;
+      }
+      artifactKeys.set(value.expression.text, entry.key);
     }
   }
 

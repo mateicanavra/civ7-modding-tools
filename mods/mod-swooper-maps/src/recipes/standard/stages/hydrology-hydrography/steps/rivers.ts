@@ -1,13 +1,14 @@
-import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
 import {
   HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE,
   HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE,
-} from "@mapgen/domain/hydrology/config.js";
+} from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { hydrologyHydrographyArtifacts } from "../artifacts.js";
-import RiversStepContract from "./rivers.contract.js";
 import { validators as hydrologyHydrographyArtifactValidators } from "../artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../artifacts/index.js";
+import RiversStepContract from "./rivers.contract.js";
+
+type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";
 
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

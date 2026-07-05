@@ -7,9 +7,11 @@ work begins. They are ordered from least defined to more defined. Completed
 prework decisions stay in the completed section as proof pointers, not as active
 queue items.
 
-Current next move: open and run the Domain Model Config Law decision packet.
-Foundation-lib cleanup remains a completed-decision execution follow-up and is
-not the active prework decision.
+Current next move: open and run the Placement Status decision packet. Foundation
+Lib and Domain Model Config Law are completed decision/execution packets for
+the current repair scope; `resource-policy-data-contract.domino.md` remains a
+tracked later resource policy/data-contract follow-up, not hidden active
+config-law work.
 
 ## Completed Decisions
 
@@ -61,13 +63,12 @@ Done:
 `shared.ts` helpers are resolved to accepted core APIs, an existing core
 replacement, or operation-local provenance policy.
 
-Next:
-compose the packet-linked cleanup `execution.md`; do not move source until the
-execution slice names write sets and proof gates.
+Execution:
+packet-linked execution is closed through the S6 closure branch; the original
+`require-guards.domino.md` and `tectonics-shared-core.domino.md` remain as
+resolved proof records, not active deferred work.
 
-## Active Decision
-
-### 1. Domain Model Config Law
+### Domain Model Config Law
 
 Decision:
 decide which current config-shaped rows belong to stage authoring, operation
@@ -113,7 +114,20 @@ recipe stage file, or delete action. Ecology and resources are explicitly
 resolved as domains with real `model/schemas` primitives or no schema-primitive
 rows in this pass.
 
-## 2. Placement Status
+Result:
+the config-shaped confusion has been burned down for the current scope.
+Operation contract, recipe stage authoring, domain model schema/policy,
+artifact aggregate, recipe/map public-surface, test public-surface, and current
+domain source topology checks are green. The remaining tracked item is
+`Decisions/003-domain-model-config-law/resource-policy-data-contract.domino.md`,
+which belongs to later resource policy/data-contract work.
+
+Proof packet:
+`Decisions/003-domain-model-config-law/`
+
+## Active Decision
+
+### 2. Placement Status
 
 Decision:
 determine the owner status of current `placement` material under the selected

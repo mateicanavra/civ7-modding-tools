@@ -1,25 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const CultivatedResourceTypeSchema = Type.Union([
-  Type.Literal("RESOURCE_COTTON"),
-  Type.Literal("RESOURCE_DATES"),
-  Type.Literal("RESOURCE_DYES"),
-  Type.Literal("RESOURCE_INCENSE"),
-  Type.Literal("RESOURCE_SILK"),
-  Type.Literal("RESOURCE_WINE"),
-  Type.Literal("RESOURCE_COCOA"),
-  Type.Literal("RESOURCE_SPICES"),
-  Type.Literal("RESOURCE_SUGAR"),
-  Type.Literal("RESOURCE_TEA"),
-  Type.Literal("RESOURCE_COFFEE"),
-  Type.Literal("RESOURCE_TOBACCO"),
-  Type.Literal("RESOURCE_CITRUS"),
-  Type.Literal("RESOURCE_QUININE"),
-  Type.Literal("RESOURCE_MANGOS"),
-  Type.Literal("RESOURCE_RICE"),
-  Type.Literal("RESOURCE_CLOVES"),
-  Type.Literal("RESOURCE_FLAX"),
-]);
+import { ResourceSymbolSchema } from "../../model/schemas/resource-family.schema.js";
 
 const CultivatedLaneIdSchema = Type.Union([
   Type.Literal("alluvial-irrigated"),
@@ -49,7 +29,7 @@ const ExpectedCountRangeSchema = Type.Object(
 
 const CultivatedExpectationSchema = Type.Object(
   {
-    resourceType: CultivatedResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     groupId: Type.Literal("cultivated-plantation-medicinal"),
     status: Type.Union([
       Type.Literal("expected"),
@@ -59,29 +39,29 @@ const CultivatedExpectationSchema = Type.Object(
     earthlikePredicate: Type.String(),
     expectedCountRange: ExpectedCountRangeSchema,
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
   },
   {
-    additionalProperties: true,
+    additionalProperties: false,
     description:
-      "Cultivated rows projected from artifact:resources.earthlikeExpectations. Extra source fields may travel with the row, but the op only consumes symbolic expectations.",
+      "Cultivated rows projected from artifact:resources.earthlikeExpectations. The op consumes only the family-owned symbolic expectation fields.",
   }
 );
 
 const CultivatedPlanRowSchema = Type.Object(
   {
-    resourceType: CultivatedResourceTypeSchema,
+    resourceType: ResourceSymbolSchema,
     laneId: CultivatedLaneIdSchema,
     status: Type.Union([
       Type.Literal("planned"),
       Type.Literal("blocked"),
       Type.Literal("missing-expectation"),
-      Type.Literal("proxy-gap"),
+      Type.Literal("missing-signal"),
     ]),
     eligibilityStatus: Type.Union([
       Type.Literal("observed"),
-      Type.Literal("proxy-incomplete"),
+      Type.Literal("missing-signal"),
       Type.Literal("missing-expectation"),
       Type.Literal("blocked"),
     ]),
@@ -95,10 +75,9 @@ const CultivatedPlanRowSchema = Type.Object(
       Type.Literal("not-gated"),
     ]),
     proofStatus: Type.Literal("warning-only"),
-    runtimeIdStatus: Type.Literal("unverified"),
     earthlikePredicate: Type.String(),
     conditionMultipliers: Type.Array(Type.String()),
-    proxyRequirements: Type.Array(Type.String()),
+    signalRequirements: Type.Array(Type.String()),
     signalFields: Type.Array(Type.String()),
     blockers: Type.Array(Type.String()),
     caveats: Type.Array(Type.String()),
@@ -118,7 +97,7 @@ const PlanCultivatedResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Warm alluvial, irrigated, or fertile lowland mask." })
       ),
       floodplainOrRiverMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Floodplain, river, delta, or irrigation proxy mask." })
+        TypedArraySchemas.u8({ description: "Floodplain, river, delta, or irrigation signal mask." })
       ),
       warmGrassPlainsMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Warm grassland or plains crop suitability mask." })
@@ -146,7 +125,7 @@ const PlanCultivatedResourcesContract = defineOp({
       ),
       highlandOrReliefMask: Type.Optional(
         TypedArraySchemas.u8({
-          description: "Highland, hill, relief, or montane plantation proxy mask.",
+          description: "Highland, hill, relief, or montane plantation signal mask.",
         })
       ),
       temperateDryPlainsMask: Type.Optional(
@@ -183,10 +162,9 @@ const PlanCultivatedResourcesContract = defineOp({
   output: Type.Object(
     {
       groupId: Type.Literal("cultivated-plantation-medicinal"),
-      runtimeIdStatus: Type.Literal("unverified"),
       proofStatus: Type.Literal("warning-only"),
       plans: Type.Array(CultivatedPlanRowSchema),
-      missingResourceTypes: Type.Array(CultivatedResourceTypeSchema),
+      missingResourceTypes: Type.Array(ResourceSymbolSchema),
     },
     { additionalProperties: false }
   ),

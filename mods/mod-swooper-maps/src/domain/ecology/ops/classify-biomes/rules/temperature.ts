@@ -1,5 +1,5 @@
 import type { Static } from "@swooper/mapgen-core/authoring";
-import { TemperatureSchema } from "./temperature.schema.js";
+import type { TemperatureSchema } from "../contract.js";
 
 /**
  * Maps a temperature value to a coarse temperature zone.

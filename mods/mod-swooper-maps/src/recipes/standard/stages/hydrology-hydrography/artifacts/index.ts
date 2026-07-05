@@ -10,6 +10,12 @@ export const artifactContracts = {
   riverNetworkMetrics,
 } as const;
 
+export const artifacts = {
+  hydrography: hydrography.artifact,
+  lakePlan: lakePlan.artifact,
+  riverNetworkMetrics: riverNetworkMetrics.artifact,
+} as const;
+
 export const validators = {
   hydrography: hydrography.validate,
   lakePlan: lakePlan.validate,

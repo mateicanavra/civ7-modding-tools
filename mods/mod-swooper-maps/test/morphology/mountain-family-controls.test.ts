@@ -6,10 +6,11 @@ import {
   resolveTileAreaSpacingTarget,
 } from "@swooper/mapgen-core/lib/grid";
 
-import { BOUNDARY_TYPE } from "../../src/domain/foundation/constants.js";
-import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
-import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
-import { assertSameMountainFamilySelection } from "../../src/domain/morphology/ops.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
+import morphology from "@mapgen/domain/morphology/ops";
+import { assertSameMountainFamilySelection } from "../../src/recipes/standard/stages/morphology-features/steps/mountains.js";
+
+const { planFoothills, planRidges } = morphology.ops;
 
 function countMask(mask: Uint8Array): number {
   let count = 0;

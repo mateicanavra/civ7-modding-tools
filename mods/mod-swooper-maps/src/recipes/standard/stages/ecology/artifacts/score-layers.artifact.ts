@@ -1,4 +1,4 @@
-import { FEATURE_PLACEMENT_KEYS, type PlotEffectKey } from "@mapgen/domain/ecology";
+import { FEATURE_INTENT_KEYS } from "@mapgen/domain/ecology/model/schemas/index.js";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
   defineArtifact,
@@ -13,8 +13,8 @@ export const ScoreLayersArtifactSchema = Type.Object({
   height: Type.Integer({ minimum: 1 }),
   layers: Type.Object(
     Object.fromEntries(
-      FEATURE_PLACEMENT_KEYS.map((featureKey) => [
-        featureKey,
+      FEATURE_INTENT_KEYS.map((intentKey) => [
+        intentKey,
         TypedArraySchemas.f32({ description: "Suitability score (0..1) per tile." }),
       ])
     )
@@ -65,7 +65,7 @@ function isScoreLayersArtifact(value: unknown): value is ScoreLayersArtifact {
   const candidate = value as ScoreLayersArtifact;
   if (typeof candidate.width !== "number" || typeof candidate.height !== "number") return false;
   if (!isRecord(candidate.layers)) return false;
-  for (const key of FEATURE_PLACEMENT_KEYS) {
+  for (const key of FEATURE_INTENT_KEYS) {
     if (!((candidate.layers as Record<string, unknown>)[key] instanceof Float32Array)) return false;
   }
   return true;
@@ -84,7 +84,7 @@ function validatePayload(
   if (value.width !== dimensions.width || value.height !== dimensions.height) {
     errors.push({ message: "Score layers dimensions mismatch." });
   }
-  for (const key of FEATURE_PLACEMENT_KEYS) {
+  for (const key of FEATURE_INTENT_KEYS) {
     validateTypedArray(errors, `layers.${key}`, value.layers[key], Float32Array, size);
   }
   return errors;

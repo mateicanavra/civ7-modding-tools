@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import standardRecipe from "../../src/recipes/standard/recipe.js";
-import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { startAssignment } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 import adjustResourcesStep from "../../src/recipes/standard/stages/placement/steps/adjust-resources/index.js";
 import assignAdvancedStartsStep from "../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/index.js";

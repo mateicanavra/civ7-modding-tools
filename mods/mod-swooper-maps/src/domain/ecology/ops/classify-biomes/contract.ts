@@ -1,10 +1,182 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { AriditySchema } from "./rules/aridity.schema.js";
-import { MoistureSchema } from "./rules/moisture.schema.js";
-import { TemperatureSchema } from "./rules/temperature.schema.js";
-import { VegetationSchema } from "./rules/vegetation.schema.js";
 
 /** Biome classification parameters for temperature, moisture, aridity, vegetation, and edge refinement. */
+
+export const TemperatureSchema = Type.Object(
+  {
+    equator: Type.Number({
+      description: "Baseline equatorial temperature at sea level (degrees C).",
+      default: 28,
+    }),
+    pole: Type.Number({
+      description: "Baseline polar temperature at sea level (degrees C).",
+      default: -8,
+    }),
+    lapseRate: Type.Number({
+      description: "Temperature drop per kilometer of elevation (degrees C / km).",
+      default: 6.5,
+    }),
+    seaLevel: Type.Number({
+      description: "Elevation reference point for temperature (meters).",
+      default: 0,
+    }),
+    bias: Type.Number({
+      description: "Global temperature offset after latitude/elevation (degrees C).",
+      default: 0,
+    }),
+    polarCutoff: Type.Number({
+      description: "Temperature threshold for polar zone classification (degrees C).",
+      default: -5,
+    }),
+    tundraCutoff: Type.Number({
+      description: "Temperature threshold for cold/tundra zone classification (degrees C).",
+      default: 2,
+    }),
+    midLatitude: Type.Number({
+      description: "Upper bound for temperate zone classification (degrees C).",
+      default: 12,
+    }),
+    tropicalThreshold: Type.Number({
+      description: "Temperature threshold for tropical zone classification (degrees C).",
+      default: 24,
+    }),
+  },
+  {
+    description: "Temperature model parameters (degrees C, lapse rate, thresholds).",
+  }
+);
+
+export const MoistureSchema = Type.Object(
+  {
+    thresholds: Type.Tuple(
+      [
+        Type.Number({
+          description: "Arid threshold (effective moisture units).",
+          default: 45,
+        }),
+        Type.Number({
+          description: "Semi-arid threshold (effective moisture units).",
+          default: 90,
+        }),
+        Type.Number({
+          description: "Subhumid threshold (effective moisture units).",
+          default: 140,
+        }),
+        Type.Number({
+          description: "Humid threshold (effective moisture units).",
+          default: 190,
+        }),
+      ],
+      {
+        default: [45, 90, 140, 190],
+        description:
+          "Moisture thresholds in effective moisture units (Hydrology effectiveMoisture advisory index).",
+      }
+    ),
+  },
+  {
+    description: "Effective moisture thresholds (Hydrology effectiveMoisture advisory index).",
+  }
+);
+
+export const AriditySchema = Type.Object(
+  {
+    temperatureMin: Type.Number({
+      description: "Minimum temperature for aridity normalization (C).",
+      default: 0,
+    }),
+    temperatureMax: Type.Number({
+      description: "Maximum temperature for aridity normalization (C).",
+      default: 35,
+    }),
+    petBase: Type.Number({
+      description: "Base PET-like moisture demand (rainfall units).",
+      default: 20,
+      minimum: 0,
+    }),
+    petTemperatureWeight: Type.Number({
+      description: "PET temperature weight (rainfall units).",
+      default: 80,
+      minimum: 0,
+    }),
+    humidityDampening: Type.Number({
+      description: "Humidity dampening factor (0..1).",
+      default: 0.5,
+      minimum: 0,
+      maximum: 1,
+    }),
+    rainfallWeight: Type.Number({
+      description: "Rainfall weight when subtracting supply from PET (scalar).",
+      default: 1,
+      minimum: 0,
+    }),
+    bias: Type.Number({
+      description: "Bias applied to aridity raw units (rainfall units).",
+      default: 0,
+    }),
+    normalization: Type.Number({
+      description: "Normalization scale for aridity index (rainfall units).",
+      default: 120,
+      minimum: 1,
+    }),
+    moistureShiftThresholds: Type.Tuple(
+      [
+        Type.Number({
+          description: "Aridity threshold for first moisture-zone shift (0..1).",
+          default: 0.45,
+          minimum: 0,
+          maximum: 1,
+        }),
+        Type.Number({
+          description: "Aridity threshold for second moisture-zone shift (0..1).",
+          default: 0.7,
+          minimum: 0,
+          maximum: 1,
+        }),
+      ],
+      {
+        default: [0.45, 0.7],
+        description: "Aridity thresholds that shift moisture zones toward drier classes.",
+      }
+    ),
+    vegetationPenalty: Type.Number({
+      description: "Vegetation dryness-stress weight applied from aridity (0..1).",
+      default: 0.15,
+      minimum: 0,
+      maximum: 1,
+    }),
+  },
+  {
+    description: "Aridity/PET proxy controls for dry-climate modeling.",
+  }
+);
+
+export const VegetationSchema = Type.Object(
+  {
+    base: Type.Number({
+      description:
+        "Baseline vegetation density (0..1). Acts as the floor even in marginal climates.",
+      default: 0.2,
+      minimum: 0,
+      maximum: 1,
+    }),
+    moistureWeight: Type.Number({
+      description:
+        "Weight applied to effective moisture when computing vegetation density (scalar).",
+      default: 0.55,
+      minimum: 0,
+    }),
+    moistureNormalizationPadding: Type.Number({
+      description:
+        "Padding added to humid threshold when normalizing moisture (effective moisture units).",
+      default: 40,
+      minimum: 0,
+    }),
+  },
+  {
+    description: "Vegetation density model knobs (base, moisture weight, normalization).",
+  }
+);
 
 const EdgeRefineSchema = Type.Object(
   {

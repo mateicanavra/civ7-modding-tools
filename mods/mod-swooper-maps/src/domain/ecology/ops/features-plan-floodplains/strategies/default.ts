@@ -1,3 +1,4 @@
+import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import {
@@ -5,11 +6,11 @@ import {
   confidenceFromScore01,
   stressFromConfidence01,
   validateGridSize,
-} from "../../score-shared/index.js";
+} from "../../../model/policy/feature-score-selection.js";
 import PlanFloodplainsContract from "../contract.js";
 
 type FloodplainCandidate = Readonly<{
-  feature: string;
+  feature: FeatureIntentKey;
   score01: number;
   tileIndex: number;
 }>;
@@ -35,66 +36,67 @@ export const defaultStrategy = createStrategy(PlanFloodplainsContract, "default"
         { label: "scoreTropicalNavigable01", arr: input.scoreTropicalNavigable01 as Float32Array },
         { label: "scoreTundraMinor01", arr: input.scoreTundraMinor01 as Float32Array },
         { label: "scoreTundraNavigable01", arr: input.scoreTundraNavigable01 as Float32Array },
-        { label: "featureIndex", arr: input.featureIndex as Uint16Array },
+        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
         { label: "reserved", arr: input.reserved as Uint8Array },
       ],
     });
 
-    const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
+    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
+      [];
     void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.reserved[i] !== 0) continue;
-      if (input.featureIndex[i] !== 0) continue;
+      if (input.featureOccupancyMask[i] !== 0) continue;
 
       const candidates: FloodplainCandidate[] = [
         {
-          feature: "FEATURE_DESERT_FLOODPLAIN_MINOR",
+          feature: "desert-floodplain-minor",
           score01: input.scoreDesertMinor01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_DESERT_FLOODPLAIN_NAVIGABLE",
+          feature: "desert-floodplain-navigable",
           score01: input.scoreDesertNavigable01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_GRASSLAND_FLOODPLAIN_MINOR",
+          feature: "grassland-floodplain-minor",
           score01: input.scoreGrasslandMinor01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE",
+          feature: "grassland-floodplain-navigable",
           score01: input.scoreGrasslandNavigable01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_PLAINS_FLOODPLAIN_MINOR",
+          feature: "plains-floodplain-minor",
           score01: input.scorePlainsMinor01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE",
+          feature: "plains-floodplain-navigable",
           score01: input.scorePlainsNavigable01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_TROPICAL_FLOODPLAIN_MINOR",
+          feature: "tropical-floodplain-minor",
           score01: input.scoreTropicalMinor01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE",
+          feature: "tropical-floodplain-navigable",
           score01: input.scoreTropicalNavigable01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_TUNDRA_FLOODPLAIN_MINOR",
+          feature: "tundra-floodplain-minor",
           score01: input.scoreTundraMinor01[i] ?? 0,
           tileIndex: i,
         },
         {
-          feature: "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
+          feature: "tundra-floodplain-navigable",
           score01: input.scoreTundraNavigable01[i] ?? 0,
           tileIndex: i,
         },
