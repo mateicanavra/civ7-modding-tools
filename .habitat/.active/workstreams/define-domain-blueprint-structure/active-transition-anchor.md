@@ -12,6 +12,12 @@ system.
 This document is intentionally temporary. It should go away after its three
 containers are either opened as their own frames/slices or explicitly closed.
 
+Durable handoff:
+`blueprint-authority-stewardship-frame.md` carries the live DRA stewardship
+frame for this transition. Use this anchor for the three immediate containers;
+use the stewardship frame for the role, proof, source-precedence, and agent-team
+operating contract that must survive takeover.
+
 ## Current Frame
 
 We just completed one full descent:
@@ -58,9 +64,11 @@ which are transitional sentries, and which should be retired, split, or replaced
 with positive assertions.
 
 Why now:
-all blueprint rules are currently enforced and green, but green is not the same
-as permanent. This is the exact moment where scaffolding can become accidental
-architecture if we do not classify it.
+Slice 001 records report enforced closure, but recorded pass state is not the
+same as permanent law. Rule Ecology Cleanup must first re-prove current rule
+state with a named Habitat command before using that state as authority. This
+is the exact moment where scaffolding can become accidental architecture if we
+do not classify it.
 
 Initial classes:
 
@@ -85,7 +93,7 @@ Known inputs:
 - `.habitat/.active/workstreams/define-domain-blueprint-structure/review-protocol.md`;
 - `.habitat/.active/workstreams/define-domain-blueprint-structure/scopes-and-slices-reference.md`.
 
-Standing positive-law candidates requiring reusable-class proof:
+Hypotheses to seed the ecology ledger as standing positive-law candidates:
 
 - `require_domain_source_topology`;
 - `require_domain_ops_binding_surface`;
@@ -96,7 +104,7 @@ Standing positive-law candidates requiring reusable-class proof:
 - `require_artifact_index_aggregate_shape`;
 - `require_recipe_stage_authoring_file_shape`.
 
-Initial boundary-rail candidates to classify:
+Hypotheses to seed the ecology ledger as boundary-rail candidates:
 
 - adapter/runtime import blocks;
 - cross-operation runtime call blocks;
@@ -113,7 +121,7 @@ Other rule families that must be included in the ecology ledger:
 - shipped catalog leakage rules;
 - any rule outside the just-closed domain-root lane.
 
-Initial cleanup candidates:
+Hypotheses to seed the ecology ledger as cleanup candidates:
 
 - retired domain root/catalog guards;
 - old config facade prohibitions;
@@ -123,12 +131,18 @@ Initial cleanup candidates:
 - any rule whose scan root is now entirely covered by a positive topology or
   file-shape rule.
 
+No keep, retire, replace, or split decision is authorized here. Every candidate
+requires row-level evidence and proof in the Rule Ecology Cleanup container.
+
 Required output when opened:
 
 - a rule ecology frame;
-- a rule-by-rule ledger with class, owner, keep/retire/replace/split decision,
-  parity proof requirement, and Habitat verification command;
-- a review loop focused on positive-law quality and no one-off fossil rules;
+- a rule-by-rule ledger with rule id/path, source authority, current evidence,
+  evidence/proof class, owner layer, keep/retire/replace/split disposition,
+  first falsifier, required proof commands, non-claims, and review disposition;
+- a fresh read-only review loop, separate from implementation agents, covering
+  product outcome, owner-boundary, proof, stale-record, and stack lanes, with
+  accepted P1/P2 findings blocking closure;
 - a Graphite-submitted cleanup if rules or records change.
 
 ## Container 2: Reusable Initiative Frame Capture
@@ -241,11 +255,26 @@ Required output when opened:
 
 This anchor can close when:
 
-- Rule Ecology Cleanup has a proper frame or execution packet;
-- Reusable Initiative Frame Capture has a proper frame or document home;
+- Rule Ecology Cleanup has a frame or execution packet with proof gates,
+  row-level ledger contract, and review disposition contract;
+- Reusable Initiative Frame Capture has a frame or document home with explicit
+  scope, source provenance, non-claims, and retirement/promotion path;
 - Move Across, Not Down has selected the next blueprint-level slice or recorded
   why cleanup must continue first;
 - this file no longer contains the only copy of any active decision;
+- accepted P1/P2 review findings for transition claims are resolved, rejected
+  with source evidence, invalidated by later evidence, or explicitly moved out
+  of scope by sealed authority;
+- current claims introduced by the transition containers have proof-class
+  labels and exact commands or source evidence;
+- downstream records capture any active decision that should outlive this
+  temporary anchor;
+- the relevant Graphite layer has been submitted or deliberately held with a
+  recorded reason;
+- the worktree and stack state are clean, or an explicit handoff records the
+  remaining dirty state;
+- `blueprint-authority-stewardship-frame.md` is promoted, superseded, archived,
+  or deleted once its decisions land in owning artifacts;
 - this file is deleted, or moved to archive only if it contains historical
   evidence that was not captured elsewhere.
 
