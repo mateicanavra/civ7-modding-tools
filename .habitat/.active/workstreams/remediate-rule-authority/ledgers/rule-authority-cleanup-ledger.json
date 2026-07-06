@@ -2262,12 +2262,12 @@
           "actionDecision": "closed structure inversion",
           "packetNeeded": false,
           "layer2Status": "blocked-prior-source-owner-design",
-          "implementationReadiness": "not implementation-ready; needs source-owned operation-module verifier/generator and support-directory exception model",
+          "implementationReadiness": "not implementation-ready; source-owned operation-module verifier/generator design lives in the selected descent opening packet",
           "wholeRuleFit": "split/consolidate into source-owned topology authority",
           "ruleIdPlan": "do not move Ecology rule as-is; later replace by source-owned op-module topology proof and delete Ecology rule after replacement proof",
           "semanticDecision": "Contract/index/strategy binding is live domain-operation authority, but must be enforced through TS registry, generator, or package verify, not Ecology sidecar topology.",
-          "residualFollowUp": "Design operation-module verifier/generator and support-directory exception model for score-shared/shared/mountains-shared before Layer 3.",
-          "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries."
+          "residualFollowUp": "Use the selected descent opening packet at .habitat/.active/workstreams/descend-002-domain-operation-interior/ as the live design surface for operation-module topology and source-owner questions before Layer 3.",
+          "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries. Readiness R4 recheck on 2026-07-06: `for d in mods/mod-swooper-maps/src/domain/*/ops/*/; do [ -f \"$d/contract.ts\" ] || echo \"$d\"; done` produced zero output, so the named score-shared/shared/mountains-shared support-directory blocker is stale; the live design surface is the selected descent opening packet."
         },
         "validate_ecology_op_contract_quality": {
           "ruleId": "validate_ecology_op_contract_quality",
@@ -2328,7 +2328,7 @@
           "delete or source-own rules-entrypoint verification before changing prohibit_foundation_rules_tectonics_shim_reexports"
         ],
         "blockedBy": [
-          "operation-module verifier/generator and support-directory exception model",
+          "selected descent opening packet for operation-module source-owner design",
           "schema metadata source/package-verify policy",
           "source-backed strategy dependency classes",
           "source-owned rules-entrypoint export policy or deletion proof"
