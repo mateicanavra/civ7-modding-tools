@@ -1,6 +1,4 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import PlanAquaticResourcesContract from "../contract.js";
 import {
   AQUATIC_RESOURCE_TYPES,
   AQUATIC_SIGNALS,
@@ -8,6 +6,7 @@ import {
   type AquaticResourceSignals,
   type AquaticResourceType,
 } from "../../../model/policy/aquatic-resource-signals.js";
+import PlanAquaticResourcesContract from "../contract.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,

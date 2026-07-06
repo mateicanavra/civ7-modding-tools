@@ -7,13 +7,13 @@ const { computeBeltDrivers } = morphologyDomain.ops;
 function buildHistoryTiles(width: number, height: number, eraCount: number) {
   const size = width * height;
   const perEra = Array.from({ length: eraCount }, () => ({
-      boundaryType: new Uint8Array(size),
-      upliftPotential: new Uint8Array(size),
-      collisionPotential: new Uint8Array(size),
-      subductionPotential: new Uint8Array(size),
-      riftPotential: new Uint8Array(size),
-      shearStress: new Uint8Array(size),
-    }));
+    boundaryType: new Uint8Array(size),
+    upliftPotential: new Uint8Array(size),
+    collisionPotential: new Uint8Array(size),
+    subductionPotential: new Uint8Array(size),
+    riftPotential: new Uint8Array(size),
+    shearStress: new Uint8Array(size),
+  }));
   const rollups = {
     upliftTotal: new Uint8Array(size),
     collisionTotal: new Uint8Array(size),

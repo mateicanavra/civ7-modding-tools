@@ -1,5 +1,22 @@
 import { describe, expect, it } from "bun:test";
-import { crust, crustInit, currentTectonics, mantleForcing, mantlePotential, mesh, plateGraph, plateIdByEra, plateMotion, plateTopology, tectonicEraFields, tectonicEvents, tectonicHistory, tectonicProvenance, tectonicSegments, tracerIndexByEra } from "@mapgen/domain/foundation/artifacts";
+import {
+  crust,
+  crustInit,
+  currentTectonics,
+  mantleForcing,
+  mantlePotential,
+  mesh,
+  plateGraph,
+  plateIdByEra,
+  plateMotion,
+  plateTopology,
+  tectonicEraFields,
+  tectonicEvents,
+  tectonicHistory,
+  tectonicProvenance,
+  tectonicSegments,
+  tracerIndexByEra,
+} from "@mapgen/domain/foundation/artifacts";
 
 type ArtifactModule = Readonly<{
   Schema: unknown;

@@ -1,10 +1,10 @@
 import { balancedHemisphereMeridian, hemisphereSlotForColumn } from "@civ7/map-policy";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
 import PlotLandmassRegionsStepContract from "./contract.js";
-import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
 
 type RegionSlot = 0 | 1 | 2;
 

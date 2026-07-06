@@ -15,10 +15,10 @@ import type {
 } from "../../../model/policy/mountain-scoring-policy.js";
 import { encodeNormalizedToU8 } from "../../../model/policy/normalized-byte.js";
 import { computeOrogenyPotential } from "../../../model/policy/orogeny-potential.js";
+import PlanRidgesContract from "../contract.js";
 import { computeFracturePotential } from "../rules/fracture-potential.js";
 import { isStrictLocalMaximumHexWithTies } from "../rules/local-maximum.js";
 import { computeMountainScore } from "../rules/mountain-score.js";
-import PlanRidgesContract from "../contract.js";
 import type { PlanRidgesTypes } from "../types.js";
 
 function validateRidgesInputs(input: PlanRidgesTypes["input"]): {

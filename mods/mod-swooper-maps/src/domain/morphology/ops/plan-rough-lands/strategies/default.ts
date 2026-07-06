@@ -1,7 +1,7 @@
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { clampPct } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { resolveDriverStrength } from "../../../model/policy/driver-strength.js";
 import { normalizeMountainFractal } from "../../../model/policy/mountain-fractal.js";
 import { encodeNormalizedToU8 } from "../../../model/policy/normalized-byte.js";

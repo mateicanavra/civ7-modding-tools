@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
 } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { HYDROLOGY_MOUTH_OCEAN } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;

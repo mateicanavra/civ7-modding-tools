@@ -1,7 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph } = foundationOpsPublic.ops;
+const {
+  computeCrust,
+  computeMantleForcing,
+  computeMantlePotential,
+  computeMesh,
+  computePlateGraph,
+} = foundationOpsPublic.ops;
 function collectPlateCells(cellToPlate: Int16Array, plateId: number): number[] {
   const out: number[] = [];
   for (let i = 0; i < cellToPlate.length; i++) {

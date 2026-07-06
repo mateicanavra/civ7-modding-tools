@@ -17,7 +17,26 @@ import * as plotEffectPlan from "./plot-effect-plan.artifact.js";
 import * as resourceBasins from "./resource-basins.artifact.js";
 import * as scoreLayers from "./score-layers.artifact.js";
 
-export { biomeBindings, biomeClassification, featureApplyDiagnostics, featureIntentsFloodplains, featureIntentsIce, featureIntentsReefs, featureIntentsVegetation, featureIntentsWetlands, occupancyBase, occupancyFloodplains, occupancyIce, occupancyReefs, occupancyVegetation, occupancyWetlands, pedology, plotEffectPlan, resourceBasins, scoreLayers };
+export {
+  biomeBindings,
+  biomeClassification,
+  featureApplyDiagnostics,
+  featureIntentsFloodplains,
+  featureIntentsIce,
+  featureIntentsReefs,
+  featureIntentsVegetation,
+  featureIntentsWetlands,
+  occupancyBase,
+  occupancyFloodplains,
+  occupancyIce,
+  occupancyReefs,
+  occupancyVegetation,
+  occupancyWetlands,
+  pedology,
+  plotEffectPlan,
+  resourceBasins,
+  scoreLayers,
+};
 
 export const artifactContracts = {
   biomeBindings,

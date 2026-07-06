@@ -1,8 +1,8 @@
 import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
 import { selectMeshNeighborByVectorProjection } from "@swooper/mapgen-core/lib/mesh";
-import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import type { Artifact as FoundationMantleForcing } from "../../../artifacts/mantle-forcing.artifact.js";
 import type { Artifact as FoundationMesh } from "../../../artifacts/mesh.artifact.js";
+import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import { ADVECTION_STEPS_PER_ERA } from "./constants.js";
 
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];

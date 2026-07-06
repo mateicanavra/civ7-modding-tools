@@ -1,7 +1,5 @@
-import foundation from "@mapgen/domain/foundation";
+import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 
 const TectonicsStepContract = defineStep({
   id: "tectonics",

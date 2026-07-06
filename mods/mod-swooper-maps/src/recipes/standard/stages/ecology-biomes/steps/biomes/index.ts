@@ -1,13 +1,15 @@
 import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifacts as ecologyArtifacts,
+  validators as ecologyArtifactValidators,
+} from "../../../ecology/artifacts/index.js";
 import {
   assertBiomeIndexVizCategoriesCoverSymbols,
   BIOME_INDEX_VIZ_CATEGORIES,
 } from "../../viz.js";
 import BiomesStepContract from "./contract.js";
-import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

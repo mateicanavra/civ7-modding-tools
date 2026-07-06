@@ -1,8 +1,7 @@
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core";
-
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 
 export type ArtifactFingerprintEntry = {
   status: "present" | "missing";

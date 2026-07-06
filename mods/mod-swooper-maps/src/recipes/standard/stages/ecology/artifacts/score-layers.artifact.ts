@@ -5,8 +5,8 @@ import {
   type Static,
   Type,
   TypedArraySchemas,
+  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 export const ScoreLayersArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),

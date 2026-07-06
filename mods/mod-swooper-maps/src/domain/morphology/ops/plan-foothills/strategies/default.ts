@@ -1,5 +1,5 @@
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { resolveBoundaryStrength } from "../../../model/policy/boundary-strength.js";
 import { resolveDriverStrength } from "../../../model/policy/driver-strength.js";
 import { normalizeMountainFractal } from "../../../model/policy/mountain-fractal.js";
@@ -7,9 +7,9 @@ import type {
   HillScorePolicy,
   OrogenyPotentialPolicy,
 } from "../../../model/policy/mountain-scoring-policy.js";
+import PlanFoothillsContract from "../contract.js";
 import { computeHexDistanceToMask } from "../rules/distance-to-mask.js";
 import { computeHillScore } from "../rules/hill-score.js";
-import PlanFoothillsContract from "../contract.js";
 import type { PlanFoothillsTypes } from "../types.js";
 
 function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {

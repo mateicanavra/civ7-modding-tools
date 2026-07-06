@@ -1,8 +1,7 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import LandmassesStepContract from "./landmasses.contract.js";
 import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import LandmassesStepContract from "./landmasses.contract.js";
 
 const GROUP_LANDMASSES = "Morphology / Landmasses";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

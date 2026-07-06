@@ -1,6 +1,9 @@
 import resources from "@mapgen/domain/resources";
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Resource demand plan (`artifact:placement.resourceDemandPlan`). One artifact per file by repo convention. */
 const ResourceFamilySchema = Type.Union([

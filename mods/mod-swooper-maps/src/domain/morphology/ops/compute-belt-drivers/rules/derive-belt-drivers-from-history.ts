@@ -1,9 +1,9 @@
+import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import type {
   TectonicHistorySourceTiles,
   TectonicProvenanceSourceTiles,
 } from "../../../model/schemas/tectonic-source-tiles.js";
-import { collectMaskComponentsOddQ, forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import type { BeltComponentSummary, BeltDriverOutputs } from "../types.js";
 
@@ -215,10 +215,16 @@ export function deriveBeltDriversFromHistory(input: {
 
   const eraCount = Math.max(1, historyTiles.eraCount | 0);
   if (!Array.isArray(historyTiles.perEra) || historyTiles.perEra.length < eraCount) {
-    throw new Error(`[compute-belt-drivers] historyTiles.perEra must contain ${eraCount} era rows.`);
+    throw new Error(
+      `[compute-belt-drivers] historyTiles.perEra must contain ${eraCount} era rows.`
+    );
   }
   const perEra = historyTiles.perEra.map((era, eraIndex) => ({
-    boundaryType: requireU8(`historyTiles.perEra[${eraIndex}].boundaryType`, era.boundaryType, size),
+    boundaryType: requireU8(
+      `historyTiles.perEra[${eraIndex}].boundaryType`,
+      era.boundaryType,
+      size
+    ),
     upliftPotential: requireU8(
       `historyTiles.perEra[${eraIndex}].upliftPotential`,
       era.upliftPotential,
@@ -274,7 +280,11 @@ export function deriveBeltDriversFromHistory(input: {
     rollups.subductionRecentFraction,
     size
   );
-  const lastActiveEra = requireU8("historyTiles.rollups.lastActiveEra", rollups.lastActiveEra, size);
+  const lastActiveEra = requireU8(
+    "historyTiles.rollups.lastActiveEra",
+    rollups.lastActiveEra,
+    size
+  );
   const originEra = requireU8("provenanceTiles.originEra", provenanceTiles.originEra, size);
   const originPlateId = requireI16(
     "provenanceTiles.originPlateId",

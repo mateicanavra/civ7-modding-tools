@@ -30,20 +30,20 @@
  *
  * @see openspec/changes/natural-wonders-full-set-parity-suitability/workstream/natural-wonders-system-reference.md
  */
-import { clamp01 } from "@swooper/mapgen-core";
-import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import {
   isAnyRiverClass,
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_NONE,
 } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { clamp01 } from "@swooper/mapgen-core";
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import {
   type GroupSuitabilitySignals,
+  WONDER_GROUPS,
   type WonderGroup,
   wonderGroup,
-  WONDER_GROUPS,
 } from "../../../model/policy/natural-wonder-groups.js";
 import PlanNaturalWondersContract from "../contract.js";
 

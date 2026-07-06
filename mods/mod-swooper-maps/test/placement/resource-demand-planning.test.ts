@@ -5,9 +5,7 @@ import {
   type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
-import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import { RESOURCE_HABITAT_SIGNALS } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
 import {
   getInitialMapResourcePolicyForType,

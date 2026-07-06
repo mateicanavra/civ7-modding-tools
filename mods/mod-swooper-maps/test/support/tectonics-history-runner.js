@@ -1,6 +1,17 @@
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-const { computeEraPlateMembership, computeEraTectonicFields, computeHotspotEvents, computePlateMotion, computeSegmentEvents, computeTectonicHistoryRollups, computeTectonicProvenance, computeTectonicSegments, computeTectonicsCurrent, computeTracerAdvection } = foundationOpsPublic.ops;
+const {
+  computeEraPlateMembership,
+  computeEraTectonicFields,
+  computeHotspotEvents,
+  computePlateMotion,
+  computeSegmentEvents,
+  computeTectonicHistoryRollups,
+  computeTectonicProvenance,
+  computeTectonicSegments,
+  computeTectonicsCurrent,
+  computeTracerAdvection,
+} = foundationOpsPublic.ops;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 

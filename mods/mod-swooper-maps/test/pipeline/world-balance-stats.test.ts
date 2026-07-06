@@ -23,8 +23,7 @@ function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfi
 const ANTIQUITY_RESOURCE_CANDIDATE_TYPES = new Set(
   OFFICIAL_RESOURCE_CORPUS.filter(
     (entry) =>
-      entry.validAges.includes("AGE_ANTIQUITY") &&
-      entry.placeability.status === "placeable"
+      entry.validAges.includes("AGE_ANTIQUITY") && entry.placeability.status === "placeable"
   ).map((entry) => entry.staticResourceRowSlot)
 );
 const ANTIQUITY_RESOURCE_CANDIDATE_COUNT = ANTIQUITY_RESOURCE_CANDIDATE_TYPES.size;

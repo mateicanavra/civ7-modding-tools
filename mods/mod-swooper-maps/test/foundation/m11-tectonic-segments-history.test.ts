@@ -1,7 +1,15 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-const { computeEraPlateMembership, computeEraTectonicFields, computeHotspotEvents, computePlateMotion, computeSegmentEvents, computeTectonicHistoryRollups, computeTectonicSegments } = foundationOpsPublic.ops;
+const {
+  computeEraPlateMembership,
+  computeEraTectonicFields,
+  computeHotspotEvents,
+  computePlateMotion,
+  computeSegmentEvents,
+  computeTectonicHistoryRollups,
+  computeTectonicSegments,
+} = foundationOpsPublic.ops;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 

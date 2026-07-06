@@ -8,7 +8,17 @@ import * as substrate from "./substrate.artifact.js";
 import * as topography from "./topography.artifact.js";
 import * as volcanoes from "./volcanoes.artifact.js";
 
-export { beltDrivers, coastlineMetrics, landmasses, mountains, routing, shelf, substrate, topography, volcanoes };
+export {
+  beltDrivers,
+  coastlineMetrics,
+  landmasses,
+  mountains,
+  routing,
+  shelf,
+  substrate,
+  topography,
+  volcanoes,
+};
 
 export const artifactContracts = {
   beltDrivers,

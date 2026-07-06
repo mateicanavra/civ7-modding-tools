@@ -1,10 +1,5 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  defineArtifact,
-  Type,
-  TypedArraySchemas,
-  validateArtifactSchema,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 import { HydrologyWindFieldSchema } from "./wind-field.schema.js";
 

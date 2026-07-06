@@ -1,5 +1,5 @@
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { clamp, clamp01 } from "@swooper/mapgen-core/lib/math";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 import type { ComputeSculptContinentalMarginTypes } from "../types.js";
 

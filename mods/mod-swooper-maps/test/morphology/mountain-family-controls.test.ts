@@ -1,13 +1,11 @@
 import { describe, expect, it } from "bun:test";
-
+import morphology from "@mapgen/domain/morphology/ops";
 import {
   collectMaskComponentsOddQ,
   forEachHexNeighborOddQ,
   resolveTileAreaSpacingTarget,
 } from "@swooper/mapgen-core/lib/grid";
-
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-import morphology from "@mapgen/domain/morphology/ops";
 import { assertSameMountainFamilySelection } from "../../src/recipes/standard/stages/morphology-features/steps/mountains.js";
 
 const { planFoothills, planRidges } = morphology.ops;

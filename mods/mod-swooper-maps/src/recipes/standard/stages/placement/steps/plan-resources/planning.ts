@@ -7,6 +7,7 @@ import {
   type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
+import { default as resources } from "@mapgen/domain/resources";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
@@ -21,9 +22,6 @@ import {
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
 } from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
-import {
-  default as resources,
-} from "@mapgen/domain/resources";
 import {
   HABITAT_INTENSITY_FIELD_NAMES,
   HABITAT_MASK_FIELD_NAMES,

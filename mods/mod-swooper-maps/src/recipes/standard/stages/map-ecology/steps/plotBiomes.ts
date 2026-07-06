@@ -3,8 +3,8 @@ import { defineVizMeta, logBiomeSummary } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { artifacts as ecologyArtifacts } from "../../ecology/artifacts/index.js";
 import { buildEngineBiomeIdVizCategories } from "../viz.js";
-import { clampToByte } from "./plot-biomes/helpers/apply.js";
 import { resolveEngineBiomeIds } from "./plot-biomes/engine-biome-bindings.js";
+import { clampToByte } from "./plot-biomes/helpers/apply.js";
 import PlotBiomesStepContract from "./plotBiomes.contract.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";

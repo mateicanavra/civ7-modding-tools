@@ -1,6 +1,5 @@
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-
 import { clamp } from "@swooper/mapgen-core/lib/math";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { resolveBoundaryRegime } from "../../../model/policy/boundary-regime.js";
 import type { HillScorePolicy } from "../../../model/policy/mountain-scoring-policy.js";
 import { computeOrogenyPotential } from "../../../model/policy/orogeny-potential.js";

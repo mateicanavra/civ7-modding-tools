@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import morphology from "@mapgen/domain/morphology/ops";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 const { planRoughLands } = morphology.ops;
 

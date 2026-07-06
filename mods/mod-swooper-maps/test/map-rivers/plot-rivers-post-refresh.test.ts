@@ -2,6 +2,10 @@ import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
 import { RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_MINOR,
+} from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import {
   createExtendedMapContext,
@@ -9,11 +13,6 @@ import {
   NAVIGABLE_RIVER_TERRAIN,
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
-import {
-  RIVER_CLASS_MAJOR,
-  RIVER_CLASS_MINOR,
-} from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { artifacts as mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";

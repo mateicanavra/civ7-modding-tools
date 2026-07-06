@@ -1,6 +1,9 @@
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import {
+  artifacts as placementArtifacts,
+  validators as placementArtifactValidators,
+} from "../../artifacts/index.js";
 import {
   buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
@@ -10,7 +13,6 @@ import {
   UNIT_SCORE_VALUE_SPEC,
 } from "../../viz.js";
 import PlanResourcesStepContract from "./contract.js";
-import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
   assertHabitatFieldsOutput,
   buildResourceDemands,

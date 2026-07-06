@@ -1,13 +1,15 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import {
+  artifacts as placementArtifacts,
+  validators as placementArtifactValidators,
+} from "../../artifacts/index.js";
 import {
   buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
 } from "../../viz.js";
 import PlaceNaturalWondersStepContract from "./contract.js";
-import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
   logNaturalWonderPlacementRuntimeTelemetry,
   type NaturalWonderStampingStats,

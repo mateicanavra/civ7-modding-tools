@@ -1,9 +1,17 @@
 import { describe, expect, it } from "bun:test";
-import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
+import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 
-const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph, computePlateMotion, computePlatesTensors } = foundationOpsPublic.ops;
+const {
+  computeCrust,
+  computeMantleForcing,
+  computeMantlePotential,
+  computeMesh,
+  computePlateGraph,
+  computePlateMotion,
+  computePlatesTensors,
+} = foundationOpsPublic.ops;
 const { computeBaseTopography, computeLandmask, computeSeaLevel } = morphologyOpsPublic.ops;
 function share(numerator: number, denominator: number): number {
   if (denominator <= 0) return 0;

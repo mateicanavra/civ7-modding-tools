@@ -83,7 +83,8 @@ function retiredStagePublicKeyPaths(config: unknown): string[] {
     const stageConfig = (config as Record<string, unknown>)[stageId];
     if (!stageConfig || typeof stageConfig !== "object" || Array.isArray(stageConfig)) continue;
     for (const key of retiredKeys) {
-      if (Object.prototype.hasOwnProperty.call(stageConfig, key)) offenders.push(`${stageId}.${key}`);
+      if (Object.prototype.hasOwnProperty.call(stageConfig, key))
+        offenders.push(`${stageId}.${key}`);
     }
   }
   return offenders;
@@ -148,12 +149,12 @@ describe("Shipped map configs", () => {
     const config = swooperEarthlikeConfig.config as any;
 
     expect(config["foundation-mantle"].mesh.computeMesh.config.plateCount).toBe(28);
-    expect(config["foundation-lithosphere"]["plate-graph"].computePlateGraph.config.plateCount).toBe(
-      42
-    );
-    expect(config["foundation-tectonics"]["plate-motion"].computePlateMotion.config.omegaFactor).toBe(
-      1
-    );
+    expect(
+      config["foundation-lithosphere"]["plate-graph"].computePlateGraph.config.plateCount
+    ).toBe(42);
+    expect(
+      config["foundation-tectonics"]["plate-motion"].computePlateMotion.config.omegaFactor
+    ).toBe(1);
     expect(config["hydrology-climate-baseline"]["climate-baseline"].seasonality).toEqual({
       modeCount: 4,
       axialTiltDeg: 23,
@@ -182,24 +183,24 @@ describe("Shipped map configs", () => {
     ) as any;
 
     expect(compiled["foundation-mantle"].mesh.computeMesh.strategy).toBe("default");
-    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.strategy).toBe(
-      "default"
-    );
-    expect(compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.strategy).toBe(
-      "refine"
-    );
+    expect(
+      compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.strategy
+    ).toBe("default");
+    expect(
+      compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.strategy
+    ).toBe("refine");
     expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("orogeny-boosted");
     expect(compiled["ecology-pedology"]["resource-basins"].plan.strategy).toBe("mixed");
-    expect(compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow).not.toHaveProperty(
-      "selectors"
-    );
-    expect(compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow.coveragePct).toBe(
-      55
-    );
+    expect(
+      compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow
+    ).not.toHaveProperty("selectors");
+    expect(
+      compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow.coveragePct
+    ).toBe(55);
     expect(compiled["map-ecology"]["plot-biomes"]).toEqual({});
-    expect(compiled.placement["derive-placement-inputs"].naturalWonders.config.minSpacingTiles).toBe(
-      6
-    );
+    expect(
+      compiled.placement["derive-placement-inputs"].naturalWonders.config.minSpacingTiles
+    ).toBe(6);
     expect(compiled.placement["assign-starts"].starts.config.desiredSpacingTiles).toBe(9);
   });
 

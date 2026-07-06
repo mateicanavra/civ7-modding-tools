@@ -1,5 +1,8 @@
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Resource stamping outcomes (`artifact:placement.resourcePlacementOutcomes`). One artifact per file by repo convention. */
 const ResourcePlacementOutcomeSchema = Type.Object(

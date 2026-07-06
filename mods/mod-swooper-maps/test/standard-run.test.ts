@@ -1,6 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { requireResourceRuntimeId } from "@civ7/map-policy";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
+import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { DEFERRED_INITIAL_MAP_RESOURCE_TYPES } from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
 import {
   createExtendedMapContext,
   HILL_TERRAIN,
@@ -10,17 +14,13 @@ import {
   VOLCANO_FEATURE,
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import { DEFERRED_INITIAL_MAP_RESOURCE_TYPES } from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
 import { mapArtifacts } from "../src/recipes/standard/map-artifacts.js";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { artifacts as hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import { artifacts as hydrologyClimateRefineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
 import { artifacts as placementArtifacts } from "../src/recipes/standard/stages/placement/artifacts/index.js";
 import { standardConfig } from "./support/standard-config.js";
 

@@ -1,8 +1,10 @@
 import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifacts as ecologyArtifacts,
+  validators as ecologyArtifactValidators,
+} from "../../../ecology/artifacts/index.js";
 import PlanFloodplainsStepContract from "./contract.js";
-import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const FLOODPLAIN_FEATURE_INTENTS = new Set([
   "desert-floodplain-minor",

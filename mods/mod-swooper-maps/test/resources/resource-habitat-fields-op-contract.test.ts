@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
-
-import resources from "@mapgen/domain/resources/ops";
-import { HABITAT_MASK_FIELD_NAMES } from "@mapgen/domain/resources/model/schemas/habitat-fields.schema.js";
 import { RESOURCE_HABITAT_SIGNALS } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
+import { HABITAT_MASK_FIELD_NAMES } from "@mapgen/domain/resources/model/schemas/habitat-fields.schema.js";
+import resources from "@mapgen/domain/resources/ops";
 
 import { runOpValidated } from "../support/compiler-helpers.js";
 

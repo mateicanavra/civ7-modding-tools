@@ -56,11 +56,7 @@ describe("planWetlands (joint resolver)", () => {
       selection
     );
 
-    expect(result.placements.map((p) => p.feature)).toEqual([
-      "marsh",
-      "oasis",
-      "tundra-bog",
-    ]);
+    expect(result.placements.map((p) => p.feature)).toEqual(["marsh", "oasis", "tundra-bog"]);
   });
 
   it("is deterministic and seed-independent for exact ties", () => {

@@ -27,10 +27,10 @@ describe("hydrology sink classification", () => {
       {
         strategy: "default",
         config: {
-        runoffScale: 1,
-        infiltrationFraction: 0.15,
-        humidityDampening: 0.25,
-        minRunoff: 0,
+          runoffScale: 1,
+          infiltrationFraction: 0.15,
+          humidityDampening: 0.25,
+          minRunoff: 0,
         },
       }
     );
@@ -59,10 +59,10 @@ describe("hydrology sink classification", () => {
       {
         strategy: "default",
         config: {
-        runoffScale: 1,
-        infiltrationFraction: 0.15,
-        humidityDampening: 0.25,
-        minRunoff: 0,
+          runoffScale: 1,
+          infiltrationFraction: 0.15,
+          humidityDampening: 0.25,
+          minRunoff: 0,
         },
       }
     );

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { COAST_TERRAIN, createExtendedMapContext, OCEAN_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";

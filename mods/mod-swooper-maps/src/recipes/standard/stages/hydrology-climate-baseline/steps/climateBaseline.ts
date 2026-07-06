@@ -21,8 +21,10 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import { validators as hydrologyClimateBaselineArtifactValidators } from "../artifacts/index.js";
-import { artifacts as hydrologyClimateBaselineArtifacts } from "../artifacts/index.js";
+import {
+  artifacts as hydrologyClimateBaselineArtifacts,
+  validators as hydrologyClimateBaselineArtifactValidators,
+} from "../artifacts/index.js";
 import ClimateBaselineStepContract from "./climateBaseline.contract.js";
 
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";

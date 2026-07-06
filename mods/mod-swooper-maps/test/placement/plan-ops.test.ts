@@ -1,8 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import {
-  NATURAL_WONDER_CATALOG,
-} from "@civ7/map-policy";
+import { NATURAL_WONDER_CATALOG } from "@civ7/map-policy";
 import { WONDER_GROUPS } from "@mapgen/domain/placement/model/policy/natural-wonder-groups.js";
 import placementDomain from "@mapgen/domain/placement/ops";
 import { runOpValidated } from "../support/compiler-helpers.js";

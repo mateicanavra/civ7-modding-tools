@@ -1,8 +1,7 @@
 import { defineVizMeta, dumpVectorFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import RoutingStepContract from "./routing.contract.js";
 import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import RoutingStepContract from "./routing.contract.js";
 
 const GROUP_ROUTING = "Morphology / Routing";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

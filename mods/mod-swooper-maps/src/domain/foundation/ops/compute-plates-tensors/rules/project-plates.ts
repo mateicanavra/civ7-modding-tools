@@ -4,14 +4,14 @@ import {
   quantizeU8,
   wrapAbsDeltaPeriodic,
 } from "@swooper/mapgen-core/lib/math";
-import type { Artifact as FoundationTectonics } from "../../../artifacts/current-tectonics.artifact.js";
-import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
-import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import type { Artifact as FoundationCrust } from "../../../artifacts/crust.artifact.js";
+import type { Artifact as FoundationTectonics } from "../../../artifacts/current-tectonics.artifact.js";
 import type { Artifact as FoundationMesh } from "../../../artifacts/mesh.artifact.js";
 import type { Artifact as FoundationPlateGraph } from "../../../artifacts/plate-graph.artifact.js";
 import type { Artifact as FoundationPlateMotion } from "../../../artifacts/plate-motion.artifact.js";
+import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
+import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 
 function hexDistanceSq(ax: number, ay: number, bx: number, by: number, wrapWidth: number): number {
   const dx = wrapAbsDeltaPeriodic(ax - bx, wrapWidth);

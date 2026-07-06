@@ -1,9 +1,9 @@
-import { OFFICIAL_RESOURCE_CORPUS } from "@civ7/map-policy";
 import type {
   OfficialAgeType,
   OfficialResourceCorpusEntry,
   OfficialResourceType,
 } from "@civ7/map-policy";
+import { OFFICIAL_RESOURCE_CORPUS } from "@civ7/map-policy";
 
 export const INITIAL_MAP_RESOURCE_AUTHORING_AGE =
   "AGE_ANTIQUITY" as const satisfies OfficialAgeType;

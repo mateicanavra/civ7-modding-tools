@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import placementDomain from "@mapgen/domain/placement/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-
-import placementDomain from "@mapgen/domain/placement/ops";
+import { validators as placementArtifactValidators } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { materializeStartAssignment } from "../../src/recipes/standard/stages/placement/steps/assign-starts/materialize.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
-import { validators as placementArtifactValidators } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 const { planStarts } = placementDomain.ops;
 

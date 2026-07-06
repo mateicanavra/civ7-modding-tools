@@ -1,5 +1,5 @@
-import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import FeaturesApplyContract from "../contract.js";
 
 type Placement = { x: number; y: number; feature: FeatureIntentKey; weight?: number };

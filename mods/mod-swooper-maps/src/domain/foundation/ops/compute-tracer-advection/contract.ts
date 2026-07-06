@@ -1,8 +1,8 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
-import { Schema as TracerIndexByEraSchema } from "../../artifacts/tracer-index-by-era.artifact.js";
 import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
 import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { Schema as TracerIndexByEraSchema } from "../../artifacts/tracer-index-by-era.artifact.js";
 
 const ComputeTracerAdvectionContract = defineOp({
   kind: "compute",

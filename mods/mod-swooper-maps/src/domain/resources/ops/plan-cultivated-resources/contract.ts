@@ -83,7 +83,9 @@ const PlanCultivatedResourcesContract = defineOp({
         TypedArraySchemas.u8({ description: "Warm alluvial, irrigated, or fertile lowland mask." })
       ),
       floodplainOrRiverMask: Type.Optional(
-        TypedArraySchemas.u8({ description: "Floodplain, river, delta, or irrigation signal mask." })
+        TypedArraySchemas.u8({
+          description: "Floodplain, river, delta, or irrigation signal mask.",
+        })
       ),
       warmGrassPlainsMask: Type.Optional(
         TypedArraySchemas.u8({ description: "Warm grassland or plains crop suitability mask." })

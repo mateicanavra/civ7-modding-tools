@@ -1,13 +1,13 @@
-import type { InitialMapResourceAuthoringStatus } from "../../policy/initial-map-authoring.js";
-import type {
-  ResourceExpectationRangeEvidence,
-  ResourceExpectedCountRange,
-} from "../../schemas/expected-count-range.schema.js";
 import type {
   OfficialAgeType,
   OfficialPlacementConstraintSummary,
   OfficialResourceType,
 } from "@civ7/map-policy";
+import type { InitialMapResourceAuthoringStatus } from "../../policy/initial-map-authoring.js";
+import type {
+  ResourceExpectationRangeEvidence,
+  ResourceExpectedCountRange,
+} from "../../schemas/expected-count-range.schema.js";
 
 export type ResourceExpectationGroupId =
   | "aquatic-coastal-navigable-river"
