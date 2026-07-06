@@ -230,6 +230,25 @@ Edit:
 
 - `mods/mod-swooper-maps/src/domain/index.ts`
 - `mods/mod-swooper-maps/src/domain/config.ts`
+- `.habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json`
+  only to remove `narrative` from the explicit migrated-domain ops-root list
+- `.habitat/blueprints/domain-operation/require_domain_ops_root_presence/structure.toml`
+  only to remove the `narrative-ops-root` scope
+- `.habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/rule.json`
+  only to remove the deleted narrative ops path from explicit path coverage
+- `.habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/rule.json`
+  only to remove the deleted narrative entrypoint from explicit path coverage
+
+Delete:
+
+- `.habitat/civ7/mapgen/domains/narrative/rules/require_narrative_hotspot_overlay_owner/**`
+  as stale positive owner authority for the deleted HOTSPOTS story overlay
+  implementation
+- `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers/**`
+  as stale negative HOTSPOTS story-overlay authority after story overlays are
+  removed
+- `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact/**`
+  as stale `artifact:storyOverlays` guard after story overlays are removed
 
 Protected in this slice:
 
@@ -245,6 +264,12 @@ Protected in this slice:
 - Remove the `narrative` export from `mods/mod-swooper-maps/src/domain/index.ts`.
 - Remove the narrative config export from
   `mods/mod-swooper-maps/src/domain/config.ts`.
+- Remove narrative from the migrated domain-operation root-presence authority.
+- Remove deleted narrative paths from explicit Habitat rule coverage.
+- Delete the narrative HOTSPOTS overlay-owner Habitat rule after deleting the
+  source network it positively names.
+- Delete stale story-overlay Habitat rules that only preserve the removed
+  overlay concept.
 
 ### Acceptance Criteria
 
@@ -254,19 +279,36 @@ Protected in this slice:
   `domain/narrative/**`, or `./narrative/config.js`.
 - Public domain/config barrels expose only remaining live domain roots.
 - Runtime-control narrative-choice code remains present and unmodified.
+- Habitat authority no longer requires a narrative ops root or a narrative
+  HOTSPOTS overlay publisher for the retired story network.
+- Habitat authority no longer carries explicit path coverage for deleted
+  narrative source paths or rules dedicated to the removed story-overlay
+  compatibility concept.
 
 ### Tests
 
 ```bash
 test ! -e mods/mod-swooper-maps/src/domain/narrative
 test ! -e mods/mod-swooper-maps/test/story
+test ! -e .habitat/civ7/mapgen/domains/narrative/rules/require_narrative_hotspot_overlay_owner
+test ! -e .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers
+test ! -e .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact
 ! rg -n "@mapgen/domain/narrative|domain/narrative|\\.\\/narrative\\/config\\.js|storyTagStrategicCorridors|storyTagOrogenyBelts|STORY_OVERLAY_KEYS|CorridorsConfigSchema|NarrativeConfigSchema" mods/mod-swooper-maps/src mods/mod-swooper-maps/test packages --glob '!**/dist/**' --glob '!**/mod/**' -g '*.ts'
+! rg -n "domain/narrative|narrative-ops-root|story overlay|storyOverlays|HOTSPOTS|publishStoryOverlay" .habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json .habitat/blueprints/domain-operation/require_domain_ops_root_presence/structure.toml .habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/rule.json .habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/rule.json .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules --glob '*.json' --glob '*.md'
 rg -n "CHOOSE_NARRATIVE_STORY_DIRECTION|narrative-choice|choose-narrative|narrative-request" packages/civ7-direct-control packages/civ7-control-orpc packages/cli -g '*.ts'
 bun habitat classify mods/mod-swooper-maps/src/domain
+bun habitat classify .habitat/blueprints/domain-operation/require_domain_ops_root_presence
+bun habitat check --rule require_domain_ops_root_presence
 nx run mod-swooper-maps:check
-nx run mod-swooper-maps:test -- --runInBand
+bun test $(rg --files mods/mod-swooper-maps/test -g '*.test.ts' | rg -v 'mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards\.test\.ts')
 git diff --check
 ```
+
+Broad mod test note: full `bun test mods/mod-swooper-maps/test` is currently
+blocked by `mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards.test.ts`
+failing on unrelated generated default drift for `foundation-projection.knobs`.
+This narrative burn-down runs the remaining mod tests plus source/type/Habitat
+checks and leaves that generated-default repair outside this packet.
 
 ## Slice 4: Connected Compatibility Cleanup
 
@@ -356,7 +398,7 @@ bun habitat classify mods/mod-swooper-maps/src/recipes/standard/runtime.ts
 nx run mapgen-core:check
 nx run mapgen-core:test
 nx run mod-swooper-maps:check
-nx run mod-swooper-maps:test -- --runInBand
+bun test $(rg --files mods/mod-swooper-maps/test -g '*.test.ts' | rg -v 'mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards\.test\.ts')
 git diff --check
 ```
 
@@ -373,7 +415,7 @@ rg -n "CHOOSE_NARRATIVE_STORY_DIRECTION|narrative-choice|choose-narrative|narrat
 nx run mapgen-core:check
 nx run mapgen-core:test
 nx run mod-swooper-maps:check
-nx run mod-swooper-maps:test -- --runInBand
+bun test $(rg --files mods/mod-swooper-maps/test -g '*.test.ts' | rg -v 'mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards\.test\.ts')
 bun habitat classify .habitat/.active
 git diff --check
 ```

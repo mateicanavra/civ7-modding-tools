@@ -27,7 +27,6 @@
     "mods/mod-swooper-maps/src/domain/foundation/ops",
     "mods/mod-swooper-maps/src/domain/hydrology/ops",
     "mods/mod-swooper-maps/src/domain/morphology/ops",
-    "mods/mod-swooper-maps/src/domain/narrative/ops",
     "mods/mod-swooper-maps/src/domain/placement/ops",
     "mods/mod-swooper-maps/src/domain/resources/ops"
   ],

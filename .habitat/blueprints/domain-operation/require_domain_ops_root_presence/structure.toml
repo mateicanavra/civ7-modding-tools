@@ -25,12 +25,6 @@ kind = "directory"
 mode = "open"
 
 [[scopes]]
-name = "narrative-ops-root"
-root = "mods/mod-swooper-maps/src/domain/narrative/ops"
-kind = "directory"
-mode = "open"
-
-[[scopes]]
 name = "placement-ops-root"
 root = "mods/mod-swooper-maps/src/domain/placement/ops"
 kind = "directory"
