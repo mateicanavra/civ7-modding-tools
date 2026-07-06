@@ -299,6 +299,7 @@ Current `storyEnabled` caller set from source inspection:
 - `mods/mod-swooper-maps/test/placement/placement-does-not-call-generate-snow.test.ts`
 - `mods/mod-swooper-maps/test/standard-run.test.ts`
 - `mods/mod-swooper-maps/test/hydrology-knobs.test.ts`
+- `mods/mod-swooper-maps/test/pipeline/determinism-suite.test.ts`
 - `mods/mod-swooper-maps/test/pipeline/seed-matrix-stats.test.ts`
 - `mods/mod-swooper-maps/test/hydrology-dryness-effects.test.ts`
 - `mods/mod-swooper-maps/test/support/ecology-fixtures.ts`
