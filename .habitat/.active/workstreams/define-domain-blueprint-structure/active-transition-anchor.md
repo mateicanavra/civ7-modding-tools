@@ -1,6 +1,6 @@
 # Active Transition Anchor
 
-Status: active temporary anchor
+Status: active temporary anchor; Domain Source Topology ratchet closure recorded
 
 Purpose:
 hold the next containers of work now that Slice 001 domain-root topology has
@@ -30,7 +30,16 @@ domain blueprint frame
   -> execution
   -> repair
   -> topology ratchet
+  -> post-ratchet rule revalidation
+  -> absorbed duplicate-rule deletion
 ```
+
+Closure update:
+the Domain Source Topology Enforcement Ratchet is formally concluded by
+`.habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md`.
+The two absorbed duplicate rules were deleted and `require_domain_source_topology`
+is the survivor authority for direct domain-root child shape and ops-root
+presence.
 
 The next move is to move up one container level before moving across to another
 blueprint-level slice. The aim is not more process; the aim is to prevent
@@ -79,7 +88,7 @@ Initial classes:
 | Transitional guard superseded by positive law | A negative guard that only existed to protect a migration gap now closed by topology or file-shape law. | Retire after parity proof, or move to historical evidence. |
 | Negative assertion needing positive replacement | A rule that names forbidden residue but should instead assert the allowed shape. | Replace with a positive Habitat rule or structure law. |
 | Rule doing two jobs | A rule that mixes topology, import boundary, file shape, or one-off cleanup in one surface. | Split into separate durable laws. |
-| Slice-specific fossil | A rule that encodes a row, historical file, or one-off cleanup fact rather than a reusable class. | Retire, archive as evidence, or rewrite as general law if the class is real. |
+| Slice-specific retired shape | A rule that encodes a row, historical file, or one-off cleanup fact rather than a reusable class. | Retire, archive as evidence, or rewrite as general law if the class is real. |
 
 Known inputs:
 

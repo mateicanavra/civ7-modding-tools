@@ -1,6 +1,6 @@
 # Rule Authority Corpus Grounding
 
-Status: active grounding note for the upcoming Rule Authority Cleanup container.
+Status: active grounding note; counts refreshed after domain-source topology closure.
 
 Purpose:
 establish where the live rule corpus and operational ledger live before the
@@ -34,15 +34,16 @@ active rule rows or current queue state.
 
 ## Fresh Coverage Check
 
-Fresh disk evidence on 2026-07-06:
+Fresh disk evidence on 2026-07-06 after
+`domain-root-topology-delete-absorbed-root-shape-rules-001`:
 
 | Measure | Count |
 | --- | ---: |
-| Current live `rule.json` manifests | 114 |
-| Current live ledger rows | 114 |
+| Current live `rule.json` manifests | 112 |
+| Current live ledger rows | 112 |
 | Missing live rows | 0 |
 | Extra live rows | 0 |
-| Retired historical rows retained in ledger | 22 |
+| Retired historical rows retained in ledger | 24 |
 | Stale/superseded references retained in ledger | 16 |
 
 The previous ledger had 106 active rows and missed the eight positive-law rules
@@ -61,6 +62,12 @@ Those rows are now `context admission` entries: live authority in their current
 context, not omission gaps. The Rule Authority Cleanup pass must still review
 each row with current evidence before keep, retire, replace, or split decisions
 are authorized.
+
+The two absorbed post-ratchet duplicate rules have been removed from the live
+corpus and retained as retired history:
+
+- `prohibit_retired_domain_root_catalogs`
+- `require_domain_ops_root_presence`
 
 ## Quick Analytics
 
@@ -109,7 +116,7 @@ frame or this grounding note.
 
 ## Non-Claims
 
-- No rule disposition is final from this grounding pass.
+- No additional rule disposition is final from this grounding pass.
 - No old receipt is re-promoted to current authority by being referenced here.
 - No rule is safe to retire merely because it is negative.
 - No positive rule is permanent standing law until it has reusable-class proof

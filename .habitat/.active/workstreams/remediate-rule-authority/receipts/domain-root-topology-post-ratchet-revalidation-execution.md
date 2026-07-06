@@ -183,7 +183,8 @@ reviewAcceptance:
 accepted after the direct `artifacts.ts` proof was added.
 
 blockedBy:
-later remediation-slice opening and live-reference reconciliation.
+none in the Domain Source Topology Enforcement Ratchet; deletion completed in
+the closure receipt.
 
 #### `require_domain_ops_root_presence`
 
@@ -216,7 +217,8 @@ reviewAcceptance:
 accepted.
 
 blockedBy:
-later remediation-slice opening and live-reference reconciliation.
+none in the Domain Source Topology Enforcement Ratchet; deletion completed in
+the closure receipt.
 
 ### Review-Rejected Or Blocked Deletion Candidates
 
@@ -288,11 +290,18 @@ Fresh review agents were adversarial and read-only.
 
 ## Container 8: Remediation-Slice Handoff
 
+Completion update:
+`domain-root-topology-delete-absorbed-root-shape-rules-001` was later executed
+in
+`.habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md`.
+The selected duplicate rules were deleted and retired from live ledger rows.
+
 Next slice id:
 `domain-root-topology-delete-absorbed-root-shape-rules-001`
 
 Status:
-queued for a later remediation branch; no mutation in this execution branch.
+complete in the later closure branch; no mutation occurred in this revalidation
+execution branch.
 
 Selected rows:
 

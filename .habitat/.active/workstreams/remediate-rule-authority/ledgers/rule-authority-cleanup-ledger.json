@@ -7,9 +7,9 @@
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 114,
-    "currentRowCount": 114,
-    "retiredHistoricalRowCount": 22,
+    "liveManifestCount": 112,
+    "currentRowCount": 112,
+    "retiredHistoricalRowCount": 24,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -17,7 +17,7 @@
     "actionDecision": {
       "boundary inversion": 3,
       "closed structure inversion": 2,
-      "consolidation/dedup": 3,
+      "consolidation/dedup": 1,
       "context admission": 26,
       "no action": 57,
       "positive authority creation": 8,
@@ -26,7 +26,7 @@
       "split by owner": 9
     },
     "packetNeeded": {
-      "false": 114
+      "false": 112
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 2,
@@ -34,7 +34,6 @@
       "decision-packet-accepted; absorber-proof-needed": 1,
       "decision-packet-accepted; blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
-      "decision-packet-accepted; review-accepted; queued-no-mutation": 2,
       "decision-packet-accepted; split-generalization-needed": 1,
       "excluded-native-rail-not-semantic-remediation": 1,
       "none": 85,
@@ -42,13 +41,13 @@
     }
   },
   "gateState": {
-    "currentLayer": "Post-ratchet rule revalidation for the completed domain-root topology ratchet.",
-    "currentGate": "Container 8 handoff complete: two review-accepted domain-root topology duplicates are queued for a later deletion slice; no rule packets are mutated in this branch.",
-    "mutationAuthorization": "This revalidation execution may update ledger and receipt records only. It does not authorize rule deletion, runner changes, baseline growth, package-test cleanup, or source movement.",
-    "nextSliceId": "domain-root-topology-delete-absorbed-root-shape-rules-001",
-    "nextLegalAction": "Open the named remediation slice on a new Graphite layer and delete only prohibit_retired_domain_root_catalogs and require_domain_ops_root_presence after live-reference reconciliation and focused absorber checks. Do not include Foundation stage Grit rows unless a separate admission frame is opened.",
+    "currentLayer": "Domain Source Topology Enforcement Ratchet closure.",
+    "currentGate": "Closed: deletion slice complete. The ratchet initiative is concluded by removal of the two absorbed duplicate rules and retention of require_domain_source_topology as survivor authority.",
+    "mutationAuthorization": "No further rule mutation is authorized by the completed domain-source-topology closure. New mutations require a new named remediation or blueprint-authority slice.",
+    "nextSliceId": null,
+    "nextLegalAction": "Select the next highest-leverage blueprint authority descent or remediation slice from the updated rule and scope corpuses.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
-    "sourceCommit": "50f8db56c0"
+    "sourceCommit": null
   },
   "rules": [
     {
@@ -698,22 +697,6 @@
       "currentPath": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/rule.json"
     },
     {
-      "ruleId": "prohibit_retired_domain_root_catalogs",
-      "lane": "blueprints/domain",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": false,
-      "expectedRemediation": "delete after live-reference reconciliation in domain-root-topology-delete-absorbed-root-shape-rules-001; require_domain_source_topology remains the positive owner",
-      "evidenceNote": "Post-ratchet revalidation accepted this as absorbed by require_domain_source_topology. Injected direct root tags.ts and artifacts.ts both failed the absorber with unexpected-child diagnostics and failed this old rule.",
-      "currentPath": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/rule.json",
-      "layer2Status": "decision-packet-accepted; review-accepted; queued-no-mutation",
-      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
-      "wholeRuleFit": "consolidate/delete into positive domain-root topology",
-      "ruleIdPlan": "delete in domain-root-topology-delete-absorbed-root-shape-rules-001 after live-reference reconciliation; do not delete in the revalidation branch",
-      "semanticDecision": "Direct domain-root tags.ts and artifacts.ts catalogs are fully absorbed by the closed domain-root scope in require_domain_source_topology.",
-      "residualFollowUp": "Deletion slice must update live ledger/workstream references and preserve historical references as history or archive/regenerate through their owner.",
-      "implementationReadiness": "queued for domain-root-topology-delete-absorbed-root-shape-rules-001; no mutation authorized in this revalidation branch"
-    },
-    {
       "ruleId": "prohibit_rng_callback_state_in_ops",
       "lane": "blueprints/domain-operation",
       "actionDecision": "no action",
@@ -900,22 +883,6 @@
       "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
       "currentPath": ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/rule.json",
       "layer2Status": "none"
-    },
-    {
-      "ruleId": "require_domain_ops_root_presence",
-      "lane": "blueprints/domain-operation",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": false,
-      "expectedRemediation": "delete after live-reference reconciliation in domain-root-topology-delete-absorbed-root-shape-rules-001; require_domain_source_topology remains the positive owner",
-      "evidenceNote": "Post-ratchet revalidation accepted this as absorbed by require_domain_source_topology. Injected missing ecology ops root failed the absorber with missing-required-child and failed this old enumerated rule.",
-      "currentPath": ".habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json",
-      "layer2Status": "decision-packet-accepted; review-accepted; queued-no-mutation",
-      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
-      "wholeRuleFit": "consolidate/delete into positive domain-root topology",
-      "ruleIdPlan": "delete in domain-root-topology-delete-absorbed-root-shape-rules-001 after live-reference reconciliation; do not delete in the revalidation branch",
-      "semanticDecision": "The hardcoded six-domain ops-root presence rule is fully absorbed by require_domain_source_topology, which requires ops for every domain root.",
-      "residualFollowUp": "Deletion slice must update live operational records and preserve historical references as history.",
-      "implementationReadiness": "queued for domain-root-topology-delete-absorbed-root-shape-rules-001; no mutation authorized in this revalidation branch"
     },
     {
       "ruleId": "require_domain_source_topology",
@@ -2954,10 +2921,10 @@
     },
     {
       "sliceId": "domain-root-topology-delete-absorbed-root-shape-rules-001",
-      "status": "queued-no-mutation",
+      "status": "complete",
       "actionClass": "consolidation/dedup",
-      "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-root-topology-post-ratchet-revalidation-execution.md",
-      "branch": "future Graphite layer",
+      "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md",
+      "branch": "codex/domain-source-topology-ratchet-closure",
       "commit": null,
       "rules": [
         "prohibit_retired_domain_root_catalogs",
@@ -2993,7 +2960,20 @@
           "reason": "Source-owned operation-module topology design needed."
         }
       ],
-      "outcome": "Queued by post-ratchet revalidation; no deletion or runner mutation performed in the revalidation branch."
+      "outcome": "Deleted the two absorbed rule packets and retired their live ledger rows. require_domain_source_topology remains the survivor authority for direct domain-root child shape and ops-root presence.",
+      "completedOn": "2026-07-06",
+      "deletedRows": [
+        "prohibit_retired_domain_root_catalogs",
+        "require_domain_ops_root_presence"
+      ],
+      "verification": [
+        "bun habitat check --json --rule require_domain_source_topology",
+        "bun habitat classify .habitat",
+        "live manifest/ledger parity",
+        "bun run lint",
+        "bun run check -- --outputStyle=static --skipNxCache --nxBail=false",
+        "git diff --check"
+      ]
     }
   ],
   "blockers": [
@@ -3231,6 +3211,14 @@
         "prohibit_foundation_stage_cast_merge_hacks",
         "prohibit_foundation_stage_sentinel_passthrough"
       ]
+    },
+    {
+      "findingId": "2026-07-06-domain-source-topology-ratchet-closure",
+      "recordedOn": "2026-07-06",
+      "ruleId": null,
+      "kind": "post-ratchet-deletion-closure",
+      "finding": "The Domain Source Topology Enforcement Ratchet cleanup concluded with deletion of prohibit_retired_domain_root_catalogs and require_domain_ops_root_presence; both were absorbed by require_domain_source_topology.",
+      "handling": "Live rows retired, rule packets deleted, and the completed slice recorded as closed. Residual adjacent rows remain as future descents or separate remediation frames, not part of this ratchet."
     }
   ],
   "retiredRules": [
@@ -3481,6 +3469,30 @@
       "retiredBy": "Narrative burn-down review repair",
       "retiredReason": "Current MapGen story overlay/source surface was deleted; no replacement rail is preserved in this slice.",
       "retirementRecord": ".habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/001-narrative-liveness-ownership/reviews/review-findings.md"
+    },
+    {
+      "ruleId": "prohibit_retired_domain_root_catalogs",
+      "lane": "blueprints/domain",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "deleted; require_domain_source_topology remains the positive owner for direct domain-root child shape",
+      "evidenceNote": "Deleted in domain-root-topology-delete-absorbed-root-shape-rules-001 after injected direct root tags.ts and artifacts.ts both failed require_domain_source_topology with unexpected-child diagnostics.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md",
+      "retiredBy": "require_domain_source_topology",
+      "retiredOn": "2026-07-06"
+    },
+    {
+      "ruleId": "require_domain_ops_root_presence",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "deleted; require_domain_source_topology remains the positive owner for domain ops-root presence",
+      "evidenceNote": "Deleted in domain-root-topology-delete-absorbed-root-shape-rules-001 after injected missing ecology ops root failed require_domain_source_topology with missing-required-child diagnostics.",
+      "currentPath": null,
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md",
+      "retiredBy": "require_domain_source_topology",
+      "retiredOn": "2026-07-06"
     }
   ],
   "staleRules": [
