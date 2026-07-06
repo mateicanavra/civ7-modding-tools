@@ -23,6 +23,7 @@ In scope:
 - The DRA role for the blueprint-authority transition above completed Slice 001.
 - The completed descent as method evidence: domain blueprint frame -> Slice 001 domain-root topology -> decision prework -> row disposition -> execution -> repair -> Habitat ratchet -> closure and ascent.
 - The active pressure set: rule ecology cleanup, reusable cascade capture, and next blueprint-level slice selection.
+- Lower-order ratchet dominoes discovered while preparing the worktree, only when tracked as subordinate inputs to the authority cascade rather than promoted above the selected containers.
 - Agent-team operating discipline, including fresh evidence lanes, separate review lanes, and DRA-owned synthesis.
 - Proof-before-closure discipline for future authority containers.
 
@@ -132,6 +133,7 @@ Protective belt:
 - Exact file names and homes for future rule ecology, initiative-frame, and next-slice artifacts.
 - Exact number and names of peer-agent lanes, as long as evidence and review remain fresh and separated.
 - Exact sequencing after the Rule Ecology Cleanup container, unless fresh source or Habitat evidence forces a reframe of the transition anchor.
+- Placement of subordinate ratchet dominoes such as public TypeFest dependency/contract policy, as long as they remain tracked without displacing blueprint topology, rule ecology, or next-slice selection.
 - Whether Narsil, `rg`, Git, Habitat classify, Habitat checks, or Graphite history supplies the first evidence pass for a given question.
 - Whether this frame later promotes into a more durable method document or retires after its decisions land in owning artifacts.
 
@@ -154,6 +156,17 @@ If three successive future containers or handoffs use this frame without naming 
 - Do not delegate final synthesis, authority precedence, Graphite state, closure claims, or user-facing decisions.
 - Treat accepted P1/P2 review findings as blockers until repaired, rejected with source evidence, invalidated by later evidence, or explicitly moved out of scope by sealed authority or the user.
 - Leave the worktree, branch, and stack clean at closure, or record an explicit handoff if closure is not claimed.
+
+## Tracked subordinate dominoes
+
+These items are live enough to track, but not strong enough to select the next
+authority container by themselves. They should be pulled forward only when the
+opened container touches their owner layer or when fresh evidence makes them a
+blocking proof condition.
+
+| Domino | Status | Owner question | Trigger to open | Non-claim |
+| --- | --- | --- | --- | --- |
+| Public TypeFest dependency and contract policy | tracked subordinate ratchet | Whether SDK, MapGen Core, or other exported package surfaces may expose TypeFest utility types directly, require package-level dependencies, or must keep public helper types local. | Open when a blueprint/rule-cleanup/container touches public type utilities, generated declaration surfaces, or package dependency policy; candidate replacements must prove semantic equivalence before replacing local exported types. | Not the immediate next container; root devDependency use for private/dev tooling does not authorize TypeFest leakage into public `.d.ts` contracts. |
 
 ## Composition and assumptions
 

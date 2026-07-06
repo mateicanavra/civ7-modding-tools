@@ -251,6 +251,16 @@ Required output when opened:
 - decision whether the selected container starts as a scope slice, prework
   decision slice, or rule ecology follow-on.
 
+## Tracked Lower-Order Dominoes
+
+These are not selected next containers. They are live ratchet inputs that should
+be carried forward and opened only when an authority container reaches their
+owner layer or makes them a proof blocker.
+
+| Domino | Why tracked | Open when | Must not become |
+| --- | --- | --- | --- |
+| Public TypeFest dependency and contract policy | The strict TypeScript ratchet introduced TypeFest as root developer tooling and used it safely in private/dev surfaces. Broader SDK and MapGen Core replacements touch exported type contracts, so they need owner/dependency policy rather than opportunistic cleanup. | A blueprint/rule-cleanup slice touches public type utilities, emitted declaration surfaces, package dependency policy, or a candidate replacement needs TypeFest to avoid custom type gymnastics. | The immediate next step ahead of rule ecology, reusable method capture, or next blueprint-level slice selection. |
+
 ## Transition Closure
 
 This anchor can close when:
