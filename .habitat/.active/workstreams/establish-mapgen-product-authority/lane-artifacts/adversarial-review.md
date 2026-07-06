@@ -15,7 +15,7 @@ No source, rule, test, generated output, or packet files were mutated.
   the active MapGen/Swooper Maps normalization baseline.
 - Current canonical MapGen docs under `docs/system/libs/mapgen/**` are authority
   only where they do not conflict with the packet or explicitly defer to it.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` is the
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` is the
   machine-readable operational record for the current Layer 2 queue.
 - Source is implementation/constructibility evidence, not target authority.
 - Archive, research, old closed-slice prose, and generated output are discovery
@@ -43,7 +43,7 @@ Evidence:
   `placement` are projection/engine-facing surfaces.
 - `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts`: source
   lists stage and step order, but no explicit `kind` or classification field.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: queues
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: queues
   `prohibit_map_projection_dependencies_in_physics_contracts`,
   `prohibit_runtime_continent_contract_tokens`,
   `prohibit_hydrology_runtime_continent_step_tokens`, and
@@ -88,7 +88,7 @@ Evidence:
 - `docs/system/ADR.md` ADR-008: `domain/resources` owns resource planning; a
   future Gameplay consolidation may absorb starts/discoveries/wonders but does
   not re-own resources.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: queues
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: queues
   `morphology-story-overlay-ownership-gate` and marks morphology/story overlay
   rows as sealed semantic blockers.
 
@@ -127,7 +127,7 @@ Evidence:
 - `docs/system/libs/mapgen/reference/domains/PLACEMENT.md`: policy data flows
   from generated `@civ7/map-policy` tables, regenerated via the owning verify
   command; recipe code should not read `globalThis.GameInfo`.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: queues
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: queues
   `block_hand_edits_to_generated_civ7_types`,
   `block_hand_edits_to_generated_map_policy_tables`,
   `ensure_map_policy_dependency_independence`, and
@@ -208,7 +208,7 @@ Evidence:
   `mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts`,
   `mods/mod-swooper-maps/src/domain/hydrology/ops/compute-thermal-state/rules/index.ts`,
   and `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/rules/util.ts`.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: queues
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: queues
   `mapgen-helper-surface-authority-consolidation` for
   `prohibit_runtime_helper_redeclarations` and
   `prohibit_foundation_duplicate_math_helper_redefinitions`.
@@ -243,7 +243,7 @@ Evidence:
   requires/provides strings must be registered/validated.
 - `mods/mod-swooper-maps/src/recipes/standard/tags.ts`: current source defines
   `STANDARD_TAG_DEFINITIONS` and `EFFECT_OWNERS` centrally.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: queues
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: queues
   `dependency-effect-tag-family-authority`, while warning not to strengthen the
   root-catalog token scan.
 
@@ -276,7 +276,7 @@ Evidence:
   are current posture; wrapper-only `advanced` has been removed.
 - `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`: stages
   compile `stage.surfaceSchema` into knobs and raw step configs.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: says
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: says
   `verify_standard_recipe_public_authoring_surface` already owns exact standard
   stage public keys, strict schemas, focus paths, and raw-envelope constraints.
 - `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` still says each
@@ -316,7 +316,7 @@ Evidence:
   `/base-standard/**` and engine globals are in the adapter implementation.
 - `packages/civ7-adapter/src/types.ts`: adapter type surface documents
   official generator and runtime methods.
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: says
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: says
   `enforce_adapter_only_base_standard_imports` overclaims runtime by matching
   `import type` and declaration-file fixtures; it also queues Studio UI,
   devops, and build-currentness rows together.
@@ -342,7 +342,7 @@ ignored. A synthesis that treats it as a normal static import rule will
 overstate verification.
 
 Evidence:
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`: records an
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`: records an
   implementation falsifier from 2026-07-01: Habitat/Grit source execution obeys
   `.gritignore`, excluding `**/test/` and `**/*.test.ts`; a temporary forbidden
   deep import in a test file was ignored by Grit.

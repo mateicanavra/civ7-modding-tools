@@ -19,11 +19,11 @@ Disposition receipt:
 
 | Corpus | Action | Receipt |
 | --- | --- | --- |
-| Previously settled local/context rows that looked like repeated-kind special cases | Reopened 26 rows as packet-needed and repopulated the canonical Layer 2 queue. No rule packets were moved or deleted. | Recorded directly in `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`; this domino is the narrative receipt. |
+| Previously settled local/context rows that looked like repeated-kind special cases | Reopened 26 rows as packet-needed and repopulated the canonical Layer 2 queue. No rule packets were moved or deleted. | Recorded directly in `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`; this domino is the narrative receipt. |
 
 Canonical queue repair:
 
-- The queue is operational only in `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`.
+- The queue is operational only in `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`.
 - Query queued Layer 2 work from `slices[] | select(.status == "queued")`.
 - Do not copy the queue, counts, or packet-needed rows into domino receipts.
 

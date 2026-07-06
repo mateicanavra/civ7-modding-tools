@@ -206,7 +206,7 @@ Source scope:
 - .habitat/.active/frames/BLUEPRINT-KIND-GATHERING-FRAME.md
 - .habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md
 - .habitat/.active/frames/RULE-DECISION-PACKET-FRAME.md
-- .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json
+- .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json
 - docs/system/libs/mapgen/reference/GLOSSARY.md
 - docs/system/libs/mapgen/reference/ARTIFACTS.md
 - docs/system/libs/mapgen/reference/TAGS.md
@@ -245,7 +245,7 @@ Source scope:
 - .habitat/.active/workstreams/establish-mapgen-product-authority/investigation-brief.md
 - .habitat/.active/workstreams/establish-mapgen-product-authority/corpus-inventory.md
 - docs/projects/engine-refactor-v1/architecture-normalization-packet.md
-- .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json
+- .habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json
 - docs/system/libs/mapgen/**/*.md, inspected through the search pass below
 - source anchors only when needed to validate a specific contradiction already identified from the docs/action matrix
 

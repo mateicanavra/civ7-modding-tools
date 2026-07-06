@@ -42,7 +42,7 @@ this frame selects the transition between a completed descent and the next
 blueprint-level descent.
 
 Foreground:
-rule ecology cleanup, reusable initiative-frame capture, and next slice
+rule authority cleanup, reusable initiative-frame capture, and next slice
 selection.
 
 Exterior:
@@ -50,11 +50,11 @@ new source movement, new domain row disposition, and operation-internal cleanup
 unless one of the three containers opens them explicitly.
 
 Falsifier:
-if a rule or workstream artifact cannot be classified without reopening source
+if a rule or workstream record cannot be classified without reopening source
 semantics, stop and open a dedicated slice instead of burying that decision in
 this transition anchor.
 
-## Container 1: Rule Ecology Cleanup Pass
+## Container 1: Rule Authority Cleanup Pass
 
 Status: next active container to open.
 
@@ -65,7 +65,7 @@ with positive assertions.
 
 Why now:
 Slice 001 records report enforced closure, but recorded pass state is not the
-same as permanent law. Rule Ecology Cleanup must first re-prove current rule
+same as permanent law. Rule Authority Cleanup must first re-prove current rule
 state with a named Habitat command before using that state as authority. This
 is the exact moment where scaffolding can become accidental architecture if we
 do not classify it.
@@ -83,6 +83,10 @@ Initial classes:
 
 Known inputs:
 
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`,
+  the refreshed machine-readable live rule corpus and action ledger;
+- `.habitat/.active/workstreams/remediate-rule-authority/rule-authority-corpus-grounding.md`,
+  the current corpus-location and analytics receipt;
 - `.habitat/blueprints/**/rule.json`;
 - `.habitat/.active/workstreams/define-domain-blueprint-structure/slices/001-domain-root-immediate-ops-topology/frame.md`;
 - `.habitat/.active/workstreams/define-domain-blueprint-structure/slices/001-domain-root-immediate-ops-topology/inventory.md`
@@ -93,7 +97,7 @@ Known inputs:
 - `.habitat/.active/workstreams/define-domain-blueprint-structure/review-protocol.md`;
 - `.habitat/.active/workstreams/define-domain-blueprint-structure/scopes-and-slices-reference.md`.
 
-Hypotheses to seed the ecology ledger as standing positive-law candidates:
+Hypotheses to seed the authority cleanup ledger as standing positive-law candidates:
 
 - `require_domain_source_topology`;
 - `require_domain_ops_binding_surface`;
@@ -104,14 +108,14 @@ Hypotheses to seed the ecology ledger as standing positive-law candidates:
 - `require_artifact_index_aggregate_shape`;
 - `require_recipe_stage_authoring_file_shape`.
 
-Hypotheses to seed the ecology ledger as boundary-rail candidates:
+Hypotheses to seed the authority cleanup ledger as boundary-rail candidates:
 
 - adapter/runtime import blocks;
 - cross-operation runtime call blocks;
 - recipe/domain public-surface import rules;
 - generated map entrypoint protection rules.
 
-Other rule families that must be included in the ecology ledger:
+Other rule families that must be included in the authority cleanup ledger:
 
 - dependency/effect tag contract rules;
 - recipe runtime import rules;
@@ -121,7 +125,7 @@ Other rule families that must be included in the ecology ledger:
 - shipped catalog leakage rules;
 - any rule outside the just-closed domain-root lane.
 
-Hypotheses to seed the ecology ledger as cleanup candidates:
+Hypotheses to seed the authority cleanup ledger as cleanup candidates:
 
 - retired domain root/catalog guards;
 - old config facade prohibitions;
@@ -132,14 +136,16 @@ Hypotheses to seed the ecology ledger as cleanup candidates:
   file-shape rule.
 
 No keep, retire, replace, or split decision is authorized here. Every candidate
-requires row-level evidence and proof in the Rule Ecology Cleanup container.
+requires row-level evidence and proof in the Rule Authority Cleanup container.
 
 Required output when opened:
 
-- a rule ecology frame;
-- a rule-by-rule ledger with rule id/path, source authority, current evidence,
-  evidence/proof class, owner layer, keep/retire/replace/split disposition,
-  first falsifier, required proof commands, non-claims, and review disposition;
+- a rule authority cleanup frame;
+- a refreshed rule-by-rule authority cleanup pass over
+  `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
+  with rule id/path, source authority, current evidence, evidence/proof class,
+  owner layer, keep/retire/replace/split disposition, first falsifier, required
+  proof commands, non-claims, and review disposition;
 - a fresh read-only review loop, separate from implementation agents, covering
   product outcome, owner-boundary, proof, stale-record, and stack lanes, with
   accepted P1/P2 findings blocking closure;
@@ -147,7 +153,7 @@ Required output when opened:
 
 ## Container 2: Reusable Initiative Frame Capture
 
-Status: second container to open after the rule ecology direction is clear.
+Status: second container to open after the rule authority cleanup direction is clear.
 
 Objective:
 capture the reusable method from the completed descent so future blueprint work
@@ -181,7 +187,7 @@ Required capture points:
 - source paths are evidence, not authority;
 - tests prove behavior, not topology or file shape;
 - Habitat patterns and structure rules carry topology/file-shape law;
-- rule ecology cleanup is part of closure, not optional polish;
+- rule authority cleanup is part of closure, not optional polish;
 - temporary anchors and execution packets are retired when they stop doing work.
 
 Known inputs:
@@ -191,7 +197,7 @@ Known inputs:
   `cleanup-execution.md`;
 - Slice 002 prework frame, inventory, decision packets, and closed domino files;
 - `review-protocol.md` and `scopes-and-slices-reference.md`;
-- current `.habitat/blueprints/**/rule.json` state after the rule ecology pass;
+- current `.habitat/blueprints/**/rule.json` state after the rule authority cleanup pass;
 - current Graphite PR and commit history for the completed descent.
 
 Required output when opened:
@@ -204,7 +210,7 @@ Required output when opened:
 
 ## Container 3: Move Across, Not Down
 
-Status: third container to open after the rule ecology and reusable method are
+Status: third container to open after the rule authority cleanup and reusable method are
 captured enough to guide the next descent.
 
 Objective:
@@ -236,7 +242,7 @@ Expected candidates:
 Known inputs:
 
 - the reusable initiative frame produced by Container 2;
-- the rule ecology ledger from Container 1;
+- the rule authority cleanup ledger from Container 1;
 - current Habitat red/green output for enforced and candidate rules;
 - `scopes-and-slices-reference.md`;
 - active workstream slices and inventories under this workstream;
@@ -249,7 +255,7 @@ Required output when opened:
 - candidate comparison with one selected scope and explicit exterior;
 - exact first red-flip or corpus extraction command;
 - decision whether the selected container starts as a scope slice, prework
-  decision slice, or rule ecology follow-on.
+  decision slice, or rule authority cleanup follow-on.
 
 ## Tracked Lower-Order Dominoes
 
@@ -259,13 +265,13 @@ owner layer or makes them a proof blocker.
 
 | Domino | Why tracked | Open when | Must not become |
 | --- | --- | --- | --- |
-| Public TypeFest dependency and contract policy | The strict TypeScript ratchet introduced TypeFest as root developer tooling and used it safely in private/dev surfaces. Broader SDK and MapGen Core replacements touch exported type contracts, so they need owner/dependency policy rather than opportunistic cleanup. | A blueprint/rule-cleanup slice touches public type utilities, emitted declaration surfaces, package dependency policy, or a candidate replacement needs TypeFest to avoid custom type gymnastics. | The immediate next step ahead of rule ecology, reusable method capture, or next blueprint-level slice selection. |
+| Public TypeFest dependency and contract policy | The strict TypeScript ratchet introduced TypeFest as root developer tooling and used it safely in private/dev surfaces. Broader SDK and MapGen Core replacements touch exported type contracts, so they need owner/dependency policy rather than opportunistic cleanup. | A blueprint/rule-cleanup slice touches public type utilities, emitted declaration surfaces, package dependency policy, or a candidate replacement needs TypeFest to avoid custom type gymnastics. | The immediate next step ahead of rule authority cleanup, reusable method capture, or next blueprint-level slice selection. |
 
 ## Transition Closure
 
 This anchor can close when:
 
-- Rule Ecology Cleanup has a frame or execution packet with proof gates,
+- Rule Authority Cleanup has a frame or execution packet with proof gates,
   row-level ledger contract, and review disposition contract;
 - Reusable Initiative Frame Capture has a frame or document home with explicit
   scope, source provenance, non-claims, and retirement/promotion path;
@@ -284,7 +290,7 @@ This anchor can close when:
 - the worktree and stack state are clean, or an explicit handoff records the
   remaining dirty state;
 - `blueprint-authority-stewardship-frame.md` is promoted, superseded, archived,
-  or deleted once its decisions land in owning artifacts;
+  or deleted once its decisions land in owning records;
 - this file is deleted, or moved to archive only if it contains historical
   evidence that was not captured elsewhere.
 

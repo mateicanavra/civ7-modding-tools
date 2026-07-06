@@ -53,7 +53,7 @@ Stage 2: bounded artifact-vocabulary sweep.
     artifact authority;
   - do not introduce `_triage`; the existing `_remainder` lane is the visual
     marker for reviewed-but-not-admitted debt.
-- Update `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` for every inspected
+- Update `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` for every inspected
   row, including explicit non-moves and pending actions.
 - Record the disposition receipt in this file so future agents can tell which
   artifact-vocabulary rows have been processed.

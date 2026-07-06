@@ -15,7 +15,7 @@ Disposition:
 
 | Record | Decision | Reason | Follow-up |
 | --- | --- | --- | --- |
-| `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` | canonical operational ledger | The same JSON record now owns live rule rows, retired/stale references, queued/completed slices, blockers, findings, and counts. | Future agents should query `rules`, `slices`, `blockers`, `findings`, and `counts`; do not create a separate matrix or packet-index table. |
+| `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` | canonical operational ledger | The same JSON record now owns live rule rows, retired/stale references, queued/completed slices, blockers, findings, and counts. | Future agents should query `rules`, `slices`, `blockers`, `findings`, and `counts`; do not create a separate matrix or packet-index table. |
 | `.habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-retirement-slice.md` | source reference repair | The receipt still named the archived Markdown matrix as its source. | Slice receipts may reference the canonical JSON, but they are not operational sources of truth. |
 
 Moves it forward:

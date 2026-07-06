@@ -4,7 +4,7 @@ Status: closed
 
 Branch: `codex/habitat-domain-operation-strategy-authority`
 
-Source matrix: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+Source matrix: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 Action class: product-backed blueprint authority creation
 
@@ -75,7 +75,7 @@ Changes made:
   blueprint authority.
 - Updated `.habitat/.active/frames/DESTINATION-SIMPLIFICATION-FRAME.md` so the old
   `domain-operation-strategy` exclusion is explicitly superseded.
-- Promoted `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+- Promoted `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
   as the single canonical operational matrix for current live-corpus queries.
 - Absorbed the former authority-tree rule ledger matrix into the canonical JSON
   operational ledger; no separate Markdown ledger is retained.
@@ -89,7 +89,7 @@ No rule manifests, runners, support files, or execution-surface docs changed.
 | --- | --- | --- | --- | --- |
 | `domain-operation-strategy` is constructible and product-backed. | P2 | accepted | Created the blueprint authority README and updated authority tree shape. | Future rows still need positive strategy-locality/strategy-contract packets before movement or deletion. |
 | No current live rule moves whole into the new authority. | P2 | accepted | Explicit non-move rows recorded for foundation strategy locality, foundation helper consolidation, and ecology contract quality. | The next implementation slice must not treat scan roots alone as strategy authority. |
-| The old Markdown rule ledger still looked like a second operational matrix. | P2 | accepted | Moved its unique process data into `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` and removed the Markdown ledger. | None; the JSON is the only active source for current matrix/process queries. |
+| The old Markdown rule ledger still looked like a second operational matrix. | P2 | accepted | Moved its unique process data into `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` and removed the Markdown ledger. | None; the JSON is the only active source for current matrix/process queries. |
 
 ## Closure
 

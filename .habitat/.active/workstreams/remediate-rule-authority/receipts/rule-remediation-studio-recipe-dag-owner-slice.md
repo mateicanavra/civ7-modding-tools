@@ -3,7 +3,7 @@
 Status: closed
 
 Canonical source of truth:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Slice Boundary
 
@@ -44,7 +44,7 @@ Updated packet:
 
 Updated durable records:
 
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 - `.habitat/.active/dominoes/items/057-repair-studio-recipe-dag-owner-metadata.md`
 
 Regenerated execution-surface analytics:

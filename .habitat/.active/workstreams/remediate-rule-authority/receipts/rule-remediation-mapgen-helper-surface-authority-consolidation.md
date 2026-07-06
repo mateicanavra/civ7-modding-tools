@@ -3,7 +3,7 @@
 Status: Layer 2 decision packet complete; Layer 3 entry warrant recorded.
 
 Canonical operational record:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`.
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`.
 
 ## Purpose
 
@@ -204,7 +204,7 @@ requires a separate source-backed authority packet.
 ## Layer 3 Entry Warrant
 
 Operational ledger path:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 Selected rule ids:
 

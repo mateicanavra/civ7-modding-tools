@@ -83,7 +83,7 @@ prework slice needs to name the domino it advances or falsifies.
 
 Path: `.habitat/.active/workstreams/remediate-rule-authority/`
 
-- `ledgers/rule-remediation-layer1-action-matrix.json`: canonical
+- `ledgers/rule-authority-cleanup-ledger.json`: canonical
   machine-readable operational ledger for live rule-remediation state.
 - `receipts/**`: closed slice receipts and review evidence. These are
   historical proof and precedent, not active per-slice plans unless a current

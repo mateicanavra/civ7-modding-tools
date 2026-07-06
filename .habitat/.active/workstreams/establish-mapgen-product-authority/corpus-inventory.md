@@ -49,7 +49,7 @@ This inventory is the starting corpus for the product-authority framing investig
 - `.habitat/.active/frames/REMAINDER-REMEDIATION-ACTION-FRAME.md`
 - `.habitat/.active/frames/BLUEPRINT-KIND-GATHERING-FRAME.md`
 - `.habitat/.active/frames/PROJECTION-CONTRACT-SURFACE-FRAME.md`
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Engine Refactor V1 Authority Corpus
 

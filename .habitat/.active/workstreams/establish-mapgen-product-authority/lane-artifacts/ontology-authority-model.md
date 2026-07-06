@@ -40,7 +40,7 @@ source hierarchy.
 | Stratum | Meaning | Packet use |
 | --- | --- | --- |
 | Accepted authority | Current user instruction, AGENTS/process routing, accepted project baseline, canonical MapGen reference docs, accepted frames | Can define owner, accepted concept, relation semantics, or decision vocabulary |
-| Operational ledger | `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` | Canonical operational source for Layer 1 rows, packet queue, blockers, and action decisions |
+| Operational ledger | `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` | Canonical operational source for Layer 1 rows, packet queue, blockers, and action decisions |
 | Candidate authority | Ledger rows, queued slices, `_blueprints` pressure, local negative proxies, unresolved semantic blockers | Can seed Layer 2 packet design; cannot be treated as accepted kind until affirmed |
 | Raw evidence | Rule manifests, runners, generated output, code, tests, docs examples, official resources | Not inspected in this lane except listed docs/ledger; implementation status requires Lane 4 source-constructibility evidence |
 | Contradiction | Source or ledger fact that falsifies a proposed owner/action, e.g. Grit ignoring tests or source proof showing mixed owners | Must be preserved; cannot be smoothed into "no action" |

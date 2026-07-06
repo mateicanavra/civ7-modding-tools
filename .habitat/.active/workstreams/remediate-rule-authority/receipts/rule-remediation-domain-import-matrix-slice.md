@@ -4,7 +4,7 @@ Status: closed
 
 Branch: `codex/habitat-g4-domain-import-matrix`
 
-Canonical source: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+Canonical source: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Purpose
 

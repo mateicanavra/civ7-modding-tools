@@ -5,7 +5,7 @@ Status: closed
 Branch: `codex/habitat-retire-standard-stage-key-freeze`
 
 Canonical source:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Purpose
 

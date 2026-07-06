@@ -3,7 +3,7 @@
 Status: closed on `codex/habitat-morphology-public-surface-boundary`
 
 Canonical record:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Purpose
 
