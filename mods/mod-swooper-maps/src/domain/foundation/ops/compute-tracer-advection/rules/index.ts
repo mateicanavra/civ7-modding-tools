@@ -1,5 +1,6 @@
+import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
+import { selectMeshNeighborByVectorProjection } from "@swooper/mapgen-core/lib/mesh";
 import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
-import { chooseDriftNeighbor, normalizeToInt8 } from "../../../lib/tectonics/shared.js";
 import type { FoundationMantleForcing } from "../../compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 import { ADVECTION_STEPS_PER_ERA } from "./constants.js";
@@ -36,11 +37,11 @@ function advectTracerIndex(params: {
 
     let cell = i;
     for (let step = 0; step < steps; step++) {
-      cell = chooseDriftNeighbor({
+      cell = selectMeshNeighborByVectorProjection({
         cellId: cell,
-        driftU: -(driftU | 0),
-        driftV: -(driftV | 0),
         mesh: params.mesh,
+        vectorX: -((driftU | 0) / 127),
+        vectorY: -((driftV | 0) / 127),
       });
     }
     out[i] = cell;
@@ -59,12 +60,12 @@ export function computeTracerIndexByEra(params: {
   const mantleDriftU = new Int8Array(cellCount);
   const mantleDriftV = new Int8Array(cellCount);
   for (let i = 0; i < cellCount; i++) {
-    const drift = normalizeToInt8(
+    const drift = quantizeUnitVec2I8(
       params.mantleForcing.forcingU[i] ?? 0,
       params.mantleForcing.forcingV[i] ?? 0
     );
-    mantleDriftU[i] = drift.u;
-    mantleDriftV[i] = drift.v;
+    mantleDriftU[i] = drift.x;
+    mantleDriftV[i] = drift.y;
   }
 
   const tracerIndex: Uint32Array[] = [];

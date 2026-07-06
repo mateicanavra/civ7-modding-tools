@@ -1,7 +1,7 @@
+import { quantizeU8 } from "@swooper/mapgen-core/lib/math";
 import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import { clampByte } from "../../../lib/tectonics/shared.js";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
@@ -165,7 +165,7 @@ export function computeTectonicProvenance(params: {
   const ageDenom = Math.max(1, params.eraCount - 1);
   for (let i = 0; i < cellCount; i++) {
     const age = newestEraIndex - (originEra[i] ?? 0);
-    crustAge[i] = clampByte((age / ageDenom) * 255);
+    crustAge[i] = quantizeU8((age / ageDenom) * 255);
   }
 
   return {

@@ -1,4 +1,5 @@
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { findNearestMeshCell, meanMeshEdgeLength } from "@swooper/mapgen-core/lib/mesh";
 
 import type { EraPlateMembershipMesh, EraPlateMembershipParams } from "../types.js";
 
@@ -73,64 +74,13 @@ class MinHeap {
   }
 }
 
-function computeMeanEdgeLen(mesh: EraPlateMembershipMesh, maxEdges = 100_000): number {
-  const cellCount = mesh.cellCount | 0;
-  if (cellCount <= 0) return 1;
-
-  let sum = 0;
-  let count = 0;
-
-  for (let i = 0; i < cellCount; i++) {
-    const start = mesh.neighborsOffsets[i] | 0;
-    const end = mesh.neighborsOffsets[i + 1] | 0;
-    const ax = mesh.siteX[i] ?? 0;
-    const ay = mesh.siteY[i] ?? 0;
-    for (let c = start; c < end; c++) {
-      const n = mesh.neighbors[c] | 0;
-      if (n <= i || n < 0 || n >= cellCount) continue;
-      const bx = mesh.siteX[n] ?? 0;
-      const by = mesh.siteY[n] ?? 0;
-      const dx = wrapDeltaPeriodic(bx - ax, mesh.wrapWidth);
-      const dy = by - ay;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      if (!Number.isFinite(len) || len <= 1e-9) continue;
-      sum += len;
-      count += 1;
-      if (count >= maxEdges) break;
-    }
-    if (count >= maxEdges) break;
-  }
-
-  return count > 0 ? sum / count : 1;
-}
-
-function findNearestCell(mesh: EraPlateMembershipMesh, x: number, y: number): number {
-  const cellCount = mesh.cellCount | 0;
-  if (cellCount <= 0) return -1;
-
-  let best = -1;
-  let bestDist = Number.POSITIVE_INFINITY;
-
-  for (let i = 0; i < cellCount; i++) {
-    const dx = wrapDeltaPeriodic((mesh.siteX[i] ?? 0) - x, mesh.wrapWidth);
-    const dy = (mesh.siteY[i] ?? 0) - y;
-    const dist = dx * dx + dy * dy;
-    if (dist < bestDist) {
-      bestDist = dist;
-      best = i;
-    }
-  }
-
-  return best;
-}
-
 export function computePlateIdByEra(params: EraPlateMembershipParams): ReadonlyArray<Int16Array> {
   const cellCount = params.mesh.cellCount | 0;
   const plateCount = params.plates.length | 0;
   const eraCount = Math.max(0, params.eraCount | 0);
   const driftStepsByEra = params.driftStepsByEra;
 
-  const meanEdgeLen = computeMeanEdgeLen(params.mesh);
+  const meanEdgeLen = meanMeshEdgeLength(params.mesh);
 
   let meanPlateSpeed = 0;
   for (let p = 0; p < plateCount; p++) {
@@ -161,7 +111,7 @@ export function computePlateIdByEra(params: EraPlateMembershipParams): ReadonlyA
       const vy = params.plateVelocityY[p] ?? 0;
       const sx = (plate.seedX ?? 0) + vx * scale;
       const sy = (plate.seedY ?? 0) + vy * scale;
-      seedCellsByPlate[p] = findNearestCell(params.mesh, sx, sy);
+      seedCellsByPlate[p] = findNearestMeshCell(params.mesh, sx, sy);
     }
 
     const dist = new Float32Array(cellCount);

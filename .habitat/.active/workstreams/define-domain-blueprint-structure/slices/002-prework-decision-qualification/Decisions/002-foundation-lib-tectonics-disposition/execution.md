@@ -762,7 +762,7 @@ before Slice 5 opens.
 
 ## Slice 5: Core Caller Migration And `shared.ts` Deletion
 
-Status: planned/open
+Status: completed; awaiting independent supervisor review before Slice 6
 
 ### Objective
 
@@ -806,6 +806,35 @@ Decision criteria:
   calling core or through an exact core parameter contract.
 - no core API gains foundation vocabulary to make caller migration easier.
 - deletion waits until no old helper import remains.
+
+Slice 5 helper migration map:
+
+| old helper | caller | replacement API | adapter needed? | focused test | closure scan |
+| --- | --- | --- | --- | --- | --- |
+| `clampByte` | `compute-hotspot-events/rules/index.ts` | `quantizeU8` from `@swooper/mapgen-core/lib/math` | no | `packages/mapgen-core/test/lib/math/quantize.test.ts` pins non-finite, rounding, and saturation; `mods/mod-swooper-maps/test/foundation/m11-tectonic-events.test.ts` covers hotspot event chain behavior. | no `foundation/lib/tectonics/shared` import in caller; no `clampByte` in foundation caller |
+| `normalizeToInt8` | `compute-hotspot-events/rules/index.ts` | `quantizeUnitVec2I8` from `@swooper/mapgen-core/lib/grid` | yes: adapt `{ x, y }` to event artifact `driftU`/`driftV` at artifact boundary | `packages/mapgen-core/test/lib/grid/vector-field-quantize.test.ts` pins vector quantization; `m11-tectonic-events.test.ts` covers deterministic event/provenance chain. | no `normalizeToInt8` in foundation caller |
+| `clampByte` | `compute-tectonic-provenance/rules/index.ts` | `quantizeU8` | no | `quantize.test.ts`; `m11-tectonic-events.test.ts` pins provenance age/origin behavior. | no `clampByte` in foundation caller |
+| `clampByte` | `compute-tectonic-segments/index.ts` | `quantizeU8` | no | `quantize.test.ts`; `m11-tectonic-segments-history.test.ts`, `m11-tectonic-segments-polarity-bootstrap.test.ts`, and `mesh-first-ops.test.ts` cover segment intensities and polarity behavior. | no `clampByte` in foundation caller |
+| `normalizeToInt8` | `compute-tectonic-segments/index.ts` | `quantizeUnitVec2I8` | yes: adapt core `{ x, y }` to segment artifact `driftU`/`driftV` at artifact boundary | `vector-field-quantize.test.ts`; segment history tests cover emitted segment fields. | no `normalizeToInt8` in foundation caller |
+| `NeighborhoodMesh` | `compute-era-tectonic-fields/rules/index.ts` | `CsrPointMesh2D` from `@swooper/mapgen-core/lib/mesh` | type-only rename | `packages/mapgen-core/test/lib/mesh/neighborhood-mesh.test.ts` verifies assignability from current mesh shape. | no `NeighborhoodMesh` in foundation caller |
+| `chooseDriftNeighbor` | `compute-era-tectonic-fields/rules/index.ts` | `selectMeshNeighborByVectorProjection` | yes: preserve signed-byte coercion by passing `(driftU \| 0) / 127` and `(driftV \| 0) / 127` as vector components | `neighborhood-mesh.test.ts` pins fallback, periodic projection, and strict first ties; `m11-tectonic-events.test.ts` covers deterministic drifted event history. | no `chooseDriftNeighbor` in foundation caller |
+| `computeMeanEdgeLen` | `compute-era-tectonic-fields/rules/index.ts` | `meanMeshEdgeLength` | no | `neighborhood-mesh.test.ts` pins fallback, duplicate skip, invalid/zero skip, periodic wrap, and max cap; `m11-tectonic-segments-history.test.ts` covers history propagation. | no `computeMeanEdgeLen` in foundation caller |
+| `clampByte` | `compute-era-tectonic-fields/rules/index.ts` | `quantizeU8` | no | `quantize.test.ts`; `m11-tectonic-events.test.ts` and `m11-tectonic-segments-history.test.ts` cover era field/historical rollup behavior. | no `clampByte` in foundation caller |
+| `clampInt8` | `compute-era-tectonic-fields/rules/index.ts` | `quantizeI8Symmetric` | no | `quantize.test.ts`; `m11-tectonic-events.test.ts` covers bounded provenance tracer chain. | no `clampInt8` in foundation caller |
+| `chooseDriftNeighbor` | `compute-tracer-advection/rules/index.ts` | `selectMeshNeighborByVectorProjection` | yes: preserve signed-byte coercion and sign inversion by passing `-((driftU \| 0) / 127)` and `-((driftV \| 0) / 127)` | `neighborhood-mesh.test.ts`; `m11-tectonic-events.test.ts` pins deterministic bounded tracer indices. | no `chooseDriftNeighbor` in foundation caller |
+| `normalizeToInt8` | `compute-tracer-advection/rules/index.ts` | `quantizeUnitVec2I8` | yes: adapt `{ x, y }` into local `mantleDriftU`/`mantleDriftV` typed arrays | `vector-field-quantize.test.ts`; `m11-tectonic-events.test.ts` pins tracer bounds. | no `normalizeToInt8` in foundation caller |
+| `clampByte` | `compute-plates-tensors/lib/project-plates.ts` | `quantizeU8` | no | `quantize.test.ts`; `mesh-first-ops.test.ts`, `m11-projection-boundary-band.test.ts`, and `tile-projection-materials.test.ts` cover projection fields. | no `clampByte` in foundation caller |
+| `clampInt8` | `compute-plates-tensors/lib/project-plates.ts` | `quantizeI8Symmetric` | no | `quantize.test.ts`; projection tests cover movement fields. | no `clampInt8` in foundation caller |
+| `clampByte` | `compute-tectonic-history-rollups/rules/index.ts` | `quantizeU8` | no | `quantize.test.ts`; `m11-tectonic-segments-history.test.ts` covers rollup totals and recent fractions. | no `clampByte` in foundation caller |
+| operation-local `computeMeanEdgeLen` duplicate | `compute-era-plate-membership/rules/compute-plate-id-by-era.ts` | `meanMeshEdgeLength` | no | `neighborhood-mesh.test.ts`; `m11-tectonic-segments-history.test.ts` covers era membership inside decomposed history. | no local `computeMeanEdgeLen` symbol in foundation caller |
+| operation-local `findNearestCell` duplicate | `compute-era-plate-membership/rules/compute-plate-id-by-era.ts` | `findNearestMeshCell` | no | `neighborhood-mesh.test.ts`; `m11-tectonic-segments-history.test.ts` covers era membership inside decomposed history. | no local `findNearestCell` symbol in foundation caller |
+
+Closure-scan note: the packet verification's broad helper-name scan also
+matches protected, unrelated non-foundation helper names such as morphology
+`clampByte` and diagnostic `shared.js` imports. Slice 5 will not clean those up.
+Closure proof must distinguish old-owner/touched foundation references from
+out-of-scope same-name helpers while still proving
+`foundation/lib/tectonics/shared.ts` is deleted and no caller imports it.
 
 ### Tests First
 
@@ -860,6 +889,78 @@ nx run mod-swooper-maps:check
 bun test mods/mod-swooper-maps/test/foundation
 git diff --check -- packages/mapgen-core/src packages/mapgen-core/test mods/mod-swooper-maps/src mods/mod-swooper-maps/test .habitat/.active
 ```
+
+### Slice 5 Execution Record
+
+Implementation:
+
+- Migrated all direct `foundation/lib/tectonics/shared.ts` importers to accepted
+  `@swooper/mapgen-core` APIs:
+  `quantizeU8`, `quantizeI8Symmetric`, `quantizeUnitVec2I8`,
+  `meanMeshEdgeLength`, `findNearestMeshCell`, `CsrPointMesh2D`, and
+  `selectMeshNeighborByVectorProjection`.
+- Preserved operation-local artifact adaptation by mapping core `{ x, y }`
+  vectors into artifact `driftU`/`driftV` fields only at caller boundaries.
+- Preserved old signed-byte drift-neighbor policy by converting drift bytes to
+  vector components with `(value | 0) / 127`, including the tracer-advection
+  sign inversion.
+- Replaced operation-local duplicate `computeMeanEdgeLen` and `findNearestCell`
+  in `compute-era-plate-membership/rules/compute-plate-id-by-era.ts` with core
+  mesh APIs.
+- Deleted
+  `mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts` only
+  after old-import proof had no callers.
+
+Proof:
+
+- `bunx biome check` over touched foundation callers and `execution.md` — pass
+  (Native tool behavior).
+- `bun test mods/mod-swooper-maps/test/foundation/drift-adapters.test.ts` —
+  pass, 4 tests / 6 assertions (Unit behavior). This focused repair proof pins
+  operation-local drift adapter behavior for tracer source-cell sign inversion,
+  mantle fallback drift, positive era-field seed drift, x/y axis alignment, and
+  `(value | 0)` signed-byte truncation before core mesh projection.
+- `bun test mods/mod-swooper-maps/test/foundation` — pass, 51 tests / 1468
+  assertions (Unit behavior).
+- `nx run mapgen-core:test` — pass, 109 tests / 388 assertions (Unit behavior;
+  no Slice 5 core source changes).
+- `nx run mapgen-core:check` — pass (Native tool behavior).
+- `nx run mapgen-core:habitat:check` — pass; `preserve_mapgen_core_runtime_neutrality`
+  enforced, 1 rule, 0 failing (Habitat wrapper behavior).
+- `nx run mod-swooper-maps:check` — pass (Native tool behavior).
+- `test ! -e
+  mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts` — pass
+  (Record truth proof).
+- `! rg -n "from .*tectonics/shared|lib/tectonics/shared|foundation/lib/tectonics/shared"
+  mods/mod-swooper-maps/src mods/mod-swooper-maps/test -g '*.ts'` — pass
+  (Record truth proof: no old-owner imports).
+- `! rg -n
+  "NeighborhoodMesh|clampByte|clampInt8|normalizeToInt8|computeMeanEdgeLen|findNearestCell|chooseDriftNeighbor|from .*tectonics/shared"`
+  over the eight touched foundation caller files — pass (Record truth proof: no
+  old helper references in migrated callers).
+- The packet's broad helper-name scan over `mods/mod-swooper-maps/src`,
+  `mods/mod-swooper-maps/test`, `packages/mapgen-core/src`, and
+  `packages/mapgen-core/test` reports only protected out-of-scope same-name
+  matches: morphology-local `clampByte` helpers/callers and a pre-existing
+  `packages/mapgen-core/src/lib/math/clamp.ts` comment mentioning `clampByte`.
+  No match imports or references the deleted foundation owner. This is recorded
+  as scan-truth disposition rather than unrelated cleanup (Record truth proof).
+- `git diff --check -- packages/mapgen-core/src packages/mapgen-core/test
+  mods/mod-swooper-maps/src mods/mod-swooper-maps/test .habitat/.active` —
+  pass (Apply safety proof).
+
+Fresh local review lanes found no accepted P1/P2 findings. A subordinate agent
+launcher was not available in the current tool surface, so supervisor
+independent review remains the closure authority before Slice 6 opens.
+
+Slice 5 repair record:
+
+- Accepted P3 behavior-proof finding repaired by adding
+  `mods/mod-swooper-maps/test/foundation/drift-adapters.test.ts`. The tests
+  directly cover the migrated operation-local drift adapters in
+  `compute-tracer-advection/rules/index.ts` and
+  `compute-era-tectonic-fields/rules/index.ts`; no production code change was
+  required.
 
 ## Slice 6: Final Packet Closure
 

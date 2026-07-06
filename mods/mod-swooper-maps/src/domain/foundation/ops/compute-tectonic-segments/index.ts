@@ -1,8 +1,8 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
+import { clamp01, quantizeU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
-import { clampByte, normalizeToInt8 } from "../../lib/tectonics/shared.js";
 import type { FoundationPlateMotion } from "../compute-plate-motion/contract.js";
 import ComputeTectonicSegmentsContract from "./contract.js";
 
@@ -157,9 +157,9 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             const extensionScale = 0.85 + 0.3 * weakness;
             const shearScale = 0.9 + 0.2 * weakness;
 
-            const c = clampByte(Math.max(0, -vn) * intensityScale * compressionScale);
-            const e = clampByte(Math.max(0, vn) * intensityScale * extensionScale);
-            const s = clampByte(Math.abs(vt) * intensityScale * shearScale);
+            const c = quantizeU8(Math.max(0, -vn) * intensityScale * compressionScale);
+            const e = quantizeU8(Math.max(0, vn) * intensityScale * extensionScale);
+            const s = quantizeU8(Math.abs(vt) * intensityScale * shearScale);
             const kind = boundaryRegimeFromIntensities({
               compression: c,
               extension: e,
@@ -186,20 +186,20 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
 
             const v = (() => {
               if (kind === BOUNDARY_TYPE.convergent)
-                return clampByte(c * 0.6 + (pol !== 0 ? 40 : 0));
-              if (kind === BOUNDARY_TYPE.divergent) return clampByte(e * 0.25);
-              if (kind === BOUNDARY_TYPE.transform) return clampByte(s * 0.1);
+                return quantizeU8(c * 0.6 + (pol !== 0 ? 40 : 0));
+              if (kind === BOUNDARY_TYPE.divergent) return quantizeU8(e * 0.25);
+              if (kind === BOUNDARY_TYPE.transform) return quantizeU8(s * 0.1);
               return 0;
             })();
 
             const f = (() => {
-              if (kind === BOUNDARY_TYPE.transform) return clampByte(s * 0.7);
-              if (kind === BOUNDARY_TYPE.divergent) return clampByte(e * 0.3);
-              if (kind === BOUNDARY_TYPE.convergent) return clampByte(c * 0.2);
+              if (kind === BOUNDARY_TYPE.transform) return quantizeU8(s * 0.7);
+              if (kind === BOUNDARY_TYPE.divergent) return quantizeU8(e * 0.3);
+              if (kind === BOUNDARY_TYPE.convergent) return quantizeU8(c * 0.2);
               return 0;
             })();
 
-            const drift = normalizeToInt8(
+            const drift = quantizeUnitVec2I8(
               (plateMotion.plateVelocityX[plateAId] ?? 0) +
                 (plateMotion.plateVelocityX[plateBId] ?? 0),
               (plateMotion.plateVelocityY[plateAId] ?? 0) +
@@ -217,8 +217,8 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             shear.push(s);
             volcanism.push(v);
             fracture.push(f);
-            driftU.push(drift.u);
-            driftV.push(drift.v);
+            driftU.push(drift.x);
+            driftV.push(drift.y);
           }
         }
 
