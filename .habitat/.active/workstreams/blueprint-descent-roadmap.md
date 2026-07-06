@@ -35,7 +35,11 @@ it for selection.
 - The runway to the next descent is owned by
   `.habitat/.active/workstreams/remediate-rule-authority/pre-descent-readiness-plan.md`
   (R1 helper consolidation, R2 config-facade consolidation, R3 aggregate check
-  runnability, R4 stale-blocker record refresh).
+  runnability, R4 stale-blocker record refresh, R5 descent-workspace-shape
+  application, R6 post-merge reconciliation).
+- The physical container shape for descent work is owned by
+  `.habitat/.active/workstreams/descent-workspace-shape.md`; readiness slice R5
+  applies it, after which this roadmap's container column is authoritative.
 - Descent 2 (domain-operation interior) is selected. Opening packet:
   `.habitat/.active/workstreams/descend-002-domain-operation-interior/`.
   Execution is gated on readiness slices R2, R3, R4.
@@ -84,6 +88,16 @@ Descent 3 is small and warm:
 open. Decision 003 (domain model config law) already sealed the semantics;
 what remains is file grammar. It can fold into descent 2's stack as a second
 slice if its red proves tiny, or stand alone.
+
+Coordination note (2026-07-06): the Studio run-in-game runtime packet train
+(branch `agent-codex-mapgen-studio-runtime-openspec-packets`, merging ahead of
+descent 2) is docs-only at merge time — no `.habitat`, `tools/habitat`, domain,
+or recipe source changes; live rule count stays 112. Its 14 implementation
+packets will later add Studio/Swooper structural-authority rows (SA-01
+through SA-14, including a future Habitat command check). Descent 4 must
+re-census recipe terrain after any runtime packet implementation that touches
+Swooper generation or Nx metadata, and the aggregate-check gate (readiness
+R3, queue entry 8) matters to that packet train too.
 
 Descent 4 is the big across move and deliberately not first:
 it must resolve the truth/projection boundary through source-owned contracts
