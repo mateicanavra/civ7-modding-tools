@@ -1,9 +1,4 @@
-import {
-  clamp01 as clamp01Core,
-  clampInt,
-  clampU8,
-  wrapDeltaPeriodic,
-} from "@swooper/mapgen-core/lib/math";
+import { clampInt, clampU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 export type NeighborhoodMesh = Readonly<{
   cellCount: number;
@@ -18,11 +13,6 @@ export function clampByte(value: number): number {
   if (value === Number.POSITIVE_INFINITY) return 255;
   if (!Number.isFinite(value)) return 0;
   return clampU8(Math.round(value));
-}
-
-export function clamp01(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return clamp01Core(value);
 }
 
 export function clampInt8(value: number): number {
@@ -126,20 +116,4 @@ export function chooseDriftNeighbor(params: {
   }
 
   return best;
-}
-
-export function deriveResetThreshold(
-  maxValue: number,
-  fracOfMax: number,
-  minThreshold: number
-): number {
-  const maxByte = Math.max(0, Math.min(255, maxValue | 0)) | 0;
-  const frac = Number.isFinite(fracOfMax) ? Math.max(0, Math.min(1, fracOfMax)) : 0;
-  const derived = Math.round(maxByte * frac) | 0;
-
-  // Keep the floor bounded by the actual per-era maxima so a zero-signal era
-  // does not force impossible reset thresholds.
-  const minByte = Math.max(0, Math.min(255, minThreshold | 0)) | 0;
-  const floor = Math.min(maxByte, minByte) | 0;
-  return Math.max(floor, derived) | 0;
 }

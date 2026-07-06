@@ -13,7 +13,7 @@ explicitly blocked with a recorded reason.
 ## Source Order
 
 1. User direction for Round 2 mechanical extraction.
-2. `.habitat/FRAME.md`.
+2. `.habitat/.active/frames/FRAME.md`.
 3. `.habitat/AUTHORITY-TOOL-SEPARATION.md`.
 4. `N-OF-1-WORKFLOW.md`.
 5. `MECHANICAL-EXTRACTION-PREP.md`.

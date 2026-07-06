@@ -30,32 +30,53 @@ The current layout has four packet lanes:
 
 This is not a final machine-readable ontology, and it is not evidence that runtime integration has been fully rebuilt. It is the current authority layout for continued reduction.
 
+## Active Working Material
+
+Active frames and workstreams live under `.habitat/.active/`.
+
+- `.habitat/.active/frames/` holds Habitat method frames.
+- `.habitat/.active/dominoes/` holds the authority-consolidation domino
+  sequence, with one file per domino and a complete ordered index.
+- `.habitat/.active/workstreams/` holds the
+  authority-consolidation workstream: ledgers, receipts, decision packets,
+  scopes, slices, investigations, and scratchpads.
+
+Canonical root authority remains at `.habitat/` only for ontology, tree shape,
+blueprint packets, niche rule packets, rule operation kinds, subject
+categories, registry metadata, and tool-separation authority.
+
 ## Authority Planes
 
 - `AUTHORITY.md`: what may be authoritative here and what remains Toolkit execution machinery.
 - `AUTHORITY-ONTOLOGY.md`: normative conceptual model for Habitat, blueprints, instances, capabilities, niches, admission, and authority activation.
 - `AUTHORITY-TREE-SHAPE.md`: the current niche/blueprint tree shape.
-- `DOMINO-FRAME.md`: operating frame for choosing and carrying authority-tree dominoes across branches, agents, and review loops.
-- `AUTHORITY-SLICE-FRAME.md`: normative frame for bounded authority-slice
+- `.active/frames/DOMINO-FRAME.md`: operating frame for choosing and carrying authority-tree dominoes across branches, agents, and review loops.
+- `.active/frames/AUTHORITY-SLICE-FRAME.md`: normative frame for bounded authority-slice
   work, including how to classify current rules without promoting packet
   labels into ontology.
-- `AUTHORITY-REMAINDER-SLICE-FRAME.md`: normative frame for contextual
+- `.active/frames/AUTHORITY-REMAINDER-SLICE-FRAME.md`: normative frame for contextual
   remainder slices after parent kinds have moved, including decision criteria
   for blueprint movement, honest context, missing positive kind rules,
   external enforcement-surface pressure, and cleanup candidates.
-- `AUTHORITY-AUTONOMOUS-DOMINO-LOOP.md`: normative frame for running repeated
+- `.active/frames/AUTHORITY-AUTONOMOUS-DOMINO-LOOP.md`: normative frame for running repeated
   bounded authority-tree dominoes autonomously when the destinations already
   exist and the work can close with physical movement, proof, and review.
-- `AUTHORITY-DOMAIN-OPERATION-SLICE.md`: completed-slice reference for the
+- `.active/workstreams/remediate-rule-authority/receipts/authority-slices/AUTHORITY-DOMAIN-OPERATION-SLICE.md`: completed-slice reference for the
   Domain Operation Kind Pocket slice selected after the Recipe Kind Pocket.
-- `AUTHORITY-DOMAIN-KIND-SLICE.md`: completed-slice reference for the Domain
+- `.active/workstreams/remediate-rule-authority/receipts/authority-slices/AUTHORITY-DOMAIN-KIND-SLICE.md`: completed-slice reference for the Domain
   Kind Pocket slice that affirmed `domain` above public/config surface facets.
-- `frames/BLUEPRINT-KIND-GATHERING-FRAME.md`: normative frame for affirming one
+- `.active/frames/BLUEPRINT-KIND-GATHERING-FRAME.md`: normative frame for affirming one
   constructible blueprint kind, then gathering bounded whole-rule authority
   into that kind while demoting non-fitting evidence.
+- `.active/frames/CLOSED-STRUCTURE-ENFORCEMENT-METHOD-FRAME.md`: active method
+  frame for closed-structure enforcement while the domain scopes/slices
+  workstream is live.
 - `RULE-OPERATION-KINDS.md`: mutability rules for `check`, `fix`, `generate`, and `migrate`, plus the reserved triage holding state.
 - `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.
-- `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.
+- `.active/dominoes/README.md`: working ratchet sequence for authority-tree
+  and runner integration dominoes.
+- `.active/dominoes/index.md`: complete ordered index of individual domino
+  records.
 - `config.md`: human-readable operation model; not parsed as tool dispatch config.
 
 ## Rule Manifest Files

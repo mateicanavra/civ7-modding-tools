@@ -50,7 +50,7 @@ FOUNDATION does not require upstream domain artifacts. It requires only:
 **Ground truth anchors**
 - `packages/mapgen-core/src/core/types.ts` (`ctxRandom` derives from `Env.seed`, not adapter RNG)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/steps/mesh.ts` (`ctxRandom`, `ctxRandomLabel`, `context.dimensions`)
-- `mods/mod-swooper-maps/src/domain/foundation/lib/normalize.ts` (`requireEnvDimensions`)
+- `mods/mod-swooper-maps/src/domain/foundation/model/policy/reference-area.ts` (`requireEnvDimensions`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`ComputeMeshContract.input`)
 
 ### Provides (artifacts + tags)
@@ -387,7 +387,7 @@ from validated runtime map dimensions:
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` in default strategy)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` in default strategy)
-- `mods/mod-swooper-maps/src/domain/foundation/lib/normalize.ts` (`requireEnvDimensions`, `deriveFoundationReferenceArea`)
+- `mods/mod-swooper-maps/src/domain/foundation/model/policy/reference-area.ts` (`requireEnvDimensions`, `deriveFoundationReferenceArea`)
 
 ## Current Mapping (Standard Recipe)
 

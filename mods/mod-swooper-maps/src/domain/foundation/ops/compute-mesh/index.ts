@@ -1,7 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { buildDelaunayMesh } from "@swooper/mapgen-core/lib/mesh";
 
-import { deriveFoundationReferenceArea, requireEnvDimensions } from "../../lib/normalize.js";
+import {
+  deriveFoundationReferenceArea,
+  requireEnvDimensions,
+} from "../../model/policy/reference-area.js";
 import ComputeMeshContract from "./contract.js";
 
 const computeMesh = createOp(ComputeMeshContract, {

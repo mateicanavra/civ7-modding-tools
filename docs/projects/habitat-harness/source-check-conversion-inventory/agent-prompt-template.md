@@ -11,7 +11,7 @@ Worktree:
 Read first:
 - docs/projects/habitat-harness/source-check-conversion-inventory/WORKSTREAM.md
 - docs/projects/habitat-harness/source-check-conversion-inventory/grit-capability-notes.md
-- .habitat/FRAME.md relevant file-role model
+- .habitat/.active/frames/FRAME.md relevant file-role model
 - Every assigned rule record, adjacent authority file, and related adapter.
 
 Allowed write set:

@@ -1,14 +1,14 @@
 # Habitat Authority Contract
 
-Status: active authority frame with provisional physical hierarchy
+Status: active authority contract with provisional physical hierarchy
 
 ## What This Establishes
 
-Use `.habitat/FRAME.md` as the current living lens for authority-tree
+Use `.habitat/.active/frames/FRAME.md` as the current living lens for authority-tree
 direction, source order, stack geolocation, and pruning posture. Use
 `.habitat/AUTHORITY-ONTOLOGY.md` as the normative conceptual model for Habitat,
 blueprints, instances, capabilities, niches, admission, and authority
-activation. Use `.habitat/DOMINO-FRAME.md` as the operating frame for choosing,
+activation. Use `.habitat/.active/frames/DOMINO-FRAME.md` as the operating frame for choosing,
 reviewing, and carrying authority-tree dominoes across Graphite branches and
 agent handoffs. This file defines the durable authority contract that those
 frames apply to the current repository tree.

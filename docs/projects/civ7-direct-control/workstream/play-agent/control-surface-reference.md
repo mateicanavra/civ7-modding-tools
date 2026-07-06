@@ -296,7 +296,7 @@ because operation requests mutate game state.
 Treat this as a rugged solution space. Maintain multiple paths until a proof
 eliminates them.
 
-Work streams:
+Workstreams:
 
 1. Hotseat activation and handoff.
    Owner question: can installed official hotseat be enabled/launched and used

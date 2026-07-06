@@ -25,8 +25,8 @@ This planning artifact lives under OpenSpec because the implementation slice is
 now concrete: the write set, contract surface, sequence, validation gates, and
 closure scans are all known well enough to define a downstream implementation
 change. OpenSpec remains downstream change control. It does not become Habitat
-ontology authority and it does not supersede `.habitat/FRAME.md`,
-`.habitat/dominoes.md`, or direct user decisions.
+ontology authority and it does not supersede `.habitat/.active/frames/FRAME.md`,
+`.habitat/.active/dominoes/README.md`, or direct user decisions.
 
 The rejected alternative was to keep this only under `docs/projects/...` as a
 pre-code workstream note. That would be appropriate if the question were still
@@ -495,8 +495,9 @@ rg -n -- "--tool|ownerTool|source-check|command-check|grit-check|structure-check
 
 After implementation, update:
 
-- `.habitat/FRAME.md` current file-role model;
-- `.habitat/dominoes.md` sequence ledger;
+- `.habitat/.active/frames/FRAME.md` current file-role model;
+- `.habitat/.active/dominoes/README.md` sequence surface and
+  `.habitat/.active/dominoes/index.md` ordered domino index;
 - `.habitat/AUTHORITY.md` if it describes path-derived identity as current
   truth;
 - `.habitat/AUTHORITY-TREE-SHAPE.md` if it describes the current tree as the
