@@ -42,7 +42,8 @@ it for selection.
   applies it, after which this roadmap's container column is authoritative.
 - Descent 2 (domain-operation interior) is selected. Opening packet:
   `.habitat/.active/workstreams/descend-002-domain-operation-interior/`.
-  Execution is gated on readiness slices R2, R3, R4.
+  Execution is gated on readiness slices R2, R3, R4, R5, and R6 (R1 is
+  independent and non-gating).
 
 Live rule corpus at this writing: 112 rules. Each descent should reduce that
 number by absorbing negative guards into positive law; a descent that closes

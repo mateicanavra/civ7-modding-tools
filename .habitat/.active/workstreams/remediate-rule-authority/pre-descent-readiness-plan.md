@@ -13,12 +13,31 @@ tree, the descent workspace shape applied, and a clean reconciliation with the
 Studio runtime packet-train merge. Every slice below is adjudicated or purely
 enabling; none requires a new semantic decision beyond what its text states.
 
-This plan authorizes execution of its own slices, each on its own Graphite
-branch with its own receipt under
+This plan authorizes execution of its own slices. Each slice runs as its own
+layer on this readiness stack (base
+`codex/pre-descent-readiness-and-descent-roadmap`), with its own receipt under
 `.habitat/.active/workstreams/remediate-rule-authority/receipts/`. Mutating
 rule slices follow `.habitat/.active/frames/RULE-REMEDIATION-SLICE-FRAME.md`.
 Each slice gets a fresh implementation lane and a separate fresh review lane;
 accepted P1/P2 findings block that slice's closure.
+
+Execution home:
+all runway work executes on this stack and nowhere else. No slice touches,
+lands, or depends on any other branch or worktree. The parked Studio runner
+worktree and the Studio runtime packet-train stack are read-only context for
+this plan; nothing here modifies them. When the runway is ready, the bottom of
+this stack merges and descent execution continues from there.
+
+Stack topology:
+this stack, bottom to top, is `main` → `codex/pre-descent-readiness-and-descent-roadmap`
+(this plan, the roadmap, the shape doc) → `codex/domain-operation-blueprint-descent-opening`
+(the descent opening packet) → the runway execution layers below. Each rule /
+tooling slice (R1, R2, R3) is a layer above the opening packet; R4 and R5 must
+run above the opening packet because they reference and rename its files
+(`.habitat/.active/workstreams/descend-002-domain-operation-interior/`),
+which exist only from `codex/domain-operation-blueprint-descent-opening`
+upward. A slice run below that branch would not find the packet. R6 runs after
+the Studio packet-train merges to `main` and this stack rebases onto it.
 
 Position:
 the operational ledger's `gateState.nextLegalAction` is "Select the next
@@ -74,7 +93,7 @@ load-bearing findings, so no slice re-derives them:
 
 Gating: no (independent of descent open).
 
-Branch: `codex/readiness-r1-helper-surface-consolidation`.
+Stack layer: `codex/readiness-r1-helper-surface-consolidation`, on this stack.
 
 Source of authority:
 ledger slice `mapgen-helper-surface-authority-consolidation` (queueOrder 1) in
@@ -100,20 +119,29 @@ broad shared-utils owner; adding package-owned tests for helper redeclaration
 residue; mutating product source outside the selected slice; changing
 unrelated helper-family rows.
 
-Acceptance:
-`bun habitat check --json --rule prohibit_runtime_helper_redeclarations`
-passes; source absence proof for absorbed coverage; ledger/receipt
-reconciliation recorded (Record truth proof); `git diff --check` clean.
+Acceptance (proof classes named):
+Habitat wrapper behavior — `bun habitat check --json --rule prohibit_runtime_helper_redeclarations`
+passes on the widened rule; Injected violation proof — an injected
+exact-equivalent core-helper redeclaration fails the widened rule for each
+absorbed failure class; Clean sample proof — a legitimately distinct helper
+family (the excluded byte/int8/vector, Hydrology, Ecology, Resources families
+the warrant names) does not false-positive; Native tool behavior / Record
+truth proof — `rg` absence evidence for the retired shape and ledger/receipt
+reconciliation, quoted with its limits. Deletion of
+`prohibit_foundation_duplicate_math_helper_redefinitions` stays blocked until
+the survivor's Injected violation proof covers the absorbed class.
+`git diff --check` clean.
 
 Stop conditions:
 any widening that would require behavioral-equivalence judgment beyond
-exact-equivalent redeclarations; any row outside the two selected rule ids.
+exact-equivalent redeclarations; any row outside the two selected rule ids;
+any absorbed class the survivor cannot catch by Injected violation proof.
 
 ## Slice R2: Config-Facade Consolidation
 
 Gating: yes.
 
-Branch: `codex/readiness-r2-config-facade-consolidation`.
+Stack layer: `codex/readiness-r2-config-facade-consolidation`, on this stack.
 
 Source of authority:
 `perRuleDecisions.prohibit_foundation_op_contract_config_bags` in the ledger:
@@ -149,7 +177,7 @@ id for a distinct concern.
 
 Gating: yes.
 
-Branch: `codex/readiness-r3-aggregate-check-runnability`.
+Stack layer: `codex/readiness-r3-aggregate-check-runnability`, on this stack.
 
 Problem (evidenced; see Investigation Findings item 3):
 aggregate `bun habitat check --json` cannot complete or emit partial output;
@@ -164,11 +192,28 @@ timeout still yields parseable partial JSON with per-rule status. No rule
 semantics, selectors, baselines, or manifests change.
 
 Path B (fallback, only if A proves invasive): define a named shard set of
-small buckets — per-owner with `mod-swooper-maps` sub-split plus the three
-heavyweight rules isolated — where every shard completes with JSON in
-bounded time and a coverage check proves the union equals the live rule
-count. Coarse shards are measured non-viable (`--runner grit`,
-whole `--owner mod-swooper-maps`).
+small buckets where every shard completes with JSON in bounded time, and a
+coverage verifier proves the union of shard rule ids equals the live rule id
+set with no missing, extra, or duplicate id. Coarse shards are measured
+non-viable (`--runner grit` >235s, whole `--owner mod-swooper-maps` >120s), so
+the buckets must be small: per-owner for every owner except `mod-swooper-maps`,
+the three heavyweight rules isolated by `--rule`
+(`preserve_mapgen_core_runtime_neutrality`,
+`enforce_formatting_and_import_hygiene`, `verify_habitat_cli_smoke_contract`),
+and the `mod-swooper-maps` remainder split into `--rule` groups each under the
+time bound. The shard commands and their per-shard `--output` files are
+declared in the R3 receipt, not improvised. The coverage verifier is concrete:
+
+```bash
+# union of shard-reported ids
+jq -r '.rules[].id' shard-*.json | sort -u > /tmp/covered.ids
+# live rule id set
+find .habitat/blueprints .habitat/civ7 .habitat/docs .habitat/global .habitat/habitat \
+  -name rule.json -exec jq -r '.id' {} + | sort -u > /tmp/live.ids
+diff /tmp/live.ids /tmp/covered.ids   # must be empty; any line is missing/extra
+# duplicate guard: a shard reporting an id another shard also reports
+jq -r '.rules[].id' shard-*.json | sort | uniq -d   # must be empty
+```
 
 Also in scope (record truth): correct `tools/habitat/docs/CAPABILITIES.md`
 rule counts (124 → live count) and stale per-owner counts while touching the
@@ -197,7 +242,10 @@ that silently drops rules (coverage check is mandatory).
 
 Gating: yes.
 
-Branch: `codex/readiness-r4-stale-blocker-record-refresh`.
+Stack layer: `codex/readiness-r4-stale-blocker-record-refresh`, above the
+opening packet (it points at the packet path, which exists only from
+`codex/domain-operation-blueprint-descent-opening` upward). If R5 has already
+renamed the container, R4 points at the renamed path instead.
 
 Problem:
 the `domain-operation-generic-surfaces` ledger slice records the blocker
@@ -244,14 +292,13 @@ Source of authority:
 `.habitat/.active/workstreams/descent-workspace-shape.md` after its review
 passes.
 
-Action (the shape doc's Application section, verbatim intent):
-rename `define-domain-operation-blueprint-structure/` to
-`descend-002-domain-operation-interior/`; rename `opening-frame.md` to
-`frame.md`, `row-ledger-seed.md` to `ledger.md`, `decision-packets/` to
-`decisions/`; update the workstreams `README.md` row, the roadmap container
-column, the transition-anchor pointer, this plan's pointers, and internal
-cross-references. Phase folders (`evidence/`, `execution/`, `revalidation/`,
-`receipts/`) are created by first use.
+Action:
+apply the shape doc's Application section so descent 002's born-conformant
+container is `descend-002-domain-operation-interior/`; update the workstreams
+`README.md` row, the roadmap container column, the transition-anchor pointer,
+this plan's pointers, and internal cross-references. Phase folders
+(`execution/`, `receipts/`) and `ascent.md` are created by first use, not at
+shape application.
 
 Acceptance:
 zero stale references to the retired pre-shape paths across
@@ -266,35 +313,55 @@ repaired grammar, not the draft.
 Gating: yes (executes after the Studio runtime packet-train stack merges to
 `main`; expected before descent execution).
 
-Branch: `codex/readiness-r6-post-merge-reconciliation` (record-only; may fold
-into the descent's first evidence commit if the diff is provably empty).
+Stack layer: `codex/readiness-r6-post-merge-reconciliation`, above the
+opening packet. Always writes a receipt (a lightweight one if the delta is
+empty); never silently skipped.
 
-Action:
-a short record-truth pass, not a redesign. From the post-merge `main`, run
-and record:
+Base refs (this is the F1 fix — do not diff `0c97517d86...HEAD`, which would
+show this stack's own R1-R5 mutations, not the Studio merge):
+- `PRE` = the `main` tip immediately before the Studio packet-train merges
+  (capture it: `PRE=$(git rev-parse origin/main)` before the merge, or
+  `git merge-base HEAD origin/main` after);
+- `POST` = `origin/main` after the Studio merge.
+
+Action — two independent checks, a record-truth pass, not a redesign:
+
+Check 1, Studio-merge delta (diff PRE..POST, isolates only what the merge
+added; expected docs-only):
 
 ```bash
-git diff --name-status 0c97517d86...HEAD -- .habitat tools/habitat package.json bun.lock nx.json
-git diff --name-status 0c97517d86...HEAD -- mods/mod-swooper-maps/src/domain mods/mod-swooper-maps/src/recipes
-find .habitat/blueprints .habitat/civ7 .habitat/docs .habitat/global .habitat/habitat -name rule.json -type f | wc -l
+git diff --name-status "$PRE".."$POST" -- .habitat tools/habitat package.json bun.lock nx.json
+git diff --name-status "$PRE".."$POST" -- mods/mod-swooper-maps/src/domain mods/mod-swooper-maps/src/recipes
+# rule count on main is unchanged by the Studio merge (the merge adds no rules;
+# this stack's R2 deletion is NOT on main at R6 time):
+git ls-tree -r --name-only "$PRE" | rg 'rule\.json$' | wc -l
+git ls-tree -r --name-only "$POST" | rg 'rule\.json$' | wc -l   # must equal PRE
+```
+
+Check 2, descent-seed reproduction (absolute snapshots on the reconciled tree
+after this stack rebases onto POST; independent of R2 because they census
+source, not rules):
+
+```bash
 find mods/mod-swooper-maps/src/recipes/standard -maxdepth 1 -mindepth 1 | sort
 for d in mods/mod-swooper-maps/src/domain/*/ops/*/; do [ -f "$d/contract.ts" ] || echo "$d"; done
 rg -o "from ['\"]([^'\"]+)['\"]" -r '$1' --no-filename mods/mod-swooper-maps/src/domain/*/ops/*/strategies/*.ts | sort | uniq -c | sort -rn
 ```
 
-Expected outcome per the investigation: no `.habitat`/domain/recipe changes,
-rule count unchanged at the R2-adjusted count, descent seed censuses
-reproduce. Any deviation updates the descent ledger seed and, if material,
-reopens the affected decision packet with the new evidence.
+Expected per the investigation: Check 1 shows no `.habitat`/tooling/domain/
+recipe delta and an unchanged main rule count; Check 2 reproduces the descent
+`ledger.md` censuses. Any deviation updates the descent `ledger.md` seed and,
+if material, reopens the affected decision packet with the new evidence.
 
 Acceptance:
-Record truth proof — commands, outputs, and deltas (expected none) recorded
-in the receipt; descent `ledger.md` seed marked re-verified or updated.
+Record truth proof — PRE/POST refs, both checks' commands and outputs, and
+deltas (expected none) recorded in the receipt; descent `ledger.md` seed
+marked re-verified or updated.
 
 Stop conditions:
-a non-empty domain/recipe diff or rule-count change — that is new evidence,
-not an error; route it to the descent ledger and stop the reconciliation
-slice there.
+a non-empty Check-1 domain/recipe/tooling delta or a changed main rule count —
+that is new evidence, not an error; route it to the descent ledger and stop
+the reconciliation slice there.
 
 ## Optional O1: Workspace Biome Sweep
 
