@@ -361,7 +361,7 @@ old shapes remain outside its proof.
 Run first because deletion-oriented `consolidation/dedup` records require a
 named absorber and old shape.
 
-### Lane 1. Domain Root Fossil Guards
+### Lane 1. Retired Domain-Root Layout Guards
 
 Purpose:
 review rules about retired domain-root layouts potentially absorbed by
@@ -500,7 +500,7 @@ Lane obligation:
 reject path-only admission and preserve source-domain owner distinctions.
 
 Deletion potential:
-low to moderate. Some fossils may delete, but many recurrence guards are
+low to moderate. Some retired-shape rows may delete, but many recurrence guards are
 domain-specific live law.
 
 ### Lane 7. Runtime And Generated-Output Exclusion Guard

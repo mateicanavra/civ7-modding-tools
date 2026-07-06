@@ -15,33 +15,38 @@
   },
   "counts": {
     "actionDecision": {
-      "no action": 60,
-      "positive authority creation": 8,
-      "split by owner": 10,
-      "runtime/source validation": 3,
-      "retirement/garbage collection": 3,
-      "context admission": 26,
       "boundary inversion": 3,
-      "closed structure inversion": 1
+      "closed structure inversion": 2,
+      "consolidation/dedup": 3,
+      "context admission": 26,
+      "no action": 57,
+      "positive authority creation": 8,
+      "retirement/garbage collection": 3,
+      "runtime/source validation": 3,
+      "split by owner": 9
     },
     "packetNeeded": {
       "false": 114
     },
     "layer2Status": {
-      "none": 88,
-      "packet-complete": 19,
-      "excluded-native-rail-not-semantic-remediation": 1,
-      "implementation-ready": 1,
+      "blocked-prior-source-owner-design": 2,
       "complete-no-generic-domain-operation-slice": 2,
-      "blocked-prior-source-owner-design": 3
+      "decision-packet-accepted; absorber-proof-needed": 1,
+      "decision-packet-accepted; blocked-prior-source-owner-design": 1,
+      "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
+      "decision-packet-accepted; review-accepted; queued-no-mutation": 2,
+      "decision-packet-accepted; split-generalization-needed": 1,
+      "excluded-native-rail-not-semantic-remediation": 1,
+      "none": 85,
+      "packet-complete": 18
     }
   },
   "gateState": {
-    "currentLayer": "Rule authority cleanup corpus grounded after the completed domain-root topology ratchets.",
-    "currentGate": "Ready to open the Rule Authority Cleanup container from the active transition anchor; every live rule row must be reclassified before keep/retire/replace/split decisions are authorized.",
-    "mutationAuthorization": "This grounding slice may rename and refresh the operational ledger only. It does not authorize rule deletion, runner changes, baseline growth, or source movement.",
-    "nextSliceId": null,
-    "nextLegalAction": "Open the Rule Authority Cleanup frame and run row-level review against the refreshed current ledger. Do not select a cleanup implementation slice until the ledger rows have fresh evidence and review disposition.",
+    "currentLayer": "Post-ratchet rule revalidation for the completed domain-root topology ratchet.",
+    "currentGate": "Container 8 handoff complete: two review-accepted domain-root topology duplicates are queued for a later deletion slice; no rule packets are mutated in this branch.",
+    "mutationAuthorization": "This revalidation execution may update ledger and receipt records only. It does not authorize rule deletion, runner changes, baseline growth, package-test cleanup, or source movement.",
+    "nextSliceId": "domain-root-topology-delete-absorbed-root-shape-rules-001",
+    "nextLegalAction": "Open the named remediation slice on a new Graphite layer and delete only prohibit_retired_domain_root_catalogs and require_domain_ops_root_presence after live-reference reconciliation and focused absorber checks. Do not include Foundation stage Grit rows unless a separate admission frame is opened.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
     "sourceCommit": "50f8db56c0"
   },
@@ -319,11 +324,18 @@
     {
       "ruleId": "prohibit_domain_artifacts_modules",
       "lane": "blueprints/domain",
-      "actionDecision": "no action",
+      "actionDecision": "closed structure inversion",
       "packetNeeded": false,
-      "expectedRemediation": "Stay as domain topology guard.",
-      "evidenceNote": "No `artifacts.ts`; positive layout is `artifacts/contract/<artifact>.contract.ts`.",
-      "currentPath": ".habitat/blueprints/domain/prohibit_domain_artifacts_modules/rule.json"
+      "expectedRemediation": "retain until nested domain-source/domain-operation topology positively asserts the residual artifacts.ts support-directory shape",
+      "evidenceNote": "Post-ratchet revalidation found partial absorption only. A refined injected probe under ecology/ops/resource-score-balance/rules/artifacts.ts passed require_domain_source_topology and failed this rule, proving residual coverage remains.",
+      "currentPath": ".habitat/blueprints/domain/prohibit_domain_artifacts_modules/rule.json",
+      "layer2Status": "decision-packet-accepted; deletion-blocked-partial-absorber",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "partial absorption; keep until positive nested topology exists",
+      "ruleIdPlan": "preserve id now; later split absorbed root clause or replace with expanded positive topology",
+      "semanticDecision": "The direct-root artifacts.ts clause is absorbed, but nested artifacts.ts risk remains outside current source topology.",
+      "residualFollowUp": "Design whether nested rules/, strategies/, policy/, model/schemas, and model/policy should be closed by generic topology.",
+      "implementationReadiness": "not implementation-ready for deletion"
     },
     {
       "ruleId": "prohibit_domain_entrypoint_self_reexports",
@@ -418,18 +430,18 @@
     {
       "ruleId": "prohibit_foundation_op_contract_config_bags",
       "lane": "domains/foundation",
-      "actionDecision": "split by owner",
+      "actionDecision": "consolidation/dedup",
       "packetNeeded": false,
-      "expectedRemediation": "Consolidate config-facade import clause into existing domain-operation config-facade rail and delete FoundationConfigSchema token residue.",
-      "evidenceNote": "Corrective audit: existing owner is .habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops; FoundationConfigSchema is retired literal residue unless concrete recurrence risk is proven.",
+      "expectedRemediation": "consolidate op-contract import clauses into require_domain_operation_contract_file_shape only after injected absorber proof for exact import forms",
+      "evidenceNote": "Post-ratchet revalidation found likely absorption by positive operation contract shape, but did not run injected absolute config-facade import probes; retired FoundationConfigSchema token remains deletion residue after proof.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
-      "layer2Status": "implementation-ready",
-      "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split/consolidate",
-      "ruleIdPlan": "replace by widening existing domain-operation config-facade import rule, then delete local Foundation id after proof; do not preserve FoundationConfigSchema blacklist",
-      "semanticDecision": "Operation contracts should expose local typed schemas and may use op-local/named-family config, but must not import recipe-facing root/domain config facades.",
-      "residualFollowUp": "Layer 3 should extend prohibit_root_config_facade_imports_in_domain_ops to alias imports, preserve allowed op-local config imports, prove absence, then retire this Foundation row.",
-      "implementationReadiness": "implementation-ready as config-facade consolidation plus retired-token deletion"
+      "layer2Status": "decision-packet-accepted; absorber-proof-needed",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "consolidate plus retired-literal deletion, pending proof",
+      "ruleIdPlan": "replace by positive operation contract authority, then delete id after absorber proof and review acceptance",
+      "semanticDecision": "Operation contracts should own local schema envelopes and only import allowed contract primitives; Foundation config-schema token is obsolete.",
+      "residualFollowUp": "Deletion proof should include injected import forms for absolute config facade imports.",
+      "implementationReadiness": "not deletion-ready until injected absorber proof and review acceptance"
     },
     {
       "ruleId": "prohibit_foundation_projection_legacy_motion_source",
@@ -493,16 +505,16 @@
       "lane": "standard recipe stage foundation/hydrology/map/placement",
       "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "generalize live config-facade import clauses into standard recipe step-contract config-bag authority; delete FoundationConfigSchema retired-token clause",
-      "evidenceNote": "Stage/step config schemas are step-owned and shared fragments belong to closest real owners. A Foundation-only contract config-bag guard is a repeated stage special case until generalized or narrowed. Layer 2 packet standard-stage-public-config-and-contract-surface: Step contracts should not import broad root/domain config-bag facades as contract surfaces, but the current Foundation-only packet is underbroad. Stage indexes and step implementations may legitimately import closest-owner domain config helpers; the target is contract files only.",
+      "expectedRemediation": "split/generalize live recipe-step contract import-boundary pressure and delete retired FoundationConfigSchema token only after the new owner is proven",
+      "evidenceNote": "Post-ratchet revalidation found step contracts should depend on domain contract roots, not config facades. The retired FoundationConfigSchema literal does not need replacement, but the @mapgen/domain/config.js gap needs owner design.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_step_contract_config_bags/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "standard-stage-public-config-and-contract-surface",
-      "wholeRuleFit": "split/consolidate",
-      "ruleIdPlan": "generalize live config-facade import clauses into standard recipe step-contract config-bag authority; delete FoundationConfigSchema retired-token clause",
-      "semanticDecision": "Step contracts should not import broad root/domain config-bag facades as contract surfaces, but the current Foundation-only packet is underbroad. Stage indexes and step implementations may legitimately import closest-owner domain config helpers; the target is contract files only.",
-      "residualFollowUp": "Define config bag narrowly before Layer 3. Preserve live import-boundary clauses for contract files, remove retired FoundationConfigSchema token residue, and avoid banning legitimate stage-level knob imports.",
-      "implementationReadiness": "implementation-ready as a narrow split/generalization slice, but it only collapses this local packet group"
+      "layer2Status": "decision-packet-accepted; split-generalization-needed",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "split required",
+      "ruleIdPlan": "split/generalize into recipe-step authority, then delete Foundation-local id",
+      "semanticDecision": "Live import-boundary pressure belongs in recipe-step contract authority; retired literal residue should be deleted once separated.",
+      "residualFollowUp": "Define config facade/bag narrowly before mutation.",
+      "implementationReadiness": "not deletion-ready; implementation-ready only as a future split/generalization slice"
     },
     {
       "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
@@ -688,11 +700,18 @@
     {
       "ruleId": "prohibit_retired_domain_root_catalogs",
       "lane": "blueprints/domain",
-      "actionDecision": "no action",
+      "actionDecision": "consolidation/dedup",
       "packetNeeded": false,
-      "expectedRemediation": "Stay as G2 root-catalog guard.",
-      "evidenceNote": "No root `tags.ts` / `artifacts.ts`; guardrail docs name this cleanup.",
-      "currentPath": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/rule.json"
+      "expectedRemediation": "delete after live-reference reconciliation in domain-root-topology-delete-absorbed-root-shape-rules-001; require_domain_source_topology remains the positive owner",
+      "evidenceNote": "Post-ratchet revalidation accepted this as absorbed by require_domain_source_topology. Injected direct root tags.ts and artifacts.ts both failed the absorber with unexpected-child diagnostics and failed this old rule.",
+      "currentPath": ".habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/rule.json",
+      "layer2Status": "decision-packet-accepted; review-accepted; queued-no-mutation",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "consolidate/delete into positive domain-root topology",
+      "ruleIdPlan": "delete in domain-root-topology-delete-absorbed-root-shape-rules-001 after live-reference reconciliation; do not delete in the revalidation branch",
+      "semanticDecision": "Direct domain-root tags.ts and artifacts.ts catalogs are fully absorbed by the closed domain-root scope in require_domain_source_topology.",
+      "residualFollowUp": "Deletion slice must update live ledger/workstream references and preserve historical references as history or archive/regenerate through their owner.",
+      "implementationReadiness": "queued for domain-root-topology-delete-absorbed-root-shape-rules-001; no mutation authorized in this revalidation branch"
     },
     {
       "ruleId": "prohibit_rng_callback_state_in_ops",
@@ -885,11 +904,18 @@
     {
       "ruleId": "require_domain_ops_root_presence",
       "lane": "blueprints/domain-operation",
-      "actionDecision": "no action",
+      "actionDecision": "consolidation/dedup",
       "packetNeeded": false,
-      "expectedRemediation": "Stay live as structure authority.",
-      "evidenceNote": "All expected domain `ops` roots exist.",
-      "currentPath": ".habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json"
+      "expectedRemediation": "delete after live-reference reconciliation in domain-root-topology-delete-absorbed-root-shape-rules-001; require_domain_source_topology remains the positive owner",
+      "evidenceNote": "Post-ratchet revalidation accepted this as absorbed by require_domain_source_topology. Injected missing ecology ops root failed the absorber with missing-required-child and failed this old enumerated rule.",
+      "currentPath": ".habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json",
+      "layer2Status": "decision-packet-accepted; review-accepted; queued-no-mutation",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "consolidate/delete into positive domain-root topology",
+      "ruleIdPlan": "delete in domain-root-topology-delete-absorbed-root-shape-rules-001 after live-reference reconciliation; do not delete in the revalidation branch",
+      "semanticDecision": "The hardcoded six-domain ops-root presence rule is fully absorbed by require_domain_source_topology, which requires ops for every domain root.",
+      "residualFollowUp": "Deletion slice must update live operational records and preserve historical references as history.",
+      "implementationReadiness": "queued for domain-root-topology-delete-absorbed-root-shape-rules-001; no mutation authorized in this revalidation branch"
     },
     {
       "ruleId": "require_domain_source_topology",
@@ -906,16 +932,16 @@
       "lane": "domains/nonfoundation",
       "actionDecision": "closed structure inversion",
       "packetNeeded": false,
-      "expectedRemediation": "Design source-owned operation-module topology verifier/generator with support-directory exceptions before replacing Ecology-only structure rail.",
-      "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries.",
+      "expectedRemediation": "replace later with generic domain-operation module topology authority after source-owned topology design",
+      "evidenceNote": "Post-ratchet revalidation found the actual Ecology rule is an exemplar proxy. require_domain_source_topology partially absorbs contract.ts/index.ts, but strategies and support-directory index clauses still require source-owned design.",
       "currentPath": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
-      "layer2Status": "blocked-prior-source-owner-design",
-      "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split/consolidate into source-owned topology authority",
-      "ruleIdPlan": "do not move Ecology rule as-is; later replace by source-owned op-module topology proof and delete Ecology rule after replacement proof",
-      "semanticDecision": "Contract/index/strategy binding is live domain-operation authority, but must be enforced through TS registry, generator, or package verify, not Ecology sidecar topology.",
-      "residualFollowUp": "Design operation-module verifier/generator and support-directory exception model for score-shared/shared/mountains-shared before Layer 3.",
-      "implementationReadiness": "not implementation-ready; needs source-owned operation-module verifier/generator and support-directory exception model"
+      "layer2Status": "decision-packet-accepted; blocked-prior-source-owner-design",
+      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
+      "wholeRuleFit": "replace by positive authority, but not implementation-ready",
+      "ruleIdPlan": "do not move Ecology id as-is; replace by generic positive authority, then delete Ecology rule after replacement proof",
+      "semanticDecision": "The rule is admitted as an actual Ecology proxy for all-domain op-module topology; current source topology is not a full absorber.",
+      "residualFollowUp": "Design support-directory exception model and generic contract.ts/index.ts/optional rules index/strategies index topology across domains.",
+      "implementationReadiness": "not implementation-ready; requires source-owned topology design"
     },
     {
       "ruleId": "require_explicit_mapgen_sdk_opt_in",
@@ -2925,6 +2951,49 @@
           "Rejected stopping the Layer 2 cascade; this is a sealed tooling blocker, not a user decision gate."
         ]
       }
+    },
+    {
+      "sliceId": "domain-root-topology-delete-absorbed-root-shape-rules-001",
+      "status": "queued-no-mutation",
+      "actionClass": "consolidation/dedup",
+      "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-root-topology-post-ratchet-revalidation-execution.md",
+      "branch": "future Graphite layer",
+      "commit": null,
+      "rules": [
+        "prohibit_retired_domain_root_catalogs",
+        "require_domain_ops_root_presence"
+      ],
+      "createdRows": [],
+      "survivorRows": [
+        "require_domain_source_topology"
+      ],
+      "excludedRows": [
+        {
+          "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
+          "reason": "Out of scope for the domain-root/domain-operation topology ratchet; prior context-admission and package-test coverage remain live."
+        },
+        {
+          "ruleId": "prohibit_foundation_stage_sentinel_passthrough",
+          "reason": "Out of scope for the domain-root/domain-operation topology ratchet; prior context-admission and package-test coverage remain live."
+        },
+        {
+          "ruleId": "prohibit_domain_artifacts_modules",
+          "reason": "Residual nested artifacts.ts shape remains unabsorbed."
+        },
+        {
+          "ruleId": "prohibit_foundation_op_contract_config_bags",
+          "reason": "Injected absorber proof still needed."
+        },
+        {
+          "ruleId": "prohibit_foundation_step_contract_config_bags",
+          "reason": "Split/generalization needed."
+        },
+        {
+          "ruleId": "require_ecology_canonical_op_module_topology",
+          "reason": "Source-owned operation-module topology design needed."
+        }
+      ],
+      "outcome": "Queued by post-ratchet revalidation; no deletion or runner mutation performed in the revalidation branch."
     }
   ],
   "blockers": [
@@ -3148,6 +3217,20 @@
       ],
       "summary": "Deleted three retired runtime/projection literal Habitat rules without replacement after scoped source-absence proof. Valid adjacent concepts remain owned by Hydrology/Morphology source contracts, map artifacts, and placement/adapter projection rather than Habitat token blacklists.",
       "handling": "Removed rule packets from the live authority tree, removed their live rows from rules[], and recorded retired historical rows in this canonical JSON only."
+    },
+    {
+      "findingId": "2026-07-06-domain-root-topology-post-ratchet-review-gate",
+      "recordedOn": "2026-07-06",
+      "ruleId": null,
+      "kind": "post-ratchet-review-disposition",
+      "finding": "Fresh adversarial review accepted the two root-shape deletion candidates after direct tags.ts, direct artifacts.ts, and missing ops-root absorber proof. Review rejected Foundation stage cast/sentinel rows from this ratchet admission frame because prior context-admission and package-test coverage remain live.",
+      "handling": "Queued only prohibit_retired_domain_root_catalogs and require_domain_ops_root_presence for a later no-mutation handoff slice; left Foundation stage rows unchanged from prior ledger state.",
+      "rules": [
+        "prohibit_retired_domain_root_catalogs",
+        "require_domain_ops_root_presence",
+        "prohibit_foundation_stage_cast_merge_hacks",
+        "prohibit_foundation_stage_sentinel_passthrough"
+      ]
     }
   ],
   "retiredRules": [
