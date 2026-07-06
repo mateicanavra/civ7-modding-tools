@@ -22,6 +22,9 @@ This index routes active workstreams only and cannot reorder that authority.
 
 - `current-scope-scan.md`: current in-frame, outer-edge, and historical
   material map for the prework dominoes and domain blueprint enforcement path.
+- `blueprint-descent-roadmap.md`: living cross-descent selection record for
+  the blueprint authority initiative: closed descents, the selected descent,
+  and the queued descents with evidence and decision density.
 
 ## Operating Rule
 

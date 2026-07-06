@@ -214,8 +214,16 @@ Required output when opened:
 
 ## Container 3: Move Across, Not Down
 
-Status: third container to open after the rule authority cleanup and reusable method are
-captured enough to guide the next descent.
+Status: selection made 2026-07-06; outputs live outside this anchor.
+
+The cross-descent selection record is
+`.habitat/.active/workstreams/blueprint-descent-roadmap.md`. The selected
+descent's opening packet is
+`.habitat/.active/workstreams/descend-002-domain-operation-interior/`.
+The mechanical runway that must land before descent execution is
+`.habitat/.active/workstreams/remediate-rule-authority/pre-descent-readiness-plan.md`.
+The remainder of this container's text is retained as the selection criteria
+that produced those records.
 
 Objective:
 select the next blueprint-level slice. The next move should be across to another
