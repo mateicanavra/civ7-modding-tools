@@ -1,8 +1,8 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
 import { Schema as TectonicEventsSchema } from "../../artifacts/tectonic-events.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 
 const FoundationTectonicEraFieldsInternalSchema =
   FoundationTectonicEraFieldsInternalListSchema.items;

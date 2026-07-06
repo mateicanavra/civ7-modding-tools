@@ -1,9 +1,9 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
 import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
 import { Schema as FoundationTectonicProvenanceSchema } from "../../artifacts/tectonic-provenance.artifact.js";
 import { Schema as TracerIndexByEraSchema } from "../../artifacts/tracer-index-by-era.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
 
 const ComputeTectonicProvenanceContract = defineOp({
   kind: "compute",

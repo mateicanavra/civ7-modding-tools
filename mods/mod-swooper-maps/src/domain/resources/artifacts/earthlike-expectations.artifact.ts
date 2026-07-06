@@ -1,8 +1,12 @@
-import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 import type { OfficialResourceType } from "@civ7/map-policy";
-import type { EarthlikeResourceExpectationsArtifact } from "../model/data/earthlike-expectations/types.js";
+import {
+  defineArtifact,
+  type Static,
+  Type,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "../model/data/earthlike-expectations/official-earthlike.js";
+import type { EarthlikeResourceExpectationsArtifact } from "../model/data/earthlike-expectations/types.js";
 
 /**
  * Artifact contract for the earthlike per-resource expectation corpus

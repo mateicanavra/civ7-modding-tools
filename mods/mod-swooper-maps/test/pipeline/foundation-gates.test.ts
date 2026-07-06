@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-
-import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { M1_FOUNDATION_GATES } from "../support/foundation-invariants.js";
 
 function findGate(name: string) {

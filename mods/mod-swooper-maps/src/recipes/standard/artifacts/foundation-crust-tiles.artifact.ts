@@ -1,6 +1,10 @@
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation crust tiles artifact payload (tile-space crust driver tensors). */
 export const Schema = Type.Object(

@@ -1,5 +1,8 @@
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Advanced-start evidence (`artifact:placement.advancedStartAssignment`). One artifact per file by repo convention. */
 const AdvancedStartAssignmentArtifactSchema = Type.Object(

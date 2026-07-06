@@ -20,10 +20,10 @@ describe("hydrology/project-river-network (default strategy)", () => {
       {
         strategy: "default",
         config: {
-        minorPercentile: 0.85,
-        majorPercentile: 0.95,
-        minMinorDischarge: 0,
-        minMajorDischarge: 0,
+          minorPercentile: 0.85,
+          majorPercentile: 0.95,
+          minMinorDischarge: 0,
+          minMajorDischarge: 0,
         },
       }
     );
@@ -52,10 +52,10 @@ describe("hydrology/project-river-network (default strategy)", () => {
       {
         strategy: "default",
         config: {
-        minorPercentile: 0.85,
-        majorPercentile: 0.95,
-        minMinorDischarge: 0,
-        minMajorDischarge: 0,
+          minorPercentile: 0.85,
+          majorPercentile: 0.95,
+          minMinorDischarge: 0,
+          minMajorDischarge: 0,
         },
       }
     );
@@ -85,10 +85,10 @@ describe("hydrology/project-river-network (default strategy)", () => {
       {
         strategy: "default",
         config: {
-        minorPercentile: 0,
-        majorPercentile: 1,
-        minMinorDischarge: 30,
-        minMajorDischarge: 120,
+          minorPercentile: 0,
+          majorPercentile: 1,
+          minMinorDischarge: 30,
+          minMajorDischarge: 120,
         },
       }
     );

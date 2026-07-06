@@ -1,8 +1,10 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifacts as ecologyArtifacts,
+  validators as ecologyArtifactValidators,
+} from "../../../ecology/artifacts/index.js";
 import PlanReefsStepContract from "./contract.js";
-import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const REEF_FEATURE_INTENTS = new Set(["reef", "cold-reef", "atoll", "lotus"]);
 

@@ -1,9 +1,9 @@
-import { getInitialMapResourcePolicyForType } from "../../policy/initial-map-authoring.js";
 import {
   OFFICIAL_RESOURCE_BY_TYPE,
   OFFICIAL_RESOURCE_CORPUS,
   type OfficialResourceType,
 } from "@civ7/map-policy";
+import { getInitialMapResourcePolicyForType } from "../../policy/initial-map-authoring.js";
 import type {
   EarthlikeResourceExpectation,
   EarthlikeResourceExpectationsArtifact,

@@ -1,8 +1,12 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import {
+  artifacts as placementArtifacts,
+  validators as placementArtifactValidators,
+} from "../../artifacts/index.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
@@ -13,8 +17,6 @@ import { logTerrainStats } from "../terrain-diagnostics.js";
 import PreparePlacementSurfaceStepContract from "./contract.js";
 import { readFinalLakeProjection } from "./lake-readback.js";
 import { applyLandmassRegionSlots } from "./landmass-regions.js";
-import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
-import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 import {
   readTerrainValidationBoundarySnapshot,
   type TerrainValidationBoundarySnapshot,

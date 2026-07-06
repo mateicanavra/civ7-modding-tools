@@ -1,7 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph, computePlateMotion } = foundationOpsPublic.ops;
+const {
+  computeCrust,
+  computeMantleForcing,
+  computeMantlePotential,
+  computeMesh,
+  computePlateGraph,
+  computePlateMotion,
+} = foundationOpsPublic.ops;
 function allFinite(values: Float32Array): boolean {
   for (let i = 0; i < values.length; i++) {
     const v = values[i] ?? 0;

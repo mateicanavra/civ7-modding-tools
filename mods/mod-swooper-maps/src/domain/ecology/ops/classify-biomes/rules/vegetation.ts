@@ -1,5 +1,5 @@
-import type { BiomeSymbol } from "../../../model/schemas/index.js";
 import { clamp01 } from "@swooper/mapgen-core";
+import type { BiomeSymbol } from "../../../model/schemas/index.js";
 
 /**
  * Computes vegetation density using climate signals and stress attenuation.

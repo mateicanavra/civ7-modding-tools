@@ -3,9 +3,8 @@ import {
   defineArtifact,
   type Static,
   Type,
-  TypedArraySchemas,
+  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 export const ResourceBasinsArtifactSchema = Type.Object({
   basins: Type.Array(
@@ -29,33 +28,6 @@ export const artifact = defineArtifact({
 });
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
 
 function isResourceBasinsArtifact(value: unknown): value is ResourceBasinsArtifact {
   if (!value || typeof value !== "object") return false;

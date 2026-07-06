@@ -32,7 +32,8 @@ export type FeatureIntentKey = (typeof FEATURE_INTENT_KEYS)[number];
 
 export const FeatureIntentKeySchema = Type.Unsafe<FeatureIntentKey>(
   Type.String({
-    description: "Abstract ecology feature intent. Civ7 engine feature keys are chosen by projection.",
+    description:
+      "Abstract ecology feature intent. Civ7 engine feature keys are chosen by projection.",
     enum: [...FEATURE_INTENT_KEYS],
   })
 );

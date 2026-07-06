@@ -1,9 +1,17 @@
 import { describe, expect, it } from "bun:test";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 import morphology from "@mapgen/domain/morphology/ops";
 import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph, computePlateMotion, computePlatesTensors } = foundationOpsPublic.ops;
+const {
+  computeCrust,
+  computeMantleForcing,
+  computeMantlePotential,
+  computeMesh,
+  computePlateGraph,
+  computePlateMotion,
+  computePlatesTensors,
+} = foundationOpsPublic.ops;
 const { computeBaseTopography, computeSeaLevel, planFoothills, planRidges } = morphology.ops;
 
 function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {

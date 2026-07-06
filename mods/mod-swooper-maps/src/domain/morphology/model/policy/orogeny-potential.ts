@@ -1,7 +1,7 @@
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
-import type { OrogenyPotentialPolicy } from "./mountain-scoring-policy.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { resolveBoundaryRegime } from "./boundary-regime.js";
+import type { OrogenyPotentialPolicy } from "./mountain-scoring-policy.js";
 
 export function computeOrogenyPotential(params: {
   boundaryStrength: number;

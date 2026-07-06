@@ -31,7 +31,8 @@ const PlanVegetationContract = defineOp({
         "1 = land tile that will remain flat after terrain projection; 0 = water, hill, mountain, volcano, or lake.",
     }),
     biomeIndex: TypedArraySchemas.u8({
-      description: "Internal biome classification index used for broad vegetation habitat admission.",
+      description:
+        "Internal biome classification index used for broad vegetation habitat admission.",
     }),
     surfaceTemperature: TypedArraySchemas.f32({
       description: "Surface temperature per tile (C) used for broad feature habitat admission.",

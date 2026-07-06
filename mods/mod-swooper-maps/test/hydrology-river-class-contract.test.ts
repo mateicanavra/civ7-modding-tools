@@ -1,6 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { validators as hydrologyHydrographyArtifactValidators } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-
 import {
   findInvalidRiverClassIndex,
   isAnyRiverClass,
@@ -11,6 +9,7 @@ import {
   RIVER_CLASS_MINOR,
   RIVER_CLASS_NONE,
 } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { validators as hydrologyHydrographyArtifactValidators } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 
 describe("hydrology river class contract", () => {
   it("keeps minor and major/projectable river intent distinct", () => {

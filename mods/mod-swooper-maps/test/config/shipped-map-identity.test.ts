@@ -37,9 +37,9 @@ describe("shipped map config identity", () => {
     expect(swooperEarthlikeConfigRaw.sortIndex).toBe(501);
     expect(earthlike["foundation-tectonics"].knobs.plateActivity).toBe(0.5);
     expect(earthlike["foundation-mantle"].mesh.computeMesh.config.plateCount).toBe(28);
-    expect(earthlike["foundation-lithosphere"]["plate-graph"].computePlateGraph.config.plateCount).toBe(
-      42
-    );
+    expect(
+      earthlike["foundation-lithosphere"]["plate-graph"].computePlateGraph.config.plateCount
+    ).toBe(42);
     expect(earthlike["morphology-shelf"].knobs.shelfWidth).toBe("wide");
     // Re-blessed for the physical-margin shelf model (Path A): the compute-shelf-mask
     // classifier reads a seabed-gradient break (breakGradient/breakGradientScale) off the
@@ -58,8 +58,8 @@ describe("shipped map config identity", () => {
     expect(earthlike["ecology-pedology"].pedology.classify).toMatchObject({
       strategy: "orogeny-boosted",
       config: {
-      reliefWeight: 1.18,
-      bedrockWeight: 0.82,
+        reliefWeight: 1.18,
+        bedrockWeight: 0.82,
       },
     });
     expect(earthlike["ecology-biomes"].biomes.classify.config.moisture.thresholds).toEqual([

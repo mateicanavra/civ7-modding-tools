@@ -1,6 +1,5 @@
 import placement from "@mapgen/domain/placement";
-import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Natural-wonder plan (`artifact:placement.naturalWonderPlan`). One artifact per file by repo convention. */
 

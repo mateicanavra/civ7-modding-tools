@@ -4,8 +4,8 @@ import {
   type Static,
   Type,
   TypedArraySchemas,
+  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 export const OccupancyArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
@@ -29,10 +29,6 @@ export const artifact = defineArtifact({
 });
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
 
 function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
   return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));

@@ -1,5 +1,9 @@
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Terminal engine-state evidence (`artifact:placementEngineState`). One artifact per file by repo convention. */
 const PlacementEngineStateV1Schema = Type.Object(

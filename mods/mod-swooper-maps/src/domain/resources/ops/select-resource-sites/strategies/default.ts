@@ -1,7 +1,6 @@
+import type { OfficialResourceType } from "@civ7/map-policy";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-
-import type { OfficialResourceType } from "@civ7/map-policy";
 import SelectResourceSitesContract from "../contract.js";
 import { spacingFloorFor } from "../policy/spacing-floors.js";
 

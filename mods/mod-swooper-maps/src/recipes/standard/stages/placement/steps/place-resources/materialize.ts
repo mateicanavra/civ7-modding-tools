@@ -5,7 +5,7 @@ import type {
   ResourcePlacementOutcome,
   ResourcePlacementRejectionReason,
 } from "@civ7/adapter";
-import { requireResourceRuntimeId, type OfficialResourceType } from "@civ7/map-policy";
+import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
 import resources from "@mapgen/domain/resources";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
@@ -350,8 +350,9 @@ export function placeResourcesWithTypedOutcomes({
   const shortfallCounts = new Map<string, number>();
 
   for (const planned of plan.intents) {
-    const resourceTypeId = requireResourceRuntimeId(planned.resourceType as OfficialResourceType)
-      .resourceTypeId;
+    const resourceTypeId = requireResourceRuntimeId(
+      planned.resourceType as OfficialResourceType
+    ).resourceTypeId;
     const intent = {
       plotIndex: planned.plotIndex,
       resourceType: resourceTypeId,

@@ -1,6 +1,9 @@
-import { defineArtifact, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Nearest mesh cellIndex per tileIndex (canonical mesh to tile projection mapping). */
 export const Schema = TypedArraySchemas.i32({

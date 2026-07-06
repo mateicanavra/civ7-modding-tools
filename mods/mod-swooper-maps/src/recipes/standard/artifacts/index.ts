@@ -8,7 +8,17 @@ import * as placementEngineTerrainSnapshot from "./placement-engine-terrain-snap
 import * as placementSurfaceValidationBoundary from "./placement-surface-validation-boundary.artifact.js";
 import * as projectionMeta from "./projection-meta.artifact.js";
 
-export { foundationCrustTiles, foundationPlates, foundationTectonicHistoryTiles, foundationTectonicProvenanceTiles, foundationTileToCellIndex, landmassRegionSlotByTile, placementEngineTerrainSnapshot, placementSurfaceValidationBoundary, projectionMeta };
+export {
+  foundationCrustTiles,
+  foundationPlates,
+  foundationTectonicHistoryTiles,
+  foundationTectonicProvenanceTiles,
+  foundationTileToCellIndex,
+  landmassRegionSlotByTile,
+  placementEngineTerrainSnapshot,
+  placementSurfaceValidationBoundary,
+  projectionMeta,
+};
 
 export const artifactContracts = {
   foundationCrustTiles,

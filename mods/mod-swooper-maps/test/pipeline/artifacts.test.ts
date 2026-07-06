@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
 import {
@@ -9,7 +10,6 @@ import {
   StepRegistry,
 } from "@swooper/mapgen-core/engine";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { artifacts as hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import {

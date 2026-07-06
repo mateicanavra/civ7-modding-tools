@@ -1,7 +1,9 @@
-import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import { confidenceFromScore01, validateGridSize } from "../../../model/policy/feature-score-selection.js";
+import {
+  confidenceFromScore01,
+  validateGridSize,
+} from "../../../model/policy/feature-score-selection.js";
+import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanIceContract from "../contract.js";
 import { admitIceIntent } from "../policy/index.js";
 

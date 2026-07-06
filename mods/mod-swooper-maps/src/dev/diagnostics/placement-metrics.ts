@@ -16,7 +16,7 @@
 
 import type { GameMapAdapter } from "@civ7/adapter";
 import { createMockAdapter } from "@civ7/adapter";
-import { requireResourceRuntimeId, type OfficialResourceType } from "@civ7/map-policy";
+import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
 import { createExtendedMapContext, createLabelRng, VOLCANO_FEATURE } from "@swooper/mapgen-core";
 import {
   getHexNeighborIndicesOddQ,

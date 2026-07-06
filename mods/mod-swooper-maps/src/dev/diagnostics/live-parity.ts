@@ -3159,7 +3159,9 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     if (!isPlainObject(intent)) continue;
     const plotIndex = numberValue(intent.plotIndex);
     const preferredResourceType =
-      typeof intent.resourceType === "string" ? resourceTypeIdForSymbol(intent.resourceType) : undefined;
+      typeof intent.resourceType === "string"
+        ? resourceTypeIdForSymbol(intent.resourceType)
+        : undefined;
     if (
       plotIndex === undefined ||
       preferredResourceType === undefined ||

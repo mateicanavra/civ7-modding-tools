@@ -98,7 +98,6 @@ const MountainRangesPublicSchema = Type.Object(
   }
 );
 
-
 function resolveMountainRangesPublicConfig(value: unknown) {
   const config = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 

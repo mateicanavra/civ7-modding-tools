@@ -3,6 +3,12 @@ import {
   type ResourcePlacementMismatchReason,
   type ResourcePlacementRejectionReason,
 } from "@civ7/adapter";
+import {
+  getEngineFeatureLegality,
+  type OfficialResourceType,
+  requireResourceRuntimeId,
+} from "@civ7/map-policy";
+import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/model/schemas/index.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import {
   collectMaskComponentsOddQ,
@@ -10,12 +16,6 @@ import {
   hexDistanceOddQPeriodicX,
 } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import {
-  getEngineFeatureLegality,
-  requireResourceRuntimeId,
-  type OfficialResourceType,
-} from "@civ7/map-policy";
-import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/model/schemas/index.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
@@ -1050,8 +1050,9 @@ export function collectWorldBalanceStats(
   }
   const resourceIntentByPlot = new Map<number, { resourceTypeId: number; inHabitat: boolean }>();
   for (const intent of stampedResourceIntents) {
-    const resourceTypeId = requireResourceRuntimeId(intent.resourceType as OfficialResourceType)
-      .resourceTypeId;
+    const resourceTypeId = requireResourceRuntimeId(
+      intent.resourceType as OfficialResourceType
+    ).resourceTypeId;
     incrementCount(resourcePlanTypeCounts, resourceTypeId);
     const plotIndex = Number.isFinite(intent.plotIndex)
       ? Math.trunc(intent.plotIndex as number)

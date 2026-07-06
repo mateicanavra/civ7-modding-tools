@@ -1,7 +1,5 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   HYDROLOGY_FLOW_DRY,
   HYDROLOGY_FLOW_EPHEMERAL,
@@ -9,6 +7,8 @@ import {
   HYDROLOGY_FLOW_PERENNIAL,
   HYDROLOGY_MOUTH_UNRESOLVED,
 } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
+import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   type CanonicalMapConfigWithRecipe,
   canonicalRecipeConfig,

@@ -1,6 +1,10 @@
 import { FeaturePlacementSchema } from "@mapgen/domain/ecology/model/schemas/index.js";
-import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  type Static,
+  Type,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 export const FeaturePlacementIntentSchema = FeaturePlacementSchema;
 

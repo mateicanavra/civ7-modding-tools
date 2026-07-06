@@ -1,7 +1,7 @@
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 import ComputeLandmaskContract from "../contract.js";
 import { validateLandmaskInputs } from "../rules/index.js";

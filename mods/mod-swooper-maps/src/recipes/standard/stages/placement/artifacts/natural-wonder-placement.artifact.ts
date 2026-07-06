@@ -1,5 +1,8 @@
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Natural-wonder stamping outcomes (`artifact:placement.naturalWonderPlacement`). One artifact per file by repo convention. */
 const NaturalWonderPlacementCoordinateDigestSchema = Type.Object(

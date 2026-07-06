@@ -1,12 +1,12 @@
-import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { BIOME_SYMBOL_TO_INDEX } from "../../../model/schemas/index.js";
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
   validateGridSize,
 } from "../../../model/policy/feature-score-selection.js";
+import type { FeatureIntentKey } from "../../../model/schemas/index.js";
+import { BIOME_SYMBOL_TO_INDEX } from "../../../model/schemas/index.js";
 import PlanVegetationContract from "../contract.js";
 import { admitVegetationIntent } from "../policy/index.js";
 

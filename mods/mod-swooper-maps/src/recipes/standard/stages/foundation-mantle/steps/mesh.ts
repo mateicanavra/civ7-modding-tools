@@ -1,7 +1,9 @@
-import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
+import {
+  artifacts as foundationArtifacts,
+  validators as foundationArtifactValidators,
+} from "@mapgen/domain/foundation";
 import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY, segmentsFromMeshNeighbors } from "../../foundation/viz.js";
 import MeshStepContract from "./mesh.contract.js";
 

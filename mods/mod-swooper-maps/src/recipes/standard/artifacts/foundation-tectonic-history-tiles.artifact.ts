@@ -1,6 +1,10 @@
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation tectonic history tiles era payload (tile-space era fields). */
 const FoundationTectonicHistoryTilesEraArtifactSchema = Type.Object(

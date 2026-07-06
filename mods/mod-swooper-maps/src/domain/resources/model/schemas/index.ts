@@ -1,8 +1,8 @@
 export {
-  ResourceExpectedCountRangeSchema,
+  type ResourceExpectationRangeEvidence,
   ResourceExpectationRangeEvidenceSchema,
   type ResourceExpectedCountRange,
-  type ResourceExpectationRangeEvidence,
+  ResourceExpectedCountRangeSchema,
 } from "./expected-count-range.schema.js";
 
 export {
@@ -15,10 +15,10 @@ export {
 
 export {
   RESOURCE_FAMILIES,
-  ResourceFamilySchema,
-  ResourceSymbolSchema,
   type ResourceFamily,
+  ResourceFamilySchema,
   type ResourceSymbol,
+  ResourceSymbolSchema,
 } from "./resource-family.schema.js";
 
 export {

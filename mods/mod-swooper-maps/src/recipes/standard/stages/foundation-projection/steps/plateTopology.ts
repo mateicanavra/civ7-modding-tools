@@ -1,8 +1,9 @@
-import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
+import {
+  artifacts as foundationArtifacts,
+  validators as foundationArtifactValidators,
+} from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import {
   pointsFromTileCentroids,
   segmentsFromTileTopologyNeighbors,

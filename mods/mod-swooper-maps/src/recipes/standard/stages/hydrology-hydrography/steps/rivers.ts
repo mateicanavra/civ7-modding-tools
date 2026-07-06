@@ -4,8 +4,10 @@ import {
 } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validators as hydrologyHydrographyArtifactValidators } from "../artifacts/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../artifacts/index.js";
+import {
+  artifacts as hydrologyHydrographyArtifacts,
+  validators as hydrologyHydrographyArtifactValidators,
+} from "../artifacts/index.js";
 import RiversStepContract from "./rivers.contract.js";
 
 type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";

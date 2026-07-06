@@ -51,13 +51,13 @@ describe("hydrology/compute-precipitation (default)", () => {
       {
         strategy: "default",
         config: {
-        rainfallScale: 180,
-        humidityExponent: 1,
-        noiseAmplitude: 0,
-        noiseScale: 0.12,
-        waterGradient: { radius: 5, perRingBonus: 4, lowlandBonus: 2, lowlandElevationMax: 150 },
-        upliftStrength: 40,
-        convergenceStrength: 0,
+          rainfallScale: 180,
+          humidityExponent: 1,
+          noiseAmplitude: 0,
+          noiseScale: 0.12,
+          waterGradient: { radius: 5, perRingBonus: 4, lowlandBonus: 2, lowlandElevationMax: 150 },
+          upliftStrength: 40,
+          convergenceStrength: 0,
         },
       }
     );

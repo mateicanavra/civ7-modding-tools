@@ -1,6 +1,5 @@
 import resources from "@mapgen/domain/resources";
-import { defineArtifact } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Site-selection resource plan (`artifact:placement.resourcePlan`). One artifact per file by repo convention. */
 

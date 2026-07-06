@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import resources from "@mapgen/domain/resources/ops";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
 } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 

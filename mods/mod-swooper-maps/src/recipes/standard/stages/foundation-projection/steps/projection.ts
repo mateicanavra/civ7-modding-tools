@@ -5,9 +5,9 @@ import {
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { validators as standardArtifactValidators } from "../../../artifacts/index.js";
 import { mapArtifacts } from "../../../map-artifacts.js";
 import ProjectionStepContract from "./projection.contract.js";
-import { validators as standardArtifactValidators } from "../../../artifacts/index.js";
 
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";

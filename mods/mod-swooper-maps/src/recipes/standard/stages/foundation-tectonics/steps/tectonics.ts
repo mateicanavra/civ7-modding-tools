@@ -1,9 +1,10 @@
-import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
+import {
+  artifacts as foundationArtifacts,
+  validators as foundationArtifactValidators,
+} from "@mapgen/domain/foundation";
 import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY, segmentsFromCellPairs } from "../../foundation/viz.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 

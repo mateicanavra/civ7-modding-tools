@@ -1,13 +1,13 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
-import { AQUATIC_SIGNALS } from "./aquatic-resource-signals.js";
-import { CULTIVATED_SIGNALS } from "./cultivated-resource-signals.js";
-import { GEOLOGICAL_SIGNALS } from "./geological-resource-signals.js";
-import { TERRESTRIAL_SIGNALS } from "./terrestrial-resource-signals.js";
 import type {
   HabitatFieldsOutput,
   HabitatMaskFieldName,
   ResourceFamily,
 } from "../schemas/index.js";
+import { AQUATIC_SIGNALS } from "./aquatic-resource-signals.js";
+import { CULTIVATED_SIGNALS } from "./cultivated-resource-signals.js";
+import { GEOLOGICAL_SIGNALS } from "./geological-resource-signals.js";
+import { TERRESTRIAL_SIGNALS } from "./terrestrial-resource-signals.js";
 
 /**
  * Per-type habitat signal lookup shared between the family demand planners

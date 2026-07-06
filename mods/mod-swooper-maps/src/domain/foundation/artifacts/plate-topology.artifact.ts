@@ -84,7 +84,9 @@ export function validate(value: unknown): readonly { message: string }[] {
         } else if (
           record.neighbors.some(
             (neighbor) =>
-              !Number.isInteger(neighbor) || (neighbor as number) < 0 || (neighbor as number) >= plateCount
+              !Number.isInteger(neighbor) ||
+              (neighbor as number) < 0 ||
+              (neighbor as number) >= plateCount
           )
         ) {
           issues.push(issue(`plates[${index}].neighbors contains an invalid plate id`));

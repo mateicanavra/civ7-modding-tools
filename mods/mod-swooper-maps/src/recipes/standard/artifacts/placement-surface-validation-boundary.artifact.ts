@@ -1,5 +1,9 @@
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 const EngineTerrainFactsSnapshotSchema = Type.Object(
   {
@@ -56,10 +60,6 @@ function issue(message: string): ValidationIssue {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function isCount(value: unknown): value is number {
-  return Number.isInteger(value) && (value as number) >= 0;
 }
 
 /**

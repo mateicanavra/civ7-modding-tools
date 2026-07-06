@@ -1,10 +1,11 @@
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifacts as ecologyArtifacts,
+  validators as ecologyArtifactValidators,
+} from "../../../ecology/artifacts/index.js";
 import PlanVegetationStepContract from "./contract.js";
-import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const VEGETATION_FEATURE_INTENTS = new Set([
   "forest",

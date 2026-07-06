@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-
-import ecology from "@mapgen/domain/ecology/ops";
 import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/model/schemas/index.js";
+import ecology from "@mapgen/domain/ecology/ops";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 describe("classifyBiomes operation", () => {

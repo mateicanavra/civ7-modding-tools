@@ -1,10 +1,10 @@
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import morphology from "@mapgen/domain/morphology/ops";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
-import morphology from "@mapgen/domain/morphology/ops";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { standardConfig } from "./standard-config.js";
 import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";

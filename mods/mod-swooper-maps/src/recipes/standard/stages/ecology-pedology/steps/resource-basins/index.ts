@@ -1,8 +1,10 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifacts as ecologyArtifacts,
+  validators as ecologyArtifactValidators,
+} from "../../../ecology/artifacts/index.js";
 import ResourceBasinsStepContract from "./contract.js";
-import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const GROUP_RESOURCE_BASINS = "Ecology / Resource Basins";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

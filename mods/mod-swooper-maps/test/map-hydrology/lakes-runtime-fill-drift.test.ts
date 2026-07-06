@@ -1,13 +1,13 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { COAST_TERRAIN, createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
 import { artifacts as mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
 const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
 /**

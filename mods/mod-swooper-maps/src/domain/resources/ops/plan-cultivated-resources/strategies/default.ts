@@ -1,6 +1,4 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import PlanCultivatedResourcesContract from "../contract.js";
 import {
   CULTIVATED_RESOURCE_TYPES,
   CULTIVATED_SIGNALS,
@@ -8,6 +6,7 @@ import {
   type CultivatedResourceSignals,
   type CultivatedResourceType,
 } from "../../../model/policy/cultivated-resource-signals.js";
+import PlanCultivatedResourcesContract from "../contract.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,

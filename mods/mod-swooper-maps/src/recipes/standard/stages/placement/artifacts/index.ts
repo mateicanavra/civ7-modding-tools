@@ -13,7 +13,22 @@ import * as resourcePlan from "./resource-plan.artifact.js";
 import * as resourcePlanAdjusted from "./resource-plan-adjusted.artifact.js";
 import * as startAssignment from "./start-assignment.artifact.js";
 
-export { advancedStartAssignment, discoveryPlacementOutcomes, engineState, naturalWonderPlacement, naturalWonderPlan, placementInputs, placementOutputs, placementSurfacePreparation, resourceDemandPlan, resourceEligibility, resourcePlacementOutcomes, resourcePlan, resourcePlanAdjusted, startAssignment };
+export {
+  advancedStartAssignment,
+  discoveryPlacementOutcomes,
+  engineState,
+  naturalWonderPlacement,
+  naturalWonderPlan,
+  placementInputs,
+  placementOutputs,
+  placementSurfacePreparation,
+  resourceDemandPlan,
+  resourceEligibility,
+  resourcePlacementOutcomes,
+  resourcePlan,
+  resourcePlanAdjusted,
+  startAssignment,
+};
 
 export const artifactContracts = {
   advancedStartAssignment,

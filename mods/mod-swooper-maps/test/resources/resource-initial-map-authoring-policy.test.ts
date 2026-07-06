@@ -11,9 +11,7 @@ import {
 
 function expectedTypesForAge(age: string): string[] {
   return OFFICIAL_RESOURCE_CORPUS.filter(
-    (entry) =>
-      entry.validAges.includes(age as never) &&
-      entry.placeability.status === "placeable"
+    (entry) => entry.validAges.includes(age as never) && entry.placeability.status === "placeable"
   ).map((entry) => entry.resourceType);
 }
 

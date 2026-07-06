@@ -1,5 +1,5 @@
-import { biomeSymbolFromIndex } from "../../domain/ecology/model/schemas/index.js";
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { biomeSymbolFromIndex } from "../../domain/ecology/model/schemas/index.js";
 
 export type RiverNetworkBenchmarkSummary = Readonly<Record<string, number> & { version: 1 }>;
 

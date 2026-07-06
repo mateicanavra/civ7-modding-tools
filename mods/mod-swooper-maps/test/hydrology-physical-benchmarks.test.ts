@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
 const { accumulateDischarge, planLakes, projectRiverNetwork } = hydrologyOpsPublic.ops;
 const SIMPLE_DISCHARGE_CONFIG = {

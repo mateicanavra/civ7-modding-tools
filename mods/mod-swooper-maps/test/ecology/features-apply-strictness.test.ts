@@ -94,9 +94,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       }
     );
 
-    stageArtifacts.featureIntentsVegetation.publish(ctx, [
-      { x: 0, y: 0, feature: "forest" },
-    ]);
+    stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);
     stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
     stageArtifacts.featureIntentsReefs.publish(ctx, []);

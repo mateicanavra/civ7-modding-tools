@@ -1,12 +1,11 @@
-import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
 import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
   validateGridSize,
 } from "../../../model/policy/feature-score-selection.js";
+import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanReefsContract from "../contract.js";
 import { admitReefIntent, admitReefStride } from "../policy/index.js";
 

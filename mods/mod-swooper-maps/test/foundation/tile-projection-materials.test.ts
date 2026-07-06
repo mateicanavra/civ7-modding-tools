@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { HEX_WIDTH } from "@swooper/mapgen-core/lib/grid";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { HEX_WIDTH } from "@swooper/mapgen-core/lib/grid";
 
 const { computePlatesTensors } = foundationOpsPublic.ops;
 describe("foundation tile projection (materials)", () => {

@@ -4,10 +4,9 @@ import {
   meanMeshEdgeLength,
   selectMeshNeighborByVectorProjection,
 } from "@swooper/mapgen-core/lib/mesh";
-
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import type { Artifact as TectonicEvents } from "../../../artifacts/tectonic-events.artifact.js";
-import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];

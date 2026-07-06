@@ -1,15 +1,15 @@
+import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
 import {
   defineArtifact,
   type Static,
   Type,
-  TypedArraySchemas,
+  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
-import { validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
-import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
 
 const PlotEffectIntentKeyArtifactSchema = Type.Unsafe<PlotEffectIntentKey>(
   Type.String({
-    description: "Abstract plot-effect intent planned by Ecology and later projected by map-ecology.",
+    description:
+      "Abstract plot-effect intent planned by Ecology and later projected by map-ecology.",
     enum: [
       "snow-light",
       "snow-medium",

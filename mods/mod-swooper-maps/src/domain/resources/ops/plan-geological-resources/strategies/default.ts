@@ -1,6 +1,4 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-
-import PlanGeologicalResourcesContract from "../contract.js";
 import {
   GEOLOGICAL_RESOURCE_TYPES,
   GEOLOGICAL_SIGNALS,
@@ -8,6 +6,7 @@ import {
   type GeologicalResourceSignals,
   type GeologicalResourceType,
 } from "../../../model/policy/geological-resource-signals.js";
+import PlanGeologicalResourcesContract from "../contract.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
