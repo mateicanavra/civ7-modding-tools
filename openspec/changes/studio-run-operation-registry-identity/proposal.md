@@ -74,5 +74,10 @@ Structural authority row: SA-02
 
 - Focused registry behavior tests.
 - Focused daemon-startup reconciliation tests.
+- Live Studio endpoint evidence for request-id operation admission,
+  same-content repeat admission after terminalization, and active ownership
+  conflict projection.
 - SA-02 `grit-studio-run-operation-identity-owner`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-operation-registry-identity --strict`.

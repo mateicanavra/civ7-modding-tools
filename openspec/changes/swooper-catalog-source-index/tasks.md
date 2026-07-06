@@ -23,3 +23,9 @@
       paths in `CatalogSourceIndex` match the current catalog generation source
       set; use committed empty baseline, no hook scope, and removal condition
       `swooper-catalog-index-cutover` SA-09 registration.
+- [ ] 3.4 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.5 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.

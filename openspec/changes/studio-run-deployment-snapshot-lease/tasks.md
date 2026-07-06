@@ -18,5 +18,13 @@
 
 - [ ] 3.1 Add behavior tests for deployment copy/snapshot.
 - [ ] 3.2 Add behavior tests for Save/Deploy conflict and lease release.
-- [ ] 3.3 Register SA-11 `grit-studio-run-copy-deploy-boundary` with Pattern
+- [ ] 3.3 Run and record live Studio endpoint checks for deployment snapshot
+      creation and Save/Deploy ownership conflict projection.
+- [ ] 3.4 Register SA-11 `grit-studio-run-copy-deploy-boundary` with Pattern
       Authority metadata from the structural authority matrix.
+- [ ] 3.5 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.6 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.

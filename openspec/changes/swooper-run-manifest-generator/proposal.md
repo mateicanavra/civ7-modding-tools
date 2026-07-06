@@ -58,4 +58,6 @@ content.
 - Fixture manifest generator behavior tests.
 - Focused Swooper generation checks.
 - SA-08 `grit-swooper-run-manifest-generator-boundary`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate swooper-run-manifest-generator --strict`.

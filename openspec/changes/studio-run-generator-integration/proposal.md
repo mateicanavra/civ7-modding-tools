@@ -51,5 +51,9 @@ Structural authority row: SA-10 `grit-studio-run-generator-port-boundary`.
 
 - Focused workflow behavior tests.
 - Generator integration behavior tests.
+- Live Studio endpoint evidence that a run invokes the manifest generator and
+  records generated mod metadata privately.
 - SA-10 `grit-studio-run-generator-port-boundary`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-generator-integration --strict`.

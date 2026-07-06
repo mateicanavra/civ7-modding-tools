@@ -16,3 +16,10 @@
 - [ ] 3.2 Register SA-08
       `grit-swooper-run-manifest-generator-boundary` with Pattern Authority
       metadata from the structural authority matrix.
+- [ ] 3.3 Run focused Swooper generation checks.
+- [ ] 3.4 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.5 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.
