@@ -28,8 +28,9 @@ rule authority cleanup container. The ledger itself remains the single active
 machine-readable source for live rule rows, retired/stale references, slices,
 blockers, findings, counts, and gate state.
 
-Markdown receipts under `receipts/` remain historical explanation and evidence.
-They do not define active rule rows or current queue state.
+Markdown receipts under `receipts/` remain historical explanation of prior
+intent. They are not current evidence until revalidated, and they do not define
+active rule rows or current queue state.
 
 ## Fresh Coverage Check
 
@@ -56,10 +57,10 @@ created or ratcheted by the completed domain-root topology descent:
 - `require_domain_source_topology`
 - `require_recipe_stage_authoring_file_shape`
 
-Those rows are now seeded as `context admission` entries. That is a tracking
-state, not final standing-law classification. The Rule Authority Cleanup pass
-must still review each row with fresh evidence before keep, retire, replace, or
-split decisions are authorized.
+Those rows are now `context admission` entries: live authority in their current
+context, not omission gaps. The Rule Authority Cleanup pass must still review
+each row with current evidence before keep, retire, replace, or split decisions
+are authorized.
 
 ## Quick Analytics
 
@@ -80,34 +81,24 @@ positive or preserving authority. The cleanup needs to separate durable positive
 law, durable boundary rails, transitional negative guards, split-owner rules,
 native-tool proof rails, and fossils.
 
-## Likely Overlap Lanes To Review First
+## First Revalidation Pair
 
-These are analytical hypotheses only. They seed review priority; they do not
-settle any row disposition.
+The reusable method frame for post-ratchet cleanup is:
 
-1. Domain topology and fossil guards:
-   `require_domain_source_topology` likely overlaps with retired-domain-root,
-   broad domain artifact module, and older domain topology guards.
-2. Domain operation surfaces:
-   `require_domain_ops_binding_surface`,
-   `require_domain_ops_registry_surface`, and
-   `require_domain_operation_contract_file_shape` likely overlap with
-   config-bag, root config facade, contract-root, and operation-local negative
-   guards.
-3. Artifact owner surfaces:
-   `require_artifact_file_shape` and
-   `require_artifact_index_aggregate_shape` likely absorb some old artifact
-   alias, tag, and validation-owner concerns, but generated recipe output
-   parity/currentness remains a separate proof class.
-4. Recipe-stage authoring:
-   `require_recipe_stage_authoring_file_shape` likely overlaps with wrapper-only
-   advanced config, stage config bag, sentinel passthrough, and standard public
-   authoring-surface checks.
-5. Runtime/build/generated-output rails:
-   rules that mention runtime, adapter, generated output, `dist`, or currentness
-   need proof-class review before any deletion; many likely belong in Nx,
-   package-local validation, generated-output protection, or file-layer rails
-   rather than semantic Habitat patterns.
+```text
+.habitat/.active/frames/POST-RATCHET-RULE-REVALIDATION-FRAME.md
+```
+
+The first instance draft paired with that method frame is:
+
+```text
+.habitat/.active/workstreams/remediate-rule-authority/domain-root-topology-rule-revalidation-workstream-draft.md
+```
+
+The frame is the reusable component. The draft is the instance-specific input
+for the completed domain-root topology ratchet. Keep future ratchet-specific
+admission criteria, agent lanes, stop conditions, and proof commands in their
+own workstream draft rather than in the generic frame or this grounding note.
 
 ## Non-Claims
 
