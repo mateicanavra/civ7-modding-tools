@@ -82,6 +82,7 @@
     "rimraf": "^6.1.2",
     "string-width": "4.2.3",
     "tsup": "^8.5.1",
+    "type-fest": "^5.7.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },

@@ -1,18 +1,17 @@
+import type { JsonValue } from "type-fest";
 import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
-
-type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 interface SchemaLike {
   type?: string;
-  const?: Json;
-  enum?: Json[];
+  const?: JsonValue;
+  enum?: JsonValue[];
   anyOf?: SchemaLike[];
   oneOf?: SchemaLike[];
   allOf?: SchemaLike[];
   items?: SchemaLike | SchemaLike[];
   required?: string[];
   properties?: Record<string, SchemaLike>;
-  default?: Json;
+  default?: JsonValue;
   minimum?: number;
   maximum?: number;
   description?: string;
@@ -56,17 +55,17 @@ interface ArtifactLike {
 interface OpLike {
   strategies?: Record<string, unknown>;
   config?: SchemaLike;
-  defaultConfig?: Json;
+  defaultConfig?: JsonValue;
 }
 
 interface FlattenedSchemaRow {
   path: string;
   type: string;
   required: boolean;
-  default?: Json;
+  default?: JsonValue;
   minimum?: number;
   maximum?: number;
-  enum?: Json[];
+  enum?: JsonValue[];
   description?: string;
   descriptionQuality: "missing" | "weak" | "ok";
   rawEnvelope: boolean;

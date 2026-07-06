@@ -3,6 +3,7 @@
 import foundationDomain from "@mapgen/domain/foundation";
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import type { ExtendsStrict, IsEqual, IsStringLiteral } from "type-fest";
 import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import foundationMantleStage from "../../recipes/standard/stages/foundation-mantle/index.js";
 
@@ -10,13 +11,18 @@ import foundationMantleStage from "../../recipes/standard/stages/foundation-mant
 // structurally typed (stage keys + step keys + op config shapes), so TS provides
 // completion + hover hints.
 
+type Expect<T extends true> = T;
+
 // Ensure stage ids and step ids remain literals (not widened to string/unknown).
 type _FoundationMantleStageId = typeof foundationMantleStage.id;
-const _foundationMantleStageId: _FoundationMantleStageId = "foundation-mantle";
+export type _FoundationMantleStageIdIsLiteral = Expect<
+  IsEqual<_FoundationMantleStageId, "foundation-mantle">
+>;
 
 type _FoundationMantleStepIds = (typeof foundationMantleStage.steps)[number]["contract"]["id"];
 // @ts-expect-error - a random string should not be assignable to the step id union.
 const _badFoundationStepId: _FoundationMantleStepIds = "definitely-not-a-step";
+void _badFoundationStepId;
 
 // If the config surface degenerates to Record<string, ...> / an index signature,
 // these should STOP erroring.
@@ -30,13 +36,13 @@ type _NoBogusStep = _FoundationMantleConfig["bogus-step"];
 // Sanity check: op contract envelope types must be structurally typed (not `unknown`).
 type _ComputeMeshOp = typeof foundationDomain.ops.computeMesh;
 type _ComputeMeshStrategyIds = keyof _ComputeMeshOp["strategies"] & string;
-type _ComputeMeshStrategyIdsAreNarrow = string extends _ComputeMeshStrategyIds ? false : true;
-const _computeMeshStrategyIdsAreNarrow: _ComputeMeshStrategyIdsAreNarrow = true;
+export type _ComputeMeshStrategyIdsAreNarrow = Expect<IsStringLiteral<_ComputeMeshStrategyIds>>;
 
 type _ComputeMeshEnvelopeFromOp = Static<_ComputeMeshOp["config"]>;
 type _ComputeMeshConfigFromOp = _ComputeMeshEnvelopeFromOp["config"];
-type _ComputeMeshConfigFromOpIsObject = _ComputeMeshConfigFromOp extends object ? true : false;
-const _computeMeshConfigFromOpIsObject: _ComputeMeshConfigFromOpIsObject = true;
+export type _ComputeMeshConfigFromOpIsObject = Expect<
+  ExtendsStrict<_ComputeMeshConfigFromOp, object, { strictAny: true }>
+>;
 
 // Ensure stage step schemas still carry op-enriched typing.
 type _MeshStep = Extract<
@@ -50,23 +56,22 @@ type _ComputeMeshEnvelopeFromStepSchemaConfig = _ComputeMeshEnvelopeFromStepSche
 }
   ? C
   : never;
-type _ComputeMeshEnvelopeFromStepSchemaConfigIsObject =
-  _ComputeMeshEnvelopeFromStepSchemaConfig extends object ? true : false;
-const _computeMeshEnvelopeFromStepSchemaConfigIsObject: _ComputeMeshEnvelopeFromStepSchemaConfigIsObject = true;
+export type _ComputeMeshEnvelopeFromStepSchemaConfigIsObject = Expect<
+  ExtendsStrict<_ComputeMeshEnvelopeFromStepSchemaConfig, object, { strictAny: true }>
+>;
 
 // plateCount is authored on the mantle stage (mesh density).
 type _FoundationMantleKnobs = NonNullable<_FoundationMantleConfig["knobs"]>;
 type _PlateCountKnob = _FoundationMantleKnobs["plateCount"];
-type _PlateCountKnobIsNumber = Exclude<_PlateCountKnob, undefined> extends number ? true : false;
-const _plateCountKnobIsNumber: _PlateCountKnobIsNumber = true;
+export type _PlateCountKnobIsNumber = Expect<IsEqual<Exclude<_PlateCountKnob, undefined>, number>>;
 
 // plateActivity is authored on the tectonics stage (scales the plate motion truth).
 type _FoundationTectonicsConfig = NonNullable<StandardRecipeConfig["foundation-tectonics"]>;
 type _FoundationTectonicsKnobs = NonNullable<_FoundationTectonicsConfig["knobs"]>;
 type _PlateActivityKnob = _FoundationTectonicsKnobs["plateActivity"];
-type _PlateActivityKnobIsNumber =
-  Exclude<_PlateActivityKnob, undefined> extends number ? true : false;
-const _plateActivityKnobIsNumber: _PlateActivityKnobIsNumber = true;
+export type _PlateActivityKnobIsNumber = Expect<
+  IsEqual<Exclude<_PlateActivityKnob, undefined>, number>
+>;
 
 createMap({
   id: "__type_test__",

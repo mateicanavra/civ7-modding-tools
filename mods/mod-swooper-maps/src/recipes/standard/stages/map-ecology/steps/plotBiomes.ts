@@ -14,7 +14,7 @@ export default createStep(PlotBiomesStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.biomeBindings], {
     biomeBindings: {},
   }),
-  run: (context, config, _ops, deps) => {
+  run: (context, _config, _ops, deps) => {
     const { width, height } = context.dimensions;
     const classification = deps.artifacts.biomeClassification.read(context);
     const topography = deps.artifacts.topography.read(context);

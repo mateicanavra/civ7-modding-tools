@@ -29,9 +29,6 @@ const EvidenceStrengthSchema = Type.Union([
 const closedStringEnum = <T extends string>(values: readonly T[]) =>
   Type.Unsafe<T>({ type: "string", enum: [...values] });
 
-const expectationResourceTypes = EARTHLIKE_RESOURCE_EXPECTATIONS.map(
-  (entry) => entry.resourceType
-) as OfficialResourceType[];
 const blockedExpectationResourceTypes = EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
   (entry) => entry.status === "blocked"
 ).map((entry) => entry.resourceType) as OfficialResourceType[];
@@ -39,7 +36,6 @@ const activeExpectationResourceTypes = EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
   (entry) => entry.status !== "blocked"
 ).map((entry) => entry.resourceType) as OfficialResourceType[];
 
-const ExpectationResourceTypeSchema = closedStringEnum(expectationResourceTypes);
 const BlockedExpectationResourceTypeSchema = closedStringEnum(blockedExpectationResourceTypes);
 const ActiveExpectationResourceTypeSchema = closedStringEnum(activeExpectationResourceTypes);
 

@@ -49,7 +49,6 @@ function classifyProjectionSignal(input: {
     selectedChainCount,
     longestSelectedChainLength,
     selectedEligibleMajorTileFraction,
-    majorDurableTileCount,
     majorPerennialTileCount,
     majorClosedBasinTileCount,
     majorOceanMouthTileCount,
