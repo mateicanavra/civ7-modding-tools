@@ -1,10 +1,8 @@
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
-import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
+import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { biomeSymbolFromIndex } from "../../../model/schemas/index.js";
 
 import PlotEffectsScoreJungleContract from "../contract.js";
-
-type Config = Static<(typeof PlotEffectsScoreJungleContract)["strategies"]["default"]>;
 
 export const defaultStrategy = createStrategy(PlotEffectsScoreJungleContract, "default", {
   run: (input, config) => {

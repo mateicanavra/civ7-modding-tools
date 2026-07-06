@@ -8,6 +8,10 @@
     "noEmit": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "types": ["@civ7/types"]
   },
   "include": ["src/**/*.ts"]

@@ -1,6 +1,6 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import RefineBiomeEdgesContract from "./contract.js";
-import { defaultStrategy, gaussianStrategy } from "./strategies/index.js";
+import { gaussianStrategy } from "./strategies/index.js";
 
 const refineBiomeEdges = createOp(RefineBiomeEdgesContract, {
   strategies: {

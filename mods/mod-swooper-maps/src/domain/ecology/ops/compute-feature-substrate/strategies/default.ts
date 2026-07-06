@@ -10,7 +10,7 @@ import {
 
 export const defaultStrategy = createStrategy(ComputeFeatureSubstrateContract, "default", {
   run: (input, config) => {
-    const size = validateFeatureSubstrateInputs({
+    validateFeatureSubstrateInputs({
       width: input.width,
       height: input.height,
       riverClass: input.riverClass as Uint8Array,

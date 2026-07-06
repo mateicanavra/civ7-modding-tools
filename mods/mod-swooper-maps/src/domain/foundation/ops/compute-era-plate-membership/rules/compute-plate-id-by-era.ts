@@ -1,7 +1,7 @@
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import { findNearestMeshCell, meanMeshEdgeLength } from "@swooper/mapgen-core/lib/mesh";
 
-import type { EraPlateMembershipMesh, EraPlateMembershipParams } from "../types.js";
+import type { EraPlateMembershipParams } from "../types.js";
 
 type MinHeapItem = Readonly<{ cost: number; plateId: number; cellId: number; seq: number }>;
 

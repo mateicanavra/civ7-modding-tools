@@ -83,23 +83,6 @@ export function resolveSeaLevel(params: {
     );
     return values[idx] ?? 0;
   };
-  const resolveDistinctCandidate = (
-    startPct: number,
-    direction: -1 | 1,
-    currentSeaLevel: number
-  ): { pct: number; seaLevel: number } | null => {
-    let pct = clampPct(startPct + direction * targetPctStep);
-    if (pct === startPct) return null;
-    let seaLevel = resolveSeaLevelAtPct(pct);
-    while (seaLevel === currentSeaLevel) {
-      const nextPct = clampPct(pct + direction * targetPctStep);
-      if (nextPct === pct) return null;
-      pct = nextPct;
-      seaLevel = resolveSeaLevelAtPct(pct);
-    }
-    return { pct, seaLevel };
-  };
-
   const evaluate = (candidateSeaLevel: number): { constraintError: number; seaLevel: number } => {
     let landCount = 0;
     let boundaryLand = 0;
@@ -114,9 +97,6 @@ export function resolveSeaLevel(params: {
 
     const boundaryShare = landCount > 0 ? boundaryLand / landCount : 0;
     const continentalShare = landCount > 0 ? continentalLand / landCount : 0;
-    const boundaryOk = boundaryTarget == null || boundaryShare >= boundaryTarget;
-    const continentalOk = continentalTarget == null || continentalShare >= continentalTarget;
-
     const boundaryErr = boundaryTarget == null ? 0 : Math.max(0, boundaryTarget - boundaryShare);
     const continentalErr =
       continentalTarget == null ? 0 : Math.max(0, continentalTarget - continentalShare);

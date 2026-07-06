@@ -640,7 +640,7 @@ export class MockAdapter implements EngineAdapter {
     return this.temperature[this.idx(x, y)];
   }
 
-  getLatitude(x: number, y: number): number {
+  getLatitude(_x: number, y: number): number {
     return getCiv7RowLatitude(this.mapInfo, this.height, y);
   }
 

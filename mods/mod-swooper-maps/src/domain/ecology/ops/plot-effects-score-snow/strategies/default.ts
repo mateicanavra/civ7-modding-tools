@@ -1,9 +1,7 @@
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
-import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
+import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { resolveSnowElevationRange } from "../../plan-plot-effects/rules/index.js";
 import PlotEffectsScoreSnowContract from "../contract.js";
-
-type Config = Static<(typeof PlotEffectsScoreSnowContract)["strategies"]["default"]>;
 
 export const defaultStrategy = createStrategy(PlotEffectsScoreSnowContract, "default", {
   run: (input, config) => {

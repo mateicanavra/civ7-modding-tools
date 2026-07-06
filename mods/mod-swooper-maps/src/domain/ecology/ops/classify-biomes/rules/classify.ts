@@ -1,4 +1,4 @@
-import { BIOME_SYMBOL_TO_INDEX, type BiomeSymbol } from "../../../model/schemas/index.js";
+import { BIOME_SYMBOL_TO_INDEX } from "../../../model/schemas/index.js";
 import type { BiomeClassificationTypes } from "../types.js";
 import { aridityShiftForIndex, shiftMoistureZone } from "./aridity.js";
 import { biomeSymbolForZones } from "./lookup.js";

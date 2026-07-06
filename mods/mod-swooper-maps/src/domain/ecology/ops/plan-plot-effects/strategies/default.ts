@@ -1,10 +1,8 @@
 import { createLabelRng } from "@swooper/mapgen-core";
-import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
+import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import type { PlotEffectIntentKey } from "../../../model/schemas/plot-effect-intent.schema.js";
 import PlanPlotEffectsContract from "../contract.js";
-
-type Config = Static<(typeof PlanPlotEffectsContract)["strategies"]["default"]>;
 
 type Candidate = {
   idx: number;

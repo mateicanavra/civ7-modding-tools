@@ -18,7 +18,6 @@ import {
   buildResourceDemands,
   buildRiverResourceExclusionMask,
   expectationsForGroup,
-  type HabitatFields,
   type HabitatIntensityFields,
   type ResourceDemandBuildResult,
   readResourceLegalitySurface,
