@@ -14,6 +14,7 @@ This index routes active workstreams only and cannot reorder that authority.
 | Workstream | Status | Role |
 | --- | --- | --- |
 | `define-domain-blueprint-structure/` | active | Define the domain blueprint scope tree, qualify prework decisions, and prepare closed-structure enforcement. |
+| `descend-002-domain-operation-interior/` | selected / opening | Define the domain-operation interior law (support-directory grammars, strategy import law, contract metadata owner) and drive the second blueprint descent. |
 | `remediate-rule-authority/` | operational / mostly closed | Maintain the machine-readable rule-authority ledger and closed receipts for rule remediation state. |
 | `establish-mapgen-product-authority/` | supporting / mostly complete | Provide MapGen product and architecture authority evidence for Habitat decisions. |
 | `orient-layer3-authority-consolidation/` | supporting orientation | Preserve the Layer 3 takeover scratchpad and initiative frame. |
