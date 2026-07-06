@@ -1,6 +1,6 @@
 # Domain-Root Topology Rule Revalidation Workstream
 
-Status: active workstream plan
+Status: closed; deletion slice executed
 
 Purpose:
 run the first post-ratchet rule revalidation cascade after the Domain-Root
@@ -13,6 +13,13 @@ before any rule mutation begins.
 This is a planning and execution-control document. It does not authorize rule
 deletion, runner edits, baseline mutation, source movement, or implementation by
 itself.
+
+Closure:
+`domain-root-topology-delete-absorbed-root-shape-rules-001` was executed in
+`.habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md`.
+The two absorbed duplicate rules were deleted, `require_domain_source_topology`
+remains the survivor authority, and the Domain Source Topology Enforcement
+Ratchet is concluded.
 
 ## Controlling Frame
 
