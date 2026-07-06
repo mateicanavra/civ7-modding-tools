@@ -1,12 +1,17 @@
 # Domain-Root Topology Rule Revalidation Workstream Draft
 
-Status: draft instance input for `POST-RATCHET-RULE-REVALIDATION-FRAME.md`.
+Status: draft instance input, superseded for execution control by
+`domain-root-topology-rule-revalidation-workstream.md`.
 
 Purpose:
 define the first concrete post-ratchet rule revalidation pass. The reusable
 frame supplies the method; this draft supplies the domain-root topology
 instance context, admission tests, agent lanes, stop conditions, and proof
 shape.
+
+Use this draft as prework/provenance. Use
+`.habitat/.active/workstreams/remediate-rule-authority/domain-root-topology-rule-revalidation-workstream.md`
+as the active workstream plan.
 
 ## Ratchet Event
 

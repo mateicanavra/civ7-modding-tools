@@ -89,16 +89,23 @@ The reusable method frame for post-ratchet cleanup is:
 .habitat/.active/frames/POST-RATCHET-RULE-REVALIDATION-FRAME.md
 ```
 
-The first instance draft paired with that method frame is:
+The first active workstream document paired with that method frame is:
+
+```text
+.habitat/.active/workstreams/remediate-rule-authority/domain-root-topology-rule-revalidation-workstream.md
+```
+
+Its earlier draft input is retained at:
 
 ```text
 .habitat/.active/workstreams/remediate-rule-authority/domain-root-topology-rule-revalidation-workstream-draft.md
 ```
 
-The frame is the reusable component. The draft is the instance-specific input
-for the completed domain-root topology ratchet. Keep future ratchet-specific
-admission criteria, agent lanes, stop conditions, and proof commands in their
-own workstream draft rather than in the generic frame or this grounding note.
+The frame is the reusable component. The active workstream document is the
+instance-specific controller for the completed domain-root topology ratchet.
+Keep future ratchet-specific admission criteria, agent lanes, stop conditions,
+and proof commands in their own workstream documents rather than in the generic
+frame or this grounding note.
 
 ## Non-Claims
 
