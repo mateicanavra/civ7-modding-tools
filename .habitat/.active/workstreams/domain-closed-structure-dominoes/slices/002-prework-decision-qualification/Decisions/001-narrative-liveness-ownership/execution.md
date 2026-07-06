@@ -106,8 +106,9 @@ test ! -e mods/mod-swooper-maps/src/domain/narrative/ops.ts
 test ! -e mods/mod-swooper-maps/src/domain/narrative/ops/contracts.ts
 test ! -e mods/mod-swooper-maps/src/domain/narrative/ops/index.ts
 test ! -e mods/mod-swooper-maps/src/domain/narrative/orogeny/wind.ts
-! rg -n "defineDomain\\(|id: \"narrative\"|@mapgen/domain/narrative/ops|domain/narrative/ops|orogeny/wind|zonalWindStep|from [\"']\\./ops" mods/mod-swooper-maps/src mods/mod-swooper-maps/test packages -g '*.ts'
-bun --cwd mods/mod-swooper-maps test test/story
+! rg -n "defineDomain\\(|id: \"narrative\"|from [\"']\\./ops" mods/mod-swooper-maps/src/domain/narrative/index.ts -g '*.ts'
+! rg -n "@mapgen/domain/narrative/ops|domain/narrative/ops|orogeny/wind|zonalWindStep" mods/mod-swooper-maps/src mods/mod-swooper-maps/test packages -g '*.ts'
+bun test mods/mod-swooper-maps/test/story
 nx run mod-swooper-maps:check
 git diff --check
 ```
