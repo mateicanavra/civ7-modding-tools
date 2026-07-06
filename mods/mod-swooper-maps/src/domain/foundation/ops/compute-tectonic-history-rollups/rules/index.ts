@@ -1,7 +1,9 @@
-import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
-import type { FoundationTectonicHistory } from "../../../lib/tectonics/schemas.js";
+import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
+import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
 
 import { clampByte } from "../../../lib/tectonics/shared.js";
+
+type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 
 export function buildTectonicHistoryRollups(params: {
   eras: ReadonlyArray<FoundationTectonicEraFieldsInternal>;

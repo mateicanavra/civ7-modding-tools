@@ -1,24 +1,10 @@
-import {
-  requireMantleForcing as requireMantleForcingInput,
-  requireMesh as requireMeshInput,
-} from "../../../lib/require.js";
-import { ADVECTION_STEPS_PER_ERA } from "./constants.js";
-import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
+import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
 import { chooseDriftNeighbor, normalizeToInt8 } from "../../../lib/tectonics/shared.js";
 import type { FoundationMantleForcing } from "../../compute-mantle-forcing/contract.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
+import { ADVECTION_STEPS_PER_ERA } from "./constants.js";
 
-export function requireMesh(
-  ...args: Parameters<typeof requireMeshInput>
-): ReturnType<typeof requireMeshInput> {
-  return requireMeshInput(...args);
-}
-
-export function requireMantleForcing(
-  ...args: Parameters<typeof requireMantleForcingInput>
-): ReturnType<typeof requireMantleForcingInput> {
-  return requireMantleForcingInput(...args);
-}
+type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 
 function advectTracerIndex(params: {
   mesh: FoundationMesh;

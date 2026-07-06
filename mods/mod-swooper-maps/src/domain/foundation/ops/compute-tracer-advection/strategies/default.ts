@@ -1,15 +1,15 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeTracerAdvectionContract from "../contract.js";
-import { computeTracerIndexByEra, requireMantleForcing, requireMesh } from "../rules/index.js";
+import { computeTracerIndexByEra } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeTracerAdvectionContract, "default", {
   run: (input) => {
-    const mesh = requireMesh(input.mesh, "foundation/compute-tracer-advection");
-    const mantleForcing = requireMantleForcing(
-      input.mantleForcing,
-      mesh.cellCount | 0,
-      "foundation/compute-tracer-advection"
-    );
+    const mesh = input.mesh;
+    const mantleForcing = input.mantleForcing;
+    if ((mantleForcing.cellCount | 0) !== (mesh.cellCount | 0)) {
+      throw new Error("[Foundation] Invalid mantleForcing.cellCount for compute-tracer-advection.");
+    }
+
     const tracerIndex = computeTracerIndexByEra({
       mesh,
       mantleForcing,

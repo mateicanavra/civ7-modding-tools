@@ -371,7 +371,7 @@ which was repaired before Slice 2 closure:
 
 ## Slice 3: Artifact Caller Migration And Legacy Deletion
 
-Status: planned/open
+Status: completed locally after P2 repair; pending independent supervisor review before Slice 4
 
 ### Objective
 
@@ -411,6 +411,20 @@ Before operation import edits, the executor writes an assert matrix:
 guard -> direct callers/wrappers -> publish validation covers? -> external context needed? -> assert kept/deleted -> test
 ```
 
+Slice 3 assert matrix:
+
+| Guard | Direct callers/wrappers | Publish validation covers? | External context needed? | Assert kept/deleted | Test |
+| --- | --- | --- | --- | --- | --- |
+| `requireMesh` | Direct op calls in `compute-crust`, `compute-mantle-potential`, `compute-mantle-forcing`, `compute-plate-graph`, `compute-plate-motion`, `compute-tectonic-segments`, `compute-crust-evolution`, and `compute-plates-tensors`; pass-through wrappers in era field, era membership, hotspot, provenance, tracer, and segment event rule modules. | Yes: `mesh.artifact.ts` validates constructor, positive `cellCount`, positive finite `wrapWidth`, per-cell arrays, CSR offsets, and neighbor constructor. | No. All mesh publishability data lives on the mesh payload; cross-artifact compatibility remains operation policy, not a reusable shared assertion owner. | Deleted. No `assert` kept. | `foundation-artifacts.test.ts`; `mesh-first-ops.test.ts`; `m11-mantle-forcing.test.ts`; `m11-plate-motion.test.ts`; `m11-tectonic-segments-history.test.ts`; `m11-tectonic-events.test.ts`; `tile-projection-materials.test.ts`. |
+| `requireCrust` | Direct op calls in `compute-plate-graph`, `compute-tectonic-segments`, `compute-crust-evolution`, and `compute-plates-tensors`; pass-through wrapper in segment event rules. | Yes for artifact-internal constructor and intrinsic same-length array compatibility across all crust arrays. | Yes for external mesh `cellCount` compatibility at consumers. Retained as operation-local checks in consuming ops/strategies, not as a shared assertion. | Deleted. No `assert` kept; local compatibility checks retained. | `foundation-artifacts.test.ts`; `mesh-first-ops.test.ts`; `m11-plate-graph-resistance.test.ts`; `m11-tectonic-segments-history.test.ts`; `tile-projection-materials.test.ts`. |
+| `requireMantlePotential` | Direct op call in `compute-mantle-forcing`. | Yes: `mantle-potential.artifact.ts` validates constructor, `cellCount`, `potential`, nonnegative `sourceCount`, and all source arrays against `sourceCount`. | Yes for external mesh `cellCount` compatibility at `compute-mantle-forcing`. Retained as an operation-local check. | Deleted. No `assert` kept; local compatibility check retained. | `foundation-artifacts.test.ts`; `m11-mantle-forcing.test.ts`. |
+| `requireMantleForcing` | Direct op calls in `compute-crust` and `compute-plate-motion`; pass-through wrappers in hotspot and tracer rule modules. | Yes: `mantle-forcing.artifact.ts` validates `cellCount` and all stress/vector/magnitude/class/divergence arrays. | Yes for external mesh `cellCount` compatibility at consumers. Retained as operation-local checks in `compute-crust`, `compute-plate-motion`, hotspot events, and tracer advection. | Deleted. No `assert` kept; local compatibility checks retained. | `foundation-artifacts.test.ts`; `mesh-first-ops.test.ts` mismatch repair; `m11-mantle-forcing.test.ts`; `m11-plate-motion.test.ts` mismatch repair; `m11-tectonic-events.test.ts`. |
+| `requirePlateGraph` | Direct op calls in `compute-plate-motion`, `compute-tectonic-segments`, and `compute-plates-tensors`; pass-through wrappers in era membership and provenance rule modules. | Yes for payload shape, `cellToPlate` constructor, nonempty `plates`, and plate metadata. | Yes for external mesh `cellCount` compatibility via `cellToPlate.length`. Retained as operation-local checks in consumers and strategies. | Deleted. No `assert` kept; local compatibility checks retained. | `foundation-artifacts.test.ts`; `mesh-first-ops.test.ts`; `m11-plate-graph-resistance.test.ts`; `m11-plate-motion.test.ts` mismatch repair; `m11-tectonic-segments-history.test.ts`; `m11-tectonic-events.test.ts`. |
+| `requirePlateMotion` | Direct op calls in `compute-tectonic-segments` and `compute-plates-tensors`; pass-through wrapper in era membership rules. | Yes: `plate-motion.artifact.ts` validates intrinsic `cellCount`, `plateCount`, plate arrays, `plateQuality`, and `cellFitError`. | Yes for compatibility with the accepted mesh `cellCount` and plate graph `plateCount`. Retained as operation-local checks in consumers and era membership. | Deleted. No `assert` kept; local compatibility checks retained. | `foundation-artifacts.test.ts`; `mesh-first-ops.test.ts` projection mismatch repair; `m11-plate-motion.test.ts`; `m11-tectonic-segments-history.test.ts`; `m11-tectonic-events.test.ts`; `tile-projection-materials.test.ts`. |
+| `requireTectonics` | Direct op calls in `compute-crust-evolution` and `compute-plates-tensors`. | Yes: `current-tectonics.artifact.ts` validates required current tectonics arrays and intrinsic same-length compatibility. | Yes for external mesh `cellCount` compatibility at consumers. Retained as operation-local checks. | Deleted. No `assert` kept; local compatibility checks retained. | `foundation-artifacts.test.ts`; `mesh-first-ops.test.ts`; `tile-projection-materials.test.ts`. |
+| `requireTectonicHistory` | Direct op calls in `compute-crust-evolution` and `compute-plates-tensors`. | Yes: `tectonic-history.artifact.ts` validates `eraCount`, era arrays, `plateIdByEra`, rollup arrays, and intrinsic cell-length consistency. | Yes for external mesh `cellCount` compatibility at consumers. Retained as operation-local checks. | Deleted. No `assert` kept; local compatibility checks retained. | `foundation-artifacts.test.ts`; `m11-tectonic-segments-history.test.ts`; `mesh-first-ops.test.ts`; `tile-projection-materials.test.ts`. |
+| `requireTectonicProvenance` | Optional truthy-branch op call in `compute-plates-tensors`. Narsil reference pass found only this op use plus the old definition. | Yes: `tectonic-provenance.artifact.ts` validates `eraCount`, `cellCount`, tracer-index list, and provenance scalar arrays. | Yes for optional truthy-branch compatibility with the projection mesh `cellCount`. Retained as an operation-local check in `compute-plates-tensors`. | Deleted. No `assert` kept; local compatibility check retained. | `foundation-artifacts.test.ts`; `mesh-first-ops.test.ts` provenance mismatch repair; `m11-tectonic-events.test.ts`; `tile-projection-materials.test.ts`. |
+
 Keep `assert` only when all are true:
 
 - the check requires context unavailable at publish time;
@@ -427,6 +441,8 @@ Delete old guard calls when:
   validates publication;
 - the old call only duplicated constructor, existence, or length checks now
   owned by the artifact;
+- external cross-artifact compatibility checks are retained locally by the
+  consuming operation instead of exported from a shared artifact or lib owner;
 - keeping the call would recreate a shared validation bucket, pass-through
   wrapper, or copied operation-local reusable guard.
 
@@ -500,6 +516,66 @@ git diff --check -- mods/mod-swooper-maps/src mods/mod-swooper-maps/test .habita
 If `nx run mod-swooper-maps:test` fails on the same pre-existing Habitat owner
 gate, record the baseline comparison and run the focused foundation tests plus
 `nx run mod-swooper-maps:check` as non-regression proof.
+
+### Proof
+
+Proof labels:
+
+- Stage-gate proof: Slice 3 assert matrix above was written before source
+  migration. Each old guard row named direct callers/wrappers, publish-time
+  validation coverage, the no-`assert` decision, and characterization tests.
+- Source/consumer proof: operation contracts, rules, strategies, and bodies now
+  import schemas/types from direct artifact files or use typed operation inputs
+  directly. Narsil `find_references` for `requireTectonicProvenance` found only
+  the `compute-plates-tensors` use plus the old definition before deletion.
+- Deleted-path proof: `require.ts`, `internal-contract.ts`, and `schemas.ts`
+  were deleted after import scans and type/test proof.
+- Negative import proof:
+  `! rg -n "foundation/lib/require|\\.\\./\\.\\./lib/require|requireMesh|requireCrust|requireMantlePotential|requireMantleForcing|requirePlateGraph|requirePlateMotion|requireTectonics|requireTectonicHistory|requireTectonicProvenance" mods/mod-swooper-maps/src mods/mod-swooper-maps/test -g '*.ts'`
+  passed.
+- Old schema-owner proof:
+  `! rg -n "lib/tectonics/internal-contract|lib/tectonics/schemas" mods/mod-swooper-maps/src mods/mod-swooper-maps/test -g '*.ts'`
+  passed.
+- File absence proof: `test ! -e` passed for all three deleted legacy owner
+  files.
+- Unit behavior proof:
+  `bun test mods/mod-swooper-maps/test/foundation/foundation-artifacts.test.ts`
+  passed before deletion; `bun test mods/mod-swooper-maps/test/foundation`
+  passed after deletion and P2 repair with 47 tests and 1462 assertions.
+- Supervisor repair proof: independent behavior review found an accepted P2 gap
+  where external cross-artifact compatibility was recorded as operation policy
+  but not consistently retained after shared guard deletion. Focused tests for
+  `compute-crust` mantle-forcing/mesh mismatch,
+  `compute-plate-motion` plate-graph/mesh and mantle-forcing/mesh mismatch, and
+  `compute-plates-tensors` optional provenance/mesh plus plate-motion/plate-graph
+  mismatch failed before repair and passed after operation-local checks were
+  added.
+- Current-tree check proof: `nx run mod-swooper-maps:check` passed after
+  deletion.
+- Tool behavior proof:
+  `bunx biome check mods/mod-swooper-maps/src/domain/foundation/ops .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/002-foundation-lib-tectonics-disposition/execution.md`
+  passed after import-order formatting.
+- Safe-write proof:
+  `git diff --check -- mods/mod-swooper-maps/src mods/mod-swooper-maps/test .habitat/.active`
+  passed.
+
+Verification limitation:
+
+- `nx run mod-swooper-maps:test` failed inside
+  `mod-swooper-maps:habitat:check` on the same pre-existing locked Habitat/Grit
+  owner gate recorded during Global Preflight. Direct baseline
+  `nx run mod-swooper-maps:habitat:check` also failed with 71 rules checked and
+  53 failing locked rules, including broad domain/runtime/recipe gates and
+  `verify_standard_recipe_artifacts_match_source_stages`. No generated output
+  drift was present in the Slice 3 diff. Per the Slice 3 verification exception,
+  focused foundation tests plus `nx run mod-swooper-maps:check` are the
+  non-regression proof for this slice.
+
+Fresh local review lanes initially found no accepted P1/P2 findings. The
+independent supervisor behavior review then found one accepted P2 compatibility
+gap, which was repaired with operation-local checks and focused test evidence. A
+subordinate-agent launcher was not available in the tool surface for this run;
+supervisor review must close Slice 3 independently before Slice 4 opens.
 
 ## Slice 4: Core API Construction
 

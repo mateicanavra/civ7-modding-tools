@@ -1,12 +1,8 @@
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
+import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
+import type { Artifact as TectonicEvents } from "../../../artifacts/tectonic-events.artifact.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import { requireMesh as requireMeshInput } from "../../../lib/require.js";
-import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
-import type {
-  FoundationTectonicEraFieldsInternal,
-  TectonicEventRecord,
-} from "../../../lib/tectonics/internal-contract.js";
 import {
   chooseDriftNeighbor,
   clampByte,
@@ -14,6 +10,10 @@ import {
   computeMeanEdgeLen,
   type NeighborhoodMesh,
 } from "../../../lib/tectonics/shared.js";
+import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
+
+type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
+type TectonicEventRecord = TectonicEvents[number];
 
 const EMISSION_RADIUS_MUL = {
   uplift: 2.0,
@@ -589,9 +589,4 @@ export function buildEraFields(params: {
   } as const;
 }
 
-export function requireMesh(
-  ...args: Parameters<typeof requireMeshInput>
-): ReturnType<typeof requireMeshInput> {
-  return requireMeshInput(...args);
-}
 export type { TectonicEventRecord };

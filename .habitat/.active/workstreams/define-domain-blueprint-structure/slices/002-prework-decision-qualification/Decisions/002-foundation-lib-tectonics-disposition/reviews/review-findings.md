@@ -113,3 +113,43 @@ Lane results:
   passed.
 
 No accepted P1/P2 findings remain open for Slice 2.
+
+## Execution Slice 3 Review
+
+Fresh local review lanes checked Slice 3 artifact caller migration and legacy
+owner deletion after implementation. A subordinate-agent launcher was still not
+available in the current tool surface, so the implementation DRA ran the
+packet-mandated review lanes directly against fresh command evidence. Supervisor
+independent review remains required before Slice 4 opens.
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P2 | Behavior compatibility | Shared guard deletion dropped external cross-artifact compatibility checks that artifact `validate` cannot know, including `compute-crust` mantle-forcing/mesh mismatch, `compute-plate-motion` plate graph and mantle-forcing mesh compatibility, and `compute-plates-tensors` optional provenance mesh compatibility. | Accepted and repaired. Added focused regression tests proving mismatched producer artifacts throw instead of silently falling back, then retained the checks as operation-local `cellCount`/`plateCount` compatibility policy in the consuming ops and strategies without restoring `foundation/lib/require.ts` or adding artifact `assert` exports. |
+| P3 | Verification baseline | `nx run mod-swooper-maps:test` fails inside `mod-swooper-maps:habitat:check`. | Waived for Slice 3 non-regression under the packet's explicit exception path. Direct `nx run mod-swooper-maps:habitat:check` baseline reproduced the same broad locked owner gate with 71 rules checked and 53 failing locked rules, matching the Global Preflight limitation. Focused foundation tests and `nx run mod-swooper-maps:check` passed after deletion. Re-entry trigger is a future slice that owns the Habitat/Grit owner gate or generated recipe drift. |
+| P3 | Review mechanics | The review wave could not be delegated to separate launched agents because no subagent tool was available in this run. | Waived for local Slice 3 closure claim with supervisor-visible record. Risk is review independence rather than implementation correctness; re-entry trigger is supervisor independent review before Slice 4 opens. |
+
+Lane results:
+
+- Source/consumer: old `foundation/lib/require`,
+  `foundation/lib/tectonics/internal-contract`, and
+  `foundation/lib/tectonics/schemas` imports were migrated to direct artifact
+  contracts or removed where operation inputs already carry the typed artifact.
+  Negative scans for old paths and old `require*` tokens passed, and all three
+  obsolete files are absent.
+- Behavior semantics: the assert matrix keeps no shared `assert` exports because
+  publish-time artifact validation owns intrinsic constructors/counts/lengths.
+  External cross-artifact `cellCount`/`plateCount` compatibility is retained as
+  operation-local policy in consuming ops and strategies. Focused mismatch tests
+  failed before repair and passed after repair; `bun test
+  mods/mod-swooper-maps/test/foundation` passed after deletion and repair.
+- Architecture/proof: operation contracts now import schema/type surfaces from
+  direct `foundation/artifacts/*.artifact.ts` owners. No new compatibility
+  bucket, pass-through wrapper, copied reusable validation helper, or
+  `packages/mapgen-core/**` change was introduced.
+- Closure: deleted-path scans, file absence checks, Biome check over touched
+  operation files and packet docs, `nx run mod-swooper-maps:check`, and
+  `git diff --check` passed. The full `mod-swooper-maps:test` target is limited
+  by the pre-existing Habitat owner gate recorded above.
+
+No accepted P1/P2 findings remain open for repaired Slice 3 local closure. Slice
+4 is not allowed to open until independent supervisor review accepts this slice.

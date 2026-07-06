@@ -6,7 +6,6 @@ import {
   deriveFoundationReferenceArea,
   requireEnvDimensions,
 } from "../../model/policy/reference-area.js";
-import { requireCrust, requireMesh } from "../../lib/require.js";
 import type { FoundationPlate } from "./contract.js";
 import ComputePlateGraphContract from "./contract.js";
 
@@ -328,17 +327,16 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
         };
       },
       run: (input, config: PlateGraphConfig) => {
-        const mesh = requireMesh(input.mesh, "foundation/compute-plate-graph");
-        const crust = requireCrust(
-          input.crust,
-          mesh.cellCount | 0,
-          "foundation/compute-plate-graph"
-        );
+        const mesh = input.mesh;
+        const crust = input.crust;
 
         const rngSeed = input.rngSeed | 0;
         const rng = createLabelRng(rngSeed);
 
         const cellCount = mesh.cellCount | 0;
+        if (crust.strength.length !== cellCount || crust.maturity.length !== cellCount) {
+          throw new Error("[Foundation] Invalid crust.cellCount for compute-plate-graph.");
+        }
 
         const platesCount = config.plateCount;
         if (platesCount > cellCount) {

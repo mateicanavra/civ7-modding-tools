@@ -1,23 +1,21 @@
+import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
+import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import {
-  requireMesh as requireMeshInput,
-  requirePlateGraph as requirePlateGraphInput,
-} from "../../../lib/require.js";
+import { clampByte } from "../../../lib/tectonics/shared.js";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
+import type { FoundationMesh } from "../../compute-mesh/contract.js";
+import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
 import {
   ARC_RESET_THRESHOLD_FRAC_OF_MAX,
   ARC_RESET_THRESHOLD_MIN,
+  deriveResetThreshold,
   HOTSPOT_RESET_THRESHOLD_FRAC_OF_MAX,
   HOTSPOT_RESET_THRESHOLD_MIN,
   RIFT_RESET_THRESHOLD_FRAC_OF_MAX,
   RIFT_RESET_THRESHOLD_MIN,
-  deriveResetThreshold,
 } from "./reset-threshold-policy.js";
-import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
-import type { FoundationTectonicProvenance } from "../../../lib/tectonics/schemas.js";
-import { clampByte } from "../../../lib/tectonics/shared.js";
-import type { FoundationMesh } from "../../compute-mesh/contract.js";
-import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
+
+type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 
 export function computeTectonicProvenance(params: {
   mesh: FoundationMesh;
@@ -185,16 +183,4 @@ export function computeTectonicProvenance(params: {
       crustAge,
     },
   };
-}
-
-export function requireMesh(
-  ...args: Parameters<typeof requireMeshInput>
-): ReturnType<typeof requireMeshInput> {
-  return requireMeshInput(...args);
-}
-
-export function requirePlateGraph(
-  ...args: Parameters<typeof requirePlateGraphInput>
-): ReturnType<typeof requirePlateGraphInput> {
-  return requirePlateGraphInput(...args);
 }

@@ -1,28 +1,28 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeEraPlateMembershipContract from "../contract.js";
-import {
-  computePlateIdByEra,
-  ERA_COUNT_MAX,
-  ERA_COUNT_MIN,
-  requireMesh,
-  requirePlateGraph,
-  requirePlateMotion,
-} from "../rules/index.js";
+import { computePlateIdByEra, ERA_COUNT_MAX, ERA_COUNT_MIN } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeEraPlateMembershipContract, "default", {
   run: (input, config) => {
-    const mesh = requireMesh(input.mesh, "foundation/compute-era-plate-membership");
-    const plateGraph = requirePlateGraph(
-      input.plateGraph,
-      mesh.cellCount | 0,
-      "foundation/compute-era-plate-membership"
-    );
-    const plateMotion = requirePlateMotion(
-      input.plateMotion,
-      mesh.cellCount | 0,
-      plateGraph.plates.length | 0,
-      "foundation/compute-era-plate-membership"
-    );
+    const mesh = input.mesh;
+    const plateGraph = input.plateGraph;
+    const plateMotion = input.plateMotion;
+    const cellCount = mesh.cellCount | 0;
+    if (plateGraph.cellToPlate.length !== cellCount) {
+      throw new Error(
+        "[Foundation] Invalid plateGraph.cellToPlate for compute-era-plate-membership."
+      );
+    }
+    if ((plateMotion.cellCount | 0) !== cellCount) {
+      throw new Error(
+        "[Foundation] Invalid plateMotion.cellCount for compute-era-plate-membership."
+      );
+    }
+    if ((plateMotion.plateCount | 0) !== (plateGraph.plates.length | 0)) {
+      throw new Error(
+        "[Foundation] Invalid plateMotion.plateCount for compute-era-plate-membership."
+      );
+    }
 
     const weights = config.eraWeights;
     const driftSteps = config.driftStepsByEra;

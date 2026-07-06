@@ -8,20 +8,18 @@ import {
   strengthFromThermalAge,
   strengthFromThickness,
 } from "../../model/policy/crust-buoyancy.js";
-import { requireMantleForcing, requireMesh } from "../../lib/require.js";
 import ComputeCrustContract from "./contract.js";
 
 const computeCrust = createOp(ComputeCrustContract, {
   strategies: {
     default: {
       run: (input, config) => {
-        const mesh = requireMesh(input.mesh, "foundation/compute-crust");
-        const mantleForcing = requireMantleForcing(
-          input.mantleForcing,
-          mesh.cellCount | 0,
-          "foundation/compute-crust"
-        );
+        const mesh = input.mesh;
+        const mantleForcing = input.mantleForcing;
         const cellCount = mesh.cellCount | 0;
+        if ((mantleForcing.cellCount | 0) !== cellCount) {
+          throw new Error("[Foundation] Invalid mantleForcing.cellCount for compute-crust.");
+        }
 
         const maturity = new Float32Array(cellCount);
         const thickness = new Float32Array(cellCount);

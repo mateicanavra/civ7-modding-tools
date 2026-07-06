@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { TectonicEventsSchema } from "../../lib/tectonics/internal-contract.js";
+import { Schema as TectonicEventsSchema } from "../../artifacts/tectonic-events.artifact.js";
 import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 

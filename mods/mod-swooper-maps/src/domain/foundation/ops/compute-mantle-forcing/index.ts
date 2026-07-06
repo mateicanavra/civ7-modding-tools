@@ -1,7 +1,6 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
-import { requireMantlePotential, requireMesh } from "../../lib/require.js";
 import ComputeMantleForcingContract from "./contract.js";
 
 function clampSigned(value: number): number {
@@ -15,13 +14,14 @@ const computeMantleForcing = createOp(ComputeMantleForcingContract, {
   strategies: {
     default: {
       run: (input, config) => {
-        const mesh = requireMesh(input.mesh, "foundation/compute-mantle-forcing");
-        const mantlePotential = requireMantlePotential(
-          input.mantlePotential,
-          mesh.cellCount,
-          "foundation/compute-mantle-forcing"
-        );
+        const mesh = input.mesh;
+        const mantlePotential = input.mantlePotential;
         const cellCount = mesh.cellCount | 0;
+        if ((mantlePotential.cellCount | 0) !== cellCount) {
+          throw new Error(
+            "[Foundation] Invalid mantlePotential.cellCount for compute-mantle-forcing."
+          );
+        }
 
         const velocityScale = config.velocityScale ?? 1.0;
         const rotationScale = config.rotationScale ?? 0.2;

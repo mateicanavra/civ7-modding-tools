@@ -1,15 +1,24 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeTectonicProvenanceContract from "../contract.js";
-import { computeTectonicProvenance, requireMesh, requirePlateGraph } from "../rules/index.js";
+import { computeTectonicProvenance } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeTectonicProvenanceContract, "default", {
   run: (input) => {
-    const mesh = requireMesh(input.mesh, "foundation/compute-tectonic-provenance");
-    const plateGraph = requirePlateGraph(
-      input.plateGraph,
-      mesh.cellCount | 0,
-      "foundation/compute-tectonic-provenance"
-    );
+    const mesh = input.mesh;
+    const plateGraph = input.plateGraph;
+    const cellCount = mesh.cellCount | 0;
+    if (plateGraph.cellToPlate.length !== cellCount) {
+      throw new Error(
+        "[Foundation] Invalid plateGraph.cellToPlate for compute-tectonic-provenance."
+      );
+    }
+    for (let era = 0; era < input.tracerIndex.length; era++) {
+      if (input.tracerIndex[era]?.length !== cellCount) {
+        throw new Error(
+          `[Foundation] Invalid tracerIndex[${era}].cellCount for compute-tectonic-provenance.`
+        );
+      }
+    }
 
     const tectonicProvenance = computeTectonicProvenance({
       mesh,

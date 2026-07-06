@@ -1,11 +1,9 @@
 import { forEachHexNeighborOddQ, projectOddqToHexSpace } from "@swooper/mapgen-core/lib/grid";
 import { wrapAbsDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import type { Artifact as FoundationTectonics } from "../../../artifacts/current-tectonics.artifact.js";
+import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
+import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
-import type {
-  FoundationTectonicHistory,
-  FoundationTectonicProvenance,
-  FoundationTectonics,
-} from "../../../lib/tectonics/schemas.js";
 import { clampByte, clampInt8 } from "../../../lib/tectonics/shared.js";
 import type { FoundationCrust } from "../../compute-crust/contract.js";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";

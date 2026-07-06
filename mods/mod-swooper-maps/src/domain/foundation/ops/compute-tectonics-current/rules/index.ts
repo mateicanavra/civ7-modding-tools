@@ -1,5 +1,7 @@
-import type { FoundationTectonicEraFieldsInternal } from "../../../lib/tectonics/internal-contract.js";
-import type { FoundationTectonics } from "../../../lib/tectonics/schemas.js";
+import type { Artifact as FoundationTectonics } from "../../../artifacts/current-tectonics.artifact.js";
+import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
+
+type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 
 export function buildTectonicsCurrent(params: {
   newestEra: FoundationTectonicEraFieldsInternal;

@@ -1,10 +1,8 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  FoundationTectonicEraFieldsInternalListSchema,
-  PlateIdByEraSchema,
-} from "../../lib/tectonics/internal-contract.js";
-import { FoundationTectonicHistorySchema } from "../../lib/tectonics/schemas.js";
+import { Schema as PlateIdByEraSchema } from "../../artifacts/plate-id-by-era.artifact.js";
+import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { Schema as FoundationTectonicHistorySchema } from "../../artifacts/tectonic-history.artifact.js";
 
 const StrategySchema = Type.Object(
   {
