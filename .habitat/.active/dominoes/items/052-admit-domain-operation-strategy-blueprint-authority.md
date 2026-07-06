@@ -57,7 +57,7 @@ Review disposition:
 | --- | --- | --- | --- | --- |
 | `domain-operation-strategy` is constructible and product-backed. | P2 | accepted | Authority lane and tree-shape docs created. | Generic strategy-locality or strategy-contract rules still need decision packets before movement. |
 | No current live rule moves whole into the new authority. | P2 | accepted | Explicit non-move dispositions recorded in slice, ledger, and blueprint README. | Avoid using `strategies/**/*.ts` scan roots as an owner test. |
-| The old authority-tree rule ledger still looked like a second current-state matrix. | P2 | accepted | Absorbed its unique process data into `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` and removed the Markdown ledger. | None; JSON is the active source of truth. |
+| The old authority-tree rule ledger still looked like a second current-state matrix. | P2 | accepted | Absorbed its unique process data into `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` and removed the Markdown ledger. | None; JSON is the active source of truth. |
 
 Closure note:
 

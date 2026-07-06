@@ -166,7 +166,7 @@ In:
   metadata, Nx targets, docs, and bridge surfaces.
 - Existing package-local validators that must be explicitly kept out of
   Habitat when their oracle is behavior, runtime state, or product correctness.
-- Nx dependency and target metadata where build ordering or generated-artifact
+- Nx dependency and target metadata where build ordering or generated-output
   freshness is the real owner.
 
 Foreground:

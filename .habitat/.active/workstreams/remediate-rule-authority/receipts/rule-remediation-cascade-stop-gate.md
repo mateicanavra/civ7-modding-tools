@@ -3,7 +3,7 @@
 Status: superseded historical receipt.
 
 Superseded by the canonical operational ledger:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`.
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`.
 
 This file records a past stop gate only. Do not use it for current counts,
 queues, blockers, or next actions.

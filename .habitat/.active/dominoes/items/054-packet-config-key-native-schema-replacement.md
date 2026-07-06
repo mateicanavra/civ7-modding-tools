@@ -24,7 +24,7 @@ Disposition:
 Moves it forward:
 
 - Records the packet outcome in
-  `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`.
+  `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`.
 - Initially moved the config-key slice into the implementation-ready queue;
   Domino 55 corrected this and returned the slice to Layer 2.
 

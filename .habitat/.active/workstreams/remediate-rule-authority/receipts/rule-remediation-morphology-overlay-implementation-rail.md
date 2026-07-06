@@ -3,7 +3,7 @@
 Status: closed on `codex/habitat-morphology-overlay-implementation-rail`.
 
 Canonical record:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`.
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`.
 
 This file is a receipt only. It is not a second operational matrix.
 

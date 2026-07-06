@@ -22,7 +22,7 @@ Disposition receipt:
 
 Moves it forward:
 
-- Keeps `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` as
+- Keeps `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` as
   the single operational matrix.
 - Removes resolved names from the sealed blocker list so later resumes do not
   reprocess closed Grit/native-rail slices.

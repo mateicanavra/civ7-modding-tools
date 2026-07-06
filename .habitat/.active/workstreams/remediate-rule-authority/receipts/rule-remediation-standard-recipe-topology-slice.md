@@ -5,7 +5,7 @@ Status: closed
 Branch: `codex/habitat-standard-recipe-topology-rail`
 
 Canonical source:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Purpose
 

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
-  "kind": "habitat.ruleRemediation.operationalLedger",
+  "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-03",
-  "recordPolicy": "This JSON file is the only machine-readable operational source for rule-remediation progress. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
+  "updatedOn": "2026-07-06",
+  "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 106,
-    "currentRowCount": 106,
+    "liveManifestCount": 114,
+    "currentRowCount": 114,
     "retiredHistoricalRowCount": 22,
     "missingLiveRows": [],
     "duplicateLiveRows": []
@@ -20,15 +20,15 @@
       "split by owner": 10,
       "runtime/source validation": 3,
       "retirement/garbage collection": 3,
-      "context admission": 18,
+      "context admission": 26,
       "boundary inversion": 3,
       "closed structure inversion": 1
     },
     "packetNeeded": {
-      "false": 106
+      "false": 114
     },
     "layer2Status": {
-      "none": 80,
+      "none": 88,
       "packet-complete": 19,
       "excluded-native-rail-not-semantic-remediation": 1,
       "implementation-ready": 1,
@@ -37,13 +37,13 @@
     }
   },
   "gateState": {
-    "currentLayer": "Narrative burn-down review repair complete.",
-    "currentGate": "Ready to select the next trusted Layer 3 slice from current implementation-ready/native-owner rows; story overlay owner rows retired with the deleted source surface.",
-    "mutationAuthorization": "This slice deleted the current MapGen story network, connected compatibility state, and three Habitat story-overlay packets with source-absence proof.",
+    "currentLayer": "Rule authority cleanup corpus grounded after the completed domain-root topology ratchets.",
+    "currentGate": "Ready to open the Rule Authority Cleanup container from the active transition anchor; every live rule row must be reclassified before keep/retire/replace/split decisions are authorized.",
+    "mutationAuthorization": "This grounding slice may rename and refresh the operational ledger only. It does not authorize rule deletion, runner changes, baseline growth, or source movement.",
     "nextSliceId": null,
-    "nextLegalAction": "Select the next trusted Layer 3 slice from the canonical ledger, likely domain-operation config-facade consolidation or another native-owner deletion/rail. Do not implement stage-kind sidecars, generic Habitat domain-operation promotion, morphology-local owner reshuffles, or workspace-hygiene cleanup as semantic remediation.",
-    "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json",
-    "sourceCommit": "61126d664"
+    "nextLegalAction": "Open the Rule Authority Cleanup frame and run row-level review against the refreshed current ledger. Do not select a cleanup implementation slice until the ledger rows have fresh evidence and review disposition.",
+    "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
+    "sourceCommit": "50f8db56c0"
   },
   "rules": [
     {
@@ -548,15 +548,6 @@
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/rule.json"
     },
     {
-      "ruleId": "require_morphology_public_surface_imports",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay live as morphology public-surface import boundary authority.",
-      "evidenceNote": "Domino 63 replaced the retired-path proxy with a single Grit public-surface import rule for non-domain consumers; G4 remains recipe-wide domain import authority, while this morphology row owns morphology-specific consumer relapse detection outside the domain internals.",
-      "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
-    },
-    {
       "ruleId": "prohibit_map_projection_dependencies_in_physics_contracts",
       "lane": "standard recipe top-level",
       "actionDecision": "split by owner",
@@ -814,6 +805,26 @@
       "currentPath": ".habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/rule.json"
     },
     {
+      "ruleId": "require_artifact_file_shape",
+      "lane": "blueprints/artifact",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive artifact file-shape law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/artifact/require_artifact_file_shape/rule.json",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_artifact_index_aggregate_shape",
+      "lane": "blueprints/artifact",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive artifact index aggregate law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json",
+      "layer2Status": "none"
+    },
+    {
       "ruleId": "require_docs_site_root_inputs",
       "lane": "non-Civ docs/global/toolkit",
       "actionDecision": "no action",
@@ -832,6 +843,46 @@
       "currentPath": ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/rule.json"
     },
     {
+      "ruleId": "require_domain_model_schema_policy_owner_shape",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive domain model schema/policy owner-shape law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/rule.json",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_operation_contract_file_shape",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive operation contract file-shape law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_ops_binding_surface",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive domain ops binding-surface law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_ops_binding_surface/rule.json",
+      "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_domain_ops_registry_surface",
+      "lane": "blueprints/domain-operation",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive domain operation registry-surface law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/rule.json",
+      "layer2Status": "none"
+    },
+    {
       "ruleId": "require_domain_ops_root_presence",
       "lane": "blueprints/domain-operation",
       "actionDecision": "no action",
@@ -839,6 +890,16 @@
       "expectedRemediation": "Stay live as structure authority.",
       "evidenceNote": "All expected domain `ops` roots exist.",
       "currentPath": ".habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json"
+    },
+    {
+      "ruleId": "require_domain_source_topology",
+      "lane": "blueprints/domain",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive domain source topology law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/domain/require_domain_source_topology/rule.json",
+      "layer2Status": "none"
     },
     {
       "ruleId": "require_ecology_canonical_op_module_topology",
@@ -891,6 +952,15 @@
       "expectedRemediation": "Admit as morphology config facade surface rule.",
       "evidenceNote": "Script asserts exact exports and current source matches.",
       "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/rule.json"
+    },
+    {
+      "ruleId": "require_morphology_public_surface_imports",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "no action",
+      "packetNeeded": false,
+      "expectedRemediation": "Stay live as morphology public-surface import boundary authority.",
+      "evidenceNote": "Domino 63 replaced the retired-path proxy with a single Grit public-surface import rule for non-domain consumers; G4 remains recipe-wide domain import authority, while this morphology row owns morphology-specific consumer relapse detection outside the domain internals.",
+      "currentPath": ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/rule.json"
     },
     {
       "ruleId": "require_narrow_game_ui_bridge_bootstrap",
@@ -961,6 +1031,16 @@
       "expectedRemediation": "Admit as Recipe-DAG operating-area authority.",
       "evidenceNote": "Runner passed; source routes through `studio-contracts` and `contract-manifest`. Corrective local-proxy review left this settled: graph-aware recipe-DAG metadata closure is a real operating-area boundary.",
       "currentPath": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/rule.json"
+    },
+    {
+      "ruleId": "require_recipe_stage_authoring_file_shape",
+      "lane": "blueprints/recipe-stage",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as current positive recipe stage authoring file-shape law pending rule-authority cleanup reusable-class proof.",
+      "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
+      "currentPath": ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json",
+      "layer2Status": "none"
     },
     {
       "ruleId": "require_runtime_domain_op_bundle_imports",

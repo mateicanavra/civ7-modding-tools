@@ -3,7 +3,7 @@
 Status: closed
 
 Canonical source of truth:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Slice Boundary
 
@@ -48,7 +48,7 @@ Deleted packets:
 
 Updated durable records:
 
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 - `.habitat/.active/dominoes/items/056-retire-config-key-literal-assertions.md`
 
 Updated method frames:

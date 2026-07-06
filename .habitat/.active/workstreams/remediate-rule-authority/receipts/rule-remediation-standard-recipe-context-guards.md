@@ -3,7 +3,7 @@
 Status: closed on `codex/habitat-standard-recipe-context-guards`
 
 Canonical record:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Purpose
 

@@ -24,7 +24,7 @@ Disposition:
 
 Moves it forward:
 
-- Corrects `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+- Corrects `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
   so `config-key native-schema replacement` is no longer marked
   implementation-ready.
 - Initially added `config-key source schema authority replacement` back to the

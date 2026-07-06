@@ -6,7 +6,7 @@ Built: 2026-07-01
 
 Owner: Habitat authority-tree workstream steward
 
-Operational ledger: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+Operational ledger: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Authority Model
 
@@ -23,7 +23,7 @@ Intent and concept authority:
 
 Operational selection authority:
 
-1. `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`.
+1. `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`.
 2. Current live `.habitat/**/rule.json` manifests and support files.
 3. Current generated execution-surface maps when a slice changes execution
    surface state.
@@ -452,4 +452,4 @@ closes, a blocker becomes implementation-ready, a source-owner decision changes
 the next-domino order, or the authority order itself changes.
 
 Do not copy the active queue here. The canonical operational queue remains in
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`.
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`.

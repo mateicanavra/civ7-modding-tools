@@ -4,7 +4,7 @@ Status: closed
 
 Branch: `codex/habitat-rule-remediation-garbage-collection`
 
-Source matrix: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+Source matrix: `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 Action class: `retirement/garbage collection`
 
@@ -154,7 +154,7 @@ Deleted packet directories:
 
 Record updates:
 
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json` removes the five retired
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json` removes the five retired
   rows from the live matrix and lists them as stale/retired references.
 - `.habitat/.active/dominoes/items/051-retire-clean-garbage-collection-rule-residue.md` records the garbage-collection disposition.
 - `tools/habitat/test/commands/habitat-commands.test.ts` no longer uses a

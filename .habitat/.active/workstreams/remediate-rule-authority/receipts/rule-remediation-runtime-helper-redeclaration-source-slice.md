@@ -3,7 +3,7 @@
 Status: closed on `codex/habitat-runtime-helper-redeclaration-source`
 
 Canonical record:
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 
 ## Purpose
 

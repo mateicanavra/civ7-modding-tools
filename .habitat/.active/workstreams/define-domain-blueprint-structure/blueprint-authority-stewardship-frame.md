@@ -22,14 +22,14 @@ In scope:
 
 - The DRA role for the blueprint-authority transition above completed Slice 001.
 - The completed descent as method evidence: domain blueprint frame -> Slice 001 domain-root topology -> decision prework -> row disposition -> execution -> repair -> Habitat ratchet -> closure and ascent.
-- The active pressure set: rule ecology cleanup, reusable cascade capture, and next blueprint-level slice selection.
+- The active pressure set: rule authority cleanup, reusable cascade capture, and next blueprint-level slice selection.
 - Lower-order ratchet dominoes discovered while preparing the worktree, only when tracked as subordinate inputs to the authority cascade rather than promoted above the selected containers.
 - Agent-team operating discipline, including fresh evidence lanes, separate review lanes, and DRA-owned synthesis.
 - Proof-before-closure discipline for future authority containers.
 
 Out of scope:
 
-- Starting rule ecology cleanup in this frame.
+- Starting rule authority cleanup in this frame.
 - Reopening Slice 001 unless fresh repo or Habitat evidence falsifies its closure.
 - Moving source files, changing rules, editing `structure.toml`, changing runtime behavior, or changing public APIs.
 - Promoting transcript language into durable law without confirmation from current user instruction, active repo authority, sealed records, current source, or fresh command evidence.
@@ -62,17 +62,17 @@ This frame treats the current work as stewardship of a repeatable blueprint-auth
 
 ## WHY
 
-The completed domain-root topology descent proved the machine works, but it also created the exact risk Habitat exists to prevent: temporary scaffolding, negative guards, transition anchors, and narrative records can harden into accidental architecture if they are not classified while the descent is fresh. `active-transition-anchor.md` selects Rule Ecology Cleanup as the next container to open. A structurally different alternative would make that cleanup the whole frame. That alternative is too narrow: it would make one pressure salient and hide the larger job of turning a successful descent into a reusable authority practice.
+The completed domain-root topology descent proved the machine works, but it also created the exact risk Habitat exists to prevent: temporary scaffolding, negative guards, transition anchors, and narrative records can harden into accidental architecture if they are not classified while the descent is fresh. `active-transition-anchor.md` selects Rule Authority Cleanup as the next container to open. A structurally different alternative would make that cleanup the whole frame. That alternative is too narrow: it would make one pressure salient and hide the larger job of turning a successful descent into a reusable authority practice.
 
 ## Construction history
 
 Structural alternative considered:
 
-Frame the work as "Rule Ecology Cleanup" with the current rule set as the unit of analysis.
+Frame the work as "Rule Authority Cleanup" with the current rule set as the unit of analysis.
 
 Why rejected or demoted:
 
-Rule Ecology Cleanup is the selected next container to open, but it is not the whole transition. Making it the top-level frame would collapse DRA stewardship into task execution and would leave reusable method capture and next-slice selection as secondary afterthoughts.
+Rule Authority Cleanup is the selected next container to open, but it is not the whole transition. Making it the top-level frame would collapse DRA stewardship into task execution and would leave reusable method capture and next-slice selection as secondary afterthoughts.
 
 Perspective / discovery passes used:
 
@@ -130,18 +130,18 @@ Hard core:
 
 Protective belt:
 
-- Exact file names and homes for future rule ecology, initiative-frame, and next-slice artifacts.
+- Exact file names and homes for future rule authority cleanup, initiative-frame, and next-slice records.
 - Exact number and names of peer-agent lanes, as long as evidence and review remain fresh and separated.
-- Exact sequencing after the Rule Ecology Cleanup container, unless fresh source or Habitat evidence forces a reframe of the transition anchor.
-- Placement of subordinate ratchet dominoes such as public TypeFest dependency/contract policy, as long as they remain tracked without displacing blueprint topology, rule ecology, or next-slice selection.
+- Exact sequencing after the Rule Authority Cleanup container, unless fresh source or Habitat evidence forces a reframe of the transition anchor.
+- Placement of subordinate ratchet dominoes such as public TypeFest dependency/contract policy, as long as they remain tracked without displacing blueprint topology, rule authority cleanup, or next-slice selection.
 - Whether Narsil, `rg`, Git, Habitat classify, Habitat checks, or Graphite history supplies the first evidence pass for a given question.
-- Whether this frame later promotes into a more durable method document or retires after its decisions land in owning artifacts.
+- Whether this frame later promotes into a more durable method document or retires after its decisions land in owning records.
 
 ## Reframe conditions
 
 What would force a reframe:
 
-If fresh repo state, Habitat output, or sealed authority shows that Slice 001 did not actually close, or if a rule/workstream artifact cannot be classified without reopening source semantics, the stewardship frame must stop and open a dedicated reframe or slice instead of absorbing that anomaly into transition prose.
+If fresh repo state, Habitat output, or sealed authority shows that Slice 001 did not actually close, or if a rule/workstream record cannot be classified without reopening source semantics, the stewardship frame must stop and open a dedicated reframe or slice instead of absorbing that anomaly into transition prose.
 
 Degeneration trigger:
 
@@ -190,10 +190,10 @@ Assumptions committed:
   agent skill for Habitat DRA operation; project/workstream documents inform
   provenance, product intent, or sealed records according to the skill's
   authority map, but they are not skills.
-- Rule Ecology Cleanup is the selected next container to open, not an implementation task opened by this frame.
+- Rule Authority Cleanup is the selected next container to open, not an implementation task opened by this frame.
 - This frame is active-workstream authority for takeover and stewardship; it is not evergreen law until promoted or superseded by a more durable owner.
-- The active rule set may be green without being permanently classified; reusable-class proof belongs to the rule ecology container, not this frame.
+- The active rule set may be green without being permanently classified; reusable-class proof belongs to the rule authority cleanup container, not this frame.
 
 ## NOT HOW
 
-This frame does not prescribe the exact rule ecology edits, the next-slice selection, the rule-by-rule ledger, or any source movement. Those belong in the next opened container's frame, slice packet, ledger, implementation plan, review records, and Graphite layer.
+This frame does not prescribe the exact rule authority cleanup edits, the next-slice selection, the rule-by-rule ledger, or any source movement. Those belong in the next opened container's frame, slice packet, ledger, implementation plan, review records, and Graphite layer.

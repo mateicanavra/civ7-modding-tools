@@ -48,5 +48,5 @@ source-pattern boundary, not a package-owned behavior test.
 ## Record
 
 The canonical operational record is
-`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`; this receipt
+`.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`; this receipt
 does not duplicate the action matrix.

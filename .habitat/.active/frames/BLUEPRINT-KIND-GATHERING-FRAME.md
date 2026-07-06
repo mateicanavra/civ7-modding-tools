@@ -247,7 +247,7 @@ Use `<smallest-honest-niche>/_remainder/<rule-id>/` when:
 - it points to a missing positive kind rule but is too narrow or negative as
   written;
 - it belongs to a future projection, import-law, package graph, build, or
-  generated-artifact surface not designed in this slice;
+  generated-output surface not designed in this slice;
 - it needs split, consolidation, or retirement before final ownership; or
 - it mixes owners and no source-obvious behavior-preserving split belongs in
   the current branch.
@@ -388,7 +388,7 @@ Expected caution:
 - `generated-map-entrypoint` and `shipped-map-catalog` may be parts of a map
   mod output bundle rather than standalone top-level blueprints.
 - `map-projection`, `placement-outcome`, and recipe artifact parity may be
-  adjacent projection, recipe-step, or generated-artifact pressure rather than
+  adjacent projection, recipe-step, or generated-output pressure rather than
   mod-map authority.
 - Do not create `map-projection` or any sibling blueprint in the mod-map slice
   unless failing to do so would force a false move.

@@ -19,7 +19,7 @@ survivor-authority work.
 
 Controlling records:
 
-- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-remediation-layer1-action-matrix.json`
+- `.habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json`
 - `.habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-retirement-slice.md`
 
 Decision matrix:
