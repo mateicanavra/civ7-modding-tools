@@ -579,7 +579,7 @@ supervisor review must close Slice 3 independently before Slice 4 opens.
 
 ## Slice 4: Core API Construction
 
-Status: planned/open
+Status: completed; awaiting independent supervisor review before Slice 5
 
 ### Objective
 
@@ -668,6 +668,97 @@ git diff --check -- packages/mapgen-core/src packages/mapgen-core/test .habitat/
 The `foundation|tectonics|drift` scan is a hard failure. The `u/v` scan is an
 artifact-shape review signal: output must be dispositioned by the
 architecture/proof reviewer before Slice 4 closes.
+
+### Slice 4 Execution Record
+
+Tests-first proof:
+
+- Added `packages/mapgen-core/test/lib/math/quantize.test.ts`,
+  `packages/mapgen-core/test/lib/grid/vector-field-quantize.test.ts`, and
+  `packages/mapgen-core/test/lib/mesh/neighborhood-mesh.test.ts` before source
+  implementation.
+- Pre-implementation `bun test packages/mapgen-core/test/lib` failed only on
+  missing accepted exports: `quantizeU8`, `quantizeI8Symmetric`,
+  `quantizeUnitVec2I8`, and `meanMeshEdgeLength`/mesh neighborhood helpers.
+
+Implemented accepted core APIs:
+
+- `packages/mapgen-core/src/lib/math/quantize.ts`: `quantizeU8` and
+  `quantizeI8Symmetric` with legacy-compatible non-finite, rounding, and
+  saturation semantics.
+- `packages/mapgen-core/src/lib/grid/vector-field.ts`:
+  `quantizeUnitVec2I8`, returning core `{ x, y }` vector components.
+- `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`:
+  `CsrPointMesh2D`, `meanMeshEdgeLength`, `findNearestMeshCell`, and
+  `selectMeshNeighborByVectorProjection`.
+- Existing `lib/math`, `lib/grid`, and `lib/mesh` index surfaces export the new
+  APIs. `packages/mapgen-core/src/lib/grid/index.ts` already exported
+  `vector-field.ts`, so no redundant edit was needed.
+
+Proof:
+
+- `bunx biome check packages/mapgen-core/src/lib/math/quantize.ts
+  packages/mapgen-core/src/lib/math/index.ts
+  packages/mapgen-core/src/lib/grid/vector-field.ts
+  packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts
+  packages/mapgen-core/src/lib/mesh/index.ts
+  packages/mapgen-core/test/lib/math/quantize.test.ts
+  packages/mapgen-core/test/lib/grid/vector-field-quantize.test.ts
+  packages/mapgen-core/test/lib/mesh/neighborhood-mesh.test.ts` — pass
+  (Native tool behavior).
+- `bun test packages/mapgen-core/test/lib` — pass, 19 tests / 166 assertions
+  (Unit behavior).
+- `nx run mapgen-core:test` — pass, 109 tests / 388 assertions (Unit behavior).
+- `nx run mapgen-core:check` — pass (Native tool behavior).
+- `nx run mapgen-core:habitat:check` — pass; `preserve_mapgen_core_runtime_neutrality`
+  enforced, 1 rule, 0 failing (Habitat wrapper behavior).
+- `! rg -n "foundation|tectonics|drift" packages/mapgen-core/src/lib/math
+  packages/mapgen-core/src/lib/grid packages/mapgen-core/src/lib/mesh -g
+  '*.ts'` — pass, no output because the command is case-sensitive. This is
+  retained as the exact packet command proof, but it is not the full vocabulary
+  record-truth proof after supervisor review.
+- `rg -n -i "foundation|tectonics|drift" packages/mapgen-core/src/lib/math
+  packages/mapgen-core/src/lib/grid packages/mapgen-core/src/lib/mesh -g
+  '*.ts' || true` — reports the pre-existing
+  `packages/mapgen-core/src/lib/mesh/delaunay.ts:134` fallback label
+  `"FoundationMesh"`. Disposition: accepted record-truth repair; the hit
+  predates Slice 4, is outside the accepted Slice 4 write set, and was not
+  changed here. No new Slice 4 API or touched/new Slice 4 source file contains
+  foundation, tectonics, or drift vocabulary (Record truth proof).
+- `! rg -n -i "foundation|tectonics|drift"
+  packages/mapgen-core/src/lib/math/quantize.ts
+  packages/mapgen-core/src/lib/math/index.ts
+  packages/mapgen-core/src/lib/grid/vector-field.ts
+  packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts
+  packages/mapgen-core/src/lib/mesh/index.ts` — pass, no output
+  (Record truth proof for no new Slice 4 vocabulary).
+- `rg -n "\\{[^}\\n]*(u|v):|\\b(u|v):"
+  packages/mapgen-core/src/lib/math packages/mapgen-core/src/lib/grid
+  packages/mapgen-core/src/lib/mesh -g '*.ts' || true` — advisory output only
+  for pre-existing `Vec2` helper parameter names `v` in `vector-field.ts`; no
+  artifact `{ u, v }` object shape or public field was introduced.
+- `git diff --check -- packages/mapgen-core/src packages/mapgen-core/test
+  .habitat/.active` — pass (Apply safety proof).
+
+Slice 4 repair record:
+
+- Accepted P2 behavior-proof finding repaired by strengthening
+  `packages/mapgen-core/test/lib/mesh/neighborhood-mesh.test.ts` so duplicate
+  reverse-edge counting, ignored `maxEdges`, invalid-neighbor mishandling,
+  zero-length edge mishandling, and non-strict neighbor projection ties would
+  fail under focused unit tests.
+- Accepted P2 record-truth finding repaired by replacing the false broad
+  vocabulary claim with exact scan output and a disposition for the pre-existing
+  `FoundationMesh` label in `delaunay.ts`.
+- P3 proof-label hygiene folded into this record by mapping commands to
+  canonical proof classes: Unit behavior, Native tool behavior, Habitat wrapper
+  behavior, Apply safety proof, and Record truth proof.
+
+Fresh local review lanes initially found no accepted P1/P2/P3 findings. The
+independent supervisor Slice 4 review then found two accepted P2 findings, both
+repaired above. A subordinate agent launcher was not available in the current
+tool surface, so supervisor independent review remains the closure authority
+before Slice 5 opens.
 
 ## Slice 5: Core Caller Migration And `shared.ts` Deletion
 

@@ -1,5 +1,6 @@
 import { projectOddqToHexSpace } from "@mapgen/lib/grid/hex-space.js";
 import { clampInt } from "@mapgen/lib/math/clamp.js";
+import { quantizeI8Symmetric } from "@mapgen/lib/math/quantize.js";
 
 export type Vec2 = Readonly<{ x: number; y: number }>;
 
@@ -80,6 +81,15 @@ export function quantizeI8Signed(value: number, maxAbs: number): number {
 export function dequantizeI8Signed(value: number, maxAbs: number): number {
   if (!Number.isFinite(value) || !Number.isFinite(maxAbs) || maxAbs <= 0) return 0;
   return (Math.trunc(value) / I8_VECTOR_MAX_ABS) * maxAbs;
+}
+
+export function quantizeUnitVec2I8(x: number, y: number): Vec2 {
+  const len = Math.sqrt(x * x + y * y);
+  if (!Number.isFinite(len) || len <= 1e-9) return { x: 0, y: 0 };
+  return {
+    x: quantizeI8Symmetric((x / len) * I8_VECTOR_MAX_ABS),
+    y: quantizeI8Symmetric((y / len) * I8_VECTOR_MAX_ABS),
+  };
 }
 
 /**

@@ -153,3 +153,44 @@ Lane results:
 
 No accepted P1/P2 findings remain open for repaired Slice 3 local closure. Slice
 4 is not allowed to open until independent supervisor review accepts this slice.
+
+## Execution Slice 4 Review
+
+Fresh local review lanes checked Slice 4 core API construction. A subordinate
+agent launcher was still not available in the current tool surface, so the
+implementation DRA ran the packet-mandated review lanes directly against fresh
+command evidence. Supervisor independent review remains required before Slice 5
+opens.
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P2 | Behavior proof coverage | Mesh neighborhood tests named duplicate avoidance, max-cap, invalid-neighbor handling, zero-length skip, and strict first-tie semantics, but fixtures allowed those behaviors to regress without failing. | Accepted and repaired. Strengthened `neighborhood-mesh.test.ts` with distinct fixtures that fail if reverse duplicate edges are counted before the cap, `maxEdges` is ignored, invalid neighbors or zero-length edges enter the mean, or equal-projection neighbor ties use the later candidate. |
+| P2 | Record truth | Slice 4 proof claimed the broad vocabulary scan had no output, but a case-insensitive rerun finds the pre-existing `FoundationMesh` fallback label in `packages/mapgen-core/src/lib/mesh/delaunay.ts`. | Accepted and repaired. The execution record now separates the exact case-sensitive packet command from a case-insensitive record-truth scan, dispositions the pre-existing `delaunay.ts` hit as out of Slice 4 write scope, and records a no-new-vocabulary scan over touched/new Slice 4 source files. |
+| P3 | Review mechanics | The review wave could not be delegated to separate launched agents because no subagent tool was available in this run. | Waived for local Slice 4 closure claim with supervisor-visible record. Risk is review independence rather than implementation correctness; re-entry trigger is supervisor independent review before Slice 5 opens. |
+
+Lane results:
+
+- Source/consumer: new core APIs live only in accepted `lib/math`, `lib/grid`,
+  and `lib/mesh` surfaces. No foundation caller migration, artifact contract
+  edit, generated output, broad wrapper, or new core subpath was introduced.
+- Behavior semantics: tests-first coverage pins unsigned and signed quantizer
+  non-finite/rounding/saturation behavior, unit-vector quantization into core
+  `{ x, y }`, CSR mesh assignability, mean edge fallback/skip/wrap/max-cap
+  behavior with distinct duplicate/cap/invalid/zero-length fixtures,
+  nearest-cell periodic/tie behavior, and neighbor projection fallback/tie
+  behavior with an equal-projection tie fixture.
+- Architecture/proof: the exact case-sensitive packet vocabulary scan has no
+  output. The case-insensitive record-truth scan reports only the pre-existing
+  `FoundationMesh` fallback label in `delaunay.ts`, outside the Slice 4 write
+  set. The no-new-vocabulary scan over touched/new Slice 4 source files has no
+  output. Advisory `u/v` scan reported only pre-existing `Vec2` helper parameter
+  names `v` in `vector-field.ts`; no artifact `{ u, v }` object shape or public
+  field was introduced.
+- Closure: focused `bun test packages/mapgen-core/test/lib` (Unit behavior),
+  `nx run mapgen-core:test` (Unit behavior), `nx run mapgen-core:check` (Native
+  tool behavior), `nx run mapgen-core:habitat:check` (Habitat wrapper behavior),
+  Biome check over touched core files (Native tool behavior), vocabulary scans
+  (Record truth proof), and `git diff --check` (Apply safety proof) passed.
+
+No accepted P1/P2 findings remain open for Slice 4 local closure. Slice 5 is not
+allowed to open until independent supervisor review accepts this slice.
