@@ -24,6 +24,8 @@ Disposition:
   Slice 3 deletion with no replacement in this cleanup;
 - current tests under `mods/mod-swooper-maps/test/story/**` are compatibility
   evidence for the removed implementation and are assigned to Slice 3 deletion;
+- connected story compatibility state in `@swooper/mapgen-core` and standard
+  runtime is assigned to Slice 4 removal;
 - placement, resource, adapter, and Civ7 runtime narrative UI surfaces remain
   outside this packet.
 
@@ -94,7 +96,10 @@ Disposition:
 | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_hotspot_overlay_publishers` | Habitat negative HOTSPOTS publisher rule | retired story-overlay compatibility authority | Delete stale story-overlay rule in Slice 3 | verified | HOTSPOTS overlay publishing concept is removed with the story overlay implementation |
 | `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/prohibit_morphology_story_overlay_contract_artifact` | Habitat stale `artifact:storyOverlays` rule | retired story-overlay compatibility authority | Delete stale story-overlay rule in Slice 3 | verified | Existing remediation matrix already classifies `artifact:storyOverlays` as stale retired-token garbage collection |
 | `mods/mod-swooper-maps/src/recipes/standard/recipe.ts` | No narrative binding | recipe authority | No write needed for this decision; keep as proof that narrative is absent from standard recipe | verified | current recipe source |
-| `mods/mod-swooper-maps/src/recipes/standard/runtime.ts` `storyEnabled` | Runtime flag only | standard recipe runtime | Out of this packet; no action | verified | runtime source; no import/call into `domain/narrative/**` |
+| `mods/mod-swooper-maps/src/recipes/standard/runtime.ts` `storyEnabled` | Compatibility flag for retired story overlay network | standard recipe runtime | Remove in Slice 4 | verified | no remaining story implementation consumes the flag; Slice 4 removes all callers |
+| `packages/mapgen-core/src/core/types.ts` `StoryOverlaySnapshot` / `StoryOverlayRegistry` | Compatibility types for retired story overlay network | mapgen-core compatibility surface | Remove in Slice 4 | verified | `domain/narrative/overlays/**` deleted; no non-story consumers |
+| `packages/mapgen-core/src/core/types.ts` `ExtendedMapContext.overlays` | Compatibility registry for retired story overlay network | mapgen-core compatibility surface | Remove in Slice 4 | verified | story overlay registry deleted; no non-story consumers |
+| `packages/mapgen-core/src/core/index.ts` `storyKey` / `parseStoryKey` | Story-named public helper with no non-story consumers | mapgen-core compatibility surface | Remove in Slice 4 review repair | verified | `rg` finds only core utility tests after story network deletion |
 | `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts` narrative-system comment | Placement discovery materialization | placement/adapter stage | Out of this packet; no action | verified | placement stage source; official generator owner |
 | `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/contract/discovery-placement-outcomes.contract.ts` narrative-system comment | Placement discovery artifact contract | placement artifact contract | Out of this packet; no action | verified | placement artifact source; discovery placement owner |
 | `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/artifacts.ts` Narrative downstream-consumer description | Hydrology artifact description | hydrology stage/artifact contract | Out of this packet; no action | verified | hydrology artifact source; no import/call into `domain/narrative/**` |

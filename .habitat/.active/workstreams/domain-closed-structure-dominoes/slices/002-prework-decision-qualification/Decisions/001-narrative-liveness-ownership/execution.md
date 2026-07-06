@@ -5,7 +5,9 @@ decision.
 
 This plan carries the four-slice cleanup sequence for the current
 `mods/mod-swooper-maps/src/domain/narrative/**` network. It does not implement
-the generic domain blueprint assertion, `structure.toml`, or Grit packets.
+the generic domain blueprint assertion, new `structure.toml` assertions, or
+Grit packets. Slice 3 may remove stale narrative scope from the existing
+`require_domain_ops_root_presence` structure rule.
 
 ## Execution Frame
 
@@ -169,8 +171,8 @@ Protected in this slice:
 - Update `synthesis/disposition-table.md` so behavior-bearing story rows say
   `Delete current implementation, no replacement in this cleanup`.
 - Preserve the separate future concept as architecture context only: future
-  Gameplay/story-artifact design can reintroduce a new implementation from its
-  own law; it does not retain this source network.
+  Gameplay story design can introduce a new implementation from its own law; it
+  does not retain this source network.
 
 ### Acceptance Criteria
 
@@ -326,6 +328,8 @@ no story overlay types, and no compatibility aliases.
 Edit:
 
 - `packages/mapgen-core/src/core/types.ts`
+- `packages/mapgen-core/src/core/index.ts`
+- `packages/mapgen-core/test/core/utils.test.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/runtime.ts`
 - current callers that initialize `storyEnabled`
 
@@ -373,6 +377,8 @@ Protected in this slice:
   `packages/mapgen-core/src/core/types.ts`.
 - Remove `ExtendedMapContext.overlays` and its default initialization from
   `createExtendedMapContext`.
+- Remove `storyKey` and `parseStoryKey`; there are no non-story consumers for
+  this public core surface.
 - Remove `storyEnabled` from the standard runtime state/init types,
   default runtime value, and runtime initializer assignment.
 - Remove every `storyEnabled` initializer argument from dev diagnostics, viz,
@@ -386,12 +392,14 @@ Protected in this slice:
 - TypeScript source references none of `StoryOverlaySnapshot`,
   `StoryOverlayRegistry`, `ExtendedMapContext.overlays`, `.overlays`, or
   `storyEnabled`.
+- `@swooper/mapgen-core` exposes no `storyKey` or `parseStoryKey` public
+  compatibility helpers.
 - Direct-control/control-oRPC/CLI narrative-choice surfaces remain intact.
 
 ### Tests
 
 ```bash
-! rg -n "StoryOverlaySnapshot|StoryOverlayRegistry|storyEnabled\\b|ctx\\.overlays|\\.overlays|overlays: StoryOverlayRegistry|overlays\\?: StoryOverlayRegistry|overlays:" packages/mapgen-core/src packages/mapgen-core/test mods/mod-swooper-maps/src mods/mod-swooper-maps/test --glob '!**/dist/**' --glob '!**/mod/**' -g '*.ts'
+! rg -n "StoryOverlaySnapshot|StoryOverlayRegistry|storyEnabled\\b|ctx\\.overlays|\\.overlays|overlays: StoryOverlayRegistry|overlays\\?: StoryOverlayRegistry|overlays:|storyKey\\b|parseStoryKey\\b" packages/mapgen-core/src packages/mapgen-core/test mods/mod-swooper-maps/src mods/mod-swooper-maps/test --glob '!**/dist/**' --glob '!**/mod/**' -g '*.ts'
 rg -n "CHOOSE_NARRATIVE_STORY_DIRECTION|narrative-choice|choose-narrative|narrative-request" packages/civ7-direct-control packages/civ7-control-orpc packages/cli -g '*.ts'
 bun habitat classify packages/mapgen-core/src/core/types.ts
 bun habitat classify mods/mod-swooper-maps/src/recipes/standard/runtime.ts
@@ -410,7 +418,7 @@ criteria and tests, and these final checks hold:
 ```bash
 test ! -e mods/mod-swooper-maps/src/domain/narrative
 test ! -e mods/mod-swooper-maps/test/story
-! rg -n "@mapgen/domain/narrative|domain/narrative|StoryOverlaySnapshot|StoryOverlayRegistry|storyEnabled\\b|storyTag|NarrativeConfigSchema|CorridorsConfigSchema" mods packages --glob '!**/dist/**' --glob '!**/mod/**' -g '*.ts'
+! rg -n "@mapgen/domain/narrative|domain/narrative|StoryOverlaySnapshot|StoryOverlayRegistry|storyEnabled\\b|storyTag|storyKey\\b|parseStoryKey\\b|NarrativeConfigSchema|CorridorsConfigSchema" mods packages --glob '!**/dist/**' --glob '!**/mod/**' -g '*.ts'
 rg -n "CHOOSE_NARRATIVE_STORY_DIRECTION|narrative-choice|choose-narrative|narrative-request" packages/civ7-direct-control packages/civ7-control-orpc packages/cli -g '*.ts'
 nx run mapgen-core:check
 nx run mapgen-core:test

@@ -1,6 +1,6 @@
 # Narrative Liveness And Ownership Workstream Plan
 
-Status: active decision packet
+Status: decision packet, sealed by execution
 
 This packet runs prework item 1 from the `002-prework-decision-qualification`
 slice. The decision is:
@@ -24,7 +24,8 @@ collar path:
 - qualified for Domino 001 with an exact destination;
 - recipe/stage-owned with an exact owner path;
 - domain-owned with existing governing scope or file law;
-- Gameplay/story-artifact owner-law domino.
+- future Gameplay story design context where current source is deleted and no
+  current destination exists.
 
 The output feeds Domino 001 by removing guesswork before source-moving work
 begins.
@@ -103,8 +104,8 @@ This decision closes when:
 - review findings are accepted, rejected with evidence, or converted into
   packet edits;
 - the final user-facing summary states what can be deleted, what has live
-  consumers, what moves under existing owner law, and what requires the
-  Gameplay/story-artifact owner-law domino.
+  consumers, what moves under existing owner law, and which story concepts have
+  no current destination because the current implementation is deleted.
 
 ## Write Boundary
 
@@ -114,5 +115,5 @@ This packet writes only active Habitat authority material under:
 .habitat/.active/workstreams/domain-closed-structure-dominoes/slices/002-prework-decision-qualification/Decisions/001-narrative-liveness-ownership/
 ```
 
-Source migration, deletion, `structure.toml`, Grit packets, and runtime code
-changes are later implementation slices.
+Source migration, deletion, enforcement packets, and runtime code changes are
+handled by execution slices, not by this decision packet.

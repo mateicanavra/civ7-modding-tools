@@ -1,7 +1,7 @@
 /**
  * Core Utilities Tests
  *
- * Tests for idx, inBounds, storyKey, clamp, lerp, wrapX, fillBuffer functions.
+ * Tests for idx, inBounds, clamp, lerp, wrapX, fillBuffer functions.
  */
 
 import { describe, expect, it } from "bun:test";
@@ -11,8 +11,6 @@ import {
   idx,
   inBounds,
   lerp,
-  parseStoryKey,
-  storyKey,
   wrapX,
 } from "@mapgen/core/index.js";
 
@@ -51,40 +49,6 @@ describe("core/utils", () => {
       expect(inBounds(0, 0, 1, 1)).toBe(true);
       expect(inBounds(1, 0, 1, 1)).toBe(false);
       expect(inBounds(0, 1, 1, 1)).toBe(false);
-    });
-  });
-
-  describe("storyKey", () => {
-    it("produces stable string key for coordinates", () => {
-      expect(storyKey(0, 0)).toBe("0,0");
-      expect(storyKey(10, 20)).toBe("10,20");
-      expect(storyKey(123, 456)).toBe("123,456");
-    });
-
-    it("handles negative coordinates", () => {
-      expect(storyKey(-1, -2)).toBe("-1,-2");
-      expect(storyKey(-10, 20)).toBe("-10,20");
-    });
-  });
-
-  describe("parseStoryKey", () => {
-    it("parses story key back into coordinates", () => {
-      expect(parseStoryKey("0,0")).toEqual({ x: 0, y: 0 });
-      expect(parseStoryKey("10,20")).toEqual({ x: 10, y: 20 });
-      expect(parseStoryKey("123,456")).toEqual({ x: 123, y: 456 });
-    });
-
-    it("handles negative coordinates", () => {
-      expect(parseStoryKey("-1,-2")).toEqual({ x: -1, y: -2 });
-      expect(parseStoryKey("-10,20")).toEqual({ x: -10, y: 20 });
-    });
-
-    it("round-trips with storyKey", () => {
-      const x = 42,
-        y = 99;
-      const key = storyKey(x, y);
-      const parsed = parseStoryKey(key);
-      expect(parsed).toEqual({ x, y });
     });
   });
 

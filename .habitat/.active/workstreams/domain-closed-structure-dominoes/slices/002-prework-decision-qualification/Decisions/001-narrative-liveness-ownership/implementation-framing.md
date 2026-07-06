@@ -71,14 +71,15 @@ proof and Graphite commits for each closed slice. The end state is:
   untouched;
 - placement/hydrology wording that merely names Narrative as a downstream
   concept remains untouched;
-- no generic domain blueprint enforcement, `structure.toml`, Grit packets, or
-  Gameplay porting is introduced.
+- no generic domain blueprint enforcement, new `structure.toml` assertion, Grit
+  packet, or Gameplay port is introduced. Slice 3 may update an existing
+  `structure.toml` rule to remove stale narrative scope.
 
 The high-level classification is a source-backed deletion and compatibility
 burn-down, not a migration. The current implementation is removed as legacy
-MapGen story code. Future Gameplay/story-artifact law may introduce a new
-implementation from its own authority, but this run must not preserve or alias
-the current source network through a fake Gameplay bucket.
+MapGen story code. A future Gameplay story design starts from its own authority;
+this run does not preserve or alias the current source network through a
+Gameplay bucket.
 
 ## Controlling Evidence
 
@@ -142,7 +143,7 @@ In scope:
 
 Out of scope:
 
-- new Gameplay/story-artifact implementation;
+- new Gameplay story implementation;
 - preserving current story behavior behind aliases, compatibility exports, or
   broad public barrels;
 - generic domain closed-structure enforcement;
