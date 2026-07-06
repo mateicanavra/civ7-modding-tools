@@ -33,7 +33,8 @@ enforced through the exact runner named by each structural authority row:
 
 ## Live Verification
 
-This packet runs the live verification contract from `target-vocabulary.md`.
-Without that live run, closure is not green. If Civ7 is unavailable, the
-implementation writes a not-green closure record with the missing prerequisite
-and exact re-entry protocol.
+This packet runs the full live verification matrix from `target-vocabulary.md`.
+Without that live matrix, closure remains open. The matrix uses actual Studio
+server endpoints, successful in-game Civilization 7 launches, API/control
+variants, and the packet train's behavior tests. Civ7 or Studio endpoint
+unavailability blocks closure; it is not an alternate accepted outcome.

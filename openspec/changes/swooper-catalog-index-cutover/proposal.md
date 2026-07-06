@@ -53,4 +53,6 @@ Structural authority row: SA-09 `nx-swooper-catalog-index-target-topology`.
 - Catalog generation behavior tests.
 - Nx target metadata verification.
 - SA-09 `nx-swooper-catalog-index-target-topology`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate swooper-catalog-index-cutover --strict`.

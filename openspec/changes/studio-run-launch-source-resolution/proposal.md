@@ -57,6 +57,10 @@ Structural authority row: SA-05 `grit-studio-run-launch-source-boundary`.
 
 - Contract/schema tests for start input.
 - Server source-resolution behavior tests.
+- Live Studio endpoint evidence for accepted catalog/editor source variants and
+  rejected invalid start input.
 - UI request-construction behavior tests.
 - SA-05 `grit-studio-run-launch-source-boundary`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-launch-source-resolution --strict`.

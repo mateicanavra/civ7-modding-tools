@@ -55,5 +55,9 @@ Structural authority row: SA-13 `structure-studio-run-attribution-records`.
 
 - Attribution report behavior tests.
 - Copy-diagnostics behavior tests.
+- Live Studio endpoint evidence that diagnostics lookup returns private
+  attribution while public status/current/events do not expose it.
 - SA-13 `structure-studio-run-attribution-records`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-attribution-report --strict`.

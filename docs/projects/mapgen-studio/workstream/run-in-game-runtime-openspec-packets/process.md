@@ -14,8 +14,10 @@ Source proposal:
 Turn the Run in Game runtime and deployment model proposal into executable
 OpenSpec workstream packets. Each packet must be a complete domino: a coherent
 implementation change that leaves the system working, removes ambiguity, and
-can be executed by a fresh team from a new worktree off `main` with only the
-packet as guidance.
+can be executed by a fresh team with only the packet as guidance. If this
+packet branch has not merged into `main`, execution starts from the worktree
+holding the packet branch and builds on top of that stack; after merge,
+execution may start from a fresh `main` worktree.
 
 ## Process Principle
 
@@ -29,6 +31,12 @@ behavior, and code behavior. Structural and topological requirements are not
 tested by searching for deleted names or legacy keys. They are enforced through
 Habitat/Grit authority rules and positive structural assertions that state the
 required shape directly.
+
+Live verification is mandatory. The packet train cannot be closed-passed until
+all declared behavior tests are green, actual Studio endpoints have been
+exercised through live API calls, and Civilization 7 has loaded the generated
+content for the live variant matrix. Civ7 being unavailable is a blocker to
+resolve, not an acceptable skip or alternate closure state.
 
 Permanent structural constraints must be phrased as positive assertions: the
 system has this owner, this entrypoint, this schema closure, this dependency
@@ -123,6 +131,12 @@ Every packet must define:
 - boundary enforcement;
 - behavior-first required and prohibited behaviors;
 - behavior tests and verification gates before implementation detail;
+- any packet-specific live Studio endpoint checks when the packet changes an API
+  endpoint, status projection, cancellation command, or Run in Game workflow;
+- verification evidence under the packet workstream directory, with one
+  auditable row for each declared gate;
+- dedicated review lanes for TypeScript refactoring, code quality/structure,
+  and oRPC/Effect/library correctness;
 - structural enforcement as Habitat/Grit rules or positive topology assertions,
   not as behavioral tests for deleted strings;
 - deterministic tasks;
@@ -135,7 +149,8 @@ Completion criteria for each packet:
 - accepted P1/P2 review findings are repaired;
 - packet contains no shortcut language except in explicit forbidden-behavior
   sections;
-- packet can be executed from a fresh main-based worktree without chat context.
+- packet can be executed from the packet-stack worktree, or from `main` after
+  the packet branch merges, without chat context.
 
 ## Stage 2a: Design Question Resolution
 
@@ -168,11 +183,19 @@ Review lanes:
 - behavior-testing and evidence review;
 - Habitat/Grit structural-enforcement review;
 - structural simplicity review.
+- TypeScript refactoring review anchored to `typescript-refactoring`;
+- code quality/structure review anchored to `dev:review-code-quality`;
+- library correctness review anchored to `dev:orpc`, current official oRPC
+  docs, current official Effect docs, and packet-relevant library docs.
 
 Reviewers must be adversarial and context-anchored. Their job is to find hidden
 state, wrong-owner preservation, weak behavior tests, misplaced structural
 assertions, shortcut language, and packet text that would force a fresh
-implementer to guess.
+implementer to guess. The TypeScript, code quality, and library-correctness
+reviewers also check JSDoc and anchor-comment quality: cornerstone runtime code,
+public ports, exported functions, and non-obvious parameters should explain the
+what and why where the code is not self-evident, without narrating how each line
+works.
 
 Completion criteria:
 
@@ -193,7 +216,9 @@ Checks:
 - packet dependencies form a clean forward sequence;
 - public status and diagnostics boundaries remain consistent across packets;
 - verification gates cover unit, integration, API, and runtime launch claims at
-  the correct evidence level.
+  the correct evidence level;
+- final live verification covers multiple endpoint/in-game variants, not a
+  single happy path.
 
 Completion criteria:
 
@@ -220,6 +245,8 @@ Outputs:
 Completion criteria:
 
 - `bun run openspec:validate` passes;
+- all declared behavior tests pass;
+- the live Studio endpoint and Civilization 7 verification matrix passes;
 - `git diff --check` passes;
 - worktree state is recorded;
 - no stale agents remain open;

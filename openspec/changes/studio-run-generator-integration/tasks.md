@@ -15,3 +15,11 @@
 
 - [ ] 3.1 Add behavior tests for generation success and failure.
 - [ ] 3.2 Run focused Studio server and Swooper generator checks.
+- [ ] 3.3 Run and record live Studio endpoint check that a run invokes the manifest
+      generator and records generated mod metadata privately.
+- [ ] 3.4 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.5 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.

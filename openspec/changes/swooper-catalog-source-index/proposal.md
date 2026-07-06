@@ -75,4 +75,6 @@ Temporary pattern:
 - Focused Swooper Maps reader tests.
 - SA-04 `structure-swooper-catalog-source-index`.
 - Temporary `grit-swooper-catalog-index-consistency-temporary`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate swooper-catalog-source-index --strict`.

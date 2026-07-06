@@ -37,19 +37,19 @@ topology through the structural authority matrix rather than behavior tests.
 
 ### Requirement: Final Closure Requires Live Run In Game Verification
 
-MapGen Studio SHALL run the live Run in Game verification contract before green
+MapGen Studio SHALL run the live Run in Game verification matrix before green
 closure.
 
-#### Scenario: Civ7 live environment is available
+#### Scenario: Final packet closes
 
 - **WHEN** the final packet closes
-- **THEN** implementation runs the live verification scenario defined in the
-  target vocabulary
+- **THEN** implementation runs the live verification matrix defined in the
+  target vocabulary against actual Studio endpoints
+- **AND** successful launch variants are verified in Civilization 7
+- **AND** post-start Civilization 7 evidence shows the loaded game is using the
+  generated Studio-run artifact
+- **AND** API/control variants exercise validation, ownership, and cancellation
+  through actual Studio endpoints
 - **AND** records public phases, request workspace artifacts, matched
   correlation, and terminal completed status
-
-#### Scenario: Civ7 live environment is unavailable
-
-- **WHEN** the final packet cannot run live verification
-- **THEN** implementation records not-green closure with the missing
-  prerequisite and exact re-entry protocol
+- **AND** closure remains open until the live matrix passes

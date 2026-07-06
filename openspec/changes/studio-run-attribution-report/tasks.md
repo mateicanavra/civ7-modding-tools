@@ -15,4 +15,12 @@
 ## 3. Verification
 
 - [ ] 3.1 Add behavior tests for report lifecycle and completion semantics.
-- [ ] 3.2 Register SA-13 `structure-studio-run-attribution-records`.
+- [ ] 3.2 Run and record live Studio endpoint checks that diagnostics lookup returns
+      private attribution while public status/current/events do not expose it.
+- [ ] 3.3 Register SA-13 `structure-studio-run-attribution-records`.
+- [ ] 3.4 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.5 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.

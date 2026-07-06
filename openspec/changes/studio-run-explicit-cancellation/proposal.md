@@ -58,6 +58,12 @@ Worker interruption, lease release, and event behavior are behavior tests.
 
 - API contract tests for cancel input/output.
 - Runtime behavior tests for idempotency and terminalization.
-- UI behavior tests if the cancel affordance changes.
+- Live Studio endpoint evidence for active, repeated, terminal, and unknown
+  cancellation requests.
+- UI cancel-affordance behavior gate: run focused UI behavior tests when the
+  cancel affordance changes, or record source-diff evidence that this packet did
+  not change any UI cancellation surface.
 - SA-03 `grit-studio-run-cancel-command-owner`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-explicit-cancellation --strict`.

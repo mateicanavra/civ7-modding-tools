@@ -56,5 +56,10 @@ promotion decision before this packet closes.
 - SA-14 `habitat-studio-run-runtime-authority-closure` verifies SA-01 through
   SA-13 and temporary pattern disposition.
 - `bun run openspec:validate`.
-- Live Run in Game verification from `target-vocabulary.md`.
+- Full live verification matrix from `target-vocabulary.md`, including actual
+  Studio endpoint calls, successful in-game Civ7 launch variants with generated
+  content proven present through post-start Civ7 evidence, API/control variants,
+  diagnostics/correlation evidence, and public/private leak checks.
+- No declared verification gate is skipped; closure remains open until every
+  behavioral unit, endpoint, structural, OpenSpec, and in-game gate is green.
 - Final packet-set review has no unresolved P1/P2 findings.

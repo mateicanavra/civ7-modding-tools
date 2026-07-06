@@ -15,3 +15,9 @@
 - [ ] 3.1 Register SA-06 `grit-swooper-map-render-file-plan-boundary` with
       Pattern Authority metadata from the structural authority matrix.
 - [ ] 3.2 Run focused Swooper Maps checks.
+- [ ] 3.3 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.4 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.
