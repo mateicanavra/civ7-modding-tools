@@ -65,3 +65,10 @@ Current frames:
 Workstream-specific method frames also live here. The current
 closed-structure enforcement frame is
 `CLOSED-STRUCTURE-ENFORCEMENT-METHOD-FRAME.md`.
+
+- `BLUEPRINT-AUTHORITY-RATCHET-DESCENT-FRAME.md`: use when opening or
+  stewarding a full blueprint-authority ratchet from selected scope through
+  prework, execution, repair, positive Habitat ratchet, rule-surface cleanup,
+  closure, ascent, and next-scope selection. It does not replace the
+  closed-structure enforcement frame; it composes that frame as the local
+  positive-assertion primitive and adds the larger descent/ascent geometry.

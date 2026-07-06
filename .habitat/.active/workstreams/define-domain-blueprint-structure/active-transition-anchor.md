@@ -162,25 +162,20 @@ Required output when opened:
 
 ## Container 2: Reusable Initiative Frame Capture
 
-Status: second container to open after the rule authority cleanup direction is clear.
+Status: candidate method frame captured at
+`.habitat/.active/frames/BLUEPRINT-AUTHORITY-RATCHET-DESCENT-FRAME.md`;
+review before promoting or retiring this temporary anchor.
 
 Objective:
 capture the reusable method from the completed descent so future blueprint work
 starts with the right container geometry instead of rediscovering it.
 
-The reusable method:
-
-```text
-define container
-  -> activate scope
-  -> flip to red
-  -> classify red by owner and destination
-  -> open prework only for nondeterministic destinations
-  -> execute deterministic burn-down
-  -> repair drift
-  -> ratchet with Habitat
-  -> close and move back up
-```
+Canonical method:
+`.habitat/.active/frames/BLUEPRINT-AUTHORITY-RATCHET-DESCENT-FRAME.md`
+now owns the full descent state machine, including law-correction/scope-split
+back-talk, source-movement preservation gates, review gates, rule-surface
+reduction, and ascent. Do not maintain a second compressed method copy in this
+temporary anchor.
 
 Key lesson to preserve:
 prework is not information gathering for its own sake. Prework exists only where
