@@ -61,7 +61,13 @@ closed source input
 Behavior tests prove product and code behavior: request validation, public
 status, operation identity, cancellation, manifest writing, generated content,
 deployment copy, runtime observation, attribution records, diagnostics lookup,
-retention, and live Run in Game behavior.
+and retention.
+
+Live verification is the ultimate final gate. The complete packet train is not
+closed-passed until behavioral unit tests and focused behavior tests pass,
+actual Studio endpoint calls exercise the run workflow, and Civilization 7
+loads the generated content for the live variant matrix in
+`target-vocabulary.md`.
 
 Structural enforcement is authority-plane work: Grit for source-shape
 assertions, structure-check for filesystem topology, Nx metadata for task graph
@@ -74,6 +80,11 @@ actions live in `structural-authority-matrix.md`.
 No packet adds behavior tests whose purpose is to search for retired keys, old
 paths, or previous implementation names.
 
+Each changeset also carries the dedicated review lanes defined in
+`packet-authoring-contract.md`: TypeScript refactoring, code quality/structure,
+and oRPC/Effect/library correctness, including JSDoc and anchor-comment review
+for cornerstone runtime code.
+
 ## Verification Command Rule
 
 Each packet executes:
@@ -84,14 +95,17 @@ bun habitat classify <diff-or-packet-write-set>
 ```
 
 Then it runs every command reported by `bun habitat classify`, plus the
-packet-specific behavior tests named in that packet. The final closure packet
-also runs:
+packet-specific behavior tests and packet-specific live endpoint checks named in
+that packet. A packet with a skipped declared gate is incomplete. The final
+closure packet also runs:
 
 ```bash
 bun run openspec:validate
 ```
 
-and the live Run in Game verification contract from `target-vocabulary.md`.
+and the live Run in Game verification matrix from `target-vocabulary.md`.
+Civilization 7 being unavailable blocks closure rather than producing an
+acceptable closure record.
 
 ## Packet Dependencies
 

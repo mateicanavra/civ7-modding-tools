@@ -56,5 +56,11 @@ Behavior tests cover copy, conflict, and release behavior.
 
 - Deployment copy and snapshot behavior tests.
 - Lease conflict and release behavior tests.
+- Live Studio endpoint evidence for deployment snapshot creation and
+  Save/Deploy ownership conflict projection.
 - SA-11 `grit-studio-run-copy-deploy-boundary`.
+- SA-11/Grit proves the copy-only/no-rebuild topology; endpoint evidence proves
+  public behavior and produced deployment snapshot identity.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-deployment-snapshot-lease --strict`.

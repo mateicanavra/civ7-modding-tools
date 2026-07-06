@@ -16,4 +16,13 @@
 ## 3. Verification
 
 - [ ] 3.1 Add behavior tests for manifest writing and digest stability.
-- [ ] 3.2 Register SA-07 `structure-studio-run-workspace-topology`.
+- [ ] 3.2 Run and record live Studio endpoint check that an admitted run creates one
+      request workspace and manifest while keeping manifest data out of public
+      status.
+- [ ] 3.3 Register SA-07 `structure-studio-run-workspace-topology`.
+- [ ] 3.4 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.5 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.

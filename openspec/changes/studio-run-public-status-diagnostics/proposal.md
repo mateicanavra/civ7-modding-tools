@@ -81,6 +81,11 @@ Structural authority row: SA-01
 
 - Focused contract/schema checks for `@civ7/studio-contract`.
 - Focused server projection tests.
-- Focused UI status/copy-diagnostics behavior tests if UI mapping changes.
+- Live Studio endpoint evidence for public status and diagnostics lookup shape.
+- UI status/copy-diagnostics behavior gate: run focused UI behavior tests when
+  UI mapping changes, or record source-diff evidence that this packet did not
+  change any UI status/copy-diagnostics surface.
 - SA-01 `grit-studio-run-public-contract-closed`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-public-status-diagnostics --strict`.

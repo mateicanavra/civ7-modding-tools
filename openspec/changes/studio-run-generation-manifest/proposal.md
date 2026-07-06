@@ -60,5 +60,9 @@ Behavior tests cover manifest content and digest behavior.
 
 - Manifest parser/writer behavior tests.
 - Workflow behavior test for manifest-created state.
+- Live Studio endpoint evidence that an admitted run creates one request
+  workspace and manifest while keeping manifest data out of public status.
 - SA-07 `structure-studio-run-workspace-topology`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-generation-manifest --strict`.

@@ -18,6 +18,14 @@
 ## 3. Verification
 
 - [ ] 3.1 Add behavior tests for public projection and diagnostics lookup.
-- [ ] 3.2 Register SA-01 `grit-studio-run-public-contract-closed` with Pattern
+- [ ] 3.2 Run and record live Studio endpoint checks for public status and
+      diagnostics lookup shape.
+- [ ] 3.3 Register SA-01 `grit-studio-run-public-contract-closed` with Pattern
       Authority metadata from the structural authority matrix.
-- [ ] 3.3 Run focused package checks and OpenSpec validation.
+- [ ] 3.4 Run focused package checks and OpenSpec validation.
+- [ ] 3.5 Record verification evidence for every declared gate in
+      `workstream/verification-evidence.md`; this packet does not close with
+      skipped gates.
+- [ ] 3.6 Run and record the required TypeScript refactoring, code
+      quality/structure, and oRPC/Effect/library correctness review lanes,
+      including JSDoc and anchor-comment review.

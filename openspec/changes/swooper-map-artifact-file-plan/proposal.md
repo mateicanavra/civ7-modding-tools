@@ -56,4 +56,6 @@ Behavior tests cover rendered content equivalence.
 - Fixture behavior tests for file-plan rendering.
 - Existing Swooper artifact generation checks.
 - SA-06 `grit-swooper-map-render-file-plan-boundary`.
+- No declared verification gate is skipped; packet closure records evidence in
+  `workstream/verification-evidence.md`.
 - `bun run openspec -- validate swooper-map-artifact-file-plan --strict`.
