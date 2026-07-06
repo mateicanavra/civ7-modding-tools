@@ -103,7 +103,7 @@ real operation-boundary compatibility check remains. It should not preserve
 ## Closure
 
 No owner-law blocker remains. `foundation/lib/require.ts` can be removed in a
-later execution slice after the artifact contract modules own validation, any
-necessary generic `assert` exports are justified or omitted, pass-through
-wrappers are deleted, import scans are clean, and the mod test/check proof
-passes.
+packet-linked execution slice after the artifact contract modules own
+validation, any necessary generic `assert` exports are justified or omitted,
+pass-through wrappers are deleted, import scans are clean, and the mod
+test/check proof passes.

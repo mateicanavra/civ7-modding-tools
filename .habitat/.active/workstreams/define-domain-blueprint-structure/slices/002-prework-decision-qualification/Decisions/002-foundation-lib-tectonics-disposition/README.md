@@ -16,11 +16,12 @@ operation-local implementation, artifact contract, core mechanics, or deletion.
 
 The packet is now fully resolved at the prework decision layer:
 `foundation/lib/**` is not a valid final owner, and every row has an exact
-destination/action for the later execution slice.
+destination/action for execution.
 
-No owner-law blocker remains. The remaining work is implementation: compose a
-quick `execution.md` for the foundation-lib cleanup, then move/delete source
-only under the proof gates named in this packet.
+No owner-law blocker remains. The remaining work is implementation through the
+packet-linked execution workstream: complete the artifact-contract and core
+extraction slices, then move/delete source only under the proof gates named in
+that record.
 
 Concrete dispositions:
 
@@ -83,7 +84,7 @@ Dedicated investigation plans and evidence:
 - `evidence/tectonics-shared-core-agent-c.md`
 
 The domino files are now closure records. They should feed the next
-packet-linked execution document rather than remain as open trackers.
+packet-linked execution slices rather than remain as open trackers.
 
 ## Artifacts
 
@@ -107,11 +108,15 @@ synthesis/
   disposition-table.md
 reviews/
   review-findings.md
+execution.md
 require-guards.domino.md
 require-guards-investigation.md
 tectonics-shared-core.domino.md
 tectonics-shared-core-investigation.md
 ```
 
-No `execution.md` is present yet. Source migration, deletions, `structure.toml`,
-Grit packets, and runtime changes belong to the next implementation slice.
+`execution.md` contains closed Slice 1 proof and an execution-ready workstream
+for the remaining artifact-contract and core-extraction slices. Source
+migration, deletions, `structure.toml`, Grit packets, and runtime changes must
+follow the gates in that record; `structure.toml`, Grit packets, and runtime
+changes remain out of scope unless a later accepted slice explicitly adds them.
