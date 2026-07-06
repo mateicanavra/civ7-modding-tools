@@ -5,11 +5,11 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { computeEarthMetrics } from "../../src/dev/diagnostics/extract-earth-metrics.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
-import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { standardConfig } from "../support/standard-config.js";
 
 function runMetrics(seed: number, width: number, height: number) {

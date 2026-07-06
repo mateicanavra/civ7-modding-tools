@@ -1,4 +1,4 @@
-import type { PlotEffectKey } from "@mapgen/domain/ecology";
+import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
 import type { TraceScope } from "@swooper/mapgen-core";
 import {
   clamp01,
@@ -15,7 +15,7 @@ type PlotEffectsInput = PlotEffectsStepInput;
 type PlotEffectPlacement = {
   x: number;
   y: number;
-  plotEffect: PlotEffectKey;
+  plotEffect: PlotEffectIntentKey;
 };
 
 type TerrainBucket = {
@@ -77,11 +77,6 @@ const collectLandElevations = (input: PlotEffectsInput): number[] => {
 
 type SnowResolvedConfig = {
   enabled: boolean;
-  selectors: {
-    light: { typeName: string };
-    medium: { typeName: string };
-    heavy: { typeName: string };
-  };
   elevationStrategy: "percentile" | "absolute";
   elevationPercentileMin: number;
   elevationPercentileMax: number;
@@ -125,21 +120,11 @@ function resolveSnowConfig(scoreConfig: unknown, planConfig: unknown): SnowResol
   const planRaw = asRecord(planConfig);
   if (!scoreRaw || !planRaw) return null;
 
-  const selectorsRaw = asRecord(planRaw.selectors);
-  const lightRaw = selectorsRaw ? asRecord(selectorsRaw.light) : null;
-  const mediumRaw = selectorsRaw ? asRecord(selectorsRaw.medium) : null;
-  const heavyRaw = selectorsRaw ? asRecord(selectorsRaw.heavy) : null;
-
   const elevationStrategyRaw = asString(scoreRaw.elevationStrategy, "absolute");
   const elevationStrategy = elevationStrategyRaw === "percentile" ? "percentile" : "absolute";
 
   return {
     enabled: asBoolean(planRaw.enabled, false),
-    selectors: {
-      light: { typeName: asString(lightRaw?.typeName, "light") },
-      medium: { typeName: asString(mediumRaw?.typeName, "medium") },
-      heavy: { typeName: asString(heavyRaw?.typeName, "heavy") },
-    },
     elevationStrategy,
     elevationPercentileMin: asNumber(scoreRaw.elevationPercentileMin, 0),
     elevationPercentileMax: asNumber(scoreRaw.elevationPercentileMax, 1),
@@ -240,10 +225,10 @@ export function logSnowEligibilitySummary(
   }
 
   const snowTypes = {
-    light: snow.selectors.light.typeName,
-    medium: snow.selectors.medium.typeName,
-    heavy: snow.selectors.heavy.typeName,
-  };
+    light: "snow-light",
+    medium: "snow-medium",
+    heavy: "snow-heavy",
+  } as const;
 
   const bucketLand = createBucket();
   const bucketMountain = createBucket();

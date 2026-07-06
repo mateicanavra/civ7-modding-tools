@@ -1,8 +1,8 @@
 import hydrology from "@mapgen/domain/hydrology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { hydrologyClimateBaselineArtifacts } from "../../hydrology-climate-baseline/artifacts.js";
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../artifacts.js";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../../hydrology-climate-baseline/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../artifacts/index.js";
 
 /**
  * River projection + hydrography publication step.

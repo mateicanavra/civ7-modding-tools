@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { HABITAT_MASK_FIELD_NAMES } from "../../model/schemas/habitat-fields.schema.js";
 
 /**
  * Derives the named habitat lane masks the family demand planners consume
@@ -42,81 +43,8 @@ const PlanInput = Type.Object(
   { additionalProperties: false }
 );
 
-const MASK_OUTPUT_FIELDS = [
-  // aquatic lanes
-  "coastalWaterMask",
-  "shelfMask",
-  "warmShallowWaterMask",
-  "coldProductiveWaterMask",
-  "reefOrProtectedShallowsMask",
-  "estuaryMask",
-  "navigableRiverMouthMask",
-  "lakeMask",
-  "iceMask",
-  // terrestrial lanes
-  "aridRangelandMask",
-  "openGrassPlainsMask",
-  "tundraColdEdgeMask",
-  "hillHighlandMask",
-  "savannaWateringHoleMask",
-  "tropicalForestEdgeMask",
-  "taigaBorealForestMask",
-  "moistWoodlandEdgeMask",
-  "tropicalForestMask",
-  "diverseWildHabitatMask",
-  "tropicalHighlandMask",
-  "coldMask",
-  "aridWithoutWaterMask",
-  "denseForestMask",
-  "cultivatedPressureMask",
-  // cultivated lanes
-  "warmAlluvialMask",
-  "floodplainOrRiverMask",
-  "warmGrassPlainsMask",
-  "oasisOrDesertWaterMask",
-  "aridDryWoodlandMask",
-  "coastalMarineMask",
-  "humidTropicalForestMask",
-  "wetTropicsMask",
-  "highlandOrReliefMask",
-  "temperateDryPlainsMask",
-  "savannaForestMask",
-  "tropicalFruitMask",
-  "wetlandPaddyMask",
-  "coolTemperatePlainsMask",
-  "waterloggedMask",
-  // geological lanes
-  "orogenyMask",
-  "alluvialPlacerMask",
-  "tundraDesertHillMask",
-  "evaporiteBasinMask",
-  "sedimentaryBasinMask",
-  "ultramaficMask",
-  "weatheringClayFlatMask",
-  "carbonateBeltMask",
-  "cratonMask",
-  "closedBasinMask",
-  "aridSoilMask",
-  "forestWetlandBasinMask",
-  "hydrocarbonBasinMask",
-  "wetAlluvialMask",
-  "graniteBeltMask",
-  "oilAdjacencyMask",
-  "metamorphicBeltMask",
-  "collisionBeltMask",
-  "flatNonGeologicMask",
-  "wetSuppressionMask",
-  "humidSuppressionMask",
-  "offshoreMask",
-  "igneousTerrainMask",
-] as const;
-
-export type HabitatMaskFieldName = (typeof MASK_OUTPUT_FIELDS)[number];
-
-export { MASK_OUTPUT_FIELDS as HABITAT_MASK_FIELD_NAMES };
-
 const maskOutputs = Object.fromEntries(
-  MASK_OUTPUT_FIELDS.map((field) => [field, u8(`Derived habitat lane mask: ${field}.`)])
+  HABITAT_MASK_FIELD_NAMES.map((field) => [field, u8(`Derived habitat lane mask: ${field}.`)])
 );
 
 const PlanOutput = Type.Object(

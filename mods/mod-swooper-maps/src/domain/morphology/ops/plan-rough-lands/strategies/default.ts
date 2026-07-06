@@ -1,12 +1,10 @@
-import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { clampPct } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import {
-  encodeNormalizedToU8,
-  normalizeMountainFractal,
-  resolveDriverStrength,
-} from "../../mountains-shared/rules.js";
+import { resolveDriverStrength } from "../../../model/policy/driver-strength.js";
+import { normalizeMountainFractal } from "../../../model/policy/mountain-fractal.js";
+import { encodeNormalizedToU8 } from "../../../model/policy/normalized-byte.js";
 import PlanRoughLandsContract from "../contract.js";
 import type { PlanRoughLandsTypes } from "../types.js";
 

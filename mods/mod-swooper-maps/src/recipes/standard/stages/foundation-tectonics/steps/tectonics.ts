@@ -1,16 +1,9 @@
-import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
-import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/config.js";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
+import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validateTectonicHistoryArtifact,
-  validateTectonicProvenanceArtifact,
-  validateTectonicSegmentsArtifact,
-  validateTectonicsArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY, segmentsFromCellPairs } from "../../foundation/viz.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 
@@ -37,21 +30,20 @@ export default createStep(TectonicsStepContract, {
       foundationArtifacts.tectonicSegments,
       foundationArtifacts.tectonicHistory,
       foundationArtifacts.tectonicProvenance,
-      foundationArtifacts.tectonics,
+      foundationArtifacts.currentTectonics,
     ],
     {
       foundationTectonicSegments: {
-        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicSegmentsArtifact),
+        validate: (value) => foundationArtifactValidators.tectonicSegments(value),
       },
       foundationTectonicHistory: {
-        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicHistoryArtifact),
+        validate: (value) => foundationArtifactValidators.tectonicHistory(value),
       },
       foundationTectonicProvenance: {
-        validate: (value) =>
-          wrapFoundationValidateNoDims(value, validateTectonicProvenanceArtifact),
+        validate: (value) => foundationArtifactValidators.tectonicProvenance(value),
       },
       foundationTectonics: {
-        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicsArtifact),
+        validate: (value) => foundationArtifactValidators.currentTectonics(value),
       },
     }
   ),
@@ -60,7 +52,7 @@ export default createStep(TectonicsStepContract, {
     // in the per-era field op — AFTER regime classification — so the lever is smooth
     // and monotonic (no boundary moves). 0.5 => orogenyActivityGain 1.0 (no-op).
     const { plateActivity } = ctx.knobs as Readonly<{
-      plateActivity?: FoundationPlateActivityKnob;
+      plateActivity?: number;
     }>;
     if (config.computeEraTectonicFields.strategy !== "default") return config;
     const orogenyActivityGain = resolvePlateActivityOrogenyMultiplier(plateActivity);

@@ -18,7 +18,7 @@ Disposition receipt:
 | Rule id | Action | Reason | Receipt |
 | --- | --- | --- | --- |
 | `verify_standard_recipe_artifacts_match_source_stages` | reclassified to context admission | Generated artifact parity is standard-recipe structural authority, not package-test residue. | `.habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-standard-recipe-context-guards.md` |
-| `verify_standard_recipe_public_authoring_surface` | reclassified to context admission | Exact public authoring schema/focus-path constraints remain standard-recipe context authority until parameterized. | `.habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-standard-recipe-context-guards.md` |
+| `verify_standard_recipe_public_authoring_surface` | reclassified to context admission | Exact derived public schema/focus-path currentness remains standard-recipe context authority until parameterized; source/file shape belongs to Grit-backed recipe-stage patterns. | `.habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-standard-recipe-context-guards.md` |
 
 Moves it forward:
 

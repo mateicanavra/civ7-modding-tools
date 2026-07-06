@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
-import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
 
+const { planFoothills, planRidges } = morphologyOpsPublic.ops;
 function countMask(mask: Uint8Array, start: number, end: number): number {
   let count = 0;
   for (let i = start; i < end; i++) if (mask[i] === 1) count++;

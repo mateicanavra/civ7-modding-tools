@@ -7,7 +7,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 class RegionSensitiveResourceAdapter extends MockAdapter {
   readonly callOrder: string[] = [];

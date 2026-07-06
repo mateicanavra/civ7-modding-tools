@@ -9,9 +9,9 @@ import {
   StepRegistry,
 } from "@swooper/mapgen-core/engine";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
-import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
-import { hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import {
   FIELD_DEPENDENCY_TAGS,
   STANDARD_TAG_DEFINITIONS,

@@ -1,27 +1,16 @@
-import type {
-  HydrologyDrynessKnob,
-  HydrologyOceanCouplingKnob,
-  HydrologySeasonalityKnob,
-  HydrologyTemperatureKnob,
-} from "@mapgen/domain/hydrology/config.js";
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
-  HYDROLOGY_EVAPORATION_LAND_STRENGTH_BASE,
-  HYDROLOGY_EVAPORATION_OCEAN_STRENGTH_BASE,
   HYDROLOGY_OCEAN_COUPLING_CURRENT_STRENGTH,
   HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS,
   HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS,
   HYDROLOGY_OCEAN_COUPLING_WIND_JET_STRENGTH,
-  HYDROLOGY_OROGRAPHIC_REDUCTION_BASE,
-  HYDROLOGY_OROGRAPHIC_REDUCTION_PER_STEP,
   HYDROLOGY_SEASONALITY_DEFAULTS,
   HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE,
   HYDROLOGY_SEASONALITY_WIND_JET_STREAKS,
   HYDROLOGY_SEASONALITY_WIND_VARIANCE,
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
-  HYDROLOGY_WATER_GRADIENT_LOWLAND_BONUS_BASE,
   HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE,
-} from "@mapgen/domain/hydrology/config.js";
+} from "@mapgen/domain/hydrology/model/policy/climate-knob-policy.js";
 import {
   ctxRandom,
   ctxRandomLabel,
@@ -32,13 +21,14 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
+import { validators as hydrologyClimateBaselineArtifactValidators } from "../artifacts/index.js";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../artifacts/index.js";
 import ClimateBaselineStepContract from "./climateBaseline.contract.js";
-import {
-  validateClimateFieldArtifact,
-  validateClimateSeasonalityArtifact,
-  validateWindFieldArtifact,
-} from "./climateBaseline.validation.js";
+
+type HydrologyDrynessKnob = "wet" | "mix" | "dry";
+type HydrologyOceanCouplingKnob = "off" | "simple" | "earthlike";
+type HydrologySeasonalityKnob = "low" | "normal" | "high";
+type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
 
 const GROUP_SEASONALITY = "Hydrology / Seasonality";
 const GROUP_CLIMATE = "Hydrology / Climate";
@@ -66,13 +56,13 @@ export default createStep(ClimateBaselineStepContract, {
     ],
     {
       climateField: {
-        validate: (value, context) => validateClimateFieldArtifact(value, context.dimensions),
+        validate: hydrologyClimateBaselineArtifactValidators.climateField,
       },
       climateSeasonality: {
-        validate: (value, context) => validateClimateSeasonalityArtifact(value, context.dimensions),
+        validate: hydrologyClimateBaselineArtifactValidators.climateSeasonality,
       },
       windField: {
-        validate: (value, context) => validateWindFieldArtifact(value, context.dimensions),
+        validate: hydrologyClimateBaselineArtifactValidators.windField,
       },
     }
   ),

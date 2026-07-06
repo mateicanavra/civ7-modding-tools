@@ -3,7 +3,7 @@ import resources from "@mapgen/domain/resources/ops";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
-} from "../../src/domain/resources/index.js";
+} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
@@ -65,7 +65,6 @@ describe("cultivated resource operation contract", () => {
     );
 
     expect(result.groupId).toBe("cultivated-plantation-medicinal");
-    expect(result.runtimeIdStatus).toBe("unverified");
     expect(result.proofStatus).toBe("warning-only");
     expect(result.missingResourceTypes).toEqual([]);
     expect(result.plans.map((plan) => plan.resourceType)).toEqual([...CULTIVATED_RESOURCE_TYPES]);
@@ -81,7 +80,7 @@ describe("cultivated resource operation contract", () => {
     }
   });
 
-  it("keeps highland and coastal proxy requirements visible", () => {
+  it("keeps highland and coastal signal requirements visible", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
@@ -104,15 +103,15 @@ describe("cultivated resource operation contract", () => {
     const tea = result.plans.find((plan) => plan.resourceType === "RESOURCE_TEA");
     const dyes = result.plans.find((plan) => plan.resourceType === "RESOURCE_DYES");
     expect(tea?.signalFields).toContain("highlandOrReliefMask");
-    expect(tea?.proxyRequirements).toContain("highland or relief proxy");
+    expect(tea?.signalRequirements).toContain("highland or relief signal");
     expect(tea?.eligibleTileCount).toBe(1);
     expect(dyes?.signalFields).toContain("coastalMarineMask");
     expect(dyes?.laneId).toBe("marine-dye");
-    expect(dyes?.proxyRequirements).toContain("marine/coast lane despite cultivated group");
+    expect(dyes?.signalRequirements).toContain("marine/coast lane despite cultivated group");
     expect(dyes?.eligibleTileCount).toBe(1);
   });
 
-  it("keeps oasis and wetland proxy families visible", () => {
+  it("keeps oasis and wetland signal families visible", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
@@ -188,7 +187,7 @@ describe("cultivated resource operation contract", () => {
     }
   });
 
-  it("marks active rows as proxy gaps when no cultivated signal mask is supplied", () => {
+  it("marks active rows as signal gaps when no cultivated signal mask is supplied", () => {
     const result = resources.ops.planCultivatedResources.run(
       {
         width: 2,
@@ -199,7 +198,7 @@ describe("cultivated resource operation contract", () => {
     );
 
     expect(result.missingResourceTypes).toEqual([]);
-    expect(result.plans.filter((plan) => plan.status === "proxy-gap")).toHaveLength(17);
+    expect(result.plans.filter((plan) => plan.status === "missing-signal")).toHaveLength(17);
     expect(result.plans.find((plan) => plan.resourceType === "RESOURCE_CLOVES")?.status).toBe(
       "blocked"
     );

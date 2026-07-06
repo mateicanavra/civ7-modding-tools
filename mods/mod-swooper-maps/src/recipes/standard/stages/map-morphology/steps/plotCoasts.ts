@@ -15,7 +15,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
-import { mapMorphologyArtifacts } from "../artifacts.js";
+import { artifacts as mapMorphologyArtifacts } from "../artifacts/index.js";
 import PlotCoastsStepContract from "./plotCoasts.contract.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";

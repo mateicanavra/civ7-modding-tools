@@ -8,12 +8,11 @@ type ResourceGroupId =
   | "terrestrial-animal-forest-wild"
   | "geological-mineral-gemstone-industrial";
 
-type ResourceRowStatus = "planned" | "blocked" | "missing-expectation" | "proxy-gap";
+type ResourceRowStatus = "planned" | "blocked" | "missing-expectation" | "missing-signal";
 
 type ResourcePlanRow = {
   readonly resourceType: string;
   readonly status: ResourceRowStatus;
-  readonly runtimeIdStatus: "unverified";
   readonly proofStatus: "warning-only";
   readonly targetIntentCount: number;
   readonly eligibleTileCount: number;
@@ -70,7 +69,6 @@ export const defaultStrategy = createStrategy(PlanResourceGroupsContract, "defau
 
     return {
       artifactId: "artifact:resources.groupPlans" as const,
-      runtimeIdStatus: "unverified" as const,
       proofStatus: "warning-only" as const,
       groupCount: groups.length,
       ...totals,
@@ -99,7 +97,7 @@ function summarizeGroup(expectedGroupId: ResourceGroupId, groupPlan: ResourceGro
     resourceCount: groupPlan.plans.length,
     plannedCount: statusCounts.planned,
     blockedCount: statusCounts.blocked,
-    proxyGapCount: statusCounts["proxy-gap"],
+    missingSignalCount: statusCounts["missing-signal"],
     missingExpectationCount: statusCounts["missing-expectation"],
     targetIntentCount: sum(groupPlan.plans.map((row) => row.targetIntentCount)),
     eligibleTileCount: sum(groupPlan.plans.map((row) => row.eligibleTileCount)),
@@ -114,7 +112,7 @@ function summarizeTotals(groups: readonly ReturnType<typeof summarizeGroup>[]) {
     resourceCount: sum(groups.map((group) => group.resourceCount)),
     plannedCount: sum(groups.map((group) => group.plannedCount)),
     blockedCount: sum(groups.map((group) => group.blockedCount)),
-    proxyGapCount: sum(groups.map((group) => group.proxyGapCount)),
+    missingSignalCount: sum(groups.map((group) => group.missingSignalCount)),
     missingExpectationCount: sum(groups.map((group) => group.missingExpectationCount)),
     targetIntentCount: sum(groups.map((group) => group.targetIntentCount)),
     eligibleTileCount: sum(groups.map((group) => group.eligibleTileCount)),
@@ -126,7 +124,7 @@ function countStatuses(rows: readonly ResourcePlanRow[]): Record<ResourceRowStat
     planned: rows.filter((row) => row.status === "planned").length,
     blocked: rows.filter((row) => row.status === "blocked").length,
     "missing-expectation": rows.filter((row) => row.status === "missing-expectation").length,
-    "proxy-gap": rows.filter((row) => row.status === "proxy-gap").length,
+    "missing-signal": rows.filter((row) => row.status === "missing-signal").length,
   };
 }
 

@@ -1,7 +1,9 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FoundationMantlePotentialSchema } from "../compute-mantle-potential/contract.js";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
+import { Schema as FoundationMantlePotentialSchema } from "../../artifacts/mantle-potential.artifact.js";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -48,39 +50,6 @@ const StrategySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const FoundationMantleForcingSchema = Type.Object(
-  {
-    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
-    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
-    stress: TypedArraySchemas.f32({
-      shape: null,
-      description: "Stress proxy per mesh cell (normalized 0..1).",
-    }),
-    forcingU: TypedArraySchemas.f32({
-      shape: null,
-      description: "Forcing velocity X component per mesh cell.",
-    }),
-    forcingV: TypedArraySchemas.f32({
-      shape: null,
-      description: "Forcing velocity Y component per mesh cell.",
-    }),
-    forcingMag: TypedArraySchemas.f32({
-      shape: null,
-      description: "Forcing magnitude per mesh cell (normalized 0..1).",
-    }),
-    upwellingClass: TypedArraySchemas.i8({
-      shape: null,
-      description:
-        "Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral).",
-    }),
-    divergence: TypedArraySchemas.f32({
-      shape: null,
-      description: "Divergence per mesh cell (normalized -1..1).",
-    }),
-  },
-  { additionalProperties: false }
-);
-
 const ComputeMantleForcingContract = defineOp({
   kind: "compute",
   id: "foundation/compute-mantle-forcing",
@@ -102,4 +71,3 @@ const ComputeMantleForcingContract = defineOp({
 
 export default ComputeMantleForcingContract;
 export type ComputeMantleForcingConfig = Static<typeof StrategySchema>;
-export type FoundationMantleForcing = Static<typeof FoundationMantleForcingSchema>;

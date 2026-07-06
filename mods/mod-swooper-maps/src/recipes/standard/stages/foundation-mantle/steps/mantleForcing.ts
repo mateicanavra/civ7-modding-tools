@@ -1,10 +1,7 @@
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validateMantleForcingArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY } from "../../foundation/viz.js";
 import MantleForcingStepContract from "./mantleForcing.contract.js";
 
@@ -48,7 +45,7 @@ function buildVectorSegments(params: {
 export default createStep(MantleForcingStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mantleForcing], {
     foundationMantleForcing: {
-      validate: (value) => wrapFoundationValidateNoDims(value, validateMantleForcingArtifact),
+      validate: (value) => foundationArtifactValidators.mantleForcing(value),
     },
   }),
   run: (context, config, ops, deps) => {

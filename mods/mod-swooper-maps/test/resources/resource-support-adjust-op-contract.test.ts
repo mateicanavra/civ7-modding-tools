@@ -14,7 +14,6 @@ type PlanIntent = {
   x: number;
   y: number;
   resourceType: string;
-  resourceTypeId: number;
   family: "aquatic" | "cultivated" | "terrestrial" | "geological";
   laneId: string;
   laneKind: "land" | "water";
@@ -66,7 +65,6 @@ function intentAt(args: {
   x: number;
   y: number;
   resourceType: string;
-  resourceTypeId: number;
   order: number;
   inHabitat?: boolean;
 }): PlanIntent {
@@ -76,7 +74,6 @@ function intentAt(args: {
     x: args.x,
     y: args.y,
     resourceType: args.resourceType,
-    resourceTypeId: args.resourceTypeId,
     family: "geological",
     laneId: "probe",
     laneKind: "land",
@@ -90,7 +87,6 @@ function intentAt(args: {
 
 function perTypeRow(args: {
   resourceType: string;
-  resourceTypeId: number;
   plannedCount: number;
   minCount: number;
   maxCount: number;
@@ -98,7 +94,6 @@ function perTypeRow(args: {
 }) {
   return {
     resourceType: args.resourceType,
-    resourceTypeId: args.resourceTypeId,
     family: "geological" as const,
     laneId: "probe",
     laneKind: "land" as const,
@@ -173,7 +168,6 @@ function buildInput(args: {
     },
     eligibility: args.perType.map((row) => ({
       resourceType: row.resourceType,
-      resourceTypeId: row.resourceTypeId,
       habitatMask: allOnes,
       legalMask: args.legalMaskByType?.[row.resourceType] ?? allOnes,
       intensity,
@@ -203,19 +197,18 @@ function supportCount(intents: AdjustResult["intents"], seatPlot: number, radius
 /** Two seats: one inside a NW site cluster, one in the empty SE corner. */
 function clusterScenario(args?: { maxCountA?: number }) {
   const intents = [
-    intentAt({ x: 1, y: 1, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 0 }),
-    intentAt({ x: 5, y: 1, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 1 }),
-    intentAt({ x: 1, y: 5, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 2 }),
-    intentAt({ x: 5, y: 5, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 3 }),
-    intentAt({ x: 9, y: 1, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 4 }),
-    intentAt({ x: 9, y: 5, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 5 }),
+    intentAt({ x: 1, y: 1, resourceType: "RESOURCE_A", order: 0 }),
+    intentAt({ x: 5, y: 1, resourceType: "RESOURCE_A", order: 1 }),
+    intentAt({ x: 1, y: 5, resourceType: "RESOURCE_A", order: 2 }),
+    intentAt({ x: 5, y: 5, resourceType: "RESOURCE_A", order: 3 }),
+    intentAt({ x: 9, y: 1, resourceType: "RESOURCE_A", order: 4 }),
+    intentAt({ x: 9, y: 5, resourceType: "RESOURCE_A", order: 5 }),
   ];
   return buildInput({
     intents,
     perType: [
       perTypeRow({
         resourceType: "RESOURCE_A",
-        resourceTypeId: 901,
         plannedCount: intents.length,
         minCount: 2,
         maxCount: args?.maxCountA ?? intents.length,
@@ -300,15 +293,14 @@ describe("adjust-resource-support operation contract", () => {
     // own support guard) and region minimums pin type A to the west; no
     // maxCount headroom for adds.
     const intents = [
-      intentAt({ x: 2, y: 2, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 0 }),
-      intentAt({ x: 6, y: 2, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 1 }),
+      intentAt({ x: 2, y: 2, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 6, y: 2, resourceType: "RESOURCE_A", order: 1 }),
     ];
     const input = buildInput({
       intents,
       perType: [
         perTypeRow({
           resourceType: "RESOURCE_A",
-          resourceTypeId: 901,
           plannedCount: 2,
           minCount: 2,
           maxCount: 2,
@@ -353,15 +345,14 @@ describe("adjust-resource-support operation contract", () => {
 
   it("adds within maxCount headroom when moves are blocked, with support phase provenance", () => {
     const intents = [
-      intentAt({ x: 2, y: 2, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 0 }),
-      intentAt({ x: 6, y: 2, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 1 }),
+      intentAt({ x: 2, y: 2, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 6, y: 2, resourceType: "RESOURCE_A", order: 1 }),
     ];
     const input = buildInput({
       intents,
       perType: [
         perTypeRow({
           resourceType: "RESOURCE_A",
-          resourceTypeId: 901,
           plannedCount: 2,
           minCount: 2,
           maxCount: 6,
@@ -398,26 +389,24 @@ describe("adjust-resource-support operation contract", () => {
     legalA[plotAt(22, 13)] = 1;
 
     const intents = [
-      intentAt({ x: 1, y: 1, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 0 }),
-      intentAt({ x: 5, y: 1, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 1 }),
-      intentAt({ x: 1, y: 5, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 2 }),
-      intentAt({ x: 5, y: 5, resourceType: "RESOURCE_A", resourceTypeId: 901, order: 3 }),
-      intentAt({ x: 9, y: 1, resourceType: "RESOURCE_B", resourceTypeId: 902, order: 4 }),
-      intentAt({ x: 20, y: 8, resourceType: "RESOURCE_B", resourceTypeId: 902, order: 5 }),
+      intentAt({ x: 1, y: 1, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 5, y: 1, resourceType: "RESOURCE_A", order: 1 }),
+      intentAt({ x: 1, y: 5, resourceType: "RESOURCE_A", order: 2 }),
+      intentAt({ x: 5, y: 5, resourceType: "RESOURCE_A", order: 3 }),
+      intentAt({ x: 9, y: 1, resourceType: "RESOURCE_B", order: 4 }),
+      intentAt({ x: 20, y: 8, resourceType: "RESOURCE_B", order: 5 }),
     ];
     const input = buildInput({
       intents,
       perType: [
         perTypeRow({
           resourceType: "RESOURCE_A",
-          resourceTypeId: 901,
           plannedCount: 4,
           minCount: 1,
           maxCount: 4,
         }),
         perTypeRow({
           resourceType: "RESOURCE_B",
-          resourceTypeId: 902,
           plannedCount: 2,
           minCount: 1,
           maxCount: 2,

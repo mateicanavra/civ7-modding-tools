@@ -9,7 +9,7 @@ import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 
 const PROBE_WIDTH = 106;
 const PROBE_HEIGHT = 66;

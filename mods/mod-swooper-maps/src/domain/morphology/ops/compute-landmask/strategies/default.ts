@@ -1,4 +1,4 @@
-import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";

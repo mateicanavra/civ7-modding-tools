@@ -1,9 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
-
+const { computeCrust, computeMesh, computePlateGraph } = foundationOpsPublic.ops;
 function makeMantleForcing(
   mesh: {
     cellCount: number;

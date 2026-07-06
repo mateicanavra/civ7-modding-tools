@@ -1,4 +1,4 @@
-import type { BiomeSymbol } from "@mapgen/domain/ecology/types.js";
+import type { BiomeSymbol } from "../../../model/schemas/index.js";
 import { clamp01 } from "@swooper/mapgen-core";
 
 /**

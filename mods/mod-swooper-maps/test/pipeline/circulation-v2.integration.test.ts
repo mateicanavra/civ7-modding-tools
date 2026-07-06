@@ -6,7 +6,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import { standardConfig } from "../support/standard-config.js";
 
 function variance(values: Int8Array, start: number, count: number): number {
@@ -101,55 +101,76 @@ describe("circulation v2 (pipeline integration)", () => {
       ...standardConfig,
       "hydrology-climate-baseline": {
         ...standardConfig["hydrology-climate-baseline"],
-        atmosphericCirculation: {
-          maxSpeed: 110,
-          zonalStrength: 90,
-          meridionalStrength: 30,
-          geostrophicStrength: 70,
-          pressureNoiseScale: 18,
-          pressureNoiseAmp: 55,
-          waveStrength: 45,
-          landHeatStrength: 20,
-          mountainDeflectStrength: 18,
-          smoothIters: 4,
-        },
-        oceanGeometry: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
-        oceanCurrents: {
-          maxSpeed: 80,
-          windStrength: 0.9,
-          ekmanStrength: 0.35,
-          gyreStrength: 26,
-          coastStrength: 32,
-          smoothIters: 3,
-          projectionIters: 8,
-        },
-        oceanThermalState: {
-          equatorTempC: 28,
-          poleTempC: -2,
-          advectIters: 24,
-          diffusion: 0.12,
-          secondaryWeightMin: 0.25,
-          seaIceThresholdC: -1,
-        },
-        moistureTransport: {
-          iterations: 42,
-          advection: 0.7,
-          retention: 0.93,
-          secondaryWeightMin: 0.2,
-        },
-        precipitation: {
-          rainfallScale: 180,
-          humidityExponent: 1,
-          noiseAmplitude: 6,
-          noiseScale: 0.12,
-          waterGradient: {
-            radius: 5,
-            perRingBonus: 4,
-            lowlandBonus: 2,
-            lowlandElevationMax: 150,
+        "climate-baseline": {
+          ...standardConfig["hydrology-climate-baseline"]["climate-baseline"],
+          computeAtmosphericCirculation: {
+            strategy: "default",
+            config: {
+              maxSpeed: 110,
+              zonalStrength: 90,
+              meridionalStrength: 30,
+              geostrophicStrength: 70,
+              pressureNoiseScale: 18,
+              pressureNoiseAmp: 55,
+              waveStrength: 45,
+              landHeatStrength: 20,
+              mountainDeflectStrength: 18,
+              smoothIters: 4,
+            },
           },
-          upliftStrength: 22,
-          convergenceStrength: 16,
+          computeOceanGeometry: {
+            strategy: "default",
+            config: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
+          },
+          computeOceanSurfaceCurrents: {
+            strategy: "default",
+            config: {
+              maxSpeed: 80,
+              windStrength: 0.9,
+              ekmanStrength: 0.35,
+              gyreStrength: 26,
+              coastStrength: 32,
+              smoothIters: 3,
+              projectionIters: 8,
+            },
+          },
+          computeOceanThermalState: {
+            strategy: "default",
+            config: {
+              equatorTempC: 28,
+              poleTempC: -2,
+              advectIters: 24,
+              diffusion: 0.12,
+              secondaryWeightMin: 0.25,
+              seaIceThresholdC: -1,
+            },
+          },
+          transportMoisture: {
+            strategy: "default",
+            config: {
+              iterations: 42,
+              advection: 0.7,
+              retention: 0.93,
+              secondaryWeightMin: 0.2,
+            },
+          },
+          computePrecipitation: {
+            strategy: "default",
+            config: {
+              rainfallScale: 180,
+              humidityExponent: 1,
+              noiseAmplitude: 6,
+              noiseScale: 0.12,
+              waterGradient: {
+                radius: 5,
+                perRingBonus: 4,
+                lowlandBonus: 2,
+                lowlandElevationMax: 150,
+              },
+              upliftStrength: 22,
+              convergenceStrength: 16,
+            },
+          },
         },
       },
     };
@@ -158,14 +179,20 @@ describe("circulation v2 (pipeline integration)", () => {
       ...baseV2,
       "hydrology-climate-baseline": {
         ...baseV2["hydrology-climate-baseline"],
-        oceanCurrents: {
-          maxSpeed: 80,
-          windStrength: 0,
-          ekmanStrength: 0,
-          gyreStrength: 0,
-          coastStrength: 0,
-          smoothIters: 3,
-          projectionIters: 8,
+        "climate-baseline": {
+          ...baseV2["hydrology-climate-baseline"]["climate-baseline"],
+          computeOceanSurfaceCurrents: {
+            strategy: "default",
+            config: {
+              maxSpeed: 80,
+              windStrength: 0,
+              ekmanStrength: 0,
+              gyreStrength: 0,
+              coastStrength: 0,
+              smoothIters: 3,
+              projectionIters: 8,
+            },
+          },
         },
       },
     };
@@ -193,55 +220,76 @@ describe("circulation v2 (pipeline integration)", () => {
       ...standardConfig,
       "hydrology-climate-baseline": {
         ...standardConfig["hydrology-climate-baseline"],
-        atmosphericCirculation: {
-          maxSpeed: 110,
-          zonalStrength: 90,
-          meridionalStrength: 30,
-          geostrophicStrength: 70,
-          pressureNoiseScale: 18,
-          pressureNoiseAmp: 55,
-          waveStrength: 45,
-          landHeatStrength: 20,
-          mountainDeflectStrength: 18,
-          smoothIters: 4,
-        },
-        oceanGeometry: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
-        oceanCurrents: {
-          maxSpeed: 80,
-          windStrength: 0.55,
-          ekmanStrength: 0.35,
-          gyreStrength: 26,
-          coastStrength: 32,
-          smoothIters: 3,
-          projectionIters: 8,
-        },
-        oceanThermalState: {
-          equatorTempC: 28,
-          poleTempC: -2,
-          advectIters: 28,
-          diffusion: 0.18,
-          secondaryWeightMin: 0.25,
-          seaIceThresholdC: -1,
-        },
-        moistureTransport: {
-          iterations: 22,
-          advection: 0.7,
-          retention: 0.93,
-          secondaryWeightMin: 0.2,
-        },
-        precipitation: {
-          rainfallScale: 180,
-          humidityExponent: 1,
-          noiseAmplitude: 6,
-          noiseScale: 0.12,
-          waterGradient: {
-            radius: 5,
-            perRingBonus: 4,
-            lowlandBonus: 2,
-            lowlandElevationMax: 150,
+        "climate-baseline": {
+          ...standardConfig["hydrology-climate-baseline"]["climate-baseline"],
+          computeAtmosphericCirculation: {
+            strategy: "default",
+            config: {
+              maxSpeed: 110,
+              zonalStrength: 90,
+              meridionalStrength: 30,
+              geostrophicStrength: 70,
+              pressureNoiseScale: 18,
+              pressureNoiseAmp: 55,
+              waveStrength: 45,
+              landHeatStrength: 20,
+              mountainDeflectStrength: 18,
+              smoothIters: 4,
+            },
           },
-          upliftStrength: 22,
-          convergenceStrength: 16,
+          computeOceanGeometry: {
+            strategy: "default",
+            config: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
+          },
+          computeOceanSurfaceCurrents: {
+            strategy: "default",
+            config: {
+              maxSpeed: 80,
+              windStrength: 0.55,
+              ekmanStrength: 0.35,
+              gyreStrength: 26,
+              coastStrength: 32,
+              smoothIters: 3,
+              projectionIters: 8,
+            },
+          },
+          computeOceanThermalState: {
+            strategy: "default",
+            config: {
+              equatorTempC: 28,
+              poleTempC: -2,
+              advectIters: 28,
+              diffusion: 0.18,
+              secondaryWeightMin: 0.25,
+              seaIceThresholdC: -1,
+            },
+          },
+          transportMoisture: {
+            strategy: "default",
+            config: {
+              iterations: 22,
+              advection: 0.7,
+              retention: 0.93,
+              secondaryWeightMin: 0.2,
+            },
+          },
+          computePrecipitation: {
+            strategy: "default",
+            config: {
+              rainfallScale: 180,
+              humidityExponent: 1,
+              noiseAmplitude: 6,
+              noiseScale: 0.12,
+              waterGradient: {
+                radius: 5,
+                perRingBonus: 4,
+                lowlandBonus: 2,
+                lowlandElevationMax: 150,
+              },
+              upliftStrength: 22,
+              convergenceStrength: 16,
+            },
+          },
         },
       },
     };

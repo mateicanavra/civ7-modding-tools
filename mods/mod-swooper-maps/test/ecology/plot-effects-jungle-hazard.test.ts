@@ -2,9 +2,8 @@ import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
-// Deep-rainforest hazard: the jungle channel places ONLY the damaging PLOTEFFECT_JUNGLE_FEVER
-// (no cosmetic — the rainforest feature is the visual) on the hottest/wettest/densest tiles,
-// selected by top-coverage of the jungle stress score.
+// Deep-rainforest hazard: the jungle channel emits only jungle-fever intent.
+// Map projection owns the Civ7 plot-effect key.
 const WIDTH = 2;
 const HEIGHT = 2;
 const SIZE = WIDTH * HEIGHT;
@@ -16,7 +15,7 @@ const env = {
 };
 
 describe("plot effects (jungle / jungle fever hazard)", () => {
-  it("places PLOTEFFECT_JUNGLE_FEVER on eligible jungle tiles by top-coverage", () => {
+  it("places jungle-fever intent on eligible jungle tiles by top-coverage", () => {
     const planSelection = normalizeOpSelectionOrThrow(
       ecology.ops.planPlotEffects,
       {
@@ -28,7 +27,6 @@ describe("plot effects (jungle / jungle fever hazard)", () => {
           jungle: {
             enabled: true,
             coveragePct: 100,
-            selector: { typeName: "PLOTEFFECT_JUNGLE_FEVER" },
           },
         },
       },
@@ -56,6 +54,6 @@ describe("plot effects (jungle / jungle fever hazard)", () => {
     );
 
     expect(result.placements.length).toBe(SIZE);
-    expect(result.placements.every((p) => p.plotEffect === "PLOTEFFECT_JUNGLE_FEVER")).toBe(true);
+    expect(result.placements.every((p) => p.plotEffect === "jungle-fever")).toBe(true);
   });
 });

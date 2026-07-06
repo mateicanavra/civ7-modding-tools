@@ -6,15 +6,8 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../map-artifacts.js";
-import {
-  validateCrustTilesArtifact,
-  validatePlatesArtifact,
-  validateTectonicHistoryTilesArtifact,
-  validateTectonicProvenanceTilesArtifact,
-  validateTileToCellIndexArtifact,
-  wrapFoundationValidate,
-} from "../../foundation/validation.js";
 import ProjectionStepContract from "./projection.contract.js";
+import { validators as standardArtifactValidators } from "../../../artifacts/index.js";
 
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
@@ -34,28 +27,19 @@ export default createStep(ProjectionStepContract, {
     ],
     {
       foundationPlates: {
-        validate: (value, context) =>
-          wrapFoundationValidate(value, context.dimensions, validatePlatesArtifact),
+        validate: standardArtifactValidators.foundationPlates,
       },
       foundationTileToCellIndex: {
-        validate: (value, context) =>
-          wrapFoundationValidate(value, context.dimensions, validateTileToCellIndexArtifact),
+        validate: standardArtifactValidators.foundationTileToCellIndex,
       },
       foundationCrustTiles: {
-        validate: (value, context) =>
-          wrapFoundationValidate(value, context.dimensions, validateCrustTilesArtifact),
+        validate: standardArtifactValidators.foundationCrustTiles,
       },
       foundationTectonicHistoryTiles: {
-        validate: (value, context) =>
-          wrapFoundationValidate(value, context.dimensions, validateTectonicHistoryTilesArtifact),
+        validate: standardArtifactValidators.foundationTectonicHistoryTiles,
       },
       foundationTectonicProvenanceTiles: {
-        validate: (value, context) =>
-          wrapFoundationValidate(
-            value,
-            context.dimensions,
-            validateTectonicProvenanceTilesArtifact
-          ),
+        validate: standardArtifactValidators.foundationTectonicProvenanceTiles,
       },
     }
   ),

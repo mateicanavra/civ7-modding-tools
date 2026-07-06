@@ -1,6 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
+import type { OfficialResourceType } from "@civ7/map-policy";
 import AdjustResourceSupportContract from "../contract.js";
 
 /**
@@ -33,8 +34,7 @@ type PlanIntent = {
   plotIndex: number;
   x: number;
   y: number;
-  resourceType: string;
-  resourceTypeId: number;
+  resourceType: OfficialResourceType;
   family: "aquatic" | "cultivated" | "terrestrial" | "geological";
   laneId: string;
   laneKind: "land" | "water";
@@ -54,8 +54,7 @@ type PlanIntent = {
 type Adjustment = {
   action: "move" | "add";
   reason: "support-floor" | "support-equity";
-  resourceType: string;
-  resourceTypeId: number;
+  resourceType: OfficialResourceType;
   fromPlotIndex?: number;
   toPlotIndex: number;
   seatIndex: number;
@@ -83,6 +82,15 @@ function hash32(seed: number, a: number, b: number): number {
 
 function hash01(seed: number, a: number, b: number): number {
   return hash32(seed, a, b) / 0x100000000;
+}
+
+function resourceSalt(resourceType: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < resourceType.length; i++) {
+    hash ^= resourceType.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash >>> 0;
 }
 
 export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "default", {
@@ -119,13 +127,12 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
 
     // --- eligibility / per-type metadata -----------------------------------------------------
     type Eligibility = {
-      resourceType: string;
-      resourceTypeId: number;
+      resourceType: OfficialResourceType;
       habitatMask: Uint8Array;
       legalMask: Uint8Array;
       intensity: Float32Array;
     };
-    const eligibilityByType = new Map<string, Eligibility>();
+    const eligibilityByType = new Map<OfficialResourceType, Eligibility>();
     for (const row of input.eligibility) {
       if (row.habitatMask.length !== size || row.legalMask.length !== size) {
         throw new Error(
@@ -139,7 +146,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       }
       eligibilityByType.set(row.resourceType, {
         resourceType: row.resourceType,
-        resourceTypeId: row.resourceTypeId,
         habitatMask: row.habitatMask as Uint8Array,
         legalMask: row.legalMask as Uint8Array,
         intensity: row.intensity as Float32Array,
@@ -151,7 +157,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       minCount: number;
       maxCount: number;
     };
-    const metaByType = new Map<string, TypeMeta>();
+    const metaByType = new Map<OfficialResourceType, TypeMeta>();
     for (const row of plan.perType) {
       metaByType.set(row.resourceType, {
         spacingFloorTiles: row.spacingFloorTiles,
@@ -168,10 +174,14 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     }
 
     // Exclusion/affinity rules echoed from selection settings (E3.4 parity).
-    type CompiledRule = { partner: string; relation: "affinity" | "exclusion"; radius: number };
-    const rulesByType = new Map<string, CompiledRule[]>();
+    type CompiledRule = {
+      partner: OfficialResourceType;
+      relation: "affinity" | "exclusion";
+      radius: number;
+    };
+    const rulesByType = new Map<OfficialResourceType, CompiledRule[]>();
     for (const rule of plan.settings.affinityRules ?? []) {
-      const push = (from: string, partner: string) => {
+      const push = (from: OfficialResourceType, partner: OfficialResourceType) => {
         const list = rulesByType.get(from) ?? [];
         list.push({ partner, relation: rule.relation, radius: rule.radiusTiles });
         rulesByType.set(from, list);
@@ -186,7 +196,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       x: intent.x,
       y: intent.y,
       resourceType: intent.resourceType,
-      resourceTypeId: intent.resourceTypeId,
       family: intent.family,
       laneId: intent.laneId,
       laneKind: intent.laneKind,
@@ -199,8 +208,8 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     let nextOrder = intents.reduce((acc, intent) => Math.max(acc, intent.order + 1), 0);
 
     const usedPlots = new Set<number>(intents.map((intent) => intent.plotIndex));
-    const plotsByType = new Map<string, number[]>();
-    const countByType = new Map<string, number>();
+    const plotsByType = new Map<OfficialResourceType, number[]>();
+    const countByType = new Map<OfficialResourceType, number>();
     const countByTypeRegion = new Map<string, number>();
     for (const intent of intents) {
       const typePlots = plotsByType.get(intent.resourceType) ?? [];
@@ -272,7 +281,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     // --- invariant helpers ---------------------------------------------------------------------
     const violatesTypeSpacing = (
       plotIndex: number,
-      resourceType: string,
+      resourceType: OfficialResourceType,
       ignorePlot: number | null
     ): boolean => {
       const meta = metaByType.get(resourceType);
@@ -302,7 +311,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     };
 
     const excludedAt = (
-      resourceType: string,
+      resourceType: OfficialResourceType,
       plotIndex: number,
       ignorePlot: number | null
     ): {
@@ -364,7 +373,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     type Destination = { plotIndex: number; score: number };
 
     const destinationFor = (
-      resourceType: string,
+      resourceType: OfficialResourceType,
       candidatePlots: Iterable<number>,
       args: {
         ignorePlot: number | null;
@@ -395,7 +404,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           (eligibility.habitatMask[plotIndex] !== 0 ? 10 : 0) +
           (eligibility.intensity[plotIndex] ?? 0) +
           ruleState.affinityBonus +
-          hash01(seed, plotIndex, 0x5e5 + eligibility.resourceTypeId) * 1e-3;
+          hash01(seed, plotIndex, (0x5e5 ^ resourceSalt(eligibility.resourceType)) >>> 0) * 1e-3;
         if (best === null || score > best.score) best = { plotIndex, score };
       }
       return best;
@@ -426,7 +435,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       action: "move" | "add";
       reason: "support-floor" | "support-equity";
       seatIndex: number;
-      resourceType: string;
+      resourceType: OfficialResourceType;
       toPlotIndex: number;
       sourceIntent?: PlanIntent;
     }): void => {
@@ -472,7 +481,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           action: "move",
           reason: args.reason,
           resourceType: intent.resourceType,
-          resourceTypeId: intent.resourceTypeId,
           fromPlotIndex: fromPlot,
           toPlotIndex: toPlot,
           seatIndex: args.seatIndex,
@@ -484,7 +492,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           x,
           y,
           resourceType: args.resourceType,
-          resourceTypeId: eligibility.resourceTypeId,
           family: templates ? templates.family : "terrestrial",
           laneId: templates ? templates.laneId : "unknown",
           laneKind: templates ? templates.laneKind : "land",
@@ -504,7 +511,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           action: "add",
           reason: args.reason,
           resourceType: args.resourceType,
-          resourceTypeId: eligibility.resourceTypeId,
           toPlotIndex: toPlot,
           seatIndex: args.seatIndex,
         });
@@ -595,7 +601,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
 
           // Fall back to ADD for a type with maxCount headroom.
           if (!applied) {
-            let bestAdd: { resourceType: string; dest: Destination } | null = null;
+            let bestAdd: { resourceType: OfficialResourceType; dest: Destination } | null = null;
             for (const resourceType of typeOrder) {
               const meta = metaByType.get(resourceType);
               if (!meta) continue;
@@ -722,7 +728,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           }
 
           // No safe move: try ADD near the poorest seat (raises the minimum).
-          let bestAdd: { resourceType: string; dest: Destination } | null = null;
+          let bestAdd: { resourceType: OfficialResourceType; dest: Destination } | null = null;
           for (const resourceType of typeOrder) {
             const meta = metaByType.get(resourceType);
             if (!meta) continue;

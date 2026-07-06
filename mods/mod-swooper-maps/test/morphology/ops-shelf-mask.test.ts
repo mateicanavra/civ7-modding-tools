@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "../../src/domain/morphology/ops.js";
+import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { normalizeStrictOrThrow, runOpValidated } from "../support/compiler-helpers.js";
 
 const { computeShelfMask } = morphologyDomain.ops;

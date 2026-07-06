@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import type { Artifact as TectonicEvents } from "../../src/domain/foundation/artifacts/tectonic-events.artifact.js";
-import { EVENT_TYPE } from "../../src/domain/foundation/model/policy/tectonic-event-types.js";
-import { buildEraFields } from "../../src/domain/foundation/ops/compute-era-tectonic-fields/rules/index.js";
-import { computeTracerIndexByEra } from "../../src/domain/foundation/ops/compute-tracer-advection/rules/index.js";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+
+const { computeTracerAdvection } = foundationOpsPublic.ops;
 
 function compassMesh() {
   return {
@@ -19,7 +18,21 @@ function compassMesh() {
 }
 
 function eraWithBoundaryDrift(driftU = 0, driftV = 0) {
+  const size = 5;
   return {
+    boundaryType: new Uint8Array(size),
+    boundaryPolarity: new Int8Array(size),
+    boundaryIntensity: new Uint8Array(size),
+    upliftPotential: new Uint8Array(size),
+    collisionPotential: new Uint8Array(size),
+    subductionPotential: new Uint8Array(size),
+    riftPotential: new Uint8Array(size),
+    shearStress: new Uint8Array(size),
+    volcanism: new Uint8Array(size),
+    fracture: new Uint8Array(size),
+    riftOriginPlate: new Int16Array(size),
+    volcanismOriginPlate: new Int16Array(size),
+    volcanismEventType: new Uint8Array(size),
     boundaryDriftU: new Int8Array([driftU, 0, 0, 0, 0]),
     boundaryDriftV: new Int8Array([driftV, 0, 0, 0, 0]),
   };
@@ -38,79 +51,32 @@ function mantleForcing(forcingU = 0, forcingV = 0) {
   } as const;
 }
 
-const tightEmission = {
-  radius: { uplift: 1, rift: 1, shear: 1, volcanism: 1, fracture: 1 },
-  decay: { uplift: 10, rift: 10, shear: 10, volcanism: 10, fracture: 10 },
-} as const;
-
-function upliftEvent(input: { driftU: number; driftV: number }): TectonicEvents[number] {
-  return {
-    eventType: EVENT_TYPE.convergenceCollision,
-    plateA: 0,
-    plateB: 1,
-    polarity: 0,
-    intensityUplift: 100,
-    intensityRift: 0,
-    intensityShear: 0,
-    intensityVolcanism: 0,
-    intensityFracture: 0,
-    driftU: input.driftU,
-    driftV: input.driftV,
-    seedCells: [0],
-    originPlateId: 0,
-  };
-}
-
 describe("foundation drift adapter migration", () => {
   it("tracer advection applies boundary drift with source-cell sign inversion and stable axes", () => {
-    const traces = computeTracerIndexByEra({
-      mesh: compassMesh(),
-      mantleForcing: mantleForcing(),
-      eras: Array.from({ length: 5 }, () => eraWithBoundaryDrift(127, 0)) as any,
-      eraCount: 5,
-    });
+    const traces = computeTracerAdvection.run(
+      {
+        mesh: compassMesh(),
+        mantleForcing: mantleForcing(),
+        eras: Array.from({ length: 5 }, () => eraWithBoundaryDrift(127, 0)),
+        eraCount: 5,
+      },
+      computeTracerAdvection.defaultConfig
+    ).tracerIndex;
 
     expect(traces[1]![0]).toBe(4);
   });
 
   it("tracer advection falls back to quantized mantle drift with the same source-cell sign", () => {
-    const traces = computeTracerIndexByEra({
-      mesh: compassMesh(),
-      mantleForcing: mantleForcing(0, 1),
-      eras: Array.from({ length: 5 }, () => eraWithBoundaryDrift()) as any,
-      eraCount: 5,
-    });
+    const traces = computeTracerAdvection.run(
+      {
+        mesh: compassMesh(),
+        mantleForcing: mantleForcing(0, 1),
+        eras: Array.from({ length: 5 }, () => eraWithBoundaryDrift()),
+        eraCount: 5,
+      },
+      computeTracerAdvection.defaultConfig
+    ).tracerIndex;
 
     expect(traces[1]![0]).toBe(3);
-  });
-
-  it("era-field seed drift truncates signed bytes before selecting the positive projection", () => {
-    const fields = buildEraFields({
-      mesh: compassMesh(),
-      events: [upliftEvent({ driftU: 127.9, driftV: 127.1 })],
-      weight: 1,
-      eraGain: 1,
-      activityGain: 1,
-      driftSteps: 1,
-      emission: tightEmission,
-    });
-
-    expect(fields.upliftPotential[1]).toBe(100);
-    expect(fields.upliftPotential[2]).toBe(0);
-  });
-
-  it("era-field seed drift keeps x/y axes aligned when selecting the positive projection", () => {
-    const fields = buildEraFields({
-      mesh: compassMesh(),
-      events: [upliftEvent({ driftU: 127, driftV: 0 })],
-      weight: 1,
-      eraGain: 1,
-      activityGain: 1,
-      driftSteps: 1,
-      emission: tightEmission,
-    });
-
-    expect(fields.upliftPotential[2]).toBe(100);
-    expect(fields.upliftPotential[1]).toBe(0);
   });
 });

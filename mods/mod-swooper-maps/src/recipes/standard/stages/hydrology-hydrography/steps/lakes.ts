@@ -1,10 +1,11 @@
-import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/config.js";
-import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/config.js";
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { hydrologyHydrographyArtifacts } from "../artifacts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../artifacts/index.js";
 import LakesStepContract from "./lakes.contract.js";
+
+type HydrologyLakeinessKnob = "few" | "normal" | "many";
 
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;

@@ -1,15 +1,15 @@
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
-import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
-import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
-import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import morphology from "@mapgen/domain/morphology/ops";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
-import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { standardConfig } from "./standard-config.js";
 import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
+
+const { computeBeltDrivers, planFoothills, planRidges } = morphology.ops;
 
 const EPS = 1e-6;
 const POTENTIAL_MIN_ABS = 0.12;
@@ -660,12 +660,15 @@ const beltContinuityInvariant: ValidationInvariant = {
       if (signal > EVENT_SIGNAL_THRESHOLD) eventCount += 1;
     }
 
-    const drivers = deriveBeltDriversFromHistory({
-      width,
-      height,
-      historyTiles,
-      provenanceTiles,
-    });
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
     const beltMask = drivers.beltMask;
     const beltCellCount = countAbove(beltMask, 0);
     const componentCount = drivers.beltComponents.length;
@@ -758,12 +761,15 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
 
-    const beltDrivers = deriveBeltDriversFromHistory({
-      width,
-      height,
-      historyTiles,
-      provenanceTiles,
-    });
+    const beltDrivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
     const mountainsOpConfig = resolveRuntimeMountainsOpConfig(ctx);
     const ridges = planRidges.run(
       {

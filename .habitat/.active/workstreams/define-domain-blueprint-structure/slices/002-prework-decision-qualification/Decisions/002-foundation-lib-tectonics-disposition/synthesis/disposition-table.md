@@ -18,8 +18,9 @@ previously open domino classes are resolved and no prework blocker remains.
 
 Item-level outcome:
 
-- `Decision fully closed at the prework layer; implementation remains gated by
-  the packet-linked execution workstream and proof commands`
+- `Decision fully closed at the prework layer; execution Slices 1-6 are
+  supervisor-accepted; final owner Habitat/test gates and source-owner scans
+  are green as recorded in execution.md`
 
 ## Row Dispositions
 
@@ -31,7 +32,7 @@ Item-level outcome:
 | `lib/tectonics/constants.ts` / `EVENT_TYPE` | live | Domain model policy | operation rules; artifact contracts | Promote as `foundation/model/policy/tectonic-event-types.ts`. | verified | `decision-book/owner-boundaries.md` |
 | `lib/tectonics/constants.ts` / reset threshold constants | live | Operation-local policy/rules | domain-wide policy bucket | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/constants.ts` / `ADVECTION_STEPS_PER_ERA` | live | Operation-local policy/rules | domain-wide policy bucket | Move to `foundation/ops/compute-tracer-advection/rules/constants.ts`. | verified | `decision-book/move-classes.md` |
-| `lib/tectonics/constants.ts` / `ERA_COUNT_MIN`, `ERA_COUNT_MAX` | not imported from this file | Operation-local contract/rules already owns live copy | domain-wide policy bucket | Do not preserve from `lib`; live owner is `foundation/ops/compute-era-plate-membership/rules/constants.ts`. Delete stale export during constants split after import proof. | corroborated | `decision-book/move-classes.md` |
+| `lib/tectonics/constants.ts` / `ERA_COUNT_MIN`, `ERA_COUNT_MAX` | not imported from this file | Operation-local contract/rules already owns live copy | domain-wide policy bucket | Not preserved from `lib`; live owner is `foundation/ops/compute-era-plate-membership/rules/constants.ts`. Stale export was deleted during constants split after import proof. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/constants.ts` / `OROGENY_ERA_GAIN_MIN`, `OROGENY_ERA_GAIN_MAX` | not imported from this file | no current foundation-lib owner | domain-wide policy bucket by accident | Delete from `lib`; no current owner claims this duplicate export. Any future reintroduction requires a separate decision and is not part of this packet. | corroborated | `decision-book/move-classes.md` |
 | `lib/tectonics/internal-contract.ts` / event schemas | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/tectonic-events.artifact.ts`. | verified | `decision-book/move-classes.md` |
 | `lib/tectonics/internal-contract.ts` / era-field schemas | live | Artifact contract | operation rules; domain model policy | Split to `foundation/artifacts/tectonic-era-fields.artifact.ts`. | verified | `decision-book/move-classes.md` |
@@ -49,13 +50,13 @@ Item-level outcome:
 | `lib/tectonics/shared.ts` / `findNearestCell` | live | Core mesh mechanics | duplicated operation-local copies; foundation shared helper | Extract as `findNearestMeshCell(mesh, x, y)` in `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-a.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
 | `lib/tectonics/shared.ts` / `chooseDriftNeighbor` | live | Core mesh mechanics | drift-named foundation helper; hex-grid direction helper as exact replacement | Extract as `selectMeshNeighborByVectorProjection(params)` in `packages/mapgen-core/src/lib/mesh/neighborhood-mesh.ts`; callers pass dequantized vector components. | verified | `tectonics-shared-core.domino.md`; `evidence/tectonics-shared-core-agent-a.md`; `evidence/tectonics-shared-core-agent-c.md`; `packages/mapgen-core/src/AGENTS.md` |
 | `lib/tectonics/shared.ts` / `deriveResetThreshold` | live | Operation-local policy/rules | core mechanics | Move to `foundation/ops/compute-tectonic-provenance/rules/reset-threshold-policy.ts`. | verified | `decision-book/move-classes.md` |
-| `lib/tectonics/index.ts` | dead barrel | deletion | public domain surface | Delete after import proof and typecheck. | corroborated | `decision-book/move-classes.md` |
-| `lib/tectonics/events.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owners are `foundation/ops/compute-segment-events/rules/index.ts` and `foundation/ops/compute-hotspot-events/rules/index.ts`. | corroborated | `decision-book/move-classes.md` |
-| `lib/tectonics/fields.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owner is `foundation/ops/compute-era-tectonic-fields/rules/index.ts`. | corroborated | `decision-book/move-classes.md` |
-| `lib/tectonics/membership.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owner is `foundation/ops/compute-era-plate-membership/rules/compute-plate-id-by-era.ts`. | corroborated | `decision-book/move-classes.md` |
-| `lib/tectonics/provenance.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owner is `foundation/ops/compute-tectonic-provenance/rules/index.ts`. | corroborated | `decision-book/move-classes.md` |
-| `lib/tectonics/rollups.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owners are `foundation/ops/compute-tectonic-history-rollups/rules/index.ts` and `foundation/ops/compute-tectonics-current/rules/index.ts`. | corroborated | `decision-book/move-classes.md` |
-| `lib/tectonics/tracing.ts` | dead duplicate | deletion | shared implementation bucket | Delete; active owner is `foundation/ops/compute-tracer-advection/rules/index.ts`. | corroborated | `decision-book/move-classes.md` |
+| `lib/tectonics/index.ts` | dead barrel | deletion | public domain surface | Deleted after import proof and typecheck. | verified | `decision-book/move-classes.md` |
+| `lib/tectonics/events.ts` | dead duplicate | deletion | shared implementation bucket | Deleted; active owners are `foundation/ops/compute-segment-events/rules/index.ts` and `foundation/ops/compute-hotspot-events/rules/index.ts`. | verified | `decision-book/move-classes.md` |
+| `lib/tectonics/fields.ts` | dead duplicate | deletion | shared implementation bucket | Deleted; active owner is `foundation/ops/compute-era-tectonic-fields/rules/index.ts`. | verified | `decision-book/move-classes.md` |
+| `lib/tectonics/membership.ts` | dead duplicate | deletion | shared implementation bucket | Deleted; active owner is `foundation/ops/compute-era-plate-membership/rules/compute-plate-id-by-era.ts`. | verified | `decision-book/move-classes.md` |
+| `lib/tectonics/provenance.ts` | dead duplicate | deletion | shared implementation bucket | Deleted; active owner is `foundation/ops/compute-tectonic-provenance/rules/index.ts`. | verified | `decision-book/move-classes.md` |
+| `lib/tectonics/rollups.ts` | dead duplicate | deletion | shared implementation bucket | Deleted; active owners are `foundation/ops/compute-tectonic-history-rollups/rules/index.ts` and `foundation/ops/compute-tectonics-current/rules/index.ts`. | verified | `decision-book/move-classes.md` |
+| `lib/tectonics/tracing.ts` | dead duplicate | deletion | shared implementation bucket | Deleted; active owner is `foundation/ops/compute-tracer-advection/rules/index.ts`. | verified | `decision-book/move-classes.md` |
 
 ## Write-Back Targets
 
@@ -64,4 +65,4 @@ Item-level outcome:
 | Packet closed at prework layer | `../../inventory.md` | Move this packet to completed decisions and point next work at the packet-linked execution workstream. |
 | Operation guard decomposition resolved | `require-guards.domino.md` | Use contract-owned artifact validation rows to build `execution.md`; do not introduce assertion exports unless the execution proof shows they are still necessary. |
 | Core mechanics extraction proof resolved | `tectonics-shared-core.domino.md` | Use exact core API rows to build `execution.md`. |
-| Deletion candidates qualified but not executed | `execution.md` Slice 3, Slice 5, and Slice 6 | Delete only with source import proof plus typecheck/test proof. |
+| Deletion execution closed | `execution.md` Slice 3, Slice 5, and Slice 6 | Deleted under source import proof plus typecheck/test proof; no `foundation/lib/**` owner path remains. |

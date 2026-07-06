@@ -2,16 +2,30 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
+import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { RIVER_CLASS_MAJOR } from "../../src/domain/hydrology/index.js";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import planFloodplainsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.js";
 import featuresApplyStep from "../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+import { createEmptyFeatureScoreLayers } from "../support/feature-score-layers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
-const FLOODPLAIN_FEATURE_KEYS = [
+const FLOODPLAIN_INTENT_KEYS = [
+  "desert-floodplain-minor",
+  "desert-floodplain-navigable",
+  "grassland-floodplain-minor",
+  "grassland-floodplain-navigable",
+  "plains-floodplain-minor",
+  "plains-floodplain-navigable",
+  "tropical-floodplain-minor",
+  "tropical-floodplain-navigable",
+  "tundra-floodplain-minor",
+  "tundra-floodplain-navigable",
+] as const;
+
+const FLOODPLAIN_ENGINE_FEATURE_KEYS = [
   "FEATURE_DESERT_FLOODPLAIN_MINOR",
   "FEATURE_DESERT_FLOODPLAIN_NAVIGABLE",
   "FEATURE_GRASSLAND_FLOODPLAIN_MINOR",
@@ -24,17 +38,9 @@ const FLOODPLAIN_FEATURE_KEYS = [
   "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
 ] as const;
 
-type FloodplainFeatureKey = (typeof FLOODPLAIN_FEATURE_KEYS)[number];
-
-function emptyFloodplainScoreLayers(size: number): Record<FloodplainFeatureKey, Float32Array> {
-  return Object.fromEntries(
-    FLOODPLAIN_FEATURE_KEYS.map((key) => [key, new Float32Array(size)])
-  ) as Record<FloodplainFeatureKey, Float32Array>;
-}
-
 function floodplainAttemptCount(counts: Readonly<Record<string, number>> | undefined): number {
   let total = 0;
-  for (const key of FLOODPLAIN_FEATURE_KEYS) total += counts?.[key] ?? 0;
+  for (const key of FLOODPLAIN_ENGINE_FEATURE_KEYS) total += counts?.[key] ?? 0;
   return total;
 }
 
@@ -79,13 +85,13 @@ describe("floodplain feature product row", () => {
       substrateConfig
     );
 
-    const layers = emptyFloodplainScoreLayers(size);
+    const layers = createEmptyFeatureScoreLayers(size);
     for (let i = 0; i < size; i += 1) {
       if (substrate.floodplainMask[i] !== 1) continue;
       if (substrate.navigableRiverMask[i] === 1) {
-        layers.FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE[i] = 1;
+        layers["plains-floodplain-navigable"][i] = 1;
       } else {
-        layers.FEATURE_PLAINS_FLOODPLAIN_MINOR[i] = 0.85;
+        layers["plains-floodplain-minor"][i] = 0.85;
       }
     }
 
@@ -125,7 +131,7 @@ describe("floodplain feature product row", () => {
     setupArtifacts.occupancyBase.publish(ctx, {
       width,
       height,
-      featureIndex: new Uint16Array(size),
+      featureOccupancyMask: new Uint8Array(size),
       reserved: new Uint8Array(size),
     });
 
@@ -143,7 +149,7 @@ describe("floodplain feature product row", () => {
     expect((floodplainIntents as unknown[]).length).toBeGreaterThan(0);
     expect(
       (floodplainIntents as Array<{ feature: string }>).every((intent) =>
-        FLOODPLAIN_FEATURE_KEYS.includes(intent.feature as FloodplainFeatureKey)
+        FLOODPLAIN_INTENT_KEYS.includes(intent.feature as (typeof FLOODPLAIN_INTENT_KEYS)[number])
       )
     ).toBe(true);
 

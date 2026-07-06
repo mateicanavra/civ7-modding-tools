@@ -1,75 +1,13 @@
-import type { MapDimensions } from "@civ7/adapter";
-import type { MorphologyShelfWidthKnob } from "@mapgen/domain/morphology/config.js";
-import { MORPHOLOGY_SHELF_WIDTH_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
+import { MORPHOLOGY_SHELF_WIDTH_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/shelf-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
+import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import type { MorphologyShelfWidthKnob } from "../index.js";
 import ComputeShelfStepContract from "./computeShelf.contract.js";
-
-type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_SHELF = "Morphology / Shelf";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function expectedSize(dimensions: MapDimensions): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength: number
-): void {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return;
-  }
-  if (value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-}
-
-function validateShelf(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing shelf artifact." });
-    return errors;
-  }
-  const size = expectedSize(dimensions);
-  const c = value as Record<string, unknown>;
-  validateTypedArray(errors, "shelf.shelfMask", c.shelfMask, Uint8Array, size);
-  validateTypedArray(errors, "shelf.coastalLand", c.coastalLand, Uint8Array, size);
-  validateTypedArray(errors, "shelf.coastalWater", c.coastalWater, Uint8Array, size);
-  validateTypedArray(errors, "shelf.distanceToCoast", c.distanceToCoast, Uint16Array, size);
-  validateTypedArray(errors, "shelf.activeMarginMask", c.activeMarginMask, Uint8Array, size);
-  validateTypedArray(errors, "shelf.depthGateMask", c.depthGateMask, Uint8Array, size);
-  validateTypedArray(
-    errors,
-    "shelf.nearshoreCandidateMask",
-    c.nearshoreCandidateMask,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "shelf.shelfBreakDepthByTile",
-    c.shelfBreakDepthByTile,
-    Int16Array,
-    size
-  );
-  if (!Number.isFinite(c.shallowCutoff) || (c.shallowCutoff as number) > 0) {
-    errors.push({ message: "shelf.shallowCutoff must be a finite number <= 0." });
-  }
-  return errors;
-}
 
 /**
  * Post-features continental-shelf stage. Reads the FINAL post-island land mask +
@@ -81,7 +19,7 @@ function validateShelf(value: unknown, dimensions: MapDimensions): ArtifactValid
 export default createStep(ComputeShelfStepContract, {
   artifacts: implementArtifacts(ComputeShelfStepContract.artifacts!.provides!, {
     shelf: {
-      validate: (value, context) => validateShelf(value, context.dimensions),
+      validate: morphologyArtifactValidators.shelf,
     },
   }),
   normalize: (config, ctx) => {

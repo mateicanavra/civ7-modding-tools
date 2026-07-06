@@ -1,8 +1,13 @@
-import foundation from "@mapgen/domain/foundation";
-import { FoundationPlateCountKnobSchema } from "@mapgen/domain/foundation/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { crust, plateGraph } from "./steps/index.js";
+
+const FoundationPlateCountKnobSchema = Type.Integer({
+  minimum: 2,
+  maximum: 256,
+  description:
+    "Plate count target (integer >= 2). Used as the authored baseline for plate discretization.",
+});
 
 /** Foundation / Lithosphere — initial crust + plate partition (the static plate structure). */
 export default createStage({
@@ -15,24 +20,8 @@ export default createStage({
         "Lithosphere lever: plateCount (partition count; also set on foundation-mantle).",
     }
   ),
-  public: Type.Object(
-    {
-      lithosphere: Type.Optional(foundation.ops.computeCrust.strategies.default),
-      platePartition: Type.Optional(foundation.ops.computePlateGraph.strategies.default),
-    },
-    {
-      additionalProperties: false,
-      description: "Lithosphere advanced config (crust + plate partition).",
-    }
-  ),
   steps: orderStandardStageSteps("foundation-lithosphere", {
     crust,
     "plate-graph": plateGraph,
-  }),
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    crust: { computeCrust: { strategy: "default", config: config.lithosphere ?? {} } },
-    "plate-graph": {
-      computePlateGraph: { strategy: "default", config: config.platePartition ?? {} },
-    },
   }),
 } as const);

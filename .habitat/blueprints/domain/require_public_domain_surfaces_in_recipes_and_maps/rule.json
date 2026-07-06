@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "require_public_domain_surfaces_in_recipes_and_maps",
-  "title": "Require Public Domain Surfaces In Recipes",
+  "title": "Require Public Domain Surfaces In Recipes And Maps",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain",
@@ -12,20 +12,25 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe source importing domain code outside the public domain root, ops, or config surfaces",
-  "why": "The G4 import matrix is positive recipe boundary authority: standard recipe source composes domains through named public surfaces, not relative reaches or deep domain internals.",
+  "forbids": "recipe source importing domain code outside public domain root, ops, artifacts, model/schemas, model/policy, or explicitly admitted model/data collection surfaces",
+  "why": "The G4 import matrix is positive recipe boundary authority: standard recipe source composes domains through named public surfaces, not relative reaches, retired config facades, shared buckets, broad data buckets, operation-local files, or private implementation modules.",
   "remediate": null,
-  "message": "Recipe source may import domain code only through @mapgen/domain/<domain>, @mapgen/domain/<domain>/ops, or @mapgen/domain/<domain>/config.js.",
+  "message": "Recipe and map source may import domain code only through @mapgen/domain/<domain>, /ops, /artifacts, /model/schemas, /model/policy, or approved /model/data collections.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
         "mods/mod-swooper-maps/src/recipes/**/*.ts",
-        "mods/mod-swooper-maps/src/recipes/**/*.tsx"
+        "mods/mod-swooper-maps/src/recipes/**/*.tsx",
+        "mods/mod-swooper-maps/src/maps/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.tsx"
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps"
+  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/baseline.json"

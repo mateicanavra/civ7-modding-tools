@@ -1,7 +1,7 @@
 import hydrology from "@mapgen/domain/hydrology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../artifacts/index.js";
 
 /**
  * Lake intent step contract.

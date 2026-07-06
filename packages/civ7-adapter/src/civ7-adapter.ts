@@ -12,11 +12,11 @@ import {
   getNaturalWonderFootprintIndices,
   NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
+  NO_RESOURCE,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 import type {
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
@@ -398,10 +398,6 @@ export class Civ7Adapter implements EngineAdapter {
       throw new Error("[Adapter] ResourceBuilder.canHaveResource is unavailable.");
     }
     return rb.canHaveResource(x, y, resourceType, false);
-  }
-
-  getPlaceableResourceTypes(): number[] {
-    return [...PLACEABLE_RESOURCE_TYPE_IDS];
   }
 
   getResourceCatalog(): ResourceCatalogEntry[] {

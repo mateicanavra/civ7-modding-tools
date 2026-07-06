@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { OFFICIAL_RESOURCE_CORPUS } from "../../src/domain/resources/index.js";
+import { OFFICIAL_RESOURCE_CORPUS } from "@civ7/map-policy";
 import {
   type CanonicalMapConfigWithRecipe,
   canonicalRecipeConfig,
@@ -24,8 +24,7 @@ const ANTIQUITY_RESOURCE_CANDIDATE_TYPES = new Set(
   OFFICIAL_RESOURCE_CORPUS.filter(
     (entry) =>
       entry.validAges.includes("AGE_ANTIQUITY") &&
-      entry.placeability.status === "placeable" &&
-      entry.strategyRequired.status === "required"
+      entry.placeability.status === "placeable"
   ).map((entry) => entry.staticResourceRowSlot)
 );
 const ANTIQUITY_RESOURCE_CANDIDATE_COUNT = ANTIQUITY_RESOURCE_CANDIDATE_TYPES.size;

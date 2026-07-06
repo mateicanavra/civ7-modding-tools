@@ -1,11 +1,11 @@
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { clamp, clamp01 } from "@swooper/mapgen-core/lib/math";
 
 import type { ComputeSculptContinentalMarginTypes } from "../types.js";
 
-/** Boundary type codes (mirror foundation/constants BOUNDARY_TYPE; kept op-local to avoid a cross-domain import). */
-export const BOUNDARY_CONVERGENT = 1;
-export const BOUNDARY_DIVERGENT = 2;
-export const BOUNDARY_TRANSFORM = 3;
+export const BOUNDARY_CONVERGENT = BOUNDARY_TYPE.convergent;
+export const BOUNDARY_DIVERGENT = BOUNDARY_TYPE.divergent;
+export const BOUNDARY_TRANSFORM = BOUNDARY_TYPE.transform;
 
 /** Sentinel for "no margin reached this tile" in the margin-hop BFS (matches u16 UNREACHED convention). */
 export const MARGIN_UNREACHED = 65535;

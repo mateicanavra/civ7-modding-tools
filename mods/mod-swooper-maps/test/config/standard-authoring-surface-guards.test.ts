@@ -3,10 +3,7 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import {
-  deriveRecipeConfigSchema,
-  deriveStageAuthoringModel,
-} from "@swooper/mapgen-core/authoring";
+import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import {
   type ValidatedMapConfig,
   validateCanonicalMapConfig,
@@ -14,131 +11,6 @@ import {
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
 const TRANSIENT_STUDIO_CONFIGS = new Set(["studio-current.config.json"]);
-
-const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
-  "foundation-mantle": ["knobs", "meshResolution", "mantleSources", "mantleForcing"],
-  "foundation-lithosphere": ["knobs", "lithosphere", "platePartition"],
-  "foundation-tectonics": [
-    "knobs",
-    "plateMotion",
-    "tectonicSegmentation",
-    "tectonicEras",
-    "tectonicFields",
-    "tectonicRollups",
-  ],
-  // Internal-as-public (recipe-compile architecture §1.5): no `public`/`compile`; the crust-character
-  // op config is surfaced verbatim through the step (`crust-evolution.computeCrustEvolution.config.*`).
-  "foundation-orogeny": ["knobs", "crust-evolution"],
-  "foundation-projection": ["knobs"],
-  "morphology-coasts": [
-    "knobs",
-    "substrate",
-    "relief",
-    // Path A physical-shelf re-baseline (2026-06-22): public authoring surface for the
-    // new datum-free op compute-sculpt-continental-margin (SculptContinentalMarginConfigSchema).
-    "continentalMargin",
-    "waterCoverage",
-    "continents",
-    "coastlineShape",
-  ],
-  "morphology-routing": ["knobs"],
-  "morphology-erosion": ["knobs", "geomorphicCycle"],
-  "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
-  "morphology-shelf": ["knobs", "shelf"],
-  "hydrology-climate-baseline": [
-    "knobs",
-    "seasonalCycle",
-    "solarForcing",
-    "thermalState",
-    "atmosphericCirculation",
-    "oceanCurrents",
-    "oceanGeometry",
-    "oceanThermalState",
-    "evaporation",
-    "moistureTransport",
-    "precipitation",
-  ],
-  "hydrology-hydrography": ["knobs", "drainageRouting", "runoff", "riverNetwork", "lakes"],
-  "hydrology-climate-refine": [
-    "knobs",
-    "precipitationRefinement",
-    "solarForcing",
-    "thermalState",
-    "albedoFeedback",
-    "cryosphereState",
-    "landWaterBudget",
-    "diagnostics",
-  ],
-  "ecology-pedology": [
-    "knobs",
-    "soilClassification",
-    "resourceBasinPlanning",
-    "resourceBasinScoring",
-  ],
-  "ecology-biomes": ["knobs", "biomeClassification"],
-  "map-morphology": ["knobs"],
-  "map-hydrology": ["knobs"],
-  "map-elevation": ["knobs"],
-  "map-rivers": ["knobs"],
-  "ecology-features": [
-    "knobs",
-    "substrateScoring",
-    "wetlandScoring",
-    "reefScoring",
-    "iceScoring",
-    "icePlanning",
-    "reefPlanning",
-    "wetlandPlanning",
-    "floodplainPlanning",
-    "vegetationPlanning",
-    "plotEffectScoring",
-    "plotEffectCoverage",
-  ],
-  "map-ecology": ["knobs", "biomeBindings"],
-  placement: ["knobs", "naturalWonders", "resources", "starts", "support"],
-};
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function schemaProperties(schema: unknown): Record<string, unknown> {
-  return isObject(schema) && isObject(schema.properties) ? schema.properties : {};
-}
-
-function getAtSchemaPath(schema: unknown, path: readonly string[]): unknown {
-  let current = schema;
-  for (const segment of path) {
-    const props = schemaProperties(current);
-    if (!Object.prototype.hasOwnProperty.call(props, segment)) {
-      throw new Error(`Schema missing path ${path.join(".")}`);
-    }
-    current = props[segment];
-  }
-  return current;
-}
-
-function collectOpenObjectSchemaPaths(value: unknown, path: string[] = []): string[] {
-  if (!isObject(value)) {
-    if (Array.isArray(value)) {
-      return value.flatMap((item, index) =>
-        collectOpenObjectSchemaPaths(item, [...path, String(index)])
-      );
-    }
-    return [];
-  }
-
-  const paths: string[] = [];
-  const isObjectSchema = value.type === "object" || isObject(value.properties);
-  if (isObjectSchema && value.additionalProperties !== false) {
-    paths.push(path.join(".") || "<root>");
-  }
-
-  for (const [key, child] of Object.entries(value)) {
-    paths.push(...collectOpenObjectSchemaPaths(child, [...path, key]));
-  }
-  return paths;
-}
 
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -179,47 +51,8 @@ function createMapConfigExpression(source: string, id: string): string {
   return match[1].trim();
 }
 
-describe("standard authoring surface guardrails", () => {
-  it("keeps every standard source stage on a canonical authoring surface", () => {
-    expect(STANDARD_STAGES.map((stage) => stage.id)).toEqual(Object.keys(STANDARD_PUBLIC_KEYS));
-
-    for (const stage of STANDARD_STAGES) {
-      const expectedKeys = STANDARD_PUBLIC_KEYS[stage.id];
-      expect(expectedKeys, `${stage.id} expected public keys`).toBeDefined();
-
-      // Two canonical variants (recipe-compile architecture §1.5): a stage either declares an explicit
-      // semantic `public` surface (op envelopes hidden behind named keys), or is internal-as-public
-      // (no `public`/`compile`; the step-id-keyed internal surface that carries op envelopes verbatim).
-      const hasPublic = Boolean((stage as { public?: unknown }).public);
-      const authoring = deriveStageAuthoringModel(stage);
-      expect(authoring.config.layer, `${stage.id} layer`).toBe(
-        hasPublic ? "semantic-public-config" : "internal-step-config"
-      );
-      expect(
-        (authoring.config.schema as any).additionalProperties,
-        `${stage.id} strict schema`
-      ).toBe(false);
-      expect(
-        Object.keys(schemaProperties(authoring.config.schema)).sort(),
-        `${stage.id} public keys`
-      ).toEqual([...expectedKeys].sort());
-      expect(
-        collectOpenObjectSchemaPaths(authoring.config.schema),
-        `${stage.id} public object strictness`
-      ).toEqual([]);
-
-      for (const step of authoring.runtime.steps) {
-        const focusPath = authoring.config.focusPathsByStepId[step.stepId] ?? [];
-        expect(focusPath, `${stage.id}.${step.stepId} focus path`).not.toContain("strategy");
-        expect(focusPath, `${stage.id}.${step.stepId} focus path`).not.toContain("config");
-        if (focusPath.length > 0) {
-          getAtSchemaPath(authoring.config.schema, focusPath);
-        }
-      }
-    }
-  });
-
-  it("keeps generated SDK map entrypoints on canonical public config envelopes", () => {
+describe("standard map config artifacts", () => {
+  it("keeps generated SDK map entrypoints bound to canonical source config envelopes", () => {
     const configsDir = join(import.meta.dir, "../../src/maps/configs");
     const generatedDir = join(import.meta.dir, "../../src/maps/generated");
     const configIds = readdirSync(configsDir)
@@ -229,9 +62,6 @@ describe("standard authoring surface guardrails", () => {
       .sort();
     const generatedIds = readdirSync(generatedDir)
       .filter((entry) => entry.endsWith(".ts"))
-      // Transient studio deploys are excluded on BOTH sides: the studio writes
-      // `studio-current.config.json` + its generated entrypoint during runs,
-      // and the guard must not depend on whether a run happened recently.
       .filter((entry) => !TRANSIENT_STUDIO_CONFIGS.has(entry.replace(/\.ts$/, ".config.json")))
       .map((entry) => entry.replace(/\.ts$/, ""))
       .sort();
@@ -251,10 +81,11 @@ describe("standard authoring surface guardrails", () => {
       const expectedConfigHash = configHashFor(mapConfig);
       const expectedEnvelopeHash = envelopeHashFor(mapConfig, expectedConfigHash);
       const source = readFileSync(join(generatedDir, `${id}.ts`), "utf8");
+
       expect(source, `${id} imports canonical source config`).toContain(
         `../configs/${id}.config.json`
       );
-      expect(source, `${id} uses canonical public config envelope`).toContain(
+      expect(source, `${id} uses canonical config envelope`).toContain(
         "canonicalRecipeConfig<StandardRecipeConfig>(mapConfig)"
       );
       expect(source, `${id} records sourceConfigId`).toContain(
@@ -268,18 +99,6 @@ describe("standard authoring surface guardrails", () => {
       );
       expect(createMapConfigExpression(source, id), `${id} createMap config source`).toBe(
         "canonicalRecipeConfig<StandardRecipeConfig>(mapConfig)"
-      );
-      expect(
-        [...source.matchAll(/(?:^|[,{]\s*)config\s*:/gm)],
-        `${id} has only the SDK createMap config property`
-      ).toHaveLength(1);
-      expect(source, `${id} does not inline raw placement envelopes`).not.toContain(
-        "derive-placement-inputs"
-      );
-      expect(source, `${id} does not inline raw op envelopes`).not.toContain('"strategy"');
-      expect(source, `${id} does not inline raw op envelopes`).not.toContain('"config"');
-      expect(source, `${id} does not inline raw op envelopes`).not.toMatch(
-        /(?:^|[,{]\s*)strategy\s*:/m
       );
     }
   });

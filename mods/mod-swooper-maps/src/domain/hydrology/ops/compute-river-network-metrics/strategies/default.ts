@@ -1,6 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { isAnyRiverClass, isMajorRiverClass, isMinorRiverClass } from "../../../river-class.js";
+import {
+  isAnyRiverClass,
+  isMajorRiverClass,
+  isMinorRiverClass,
+} from "../../../model/policy/river-class.js";
 import {
   HYDROLOGY_FLOW_DRY,
   HYDROLOGY_FLOW_EPHEMERAL,
@@ -17,7 +21,7 @@ import {
   HYDROLOGY_SLOPE_MOUNTAIN_BLOCKED,
   HYDROLOGY_SLOPE_NONE,
   HYDROLOGY_SLOPE_STEEP,
-} from "../../../river-network-metrics.js";
+} from "../../../model/policy/river-network-metrics.js";
 import ComputeRiverNetworkMetricsContract from "../contract.js";
 
 const FLAT_SLOPE_MAX = 0.5;

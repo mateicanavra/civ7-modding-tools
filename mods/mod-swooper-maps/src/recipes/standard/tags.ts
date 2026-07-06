@@ -1,8 +1,8 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DependencyTagDefinition, TagOwner } from "@swooper/mapgen-core/engine";
-import { placementArtifacts } from "./stages/placement/artifacts.js";
-import type { PlacementInputsV1 } from "./stages/placement/placement-inputs.js";
-import type { PlacementOutputsV1 } from "./stages/placement/placement-outputs.js";
+import { artifacts as placementArtifacts } from "./stages/placement/artifacts/index.js";
+import type { PlacementInputsV1 } from "./stages/placement/artifacts/placement-inputs.artifact.js";
+import type { PlacementOutputsV1 } from "./stages/placement/artifacts/placement-outputs.artifact.js";
 import {
   FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,

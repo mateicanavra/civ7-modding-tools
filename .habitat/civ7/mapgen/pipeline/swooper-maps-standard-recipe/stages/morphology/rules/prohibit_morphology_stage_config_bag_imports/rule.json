@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "prohibit_morphology_stage_config_bag_imports",
-  "title": "Prohibit Morphology Stage Config Bag Imports",
+  "title": "Prohibit Morphology Stage Config Facade Imports",
   "placement": {
     "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology",
     "blueprint": "_self",
@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "@mapgen/domain/config imports in morphology stage files",
-  "why": "Morphology stage source may consume the morphology-specific config facade, but must not reach into the legacy root domain config bag.",
-  "remediate": "Import morphology-specific typed config surfaces from @mapgen/domain/morphology/config.js or op-local contract surfaces.",
-  "message": "Do not import the root @mapgen/domain/config bag from morphology stage files.",
+  "forbids": "root or morphology config facade imports in morphology stage files",
+  "why": "Morphology stages no longer compose through config facades. Stage authoring stays stage-local; reusable morphology policy comes from model/policy; operation contract types come through the public ops surface.",
+  "remediate": "Use stage-local authoring helpers, @mapgen/domain/morphology/model/policy, @mapgen/domain/morphology/model/schemas, or @mapgen/domain/morphology/ops.",
+  "message": "Do not import root or morphology config facades from morphology stage files.",
   "pathCoverage": [
     {
       "kind": "exact-path",

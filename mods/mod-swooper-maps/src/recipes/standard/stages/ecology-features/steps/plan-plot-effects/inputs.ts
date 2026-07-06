@@ -1,5 +1,5 @@
 import { ctxStepSeed, type ExtendedMapContext, type HeightfieldBuffer } from "@swooper/mapgen-core";
-import type { BiomeClassificationArtifact } from "../../../ecology/artifacts.js";
+import type { BiomeClassificationArtifact } from "../../../ecology/artifacts/biome-classification.artifact.js";
 
 export type PlotEffectsStepInput = {
   width: number;

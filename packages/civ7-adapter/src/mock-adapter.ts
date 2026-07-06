@@ -13,7 +13,6 @@ import {
   isResourceAdjacentToLandRuntimeOptional,
   NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
-  PLACEABLE_RESOURCE_TYPE_IDS,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
@@ -238,21 +237,7 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
 const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;
 
 const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
-const DEFAULT_RESOURCE_TYPE_CATALOG: number[] = [...PLACEABLE_RESOURCE_TYPE_IDS];
 const STANDARD_OCEAN_WATER_COLUMNS = 4;
-
-function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: number): number[] {
-  const source = Array.isArray(input) ? input : DEFAULT_RESOURCE_TYPE_CATALOG;
-  const unique = new Set<number>();
-  for (const value of source) {
-    if (!Number.isFinite(value)) continue;
-    const normalized = value | 0;
-    if (normalized < 0) continue;
-    if (normalized === noResource) continue;
-    unique.add(normalized);
-  }
-  return Array.from(unique).sort((a, b) => a - b);
-}
 
 // Engine odd-R (row-offset) hex neighbors, parity keyed on the ROW (`y & 1`).
 // Even rows take the WEST diagonals, odd rows the EAST diagonals; the four
@@ -335,8 +320,6 @@ export interface MockAdapterConfig {
   canHaveResource?: (x: number, y: number, resourceType: number) => boolean;
   /** Sentinel used to represent "no resource". */
   noResourceSentinel?: number;
-  /** Adapter-provided resource candidate catalog returned by getPlaceableResourceTypes. */
-  resourceTypeCatalog?: number[];
   /** Natural wonder feature catalog used by deterministic planners. */
   naturalWonderCatalog?: NaturalWonderCatalogEntry[];
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
@@ -387,7 +370,6 @@ export class MockAdapter implements EngineAdapter {
   private canHaveFeatureFn?: (x: number, y: number, featureType: number) => boolean;
   private canHaveResourceFn?: (x: number, y: number, resourceType: number) => boolean;
   private noResourceSentinel: number;
-  private resourceTypeCatalog: number[];
   private naturalWonderCatalog: NaturalWonderCatalogEntry[];
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
@@ -457,10 +439,6 @@ export class MockAdapter implements EngineAdapter {
     this.noResourceSentinel = Number.isFinite(config.noResourceSentinel)
       ? (config.noResourceSentinel as number) | 0
       : DEFAULT_NO_RESOURCE;
-    this.resourceTypeCatalog = sanitizeResourceTypeCatalog(
-      config.resourceTypeCatalog,
-      this.noResourceSentinel
-    );
     const size = this.width * this.height;
 
     this.terrainTypes = new Uint8Array(size).fill(config.defaultTerrainType ?? 0);
@@ -831,10 +809,6 @@ export class MockAdapter implements EngineAdapter {
       if (!this.isWater(nx, ny)) return true;
     }
     return false;
-  }
-
-  getPlaceableResourceTypes(): number[] {
-    return [...this.resourceTypeCatalog];
   }
 
   getResourceCatalog(): ResourceCatalogEntry[] {
@@ -1689,11 +1663,6 @@ export class MockAdapter implements EngineAdapter {
     if (Number.isFinite(config.noResourceSentinel)) {
       this.noResourceSentinel = (config.noResourceSentinel as number) | 0;
     }
-    this.resourceTypeCatalog = sanitizeResourceTypeCatalog(
-      config.resourceTypeCatalog ?? this.resourceTypeCatalog,
-      this.noResourceSentinel
-    );
-
     this.terrainTypes.fill(config.defaultTerrainType ?? 0);
     this.elevations.fill(config.defaultElevation ?? 100);
     this.rainfall.fill(config.defaultRainfall ?? 50);

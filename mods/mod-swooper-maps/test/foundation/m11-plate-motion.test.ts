@@ -1,11 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
-import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
-import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
+const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph, computePlateMotion } = foundationOpsPublic.ops;
 function allFinite(values: Float32Array): boolean {
   for (let i = 0; i < values.length; i++) {
     const v = values[i] ?? 0;

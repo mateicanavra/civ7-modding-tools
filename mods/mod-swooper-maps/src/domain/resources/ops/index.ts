@@ -21,14 +21,3 @@ const implementations = {
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
-
-export {
-  adjustResourceSupport,
-  deriveHabitatFields,
-  planAquaticResources,
-  planCultivatedResources,
-  planGeologicalResources,
-  planResourceGroups,
-  planTerrestrialResources,
-  selectResourceSites,
-};

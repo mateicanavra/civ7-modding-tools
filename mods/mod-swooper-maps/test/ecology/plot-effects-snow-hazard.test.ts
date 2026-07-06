@@ -2,9 +2,8 @@ import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
-// Deep-cold hazard: the snow channel places the cosmetic permanent-snow tier AND co-places
-// the permanent damaging PLOTEFFECT_FROSTBITE on the COLDEST selected tiles
-// (snowScore01 >= hazardThreshold). This guards the threshold-gated co-placement.
+// Deep-cold hazard: the snow channel emits abstract snow tier intent and co-places
+// frostbite intent on the coldest selected tiles. Map projection owns Civ7 keys.
 const WIDTH = 2;
 const HEIGHT = 2;
 const SIZE = WIDTH * HEIGHT;
@@ -48,7 +47,7 @@ const runSnowPlan = (snowConfig: Record<string, unknown>) => {
 };
 
 describe("plot effects (snow / frostbite hazard)", () => {
-  it("co-places PLOTEFFECT_FROSTBITE only on tiles at/above hazardThreshold", () => {
+  it("co-places frostbite intent only on tiles at/above hazardThreshold", () => {
     const result = runSnowPlan({
       enabled: true,
       coveragePct: 100,
@@ -56,11 +55,11 @@ describe("plot effects (snow / frostbite hazard)", () => {
       mediumThreshold: 0.6,
       heavyThreshold: 0.8,
       hazardThreshold: 0.85,
-      hazard: { typeName: "PLOTEFFECT_FROSTBITE" },
+      hazardEnabled: true,
     });
 
-    const snow = result.placements.filter((p) => p.plotEffect.startsWith("PLOTEFFECT_SNOW_"));
-    const frost = result.placements.filter((p) => p.plotEffect === "PLOTEFFECT_FROSTBITE");
+    const snow = result.placements.filter((p) => p.plotEffect.startsWith("snow-"));
+    const frost = result.placements.filter((p) => p.plotEffect === "frostbite");
 
     expect(snow.length).toBe(SIZE); // all four eligible tiles get a cosmetic snow tier
     expect(frost.length).toBe(2); // only the two with score >= 0.85
@@ -75,6 +74,6 @@ describe("plot effects (snow / frostbite hazard)", () => {
       heavyThreshold: 0.8,
     });
 
-    expect(result.placements.every((p) => p.plotEffect.startsWith("PLOTEFFECT_SNOW_"))).toBe(true);
+    expect(result.placements.every((p) => p.plotEffect.startsWith("snow-"))).toBe(true);
   });
 });

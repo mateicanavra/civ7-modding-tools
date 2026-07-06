@@ -1212,10 +1212,10 @@ describe("final-surface parity proof", () => {
         },
         local: {
           surfaceResourceType: 8,
-          preferredPlacement: { preferredResourceType: 13 },
+          preferredPlacement: { preferredResourceType: 4 },
           outcome: { status: "placed", resourceType: 46, observedResourceType: 46 },
           planIntent: {
-            resourceType: 13,
+            resourceType: 4,
             resourceTypeName: "RESOURCE_GOLD",
             phase: "rotation",
             family: "geological",

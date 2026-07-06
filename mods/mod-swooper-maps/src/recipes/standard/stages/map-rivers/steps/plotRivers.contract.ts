@@ -2,9 +2,9 @@ import hydrology from "@mapgen/domain/hydrology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
-import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
-import { mapMorphologyArtifacts } from "../../map-morphology/artifacts.js";
-import { mapRiversArtifacts } from "../artifacts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../../map-morphology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../artifacts/index.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
   {},

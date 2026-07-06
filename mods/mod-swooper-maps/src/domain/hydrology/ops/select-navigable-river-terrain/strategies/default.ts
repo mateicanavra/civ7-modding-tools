@@ -1,11 +1,11 @@
 import { clampPct } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { isMajorRiverClass, isMinorRiverClass } from "../../../river-class.js";
+import { isMajorRiverClass, isMinorRiverClass } from "../../../model/policy/river-class.js";
 import {
   HYDROLOGY_MOUTH_ACCEPTED_LAKE,
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
-} from "../../../river-network-metrics.js";
+} from "../../../model/policy/river-network-metrics.js";
 import SelectNavigableRiverTerrainContract from "../contract.js";
 
 function percentileFloor(valuesAscending: readonly number[], percentile: number): number {

@@ -1,14 +1,6 @@
-import computeEraPlateMembership from "../../src/domain/foundation/ops/compute-era-plate-membership/index.js";
-import computeEraTectonicFields from "../../src/domain/foundation/ops/compute-era-tectonic-fields/index.js";
-import computeHotspotEvents from "../../src/domain/foundation/ops/compute-hotspot-events/index.js";
-import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computeSegmentEvents from "../../src/domain/foundation/ops/compute-segment-events/index.js";
-import computeTectonicHistoryRollups from "../../src/domain/foundation/ops/compute-tectonic-history-rollups/index.js";
-import computeTectonicProvenance from "../../src/domain/foundation/ops/compute-tectonic-provenance/index.js";
-import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
-import computeTectonicsCurrent from "../../src/domain/foundation/ops/compute-tectonics-current/index.js";
-import computeTracerAdvection from "../../src/domain/foundation/ops/compute-tracer-advection/index.js";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
+const { computeEraPlateMembership, computeEraTectonicFields, computeHotspotEvents, computePlateMotion, computeSegmentEvents, computeTectonicHistoryRollups, computeTectonicProvenance, computeTectonicSegments, computeTectonicsCurrent, computeTracerAdvection } = foundationOpsPublic.ops;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 

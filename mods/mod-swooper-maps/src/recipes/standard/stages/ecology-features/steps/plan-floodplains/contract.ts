@@ -1,7 +1,7 @@
 import ecology from "@mapgen/domain/ecology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 
 const PlanFloodplainsStepContract = defineStep({
   id: "plan-floodplains",

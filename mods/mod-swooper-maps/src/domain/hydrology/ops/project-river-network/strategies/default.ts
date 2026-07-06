@@ -1,5 +1,9 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR, RIVER_CLASS_NONE } from "../../../river-class.js";
+import {
+  RIVER_CLASS_MAJOR,
+  RIVER_CLASS_MINOR,
+  RIVER_CLASS_NONE,
+} from "../../../model/policy/river-class.js";
 import ProjectRiverNetworkContract from "../contract.js";
 import { clamp01 } from "../rules/index.js";
 

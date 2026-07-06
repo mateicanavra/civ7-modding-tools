@@ -11,9 +11,9 @@ import {
   FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
 import * as ts from "typescript";
-import foundation from "../../src/domain/foundation/index.js";
+import foundation from "@mapgen/domain/foundation";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
-import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import ProjectionStepContract from "../../src/recipes/standard/stages/foundation-projection/steps/projection.contract.js";
 import TectonicsStepContract from "../../src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.js";
 
@@ -58,13 +58,7 @@ function listImportSources(text: string, fileName: string): string[] {
 
 describe("foundation contract guardrails", () => {
   it("requires volcanism in foundation plates schema", () => {
-    const repoRoot = path.resolve(import.meta.dir, "../..");
-    const artifactsFile = path.join(
-      repoRoot,
-      "src/recipes/standard/stages/foundation/artifacts.ts"
-    );
-    const text = readFileSync(artifactsFile, "utf8");
-    expect(text).toContain("volcanism");
+    expect(JSON.stringify(mapArtifacts.foundationPlates.schema)).toContain("volcanism");
   });
 
   it("does not reintroduce legacy plate kinematics on plateGraph", () => {

@@ -1,29 +1,20 @@
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  validateFeatureIntentsListArtifact,
-  validateOccupancyArtifact,
-} from "../../../ecology/artifact-validation.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import PlanReefsStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
-const REEFS_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
-  FEATURE_REEF: (FEATURE_KEY_INDEX.FEATURE_REEF ?? 0) + 1,
-  FEATURE_COLD_REEF: (FEATURE_KEY_INDEX.FEATURE_COLD_REEF ?? 0) + 1,
-  FEATURE_ATOLL: (FEATURE_KEY_INDEX.FEATURE_ATOLL ?? 0) + 1,
-  FEATURE_LOTUS: (FEATURE_KEY_INDEX.FEATURE_LOTUS ?? 0) + 1,
-};
+const REEF_FEATURE_INTENTS = new Set(["reef", "cold-reef", "atoll", "lotus"]);
 
 export default createStep(PlanReefsStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsReefs, ecologyArtifacts.occupancyReefs],
     {
       featureIntentsReefs: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.featureIntentsReefs,
       },
       occupancyReefs: {
-        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.occupancyReefs,
       },
     }
   ),
@@ -39,12 +30,12 @@ export default createStep(PlanReefsStepContract, {
         width,
         height,
         seed,
-        scoreReef01: scoreLayers.layers.FEATURE_REEF,
-        scoreColdReef01: scoreLayers.layers.FEATURE_COLD_REEF,
-        scoreAtoll01: scoreLayers.layers.FEATURE_ATOLL,
-        scoreLotus01: scoreLayers.layers.FEATURE_LOTUS,
+        scoreReef01: scoreLayers.layers.reef,
+        scoreColdReef01: scoreLayers.layers["cold-reef"],
+        scoreAtoll01: scoreLayers.layers.atoll,
+        scoreLotus01: scoreLayers.layers.lotus,
         lakeMask: lakePlan.lakeMask,
-        featureIndex: prev.featureIndex,
+        featureOccupancyMask: prev.featureOccupancyMask,
         reserved: prev.reserved,
       },
       config.planReefs
@@ -52,13 +43,12 @@ export default createStep(PlanReefsStepContract, {
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
 
-    const featureIndex = new Uint16Array(prev.featureIndex);
+    const featureOccupancyMask = new Uint8Array(prev.featureOccupancyMask);
     const reserved = new Uint8Array(prev.reserved);
 
     for (const placement of placements) {
       const feature = placement.feature;
-      const index = REEFS_FEATURE_INDEX_BY_KEY[feature];
-      if (!index) {
+      if (!REEF_FEATURE_INTENTS.has(feature)) {
         throw new Error(`plan-reefs expected reef-family placements (received ${feature})`);
       }
       const x = placement.x | 0;
@@ -70,17 +60,17 @@ export default createStep(PlanReefsStepContract, {
       if (reserved[idx] !== 0) {
         throw new Error(`plan-reefs attempted to claim reserved tileIndex=${idx} (${x},${y})`);
       }
-      if (featureIndex[idx] !== 0) {
+      if (featureOccupancyMask[idx] !== 0) {
         throw new Error(`plan-reefs attempted to claim occupied tileIndex=${idx} (${x},${y})`);
       }
-      featureIndex[idx] = index;
+      featureOccupancyMask[idx] = 1;
     }
 
     deps.artifacts.featureIntentsReefs.publish(context, placements);
     deps.artifacts.occupancyReefs.publish(context, {
       width,
       height,
-      featureIndex,
+      featureOccupancyMask,
       reserved,
     });
   },

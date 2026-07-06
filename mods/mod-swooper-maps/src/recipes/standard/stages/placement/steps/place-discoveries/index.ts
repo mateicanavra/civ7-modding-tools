@@ -1,15 +1,15 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import PlaceDiscoveriesStepContract from "./contract.js";
 import { placeOfficialDiscoveries } from "./materialize.js";
-import { validateDiscoveryPlacementOutcomesArtifact } from "./validate.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 
 export default createStep(PlaceDiscoveriesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.discoveryPlacementOutcomes], {
     discoveryPlacementOutcomes: {
-      validate: (value) => validateDiscoveryPlacementOutcomesArtifact(value),
+      validate: (value) => placementArtifactValidators.discoveryPlacementOutcomes(value),
     },
   }),
   run: (context, _config, _ops, deps) => {

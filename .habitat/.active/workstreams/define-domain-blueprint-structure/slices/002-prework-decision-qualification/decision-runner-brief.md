@@ -42,7 +42,8 @@ Grounding:
   - .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/single-prework-decision-frame.md
   - .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/inventory.md
   - .habitat/.active/workstreams/define-domain-blueprint-structure/decision-book/*.md
-  - .habitat/.active/workstreams/define-domain-blueprint-structure/scopes/**/*.md as needed for candidate owners.
+  - .habitat/scopes/**/*.md as needed for candidate owners
+  - .habitat/.active/workstreams/define-domain-blueprint-structure/scopes/**/*.md if a legacy packet-local scope reference is still relevant.
 - Load the skills that change this decision. Use systematic-workstream for the
   pass, investigation-design for source/authority investigation, prompt-design
   for agent prompts, team-design if you fan out lanes, and architecture/product
@@ -53,6 +54,34 @@ The selected inventory item is the unit of work. Current paths are evidence,
 not architecture authority. Destinations come from active law: scope/file/pattern
 docs, decision-book criteria, product/architecture authority, or a named later
 owner-law domino. Directory-only destinations require a positive content law.
+
+Config-shaped rows:
+For the Domain Model Config Law item, do not classify by `config.ts` filenames.
+Classify by role. Stages own public authoring schemas, `knobsSchema`, optional
+public-to-internal `compile`, and local step composition. Operations own
+operation/strategy contract config. Domains may own reusable semantic
+primitives, schema fragments, enums, types, and invariants that stages or
+operations compose. Reusable schema primitives route to `model/schemas/`.
+Reusable semantic policy routes to `model/policy/`. `model/config/` is not a
+destination. Domains do not own stage authoring surfaces or public-to-step
+compilation mappings. Root `config.ts` barrels are source evidence or
+transitional import facades, not destination authority.
+
+For a second pass over an existing corpus, revisit every row as if the earlier
+classification were evidence, not final authority. Use the accepted
+destination rails to choose concrete actions: move, inline, recompose, reroute,
+delete, keep with exact owner, tracked later domino, or `needs destination`
+with the missing law named. Do not store "mechanical now" or "mechanical after
+prerequisite" as the row result; those are derived views over the action
+ledger. This second-pass config-law corpus stops at the action ledger and
+execution-plan implications; it does not open an execution slice for easy rows.
+
+When schema primitives are in play, include a dedicated primitive-hunting lane.
+The primitive lane looks below full-schema overlap into property keys, nested
+schema fragments, repeated scalar/object constraints, and shared vocabulary.
+A large shared schema is not automatically the primitive; it may need to be
+kept whole, decomposed, routed partly to policy or artifact support, or rejected
+as caller-shaped config.
 
 Tool-first investigation:
 Before hand-reading broad surfaces, use the available code-intelligence and
@@ -87,6 +116,13 @@ Packet work:
 - If any row is easy and clearly executable now, such as a straightforward
   deletion or obvious split with proof, prefer opening an execution slice from
   this prework packet instead of deferring it by default.
+
+Second-pass config-law override:
+when the selected work is the `second-pass-disposition-brief.md` run, do not
+open an execution slice, do not source-edit, and do not require write-back or
+Graphite closure inside the delegated investigation. The output is
+`second-pass-disposition.md` plus review findings and execution-plan
+implications.
 
 Stop rules:
 Stop before source edits, enforcement packets, structure.toml, Grit packets, or

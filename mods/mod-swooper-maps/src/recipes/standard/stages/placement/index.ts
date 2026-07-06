@@ -1,10 +1,5 @@
-import { createStage } from "@swooper/mapgen-core/authoring";
+import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import {
-  compilePlacementPublicConfig,
-  PlacementKnobsSchema,
-  PlacementPublicSchema,
-} from "../placement-public-config.js";
 import {
   adjustResources,
   assignAdvancedStarts,
@@ -31,8 +26,14 @@ import {
  */
 export default createStage({
   id: "placement",
-  knobsSchema: PlacementKnobsSchema,
-  public: PlacementPublicSchema,
+  knobsSchema: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Placement currently has no stage-level knobs; authoring control lives in placement steps.",
+    }
+  ),
   steps: orderStandardStageSteps("placement", {
     "derive-placement-inputs": derivePlacementInputs,
     "plot-landmass-regions": plotLandmassRegions,
@@ -46,6 +47,4 @@ export default createStage({
     "assign-advanced-starts": assignAdvancedStarts,
     placement,
   }),
-  compile: ({ config }: { config: Record<string, unknown> }) =>
-    compilePlacementPublicConfig(config),
 } as const);

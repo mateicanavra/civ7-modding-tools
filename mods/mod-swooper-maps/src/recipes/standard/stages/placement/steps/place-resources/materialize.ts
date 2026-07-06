@@ -5,13 +5,14 @@ import type {
   ResourcePlacementOutcome,
   ResourcePlacementRejectionReason,
 } from "@civ7/adapter";
+import { requireResourceRuntimeId, type OfficialResourceType } from "@civ7/map-policy";
 import resources from "@mapgen/domain/resources";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
 type ResourcePlacementOutcomes = Static<
-  typeof import("../../artifacts.js").placementArtifacts["resourcePlacementOutcomes"]["schema"]
+  typeof import("../../artifacts/index.js").artifactContracts["resourcePlacementOutcomes"]["Schema"]
 >;
 type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];
@@ -349,9 +350,11 @@ export function placeResourcesWithTypedOutcomes({
   const shortfallCounts = new Map<string, number>();
 
   for (const planned of plan.intents) {
+    const resourceTypeId = requireResourceRuntimeId(planned.resourceType as OfficialResourceType)
+      .resourceTypeId;
     const intent = {
       plotIndex: planned.plotIndex,
-      resourceType: planned.resourceTypeId,
+      resourceType: resourceTypeId,
     };
     const outcome = adapter.placeResourceIntent(width, height, intent);
     assertResourceOutcomeMatchesIntent(outcome, intent, width);
@@ -363,7 +366,7 @@ export function placeResourcesWithTypedOutcomes({
       else byPhase.support += 1;
       if (planned.support) supportAdjustedPlacedCount += 1;
     } else if (outcome.status === "rejected") {
-      const key = `${planned.resourceTypeId}:${outcome.reason}`;
+      const key = `${resourceTypeId}:${outcome.reason}`;
       shortfallCounts.set(key, (shortfallCounts.get(key) ?? 0) + 1);
     }
   }

@@ -8,7 +8,7 @@ import {
   HYDROLOGY_FLOW_INTERMITTENT,
   HYDROLOGY_FLOW_PERENNIAL,
   HYDROLOGY_MOUTH_UNRESOLVED,
-} from "../../src/domain/hydrology/index.js";
+} from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
 import {
   type CanonicalMapConfigWithRecipe,
   canonicalRecipeConfig,
@@ -17,7 +17,7 @@ import desertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.
 import earthlikeRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
   return canonicalRecipeConfig<StandardRecipeConfig>(config);

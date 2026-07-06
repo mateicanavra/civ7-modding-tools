@@ -61,6 +61,69 @@ Qualification results update the owning reference:
 Use the evidence policy in `single-prework-decision-frame.md`; that file remains
 the single evidence standard for this slice.
 
+## Config Decision Discriminator
+
+The domain model config-law item uses a stricter discriminator than a filename
+scan for `config.ts`.
+
+Stage authoring surfaces are not domain model owners. A stage owns its public
+authoring schema, `knobsSchema`, optional public-to-internal `compile` mapping,
+and local step composition. Operation and strategy config belongs to operation
+contracts. The domain may expose reusable semantic primitives, schemas, types,
+invariants, and policy fragments that stages or operation contracts compose, but
+that does not make the domain the owner of the stage authoring surface.
+
+For config-shaped rows, decide from the consumer role and semantic owner:
+
+- if the row defines what a recipe author supplies to a stage, it belongs to
+  the owning stage;
+- if the row maps public author intent into step or operation config, it
+  belongs to the owning stage or step normalization boundary unless it encodes
+  reusable domain semantic law;
+- if the row defines an operation or strategy input contract, it belongs to the
+  operation contract surface;
+- if the row defines a reusable domain primitive, schema fragment, enum, type,
+  or invariant that multiple domain/stage/operation surfaces compose, it belongs
+  to the domain model schemas owner;
+- if the row defines reusable semantic policy, it belongs to `model/policy/`,
+  not a config owner;
+- if the row encodes official Civilization 7 vocabulary, engine globals,
+  resource identifiers, adapter-facing ids, or map-policy translation, test
+  `@civ7/types`, `@civ7/map-policy`, and adapter ownership before any domain
+  destination; domain schemas may compose those surfaces, but they do not own
+  the official vocabulary;
+- if the row is only a broad root `config.ts` re-export facade, it is source
+  evidence or a transitional import surface, not destination authority.
+
+This discriminator prevents a false third config model. The accepted
+architecture has stage authoring config, internal step config, and operation
+contract config; domain model files provide composable schema primitives and
+semantic law, not a parallel authoring surface.
+
+The current config-law packet has already installed the destination rails:
+
+- operation contract file shape;
+- recipe stage authoring owner shape;
+- domain `model/schemas` and `model/policy` owner shape.
+- official Civ7 vocabulary boundary: type declarations belong to
+  `@civ7/types`, pure official map policy facts belong to `@civ7/map-policy`,
+  and runtime/global access belongs to the adapter boundary.
+
+Those rails sharpen the next pass. The next disposition corpus must revisit the
+rows from ground up and write deterministic actions, not loose opportunity
+labels. A row is resolved only when it names one concrete action: move, inline,
+recompose, reroute, delete, keep with exact owner, track later, or
+`needs destination` with the missing law named. "Mechanical now" and
+"mechanical later" are downstream views over those actions; they are not row
+dispositions.
+
+Domain schema primitive rows require extra depth. Large shared schemas and
+schema-like helpers are not accepted as primitives by default. The pass must
+look below full-schema overlap into property keys, nested fragments, scalar and
+object constraints, and shared vocabulary, then decide whether to keep the
+larger schema whole, decompose it into smaller primitives, route pieces to
+policy or artifact support, or reject extraction.
+
 ## Skill Routing
 
 Use the smallest skill set required by the active inventory item. The

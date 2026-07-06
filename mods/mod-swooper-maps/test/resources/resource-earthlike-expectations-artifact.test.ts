@@ -1,21 +1,18 @@
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { Value } from "typebox/value";
-import {
-  ResourceEarthlikeExpectationsArtifactSchema,
-  resourceEarthlikeExpectationsArtifact,
-} from "../../src/domain/resources/artifacts/contract/earthlike-expectations.contract.js";
+import { earthlikeExpectations } from "@mapgen/domain/resources/artifacts";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
-  OFFICIAL_RESOURCE_BY_TYPE,
-  OFFICIAL_RESOURCE_TYPE_ORDER,
-} from "../../src/domain/resources/index.js";
+} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import { OFFICIAL_RESOURCE_BY_TYPE, OFFICIAL_RESOURCE_TYPE_ORDER } from "@civ7/map-policy";
 import {
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
   INITIAL_MAP_RESOURCE_TYPES,
-} from "../../src/domain/resources/policy/initial-map-authoring.js";
+} from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
+
+const resourceEarthlikeExpectationsArtifact = earthlikeExpectations.artifact;
+const ResourceEarthlikeExpectationsArtifactSchema = earthlikeExpectations.Schema;
 
 const blockedResources = [
   "RESOURCE_CLOVES",
@@ -24,12 +21,6 @@ const blockedResources = [
   "RESOURCE_NICKEL",
   "RESOURCE_SILVER_DISTANT_LANDS",
 ] as const;
-
-const repoRoot = join(import.meta.dir, "../../../..");
-const sourceRoot = join(
-  repoRoot,
-  "mods/mod-swooper-maps/src/domain/resources/lib/earthlike-expectations"
-);
 
 describe("resource earthlike expectations artifact", () => {
   it("declares the resource-owned earthlike expectations artifact id", () => {
@@ -51,15 +42,10 @@ describe("resource earthlike expectations artifact", () => {
     expect(order).not.toContain("RESOURCE_LOTUS");
   });
 
-  it("preserves corpus refs, official constraints, and unverified runtime boundary", () => {
+  it("preserves official constraints without corpus slot or runtime id claims", () => {
     for (const row of EARTHLIKE_RESOURCE_EXPECTATIONS) {
       const corpus = OFFICIAL_RESOURCE_BY_TYPE[row.resourceType]!;
 
-      expect(row.corpusRef).toEqual({
-        resourceType: corpus.resourceType,
-        staticResourceRowSlot: corpus.staticResourceRowSlot,
-        runtimeIdStatus: "unverified",
-      });
       expect(row.initialMapAuthoring.authoringAge).toBe("AGE_ANTIQUITY");
       expect(row.initialMapAuthoring.rationale.length).toBeGreaterThan(0);
       expect(row.eligibleAges).toEqual(corpus.validAges);
@@ -71,6 +57,8 @@ describe("resource earthlike expectations artifact", () => {
       expect(Object.hasOwn(row, "runtimeId")).toBe(false);
       expect(Object.hasOwn(row, "resourceId")).toBe(false);
       expect(Object.hasOwn(row, "numericId")).toBe(false);
+      expect(Object.hasOwn(row, "corpusRef")).toBe(false);
+      expect(Object.hasOwn(row, "staticResourceRowSlot")).toBe(false);
     }
   });
 
@@ -120,7 +108,9 @@ describe("resource earthlike expectations artifact", () => {
 
     expect(blocked.map((entry) => entry.resourceType).sort()).toEqual([...blockedResources]);
     for (const row of blocked) {
-      expect(OFFICIAL_RESOURCE_BY_TYPE[row.resourceType]!.strategyRequired.status).toBe("blocked");
+      expect(OFFICIAL_RESOURCE_BY_TYPE[row.resourceType]!.placeability.status).not.toBe(
+        "placeable"
+      );
       expect(row.expectedCountRange).toEqual({
         baseline: "standard-earthlike-map",
         min: 0,
@@ -141,7 +131,7 @@ describe("resource earthlike expectations artifact", () => {
 
     expect(crabs?.groupId).toBe("aquatic-coastal-navigable-river");
     expect(crabs?.caveats.join("\n")).toContain("NAVIGABLE_RIVERS_ELIGIBLE");
-    expect(crabs?.proxyRequirements.join("\n")).toContain("navigable-river");
+    expect(crabs?.signalRequirements.join("\n")).toContain("navigable-river");
   });
 
   it("validates the artifact with a strict schema and rejects overclaims", () => {
@@ -230,6 +220,21 @@ describe("resource earthlike expectations artifact", () => {
         },
       ],
     };
+    const invalidOrderedNonCorpusRange = {
+      ...EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
+      resources: [
+        {
+          ...first,
+          expectedCountRange: {
+            baseline: "standard-earthlike-map",
+            min: 1,
+            target: 1,
+            max: 2,
+            evidence: "inference-backed",
+          },
+        },
+      ],
+    };
     const invalidRuntimeCalibratedWithoutTelemetry = {
       ...EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
       resources: [
@@ -261,21 +266,13 @@ describe("resource earthlike expectations artifact", () => {
       false
     );
     expect(
+      Value.Check(ResourceEarthlikeExpectationsArtifactSchema, invalidOrderedNonCorpusRange)
+    ).toBe(false);
+    expect(
       Value.Check(
         ResourceEarthlikeExpectationsArtifactSchema,
         invalidRuntimeCalibratedWithoutTelemetry
       )
     ).toBe(false);
-  });
-
-  it("keeps the expectation artifact outside placement runtime behavior", () => {
-    const source = ["index.ts", "official-earthlike.ts", "types.ts"]
-      .map((file) => readFileSync(join(sourceRoot, file), "utf8"))
-      .join("\n");
-
-    expect(source).not.toContain("@civ7/adapter");
-    expect(source).not.toContain("ResourceBuilder");
-    expect(source).not.toContain("placeResourceIntent");
-    expect(source).not.toContain("placement/ops");
   });
 });

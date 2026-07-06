@@ -41,24 +41,3 @@ const implementations = {
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
-
-export {
-  computeCrust,
-  computeCrustEvolution,
-  computeEraPlateMembership,
-  computeEraTectonicFields,
-  computeHotspotEvents,
-  computeMantleForcing,
-  computeMantlePotential,
-  computeMesh,
-  computePlateGraph,
-  computePlateMotion,
-  computePlatesTensors,
-  computePlateTopology,
-  computeSegmentEvents,
-  computeTectonicHistoryRollups,
-  computeTectonicProvenance,
-  computeTectonicSegments,
-  computeTectonicsCurrent,
-  computeTracerAdvection,
-};

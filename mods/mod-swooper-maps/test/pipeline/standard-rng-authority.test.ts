@@ -4,7 +4,7 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { standardConfig } from "../support/standard-config.js";
 
 describe("standard recipe RNG authority", () => {

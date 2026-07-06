@@ -17,7 +17,7 @@ describe("ecology feature habitat eligibility", () => {
     const openOceanMask = new Uint8Array([0, 1, 0, 0]);
     const lakeMask = new Uint8Array([1, 0, 0, 0]);
     const coastalWater = new Uint8Array([1, 0, 1, 1]);
-    const distanceToCoast = new Uint16Array([1, 5, 1, 1]);
+    const distanceToCoast = new Uint8Array([1, 5, 1, 1]);
 
     const reef = ecology.ops.scoreReef.run(
       {

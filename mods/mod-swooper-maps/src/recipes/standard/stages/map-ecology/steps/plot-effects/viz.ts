@@ -1,14 +1,14 @@
-import type { PlotEffectKey } from "@mapgen/domain/ecology";
+import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
 
 export const PLOT_EFFECT_VIZ_VALUE_BY_KEY: Readonly<Record<string, number>> = {
-  PLOTEFFECT_SNOW_LIGHT_PERMANENT: 1,
-  PLOTEFFECT_SNOW_MEDIUM_PERMANENT: 2,
-  PLOTEFFECT_SNOW_HEAVY_PERMANENT: 3,
-  PLOTEFFECT_SAND: 4,
-  PLOTEFFECT_BURNED: 5,
-  PLOTEFFECT_DESERT_HEAT: 6,
-  PLOTEFFECT_FROSTBITE: 7,
-  PLOTEFFECT_JUNGLE_FEVER: 8,
+  "snow-light": 1,
+  "snow-medium": 2,
+  "snow-heavy": 3,
+  sand: 4,
+  burned: 5,
+  "desert-heat": 6,
+  frostbite: 7,
+  "jungle-fever": 8,
 } as const;
 
 export const PLOT_EFFECT_VIZ_CATEGORIES = [
@@ -51,7 +51,7 @@ export const PLOT_EFFECT_VIZ_CATEGORIES = [
   },
 ];
 
-export function plotEffectVizValueOrThrow(key: PlotEffectKey): number {
+export function plotEffectVizValueOrThrow(key: PlotEffectIntentKey): number {
   const value = PLOT_EFFECT_VIZ_VALUE_BY_KEY[key];
   return value ?? 0;
 }

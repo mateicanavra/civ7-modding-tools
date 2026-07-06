@@ -1,54 +1,41 @@
-import type { EngineAdapter } from "@civ7/adapter";
-import type { FeatureKey } from "@mapgen/domain/ecology";
+import type { FeatureKey } from "@civ7/map-policy";
+import type { FeatureIntentKey } from "@mapgen/domain/ecology/model/schemas/index.js";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import type { FeatureKeyLookups } from "./feature-keys.js";
 
-type FeaturePlacement = {
-  x: number;
-  y: number;
-  feature: FeatureKey;
+export const FEATURE_KEY_BY_INTENT: Readonly<Record<FeatureIntentKey, FeatureKey>> = {
+  forest: "FEATURE_FOREST",
+  rainforest: "FEATURE_RAINFOREST",
+  taiga: "FEATURE_TAIGA",
+  "savanna-woodland": "FEATURE_SAVANNA_WOODLAND",
+  "sagebrush-steppe": "FEATURE_SAGEBRUSH_STEPPE",
+  marsh: "FEATURE_MARSH",
+  "tundra-bog": "FEATURE_TUNDRA_BOG",
+  mangrove: "FEATURE_MANGROVE",
+  oasis: "FEATURE_OASIS",
+  "watering-hole": "FEATURE_WATERING_HOLE",
+  reef: "FEATURE_REEF",
+  "cold-reef": "FEATURE_COLD_REEF",
+  atoll: "FEATURE_ATOLL",
+  lotus: "FEATURE_LOTUS",
+  ice: "FEATURE_ICE",
+  "desert-floodplain-minor": "FEATURE_DESERT_FLOODPLAIN_MINOR",
+  "desert-floodplain-navigable": "FEATURE_DESERT_FLOODPLAIN_NAVIGABLE",
+  "grassland-floodplain-minor": "FEATURE_GRASSLAND_FLOODPLAIN_MINOR",
+  "grassland-floodplain-navigable": "FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE",
+  "plains-floodplain-minor": "FEATURE_PLAINS_FLOODPLAIN_MINOR",
+  "plains-floodplain-navigable": "FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE",
+  "tropical-floodplain-minor": "FEATURE_TROPICAL_FLOODPLAIN_MINOR",
+  "tropical-floodplain-navigable": "FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE",
+  "tundra-floodplain-minor": "FEATURE_TUNDRA_FLOODPLAIN_MINOR",
+  "tundra-floodplain-navigable": "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
 };
 
-const resolveFeatureIndex = (lookups: FeatureKeyLookups, key: FeatureKey): number => {
-  const index = lookups.byKey[key];
-  if (index == null || index < 0) {
-    throw new Error(`FeaturesStep: Unknown feature key "${key}".`);
+export function resolveFeatureKeyForIntent(intent: string): FeatureKey {
+  const feature = FEATURE_KEY_BY_INTENT[intent as FeatureIntentKey];
+  if (!feature) {
+    throw new Error(`FeaturesStep: Unknown feature intent "${intent}".`);
   }
-  return index;
-};
-
-/**
- * Attempts to place a feature at the tile and returns whether it succeeded.
- */
-export function tryPlaceFeature(
-  adapter: EngineAdapter,
-  x: number,
-  y: number,
-  featureIndex: number
-): boolean {
-  const canPlace = adapter.canHaveFeature(x, y, featureIndex);
-  if (!canPlace) return false;
-  adapter.setFeatureType(x, y, { Feature: featureIndex, Direction: -1, Elevation: 0 });
-  return true;
-}
-
-/**
- * Applies planned feature placements and returns the count successfully placed.
- */
-export function applyFeaturePlacements(
-  context: ExtendedMapContext,
-  placements: FeaturePlacement[],
-  lookups: FeatureKeyLookups
-): number {
-  const { adapter } = context;
-  let applied = 0;
-  for (const placement of placements) {
-    const featureIndex = resolveFeatureIndex(lookups, placement.feature);
-    if (tryPlaceFeature(adapter, placement.x, placement.y, featureIndex)) {
-      applied += 1;
-    }
-  }
-  return applied;
+  return feature;
 }
 
 /**

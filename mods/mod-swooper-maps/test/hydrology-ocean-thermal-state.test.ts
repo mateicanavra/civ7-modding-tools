@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { forEachHexNeighborOddQWithDirection } from "@swooper/mapgen-core/lib/grid";
 
-import { computeOceanThermalState } from "../src/domain/hydrology/ops/compute-ocean-thermal-state/rules/index.js";
-
+const { computeOceanThermalState } = hydrologyOpsPublic.ops;
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }
@@ -27,6 +27,28 @@ function neighborAvgSST(
   return count > 0 ? sum / count : 0;
 }
 
+function runOceanThermalState(
+  input: Readonly<{
+    width: number;
+    height: number;
+    latitudeByRow: Float32Array;
+    isWaterMask: Uint8Array;
+    shelfMask: Uint8Array;
+    currentU: Int8Array;
+    currentV: Int8Array;
+  }>,
+  config: Readonly<{
+    equatorTempC: number;
+    poleTempC: number;
+    advectIters: number;
+    diffusion: number;
+    secondaryWeightMin: number;
+    seaIceThresholdC: number;
+  }>
+) {
+  return computeOceanThermalState.run(input, { strategy: "default", config });
+}
+
 describe("hydrology/compute-ocean-thermal-state", () => {
   it("produces colder SST near poles and sea ice in cold water", () => {
     const width = 16;
@@ -45,14 +67,16 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     currentU.fill(0);
     currentV.fill(0);
 
-    const out = computeOceanThermalState(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      shelfMask,
-      currentU,
-      currentV,
+    const out = runOceanThermalState(
+      {
+        width,
+        height,
+        latitudeByRow,
+        isWaterMask,
+        shelfMask,
+        currentU,
+        currentV,
+      },
       {
         equatorTempC: 28,
         poleTempC: -2,
@@ -94,14 +118,16 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     // Negative y direction pulls from south neighbor (warmer) toward north.
     advectV.fill(-80);
 
-    const still = computeOceanThermalState(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      shelfMask,
-      stillU,
-      stillV,
+    const still = runOceanThermalState(
+      {
+        width,
+        height,
+        latitudeByRow,
+        isWaterMask,
+        shelfMask,
+        currentU: stillU,
+        currentV: stillV,
+      },
       {
         equatorTempC: 28,
         poleTempC: -2,
@@ -111,14 +137,16 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         seaIceThresholdC: -1,
       }
     );
-    const advected = computeOceanThermalState(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      shelfMask,
-      advectU,
-      advectV,
+    const advected = runOceanThermalState(
+      {
+        width,
+        height,
+        latitudeByRow,
+        isWaterMask,
+        shelfMask,
+        currentU: advectU,
+        currentV: advectV,
+      },
       {
         equatorTempC: 28,
         poleTempC: -2,
@@ -156,14 +184,16 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     // Negative y pulls from the south; previously this could select the land tile and inject 0.
     currentV[center] = -80;
 
-    const out = computeOceanThermalState(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      shelfMask,
-      currentU,
-      currentV,
+    const out = runOceanThermalState(
+      {
+        width,
+        height,
+        latitudeByRow,
+        isWaterMask,
+        shelfMask,
+        currentU,
+        currentV,
+      },
       {
         equatorTempC: 20,
         poleTempC: 20,
@@ -206,14 +236,8 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     const t = idx(Math.floor(width / 2), Math.floor(height / 2), width);
     shelfOn[t] = 1;
 
-    const base = computeOceanThermalState(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      shelfOff,
-      currentU,
-      currentV,
+    const base = runOceanThermalState(
+      { width, height, latitudeByRow, isWaterMask, shelfMask: shelfOff, currentU, currentV },
       {
         equatorTempC: 30,
         poleTempC: 0,
@@ -223,14 +247,8 @@ describe("hydrology/compute-ocean-thermal-state", () => {
         seaIceThresholdC: -1,
       }
     );
-    const shelf = computeOceanThermalState(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      shelfOn,
-      currentU,
-      currentV,
+    const shelf = runOceanThermalState(
+      { width, height, latitudeByRow, isWaterMask, shelfMask: shelfOn, currentU, currentV },
       {
         equatorTempC: 30,
         poleTempC: 0,
@@ -254,14 +272,8 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     expect(shelfDist).toBeLessThan(baseDist);
 
     // Determinism sanity: rerun matches exactly for the same inputs.
-    const shelf2 = computeOceanThermalState(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      shelfOn,
-      currentU,
-      currentV,
+    const shelf2 = runOceanThermalState(
+      { width, height, latitudeByRow, isWaterMask, shelfMask: shelfOn, currentU, currentV },
       {
         equatorTempC: 30,
         poleTempC: 0,

@@ -1,31 +1,21 @@
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
 import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  validateFeatureIntentsListArtifact,
-  validateOccupancyArtifact,
-} from "../../../ecology/artifact-validation.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import PlanFloodplainsStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
-const FLOODPLAIN_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
-  FEATURE_DESERT_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_DESERT_FLOODPLAIN_MINOR ?? 0) + 1,
-  FEATURE_DESERT_FLOODPLAIN_NAVIGABLE:
-    (FEATURE_KEY_INDEX.FEATURE_DESERT_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
-  FEATURE_GRASSLAND_FLOODPLAIN_MINOR:
-    (FEATURE_KEY_INDEX.FEATURE_GRASSLAND_FLOODPLAIN_MINOR ?? 0) + 1,
-  FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE:
-    (FEATURE_KEY_INDEX.FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
-  FEATURE_PLAINS_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_PLAINS_FLOODPLAIN_MINOR ?? 0) + 1,
-  FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE:
-    (FEATURE_KEY_INDEX.FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
-  FEATURE_TROPICAL_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_TROPICAL_FLOODPLAIN_MINOR ?? 0) + 1,
-  FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE:
-    (FEATURE_KEY_INDEX.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
-  FEATURE_TUNDRA_FLOODPLAIN_MINOR: (FEATURE_KEY_INDEX.FEATURE_TUNDRA_FLOODPLAIN_MINOR ?? 0) + 1,
-  FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE:
-    (FEATURE_KEY_INDEX.FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE ?? 0) + 1,
-};
+const FLOODPLAIN_FEATURE_INTENTS = new Set([
+  "desert-floodplain-minor",
+  "desert-floodplain-navigable",
+  "grassland-floodplain-minor",
+  "grassland-floodplain-navigable",
+  "plains-floodplain-minor",
+  "plains-floodplain-navigable",
+  "tropical-floodplain-minor",
+  "tropical-floodplain-navigable",
+  "tundra-floodplain-minor",
+  "tundra-floodplain-navigable",
+]);
 const GROUP_ECOLOGY_FEATURES = "Ecology / Features";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
@@ -34,10 +24,10 @@ export default createStep(PlanFloodplainsStepContract, {
     [ecologyArtifacts.featureIntentsFloodplains, ecologyArtifacts.occupancyFloodplains],
     {
       featureIntentsFloodplains: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.featureIntentsFloodplains,
       },
       occupancyFloodplains: {
-        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.occupancyFloodplains,
       },
     }
   ),
@@ -52,17 +42,17 @@ export default createStep(PlanFloodplainsStepContract, {
         width,
         height,
         seed,
-        scoreDesertMinor01: scoreLayers.layers.FEATURE_DESERT_FLOODPLAIN_MINOR,
-        scoreDesertNavigable01: scoreLayers.layers.FEATURE_DESERT_FLOODPLAIN_NAVIGABLE,
-        scoreGrasslandMinor01: scoreLayers.layers.FEATURE_GRASSLAND_FLOODPLAIN_MINOR,
-        scoreGrasslandNavigable01: scoreLayers.layers.FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE,
-        scorePlainsMinor01: scoreLayers.layers.FEATURE_PLAINS_FLOODPLAIN_MINOR,
-        scorePlainsNavigable01: scoreLayers.layers.FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE,
-        scoreTropicalMinor01: scoreLayers.layers.FEATURE_TROPICAL_FLOODPLAIN_MINOR,
-        scoreTropicalNavigable01: scoreLayers.layers.FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE,
-        scoreTundraMinor01: scoreLayers.layers.FEATURE_TUNDRA_FLOODPLAIN_MINOR,
-        scoreTundraNavigable01: scoreLayers.layers.FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE,
-        featureIndex: base.featureIndex,
+        scoreDesertMinor01: scoreLayers.layers["desert-floodplain-minor"],
+        scoreDesertNavigable01: scoreLayers.layers["desert-floodplain-navigable"],
+        scoreGrasslandMinor01: scoreLayers.layers["grassland-floodplain-minor"],
+        scoreGrasslandNavigable01: scoreLayers.layers["grassland-floodplain-navigable"],
+        scorePlainsMinor01: scoreLayers.layers["plains-floodplain-minor"],
+        scorePlainsNavigable01: scoreLayers.layers["plains-floodplain-navigable"],
+        scoreTropicalMinor01: scoreLayers.layers["tropical-floodplain-minor"],
+        scoreTropicalNavigable01: scoreLayers.layers["tropical-floodplain-navigable"],
+        scoreTundraMinor01: scoreLayers.layers["tundra-floodplain-minor"],
+        scoreTundraNavigable01: scoreLayers.layers["tundra-floodplain-navigable"],
+        featureOccupancyMask: base.featureOccupancyMask,
         reserved: base.reserved,
       },
       config.planFloodplains
@@ -70,14 +60,13 @@ export default createStep(PlanFloodplainsStepContract, {
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
 
-    const featureIndex = new Uint16Array(base.featureIndex);
+    const featureOccupancyMask = new Uint8Array(base.featureOccupancyMask);
     const reserved = new Uint8Array(base.reserved);
     const floodplainIntentMask = new Uint8Array(width * height);
 
     for (const placement of placements) {
       const feature = placement.feature;
-      const index = FLOODPLAIN_FEATURE_INDEX_BY_KEY[feature];
-      if (!index) {
+      if (!FLOODPLAIN_FEATURE_INTENTS.has(feature)) {
         throw new Error(
           `plan-floodplains expected floodplain-family placements (received ${feature})`
         );
@@ -93,12 +82,12 @@ export default createStep(PlanFloodplainsStepContract, {
           `plan-floodplains attempted to claim reserved tileIndex=${idx} (${x},${y})`
         );
       }
-      if (featureIndex[idx] !== 0) {
+      if (featureOccupancyMask[idx] !== 0) {
         throw new Error(
           `plan-floodplains attempted to claim occupied tileIndex=${idx} (${x},${y})`
         );
       }
-      featureIndex[idx] = index;
+      featureOccupancyMask[idx] = 1;
       floodplainIntentMask[idx] = 1;
     }
 
@@ -106,7 +95,7 @@ export default createStep(PlanFloodplainsStepContract, {
     deps.artifacts.occupancyFloodplains.publish(context, {
       width,
       height,
-      featureIndex,
+      featureOccupancyMask,
       reserved,
     });
 

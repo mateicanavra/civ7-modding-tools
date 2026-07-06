@@ -2,11 +2,11 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { COAST_TERRAIN, createExtendedMapContext, OCEAN_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import morphologyDomain from "../../src/domain/morphology/ops.js";
+import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 describe("Earthlike coasts (smoke)", () => {

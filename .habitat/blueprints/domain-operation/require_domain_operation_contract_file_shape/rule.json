@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_operation_contract_file_shape",
+  "title": "Require Domain Operation Contract File Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be present, imports must come only from contract authoring/core, artifacts, model schema/policy owners, and sanctioned external policy/schema packages",
+  "why": "Operation contracts are the schema boundary for domain operations. Inputs, outputs, and strategy envelopes must live at the contract definition site, with reusable primitives pulled from named domain model owners instead of generic config bags or cross-operation contract envelopes.",
+  "remediate": "Inline operation input/output/strategy envelopes into the owning contract.ts, move reusable primitives to model/schemas, move reusable policy to model/policy, and keep createOp/createStage usage outside contract files.",
+  "message": "Operation contract files must own the positive operation contract shape.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/contract.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md"
+    },
+    "patternName": "require_domain_operation_contract_file_shape"
+  }
+}

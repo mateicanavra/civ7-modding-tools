@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "ecology-op-module-roots"
-root = "mods/mod-swooper-maps/src/domain/ecology/ops/!(score-shared|*.*)"
+root = "mods/mod-swooper-maps/src/domain/ecology/ops/!(*.*)"
 kind = "directory"
 mode = "open"
 required = [

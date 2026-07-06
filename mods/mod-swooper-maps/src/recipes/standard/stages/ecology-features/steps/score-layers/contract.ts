@@ -1,11 +1,11 @@
 import ecology from "@mapgen/domain/ecology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
-import { mapMorphologyArtifacts } from "../../../map-morphology/artifacts.js";
-import { mapRiversArtifacts } from "../../../map-rivers/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../../map-rivers/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
 const ScoreLayersStepContract = defineStep({
   id: "score-layers",

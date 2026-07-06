@@ -1,23 +1,27 @@
 # Slice 001 Execution
 
-Status: active slice packet
+Status: closed historical execution plan
 
-This document records how the later implementation slice should execute after
-the decision book and inventory are reviewed. Live enforcement comes in the
-later implementation slice.
+This document records the original Slice 001 implementation shape. The later
+prework and cleanup executions completed the source burn-down for the selected
+domain-root topology depth, and the live topology rail is now enforced by
+`.habitat/blueprints/domain/require_domain_source_topology/`.
 
 ## Write Set For Later Implementation
 
-Expected enforcement surfaces:
+Closed enforcement surfaces:
 
-- `.habitat/blueprints/domain/enforce_domain_root_immediate_ops_topology/`
-- `.habitat/blueprints/domain-operation/enforce_domain_operation_root_topology/`
-- `.habitat/blueprints/domain/require_domain_root_index_contract_surface/`
+- `.habitat/blueprints/domain/require_domain_source_topology/`
 - `.habitat/blueprints/domain/require_domain_ops_binding_surface/`
-- `.habitat/blueprints/domain/require_domain_artifact_contract_file_shape/`
+- `.habitat/blueprints/domain-operation/require_domain_ops_registry_surface/`
+- `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/`
+- `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/`
+- `.habitat/blueprints/artifact/require_artifact_file_shape/`
+- `.habitat/blueprints/artifact/require_artifact_index_aggregate_shape/`
 
-Expected source movement surfaces are only the rows named in `inventory.md`,
-plus import updates required by those rows.
+The original expected rule names above were superseded by the accepted current
+rule names. Expected source movement rows are closed by the completed prework
+and cleanup execution records.
 
 ## Protected Surfaces
 

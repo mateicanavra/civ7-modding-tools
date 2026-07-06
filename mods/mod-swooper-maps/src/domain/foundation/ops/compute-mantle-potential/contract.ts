@@ -1,6 +1,8 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+import { Schema as FoundationMantlePotentialSchema } from "../../artifacts/mantle-potential.artifact.js";
+import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -64,35 +66,6 @@ const StrategySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const FoundationMantlePotentialSchema = Type.Object(
-  {
-    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
-    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
-    potential: TypedArraySchemas.f32({
-      shape: null,
-      description: "Mantle potential per mesh cell (normalized -1..1).",
-    }),
-    sourceCount: Type.Integer({ minimum: 0, description: "Number of mantle sources." }),
-    sourceType: TypedArraySchemas.i8({
-      shape: null,
-      description: "Source type per source (+1 upwelling, -1 downwelling).",
-    }),
-    sourceCell: TypedArraySchemas.u32({
-      shape: null,
-      description: "Source mesh cell index per source.",
-    }),
-    sourceAmplitude: TypedArraySchemas.f32({
-      shape: null,
-      description: "Source amplitude per source (signed).",
-    }),
-    sourceRadius: TypedArraySchemas.f32({
-      shape: null,
-      description: "Source radius per source (mesh-distance units).",
-    }),
-  },
-  { additionalProperties: false }
-);
-
 const ComputeMantlePotentialContract = defineOp({
   kind: "compute",
   id: "foundation/compute-mantle-potential",
@@ -118,4 +91,3 @@ const ComputeMantlePotentialContract = defineOp({
 
 export default ComputeMantlePotentialContract;
 export type ComputeMantlePotentialConfig = Static<typeof StrategySchema>;
-export type FoundationMantlePotential = Static<typeof FoundationMantlePotentialSchema>;

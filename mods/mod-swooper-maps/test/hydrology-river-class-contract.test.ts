@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { validators as hydrologyHydrographyArtifactValidators } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 
 import {
   findInvalidRiverClassIndex,
@@ -9,8 +10,7 @@ import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
   RIVER_CLASS_NONE,
-} from "../src/domain/hydrology/river-class.js";
-import { validateHydrographyArtifact } from "../src/recipes/standard/stages/hydrology-hydrography/steps/rivers.validation.js";
+} from "@mapgen/domain/hydrology/model/policy/river-class.js";
 
 describe("hydrology river class contract", () => {
   it("keeps minor and major/projectable river intent distinct", () => {
@@ -43,7 +43,9 @@ describe("hydrology river class contract", () => {
       outletMask: new Uint8Array(4),
     };
 
-    expect(validateHydrographyArtifact(payload, { width: 4, height: 1 })).toEqual([]);
+    expect(
+      hydrologyHydrographyArtifactValidators.hydrography(payload, { width: 4, height: 1 })
+    ).toEqual([]);
     expect(isMajorRiverClass(payload.riverClass[3])).toBe(true);
   });
 });

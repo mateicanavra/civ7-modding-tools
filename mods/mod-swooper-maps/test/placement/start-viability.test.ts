@@ -3,10 +3,10 @@ import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
-import placementDomain from "../../src/domain/placement/ops.js";
+import placementDomain from "@mapgen/domain/placement/ops";
 import { materializeStartAssignment } from "../../src/recipes/standard/stages/placement/steps/assign-starts/materialize.js";
-import { validateStartAssignmentArtifact } from "../../src/recipes/standard/stages/placement/steps/assign-starts/validate.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
+import { validators as placementArtifactValidators } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 const { planStarts } = placementDomain.ops;
 
@@ -563,7 +563,7 @@ describe("start materializer (thin shell)", () => {
     expect(
       adapter.calls.setStartPosition.map((call) => call.plotIndex).sort((a, b) => a - b)
     ).toEqual([...assignment.positions].sort((a, b) => a - b));
-    expect(validateStartAssignmentArtifact(assignment)).toEqual([]);
+    expect(placementArtifactValidators.startAssignment(assignment)).toEqual([]);
     const spacing = hexDistanceOddQPeriodicX(
       assignment.positions[0]!,
       assignment.positions[1]!,
@@ -597,6 +597,6 @@ describe("start materializer (thin shell)", () => {
     expect(assignment.unseatedCount).toBe(1);
     expect(assignment.status).toBe("degraded");
     expect(adapter.calls.setStartPosition.length).toBe(2);
-    expect(validateStartAssignmentArtifact(assignment)).toEqual([]);
+    expect(placementArtifactValidators.startAssignment(assignment)).toEqual([]);
   });
 });

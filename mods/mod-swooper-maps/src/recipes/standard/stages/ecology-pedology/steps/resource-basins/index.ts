@@ -1,8 +1,8 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validateResourceBasinsArtifact } from "../../../ecology/artifact-validation.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import ResourceBasinsStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
 const GROUP_RESOURCE_BASINS = "Ecology / Resource Basins";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -10,7 +10,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export default createStep(ResourceBasinsStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.resourceBasins], {
     resourceBasins: {
-      validate: (value, context) => validateResourceBasinsArtifact(value, context.dimensions),
+      validate: ecologyArtifactValidators.resourceBasins,
     },
   }),
   run: (context, config, ops, deps) => {

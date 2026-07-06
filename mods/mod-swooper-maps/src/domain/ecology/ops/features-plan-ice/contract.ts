@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../shared/placement-schema.js";
+import { FeaturePlacementSchema } from "../../model/schemas/index.js";
 
 const PlanIceContract = defineOp({
   kind: "plan",
@@ -9,8 +9,8 @@ const PlanIceContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     seed: Type.Integer(),
     score01: TypedArraySchemas.f32({ description: "Ice suitability score per tile (0..1)." }),
-    featureIndex: TypedArraySchemas.u16({
-      description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
+    featureOccupancyMask: TypedArraySchemas.u8({
+      description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent.",
     }),
     reserved: TypedArraySchemas.u8({
       description: "0 = tile can be claimed, 1 = permanently blocked",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
-import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
@@ -51,8 +51,8 @@ describe("planVegetation (joint resolver)", () => {
     habitat.biomeIndex[3] = BIOME_SYMBOL_TO_INDEX.desert;
     habitat.surfaceTemperature[3] = 20;
     habitat.vegetationDensity[3] = 0.2;
-    const featureIndex = new Uint16Array(size);
-    featureIndex[2] = 1;
+    const featureOccupancyMask = new Uint8Array(size);
+    featureOccupancyMask[2] = 1;
     const reserved = new Uint8Array(size);
     reserved[3] = 1;
 
@@ -68,13 +68,13 @@ describe("planVegetation (joint resolver)", () => {
         scoreSagebrushSteppe01,
         landMask,
         ...habitat,
-        featureIndex,
+        featureOccupancyMask,
         reserved,
       },
       selection
     );
 
-    expect(result.placements.map((p) => p.feature)).toEqual(["FEATURE_FOREST", "FEATURE_TAIGA"]);
+    expect(result.placements.map((p) => p.feature)).toEqual(["forest", "taiga"]);
   });
 
   it("is deterministic and seed-independent for exact ties", () => {
@@ -96,7 +96,7 @@ describe("planVegetation (joint resolver)", () => {
       scoreSagebrushSteppe01: new Float32Array(size).fill(1),
       landMask: new Uint8Array(size).fill(1),
       ...broadHabitatFields(size),
-      featureIndex: new Uint16Array(size),
+      featureOccupancyMask: new Uint8Array(size),
       reserved: new Uint8Array(size),
     } as const;
 
@@ -153,15 +153,15 @@ describe("planVegetation (joint resolver)", () => {
         scoreSagebrushSteppe01,
         landMask: new Uint8Array(size).fill(1),
         ...habitat,
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
     );
 
     expect(result.placements).toEqual([
-      { x: 0, y: 1, feature: "FEATURE_TAIGA" },
-      { x: 0, y: 2, feature: "FEATURE_SAGEBRUSH_STEPPE" },
+      { x: 0, y: 1, feature: "taiga" },
+      { x: 0, y: 2, feature: "sagebrush-steppe" },
     ]);
   });
 
@@ -199,12 +199,12 @@ describe("planVegetation (joint resolver)", () => {
         scoreSagebrushSteppe01,
         landMask: new Uint8Array(size).fill(1),
         ...habitat,
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
     );
 
-    expect(result.placements).toEqual([{ x: 0, y: 1, feature: "FEATURE_SAGEBRUSH_STEPPE" }]);
+    expect(result.placements).toEqual([{ x: 0, y: 1, feature: "sagebrush-steppe" }]);
   });
 });

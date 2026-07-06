@@ -1,62 +1,19 @@
-import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
 import { createLabelRng } from "@swooper/mapgen-core";
 import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
 
+import type { PlotEffectIntentKey } from "../../../model/schemas/plot-effect-intent.schema.js";
 import PlanPlotEffectsContract from "../contract.js";
 
-type PlotEffectSelector = { typeName: PlotEffectKey };
 type Config = Static<(typeof PlanPlotEffectsContract)["strategies"]["default"]>;
 
 type Candidate = {
   idx: number;
   x: number;
   y: number;
-  plotEffect: PlotEffectKey;
+  plotEffect: PlotEffectIntentKey;
   score: number;
-  // Seeded tie-break key, used only when `score` is exactly equal.
   tie: number;
 };
-
-const normalizePlotEffectKey = (value: string): PlotEffectKey => {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    throw new Error("plot effects selector typeName must be a non-empty string");
-  }
-  const upper = trimmed.toUpperCase();
-  return (upper.startsWith("PLOTEFFECT_") ? upper : `PLOTEFFECT_${upper}`) as PlotEffectKey;
-};
-
-const normalizeSelector = (selector: { typeName: string }): PlotEffectSelector => ({
-  typeName: normalizePlotEffectKey(selector.typeName),
-});
-
-function normalizeConfig(config: Config): Config {
-  return {
-    ...config,
-    snow: {
-      ...config.snow,
-      selectors: {
-        light: normalizeSelector(config.snow.selectors.light),
-        medium: normalizeSelector(config.snow.selectors.medium),
-        heavy: normalizeSelector(config.snow.selectors.heavy),
-      },
-      hazard: config.snow.hazard ? normalizeSelector(config.snow.hazard) : config.snow.hazard,
-    },
-    sand: {
-      ...config.sand,
-      selector: normalizeSelector(config.sand.selector),
-      hazard: config.sand.hazard ? normalizeSelector(config.sand.hazard) : config.sand.hazard,
-    },
-    burned: {
-      ...config.burned,
-      selector: normalizeSelector(config.burned.selector),
-    },
-    jungle: {
-      ...config.jungle,
-      selector: normalizeSelector(config.jungle.selector),
-    },
-  };
-}
 
 function clampPct(value: number): number {
   if (!Number.isFinite(value)) return 0;
@@ -79,22 +36,16 @@ function selectTopCoverage(candidates: Candidate[], coveragePct: number): Candid
 }
 
 export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default", {
-  normalize: (config) => normalizeConfig(config),
   run: (input, config) => {
     const { width, height } = input;
     // M3 posture: deterministic selection. Seeded randomness is allowed only as a tie-break for exact-equal scores.
-    const placements: Array<{ x: number; y: number; plotEffect: PlotEffectKey }> = [];
+    const placements: Array<{ x: number; y: number; plotEffect: PlotEffectIntentKey }> = [];
     const rng = createLabelRng(input.seed);
 
     const snow = config.snow;
     const sand = config.sand;
     const burned = config.burned;
     const jungle = config.jungle;
-
-    const snowSelectors = snow.selectors;
-    const sandSelector = sand.selector;
-    const burnedSelector = burned.selector;
-    const jungleSelector = jungle.selector;
 
     const snowEnabled = snow.enabled;
     const sandEnabled = sand.enabled;
@@ -116,10 +67,10 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
         if (score >= snow.lightThreshold) {
           const typeToUse =
             score >= snow.heavyThreshold
-              ? snowSelectors.heavy.typeName
+              ? "snow-heavy"
               : score >= snow.mediumThreshold
-                ? snowSelectors.medium.typeName
-                : snowSelectors.light.typeName;
+                ? "snow-medium"
+                : "snow-light";
           snowCandidates.push({
             idx,
             x,
@@ -137,7 +88,7 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
           idx,
           x,
           y,
-          plotEffect: sandSelector.typeName,
+          plotEffect: "sand",
           score,
           tie: rng(0x7fffffff, `plot-effects:sand:${idx}`),
         });
@@ -149,7 +100,7 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
           idx,
           x,
           y,
-          plotEffect: burnedSelector.typeName,
+          plotEffect: "burned",
           score,
           tie: rng(0x7fffffff, `plot-effects:burned:${idx}`),
         });
@@ -161,27 +112,28 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
           idx,
           x,
           y,
-          plotEffect: jungleSelector.typeName,
+          plotEffect: "jungle-fever",
           score,
           tie: rng(0x7fffffff, `plot-effects:jungle:${idx}`),
         });
       }
     }
 
-    // Snow: place the cosmetic tier selector, and CO-PLACE the optional hazard (e.g.
-    // FROSTBITE) on the COLDEST selected tiles — score >= snow.hazardThreshold. Cosmetic
-    // snow renders via terrain material; the hazard carries the per-turn Damage.
-    const snowHazardType = snow.hazard?.typeName;
+    // Snow: place the abstract snow tier intent and optionally co-place frostbite
+    // intent on the coldest selected tiles.
+    const snowHazardType: PlotEffectIntentKey | undefined = snow.hazardEnabled
+      ? "frostbite"
+      : undefined;
     for (const c of selectTopCoverage(snowCandidates, snow.coveragePct)) {
       placements.push({ x: c.x, y: c.y, plotEffect: c.plotEffect });
       if (snowHazardType && c.score >= snow.hazardThreshold) {
         placements.push({ x: c.x, y: c.y, plotEffect: snowHazardType });
       }
     }
-    // Sand: place the cosmetic selector, and CO-PLACE the optional hazard effect on the
-    // SAME tile (visible sand marker + per-turn damage). Multiple plot effects per plot
-    // are supported by the engine.
-    const sandHazardType = sand.hazard?.typeName;
+    // Sand: place abstract sand intent and optionally co-place desert-heat intent.
+    const sandHazardType: PlotEffectIntentKey | undefined = sand.hazardEnabled
+      ? "desert-heat"
+      : undefined;
     for (const { x, y, plotEffect } of selectTopCoverage(sandCandidates, sand.coveragePct)) {
       placements.push({ x, y, plotEffect });
       if (sandHazardType) {
@@ -195,7 +147,7 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
         plotEffect,
       }))
     );
-    // Jungle: place ONLY the hazard selector (no cosmetic) on the deepest-stress rainforest.
+    // Jungle places only jungle-fever intent on the deepest-stress rainforest.
     placements.push(
       ...selectTopCoverage(jungleCandidates, jungle.coveragePct).map(({ x, y, plotEffect }) => ({
         x,

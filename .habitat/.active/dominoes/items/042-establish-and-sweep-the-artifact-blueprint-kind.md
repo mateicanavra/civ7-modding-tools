@@ -6,7 +6,7 @@ Source: extracted from the former monolithic domino ledger.
 
 ## Indexed Result
 
-`artifact` was affirmed as the immutable MapGen data-product blueprint kind and `.habitat/blueprints/artifact/` was created. The 24 artifact-vocabulary manifest rows were re-read: no existing row moved to live artifact authority, because each whole predicate was dependency-tag, domain, domain-operation, mod-map, standard-recipe context, Studio context, build-output, or unresolved projection/artifact debt.
+`artifact` was affirmed as the immutable MapGen data-product blueprint kind and `.habitat/blueprints/artifact/` was created. The 24 artifact-vocabulary manifest rows were re-read: no existing row moved to live artifact authority, because each whole predicate was dependency-tag, domain, domain-operation, mod-map, standard-recipe context, Studio context, build-output, or unresolved projection/artifact debt. A later artifact-shape ratchet admitted `require_artifact_file_shape` as live artifact blueprint authority for `*.artifact.ts` owner files and `require_artifact_index_aggregate_shape` as live artifact blueprint authority for `artifacts/index.ts` aggregate surfaces.
 
 ## Detail
 
@@ -100,7 +100,21 @@ Proof:
 Disposition receipt:
 
 - Created `.habitat/blueprints/artifact/README.md` as the affirmed blueprint
-  marker. No `rule.json` packet was admitted under the blueprint in this slice.
+  marker. No `rule.json` packet was admitted under the blueprint from the
+  initial 24-row vocabulary sweep.
+- Later admitted `.habitat/blueprints/artifact/require_artifact_file_shape/`
+  as live artifact blueprint authority. It requires every
+  `mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts` owner file to expose
+  stable `Schema`, `artifact = defineArtifact(...)`, and `validate(...)`
+  exports, and bans semantic artifact alias and semantic validation/assertion
+  export names.
+- Later admitted
+  `.habitat/blueprints/artifact/require_artifact_index_aggregate_shape/` as
+  live artifact blueprint authority. It requires every
+  `mods/mod-swooper-maps/src/**/artifacts/index.ts` aggregate file to import
+  sibling artifact modules as namespaces, export `artifactContracts`, and
+  export `validators` as the corresponding `.validate` surfaces without
+  embedding schema or validation logic in the barrel.
 - Primary corpus is exactly the `24` live manifests whose `rule.json` text
   mentions artifact vocabulary. Adjacent runner/body-only artifact text was
   reviewed as exclusion evidence, not added to the primary manifest corpus.
@@ -145,6 +159,6 @@ Review disposition:
 | Finding | Severity | Disposition | Repair Evidence |
 | --- | --- | --- | --- |
 | Reconcile the artifact row universe before moving anything. | P1 | accepted | Receipt defines 24 manifest-hit rows plus 4 runner/body-only exclusions. |
-| Do not admit rows whose whole rule is dependency, domain, projection, generated-output, Studio, or context authority. | P1 | accepted | No live rule packet moved under `blueprints/artifact`. |
+| Do not admit rows whose whole rule is dependency, domain, projection, generated-output, Studio, or context authority. | P1 | accepted | No live rule packet moved under `blueprints/artifact` from the initial 24-row sweep; later artifact-owner file shape authority moved only after a separate positive shape model was accepted. |
 | Treat `prohibit_realized_map_artifact_tags` as projection/artifact debt, not live artifact authority. | P2 | accepted | Row retained in `map-output/_remainder`; ledger pending action updated. |
 | Verification must prove movement, not just selection. | P2 | accepted | No rule movement occurred; closure proof uses corpus counts, path proof, classify, and diff checks. |

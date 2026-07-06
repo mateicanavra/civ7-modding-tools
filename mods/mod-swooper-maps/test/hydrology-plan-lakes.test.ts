@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import { defaultStrategy as accumulateDischarge } from "../src/domain/hydrology/ops/accumulate-discharge/strategies/default.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
+const { accumulateDischarge } = hydrologyOpsPublic.ops;
 describe("hydrology sink classification", () => {
   it("marks terminal land tiles as sinks", () => {
     const width = 4;
@@ -24,10 +25,13 @@ describe("hydrology sink classification", () => {
         humidity: new Uint8Array(size).fill(100),
       },
       {
+        strategy: "default",
+        config: {
         runoffScale: 1,
         infiltrationFraction: 0.15,
         humidityDampening: 0.25,
         minRunoff: 0,
+        },
       }
     );
 
@@ -53,10 +57,13 @@ describe("hydrology sink classification", () => {
         humidity: new Uint8Array(size).fill(100),
       },
       {
+        strategy: "default",
+        config: {
         runoffScale: 1,
         infiltrationFraction: 0.15,
         humidityDampening: 0.25,
         minRunoff: 0,
+        },
       }
     );
 

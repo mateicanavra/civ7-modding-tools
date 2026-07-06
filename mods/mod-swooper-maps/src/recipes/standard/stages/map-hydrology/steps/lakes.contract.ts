@@ -1,9 +1,9 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
-import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
-import { mapHydrologyArtifacts } from "../artifacts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../artifacts/index.js";
 
 /**
  * Lake projection step (engine-facing).

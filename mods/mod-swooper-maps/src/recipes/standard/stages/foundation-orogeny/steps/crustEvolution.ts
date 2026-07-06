@@ -1,15 +1,12 @@
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
 import {
   resolveContinentalAbundance,
   resolveContinentalRelief,
-} from "@mapgen/domain/foundation/config.js";
+} from "@mapgen/domain/foundation/model/policy/crust-character.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validateCrustArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY } from "../../foundation/viz.js";
 import CrustEvolutionStepContract from "./crustEvolution.contract.js";
 
@@ -18,7 +15,7 @@ const GROUP_CRUST = "Foundation / Crust";
 export default createStep(CrustEvolutionStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.crust], {
     foundationCrust: {
-      validate: (value) => wrapFoundationValidateNoDims(value, validateCrustArtifact),
+      validate: (value) => foundationArtifactValidators.crust(value),
     },
   }),
   // The crust-character knobs are high-level coupled levers: each, when an author sets it, overrides

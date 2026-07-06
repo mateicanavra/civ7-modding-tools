@@ -8,7 +8,7 @@ these classes, then names exact current paths and exact destinations/actions.
 | Move class | Applies when | Destination pattern |
 | --- | --- | --- |
 | Duplicate authority deletion | A file only repeats an authority surface already owned elsewhere. | Delete after import proof. |
-| Domain model config decomposition | Content is a domain-owned authoring config object or object-local schema/default/compile transform. | `<domain>/model/config/<part>.config.ts` |
+| Domain model schema/primitive decomposition | Content is a reusable domain schema fragment, enum, type, invariant, defaults object, or object-local schema contract that stage and operation surfaces compose. | `<domain>/model/schemas/<part>.schema.ts` |
 | Domain model policy promotion | Content is a named domain semantic policy concern. | `<domain>/model/policy/<concern>.ts` |
 | Domain model data move | Content is domain-owned authored data or expectation tables. | `<domain>/model/data/<collection>/<clear-name>.ts` |
 | Artifact contract extraction | Content defines a pipeline truth product contract. | `<domain>/artifacts/<artifact>.artifact.ts` |

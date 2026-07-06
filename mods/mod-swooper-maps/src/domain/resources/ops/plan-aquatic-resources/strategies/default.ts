@@ -7,7 +7,7 @@ import {
   type AquaticMaskField,
   type AquaticResourceSignals,
   type AquaticResourceType,
-} from "../signals.js";
+} from "../../../model/policy/aquatic-resource-signals.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -37,10 +37,9 @@ export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "def
           eligibleTileCount: 0,
           rangeStatus: "not-gated" as const,
           proofStatus: "warning-only" as const,
-          runtimeIdStatus: "unverified" as const,
           earthlikePredicate: "",
           conditionMultipliers: [],
-          proxyRequirements: [],
+          signalRequirements: [],
           signalFields: [],
           blockers: ["Missing aquatic earthlike expectation row."],
           caveats: [],
@@ -58,10 +57,9 @@ export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "def
           eligibleTileCount: 0,
           rangeStatus: "not-gated" as const,
           proofStatus: "warning-only" as const,
-          runtimeIdStatus: "unverified" as const,
           earthlikePredicate: expectation.earthlikePredicate,
           conditionMultipliers: [...expectation.conditionMultipliers],
-          proxyRequirements: [...expectation.proxyRequirements],
+          signalRequirements: [...expectation.signalRequirements],
           signalFields: [],
           blockers: ["Expectation row is blocked by official corpus disposition."],
           caveats: [...expectation.caveats],
@@ -72,8 +70,8 @@ export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "def
       const signals = AQUATIC_SIGNALS[resourceType];
       const signalFields = presentFields(input, signals.primary);
       const eligibleTileCount = countEligibleTiles(input, size, signals);
-      const proxyIncomplete = signalFields.length === 0;
-      const targetIntentCount = proxyIncomplete
+      const missingSignal = signalFields.length === 0;
+      const targetIntentCount = missingSignal
         ? 0
         : Math.min(
             expectation.expectedCountRange.max,
@@ -81,28 +79,27 @@ export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "def
             expectation.expectedCountRange.target
           );
       const blockers = [];
-      if (proxyIncomplete) {
+      if (missingSignal) {
         blockers.push(`Missing aquatic signal masks: ${signals.primary.join(", ")}.`);
       }
-      if (!proxyIncomplete && eligibleTileCount === 0) {
+      if (!missingSignal && eligibleTileCount === 0) {
         blockers.push("No eligible aquatic tiles observed for this resource under supplied masks.");
       }
 
       plans.push({
         resourceType,
-        status: proxyIncomplete ? ("proxy-gap" as const) : ("planned" as const),
-        eligibilityStatus: proxyIncomplete ? ("proxy-incomplete" as const) : ("observed" as const),
+        status: missingSignal ? ("missing-signal" as const) : ("planned" as const),
+        eligibilityStatus: missingSignal ? ("missing-signal" as const) : ("observed" as const),
         expectedCountRange: expectation.expectedCountRange,
         targetIntentCount,
         eligibleTileCount,
-        rangeStatus: proxyIncomplete
+        rangeStatus: missingSignal
           ? ("not-gated" as const)
           : compareRange(targetIntentCount, expectation.expectedCountRange),
         proofStatus: "warning-only" as const,
-        runtimeIdStatus: "unverified" as const,
         earthlikePredicate: expectation.earthlikePredicate,
         conditionMultipliers: [...expectation.conditionMultipliers],
-        proxyRequirements: [...expectation.proxyRequirements],
+        signalRequirements: [...expectation.signalRequirements],
         signalFields,
         blockers,
         caveats: [...expectation.caveats],
@@ -111,7 +108,6 @@ export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "def
 
     return {
       groupId: "aquatic-coastal-navigable-river" as const,
-      runtimeIdStatus: "unverified" as const,
       proofStatus: "warning-only" as const,
       plans,
       missingResourceTypes,

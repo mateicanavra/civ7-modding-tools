@@ -1,27 +1,30 @@
 import { describe, expect, it } from "bun:test";
 
-import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
+import morphologyDomain from "@mapgen/domain/morphology/ops";
+
+const { computeBeltDrivers } = morphologyDomain.ops;
 
 function buildHistoryTiles(width: number, height: number, eraCount: number) {
   const size = width * height;
   const perEra = Array.from({ length: eraCount }, () => ({
-    boundaryType: new Uint8Array(size),
-    upliftPotential: new Uint8Array(size),
-    riftPotential: new Uint8Array(size),
-    shearStress: new Uint8Array(size),
-    volcanism: new Uint8Array(size),
-    fracture: new Uint8Array(size),
-  }));
+      boundaryType: new Uint8Array(size),
+      upliftPotential: new Uint8Array(size),
+      collisionPotential: new Uint8Array(size),
+      subductionPotential: new Uint8Array(size),
+      riftPotential: new Uint8Array(size),
+      shearStress: new Uint8Array(size),
+    }));
   const rollups = {
     upliftTotal: new Uint8Array(size),
-    fractureTotal: new Uint8Array(size),
-    volcanismTotal: new Uint8Array(size),
+    collisionTotal: new Uint8Array(size),
+    subductionTotal: new Uint8Array(size),
     upliftRecentFraction: new Uint8Array(size),
+    collisionRecentFraction: new Uint8Array(size),
+    subductionRecentFraction: new Uint8Array(size),
     lastActiveEra: new Uint8Array(size),
   };
   rollups.lastActiveEra.fill(255);
   return {
-    version: 1,
     eraCount,
     perEra,
     rollups,
@@ -31,14 +34,10 @@ function buildHistoryTiles(width: number, height: number, eraCount: number) {
 function buildProvenanceTiles(width: number, height: number) {
   const size = width * height;
   const provenance = {
-    version: 1,
     originEra: new Uint8Array(size),
     originPlateId: new Int16Array(size),
-    driftDistance: new Uint8Array(size),
-    lastBoundaryEra: new Uint8Array(size),
     lastBoundaryType: new Uint8Array(size),
   };
-  provenance.lastBoundaryEra.fill(255);
   provenance.lastBoundaryType.fill(255);
   provenance.originPlateId.fill(-1);
   return provenance;
@@ -57,12 +56,15 @@ describe("morphology belt synthesis (history + provenance)", () => {
     const historyTiles = buildHistoryTiles(width, height, 3);
     const provenanceTiles = buildProvenanceTiles(width, height);
 
-    const drivers = deriveBeltDriversFromHistory({
-      width,
-      height,
-      historyTiles,
-      provenanceTiles,
-    });
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
 
     expect(sumMask(drivers.beltMask)).toBe(0);
     expect(Array.from(drivers.boundaryCloseness)).toEqual(Array(width * height).fill(0));
@@ -85,12 +87,15 @@ describe("morphology belt synthesis (history + provenance)", () => {
     era.upliftPotential[8] = 220;
     era.upliftPotential[10] = 190;
 
-    const drivers = deriveBeltDriversFromHistory({
-      width,
-      height,
-      historyTiles,
-      provenanceTiles,
-    });
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
 
     // Belts are seeded from a sparse spine, but proximity influence should still reach
     // corridor-adjacent tiles. Ensure we're not collapsing into "no belts" behavior.
@@ -119,12 +124,15 @@ describe("morphology belt synthesis (history + provenance)", () => {
       era.upliftPotential[i] = 220;
     }
 
-    const drivers = deriveBeltDriversFromHistory({
-      width,
-      height,
-      historyTiles,
-      provenanceTiles,
-    });
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
 
     // Belt exists (component length >= MIN_BELT_LENGTH), so tiles near the corridor should receive influence.
     expect(sumMask(drivers.beltMask)).toBeGreaterThan(0);
@@ -153,12 +161,15 @@ describe("morphology belt synthesis (history + provenance)", () => {
     era.upliftPotential[4] = 220;
     era.upliftPotential[18] = 220;
 
-    const drivers = deriveBeltDriversFromHistory({
-      width,
-      height,
-      historyTiles,
-      provenanceTiles,
-    });
+    const drivers = computeBeltDrivers.run(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      computeBeltDrivers.defaultConfig
+    );
 
     // Newer belts should diffuse over fewer tiles than older belts.
     const newSeed = 4;

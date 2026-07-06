@@ -2,8 +2,8 @@ import resources from "@mapgen/domain/resources";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { morphologyArtifacts } from "../../../morphology/artifacts.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Resource↔start support pass (placement-realignment S5, D3 contract change).

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import {
   HYDROLOGY_FLOW_DRY,
   HYDROLOGY_FLOW_EPHEMERAL,
@@ -10,11 +11,14 @@ import {
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
   HYDROLOGY_SLOPE_FLAT,
+} from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
+import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
-} from "../../src/domain/hydrology/index.js";
-import computeRiverNetworkMetrics from "../../src/domain/hydrology/ops/compute-river-network-metrics/index.js";
+} from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
+
+const { computeRiverNetworkMetrics } = hydrologyOpsPublic.ops;
 
 describe("hydrology/compute-river-network-metrics", () => {
   it("derives upstream area, stream hierarchy, and accepted-lake mouths", () => {

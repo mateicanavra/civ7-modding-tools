@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
+const { computeMantleForcing, computeMantlePotential, computeMesh } = foundationOpsPublic.ops;
 function variance(values: Float32Array): number {
   if (values.length === 0) return 0;
   let sum = 0;

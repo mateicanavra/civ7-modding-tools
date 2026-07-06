@@ -1,16 +1,21 @@
 # Prework Decision Qualification Inventory
 
-Status: active slice checklist
+Status: historical checklist with closure overlay
 
 These are the unresolved decisions to walk before domain-blueprint source-moving
 work begins. They are ordered from least defined to more defined. Completed
 prework decisions stay in the completed section as proof pointers, not as active
 queue items.
 
-Current next move: compose the packet-linked foundation-lib cleanup
-`execution.md` from
-`Decisions/002-foundation-lib-tectonics-disposition/`, then take the next
-standalone prework decision slice.
+Current next move: none in this prework slice.
+
+Foundation Lib and Domain Model Config Law are completed
+decision/execution packets for the current repair scope. Placement Status,
+Resources Initial Map Authoring, Morphology `ops.ts` Non-Binding Exports, and
+Domain Public / Import Surface are superseded by the accepted config-law and
+cleanup execution records unless a future Habitat red surface creates a new
+owner question. The active next work is implementation/topology burn-down from
+the current execution packets, not another prework decision queue.
 
 ## Completed Decisions
 
@@ -62,17 +67,21 @@ Done:
 `shared.ts` helpers are resolved to accepted core APIs, an existing core
 replacement, or operation-local provenance policy.
 
-Next:
-compose the packet-linked cleanup `execution.md`; do not move source until the
-execution slice names write sets and proof gates.
+Execution:
+packet-linked execution is closed through the S6 closure branch; the original
+`require-guards.domino.md` and `tectonics-shared-core.domino.md` remain as
+resolved proof records, not active deferred work.
 
-## Active Decision
-
-### 1. Domain Model Config Law
+### Domain Model Config Law
 
 Decision:
-decide whether `model/config/` is required for every domain root covered by the
-selected scope and define what counts as a valid domain model config object.
+decide which current config-shaped rows belong to stage authoring, operation
+contracts, `model/schemas`, `model/policy`, facade residue, or deletion. The
+decision must distinguish stage authoring surfaces from domain-owned reusable
+primitives: stages own public schemas, `knobsSchema`, and public-to-internal
+compile mappings; operation contracts own operation/strategy config; domain
+model files own reusable schemas, types, enums, invariants, and semantic policy
+fragments that stages or operations compose.
 
 Inspect:
 
@@ -82,30 +91,52 @@ Inspect:
 - `mods/mod-swooper-maps/src/domain/hydrology/shared/knobs.ts`
 - `mods/mod-swooper-maps/src/domain/hydrology/shared/knob-multipliers.ts`
 - `mods/mod-swooper-maps/src/domain/morphology/shared/**`
+- `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts`
 - `mods/mod-swooper-maps/src/domain/placement/config.ts`
-- current candidate `model/config/` rows for ecology, foundation, hydrology,
+- current candidate `model/schemas/` rows for ecology, foundation, hydrology,
   morphology, placement, and resources
 - stage and operation consumers of those config surfaces
 
 Choices:
 
-- require `model/config/` only when the domain has real domain-authored config
-  objects;
-- require `model/config/` for every covered domain root and name real config
-  object files for each one;
+- create `model/schemas/` only when the domain has real domain-owned reusable
+  schema primitive objects;
+- name real schema primitive files for each accepted `model/schemas/` owner;
 - move config-like material to the named standard recipe stage file when it is
-  projection/stage-facing;
+  a public authoring surface, knob surface, public-to-step compile mapping, or
+  projection/stage-facing concern;
+- route reusable semantic policy to `model/policy/`, not `model/schemas/`;
 - inline operation config fragments into operation `contract.ts`;
-- delete unused defaults and duplicate facades.
+- delete unused defaults and duplicate facades. Root or per-domain `config.ts`
+  facade deletion is gated by import-surface law unless caller proof shows no
+  public surface remains.
 
 Done:
-the `model/config/` requirement is decided, and every current config/shared-knob
-row has an exact destination: `model/config/<part>.config.ts`, operation
-`contract.ts`, a named standard recipe stage file, or delete action. Ecology
-and resources are explicitly resolved as real config-object domains or as
-domains with an optional `model/config/` law.
+every current config/shared-knob row has an exact destination: domain schema
+primitive file, domain policy file, operation `contract.ts`, a named standard
+recipe stage file, or delete action. Ecology and resources are explicitly
+resolved as domains with real `model/schemas` primitives or no schema-primitive
+rows in this pass.
 
-## 2. Placement Status
+Result:
+the config-shaped confusion has been burned down for the current scope.
+Operation contract, recipe stage authoring, domain model schema/policy,
+artifact aggregate, recipe/map public-surface, test public-surface, current
+domain source topology, root domain ops binding, and domain ops registry checks
+are green. The former resource data-contract domino is closed by the Slice 001
+cleanup execution: the expected-count range primitive has a named resource
+model schema owner, operation contracts compose it, and the artifact keeps
+strict corpus validation.
+
+Proof packet:
+`Decisions/003-domain-model-config-law/`
+
+## Historical Candidate Decisions
+
+The sections below are retained as the original prework candidates. They are
+not the active queue after the closure overlay above.
+
+### 2. Placement Status
 
 Decision:
 determine the owner status of current `placement` material under the selected
@@ -170,7 +201,7 @@ Inspect:
 Choices:
 
 - operation `contract.ts`;
-- `morphology/model/config/<part>.config.ts`;
+- `morphology/model/schemas/<part>.schema.ts`;
 - `morphology/model/policy/<concern>.ts`;
 - delete if duplicate.
 

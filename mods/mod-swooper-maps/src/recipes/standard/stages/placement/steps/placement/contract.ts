@@ -5,7 +5,7 @@ import {
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Terminal placement evidence step. DECLARED parity read (ADR-009): this step

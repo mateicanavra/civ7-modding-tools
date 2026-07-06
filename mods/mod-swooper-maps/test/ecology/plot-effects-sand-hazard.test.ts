@@ -2,9 +2,8 @@ import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
-// Deep-desert hazard: the sand channel places the cosmetic, art-backed PLOTEFFECT_SAND
-// AND co-places the permanent damaging PLOTEFFECT_DESERT_HEAT on the SAME selected tiles
-// (visible marker + per-turn attrition). This guards that co-placement wiring.
+// Deep-desert hazard: the sand channel emits abstract sand intent and co-places
+// desert-heat intent. Map projection owns Civ7 keys.
 const WIDTH = 2;
 const HEIGHT = 2;
 const SIZE = WIDTH * HEIGHT;
@@ -45,20 +44,19 @@ const runSandPlan = (config: Record<string, unknown>) => {
 };
 
 describe("plot effects (sand hazard co-placement)", () => {
-  it("co-places PLOTEFFECT_DESERT_HEAT on every sand tile when a hazard is configured", () => {
+  it("co-places desert-heat intent on every sand tile when enabled", () => {
     const result = runSandPlan({
       snow: { enabled: false },
       sand: {
         enabled: true,
         coveragePct: 100,
-        selector: { typeName: "PLOTEFFECT_SAND" },
-        hazard: { typeName: "PLOTEFFECT_DESERT_HEAT" },
+        hazardEnabled: true,
       },
       burned: { enabled: false },
     });
 
-    const sand = result.placements.filter((p) => p.plotEffect === "PLOTEFFECT_SAND");
-    const heat = result.placements.filter((p) => p.plotEffect === "PLOTEFFECT_DESERT_HEAT");
+    const sand = result.placements.filter((p) => p.plotEffect === "sand");
+    const heat = result.placements.filter((p) => p.plotEffect === "desert-heat");
 
     // One SAND + one DESERT_HEAT per eligible tile, on identical coordinates.
     expect(sand.length).toBe(SIZE);
@@ -70,11 +68,11 @@ describe("plot effects (sand hazard co-placement)", () => {
   it("places only cosmetic sand when no hazard is configured", () => {
     const result = runSandPlan({
       snow: { enabled: false },
-      sand: { enabled: true, coveragePct: 100, selector: { typeName: "PLOTEFFECT_SAND" } },
+      sand: { enabled: true, coveragePct: 100 },
       burned: { enabled: false },
     });
 
-    expect(result.placements.every((p) => p.plotEffect === "PLOTEFFECT_SAND")).toBe(true);
+    expect(result.placements.every((p) => p.plotEffect === "sand")).toBe(true);
     expect(result.placements.length).toBe(SIZE);
   });
 });

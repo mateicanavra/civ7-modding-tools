@@ -1,0 +1,86 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-roots"
+root = "mods/mod-swooper-maps/src/domain/!(*.*)"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "ops.ts",
+  "ops",
+  "model",
+]
+allowed = [
+  "artifacts",
+]
+
+[[scopes]]
+name = "mapgen-domain-ops-roots"
+root = "mods/mod-swooper-maps/src/domain/!(*.*)/ops"
+kind = "directory"
+mode = "closed"
+required = [
+  "contracts.ts",
+  "index.ts",
+]
+allowed = [
+  "!(*.*)",
+]
+
+[[scopes]]
+name = "mapgen-domain-operation-roots"
+root = "mods/mod-swooper-maps/src/domain/!(*.*)/ops/!(*.*)"
+kind = "directory"
+mode = "closed"
+required = [
+  "contract.ts",
+  "index.ts",
+]
+allowed = [
+  "types.ts",
+  "rules",
+  "strategies",
+  "policy",
+]
+
+[[scopes]]
+name = "mapgen-domain-model-roots"
+root = "mods/mod-swooper-maps/src/domain/!(*.*)/model"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "schemas",
+  "policy",
+  "data",
+]
+
+[[scopes]]
+name = "mapgen-resources-model-data-root"
+root = "mods/mod-swooper-maps/src/domain/resources/model/data"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "earthlike-expectations",
+]
+
+[[scopes]]
+name = "mapgen-resources-earthlike-expectations-data-root"
+root = "mods/mod-swooper-maps/src/domain/resources/model/data/earthlike-expectations"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "index.ts",
+  "official-earthlike.ts",
+  "types.ts",
+]
+
+[[scopes]]
+name = "mapgen-domain-artifacts-roots"
+root = "mods/mod-swooper-maps/src/domain/!(*.*)/artifacts"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "*.artifact.ts",
+  "index.ts",
+]

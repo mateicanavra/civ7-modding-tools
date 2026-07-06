@@ -2,12 +2,12 @@ import resources from "@mapgen/domain/resources";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
-import { hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
-import { mapRiversArtifacts } from "../../../map-rivers/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology/artifacts.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import { artifacts as hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../../map-rivers/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Resource planning (placement-realignment S3): habitat-lane derivation +

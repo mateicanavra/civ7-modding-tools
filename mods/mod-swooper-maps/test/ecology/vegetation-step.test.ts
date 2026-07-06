@@ -3,12 +3,13 @@ import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
-import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import planVegetationStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
-import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+import { createEmptyFeatureScoreLayers } from "../support/feature-score-layers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
 describe("ecology-features plan-vegetation step", () => {
@@ -27,25 +28,8 @@ describe("ecology-features plan-vegetation step", () => {
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    const f32 = () => new Float32Array(size);
-    const layers = {
-      FEATURE_FOREST: f32(),
-      FEATURE_RAINFOREST: f32(),
-      FEATURE_TAIGA: f32(),
-      FEATURE_SAVANNA_WOODLAND: f32(),
-      FEATURE_SAGEBRUSH_STEPPE: f32(),
-      FEATURE_MARSH: f32(),
-      FEATURE_TUNDRA_BOG: f32(),
-      FEATURE_MANGROVE: f32(),
-      FEATURE_OASIS: f32(),
-      FEATURE_WATERING_HOLE: f32(),
-      FEATURE_REEF: f32(),
-      FEATURE_COLD_REEF: f32(),
-      FEATURE_ATOLL: f32(),
-      FEATURE_LOTUS: f32(),
-      FEATURE_ICE: f32(),
-    } as const;
-    layers.FEATURE_FOREST.fill(1);
+    const layers = createEmptyFeatureScoreLayers(size);
+    layers.forest.fill(1);
 
     const stageArtifacts = implementArtifacts(
       [
@@ -73,7 +57,7 @@ describe("ecology-features plan-vegetation step", () => {
     stageArtifacts.occupancyWetlands.publish(ctx, {
       width,
       height,
-      featureIndex: new Uint16Array(size),
+      featureOccupancyMask: new Uint8Array(size),
       reserved: new Uint8Array(size),
     });
     stageArtifacts.biomeClassification.publish(ctx, {
@@ -143,7 +127,7 @@ describe("ecology-features plan-vegetation step", () => {
     expect(occupancy).toBeTruthy();
     expect(occupancy.width).toBe(width);
     expect(occupancy.height).toBe(height);
-    expect(occupancy.featureIndex instanceof Uint16Array).toBe(true);
+    expect(occupancy.featureOccupancyMask instanceof Uint8Array).toBe(true);
     expect(occupancy.reserved instanceof Uint8Array).toBe(true);
   });
 });

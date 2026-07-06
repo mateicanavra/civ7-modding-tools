@@ -1,6 +1,6 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 import { PLACEMENT_TILE_SPACE_ID, PLACEMENT_VIZ_GROUP, UNIT_SCORE_VALUE_SPEC } from "../../viz.js";
 import DerivePlacementInputsContract from "./contract.js";
 import { buildPlacementInputs } from "./inputs.js";
@@ -10,17 +10,17 @@ import {
   traceNaturalWonderPlanInputRuntimeTelemetry,
 } from "./natural-wonder-plan-input-telemetry.js";
 import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
-import { validateNaturalWonderPlanArtifact, validatePlacementInputsArtifact } from "./validate.js";
+import { validators as placementArtifactValidators } from "../../artifacts/index.js";
 
 export default createStep(DerivePlacementInputsContract, {
   artifacts: implementArtifacts(
     [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
     {
       placementInputs: {
-        validate: (value) => validatePlacementInputsArtifact(value),
+        validate: (value) => placementArtifactValidators.placementInputs(value),
       },
       naturalWonderPlan: {
-        validate: (value) => validateNaturalWonderPlanArtifact(value),
+        validate: (value) => placementArtifactValidators.naturalWonderPlan(value),
       },
     }
   ),

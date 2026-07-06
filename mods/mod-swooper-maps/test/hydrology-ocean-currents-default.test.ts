@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import { computeCurrentsEarthlike } from "../src/domain/hydrology/ops/compute-ocean-surface-currents/rules/index.js";
 
+const { computeOceanSurfaceCurrents } = hydrologyOpsPublic.ops;
 function rms(values: Float32Array, mask: Uint8Array): number {
   let sum = 0;
   let n = 0;
@@ -13,6 +14,13 @@ function rms(values: Float32Array, mask: Uint8Array): number {
     n += 1;
   }
   return Math.sqrt(sum / Math.max(1, n));
+}
+
+function runOceanSurfaceCurrents(
+  input: Parameters<typeof computeOceanSurfaceCurrents.run>[0],
+  config: (typeof computeOceanSurfaceCurrents.defaultConfig)["config"]
+) {
+  return computeOceanSurfaceCurrents.run(input, { strategy: "default", config });
 }
 
 describe("hydrology/compute-ocean-surface-currents (default)", () => {
@@ -38,7 +46,8 @@ describe("hydrology/compute-ocean-surface-currents (default)", () => {
     windU.fill(90);
     windV.fill(0);
 
-    const raw = computeCurrentsEarthlike(width, height, latitudeByRow, isWaterMask, windU, windV, {
+    const input = { width, height, latitudeByRow, isWaterMask, windU, windV };
+    const raw = runOceanSurfaceCurrents(input, {
       maxSpeed: 80,
       windStrength: 0.55,
       ekmanStrength: 0.35,
@@ -47,13 +56,8 @@ describe("hydrology/compute-ocean-surface-currents (default)", () => {
       smoothIters: 0,
       projectionIters: 0,
     });
-    const projected = computeCurrentsEarthlike(
-      width,
-      height,
-      latitudeByRow,
-      isWaterMask,
-      windU,
-      windV,
+    const projected = runOceanSurfaceCurrents(
+      input,
       {
         maxSpeed: 80,
         windStrength: 0.55,

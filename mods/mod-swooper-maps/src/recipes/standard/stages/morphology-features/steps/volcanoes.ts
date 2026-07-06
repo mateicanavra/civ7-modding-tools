@@ -1,9 +1,8 @@
-import type { MorphologyVolcanismKnob } from "@mapgen/domain/morphology/config.js";
 import {
   MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_HOTSPOT_WEIGHT_MULTIPLIER,
-} from "@mapgen/domain/morphology/config.js";
+} from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
 import {
   computeSampleStep,
   defineVizMeta,
@@ -13,51 +12,19 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
+import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import type { MorphologyVolcanismKnob } from "../index.js";
 import VolcanoesStepContract from "./volcanoes.contract.js";
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 
 const GROUP_VOLCANOES = "Morphology / Volcanoes";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validateVolcanoes(value: unknown): ArtifactValidationIssue[] {
-  if (!isRecord(value)) {
-    return [{ message: "Missing volcanoes artifact." }];
-  }
-  const candidate = value as { volcanoMask?: unknown; volcanoes?: unknown };
-  if (!(candidate.volcanoMask instanceof Uint8Array)) {
-    return [{ message: "Expected volcanoes.volcanoMask to be a Uint8Array." }];
-  }
-  if (!Array.isArray(candidate.volcanoes)) {
-    return [{ message: "Expected volcanoes.volcanoes to be an array." }];
-  }
-  for (const entry of candidate.volcanoes) {
-    if (!isRecord(entry) || typeof entry.tileIndex !== "number" || entry.tileIndex < 0) {
-      return [
-        { message: "Expected volcanoes.volcanoes entries to include a non-negative tileIndex." },
-      ];
-    }
-    if (entry.kind !== "subductionArc" && entry.kind !== "rift" && entry.kind !== "hotspot") {
-      return [{ message: "Expected volcanoes.volcanoes entries to include a Phase 2 kind." }];
-    }
-    if (typeof entry.strength01 !== "number" || entry.strength01 < 0 || entry.strength01 > 1) {
-      return [
-        { message: "Expected volcanoes.volcanoes entries to include strength01 within [0,1]." },
-      ];
-    }
-  }
-  return [];
-}
-
 export default createStep(VolcanoesStepContract, {
   artifacts: implementArtifacts(VolcanoesStepContract.artifacts!.provides!, {
     volcanoes: {
-      validate: (value) => validateVolcanoes(value),
+      validate: morphologyArtifactValidators.volcanoes,
     },
   }),
   normalize: (config, ctx) => {

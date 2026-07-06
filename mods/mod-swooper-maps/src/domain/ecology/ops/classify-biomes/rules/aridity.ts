@@ -1,5 +1,5 @@
 import type { Static } from "@swooper/mapgen-core/authoring";
-import { AriditySchema } from "./aridity.schema.js";
+import type { AriditySchema } from "../contract.js";
 import { clamp01 } from "./util.js";
 
 type MoistureZone = "arid" | "semiArid" | "subhumid" | "humid" | "perhumid";

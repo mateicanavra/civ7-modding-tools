@@ -7,7 +7,6 @@ import { runOpValidated } from "../support/compiler-helpers.js";
 
 type Demand = {
   resourceType: string;
-  resourceTypeId: number;
   weight: number;
   targetCount: number;
   minCount: number;
@@ -37,7 +36,6 @@ function buildInput(args: { width: number; height: number; demands: Demand[]; se
     minimumAmountModifier: 0,
     demands: args.demands.map((demand) => ({
       resourceType: demand.resourceType,
-      resourceTypeId: demand.resourceTypeId,
       family: "geological" as const,
       laneId: "probe",
       laneKind: "land" as const,
@@ -58,7 +56,7 @@ type SelectResult = {
   plannedCount: number;
   intents: ReadonlyArray<{
     plotIndex: number;
-    resourceTypeId: number;
+    resourceType: string;
     phase: string;
   }>;
   perType: ReadonlyArray<{
@@ -110,7 +108,6 @@ describe("select-resource-sites operation contract", () => {
         height: 12,
         demands: [5, 10, 20, 40].map((weight, index) => ({
           resourceType: `RESOURCE_W${weight}`,
-          resourceTypeId: 900 + index,
           weight,
           targetCount: 60,
           minCount: 0,
@@ -135,7 +132,6 @@ describe("select-resource-sites operation contract", () => {
         demands: [
           {
             resourceType: "RESOURCE_A",
-            resourceTypeId: 901,
             weight: 10,
             targetCount: 12,
             minCount: 4,
@@ -143,7 +139,6 @@ describe("select-resource-sites operation contract", () => {
           },
           {
             resourceType: "RESOURCE_B",
-            resourceTypeId: 902,
             weight: 10,
             targetCount: 6,
             minCount: 2,
@@ -155,9 +150,7 @@ describe("select-resource-sites operation contract", () => {
     for (const row of result.perType) {
       expect(row.plannedCount).toBeLessThanOrEqual(row.maxCount);
       const plots = result.intents
-        .filter(
-          (intent) => intent.resourceTypeId === (row.resourceType === "RESOURCE_A" ? 901 : 902)
-        )
+        .filter((intent) => intent.resourceType === row.resourceType)
         .map((intent) => intent.plotIndex);
       for (let i = 0; i < plots.length; i++) {
         for (let j = i + 1; j < plots.length; j++) {
@@ -178,7 +171,6 @@ describe("select-resource-sites operation contract", () => {
         demands: [
           {
             resourceType: "RESOURCE_A",
-            resourceTypeId: 901,
             weight: 10,
             targetCount: 8,
             minCount: 8,
@@ -201,7 +193,6 @@ describe("select-resource-sites operation contract", () => {
         demands: [
           {
             resourceType: "RESOURCE_REQ",
-            resourceTypeId: 901,
             weight: 10,
             targetCount: 2,
             minCount: 0,
@@ -226,7 +217,6 @@ describe("select-resource-sites operation contract", () => {
     const demands: Demand[] = [
       {
         resourceType: "RESOURCE_A",
-        resourceTypeId: 901,
         weight: 10,
         targetCount: 16,
         minCount: 4,
@@ -234,7 +224,6 @@ describe("select-resource-sites operation contract", () => {
       },
       {
         resourceType: "RESOURCE_B",
-        resourceTypeId: 902,
         weight: 10,
         targetCount: 16,
         minCount: 4,
@@ -255,10 +244,10 @@ describe("select-resource-sites operation contract", () => {
       expect(row.plannedCount).toBeLessThanOrEqual(row.minCount);
     }
     const plotsA = sparse.intents
-      .filter((row) => row.resourceTypeId === 901)
+      .filter((row) => row.resourceType === "RESOURCE_A")
       .map((row) => row.plotIndex);
     const plotsB = sparse.intents
-      .filter((row) => row.resourceTypeId === 902)
+      .filter((row) => row.resourceType === "RESOURCE_B")
       .map((row) => row.plotIndex);
     for (const a of plotsA) {
       for (const b of plotsB) {
@@ -276,7 +265,6 @@ describe("select-resource-sites operation contract", () => {
           demands: [
             {
               resourceType: "RESOURCE_A",
-              resourceTypeId: 901,
               weight: 10,
               targetCount: 8,
               minCount: 2,
@@ -284,7 +272,6 @@ describe("select-resource-sites operation contract", () => {
             },
             {
               resourceType: "RESOURCE_B",
-              resourceTypeId: 902,
               weight: 20,
               targetCount: 8,
               minCount: 2,

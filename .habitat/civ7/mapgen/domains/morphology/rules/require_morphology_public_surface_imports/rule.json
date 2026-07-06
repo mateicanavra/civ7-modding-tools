@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "non-domain consumers importing morphology code outside the public root, ops, or config surfaces",
-  "why": "Morphology consumers should compose through canonical public surfaces rather than retired or deep morphology internals.",
+  "forbids": "non-domain consumers importing morphology code outside public root, ops, artifacts, model/schemas, or model/policy surfaces",
+  "why": "Morphology consumers should compose through canonical public surfaces rather than retired config facades or deep morphology internals.",
   "remediate": null,
-  "message": "Use @mapgen/domain/morphology, @mapgen/domain/morphology/ops, or @mapgen/domain/morphology/config.js.",
+  "message": "Use @mapgen/domain/morphology, /ops, /artifacts, /model/schemas, or /model/policy.",
   "pathCoverage": [
     {
       "kind": "exact-path",

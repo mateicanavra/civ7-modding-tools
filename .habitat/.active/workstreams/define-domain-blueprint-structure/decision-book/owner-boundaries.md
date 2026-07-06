@@ -7,9 +7,11 @@ Slice inventories record current red-path rows.
 
 ## Domain Model Owners
 
-Domain model config owns one exported authoring config object per file: schema,
-type, defaults, and deterministic compile or normalization transforms local to
-that object.
+Domain model schemas own reusable domain schema primitives: schema fragments,
+enums, types, invariants, defaults objects, and semantic mapping only when the
+mapping is object-local to that primitive. They do not own full operation
+contracts, reusable semantic policy, a stage authoring surface, stage
+`knobsSchema`, stage public schema, or public-to-internal compile mapping.
 
 Domain model policy owns domain semantic law: classification encodings,
 domain-owned legality interpretation, scoring policy, selection policy, and

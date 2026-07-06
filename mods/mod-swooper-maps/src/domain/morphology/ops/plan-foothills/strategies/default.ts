@@ -1,12 +1,14 @@
-import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
+import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import {
-  computeHexDistanceToMask,
-  computeHillScore,
-  normalizeMountainFractal,
-  resolveBoundaryStrength,
-  resolveDriverStrength,
-} from "../../mountains-shared/rules.js";
+import { resolveBoundaryStrength } from "../../../model/policy/boundary-strength.js";
+import { resolveDriverStrength } from "../../../model/policy/driver-strength.js";
+import { normalizeMountainFractal } from "../../../model/policy/mountain-fractal.js";
+import type {
+  HillScorePolicy,
+  OrogenyPotentialPolicy,
+} from "../../../model/policy/mountain-scoring-policy.js";
+import { computeHexDistanceToMask } from "../rules/distance-to-mask.js";
+import { computeHillScore } from "../rules/hill-score.js";
 import PlanFoothillsContract from "../contract.js";
 import type { PlanFoothillsTypes } from "../types.js";
 
@@ -121,6 +123,30 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
         ? Math.max(0, Math.min(1, config.foothillMaxFraction))
         : hillMaxFraction;
     const rangeEnvelopeScale = Math.max(0.25, Math.min(4, config.rangeEnvelopeScale));
+    const orogenyPolicy: OrogenyPotentialPolicy = {
+      orogenyCollisionStressWeight: config.orogenyCollisionStressWeight,
+      orogenyCollisionUpliftWeight: config.orogenyCollisionUpliftWeight,
+      orogenyTransformStressWeight: config.orogenyTransformStressWeight,
+      orogenyDivergentRiftWeight: config.orogenyDivergentRiftWeight,
+      orogenyDivergentStressWeight: config.orogenyDivergentStressWeight,
+    };
+    const hillScorePolicy: HillScorePolicy = {
+      ...orogenyPolicy,
+      tectonicIntensity: config.tectonicIntensity,
+      fractalWeight: config.fractalWeight,
+      hillBoundaryWeight: config.hillBoundaryWeight,
+      hillConvergentFoothill: config.hillConvergentFoothill,
+      hillUpliftWeight: config.hillUpliftWeight,
+      hillFractalScale: config.hillFractalScale,
+      hillFoothillBase: config.hillFoothillBase,
+      hillFoothillFractalGain: config.hillFoothillFractalGain,
+      hillRiftBonus: config.hillRiftBonus,
+      hillRiftBonusScale: config.hillRiftBonusScale,
+      hillUpliftScale: config.hillUpliftScale,
+      hillRiftDepthScale: config.hillRiftDepthScale,
+      hillInteriorFalloff: config.hillInteriorFalloff,
+      riftDepth: config.riftDepth,
+    };
 
     let landCount = 0;
     let mountainCount = 0;
@@ -169,7 +195,7 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
         rift,
         fractal,
         driverStrength,
-        config,
+        config: hillScorePolicy,
       });
 
       // Age shaping: old belts should degrade to hills more readily than mountains.

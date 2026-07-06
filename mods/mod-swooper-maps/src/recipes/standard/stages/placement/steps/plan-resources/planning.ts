@@ -1,28 +1,64 @@
 import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
-import { CIV7_POLICY_TABLES_V1 } from "@civ7/map-policy";
+import {
+  buildResourceLegalityMask,
+  CIV7_POLICY_TABLES_V1,
+  OFFICIAL_RESOURCE_BY_TYPE,
+  type OfficialResourceType,
+  type ResourceLegalitySurface,
+  resolveResourceRuntimeIds,
+} from "@civ7/map-policy";
+import {
+  EARTHLIKE_RESOURCE_EXPECTATIONS,
+  type EarthlikeResourceExpectation,
+  type ResourceExpectationGroupId,
+} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import {
   buildHabitatEligibility,
-  buildResourceLegalityMask,
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  getInitialMapResourcePolicyForType,
-  type OfficialResourceType,
   RESOURCE_HABITAT_SIGNALS,
   type ResourceFamilyId,
-  type ResourceLegalitySurface,
-  resolveActiveResourceAge,
-  resolveResourceRuntimeIds,
+} from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
+import {
+  getInitialMapResourcePolicyForType,
+  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+} from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
+import {
   default as resources,
 } from "@mapgen/domain/resources";
+import {
+  HABITAT_INTENSITY_FIELD_NAMES,
+  HABITAT_MASK_FIELD_NAMES,
+  type HabitatFieldsOutput,
+  type HabitatIntensityFieldName,
+  type HabitatMaskFieldName,
+} from "@mapgen/domain/resources/model/schemas";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
-type HabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
+type DerivedHabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
+export type HabitatFields = HabitatFieldsOutput;
+export type HabitatIntensityFields = Pick<HabitatFieldsOutput, HabitatIntensityFieldName>;
 type SelectSitesInput = Static<(typeof resources.ops.selectResourceSites)["input"]>;
 type DemandRow = SelectSitesInput["demands"][number];
+export type EarthlikeExpectationRow = (typeof EARTHLIKE_RESOURCE_EXPECTATIONS)[number];
+type ResourceExpectationInput<G extends ResourceExpectationGroupId> = {
+  resourceType: OfficialResourceType;
+  groupId: G;
+  status: EarthlikeResourceExpectation["status"];
+  earthlikePredicate: string;
+  expectedCountRange: {
+    baseline: EarthlikeResourceExpectation["expectedCountRange"]["baseline"];
+    min: number;
+    target: number;
+    max: number;
+    evidence: EarthlikeResourceExpectation["expectedCountRange"]["evidence"];
+  };
+  conditionMultipliers: string[];
+  signalRequirements: string[];
+  caveats: string[];
+};
 
 export type ResourceDemandSummaryRow = {
-  resourceType: string;
-  resourceTypeId: number;
+  resourceType: OfficialResourceType;
   family: ResourceFamilyId;
   laneId: string;
   laneKind: "land" | "water";
@@ -45,6 +81,29 @@ export type ResourceDemandBuildResult = {
   age: string;
   minimumAmountModifier: number;
 };
+
+export function assertHabitatFieldsOutput(
+  habitat: DerivedHabitatFields,
+  expectedSize: number
+): HabitatFields {
+  const maskFields = habitat as Partial<Record<HabitatMaskFieldName, unknown>>;
+  for (const field of HABITAT_MASK_FIELD_NAMES) {
+    const value = maskFields[field];
+    if (!(value instanceof Uint8Array) || value.length !== expectedSize) {
+      throw new Error(`[resources] habitat output ${field} must be a Uint8Array(${expectedSize}).`);
+    }
+  }
+  const intensityFields = habitat as Partial<Record<HabitatIntensityFieldName, unknown>>;
+  for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
+    const value = intensityFields[field];
+    if (!(value instanceof Float32Array) || value.length !== expectedSize) {
+      throw new Error(
+        `[resources] habitat output ${field} must be a Float32Array(${expectedSize}).`
+      );
+    }
+  }
+  return habitat as HabitatFields;
+}
 
 /**
  * Reads the prepared engine surface for policy-legality evaluation.
@@ -87,21 +146,21 @@ export function resolveMinimumAmountModifier(width: number, height: number): num
   return 0;
 }
 
-export function expectationsForGroup(groupId: string) {
-  return EARTHLIKE_RESOURCE_EXPECTATIONS.filter((row) => row.groupId === groupId);
-}
-
-/** Picks the habitat-derived masks a family planner contract declares. */
-export function pickPlannerMasks(
-  contractInput: { properties: Record<string, unknown> },
-  habitat: HabitatFields
-): Record<string, Uint8Array> {
-  const picked: Record<string, Uint8Array> = {};
-  for (const key of Object.keys(contractInput.properties)) {
-    const value = (habitat as Record<string, unknown>)[key];
-    if (value instanceof Uint8Array) picked[key] = value;
-  }
-  return picked;
+export function expectationsForGroup<const G extends ResourceExpectationGroupId>(
+  groupId: G
+): Array<ResourceExpectationInput<G>> {
+  return EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
+    (row): row is EarthlikeResourceExpectation & { readonly groupId: G } => row.groupId === groupId
+  ).map((row) => ({
+    resourceType: row.resourceType,
+    groupId: row.groupId,
+    status: row.status,
+    earthlikePredicate: row.earthlikePredicate,
+    expectedCountRange: { ...row.expectedCountRange },
+    conditionMultipliers: [...row.conditionMultipliers],
+    signalRequirements: [...row.signalRequirements],
+    caveats: [...row.caveats],
+  }));
 }
 
 /**
@@ -127,27 +186,45 @@ export function buildRiverResourceExclusionMask(args: {
 }): Uint8Array {
   const size = Math.max(0, args.width * args.height);
   const mask = new Uint8Array(size);
-  const add = (candidate: Uint8Array | undefined): void => {
-    if (!(candidate instanceof Uint8Array) || candidate.length !== size) return;
+  const add = (label: string, candidate: Uint8Array | undefined): void => {
+    if (candidate === undefined) return;
+    if (!(candidate instanceof Uint8Array) || candidate.length !== size) {
+      throw new Error(`[resources] ${label} must be a Uint8Array(${size}).`);
+    }
     for (let i = 0; i < size; i++) {
       if (candidate[i] === 1) mask[i] = 1;
     }
   };
 
-  add(args.projectedNavigableRivers?.riverMask);
-  add(args.projectedNavigableRivers?.plannedMajorRiverMask);
-  add(args.projectedNavigableRivers?.plannedMinorRiverMask);
-  add(args.engineProjectionRivers?.riverMask);
-  add(args.engineProjectionRivers?.terrainNavigableRiverMask);
-  add(args.engineProjectionRivers?.engineIsRiverMask);
-  add(args.engineProjectionRivers?.engineNavigableRiverMask);
-  add(args.engineProjectionRivers?.engineMinorRiverMask);
+  add("projectedNavigableRivers.riverMask", args.projectedNavigableRivers?.riverMask);
+  add(
+    "projectedNavigableRivers.plannedMajorRiverMask",
+    args.projectedNavigableRivers?.plannedMajorRiverMask
+  );
+  add(
+    "projectedNavigableRivers.plannedMinorRiverMask",
+    args.projectedNavigableRivers?.plannedMinorRiverMask
+  );
+  add("engineProjectionRivers.riverMask", args.engineProjectionRivers?.riverMask);
+  add(
+    "engineProjectionRivers.terrainNavigableRiverMask",
+    args.engineProjectionRivers?.terrainNavigableRiverMask
+  );
+  add("engineProjectionRivers.engineIsRiverMask", args.engineProjectionRivers?.engineIsRiverMask);
+  add(
+    "engineProjectionRivers.engineNavigableRiverMask",
+    args.engineProjectionRivers?.engineNavigableRiverMask
+  );
+  add(
+    "engineProjectionRivers.engineMinorRiverMask",
+    args.engineProjectionRivers?.engineMinorRiverMask
+  );
   return mask;
 }
 
 type GroupPlanRow = {
   resourceType: string;
-  status: "planned" | "blocked" | "missing-expectation" | "proxy-gap";
+  status: "planned" | "blocked" | "missing-expectation" | "missing-signal";
   targetIntentCount: number;
   eligibleTileCount: number;
 };
@@ -182,7 +259,7 @@ export function buildResourceDemands(args: {
       `[resources] riverResourceExclusionMask length ${riverResourceExclusionMask.length} does not match grid size ${size}.`
     );
   }
-  const age = resolveActiveResourceAge();
+  const age = INITIAL_MAP_RESOURCE_AUTHORING_AGE;
   const resolution = resolveResourceRuntimeIds();
   const expectationByType = new Map(
     EARTHLIKE_RESOURCE_EXPECTATIONS.map((row) => [row.resourceType, row])
@@ -195,13 +272,16 @@ export function buildResourceDemands(args: {
     geological: habitat.geologicalIntensity as Float32Array,
   };
 
-  const habitatFields = habitat as unknown as Record<string, Uint8Array | undefined>;
   const demands: DemandRow[] = [];
   const summaries: ResourceDemandSummaryRow[] = [];
   const excluded: Array<{ resourceType: string; reason: string }> = [];
 
   for (const row of plannedRows) {
     const resourceType = row.resourceType as OfficialResourceType;
+    if (!Object.hasOwn(OFFICIAL_RESOURCE_BY_TYPE, resourceType)) {
+      excluded.push({ resourceType, reason: "outside-official-resource-corpus" });
+      continue;
+    }
     if (row.status !== "planned") {
       excluded.push({ resourceType, reason: `planner-status:${row.status}` });
       continue;
@@ -231,7 +311,7 @@ export function buildResourceDemands(args: {
       );
     }
 
-    const habitatEligibility = buildHabitatEligibility(habitatFields, size, signal);
+    const habitatEligibility = buildHabitatEligibility(habitat, size, signal);
     const legalMask = buildResourceLegalityMask(legalitySurface, resolved.resourceTypeId);
     if (riverResourceExclusionMask) {
       for (let i = 0; i < size; i++) {
@@ -254,7 +334,6 @@ export function buildResourceDemands(args: {
     const laneKind: "land" | "water" = signal.family === "aquatic" ? "water" : "land";
     const demand: DemandRow = {
       resourceType,
-      resourceTypeId: resolved.resourceTypeId,
       family: signal.family,
       laneId: signal.laneId,
       laneKind,
@@ -271,7 +350,6 @@ export function buildResourceDemands(args: {
     demands.push(demand);
     summaries.push({
       resourceType,
-      resourceTypeId: resolved.resourceTypeId,
       family: signal.family,
       laneId: signal.laneId,
       laneKind,

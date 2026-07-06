@@ -34,7 +34,6 @@ describe("derive placement inputs", () => {
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
-      resourceTypeCatalog: [],
     });
     const context = {
       dimensions: { width, height },
@@ -151,7 +150,6 @@ describe("derive placement inputs", () => {
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
-      resourceTypeCatalog: [],
     });
     const context = {
       dimensions: { width, height },
@@ -311,7 +309,6 @@ describe("derive placement inputs", () => {
       mapSizeId: 1,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      resourceTypeCatalog: [],
     });
     adapter.setFeatureType(1, 1, featureTypes.FEATURE_ICE);
     const elevation = new Int16Array(size).fill(100);

@@ -3,7 +3,7 @@ import resources from "@mapgen/domain/resources/ops";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
-} from "../../src/domain/resources/index.js";
+} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compiler-helpers.js";
 
@@ -17,13 +17,12 @@ describe("resource group rollup operation contract", () => {
     const result = resources.ops.planResourceGroups.run(allGroupPlans(5, 5), selection);
 
     expect(result.artifactId).toBe("artifact:resources.groupPlans");
-    expect(result.runtimeIdStatus).toBe("unverified");
     expect(result.proofStatus).toBe("warning-only");
     expect(result.groupCount).toBe(4);
     expect(result.resourceCount).toBe(55);
     expect(result.plannedCount).toBe(50);
     expect(result.blockedCount).toBe(5);
-    expect(result.proxyGapCount).toBe(0);
+    expect(result.missingSignalCount).toBe(0);
     expect(result.missingExpectationCount).toBe(0);
     expect(result.targetIntentCount).toBe(374);
     expect(result.eligibleTileCount).toBe(1250);
@@ -52,7 +51,7 @@ describe("resource group rollup operation contract", () => {
     }
   });
 
-  it("preserves group-level blocked, proxy-gap, and missing-expectation counts", () => {
+  it("preserves group-level blocked, missing-signal, and missing-expectation counts", () => {
     const plans = allGroupPlans(2, 2);
     const result = resources.ops.planResourceGroups.run(
       {
@@ -75,7 +74,7 @@ describe("resource group rollup operation contract", () => {
       (group) => group.groupId === "geological-mineral-gemstone-industrial"
     );
     expect(geological?.blockedCount).toBe(4);
-    expect(geological?.proxyGapCount).toBe(15);
+    expect(geological?.missingSignalCount).toBe(15);
     expect(geological?.missingExpectationCount).toBe(1);
     expect(result.missingResourceTypes).toEqual(["RESOURCE_RUBIES"]);
     expect(geological?.blockers).toEqual([
@@ -133,8 +132,6 @@ describe("resource group rollup operation contract", () => {
       },
       resources.ops.planResourceGroups.defaultConfig
     );
-
-    expect(result.runtimeIdStatus).toBe("unverified");
     expect(result.proofStatus).toBe("warning-only");
     expect(result.blockers).toContain(
       "aquaticPlan supplied cultivated-plantation-medicinal; expected aquatic-coastal-navigable-river."

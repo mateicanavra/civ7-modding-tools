@@ -7,7 +7,7 @@ import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import { getStandardRuntime } from "../../../../runtime.js";
-import type { PlacementInputsV1 } from "../../placement-inputs.js";
+import type { PlacementInputsV1 } from "../../artifacts/placement-inputs.artifact.js";
 
 import DerivePlacementInputsContract from "./contract.js";
 

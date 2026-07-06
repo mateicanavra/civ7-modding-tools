@@ -1,6 +1,6 @@
 # Slice 001 Frame
 
-Status: active slice frame
+Status: closed slice frame
 
 Slice 001 is the first closed-structure cut for the MapGen `domain` blueprint.
 It covers domain roots by blueprint kind and the immediate `ops/` child
@@ -40,8 +40,8 @@ Deferred:
 
 - full grammar inside operation `policy/`, `rules/`, and `strategies/`;
 - future Gameplay/story owner-law definition for any new story implementation;
-- public import-routing law for downstream callers;
-- live Habitat `structure.toml` and Grit packet implementation.
+- public import-routing law for downstream callers outside the current enforced
+  domain/public-surface rules.
 
 ## Hard Core
 
@@ -72,12 +72,21 @@ placement, stop. The topology is carrying debt instead of closing it.
 
 ## Mechanical Trust Condition
 
-Slice 001 is mechanically trusted only when topology enforcement is paired
-with source-shape gates for root `index.ts` and root `ops.ts`.
+Slice 001 is mechanically trusted because topology enforcement is paired with
+source-shape gates for root `ops.ts`, `ops/index.ts`, operation contracts,
+model schema/policy owners, artifact files, artifact indexes, and public domain
+imports.
 
 The source-shape gates prevent the failure mode where the structure rule deletes
 root helper files but implementers paste their contents into a selected
 filename to keep imports green.
+
+## Closure
+
+Slice 001 is closed for the selected domain-root topology depth. The governing
+rule is `.habitat/blueprints/domain/require_domain_source_topology/`, now
+enforced and green with zero diagnostics. Historical row inventories remain as
+evidence of the burn-down path, not as an active queue.
 
 ## Placement And Closed Narrative Evidence
 
@@ -94,7 +103,7 @@ law.
 
 An earlier working grammar treated root `config.ts`, root `policy/`, and
 data-only root `lib/` as transitional direct slots. The selected target law now
-uses `model/config/`, `model/policy/`, and `model/data/`. Slice 001 treats old
+uses `model/schemas/`, `model/policy/`, and `model/data/`. Slice 001 treats old
 root config/policy/lib placements as source evidence and red inventory.
 
 ## Rule Packet Collapse Candidates

@@ -2,7 +2,7 @@ import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { mapArtifacts } from "../../../map-artifacts.js";
-import { morphologyArtifacts } from "../../morphology/artifacts.js";
+import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 
 /**
  * Seeds morphology buffers from foundation crust + tectonic history (belt drivers + substrate + base topography).

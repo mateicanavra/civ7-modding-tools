@@ -1,5 +1,5 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { FeaturePlacementSchema } from "../../shared/placement-schema.js";
+import { FeaturePlacementSchema } from "../../model/schemas/index.js";
 
 const FeaturesApplyContract = defineOp({
   kind: "plan",

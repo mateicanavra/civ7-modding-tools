@@ -1,10 +1,7 @@
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../../foundation/artifacts.js";
-import {
-  validateCrustArtifact,
-  wrapFoundationValidateNoDims,
-} from "../../foundation/validation.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY } from "../../foundation/viz.js";
 import CrustStepContract from "./crust.contract.js";
 
@@ -13,7 +10,7 @@ const GROUP_CRUST = "Foundation / Crust";
 export default createStep(CrustStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.crustInit], {
     foundationCrustInit: {
-      validate: (value) => wrapFoundationValidateNoDims(value, validateCrustArtifact),
+      validate: (value) => foundationArtifactValidators.crustInit(value),
     },
   }),
   run: (context, config, ops, deps) => {

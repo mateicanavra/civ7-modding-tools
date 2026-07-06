@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
-import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
-import { RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
+import { RIVER_CLASS_MINOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function broadVegetationHabitatFields(size: number) {
@@ -460,9 +460,9 @@ describe("ecology op contract surfaces", () => {
       const openOceanMask = new Uint8Array(size).fill(1);
       const lakeMask = new Uint8Array(size).fill(1);
       const coastalWater = new Uint8Array(size).fill(1);
-      const distanceToCoast = new Uint16Array(size).fill(1);
+      const distanceToCoast = new Uint8Array(size).fill(1);
       const isolatedCoastalWater = new Uint8Array(size).fill(0);
-      const isolatedDistanceToCoast = new Uint16Array(size).fill(5);
+      const isolatedDistanceToCoast = new Uint8Array(size).fill(5);
 
       const reefScoreOps = [
         {
@@ -565,8 +565,7 @@ describe("ecology op contract surfaces", () => {
         scoreOasis01: new Float32Array(size).fill(1),
         scoreWateringHole01: new Float32Array(size).fill(1),
         flatLandMask: new Uint8Array(size).fill(1),
-        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
@@ -594,7 +593,7 @@ describe("ecology op contract surfaces", () => {
         scoreSagebrushSteppe01: new Float32Array(size).fill(1),
         landMask: new Uint8Array(size).fill(1),
         ...broadVegetationHabitatFields(size),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
@@ -625,13 +624,13 @@ describe("ecology op contract surfaces", () => {
         scoreTropicalNavigable01: new Float32Array(size),
         scoreTundraMinor01: new Float32Array(size),
         scoreTundraNavigable01: new Float32Array(size),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
     );
     expect(result.placements.length).toBe(size);
-    expect(result.placements[0]?.feature).toBe("FEATURE_GRASSLAND_FLOODPLAIN_MINOR");
+    expect(result.placements[0]?.feature).toBe("grassland-floodplain-minor");
   });
 
   it("planReefs validates output", () => {
@@ -652,7 +651,7 @@ describe("ecology op contract surfaces", () => {
         scoreAtoll01: new Float32Array(size).fill(1),
         scoreLotus01: new Float32Array(size).fill(1),
         lakeMask: new Uint8Array(size).fill(1),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
@@ -678,7 +677,7 @@ describe("ecology op contract surfaces", () => {
         scoreAtoll01: new Float32Array(size).fill(1),
         scoreLotus01: new Float32Array(size).fill(1),
         lakeMask: new Uint8Array(size).fill(1),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
@@ -700,7 +699,7 @@ describe("ecology op contract surfaces", () => {
         height,
         seed: 1337,
         score01: new Float32Array(size).fill(1),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
@@ -722,7 +721,7 @@ describe("ecology op contract surfaces", () => {
         height,
         seed: 1337,
         score01: new Float32Array(size).fill(1),
-        featureIndex: new Uint16Array(size),
+        featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
       selection
@@ -733,7 +732,7 @@ describe("ecology op contract surfaces", () => {
   it("applyFeatures merges placements", () => {
     const result = ecology.ops.applyFeatures.run(
       {
-        vegetation: [{ x: 0, y: 0, feature: "FEATURE_FOREST" }],
+        vegetation: [{ x: 0, y: 0, feature: "forest" }],
         wetlands: [],
         floodplains: [],
         reefs: [],

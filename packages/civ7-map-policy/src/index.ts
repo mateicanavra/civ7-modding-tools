@@ -1,3 +1,9 @@
+export {
+  CIV7_BIOME_GLOBAL,
+  CIV7_BIOME_GLOBALS,
+  CIV7_MARINE_BIOME_GLOBAL,
+  type Civ7BiomeGlobal,
+} from "./biome-globals.js";
 export { isSupportedNaturalWonder, NATURAL_WONDER_CATALOG } from "./catalogs/natural-wonders.js";
 export type {
   Civ7BrowserTablesV0,
@@ -8,6 +14,15 @@ export type {
   Civ7StartBiasValueRowV1,
 } from "./civ7-tables.gen.js";
 export { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "./civ7-tables.gen.js";
+export {
+  ENGINE_FEATURE_LEGALITY_BY_KEY,
+  FEATURE_KEY_INDEX,
+  FEATURE_PLACEMENT_KEYS,
+  getEngineFeatureLegality,
+  type EngineFeatureLegality,
+  type FeatureKey,
+  type PlotEffectKey,
+} from "./feature-placement.js";
 export {
   WATER_CLASS_COAST,
   WATER_CLASS_LAND,
@@ -31,9 +46,39 @@ export {
 export {
   isResourceAdjacentToLandRuntimeOptional,
   NO_RESOURCE,
-  PLACEABLE_RESOURCE_TYPE_IDS,
   RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
 } from "./resource-constants.js";
+export {
+  buildResourceLegalityMask,
+  type ResourceLegalitySurface,
+} from "./resource-legality.js";
+export {
+  OFFICIAL_RESOURCE_BY_TYPE,
+  OFFICIAL_RESOURCE_CORPUS,
+  OFFICIAL_RESOURCE_CORPUS_ARTIFACT,
+  OFFICIAL_RESOURCE_TYPE_ORDER,
+} from "./resources/index.js";
+export {
+  requireResourceRuntimeId,
+  resolveResourceRuntimeIds,
+  type ResolvedResourceRuntimeId,
+  type ResourceRuntimeIdResolution,
+} from "./resources/runtime-ids.js";
+export type {
+  OfficialAgeType,
+  OfficialPlacementConstraintSummary,
+  OfficialResourceClassType,
+  OfficialResourceCorpusArtifact,
+  OfficialResourceCorpusEntry,
+  OfficialResourceTag,
+  OfficialResourceType,
+  OfficialYieldType,
+  ResourceClassOverride,
+  ResourceDistributionFacts,
+  ResourcePlaceabilityStatus,
+  ResourceSourceRef,
+  ResourceYieldChange,
+} from "./resources/types.js";
 export {
   CIV7_DEFAULT_RIVER_MODELING_ARGS,
   CIV7_RIVER_MODELING_POLICY_V0,

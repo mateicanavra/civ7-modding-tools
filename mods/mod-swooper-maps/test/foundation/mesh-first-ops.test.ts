@@ -1,15 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
-import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
-import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
-import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
-import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
 import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
+const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph, computePlateMotion, computePlatesTensors, computeTectonicSegments } = foundationOpsPublic.ops;
 function neighborsFor(
   mesh: {
     neighborsOffsets: Int32Array;

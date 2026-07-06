@@ -1,14 +1,15 @@
 import { describe, expect, it } from "bun:test";
 
-import { defaultStrategy } from "../src/domain/hydrology/ops/project-river-network/strategies/default.js";
+import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 
+const { projectRiverNetwork } = hydrologyOpsPublic.ops;
 describe("hydrology/project-river-network (default strategy)", () => {
   it("produces no rivers when all land discharge is zero", () => {
     const width = 4;
     const height = 3;
     const size = width * height;
 
-    const out = defaultStrategy.run(
+    const out = projectRiverNetwork.run(
       {
         width,
         height,
@@ -17,10 +18,13 @@ describe("hydrology/project-river-network (default strategy)", () => {
         flowDir: new Int32Array(size).fill(-1),
       },
       {
+        strategy: "default",
+        config: {
         minorPercentile: 0.85,
         majorPercentile: 0.95,
         minMinorDischarge: 0,
         minMajorDischarge: 0,
+        },
       }
     );
 
@@ -37,7 +41,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
     const discharge = new Float32Array(size).fill(0);
     discharge[0] = 10;
 
-    const out = defaultStrategy.run(
+    const out = projectRiverNetwork.run(
       {
         width,
         height,
@@ -46,10 +50,13 @@ describe("hydrology/project-river-network (default strategy)", () => {
         flowDir: new Int32Array(size).fill(-1),
       },
       {
+        strategy: "default",
+        config: {
         minorPercentile: 0.85,
         majorPercentile: 0.95,
         minMinorDischarge: 0,
         minMajorDischarge: 0,
+        },
       }
     );
 
@@ -67,7 +74,7 @@ describe("hydrology/project-river-network (default strategy)", () => {
     const discharge = new Float32Array([30, 40, 70, 50, 90, 120]);
     const flowDir = new Int32Array([2, 2, 4, 4, 5, -1]);
 
-    const out = defaultStrategy.run(
+    const out = projectRiverNetwork.run(
       {
         width,
         height,
@@ -76,10 +83,13 @@ describe("hydrology/project-river-network (default strategy)", () => {
         flowDir,
       },
       {
+        strategy: "default",
+        config: {
         minorPercentile: 0,
         majorPercentile: 1,
         minMinorDischarge: 30,
         minMajorDischarge: 120,
+        },
       }
     );
 

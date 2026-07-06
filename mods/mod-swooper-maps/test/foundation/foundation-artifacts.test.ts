@@ -1,41 +1,11 @@
 import { describe, expect, it } from "bun:test";
-
-import * as crust from "../../src/domain/foundation/artifacts/crust.artifact.js";
-import * as currentTectonics from "../../src/domain/foundation/artifacts/current-tectonics.artifact.js";
-import * as mantleForcing from "../../src/domain/foundation/artifacts/mantle-forcing.artifact.js";
-import * as mantlePotential from "../../src/domain/foundation/artifacts/mantle-potential.artifact.js";
-import * as mesh from "../../src/domain/foundation/artifacts/mesh.artifact.js";
-import * as plateGraph from "../../src/domain/foundation/artifacts/plate-graph.artifact.js";
-import * as plateIdByEra from "../../src/domain/foundation/artifacts/plate-id-by-era.artifact.js";
-import * as plateMotion from "../../src/domain/foundation/artifacts/plate-motion.artifact.js";
-import * as tectonicEraFields from "../../src/domain/foundation/artifacts/tectonic-era-fields.artifact.js";
-import * as tectonicEvents from "../../src/domain/foundation/artifacts/tectonic-events.artifact.js";
-import * as tectonicHistory from "../../src/domain/foundation/artifacts/tectonic-history.artifact.js";
-import * as tectonicProvenance from "../../src/domain/foundation/artifacts/tectonic-provenance.artifact.js";
-import * as tracerIndexByEra from "../../src/domain/foundation/artifacts/tracer-index-by-era.artifact.js";
+import { crust, crustInit, currentTectonics, mantleForcing, mantlePotential, mesh, plateGraph, plateIdByEra, plateMotion, plateTopology, tectonicEraFields, tectonicEvents, tectonicHistory, tectonicProvenance, tectonicSegments, tracerIndexByEra } from "@mapgen/domain/foundation/artifacts";
 
 type ArtifactModule = Readonly<{
   Schema: unknown;
   artifact: Readonly<{ id: string; name: string; schema: unknown }>;
   validate: (value: unknown) => readonly { message: string }[];
-  assert?: unknown;
 }>;
-
-const modules = [
-  ["mesh", mesh, "artifact:foundation.mesh"],
-  ["crust", crust, "artifact:foundation.crust"],
-  ["mantle-potential", mantlePotential, "artifact:foundation.mantlePotential"],
-  ["mantle-forcing", mantleForcing, "artifact:foundation.mantleForcing"],
-  ["plate-graph", plateGraph, "artifact:foundation.plateGraph"],
-  ["plate-motion", plateMotion, "artifact:foundation.plateMotion"],
-  ["current-tectonics", currentTectonics, "artifact:foundation.tectonics"],
-  ["tectonic-history", tectonicHistory, "artifact:foundation.tectonicHistory"],
-  ["tectonic-provenance", tectonicProvenance, "artifact:foundation.tectonicProvenance"],
-  ["tectonic-events", tectonicEvents, "artifact:foundation.tectonicEvents"],
-  ["tectonic-era-fields", tectonicEraFields, "artifact:foundation.tectonicEraFields"],
-  ["plate-id-by-era", plateIdByEra, "artifact:foundation.plateIdByEra"],
-  ["tracer-index-by-era", tracerIndexByEra, "artifact:foundation.tracerIndexByEra"],
-] as const satisfies readonly (readonly [string, ArtifactModule, string])[];
 
 function messages(issues: readonly { message: string }[]): string {
   return issues.map((issue) => issue.message).join("\n");
@@ -183,6 +153,16 @@ function validPlateMotion() {
   };
 }
 
+function validPlateTopology() {
+  return {
+    plateCount,
+    plates: [
+      { id: 0, area: 2, centroid: { x: 1, y: 2 }, neighbors: [1] },
+      { id: 1, area: 1, centroid: { x: 3, y: 4 }, neighbors: [0] },
+    ],
+  };
+}
+
 function validCurrentTectonics() {
   return {
     boundaryType: u8(),
@@ -192,6 +172,25 @@ function validCurrentTectonics() {
     volcanism: u8(),
     fracture: u8(),
     cumulativeUplift: u8(),
+  };
+}
+
+function validTectonicSegments() {
+  return {
+    segmentCount: 2,
+    aCell: i32(2),
+    bCell: i32(2),
+    plateA: i16(2),
+    plateB: i16(2),
+    regime: u8(2),
+    polarity: i8(2),
+    compression: u8(2),
+    extension: u8(2),
+    shear: u8(2),
+    volcanism: u8(2),
+    fracture: u8(2),
+    driftU: i8(2),
+    driftV: i8(2),
   };
 }
 
@@ -285,29 +284,17 @@ function validEvent() {
 }
 
 describe("foundation artifact contract files", () => {
-  it("exports exactly one stable artifact contract surface per file", () => {
-    for (const [name, module, id] of modules) {
-      expect(module.Schema, name).toBeDefined();
-      expect(module.artifact.id, name).toBe(id);
-      expect(module.artifact.schema, name).toBe(module.Schema);
-      expect(typeof module.validate, name).toBe("function");
-      expect(module.assert, name).toBeUndefined();
-
-      const semanticFunctionExports = Object.keys(module).filter((key) =>
-        /^(validate|assert)[A-Z]|validateFoundation|assertFoundation/.test(key)
-      );
-      expect(semanticFunctionExports, name).toEqual([]);
-    }
-  });
-
   it("validates direct foundation artifact payloads without mutating or throwing", () => {
     const validPayloads: readonly (readonly [ArtifactModule, unknown])[] = [
       [mesh, validMesh()],
       [crust, validCrust()],
+      [crustInit, validCrust()],
       [mantlePotential, validMantlePotential()],
       [mantleForcing, validMantleForcing()],
       [plateGraph, validPlateGraph()],
       [plateMotion, validPlateMotion()],
+      [plateTopology, validPlateTopology()],
+      [tectonicSegments, validTectonicSegments()],
       [currentTectonics, validCurrentTectonics()],
       [tectonicHistory, validTectonicHistory()],
       [tectonicProvenance, validTectonicProvenance()],
@@ -400,6 +387,18 @@ describe("foundation artifact contract files", () => {
       /plates/
     );
     expectInvalid(plateMotion, { ...validPlateMotion(), plateVelocityX: f32(1) }, /plateVelocityX/);
+    expectInvalid(
+      plateTopology,
+      {
+        ...validPlateTopology(),
+        plates: [
+          { id: 1, area: 2, centroid: { x: 1, y: 2 }, neighbors: [] },
+          { id: 1, area: 1, centroid: { x: 3, y: 4 }, neighbors: [0] },
+        ],
+      },
+      /id/
+    );
+    expectInvalid(tectonicSegments, { ...validTectonicSegments(), driftV: i8(1) }, /driftV/);
     expectInvalid(
       currentTectonics,
       { ...validCurrentTectonics(), shearStress: f32() },

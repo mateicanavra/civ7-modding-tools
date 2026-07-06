@@ -1,11 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 
-import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
-import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
-import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
-import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
-import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
-
+const { computeCrust, computeMantleForcing, computeMantlePotential, computeMesh, computePlateGraph } = foundationOpsPublic.ops;
 function collectPlateCells(cellToPlate: Int16Array, plateId: number): number[] {
   const out: number[] = [];
   for (let i = 0; i < cellToPlate.length; i++) {

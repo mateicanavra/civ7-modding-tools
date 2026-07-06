@@ -11,7 +11,8 @@ Status: draft corpus artifact
 ## Authority Order
 
 1. direct user decisions in the active session;
-2. active scope, file, and pattern documents in this workstream;
+2. active `.habitat/scopes/**` scope, file, and pattern documents plus any
+   scope/file/pattern documents still local to this workstream;
 3. shared decision-book criteria in this workstream;
 4. canonical Civ7 product and architecture authority;
 5. current source, callers, tests, and generated/runtime evidence;

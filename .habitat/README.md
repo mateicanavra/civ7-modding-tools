@@ -50,6 +50,10 @@ categories, registry metadata, and tool-separation authority.
 - `AUTHORITY.md`: what may be authoritative here and what remains Toolkit execution machinery.
 - `AUTHORITY-ONTOLOGY.md`: normative conceptual model for Habitat, blueprints, instances, capabilities, niches, admission, and authority activation.
 - `AUTHORITY-TREE-SHAPE.md`: the current niche/blueprint tree shape.
+- `scopes/`: authored blueprint scope references. These are visible staging
+  authority for scope/file/pattern shape; they are not admitted executable
+  rules unless a separate packet under `blueprints/` or a niche `rules/`
+  directory contains `rule.json`.
 - `.active/frames/DOMINO-FRAME.md`: operating frame for choosing and carrying authority-tree dominoes across branches, agents, and review loops.
 - `.active/frames/AUTHORITY-SLICE-FRAME.md`: normative frame for bounded authority-slice
   work, including how to classify current rules without promoting packet

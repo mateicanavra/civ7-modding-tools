@@ -105,7 +105,6 @@ describe("M3 no-fudging posture (static scan)", () => {
     const repoRoot = path.resolve(testDir, "..", "..");
 
     const roots = [
-      path.join(repoRoot, "src", "domain", "ecology", "ops", "classify-biomes", "layers"),
       path.join(repoRoot, "src", "domain", "ecology", "ops", "classify-biomes", "rules"),
       path.join(
         repoRoot,

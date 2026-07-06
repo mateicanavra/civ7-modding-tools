@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import morphologyDomain from "../../src/domain/morphology/ops.js";
+import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 // These pin the byte-behavior of the three ops extracted from the carving/shelf

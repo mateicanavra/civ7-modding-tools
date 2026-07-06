@@ -1,32 +1,28 @@
-import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
-import { isAnyRiverClass } from "@mapgen/domain/hydrology";
+import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import {
-  validateFeatureIntentsListArtifact,
-  validateOccupancyArtifact,
-} from "../../../ecology/artifact-validation.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import PlanVegetationStepContract from "./contract.js";
+import { validators as ecologyArtifactValidators } from "../../../ecology/artifacts/index.js";
 
-const VEGETATION_FEATURE_INDEX_BY_KEY: Readonly<Record<string, number>> = {
-  FEATURE_FOREST: (FEATURE_KEY_INDEX.FEATURE_FOREST ?? 0) + 1,
-  FEATURE_RAINFOREST: (FEATURE_KEY_INDEX.FEATURE_RAINFOREST ?? 0) + 1,
-  FEATURE_TAIGA: (FEATURE_KEY_INDEX.FEATURE_TAIGA ?? 0) + 1,
-  FEATURE_SAVANNA_WOODLAND: (FEATURE_KEY_INDEX.FEATURE_SAVANNA_WOODLAND ?? 0) + 1,
-  FEATURE_SAGEBRUSH_STEPPE: (FEATURE_KEY_INDEX.FEATURE_SAGEBRUSH_STEPPE ?? 0) + 1,
-};
+const VEGETATION_FEATURE_INTENTS = new Set([
+  "forest",
+  "rainforest",
+  "taiga",
+  "savanna-woodland",
+  "sagebrush-steppe",
+]);
 
 export default createStep(PlanVegetationStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsVegetation, ecologyArtifacts.occupancyVegetation],
     {
       featureIntentsVegetation: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.featureIntentsVegetation,
       },
       occupancyVegetation: {
-        validate: (value, context) => validateOccupancyArtifact(value, context.dimensions),
+        validate: ecologyArtifactValidators.occupancyVegetation,
       },
     }
   ),
@@ -60,11 +56,11 @@ export default createStep(PlanVegetationStepContract, {
         width,
         height,
         seed,
-        scoreForest01: scoreLayers.layers.FEATURE_FOREST,
-        scoreRainforest01: scoreLayers.layers.FEATURE_RAINFOREST,
-        scoreTaiga01: scoreLayers.layers.FEATURE_TAIGA,
-        scoreSavannaWoodland01: scoreLayers.layers.FEATURE_SAVANNA_WOODLAND,
-        scoreSagebrushSteppe01: scoreLayers.layers.FEATURE_SAGEBRUSH_STEPPE,
+        scoreForest01: scoreLayers.layers.forest,
+        scoreRainforest01: scoreLayers.layers.rainforest,
+        scoreTaiga01: scoreLayers.layers.taiga,
+        scoreSavannaWoodland01: scoreLayers.layers["savanna-woodland"],
+        scoreSagebrushSteppe01: scoreLayers.layers["sagebrush-steppe"],
         landMask: topography.landMask,
         flatLandMask,
         biomeIndex: classification.biomeIndex,
@@ -72,7 +68,7 @@ export default createStep(PlanVegetationStepContract, {
         effectiveMoisture: classification.effectiveMoisture,
         aridityIndex: classification.aridityIndex,
         vegetationDensity: classification.vegetationDensity,
-        featureIndex: prev.featureIndex,
+        featureOccupancyMask: prev.featureOccupancyMask,
         reserved: prev.reserved,
       },
       config.planVegetation
@@ -80,13 +76,12 @@ export default createStep(PlanVegetationStepContract, {
 
     placements.sort((a, b) => a.y * width + a.x - (b.y * width + b.x));
 
-    const featureIndex = new Uint16Array(prev.featureIndex);
+    const featureOccupancyMask = new Uint8Array(prev.featureOccupancyMask);
     const reserved = new Uint8Array(prev.reserved);
 
     for (const placement of placements) {
       const feature = placement.feature;
-      const index = VEGETATION_FEATURE_INDEX_BY_KEY[feature];
-      if (!index) {
+      if (!VEGETATION_FEATURE_INTENTS.has(feature)) {
         throw new Error(
           `plan-vegetation expected vegetation-family placements (received ${feature})`
         );
@@ -103,17 +98,17 @@ export default createStep(PlanVegetationStepContract, {
       if (reserved[idx] !== 0) {
         throw new Error(`plan-vegetation attempted to claim reserved tileIndex=${idx} (${x},${y})`);
       }
-      if (featureIndex[idx] !== 0) {
+      if (featureOccupancyMask[idx] !== 0) {
         throw new Error(`plan-vegetation attempted to claim occupied tileIndex=${idx} (${x},${y})`);
       }
-      featureIndex[idx] = index;
+      featureOccupancyMask[idx] = 1;
     }
 
     deps.artifacts.featureIntentsVegetation.publish(context, placements);
     deps.artifacts.occupancyVegetation.publish(context, {
       width,
       height,
-      featureIndex,
+      featureOccupancyMask,
       reserved,
     });
   },

@@ -16,3 +16,5 @@ export {
   ArtifactValidationError,
   implementArtifacts,
 } from "./runtime.js";
+export type { ArtifactValidationContext, ArtifactValidationIssue } from "./validation.js";
+export { artifactCellCount, validateArtifactSchema } from "./validation.js";

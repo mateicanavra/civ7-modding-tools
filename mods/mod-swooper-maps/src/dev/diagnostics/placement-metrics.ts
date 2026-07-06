@@ -16,6 +16,7 @@
 
 import type { GameMapAdapter } from "@civ7/adapter";
 import { createMockAdapter } from "@civ7/adapter";
+import { requireResourceRuntimeId, type OfficialResourceType } from "@civ7/map-policy";
 import { createExtendedMapContext, createLabelRng, VOLCANO_FEATURE } from "@swooper/mapgen-core";
 import {
   getHexNeighborIndicesOddQ,
@@ -33,11 +34,11 @@ import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.conf
 import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
-import { hydrologyClimateRefineArtifacts } from "../../recipes/standard/stages/hydrology-climate-refine/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
-import { morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts.js";
-import { placementArtifacts } from "../../recipes/standard/stages/placement/artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
+import { artifacts as hydrologyClimateRefineArtifacts } from "../../recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../recipes/standard/stages/placement/artifacts/index.js";
 
 export const PLACEMENT_METRICS_SCHEMA_VERSION = 1;
 
@@ -152,7 +153,6 @@ type ResourcePlanArtifact = {
     x: number;
     y: number;
     resourceType: string;
-    resourceTypeId: number;
     family: "aquatic" | "cultivated" | "terrestrial" | "geological";
     laneId: string;
     laneKind: "land" | "water";
@@ -161,7 +161,6 @@ type ResourcePlanArtifact = {
   }>;
   perType: ReadonlyArray<{
     resourceType: string;
-    resourceTypeId: number;
     family: "aquatic" | "cultivated" | "terrestrial" | "geological";
     laneId: string;
     weight: number;
@@ -193,7 +192,6 @@ type ResourcePlanAdjustedArtifact = {
     action: "move" | "add";
     reason: "support-floor" | "support-equity";
     resourceType: string;
-    resourceTypeId: number;
     fromPlotIndex?: number;
     toPlotIndex: number;
     seatIndex: number;
@@ -231,6 +229,14 @@ type ResourceOutcomesArtifact = {
     resourceType: number;
   }>;
 };
+
+function resourceRuntimeId(resourceType: string): number | null {
+  try {
+    return requireResourceRuntimeId(resourceType as OfficialResourceType).resourceTypeId;
+  } catch {
+    return null;
+  }
+}
 
 function mean(values: readonly number[]): number | null {
   if (!values.length) return null;
@@ -1003,7 +1009,10 @@ export function computePlacementMetricsFromRun(
   {
     const intentByPlot = new Map(stampedIntents.map((row) => [row.plotIndex, row]));
     const floorByTypeId = new Map(
-      resourcePlan.perType.map((row) => [row.resourceTypeId, row.spacingFloorTiles])
+      resourcePlan.perType.flatMap((row) => {
+        const id = resourceRuntimeId(row.resourceType);
+        return id === null ? [] : [[id, row.spacingFloorTiles] as const];
+      })
     );
     const landTiles: number[] = [];
     for (let i = 0; i < size; i++) if (landMask[i] === 1) landTiles.push(i);
@@ -1099,7 +1108,8 @@ export function computePlacementMetricsFromRun(
     let withTarget = 0;
     let belowMinWithoutShortfall = 0;
     const rows = resourcePlan.perType.map((row) => {
-      const placedCount = placedByTypeId.get(row.resourceTypeId) ?? 0;
+      const runtimeId = resourceRuntimeId(row.resourceType);
+      const placedCount = runtimeId === null ? 0 : (placedByTypeId.get(runtimeId) ?? 0);
       const inRangeRow = placedCount >= row.minCount && placedCount <= row.maxCount;
       const shortfall = row.shortfalls.reduce((sum, item) => sum + item.count, 0);
       if (inRangeRow) inRange += 1;
@@ -1164,7 +1174,10 @@ export function computePlacementMetricsFromRun(
   // --- E2.6 type-aware spacing -----------------------------------------------------------------------------
   {
     const floorByTypeId = new Map(
-      resourcePlan.perType.map((row) => [row.resourceTypeId, row.spacingFloorTiles])
+      resourcePlan.perType.flatMap((row) => {
+        const id = resourceRuntimeId(row.resourceType);
+        return id === null ? [] : [[id, row.spacingFloorTiles] as const];
+      })
     );
     const plotsByType = new Map<number, number[]>();
     for (const outcome of placed) {
@@ -1277,12 +1290,16 @@ export function computePlacementMetricsFromRun(
       const intent = intentByPlot.get(outcome.plotIndex);
       if (!intent) continue;
       stampedWithIntent += 1;
-      if (intent.resourceTypeId !== outcome.resourceType) reassignedCount += 1;
+      const runtimeId = resourceRuntimeId(intent.resourceType);
+      if (runtimeId === null || runtimeId !== outcome.resourceType) reassignedCount += 1;
     }
 
     let preferredLegalRows = 0;
     for (const intent of stampedIntents) {
-      if (adapter.canHaveResource(intent.x, intent.y, intent.resourceTypeId)) preferredLegalRows++;
+      const runtimeId = resourceRuntimeId(intent.resourceType);
+      if (runtimeId !== null && adapter.canHaveResource(intent.x, intent.y, runtimeId)) {
+        preferredLegalRows++;
+      }
     }
 
     const plannedCount = stampedIntents.length;
@@ -1520,7 +1537,6 @@ function syntheticSelectSitesInput(args: {
   height: number;
   demands: Array<{
     resourceType: string;
-    resourceTypeId: number;
     weight: number;
     targetCount: number;
     minCount: number;
@@ -1550,7 +1566,6 @@ function syntheticSelectSitesInput(args: {
     minimumAmountModifier: 0,
     demands: args.demands.map((demand) => ({
       resourceType: demand.resourceType,
-      resourceTypeId: demand.resourceTypeId,
       family: "geological" as const,
       laneId: "co-eligible-probe",
       laneKind: "land" as const,
@@ -1579,7 +1594,7 @@ function runSelectSitesProbe(
     } as never
   ) as unknown as {
     plannedCount: number;
-    intents: ReadonlyArray<{ plotIndex: number; resourceTypeId: number }>;
+    intents: ReadonlyArray<{ plotIndex: number; resourceType: string }>;
     perType: ReadonlyArray<{
       resourceType: string;
       weight: number;
@@ -1608,7 +1623,6 @@ function computeCoEligibleWeightSpearman(): {
     demands: [
       {
         resourceType: "RESOURCE_PROBE_W5",
-        resourceTypeId: 901,
         weight: 5,
         targetCount: 60,
         minCount: 0,
@@ -1616,7 +1630,6 @@ function computeCoEligibleWeightSpearman(): {
       },
       {
         resourceType: "RESOURCE_PROBE_W10",
-        resourceTypeId: 902,
         weight: 10,
         targetCount: 60,
         minCount: 0,
@@ -1624,7 +1637,6 @@ function computeCoEligibleWeightSpearman(): {
       },
       {
         resourceType: "RESOURCE_PROBE_W20",
-        resourceTypeId: 903,
         weight: 20,
         targetCount: 60,
         minCount: 0,
@@ -1632,7 +1644,6 @@ function computeCoEligibleWeightSpearman(): {
       },
       {
         resourceType: "RESOURCE_PROBE_W40",
-        resourceTypeId: 904,
         weight: 40,
         targetCount: 60,
         minCount: 0,
@@ -1665,7 +1676,6 @@ function computeExpressivenessProbe(): Record<string, number | boolean | null> {
   const demands = [
     {
       resourceType: "RESOURCE_PROBE_A",
-      resourceTypeId: 911,
       weight: 10,
       targetCount: 16,
       minCount: 4,
@@ -1673,7 +1683,6 @@ function computeExpressivenessProbe(): Record<string, number | boolean | null> {
     },
     {
       resourceType: "RESOURCE_PROBE_B",
-      resourceTypeId: 912,
       weight: 10,
       targetCount: 16,
       minCount: 4,
@@ -1681,7 +1690,6 @@ function computeExpressivenessProbe(): Record<string, number | boolean | null> {
     },
     {
       resourceType: "RESOURCE_PROBE_C",
-      resourceTypeId: 913,
       weight: 10,
       targetCount: 16,
       minCount: 4,
@@ -1691,11 +1699,15 @@ function computeExpressivenessProbe(): Record<string, number | boolean | null> {
   const input = () => syntheticSelectSitesInput({ width: 32, height: 20, demands });
   const exclusionRadius = 4;
   const countViolations = (
-    intents: ReadonlyArray<{ plotIndex: number; resourceTypeId: number }>,
+    intents: ReadonlyArray<{ plotIndex: number; resourceType: string }>,
     width: number
   ): number => {
-    const a = intents.filter((row) => row.resourceTypeId === 911).map((row) => row.plotIndex);
-    const b = intents.filter((row) => row.resourceTypeId === 912).map((row) => row.plotIndex);
+    const a = intents
+      .filter((row) => row.resourceType === "RESOURCE_PROBE_A")
+      .map((row) => row.plotIndex);
+    const b = intents
+      .filter((row) => row.resourceType === "RESOURCE_PROBE_B")
+      .map((row) => row.plotIndex);
     let violations = 0;
     for (const plotA of a) {
       for (const plotB of b) {

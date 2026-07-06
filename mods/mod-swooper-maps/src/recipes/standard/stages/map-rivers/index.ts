@@ -1,13 +1,14 @@
-import { HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY } from "@mapgen/domain/hydrology/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { MapRiversPublicSchema } from "../map-projection-public-config.js";
-import {
-  NavigableRiverDensityKnobSchema,
-  type NavigableRiverDensityKnobs,
-  resolveNavigableRiverDensityKnob,
-} from "./riverProjectionKnobs.js";
 import { plotRivers } from "./steps/index.js";
+
+const NavigableRiverDensityKnobSchema = Type.Union(
+  [Type.Literal("sparse"), Type.Literal("normal"), Type.Literal("dense")],
+  {
+    description:
+      "Civ-visible navigable river trunk density (sparse/normal/dense). Applies after Hydrology has authored the physical river network.",
+  }
+);
 
 const knobsSchema = Type.Object(
   {
@@ -31,18 +32,6 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "map-rivers",
   knobsSchema,
-  public: MapRiversPublicSchema,
-  compile: ({ knobs }: { config: object; knobs: unknown }) => {
-    const density = resolveNavigableRiverDensityKnob(knobs as NavigableRiverDensityKnobs);
-    return {
-      "plot-rivers": {
-        selectNavigableRiverTerrain: {
-          strategy: "default",
-          config: { ...HYDROLOGY_NAVIGABLE_RIVER_PROJECTION_POLICY[density] },
-        },
-      },
-    };
-  },
   steps: orderStandardStageSteps("map-rivers", {
     "plot-rivers": plotRivers,
   }),

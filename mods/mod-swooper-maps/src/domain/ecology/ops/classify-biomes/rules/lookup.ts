@@ -1,4 +1,4 @@
-import type { BiomeSymbol } from "@mapgen/domain/ecology/types.js";
+import type { BiomeSymbol } from "../../../model/schemas/index.js";
 
 const BIOME_LOOKUP: Record<
   "polar" | "cold" | "temperate" | "tropical",

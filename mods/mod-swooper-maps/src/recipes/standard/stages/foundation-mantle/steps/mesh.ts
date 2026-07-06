@@ -1,8 +1,7 @@
-import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/config.js";
+import { validators as foundationArtifactValidators } from "@mapgen/domain/foundation";
 import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../../foundation/artifacts.js";
-import { validateMeshArtifact, wrapFoundationValidateNoDims } from "../../foundation/validation.js";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { interleaveXY, segmentsFromMeshNeighbors } from "../../foundation/viz.js";
 import MeshStepContract from "./mesh.contract.js";
 
@@ -11,11 +10,11 @@ const GROUP_MESH = "Foundation / Mesh";
 export default createStep(MeshStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mesh], {
     foundationMesh: {
-      validate: (value) => wrapFoundationValidateNoDims(value, validateMeshArtifact),
+      validate: (value) => foundationArtifactValidators.mesh(value),
     },
   }),
   normalize: (config, ctx) => {
-    const { plateCount } = ctx.knobs as Readonly<{ plateCount?: FoundationPlateCountKnob }>;
+    const { plateCount } = ctx.knobs as Readonly<{ plateCount?: number }>;
     const override =
       typeof plateCount === "number" && Number.isFinite(plateCount) ? plateCount : undefined;
 

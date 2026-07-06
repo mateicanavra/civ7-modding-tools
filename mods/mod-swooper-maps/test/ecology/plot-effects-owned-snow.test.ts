@@ -104,9 +104,7 @@ describe("plot effects (owned)", () => {
     );
 
     expect(result.placements.length).toBeGreaterThan(0);
-    const anySnow = result.placements.some((placement) =>
-      placement.plotEffect.startsWith("PLOTEFFECT_SNOW_")
-    );
+    const anySnow = result.placements.some((placement) => placement.plotEffect.startsWith("snow-"));
     expect(anySnow).toBe(true);
   });
 });

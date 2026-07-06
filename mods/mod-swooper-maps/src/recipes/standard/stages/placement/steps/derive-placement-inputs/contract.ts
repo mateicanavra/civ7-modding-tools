@@ -6,10 +6,10 @@ import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { ecologyArtifacts } from "../../../ecology/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology/artifacts.js";
-import { placementArtifacts } from "../../artifacts.js";
+import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Builds the placement input artifact from runtime config and placement ops.
