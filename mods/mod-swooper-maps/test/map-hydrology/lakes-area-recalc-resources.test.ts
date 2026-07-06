@@ -130,7 +130,6 @@ describe("map-hydrology lakes area/water ordering", () => {
     initializeStandardRuntime(context, {
       mapInfo,
       logPrefix: "[test]",
-      storyEnabled: true,
     });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 

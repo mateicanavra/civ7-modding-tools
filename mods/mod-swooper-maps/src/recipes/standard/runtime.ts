@@ -6,13 +6,11 @@ export type StandardRuntime = {
   mapInfo: MapInfo;
   playersLandmass1: number;
   playersLandmass2: number;
-  storyEnabled: boolean;
 };
 
 export type StandardRuntimeInit = {
   logPrefix?: string;
   mapInfo?: MapInfo;
-  storyEnabled?: boolean;
 };
 
 const runtimeByContext = new WeakMap<ExtendedMapContext, StandardRuntime>();
@@ -36,7 +34,6 @@ function createRuntime(context: ExtendedMapContext): StandardRuntime {
     mapInfo,
     playersLandmass1,
     playersLandmass2,
-    storyEnabled: true,
   };
 }
 
@@ -54,7 +51,6 @@ export function initializeStandardRuntime(
 ): StandardRuntime {
   const runtime = getStandardRuntime(context);
   if (init.logPrefix) runtime.logPrefix = init.logPrefix;
-  if (init.storyEnabled !== undefined) runtime.storyEnabled = init.storyEnabled;
   if (init.mapInfo) {
     runtime.mapInfo = init.mapInfo;
     runtime.playersLandmass1 = init.mapInfo.PlayersLandmass1 ?? runtime.playersLandmass1;

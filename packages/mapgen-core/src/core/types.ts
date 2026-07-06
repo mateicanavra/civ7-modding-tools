@@ -105,40 +105,6 @@ export interface MapBuffers {
   scratchMasks: Map<string, Uint8Array>;
 }
 
-// ============================================================================
-// Story Overlay Types
-// ============================================================================
-
-/**
- * Derived snapshot describing a sparse narrative overlay (debug/inspection surface).
- *
- * This is not a canonical pipeline product: narrative story entries are the published primitives,
- * and overlay snapshots are derived on demand from those story entries.
- */
-export interface StoryOverlaySnapshot {
-  key: string;
-  kind: string;
-  version: number;
-  width: number;
-  height: number;
-  active?: readonly string[];
-  passive?: readonly string[];
-  summary: Readonly<Record<string, unknown>>;
-}
-
-/**
- * Non-canonical overlay collections (debug/compat only).
- *
- * Overlays are append-preferred and may be mutated by multiple steps. They are
- * currently threaded through artifacts for wiring, but will be redesigned as a
- * distinct dependency kind in a future architecture pass.
- */
-export interface StoryOverlayRegistry {
-  corridors: StoryOverlaySnapshot[];
-  swatches: StoryOverlaySnapshot[];
-  motifs: StoryOverlaySnapshot[];
-}
-
 /**
  * Plate-centric tensors emitted by the foundation stage.
  */
@@ -312,14 +278,6 @@ export interface ExtendedMapContext {
    * mutable after the initial publish. Do not republish buffer artifacts.
    */
   buffers: MapBuffers;
-  /**
-   * Derived narrative overlays (debug/compat view).
-   *
-   * Overlays are append-preferred and may be mutated across steps. They are
-   * currently carried via artifacts for wiring only.
-   * TODO(architecture): redesign overlays as a distinct dependency kind.
-   */
-  overlays: StoryOverlayRegistry;
 }
 
 // ============================================================================
@@ -380,11 +338,6 @@ export function createExtendedMapContext(
       heightfield,
       climate,
       scratchMasks: new Map(),
-    },
-    overlays: {
-      corridors: [],
-      swatches: [],
-      motifs: [],
     },
   };
 }

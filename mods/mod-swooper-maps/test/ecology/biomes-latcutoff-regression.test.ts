@@ -44,7 +44,7 @@ describe("biomes latitude-cutoff regression (M3-013)", () => {
     });
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
-    initializeStandardRuntime(ctx, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(ctx, { mapInfo, logPrefix: "[test]" });
 
     const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
     standardRecipe.run(ctx, env, config, { log: () => {} });

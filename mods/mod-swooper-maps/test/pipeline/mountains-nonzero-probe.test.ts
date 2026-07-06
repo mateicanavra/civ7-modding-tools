@@ -63,7 +63,6 @@ function runStandardContext(args: {
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[mountains-probe]",
-    storyEnabled: true,
   });
   standardRecipe.run(context, env, config, { log: () => {} });
   return { context, env } as const;

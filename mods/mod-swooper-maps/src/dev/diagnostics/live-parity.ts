@@ -680,7 +680,7 @@ export function runLocalFinalSurfaceSnapshot(
   const context = createExtendedMapContext({ width, height }, adapter, env);
   const traceEvents: TraceEvent[] = [];
 
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[parity]", storyEnabled: true });
+  initializeStandardRuntime(context, { mapInfo, logPrefix: "[parity]" });
   standardRecipe.run(context, env, config, {
     traceSink: createMemoryTraceSink(traceEvents),
     log: () => {},

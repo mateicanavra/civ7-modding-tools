@@ -71,7 +71,6 @@ function runRecipeWithAdapter(adapter: MockAdapter, width: number, height: numbe
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[test]",
-    storyEnabled: true,
   });
   standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
 

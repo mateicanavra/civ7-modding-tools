@@ -64,7 +64,7 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       rng: createLabelRng(seed),
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
     const events: TraceEvent[] = [];
     standardRecipe.run(context, env, realismEarthlikeConfig, {

@@ -376,7 +376,6 @@ export function runPlacementMetrics(options: PlacementMetricsRunOptions): Placem
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[placement-metrics]",
-    storyEnabled: true,
   });
   standardRecipe.run(context, env, config, { log: () => {} });
 

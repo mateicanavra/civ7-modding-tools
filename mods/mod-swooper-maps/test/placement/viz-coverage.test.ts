@@ -121,7 +121,7 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
     dumpGridFields: (_trace, layer) => record(layer),
   };
   context.viz = viz;
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+  initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
   standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
   it("every placement step emits its expected decision-substance layers", () => {

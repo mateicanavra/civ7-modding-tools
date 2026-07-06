@@ -74,7 +74,7 @@ function runAndCaptureSst(options: {
   };
   context.viz = viz;
 
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+  initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
   standardRecipe.run(context, env, config, { log: () => {} });
 
   if (!capturedSst)

@@ -42,7 +42,7 @@ function runStandardContext(seed: number) {
     rng: createLabelRng(seed),
   });
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+  initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
   standardRecipe.run(context, env, standardConfig, { log: () => {} });
   return context;
 }

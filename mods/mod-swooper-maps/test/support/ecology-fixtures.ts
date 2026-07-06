@@ -125,7 +125,6 @@ export function computeEcologyBaselineV1(input?: {
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[ecology-baseline]",
-    storyEnabled: true,
   });
 
   standardRecipe.run(context, env, config, { traceSink: NOOP_TRACE_SINK, log: () => {} });
