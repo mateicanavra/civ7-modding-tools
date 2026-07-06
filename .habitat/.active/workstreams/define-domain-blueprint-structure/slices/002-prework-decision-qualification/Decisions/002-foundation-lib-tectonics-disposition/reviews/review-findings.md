@@ -77,3 +77,39 @@ was composed:
 | P3 | Vocabulary scan noise | Slice 4's vocabulary scan was overbroad and non-deterministic, especially for `u`/`v`. | Accepted and repaired. Forbidden `foundation|tectonics|drift` vocabulary is a hard negative scan; `u/v` object-shape output is advisory and must be reviewer-dispositioned. |
 
 No accepted P1/P2 findings remain open after these repairs.
+
+## Execution Slice 2 Review
+
+Fresh review lanes checked Slice 2 artifact-contract construction after
+implementation. A subordinate-agent launcher was not available in the current
+tool surface, so the implementation DRA ran the packet-mandated review lanes
+directly against fresh command evidence. The supervisor then ran an independent
+Slice 2 review before Slice 3 source implementation.
+
+| Severity | Class | Finding | Disposition |
+| --- | --- | --- | --- |
+| P2 | Behavior coverage | `foundation-artifacts.test.ts` covered constructor/length failures but did not directly pin invalid `sourceCount`, invalid `plateCount`, out-of-range `eraCount` scalar failures, or broad enough invalid no-mutation/no-repair behavior for the Slice 2 Tests First gate. | Accepted and repaired. Added focused artifact-contract tests for invalid `sourceCount`, invalid `plateCount`, low/high out-of-range `eraCount`, and invalid-payload snapshot checks proving `validate` reports issues without mutating or repairing payloads. `bun test mods/mod-swooper-maps/test/foundation/foundation-artifacts.test.ts` passed after repair. |
+| P3 | Review mechanics | The review wave could not be delegated to separate launched agents because no subagent tool was available in this run. | Waived for Slice 2 with supervisor-visible record. Risk is review independence rather than implementation correctness; re-entry trigger is availability of a subordinate-agent launcher before Slice 3 closure. |
+
+Lane results:
+
+- Source/consumer: no new artifact owner or artifact test imports old
+  `foundation/lib/**`, `internal-contract`, `schemas`, `shared`, or `require*`
+  guard surfaces. Independent supervisor source/import review found no findings.
+- Behavior semantics: focused artifact tests pass positive and negative
+  validation cases for every constructed artifact destination, including
+  typed-array constructors, intrinsic length consistency, era/source/plate
+  counts, invalid scalar count/range failures, and no mutation/no throw/no
+  repair for invalid payloads. Independent supervisor behavior finding was
+  accepted and repaired with the added test evidence above.
+- Architecture/proof: every artifact file is a direct
+  `foundation/artifacts/*.artifact.ts` owner with exactly one
+  `defineArtifact(...)`, stable `Schema`/`artifact`/`validate` exports, no
+  `assert`, no semantic validation exports, and no new bucket under
+  `artifacts/`. Independent supervisor architecture review found no findings.
+- Closure: `bun test mods/mod-swooper-maps/test/foundation`,
+  `nx run mod-swooper-maps:check`, Biome check over touched files, semantic
+  export scan, one-artifact scan, old-owner scan, and `git diff --check`
+  passed.
+
+No accepted P1/P2 findings remain open for Slice 2.

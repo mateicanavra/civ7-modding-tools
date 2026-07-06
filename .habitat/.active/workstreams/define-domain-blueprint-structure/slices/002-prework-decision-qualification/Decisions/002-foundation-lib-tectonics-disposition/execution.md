@@ -193,7 +193,7 @@ and core-extraction slices.
 
 ## Slice 2: Artifact Contract Construction
 
-Status: planned/open
+Status: closed
 
 ### Objective
 
@@ -227,6 +227,24 @@ record or an adjacent packet note with one row per artifact file:
 ```text
 artifact file -> current source schemas/guards -> artifact id evidence -> validate coverage -> assert candidate -> tests
 ```
+
+Slice 2 artifact corpus:
+
+| Artifact file | Current source schemas/guards | Artifact id evidence | Validate coverage | Assert candidate | Tests |
+| --- | --- | --- | --- | --- | --- |
+| `mesh.artifact.ts` | `FoundationMeshSchema`; `requireMesh` checks presence, positive `cellCount`, finite positive `wrapWidth`, `siteX/siteY/areas` length `cellCount`, `neighborsOffsets` length `cellCount + 1`, and `neighbors` constructor. | Current stage artifact `foundationArtifacts.mesh` uses `artifact:foundation.mesh`; mapgen-core also exports `FOUNDATION_MESH_ARTIFACT_TAG`. | Constructor/schema shape; positive `cellCount`; finite positive `wrapWidth`; typed arrays; per-cell lengths; CSR offset length; no mutation or repair. | No. Publish-time validation can know all intrinsic mesh requirements; no external compatibility context is required. | `foundation-artifacts.test.ts`: shape/export row, valid mesh, invalid constructor/length/wrap checks. |
+| `crust.artifact.ts` | `FoundationCrustSchema`; `requireCrust` checks presence and `type/maturity/thickness/thermalAge/damage/age/buoyancy/baseElevation/strength` arrays against caller-provided `cellCount`. | Current stage artifacts use `artifact:foundation.crust` and `artifact:foundation.crustInit` with the same `FoundationCrustArtifactSchema`; closed row keeps destination `crust.artifact.ts`, so `crustInit` is alias/current recipe evidence for this contract, not a distinct Slice 2 owner. | Constructor/schema shape; all required crust arrays; intrinsic same-length compatibility across crust arrays; no mutation or repair. | Candidate for Slice 3 only if a direct operation boundary still needs external mesh `cellCount` compatibility after publish validation. | `foundation-artifacts.test.ts`: crust and crust-init id reconciliation, valid crust, invalid constructor/length checks. |
+| `mantle-potential.artifact.ts` | `FoundationMantlePotentialSchema`; `requireMantlePotential` checks presence, `cellCount`, `potential` length, nonnegative `sourceCount`, and source arrays against `sourceCount`. | Current stage artifact `foundationArtifacts.mantlePotential` uses `artifact:foundation.mantlePotential`; mapgen-core also exports `FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG`. | Constructor/schema shape; `cellCount`; `potential` length; nonnegative `sourceCount`; source array constructors and lengths; no mutation or repair. | No. The artifact carries both `cellCount` and `sourceCount`, so publish-time validation can cover intrinsic lengths. | `foundation-artifacts.test.ts`: valid payload, source-count and cell-count invalid cases. |
+| `mantle-forcing.artifact.ts` | `FoundationMantleForcingSchema`; `requireMantleForcing` checks presence, `cellCount`, and stress/vector/magnitude/class/divergence arrays against `cellCount`. | Current stage artifact `foundationArtifacts.mantleForcing` uses `artifact:foundation.mantleForcing`; mapgen-core also exports `FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG`. | Constructor/schema shape; `cellCount`; `stress`, `forcingU`, `forcingV`, `forcingMag`, `upwellingClass`, and `divergence` constructors/lengths; no mutation or repair. | No. The artifact carries `cellCount`, so publish-time validation can cover intrinsic lengths. | `foundation-artifacts.test.ts`: valid payload, invalid forcing array constructor/length cases. |
+| `plate-graph.artifact.ts` | `FoundationPlateGraphSchema`; `requirePlateGraph` checks presence, `cellToPlate` constructor/length against caller `cellCount`, and nonempty `plates`; stage artifact includes plate metadata schema. | Current stage artifact `foundationArtifacts.plateGraph` uses `artifact:foundation.plateGraph`; mapgen-core also exports `FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG`. | Constructor/schema shape; `cellToPlate` typed array; nonempty `plates`; plate metadata fields; no mutation or repair. | Candidate for Slice 3 only if direct callers still need external mesh `cellCount` compatibility. | `foundation-artifacts.test.ts`: valid graph, invalid `cellToPlate`, empty plates, and malformed plate metadata cases. |
+| `plate-motion.artifact.ts` | `FoundationPlateMotionSchema`; `requirePlateMotion` checks presence, `cellCount`, `plateCount`, plate arrays against `plateCount`, and `cellFitError` against caller `cellCount`. | Current stage artifact `foundationArtifacts.plateMotion` uses `artifact:foundation.plateMotion`; mapgen-core also exports `FOUNDATION_PLATE_MOTION_ARTIFACT_TAG`. | Constructor/schema shape; `cellCount`; `plateCount`; plate-center/velocity/omega/fit arrays; `plateQuality`; `cellFitError`; no mutation or repair. | Candidate for Slice 3 only if direct callers still need compatibility with external mesh `cellCount` or accepted plate graph `plateCount`. | `foundation-artifacts.test.ts`: valid motion, invalid plate-count and cell-count array cases. |
+| `current-tectonics.artifact.ts` | `FoundationTectonicsSchema`; `requireTectonics` checks presence and seven `Uint8Array` fields against caller `cellCount`. | Current recipe artifact is named `foundationArtifacts.tectonics` with `artifact:foundation.tectonics`; closed destination is `current-tectonics.artifact.ts` to avoid preserving the old `FoundationTectonics` owner name. | Constructor/schema shape; required current tectonics arrays; intrinsic same-length compatibility across arrays; no mutation or repair. | Candidate for Slice 3 only if direct operation boundaries still need external mesh `cellCount` compatibility. | `foundation-artifacts.test.ts`: id reconciliation, valid current tectonics, invalid constructor/length cases. |
+| `tectonic-history.artifact.ts` | `FoundationTectonicHistorySchema`; `requireTectonicHistory` checks `eraCount`, `eras` length, rollup arrays, and per-era field arrays; source schema also includes `plateIdByEra`. | Current stage artifact `foundationArtifacts.tectonicHistory` uses `artifact:foundation.tectonicHistory`; closed row requires `plateIdByEra` coverage in this contract. | Constructor/schema shape; `eraCount` 5..8; `eras` length; per-era arrays; `plateIdByEra` length/constructors; rollup arrays; intrinsic cell-length consistency; no mutation or repair. | Candidate for Slice 3 only if direct operation boundaries still need external mesh `cellCount` compatibility. | `foundation-artifacts.test.ts`: valid history, invalid era count, era-field, plate-id-by-era, and rollup cases. |
+| `tectonic-provenance.artifact.ts` | `FoundationTectonicProvenanceSchema`; `requireTectonicProvenance` checks `version`, `eraCount`, `cellCount`, `tracerIndex` arrays, and provenance scalar arrays. | Current stage artifact `foundationArtifacts.tectonicProvenance` uses `artifact:foundation.tectonicProvenance`; mapgen-core also exports `FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG`. | Constructor/schema shape; `eraCount`; `cellCount`; tracer-index list length and array constructors; provenance scalar constructors/lengths; no mutation or repair. | Candidate for Slice 3 only for optional direct-input truthy-branch compatibility with external mesh `cellCount`. | `foundation-artifacts.test.ts`: valid provenance, invalid era count, tracer index, scalar arrays, and optional-input assertion candidate coverage label. |
+| `tectonic-events.artifact.ts` | `TectonicEventSchema` and `TectonicEventsSchema` from `internal-contract.ts`. | No current recipe artifact id exists; id is derived from the closed destination plus the existing `artifact:foundation.<camelCase>` convention as `artifact:foundation.tectonicEvents`. | Event record schema; event list schema; integer ranges; seed cell list; no mutation or repair. | No. Event list validity is intrinsic to the event payload. | `foundation-artifacts.test.ts`: valid event list, invalid event field and list constructor cases. |
+| `tectonic-era-fields.artifact.ts` | `FoundationTectonicEraFieldsInternalSchema` and list schema from `internal-contract.ts`. | No current recipe artifact id exists; id is derived from the closed destination plus the existing `artifact:foundation.<camelCase>` convention as `artifact:foundation.tectonicEraFields`. | Era-field object schema; era-field list schema; required field constructors; intrinsic same-length compatibility across fields; no mutation or repair. | Candidate for Slice 3 only if direct operation boundaries still need external mesh `cellCount` compatibility. | `foundation-artifacts.test.ts`: valid era-field list, invalid missing/constructor/length cases. |
+| `plate-id-by-era.artifact.ts` | `PlateIdByEraSchema` from `internal-contract.ts`; `tectonic-history` source schema embeds the same per-era `Int16Array` list. | No current recipe artifact id exists; id is derived from the closed destination plus the existing `artifact:foundation.<camelCase>` convention as `artifact:foundation.plateIdByEra`. | Per-era `Int16Array` list; nonempty list; intrinsic same-length compatibility across eras; no mutation or repair. | Candidate for Slice 3 only if direct operation boundaries still need era count or external mesh `cellCount` compatibility. | `foundation-artifacts.test.ts`: valid list, invalid constructor and inconsistent length cases. |
+| `tracer-index-by-era.artifact.ts` | `TracerIndexByEraSchema` from `internal-contract.ts`; provenance schema embeds the same per-era `Uint32Array` list. | No current recipe artifact id exists; id is derived from the closed destination plus the existing `artifact:foundation.<camelCase>` convention as `artifact:foundation.tracerIndexByEra`. | Per-era `Uint32Array` list; nonempty list; intrinsic same-length compatibility across eras; no mutation or repair. | Candidate for Slice 3 only if direct operation boundaries still need era count or external mesh `cellCount` compatibility. | `foundation-artifacts.test.ts`: valid list, invalid constructor and inconsistent length cases. |
 
 Pass:
 
@@ -302,6 +320,54 @@ bun test mods/mod-swooper-maps/test/foundation
 nx run mod-swooper-maps:check
 git diff --check -- mods/mod-swooper-maps/src mods/mod-swooper-maps/test .habitat/.active
 ```
+
+### Executed Rows
+
+| Row class | Execution |
+| --- | --- |
+| Direct artifact owners | Created all 13 closed artifact destinations under `mods/mod-swooper-maps/src/domain/foundation/artifacts/*.artifact.ts`: mesh, crust, mantle potential, mantle forcing, plate graph, plate motion, current tectonics, tectonic history, tectonic provenance, tectonic events, tectonic era fields, plate id by era, and tracer index by era. |
+| Stable artifact shape | Each artifact file exports `Schema`, `Artifact`, `artifact`, and `validate`; no Slice 2 file exports `assert` or semantic validation/assertion function names. |
+| Validation ownership | Moved artifact-internal constructor, range, count, and intrinsic length checks into `validate` without operation normalization, repair, registry logic, examples, generated output edits, or caller migration. |
+| `crustInit` reconciliation | Recorded `artifact:foundation.crustInit` as current recipe alias evidence for the same crust payload contract. No distinct `crust-init.artifact.ts` owner was created. |
+| Recipe/stage artifact reconciliation | Current stage artifact definitions remain current evidence for Slice 3 import/re-export migration. Slice 2 did not change recipe ids or stage artifact registries. |
+| Legacy owners | `foundation/lib/require.ts`, `foundation/lib/tectonics/internal-contract.ts`, `foundation/lib/tectonics/schemas.ts`, and `foundation/lib/tectonics/shared.ts` remain present for the caller-migration/deletion slices. |
+
+### Proof
+
+Proof labels:
+
+- Tests-first proof: `bun test mods/mod-swooper-maps/test/foundation/foundation-artifacts.test.ts` first failed on the pre-implementation tree because `crust.artifact.js` was missing, then passed after the direct artifact owners were constructed.
+- Supervisor repair proof: after independent behavior review accepted the
+  missing direct count/range and invalid no-repair coverage gap,
+  `foundation-artifacts.test.ts` was extended with focused invalid
+  `sourceCount`, `plateCount`, low/high `eraCount`, and invalid-payload
+  no-mutation/no-repair assertions; `bun test
+  mods/mod-swooper-maps/test/foundation/foundation-artifacts.test.ts` passed
+  with 6 tests and 209 assertions.
+- Unit behavior proof: `bun test mods/mod-swooper-maps/test/foundation` passed.
+- Shape/export proof: negative semantic-export scan passed; every `*.artifact.ts` file has exactly one `defineArtifact(...)`; `bunx biome check mods/mod-swooper-maps/src/domain/foundation/artifacts mods/mod-swooper-maps/test/foundation/foundation-artifacts.test.ts .habitat/.active/workstreams/define-domain-blueprint-structure/slices/002-prework-decision-qualification/Decisions/002-foundation-lib-tectonics-disposition/execution.md` passed.
+- Type/import proof: `nx run mod-swooper-maps:check` passed.
+- Diff hygiene proof: `git diff --check -- mods/mod-swooper-maps/src mods/mod-swooper-maps/test .habitat/.active` passed.
+- Source/consumer scan proof: focused scan over the new artifact owners/tests found no imports or references to old `foundation/lib` owners or old `require*` guards.
+
+Verification limitation:
+
+- No subordinate-agent launcher was available in the tool surface for this run. The required review lanes were executed directly by the implementation DRA against fresh command evidence and recorded in `reviews/review-findings.md`.
+
+### Review
+
+Fresh Slice 2 review lanes initially found no accepted P1/P2 findings. The
+independent supervisor review then found one accepted behavior coverage gap,
+which was repaired before Slice 2 closure:
+
+- Source/import lane: no findings.
+- Behavior lane: accepted finding that `foundation-artifacts.test.ts` did not
+  directly pin invalid `sourceCount`, invalid `plateCount`, out-of-range
+  `eraCount` scalar failures, or broad enough invalid no-mutation/no-repair
+  behavior. Repaired in the same test file with focused count/range and snapshot
+  assertions; focused test passed.
+- Architecture/proof lane: files live directly under `foundation/artifacts/*.artifact.ts`, each owns one artifact, and no `contract/`, helper bucket, registry, semantic validation export, operation body edit, or `packages/mapgen-core/**` edit was introduced.
+- Closure lane: proof commands above passed; review disposition has no open accepted P1/P2 findings; Slice 3 may open only after this repair is committed cleanly through Graphite and supervisor explicitly approves Slice 3 implementation.
 
 ## Slice 3: Artifact Caller Migration And Legacy Deletion
 
