@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-swooper-catalog-index-consistency-temporary",
+  "title": "Grit Swooper Catalog Index Wiring Anchors Temporary",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "CatalogSourceIndex transitional anchors disappearing before catalog cutover",
+  "why": "Packet 4 introduces explicit catalog source data before Packet 9 cuts catalog generation over to that data. Behavior tests prove semantic source-set equality; this temporary advisory only catches disappearance of the index, reader, equality-test anchor, and transient studio-current exclusion wiring during the transition.",
+  "remediate": "Restore the transitional catalog source index anchors, or remove this advisory when swooper-catalog-index-cutover registers the permanent SA-09 topology authority. Keep semantic source-set equality in behavior tests, not this Grit pattern.",
+  "message": "Swooper catalog source index transitional wiring anchors drifted.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/maps/catalog/sourceIndex.ts",
+        "mods/mod-swooper-maps/src/maps/catalog/sources.ts",
+        "mods/mod-swooper-maps/test/config/catalog-source-index.test.ts",
+        "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/test/config",
+    "mods/mod-swooper-maps/scripts"
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-catalog-index-consistency-temporary/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-catalog-index-consistency-temporary/pattern.md"
+    },
+    "patternName": "grit_swooper_catalog_index_consistency_temporary"
+  }
+}
