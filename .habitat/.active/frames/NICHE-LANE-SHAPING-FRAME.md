@@ -173,7 +173,8 @@ child context authority. Those rows should move to the smallest honest
 
 Use this method when a parent niche lane is acting as a semantic junk drawer.
 
-1. Read the governing source-order docs from `.habitat/.active/dominoes/README.md`.
+1. Apply `.habitat/.active/frames/FRAME.md`, then use the selected domino and
+   this method without introducing another authority order.
 2. List every direct row under the selected parent `rules/` lane.
 3. Inspect manifests and runner artifacts for the row-level concerns.
 4. Inspect only the source needed to determine whether concerns are parent

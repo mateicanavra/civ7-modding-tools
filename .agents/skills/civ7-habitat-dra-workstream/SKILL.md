@@ -26,7 +26,10 @@ Use these skills with this one when the work crosses their scope:
 
 ## Operating Loop
 
-1. Ground in the authority order and current repo state before accepting any previous claim. See [authority map](references/authority-map.md).
+1. Apply the sole canonical source order in `.habitat/.active/frames/FRAME.md`,
+   then ground current repo state before accepting any previous claim. Use the
+   [authority map](references/authority-map.md) for role-specific reads, not a
+   second order.
 2. Select one lane: repair chain, Grit pattern chain, or supervision/watch. Do not blend lanes without an explicit dependency reason recorded in the active packet.
 3. Require the Stage 0 row or create/repair it before implementation. A repair claim, Grit row, codemod row, or manual disposition without row-level authority is not ready to implement.
 4. Open the relevant ledger row, OpenSpec packet, phase record, review ledger, downstream realignment ledger, source synthesis, and current code/tests.
@@ -37,7 +40,7 @@ Use these skills with this one when the work crosses their scope:
 
 ## Lane References
 
-- [Authority map](references/authority-map.md): source order, required reads, proof classes, and stack hygiene.
+- [Authority map](references/authority-map.md): authority delegation, required reads, proof classes, and stack hygiene.
 - [DRA supervision](references/dra-supervision.md): how to launch, review, correct, and close implementation DRAs.
 - [Repair chain](references/repair-chain.md): scope, sequencing, and closure rules for the core Habitat repairs.
 - [Grit pattern chain](references/grit-pattern-chain.md): row contract, proof matrix, and batch discipline for pattern workstreams.

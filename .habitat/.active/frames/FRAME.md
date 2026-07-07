@@ -16,22 +16,41 @@ Use this order when sources disagree:
 
 1. Direct current user instructions.
 2. Root `AGENTS.md`, closest subtree `AGENTS.md`, and repo process docs.
-3. `.habitat/.active/frames/FRAME.md` for the current authority-tree lens.
-4. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
-   `.habitat/RULE-OPERATION-KINDS.md`, `.habitat/SUBJECT-CATEGORIES.md`,
-   `.habitat/.active/dominoes/README.md`, and `.habitat/config.md`.
-5. `docs/projects/habitat-harness/FRAME.md`,
+3. Accepted project baselines that explicitly control the affected domain.
+4. Current canonical product and system docs.
+5. `.habitat/AUTHORITY.md` for the durable contract,
+   `.habitat/AUTHORITY-ONTOLOGY.md` for the normative conceptual model, then
+   `.habitat/AUTHORITY-TREE-SHAPE.md`,
+   `.habitat/RULE-OPERATION-KINDS.md`, `.habitat/SUBJECT-CATEGORIES.md`, and
+   `.habitat/config.md` for current physical and metadata authority.
+6. The selected active method specialization. For blueprint-kind ratchets,
+   `.habitat/.active/frames/BLUEPRINT-AUTHORITY-RATCHET-DESCENT-FRAME.md`
+   controls descent geometry and closure; active slice and domino frames
+   control their narrower operations.
+7. `.habitat/AUTHORITY-SEMANTIC-RATCHET-ADDENDUM.md` for the generalized
+   semantic-ratchet method. A selected active specialization takes precedence
+   where both apply.
+8. `.habitat/FUTURE-CIV7-FOUNDRY-ARCHITECTURE.md` for draft target
+   product/technical direction within its stated scope. It does not override
+   accepted current system docs or MapGen baselines until a bounded authority
+   slice promotes the relevant decision.
+9. `.habitat/.active/dominoes/README.md`,
+   `docs/projects/habitat-harness/FRAME.md`,
    `docs/projects/habitat-harness/dra-takeover-frame.md`, and current
    Habitat recovery/workstream records.
-6. Current `.habitat` manifests, packet paths, generic role files, patterns,
+10. Current `.habitat` manifests, packet paths, generic role files, patterns,
    baselines, operation notes, and Toolkit discovery behavior.
-7. Current source code, tests, scripts, package metadata, Nx metadata, and
+11. Current source code, tests, scripts, package metadata, Nx metadata, and
    fresh command behavior.
-8. Prior session summaries and archived project notes as discovery material
+12. Prior session summaries and archived project notes as discovery material
    only.
 
 If lower evidence contradicts higher authority, preserve the higher source
 unless fresh disk or command evidence proves that source stale.
+
+This is the only ordered authority list for active Habitat work. README files,
+domino and descent frames, and DRA entrypoints must delegate here rather than
+restating a local source order.
 
 ## Stack Geolocation
 

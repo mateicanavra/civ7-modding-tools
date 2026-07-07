@@ -1,21 +1,12 @@
 # Habitat DRA Authority Map
 
-## Source Order
+## Authority Delegation
 
-Read current evidence in this order and record any contradiction that changes scope or proof:
-
-1. Direct current user instructions.
-2. Root `AGENTS.md`, closest subtree `AGENTS.md`, and repo workflow docs.
-3. `docs/projects/habitat-harness/FRAME.md`.
-4. `docs/projects/habitat-harness/dra-takeover-frame.md`.
-5. `docs/projects/habitat-harness/adversarial-audit-recovery-reference.md`.
-6. Habitat review ledgers, discrepancy logs, recovery claim ledger, and Grit pattern corpus ledger.
-7. Current code, tests, scripts, generated manifests, and fresh command behavior.
-8. Active OpenSpec records.
-9. Older records as historical evidence only.
-10. Prior chat/session summaries as discovery aids only.
-
-If a lower source contradicts a higher source, preserve the higher source unless fresh disk or command evidence proves the higher source stale.
+This is an older DRA recovery map, not an authority router. Apply the sole
+canonical source order in `.habitat/.active/frames/FRAME.md`. The required reads
+below route role-specific work only; project frames, recovery references,
+ledgers, OpenSpec records, current-tree evidence, and historical records retain
+the ranks assigned by `FRAME.md`.
 
 ## Required Reads By Role
 

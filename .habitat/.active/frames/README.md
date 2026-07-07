@@ -7,10 +7,12 @@ compaction and guide future agents through repeatable Habitat authority-tree
 work. They compose with root ontology, tree-shape, operation-kind, and
 category authority.
 
-Use source order from
-`.habitat/.active/dominoes/README.md` first.
-When a domino names one of these method frames, read the named frame before
-selecting files or proposing moves.
+Always apply the canonical source order in
+`.habitat/.active/frames/FRAME.md` first. After that router selects an active
+method specialization, read the named frame before narrower slice or domino
+material. `.habitat/.active/dominoes/README.md` may select a current domino, but
+it cannot reorder root authority, accepted baselines, canonical docs, Habitat
+authority, or the selected method specialization.
 
 Current frames:
 

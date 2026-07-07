@@ -6,6 +6,9 @@ The active workstreams in this directory all belong to the Habitat Authority
 Consolidation initiative. The initiative is the umbrella objective, not a
 container directory. Each direct child is a workstream or a workstream index.
 
+Apply the sole canonical source order in `.habitat/.active/frames/FRAME.md`.
+This index routes active workstreams only and cannot reorder that authority.
+
 ## Direct Workstreams
 
 | Workstream | Status | Role |

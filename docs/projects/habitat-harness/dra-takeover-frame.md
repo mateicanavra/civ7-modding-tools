@@ -15,25 +15,13 @@ substantial executable infrastructure, but did not fully deliver the original
 product outcome. It must keep the next work from collapsing into another
 proposal-only or lint-only pass.
 
-## Source Order
+## Authority Delegation
 
-Use this order when sources disagree:
-
-1. Direct user instructions in the current takeover.
-2. Root `AGENTS.md` and repo workflow docs.
-3. `docs/projects/habitat-harness/FRAME.md` for the original product frame.
-4. `docs/projects/habitat-harness/adversarial-audit-recovery-reference.md`
-   for known overclaims, recovery sequencing, and Grit backfill rules.
-5. `docs/projects/habitat-harness/review-disposition-ledger.md`,
-   `docs/projects/habitat-harness/discrepancy-log.md`, and
-   `docs/projects/habitat-harness/cli-spec-draft-input.md`
-   sections 10, 11, and 14 as the pre-execution and target-shape evidence
-   packet.
-6. Current source code, package scripts, generated manifests, and fresh command
-   behavior.
-7. Active OpenSpec records for the workstream being repaired.
-8. Older phase records, closure checklists, and summaries as historical claims.
-9. Prior chat/session summaries as discovery only.
+Apply the sole canonical source order in
+`.habitat/.active/frames/FRAME.md`. This older recovery specialization supplies
+takeover procedure only; the original product frame, recovery reference,
+ledgers, OpenSpec records, current-tree evidence, and historical material retain
+the roles and ranks assigned by that router.
 
 If `workstream-record.md` or an OpenSpec phase record claims closure but the
 recovery reference or current code shows a gap, treat the closure claim as
