@@ -7,9 +7,9 @@
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 112,
-    "currentRowCount": 112,
-    "retiredHistoricalRowCount": 24,
+    "liveManifestCount": 111,
+    "currentRowCount": 111,
+    "retiredHistoricalRowCount": 25,
     "missingLiveRows": [],
     "duplicateLiveRows": []
   },
@@ -17,7 +17,6 @@
     "actionDecision": {
       "boundary inversion": 3,
       "closed structure inversion": 2,
-      "consolidation/dedup": 1,
       "context admission": 26,
       "no action": 58,
       "positive authority creation": 8,
@@ -26,12 +25,11 @@
       "split by owner": 9
     },
     "packetNeeded": {
-      "false": 112
+      "false": 111
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 2,
       "complete-no-generic-domain-operation-slice": 2,
-      "decision-packet-accepted; absorber-proof-needed": 1,
       "decision-packet-accepted; blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 1,
@@ -427,22 +425,6 @@
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json"
     },
     {
-      "ruleId": "prohibit_foundation_op_contract_config_bags",
-      "lane": "domains/foundation",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": false,
-      "expectedRemediation": "consolidate op-contract import clauses into require_domain_operation_contract_file_shape only after injected absorber proof for exact import forms",
-      "evidenceNote": "Post-ratchet revalidation found likely absorption by positive operation contract shape, but did not run injected absolute config-facade import probes; retired FoundationConfigSchema token remains deletion residue after proof.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
-      "layer2Status": "decision-packet-accepted; absorber-proof-needed",
-      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
-      "wholeRuleFit": "consolidate plus retired-literal deletion, pending proof",
-      "ruleIdPlan": "replace by positive operation contract authority, then delete id after absorber proof and review acceptance",
-      "semanticDecision": "Operation contracts should own local schema envelopes and only import allowed contract primitives; Foundation config-schema token is obsolete.",
-      "residualFollowUp": "Deletion proof should include injected import forms for absolute config facade imports.",
-      "implementationReadiness": "not deletion-ready until injected absorber proof and review acceptance"
-    },
-    {
       "ruleId": "prohibit_foundation_projection_legacy_motion_source",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
       "actionDecision": "no action",
@@ -710,8 +692,8 @@
       "lane": "blueprints/domain-operation",
       "actionDecision": "no action",
       "packetNeeded": false,
-      "expectedRemediation": "Stay live as config-boundary guard.",
-      "evidenceNote": "Root config facade is recipe-facing; no governed op matches.",
+      "expectedRemediation": "Stay live as config-boundary guard for parent-traversal and package-alias root/domain config facades.",
+      "evidenceNote": "R2 widened this domain-operation rail to absorb absolute config-facade import forms from the retired Foundation-local rule while preserving op-local config imports.",
       "currentPath": ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/rule.json"
     },
     {
@@ -2909,6 +2891,34 @@
         "bun run check -- --outputStyle=static --skipNxCache --nxBail=false",
         "git diff --check"
       ]
+    },
+    {
+      "sliceId": "readiness-r2-config-facade-consolidation",
+      "status": "complete",
+      "actionClass": "consolidation/dedup",
+      "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/readiness-r2-config-facade-consolidation.md",
+      "branch": "codex/readiness-r2-config-facade-consolidation",
+      "commit": "branch-head",
+      "rules": [
+        "prohibit_foundation_op_contract_config_bags"
+      ],
+      "createdRows": [],
+      "survivorRows": [
+        "prohibit_root_config_facade_imports_in_domain_ops"
+      ],
+      "deletedRows": [
+        "prohibit_foundation_op_contract_config_bags"
+      ],
+      "outcome": "Absorbed root/domain config-facade import coverage into the domain-operation survivor rule, deleted the Foundation-local packet, and retired the live ledger row.",
+      "completedOn": "2026-07-07",
+      "verification": [
+        "bun habitat check --json --rule prohibit_root_config_facade_imports_in_domain_ops",
+        "injected violation proof for @mapgen/domain/config.js and @mapgen/domain/foundation/config.js",
+        "clean sample proof for op-local config imports",
+        "source absence proof for FoundationConfigSchema and root/domain config-facade imports",
+        "live manifest/ledger parity",
+        "git diff --check"
+      ]
     }
   ],
   "blockers": [
@@ -3411,6 +3421,24 @@
       "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md",
       "retiredBy": "require_domain_source_topology",
       "retiredOn": "2026-07-06"
+    },
+    {
+      "ruleId": "prohibit_foundation_op_contract_config_bags",
+      "lane": "domains/foundation",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "deleted after config-facade import clauses were absorbed by prohibit_root_config_facade_imports_in_domain_ops; retired FoundationConfigSchema literal received absence proof without replacement",
+      "evidenceNote": "R2 injected alias-import violations under domain ops and the widened survivor failed them, while op-local config samples passed. Source absence proof found no FoundationConfigSchema or @mapgen/domain root/domain config facade imports in Foundation op contracts.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
+      "layer2Status": "complete",
+      "wholeRuleFit": "consolidated into domain-operation config-facade authority",
+      "ruleIdPlan": "deleted; do not preserve FoundationConfigSchema blacklist",
+      "semanticDecision": "Operation contracts may use op-local or named-family config surfaces, but must not import recipe-facing root/domain config facades.",
+      "implementationReadiness": "complete",
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/readiness-r2-config-facade-consolidation.md",
+      "retiredBy": "prohibit_root_config_facade_imports_in_domain_ops",
+      "retiredOn": "2026-07-07"
     }
   ],
   "staleRules": [
