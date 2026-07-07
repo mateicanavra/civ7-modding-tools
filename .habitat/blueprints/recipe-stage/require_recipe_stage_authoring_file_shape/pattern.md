@@ -4,11 +4,12 @@ level: error
 # Require Recipe Stage Authoring File Shape
 
 Recipe stage root files own authoring config. The stage `index.ts` must be the
-positive authoring surface: it creates the stage, wires steps, and may define
-public schema, knobs, and compile mapping. Domain modules provide model schemas,
-model policy, artifacts, and public domain surfaces. Stage-local helper bags
-such as `public-config.ts`, `knobs.ts`, and binding/config mirrors are topology
-residue rather than destination authority.
+positive authoring surface: it creates the stage and wires steps. Shared
+standard-recipe public-config modules may own family-level schema and compile
+helpers when several stages consume the same authoring rail. Domain modules
+provide model schemas, model policy, artifacts, and public domain surfaces.
+Stage-local helper bags such as `public-config.ts`, `knobs.ts`, and
+binding/config mirrors are topology residue rather than destination authority.
 
 ```grit
 language js(typescript)
@@ -25,19 +26,19 @@ or {
   },
   import_statement(source=$source) where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `export { $exports } from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `export * from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `import($source)` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `$domain.ops.$operation.input` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"

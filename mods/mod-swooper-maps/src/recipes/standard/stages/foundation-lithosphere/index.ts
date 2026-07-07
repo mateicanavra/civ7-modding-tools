@@ -1,5 +1,9 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
+import {
+  compileFoundationLithospherePublicConfig,
+  FoundationLithospherePublicSchema,
+} from "../foundation-public-config.js";
 import { crust, plateGraph } from "./steps/index.js";
 
 const FoundationPlateCountKnobSchema = Type.Integer({
@@ -20,6 +24,9 @@ export default createStage({
         "Lithosphere lever: plateCount (partition count; also set on foundation-mantle).",
     }
   ),
+  public: FoundationLithospherePublicSchema,
+  compile: ({ config }: { config: Record<string, unknown> }) =>
+    compileFoundationLithospherePublicConfig(config),
   steps: orderStandardStageSteps("foundation-lithosphere", {
     crust,
     "plate-graph": plateGraph,

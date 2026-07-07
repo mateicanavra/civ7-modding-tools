@@ -1,3 +1,4 @@
+import type { RunDiagnosticsLookupResult } from "@civ7/studio-contract";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import type {
   PipelineConfig,
@@ -28,6 +29,7 @@ import {
   relationForRunInGameOperation,
 } from "../../features/runInGame/clientState";
 import { formatRunInGameDiagnostics } from "../../features/runInGame/status";
+import { orpcClient } from "../../lib/orpc";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
 import type { UseLiveRuntimeResult } from "./useLiveRuntime";
@@ -245,15 +247,14 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       if (!("requestId" in result)) {
         toast(`Run in Game failed: ${result.error}`, { variant: "error" });
         setRunInGameOperation({
-          ok: false,
           requestId: `studio-run-in-game-client-error-${Date.now()}`,
           phase: "failed",
           status: "failed",
-          startedAt: new Date().toISOString(),
+          safeFailureCategory: result.safeFailureCategory,
+          recoveryActions: ["retry-run"],
+          createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          completedPhases: [],
-          error: result.error,
-          details: result.details,
+          terminalAt: new Date().toISOString(),
         });
         return;
       }
@@ -278,7 +279,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         selectedConfig,
       });
       setLastRunInGameSource(sourceSnapshot);
-      toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, {
+      toast(`Run in Game started: ${result.requestId}`, {
         variant: "info",
       });
     },
@@ -292,13 +293,16 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       runInGameRunning,
       saveDeployRunning,
       setLastRunInGameSource,
+      setLocalError,
       setRunInGameSnapshot,
+      setRunInGameOperation,
       setupConfig,
       toast,
       worldSettings,
       worldSettings.mapSize,
       worldSettings.playerCount,
       worldSettings.resources,
+      lastRunInGameToastRef,
     ]
   );
 
@@ -424,12 +428,21 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     runInGameRunning,
     saveDeployRunning,
     toast,
+    applyAuthoringSnapshot,
+    setRecipeSettings,
+    setSetupConfig,
   ]);
 
   const copyRunInGameDiagnostics = useCallback(async () => {
     if (!runInGameOperation) return;
     try {
-      await navigator.clipboard.writeText(formatRunInGameDiagnostics(runInGameOperation));
+      const diagnostics =
+        runInGameOperation.diagnosticsId === undefined
+          ? formatRunInGameDiagnostics(runInGameOperation)
+          : await orpcClient.runInGame
+              .diagnostics({ diagnosticsId: runInGameOperation.diagnosticsId })
+              .then((result: RunDiagnosticsLookupResult) => JSON.stringify(result, null, 2));
+      await navigator.clipboard.writeText(diagnostics);
       toast("Run in Game diagnostics copied", { variant: "info" });
     } catch (err) {
       toast(

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_scoped_ecology_runtime_tokens",
+  "title": "Prohibit Scoped Ecology Runtime Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_remainder",
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "local RNG helpers and score-gate terminology in selected ecology runtime planning directories",
+  "why": "The command-check split corpus classifies this scoped ecology runtime assertion as Grit source-token authority, not runtime behavior.",
+  "remediate": "Remove local runtime helper tokens from ecology planning source or explicitly reclassify the invariant before changing this check.",
+  "message": "MapGen ecology runtime planning source contains a forbidden helper or score-gate token.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/layers/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/rules/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/strategies/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/strategies/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/strategies/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/strategies/**/*.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/layers",
+    "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/rules",
+    "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/strategies",
+    "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/strategies",
+    "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/strategies",
+    "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/strategies"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_scoped_ecology_runtime_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_scoped_ecology_runtime_tokens/pattern.md"
+    },
+    "patternName": "prohibit_scoped_ecology_runtime_tokens"
+  }
+}

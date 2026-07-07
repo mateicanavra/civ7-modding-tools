@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { defaultGritCommandTimeoutMs } from "@habitat/cli/providers/grit/constants";
 import { gritRuleResultsFromReport } from "@habitat/cli/providers/grit/diagnostics";
 import {
@@ -60,6 +62,24 @@ function runGritDiagnosticOutcomes(
   return Effect.runPromise(
     runGritDiagnosticOutcomesEffect(selectedRules, { repoRoot, grit, ...runOptions })
   );
+}
+
+function gritDirFromRequest(request: HabitatProcessRequest): string {
+  const index = request.argv.indexOf("--grit-dir");
+  if (index < 0) throw new Error(`Missing --grit-dir in ${request.argv.join(" ")}`);
+  const gritDir = request.argv[index + 1];
+  if (!gritDir) throw new Error(`Missing --grit-dir value in ${request.argv.join(" ")}`);
+  return gritDir;
+}
+
+function gritConfigFromRequest(request: HabitatProcessRequest): string {
+  return readFileSync(path.join(gritDirFromRequest(request), "grit.yaml"), "utf8");
+}
+
+function requestArgvWithoutGritDir(request: HabitatProcessRequest): readonly string[] {
+  const index = request.argv.indexOf("--grit-dir");
+  if (index < 0) return request.argv;
+  return request.argv.filter((_, itemIndex) => itemIndex !== index && itemIndex !== index + 1);
 }
 
 describe("Grit check provider parser and diagnostics", () => {
@@ -491,14 +511,7 @@ describe("Grit check provider parser and diagnostics", () => {
 
     expect(observedRequest).toMatchObject({
       executable: `${repoRoot}/node_modules/.bin/grit`,
-      argv: [
-        "--json",
-        "check",
-        "--level",
-        "error",
-        "packages",
-      ],
-      cwd: expect.stringContaining("habitat-grit-check-"),
+      cwd: repoRoot,
       scanRoots: ["packages"],
       timeoutMs: defaultGritCommandTimeoutMs,
       cachePolicy: {
@@ -506,6 +519,16 @@ describe("Grit check provider parser and diagnostics", () => {
         observableStatus: "unknown",
       },
     });
+    expect(observedRequest ? requestArgvWithoutGritDir(observedRequest) : []).toEqual([
+      "--json",
+      "check",
+      "--level",
+      "error",
+      "packages",
+    ]);
+    expect(observedRequest ? gritDirFromRequest(observedRequest) : "").toContain(
+      "habitat-grit-check-"
+    );
     expect(observedRequest?.cachePolicy?.cacheDir).toBe(`${repoRoot}/.habitat/cache/patterns`);
     expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
     expect(observedRequest?.env).toMatchObject({
@@ -521,28 +544,28 @@ describe("Grit check provider parser and diagnostics", () => {
     });
   });
 
-  test("runs broad source selections through one materialized Grit catalog per scan root", async () => {
+  test("runs broad source selections through one materialized Grit catalog per rule and scan root", async () => {
     const firstRule = fakeGritRule("source-one", "source_one", { scanRoots: ["packages"] });
     const secondRule = fakeGritRule("source-two", "source_two", { scanRoots: ["packages"] });
     const observedRequests: HabitatProcessRequest[] = [];
+    const observedConfigs: string[] = [];
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
+      const gritConfig = gritConfigFromRequest(request);
+      observedConfigs.push(gritConfig);
+      const localName = gritConfig.includes('name: "source_one"') ? "source_one" : "source_two";
       return makeHabitatCommandResult(request, {
         stderr: output(
           JSON.stringify({
             paths: ["packages/example/src/demo.ts"],
             results: [
               {
-                local_name: "source_one",
+                local_name: localName,
                 path: "packages/example/src/demo.ts",
-                start: { line: 1 },
-                extra: { message: "source one finding" },
-              },
-              {
-                local_name: "source_two",
-                path: "packages/example/src/demo.ts",
-                start: { line: 2 },
-                extra: { message: "source two finding" },
+                start: { line: localName === "source_one" ? 1 : 2 },
+                extra: {
+                  message: localName === "source_one" ? "source one finding" : "source two finding",
+                },
               },
             ],
           })
@@ -555,17 +578,64 @@ describe("Grit check provider parser and diagnostics", () => {
       grit: fakeGrit,
     });
 
-    expect(observedRequests).toHaveLength(1);
-    expect(observedRequests[0]?.argv).toEqual([
-      "--json",
-      "check",
-      "--level",
-      "error",
-      "packages",
+    expect(observedRequests).toHaveLength(2);
+    expect(observedRequests.map(requestArgvWithoutGritDir)).toEqual([
+      ["--json", "check", "--level", "error", "packages"],
+      ["--json", "check", "--level", "error", "packages"],
     ]);
-    expect(observedRequests[0]?.cwd).toContain("habitat-grit-check-");
+    expect(observedRequests.every((request) => request.cwd === repoRoot)).toBe(true);
+    expect(
+      observedRequests.every((request) =>
+        gritDirFromRequest(request).includes("habitat-grit-check-")
+      )
+    ).toBe(true);
+    expect(
+      observedRequests.every((request) => !existsSync(path.dirname(gritDirFromRequest(request))))
+    ).toBe(true);
+    expect(observedConfigs).toEqual([
+      expect.stringContaining('name: "source_one"'),
+      expect.stringContaining('name: "source_two"'),
+    ]);
     expect(results.get(firstRule.id)?.diagnostics[0]?.message).toBe("source one finding");
     expect(results.get(secondRule.id)?.diagnostics[0]?.message).toBe("source two finding");
+  });
+
+  test("does not include narrow-root rules in broader sibling scan-root batches", async () => {
+    const broadRule = fakeGritRule("source-wide", "source_wide", {
+      scanRoots: ["mods/mod-swooper-maps/src"],
+    });
+    const stageRule = fakeGritRule("stage-only", "stage_only", {
+      scanRoots: ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+    });
+    const observedRequests: Array<{
+      readonly scanRoot: string;
+      readonly gritConfig: string;
+    }> = [];
+    const fakeGrit = makeFakeGritProviderService((request) => {
+      observedRequests.push({
+        scanRoot: request.scanRoots[0] ?? "",
+        gritConfig: gritConfigFromRequest(request),
+      });
+      return makeHabitatCommandResult(request, {
+        stderr: output(JSON.stringify({ paths: request.scanRoots, results: [] })),
+      });
+    });
+
+    const results = await runGritRules([broadRule, stageRule], { grit: fakeGrit });
+
+    expect(observedRequests).toHaveLength(2);
+    const broadBatch = observedRequests.find(
+      (request) => request.scanRoot === "mods/mod-swooper-maps/src"
+    );
+    const stageBatch = observedRequests.find(
+      (request) => request.scanRoot === "mods/mod-swooper-maps/src/recipes/standard/stages"
+    );
+    expect(broadBatch?.gritConfig).toContain('name: "source_wide"');
+    expect(broadBatch?.gritConfig).not.toContain('name: "stage_only"');
+    expect(stageBatch?.gritConfig).toContain('name: "stage_only"');
+    expect(stageBatch?.gritConfig).not.toContain('name: "source_wide"');
+    expect(results.get(broadRule.id)).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(results.get(stageRule.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
   test("splits source Grit execution by scan root and keeps rule findings isolated", async () => {
@@ -608,27 +678,18 @@ describe("Grit check provider parser and diagnostics", () => {
       grit: fakeGrit,
     });
 
-    expect(observedRequests.map((request) => request.argv).sort()).toEqual(
+    expect(observedRequests.map(requestArgvWithoutGritDir).sort()).toEqual(
       [
-        [
-          "--json",
-          "check",
-          "--level",
-          "error",
-          "mods/mod-swooper-maps/src/domain",
-        ],
-        [
-          "--json",
-          "check",
-          "--level",
-          "error",
-          "packages/sdk/src",
-        ],
+        ["--json", "check", "--level", "error", "mods/mod-swooper-maps/src/domain"],
+        ["--json", "check", "--level", "error", "packages/sdk/src"],
       ].sort()
     );
-    expect(observedRequests.every((request) => request.cwd.includes("habitat-grit-check-"))).toBe(
-      true
-    );
+    expect(observedRequests.every((request) => request.cwd === repoRoot)).toBe(true);
+    expect(
+      observedRequests.every((request) =>
+        gritDirFromRequest(request).includes("habitat-grit-check-")
+      )
+    ).toBe(true);
     expect(results.get(packagesRule.id)?.diagnostics).toEqual([
       {
         ruleId: packagesRule.id,
@@ -932,14 +993,17 @@ Processed 2 files and found 1 matches
 
     const results = await runGritRules([sourceRule, docsRule], { grit: fakeGrit });
 
-    expect(observedRequests[0]?.argv).toEqual([
+    expect(observedRequests[0] ? requestArgvWithoutGritDir(observedRequests[0]) : []).toEqual([
       "--json",
       "check",
       "--level",
       "error",
       "mods/mod-swooper-maps/src/maps",
     ]);
-    expect(observedRequests[0]?.cwd).toContain("habitat-grit-check-");
+    expect(observedRequests[0]?.cwd).toBe(repoRoot);
+    expect(observedRequests[0] ? gritDirFromRequest(observedRequests[0]) : "").toContain(
+      "habitat-grit-check-"
+    );
     expect(observedRequests[1]?.argv.slice(0, 2)).toEqual(["apply", relocatedPatternPath]);
     expect(observedRequests[1]?.argv).toContain("docs");
     expect(observedRequests[1]?.argv.slice(-4)).toEqual([

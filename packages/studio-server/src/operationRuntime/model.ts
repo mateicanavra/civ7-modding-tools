@@ -2,7 +2,6 @@ import type {
   MapConfigSaveDeployStatus,
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
-  RunInGameOperationKind,
   RunInGamePhase,
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
@@ -28,6 +27,8 @@ export type RuntimeTombstone = Readonly<{
   lastUpdatedAt: string;
 }>;
 
+export type RunInGameInternalStatus = "running" | "complete" | "blocked" | "failed" | "uncertain";
+
 export type RunInGameInternalOperation = Readonly<{
   kind: "run-in-game";
   requestId: string;
@@ -48,9 +49,12 @@ export type RunInGameInternalOperation = Readonly<{
     | "failed"
     | "uncertain"
     | "runtime-disposed";
-  status: RunInGameOperationKind;
+  status: RunInGameInternalStatus;
+  operationRevision: number;
   startedAt: string;
   updatedAt: string;
+  diagnosticsId?: string;
+  diagnosticsPersistedRevision?: number;
   completedPhases: readonly RunInGamePhase[];
   materialization?: RunInGameMaterializationStatus;
   processRestart?: RunInGameProcessRestartStatus;
@@ -103,7 +107,7 @@ export function emptyRegistry(identity: StudioDaemonIdentity): RegistryState {
 
 export function statusForRunInGamePhase(
   phase: RunInGameInternalOperation["phase"]
-): RunInGameOperationKind {
+): RunInGameInternalStatus {
   if (phase === "complete") return "complete";
   if (phase === "blocked") return "blocked";
   if (phase === "failed" || phase === "runtime-disposed") return "failed";
@@ -120,9 +124,29 @@ export function statusForSaveDeployPhase(
 }
 
 export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"]): RunInGamePhase {
-  if (phase === "accepted") return "materializing";
-  if (phase === "runtime-disposed") return "failed";
-  return phase;
+  switch (phase) {
+    case "accepted":
+    case "materializing":
+      return "generating-artifacts";
+    case "deploying":
+      return "deploying";
+    case "restarting-civ":
+    case "checking-civ7":
+    case "reload-needed":
+    case "preparing-setup":
+      return "preparing-civ7";
+    case "starting-game":
+      return "starting-game";
+    case "waiting-for-proof":
+      return "observing-runtime";
+    case "complete":
+      return "completed";
+    case "blocked":
+    case "failed":
+    case "uncertain":
+    case "runtime-disposed":
+      return "failed";
+  }
 }
 
 export function publicSaveDeployPhase(

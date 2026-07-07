@@ -46,6 +46,7 @@ export const studioEffectContract = oc.router({
   runInGame: {
     start: runInGame.start,
     status: runInGame.status,
+    diagnostics: runInGame.diagnostics,
   },
   mapConfigs: {
     saveDeploy: mapConfigs.saveDeploy,
@@ -84,6 +85,9 @@ export * from "./recipeDag/contract.js";
 export * from "./recipeDag/errors.js";
 export * from "./recipeDag/schema.js";
 export type {
+  PublicRunStatus,
+  RunDiagnosticsLookupResult,
+  RunDiagnosticsRecord,
   RunInGameContentMarkerProof,
   RunInGameExactAuthorshipProof,
   RunInGameFailureDetails,
@@ -103,15 +107,23 @@ export type {
 } from "./runInGame.js";
 export {
   DEFAULT_RUN_IN_GAME_SETUP_CONFIG,
+  diagnosticsLookupResultSchema,
   materializationStatus,
   normalizeRunInGameSetupConfig,
   operationStatusTypeSchema,
+  publicRunStatusTypeSchema,
   RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
   RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
   RUN_IN_GAME_PHASES,
   RUN_IN_GAME_PLAYER_OPTION_IDS,
+  runDiagnosticsRecordSchema,
   validateRunInGameSetupConfig,
 } from "./runInGame.js";
+export type { RunInGameSafeFailureCategory } from "./runInGamePublic.js";
+export {
+  RUN_IN_GAME_SAFE_FAILURE_CATEGORIES,
+  runInGameSafeFailureCategory,
+} from "./runInGamePublic.js";
 export type {
   StudioEvent,
   StudioHelloEvent,

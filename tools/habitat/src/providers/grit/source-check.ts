@@ -1,14 +1,6 @@
-import path from "node:path";
-import {
-  existsSync,
-  lstatSync,
-  mkdtempSync,
-  mkdirSync,
-  readFileSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import path from "node:path";
 import {
   type DiagnosticCacheObservation,
   type DiagnosticFinding,
@@ -25,8 +17,9 @@ import { gritCheckProgram } from "./request.js";
 import type { GritProviderRequirements, GritProviderService } from "./resource.js";
 import {
   decidePatternScanRoots,
-  pathsOverlap,
   ruleHasDocsScanRoot,
+  scanRootIsWithinDeclaredRoot,
+  scanRootMatchesDeclaredRoot,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
 import type { GritCheckCacheMode, GritDiagnosticOptions } from "./types.js";
@@ -49,16 +42,18 @@ export function runSourcePatternCheckOutcomesEffect(
   if (requestedScanRoots.length === 0) {
     return runSourcePatternCheckBatchEffect(selectedRules, [], options);
   }
-  const batches = requestedScanRoots.map((scanRoot) => ({
-    scanRoots: [scanRoot],
-    rules: selectedRules.filter((rule) =>
-      rule.scanRoots.some((declaredRoot) => pathsOverlap(scanRoot, declaredRoot))
-    ),
-  }));
+  const matchesDeclaredRoot = options.scanRoots
+    ? scanRootIsWithinDeclaredRoot
+    : scanRootMatchesDeclaredRoot;
+  const batches = requestedScanRoots.flatMap((scanRoot) =>
+    selectedRules
+      .filter((rule) =>
+        rule.scanRoots.some((declaredRoot) => matchesDeclaredRoot(scanRoot, declaredRoot))
+      )
+      .map((rule) => ({ scanRoots: [scanRoot], rules: [rule] }))
+  );
   return Effect.all(
-    batches.map((batch) =>
-      runSourcePatternCheckBatchEffect(batch.rules, batch.scanRoots, options)
-    ),
+    batches.map((batch) => runSourcePatternCheckBatchEffect(batch.rules, batch.scanRoots, options)),
     { concurrency: 2 }
   ).pipe(Effect.map((batchOutcomes) => mergeBatchOutcomes(selectedRules, batchOutcomes)));
 }
@@ -96,17 +91,21 @@ function runSourcePatternCheckBatchEffect(
     );
   }
 
-  return materializeGritWorkspace(selectedRules, scanRoots, options.repoRoot).pipe(
-    Effect.flatMap((cwd) =>
-      gritCheckProgram(scanRoots, {
-        repoRoot: options.repoRoot,
-        grit: options.grit,
-        cacheMode: options.cacheMode,
-        requireObservableCacheStatus: options.requireObservableCacheStatus,
-        outputFormat: "json",
-        cwd,
-      })
-    ),
+  return Effect.scoped(
+    materializeGritConfig(selectedRules, options.repoRoot).pipe(
+      Effect.flatMap(({ gritDir }) =>
+        gritCheckProgram(scanRoots, {
+          repoRoot: options.repoRoot,
+          grit: options.grit,
+          cacheMode: options.cacheMode,
+          requireObservableCacheStatus: options.requireObservableCacheStatus,
+          outputFormat: "json",
+          cwd: options.repoRoot,
+          gritDir,
+        })
+      )
+    )
+  ).pipe(
     Effect.match({
       onFailure: () =>
         providerFailedOutcomes(
@@ -152,31 +151,27 @@ function runSourcePatternCheckBatchEffect(
   );
 }
 
-function materializeGritWorkspace(
-  selectedRules: readonly RuleSourceFacts[],
-  scanRoots: readonly string[],
-  repoRoot: string
-): Effect.Effect<string> {
-  return Effect.sync(() => {
-    const tempRoot = mkdtempSync(path.join(tmpdir(), "habitat-grit-check-"));
-    const gritDir = path.join(tempRoot, ".grit");
-    mkdirSync(gritDir, { recursive: true });
-    const configPath = path.join(gritDir, "grit.yaml");
-    writeFileSync(configPath, renderSelectedGritConfig(selectedRules, repoRoot));
-    for (const scanRoot of scanRoots) {
-      materializeScanRootLink(tempRoot, repoRoot, scanRoot);
-    }
-    return tempRoot;
-  });
+function materializeGritConfig(selectedRules: readonly RuleSourceFacts[], repoRoot: string) {
+  return Effect.acquireRelease(
+    Effect.sync(() => {
+      const tempRoot = mkdtempSync(path.join(tmpdir(), "habitat-grit-check-"));
+      const gritDir = path.join(tempRoot, ".grit");
+      mkdirSync(gritDir, { recursive: true });
+      const configPath = path.join(gritDir, "grit.yaml");
+      writeFileSync(configPath, renderSelectedGritConfig(selectedRules, repoRoot));
+      return { gritDir, tempRoot };
+    }),
+    ({ tempRoot }) => Effect.sync(() => rmSync(tempRoot, { recursive: true, force: true }))
+  ).pipe(Effect.map(({ gritDir }) => ({ gritDir })));
 }
 
 function renderSelectedGritConfig(selectedRules: readonly RuleSourceFacts[], repoRoot: string) {
   const patternEntries = selectedRules.map((rule) => {
     const source = path.join(repoRoot, rule.runner.files.pattern);
-      const contents = readFileSync(source, "utf8");
-      const body = extractGritBody(contents, source);
-      return [
-        `  - name: ${JSON.stringify(rule.patternName)}`,
+    const contents = readFileSync(source, "utf8");
+    const body = extractGritBody(contents, source);
+    return [
+      `  - name: ${JSON.stringify(rule.patternName)}`,
       `    title: ${JSON.stringify(rule.id)}`,
       "    level: error",
       "    body: |",
@@ -197,17 +192,6 @@ function indentYamlBlock(body: string) {
     .split("\n")
     .map((line) => `      ${line}`)
     .join("\n");
-}
-
-function materializeScanRootLink(tempRoot: string, repoRoot: string, scanRoot: string) {
-  const [topLevel] = scanRoot.split("/");
-  if (!topLevel) return;
-  const target = path.join(repoRoot, topLevel);
-  if (!existsSync(target)) return;
-  const link = path.join(tempRoot, topLevel);
-  if (existsSync(link)) return;
-  mkdirSync(path.dirname(link), { recursive: true });
-  symlinkSync(target, link, lstatSync(target).isDirectory() ? "dir" : "file");
 }
 
 function mergeBatchOutcomes(
