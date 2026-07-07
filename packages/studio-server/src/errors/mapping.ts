@@ -283,31 +283,20 @@ function failureData(
 
 function runInGamePublicFailureData(
   failure: StudioRuntimeFailure,
-  identity: StudioDaemonIdentity | undefined,
+  _identity: StudioDaemonIdentity | undefined,
   status: number
 ): RunInGamePublicErrorData | RunInGameStatusNotFoundErrorData {
   const requestId = failure.requestId;
   if (status === 404) {
-    if (!identity) {
-      throw new Error("runInGame status-not-found mapping requires daemon identity.");
-    }
     if (!requestId) {
       throw new Error("runInGame status-not-found mapping requires a request id.");
     }
   }
-  const identityEcho =
-    status === 404 && identity !== undefined
-      ? {
-          serverInstanceId: identity.serverInstanceId,
-          serverStartedAt: identity.serverStartedAt,
-        }
-      : {};
   return {
     namespace: "runInGame",
     recoveryActions: publicRecoveryActions(failure),
     safeFailureCategory: publicRunInGameFailureCategory(failure),
     ...(requestId === undefined ? {} : { requestId }),
-    ...identityEcho,
   };
 }
 

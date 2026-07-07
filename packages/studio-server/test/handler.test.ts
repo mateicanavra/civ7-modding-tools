@@ -1,4 +1,7 @@
 import { createServer, type Server } from "node:http";
+import { rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
@@ -29,10 +32,15 @@ import {
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
+const runtimeWorkspaceRoots: string[] = [];
+let runtimeWorkspaceSequence = 0;
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
   await Promise.all(openHandles.splice(0).map((handle) => handle.dispose()));
+  await Promise.all(
+    runtimeWorkspaceRoots.splice(0).map((root) => rm(root, { recursive: true, force: true }))
+  );
 });
 
 describe("studio-server RPC handler", () => {
@@ -148,7 +156,7 @@ describe("studio-server RPC handler", () => {
     }
   });
 
-  test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND with the server-identity echo", async () => {
+  test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND without daemon identity", async () => {
     const context = makeContext();
     const client = await listenWithClient(context);
 
@@ -159,15 +167,11 @@ describe("studio-server RPC handler", () => {
     expect(isDefinedError(error)).toBe(true);
     expect(error.code).toBe("RUN_IN_GAME_STATUS_NOT_FOUND");
     expect(error.status).toBe(404);
-    // PARITY INVARIANT: the public 404 stays safe while echoing server identity
-    // for restart detection.
     expect(error.data).toEqual({
       namespace: "runInGame",
       recoveryActions: ["copy-diagnostics", "retry-status"],
       requestId: "run-1",
       safeFailureCategory: "request-validation",
-      serverInstanceId: expect.stringMatching(/^studio-server-/),
-      serverStartedAt: "2026-06-10T00:00:00.000Z",
     });
   });
 
@@ -401,6 +405,13 @@ describe("studio-server RPC handler", () => {
     await expect
       .poll(async () => (await client.mapConfigs.status({ requestId: save.requestId })).phase)
       .toBe("complete");
+    await readOperationEvent(
+      iterator,
+      (event) =>
+        event.kind === "save-deploy" &&
+        event.status.requestId === save.requestId &&
+        event.status.phase === "complete"
+    );
 
     const run = await client.runInGame.start({
       recipeId: "mod-swooper-maps/standard",
@@ -773,10 +784,20 @@ function unavailableTunerClient(message: string): Civ7TunerClient {
 function makeOperationRuntimePorts(
   overrides: Partial<StudioOperationRuntimePorts> = {}
 ): StudioOperationRuntimePorts {
+  const runInGameWorkspaceRoot =
+    overrides.runInGameWorkspaceRoot ??
+    join(
+      tmpdir(),
+      `studio-server-handler-${process.pid}-${++runtimeWorkspaceSequence}`
+    );
+  if (overrides.runInGameWorkspaceRoot === undefined) {
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
+  }
   return {
     clock: {
       now: () => new Date("2026-06-10T00:00:00.000Z"),
     },
+    runInGameWorkspaceRoot,
     materializeRunInGame: async () => ({}),
     deployRunInGame: async () => ({}),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
