@@ -16,13 +16,13 @@ export type RuntimeOperationKind = "run-in-game" | "save-deploy" | "autoplay";
 export type RuntimeActiveSlot = Readonly<{
   kind: RuntimeOperationKind;
   requestId: string;
+  leaseId: string;
   phase: string;
 }>;
 
 export type RuntimeTombstone = Readonly<{
   requestId: string;
   kind: Exclude<RuntimeOperationKind, "autoplay">;
-  fingerprint?: string;
   expiredAt: string;
   lastUpdatedAt: string;
 }>;
@@ -38,7 +38,8 @@ export type RunInGameInternalStatus =
 export type RunInGameInternalOperation = Readonly<{
   kind: "run-in-game";
   requestId: string;
-  fingerprint: string;
+  leaseId: string;
+  correlationDigest: string;
   request: RunInGameRequestStatus;
   phase:
     | "accepted"
@@ -73,6 +74,7 @@ export type RunInGameInternalOperation = Readonly<{
 export type SaveDeployInternalOperation = Readonly<{
   kind: "save-deploy";
   requestId: string;
+  leaseId: string;
   phase:
     | "accepted"
     | "queued"

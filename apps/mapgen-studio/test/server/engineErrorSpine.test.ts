@@ -104,8 +104,11 @@ describe("Studio engine error spine", () => {
       expect(mapped).toBeInstanceOf(ORPCError);
       expect(mapped.code).toBe(code);
       expect(mapped.status).toBe(status);
-      if (status === 404) {
+      if (status === 404 && procedure === "saveDeploy.status") {
         expect(mapped.data).toMatchObject(identity);
+      }
+      if (status === 404 && procedure === "runInGame.status") {
+        expect(mapped.data).not.toMatchObject(identity);
       }
     }
   });

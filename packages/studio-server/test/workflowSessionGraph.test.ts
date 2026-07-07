@@ -57,7 +57,7 @@ describe("Studio workflow session graph", () => {
       Layer.provide(Layer.succeed(Civ7TunerSession, fakeSession))
     );
     const prepared: RunInGamePreparedRequest = {
-      fingerprint: "fingerprint-1",
+      correlationDigest: "fingerprint-1",
       request: {
         recipeId: "mod-swooper-maps/standard",
         fingerprint: "fingerprint-1",

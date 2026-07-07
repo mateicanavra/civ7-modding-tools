@@ -18,7 +18,7 @@ export type StudioClock = Readonly<{
 }>;
 
 export type RunInGamePreparedRequest = Readonly<{
-  fingerprint: string;
+  correlationDigest: string;
   request: RunInGameRequestStatus;
 }>;
 

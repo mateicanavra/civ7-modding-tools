@@ -196,6 +196,7 @@ const operationNotFoundStatusDataSchema = Type.Object(
     tag: Type.Literal("OperationNotFound"),
     reason: Type.Literal("status-not-found"),
     ...commonFailureFields,
+    namespace: Type.Literal("saveDeploy"),
     requestId: Type.String(),
     serverInstanceId: Type.String(),
     serverStartedAt: Type.String(),
@@ -210,6 +211,7 @@ export const statusNotFoundDataSchema = Type.Union([
       tag: Type.Literal("OperationExpired"),
       reason: Type.Literal("expired-operation"),
       ...commonFailureFields,
+      namespace: Type.Literal("saveDeploy"),
       requestId: Type.String(),
       serverInstanceId: Type.String(),
       serverStartedAt: Type.String(),
@@ -221,6 +223,7 @@ export const statusNotFoundDataSchema = Type.Union([
       tag: Type.Literal("DaemonIdentityMismatch"),
       reason: Type.Literal("daemon-identity-mismatch"),
       ...commonFailureFields,
+      namespace: Type.Literal("saveDeploy"),
       requestId: Type.String(),
       serverInstanceId: Type.String(),
       serverStartedAt: Type.String(),
@@ -301,8 +304,6 @@ export const runInGamePublicErrorDataSchema = Type.Union([
       recoveryActions: Type.Array(studioRecoveryActionSchema),
       safeFailureCategory: runInGameSafeFailureCategory,
       requestId: Type.Optional(Type.String()),
-      serverInstanceId: Type.Optional(Type.String()),
-      serverStartedAt: Type.Optional(Type.String()),
     },
     { additionalProperties: false }
   ),
@@ -315,8 +316,6 @@ export const runInGameStatusNotFoundErrorDataSchema = Type.Object(
     recoveryActions: Type.Array(studioRecoveryActionSchema),
     safeFailureCategory: runInGameSafeFailureCategory,
     requestId: Type.String(),
-    serverInstanceId: Type.String(),
-    serverStartedAt: Type.String(),
   },
   { additionalProperties: false }
 );

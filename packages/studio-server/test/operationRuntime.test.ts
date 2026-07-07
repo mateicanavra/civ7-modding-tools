@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
@@ -34,9 +34,14 @@ import { StudioEventHub, type StudioEventHubApi } from "../src/services/StudioEv
 const { operationsCurrent, studioEventSchema } = studio;
 
 const openRuntimes: ManagedRuntime.ManagedRuntime<unknown, never>[] = [];
+const runtimeWorkspaceRoots: string[] = [];
+let runtimeWorkspaceSequence = 0;
 
 afterEach(async () => {
   await Promise.all(openRuntimes.splice(0).map((runtime) => runtime.dispose()));
+  await Promise.all(
+    runtimeWorkspaceRoots.splice(0).map((root) => rm(root, { recursive: true, force: true }))
+  );
 });
 
 describe("StudioOperationRuntime", () => {
@@ -61,6 +66,17 @@ describe("StudioOperationRuntime", () => {
     await expect(Effect.runPromise(eventHub.activeSubscriberCount)).resolves.toBe(0);
   });
 
+  test("uses collision-resistant daemon identities for same-tick runtimes", async () => {
+    const first = makeRuntime();
+    const second = makeRuntime();
+
+    const firstService = await first.runtime.runPromise(StudioOperationRuntime);
+    const secondService = await second.runtime.runPromise(StudioOperationRuntime);
+
+    expect(firstService.identity.serverStartedAt).toBe(secondService.identity.serverStartedAt);
+    expect(firstService.identity.serverInstanceId).not.toBe(secondService.identity.serverInstanceId);
+  });
+
   test("projects diagnostics id only for the persisted operation snapshot", async () => {
     const sameTick = "2026-06-10T00:00:00.000Z";
     const registry = await Effect.runPromise(
@@ -70,7 +86,7 @@ describe("StudioOperationRuntime", () => {
       })
     );
     const prepared: RunInGamePreparedRequest = {
-      fingerprint: "run-fingerprint",
+      correlationDigest: "run-fingerprint",
       request: runInGameInput(),
     };
 
@@ -80,6 +96,7 @@ describe("StudioOperationRuntime", () => {
         nowMs: Date.parse(sameTick),
         nowIso: sameTick,
         requestId: "run-snapshot",
+        leaseId: "runtime-lease-run-snapshot",
         prepared,
       })
     );
@@ -150,8 +167,9 @@ describe("StudioOperationRuntime", () => {
         nowMs: Date.parse(now),
         nowIso: now,
         requestId: "run-cancelled",
+        leaseId: "runtime-lease-run-cancelled",
         prepared: {
-          fingerprint: "run-cancelled-fingerprint",
+          correlationDigest: "run-cancelled-fingerprint",
           request: runInGameInput(),
         },
       })
@@ -207,6 +225,14 @@ describe("StudioOperationRuntime", () => {
     expect(runCurrent.runInGame.active?.requestId).toBe(run.requestId);
     expect(runCurrent.runInGame.recent).toEqual([]);
     runBlocker.resolve();
+    await expect
+      .poll(async () => {
+        const status = await runRuntime.runPromise(
+          runService.runInGameStatus({ requestId: run.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
 
     const saveBlocker = deferred<void>();
     const { runtime: saveRuntime } = makeRuntime({
@@ -270,11 +296,11 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("preserves source snapshot proof in the runtime-owned request projection", async () => {
-    let observedSourceSnapshot: Record<string, any> | undefined;
+    let observedSourceSnapshot: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
         materializeRunInGame: async ({ prepared }) => {
-          observedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, any>;
+          observedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
           return {};
         },
       },
@@ -312,11 +338,11 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("keeps disposable studio-current launches on exit-to-shell unless row proof requires restart", async () => {
-    let observedRequest: Record<string, any> | undefined;
+    let observedRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
         materializeRunInGame: async ({ prepared }) => {
-          observedRequest = prepared.request as Record<string, any>;
+          observedRequest = prepared.request as Record<string, unknown>;
           return {};
         },
       },
@@ -399,11 +425,11 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("keeps durable Run in Game launches restart opt-in", async () => {
-    let observedDurableRequest: Record<string, any> | undefined;
+    let observedDurableRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
         materializeRunInGame: async ({ prepared }) => {
-          observedDurableRequest = prepared.request as Record<string, any>;
+          observedDurableRequest = prepared.request as Record<string, unknown>;
           return {};
         },
       },
@@ -421,11 +447,11 @@ describe("StudioOperationRuntime", () => {
     await expect.poll(() => observedDurableRequest).toBeDefined();
     expect(observedDurableRequest?.restartCivProcess).toBeUndefined();
 
-    let observedRestartRequest: Record<string, any> | undefined;
+    let observedRestartRequest: Record<string, unknown> | undefined;
     const { runtime: restartRuntime } = makeRuntime({
       ports: {
         materializeRunInGame: async ({ prepared }) => {
-          observedRestartRequest = prepared.request as Record<string, any>;
+          observedRestartRequest = prepared.request as Record<string, unknown>;
           return {};
         },
       },
@@ -446,13 +472,16 @@ describe("StudioOperationRuntime", () => {
 
   test("keeps one source snapshot proof identity across runtime projections and final proof", async () => {
     const events: StudioEvent[] = [];
-    let acceptedSourceSnapshot: Record<string, any> | undefined;
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-source-proof-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    let acceptedSourceSnapshot: Record<string, unknown> | undefined;
     const recordingEventHub = makeEventHub({ eventSink: events });
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts({
+          runInGameWorkspaceRoot: workspaceRoot,
           buildRunInGameProof: async ({ requestId, prepared, deployment }) => {
-            acceptedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, any>;
+            acceptedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
             return {
               result: { ok: true },
               exactAuthorshipProof: {
@@ -538,7 +567,7 @@ describe("StudioOperationRuntime", () => {
     );
 
     const diagnosticsRecordPath = resolve(
-      ".mapgen-studio/run-in-game",
+      workspaceRoot,
       accepted.requestId,
       "diagnostics",
       "diagnostics.json"
@@ -819,9 +848,11 @@ describe("StudioOperationRuntime", () => {
     expectTypeboxValid(studioEventSchema, terminalEvent);
   });
 
-  test("returns duplicate Run in Game fingerprint from the runtime registry", async () => {
+  test("blocks a second Run in Game while the runtime ownership lease is held", async () => {
+    const events: StudioEvent[] = [];
     const blocker = deferred<void>();
     const { runtime } = makeRuntime({
+      eventSink: events,
       ports: {
         deployRunInGame: async () => {
           await blocker.promise;
@@ -832,35 +863,32 @@ describe("StudioOperationRuntime", () => {
 
     const service = await runtime.runPromise(StudioOperationRuntime);
     const first = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-    const second = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-
-    expect(second.requestId).toBe(first.requestId);
-    expect(second).toMatchObject({
-      status: "running",
+    await expect(
+      expectFailure(runtime, service.runInGameStart(runInGameInput()))
+    ).resolves.toMatchObject({
+      tag: "OperationBlocked",
+      activeRequestId: first.requestId,
     });
-    expect(second.diagnosticsId).toBeUndefined();
 
     blocker.resolve();
     await expect
       .poll(async () => {
-        const status = await runtime.runPromise(
-          service.runInGameStatus({ requestId: first.requestId })
+        return events.some(
+          (event) =>
+            event.type === "operation" &&
+            event.kind === "run-in-game" &&
+            event.status.requestId === first.requestId &&
+            event.status.phase === "completed"
         );
-        return status.phase;
       })
-      .toBe("completed");
+      .toBe(true);
 
-    const duplicateAfterComplete = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
-    expect(duplicateAfterComplete.requestId).toBe(first.requestId);
-    expect(duplicateAfterComplete).toMatchObject({
-      status: "completed",
-      diagnosticsId: first.diagnosticsId,
-    });
+    const repeatAfterComplete = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    expect(repeatAfterComplete.requestId).not.toBe(first.requestId);
+    expect(repeatAfterComplete).toMatchObject({ status: "running" });
   });
 
-  test("returns duplicate Run in Game fingerprint after a failed terminal record", async () => {
+  test("starts a fresh same-content request after a failed terminal record", async () => {
     const { runtime } = makeRuntime({
       ports: {
         deployRunInGame: async () => {
@@ -883,14 +911,9 @@ describe("StudioOperationRuntime", () => {
       )
       .toBe("terminal");
 
-    const duplicateAfterFailure = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
-    expect(duplicateAfterFailure.requestId).toBe(first.requestId);
-    expect(duplicateAfterFailure).toMatchObject({
-      status: "failed",
-      diagnosticsId: first.diagnosticsId,
-    });
+    const repeatAfterFailure = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    expect(repeatAfterFailure.requestId).not.toBe(first.requestId);
+    expect(repeatAfterFailure).toMatchObject({ status: "running" });
   }, 10_000);
 
   test("rejects cross-operation mutation while a worker is active", async () => {
@@ -1382,16 +1405,17 @@ describe("StudioOperationRuntime", () => {
     }
   });
 
-  test("maps status misses to runtime-owned not-found failures with identity available", async () => {
+  test("maps Run in Game status misses to request-owned safe not-found failures", async () => {
     const { runtime } = makeRuntime();
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    await expect(
-      expectFailure(runtime, service.runInGameStatus({ requestId: "missing" }))
-    ).resolves.toMatchObject({
+    const failure = await expectFailure(runtime, service.runInGameStatus({ requestId: "missing" }));
+    expect(failure).toMatchObject({
       tag: "OperationNotFound",
       requestId: "missing",
     });
+    expect(failure).not.toHaveProperty("serverInstanceId");
+    expect(failure).not.toHaveProperty("serverStartedAt");
   });
 
   test("scoped disposal interrupts active workers and projects runtime-disposed status", async () => {
@@ -1426,6 +1450,442 @@ describe("StudioOperationRuntime", () => {
     ).resolves.toMatchObject({
       tag: "RuntimeDisposed",
       reason: "runtime-disposed",
+    });
+    blocker.resolve();
+  });
+
+  test("daemon startup terminalizes abandoned Run in Game records and releases stale lease", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-ownership-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const requestId = "studio-run-in-game-abandoned";
+    const diagnosticsId = "run-diagnostics-abandoned";
+    const leaseId = "runtime-lease-abandoned";
+    await mkdir(join(workspaceRoot, requestId), { recursive: true });
+    await mkdir(join(workspaceRoot, "_runtime"), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, requestId, "operation-record.json"),
+      `${JSON.stringify(
+        {
+          recordType: "RunOperationRecord",
+          requestId,
+          daemonId: "studio-server-previous",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          leaseId,
+          phase: "waiting-for-proof",
+          status: "running",
+          operationRevision: 3,
+          diagnosticsId,
+          createdAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+    await writeFile(
+      join(workspaceRoot, "_runtime", "runtime-ownership-lease.json"),
+      `${JSON.stringify(
+        {
+          leaseId,
+          ownerKind: "run-in-game",
+          requestId,
+          daemonId: "studio-server-previous",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          processId: 999_999_999,
+          acquiredAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+
+    const second = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        clock: { now: () => new Date("2026-06-10T00:00:01.000Z") },
+      },
+    });
+    const secondService = await second.runtime.runPromise(StudioOperationRuntime);
+
+    const abandoned = await second.runtime.runPromise(
+      secondService.runInGameStatus({ requestId })
+    );
+    expect(abandoned).toMatchObject({
+      requestId,
+      status: "failed",
+      phase: "failed",
+      safeFailureCategory: "ownership",
+      diagnosticsId,
+    });
+    const privateOperation = await readPrivateRunOperation(
+      second.runtime,
+      secondService,
+      abandoned.diagnosticsId
+    );
+    expect(privateOperation.failure).toMatchObject({
+      tag: "OperationBlocked",
+      diagnostics: { code: "run-in-game-ownership-lost-after-restart" },
+    });
+
+    await expect(
+      second.runtime.runPromise(secondService.runInGameStart(runInGameInput()))
+    ).resolves.toMatchObject({
+      requestId: expect.not.stringMatching(requestId),
+      status: "running",
+    });
+  });
+
+  test("daemon startup terminalizes corrupt Run in Game records instead of losing them", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-corrupt-record-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const requestId = "studio-run-in-game-corrupt-record";
+    await mkdir(join(workspaceRoot, requestId), { recursive: true });
+    await writeFile(join(workspaceRoot, requestId, "operation-record.json"), "{", "utf8");
+
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        clock: { now: () => new Date("2026-06-10T00:00:01.000Z") },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const recovered = await runtime.runPromise(service.runInGameStatus({ requestId }));
+    expect(recovered).toMatchObject({
+      requestId,
+      status: "failed",
+      phase: "failed",
+      safeFailureCategory: "ownership",
+    });
+    const entries = await readdir(join(workspaceRoot, requestId));
+    expect(entries.some((entry) => entry.startsWith("operation-record.json.corrupt-"))).toBe(true);
+    await expect(
+      runtime.runPromise(service.runInGameStart(runInGameInput()))
+    ).resolves.toMatchObject({
+      status: "running",
+    });
+  });
+
+  test("daemon startup binds Run in Game records to their storage request id", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-mismatched-record-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const requestId = "studio-run-in-game-storage-key";
+    await mkdir(join(workspaceRoot, requestId), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, requestId, "operation-record.json"),
+      `${JSON.stringify(
+        {
+          recordType: "RunOperationRecord",
+          requestId: "studio-run-in-game-wrong-key",
+          daemonId: "studio-server-previous",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          leaseId: "runtime-lease-mismatched-record",
+          phase: "waiting-for-proof",
+          status: "running",
+          operationRevision: 3,
+          diagnosticsId: "run-diagnostics-mismatched-record",
+          createdAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        clock: { now: () => new Date("2026-06-10T00:00:01.000Z") },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const recovered = await runtime.runPromise(service.runInGameStatus({ requestId }));
+    expect(recovered).toMatchObject({
+      requestId,
+      status: "failed",
+      phase: "failed",
+      safeFailureCategory: "ownership",
+    });
+    const entries = await readdir(join(workspaceRoot, requestId));
+    expect(entries.some((entry) => entry.startsWith("operation-record.json.corrupt-"))).toBe(true);
+  });
+
+  test("daemon startup does not release a live foreign runtime lease", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-live-ownership-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const blocker = deferred<void>();
+    try {
+      const first = makeRuntime({
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+          buildRunInGameProof: async () => {
+            await blocker.promise;
+            return { result: { ok: true } };
+          },
+        },
+      });
+      const firstService = await first.runtime.runPromise(StudioOperationRuntime);
+      const active = await first.runtime.runPromise(firstService.runInGameStart(runInGameInput()));
+      await expect
+        .poll(async () => {
+          const content = await readFile(
+            join(workspaceRoot, active.requestId, "operation-record.json"),
+            "utf8"
+          ).catch(() => "{}");
+          return (JSON.parse(content) as { phase?: string }).phase;
+        })
+        .toBe("waiting-for-proof");
+
+      const second = makeRuntime({
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+        },
+      });
+      const secondService = await second.runtime.runPromise(StudioOperationRuntime);
+
+      await expect(
+        expectFailure(second.runtime, secondService.runInGameStart(runInGameInput()))
+      ).resolves.toMatchObject({
+        tag: "OperationBlocked",
+        activeRequestId: active.requestId,
+      });
+    } finally {
+      blocker.resolve();
+    }
+  });
+
+  test("daemon startup preserves live-pid leases with missing heartbeat proof", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-ambiguous-ownership-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    await mkdir(join(workspaceRoot, "_runtime"), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, "_runtime", "runtime-ownership-lease.json"),
+      `${JSON.stringify(
+        {
+          leaseId: "runtime-lease-live-pid-no-heartbeat",
+          ownerKind: "run-in-game",
+          requestId: "foreign-live-without-heartbeat",
+          daemonId: "studio-server-foreign",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          processId: process.pid,
+          acquiredAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    await expect(
+      expectFailure(runtime, service.runInGameStart(runInGameInput()))
+    ).resolves.toMatchObject({
+      tag: "OperationBlocked",
+      activeRequestId: "foreign-live-without-heartbeat",
+    });
+  });
+
+  test("daemon startup releases stale Save/Deploy runtime leases", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-save-ownership-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    await mkdir(join(workspaceRoot, "_runtime"), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, "_runtime", "runtime-ownership-lease.json"),
+      `${JSON.stringify(
+        {
+          leaseId: "runtime-lease-stale-save",
+          ownerKind: "save-deploy",
+          requestId: "save-stale",
+          daemonId: "studio-server-previous",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          processId: 999_999_999,
+          acquiredAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    await expect(
+      runtime.runPromise(
+        service.saveDeployStart({ requestId: "save-after-stale", id: "test-config", envelope: {} })
+      )
+    ).resolves.toMatchObject({
+      requestId: "save-after-stale",
+      status: "running",
+    });
+  });
+
+  test("competing daemons cannot both acquire one stale runtime lease", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-stale-lease-race-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    await mkdir(join(workspaceRoot, "_runtime"), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, "_runtime", "runtime-ownership-lease.json"),
+      `${JSON.stringify(
+        {
+          leaseId: "runtime-lease-race-stale",
+          ownerKind: "run-in-game",
+          requestId: "run-stale-race",
+          daemonId: "studio-server-previous",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          processId: 999_999_999,
+          acquiredAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+    const blocker = deferred<void>();
+    try {
+      const first = makeRuntime({
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+          buildRunInGameProof: async () => {
+            await blocker.promise;
+            return { result: { ok: true } };
+          },
+        },
+      });
+      const second = makeRuntime({
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+          buildRunInGameProof: async () => {
+            await blocker.promise;
+            return { result: { ok: true } };
+          },
+        },
+      });
+      const [firstService, secondService] = await Promise.all([
+        first.runtime.runPromise(StudioOperationRuntime),
+        second.runtime.runPromise(StudioOperationRuntime),
+      ]);
+
+      const attempts = await Promise.all([
+        first.runtime.runPromise(Effect.either(firstService.runInGameStart(runInGameInput()))),
+        second.runtime.runPromise(Effect.either(secondService.runInGameStart(runInGameInput()))),
+      ]);
+
+      const accepted = attempts.filter((attempt) => attempt._tag === "Right");
+      const blocked = attempts.filter((attempt) => attempt._tag === "Left");
+      expect(accepted).toHaveLength(1);
+      expect(blocked).toHaveLength(1);
+      expect(blocked[0]).toMatchObject({
+        left: {
+          tag: "OperationBlocked",
+        },
+      });
+    } finally {
+      blocker.resolve();
+    }
+  });
+
+  test("daemon startup quarantines corrupt runtime leases instead of wedging admission", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-corrupt-ownership-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    await mkdir(join(workspaceRoot, "_runtime"), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, "_runtime", "runtime-ownership-lease.json"),
+      "{",
+      "utf8"
+    );
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    await expect(runtime.runPromise(service.runInGameStart(runInGameInput()))).resolves.toMatchObject(
+      {
+        status: "running",
+      }
+    );
+  });
+
+  test("idempotent Save/Deploy admission releases the duplicate lease", async () => {
+    const { runtime } = makeRuntime();
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.saveDeployStart({ requestId: "save-idempotent", id: "test-config", envelope: {} })
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+
+    await expect(
+      runtime.runPromise(
+        service.saveDeployStart({ requestId: "save-idempotent", id: "test-config", envelope: {} })
+      )
+    ).resolves.toMatchObject({
+      requestId: "save-idempotent",
+      status: "complete",
+    });
+    await expect(runtime.runPromise(service.runInGameStart(runInGameInput()))).resolves.toMatchObject(
+      {
+        status: "running",
+      }
+    );
+  });
+
+  test("active Save/Deploy admission by the same request id is idempotent", async () => {
+    const blocker = deferred<void>();
+    const { runtime } = makeRuntime({
+      ports: {
+        prepareSaveDeployStart: async () => {
+          await blocker.promise;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.saveDeployStart({
+        requestId: "save-idempotent-active",
+        id: "test-config",
+        envelope: {},
+      })
+    );
+    const duplicate = await runtime.runPromise(
+      service.saveDeployStart({
+        requestId: "save-idempotent-active",
+        id: "test-config",
+        envelope: {},
+      })
+    );
+
+    expect(duplicate).toMatchObject({
+      requestId: accepted.requestId,
+      status: "running",
     });
     blocker.resolve();
   });
@@ -1510,12 +1970,12 @@ describe("StudioOperationRuntime", () => {
       tag: "OperationExpired",
       requestId: accepted.requestId,
     });
-    await expect(
-      expectFailure(runtime, service.runInGameStart(runInGameInput()))
-    ).resolves.toMatchObject({
-      tag: "OperationExpired",
-      requestId: accepted.requestId,
-    });
+    await expect(runtime.runPromise(service.runInGameStart(runInGameInput()))).resolves.toMatchObject(
+      {
+        requestId: expect.not.stringMatching(accepted.requestId),
+        status: "running",
+      }
+    );
   });
 
   test("operation event publish failure does not change registry truth", async () => {
@@ -1671,9 +2131,16 @@ function makeRuntime(
   } = {}
 ) {
   const eventHub = makeEventHub({ eventSink: overrides.eventSink });
+  const runInGameWorkspaceRoot =
+    overrides.ports?.runInGameWorkspaceRoot ??
+    join(tmpdir(), `studio-operation-runtime-${process.pid}-${++runtimeWorkspaceSequence}`);
+  if (overrides.ports?.runInGameWorkspaceRoot === undefined) {
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
+  }
   const ports: StudioOperationRuntimePorts = {
     ...makePorts(),
     ...overrides.ports,
+    runInGameWorkspaceRoot,
   };
   const runtime = ManagedRuntime.make(
     makeStudioOperationRuntimeLayer({
@@ -1785,7 +2252,7 @@ async function readPrivateRunOperation(
   runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
   service: StudioOperationRuntimeApi,
   diagnosticsId: string | undefined
-): Promise<Record<string, any>> {
+): Promise<Record<string, unknown>> {
   if (!diagnosticsId) throw new Error("Expected Run in Game diagnostics id");
   const lookup = await runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId }));
   if (!lookup.ok) throw new Error(`Expected private diagnostics for ${diagnosticsId}`);
@@ -1793,7 +2260,7 @@ async function readPrivateRunOperation(
   if (operation == null || typeof operation !== "object" || Array.isArray(operation)) {
     throw new Error(`Expected operation diagnostics for ${diagnosticsId}`);
   }
-  return operation as Record<string, any>;
+  return operation as Record<string, unknown>;
 }
 
 function deferred<T>() {
