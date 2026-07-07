@@ -1,9 +1,14 @@
 import type {
+  LaunchEnvelope,
+  LaunchEnvelopeDigest,
+  LaunchSourceDigest,
   MapConfigSaveDeployStatus,
+  ResolvedLaunchSource,
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
   RunInGameProcessRestartStatus,
-  RunInGameRequestStatus,
+  RunInGameSetupConfig,
+  RunInGameSourceSnapshotProof,
 } from "@civ7/studio-contract";
 import type { StudioInputs, StudioOutputs } from "../context.js";
 import type { StudioBoundedDiagnostics } from "../errors/index.js";
@@ -17,9 +22,41 @@ export type StudioClock = Readonly<{
   now(): Date;
 }>;
 
+export type CanonicalRunInGameRequest = Readonly<{
+  recipeId: string;
+  seed: number;
+  mapSize: string;
+  playerCount?: number;
+  resources?: string;
+  selectedConfigId: string;
+  setupConfig: RunInGameSetupConfig;
+  materializationMode: "durable" | "disposable";
+  restartCivProcess?: boolean;
+  fingerprint?: string;
+  sourceSnapshot?: RunInGameSourceSnapshotProof;
+  resolvedLaunchSource: ResolvedLaunchSource;
+  launchEnvelope: LaunchEnvelope;
+  launchSourceDigest: LaunchSourceDigest;
+  launchEnvelopeDigest: LaunchEnvelopeDigest;
+}>;
+
 export type RunInGamePreparedRequest = Readonly<{
   correlationDigest: string;
-  request: RunInGameRequestStatus;
+  request: CanonicalRunInGameRequest;
+  resolvedLaunchSource: ResolvedLaunchSource;
+  launchEnvelope: LaunchEnvelope;
+  launchSourceDigest: LaunchSourceDigest;
+  launchEnvelopeDigest: LaunchEnvelopeDigest;
+}>;
+
+export type RunInGameCatalogSource = Readonly<{
+  catalogSourceId: string;
+  configPath: string;
+  name: string;
+  description: string;
+  sortIndex: number;
+  latitudeBounds?: unknown;
+  config: Record<string, unknown>;
 }>;
 
 export type RunInGameMaterialized = Readonly<{

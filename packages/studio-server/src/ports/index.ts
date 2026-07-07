@@ -9,6 +9,8 @@ export type { MapConfigStore } from "./MapConfigStore.js";
 export type { ProofBuilder } from "./ProofBuilder.js";
 export type { ScriptingLog } from "./ScriptingLog.js";
 export type {
+  CanonicalRunInGameRequest,
+  RunInGameCatalogSource,
   RunInGameDeployment,
   RunInGameLogEvidence,
   RunInGameMaterialized,
@@ -33,11 +35,14 @@ import type { DeployRunner } from "./DeployRunner.js";
 import type { MapConfigStore } from "./MapConfigStore.js";
 import type { ProofBuilder } from "./ProofBuilder.js";
 import type { ScriptingLog } from "./ScriptingLog.js";
-import type { StudioClock } from "./workflowTypes.js";
+import type { RunInGameCatalogSource, StudioClock } from "./workflowTypes.js";
 
 export type StudioWorkflowPorts = Readonly<{
   clock?: StudioClock;
   runInGameWorkspaceRoot?: string;
+  readRunInGameCatalogSource?(
+    args: Readonly<{ catalogSourceId: string }>
+  ): Promise<RunInGameCatalogSource | undefined>;
 }> &
   ProofBuilder &
   DeployRunner &

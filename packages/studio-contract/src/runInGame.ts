@@ -167,6 +167,130 @@ export const setupConfig = Type.Object(
 );
 export type RunInGameSetupConfig = Static<typeof setupConfig>;
 
+export const STUDIO_CURRENT_CONFIG_ID = "studio-current";
+export const STUDIO_CURRENT_MAP_SCRIPT = "{swooper-maps}/maps/studio-current.js";
+
+export const catalogLaunchSource = Type.Object(
+  {
+    kind: Type.Literal("catalog"),
+    catalogSourceId: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+export type CatalogLaunchSource = Static<typeof catalogLaunchSource>;
+
+export const editorLaunchPayload = Type.Object(
+  {
+    configId: Type.Literal(STUDIO_CURRENT_CONFIG_ID),
+    label: Type.String({ minLength: 1 }),
+    description: Type.Optional(Type.String()),
+    mapScript: Type.Literal(STUDIO_CURRENT_MAP_SCRIPT),
+    pipelineConfig: unknownRecordSchema,
+    recipeId: Type.String({ minLength: 1 }),
+    sortIndex: Type.Optional(Type.Number()),
+    latitudeBounds: Type.Optional(Type.Unknown()),
+  },
+  { additionalProperties: false }
+);
+export type EditorLaunchPayload = Static<typeof editorLaunchPayload>;
+
+export const editorLaunchSource = Type.Object(
+  {
+    kind: Type.Literal("editor"),
+    editorSessionId: Type.String({ minLength: 1 }),
+    payload: editorLaunchPayload,
+  },
+  { additionalProperties: false }
+);
+export type EditorLaunchSource = Static<typeof editorLaunchSource>;
+
+export const launchSource = Type.Union([catalogLaunchSource, editorLaunchSource]);
+export type LaunchSource = Static<typeof launchSource>;
+
+export const runInGameWorldSettings = Type.Object(
+  {
+    mapSize: Type.String({ minLength: 1 }),
+    playerCount: Type.Optional(Type.Integer()),
+    resources: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false }
+);
+export type RunInGameWorldSettings = Static<typeof runInGameWorldSettings>;
+
+export const runInGameRecipeSettings = Type.Object(
+  {
+    preset: Type.Optional(Type.String()),
+    recipe: Type.String({ minLength: 1 }),
+    seed: Type.Union([Type.Number(), Type.String()]),
+  },
+  { additionalProperties: false }
+);
+export type RunInGameRecipeSettings = Static<typeof runInGameRecipeSettings>;
+
+export const launchEnvelope = Type.Object(
+  {
+    recipeSettings: runInGameRecipeSettings,
+    worldSettings: runInGameWorldSettings,
+    setupConfig,
+    source: Type.Object(
+      {
+        kind: Type.Union([Type.Literal("catalog"), Type.Literal("editor")]),
+        id: Type.String(),
+        label: Type.String(),
+        description: Type.Optional(Type.String()),
+        mapScript: Type.String(),
+        sortIndex: Type.Number(),
+        latitudeBounds: Type.Optional(Type.Unknown()),
+      },
+      { additionalProperties: false }
+    ),
+    config: unknownRecordSchema,
+  },
+  { additionalProperties: false }
+);
+export type LaunchEnvelope = Static<typeof launchEnvelope>;
+
+export const launchSourceDigest = Type.Object(
+  {
+    configContentDigest: Type.String(),
+    launchEnvelopeDigest: Type.String(),
+  },
+  { additionalProperties: false }
+);
+export type LaunchSourceDigest = Static<typeof launchSourceDigest>;
+export type LaunchEnvelopeDigest = string;
+
+export const resolvedLaunchSource = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal("catalog"),
+      catalogSourceId: Type.String(),
+      catalogSourcePath: Type.String(),
+      label: Type.String(),
+      description: Type.String(),
+      sortIndex: Type.Number(),
+      latitudeBounds: Type.Optional(Type.Unknown()),
+      config: unknownRecordSchema,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("editor"),
+      editorSessionId: Type.String(),
+      configId: Type.String(),
+      label: Type.String(),
+      description: Type.Optional(Type.String()),
+      mapScript: Type.String(),
+      sortIndex: Type.Number(),
+      latitudeBounds: Type.Optional(Type.Unknown()),
+      config: unknownRecordSchema,
+    },
+    { additionalProperties: false }
+  ),
+]);
+export type ResolvedLaunchSource = Static<typeof resolvedLaunchSource>;
+
 export const DEFAULT_RUN_IN_GAME_SETUP_CONFIG: RunInGameSetupConfig = {
   gameOptions: {},
   playerOptions: [{ playerId: 0, options: {} }],
@@ -334,6 +458,10 @@ export const requestStatus = Type.Object(
     restartCivProcess: Type.Optional(Type.Boolean()),
     fingerprint: Type.Optional(Type.String()),
     sourceSnapshot: Type.Optional(sourceSnapshotProof),
+    resolvedLaunchSource: Type.Optional(resolvedLaunchSource),
+    launchEnvelope: Type.Optional(launchEnvelope),
+    launchSourceDigest: Type.Optional(launchSourceDigest),
+    launchEnvelopeDigest: Type.Optional(Type.String()),
   },
   { additionalProperties: false }
 );
@@ -432,11 +560,11 @@ export const exactAuthorshipProof = Type.Object(
 export type RunInGameExactAuthorshipProof = Static<typeof exactAuthorshipProof>;
 
 const publicRunStatusBaseFields = {
-    requestId: Type.String(),
-    diagnosticsId: Type.Optional(Type.String()),
-    recoveryActions: Type.Array(studioRecoveryActionSchema),
-    createdAt: Type.String(),
-    updatedAt: Type.String(),
+  requestId: Type.String(),
+  diagnosticsId: Type.Optional(Type.String()),
+  recoveryActions: Type.Array(studioRecoveryActionSchema),
+  createdAt: Type.String(),
+  updatedAt: Type.String(),
 } as const;
 
 /**
@@ -579,8 +707,9 @@ export const diagnostics = oc
 // ---------------------------------------------------------------------------
 // #14 runInGame.start - accepted operation start.
 // ---------------------------------------------------------------------------
-// Body: the full setup request. Success: PublicRunStatus (async). Each accepted
-// click owns a fresh request id; content fingerprints are correlation data only.
+// Body: one closed launch source plus launch settings. Success: PublicRunStatus
+// (async). Each accepted click owns a fresh request id; content fingerprints are
+// correlation data only.
 // Errors: 409 (run-in-game OR save/deploy active), 400/500/503 via declared
 // RUN_IN_GAME_* codes whose data is limited to safe category/recovery fields.
 // Runtime internals, source snapshots, materialization, proof, and raw messages
@@ -588,39 +717,28 @@ export const diagnostics = oc
 //
 // SECURITY BOUNDARY (target-arch section 1): the TypeBox contract keeps the
 // top-level public input closed, while the host validator deep-scans opaque
-// config/setup/source payloads for raw-control vocabulary before any workflow
-// port runs. The package operation runtime owns canonical request admission:
-// recipe pinning, kebab-case id, seed/mapSize/playerCount validation,
-// materialization mode, setup config normalization, and correlation digest derivation.
+// source/setup payloads for raw-control vocabulary before any workflow port
+// runs. The package operation runtime owns canonical request admission and
+// source resolution; host ports supply only Swooper-owned catalog source reads.
 export const start = oc
   .errors(runInGameErrors)
   .input(
     contractSchema(
       Type.Object(
         {
-          recipeId: Type.Optional(Type.String()),
-          seed: Type.Optional(Type.Union([Type.Number(), Type.String()])),
-          mapSize: Type.Optional(Type.String()),
-          playerCount: Type.Optional(Type.Integer()),
-          resources: Type.Optional(Type.String()),
-          args: Type.Optional(Type.Never()),
-          command: Type.Optional(Type.Never()),
-          context: Type.Optional(Type.Never()),
-          javascript: Type.Optional(Type.Never()),
-          operationType: Type.Optional(Type.Never()),
-          rawCommand: Type.Optional(Type.Never()),
-          rawJs: Type.Optional(Type.Never()),
-          script: Type.Optional(Type.Never()),
-          session: Type.Optional(Type.Never()),
-          stateName: Type.Optional(Type.Never()),
-          materialization: Type.Optional(
-            Type.Object(
-              {
-                mode: Type.String(),
-              },
-              { additionalProperties: false }
-            )
-          ),
+          source: launchSource,
+          recipeSettings: runInGameRecipeSettings,
+          worldSettings: runInGameWorldSettings,
+          args: Type.Optional(Type.Unknown()),
+          command: Type.Optional(Type.Unknown()),
+          context: Type.Optional(Type.Unknown()),
+          javascript: Type.Optional(Type.Unknown()),
+          operationType: Type.Optional(Type.Unknown()),
+          rawCommand: Type.Optional(Type.Unknown()),
+          rawJs: Type.Optional(Type.Unknown()),
+          script: Type.Optional(Type.Unknown()),
+          session: Type.Optional(Type.Unknown()),
+          stateName: Type.Optional(Type.Unknown()),
           recovery: Type.Optional(
             Type.Object(
               {
@@ -630,23 +748,6 @@ export const start = oc
             )
           ),
           setupConfig: Type.Optional(Type.Unknown()),
-          config: Type.Optional(Type.Unknown()),
-          sourceSnapshot: Type.Optional(Type.Unknown()),
-          selectedConfig: Type.Optional(
-            Type.Object(
-              {
-                // `id` is OPTIONAL: disposable runs send `selectedConfig` without one;
-                // package runtime admission derives the canonical selected id.
-                id: Type.Optional(Type.String()),
-                label: Type.Optional(Type.String()),
-                description: Type.Optional(Type.String()),
-                sourcePath: Type.Optional(Type.String()),
-                sortIndex: Type.Optional(Type.Number()),
-                latitudeBounds: Type.Optional(Type.Unknown()),
-              },
-              { additionalProperties: false }
-            )
-          ),
         },
         { additionalProperties: false }
       ),

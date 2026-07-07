@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-studio-run-launch-source-boundary",
+  "title": "Grit Studio Run Launch Source Boundary",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "missing closed Run in Game launch source contract or runtime-owned source resolution boundary",
+  "why": "Packet 5 makes the public Run in Game start request a closed launch-source envelope and moves catalog/editor source realization behind the operation runtime.",
+  "remediate": "Keep runInGame.start shaped as { source, recipeSettings, worldSettings } and route all launch-source realization through the studio-server operation runtime resolver.",
+  "message": "Run in Game launch-source ownership drifted from the closed public contract and runtime resolver boundary.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/studio-contract/src/runInGame.ts",
+        "packages/studio-server/src/operationRuntime/launchSource.ts",
+        "apps/mapgen-studio/src/app/hooks/useRunInGame.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "packages/studio-contract/src",
+    "packages/studio-server/src",
+    "apps/mapgen-studio/src/app"
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md"
+    },
+    "patternName": "grit_studio_run_launch_source_boundary"
+  }
+}
