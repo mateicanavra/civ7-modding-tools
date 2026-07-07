@@ -14,6 +14,7 @@ export function publicRunInGameFailureCategory(
     case "OperationBlocked":
       return "ownership";
     case "InvalidRequest":
+      return sourceResolutionInvalidRequest(failure) ? "source-resolution" : "request-validation";
     case "OperationExpired":
     case "OperationNotFound":
     case "DaemonIdentityMismatch":
@@ -35,6 +36,16 @@ export function publicRunInGameFailureCategory(
     case "AutoplayVerificationFailed":
       return "internal-defect";
   }
+}
+
+function sourceResolutionInvalidRequest(failure: StudioRuntimeFailure): boolean {
+  const code = failure.diagnostics?.code;
+  return (
+    typeof code === "string" &&
+    (code === "run-in-game-catalog-source-not-found" ||
+      code === "run-in-game-catalog-source-reader-unavailable" ||
+      code === "run-in-game-catalog-source-resolution-failed")
+  );
 }
 
 export function publicRunInGameFailureMessage(category: RunInGameSafeFailureCategory): string {
