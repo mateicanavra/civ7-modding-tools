@@ -37,6 +37,7 @@ import type { StudioClock } from "./workflowTypes.js";
 
 export type StudioWorkflowPorts = Readonly<{
   clock?: StudioClock;
+  runInGameWorkspaceRoot?: string;
 }> &
   ProofBuilder &
   DeployRunner &

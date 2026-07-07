@@ -689,6 +689,7 @@ export function createStudioOperationRuntimePorts(
   const saveContexts = new Map<string, SaveDeployLeafContext>();
 
   return {
+    runInGameWorkspaceRoot: resolve(repoRoot, ".mapgen-studio/run-in-game"),
     materializeRunInGame: async ({ requestId, input, prepared }) => {
       const context = makeRunInGameLeafContext({ requestId, input, prepared });
       let materialized: Awaited<ReturnType<typeof materializeRunInGameConfig>> | undefined;

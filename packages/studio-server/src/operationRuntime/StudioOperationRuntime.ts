@@ -129,6 +129,7 @@ function makeStudioOperationRuntime(
       serverInstanceId: nextRuntimeId("studio-server"),
       serverStartedAt: nowIso(),
     };
+    const runInGameWorkspaceRoot = args.ports.runInGameWorkspaceRoot;
     const registry = yield* makeRegistry(identity);
     const admissionGate = yield* Effect.makeSemaphore(1);
     const fibers = yield* FiberSet.make<void, never>();
@@ -142,7 +143,7 @@ function makeStudioOperationRuntime(
     ): Effect.Effect<RuntimeEventOperation, never> =>
       operation.kind !== "run-in-game"
         ? Effect.succeed(operation)
-        : writeRunDiagnostics(operation).pipe(
+        : writeRunDiagnostics(operation, { workspaceRoot: runInGameWorkspaceRoot }).pipe(
             Effect.flatMap(() =>
               markRunInGameDiagnosticsAvailable(
                 registry,
@@ -279,7 +280,8 @@ function makeStudioOperationRuntime(
           nowIso: nowIso(),
           ttlMs: args.ttlMs,
         }),
-      runInGameDiagnostics: (input) => lookupRunDiagnostics(input.diagnosticsId),
+      runInGameDiagnostics: (input) =>
+        lookupRunDiagnostics(input.diagnosticsId, { workspaceRoot: runInGameWorkspaceRoot }),
       saveDeployStart: (input) =>
         Effect.gen(function* () {
           const requestId = input.requestId ?? nextRuntimeId("studio-save-deploy");
