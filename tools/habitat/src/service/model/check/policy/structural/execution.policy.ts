@@ -74,37 +74,55 @@ export function executeSelectedRulesEffect(
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
     const sourceRules = factsForRuleIds(context.rules.source, selectedRuleIds);
-    yield* executeNativeSourceRulesEffect(sourceRules, results, options, context, () =>
-      currentStagedPathsEffect(context)
-    );
-
     const gritRules = factsForRuleIds(context.rules.grit, selectedRuleIds);
-    yield* executeGritSourceRulesEffect(gritRules, results, options, context, () =>
-      currentStagedPathsEffect(context)
-    );
-
-    yield* executeStructureRulesEffect(
-      factsForRuleIds(context.rules.structure, selectedRuleIds),
-      results,
-      context
-    );
-
+    const structureRules = factsForRuleIds(context.rules.structure, selectedRuleIds);
     const commandRules = factsForRuleIds(context.rules.commandExecution, selectedRuleIds);
-    yield* executeGraphBackedCommandRulesEffect(
-      factsForRuleIds(context.rules.graph, selectedRuleIds).filter(
-        (rule) => rule.alias.kind === "depends-on"
-      ),
-      results,
-      context
+    const graphCommandRules = factsForRuleIds(context.rules.graph, selectedRuleIds).filter(
+      (rule) => rule.alias.kind === "depends-on"
     );
-    yield* executeCommandRulesEffect(commandRules, results, context);
-    yield* executeFileLayerRulesEffect(
-      factsForRuleIds(context.rules.fileLayer, selectedRuleIds),
-      results,
-      options,
-      context
-    );
+    const fileLayerRules = factsForRuleIds(context.rules.fileLayer, selectedRuleIds);
 
+    const laneResults = yield* Effect.all(
+      [
+        executeLaneEffect((laneResults) =>
+          executeNativeSourceRulesEffect(sourceRules, laneResults, options, context, () =>
+            currentStagedPathsEffect(context)
+          )
+        ),
+        executeLaneEffect((laneResults) =>
+          executeGritSourceRulesEffect(gritRules, laneResults, options, context, () =>
+            currentStagedPathsEffect(context)
+          )
+        ),
+        executeLaneEffect((laneResults) =>
+          executeStructureRulesEffect(structureRules, laneResults, context)
+        ),
+        executeLaneEffect((laneResults) =>
+          executeGraphBackedCommandRulesEffect(graphCommandRules, laneResults, context)
+        ),
+        executeLaneEffect((laneResults) =>
+          executeCommandRulesEffect(commandRules, laneResults, context)
+        ),
+        executeLaneEffect((laneResults) =>
+          executeFileLayerRulesEffect(fileLayerRules, laneResults, options, context)
+        ),
+      ],
+      { concurrency: 3 }
+    );
+    for (const laneResult of laneResults) {
+      for (const [ruleId, record] of laneResult) results.set(ruleId, record);
+    }
+
+    return results;
+  });
+}
+
+function executeLaneEffect(
+  execute: (results: Map<string, RuleExecutionRecord>) => Effect.Effect<void, never, any>
+): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
+  return Effect.gen(function* () {
+    const results = new Map<string, RuleExecutionRecord>();
+    yield* execute(results);
     return results;
   });
 }
