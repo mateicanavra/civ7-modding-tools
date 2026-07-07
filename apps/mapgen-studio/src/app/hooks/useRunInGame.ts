@@ -208,25 +208,44 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
             latitudeBounds: resolved.latitudeBounds,
           }
         : undefined;
+      const launchSource =
+        runInGameMaterializationMode === "durable" && selectedConfig?.id
+          ? ({
+              kind: "catalog" as const,
+              catalogSourceId: selectedConfig.id,
+            } satisfies Parameters<typeof runCurrentConfigInGame>[0]["source"])
+          : ({
+              kind: "editor" as const,
+              editorSessionId: "studio-current",
+              payload: {
+                configId: "studio-current",
+                label: selectedConfig?.label ?? "Studio Current",
+                ...(selectedConfig?.description === undefined
+                  ? {}
+                  : { description: selectedConfig.description }),
+                mapScript: "{swooper-maps}/maps/studio-current.js",
+                pipelineConfig: sanitized,
+                recipeId: "mod-swooper-maps/standard",
+                sortIndex: selectedConfig?.sortIndex ?? 9999,
+                ...(selectedConfig?.latitudeBounds === undefined
+                  ? {}
+                  : { latitudeBounds: selectedConfig.latitudeBounds }),
+              },
+            } satisfies Parameters<typeof runCurrentConfigInGame>[0]["source"]);
       const result = await runCurrentConfigInGame({
-        recipeId: "mod-swooper-maps/standard",
-        seed: recipeSettings.seed,
-        mapSize: mapSize.id,
-        playerCount: worldSettings.playerCount,
-        resources: worldSettings.resources,
-        setupConfig,
-        materializationMode: runInGameMaterializationMode,
-        restartCivProcess: options?.restartCivProcess,
-        selectedConfig,
-        config: sanitized,
-        sourceSnapshot: {
-          recipeSettings,
-          worldSettings,
-          pipelineConfig: sanitized,
-          setupConfig: normalizeStudioSetupConfig(setupConfig),
-          materializationMode: runInGameMaterializationMode,
-          selectedConfig,
+        source: launchSource,
+        recipeSettings: {
+          preset: recipeSettings.preset,
+          recipe: "mod-swooper-maps/standard",
+          seed: recipeSettings.seed,
         },
+        worldSettings: {
+          mapSize: mapSize.id,
+          playerCount: worldSettings.playerCount,
+          resources: worldSettings.resources,
+        },
+        setupConfig,
+        restartCivProcess: options?.restartCivProcess,
       });
       if (!("requestId" in result)) {
         toast(`Run in Game failed: ${result.error}`, { variant: "error" });

@@ -22,30 +22,35 @@ import {
 } from "../workflows/index.js";
 import { lookupRunDiagnostics, writeRunDiagnostics } from "./diagnostics.js";
 import { createStudioOperationId } from "./ids.js";
+import {
+  resolveRunInGameLaunchSource,
+  sourceSnapshotFromLaunchResolution,
+} from "./launchSource.js";
 import type { RunInGameInternalOperation, SaveDeployInternalOperation } from "./model.js";
 import {
-  acquireRuntimeOwnershipLease,
   acquireRuntimeDaemonHeartbeat,
+  acquireRuntimeOwnershipLease,
   isRuntimeOperationTerminal,
   operationFromAbandonedRecord,
+  type RuntimeOwnershipLease,
   readAbandonedRunOperationRecords,
-  releaseStaleRuntimeOwnershipLease,
   releaseRuntimeOwnershipLease,
   releaseRuntimeOwnershipLeaseForRecord,
-  type RuntimeOwnershipLease,
+  releaseStaleRuntimeOwnershipLease,
   writeRunOperationRecord,
 } from "./operationRecords.js";
 import type {
+  CanonicalRunInGameRequest,
   RunInGamePreparedRequest,
   StudioDaemonIdentity,
   StudioOperationRuntimePorts,
 } from "./ports.js";
 import { operationEvent, projectCurrent } from "./projection.js";
 import {
+  type Admission,
   admitRunInGame,
   admitSaveDeploy,
   adoptRunInGameOperations,
-  type Admission,
   cancelRunInGame,
   ensureAdmissionOpen,
   failRunInGameMutation,
@@ -55,8 +60,8 @@ import {
   getState,
   lookupSaveDeployAdmission,
   makeRegistry,
-  markRunInGameCancellationCleanupFailure,
   markDisposed,
+  markRunInGameCancellationCleanupFailure,
   markRunInGameDiagnosticsAvailable,
   type RunInGameMutation,
   type RunInGameTransition,
@@ -64,7 +69,7 @@ import {
   transitionRunInGameMutation,
   transitionSaveDeploy,
 } from "./registry.js";
-import { buildStandardRunInGameSourceSnapshotProof } from "./sourceSnapshot.js";
+import { buildRunInGameSourceSnapshotProof } from "./sourceSnapshot.js";
 
 export interface StudioOperationRuntimeApi {
   readonly identity: StudioDaemonIdentity;
@@ -179,9 +184,7 @@ function makeStudioOperationRuntime(
       identity,
     });
 
-    const releaseTerminalLease = (
-      operation: RuntimeEventOperation
-    ): Effect.Effect<void, never> => {
+    const releaseTerminalLease = (operation: RuntimeEventOperation): Effect.Effect<void, never> => {
       if (!isRuntimeOperationTerminal(operation)) return Effect.void;
       return releaseRuntimeOwnershipLease({
         workspaceRoot: runInGameWorkspaceRoot,
@@ -421,7 +424,11 @@ function makeStudioOperationRuntime(
                 nowIso: nowIso(),
                 ttlMs: args.ttlMs,
               });
-              const prepared = yield* prepareRunInGameRequest(input, requestId);
+              const prepared = yield* prepareRunInGameRequest({
+                input,
+                requestId,
+                ports: args.ports,
+              });
               const lease = yield* acquireRuntimeOwnershipLease({
                 workspaceRoot: runInGameWorkspaceRoot,
                 identity,
@@ -605,9 +612,13 @@ function makeStudioOperationRuntime(
 }
 
 function prepareRunInGameRequest(
-  input: StudioInputs["runInGame"]["start"],
-  requestId: string
+  args: Readonly<{
+    input: StudioInputs["runInGame"]["start"];
+    requestId: string;
+    ports: StudioOperationRuntimePorts;
+  }>
 ): Effect.Effect<RunInGamePreparedRequest, StudioRuntimeFailure> {
+  const { input, requestId, ports } = args;
   const rawControlField = findRawControlField(input);
   if (rawControlField !== undefined) {
     return Effect.fail(
@@ -620,17 +631,7 @@ function prepareRunInGameRequest(
       })
     );
   }
-  if (!isRecord(input.config)) {
-    return Effect.fail(
-      invalidRequest({
-        message: "Run in Game requires a sanitized config object.",
-        diagnostics: { code: "run-in-game-config-invalid" },
-      })
-    );
-  }
-  const selected = input.selectedConfig ?? {};
-  const materializationMode = input.materialization?.mode === "durable" ? "durable" : "disposable";
-  const seed = parseSeed(input.seed);
+  const seed = parseSeed(input.recipeSettings.seed);
   if (!seed.ok) {
     return Effect.fail(
       invalidRequest({
@@ -639,7 +640,10 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const mapSize = typeof input.mapSize === "string" ? input.mapSize : "MAPSIZE_STANDARD";
+  const mapSize =
+    typeof input.worldSettings.mapSize === "string"
+      ? input.worldSettings.mapSize
+      : "MAPSIZE_STANDARD";
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) {
     return Effect.fail(
       invalidRequest({
@@ -648,7 +652,10 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const playerCount = input.playerCount === undefined ? undefined : Number(input.playerCount);
+  const playerCount =
+    input.worldSettings.playerCount === undefined
+      ? undefined
+      : Number(input.worldSettings.playerCount);
   if (
     playerCount !== undefined &&
     (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)
@@ -660,7 +667,7 @@ function prepareRunInGameRequest(
       })
     );
   }
-  if (input.recipeId !== undefined && input.recipeId !== "mod-swooper-maps/standard") {
+  if (input.recipeSettings.recipe !== "mod-swooper-maps/standard") {
     return Effect.fail(
       invalidRequest({
         message: "Run in Game currently supports only mod-swooper-maps/standard",
@@ -677,47 +684,75 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const selectedConfigId =
-    materializationMode === "durable" &&
-    typeof selected.id === "string" &&
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
-      ? selected.id
-      : "studio-current";
-  const sourceSnapshot = buildStandardRunInGameSourceSnapshotProof({
-    requestId,
-    input,
-  });
-  const request: RunInGameRequestStatus = {
-    recipeId: input.recipeId ?? "mod-swooper-maps/standard",
-    seed: seed.value,
-    mapSize,
-    ...(playerCount === undefined ? {} : { playerCount }),
-    ...(typeof input.resources === "string" ? { resources: input.resources } : {}),
-    selectedConfigId,
-    setupConfig: setupConfig.value,
-    materializationMode,
-    ...(input.recovery?.restartCivProcess === true ? { restartCivProcess: true } : {}),
-    ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
-  };
-  const correlationDigest = stableHash({
-    recipeId: request.recipeId,
-    seed: request.seed ?? null,
-    mapSize: request.mapSize ?? null,
-    playerCount: request.playerCount ?? null,
-    resources: request.resources ?? null,
-    selectedConfigId: request.selectedConfigId ?? null,
-    setupConfig: request.setupConfig ?? null,
-    materializationMode: request.materializationMode ?? null,
-    config: input.config ?? null,
-    sourceSnapshot: input.sourceSnapshot ?? null,
-  });
-  return Effect.succeed({
-    correlationDigest,
-    request: {
-      ...request,
-      fingerprint: correlationDigest,
+  return resolveRunInGameLaunchSource({
+    input: {
+      source: input.source,
+      recipeSettings: {
+        ...input.recipeSettings,
+        seed: seed.value,
+      },
+      worldSettings: {
+        mapSize,
+        ...(playerCount === undefined ? {} : { playerCount }),
+        ...(typeof input.worldSettings.resources === "string"
+          ? { resources: input.worldSettings.resources }
+          : {}),
+      },
+      setupConfig: setupConfig.value,
     },
-  });
+    ports,
+  }).pipe(
+    Effect.map((resolution) => {
+      const sourceSnapshot = buildRunInGameSourceSnapshotProof({
+        requestId,
+        sourceSnapshot: sourceSnapshotFromLaunchResolution(resolution),
+        configHash: resolution.launchSourceDigest.configContentDigest,
+        envelopeHash: resolution.launchEnvelopeDigest,
+      });
+      const request: CanonicalRunInGameRequest = {
+        recipeId: input.recipeSettings.recipe,
+        seed: seed.value,
+        mapSize,
+        ...(playerCount === undefined ? {} : { playerCount }),
+        ...(typeof input.worldSettings.resources === "string"
+          ? { resources: input.worldSettings.resources }
+          : {}),
+        selectedConfigId: resolution.selectedConfigId,
+        setupConfig: setupConfig.value,
+        materializationMode: resolution.materializationMode,
+        ...(input.recovery?.restartCivProcess === true ? { restartCivProcess: true } : {}),
+        ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
+        resolvedLaunchSource: resolution.resolvedLaunchSource,
+        launchEnvelope: resolution.launchEnvelope,
+        launchSourceDigest: resolution.launchSourceDigest,
+        launchEnvelopeDigest: resolution.launchEnvelopeDigest,
+      };
+      const correlationDigest = stableHash({
+        recipeId: request.recipeId,
+        seed: request.seed ?? null,
+        mapSize: request.mapSize ?? null,
+        playerCount: request.playerCount ?? null,
+        resources: request.resources ?? null,
+        selectedConfigId: request.selectedConfigId ?? null,
+        setupConfig: request.setupConfig ?? null,
+        materializationMode: request.materializationMode ?? null,
+        resolvedLaunchSource: resolution.resolvedLaunchSource,
+        launchEnvelope: resolution.launchEnvelope,
+        launchSourceDigest: resolution.launchSourceDigest,
+      });
+      return {
+        correlationDigest,
+        request: {
+          ...request,
+          fingerprint: correlationDigest,
+        },
+        resolvedLaunchSource: resolution.resolvedLaunchSource,
+        launchEnvelope: resolution.launchEnvelope,
+        launchSourceDigest: resolution.launchSourceDigest,
+        launchEnvelopeDigest: resolution.launchEnvelopeDigest,
+      };
+    })
+  );
 }
 
 const RUN_IN_GAME_SEED_MIN = 0;

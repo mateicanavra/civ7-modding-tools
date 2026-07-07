@@ -23,13 +23,23 @@ describe("Run in Game request validation", () => {
 
     for (const key of rawKeys) {
       const topLevelPayload = validRunInGameRequest({ [key]: "raw-control" });
-      expect(Value.Check(startInputSchema, topLevelPayload)).toBe(false);
+      expect(Value.Check(startInputSchema, topLevelPayload)).toBe(true);
       expect(() => assertNoRawControlFields(topLevelPayload)).toThrow("raw control commands");
 
       const nestedPayload = validRunInGameRequest({
-        config: {
-          nested: {
-            [key]: "raw-control",
+        source: {
+          kind: "editor",
+          editorSessionId: "studio-current",
+          payload: {
+            configId: "studio-current",
+            label: "Studio Current",
+            mapScript: "{swooper-maps}/maps/studio-current.js",
+            pipelineConfig: {
+              nested: {
+                [key]: "raw-control",
+              },
+            },
+            recipeId: "mod-swooper-maps/standard",
           },
         },
       });
@@ -87,9 +97,9 @@ describe("Run in Game request validation", () => {
     const cancelInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.cancel);
 
     expect(Value.Check(cancelInputSchema, { requestId: "studio-run-in-game-1" })).toBe(true);
-    expect(Value.Check(cancelInputSchema, { requestId: "studio-run-in-game-1", cancel: true })).toBe(
-      false
-    );
+    expect(
+      Value.Check(cancelInputSchema, { requestId: "studio-run-in-game-1", cancel: true })
+    ).toBe(false);
     expect(
       Value.Check(cancelInputSchema, {
         requestId: "studio-run-in-game-1",
@@ -107,10 +117,24 @@ describe("Run in Game request validation", () => {
 
 function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, unknown> {
   return {
-    recipeId: "mod-swooper-maps/standard",
-    seed: 123,
-    mapSize: "MAPSIZE_STANDARD",
-    config: { ok: true },
+    source: {
+      kind: "editor",
+      editorSessionId: "studio-current",
+      payload: {
+        configId: "studio-current",
+        label: "Studio Current",
+        mapScript: "{swooper-maps}/maps/studio-current.js",
+        pipelineConfig: { ok: true },
+        recipeId: "mod-swooper-maps/standard",
+      },
+    },
+    recipeSettings: {
+      recipe: "mod-swooper-maps/standard",
+      seed: 123,
+    },
+    worldSettings: {
+      mapSize: "MAPSIZE_STANDARD",
+    },
     ...extra,
   };
 }

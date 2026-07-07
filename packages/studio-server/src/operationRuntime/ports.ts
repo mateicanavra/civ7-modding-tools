@@ -1,4 +1,6 @@
 export type {
+  CanonicalRunInGameRequest,
+  RunInGameCatalogSource,
   RunInGameDeployment,
   RunInGameLogEvidence,
   RunInGameMaterialized,

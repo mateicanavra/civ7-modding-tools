@@ -137,6 +137,7 @@ export function statusForSaveDeployPhase(
 export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"]): RunInGamePhase {
   switch (phase) {
     case "accepted":
+      return "resolving-source";
     case "materializing":
       return "generating-artifacts";
     case "deploying":

@@ -23,10 +23,17 @@
 // chunk (values silently vanish from dist; see src/contract/index.ts). Any
 // new contract re-export must be added by name.
 export type {
+  CatalogLaunchSource,
+  EditorLaunchSource,
+  LaunchEnvelope,
+  LaunchEnvelopeDigest,
+  LaunchSource,
+  LaunchSourceDigest,
   MapConfigSaveDeployKind,
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
   RecipeDagResult,
+  ResolvedLaunchSource,
   RunInGameContentMarkerProof,
   RunInGameExactAuthorshipProof,
   RunInGameFailureDetails,
@@ -135,10 +142,12 @@ export {
   makeStudioLiveGameWatcherLayer,
   StudioLiveGameWatcher,
 } from "./liveGame/watcher.js";
-export type { StudioOperationRuntimePorts } from "./operationRuntime/index.js";
+export type {
+  CanonicalRunInGameRequest,
+  StudioOperationRuntimePorts,
+} from "./operationRuntime/index.js";
 export {
   buildRunInGameSourceSnapshotProof,
-  buildStandardRunInGameSourceSnapshotProof,
   hashRunInGameProofValue,
 } from "./operationRuntime/index.js";
 export type { RecipeDagService } from "./recipeDag/service.js";

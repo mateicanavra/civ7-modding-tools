@@ -1,6 +1,5 @@
 import { execFile } from "node:child_process";
-import { createHash } from "node:crypto";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import {
@@ -15,6 +14,7 @@ import {
 } from "@civ7/direct-control";
 import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
 import type {
+  CanonicalRunInGameRequest,
   RunInGameRequestStatus,
   StudioBoundedDiagnostics,
   StudioOperationRuntimePorts,
@@ -27,6 +27,7 @@ import {
   materializationFailed,
   proofFailed,
 } from "@civ7/studio-server";
+import { readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
@@ -37,7 +38,6 @@ import {
 } from "../runInGame/macosProcessRestart";
 import {
   buildRunInGameExactAuthorshipProof,
-  buildRunInGameSourceSnapshotProof,
   fileContentMarkerProof,
   fileIdentity,
   mapScriptEmbedsRequestId,
@@ -46,7 +46,6 @@ import {
   runInGameRequiredMaterializationMarkers,
 } from "../runInGame/proofIdentity";
 import type { RunInGameDetailedProofLog } from "../runInGame/proofTypes";
-import { assertNoRawControlFields } from "../runInGame/requestValidation";
 
 // ============================================================================
 // Studio operation leaf ports — app-side filesystem/deploy/direct-control atoms
@@ -81,24 +80,6 @@ const CIV7_PROCESS_INTRO_DISMISS_CATEGORIES = ["Cinematic"] as const;
 
 function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
-}
-
-function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (value && typeof value === "object") {
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      out[key] = canonicalize((value as Record<string, unknown>)[key]);
-    }
-    return out;
-  }
-  return value;
-}
-
-function stableHash(value: unknown): string {
-  return createHash("sha256")
-    .update(JSON.stringify(canonicalize(value)))
-    .digest("hex");
 }
 
 async function readFreshLogText(
@@ -538,6 +519,16 @@ function makeRepoMapEnvelope(args: {
   };
 }
 
+async function knownSwooperConfigPaths(repoRoot: string): Promise<ReadonlySet<string>> {
+  const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
+  const entries = await readdir(configRoot);
+  return new Set(
+    entries
+      .filter((entry) => entry.endsWith(".config.json"))
+      .map((entry) => relative(repoRoot, resolve(configRoot, entry)))
+  );
+}
+
 async function materializeRunInGameConfig(args: {
   repoRoot: string;
   id: string;
@@ -643,7 +634,6 @@ async function restoreRepoConfig(target: string, previous: string | null): Promi
   await writeFile(target, previous);
 }
 
-type RunInGameInput = Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["input"];
 type RunInGameMaterialized = Awaited<
   ReturnType<StudioOperationRuntimePorts["materializeRunInGame"]>
 >;
@@ -659,12 +649,13 @@ type RunInGameLeafContext = Readonly<{
   mapSize: string;
   playerCount?: number;
   restartCivProcess: boolean;
-  setupConfig: NonNullable<RunInGameRequestStatus["setupConfig"]>;
+  setupConfig: CanonicalRunInGameRequest["setupConfig"];
   requestedMode: "durable" | "disposable";
   configHash: string;
   envelopeHash: string;
   envelope: Record<string, unknown>;
-  sourceSnapshotProof?: ReturnType<typeof buildRunInGameSourceSnapshotProof>;
+  resolvedLaunchSource: CanonicalRunInGameRequest["resolvedLaunchSource"];
+  sourceSnapshotProof?: RunInGameRequestStatus["sourceSnapshot"];
   requestStatus: RunInGameRequestStatus;
 }> & {
   materialization?: NonNullable<RunInGameMaterialized["materialization"]>;
@@ -693,8 +684,38 @@ export function createStudioOperationRuntimePorts(
 
   return {
     runInGameWorkspaceRoot: resolve(repoRoot, ".mapgen-studio/run-in-game"),
-    materializeRunInGame: async ({ requestId, input, prepared, registerCleanup }) => {
-      const context = makeRunInGameLeafContext({ requestId, input, prepared });
+    readRunInGameCatalogSource: async ({ catalogSourceId }) => {
+      const entries = readCatalogSourceIndex({
+        knownConfigPaths: await knownSwooperConfigPaths(repoRoot),
+      });
+      const entry = entries.find((item) => item.catalogSourceId === catalogSourceId);
+      if (entry === undefined) return undefined;
+      const envelope = JSON.parse(await readFile(resolve(repoRoot, entry.configPath), "utf8")) as {
+        config?: unknown;
+      };
+      if (
+        !envelope.config ||
+        typeof envelope.config !== "object" ||
+        Array.isArray(envelope.config)
+      ) {
+        throw invalidEngineRequest(
+          "Catalog source config must contain a map config object",
+          "run-in-game-catalog-source-config-invalid",
+          { catalogSourceId, configPath: entry.configPath }
+        );
+      }
+      return {
+        catalogSourceId: entry.catalogSourceId,
+        configPath: entry.configPath,
+        name: entry.name,
+        description: entry.description,
+        sortIndex: entry.sortIndex,
+        ...(entry.latitudeBounds === undefined ? {} : { latitudeBounds: entry.latitudeBounds }),
+        config: envelope.config as Record<string, unknown>,
+      };
+    },
+    materializeRunInGame: async ({ requestId, prepared, registerCleanup }) => {
+      const context = makeRunInGameLeafContext({ requestId, prepared });
       let materialized: Awaited<ReturnType<typeof materializeRunInGameConfig>> | undefined;
       let cleaned = false;
       const cleanupMaterialized = async (cleanup?: () => Promise<void>) => {
@@ -706,9 +727,8 @@ export function createStudioOperationRuntimePorts(
         repoRoot,
         id: context.id,
         sourcePath:
-          context.requestedMode === "durable" &&
-          typeof input.selectedConfig?.sourcePath === "string"
-            ? input.selectedConfig.sourcePath
+          context.resolvedLaunchSource.kind === "catalog"
+            ? context.resolvedLaunchSource.catalogSourcePath
             : undefined,
         envelope: context.envelope,
         mode: context.requestedMode,
@@ -1049,71 +1069,39 @@ export function createStudioOperationRuntimePorts(
   function makeRunInGameLeafContext(
     args: Readonly<{
       requestId: string;
-      input: RunInGameInput;
       prepared: Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["prepared"];
     }>
   ): RunInGameLeafContext {
-    try {
-      assertNoRawControlFields(args.input);
-    } catch (err) {
-      throw invalidEngineRequest(
-        err instanceof Error ? err.message : "Invalid Run in Game request",
-        "run-in-game-request-invalid"
-      );
-    }
-    if (
-      !args.input.config ||
-      typeof args.input.config !== "object" ||
-      Array.isArray(args.input.config)
-    ) {
-      throw invalidEngineRequest(
-        "Run in Game requires a sanitized config object",
-        "run-in-game-request-invalid"
-      );
-    }
-    const selected = args.input.selectedConfig ?? {};
     const request = args.prepared.request;
-    const requestedMode = request.materializationMode === "durable" ? "durable" : "disposable";
-    const id = request.selectedConfigId ?? "studio-current";
-    const seed = requirePreparedNumber(request.seed, "Run in Game seed", args.requestId);
-    const mapSize = requirePreparedString(request.mapSize, "Run in Game mapSize", args.requestId);
+    const launchEnvelope = args.prepared.launchEnvelope;
+    const resolvedLaunchSource = args.prepared.resolvedLaunchSource;
+    const requestedMode = request.materializationMode;
+    const id = request.selectedConfigId;
+    const seed = request.seed;
+    const mapSize = request.mapSize;
     const playerCount = request.playerCount;
     const restartCivProcess = request.restartCivProcess === true;
-    const setupConfig = request.setupConfig ?? { gameOptions: {}, playerOptions: [] };
-    const configHash = stableHash(args.input.config);
+    const setupConfig = request.setupConfig;
+    const configHash = args.prepared.launchSourceDigest.configContentDigest;
     const envelope = makeRepoMapEnvelope({
       id,
-      name: typeof selected.label === "string" ? selected.label : id,
-      description: typeof selected.description === "string" ? selected.description : undefined,
-      sortIndex:
-        typeof selected.sortIndex === "number"
-          ? selected.sortIndex
-          : requestedMode === "disposable"
-            ? 9999
-            : 900,
-      latitudeBounds: selected.latitudeBounds,
-      config: args.input.config,
+      name: launchEnvelope.source.label,
+      ...(launchEnvelope.source.description === undefined
+        ? {}
+        : { description: launchEnvelope.source.description }),
+      sortIndex: launchEnvelope.source.sortIndex,
+      latitudeBounds: launchEnvelope.source.latitudeBounds,
+      config: launchEnvelope.config,
     });
     assertRepoMapEnvelope(envelope, id);
-    const envelopeHash = stableHash({
-      id,
-      recipe: "standard",
-      latitudeBounds: selected.latitudeBounds ?? null,
-      configHash,
-    });
-    const sourceSnapshotProof = buildRunInGameSourceSnapshotProof({
-      requestId: args.requestId,
-      sourceSnapshot: args.input.sourceSnapshot,
-      configHash,
-      envelopeHash,
-    });
+    const envelopeHash = args.prepared.launchEnvelopeDigest;
+    const sourceSnapshotProof = request.sourceSnapshot;
     const requestStatus: RunInGameRequestStatus = {
       ...args.prepared.request,
       recipeId: "mod-swooper-maps/standard",
       seed,
       mapSize,
       ...(playerCount === undefined ? {} : { playerCount }),
-      ...(typeof args.input.resources === "string" ? { resources: args.input.resources } : {}),
       selectedConfigId: id,
       setupConfig,
       materializationMode: requestedMode,
@@ -1131,6 +1119,7 @@ export function createStudioOperationRuntimePorts(
       configHash,
       envelopeHash,
       envelope,
+      resolvedLaunchSource,
       ...(sourceSnapshotProof ? { sourceSnapshotProof } : {}),
       requestStatus,
     };
@@ -1194,22 +1183,6 @@ function requireMaterialization(
 function requireContextValue<T>(value: T | undefined, label: string, requestId: string): T {
   if (value !== undefined) return value;
   throw invalidEngineRequest(`${label} is missing`, "run-in-game-leaf-context-incomplete", {
-    requestId,
-    label,
-  });
-}
-
-function requirePreparedNumber(value: unknown, label: string, requestId: string): number {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  throw invalidEngineRequest(`${label} is missing`, "run-in-game-prepared-request-incomplete", {
-    requestId,
-    label,
-  });
-}
-
-function requirePreparedString(value: unknown, label: string, requestId: string): string {
-  if (typeof value === "string" && value.length > 0) return value;
-  throw invalidEngineRequest(`${label} is missing`, "run-in-game-prepared-request-incomplete", {
     requestId,
     label,
   });

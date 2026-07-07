@@ -9,6 +9,10 @@
       "types": "./src/recipes/studio-contracts/index.ts",
       "import": "./src/recipes/studio-contracts/index.ts"
     },
+    "./maps/catalog": {
+      "types": "./src/maps/catalog/index.ts",
+      "import": "./src/maps/catalog/index.ts"
+    },
     "./recipes/standard": {
       "types": "./dist/recipes/standard.d.ts",
       "import": "./dist/recipes/standard.js"
