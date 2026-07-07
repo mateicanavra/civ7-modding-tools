@@ -1,4 +1,5 @@
 import { type Static, Type } from "typebox";
+import { runInGameSafeFailureCategory } from "../runInGamePublic.js";
 
 const namespaceSchema = Type.Union([
   Type.Literal("autoplay"),
@@ -293,6 +294,33 @@ export const statusNotFoundErrorDataSchema = Type.Union([
   Type.Undefined(),
 ]);
 
+export const runInGamePublicErrorDataSchema = Type.Union([
+  Type.Object(
+    {
+      namespace: Type.Literal("runInGame"),
+      recoveryActions: Type.Array(studioRecoveryActionSchema),
+      safeFailureCategory: runInGameSafeFailureCategory,
+      requestId: Type.Optional(Type.String()),
+      serverInstanceId: Type.Optional(Type.String()),
+      serverStartedAt: Type.Optional(Type.String()),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Undefined(),
+]);
+
+export const runInGameStatusNotFoundErrorDataSchema = Type.Object(
+  {
+    namespace: Type.Literal("runInGame"),
+    recoveryActions: Type.Array(studioRecoveryActionSchema),
+    safeFailureCategory: runInGameSafeFailureCategory,
+    requestId: Type.String(),
+    serverInstanceId: Type.String(),
+    serverStartedAt: Type.String(),
+  },
+  { additionalProperties: false }
+);
+
 export type StudioFailureData = Static<typeof studioFailureDataSchema>;
 export type StatusNotFoundData = Static<typeof statusNotFoundDataSchema>;
 export type DependencyUnavailableData = Static<typeof dependencyUnavailableDataSchema>;
@@ -301,3 +329,7 @@ export type ExpectedFailureErrorData = Static<typeof expectedFailureErrorDataSch
 export type UnavailableFailureErrorData = Static<typeof unavailableFailureErrorDataSchema>;
 export type FailedErrorData = Static<typeof failedErrorDataSchema>;
 export type StatusNotFoundErrorData = Static<typeof statusNotFoundErrorDataSchema>;
+export type RunInGamePublicErrorData = Static<typeof runInGamePublicErrorDataSchema>;
+export type RunInGameStatusNotFoundErrorData = Static<
+  typeof runInGameStatusNotFoundErrorDataSchema
+>;

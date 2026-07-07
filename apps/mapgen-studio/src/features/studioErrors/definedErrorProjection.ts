@@ -46,6 +46,8 @@ export function projectStudioBrowserDefinedError<TDetails = StudioBrowserErrorDe
   copyString(data, details, "activeRequestId");
   copyString(data, details, "activePhase");
   copyString(data, details, "operationType");
+  copyString(data, details, "safeFailureCategory");
+  copyString(data, details, "diagnosticsId");
   copyString(data, details, "dependency");
   copyString(data, details, "directControlCode");
   copyString(data, details, "causeSummary");

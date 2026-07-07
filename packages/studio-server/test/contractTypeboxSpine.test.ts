@@ -90,13 +90,13 @@ describe("studio-server TypeBox contract spine", () => {
           active: null,
           recent: [
             {
-              ok: true,
               requestId: "run-1",
-              phase: "complete",
-              status: "complete",
-              startedAt: "2026-06-15T00:00:00.000Z",
+              phase: "completed",
+              status: "completed",
+              recoveryActions: ["copy-diagnostics"],
+              createdAt: "2026-06-15T00:00:00.000Z",
               updatedAt: "2026-06-15T00:00:01.000Z",
-              completedPhases: ["materializing", "complete"],
+              terminalAt: "2026-06-15T00:00:01.000Z",
             },
           ],
         },

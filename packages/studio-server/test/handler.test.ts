@@ -159,15 +159,13 @@ describe("studio-server RPC handler", () => {
     expect(isDefinedError(error)).toBe(true);
     expect(error.code).toBe("RUN_IN_GAME_STATUS_NOT_FOUND");
     expect(error.status).toBe(404);
-    // PARITY INVARIANT: the 404 echoes the server identity for restart detection.
+    // PARITY INVARIANT: the public 404 stays safe while echoing server identity
+    // for restart detection.
     expect(error.data).toEqual({
-      tag: "OperationNotFound",
       namespace: "runInGame",
-      reason: "status-not-found",
-      message: "Run in Game request not found: run-1",
-      recoveryActions: ["retry-status", "copy-diagnostics"],
+      recoveryActions: ["copy-diagnostics", "retry-status"],
       requestId: "run-1",
-      diagnostics: { code: "run-in-game-request-not-found" },
+      safeFailureCategory: "request-validation",
       serverInstanceId: expect.stringMatching(/^studio-server-/),
       serverStartedAt: "2026-06-10T00:00:00.000Z",
     });

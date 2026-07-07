@@ -52,8 +52,8 @@ describe("studio-server error spine", () => {
       code: "RUN_IN_GAME_FAILED",
       status: 500,
       data: {
-        tag: "UnexpectedDefect",
         namespace: "runInGame",
+        safeFailureCategory: "internal-defect",
       },
     });
   });

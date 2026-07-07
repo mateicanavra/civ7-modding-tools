@@ -16,69 +16,59 @@ import {
 
 describe("Run in Game status helpers", () => {
   it("classifies running and terminal phases", () => {
-    expect(kindForRunInGamePhase("checking-civ7")).toBe("running");
-    expect(kindForRunInGamePhase("complete")).toBe("complete");
-    expect(kindForRunInGamePhase("uncertain")).toBe("uncertain");
-    expect(isRunInGameTerminalPhase("waiting-for-proof")).toBe(false);
+    expect(kindForRunInGamePhase("preparing-civ7")).toBe("running");
+    expect(kindForRunInGamePhase("completed")).toBe("completed");
+    expect(isRunInGameTerminalPhase("observing-runtime")).toBe(false);
     expect(isRunInGameTerminalPhase("failed")).toBe(true);
   });
 
   it("formats compact phase labels for footer controls", () => {
-    expect(formatRunInGamePhaseLabel("preparing-setup")).toBe("Preparing Setup");
-    expect(formatRunInGamePhaseLabel("restarting-civ")).toBe("Restarting Civ");
-    expect(formatRunInGamePhaseLabel("waiting-for-proof")).toBe("Waiting for Proof");
+    expect(formatRunInGamePhaseLabel("preparing-civ7")).toBe("Preparing Civ7");
+    expect(formatRunInGamePhaseLabel("starting-game")).toBe("Starting Game");
+    expect(formatRunInGamePhaseLabel("observing-runtime")).toBe("Observing Runtime");
   });
 
   it("serializes stable copyable diagnostics", () => {
     const status: RunInGameOperationStatus = {
-      ok: false,
       requestId: "studio-run-in-game-test",
       phase: "failed",
       status: "failed",
-      startedAt: "2026-06-01T00:00:00.000Z",
+      safeFailureCategory: "runtime-control",
+      diagnosticsId: "run-diagnostics-studio-run-in-game-test",
+      recoveryActions: ["copy-diagnostics", "retry-run"],
+      createdAt: "2026-06-01T00:00:00.000Z",
       updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying"],
-      materialization: {
-        mode: "disposable",
-        mapScript: "{swooper-maps}/maps/studio-current.js",
-      },
-      error: "Civ7 setup cannot see studio-current",
-      details: {
-        code: "setup-map-row-not-visible",
-        reloadRequired: true,
-      },
+      terminalAt: "2026-06-01T00:00:01.000Z",
     };
 
     const diagnostics = formatRunInGameDiagnostics(status);
     expect(diagnostics).toContain('"requestId": "studio-run-in-game-test"');
     expect(diagnostics).toContain('"phase": "failed"');
-    expect(diagnostics.indexOf('"completedPhases"')).toBeLessThan(diagnostics.indexOf('"details"'));
+    expect(diagnostics).toContain('"safeFailureCategory": "runtime-control"');
+    expect(diagnostics).not.toContain("studio-current");
   });
 
   it("marks process-restart recovery as an explicit Run in Game action", () => {
     const status: RunInGameOperationStatus = {
-      ok: false,
       requestId: "studio-run-in-game-reload",
-      phase: "blocked",
-      status: "blocked",
-      startedAt: "2026-06-01T00:00:00.000Z",
+      phase: "failed",
+      status: "failed",
+      safeFailureCategory: "runtime-control",
+      recoveryActions: ["restart-civ-process-and-retry", "copy-diagnostics"],
+      createdAt: "2026-06-01T00:00:00.000Z",
       updatedAt: "2026-06-01T00:00:01.000Z",
-      completedPhases: ["materializing", "deploying", "checking-civ7"],
-      details: {
-        code: "setup-map-row-not-visible",
-        reloadBoundary: "process-restart-required",
-      },
+      terminalAt: "2026-06-01T00:00:01.000Z",
     };
 
     expect(runInGameRequiresProcessRestart(status)).toBe(true);
     expect(runInGameRequiresProcessRestart(status, "stale")).toBe(false);
     expect(runInGamePrimaryActionLabel(status, "current")).toBe("Restart Civ & Run");
     expect(runInGamePrimaryActionLabel(status, "stale")).toBe("Run Current");
-    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "current")).toBe(
-      "Retry Run"
-    );
-    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "stale")).toBe(
-      "Run Current"
-    );
+    expect(
+      runInGamePrimaryActionLabel({ ...status, recoveryActions: ["retry-run"] }, "current")
+    ).toBe("Retry Run");
+    expect(
+      runInGamePrimaryActionLabel({ ...status, recoveryActions: ["retry-run"] }, "stale")
+    ).toBe("Run Current");
   });
 });

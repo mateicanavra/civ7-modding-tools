@@ -1,5 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
+import { HydrologyHydrographyPublicSchema } from "../hydrology-public-config.js";
 import { lakes, rivers } from "./steps/index.js";
 
 const HydrologyRiverDensityKnobSchema = Type.Union(
@@ -48,5 +49,16 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "hydrology-hydrography",
   knobsSchema,
+  public: HydrologyHydrographyPublicSchema,
   steps: orderStandardStageSteps("hydrology-hydrography", { rivers, lakes }),
+  compile: ({ config }: { config: Record<string, unknown> }) => ({
+    rivers: {
+      drainageRouting: { strategy: "default", config: config.drainageRouting ?? {} },
+      accumulateDischarge: { strategy: "default", config: config.runoff ?? {} },
+      projectRiverNetwork: { strategy: "default", config: config.riverNetwork ?? {} },
+    },
+    lakes: {
+      planLakes: { strategy: "default", config: config.lakes ?? {} },
+    },
+  }),
 } as const);

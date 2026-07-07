@@ -8,11 +8,17 @@
 // preserved verbatim; failures are read through oRPC's NATIVE typed contract
 // errors: `safe(...)` + `isDefinedError(...)` expose the DECLARED code
 // (RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE/STATUS_NOT_FOUND, statuses
-// pinned in packages/studio-contract/src/errors.ts) and sealed typed
-// failure data.
+// pinned in packages/studio-contract/src/errors.ts) and safe public failure
+// category data.
 
-import type { RunInGameFailureDetails, RunInGameOperationStatus } from "@civ7/studio-contract";
+import {
+  operationStatusTypeSchema,
+  RUN_IN_GAME_SAFE_FAILURE_CATEGORIES,
+  type RunInGameOperationStatus,
+  type RunInGameSafeFailureCategory,
+} from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
+import { Value } from "typebox/value";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
 import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
@@ -44,7 +50,7 @@ export async function runCurrentConfigInGame(args: {
   | {
       ok: false;
       error: string;
-      details?: RunInGameFailureDetails;
+      safeFailureCategory: RunInGameSafeFailureCategory;
       code?: string;
       statusCode?: number;
     }
@@ -73,17 +79,27 @@ export async function runCurrentConfigInGame(args: {
   };
   const { error, data } = await safe(orpcClient.runInGame.start(request));
   if (error) {
-    const projected = projectStudioBrowserError<RunInGameFailureDetails>(
+    const projected = projectStudioBrowserError<Record<string, unknown>>(
       error,
       "Run in Game failed"
     );
     return {
       ok: false,
       error: projected.error,
+      safeFailureCategory: safeFailureCategoryFromDetails(projected.details),
       ...(projected.code === undefined ? {} : { code: projected.code }),
       ...(projected.statusCode === undefined ? {} : { statusCode: projected.statusCode }),
-      ...(projected.details === undefined ? {} : { details: projected.details }),
     };
   }
-  return data;
+  return Value.Parse(operationStatusTypeSchema, data);
+}
+
+function safeFailureCategoryFromDetails(
+  details: Record<string, unknown> | undefined
+): RunInGameSafeFailureCategory {
+  const category = details?.safeFailureCategory;
+  return typeof category === "string" &&
+    RUN_IN_GAME_SAFE_FAILURE_CATEGORIES.includes(category as RunInGameSafeFailureCategory)
+    ? (category as RunInGameSafeFailureCategory)
+    : "internal-defect";
 }

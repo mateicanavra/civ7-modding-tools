@@ -3,6 +3,11 @@ import { type Static, Type } from "typebox";
 
 import { studioRecoveryActionSchema } from "./errors/errorData.js";
 import { runInGameErrors } from "./errors.js";
+import {
+  RUN_IN_GAME_SAFE_FAILURE_CATEGORIES,
+  type RunInGameSafeFailureCategory,
+  runInGameSafeFailureCategory,
+} from "./runInGamePublic.js";
 import { contractSchema, unknownRecordSchema } from "./shared.js";
 
 /**
@@ -16,54 +21,38 @@ import { contractSchema, unknownRecordSchema } from "./shared.js";
  */
 
 export const RUN_IN_GAME_PHASES = [
-  "idle",
-  "materializing",
+  "resolving-source",
+  "generating-artifacts",
   "deploying",
-  "restarting-civ",
-  "checking-civ7",
-  "reload-needed",
-  "preparing-setup",
+  "preparing-civ7",
   "starting-game",
-  "waiting-for-proof",
-  "complete",
-  "blocked",
+  "observing-runtime",
+  "completed",
   "failed",
-  "uncertain",
+  "cancelled",
 ] as const;
 
 export type RunInGamePhase = (typeof RUN_IN_GAME_PHASES)[number];
 
-export type RunInGameOperationKind =
-  | "idle"
-  | "running"
-  | "complete"
-  | "blocked"
-  | "failed"
-  | "uncertain";
+export type RunInGameOperationKind = "running" | "completed" | "failed" | "cancelled";
 
 export const runInGamePhase = Type.Union([
-  Type.Literal("idle"),
-  Type.Literal("materializing"),
+  Type.Literal("resolving-source"),
+  Type.Literal("generating-artifacts"),
   Type.Literal("deploying"),
-  Type.Literal("restarting-civ"),
-  Type.Literal("checking-civ7"),
-  Type.Literal("reload-needed"),
-  Type.Literal("preparing-setup"),
+  Type.Literal("preparing-civ7"),
   Type.Literal("starting-game"),
-  Type.Literal("waiting-for-proof"),
-  Type.Literal("complete"),
-  Type.Literal("blocked"),
+  Type.Literal("observing-runtime"),
+  Type.Literal("completed"),
   Type.Literal("failed"),
-  Type.Literal("uncertain"),
+  Type.Literal("cancelled"),
 ]);
 
 export const runInGameOperationKind = Type.Union([
-  Type.Literal("idle"),
   Type.Literal("running"),
-  Type.Literal("complete"),
-  Type.Literal("blocked"),
+  Type.Literal("completed"),
   Type.Literal("failed"),
-  Type.Literal("uncertain"),
+  Type.Literal("cancelled"),
 ]);
 
 // RunInGameFileIdentity
@@ -352,7 +341,8 @@ export const processRestartStatus = Type.Object(
 export type RunInGameProcessRestartStatus = Static<typeof processRestartStatus> &
   Readonly<Record<string, unknown>>;
 
-// RunInGameFailureDetails - open record with known optional fields.
+// RunInGameFailureDetails - private legacy diagnostics shape. It is not part of
+// the public Run in Game status wire contract.
 export const failureDetails = Type.Object(
   {
     failureClass: Type.Optional(Type.String()),
@@ -433,39 +423,71 @@ export const exactAuthorshipProof = Type.Object(
 export type RunInGameExactAuthorshipProof = Static<typeof exactAuthorshipProof>;
 
 /**
- * `RunInGameOperationStatus` - the package-owned operation projection returned
- * by both start (#14, accepted/running) and keyed status read (#13).
+ * `PublicRunStatus` is the only public Run in Game operation projection.
+ * Developer diagnostics, source snapshots, generated artifacts, attribution,
+ * commands, paths, and raw errors are available only through explicit
+ * diagnostics lookup.
  */
-export const operationStatusTypeSchema = Type.Object(
+export const publicRunStatusTypeSchema = Type.Object(
   {
-    ok: Type.Boolean(),
     requestId: Type.String(),
-    phase: runInGamePhase,
     status: runInGameOperationKind,
-    startedAt: Type.String(),
+    phase: runInGamePhase,
+    safeFailureCategory: Type.Optional(runInGameSafeFailureCategory),
+    diagnosticsId: Type.Optional(Type.String()),
+    recoveryActions: Type.Array(studioRecoveryActionSchema),
+    createdAt: Type.String(),
     updatedAt: Type.String(),
-    serverInstanceId: Type.Optional(Type.String()),
-    serverStartedAt: Type.Optional(Type.String()),
-    completedPhases: Type.Array(runInGamePhase),
-    request: Type.Optional(requestStatus),
-    materialization: Type.Optional(materializationStatus),
-    processRestart: Type.Optional(processRestartStatus),
-    exactAuthorshipProof: Type.Optional(exactAuthorshipProof),
-    error: Type.Optional(Type.String()),
-    details: Type.Optional(failureDetails),
-    result: Type.Optional(Type.Unknown()),
-    recoveryActions: Type.Optional(Type.Array(studioRecoveryActionSchema)),
+    terminalAt: Type.Optional(Type.String()),
   },
   { additionalProperties: false }
 );
+export type PublicRunStatus = Static<typeof publicRunStatusTypeSchema>;
+
+// Canonical operation status export for callers that consume the public Run in
+// Game status DTO. The schema does not carry private diagnostics fields.
+export const operationStatusTypeSchema = publicRunStatusTypeSchema;
 export type RunInGameOperationStatus = Static<typeof operationStatusTypeSchema>;
 
 export const operationStatusSchema = contractSchema(operationStatusTypeSchema);
 
+export const runDiagnosticsRecordSchema = Type.Object(
+  {
+    diagnosticsId: Type.String(),
+    requestId: Type.Optional(Type.String()),
+    operationRevision: Type.Optional(Type.Number()),
+    createdAt: Type.String(),
+    updatedAt: Type.String(),
+    summary: Type.Optional(Type.String()),
+    sections: Type.Record(Type.String(), Type.Unknown()),
+  },
+  { additionalProperties: false }
+);
+export type RunDiagnosticsRecord = Static<typeof runDiagnosticsRecordSchema>;
+
+export const diagnosticsLookupResultSchema = Type.Union([
+  Type.Object(
+    {
+      ok: Type.Literal(true),
+      diagnostics: runDiagnosticsRecordSchema,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ok: Type.Literal(false),
+      diagnosticsId: Type.String(),
+      reason: Type.Union([Type.Literal("not-found"), Type.Literal("unavailable")]),
+    },
+    { additionalProperties: false }
+  ),
+]);
+export type RunDiagnosticsLookupResult = Static<typeof diagnosticsLookupResultSchema>;
+
 // ---------------------------------------------------------------------------
 // #13 runInGame.status - keyed mutation-state read by requestId.
 // ---------------------------------------------------------------------------
-// Input: requestId (REQUIRED). Success: RunInGameOperationState projection.
+// Input: requestId (REQUIRED). Success: PublicRunStatus projection.
 // Missing/expired/identity-mismatched requests map to declared D3 lifecycle
 // errors with daemon identity data.
 //
@@ -487,15 +509,28 @@ export const status = oc
   )
   .output(operationStatusSchema);
 
+export const diagnostics = oc
+  .input(
+    contractSchema(
+      Type.Object(
+        {
+          diagnosticsId: Type.String({ minLength: 1 }),
+        },
+        { additionalProperties: false }
+      )
+    )
+  )
+  .output(contractSchema(diagnosticsLookupResultSchema));
+
 // ---------------------------------------------------------------------------
 // #14 runInGame.start - accepted operation start.
 // ---------------------------------------------------------------------------
-// Body: the full setup request. Success: RunInGameOperationState (async).
-// Duplicate same fingerprint returns the existing operation projection.
-// Errors: 409 (run-in-game OR save/deploy active), 400/500/503 via
-// package-owned StudioRuntimeFailure
-// data (sealed code/materialization/recovery diagnostics) - declared as the defined
-// RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE codes (./errors.ts).
+// Body: the full setup request. Success: PublicRunStatus (async). Duplicate
+// same fingerprint returns the same public operation projection.
+// Errors: 409 (run-in-game OR save/deploy active), 400/500/503 via declared
+// RUN_IN_GAME_* codes whose data is limited to safe category/recovery fields.
+// Runtime internals, source snapshots, materialization, proof, and raw messages
+// belong behind explicit diagnostics lookup, never this public procedure.
 //
 // SECURITY BOUNDARY (target-arch section 1): the TypeBox contract rejects known
 // raw-control top-level tunnel keys, while the host validator deep-scans opaque

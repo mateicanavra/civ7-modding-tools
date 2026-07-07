@@ -1,5 +1,9 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
+import {
+  compileFoundationMantlePublicConfig,
+  FoundationMantlePublicSchema,
+} from "../foundation-public-config.js";
 import { mantleForcing, mantlePotential, mesh } from "./steps/index.js";
 
 const FoundationPlateCountKnobSchema = Type.Integer({
@@ -19,6 +23,9 @@ export default createStage({
       description: "Mantle lever: plateCount (mesh density; also set on foundation-lithosphere).",
     }
   ),
+  public: FoundationMantlePublicSchema,
+  compile: ({ config }: { config: Record<string, unknown> }) =>
+    compileFoundationMantlePublicConfig(config),
   steps: orderStandardStageSteps("foundation-mantle", {
     mesh,
     "mantle-potential": mantlePotential,

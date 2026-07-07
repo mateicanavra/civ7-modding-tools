@@ -37,47 +37,45 @@ function errorPathsFor(config: Record<string, unknown>): string[] {
 }
 
 describe("standard recipe compile errors", () => {
-  it("rejects retired public mirror keys at stage roots", () => {
+  it("rejects raw internal step keys at semantic stage roots", () => {
     const paths = errorPathsFor({
       ...foundationConfig,
-      "foundation-mantle": { meshResolution: { cellCount: 128 } },
-      "foundation-lithosphere": { platePartition: { referenceArea: 4536 } },
+      "foundation-mantle": { mesh: { computeMesh: { strategy: "default", config: {} } } },
+      "foundation-lithosphere": { "plate-graph": { computePlateGraph: {} } },
       "hydrology-climate-baseline": {
-        seasonalCycle: { modeCount: 2 },
-        atmosphericCirculation: { strategy: "latitude" },
+        "climate-baseline": { computeRadiativeForcing: { strategy: "default", config: {} } },
       },
-      "hydrology-hydrography": { riverNetwork: { majorPercentile: 0.9 } },
-      "hydrology-climate-refine": { precipitationRefinement: { riverCorridor: {} } },
-      "ecology-pedology": { soilClassification: { strategy: "coastal-shelf" } },
-      "ecology-biomes": { biomeClassification: {} },
+      "hydrology-hydrography": { rivers: { projectRiverNetwork: {} } },
+      "hydrology-climate-refine": { "climate-refine": { computePrecipitation: {} } },
+      "ecology-pedology": { pedology: { classify: { strategy: "coastal-shelf" } } },
+      "ecology-biomes": { biomes: { classify: {} } },
       "ecology-features": {
-        wetlandPlanning: { minConfidence01: 2 },
-        plotEffectCoverage: { snow: { coveragePct: 80 } },
+        "plan-wetlands": { planWetlands: {} },
+        "plan-plot-effects": { plotEffects: {} },
       },
-      "map-rivers": { riverProjection: { minLength: 0 } },
-      "map-ecology": { biomeBindings: { marine: "BIOME_DESERT" } },
+      "map-rivers": { "plot-rivers": { selectNavigableRiverTerrain: {} } },
+      "map-ecology": { "plot-biomes": { bindings: { marine: "BIOME_DESERT" } } },
       placement: {
-        resources: { candidateResourceTypes: [1, 2, 3] },
-        starts: { overrides: { startSectors: [] } },
+        "plan-resources": { selectSites: { config: {} } },
+        "assign-starts": { starts: { config: {} } },
       },
     });
 
     expect(paths).toEqual(
       expect.arrayContaining([
-        "/config/foundation-mantle/meshResolution",
-        "/config/foundation-lithosphere/platePartition",
-        "/config/hydrology-climate-baseline/seasonalCycle",
-        "/config/hydrology-climate-baseline/atmosphericCirculation",
-        "/config/hydrology-hydrography/riverNetwork",
-        "/config/hydrology-climate-refine/precipitationRefinement",
-        "/config/ecology-pedology/soilClassification",
-        "/config/ecology-biomes/biomeClassification",
-        "/config/ecology-features/wetlandPlanning",
-        "/config/ecology-features/plotEffectCoverage",
-        "/config/map-rivers/riverProjection",
-        "/config/map-ecology/biomeBindings",
-        "/config/placement/resources",
-        "/config/placement/starts",
+        "/config/foundation-mantle/mesh",
+        "/config/foundation-lithosphere/plate-graph",
+        "/config/hydrology-climate-baseline/climate-baseline",
+        "/config/hydrology-hydrography/rivers",
+        "/config/hydrology-climate-refine/climate-refine",
+        "/config/ecology-pedology/pedology",
+        "/config/ecology-biomes/biomes",
+        "/config/ecology-features/plan-wetlands",
+        "/config/ecology-features/plan-plot-effects",
+        "/config/map-rivers/plot-rivers",
+        "/config/map-ecology/plot-biomes",
+        "/config/placement/plan-resources",
+        "/config/placement/assign-starts",
       ])
     );
   });
@@ -101,65 +99,46 @@ describe("standard recipe compile errors", () => {
     expect(legacyEcologyError?.message).not.toContain("ecology-features-score");
   });
 
-  it("accepts current flat step envelopes far enough to validate the operation schema", () => {
+  it("accepts current semantic public keys far enough to validate the operation schema", () => {
     const paths = errorPathsFor({
       ...foundationConfig,
       "ecology-biomes": {
-        biomes: {
-          classify: {
-            strategy: "default",
-            config: {
-              temperature: { equator: "hot" },
-            },
-          },
+        biomeClassification: {
+          temperature: { equator: "hot" },
         },
       },
       "hydrology-climate-baseline": {
-        "climate-baseline": {
-          computeRadiativeForcing: {
-            strategy: "default",
-            config: { equatorInsolation: 3 },
-          },
-        },
+        solarForcing: { equatorInsolation: 3 },
       },
       placement: {
-        "plan-resources": {
-          selectSites: {
-            strategy: "default",
-            config: { density: 75 },
-          },
-        },
+        resources: { density: 75 },
       },
     });
 
     expect(paths).toEqual(
       expect.arrayContaining([
-        "/config/ecology-biomes/biomes/classify/config/temperature/equator",
-        "/config/hydrology-climate-baseline/climate-baseline/computeRadiativeForcing/config/equatorInsolation",
-        "/config/placement/plan-resources/selectSites/config/density",
+        "/config/ecology-biomes/biomeClassification/temperature/equator",
+        "/config/hydrology-climate-baseline/solarForcing/equatorInsolation",
+        "/config/placement/resources/density",
       ])
     );
   });
 
-  it("rejects malformed current step envelopes", () => {
+  it("rejects malformed current semantic public values", () => {
     const paths = errorPathsFor({
       ...foundationConfig,
       "ecology-biomes": {
-        biomes: {
-          classify: 123,
-        },
+        biomeClassification: 123,
       },
       "hydrology-hydrography": {
-        lakes: {
-          planLakes: 123,
-        },
+        lakes: 123,
       },
     });
 
     expect(paths).toEqual(
       expect.arrayContaining([
-        "/config/ecology-biomes/biomes/classify",
-        "/config/hydrology-hydrography/lakes/planLakes",
+        "/config/ecology-biomes/biomeClassification",
+        "/config/hydrology-hydrography/lakes",
       ])
     );
   });

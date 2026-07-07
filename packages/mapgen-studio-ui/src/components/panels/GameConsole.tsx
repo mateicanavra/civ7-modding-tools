@@ -172,13 +172,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           : "Previous"
       : null;
   const runInGameFailed =
-    runInGameStatus?.status === "failed" ||
-    runInGameStatus?.status === "blocked" ||
-    runInGameStatus?.status === "uncertain";
+    runInGameStatus?.status === "failed" || runInGameStatus?.status === "cancelled";
   const runInGameDotClass =
     runInGameCurrentRelation === "stale"
       ? "bg-warning"
-      : runInGameStatus?.status === "complete"
+      : runInGameStatus?.status === "completed"
         ? "bg-success"
         : runInGameFailed
           ? "bg-destructive"
@@ -280,14 +278,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     runInGameButtonText,
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Launches the current config in Civ7",
     runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
-    runInGameStatus?.materialization?.mapScript
-      ? `Map: ${runInGameStatus.materialization.mapScript}`
-      : null,
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
-    runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
-    runInGameStatus?.details?.recoveryHint
-      ? `Recovery: ${runInGameStatus.details.recoveryHint}`
+    runInGameStatus?.safeFailureCategory
+      ? `Failure category: ${runInGameStatus.safeFailureCategory}`
       : null,
+    runInGameStatus?.diagnosticsId ? `Diagnostics: ${runInGameStatus.diagnosticsId}` : null,
     operationControlsDisabled && operationBusyLabel ? operationBusyLabel : null,
   ]
     .filter(Boolean)
@@ -524,31 +519,16 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                   >
                     {runInGameStatus.requestId}
                   </span>
-                  {runInGameStatus.details?.code === "map-mod-not-loaded" ? (
-                    // Known error: the map deployed fine but Civ isn't loading the
-                    // mod (a game update commonly auto-disables it). Surface it as a
-                    // named, actionable condition rather than a raw failure string.
-                    <div className="flex flex-col gap-1 rounded border border-warning/40 bg-warning/10 px-2 py-1.5">
-                      <span className="text-label font-medium text-warning">
-                        Map mod disabled in Civilization
-                      </span>
-                      <p className="text-label text-muted-foreground">
-                        {runInGameStatus.details.recoveryHint ??
-                          "Enable the Swooper Physics Maps mod in Civ’s Add-Ons menu, then retry Run in Game."}
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      {runInGameStatus.error ? (
-                        <p className="text-label text-destructive">{runInGameStatus.error}</p>
-                      ) : null}
-                      {runInGameStatus.details?.recoveryHint ? (
-                        <p className={cn("text-label", textMuted)}>
-                          {runInGameStatus.details.recoveryHint}
-                        </p>
-                      ) : null}
-                    </>
-                  )}
+                  {runInGameStatus.safeFailureCategory ? (
+                    <p className="text-label text-destructive">
+                      {runInGameStatus.safeFailureCategory}
+                    </p>
+                  ) : null}
+                  {runInGameStatus.diagnosticsId ? (
+                    <p className={cn("text-label", textMuted)}>
+                      Diagnostics: {runInGameStatus.diagnosticsId}
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <span className={cn("text-data", textMuted)}>No run yet</span>

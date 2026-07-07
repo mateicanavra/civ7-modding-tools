@@ -1,15 +1,22 @@
 import type {
   DependencyUnavailableData,
+  RunInGamePublicErrorData,
+  RunInGameStatusNotFoundErrorData,
   StatusNotFoundData,
   StudioFailureData,
   StudioFailureTag,
   StudioOperationNamespace,
+  StudioRecoveryAction,
   StudioRuntimeFailure,
   UnexpectedDefectData,
 } from "@civ7/studio-contract";
 import { isStudioRuntimeFailure } from "@civ7/studio-contract";
 import type { ORPCError } from "@orpc/server";
 import { ORPCError as ServerORPCError } from "@orpc/server";
+import {
+  publicRunInGameFailureCategory,
+  publicRunInGameFailureMessage,
+} from "../runInGamePublic.js";
 
 export const STUDIO_OPERATION_PROCEDURES = [
   "autoplay.command",
@@ -41,7 +48,12 @@ export type StudioDefinedErrorProjection = Readonly<{
   code: StudioDeclaredErrorCode;
   status: 400 | 404 | 409 | 500 | 503;
   message: string;
-  data?: StudioFailureData | StatusNotFoundData | DependencyUnavailableData | UnexpectedDefectData;
+  data?:
+    | StudioFailureData
+    | StatusNotFoundData
+    | DependencyUnavailableData
+    | UnexpectedDefectData
+    | RunInGamePublicErrorData;
 }>;
 
 export type StudioDaemonIdentity = Readonly<{
@@ -128,11 +140,17 @@ export function mapStudioFailureToDefinedError(args: {
 }): StudioDefinedErrorProjection {
   const namespace = procedureNamespace[args.procedure];
   const { code, status } = codeStatusFor(args.procedure, args.failure.tag);
+  const data = failureData(args.failure, namespace, args.identity, status);
+  const runInGameCategory =
+    namespace === "runInGame" ? publicRunInGameFailureCategory(args.failure) : undefined;
   return {
     code,
     status,
-    message: args.failure.message,
-    data: failureData(args.failure, namespace, args.identity, status),
+    message:
+      runInGameCategory === undefined
+        ? args.failure.message
+        : publicRunInGameFailureMessage(runInGameCategory),
+    data,
   };
 }
 
@@ -140,8 +158,21 @@ export function mapUnexpectedDefectToDefinedError(args: {
   err: unknown;
   procedure: StudioOperationProcedure;
   fallbackMessage: string;
-}): StudioDefinedErrorProjection & { data: UnexpectedDefectData } {
+}): StudioDefinedErrorProjection {
   const namespace = procedureNamespace[args.procedure];
+  if (namespace === "runInGame") {
+    const safeFailureCategory = "internal-defect" as const;
+    return {
+      code: namespaceCodes.runInGame.failed,
+      status: 500,
+      message: publicRunInGameFailureMessage(safeFailureCategory),
+      data: {
+        namespace: "runInGame",
+        recoveryActions: ["copy-diagnostics"],
+        safeFailureCategory,
+      },
+    };
+  }
   const message =
     args.err instanceof Error && args.err.message ? args.err.message : args.fallbackMessage;
   return {
@@ -204,7 +235,10 @@ function failureData(
   namespace: StudioOperationNamespace,
   identity: StudioDaemonIdentity | undefined,
   status: number
-): StudioFailureData | StatusNotFoundData | DependencyUnavailableData {
+): StudioFailureData | StatusNotFoundData | DependencyUnavailableData | RunInGamePublicErrorData {
+  if (namespace === "runInGame") {
+    return runInGamePublicFailureData(failure, identity, status);
+  }
   const base = {
     tag: failure.tag,
     namespace,
@@ -245,4 +279,40 @@ function failureData(
     };
   }
   return base;
+}
+
+function runInGamePublicFailureData(
+  failure: StudioRuntimeFailure,
+  identity: StudioDaemonIdentity | undefined,
+  status: number
+): RunInGamePublicErrorData | RunInGameStatusNotFoundErrorData {
+  const requestId = failure.requestId;
+  if (status === 404) {
+    if (!identity) {
+      throw new Error("runInGame status-not-found mapping requires daemon identity.");
+    }
+    if (!requestId) {
+      throw new Error("runInGame status-not-found mapping requires a request id.");
+    }
+  }
+  const identityEcho =
+    status === 404 && identity !== undefined
+      ? {
+          serverInstanceId: identity.serverInstanceId,
+          serverStartedAt: identity.serverStartedAt,
+        }
+      : {};
+  return {
+    namespace: "runInGame",
+    recoveryActions: publicRecoveryActions(failure),
+    safeFailureCategory: publicRunInGameFailureCategory(failure),
+    ...(requestId === undefined ? {} : { requestId }),
+    ...identityEcho,
+  };
+}
+
+function publicRecoveryActions(failure: StudioRuntimeFailure): StudioRecoveryAction[] {
+  const actions: StudioRecoveryAction[] = ["copy-diagnostics"];
+  actions.push(...failure.recoveryActions);
+  return [...new Set(actions)];
 }
