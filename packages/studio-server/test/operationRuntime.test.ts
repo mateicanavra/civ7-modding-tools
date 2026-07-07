@@ -1,5 +1,6 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import {
   invalidRequest,
   operationStatusTypeSchema,
@@ -547,6 +548,55 @@ describe("StudioOperationRuntime", () => {
       diagnosticsId: accepted.diagnosticsId,
       requestId: accepted.requestId,
     });
+  });
+
+  test("stores Run in Game diagnostics under the configured workspace root", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-diagnostics-"));
+    try {
+      const { runtime } = makeRuntime({
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+        },
+      });
+      const service = await runtime.runPromise(StudioOperationRuntime);
+
+      const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+      await expect
+        .poll(async () => {
+          const status = await runtime.runPromise(
+            service.runInGameStatus({ requestId: accepted.requestId })
+          );
+          return status.phase;
+        })
+        .toBe("completed");
+
+      const diagnosticsId = accepted.diagnosticsId;
+      if (!diagnosticsId) throw new Error("Expected admitted Run in Game diagnostics id");
+      const diagnosticsRecordPath = resolve(
+        workspaceRoot,
+        accepted.requestId,
+        "diagnostics",
+        "diagnostics.json"
+      );
+      const diagnosticsRecord = JSON.parse(await readFile(diagnosticsRecordPath, "utf8"));
+      expect(diagnosticsRecord).toMatchObject({
+        diagnosticsId,
+        requestId: accepted.requestId,
+      });
+
+      const lookup = await runtime.runPromise(
+        service.runInGameDiagnostics({ diagnosticsId })
+      );
+      expect(lookup).toMatchObject({
+        ok: true,
+        diagnostics: {
+          diagnosticsId,
+          requestId: accepted.requestId,
+        },
+      });
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
   });
 
   test("rejects raw-control Run in Game payloads before admission", async () => {
@@ -1540,6 +1590,14 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe("completed");
 
+    await expect
+      .poll(() =>
+        events
+          .filter((event) => event.type === "operation")
+          .map((event) => event.status.phase)
+      )
+      .toContain("completed");
+
     const operationEvents = events.filter((event) => event.type === "operation");
     expect(operationEvents[0]).toMatchObject({
       type: "operation",
@@ -1550,7 +1608,6 @@ describe("StudioOperationRuntime", () => {
         status: "running",
       },
     });
-    expect(operationEvents.map((event) => event.status.phase)).toContain("completed");
   });
 
   test("publishes accepted Save/Deploy event before leaf prepare work continues", async () => {

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-studio-run-public-contract-closed",
+  "title": "Grit Studio Run Public Contract Closed",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "missing closed public Run in Game status schema, open public status schema variants, or private diagnostics fields in public status projection",
+  "why": "Packet 1 makes PublicRunStatus the only public Run in Game operation projection and keeps private diagnostics behind explicit lookup.",
+  "remediate": "Keep public Run in Game status as a closed discriminated schema and expose private diagnostics only through runInGame.diagnostics({ diagnosticsId }).",
+  "message": "Run in Game public contract reopened private diagnostics or open payload fields.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/studio-contract/src/runInGame.ts",
+        "packages/studio-server/src/operationRuntime/projection.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "packages/studio-contract/src",
+    "packages/studio-server/src/operationRuntime"
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
+    },
+    "patternName": "grit_studio_run_public_contract_closed"
+  }
+}
