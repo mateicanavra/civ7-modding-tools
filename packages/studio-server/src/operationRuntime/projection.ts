@@ -15,24 +15,59 @@ import { publicRunInGamePhase, publicSaveDeployPhase } from "./model.js";
 
 export function projectRunInGame(operation: RunInGameInternalOperation): RunInGameOperationStatus {
   const phase = publicRunInGamePhase(operation.phase);
-  return {
-    requestId: operation.requestId,
-    status: publicRunInGameStatus(operation),
-    phase: publicRunInGameTerminalPhase(operation, phase),
-    ...(operation.failure === undefined
-      ? {}
-      : { safeFailureCategory: publicRunInGameFailureCategory(operation.failure) }),
-    ...(operation.diagnosticsId === undefined ||
+  const diagnosticsId =
+    operation.diagnosticsId === undefined ||
     operation.diagnosticsPersistedRevision !== operation.operationRevision
-      ? {}
-      : { diagnosticsId: operation.diagnosticsId }),
-    recoveryActions:
-      operation.failure === undefined && operation.phase === "complete"
-        ? ["copy-diagnostics"]
-        : runInGameRecoveryActions(operation, operation.failure),
+      ? undefined
+      : operation.diagnosticsId;
+  const recoveryActions =
+    operation.failure === undefined && operation.phase === "complete"
+      ? ["copy-diagnostics" as const]
+      : runInGameRecoveryActions(operation, operation.failure);
+  const base = {
+    requestId: operation.requestId,
+    ...(diagnosticsId === undefined ? {} : { diagnosticsId }),
+    recoveryActions,
     createdAt: operation.startedAt,
     updatedAt: operation.updatedAt,
-    ...(operation.status === "running" ? {} : { terminalAt: operation.updatedAt }),
+  };
+  const status = publicRunInGameStatus(operation);
+  if (status === "completed") {
+    return {
+      ...base,
+      status,
+      phase: "completed",
+      terminalAt: operation.updatedAt,
+    };
+  }
+  if (status === "running") {
+    return {
+      ...base,
+      status,
+      phase: publicRunInGameRunningPhase(phase),
+    };
+  }
+  if (status === "cancelled") {
+    return {
+      ...base,
+      status,
+      phase: "cancelled",
+      safeFailureCategory:
+        operation.failure === undefined
+          ? "operation-cancelled"
+          : publicRunInGameFailureCategory(operation.failure),
+      terminalAt: operation.updatedAt,
+    };
+  }
+  return {
+    ...base,
+    status,
+    phase: "failed",
+    safeFailureCategory:
+      operation.failure === undefined
+        ? "internal-defect"
+        : publicRunInGameFailureCategory(operation.failure),
+    terminalAt: operation.updatedAt,
   };
 }
 
@@ -147,16 +182,17 @@ function publicRunInGameStatus(
   operation: RunInGameInternalOperation
 ): RunInGameOperationStatus["status"] {
   if (operation.phase === "complete") return "completed";
+  if (operation.status === "cancelled") return "cancelled";
   if (operation.status === "running") return "running";
   return "failed";
 }
 
-function publicRunInGameTerminalPhase(
-  operation: RunInGameInternalOperation,
+function publicRunInGameRunningPhase(
   projected: RunInGamePhase
-): RunInGamePhase {
-  if (operation.phase === "complete") return "completed";
-  if (operation.status !== "running") return "failed";
+): Exclude<RunInGamePhase, "completed" | "failed" | "cancelled"> {
+  if (projected === "completed" || projected === "failed" || projected === "cancelled") {
+    return "observing-runtime";
+  }
   return projected;
 }
 

@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import type { RunDiagnosticsLookupResult, RunDiagnosticsRecord } from "@civ7/studio-contract";
 import { runDiagnosticsRecordSchema } from "@civ7/studio-contract";
@@ -8,6 +8,7 @@ import type { RunInGameInternalOperation } from "./model.js";
 
 const WORKSPACE_ROOT = resolve(".mapgen-studio/run-in-game");
 const SAFE_DIAGNOSTICS_ID = /^run-diagnostics-[A-Za-z0-9._-]{1,191}$/;
+const SAFE_REQUEST_ID = /^[A-Za-z0-9._-]{1,191}$/;
 
 export function lookupRunDiagnostics(
   diagnosticsId: string
@@ -15,12 +16,9 @@ export function lookupRunDiagnostics(
   return Effect.promise(async () => {
     if (!SAFE_DIAGNOSTICS_ID.test(diagnosticsId)) return notFound(diagnosticsId);
     try {
-      const content = await readFile(diagnosticsPath(diagnosticsId), "utf8");
-      const parsed = JSON.parse(content) as unknown;
-      return Value.Check(runDiagnosticsRecordSchema, parsed) &&
-        parsed.diagnosticsId === diagnosticsId
-        ? { ok: true, diagnostics: parsed as RunDiagnosticsRecord }
-        : unavailable(diagnosticsId);
+      const path = await findDiagnosticsRecordPath(diagnosticsId);
+      if (!path) return notFound(diagnosticsId);
+      return await readDiagnosticsRecord(path, diagnosticsId);
     } catch (err) {
       return isNotFoundError(err) ? notFound(diagnosticsId) : unavailable(diagnosticsId);
     }
@@ -45,7 +43,7 @@ export function writeRunDiagnostics(
           operation: privateJson(operation),
         },
       };
-      const path = diagnosticsPath(diagnosticsId);
+      const path = requestDiagnosticsPath(operation.requestId);
       await mkdir(dirname(path), { recursive: true });
       await writeFile(path, `${JSON.stringify(record, null, 2)}\n`, "utf8");
     },
@@ -53,11 +51,44 @@ export function writeRunDiagnostics(
   });
 }
 
-function diagnosticsPath(diagnosticsId: string): string {
-  if (!SAFE_DIAGNOSTICS_ID.test(diagnosticsId)) {
-    throw new Error("Run in Game diagnostics id is not a safe storage key.");
+async function findDiagnosticsRecordPath(diagnosticsId: string): Promise<string | null> {
+  const entries = await readdir(WORKSPACE_ROOT, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !SAFE_REQUEST_ID.test(entry.name)) continue;
+    const path = requestDiagnosticsPath(entry.name);
+    try {
+      const content = await readFile(path, "utf8");
+      const parsed = JSON.parse(content) as unknown;
+      if (
+        Value.Check(runDiagnosticsRecordSchema, parsed) &&
+        parsed.requestId === entry.name &&
+        parsed.diagnosticsId === diagnosticsId
+      ) {
+        return path;
+      }
+    } catch (err) {
+      if (isNotFoundError(err)) continue;
+    }
   }
-  const path = resolve(WORKSPACE_ROOT, "diagnostics", `${diagnosticsId}.json`);
+  return null;
+}
+
+async function readDiagnosticsRecord(
+  path: string,
+  diagnosticsId: string
+): Promise<RunDiagnosticsLookupResult> {
+  const content = await readFile(path, "utf8");
+  const parsed = JSON.parse(content) as unknown;
+  return Value.Check(runDiagnosticsRecordSchema, parsed) && parsed.diagnosticsId === diagnosticsId
+    ? { ok: true, diagnostics: parsed as RunDiagnosticsRecord }
+    : unavailable(diagnosticsId);
+}
+
+function requestDiagnosticsPath(requestId: string): string {
+  if (!SAFE_REQUEST_ID.test(requestId)) {
+    throw new Error("Run in Game request id is not a safe storage key.");
+  }
+  const path = resolve(WORKSPACE_ROOT, requestId, "diagnostics", "diagnostics.json");
   const rootRelative = relative(WORKSPACE_ROOT, path);
   if (rootRelative.startsWith("..") || rootRelative === "" || rootRelative.startsWith("/")) {
     throw new Error("Run in Game diagnostics path escaped workspace root.");

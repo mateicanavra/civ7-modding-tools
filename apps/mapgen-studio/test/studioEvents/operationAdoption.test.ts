@@ -42,15 +42,7 @@ describe("Studio event operation adoption", () => {
     adoptStudioOperationsCurrent(
       currentOperations({
         runInGame: {
-          active: {
-            ok: true,
-            requestId: "run-1",
-            phase: "deploying",
-            status: "running",
-            startedAt: "2026-06-13T00:00:00.000Z",
-            updatedAt: "2026-06-13T00:00:01.000Z",
-            completedPhases: ["materializing"],
-          },
+          active: runningRunStatus({ requestId: "run-1", phase: "deploying" }),
           recent: [],
         },
         saveDeploy: {
@@ -84,17 +76,7 @@ describe("Studio event operation adoption", () => {
       currentOperations({
         runInGame: {
           active: null,
-          recent: [
-            {
-              ok: true,
-              requestId: "run-terminal",
-              phase: "completed",
-              status: "completed",
-              startedAt: "2026-06-13T00:00:00.000Z",
-              updatedAt: "2026-06-13T00:00:01.000Z",
-              completedPhases: ["generating-artifacts", "completed"],
-            },
-          ],
+          recent: [completedRunStatus({ requestId: "run-terminal" })],
         },
       }),
       state.targets
@@ -106,15 +88,11 @@ describe("Studio event operation adoption", () => {
 
   test("clears stale displayed operations when daemon current truth is empty", () => {
     const state = adoptionState({
-      runInGame: {
-        ok: true,
+      runInGame: runningRunStatus({
         requestId: "stale-run",
-        phase: "materializing",
-        status: "running",
-        startedAt: "2026-06-13T00:00:00.000Z",
+        phase: "generating-artifacts",
         updatedAt: "2026-06-13T00:00:00.000Z",
-        completedPhases: [],
-      },
+      }),
       saveDeploy: {
         ok: true,
         requestId: "stale-save",
@@ -131,18 +109,12 @@ describe("Studio event operation adoption", () => {
     expect(state.saveDeploy).toBeNull();
   });
 
-  test("does not erase newer local terminal Run in Game diagnostics with older current truth", () => {
+  test("does not erase newer local terminal Run in Game status with older current truth", () => {
     const state = adoptionState({
-      runInGame: {
-        ok: false,
+      runInGame: failedRunStatus({
         requestId: "run-local-failed",
-        phase: "failed",
-        status: "failed",
-        startedAt: "2026-06-13T00:00:02.000Z",
         updatedAt: "2026-06-13T00:00:03.000Z",
-        completedPhases: ["materializing", "deploying", "preparing-setup"],
-        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-      },
+      }),
     });
 
     adoptStudioOperationsCurrent(currentOperations(), state.targets, {
@@ -150,21 +122,15 @@ describe("Studio event operation adoption", () => {
     });
 
     expect(state.runInGame?.requestId).toBe("run-local-failed");
-    expect(state.runInGame?.error).toContain("{swooper-maps}/maps/studio-current.js");
+    expect(state.runInGame?.safeFailureCategory).toBe("runtime-control");
   });
 
-  test("does not replace newer local terminal Run in Game diagnostics with an older recent operation", () => {
+  test("does not replace newer local terminal Run in Game status with an older recent operation", () => {
     const state = adoptionState({
-      runInGame: {
-        ok: false,
+      runInGame: failedRunStatus({
         requestId: "run-local-failed",
-        phase: "failed",
-        status: "failed",
-        startedAt: "2026-06-13T00:00:02.000Z",
         updatedAt: "2026-06-13T00:00:05.000Z",
-        completedPhases: ["materializing", "deploying", "preparing-setup"],
-        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-      },
+      }),
     });
 
     adoptStudioOperationsCurrent(
@@ -172,17 +138,7 @@ describe("Studio event operation adoption", () => {
         observedAt: "2026-06-13T00:00:06.000Z",
         runInGame: {
           active: null,
-          recent: [
-            {
-              ok: true,
-              requestId: "older-terminal",
-              phase: "completed",
-              status: "completed",
-              startedAt: "2026-06-13T00:00:00.000Z",
-              updatedAt: "2026-06-13T00:00:01.000Z",
-              completedPhases: ["completed"],
-            },
-          ],
+          recent: [completedRunStatus({ requestId: "older-terminal" })],
         },
       }),
       state.targets,
@@ -194,31 +150,22 @@ describe("Studio event operation adoption", () => {
 
   test("adopts newer active current operations over local terminal state", () => {
     const state = adoptionState({
-      runInGame: {
-        ok: false,
+      runInGame: failedRunStatus({
         requestId: "run-local-failed",
-        phase: "failed",
-        status: "failed",
-        startedAt: "2026-06-13T00:00:02.000Z",
         updatedAt: "2026-06-13T00:00:05.000Z",
-        completedPhases: ["materializing"],
-        error: "old local error",
-      },
+      }),
     });
 
     adoptStudioOperationsCurrent(
       currentOperations({
         observedAt: "2026-06-13T00:00:06.000Z",
         runInGame: {
-          active: {
-            ok: true,
+          active: runningRunStatus({
             requestId: "run-active-new",
             phase: "deploying",
-            status: "running",
-            startedAt: "2026-06-13T00:00:06.000Z",
+            createdAt: "2026-06-13T00:00:06.000Z",
             updatedAt: "2026-06-13T00:00:07.000Z",
-            completedPhases: ["materializing"],
-          },
+          }),
           recent: [],
         },
       }),
@@ -238,15 +185,7 @@ describe("Studio event operation adoption", () => {
         currentReads += 1;
         return currentOperations({
           runInGame: {
-            active: {
-              ok: true,
-              requestId: "run-active",
-              phase: "starting-game",
-              status: "running",
-              startedAt: "2026-06-13T00:00:00.000Z",
-              updatedAt: "2026-06-13T00:00:01.000Z",
-              completedPhases: ["materializing"],
-            },
+            active: runningRunStatus({ requestId: "run-active", phase: "starting-game" }),
             recent: [],
           },
         });
@@ -296,16 +235,10 @@ describe("Studio event operation adoption", () => {
       },
     });
 
-    localOperation = {
-      ok: false,
+    localOperation = failedRunStatus({
       requestId: "run-local-after-read-start",
-      phase: "failed",
-      status: "failed",
-      startedAt: "2026-06-13T00:00:02.000Z",
       updatedAt: "2026-06-13T00:00:03.000Z",
-      completedPhases: ["materializing", "deploying", "preparing-setup"],
-      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-    };
+    });
     resolveCurrent?.(currentOperations());
     await read;
 
@@ -465,15 +398,7 @@ describe("Studio event operation adoption", () => {
     applyStudioOperationEvent(
       operationEvent({
         kind: "run-in-game",
-        status: {
-          ok: true,
-          requestId: "run-pushed-1",
-          phase: "completed",
-          status: "completed",
-          startedAt: "2026-06-13T00:00:00.000Z",
-          updatedAt: "2026-06-13T00:00:01.000Z",
-          completedPhases: ["generating-artifacts", "completed"],
-        },
+        status: completedRunStatus({ requestId: "run-pushed-1" }),
       }),
       state.targets
     );
@@ -647,7 +572,53 @@ function operationEvent(
     type: "operation",
     observedAt: "2026-06-13T00:00:02.000Z",
     ...event,
-  } as StudioOperationEvent;
+  };
+}
+
+type RunInGameRunningStatus = Extract<RunInGameOperationStatus, { status: "running" }>;
+type RunInGameCompletedStatus = Extract<RunInGameOperationStatus, { status: "completed" }>;
+type RunInGameFailedStatus = Extract<RunInGameOperationStatus, { status: "failed" }>;
+
+function runningRunStatus(
+  overrides: Partial<RunInGameRunningStatus> & Pick<RunInGameRunningStatus, "requestId">
+): RunInGameRunningStatus {
+  return {
+    status: "running",
+    phase: "observing-runtime",
+    recoveryActions: ["retry-status"],
+    createdAt: "2026-06-13T00:00:00.000Z",
+    updatedAt: "2026-06-13T00:00:01.000Z",
+    ...overrides,
+  };
+}
+
+function completedRunStatus(
+  overrides: Partial<RunInGameCompletedStatus> & Pick<RunInGameCompletedStatus, "requestId">
+): RunInGameCompletedStatus {
+  return {
+    status: "completed",
+    phase: "completed",
+    recoveryActions: ["copy-diagnostics"],
+    createdAt: "2026-06-13T00:00:00.000Z",
+    updatedAt: "2026-06-13T00:00:01.000Z",
+    terminalAt: "2026-06-13T00:00:01.000Z",
+    ...overrides,
+  };
+}
+
+function failedRunStatus(
+  overrides: Partial<RunInGameFailedStatus> & Pick<RunInGameFailedStatus, "requestId">
+): RunInGameFailedStatus {
+  return {
+    status: "failed",
+    phase: "failed",
+    safeFailureCategory: "runtime-control",
+    recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
+    createdAt: "2026-06-13T00:00:02.000Z",
+    updatedAt: "2026-06-13T00:00:03.000Z",
+    terminalAt: "2026-06-13T00:00:03.000Z",
+    ...overrides,
+  };
 }
 
 function liveGameEvent(state: StudioLiveGameEvent["state"]): StudioLiveGameEvent {
