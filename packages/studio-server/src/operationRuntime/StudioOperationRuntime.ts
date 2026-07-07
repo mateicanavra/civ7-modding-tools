@@ -16,7 +16,9 @@ import {
   RunInGameWorkflow,
   SaveDeployWorkflow,
 } from "../workflows/index.js";
+import { lookupRunDiagnostics, writeRunDiagnostics } from "./diagnostics.js";
 import { createStudioOperationId } from "./ids.js";
+import type { RunInGameInternalOperation, SaveDeployInternalOperation } from "./model.js";
 import type {
   RunInGamePreparedRequest,
   StudioDaemonIdentity,
@@ -35,6 +37,7 @@ import {
   getState,
   makeRegistry,
   markDisposed,
+  markRunInGameDiagnosticsAvailable,
   type RunInGameTransition,
   type SaveDeployTransition,
   transitionRunInGame,
@@ -50,6 +53,9 @@ export interface StudioOperationRuntimeApi {
   readonly runInGameStatus: (
     input: StudioInputs["runInGame"]["status"]
   ) => Effect.Effect<StudioOutputs["runInGame"]["status"], StudioRuntimeFailure>;
+  readonly runInGameDiagnostics: (
+    input: StudioInputs["runInGame"]["diagnostics"]
+  ) => Effect.Effect<StudioOutputs["runInGame"]["diagnostics"], never>;
   readonly saveDeployStart: (
     input: StudioInputs["mapConfigs"]["saveDeploy"]
   ) => Effect.Effect<StudioOutputs["mapConfigs"]["saveDeploy"], StudioRuntimeFailure>;
@@ -65,6 +71,8 @@ export interface StudioOperationRuntimeApi {
 export class StudioOperationRuntime extends Context.Tag(
   "@civ7/studio-server/StudioOperationRuntime"
 )<StudioOperationRuntime, StudioOperationRuntimeApi>() {}
+
+type RuntimeEventOperation = RunInGameInternalOperation | SaveDeployInternalOperation;
 
 type StudioOperationRuntimeLayerBaseArgs = Readonly<{
   ports: StudioOperationRuntimePorts;
@@ -129,16 +137,41 @@ function makeStudioOperationRuntime(
     const autoplayWorkflow = yield* AutoplayWorkflow;
     const eventHub = yield* StudioEventHub;
 
-    const publish = (operation: Parameters<typeof operationEvent>[0]) =>
-      eventHub.publish(operationEvent(operation)).pipe(
-        Effect.catchAll((error) =>
-          Effect.sync(() => {
-            console.error("[studio-server] failed to publish operation event", error);
-          })
-        )
-      );
+    const persistedOperation = (
+      operation: RuntimeEventOperation
+    ): Effect.Effect<RuntimeEventOperation, never> =>
+      operation.kind !== "run-in-game"
+        ? Effect.succeed(operation)
+        : writeRunDiagnostics(operation).pipe(
+            Effect.flatMap(() =>
+              markRunInGameDiagnosticsAvailable(
+                registry,
+                operation.requestId,
+                operation.operationRevision
+              )
+            ),
+            Effect.map((marked) => marked ?? operation),
+            Effect.catchAll((error) =>
+              Effect.sync(() => {
+                console.error("[studio-server] failed to persist run diagnostics", error);
+                return operation;
+              })
+            )
+          );
 
-    const publishMany = (operations: ReadonlyArray<Parameters<typeof operationEvent>[0]>) =>
+    const publish = (operation: RuntimeEventOperation): Effect.Effect<void, never> =>
+      Effect.gen(function* () {
+        const availableOperation = yield* persistedOperation(operation);
+        yield* eventHub.publish(operationEvent(availableOperation)).pipe(
+          Effect.catchAll((error) =>
+            Effect.sync(() => {
+              console.error("[studio-server] failed to publish operation event", error);
+            })
+          )
+        );
+      });
+
+    const publishMany = (operations: ReadonlyArray<RuntimeEventOperation>) =>
       Effect.all(operations.map(publish), { discard: true });
 
     const dispose = markDisposed(
@@ -225,7 +258,15 @@ function makeStudioOperationRuntime(
             });
             if (admitted.admitted) {
               if (admitted.eventOperation) yield* publish(admitted.eventOperation);
+              const publicOperation = yield* getRunInGame({
+                registry,
+                requestId: admitted.operation.requestId,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+              });
               yield* runWorker(runInGameWorker(admitted.operation.requestId, input, prepared));
+              return publicOperation;
             }
             return admitted.operation;
           })
@@ -238,6 +279,7 @@ function makeStudioOperationRuntime(
           nowIso: nowIso(),
           ttlMs: args.ttlMs,
         }),
+      runInGameDiagnostics: (input) => lookupRunDiagnostics(input.diagnosticsId),
       saveDeployStart: (input) =>
         Effect.gen(function* () {
           const requestId = input.requestId ?? nextRuntimeId("studio-save-deploy");

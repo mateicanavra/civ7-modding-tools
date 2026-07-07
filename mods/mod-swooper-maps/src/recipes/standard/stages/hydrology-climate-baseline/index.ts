@@ -1,5 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
+import { HydrologyClimateBaselinePublicSchema } from "../hydrology-public-config.js";
 import { climateBaseline } from "./steps/index.js";
 
 const HydrologyDrynessKnobSchema = Type.Union(
@@ -81,7 +82,25 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "hydrology-climate-baseline",
   knobsSchema,
+  public: HydrologyClimateBaselinePublicSchema,
   steps: orderStandardStageSteps("hydrology-climate-baseline", {
     "climate-baseline": climateBaseline,
+  }),
+  compile: ({ config }: { config: Record<string, unknown> }) => ({
+    "climate-baseline": {
+      seasonality: config.seasonalCycle ?? {},
+      computeRadiativeForcing: { strategy: "default", config: config.solarForcing ?? {} },
+      computeThermalState: { strategy: "default", config: config.thermalState ?? {} },
+      computeAtmosphericCirculation: {
+        strategy: "default",
+        config: config.atmosphericCirculation ?? {},
+      },
+      computeOceanSurfaceCurrents: { strategy: "default", config: config.oceanCurrents ?? {} },
+      computeOceanGeometry: { strategy: "default", config: config.oceanGeometry ?? {} },
+      computeOceanThermalState: { strategy: "default", config: config.oceanThermalState ?? {} },
+      computeEvaporationSources: { strategy: "default", config: config.evaporation ?? {} },
+      transportMoisture: { strategy: "default", config: config.moistureTransport ?? {} },
+      computePrecipitation: { strategy: "default", config: config.precipitation ?? {} },
+    },
   }),
 } as const);

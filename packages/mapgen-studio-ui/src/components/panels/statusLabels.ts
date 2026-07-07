@@ -43,32 +43,24 @@ export function formatMapConfigSaveDeployPhaseLabel(phase: MapConfigSaveDeployPh
 
 export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   switch (phase) {
-    case "idle":
-      return "Run in Game";
-    case "materializing":
-      return "Materializing";
+    case "resolving-source":
+      return "Resolving Source";
+    case "generating-artifacts":
+      return "Generating";
     case "deploying":
       return "Deploying";
-    case "restarting-civ":
-      return "Restarting Civ";
-    case "checking-civ7":
-      return "Checking Civ7";
-    case "reload-needed":
-      return "Reload Needed";
-    case "preparing-setup":
-      return "Preparing Setup";
+    case "preparing-civ7":
+      return "Preparing Civ7";
     case "starting-game":
       return "Starting Game";
-    case "waiting-for-proof":
-      return "Waiting for Proof";
-    case "complete":
+    case "observing-runtime":
+      return "Observing Runtime";
+    case "completed":
       return "Complete";
-    case "blocked":
-      return "Blocked";
     case "failed":
       return "Failed";
-    case "uncertain":
-      return "Uncertain";
+    case "cancelled":
+      return "Cancelled";
   }
 }
 
@@ -76,7 +68,10 @@ export function runInGameRequiresProcessRestart(
   status?: RunInGameOperationStatus | null,
   relation: RunInGameRelation = "unknown"
 ): boolean {
-  return relation !== "stale" && status?.details?.reloadBoundary === "process-restart-required";
+  return (
+    relation !== "stale" &&
+    status?.recoveryActions.includes("restart-civ-process-and-retry") === true
+  );
 }
 
 export function runInGamePrimaryActionLabel(
@@ -85,11 +80,7 @@ export function runInGamePrimaryActionLabel(
 ): string {
   if (status?.status === "running") return formatRunInGamePhaseLabel(status.phase);
   if (status && runInGameRequiresProcessRestart(status, relation)) return "Restart Civ & Run";
-  if (
-    status?.status === "failed" ||
-    status?.status === "blocked" ||
-    status?.status === "uncertain"
-  ) {
+  if (status?.status === "failed" || status?.status === "cancelled") {
     return relation === "stale" ? "Run Current" : "Retry Run";
   }
   return "Run in Game";

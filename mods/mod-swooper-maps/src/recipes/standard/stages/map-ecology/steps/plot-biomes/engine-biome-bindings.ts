@@ -4,6 +4,7 @@ import {
   type Civ7BiomeGlobal,
 } from "@civ7/map-policy";
 import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "@mapgen/domain/ecology";
+import type { BiomeEngineBindings } from "../../../map-projection-public-config.js";
 
 export type BiomeGlobalResolver = {
   getBiomeGlobal(key: Civ7BiomeGlobal): number | undefined;
@@ -25,11 +26,14 @@ export interface ResolvedEngineBiomeIds {
   marine: number;
 }
 
-export function resolveEngineBiomeIds(adapter: BiomeGlobalResolver): ResolvedEngineBiomeIds {
+export function resolveEngineBiomeIds(
+  adapter: BiomeGlobalResolver,
+  bindings: BiomeEngineBindings = {}
+): ResolvedEngineBiomeIds {
   const resolved: Partial<Record<BiomeSymbol, number>> = {};
 
   for (const symbol of BIOME_SYMBOL_ORDER) {
-    const key = DEFAULT_ENGINE_BIOME_BINDINGS[symbol];
+    const key = bindings[symbol] ?? DEFAULT_ENGINE_BIOME_BINDINGS[symbol];
     const resolvedId = adapter.getBiomeGlobal(key);
     if (typeof resolvedId !== "number" || Number.isNaN(resolvedId)) {
       throw new Error(
@@ -39,11 +43,10 @@ export function resolveEngineBiomeIds(adapter: BiomeGlobalResolver): ResolvedEng
     resolved[symbol] = resolvedId;
   }
 
-  const marineId = adapter.getBiomeGlobal(CIV7_MARINE_BIOME_GLOBAL);
+  const marineKey = bindings.marine ?? CIV7_MARINE_BIOME_GLOBAL;
+  const marineId = adapter.getBiomeGlobal(marineKey);
   if (typeof marineId !== "number" || Number.isNaN(marineId)) {
-    throw new Error(
-      `resolveEngineBiomeIds: missing biome global "${CIV7_MARINE_BIOME_GLOBAL}" for marine`
-    );
+    throw new Error(`resolveEngineBiomeIds: missing biome global "${marineKey}" for marine`);
   }
 
   return { land: resolved as Record<BiomeSymbol, number>, marine: marineId };

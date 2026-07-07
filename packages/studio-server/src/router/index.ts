@@ -307,6 +307,11 @@ export function createStudioRouter(
             )
           );
       }),
+
+      diagnostics: oe.runInGame.diagnostics.effect(function* ({ input }) {
+        const operationRuntime = yield* StudioOperationRuntime;
+        return yield* operationRuntime.runInGameDiagnostics(input);
+      }),
     },
 
     mapConfigs: {

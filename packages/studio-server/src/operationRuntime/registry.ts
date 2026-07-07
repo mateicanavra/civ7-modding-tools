@@ -22,6 +22,7 @@ import {
   type StudioBoundedDiagnosticValue,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
+import { createRunDiagnosticsId } from "../runInGamePublic.js";
 import type {
   RegistryState,
   RunInGameInternalOperation,
@@ -142,15 +143,7 @@ export function admitRunInGame(
       return Effect.succeed([
         {
           admitted: false,
-          operation: {
-            ...projected,
-            details: {
-              ...(projected.details ?? {}),
-              duplicateRequest: true,
-              activeRequestId: duplicate.requestId,
-              code: "run-in-game-operation-known",
-            },
-          } as RunInGameOperationStatus,
+          operation: projected,
         },
         state,
       ] as readonly [Admission<RunInGameOperationStatus>, RegistryState]);
@@ -180,8 +173,10 @@ export function admitRunInGame(
       },
       phase: "accepted",
       status: "running",
+      operationRevision: 1,
       startedAt: args.nowIso,
       updatedAt: args.nowIso,
+      diagnosticsId: createRunDiagnosticsId(),
       completedPhases: [],
     };
     return Effect.succeed([
@@ -215,8 +210,10 @@ export function transitionRunInGame(
             request: {},
             phase: "failed",
             status: "failed",
+            operationRevision: 1,
             startedAt: args.nowIso,
             updatedAt: args.nowIso,
+            diagnosticsId: createRunDiagnosticsId(),
             completedPhases: [],
             failure: invalidRequest({
               message: `Unknown Run in Game request id: ${args.requestId}`,
@@ -237,6 +234,7 @@ export function transitionRunInGame(
       ...current,
       ...args.transition,
       status: statusForRunInGamePhase(args.transition.phase),
+      operationRevision: current.operationRevision + 1,
       completedPhases,
       updatedAt: args.nowIso,
     };
@@ -272,8 +270,10 @@ export function failRunInGame(
             request: {},
             phase: "failed",
             status: "failed",
+            operationRevision: 1,
             startedAt: args.nowIso,
             updatedAt: args.nowIso,
+            diagnosticsId: createRunDiagnosticsId(),
             completedPhases: [],
             failure: toRuntimeFailure(args.err, "Run in Game failed", {
               operation: "run-in-game",
@@ -381,6 +381,29 @@ export function admitSaveDeploy(
         saveDeploy: { ...state.saveDeploy, [operation.requestId]: operation },
       },
     ] as readonly [Admission<MapConfigSaveDeployStatus>, RegistryState]);
+  });
+}
+
+export function markRunInGameDiagnosticsAvailable(
+  registry: RuntimeRegistry,
+  requestId: string,
+  operationRevision: number
+): Effect.Effect<RunInGameInternalOperation | undefined> {
+  return SynchronizedRef.modify(registry, (state) => {
+    const current = state.runInGame[requestId];
+    if (!current || current.operationRevision !== operationRevision)
+      return [undefined, state] as const;
+    const operation: RunInGameInternalOperation = {
+      ...current,
+      diagnosticsPersistedRevision: operationRevision,
+    };
+    return [
+      operation,
+      {
+        ...state,
+        runInGame: { ...state.runInGame, [requestId]: operation },
+      },
+    ] as const;
   });
 }
 
@@ -618,6 +641,7 @@ function failRunOperation(
       : failure.reason === "timeout-uncertain" || failure.reason === "start-game-failed"
         ? "uncertain"
         : "failed";
+  const publicPhase = publicRunInGamePhase(phase);
   return {
     ...operation,
     phase: failure.tag === "RuntimeDisposed" ? "runtime-disposed" : failureClass,
@@ -627,11 +651,12 @@ function failRunOperation(
         : failureClass === "uncertain"
           ? "uncertain"
           : "failed",
+    operationRevision: operation.operationRevision + 1,
     updatedAt: nowIso,
     failure,
-    completedPhases: operation.completedPhases.includes(phase)
+    completedPhases: operation.completedPhases.includes(publicPhase)
       ? operation.completedPhases
-      : [...operation.completedPhases, phase],
+      : [...operation.completedPhases, publicPhase],
   };
 }
 

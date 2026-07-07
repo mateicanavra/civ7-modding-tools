@@ -6,6 +6,7 @@ import {
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../tag-contracts.js";
 import { artifacts as ecologyArtifacts } from "../../ecology/artifacts/index.js";
+import { BiomeEngineBindingsSchema } from "../../map-projection-public-config.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 
 const PlotBiomesStepContract = defineStep({
@@ -21,7 +22,15 @@ const PlotBiomesStepContract = defineStep({
     requires: [ecologyArtifacts.biomeClassification, morphologyArtifacts.topography],
     provides: [ecologyArtifacts.biomeBindings],
   },
-  schema: Type.Object({}, { additionalProperties: false }),
+  schema: Type.Object(
+    {
+      bindings: Type.Optional(BiomeEngineBindingsSchema),
+    },
+    {
+      additionalProperties: false,
+      description: "Optional overrides for binding biome symbols to engine biome globals.",
+    }
+  ),
 });
 
 export default PlotBiomesStepContract;

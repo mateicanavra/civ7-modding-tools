@@ -123,6 +123,7 @@
         "@civ7/plugin-mods": "workspace:*",
         "@civ7/types": "workspace:*",
         "json-schema-to-typescript": "^15.0.4",
+        "type-fest": "^5.7.0",
       },
     },
     "packages/civ7-adapter": {
