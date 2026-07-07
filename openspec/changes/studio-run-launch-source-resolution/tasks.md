@@ -19,11 +19,11 @@
 ## 3. Verification
 
 - [x] 3.1 Add behavior tests for accepted/rejected input and digest stability.
-- [ ] 3.2 Run and record live Studio endpoint checks for accepted
+- [x] 3.2 Run and record live Studio endpoint checks for accepted
       catalog/editor source variants and rejected invalid start input.
 - [x] 3.3 Register SA-05 `grit-studio-run-launch-source-boundary` with Pattern
       Authority metadata from the structural authority matrix.
-- [ ] 3.4 Record verification evidence for every declared gate in
+- [x] 3.4 Record verification evidence for every declared gate in
       `workstream/verification-evidence.md`; this packet does not close with
       skipped gates.
 - [x] 3.5 Run and record the required TypeScript refactoring, code

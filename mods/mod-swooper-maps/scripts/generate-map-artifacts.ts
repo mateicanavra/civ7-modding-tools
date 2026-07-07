@@ -26,6 +26,36 @@ const distRecipesDir = resolve(pkgRoot, "dist/recipes");
 const transientStudioCurrentConfig = "studio-current.config.json";
 const includeTransientStudioCurrent = process.env.SWOOPER_INCLUDE_STUDIO_CURRENT === "1";
 
+type StudioRunProofEnv =
+  | Readonly<{ kind: "none" }>
+  | Readonly<{
+      kind: "run";
+      requestId: string;
+      launchConfigId: string;
+      launchEnvelopeDigest: string;
+    }>;
+
+const studioRunProofEnv = readStudioRunProofEnv();
+
+function readStudioRunProofEnv(env: NodeJS.ProcessEnv = process.env): StudioRunProofEnv {
+  const requestId = env.SWOOPER_STUDIO_RUN_ID;
+  const launchConfigId = env.SWOOPER_STUDIO_LAUNCH_CONFIG_ID;
+  const launchEnvelopeDigest = env.SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST;
+  if (
+    requestId === undefined &&
+    launchConfigId === undefined &&
+    launchEnvelopeDigest === undefined
+  ) {
+    return { kind: "none" };
+  }
+  if (!requestId || !launchConfigId || !launchEnvelopeDigest) {
+    throw new Error(
+      "Studio run proof env must set SWOOPER_STUDIO_RUN_ID, SWOOPER_STUDIO_LAUNCH_CONFIG_ID, and SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST together"
+    );
+  }
+  return { kind: "run", requestId, launchConfigId, launchEnvelopeDigest };
+}
+
 function stableJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
@@ -103,8 +133,12 @@ async function loadRegistry(): Promise<ValidatedMapConfig[]> {
 
 function renderMapEntry(config: ValidatedMapConfig): string {
   const configHash = configHashFor(config);
-  const envelopeHash = envelopeHashFor(config, configHash);
-  const requestId = process.env.SWOOPER_STUDIO_RUN_ID;
+  const isSelectedProofConfig =
+    studioRunProofEnv.kind === "run" && studioRunProofEnv.launchConfigId === config.id;
+  const envelopeHash = isSelectedProofConfig
+    ? studioRunProofEnv.launchEnvelopeDigest
+    : envelopeHashFor(config, configHash);
+  const requestId = isSelectedProofConfig ? studioRunProofEnv.requestId : undefined;
   const latitudeBounds = config.latitudeBounds
     ? `\n  latitudeBounds: ${JSON.stringify(config.latitudeBounds, null, 2).replace(/\n/g, "\n  ")},`
     : "";
