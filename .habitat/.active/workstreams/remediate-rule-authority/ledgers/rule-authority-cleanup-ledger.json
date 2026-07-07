@@ -2899,16 +2899,10 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/readiness-r2-config-facade-consolidation.md",
       "branch": "codex/readiness-r2-config-facade-consolidation",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_foundation_op_contract_config_bags"
-      ],
+      "rules": ["prohibit_foundation_op_contract_config_bags"],
       "createdRows": [],
-      "survivorRows": [
-        "prohibit_root_config_facade_imports_in_domain_ops"
-      ],
-      "deletedRows": [
-        "prohibit_foundation_op_contract_config_bags"
-      ],
+      "survivorRows": ["prohibit_root_config_facade_imports_in_domain_ops"],
+      "deletedRows": ["prohibit_foundation_op_contract_config_bags"],
       "outcome": "Absorbed root/domain config-facade import coverage into the domain-operation survivor rule, deleted the Foundation-local packet, and retired the live ledger row.",
       "completedOn": "2026-07-07",
       "verification": [

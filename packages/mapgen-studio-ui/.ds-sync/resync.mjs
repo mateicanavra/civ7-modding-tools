@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 // resync.mjs — THE re-sync path: one driver for the mechanical whole of a
 // re-sync, emitting ONE machine-readable verdict (stdout + <out>/.resync-verdict.json):
 //
@@ -57,39 +58,58 @@
 //                   // false then; fix the failed stage, don't upload
 // }
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
-import { validateConfig } from './lib/common.mjs';
-import { sbBaseShaFor } from './lib/sync-hashes.mjs';
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { validateConfig } from "./lib/common.mjs";
+import { sbBaseShaFor } from "./lib/sync-hashes.mjs";
 
 const argv = process.argv.slice(2);
-const flag = (n) => { const i = argv.indexOf(`--${n}`); return i < 0 ? null : argv[i + 1]; };
+const flag = (n) => {
+  const i = argv.indexOf(`--${n}`);
+  return i < 0 ? null : argv[i + 1];
+};
 {
-  const VALUE_FLAGS = ['config', 'remote', 'node-modules', 'entry', 'out', 'storybook-static', 'render-sample', 'max-stories'];
+  const VALUE_FLAGS = [
+    "config",
+    "remote",
+    "node-modules",
+    "entry",
+    "out",
+    "storybook-static",
+    "render-sample",
+    "max-stories",
+  ];
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--no-render-check') continue;
-    if (argv[i].startsWith('--') && VALUE_FLAGS.includes(argv[i].slice(2))) { i++; continue; }
+    if (argv[i] === "--no-render-check") continue;
+    if (argv[i].startsWith("--") && VALUE_FLAGS.includes(argv[i].slice(2))) {
+      i++;
+      continue;
+    }
     console.error(`(unrecognized argument "${argv[i]}" — ignored)`);
   }
 }
-const CONFIG = flag('config');
-const OUT = flag('out') && resolve(flag('out'));
-const NM = flag('node-modules');
-const REMOTE = flag('remote') && resolve(flag('remote'));
+const CONFIG = flag("config");
+const OUT = flag("out") && resolve(flag("out"));
+const NM = flag("node-modules");
+const REMOTE = flag("remote") && resolve(flag("remote"));
 if (!CONFIG || !OUT || !NM) {
-  console.error('usage: node resync.mjs --config <.design-sync/config.json> --node-modules <nm> --out <ds-bundle> [--remote <saved-sidecar.json>] …');
+  console.error(
+    "usage: node resync.mjs --config <.design-sync/config.json> --node-modules <nm> --out <ds-bundle> [--remote <saved-sidecar.json>] …"
+  );
   process.exit(2);
 }
 // cwd sanity — the capture harnesses resolve .design-sync/ from cwd; a driver
 // run from the wrong directory would scatter campaign state somewhere no
 // later run will find it.
 if (!existsSync(resolve(CONFIG))) {
-  console.error(`✗ ${CONFIG} not found from ${process.cwd()} — run the driver from the repo root (the directory the --config path is relative to)`);
+  console.error(
+    `✗ ${CONFIG} not found from ${process.cwd()} — run the driver from the repo root (the directory the --config path is relative to)`
+  );
   process.exit(2);
 }
-if (!existsSync(resolve('.design-sync'))) {
+if (!existsSync(resolve(".design-sync"))) {
   console.error(`✗ no .design-sync/ under ${process.cwd()} — run the driver from the repo root`);
   process.exit(2);
 }
@@ -106,8 +126,14 @@ if (!existsSync(resolve(NM))) {
 // it with full context — the stale-artifact gating relies on that path
 // staying a stage failure.
 {
-  let cfg, parsed = false;
-  try { cfg = JSON.parse(readFileSync(resolve(CONFIG), 'utf8')); parsed = true; } catch { /* build reports it */ }
+  let cfg,
+    parsed = false;
+  try {
+    cfg = JSON.parse(readFileSync(resolve(CONFIG), "utf8"));
+    parsed = true;
+  } catch {
+    /* build reports it */
+  }
   if (parsed) {
     const errs = validateConfig(cfg);
     if (errs.length) {
@@ -129,8 +155,9 @@ let firstFailExit = null;
 // live.
 function runStage(name, script, args) {
   const r = spawnSync(process.execPath, [here(script), ...args], {
-    cwd: process.cwd(), encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'inherit'],
+    cwd: process.cwd(),
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "inherit"],
     // Piped stdout defaults to a 1MB cap — a chatty child would die with
     // ENOBUFS mid-stage. 64MB is effectively unbounded for build logs.
     maxBuffer: 64 * 1024 * 1024,
@@ -149,33 +176,44 @@ function skipStage(name, why) {
   stages[name] = { ok: null, exit: null, skipped: why };
 }
 
-const readJson = (p) => { try { return JSON.parse(readFileSync(p, 'utf8')); } catch { return null; } };
+const readJson = (p) => {
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+};
 
 // ── Stage 1-3: build → diff → validate. Each failure stops the chain.
 let aborted = false;
 {
-  const buildArgs = ['--config', resolve(CONFIG), '--node-modules', resolve(NM), '--out', OUT];
-  if (flag('entry')) buildArgs.push('--entry', resolve(flag('entry')));
-  if (flag('storybook-static')) buildArgs.push('--storybook-static', resolve(flag('storybook-static')));
-  if (!runStage('build', './package-build.mjs', buildArgs)) aborted = true;
+  const buildArgs = ["--config", resolve(CONFIG), "--node-modules", resolve(NM), "--out", OUT];
+  if (flag("entry")) buildArgs.push("--entry", resolve(flag("entry")));
+  if (flag("storybook-static"))
+    buildArgs.push("--storybook-static", resolve(flag("storybook-static")));
+  if (!runStage("build", "./package-build.mjs", buildArgs)) aborted = true;
 }
-if (aborted) { skipStage('diff', 'prior_failure'); } else {
-  const args = ['--local', OUT];
-  if (REMOTE) args.push('--remote', REMOTE);
-  if (!runStage('diff', './lib/remote-diff.mjs', args)) aborted = true;
+if (aborted) {
+  skipStage("diff", "prior_failure");
+} else {
+  const args = ["--local", OUT];
+  if (REMOTE) args.push("--remote", REMOTE);
+  if (!runStage("diff", "./lib/remote-diff.mjs", args)) aborted = true;
 }
 // The diff artifact scopes both the validate stage (render-check tiering
 // below) and the capture stage. Gated on the diff having succeeded THIS run:
 // a build that dies before package-build's OUT wipe leaves the PREVIOUS
 // run's artifacts on disk, and reading them would scope this run by a prior
 // run's diff.
-const syncDiff = stages.diff?.ok ? readJson(join(OUT, '.sync-diff.json')) : null;
+const syncDiff = stages.diff?.ok ? readJson(join(OUT, ".sync-diff.json")) : null;
 
-if (aborted) { skipStage('validate', 'prior_failure'); } else {
+if (aborted) {
+  skipStage("validate", "prior_failure");
+} else {
   const args = [OUT];
-  if (flag('render-sample')) args.push('--render-sample', flag('render-sample'));
-  if (argv.includes('--no-render-check')) args.push('--no-render-check');
-  const userScoped = argv.includes('--render-sample') || argv.includes('--no-render-check');
+  if (flag("render-sample")) args.push("--render-sample", flag("render-sample"));
+  if (argv.includes("--no-render-check")) args.push("--no-render-check");
+  const userScoped = argv.includes("--render-sample") || argv.includes("--no-render-check");
   // No explicit render flag → scope the render check by what the diff proved.
   // With a healthy anchor, bundle+styling hashes equal, and nothing
   // changed/added/render-churned, every preview's render inputs are
@@ -187,17 +225,27 @@ if (aborted) { skipStage('validate', 'prior_failure'); } else {
   // ship (docs/anchor refresh — a .d.ts/.prompt.md edit re-ships the
   // bundle via its header hashes and takes the full check) → sample. Anything render-affecting
   // moved, or no healthy anchor → full, as before.
-  if (!userScoped && syncDiff?.anchorReason === 'ok' && syncDiff.upload && !syncDiff.upload.bundle && !syncDiff.upload.styling
-      && !(syncDiff.changed?.length || syncDiff.added?.length || syncDiff.renderChurned?.length)) {
+  if (
+    !userScoped &&
+    syncDiff?.anchorReason === "ok" &&
+    syncDiff.upload &&
+    !syncDiff.upload.bundle &&
+    !syncDiff.upload.styling &&
+    !(syncDiff.changed?.length || syncDiff.added?.length || syncDiff.renderChurned?.length)
+  ) {
     if (!syncDiff.upload?.any) {
-      args.push('--no-render-check');
-      console.error('render check: skipped — anchored no-change re-sync (nothing uploads; [SYNC_STALE] and the file-shape checks still run). Pass --render-sample 0 to force the full pass.');
+      args.push("--no-render-check");
+      console.error(
+        "render check: skipped — anchored no-change re-sync (nothing uploads; [SYNC_STALE] and the file-shape checks still run). Pass --render-sample 0 to force the full pass."
+      );
     } else {
-      args.push('--render-sample', '10');
-      console.error('render check: sampled (~10) — anchor ok, no component moved; nothing that affects rendering ships. Pass --render-sample 0 to force the full pass.');
+      args.push("--render-sample", "10");
+      console.error(
+        "render check: sampled (~10) — anchor ok, no component moved; nothing that affects rendering ships. Pass --render-sample 0 to force the full pass."
+      );
     }
   }
-  if (!runStage('validate', './package-validate.mjs', args)) aborted = true;
+  if (!runStage("validate", "./package-validate.mjs", args)) aborted = true;
 }
 
 // ── Stage 4: capture, scoped to the diff's worklist (new + contract-changed).
@@ -206,11 +254,12 @@ if (aborted) { skipStage('validate', 'prior_failure'); } else {
 // package-build's OUT wipe (malformed config, [OUT_UNSAFE]) leaves the
 // PREVIOUS run's artifacts on disk, and reading them would dress a failed
 // run in the prior run's anchor and partitions.
-const sidecar = stages.build.ok ? readJson(join(OUT, '_ds_sync.json')) : null;
-const shape = sidecar?.shape ?? 'storybook';
-const gradeCacheDir = shape === 'storybook'
-  ? resolve('.design-sync', '.cache', 'compare')
-  : resolve('.design-sync', '.cache', 'review');
+const sidecar = stages.build.ok ? readJson(join(OUT, "_ds_sync.json")) : null;
+const shape = sidecar?.shape ?? "storybook";
+const gradeCacheDir =
+  shape === "storybook"
+    ? resolve(".design-sync", ".cache", "compare")
+    : resolve(".design-sync", ".cache", "review");
 let worklist = [];
 let brokenAuthored = [];
 // The learnings fold gate (read unconditionally here, enforced at verdict
@@ -219,28 +268,40 @@ let brokenAuthored = [];
 // the one-shot drift signal for the post-fold retry — same contract as a
 // failed capture.
 let learningsUnmerged = [];
-try { learningsUnmerged = readdirSync(resolve('.design-sync', 'learnings')).filter((f) => f.endsWith('.md')).sort(); } catch { /* no dir — nothing unfolded */ }
+try {
+  learningsUnmerged = readdirSync(resolve(".design-sync", "learnings"))
+    .filter((f) => f.endsWith(".md"))
+    .sort();
+} catch {
+  /* no dir — nothing unfolded */
+}
 let canary = null;
 let canaryPicks = [];
 if (aborted) {
-  skipStage('capture', 'prior_failure');
+  skipStage("capture", "prior_failure");
 } else if (!syncDiff) {
   // diff exited 0 but its artifact is unreadable — treat as a failure, not a skip.
-  skipStage('capture', 'prior_failure');
+  skipStage("capture", "prior_failure");
   if (firstFailExit === null) firstFailExit = 1;
   aborted = true;
-  console.error('✗ .sync-diff.json unreadable after a clean diff stage — cannot scope the capture');
+  console.error("✗ .sync-diff.json unreadable after a clean diff stage — cannot scope the capture");
 } else {
   worklist = [...(syncDiff.changed ?? []), ...(syncDiff.added ?? [])];
-  const manifest = shape === 'storybook' ? readJson(join(OUT, '.stories-map.json')) : null;
+  const manifest = shape === "storybook" ? readJson(join(OUT, ".stories-map.json")) : null;
   // What the capture harness can actually capture: compare.mjs needs stories
   // in the manifest; package-capture needs a compiled _preview/<Name>.js
   // (floor-card components are the deliberate baseline, not gradable work).
-  const isCapturable = shape === 'storybook'
-    ? (manifest
-      ? (() => { const s = new Set((manifest.components ?? []).filter((c) => (c.stories ?? []).length).map((c) => c.name)); return (n) => s.has(n); })()
-      : null)
-    : (n) => existsSync(join(OUT, '_preview', `${n}.js`));
+  const isCapturable =
+    shape === "storybook"
+      ? manifest
+        ? (() => {
+            const s = new Set(
+              (manifest.components ?? []).filter((c) => (c.stories ?? []).length).map((c) => c.name)
+            );
+            return (n) => s.has(n);
+          })()
+        : null
+      : (n) => existsSync(join(OUT, "_preview", `${n}.js`));
   if (worklist.length && isCapturable) {
     // Passing an uncapturable member through would either fail the stage
     // ([ZERO_MATCH]) or — since no capture json is ever written for it —
@@ -258,10 +319,19 @@ if (aborted) {
       // with an owned preview (all stories skipped via cfg.overrides) is a
       // legitimate state, and flagging it would park it in pendingGrade
       // with no capture json ever coming to clear it.
-      const broken = shape !== 'storybook' ? dropped.filter((n) => existsSync(resolve('.design-sync', 'previews', `${n}.tsx`))) : [];
+      const broken =
+        shape !== "storybook"
+          ? dropped.filter((n) => existsSync(resolve(".design-sync", "previews", `${n}.tsx`)))
+          : [];
       const floor = dropped.filter((n) => !broken.includes(n));
-      if (broken.length) console.error(`(${broken.join(', ')}: authored preview exists but did not compile this build — see '! preview build failed' in the build log; listed in pendingGrade until it compiles)`);
-      if (floor.length) console.error(`(${floor.join(', ')}: nothing to capture — re-ships via the upload partition, no grading needed)`);
+      if (broken.length)
+        console.error(
+          `(${broken.join(", ")}: authored preview exists but did not compile this build — see '! preview build failed' in the build log; listed in pendingGrade until it compiles)`
+        );
+      if (floor.length)
+        console.error(
+          `(${floor.join(", ")}: nothing to capture — re-ships via the upload partition, no grading needed)`
+        );
       worklist = worklist.filter((n) => isCapturable(n));
       brokenAuthored = broken;
     }
@@ -277,26 +347,36 @@ if (aborted) {
   let refDrift = false;
   {
     const churned = (syncDiff.renderChurned ?? []).filter((n) => isCapturable?.(n));
-    if (shape === 'storybook') {
-      const sbDir = flag('storybook-static') ? resolve(flag('storybook-static')) : manifest?.storybookStatic;
-      if (sbDir && existsSync(join(sbDir, 'iframe.html'))) {
+    if (shape === "storybook") {
+      const sbDir = flag("storybook-static")
+        ? resolve(flag("storybook-static"))
+        : manifest?.storybookStatic;
+      if (sbDir && existsSync(join(sbDir, "iframe.html"))) {
         sbCur = sbBaseShaFor(resolve(sbDir));
-        const state = readJson(join(gradeCacheDir, '.sb-state.json'));
+        const state = readJson(join(gradeCacheDir, ".sb-state.json"));
         if (state?.sbBaseSha) refDrift = sbCur !== state.sbBaseSha;
       }
     }
-    const pool = [...new Set([...churned, ...(refDrift ? (syncDiff.unchanged ?? []).filter((n) => isCapturable?.(n)) : [])])]
-      .filter((n) => !worklist.includes(n));
+    const pool = [
+      ...new Set([
+        ...churned,
+        ...(refDrift ? (syncDiff.unchanged ?? []).filter((n) => isCapturable?.(n)) : []),
+      ]),
+    ].filter((n) => !worklist.includes(n));
     if (pool.length) {
       const cfgObj = readJson(resolve(CONFIG)) ?? {};
       const capJson = new Map();
-      const capOf = (n) => { if (!capJson.has(n)) capJson.set(n, readJson(join(gradeCacheDir, `${n}.json`))); return capJson.get(n); };
+      const capOf = (n) => {
+        if (!capJson.has(n)) capJson.set(n, readJson(join(gradeCacheDir, `${n}.json`)));
+        return capJson.get(n);
+      };
       // Prefer picks with recorded verdicts to confirm against; one without
       // is captured fresh and surfaces in pendingGrade (bounded by K).
       const clean = (n) => capOf(n)?.pendingGrade === false;
       // Non-grid card modes (single/column) render a different default view
       // than the solo-graded stories — keep at least one in the picks.
-      const single = (n) => ['single', 'column'].includes(cfgObj.overrides?.[n]?.cardMode) || capOf(n)?.portal === true;
+      const single = (n) =>
+        ["single", "column"].includes(cfgObj.overrides?.[n]?.cardMode) || capOf(n)?.portal === true;
       const picks = new Set();
       const singles = pool.filter(single);
       if (singles.length) picks.add(singles.find(clean) ?? singles[0]);
@@ -306,28 +386,43 @@ if (aborted) {
         [rest[i], rest[j]] = [rest[j], rest[i]];
       }
       rest.sort((a, b) => Number(clean(b)) - Number(clean(a))); // stable: random within clean/unclean
-      for (const n of rest) { if (picks.size >= 5) break; picks.add(n); }
+      for (const n of rest) {
+        if (picks.size >= 5) break;
+        picks.add(n);
+      }
       canaryPicks = [...picks];
-      canary = { picks: canaryPicks, churned, trigger: refDrift && churned.length ? 'both' : refDrift ? 'reference_drift' : 'render_churn' };
-      console.error(`◉ canary: ${churned.length ? `${churned.length} component(s) re-rendered with unchanged sources` : ''}${churned.length && refDrift ? '; ' : ''}${refDrift ? 'the reference storybook changed under carried grades' : ''} — spot-checking ${canaryPicks.length} with grades kept: ${canaryPicks.join(', ')}`);
+      canary = {
+        picks: canaryPicks,
+        churned,
+        trigger:
+          refDrift && churned.length ? "both" : refDrift ? "reference_drift" : "render_churn",
+      };
+      console.error(
+        `◉ canary: ${churned.length ? `${churned.length} component(s) re-rendered with unchanged sources` : ""}${churned.length && refDrift ? "; " : ""}${refDrift ? "the reference storybook changed under carried grades" : ""} — spot-checking ${canaryPicks.length} with grades kept: ${canaryPicks.join(", ")}`
+      );
     }
   }
 
   if (!worklist.length && !canaryPicks.length) {
-    skipStage('capture', 'empty_worklist');
-    console.error('capture skipped — no capturable changed or added components');
+    skipStage("capture", "empty_worklist");
+    console.error("capture skipped — no capturable changed or added components");
   } else {
     // A canary with an empty worklist still runs — scoped to the picks so
     // the harness keeps its scoped-run semantics (no prune/report/sampler).
-    const args = ['--out', OUT, '--components', (worklist.length ? worklist : canaryPicks).join(',')];
-    if (canaryPicks.length) args.push('--spot-check-components', canaryPicks.join(','));
-    if (shape === 'storybook') {
-      const sb = flag('storybook-static');
-      if (sb) args.push('--storybook-static', resolve(sb));
-      if (flag('max-stories')) args.push('--max-stories', flag('max-stories'));
-      runStage('capture', './storybook/compare.mjs', args);
+    const args = [
+      "--out",
+      OUT,
+      "--components",
+      (worklist.length ? worklist : canaryPicks).join(","),
+    ];
+    if (canaryPicks.length) args.push("--spot-check-components", canaryPicks.join(","));
+    if (shape === "storybook") {
+      const sb = flag("storybook-static");
+      if (sb) args.push("--storybook-static", resolve(sb));
+      if (flag("max-stories")) args.push("--max-stories", flag("max-stories"));
+      runStage("capture", "./storybook/compare.mjs", args);
     } else {
-      runStage('capture', './package-capture.mjs', args);
+      runStage("capture", "./package-capture.mjs", args);
     }
   }
 
@@ -344,11 +439,20 @@ if (aborted) {
   // partition (empty pool), and writing there would destroy the one-shot
   // drift signal while locally-cached grades carried unverified. First-time
   // seeding and no-drift refreshes are unaffected.
-  if (sbCur && stages.capture.ok !== false && (!refDrift || (canaryPicks.length && learningsUnmerged.length === 0))) {
+  if (
+    sbCur &&
+    stages.capture.ok !== false &&
+    (!refDrift || (canaryPicks.length && learningsUnmerged.length === 0))
+  ) {
     try {
       mkdirSync(gradeCacheDir, { recursive: true });
-      writeFileSync(join(gradeCacheDir, '.sb-state.json'), JSON.stringify({ sbBaseSha: sbCur }, null, 2));
-    } catch { /* best-effort */ }
+      writeFileSync(
+        join(gradeCacheDir, ".sb-state.json"),
+        JSON.stringify({ sbBaseSha: sbCur }, null, 2)
+      );
+    } catch {
+      /* best-effort */
+    }
   }
 }
 
@@ -362,29 +466,39 @@ if (aborted) {
 const scanSet = [...new Set([...worklist, ...canaryPicks])];
 // Capture never ran → nothing is freshly pending; ran and failed → the whole
 // scope is pending (the verdict is ok:false anyway); ran clean → derive.
-const pendingGrade = [...new Set([
-  ...(stages.capture.skipped !== null ? [] : (stages.capture.ok
-    ? scanSet.filter((name) => readJson(join(gradeCacheDir, `${name}.json`))?.pendingGrade !== false)
-    : scanSet)),
-  // Authored previews whose compile failed this build: nothing was captured
-  // for them, but they are NOT done — the floor card is currently shipping
-  // in place of the authored preview.
-  ...brokenAuthored,
-])];
+const pendingGrade = [
+  ...new Set([
+    ...(stages.capture.skipped !== null
+      ? []
+      : stages.capture.ok
+        ? scanSet.filter(
+            (name) => readJson(join(gradeCacheDir, `${name}.json`))?.pendingGrade !== false
+          )
+        : scanSet),
+    // Authored previews whose compile failed this build: nothing was captured
+    // for them, but they are NOT done — the floor card is currently shipping
+    // in place of the authored preview.
+    ...brokenAuthored,
+  ]),
+];
 
 // The driver is the §4d closing receipt, but its capture is scoped, so
 // compare's full-run-only [LEARNINGS_UNMERGED] advisory can never fire here.
 // Check the learnings dir directly: an unfolded learnings file means the
 // mandatory §4c fold was missed — fail the verdict rather than let it ship.
 if (learningsUnmerged.length) {
-  console.error(`✗ [LEARNINGS_UNMERGED] unfolded learnings file(s): ${learningsUnmerged.join(', ')} — fold into NOTES.md and delete them (your shape's between-waves fold step), then re-run`);
+  console.error(
+    `✗ [LEARNINGS_UNMERGED] unfolded learnings file(s): ${learningsUnmerged.join(", ")} — fold into NOTES.md and delete them (your shape's between-waves fold step), then re-run`
+  );
 }
-const ok = learningsUnmerged.length === 0 && Object.values(stages).every((s) => (s.skipped === null ? s.ok : s.skipped !== 'prior_failure'));
+const ok =
+  learningsUnmerged.length === 0 &&
+  Object.values(stages).every((s) => (s.skipped === null ? s.ok : s.skipped !== "prior_failure"));
 const verdict = {
   version: 2,
   ok,
   shape,
-  anchor: syncDiff?.anchorReason ?? (REMOTE ? 'unknown' : 'not_provided'),
+  anchor: syncDiff?.anchorReason ?? (REMOTE ? "unknown" : "not_provided"),
   learningsUnmerged,
   stages,
   verification: {
@@ -406,12 +520,16 @@ const verdict = {
 // swallow the stdout verdict or change the exit code.
 try {
   if (existsSync(OUT)) {
-    writeFileSync(join(OUT, '.resync-verdict.json'), JSON.stringify(verdict, null, 2) + '\n');
+    writeFileSync(join(OUT, ".resync-verdict.json"), JSON.stringify(verdict, null, 2) + "\n");
   } else {
-    console.error('(.resync-verdict.json not written — the build never created --out; verdict on stdout only)');
+    console.error(
+      "(.resync-verdict.json not written — the build never created --out; verdict on stdout only)"
+    );
   }
 } catch (e) {
-  console.error(`(.resync-verdict.json not written: ${String(e.message ?? e).split('\n')[0]} — verdict on stdout only)`);
+  console.error(
+    `(.resync-verdict.json not written: ${String(e.message ?? e).split("\n")[0]} — verdict on stdout only)`
+  );
 }
-process.stdout.write(JSON.stringify(verdict, null, 2) + '\n');
+process.stdout.write(JSON.stringify(verdict, null, 2) + "\n");
 process.exit(ok ? 0 : (firstFailExit ?? 1));

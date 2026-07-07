@@ -15,6 +15,7 @@ import {
   decidePatternScanRoots,
   pathsOverlap,
   ruleHasDocsScanRoot,
+  scanRootMatchesDeclaredRoot,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
 import { runGritCheckWithScopedConfigEffect } from "./scoped-config.js";
@@ -38,12 +39,21 @@ export function runSourcePatternCheckOutcomesEffect(
   if (requestedScanRoots.length === 0) {
     return runSourcePatternCheckBatchEffect(selectedRules, [], options);
   }
-  const batches = requestedScanRoots.map((scanRoot) => ({
-    scanRoots: [scanRoot],
-    rules: selectedRules.filter((rule) =>
-      rule.scanRoots.some((declaredRoot) => pathsOverlap(scanRoot, declaredRoot))
-    ),
-  }));
+  const matchesDeclaredRoot = options.scanRoots ? pathsOverlap : scanRootMatchesDeclaredRoot;
+  const matchedBatches = requestedScanRoots.flatMap((scanRoot) =>
+    selectedRules
+      .filter((rule) =>
+        rule.scanRoots.some((declaredRoot) => matchesDeclaredRoot(scanRoot, declaredRoot))
+      )
+      .map((rule) => ({ scanRoots: [scanRoot], rules: [rule] }))
+  );
+  const matchedRuleIds = new Set(
+    matchedBatches.flatMap((batch) => batch.rules.map((rule) => rule.id))
+  );
+  const fallbackBatches = selectedRules
+    .filter((rule) => !matchedRuleIds.has(rule.id))
+    .map((rule) => ({ scanRoots: requestedScanRoots, rules: [rule] }));
+  const batches = [...matchedBatches, ...fallbackBatches];
   return Effect.all(
     batches.map((batch) => runSourcePatternCheckBatchEffect(batch.rules, batch.scanRoots, options)),
     { concurrency: 2 }

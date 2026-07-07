@@ -71,6 +71,20 @@ function runGritDiagnosticOutcomes(
   );
 }
 
+function gritDirFromRequest(request: HabitatProcessRequest): string {
+  const index = request.argv.indexOf("--grit-dir");
+  if (index < 0) throw new Error(`Missing --grit-dir in ${request.argv.join(" ")}`);
+  const gritDir = request.argv[index + 1];
+  if (!gritDir) throw new Error(`Missing --grit-dir value in ${request.argv.join(" ")}`);
+  return gritDir;
+}
+
+function requestArgvWithoutGritDir(request: HabitatProcessRequest): readonly string[] {
+  const index = request.argv.indexOf("--grit-dir");
+  if (index < 0) return request.argv;
+  return request.argv.filter((_, itemIndex) => itemIndex !== index && itemIndex !== index + 1);
+}
+
 describe("Grit check provider parser and diagnostics", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {
     const parsed = parseGritCheckOutput(
@@ -512,6 +526,16 @@ describe("Grit check provider parser and diagnostics", () => {
         observableStatus: "unknown",
       },
     });
+    expect(observedRequest ? requestArgvWithoutGritDir(observedRequest) : []).toEqual([
+      "--json",
+      "check",
+      "--level",
+      "error",
+      "packages",
+    ]);
+    expect(observedRequest ? gritDirFromRequest(observedRequest) : "").toContain(
+      "habitat-grit-config-"
+    );
     expect(observedRequest?.cachePolicy?.cacheDir).toBe(`${repoRoot}/.habitat/cache/patterns`);
     expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
     expect(observedRequest?.env).toMatchObject({
@@ -556,7 +580,7 @@ describe("Grit check provider parser and diagnostics", () => {
     if (observedGritUserConfigDir) expect(existsSync(observedGritUserConfigDir)).toBe(false);
   });
 
-  test("runs broad source selections through one selected Grit catalog per scan root", async () => {
+  test("runs broad source selections through per-rule scoped Grit catalogs per scan root", async () => {
     const firstRule = fakeGritRule("source-one", "source_one", {
       scanRoots: ["packages"],
       runner: gritFixtureRunner("source_one", gritFixturePaths.alpha),
@@ -566,15 +590,21 @@ describe("Grit check provider parser and diagnostics", () => {
       runner: gritFixtureRunner("source_two", gritFixturePaths.beta),
     });
     const observedRequests: HabitatProcessRequest[] = [];
-    let observedGritDir: string | undefined;
+    const observedGritDirs = new Set<string>();
+    const observedPatterns: string[] = [];
     const fakeGrit = makeFakeGritProviderService((request, providerRequest) => {
       observedRequests.push(request);
-      observedGritDir = scopedGritConfigDirectory(providerRequest);
+      const gritDir = scopedGritConfigDirectory(providerRequest);
+      observedGritDirs.add(gritDir);
+      const config = readFileSync(path.join(gritDir, "grit.yaml"), "utf8");
+      const hasFirst = config.includes(`name: ${JSON.stringify(firstRule.patternName)}`);
+      const observedPattern = hasFirst ? firstRule.patternName : secondRule.patternName;
+      observedPatterns.push(observedPattern);
       expectScopedGritConfig(
-        observedGritDir,
-        [firstRule.patternName, secondRule.patternName],
-        [],
-        ["alpha_controlled_fixture_marker", "beta_controlled_fixture_marker"]
+        gritDir,
+        [observedPattern],
+        [hasFirst ? secondRule.patternName : firstRule.patternName],
+        [hasFirst ? "alpha_controlled_fixture_marker" : "beta_controlled_fixture_marker"]
       );
       return makeHabitatCommandResult(request, {
         stderr: output(
@@ -604,13 +634,66 @@ describe("Grit check provider parser and diagnostics", () => {
       grit: fakeGrit,
     });
 
-    expect(observedRequests).toHaveLength(1);
-    expect(observedRequests[0]?.cwd).toBe(repoRoot);
-    expect(observedRequests[0]?.scanRoots).toEqual(["packages"]);
-    expect(observedGritDir).toBeDefined();
-    if (observedGritDir) expect(existsSync(observedGritDir)).toBe(false);
+    expect(observedRequests).toHaveLength(2);
+    expect(observedRequests.every((request) => request.cwd === repoRoot)).toBe(true);
+    expect(observedRequests.every((request) => request.scanRoots.join(",") === "packages")).toBe(
+      true
+    );
+    expect([...observedPatterns].sort()).toEqual(
+      [firstRule.patternName, secondRule.patternName].sort()
+    );
+    expect(observedGritDirs.size).toBe(2);
+    expect([...observedGritDirs].every((gritDir) => !existsSync(gritDir))).toBe(true);
     expect(results.get(firstRule.id)?.diagnostics[0]?.message).toBe("source one finding");
     expect(results.get(secondRule.id)?.diagnostics[0]?.message).toBe("source two finding");
+  });
+
+  test("fails closed when an explicit scan root is broader than a selected rule root", async () => {
+    const rule = fakeGritRule("narrow-source-rule", "narrow_source_rule", {
+      scanRoots: ["packages/sdk/src"],
+    });
+    let requestCount = 0;
+    const fakeGrit = makeFakeGritProviderService((request) => {
+      requestCount += 1;
+      return makeHabitatCommandResult(request, {
+        stderr: output(JSON.stringify({ paths: [], results: [] })),
+      });
+    });
+
+    const outcomes = await runGritDiagnosticOutcomes([rule], {
+      scanRoots: ["packages"],
+      grit: fakeGrit,
+    });
+
+    expect(requestCount).toBe(0);
+    const outcome = outcomes.get(rule.id);
+    expect(outcome?.kind).toBe("scan-root-refused");
+    if (outcome?.kind !== "scan-root-refused") return;
+    expect(outcome.decision).toEqual({ kind: "refused", reason: "not-approved", root: "packages" });
+  });
+
+  test("fails closed when an explicit scan root has no selected rule overlap", async () => {
+    const rule = fakeGritRule("source-only-rule", "source_only_rule", {
+      scanRoots: ["packages/sdk/src"],
+    });
+    let requestCount = 0;
+    const fakeGrit = makeFakeGritProviderService((request) => {
+      requestCount += 1;
+      return makeHabitatCommandResult(request, {
+        stderr: output(JSON.stringify({ paths: [], results: [] })),
+      });
+    });
+
+    const outcomes = await runGritDiagnosticOutcomes([rule], {
+      scanRoots: ["docs"],
+      grit: fakeGrit,
+    });
+
+    expect(requestCount).toBe(0);
+    const outcome = outcomes.get(rule.id);
+    expect(outcome?.kind).toBe("scan-root-refused");
+    if (outcome?.kind !== "scan-root-refused") return;
+    expect(outcome.decision).toEqual({ kind: "refused", reason: "not-approved", root: "docs" });
   });
 
   test("splits source Grit execution by scan root and keeps rule findings isolated", async () => {
