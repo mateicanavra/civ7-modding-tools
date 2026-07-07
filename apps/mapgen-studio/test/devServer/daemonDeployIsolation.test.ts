@@ -17,17 +17,23 @@ describe("daemon deploy isolation", () => {
     expect(
       buildSwooperMapsStudioDeployPlan({
         requestId: "studio-run-in-game-test",
+        launchConfigId: "studio-current",
+        launchEnvelopeDigest: "launch-envelope-digest-test",
         env: { PATH: "/bin" },
       }).buildTask
     ).toBe("mod-swooper-maps:build:studio-deploy");
     expect(
       buildSwooperMapsStudioDeployPlan({
         requestId: "studio-run-in-game-test",
+        launchConfigId: "studio-current",
+        launchEnvelopeDigest: "launch-envelope-digest-test",
         env: { PATH: "/bin" },
       }).env
     ).toMatchObject({
       SWOOPER_STUDIO_RUN_ID: "studio-run-in-game-test",
       SWOOPER_INCLUDE_STUDIO_CURRENT: "1",
+      SWOOPER_STUDIO_LAUNCH_CONFIG_ID: "studio-current",
+      SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST: "launch-envelope-digest-test",
     });
   });
 });

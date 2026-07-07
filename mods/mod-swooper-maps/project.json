@@ -14,6 +14,12 @@
         },
         {
           "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
@@ -39,6 +45,12 @@
         },
         {
           "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
@@ -101,6 +113,12 @@
         },
         {
           "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": [
