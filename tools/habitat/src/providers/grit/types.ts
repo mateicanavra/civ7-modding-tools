@@ -84,4 +84,5 @@ export interface GritCheckRequestOptions {
 export interface GritDiagnosticOptions {
   requirePatternFinding?: boolean;
   rejectUnexpectedPatternIdentity?: boolean;
+  repoRoot?: string;
 }

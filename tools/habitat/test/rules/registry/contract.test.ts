@@ -25,24 +25,30 @@ import {
 
 describe("rule registry contract", () => {
   test("loads the current manifest corpus through the TypeBox schema", () => {
+    const registryRoot = path.join(repoRoot, ruleRegistryRepoPath);
+    const expectedManifestPaths = discoverRuleManifestPaths(registryRoot).map((manifestPath) =>
+      path.relative(repoRoot, manifestPath)
+    );
     const rules = loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
       isDirectory: isDirectorySync,
       readDirectory: readDirectorySync,
       readText: readTextSync,
     }).rules;
 
-    expect(rules).toHaveLength(109);
-    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(67);
-    expect(
-      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
-    ).toHaveLength(31);
-    expect(
-      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure")
-    ).toHaveLength(5);
-    expect(
-      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer")
-    ).toHaveLength(5);
-    expect(rules.filter((rule) => rule.runner.name === "nx")).toHaveLength(1);
+    const runnerFamilies = new Set(
+      rules.map((rule) =>
+        rule.runner.name === "habitat"
+          ? `${rule.runner.name}:${rule.runner.mode}`
+          : rule.runner.name
+      )
+    );
+
+    expect(rules.length).toBeGreaterThan(0);
+    expect(new Set(rules.map((rule) => rule.id)).size).toBe(rules.length);
+    expect(rules.map((rule) => rule.manifestFilePath).sort()).toEqual(expectedManifestPaths);
+    expect(runnerFamilies).toEqual(
+      new Set(["grit", "habitat:script", "habitat:structure", "habitat:file-layer", "nx"])
+    );
     expect(rules.every((rule) => rule.schemaVersion === 2)).toBe(true);
     expect(rules.every((rule) => rule.operation.kind === "check")).toBe(true);
     expect(rules.every((rule) => rule.id && rule.title && rule.placement && rule.runner)).toBe(
@@ -248,3 +254,16 @@ describe("rule registry contract", () => {
     expect(result).toMatchObject({ ok: true });
   });
 });
+
+function discoverRuleManifestPaths(root: string): readonly string[] {
+  const manifests: string[] = [];
+  for (const entry of readDirectorySync(root)) {
+    const entryPath = path.join(root, entry.name);
+    if (entry.kind === "directory") {
+      manifests.push(...discoverRuleManifestPaths(entryPath));
+    } else if (entry.kind === "file" && entry.name === "rule.json") {
+      manifests.push(entryPath);
+    }
+  }
+  return manifests.sort();
+}

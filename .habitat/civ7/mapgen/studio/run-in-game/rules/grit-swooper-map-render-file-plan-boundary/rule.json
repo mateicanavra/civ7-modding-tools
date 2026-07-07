@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-swooper-map-render-file-plan-boundary",
+  "title": "Grit Swooper Map Render File Plan Boundary",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "Node filesystem write authority outside the Swooper map artifact file-plan writer",
+  "why": "Packet 6 separates pure Swooper map artifact rendering from filesystem writes so catalog generation and future request-local generation can share one deterministic file-plan API.",
+  "remediate": "Keep Swooper artifact rendering in buildSwooperMapArtifactFilePlan and route all filesystem mutation through writeSwooperMapArtifactFilePlan(plan, { outputRoot }).",
+  "message": "Swooper map artifact filesystem ownership drifted from the file-plan writer boundary.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+        "mods/mod-swooper-maps/scripts/map-artifacts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+    "mods/mod-swooper-maps/scripts/map-artifacts"
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/pattern.md"
+    },
+    "patternName": "grit_swooper_map_render_file_plan_boundary"
+  }
+}

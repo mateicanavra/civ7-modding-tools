@@ -1,4 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { defaultGritCommandTimeoutMs } from "@habitat/cli/providers/grit/constants";
 import { gritRuleResultsFromReport } from "@habitat/cli/providers/grit/diagnostics";
@@ -64,22 +65,54 @@ function runGritDiagnosticOutcomes(
   );
 }
 
-function gritDirFromRequest(request: HabitatProcessRequest): string {
-  const index = request.argv.indexOf("--grit-dir");
-  if (index < 0) throw new Error(`Missing --grit-dir in ${request.argv.join(" ")}`);
-  const gritDir = request.argv[index + 1];
-  if (!gritDir) throw new Error(`Missing --grit-dir value in ${request.argv.join(" ")}`);
-  return gritDir;
-}
-
-function gritConfigFromRequest(request: HabitatProcessRequest): string {
-  return readFileSync(path.join(gritDirFromRequest(request), "grit.yaml"), "utf8");
-}
-
 function requestArgvWithoutGritDir(request: HabitatProcessRequest): readonly string[] {
   const index = request.argv.indexOf("--grit-dir");
+  expect(index).toBe(-1);
   if (index < 0) return request.argv;
   return request.argv.filter((_, itemIndex) => itemIndex !== index && itemIndex !== index + 1);
+}
+
+function absoluteScanRoot(scanRoot: string): string {
+  return path.resolve(repoRoot, scanRoot);
+}
+
+function materializedPatternPathFromRequest(
+  request: HabitatProcessRequest,
+  patternName: string
+): string {
+  return path.join(request.cwd, ".grit", "patterns", `${patternName}.md`);
+}
+
+function materializedPatternFromRequest(
+  request: HabitatProcessRequest,
+  patternName: string
+): string {
+  return readFileSync(materializedPatternPathFromRequest(request, patternName), "utf8");
+}
+
+function materializedPatternNamesFromRequest(request: HabitatProcessRequest): readonly string[] {
+  return readdirSync(path.join(request.cwd, ".grit", "patterns")).sort();
+}
+
+function habitatGritTempDirs(): Set<string> {
+  return new Set(
+    readdirSync(tmpdir())
+      .filter((entry) => entry.startsWith("habitat-grit-check-"))
+      .map((entry) => path.join(tmpdir(), entry))
+  );
+}
+
+function expectMarkdownPatternMaterialized(
+  request: HabitatProcessRequest,
+  rule: RuleSourceFacts
+): void {
+  const materializedPattern = materializedPatternFromRequest(request, rule.patternName);
+  expect(request.argv).not.toContain("--grit-dir");
+  expect(existsSync(path.join(request.cwd, ".grit", "grit.yaml"))).toBe(false);
+  expect(materializedPattern).toContain("---\nlevel: error\n---");
+  expect(materializedPattern).toContain(`# ${rule.id}`);
+  expect(materializedPattern).toContain("```grit");
+  expect(materializedPattern).not.toContain("body: |");
 }
 
 describe("Grit check provider parser and diagnostics", () => {
@@ -237,6 +270,35 @@ describe("Grit check provider parser and diagnostics", () => {
         baselined: false,
       },
     ]);
+  });
+
+  test("normalizes absolute Grit diagnostic paths through repoRoot", () => {
+    const rule = fakeGritRule(
+      "enforce_adapter_only_base_standard_imports",
+      "adapter_base_standard_import"
+    );
+    const result = gritRuleResultsFromReport(
+      [rule],
+      {
+        paths: [absoluteScanRoot("packages/example/src/demo.ts")],
+        results: [
+          {
+            local_name: "adapter_base_standard_import",
+            path: absoluteScanRoot("packages/example/src/demo.ts"),
+            start: { line: 5 },
+            extra: { message: "absolute adapter finding" },
+          },
+        ],
+      },
+      { repoRoot }
+    ).get(rule.id);
+
+    expect(result?.diagnostics[0]).toMatchObject({
+      ruleId: rule.id,
+      path: "packages/example/src/demo.ts",
+      line: 5,
+      message: "absolute adapter finding",
+    });
   });
 
   test("keeps wrong, missing, duplicate, and outside requested pattern findings distinct", () => {
@@ -485,14 +547,15 @@ describe("Grit check provider parser and diagnostics", () => {
     const fakeGrit = makeFakeGritProviderService(
       (request) => {
         observedRequest = request;
+        expectMarkdownPatternMaterialized(request, rule);
         return makeHabitatCommandResult(request, {
           stderr: output(
             JSON.stringify({
-              paths: ["packages/example/src/demo.ts"],
+              paths: [absoluteScanRoot("packages/example/src/demo.ts")],
               results: [
                 {
                   local_name: "adapter_base_standard_import",
-                  path: "packages/example/src/demo.ts",
+                  path: absoluteScanRoot("packages/example/src/demo.ts"),
                   start: { line: 1 },
                   extra: { message: "adapter finding" },
                 },
@@ -511,24 +574,22 @@ describe("Grit check provider parser and diagnostics", () => {
 
     expect(observedRequest).toMatchObject({
       executable: `${repoRoot}/node_modules/.bin/grit`,
-      cwd: repoRoot,
-      scanRoots: ["packages"],
+      scanRoots: [absoluteScanRoot("packages")],
       timeoutMs: defaultGritCommandTimeoutMs,
       cachePolicy: {
         mode: "isolated",
         observableStatus: "unknown",
       },
     });
+    expect(observedRequest?.cwd).not.toBe(repoRoot);
+    expect(path.basename(observedRequest?.cwd ?? "")).toContain("habitat-grit-check-");
     expect(observedRequest ? requestArgvWithoutGritDir(observedRequest) : []).toEqual([
       "--json",
       "check",
       "--level",
       "error",
-      "packages",
+      absoluteScanRoot("packages"),
     ]);
-    expect(observedRequest ? gritDirFromRequest(observedRequest) : "").toContain(
-      "habitat-grit-check-"
-    );
     expect(observedRequest?.cachePolicy?.cacheDir).toBe(`${repoRoot}/.habitat/cache/patterns`);
     expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
     expect(observedRequest?.env).toMatchObject({
@@ -544,16 +605,17 @@ describe("Grit check provider parser and diagnostics", () => {
     });
   });
 
-  test("runs broad source selections through one materialized Grit catalog per rule and scan root", async () => {
+  test("runs broad source selections through one materialized markdown pattern per rule and scan root", async () => {
     const firstRule = fakeGritRule("source-one", "source_one", { scanRoots: ["packages"] });
     const secondRule = fakeGritRule("source-two", "source_two", { scanRoots: ["packages"] });
     const observedRequests: HabitatProcessRequest[] = [];
-    const observedConfigs: string[] = [];
+    const observedPatterns: string[] = [];
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
-      const gritConfig = gritConfigFromRequest(request);
-      observedConfigs.push(gritConfig);
-      const localName = gritConfig.includes('name: "source_one"') ? "source_one" : "source_two";
+      const localName = existsSync(materializedPatternPathFromRequest(request, "source_one"))
+        ? "source_one"
+        : "source_two";
+      observedPatterns.push(materializedPatternFromRequest(request, localName));
       return makeHabitatCommandResult(request, {
         stderr: output(
           JSON.stringify({
@@ -580,24 +642,50 @@ describe("Grit check provider parser and diagnostics", () => {
 
     expect(observedRequests).toHaveLength(2);
     expect(observedRequests.map(requestArgvWithoutGritDir)).toEqual([
-      ["--json", "check", "--level", "error", "packages"],
-      ["--json", "check", "--level", "error", "packages"],
+      ["--json", "check", "--level", "error", absoluteScanRoot("packages")],
+      ["--json", "check", "--level", "error", absoluteScanRoot("packages")],
     ]);
-    expect(observedRequests.every((request) => request.cwd === repoRoot)).toBe(true);
-    expect(
-      observedRequests.every((request) =>
-        gritDirFromRequest(request).includes("habitat-grit-check-")
-      )
-    ).toBe(true);
-    expect(
-      observedRequests.every((request) => !existsSync(path.dirname(gritDirFromRequest(request))))
-    ).toBe(true);
-    expect(observedConfigs).toEqual([
-      expect.stringContaining('name: "source_one"'),
-      expect.stringContaining('name: "source_two"'),
-    ]);
+    expect(observedRequests.every((request) => request.cwd !== repoRoot)).toBe(true);
+    expect(observedRequests.every((request) => path.isAbsolute(request.scanRoots[0] ?? ""))).toBe(
+      true
+    );
+    expect(observedRequests.every((request) => !existsSync(request.cwd))).toBe(true);
+    expect(observedPatterns).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("# source-one"),
+        expect.stringContaining("# source-two"),
+      ])
+    );
+    expect(observedPatterns.every((pattern) => pattern.includes("```grit"))).toBe(true);
+    expect(observedPatterns.every((pattern) => !pattern.includes("body: |"))).toBe(true);
     expect(results.get(firstRule.id)?.diagnostics[0]?.message).toBe("source one finding");
     expect(results.get(secondRule.id)?.diagnostics[0]?.message).toBe("source two finding");
+  });
+
+  test("removes the materialization temp root when selected pattern loading fails", async () => {
+    const before = habitatGritTempDirs();
+    const missingPatternRule = fakeGritRule("missing-pattern", "missing_pattern", {
+      runner: {
+        name: "grit",
+        files: {
+          pattern: ".habitat/does-not-exist/missing-pattern.md",
+        },
+        patternName: "missing_pattern",
+      },
+    });
+
+    const results = await runGritRules([missingPatternRule]);
+
+    expect(results.get(missingPatternRule.id)).toMatchObject({
+      exitCode: 1,
+      diagnostics: [
+        {
+          ruleId: missingPatternRule.id,
+          severity: "error",
+        },
+      ],
+    });
+    expect([...habitatGritTempDirs()].filter((entry) => !before.has(entry))).toEqual([]);
   });
 
   test("does not include narrow-root rules in broader sibling scan-root batches", async () => {
@@ -609,12 +697,12 @@ describe("Grit check provider parser and diagnostics", () => {
     });
     const observedRequests: Array<{
       readonly scanRoot: string;
-      readonly gritConfig: string;
+      readonly patternNames: readonly string[];
     }> = [];
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push({
-        scanRoot: request.scanRoots[0] ?? "",
-        gritConfig: gritConfigFromRequest(request),
+        scanRoot: toRepoRelative(request.scanRoots[0] ?? ""),
+        patternNames: materializedPatternNamesFromRequest(request),
       });
       return makeHabitatCommandResult(request, {
         stderr: output(JSON.stringify({ paths: request.scanRoots, results: [] })),
@@ -630,10 +718,8 @@ describe("Grit check provider parser and diagnostics", () => {
     const stageBatch = observedRequests.find(
       (request) => request.scanRoot === "mods/mod-swooper-maps/src/recipes/standard/stages"
     );
-    expect(broadBatch?.gritConfig).toContain('name: "source_wide"');
-    expect(broadBatch?.gritConfig).not.toContain('name: "stage_only"');
-    expect(stageBatch?.gritConfig).toContain('name: "stage_only"');
-    expect(stageBatch?.gritConfig).not.toContain('name: "source_wide"');
+    expect(broadBatch?.patternNames).toEqual(["source_wide.md"]);
+    expect(stageBatch?.patternNames).toEqual(["stage_only.md"]);
     expect(results.get(broadRule.id)).toEqual({ exitCode: 0, diagnostics: [] });
     expect(results.get(stageRule.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
@@ -648,11 +734,14 @@ describe("Grit check provider parser and diagnostics", () => {
     const observedRequests: HabitatProcessRequest[] = [];
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
+      const isPackagesScan = request.scanRoots.some(
+        (scanRoot) => toRepoRelative(scanRoot) === "packages/sdk/src"
+      );
       return makeHabitatCommandResult(request, {
         stderr: output(
           JSON.stringify({
             paths: request.scanRoots,
-            results: request.scanRoots.includes("packages/sdk/src")
+            results: isPackagesScan
               ? [
                   {
                     local_name: "packages_rule",
@@ -680,16 +769,23 @@ describe("Grit check provider parser and diagnostics", () => {
 
     expect(observedRequests.map(requestArgvWithoutGritDir).sort()).toEqual(
       [
-        ["--json", "check", "--level", "error", "mods/mod-swooper-maps/src/domain"],
-        ["--json", "check", "--level", "error", "packages/sdk/src"],
+        [
+          "--json",
+          "check",
+          "--level",
+          "error",
+          absoluteScanRoot("mods/mod-swooper-maps/src/domain"),
+        ],
+        ["--json", "check", "--level", "error", absoluteScanRoot("packages/sdk/src")],
       ].sort()
     );
-    expect(observedRequests.every((request) => request.cwd === repoRoot)).toBe(true);
+    expect(observedRequests.every((request) => request.cwd !== repoRoot)).toBe(true);
     expect(
-      observedRequests.every((request) =>
-        gritDirFromRequest(request).includes("habitat-grit-check-")
-      )
+      observedRequests.every((request) => request.argv.every((arg) => arg !== "--grit-dir"))
     ).toBe(true);
+    expect(observedRequests.every((request) => request.scanRoots.every(path.isAbsolute))).toBe(
+      true
+    );
     expect(results.get(packagesRule.id)?.diagnostics).toEqual([
       {
         ruleId: packagesRule.id,
@@ -725,8 +821,10 @@ describe("Grit check provider parser and diagnostics", () => {
               {
                 local_name: "multi_root_rule",
                 path: `${request.scanRoots[0]}/demo.ts`,
-                start: { line: request.scanRoots[0]?.includes("recipes") ? 3 : 4 },
-                extra: { message: `${request.scanRoots[0]} finding` },
+                start: {
+                  line: toRepoRelative(request.scanRoots[0] ?? "").includes("recipes") ? 3 : 4,
+                },
+                extra: { message: `${toRepoRelative(request.scanRoots[0] ?? "")} finding` },
               },
             ],
           })
@@ -963,14 +1061,15 @@ Processed 1 files and found 1 matches
     const fakeGrit = makeFakeGritProviderService((request) => {
       observedRequests.push(request);
       if (request.argv[0] === "--json") {
+        expectMarkdownPatternMaterialized(request, sourceRule);
         return makeHabitatCommandResult(request, {
           stderr: output(
             JSON.stringify({
-              paths: ["mods/mod-swooper-maps/src/maps/demo.ts"],
+              paths: [absoluteScanRoot("mods/mod-swooper-maps/src/maps/demo.ts")],
               results: [
                 {
                   local_name: "domain_deep_import",
-                  path: "mods/mod-swooper-maps/src/maps/demo.ts",
+                  path: absoluteScanRoot("mods/mod-swooper-maps/src/maps/demo.ts"),
                   start: { line: 4 },
                   extra: { message: "source finding" },
                 },
@@ -998,12 +1097,10 @@ Processed 2 files and found 1 matches
       "check",
       "--level",
       "error",
-      "mods/mod-swooper-maps/src/maps",
+      absoluteScanRoot("mods/mod-swooper-maps/src/maps"),
     ]);
-    expect(observedRequests[0]?.cwd).toBe(repoRoot);
-    expect(observedRequests[0] ? gritDirFromRequest(observedRequests[0]) : "").toContain(
-      "habitat-grit-check-"
-    );
+    expect(observedRequests[0]?.cwd).not.toBe(repoRoot);
+    expect(path.basename(observedRequests[0]?.cwd ?? "")).toContain("habitat-grit-check-");
     expect(observedRequests[1]?.argv.slice(0, 2)).toEqual(["apply", relocatedPatternPath]);
     expect(observedRequests[1]?.argv).toContain("docs");
     expect(observedRequests[1]?.argv.slice(-4)).toEqual([
@@ -1068,7 +1165,7 @@ Processed 2 files and found 1 matches
     });
 
     expect(observedRequests.map((request) => request.argv[0])).toEqual(["--json", "check"]);
-    expect(observedRequests[0]?.scanRoots).toEqual(["packages"]);
+    expect(observedRequests[0]?.scanRoots).toEqual([absoluteScanRoot("packages")]);
     expect(observedRequests[1]?.scanRoots).toEqual(["docs/PROCESS.md"]);
     expect(outcomes.get(sourceRule.id)?.kind).toBe("findings");
     expect(outcomes.get(docsRule.id)?.kind).toBe("findings");

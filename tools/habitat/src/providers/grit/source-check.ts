@@ -93,16 +93,18 @@ function runSourcePatternCheckBatchEffect(
 
   return Effect.scoped(
     materializeGritConfig(selectedRules, options.repoRoot).pipe(
-      Effect.flatMap(({ gritDir }) =>
-        gritCheckProgram(scanRoots, {
-          repoRoot: options.repoRoot,
-          grit: options.grit,
-          cacheMode: options.cacheMode,
-          requireObservableCacheStatus: options.requireObservableCacheStatus,
-          outputFormat: "json",
-          cwd: options.repoRoot,
-          gritDir,
-        })
+      Effect.flatMap(({ tempRoot }) =>
+        gritCheckProgram(
+          scanRoots.map((scanRoot) => path.resolve(options.repoRoot, scanRoot)),
+          {
+            repoRoot: options.repoRoot,
+            grit: options.grit,
+            cacheMode: options.cacheMode,
+            requireObservableCacheStatus: options.requireObservableCacheStatus,
+            outputFormat: "json",
+            cwd: tempRoot,
+          }
+        )
       )
     )
   ).pipe(
@@ -115,11 +117,10 @@ function runSourcePatternCheckBatchEffect(
         ),
       onSuccess: (acquisition) => {
         if (acquisition.kind === "parsed") {
-          return gritDiagnosticOutcomesFromReport(
-            selectedRules,
-            acquisition.report,
-            options.diagnostics
-          );
+          return gritDiagnosticOutcomesFromReport(selectedRules, acquisition.report, {
+            ...options.diagnostics,
+            repoRoot: options.repoRoot,
+          });
         }
         if (acquisition.kind === "scan-root-refused") {
           return new Map(
@@ -153,45 +154,51 @@ function runSourcePatternCheckBatchEffect(
 
 function materializeGritConfig(selectedRules: readonly RuleSourceFacts[], repoRoot: string) {
   return Effect.acquireRelease(
-    Effect.sync(() => {
+    Effect.try(() => {
       const tempRoot = mkdtempSync(path.join(tmpdir(), "habitat-grit-check-"));
-      const gritDir = path.join(tempRoot, ".grit");
-      mkdirSync(gritDir, { recursive: true });
-      const configPath = path.join(gritDir, "grit.yaml");
-      writeFileSync(configPath, renderSelectedGritConfig(selectedRules, repoRoot));
-      return { gritDir, tempRoot };
+      return { tempRoot };
     }),
     ({ tempRoot }) => Effect.sync(() => rmSync(tempRoot, { recursive: true, force: true }))
-  ).pipe(Effect.map(({ gritDir }) => ({ gritDir })));
+  ).pipe(
+    Effect.tap(({ tempRoot }) =>
+      Effect.try(() => {
+        const gritDir = path.join(tempRoot, ".grit");
+        const patternsDir = path.join(gritDir, "patterns");
+        mkdirSync(patternsDir, { recursive: true });
+        for (const rule of selectedRules) {
+          writeFileSync(
+            path.join(patternsDir, `${rule.patternName}.md`),
+            renderSelectedGritPattern(rule, repoRoot)
+          );
+        }
+      })
+    )
+  );
 }
 
-function renderSelectedGritConfig(selectedRules: readonly RuleSourceFacts[], repoRoot: string) {
-  const patternEntries = selectedRules.map((rule) => {
-    const source = path.join(repoRoot, rule.runner.files.pattern);
-    const contents = readFileSync(source, "utf8");
-    const body = extractGritBody(contents, source);
-    return [
-      `  - name: ${JSON.stringify(rule.patternName)}`,
-      `    title: ${JSON.stringify(rule.id)}`,
-      "    level: error",
-      "    body: |",
-      indentYamlBlock(body),
-    ].join("\n");
-  });
-  return ["version: 0.0.2", "patterns:", ...patternEntries, ""].join("\n");
+function renderSelectedGritPattern(rule: RuleSourceFacts, repoRoot: string) {
+  const source = path.join(repoRoot, rule.runner.files.pattern);
+  const contents = readFileSync(source, "utf8");
+  const body = extractGritBody(contents, source);
+  return [
+    "---",
+    "level: error",
+    "---",
+    `# ${rule.id}`,
+    "",
+    rule.message,
+    "",
+    "```grit",
+    body,
+    "```",
+    "",
+  ].join("\n");
 }
 
 function extractGritBody(contents: string, source: string) {
   const match = contents.match(/```grit\n([\s\S]*?)\n```/);
   if (!match) throw new Error(`Missing Grit code block in ${source}`);
   return match[1] ?? "";
-}
-
-function indentYamlBlock(body: string) {
-  return body
-    .split("\n")
-    .map((line) => `      ${line}`)
-    .join("\n");
 }
 
 function mergeBatchOutcomes(
