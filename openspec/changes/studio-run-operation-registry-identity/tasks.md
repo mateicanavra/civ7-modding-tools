@@ -24,12 +24,12 @@
 - [x] 3.2 Add behavior tests for active Run in Game single-flight conflicts,
       Save/Deploy deployed-mod write conflicts, and lease release.
 - [x] 3.3 Add restart reconciliation behavior tests.
-- [ ] 3.4 Run and record live Studio endpoint checks for request-id admission,
+- [x] 3.4 Run and record live Studio endpoint checks for request-id admission,
       same-content repeat admission after terminalization, and active ownership
       conflict projection.
 - [x] 3.5 Register SA-02 `grit-studio-run-operation-identity-owner` with
       Pattern Authority metadata from the structural authority matrix.
-- [ ] 3.6 Record verification evidence for every declared gate in
+- [x] 3.6 Record verification evidence for every declared gate in
       `workstream/verification-evidence.md`; this packet does not close with
       skipped gates.
 - [x] 3.7 Run and record the required TypeScript refactoring, code
