@@ -8,11 +8,7 @@ import {
   runInGameRequiresProcessRestart,
 } from "@swooper/mapgen-studio-ui";
 import { describe, expect, it } from "vitest";
-import {
-  formatRunInGameDiagnostics,
-  isRunInGameTerminalPhase,
-  kindForRunInGamePhase,
-} from "../../src/features/runInGame/status";
+import { isRunInGameTerminalPhase, kindForRunInGamePhase } from "../../src/features/runInGame/status";
 
 describe("Run in Game status helpers", () => {
   it("classifies running and terminal phases", () => {
@@ -26,26 +22,6 @@ describe("Run in Game status helpers", () => {
     expect(formatRunInGamePhaseLabel("preparing-civ7")).toBe("Preparing Civ7");
     expect(formatRunInGamePhaseLabel("starting-game")).toBe("Starting Game");
     expect(formatRunInGamePhaseLabel("observing-runtime")).toBe("Observing Runtime");
-  });
-
-  it("serializes stable copyable diagnostics", () => {
-    const status: RunInGameOperationStatus = {
-      requestId: "studio-run-in-game-test",
-      phase: "failed",
-      status: "failed",
-      safeFailureCategory: "runtime-control",
-      diagnosticsId: "run-diagnostics-studio-run-in-game-test",
-      recoveryActions: ["copy-diagnostics", "retry-run"],
-      createdAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      terminalAt: "2026-06-01T00:00:01.000Z",
-    };
-
-    const diagnostics = formatRunInGameDiagnostics(status);
-    expect(diagnostics).toContain('"requestId": "studio-run-in-game-test"');
-    expect(diagnostics).toContain('"phase": "failed"');
-    expect(diagnostics).toContain('"safeFailureCategory": "runtime-control"');
-    expect(diagnostics).not.toContain("studio-current");
   });
 
   it("marks process-restart recovery as an explicit Run in Game action", () => {

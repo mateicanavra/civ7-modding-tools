@@ -28,7 +28,6 @@ import {
   type RunInGameSourceSnapshot,
   relationForRunInGameOperation,
 } from "../../features/runInGame/clientState";
-import { formatRunInGameDiagnostics } from "../../features/runInGame/status";
 import { orpcClient } from "../../lib/orpc";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
@@ -114,26 +113,11 @@ export type UseRunInGameResult = {
  * (`syncStudioFromLiveGame`), the diagnostics-copy handler, and the run-in-game
  * terminal-toast effect.
  *
- * This is an "atomic move WITH contract": the moved bodies are byte-for-byte
- * behaviorally identical, and the sync-back path CALLS two contracts owned by
- * `usePresetLifecycle` (`applyAuthoringSnapshot`) — that one ordered authoring
- * write is threaded in, not re-implemented here.
- *
- * Cycle-break (design.md §7.6): `provedRunInGameSource` and
- * `runInGameMaterializationMode` are HOST-computed and threaded IN — this hook does
- * NOT own them. `displayedPresetOptions`/`studioMatchesProvedLiveSource`/
- * `liveGameStudioRelation` stay host.
- *
- * Load-bearing invariants preserved verbatim from the prior host body:
- * - RIG-2: `runInGameMaterializationMode` is consumed render-time (prop), never an
- *   effect-assigned ref — durable/disposable game-file routing is security-adjacent.
- * - RIG-4: the fingerprint includes `materializationMode`.
- * - RIG-5: `syncStudioFromLiveGame` shapes the snapshot and calls
- *   `applyAuthoringSnapshot` — the 5-setter ORDER lives in that contract.
- * - RIG-6: the sync busy-gate + silent-when-status≠ok guards stay exact.
- * - RIG-7: the non-proved path applies ONLY seed + setup suggestions.
- * - RIG-1/3: the fingerprint/relation pure logic stays in `features/runInGame/*`.
- * - D1: the hardcoded `recipeId` in `handleRunInGame` is left untouched (out of scope).
+ * The hook is deliberately a coordinator, not a runtime truth owner: source
+ * proof and materialization mode are computed by the host and threaded in,
+ * authoring writes go through `usePresetLifecycle`, and private diagnostics are
+ * copied only through the explicit server lookup when the public status exposes
+ * a diagnostics id.
  */
 export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
   const {
@@ -435,13 +419,14 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
 
   const copyRunInGameDiagnostics = useCallback(async () => {
     if (!runInGameOperation) return;
+    if (runInGameOperation.diagnosticsId === undefined) {
+      toast("Run in Game diagnostics are not available yet", { variant: "info" });
+      return;
+    }
     try {
-      const diagnostics =
-        runInGameOperation.diagnosticsId === undefined
-          ? formatRunInGameDiagnostics(runInGameOperation)
-          : await orpcClient.runInGame
-              .diagnostics({ diagnosticsId: runInGameOperation.diagnosticsId })
-              .then((result: RunDiagnosticsLookupResult) => JSON.stringify(result, null, 2));
+      const diagnostics = await orpcClient.runInGame
+        .diagnostics({ diagnosticsId: runInGameOperation.diagnosticsId })
+        .then((result: RunDiagnosticsLookupResult) => JSON.stringify(result, null, 2));
       await navigator.clipboard.writeText(diagnostics);
       toast("Run in Game diagnostics copied", { variant: "info" });
     } catch (err) {

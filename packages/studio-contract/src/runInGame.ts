@@ -55,6 +55,15 @@ export const runInGameOperationKind = Type.Union([
   Type.Literal("cancelled"),
 ]);
 
+const runInGameRunningPhase = Type.Union([
+  Type.Literal("resolving-source"),
+  Type.Literal("generating-artifacts"),
+  Type.Literal("deploying"),
+  Type.Literal("preparing-civ7"),
+  Type.Literal("starting-game"),
+  Type.Literal("observing-runtime"),
+]);
+
 // RunInGameFileIdentity
 export const fileIdentity = Type.Object(
   {
@@ -422,26 +431,62 @@ export const exactAuthorshipProof = Type.Object(
 );
 export type RunInGameExactAuthorshipProof = Static<typeof exactAuthorshipProof>;
 
-/**
- * `PublicRunStatus` is the only public Run in Game operation projection.
- * Developer diagnostics, source snapshots, generated artifacts, attribution,
- * commands, paths, and raw errors are available only through explicit
- * diagnostics lookup.
- */
-export const publicRunStatusTypeSchema = Type.Object(
-  {
+const publicRunStatusBaseFields = {
     requestId: Type.String(),
-    status: runInGameOperationKind,
-    phase: runInGamePhase,
-    safeFailureCategory: Type.Optional(runInGameSafeFailureCategory),
     diagnosticsId: Type.Optional(Type.String()),
     recoveryActions: Type.Array(studioRecoveryActionSchema),
     createdAt: Type.String(),
     updatedAt: Type.String(),
-    terminalAt: Type.Optional(Type.String()),
-  },
-  { additionalProperties: false }
-);
+} as const;
+
+/**
+ * The only public Run in Game operation projection.
+ *
+ * Status is the discriminant: running statuses can only expose live phases,
+ * successful terminals can only expose `completed`, and abnormal terminals must
+ * carry a safe public failure category. Private diagnostics, paths, commands,
+ * attribution, source snapshots, generated artifacts, and raw errors are served
+ * only through explicit diagnostics lookup.
+ */
+export const publicRunStatusTypeSchema = Type.Union([
+  Type.Object(
+    {
+      ...publicRunStatusBaseFields,
+      status: Type.Literal("running"),
+      phase: runInGameRunningPhase,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...publicRunStatusBaseFields,
+      status: Type.Literal("completed"),
+      phase: Type.Literal("completed"),
+      terminalAt: Type.String(),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...publicRunStatusBaseFields,
+      status: Type.Literal("failed"),
+      phase: Type.Literal("failed"),
+      safeFailureCategory: runInGameSafeFailureCategory,
+      terminalAt: Type.String(),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...publicRunStatusBaseFields,
+      status: Type.Literal("cancelled"),
+      phase: Type.Literal("cancelled"),
+      safeFailureCategory: runInGameSafeFailureCategory,
+      terminalAt: Type.String(),
+    },
+    { additionalProperties: false }
+  ),
+]);
 export type PublicRunStatus = Static<typeof publicRunStatusTypeSchema>;
 
 // Canonical operation status export for callers that consume the public Run in

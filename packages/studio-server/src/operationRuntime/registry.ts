@@ -65,9 +65,10 @@ export type RunInGameTransition =
       result?: unknown;
       materialization?: RunInGameMaterializationStatus;
       exactAuthorshipProof?: RunInGameExactAuthorshipProof;
-    }>;
+    }>
+  | Readonly<{ phase: "cancelled" }>;
 
-export type RunInGameFailurePhase = Exclude<RunInGameTransition["phase"], "complete">;
+export type RunInGameFailurePhase = Exclude<RunInGameTransition["phase"], "complete" | "cancelled">;
 
 export type SaveDeployTransition =
   | Readonly<{ phase: "saving"; path?: string }>
