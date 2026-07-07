@@ -123,6 +123,19 @@ describe("studio-server error spine", () => {
     expect(
       mapStudioFailureToDefinedError({
         failure: expired,
+        procedure: "runInGame.cancel",
+        identity,
+      })
+    ).toMatchObject({
+      code: "RUN_IN_GAME_STATUS_NOT_FOUND",
+      status: 404,
+      data: {
+        requestId: "run-1",
+      },
+    });
+    expect(
+      mapStudioFailureToDefinedError({
+        failure: expired,
         procedure: "runInGame.start",
         identity,
       })

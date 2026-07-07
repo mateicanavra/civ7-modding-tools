@@ -9,7 +9,7 @@ import {
   studio,
   typeboxOutputSchemaFromContractProcedure,
 } from "@civ7/studio-contract";
-import { Effect, Layer, ManagedRuntime } from "effect";
+import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 import { afterEach, describe, expect, test } from "vitest";
@@ -23,6 +23,7 @@ import {
 import type { RunInGamePreparedRequest } from "../src/operationRuntime/ports";
 import {
   admitRunInGame,
+  cancelRunInGame,
   getRunInGame,
   makeRegistry,
   markRunInGameDiagnosticsAvailable,
@@ -153,7 +154,7 @@ describe("StudioOperationRuntime", () => {
     expect(persistedTransition.diagnosticsId).toBe(persistedAccepted.diagnosticsId);
   });
 
-  test("projects cancellation through the canonical Run in Game transition surface", async () => {
+  test("projects cancellation through the explicit Run in Game cancellation owner", async () => {
     const now = "2026-06-10T00:00:00.000Z";
     const registry = await Effect.runPromise(
       makeRegistry({
@@ -176,11 +177,11 @@ describe("StudioOperationRuntime", () => {
     );
 
     await Effect.runPromise(
-      transitionRunInGame({
+      cancelRunInGame({
         registry,
         requestId: "run-cancelled",
+        nowMs: Date.parse("2026-06-10T00:00:01.000Z"),
         nowIso: "2026-06-10T00:00:01.000Z",
-        transition: { phase: "cancelled" },
       })
     );
 
@@ -200,6 +201,552 @@ describe("StudioOperationRuntime", () => {
       terminalAt: "2026-06-10T00:00:01.000Z",
     });
     expectTypeboxValid(operationStatusTypeSchema, cancelled);
+  });
+
+  test("cancels an active Run in Game worker after cleanup and emits one terminal event", async () => {
+    const events: StudioEvent[] = [];
+    const deployBlocker = deferred<void>();
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => ({
+          cleanup: async () => {
+            cleanupCalls += 1;
+          },
+        }),
+        deployRunInGame: async () => {
+          await deployBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("deploying");
+
+    const cancelled = await runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+      safeFailureCategory: "operation-cancelled",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(cleanupCalls).toBe(1);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    const current = await runtime.runPromise(service.operationsCurrent);
+    expect(current.runInGame.active).toBeNull();
+    expect(current.runInGame.recent).toContainEqual(cancelled);
+
+    deployBlocker.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await expect(
+      runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
+    ).resolves.toEqual(cancelled);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    expectTypeboxValid(operationStatusTypeSchema, cancelled);
+  });
+
+  test("records Run in Game cancellation cleanup failures only in private diagnostics", async () => {
+    const events: StudioEvent[] = [];
+    const deployBlocker = deferred<void>();
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => ({
+          cleanup: async () => {
+            cleanupCalls += 1;
+            throw new Error("cleanup exploded");
+          },
+        }),
+        deployRunInGame: async () => {
+          await deployBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("deploying");
+
+    const cancelled = await runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+      safeFailureCategory: "operation-cancelled",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(cleanupCalls).toBe(1);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    const privateOperation = await readPrivateRunOperation(
+      runtime,
+      service,
+      cancelled.diagnosticsId
+    );
+    expect(privateOperation.cancellationCleanupFailure).toMatchObject({
+      message: "Run in Game cancellation cleanup failed",
+      diagnostics: {
+        code: "run-in-game-cancel-cleanup-failed",
+        cause: expect.stringContaining("cleanup exploded"),
+      },
+    });
+
+    deployBlocker.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await expect(
+      runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
+    ).resolves.toEqual(cancelled);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    expectTypeboxValid(operationStatusTypeSchema, cancelled);
+  });
+
+  test("cancellation waits for in-flight cleanup before publishing private cleanup diagnostics", async () => {
+    const events: StudioEvent[] = [];
+    const cleanupStarted = deferred<void>();
+    const cleanupBlocker = deferred<void>();
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => ({
+          cleanup: async () => {
+            cleanupCalls += 1;
+            cleanupStarted.resolve();
+            await cleanupBlocker.promise;
+          },
+        }),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await cleanupStarted.promise;
+
+    const cancellation = runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
+
+    cleanupBlocker.reject(new Error("in-flight cleanup failed"));
+    const cancelled = await cancellation;
+
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+      safeFailureCategory: "operation-cancelled",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(cleanupCalls).toBe(1);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    const privateOperation = await readPrivateRunOperation(
+      runtime,
+      service,
+      cancelled.diagnosticsId
+    );
+    expect(privateOperation.cancellationCleanupFailure).toMatchObject({
+      diagnostics: {
+        code: "run-in-game-cancel-cleanup-failed",
+        cause: expect.stringContaining("in-flight cleanup failed"),
+      },
+    });
+    expectTypeboxValid(operationStatusTypeSchema, cancelled);
+  });
+
+  test("cancellation during in-flight materialization waits for late cleanup before publishing", async () => {
+    const events: StudioEvent[] = [];
+    const materializationBlocker = deferred<void>();
+    const cleanupStarted = deferred<void>();
+    const cleanupBlocker = deferred<void>();
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => {
+          await materializationBlocker.promise;
+          return {
+            cleanup: async () => {
+              cleanupCalls += 1;
+              cleanupStarted.resolve();
+              await cleanupBlocker.promise;
+            },
+          };
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("generating-artifacts");
+
+    const cancellation = runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
+
+    materializationBlocker.resolve();
+    await cleanupStarted.promise;
+    expect(cleanupCalls).toBe(1);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
+
+    cleanupBlocker.resolve();
+    const cancelled = await cancellation;
+
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+      safeFailureCategory: "operation-cancelled",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    expectTypeboxValid(operationStatusTypeSchema, cancelled);
+  });
+
+  test("synchronous cancellation cleanup throws are recorded in private diagnostics", async () => {
+    const events: StudioEvent[] = [];
+    const deployBlocker = deferred<void>();
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => ({
+          cleanup: () => {
+            throw new Error("sync cleanup exploded");
+          },
+        }),
+        deployRunInGame: async () => {
+          await deployBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("deploying");
+
+    const cancelled = await runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+      safeFailureCategory: "operation-cancelled",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    const privateOperation = await readPrivateRunOperation(
+      runtime,
+      service,
+      cancelled.diagnosticsId
+    );
+    expect(privateOperation.cancellationCleanupFailure).toMatchObject({
+      diagnostics: {
+        code: "run-in-game-cancel-cleanup-failed",
+        cause: expect.stringContaining("sync cleanup exploded"),
+      },
+    });
+    deployBlocker.resolve();
+    expectTypeboxValid(operationStatusTypeSchema, cancelled);
+  });
+
+  test("cancellation does not wait on a blocked worker transition publish", async () => {
+    const events: StudioEvent[] = [];
+    const deployPublishBlocker = deferred<void>();
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      eventPublishBlocker: (event) =>
+        event.type === "operation" &&
+        event.kind === "run-in-game" &&
+        event.status.status === "running" &&
+        event.status.phase === "deploying"
+          ? deployPublishBlocker.promise
+          : undefined,
+      ports: {
+        materializeRunInGame: async () => ({
+          cleanup: async () => {
+            cleanupCalls += 1;
+          },
+        }),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(() => operationPhases(events, accepted.requestId))
+      .toContain("deploying");
+
+    const cancelled = await runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+      safeFailureCategory: "operation-cancelled",
+    });
+    expect(cleanupCalls).toBe(1);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
+    deployPublishBlocker.resolve();
+  });
+
+  test("cancels Run in Game before deployment without stale worker mutation", async () => {
+    const materializeBlocker = deferred<void>();
+    const { runtime } = makeRuntime({
+      ports: {
+        materializeRunInGame: async () => {
+          await materializeBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("generating-artifacts");
+    const cancellation = runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    materializeBlocker.resolve();
+    const cancelled = await cancellation;
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await expect(
+      runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
+    ).resolves.toEqual(cancelled);
+  });
+
+  test("cancels Run in Game during runtime observation after cleanup", async () => {
+    const proofBlocker = deferred<void>();
+    let cleanupCalls = 0;
+    const { runtime } = makeRuntime({
+      ports: {
+        materializeRunInGame: async () => ({
+          cleanup: async () => {
+            cleanupCalls += 1;
+          },
+        }),
+        waitForRunInGameLogProof: async () => {
+          await proofBlocker.promise;
+          return { result: { ok: true } };
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("observing-runtime");
+    const cancelled = await runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+
+    expect(cancelled).toMatchObject({
+      requestId: accepted.requestId,
+      status: "cancelled",
+      phase: "cancelled",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(cleanupCalls).toBe(1);
+    proofBlocker.resolve();
+  });
+
+  test("repeated Run in Game cancellation returns the cancelled terminal without another event", async () => {
+    const events: StudioEvent[] = [];
+    const deployBlocker = deferred<void>();
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        deployRunInGame: async () => {
+          await deployBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("deploying");
+
+    const first = await runtime.runPromise(service.runInGameCancel({ requestId: accepted.requestId }));
+    const terminalEventCount = terminalRunInGameEvents(events, accepted.requestId).length;
+    const repeated = await runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+
+    expect(first).toMatchObject({ status: "cancelled", phase: "cancelled" });
+    expect(repeated).toEqual(first);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(terminalEventCount);
+    deployBlocker.resolve();
+  });
+
+  test("cancelling a terminal Run in Game operation returns the terminal without mutation", async () => {
+    const events: StudioEvent[] = [];
+    const { runtime } = makeRuntime({ eventSink: events });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("completed");
+    const completed = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const terminalEventCount = terminalRunInGameEvents(events, accepted.requestId).length;
+
+    await expect(
+      runtime.runPromise(service.runInGameCancel({ requestId: accepted.requestId }))
+    ).resolves.toEqual(completed);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(terminalEventCount);
+  });
+
+  test("Run in Game cancellation misses use the same safe not-found surface as status", async () => {
+    const { runtime } = makeRuntime();
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const failure = await expectFailure(runtime, service.runInGameCancel({ requestId: "missing" }));
+    expect(failure).toMatchObject({
+      tag: "OperationNotFound",
+      requestId: "missing",
+    });
+    expect(failure).not.toHaveProperty("serverInstanceId");
+    expect(failure).not.toHaveProperty("serverStartedAt");
+  });
+
+  test("caller interruption after Run in Game admission does not cancel the operation", async () => {
+    const events: StudioEvent[] = [];
+    const publishBlocker = deferred<void>();
+    const deployBlocker = deferred<void>();
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      eventPublishBlocker: publishBlocker.promise,
+      ports: {
+        deployRunInGame: async () => {
+          await deployBlocker.promise;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const fiber = await runtime.runPromise(
+      Effect.forkDaemon(service.runInGameStart(runInGameInput()))
+    );
+    await expect
+      .poll(() => {
+        const event = events.find(
+          (entry) => entry.type === "operation" && entry.kind === "run-in-game"
+        );
+        return event?.type === "operation" && event.kind === "run-in-game"
+          ? event.status.requestId
+          : undefined;
+      })
+      .toMatch(/^studio-run-in-game-/);
+    const event = events.find(
+      (entry) => entry.type === "operation" && entry.kind === "run-in-game"
+    );
+    if (event?.type !== "operation" || event.kind !== "run-in-game") {
+      throw new Error("Expected accepted Run in Game event");
+    }
+    const requestId = event.status.requestId;
+
+    const interrupt = runtime.runPromise(Fiber.interrupt(fiber));
+    await expect(
+      runtime.runPromise(service.runInGameStatus({ requestId }))
+    ).resolves.toMatchObject({
+      requestId,
+      status: "running",
+    });
+    publishBlocker.resolve();
+    await interrupt;
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(service.runInGameStatus({ requestId }));
+        return status.phase;
+      })
+      .toBe("deploying");
+    await expect(runtime.runPromise(service.runInGameStatus({ requestId }))).resolves.toMatchObject({
+      requestId,
+      status: "running",
+    });
+    deployBlocker.resolve();
   });
 
   test("reports active operations only in active and excludes them from recent", async () => {
@@ -413,15 +960,17 @@ describe("StudioOperationRuntime", () => {
 
     expect(prepareSetupCalls).toBe(2);
     expect(restartCalls).toBe(1);
-    expect(operationPhases(events, accepted.requestId)).toEqual(
-      expect.arrayContaining([
-        "preparing-civ7",
-        "preparing-civ7",
-        "preparing-civ7",
-        "starting-game",
-        "completed",
-      ])
-    );
+    await expect
+      .poll(() => operationPhases(events, accepted.requestId))
+      .toEqual(
+        expect.arrayContaining([
+          "preparing-civ7",
+          "preparing-civ7",
+          "preparing-civ7",
+          "starting-game",
+          "completed",
+        ])
+      );
   });
 
   test("keeps durable Run in Game launches restart opt-in", async () => {
@@ -2128,9 +2677,13 @@ function makeRuntime(
     civ7?: Partial<Civ7WorkflowControlApi>;
     ttlMs?: number;
     eventSink?: StudioEvent[];
+    eventPublishBlocker?: Promise<void> | ((event: StudioEvent) => Promise<void> | undefined);
   } = {}
 ) {
-  const eventHub = makeEventHub({ eventSink: overrides.eventSink });
+  const eventHub = makeEventHub({
+    eventSink: overrides.eventSink,
+    publishBlocker: overrides.eventPublishBlocker,
+  });
   const runInGameWorkspaceRoot =
     overrides.ports?.runInGameWorkspaceRoot ??
     join(tmpdir(), `studio-operation-runtime-${process.pid}-${++runtimeWorkspaceSequence}`);
@@ -2157,13 +2710,17 @@ function makeEventHub(
   options: Readonly<{
     eventSink?: StudioEvent[];
     publishFailure?: unknown;
+    publishBlocker?: Promise<void> | ((event: StudioEvent) => Promise<void> | undefined);
   }> = {}
 ): StudioEventHubApi {
   return {
     publish: (event) =>
       options.publishFailure === undefined
-        ? Effect.sync(() => {
+        ? Effect.promise(async () => {
             options.eventSink?.push(event);
+            await (typeof options.publishBlocker === "function"
+              ? options.publishBlocker(event)
+              : options.publishBlocker);
           })
         : Effect.fail(options.publishFailure),
     subscribe: () => Effect.die("operation runtime tests do not subscribe to StudioEventHub"),
@@ -2292,6 +2849,16 @@ function terminalSaveDeployEvents(
     (event) =>
       event.type === "operation" &&
       event.kind === "save-deploy" &&
+      event.status.requestId === requestId &&
+      event.status.status !== "running"
+  );
+}
+
+function terminalRunInGameEvents(events: readonly StudioEvent[], requestId: string): StudioEvent[] {
+  return events.filter(
+    (event) =>
+      event.type === "operation" &&
+      event.kind === "run-in-game" &&
       event.status.requestId === requestId &&
       event.status.status !== "running"
   );

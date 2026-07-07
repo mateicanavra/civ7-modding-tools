@@ -9,6 +9,7 @@ import type {
 
 export type RunInGameWorkflowTransitions = Readonly<{
   transition(transition: RunInGameTransition): Effect.Effect<void, StudioRuntimeFailure>;
+  registerCleanup(cleanup: () => Effect.Effect<void, unknown>): Effect.Effect<void, never>;
   fail(
     args: Readonly<{
       phase: RunInGameFailurePhase;

@@ -5,7 +5,7 @@ import {
   type RunInGameRequestStatus,
   validateRunInGameSetupConfig,
 } from "@civ7/studio-contract";
-import { Context, Effect, FiberSet, Layer, type Scope } from "effect";
+import { Context, Effect, Fiber, FiberSet, Layer, type Scope } from "effect";
 import type { StudioInputs, StudioOutputs } from "../context.js";
 import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
 import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
@@ -46,19 +46,22 @@ import {
   admitSaveDeploy,
   adoptRunInGameOperations,
   type Admission,
+  cancelRunInGame,
   ensureAdmissionOpen,
-  failRunInGame,
+  failRunInGameMutation,
   failSaveDeploy,
   getRunInGame,
   getSaveDeploy,
   getState,
   lookupSaveDeployAdmission,
   makeRegistry,
+  markRunInGameCancellationCleanupFailure,
   markDisposed,
   markRunInGameDiagnosticsAvailable,
+  type RunInGameMutation,
   type RunInGameTransition,
   type SaveDeployTransition,
-  transitionRunInGame,
+  transitionRunInGameMutation,
   transitionSaveDeploy,
 } from "./registry.js";
 import { buildStandardRunInGameSourceSnapshotProof } from "./sourceSnapshot.js";
@@ -71,6 +74,9 @@ export interface StudioOperationRuntimeApi {
   readonly runInGameStatus: (
     input: StudioInputs["runInGame"]["status"]
   ) => Effect.Effect<StudioOutputs["runInGame"]["status"], StudioRuntimeFailure>;
+  readonly runInGameCancel: (
+    input: StudioInputs["runInGame"]["cancel"]
+  ) => Effect.Effect<StudioOutputs["runInGame"]["cancel"], StudioRuntimeFailure>;
   readonly runInGameDiagnostics: (
     input: StudioInputs["runInGame"]["diagnostics"]
   ) => Effect.Effect<StudioOutputs["runInGame"]["diagnostics"], never>;
@@ -162,6 +168,8 @@ function makeStudioOperationRuntime(
     const registry = yield* makeRegistry(identity);
     const admissionGate = yield* Effect.makeSemaphore(1);
     const fibers = yield* FiberSet.make<void, never>();
+    const runInGameWorkerFibers = new Map<string, Fiber.RuntimeFiber<void, never>>();
+    const runInGameCleanup = new Map<string, () => Effect.Effect<void, unknown>>();
     const runInGameWorkflow = yield* RunInGameWorkflow;
     const saveDeployWorkflow = yield* SaveDeployWorkflow;
     const autoplayWorkflow = yield* AutoplayWorkflow;
@@ -262,6 +270,81 @@ function makeStudioOperationRuntime(
     const runWorker = (effect: Effect.Effect<void, never>) =>
       FiberSet.run(fibers, effect, { propagateInterruption: false }).pipe(Effect.asVoid);
 
+    const runTrackedRunInGameWorker = (
+      requestId: string,
+      effect: Effect.Effect<void, never>
+    ): Effect.Effect<void, never> =>
+      FiberSet.run(fibers, effect, { propagateInterruption: false }).pipe(
+        Effect.tap((fiber) =>
+          Effect.sync(() => {
+            runInGameWorkerFibers.set(requestId, fiber);
+            fiber.addObserver(() => {
+              if (runInGameWorkerFibers.get(requestId) === fiber) {
+                runInGameWorkerFibers.delete(requestId);
+              }
+            });
+          })
+        ),
+        Effect.asVoid
+      );
+
+    const publishRunMutation = (mutation: RunInGameMutation): Effect.Effect<void, never> => {
+      if (mutation.kind !== "changed") return Effect.void;
+      if (mutation.operation.status === "cancelled") return Effect.void;
+      const cleanupTerminalHandle =
+        mutation.operation.status === "running"
+          ? Effect.void
+          : Effect.sync(() => {
+              runInGameCleanup.delete(mutation.operation.requestId);
+            });
+      return publish(mutation.operation).pipe(Effect.zipRight(cleanupTerminalHandle));
+    };
+
+    const recordRunInGameCleanupFailure = (
+      requestId: string,
+      operationRevision: number,
+      err: unknown
+    ): Effect.Effect<void, never> =>
+      markRunInGameCancellationCleanupFailure({
+        registry,
+        requestId,
+        operationRevision,
+        nowIso: nowIso(),
+        err,
+      }).pipe(
+        Effect.asVoid,
+        Effect.catchAll(() =>
+          Effect.sync(() => {
+            console.error(
+              "[studio-server] failed to record cancelled Run in Game cleanup failure",
+              err
+            );
+          })
+        )
+      );
+
+    const fallbackCleanupRunInGame = (
+      requestId: string,
+      operationRevision: number
+    ): Effect.Effect<void, never> => {
+      const cleanup = runInGameCleanup.get(requestId);
+      if (cleanup === undefined) return Effect.void;
+      return cleanup().pipe(
+        Effect.catchAll((err) => recordRunInGameCleanupFailure(requestId, operationRevision, err))
+      );
+    };
+
+    const interruptRunInGameForCancel = (
+      requestId: string,
+      operationRevision: number
+    ): Effect.Effect<void, never> => {
+      const fiber = runInGameWorkerFibers.get(requestId);
+      if (fiber === undefined) return fallbackCleanupRunInGame(requestId, operationRevision);
+      return Fiber.interruptFork(fiber).pipe(
+        Effect.zipRight(fallbackCleanupRunInGame(requestId, operationRevision))
+      );
+    };
+
     const runInGameWorker = (
       requestId: string,
       input: StudioInputs["runInGame"]["start"],
@@ -273,14 +356,18 @@ function makeStudioOperationRuntime(
         prepared,
         transitions: {
           transition: (transition) => transitionRun(requestId, transition).pipe(Effect.asVoid),
+          registerCleanup: (cleanup) =>
+            Effect.sync(() => {
+              runInGameCleanup.set(requestId, cleanup);
+            }),
           fail: ({ phase, err }) =>
-            failRunInGame({
+            failRunInGameMutation({
               registry,
               requestId,
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publish), Effect.uninterruptible, Effect.asVoid),
+            }).pipe(Effect.flatMap(publishRunMutation), Effect.uninterruptible, Effect.asVoid),
         },
       });
 
@@ -302,8 +389,8 @@ function makeStudioOperationRuntime(
       });
 
     const transitionRun = (requestId: string, transition: RunInGameTransition) =>
-      transitionRunInGame({ registry, requestId, nowIso: nowIso(), transition }).pipe(
-        Effect.flatMap(publish),
+      transitionRunInGameMutation({ registry, requestId, nowIso: nowIso(), transition }).pipe(
+        Effect.flatMap(publishRunMutation),
         Effect.uninterruptible
       );
 
@@ -311,6 +398,14 @@ function makeStudioOperationRuntime(
       transitionSaveDeploy({ registry, requestId, nowIso: nowIso(), transition }).pipe(
         Effect.flatMap(publish),
         Effect.uninterruptible
+      );
+
+    const runInGameInternalForPublish = (
+      requestId: string,
+      fallback: RunInGameInternalOperation
+    ): Effect.Effect<RunInGameInternalOperation, never> =>
+      getState(registry, nowMs(), nowIso(), args.ttlMs).pipe(
+        Effect.map((state) => state.runInGame[requestId] ?? fallback)
       );
 
     const api: StudioOperationRuntimeApi = {
@@ -360,7 +455,8 @@ function makeStudioOperationRuntime(
                   nowIso: nowIso(),
                   ttlMs: args.ttlMs,
                 });
-                yield* runWorker(
+                yield* runTrackedRunInGameWorker(
+                  admitted.operation.requestId,
                   restore(runInGameWorker(admitted.operation.requestId, input, prepared))
                 );
                 return publicOperation;
@@ -382,6 +478,40 @@ function makeStudioOperationRuntime(
           nowIso: nowIso(),
           ttlMs: args.ttlMs,
         }),
+      runInGameCancel: (input) =>
+        admissionGate.withPermits(1)(
+          Effect.uninterruptibleMask(() =>
+            Effect.gen(function* () {
+              const cancellation = yield* cancelRunInGame({
+                registry,
+                requestId: input.requestId,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+              });
+              if (cancellation.kind === "existing") return cancellation.operation;
+              yield* interruptRunInGameForCancel(
+                input.requestId,
+                cancellation.eventOperation.operationRevision
+              );
+              const cancelled = yield* runInGameInternalForPublish(
+                input.requestId,
+                cancellation.eventOperation
+              );
+              yield* publish(cancelled);
+              yield* Effect.sync(() => {
+                runInGameCleanup.delete(input.requestId);
+              });
+              return yield* getRunInGame({
+                registry,
+                requestId: input.requestId,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+              });
+            })
+          )
+        ),
       runInGameDiagnostics: (input) =>
         lookupRunDiagnostics(input.diagnosticsId, { workspaceRoot: runInGameWorkspaceRoot }),
       saveDeployStart: (input) =>

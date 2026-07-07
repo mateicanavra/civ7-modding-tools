@@ -15,6 +15,7 @@ export type ProofBuilder = Readonly<{
       requestId: string;
       input: StudioInputs["runInGame"]["start"];
       prepared: RunInGamePreparedRequest;
+      registerCleanup(cleanup: () => Promise<void>): void;
     }>
   ): Promise<RunInGameMaterialized>;
   buildRunInGameProof(
