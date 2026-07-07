@@ -2,13 +2,14 @@
 
 Packet: `studio-run-public-status-diagnostics`
 
-Status: implemented locally, verification harness green, reviewer-blocker fixes applied, live gates not yet run.
+Status: Packet 1 declared gates complete. Later packet-train live Civ7/generated-content gates remain.
 
 ## What Moved
 
 - `runInGame.start`, `runInGame.status`, operation events, current operations, and UI consumers now use a closed public Run in Game status union: running states cannot carry terminal-only fields, completed states carry `terminalAt`, and abnormal terminal states carry a safe failure category.
 - Run in Game oRPC defined errors now project safe public error data instead of the shared private failure diagnostics shape.
 - Private runtime evidence is persisted under `.mapgen-studio/run-in-game/<requestId>/diagnostics/diagnostics.json` and exposed only by explicit `runInGame.diagnostics({ diagnosticsId })` lookup. Lookup scans request workspaces by public diagnostics id and verifies the record belongs to the owning request directory.
+- The diagnostics workspace root is configured from the daemon repo root instead of the app process cwd; live proof showed the repo-root diagnostics file exists and the app-cwd duplicate does not.
 - Public `diagnosticsId` is now snapshot-gated: the runtime records an internal operation revision and only projects the id when private diagnostics were persisted for that exact revision. Later unpersisted snapshots hide the id even when they share the same timestamp.
 - Diagnostics persistence failure is handled as controlled runtime behavior: the server logs the failed private write, publishes the safe public operation without `diagnosticsId`, and does not turn the write failure into an undeclared oRPC defect.
 - UI status surfaces now render safe failure category and diagnostics id instead of raw errors, setup/deploy internals, source snapshots, materialization details, command output, or exact authorship proof.
@@ -19,14 +20,17 @@ Status: implemented locally, verification harness green, reviewer-blocker fixes 
 
 - `nx run mapgen-studio:test` - pass, 67 files, 378 tests. This was the previously red classify-reported app test gate.
 - `nx run-many -t check --projects=studio-contract,control-studio-server,mapgen-studio-ui,mapgen-studio` - pass.
-- `nx run-many -t test --projects=control-studio-server,mapgen-studio-ui` - pass: `control-studio-server` 86 tests, `mapgen-studio-ui` 168 tests.
+- `nx run-many -t test --projects=control-studio-server,mapgen-studio-ui` - pass: `control-studio-server` 87 tests, `mapgen-studio-ui` 168 tests.
 - `nx run control-studio-server:test -- operationRuntime.test.ts errorSpine.test.ts contractTypeboxSpine.test.ts handler.test.ts` - pass, 66 tests.
+- `nx run control-studio-server:test -- operationRuntime.test.ts` - pass, 37 tests.
 - `nx run mapgen-studio:test -- runInGame/clientState.test.ts runInGame/status.test.ts studioEvents/operationAdoption.test.ts` - pass, 25 tests.
 - `nx run mapgen-studio:test -- controllers/useStudioOperations.test.tsx` - pass, 3 tests.
 - `nx run mapgen-studio-ui:test` - pass, 168 tests.
 - `bun run openspec -- validate studio-run-public-status-diagnostics --strict` - pass.
-- `nx run mapgen-studio:habitat:check` - pass, 7 Studio-owned Habitat rules. This is the graph-owned proof boundary for generated `apps/mapgen-studio/dist` bundle checks because it depends on `mapgen-studio:build`.
-- `bun tools/habitat/bin/dev.ts check --owner mapgen-studio --json` - pass, 7 Studio-owned rules, after the graph-owned build produced `apps/mapgen-studio/dist`; direct Habitat owner checks are read-only and do not build generated app assets.
+- `nx run mapgen-studio:habitat:check` - pass, 8 Studio-owned Habitat rules including SA-01. This is the graph-owned proof boundary for generated `apps/mapgen-studio/dist` bundle checks because it depends on `mapgen-studio:build`.
+- `bun tools/habitat/bin/dev.ts check --owner mapgen-studio --json` - pass, 8 Studio-owned rules, after the graph-owned build produced `apps/mapgen-studio/dist`; direct Habitat owner checks are read-only and do not build generated app assets.
+- `bun tools/habitat/bin/dev.ts check --rule grit-studio-run-public-contract-closed --json` - pass.
+- `bun tools/habitat/bin/dev.ts check --owner mapgen-studio --runner grit --json` - pass, 4 Studio-owned Grit rules.
 - `bun tools/habitat/bin/dev.ts check --rule require_recipe_dag_contract_metadata --json` - pass.
 - `bun tools/habitat/bin/dev.ts check --rule prohibit_recipe_dag_runtime_source_dependencies --json` - pass.
 - `nx run mod-swooper-maps:check` - pass.
@@ -56,6 +60,17 @@ Status: implemented locally, verification harness green, reviewer-blocker fixes 
 - `require_recipe_stage_authoring_file_shape` now permits the new root-level `*-public-config.ts` standard recipe rails while still rejecting stage-local helper bags and raw operation envelope mirroring.
 - `require_recipe_dag_contract_metadata` is a valid guardrail. Public config rails used by the Studio recipe-DAG graph import TypeBox schema syntax directly from `typebox` instead of the broad `@swooper/mapgen-core/authoring` barrel, keeping the graph on contract-safe surfaces.
 - `ensure_studio_worker_bundle_is_browser_safe` is also valid, but it checks generated `apps/mapgen-studio/dist` output. Its authoritative proof path is the Nx-owned `mapgen-studio:habitat:check` target, which depends on `mapgen-studio:build`. Direct Habitat remains read-only and only passes after the build materializes the bundle.
+- SA-01 is registered as Habitat authority at `.habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/`. Its Habitat rule id remains hyphenated per the structural matrix; its runner pattern name is underscore-shaped because Grit pattern names cannot contain hyphens. Hook scope is intentionally omitted and scan roots match the structural matrix: `packages/studio-contract/src` and `packages/studio-server/src/operationRuntime`.
+
+## Live Endpoint Evidence
+
+- Started the actual daemon with `STUDIO_DAEMON_PORT=5199 nx run mapgen-studio:serve-daemon --outputStyle=static`; health and `studio.serverInfo({})` confirmed the public `/rpc` daemon, `runInGameApiVersion: 2`, and command mode `daemon`.
+- `runInGame.start` with an empty seed returned declared public error `RUN_IN_GAME_INVALID`, status `400`, safe failure category `request-validation`, and public recovery actions only.
+- Unknown diagnostics lookup returned `{ ok: false, reason: "not-found" }`.
+- A real admitted `runInGame.start` for `latest-juicy`, seed `1538316415`, map size `MAPSIZE_STANDARD`, player count `6`, resources `balanced`, disposable materialization returned public running status and a diagnostics id.
+- Polling `runInGame.status` for `studio-run-in-game-mr9xl41i-sng-3` showed public phases `deploying` and `preparing-civ7`, then terminal `failed` with safe category `artifact-generation`, `terminalAt`, and no private sections in public status.
+- `runInGame.diagnostics({ diagnosticsId: "run-diagnostics-54ccfe0e-66b9-4689-883e-d9fdcd000634" })` returned the private record by explicit lookup with matching request id and section key `operation`.
+- After daemon restart, server id changed to `studio-server-mr9xvomm-1rsp-1`; the same diagnostics id still resolved from the request diagnostics workspace.
 
 ## Review Lanes
 
@@ -89,10 +104,9 @@ could be renamed to emphasize persisted revision semantics, and the existing
 router helper `statefulFailure(...): any` is still an effect-oRPC constructor
 typing compromise outside this packet's diff.
 
-## Open Gates
+## Remaining Train Gates
 
-The packet is not closed-passed until these gates run:
-
-- Studio live endpoint calls against a running Studio server for the Packet 1 public/private response contract.
-- Packet-specific live endpoint diagnostics lookup using a real `diagnosticsId`.
-- Ultimate packet-train live gate: full target-vocabulary variant matrix and post-start Civilization 7 evidence that the launched game uses generated Studio-run content.
+Packet 1's declared gates are complete. The packet train still remains open
+until later packets satisfy the full target-vocabulary live matrix and
+post-start Civilization 7 evidence that the launched game uses generated
+Studio-run content.
