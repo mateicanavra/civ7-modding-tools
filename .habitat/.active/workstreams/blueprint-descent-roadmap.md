@@ -90,15 +90,14 @@ open. Decision 003 (domain model config law) already sealed the semantics;
 what remains is file grammar. It can fold into descent 2's stack as a second
 slice if its red proves tiny, or stand alone.
 
-Coordination note (2026-07-06): the Studio run-in-game runtime packet train
-(branch `agent-codex-mapgen-studio-runtime-openspec-packets`, merging ahead of
-descent 2) is docs-only at merge time — no `.habitat`, `tools/habitat`, domain,
-or recipe source changes; live rule count stays 112. Its 14 implementation
-packets will later add Studio/Swooper structural-authority rows (SA-01
-through SA-14, including a future Habitat command check). Descent 4 must
-re-census recipe terrain after any runtime packet implementation that touches
-Swooper generation or Nx metadata, and the aggregate-check gate (readiness
-R3, queue entry 8) matters to that packet train too.
+Coordination note (updated 2026-07-07): the Studio run-in-game runtime packet
+train (`agent-codex-mapgen-studio-runtime-openspec-packets`) is advisory
+context for descent 2, not a merge precondition. Readiness R6 scouts the
+current Studio tip and records any deltas that might require end-of-run revisit.
+Descent 4 must still re-census recipe terrain after any runtime packet
+implementation that touches Swooper generation or Nx metadata, and the
+aggregate-check gate (readiness R3, queue entry 8) matters to that packet train
+too.
 
 Descent 4 is the big across move and deliberately not first:
 it must resolve the truth/projection boundary through source-owned contracts

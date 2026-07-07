@@ -20,6 +20,14 @@ Terrain baseline (2026-07-06):
   `default.ts + index.ts`;
 - zero `artifacts.ts` files currently exist inside operation directories.
 
+R6 re-verification (2026-07-07):
+the readiness R6 advisory scout re-ran the seed census on this stack tip and
+reproduced the standard-recipe child list, zero missing operation contracts,
+and the strategy import census. The Studio runtime packet-train remains
+advisory context for final review; its current tip has `.habitat`, tooling,
+domain, and recipe deltas that are not folded into this seed until they land or
+are otherwise selected as this descent's execution base.
+
 ## A. Residual Rule Rows
 
 | Row | Rule | Current state (ledger) | Destination class | Waiting on |

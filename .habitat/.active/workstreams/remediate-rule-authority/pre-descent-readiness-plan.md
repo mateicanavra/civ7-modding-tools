@@ -10,8 +10,9 @@ Purpose:
 land the mechanical runway before the next blueprint descent executes: working
 proof tooling, a smaller residual rule surface, records that match the current
 tree, the descent workspace shape applied, and a clean reconciliation with the
-Studio runtime packet-train merge. Every slice below is adjudicated or purely
-enabling; none requires a new semantic decision beyond what its text states.
+Studio runtime packet-train as advisory context. Every slice below is
+adjudicated or purely enabling; none requires a new semantic decision beyond
+what its text states.
 
 This plan authorizes execution of its own slices. Each slice runs as its own
 layer on this readiness stack (base
@@ -36,8 +37,9 @@ tooling slice (R1, R2, R3) is a layer above the opening packet; R4 and R5 must
 run above the opening packet because they reference and rename its files
 (`.habitat/.active/workstreams/descend-002-domain-operation-interior/`),
 which exist only from `codex/domain-operation-blueprint-descent-opening`
-upward. A slice run below that branch would not find the packet. R6 runs after
-the Studio packet-train merges to `main` and this stack rebases onto it.
+upward. A slice run below that branch would not find the packet. R6 runs on
+this stack using the current Studio packet-train tip as read-only advisory
+input; it no longer waits for that stack to merge to `main`.
 
 Position:
 the operational ledger's `gateState.nextLegalAction` is "Select the next
@@ -51,16 +53,16 @@ independent, non-gating, and should land whenever convenient.
 
 ## Investigation Findings (2026-07-06)
 
-Two fresh read-only lanes (one Codex, one Opus) grounded this plan. Their
-load-bearing findings, so no slice re-derives them:
+Two fresh read-only lanes (one Codex, one Opus) grounded the original version
+of this plan. Their dated findings remain provenance, but the Studio packet
+train finding below is superseded by the 2026-07-07 R6 advisory scout whenever
+the two conflict:
 
-1. The Studio runtime packet-train stack
-   (`agent-codex-mapgen-studio-runtime-openspec-packets`, 2 commits, 80 files,
-   4443 insertions) is docs-only at merge time: OpenSpec packets and indexes,
-   zero changes to `.habitat/**`, `tools/habitat/**`, `mods/mod-swooper-maps/src/domain/**`,
-   or `mods/mod-swooper-maps/src/recipes/**`. Live rule count stays 112 after
-   its merge. Its 14 implementation packets define future structural-authority
-   rows (SA-01 through SA-14) that are not yet live rules.
+1. Superseded Studio note: the 2026-07-06 investigation saw the Studio runtime
+   packet-train as docs-only. The 2026-07-07 R6 advisory scout is now current:
+   the Studio tip has non-empty `.habitat`, `tools/habitat`, domain, and
+   recipe deltas, and its advisory rule manifest count is 116 against
+   `origin/main`'s 112. Treat the R6 receipt as the current Studio scout.
 2. The parked Studio runner worktree's 11 dirty files are a coherent
    Run-in-Game redesign prototype (daemon `--watch` removal; deploy/registry
    semantics; a 639-line untracked proposal doc that the packet train
@@ -308,39 +310,39 @@ Stop conditions:
 review findings against the shape doc that change the grammar — apply the
 repaired grammar, not the draft.
 
-## Slice R6: Post-Merge Reconciliation
+## Slice R6: Advisory Studio-Stack Reconciliation
 
-Gating: yes (executes after the Studio runtime packet-train stack merges to
-`main`; expected before descent execution).
+Gating: yes.
 
 Stack layer: `codex/readiness-r6-post-merge-reconciliation`, above the
-opening packet. Always writes a receipt (a lightweight one if the delta is
-empty); never silently skipped.
+opening packet. Always writes a receipt; never silently skipped.
 
-Base refs (this is the F1 fix — do not diff `0c97517d86...HEAD`, which would
-show this stack's own R1-R5 mutations, not the Studio merge):
-- `PRE` = the `main` tip immediately before the Studio packet-train merges
-  (capture it: `PRE=$(git rev-parse origin/main)` before the merge, or
-  `git merge-base HEAD origin/main` after);
-- `POST` = `origin/main` after the Studio merge.
+Requirement change (2026-07-07):
+R6 no longer waits for the Studio runtime packet-train to merge to `main`.
+The Studio stack remains advisory context. R6 scouts the current Studio tip,
+records any deltas that could affect R1-R5, the R6 proof, or descent-002 seed
+evidence, and carries an explicit end-of-run revisit hook. If that stack later
+lands with materially different content, the final runway review revisits only
+the affected records.
+
+Base refs:
+- `BASE` = current `origin/main`;
+- `STUDIO` = current `agent-codex-mapgen-studio-runtime-openspec-packets` tip;
+- `HEAD` = this readiness stack tip.
 
 Action — two independent checks, a record-truth pass, not a redesign:
 
-Check 1, Studio-merge delta (diff PRE..POST, isolates only what the merge
-added; expected docs-only):
+Check 1, advisory Studio-stack delta (diff BASE..STUDIO, read-only context):
 
 ```bash
-git diff --name-status "$PRE".."$POST" -- .habitat tools/habitat package.json bun.lock nx.json
-git diff --name-status "$PRE".."$POST" -- mods/mod-swooper-maps/src/domain mods/mod-swooper-maps/src/recipes
-# rule count on main is unchanged by the Studio merge (the merge adds no rules;
-# this stack's R2 deletion is NOT on main at R6 time):
-git ls-tree -r --name-only "$PRE" | rg 'rule\.json$' | wc -l
-git ls-tree -r --name-only "$POST" | rg 'rule\.json$' | wc -l   # must equal PRE
+git diff --name-status "$BASE".."$STUDIO" -- .habitat tools/habitat package.json bun.lock nx.json
+git diff --name-status "$BASE".."$STUDIO" -- mods/mod-swooper-maps/src/domain mods/mod-swooper-maps/src/recipes
+git ls-tree -r --name-only "$BASE" | rg 'rule\.json$' | wc -l
+git ls-tree -r --name-only "$STUDIO" | rg 'rule\.json$' | wc -l
 ```
 
 Check 2, descent-seed reproduction (absolute snapshots on the reconciled tree
-after this stack rebases onto POST; independent of R2 because they census
-source, not rules):
+at HEAD; independent of R2 because they census source, not rules):
 
 ```bash
 find mods/mod-swooper-maps/src/recipes/standard -maxdepth 1 -mindepth 1 | sort
@@ -348,20 +350,23 @@ for d in mods/mod-swooper-maps/src/domain/*/ops/*/; do [ -f "$d/contract.ts" ] |
 rg -o "from ['\"]([^'\"]+)['\"]" -r '$1' --no-filename mods/mod-swooper-maps/src/domain/*/ops/*/strategies/*.ts | sort | uniq -c | sort -rn
 ```
 
-Expected per the investigation: Check 1 shows no `.habitat`/tooling/domain/
-recipe delta and an unchanged main rule count; Check 2 reproduces the descent
-`ledger.md` censuses. Any deviation updates the descent `ledger.md` seed and,
-if material, reopens the affected decision packet with the new evidence.
+Expected: Check 1 is classified as advisory. Any non-empty `.habitat`,
+tooling, domain, or recipe delta is recorded in the R6 receipt with a revisit
+disposition instead of blocking R6 by itself. Check 2 reproduces the descent
+`ledger.md` censuses on this stack. Any current-HEAD deviation updates the
+descent `ledger.md` seed and, if material, reopens the affected decision packet
+with the new evidence.
 
 Acceptance:
-Record truth proof — PRE/POST refs, both checks' commands and outputs, and
-deltas (expected none) recorded in the receipt; descent `ledger.md` seed
-marked re-verified or updated.
+Record truth proof — BASE/STUDIO/HEAD refs, both checks' commands and outputs,
+advisory delta classification, and end-of-run revisit hook recorded in the
+receipt; descent `ledger.md` seed marked re-verified or updated.
 
 Stop conditions:
-a non-empty Check-1 domain/recipe/tooling delta or a changed main rule count —
-that is new evidence, not an error; route it to the descent ledger and stop
-the reconciliation slice there.
+a current-HEAD seed reproduction delta that materially changes the descent
+ledger or decision packets. Advisory Studio-stack deltas are stop conditions
+only if they prove this stack's current records are already false; otherwise
+they are carried as revisit items for final review.
 
 ## Optional O1: Workspace Biome Sweep
 
@@ -376,14 +381,16 @@ aggregate runs but does not clean the drift.
 ```text
 now (pre-merge, any order):  R4 -> R3 -> R2   (R1 whenever convenient)
 shape review passes:         R5 (on the open stack, before it merges)
-packet-train stack merges:   R6
+advisory Studio scout:       R6
 descent execution gate:      R2 + R3 + R4 + R5 + R6 closed
 ```
 
-All of R1-R4 are measured safe to execute before the packet-train merge (the
-committed stack touches none of their inputs). R5 exploits the unmerged
-window: renames cost nothing while descent 002's container exists only on
-this stack. R6 is pinned to the merge event, whenever it lands.
+R1-R5 are closed or parked against this readiness stack. Current Studio deltas
+remain advisory unless selected, landed, or proven to falsify current stack
+records. R5 exploits the unmerged window: renames cost nothing while descent
+002's container exists only on this stack. R6 uses the Studio packet-train as
+advisory context and carries a final revisit hook instead of waiting for its
+merge.
 
 ## Review And Closure
 
