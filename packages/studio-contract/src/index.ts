@@ -46,6 +46,7 @@ export const studioEffectContract = oc.router({
   runInGame: {
     start: runInGame.start,
     status: runInGame.status,
+    cancel: runInGame.cancel,
     diagnostics: runInGame.diagnostics,
   },
   mapConfigs: {

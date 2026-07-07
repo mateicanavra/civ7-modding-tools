@@ -22,6 +22,7 @@ export const STUDIO_OPERATION_PROCEDURES = [
   "autoplay.command",
   "runInGame.start",
   "runInGame.status",
+  "runInGame.cancel",
   "saveDeploy.start",
   "saveDeploy.status",
 ] as const;
@@ -65,6 +66,7 @@ const procedureNamespace = {
   "autoplay.command": "autoplay",
   "runInGame.start": "runInGame",
   "runInGame.status": "runInGame",
+  "runInGame.cancel": "runInGame",
   "saveDeploy.start": "saveDeploy",
   "saveDeploy.status": "saveDeploy",
 } as const satisfies Record<StudioOperationProcedure, StudioOperationNamespace>;
@@ -107,7 +109,7 @@ function codeStatusFor(
     (tag === "OperationNotFound" ||
       tag === "OperationExpired" ||
       tag === "DaemonIdentityMismatch") &&
-    procedure === "runInGame.status"
+    (procedure === "runInGame.status" || procedure === "runInGame.cancel")
   ) {
     return { code: namespaceCodes.runInGame.statusNotFound, status: 404 };
   }

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-studio-run-cancel-command-owner",
+  "title": "Grit Studio Run Cancel Command Owner",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "missing public runInGame.cancel command ownership or cancellation routed around the operation runtime owner",
+  "why": "Packet 3 makes runInGame.cancel({ requestId }) the single public cancellation command; HTTP abort remains transport behavior.",
+  "remediate": "Expose cancellation only as runInGame.cancel({ requestId }) and route it through the operation runtime cancellation owner.",
+  "message": "Run in Game cancellation command ownership drifted from the explicit public cancel command.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/studio-contract/src/runInGame.ts",
+        "packages/studio-contract/src/index.ts",
+        "packages/studio-server/src/router/index.ts",
+        "packages/studio-server/src/operationRuntime/StudioOperationRuntime.ts",
+        "packages/studio-server/src/operationRuntime/registry.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "packages/studio-contract/src",
+    "packages/studio-server/src"
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md"
+    },
+    "patternName": "grit_studio_run_cancel_command_owner"
+  }
+}

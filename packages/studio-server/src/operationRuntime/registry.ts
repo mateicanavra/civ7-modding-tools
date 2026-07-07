@@ -57,6 +57,21 @@ export type Admission<
       operation: Operation;
     }>;
 
+export type RunInGameMutation =
+  | Readonly<{ kind: "changed"; operation: RunInGameInternalOperation }>
+  | Readonly<{ kind: "unchanged"; operation: RunInGameInternalOperation }>;
+
+export type RunInGameCancellation =
+  | Readonly<{
+      kind: "cancelled";
+      operation: RunInGameOperationStatus;
+      eventOperation: RunInGameInternalOperation;
+    }>
+  | Readonly<{
+      kind: "existing";
+      operation: RunInGameOperationStatus;
+    }>;
+
 export type RunInGameTransition =
   | Readonly<{ phase: "materializing"; materialization?: RunInGameMaterializationStatus }>
   | Readonly<{ phase: "deploying"; materialization?: RunInGameMaterializationStatus }>
@@ -75,10 +90,9 @@ export type RunInGameTransition =
       result?: unknown;
       materialization?: RunInGameMaterializationStatus;
       exactAuthorshipProof?: RunInGameExactAuthorshipProof;
-    }>
-  | Readonly<{ phase: "cancelled" }>;
+    }>;
 
-export type RunInGameFailurePhase = Exclude<RunInGameTransition["phase"], "complete" | "cancelled">;
+export type RunInGameFailurePhase = Exclude<RunInGameTransition["phase"], "complete">;
 
 export type SaveDeployTransition =
   | Readonly<{ phase: "saving"; path?: string }>
@@ -218,31 +232,47 @@ export function transitionRunInGame(
     transition: RunInGameTransition;
   }>
 ): Effect.Effect<RunInGameInternalOperation> {
+  return transitionRunInGameMutation(args).pipe(Effect.map((mutation) => mutation.operation));
+}
+
+export function transitionRunInGameMutation(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowIso: string;
+    transition: RunInGameTransition;
+  }>
+): Effect.Effect<RunInGameMutation> {
   return SynchronizedRef.modify(args.registry, (state) => {
     const current = state.runInGame[args.requestId];
     if (!current || state.disposed) {
       return [
-        current ??
-          ({
-            kind: "run-in-game",
-            requestId: args.requestId,
-            leaseId: "missing",
-            correlationDigest: "missing",
-            request: {},
-            phase: "failed",
-            status: "failed",
-            operationRevision: 1,
-            startedAt: args.nowIso,
-            updatedAt: args.nowIso,
-            diagnosticsId: createRunDiagnosticsId(),
-            completedPhases: [],
-            failure: invalidRequest({
-              message: `Unknown Run in Game request id: ${args.requestId}`,
-              diagnostics: { code: "unknown-run-in-game-request-id" },
-            }),
-          } satisfies RunInGameInternalOperation),
+        unchangedRunMutation(
+          current ??
+            ({
+              kind: "run-in-game",
+              requestId: args.requestId,
+              leaseId: "missing",
+              correlationDigest: "missing",
+              request: {},
+              phase: "failed",
+              status: "failed",
+              operationRevision: 1,
+              startedAt: args.nowIso,
+              updatedAt: args.nowIso,
+              diagnosticsId: createRunDiagnosticsId(),
+              completedPhases: [],
+              failure: invalidRequest({
+                message: `Unknown Run in Game request id: ${args.requestId}`,
+                diagnostics: { code: "unknown-run-in-game-request-id" },
+              }),
+            } satisfies RunInGameInternalOperation)
+        ),
         state,
       ] as const;
+    }
+    if (current.status !== "running") {
+      return [unchangedRunMutation(current), state] as const;
     }
     const publicCurrentPhase = publicRunInGamePhase(current.phase);
     const completedPhases =
@@ -260,7 +290,7 @@ export function transitionRunInGame(
       updatedAt: args.nowIso,
     };
     return [
-      operation,
+      changedRunMutation(operation),
       {
         ...state,
         active: operation.status === "running" ? activeSlot(operation) : null,
@@ -270,7 +300,7 @@ export function transitionRunInGame(
   });
 }
 
-export function failRunInGame(
+export function failRunInGameMutation(
   args: Readonly<{
     registry: RuntimeRegistry;
     requestId: string;
@@ -278,32 +308,37 @@ export function failRunInGame(
     phase: RunInGameFailurePhase;
     err: unknown;
   }>
-): Effect.Effect<RunInGameInternalOperation> {
+): Effect.Effect<RunInGameMutation> {
   return SynchronizedRef.modify(args.registry, (state) => {
     const current = state.runInGame[args.requestId];
     if (!current || state.disposed) {
       return [
-        current ??
-          ({
-            kind: "run-in-game",
-            requestId: args.requestId,
-            leaseId: "missing",
-            correlationDigest: "missing",
-            request: {},
-            phase: "failed",
-            status: "failed",
-            operationRevision: 1,
-            startedAt: args.nowIso,
-            updatedAt: args.nowIso,
-            diagnosticsId: createRunDiagnosticsId(),
-            completedPhases: [],
-            failure: toRuntimeFailure(args.err, "Run in Game failed", {
-              operation: "run-in-game",
-              phase: args.phase,
-            }),
-          } satisfies RunInGameInternalOperation),
+        unchangedRunMutation(
+          current ??
+            ({
+              kind: "run-in-game",
+              requestId: args.requestId,
+              leaseId: "missing",
+              correlationDigest: "missing",
+              request: {},
+              phase: "failed",
+              status: "failed",
+              operationRevision: 1,
+              startedAt: args.nowIso,
+              updatedAt: args.nowIso,
+              diagnosticsId: createRunDiagnosticsId(),
+              completedPhases: [],
+              failure: toRuntimeFailure(args.err, "Run in Game failed", {
+                operation: "run-in-game",
+                phase: args.phase,
+              }),
+            } satisfies RunInGameInternalOperation)
+        ),
         state,
       ] as const;
+    }
+    if (current.status !== "running") {
+      return [unchangedRunMutation(current), state] as const;
     }
     const failure = toRuntimeFailure(args.err, "Run in Game failed", {
       operation: "run-in-game",
@@ -311,13 +346,121 @@ export function failRunInGame(
     });
     const operation = failRunOperation(current, args.nowIso, failure, args.phase);
     return [
-      operation,
+      changedRunMutation(operation),
       {
         ...state,
         active: null,
         runInGame: { ...state.runInGame, [args.requestId]: operation },
       },
     ] as const;
+  });
+}
+
+export function markRunInGameCancellationCleanupFailure(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    operationRevision: number;
+    nowIso: string;
+    err: unknown;
+  }>
+): Effect.Effect<RunInGameInternalOperation | undefined> {
+  return SynchronizedRef.modify(args.registry, (state) => {
+    const current = state.runInGame[args.requestId];
+    if (
+      !current ||
+      current.operationRevision !== args.operationRevision ||
+      current.status !== "cancelled" ||
+      current.cancellationCleanupFailure !== undefined
+    ) {
+      return [undefined, state] as const;
+    }
+    const operation: RunInGameInternalOperation = {
+      ...current,
+      operationRevision: current.operationRevision + 1,
+      updatedAt: args.nowIso,
+      cancellationCleanupFailure: materializationFailed({
+        message: "Run in Game cancellation cleanup failed",
+        diagnostics: boundedDiagnostics({
+          code: "run-in-game-cancel-cleanup-failed",
+          cause: diagnosticString(args.err),
+        }),
+      }),
+    };
+    return [
+      operation,
+      {
+        ...state,
+        runInGame: { ...state.runInGame, [args.requestId]: operation },
+      },
+    ] as const;
+  });
+}
+
+export function cancelRunInGame(
+  args: Readonly<{
+    registry: RuntimeRegistry;
+    requestId: string;
+    nowMs: number;
+    nowIso: string;
+    ttlMs?: number;
+  }>
+): Effect.Effect<RunInGameCancellation, StudioRuntimeFailure> {
+  type CancellationState = readonly [RunInGameCancellation, RegistryState];
+  return SynchronizedRef.modifyEffect(args.registry, (raw) => {
+    const state = prune(raw, args.nowMs, args.nowIso, args.ttlMs);
+    if (state.disposed) return Effect.fail(runtimeDisposedFailure());
+    const current = state.runInGame[args.requestId];
+    if (current) {
+      if (current.status !== "running") {
+        const existing: CancellationState = [
+          { kind: "existing", operation: projectRunInGame(current) },
+          state,
+        ];
+        return Effect.succeed(existing);
+      }
+      const publicCurrentPhase = publicRunInGamePhase(current.phase);
+      const operation: RunInGameInternalOperation = {
+        ...current,
+        phase: "cancelled",
+        status: "cancelled",
+        operationRevision: current.operationRevision + 1,
+        completedPhases: current.completedPhases.includes(publicCurrentPhase)
+          ? current.completedPhases
+          : [...current.completedPhases, publicCurrentPhase],
+        updatedAt: args.nowIso,
+      };
+      const cancelled: CancellationState = [
+        {
+          kind: "cancelled",
+          operation: projectRunInGame(operation),
+          eventOperation: operation,
+        },
+        {
+          ...state,
+          active: null,
+          runInGame: { ...state.runInGame, [args.requestId]: operation },
+        },
+      ];
+      return Effect.succeed(cancelled);
+    }
+    const tombstone = state.tombstones[args.requestId];
+    if (tombstone?.kind === "run-in-game") {
+      return Effect.fail(
+        operationExpired({
+          message: `Run in Game request expired: ${args.requestId}`,
+          requestId: args.requestId,
+          diagnostics: { code: "run-in-game-request-expired" },
+        })
+      );
+    }
+    return Effect.fail(
+      operationNotFound({
+        message: `Run in Game request not found: ${args.requestId}`,
+        requestId: args.requestId,
+        diagnostics: { code: "run-in-game-request-not-found" },
+      })
+    );
   });
 }
 
@@ -671,6 +814,14 @@ function activeSlot(
     leaseId: operation.leaseId,
     phase: operation.phase,
   };
+}
+
+function changedRunMutation(operation: RunInGameInternalOperation): RunInGameMutation {
+  return { kind: "changed", operation };
+}
+
+function unchangedRunMutation(operation: RunInGameInternalOperation): RunInGameMutation {
+  return { kind: "unchanged", operation };
 }
 
 function failRunOperation(

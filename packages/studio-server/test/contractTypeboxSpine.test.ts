@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import {
   operationStatusTypeSchema,
   RecipeDagGetContract,
+  runInGame,
   saveDeployStatusTypeSchema,
   studio,
   toStandardSchema,
@@ -118,6 +119,22 @@ describe("studio-server TypeBox contract spine", () => {
     const saveDeployOperationEvent = unionOption(studioOperationEventSchema, 1);
     expect(schemaProperty(runInGameOperationEvent, "status")).toBe(operationStatusTypeSchema);
     expect(schemaProperty(saveDeployOperationEvent, "status")).toBe(saveDeployStatusTypeSchema);
+  });
+
+  test("keeps runInGame.cancel on the closed request-id input and public status output", () => {
+    const input = typeboxInputSchemaFromContractProcedure(runInGame.cancel);
+    const output = typeboxOutputSchemaFromContractProcedure(runInGame.cancel);
+
+    expect(schemaProperty(input, "requestId")).toBeTruthy();
+    expect(Object.keys((input as { properties?: Record<string, unknown> }).properties ?? {})).toEqual([
+      "requestId",
+    ]);
+    expect((input as { additionalProperties?: unknown }).additionalProperties).toBe(false);
+    expect(output).toBe(operationStatusTypeSchema);
+    expect(Value.Check(input, { requestId: "studio-run-in-game-cancel" })).toBe(true);
+    expect(Value.Check(input, { requestId: "studio-run-in-game-cancel", leaseId: "private" })).toBe(
+      false
+    );
   });
 
   test("keeps the Studio event union TypeBox-owned and sealed to hello, operation, and live-game", () => {
