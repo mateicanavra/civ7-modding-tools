@@ -27,7 +27,13 @@ export type RuntimeTombstone = Readonly<{
   lastUpdatedAt: string;
 }>;
 
-export type RunInGameInternalStatus = "running" | "complete" | "blocked" | "failed" | "uncertain";
+export type RunInGameInternalStatus =
+  | "running"
+  | "complete"
+  | "blocked"
+  | "failed"
+  | "uncertain"
+  | "cancelled";
 
 export type RunInGameInternalOperation = Readonly<{
   kind: "run-in-game";
@@ -48,6 +54,7 @@ export type RunInGameInternalOperation = Readonly<{
     | "blocked"
     | "failed"
     | "uncertain"
+    | "cancelled"
     | "runtime-disposed";
   status: RunInGameInternalStatus;
   operationRevision: number;
@@ -112,6 +119,7 @@ export function statusForRunInGamePhase(
   if (phase === "blocked") return "blocked";
   if (phase === "failed" || phase === "runtime-disposed") return "failed";
   if (phase === "uncertain") return "uncertain";
+  if (phase === "cancelled") return "cancelled";
   return "running";
 }
 
@@ -146,6 +154,8 @@ export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"])
     case "uncertain":
     case "runtime-disposed":
       return "failed";
+    case "cancelled":
+      return "cancelled";
   }
 }
 

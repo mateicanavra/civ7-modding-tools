@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import {
   invalidRequest,
   operationStatusTypeSchema,
@@ -131,6 +133,54 @@ describe("StudioOperationRuntime", () => {
       })
     );
     expect(persistedTransition.diagnosticsId).toBe(persistedAccepted.diagnosticsId);
+  });
+
+  test("projects cancellation through the canonical Run in Game transition surface", async () => {
+    const now = "2026-06-10T00:00:00.000Z";
+    const registry = await Effect.runPromise(
+      makeRegistry({
+        serverInstanceId: "studio-server-test",
+        serverStartedAt: now,
+      })
+    );
+    await Effect.runPromise(
+      admitRunInGame({
+        registry,
+        nowMs: Date.parse(now),
+        nowIso: now,
+        requestId: "run-cancelled",
+        prepared: {
+          fingerprint: "run-cancelled-fingerprint",
+          request: runInGameInput(),
+        },
+      })
+    );
+
+    await Effect.runPromise(
+      transitionRunInGame({
+        registry,
+        requestId: "run-cancelled",
+        nowIso: "2026-06-10T00:00:01.000Z",
+        transition: { phase: "cancelled" },
+      })
+    );
+
+    const cancelled = await Effect.runPromise(
+      getRunInGame({
+        registry,
+        requestId: "run-cancelled",
+        nowMs: Date.parse("2026-06-10T00:00:01.000Z"),
+        nowIso: "2026-06-10T00:00:01.000Z",
+      })
+    );
+    expect(cancelled).toMatchObject({
+      requestId: "run-cancelled",
+      status: "cancelled",
+      phase: "cancelled",
+      safeFailureCategory: "operation-cancelled",
+      terminalAt: "2026-06-10T00:00:01.000Z",
+    });
+    expectTypeboxValid(operationStatusTypeSchema, cancelled);
   });
 
   test("reports active operations only in active and excludes them from recent", async () => {
@@ -485,6 +535,18 @@ describe("StudioOperationRuntime", () => {
     expect(finalPrivateOperation.exactAuthorshipProof?.sourceSnapshot).toEqual(
       acceptedSourceSnapshot
     );
+
+    const diagnosticsRecordPath = resolve(
+      ".mapgen-studio/run-in-game",
+      accepted.requestId,
+      "diagnostics",
+      "diagnostics.json"
+    );
+    const diagnosticsRecord = JSON.parse(await readFile(diagnosticsRecordPath, "utf8"));
+    expect(diagnosticsRecord).toMatchObject({
+      diagnosticsId: accepted.diagnosticsId,
+      requestId: accepted.requestId,
+    });
   });
 
   test("rejects raw-control Run in Game payloads before admission", async () => {
@@ -1231,6 +1293,14 @@ describe("StudioOperationRuntime", () => {
           return status.status === "running" ? "running" : "terminal";
         })
         .toBe("terminal");
+      await expect
+        .poll(async () => {
+          const status = await runtime.runPromise(
+            service.runInGameStatus({ requestId: accepted.requestId })
+          );
+          return status.diagnosticsId;
+        })
+        .toBe(accepted.diagnosticsId);
 
       const failed = await runtime.runPromise(
         service.runInGameStatus({ requestId: accepted.requestId })
