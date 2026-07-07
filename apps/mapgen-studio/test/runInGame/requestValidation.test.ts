@@ -82,6 +82,27 @@ describe("Run in Game request validation", () => {
         )
     ).toBe(true);
   });
+
+  it("keeps cancellation input to request id only", () => {
+    const cancelInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.cancel);
+
+    expect(Value.Check(cancelInputSchema, { requestId: "studio-run-in-game-1" })).toBe(true);
+    expect(Value.Check(cancelInputSchema, { requestId: "studio-run-in-game-1", cancel: true })).toBe(
+      false
+    );
+    expect(
+      Value.Check(cancelInputSchema, {
+        requestId: "studio-run-in-game-1",
+        operationType: "cancel",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(cancelInputSchema, {
+        requestId: "studio-run-in-game-1",
+        leaseId: "runtime-lease-private",
+      })
+    ).toBe(false);
+  });
 });
 
 function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, unknown> {

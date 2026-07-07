@@ -496,6 +496,15 @@ export type RunInGameOperationStatus = Static<typeof operationStatusTypeSchema>;
 
 export const operationStatusSchema = contractSchema(operationStatusTypeSchema);
 
+const requestIdInputSchema = contractSchema(
+  Type.Object(
+    {
+      requestId: Type.String({ minLength: 1 }),
+    },
+    { additionalProperties: false }
+  )
+);
+
 export const runDiagnosticsRecordSchema = Type.Object(
   {
     diagnosticsId: Type.String(),
@@ -539,16 +548,19 @@ export type RunDiagnosticsLookupResult = Static<typeof diagnosticsLookupResultSc
 // empty in-memory registry or public daemon identity.
 export const status = oc
   .errors(runInGameErrors)
-  .input(
-    contractSchema(
-      Type.Object(
-        {
-          requestId: Type.String({ minLength: 1 }),
-        },
-        { additionalProperties: false }
-      )
-    )
-  )
+  .input(requestIdInputSchema)
+  .output(operationStatusSchema);
+
+// ---------------------------------------------------------------------------
+// runInGame.cancel - explicit operation cancellation by requestId.
+// ---------------------------------------------------------------------------
+// HTTP disconnects and browser aborts are transport events, not cancellation.
+// This command is the only public cancellation surface: active operations
+// terminalize as `cancelled`; terminal operations return their existing public
+// status; unknown request ids map to the declared safe not-found error.
+export const cancel = oc
+  .errors(runInGameErrors)
+  .input(requestIdInputSchema)
   .output(operationStatusSchema);
 
 export const diagnostics = oc

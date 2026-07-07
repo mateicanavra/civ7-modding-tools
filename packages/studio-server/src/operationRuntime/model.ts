@@ -69,6 +69,7 @@ export type RunInGameInternalOperation = Readonly<{
   exactAuthorshipProof?: RunInGameExactAuthorshipProof;
   result?: unknown;
   failure?: StudioRuntimeFailure;
+  cancellationCleanupFailure?: StudioRuntimeFailure;
 }>;
 
 export type SaveDeployInternalOperation = Readonly<{

@@ -175,6 +175,120 @@ describe("studio-server RPC handler", () => {
     });
   });
 
+  test("serves explicit Run in Game cancellation through the public command", async () => {
+    const blocker = deferred<void>();
+    let cleanupCalls = 0;
+    try {
+      const context = makeContext({
+        operationRuntime: makeOperationRuntimePorts({
+          materializeRunInGame: async () => ({
+            cleanup: async () => {
+              cleanupCalls += 1;
+            },
+          }),
+          deployRunInGame: async () => {
+            await blocker.promise;
+            return {};
+          },
+        }),
+      });
+      const client = await listenWithClient(context);
+      const run = await client.runInGame.start({
+        recipeId: "mod-swooper-maps/standard",
+        seed: 43,
+        mapSize: "MAPSIZE_STANDARD",
+        config: {},
+      });
+
+      await expect
+        .poll(async () => (await client.runInGame.status({ requestId: run.requestId })).phase)
+        .toBe("deploying");
+      await expect(client.runInGame.cancel({ requestId: run.requestId })).resolves.toMatchObject({
+        requestId: run.requestId,
+        status: "cancelled",
+        phase: "cancelled",
+        safeFailureCategory: "operation-cancelled",
+        diagnosticsId: run.diagnosticsId,
+      });
+      expect(cleanupCalls).toBe(1);
+      await expect(client.runInGame.cancel({ requestId: run.requestId })).resolves.toMatchObject({
+        requestId: run.requestId,
+        status: "cancelled",
+        phase: "cancelled",
+      });
+    } finally {
+      blocker.resolve();
+    }
+  });
+
+  test("does not treat an aborted transport signal as Run in Game cancellation", async () => {
+    const blocker = deferred<void>();
+    try {
+      const context = makeContext({
+        operationRuntime: makeOperationRuntimePorts({
+          deployRunInGame: async () => {
+            await blocker.promise;
+            return {};
+          },
+        }),
+      });
+      const studioRpc = trackHandle(createStudioRpcHandler(context));
+      const controller = new AbortController();
+      const client = createORPCClient<RouterClient<StudioRouter>>(
+        new RPCLink({
+          url: "http://studio.test/rpc",
+          fetch: async (request) => {
+            const result = await studioRpc.handle(request, { prefix: "/rpc" });
+            controller.abort();
+            if (!result.matched || !result.response) {
+              return new Response("not found", { status: 404 });
+            }
+            return result.response;
+          },
+        })
+      );
+
+      const run = await client.runInGame.start(
+        {
+          recipeId: "mod-swooper-maps/standard",
+          seed: 43,
+          mapSize: "MAPSIZE_STANDARD",
+          config: {},
+        },
+        { signal: controller.signal }
+      );
+
+      await expect
+        .poll(async () => (await client.runInGame.status({ requestId: run.requestId })).phase)
+        .toBe("deploying");
+      await expect(client.runInGame.status({ requestId: run.requestId })).resolves.toMatchObject({
+        requestId: run.requestId,
+        status: "running",
+      });
+    } finally {
+      blocker.resolve();
+    }
+  });
+
+  test("delivers a run-in-game cancel miss as RUN_IN_GAME_STATUS_NOT_FOUND without daemon identity", async () => {
+    const context = makeContext();
+    const client = await listenWithClient(context);
+
+    const { error } = await safe(client.runInGame.cancel({ requestId: "run-1" }));
+
+    expect(error).toBeInstanceOf(ORPCError);
+    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+    expect(isDefinedError(error)).toBe(true);
+    expect(error.code).toBe("RUN_IN_GAME_STATUS_NOT_FOUND");
+    expect(error.status).toBe(404);
+    expect(error.data).toEqual({
+      namespace: "runInGame",
+      recoveryActions: ["copy-diagnostics", "retry-status"],
+      requestId: "run-1",
+      safeFailureCategory: "request-validation",
+    });
+  });
+
   test("delivers a save/deploy status miss as SAVE_DEPLOY_STATUS_NOT_FOUND with the server-identity echo", async () => {
     const context = makeContext();
     const client = await listenWithClient(context);
@@ -820,6 +934,8 @@ function makeOperationRuntimeApi(): StudioOperationRuntimeApi {
     identity,
     runInGameStart: unsupported,
     runInGameStatus: unsupported,
+    runInGameCancel: unsupported,
+    runInGameDiagnostics: unsupported,
     saveDeployStart: unsupported,
     saveDeployStatus: unsupported,
     autoplay: unsupported,

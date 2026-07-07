@@ -58,10 +58,7 @@ const runInGamePublicFailureData: StandardSchemaV1<
   RunInGamePublicErrorData
 > = toStandardSchema(runInGamePublicErrorDataSchema);
 
-/**
- * Run-in-game status-miss echo: the server identity the client uses for
- * restart detection (PARITY INVARIANT, audit/05 #13).
- */
+// Save/Deploy and non-run-in-game status misses retain the server identity echo.
 const serverIdentityEchoData: StandardSchemaV1<StatusNotFoundErrorData, StatusNotFoundErrorData> =
   toStandardSchema(statusNotFoundErrorDataSchema);
 
@@ -163,7 +160,7 @@ export const autoplayErrors = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// runInGame.* — package operation runtime (409/400/500/503; 404 with server-identity echo)
+// runInGame.* — package operation runtime (409/400/500/503; 404 without daemon identity)
 // ---------------------------------------------------------------------------
 
 export const runInGameErrors = {

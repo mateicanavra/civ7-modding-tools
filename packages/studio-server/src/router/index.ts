@@ -1,10 +1,11 @@
 import { type StudioEffectContract, studioEffectContract } from "@civ7/studio-contract";
-import type { Router } from "@orpc/server";
+import { ORPCError, type Router } from "@orpc/server";
 import { Effect } from "effect";
 import { implementEffect } from "effect-orpc";
 import {
   mapStudioFailureToDefinedError,
   mapUnexpectedDefectToDefinedError,
+  type StudioDeclaredErrorCode,
   type StudioOperationProcedure,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
@@ -33,12 +34,14 @@ import { StudioEventHub, studioEventSubscriptionIterator } from "../services/Stu
  *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
  *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
  *     only an outer defect yields a transport error. PARITY INVARIANT.
- *   - The stateful surfaces (autoplay #8, runInGame #13/#14, mapConfigs
- *     #15/#16, operations.current) use the package-owned
- *     the package operation runtime. Expected outcomes are typed
- *     `StudioRuntimeFailure`s mapped here to declared oRPC errors. Defects are
- *     contained as namespace `*_FAILED` with package-projected
- *     `UnexpectedDefectData`.
+   *   - Stateful surfaces (autoplay #8, runInGame #13/#14 plus cancel,
+   *     mapConfigs #15/#16, operations.current) route through the package
+   *     operation runtime, which owns admission, lifecycle, diagnostics,
+   *     worker supervision, events, and lease release. Expected outcomes are
+   *     typed `StudioRuntimeFailure`s mapped here to declared oRPC errors.
+   *     Run in Game failures use safe public category data; other stateful
+   *     defects are contained as namespace `*_FAILED` with package-projected
+   *     `UnexpectedDefectData`.
  *
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
@@ -290,7 +293,7 @@ export function createStudioRouter(
           );
       }),
 
-      // #13 runInGame.status - keyed mutation-state read; 404 echoes server id
+      // #13 runInGame.status - keyed public operation-state read
       status: oe.runInGame.status.effect(function* ({ input, errors }) {
         const operationRuntime = yield* StudioOperationRuntime;
         return yield* operationRuntime
@@ -302,6 +305,23 @@ export function createStudioRouter(
                 failure,
                 "runInGame.status",
                 "Run in Game status failed",
+                operationRuntime.identity
+              )
+            )
+          );
+      }),
+
+      cancel: oe.runInGame.cancel.effect(function* ({ input, errors }) {
+        const operationRuntime = yield* StudioOperationRuntime;
+        return yield* operationRuntime
+          .runInGameCancel(input)
+          .pipe(
+            Effect.mapError((failure) =>
+              statefulFailure(
+                errors,
+                failure,
+                "runInGame.cancel",
+                "Run in Game cancellation failed",
                 operationRuntime.identity
               )
             )
@@ -443,17 +463,13 @@ function statefulFailure(
   procedure: StudioOperationProcedure,
   fallbackMessage: string,
   identity: Readonly<{ serverInstanceId: string; serverStartedAt: string }>
-): any {
+): ORPCError<string, unknown> {
   const projected = mapStudioFailureToDefinedError({
     failure,
     procedure,
     identity,
   });
-  const constructors = errors as Record<
-    string,
-    (args: { message?: string; data?: unknown }) => unknown
-  >;
-  const constructor = constructors[projected.code];
+  const constructor = studioDefinedErrorConstructor(errors, projected.code);
   if (constructor) {
     return constructor({
       message: projected.message || fallbackMessage,
@@ -461,7 +477,38 @@ function statefulFailure(
     });
   }
   const defect = statefulDefect(failure, procedure, fallbackMessage);
-  return constructors[defect.code]?.({ message: defect.message, data: defect.data }) ?? defect;
+  return (
+    studioDefinedErrorConstructor(errors, defect.code)?.({
+      message: defect.message,
+      data: defect.data,
+    }) ?? new ORPCError(defect.code, {
+      status: defect.status,
+      message: defect.message,
+      ...(defect.data === undefined ? {} : { data: defect.data }),
+    })
+  );
+}
+
+type StudioDefinedErrorConstructor = (args: {
+  message?: string;
+  data?: unknown;
+}) => ORPCError<string, unknown>;
+
+function studioDefinedErrorConstructor(
+  errors: unknown,
+  code: StudioDeclaredErrorCode
+): StudioDefinedErrorConstructor | undefined {
+  if (!isRecord(errors)) return undefined;
+  const constructor = errors[code];
+  return isStudioDefinedErrorConstructor(constructor) ? constructor : undefined;
+}
+
+function isStudioDefinedErrorConstructor(value: unknown): value is StudioDefinedErrorConstructor {
+  return typeof value === "function";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 /**
