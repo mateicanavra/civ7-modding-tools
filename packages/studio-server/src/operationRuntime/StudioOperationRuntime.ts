@@ -1,6 +1,10 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type { StudioOperationsCurrent } from "@civ7/studio-contract";
-import { type RunInGameRequestStatus, validateRunInGameSetupConfig } from "@civ7/studio-contract";
+import {
+  type MapConfigSaveDeployStatus,
+  type RunInGameRequestStatus,
+  validateRunInGameSetupConfig,
+} from "@civ7/studio-contract";
 import { Context, Effect, FiberSet, Layer, type Scope } from "effect";
 import type { StudioInputs, StudioOutputs } from "../context.js";
 import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
@@ -19,6 +23,18 @@ import {
 import { lookupRunDiagnostics, writeRunDiagnostics } from "./diagnostics.js";
 import { createStudioOperationId } from "./ids.js";
 import type { RunInGameInternalOperation, SaveDeployInternalOperation } from "./model.js";
+import {
+  acquireRuntimeOwnershipLease,
+  acquireRuntimeDaemonHeartbeat,
+  isRuntimeOperationTerminal,
+  operationFromAbandonedRecord,
+  readAbandonedRunOperationRecords,
+  releaseStaleRuntimeOwnershipLease,
+  releaseRuntimeOwnershipLease,
+  releaseRuntimeOwnershipLeaseForRecord,
+  type RuntimeOwnershipLease,
+  writeRunOperationRecord,
+} from "./operationRecords.js";
 import type {
   RunInGamePreparedRequest,
   StudioDaemonIdentity,
@@ -28,13 +44,15 @@ import { operationEvent, projectCurrent } from "./projection.js";
 import {
   admitRunInGame,
   admitSaveDeploy,
+  adoptRunInGameOperations,
+  type Admission,
   ensureAdmissionOpen,
-  ensureRuntimeOpen,
   failRunInGame,
   failSaveDeploy,
   getRunInGame,
   getSaveDeploy,
   getState,
+  lookupSaveDeployAdmission,
   makeRegistry,
   markDisposed,
   markRunInGameDiagnosticsAvailable,
@@ -73,6 +91,17 @@ export class StudioOperationRuntime extends Context.Tag(
 )<StudioOperationRuntime, StudioOperationRuntimeApi>() {}
 
 type RuntimeEventOperation = RunInGameInternalOperation | SaveDeployInternalOperation;
+
+type SaveDeployAdmissionResult =
+  | Readonly<{
+      kind: "existing";
+      admitted: Extract<Admission<MapConfigSaveDeployStatus>, { kind: "existing" }>;
+    }>
+  | Readonly<{
+      kind: "new";
+      admitted: Admission<MapConfigSaveDeployStatus, SaveDeployInternalOperation>;
+      lease: RuntimeOwnershipLease;
+    }>;
 
 type StudioOperationRuntimeLayerBaseArgs = Readonly<{
   ports: StudioOperationRuntimePorts;
@@ -126,7 +155,7 @@ function makeStudioOperationRuntime(
     const nextRuntimeId = (prefix: string) =>
       createStudioOperationId({ prefix, nowMs: nowMs(), sequence: ++idSequence });
     const identity = {
-      serverInstanceId: nextRuntimeId("studio-server"),
+      serverInstanceId: `${nextRuntimeId("studio-server")}-${randomUUID()}`,
       serverStartedAt: nowIso(),
     };
     const runInGameWorkspaceRoot = args.ports.runInGameWorkspaceRoot;
@@ -137,12 +166,27 @@ function makeStudioOperationRuntime(
     const saveDeployWorkflow = yield* SaveDeployWorkflow;
     const autoplayWorkflow = yield* AutoplayWorkflow;
     const eventHub = yield* StudioEventHub;
+    yield* acquireRuntimeDaemonHeartbeat({
+      workspaceRoot: runInGameWorkspaceRoot,
+      identity,
+    });
+
+    const releaseTerminalLease = (
+      operation: RuntimeEventOperation
+    ): Effect.Effect<void, never> => {
+      if (!isRuntimeOperationTerminal(operation)) return Effect.void;
+      return releaseRuntimeOwnershipLease({
+        workspaceRoot: runInGameWorkspaceRoot,
+        leaseId: operation.leaseId,
+        requestId: operation.requestId,
+      });
+    };
 
     const persistedOperation = (
       operation: RuntimeEventOperation
     ): Effect.Effect<RuntimeEventOperation, never> =>
       operation.kind !== "run-in-game"
-        ? Effect.succeed(operation)
+        ? releaseTerminalLease(operation).pipe(Effect.as(operation))
         : writeRunDiagnostics(operation, { workspaceRoot: runInGameWorkspaceRoot }).pipe(
             Effect.flatMap(() =>
               markRunInGameDiagnosticsAvailable(
@@ -151,12 +195,17 @@ function makeStudioOperationRuntime(
                 operation.operationRevision
               )
             ),
-            Effect.map((marked) => marked ?? operation),
+            Effect.flatMap((marked) =>
+              writeRunOperationRecord(marked ?? operation, identity, {
+                workspaceRoot: runInGameWorkspaceRoot,
+              }).pipe(Effect.as(marked ?? operation))
+            ),
+            Effect.tap(releaseTerminalLease),
             Effect.catchAll((error) =>
               Effect.sync(() => {
                 console.error("[studio-server] failed to persist run diagnostics", error);
                 return operation;
-              })
+              }).pipe(Effect.tap(releaseTerminalLease))
             )
           );
 
@@ -184,6 +233,32 @@ function makeStudioOperationRuntime(
       })
     ).pipe(Effect.flatMap(publishMany));
 
+    yield* releaseStaleRuntimeOwnershipLease({
+      workspaceRoot: runInGameWorkspaceRoot,
+      identity,
+    });
+    const abandonedRecords = yield* readAbandonedRunOperationRecords({
+      workspaceRoot: runInGameWorkspaceRoot,
+      identity,
+    });
+    if (abandonedRecords.length > 0) {
+      const abandonedOperations = abandonedRecords.map((record) =>
+        operationFromAbandonedRecord(record, nowIso())
+      );
+      yield* Effect.all(
+        abandonedRecords.map((record) =>
+          releaseRuntimeOwnershipLeaseForRecord({
+            workspaceRoot: runInGameWorkspaceRoot,
+            record,
+          })
+        ),
+        { discard: true }
+      );
+      yield* adoptRunInGameOperations(registry, abandonedOperations).pipe(
+        Effect.flatMap(publishMany)
+      );
+    }
+
     const runWorker = (effect: Effect.Effect<void, never>) =>
       FiberSet.run(fibers, effect, { propagateInterruption: false }).pipe(Effect.asVoid);
 
@@ -205,7 +280,7 @@ function makeStudioOperationRuntime(
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publish), Effect.asVoid),
+            }).pipe(Effect.flatMap(publish), Effect.uninterruptible, Effect.asVoid),
         },
       });
 
@@ -222,55 +297,82 @@ function makeStudioOperationRuntime(
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publish), Effect.asVoid),
+            }).pipe(Effect.flatMap(publish), Effect.uninterruptible, Effect.asVoid),
         },
       });
 
     const transitionRun = (requestId: string, transition: RunInGameTransition) =>
       transitionRunInGame({ registry, requestId, nowIso: nowIso(), transition }).pipe(
-        Effect.flatMap(publish)
+        Effect.flatMap(publish),
+        Effect.uninterruptible
       );
 
     const transitionSave = (requestId: string, transition: SaveDeployTransition) =>
       transitionSaveDeploy({ registry, requestId, nowIso: nowIso(), transition }).pipe(
-        Effect.flatMap(publish)
+        Effect.flatMap(publish),
+        Effect.uninterruptible
       );
 
     const api: StudioOperationRuntimeApi = {
       identity,
       runInGameStart: (input) =>
         admissionGate.withPermits(1)(
-          Effect.gen(function* () {
-            const requestId = nextRuntimeId("studio-run-in-game");
-            yield* ensureRuntimeOpen({
-              registry,
-              nowMs: nowMs(),
-              nowIso: nowIso(),
-              ttlMs: args.ttlMs,
-            });
-            const prepared = yield* prepareRunInGameRequest(input, requestId);
-            const admitted = yield* admitRunInGame({
-              registry,
-              nowMs: nowMs(),
-              nowIso: nowIso(),
-              ttlMs: args.ttlMs,
-              requestId,
-              prepared,
-            });
-            if (admitted.admitted) {
-              if (admitted.eventOperation) yield* publish(admitted.eventOperation);
-              const publicOperation = yield* getRunInGame({
+          Effect.uninterruptibleMask((restore) =>
+            Effect.gen(function* () {
+              const requestId = nextRuntimeId("studio-run-in-game");
+              yield* ensureAdmissionOpen({
                 registry,
-                requestId: admitted.operation.requestId,
                 nowMs: nowMs(),
                 nowIso: nowIso(),
                 ttlMs: args.ttlMs,
               });
-              yield* runWorker(runInGameWorker(admitted.operation.requestId, input, prepared));
-              return publicOperation;
-            }
-            return admitted.operation;
-          })
+              const prepared = yield* prepareRunInGameRequest(input, requestId);
+              const lease = yield* acquireRuntimeOwnershipLease({
+                workspaceRoot: runInGameWorkspaceRoot,
+                identity,
+                ownerKind: "run-in-game",
+                requestId,
+                nowIso: nowIso(),
+              });
+              const admitted = yield* admitRunInGame({
+                registry,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+                requestId,
+                leaseId: lease.leaseId,
+                prepared,
+              }).pipe(
+                Effect.catchAll((err) =>
+                  releaseRuntimeOwnershipLease({
+                    workspaceRoot: runInGameWorkspaceRoot,
+                    leaseId: lease.leaseId,
+                    requestId,
+                  }).pipe(Effect.flatMap(() => Effect.fail(err)))
+                )
+              );
+              if (admitted.kind === "admitted") {
+                yield* publish(admitted.eventOperation);
+                const publicOperation = yield* getRunInGame({
+                  registry,
+                  requestId: admitted.operation.requestId,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                });
+                yield* runWorker(
+                  restore(runInGameWorker(admitted.operation.requestId, input, prepared))
+                );
+                return publicOperation;
+              }
+              yield* releaseRuntimeOwnershipLease({
+                workspaceRoot: runInGameWorkspaceRoot,
+                leaseId: lease.leaseId,
+                requestId,
+              });
+              return admitted.operation;
+            })
+          )
         ),
       runInGameStatus: (input) =>
         getRunInGame({
@@ -283,23 +385,65 @@ function makeStudioOperationRuntime(
       runInGameDiagnostics: (input) =>
         lookupRunDiagnostics(input.diagnosticsId, { workspaceRoot: runInGameWorkspaceRoot }),
       saveDeployStart: (input) =>
-        Effect.gen(function* () {
-          const requestId = input.requestId ?? nextRuntimeId("studio-save-deploy");
-          const admitted = yield* admissionGate.withPermits(1)(
-            admitSaveDeploy({
-              registry,
-              nowMs: nowMs(),
-              nowIso: nowIso(),
-              ttlMs: args.ttlMs,
-              requestId,
-            })
-          );
-          if (admitted.admitted) {
-            if (admitted.eventOperation) yield* publish(admitted.eventOperation);
-            yield* runWorker(saveDeployWorker(admitted.operation.requestId, input));
-          }
-          return admitted.operation;
-        }),
+        Effect.uninterruptibleMask((restore) =>
+          Effect.gen(function* () {
+            const requestId = input.requestId ?? nextRuntimeId("studio-save-deploy");
+            const admission = yield* admissionGate.withPermits(1)(
+              Effect.gen(function* () {
+                const existing = yield* lookupSaveDeployAdmission({
+                  registry,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                  requestId,
+                });
+                if (existing) return { kind: "existing", admitted: existing } as const;
+                yield* ensureAdmissionOpen({
+                  registry,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                });
+                const lease = yield* acquireRuntimeOwnershipLease({
+                  workspaceRoot: runInGameWorkspaceRoot,
+                  identity,
+                  ownerKind: "save-deploy",
+                  requestId,
+                  nowIso: nowIso(),
+                });
+                const admitted = yield* admitSaveDeploy({
+                  registry,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                  requestId,
+                  leaseId: lease.leaseId,
+                }).pipe(
+                  Effect.catchAll((err) =>
+                    releaseRuntimeOwnershipLease({
+                      workspaceRoot: runInGameWorkspaceRoot,
+                      leaseId: lease.leaseId,
+                      requestId,
+                    }).pipe(Effect.flatMap(() => Effect.fail(err)))
+                  )
+                );
+                return { kind: "new", admitted, lease } as const;
+              })
+            );
+            const admitted = admission.admitted;
+            if (admitted.kind === "admitted") {
+              yield* publish(admitted.eventOperation);
+              yield* runWorker(restore(saveDeployWorker(admitted.operation.requestId, input)));
+            } else if (admission.kind === "new") {
+              yield* releaseRuntimeOwnershipLease({
+                workspaceRoot: runInGameWorkspaceRoot,
+                leaseId: admission.lease.leaseId,
+                requestId,
+              });
+            }
+            return admitted.operation;
+          })
+        ),
       saveDeployStatus: (input) =>
         getSaveDeploy({
           registry,
@@ -425,7 +569,7 @@ function prepareRunInGameRequest(
     ...(input.recovery?.restartCivProcess === true ? { restartCivProcess: true } : {}),
     ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
   };
-  const fingerprint = stableHash({
+  const correlationDigest = stableHash({
     recipeId: request.recipeId,
     seed: request.seed ?? null,
     mapSize: request.mapSize ?? null,
@@ -438,10 +582,10 @@ function prepareRunInGameRequest(
     sourceSnapshot: input.sourceSnapshot ?? null,
   });
   return Effect.succeed({
-    fingerprint,
+    correlationDigest,
     request: {
       ...request,
-      fingerprint,
+      fingerprint: correlationDigest,
     },
   });
 }

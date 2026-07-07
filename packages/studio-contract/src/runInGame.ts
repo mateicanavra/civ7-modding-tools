@@ -533,13 +533,10 @@ export type RunDiagnosticsLookupResult = Static<typeof diagnosticsLookupResultSc
 // #13 runInGame.status - keyed mutation-state read by requestId.
 // ---------------------------------------------------------------------------
 // Input: requestId (REQUIRED). Success: PublicRunStatus projection.
-// Missing/expired/identity-mismatched requests map to declared D3 lifecycle
-// errors with daemon identity data.
-//
-// PARITY INVARIANT (audit/05 #13, target-arch section 1): the 404 echoes
-// `serverInstanceId`/`serverStartedAt` so the client detects a server restart that
-// lost the op. TTL pruning (30min) -> pruned op yields 404. The miss is the defined
-// `RUN_IN_GAME_STATUS_NOT_FOUND` error (./errors.ts), whose `data` carries the echo.
+// Missing or expired request ids map to a declared safe lifecycle error. A
+// durable non-terminal record from a prior daemon terminalizes as a public
+// ownership failure instead of making the client infer ownership loss from an
+// empty in-memory registry or public daemon identity.
 export const status = oc
   .errors(runInGameErrors)
   .input(
@@ -570,19 +567,19 @@ export const diagnostics = oc
 // ---------------------------------------------------------------------------
 // #14 runInGame.start - accepted operation start.
 // ---------------------------------------------------------------------------
-// Body: the full setup request. Success: PublicRunStatus (async). Duplicate
-// same fingerprint returns the same public operation projection.
+// Body: the full setup request. Success: PublicRunStatus (async). Each accepted
+// click owns a fresh request id; content fingerprints are correlation data only.
 // Errors: 409 (run-in-game OR save/deploy active), 400/500/503 via declared
 // RUN_IN_GAME_* codes whose data is limited to safe category/recovery fields.
 // Runtime internals, source snapshots, materialization, proof, and raw messages
 // belong behind explicit diagnostics lookup, never this public procedure.
 //
-// SECURITY BOUNDARY (target-arch section 1): the TypeBox contract rejects known
-// raw-control top-level tunnel keys, while the host validator deep-scans opaque
-// config/setup/source payloads for the same vocabulary before any workflow port
-// runs. The package operation runtime owns canonical request admission:
+// SECURITY BOUNDARY (target-arch section 1): the TypeBox contract keeps the
+// top-level public input closed, while the host validator deep-scans opaque
+// config/setup/source payloads for raw-control vocabulary before any workflow
+// port runs. The package operation runtime owns canonical request admission:
 // recipe pinning, kebab-case id, seed/mapSize/playerCount validation,
-// materialization mode, setup config normalization, and fingerprint derivation.
+// materialization mode, setup config normalization, and correlation digest derivation.
 export const start = oc
   .errors(runInGameErrors)
   .input(
@@ -639,9 +636,9 @@ export const start = oc
             )
           ),
         },
-        // Preserve unknown keys so `assertNoRawControlFields` can inspect/reject them.
-        { additionalProperties: Type.Unknown() }
-      )
+        { additionalProperties: false }
+      ),
+      { cleanUnknownProperties: false }
     )
   )
   .output(operationStatusSchema);
