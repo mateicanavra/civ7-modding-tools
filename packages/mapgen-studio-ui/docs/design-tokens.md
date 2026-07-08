@@ -1,6 +1,6 @@
 # Design tokens — vocabulary and known linter noise
 
-## The authored token vocabulary (32 names — everything else in the stylesheets is framework plumbing)
+## The authored token vocabulary — everything else in the stylesheets is framework plumbing
 
 All color tokens are HSL channel triplets consumed as `hsl(var(--token))` (or
 `hsl(var(--token) / alpha)`). Dark is the default (`:root, .dark`); `.light`
@@ -27,21 +27,24 @@ hex/oklch values — compose from these.
 | `--font-sans` · `--font-mono` | font | Inter / JetBrains Mono — the only two families |
 | `--color-border-secondary` · `--color-text-muted` | alias | legacy `hsl(var())` aliases used by the custom scrollbar |
 
-The repo verifies this inventory on every build (`test/designTokens.test.ts`
-against `dist/styles.css`): any custom property that is neither in this list
-nor Tailwind-owned fails CI, and both the dark and light declarations of every
-color token are pinned.
+The repo verifies this vocabulary on every build
+(`test/designTokens.test.ts` against `dist/styles.css`): every custom property
+must be authored (pinned with a kind, both palettes required for colors),
+`@property`-registered engine plumbing, or a snapshotted Tailwind default —
+anything else fails CI, and this table is asserted to name every authored
+token, so it cannot silently drift from the fixture.
 
 ## Known `check_design_system` findings — framework noise, do not chase
 
-Running the design-system check in this project will report, on every sync:
+Running the design-system check in this project will report, on every sync
+(counts drift with Tailwind versions; the classes are what matter):
 
-1. **"~80 of ~200 tokens couldn't be classified"** — the unclassifiable names
+1. **"N tokens couldn't be classified"** — the unclassifiable names
    (`--tw-*`, `--animate-spin`, `--default-transition-*`, `--tracking-*`, …)
    are Tailwind CSS v4's own `@theme` defaults and `@property`-registered
    engine variables baked into the compiled `_ds_bundle.css`. They are not
    MapGen Studio tokens.
-2. **"33 custom properties declared under component-style selectors … move
+2. **"Custom properties declared under component-style selectors … move
    them under `:root`"** — these are Tailwind utility-state variables (e.g.
    `--tw-space-y-reverse` inside `.space-y-* :where(& > :not(:last-child))`)
    and the universal reset. They are **required** to be selector-scoped.
@@ -53,10 +56,16 @@ Also known: the generated `_adherence.oxlintrc.json` token→kind map mislabels
 the semantic color tokens as `"other"` (they are colors; the HSL-triplet value
 form isn't recognized). Treat the table above as the authority on kinds.
 
+Scope note: the repo guard pins `dist/styles.css` (the package's compiled
+stylesheet). If the check's findings ever shift without a matching repo-side
+diff, the delta happened in the app-side bundling step — treat it as app-side,
+not something to chase in the repo.
+
 These findings cannot be cleared from this project: the classifier runs
 app-side over regenerated artifacts, and the stylesheets here are build
 artifacts of `@swooper/mapgen-studio-ui` — **never hand-edit `_ds_bundle.css`,
 `styles.css`, or anything under `components/`**; edits are overwritten by the
 next sync. The upstream fix request is tracked in the repo
-(`openspec/changes/studio-ui-token-noise-disposition/workstream/upstream-feedback.md`,
-deferral DEF-017).
+(`openspec/changes/studio-ui-token-noise-disposition/workstream/upstream-feedback.md`;
+deferral DEF-017 in the root ledger `docs/system/DEFERRALS.md` — distinct from
+the engine-refactor project's own DEF-017).

@@ -193,8 +193,12 @@ Some deferrals are intentionally scoped to a specific project/milestone (e.g., E
 
 ## DEF-017: Upstream design-sync token classifier over-captures Tailwind v4 internals
 
+> Numbering note: this is the ROOT ledger's DEF-017. The engine-refactor-v1
+> project ledger (`docs/projects/engine-refactor-v1/deferrals.md`) has its own,
+> unrelated DEF-017 — qualify the ledger when citing this entry.
+
 **Deferred:** 2026-07-08
 **Trigger:** A new Claude Code / design-sync skill version (binary-grep for `@kind` or a token-classification/metadata surface), or any claude.ai/design changelog touching `check_design_system` token classification.
 **Context:** `check_design_system` in the MapGen Studio DS project permanently reports ~80 "unclassified tokens" and 33 "selector-scoped custom properties" — all Tailwind v4 engine internals in the compiled bundle. The classifier is app-side (the claude.ai/design self-check that regenerates `_adherence.oxlintrc.json`); no repo-side surface exists to fix or suppress it (verified: no token classifier in the bundled converter, no `@kind` annotation support anywhere in CC v2.1.197). Feedback packet: `openspec/changes/studio-ui-token-noise-disposition/workstream/upstream-feedback.md`.
-**Scope:** Deliver the feedback packet to the design-sync/claude.ai-design maintainers; when a classifier fix or a project-supplied classification input ships, re-sync and confirm the findings clear, then retire the noise-disposition sections in `.design-sync/guidelines/design-tokens.md` and NOTES.md.
+**Scope:** Deliver the feedback packet to the design-sync/claude.ai-design maintainers; when a classifier fix or a project-supplied classification input ships, re-sync and confirm the findings clear, then retire the noise-disposition sections in `packages/mapgen-studio-ui/docs/design-tokens.md` and `.design-sync/NOTES.md`.
 **Impact:** Design agents see two known-noise findings per check (dispositioned in the synced guidelines); the repo-owned token guard (`packages/mapgen-studio-ui/test/designTokens.test.ts`) carries the real signal meanwhile.

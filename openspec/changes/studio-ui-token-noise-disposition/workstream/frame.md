@@ -15,8 +15,10 @@ re-deriving it, and the actual defect routed to the only party that can fix it.
 
 ## Diagnostic of the prior frame (why a reframe, not a plan against the handoff)
 
-The handoff packet (`scraps/design_handoff_ds_sync_token_noise/README.md`, plus
-the two alternate messages) frames this as: *scope the `/design-sync` token
+The handoff packet (the `2026-07-02_ds-sync-tailwind-fix.zip` archive —
+`design_handoff_ds_sync_token_noise/{README,token-inventory}.md`, the inventory
+now committed as `workstream/token-inventory.md` — plus the two alternate
+messages) frames this as: *scope the `/design-sync` token
 extractor (Option A) or annotate tokens with `/* @kind */` comments (Option B);
 acceptance = 0 unclassified + 0 selector-scoped findings after re-sync.* Two
 load-bearing assumptions were falsified by direct evidence:
@@ -65,7 +67,8 @@ classifier* (not ours) to *the signal economy of design sessions* (ours).
 ## Selection / salience / exterior
 
 - **In:** the two findings; ownership evidence; the authored token inventory
-  (~46 names incl. 25 HSL-triplet semantic colors); repo-owned sync surfaces
+  (32 names incl. 27 HSL-triplet color tokens — the handoff's larger "~46
+  KEEP" list mixed in Tailwind-emitted defaults); repo-owned sync surfaces
   (`guidelinesGlob`, `.design-sync/NOTES.md`, package tests); the upstream
   feedback channel; the acceptance-criterion rewrite.
 - **Foregrounded:** the ownership boundary (app vs repo); the falsified

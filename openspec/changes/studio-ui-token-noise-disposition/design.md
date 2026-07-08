@@ -9,40 +9,62 @@
 | Compiled `dist/styles.css` (78 `@property` `--tw-*` rules + `@theme` defaults + authored tokens) | Tailwind v4 build of package source | No content changes — fidelity gate |
 | `.design-sync/config.json`, `guidelines/**`, `NOTES.md`, package tests, repo docs | this repo | **Yes — the entire write set lives here** |
 
-## Decision 1 — guard shape: fixture-pinned partition, not heuristics
+## Decision 1 — guard shape: exact-name partition, zero prefix heuristics
 
-The test extracts every `--name:` declaration and every `@property` rule from
-`dist/styles.css` (brace-tracking scan, same method as the handoff inventory),
-then partitions:
+The test (`test/designTokens.test.ts`, `// @vitest-environment node` per the
+sibling `themeTokens.test.ts` pattern) extracts every `--name:` declaration
+with its selector stack plus every `@property`-registered name from
+`dist/styles.css` (comment-stripped, string-safe, block-final-declaration-safe
+brace-tracking scan), then partitions every custom property into exactly one
+of three buckets:
 
-- **framework-owned** := `@property`-registered ∪ name matches
-  `^--(tw|default|animate|blur)-` ∪ Tailwind numeric scales emitted by the
-  build (`--tracking-*`, `--leading-*`, `--text-*` + `--text-*--line-height`,
-  `--container-*`, `--spacing`, `--color-<palette>-<n>`, `--font-weight-*`,
-  `--font-sans/mono` as classified in the fixture).
-- **authored** := exact names in `test/fixtures/authored-tokens.json`, each
-  with a kind (`color | spacing | radius | shadow | font | alias`) and a value
-  shape check (HSL triplets `^\d{1,3}\s+\d{1,3}%\s+\d{1,3}%$` for colors;
-  `var()` for aliases).
+- **authored** := exact names in `test/fixtures/authored-tokens.json`, a flat
+  name → kind map (`color | alias | radius | font`; adding a new kind requires
+  extending `KIND_SCOPES`/`VALUE_SHAPES`, enforced by a named failure).
+  Scopes derive from kind (`color` → dark + light, `alias`/`radius` →
+  invariant `:root`, `font` → `@layer theme`), so a dark-only color token is
+  unrepresentable in the fixture; the scope check is bidirectional (every
+  expected scope declared AND no declaration outside the expected scopes).
+  Value shapes per kind (HSL triplet with decimals for colors, `hsl(var())`
+  for aliases, rem for radius, brand family for fonts).
+- **`@property`-registered** := harvested structurally from the stylesheet's
+  own `@property` rule preludes — definitionally engine plumbing. A sanity
+  assertion requires this set to be non-empty so the structural leg can never
+  silently regress to dead code.
+- **framework snapshot** := `test/fixtures/framework-tokens.json`, the exact
+  names of the non-`@property` Tailwind `@theme` defaults the build emits.
+  Checked in both directions (no strays in CSS; no stale snapshot entries).
 
-Assertions: (1) every fixture name is declared under an authored scope
-(`:root`, `:root, .dark`, `.light`); (2) every custom property in the file is
-authored-or-framework — a stray name fails with a message telling the author to
-either add it to the fixture (new real token) or recognize a Tailwind surface
-change (version bump). Both false-positive directions are proven in the
-negative test.
+Anything outside the three buckets fails with guidance. There are deliberately
+NO name-prefix heuristics: review probing proved a prefix predicate silently
+absorbs authored tokens named inside Tailwind's `@theme` authoring namespaces
+(`--text-hero`, `--animate-brand-*`, …) — with exact-name snapshots such a
+token surfaces as a stray and is forced into the authored fixture, while a
+Tailwind upgrade becomes a visible, reviewed snapshot regeneration.
 
-Why fixture over pure regex: the Tailwind palette (`--color-red-500`) and the
-authored aliases (`--color-border-secondary`) collide under any prefix rule;
-exact names make intent reviewable and make Tailwind upgrades a visible diff.
+Two cross-surface pins tie the guard to its siblings: the fixture's color
+names must equal `token-contract.json`'s dark-palette names (the value-pinning
+sibling test), and every authored token name must appear in the synced
+`docs/design-tokens.md` vocabulary table (so the design-agent-facing doc
+cannot rot against the fixture).
 
 ## Decision 2 — knowledge channels: two, matched to the two audiences
 
-- `guidelines/design-tokens.md` → design agents inside the DS project (the
-  converter ships `guidelines/**` and the README points agents at it "before
-  composing larger layouts"). Content: authored vocabulary table + the noise
-  disposition + the two hard prohibitions (no `:root` hoisting, no synced-file
-  edits).
+- `docs/design-tokens.md` (shipped as `guidelines/docs/design-tokens.md` via
+  `cfg.guidelinesGlob: "docs/*.md"`) → design agents inside the DS project
+  (the converter ships `guidelines/**` and the README points agents at it
+  "before composing larger layouts"). Content: authored vocabulary table + the
+  noise disposition + the two hard prohibitions (no `:root` hoisting, no
+  synced-file edits) + a scope note (the repo guard pins `dist/styles.css`; a
+  findings shift with no repo diff is app-side).
+  **Placement constraint (review-proven):** the source must NOT live under a
+  dot-directory. `emitGuidelines` preserves the package-relative subpath, and
+  `sync-hashes.mjs`'s `hashDir` skips dot-entries — a `.design-sync/`-nested
+  guideline would upload once and then never re-ship on edits (aux-hash blind
+  spot), besides risking dot-path exclusion in upload globs and file listings.
+  Living surfaces (this doc, NOTES.md) describe finding CLASSES, not counts —
+  counts drift with Tailwind versions and are pinned only in point-in-time
+  workstream records.
 - `.design-sync/NOTES.md` append → sync operators (its Re-sync risks section is
   required reading in the re-sync ritual). Content: findings are expected,
   docs-tier delta, do not chase; pointer to this change.
@@ -60,6 +82,22 @@ authored-token scan; classify HSL-triplet values as colors; fix the
 `tokenKinds` heuristic. The `docs/system/DEFERRALS.md` entry pins the re-check
 trigger (new Claude Code / design-sync versions) so the frame's falsifier is
 monitored instead of forgotten.
+
+## Review lanes
+
+Three lanes gate this change before it ships (executed as a fan-out fold at
+the stack tip; evidence and adjudications in `workstream/phase-record.md`):
+
+1. **Owner lane** — the orchestrating agent's design review against the frame
+   (ownership map, fidelity gate, no-hand-edit contract).
+2. **Correctness/cleanup fan-out** — eight independent finder angles
+   (line-scan, removed-behavior, cross-file tracer, reuse, simplification,
+   efficiency, altitude, conventions) over the full stack diff, each finding
+   verified or refuted with cited evidence.
+3. **Adversarial augmentation** — a five-dimension orchestrated sweep
+   (prose-fact audit, guard mutation probing, sync-contract semantics,
+   OpenSpec cross-consistency, independent partition re-derivation) designed
+   to attack the claims the first two lanes take on trust.
 
 ## Rejected alternatives
 

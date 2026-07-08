@@ -1,0 +1,31 @@
+{
+  "$comment": "Snapshot of the non-@property framework-owned custom properties Tailwind v4 emits into dist/styles.css (@theme defaults pulled in by used utilities). The @property-registered engine vars (--tw-*) are detected structurally by the test and are NOT listed. A Tailwind upgrade that changes this surface fails test/designTokens.test.ts until this snapshot is regenerated as a reviewed diff. Authority: openspec/changes/studio-ui-token-noise-disposition.",
+  "tokens": [
+    "--animate-spin",
+    "--blur-sm",
+    "--color-black",
+    "--color-blue-500",
+    "--color-emerald-500",
+    "--color-gray-400",
+    "--color-red-500",
+    "--color-red-600",
+    "--color-rose-400",
+    "--container-lg",
+    "--container-sm",
+    "--default-font-family",
+    "--default-mono-font-family",
+    "--default-transition-duration",
+    "--default-transition-timing-function",
+    "--font-weight-medium",
+    "--font-weight-semibold",
+    "--leading-relaxed",
+    "--spacing",
+    "--text-sm",
+    "--text-sm--line-height",
+    "--tracking-normal",
+    "--tracking-tight",
+    "--tracking-wide",
+    "--tracking-wider",
+    "--tracking-widest"
+  ]
+}

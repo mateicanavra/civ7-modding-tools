@@ -285,20 +285,28 @@ historical.
 
 ## Token-noise disposition (2026-07-08)
 - **`check_design_system`'s two recurring token findings are permanent framework
-  noise — do not chase them on any re-sync.** The "~80 unclassified tokens" and
-  "33 selector-scoped custom properties" are Tailwind v4 engine internals
-  (78 `@property` `--tw-*` vars + `@theme` defaults) in the compiled bundle;
-  the classifier is app-side (the claude.ai/design self-check that regenerates
-  `_adherence.oxlintrc.json`), so no repo or project edit clears them. The
-  `x-omelette.tokenKinds` map it emits is also wrong (semantic colors tagged
-  "other") — ignore it. Authority + evidence:
-  `openspec/changes/studio-ui-token-noise-disposition/` (frame, upstream
-  feedback packet, DEF-017 trigger). Repo-side truth: the token guard
-  `test/designTokens.test.ts` + `test/fixtures/authored-tokens.json` (32
-  authored names; update the fixture when adding a token to
-  `src/styles/theme.css`).
-- **Guidelines channel is now wired**: `cfg.guidelinesGlob =
-  ".design-sync/guidelines/*.md"` ships `guidelines/design-tokens.md` (token
-  vocabulary + the noise disposition for design agents). Guidelines are
-  docs-tier for the driver (aux/README change, sampled render check, no grade
-  re-key — `guidelinesGlob` is not a grade-contract key).
+  noise — do not chase them on any re-sync.** The "unclassified tokens" and
+  "selector-scoped custom properties" findings (counts drift with Tailwind
+  versions) are Tailwind v4 engine internals (`@property`-registered `--tw-*`
+  vars + `@theme` defaults) in the compiled bundle; the classifier is app-side
+  (the claude.ai/design self-check that regenerates `_adherence.oxlintrc.json`),
+  so no repo or project edit clears them. The `x-omelette.tokenKinds` map it
+  emits is also wrong (semantic colors tagged "other") — ignore it. Authority +
+  evidence: `openspec/changes/studio-ui-token-noise-disposition/` (frame,
+  upstream feedback packet; deferral DEF-017 in the ROOT ledger
+  `docs/system/DEFERRALS.md` — distinct from engine-refactor-v1's DEF-017).
+  Repo-side truth: the token guard `test/designTokens.test.ts` +
+  `test/fixtures/authored-tokens.json` (authored name → kind; scopes derived
+  from kind) + `test/fixtures/framework-tokens.json` (exact snapshot of the
+  non-`@property` Tailwind defaults; regenerate as a reviewed diff on Tailwind
+  bumps). Add a token to `src/styles/theme.css` → the guard forces a fixture
+  entry AND a row in `docs/design-tokens.md`.
+- **Guidelines channel is now wired**: `cfg.guidelinesGlob = "docs/*.md"` ships
+  `docs/design-tokens.md` → `guidelines/docs/design-tokens.md` (token
+  vocabulary + the noise disposition for design agents). The path is
+  deliberately NOT under a dot-directory: `sync-hashes.mjs` `hashDir` skips
+  dot-entries, so a dot-nested guideline would upload once and then silently
+  never re-ship on edits (aux hash blind spot); dot-paths also risk being
+  hidden from upload globs/file listings. Guidelines are docs-tier for the
+  driver (aux/README change, sampled render check, no grade re-key —
+  `guidelinesGlob` is not a grade-contract key).

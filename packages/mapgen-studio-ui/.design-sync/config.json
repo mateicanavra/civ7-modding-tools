@@ -12,7 +12,7 @@
   "extraFonts": ["dist/fonts.css"],
   "buildCmd": "bunx nx run mapgen-studio-ui:build",
   "readmeHeader": ".design-sync/conventions.md",
-  "guidelinesGlob": ".design-sync/guidelines/*.md",
+  "guidelinesGlob": "docs/*.md",
   "provider": {
     "component": "TooltipProvider",
     "props": { "delayDuration": 300 }
