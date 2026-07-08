@@ -30,35 +30,35 @@
    doesn't express.
    ---------------------------------------------------------------------------- */
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   /* substrate elevation + semantics (the primary craft lever) */
-  --color-border-subtle: hsl(var(--border-subtle));
-  --color-border-strong: hsl(var(--border-strong));
-  --color-input-background: hsl(var(--input-background));
-  --color-elevation-1: hsl(var(--elevation-1));
-  --color-elevation-2: hsl(var(--elevation-2));
-  --color-surface-sunken: hsl(var(--surface-sunken));
-  --color-success: hsl(var(--success));
-  --color-warning: hsl(var(--warning));
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-input-background: var(--input-background);
+  --color-elevation-1: var(--elevation-1);
+  --color-elevation-2: var(--elevation-2);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
@@ -86,8 +86,8 @@
   --radius: 0.25rem;
 
   /* legacy vars still referenced by scrollbar/select below — repointed to tokens */
-  --color-border-secondary: hsl(var(--border-strong));
-  --color-text-muted: hsl(var(--muted-foreground));
+  --color-border-secondary: var(--border-strong);
+  --color-text-muted: var(--muted-foreground);
 }
 
 /* ----------------------------------------------------------------------------
@@ -100,34 +100,34 @@
 .dark {
   color-scheme: dark;
 
-  --background: 240 14% 6%; /* page — the deck.gl canvas backdrop */
-  --foreground: 240 13% 92%;
-  --card: 240 9% 10%; /* panel — sits a felt step above the page */
-  --card-foreground: 240 13% 92%;
-  --popover: 240 9% 13%; /* floating layers — a step above panels */
-  --popover-foreground: 240 13% 92%;
-  --primary: 216 18% 44%; /* elevated cool-steel slate — the one accent */
-  --primary-foreground: 210 20% 96%;
-  --secondary: 240 7% 15%;
-  --secondary-foreground: 240 12% 88%;
-  --muted: 240 7% 15%;
-  --muted-foreground: 240 5% 58%;
-  --accent: 240 8% 17%; /* ghost/hover surface */
-  --accent-foreground: 240 13% 92%;
-  --destructive: 350 70% 58%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 8% 22%; /* findable hairline against panels */
-  --input: 240 9% 26%;
-  --ring: 212 28% 62%; /* focus contour — a luminance step, not a hue */
+  --background: hsl(240 14% 6%); /* page — the deck.gl canvas backdrop */
+  --foreground: hsl(240 13% 92%);
+  --card: hsl(240 9% 10%); /* panel — sits a felt step above the page */
+  --card-foreground: hsl(240 13% 92%);
+  --popover: hsl(240 9% 13%); /* floating layers — a step above panels */
+  --popover-foreground: hsl(240 13% 92%);
+  --primary: hsl(216 18% 44%); /* elevated cool-steel slate — the one accent */
+  --primary-foreground: hsl(210 20% 96%);
+  --secondary: hsl(240 7% 15%);
+  --secondary-foreground: hsl(240 12% 88%);
+  --muted: hsl(240 7% 15%);
+  --muted-foreground: hsl(240 5% 58%);
+  --accent: hsl(240 8% 17%); /* ghost/hover surface */
+  --accent-foreground: hsl(240 13% 92%);
+  --destructive: hsl(350 70% 58%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 8% 22%); /* findable hairline against panels */
+  --input: hsl(240 9% 26%);
+  --ring: hsl(212 28% 62%); /* focus contour — a luminance step, not a hue */
 
-  --border-subtle: 240 8% 15%; /* dividers within a surface */
-  --border-strong: 240 9% 32%; /* emphasis / control focus border */
-  --input-background: 240 12% 8%; /* inset: darker than its panel */
-  --elevation-1: 240 9% 10%; /* = panel */
-  --elevation-2: 240 9% 13%; /* = floating / raised-nested */
-  --surface-sunken: 240 12% 7%; /* nested cards: between page and panel */
-  --success: 160 50% 46%;
-  --warning: 40 80% 56%;
+  --border-subtle: hsl(240 8% 15%); /* dividers within a surface */
+  --border-strong: hsl(240 9% 32%); /* emphasis / control focus border */
+  --input-background: hsl(240 12% 8%); /* inset: darker than its panel */
+  --elevation-1: hsl(240 9% 10%); /* = panel */
+  --elevation-2: hsl(240 9% 13%); /* = floating / raised-nested */
+  --surface-sunken: hsl(240 12% 7%); /* nested cards: between page and panel */
+  --success: hsl(160 50% 46%);
+  --warning: hsl(40 80% 56%);
 }
 
 /* The hand-tuned light palette — applied only where `.light` is explicitly
@@ -135,34 +135,34 @@
 .light {
   color-scheme: light;
 
-  --background: 240 20% 97%;
-  --foreground: 215 25% 17%;
-  --card: 0 0% 100%;
-  --card-foreground: 215 25% 17%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 25% 17%;
-  --primary: 216 22% 32%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 240 14% 94%;
-  --secondary-foreground: 215 25% 22%;
-  --muted: 240 14% 94%;
-  --muted-foreground: 220 9% 46%;
-  --accent: 240 14% 92%;
-  --accent-foreground: 215 25% 17%;
-  --destructive: 350 72% 48%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 220 13% 88%;
-  --input: 220 13% 84%;
-  --ring: 216 25% 45%;
+  --background: hsl(240 20% 97%);
+  --foreground: hsl(215 25% 17%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(215 25% 17%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(215 25% 17%);
+  --primary: hsl(216 22% 32%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(240 14% 94%);
+  --secondary-foreground: hsl(215 25% 22%);
+  --muted: hsl(240 14% 94%);
+  --muted-foreground: hsl(220 9% 46%);
+  --accent: hsl(240 14% 92%);
+  --accent-foreground: hsl(215 25% 17%);
+  --destructive: hsl(350 72% 48%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(220 13% 88%);
+  --input: hsl(220 13% 84%);
+  --ring: hsl(216 25% 45%);
 
-  --border-subtle: 220 14% 92%;
-  --border-strong: 220 13% 78%;
-  --input-background: 0 0% 100%;
-  --elevation-1: 0 0% 100%;
-  --elevation-2: 0 0% 100%;
-  --surface-sunken: 240 16% 95%;
-  --success: 160 55% 36%;
-  --warning: 38 80% 42%;
+  --border-subtle: hsl(220 14% 92%);
+  --border-strong: hsl(220 13% 78%);
+  --input-background: hsl(0 0% 100%);
+  --elevation-1: hsl(0 0% 100%);
+  --elevation-2: hsl(0 0% 100%);
+  --surface-sunken: hsl(240 16% 95%);
+  --success: hsl(160 55% 36%);
+  --warning: hsl(38 80% 42%);
 }
 
 /* ----------------------------------------------------------------------------
@@ -170,7 +170,7 @@
    ---------------------------------------------------------------------------- */
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--border);
   }
 
   html {
@@ -183,8 +183,8 @@
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   /* Signature: focus is a 1px luminous contour ring (the ring token), offset
@@ -193,7 +193,7 @@
     outline: none;
   }
   *:focus-visible {
-    outline: 1px solid hsl(var(--ring));
+    outline: 1px solid var(--ring);
     outline-offset: 2px;
   }
 }
@@ -261,7 +261,7 @@ input:disabled {
 
 @supports not (backdrop-filter: blur(8px)) {
   .backdrop-blur-sm {
-    background-color: hsl(var(--popover) / 0.95);
+    background-color: color-mix(in oklab, var(--popover) 95%, transparent);
   }
 }
 

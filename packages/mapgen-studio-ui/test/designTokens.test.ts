@@ -66,10 +66,10 @@ const KIND_SCOPES: Record<string, readonly (keyof typeof SCOPE_SELECTORS)[]> = {
 };
 
 const VALUE_SHAPES: Record<string, RegExp> = {
-  // HSL channel triplet ("240 14% 6%", decimals allowed), consumed as hsl(var(--x)).
-  color: /^\d{1,3}(?:\.\d+)?\s+\d{1,3}(?:\.\d+)?%\s+\d{1,3}(?:\.\d+)?%$/,
-  // Resolved-color alias over another authored token.
-  alias: /^hsl\(var\(--[\w-]+\)\)$/,
+  // Full hsl() color value ("hsl(240 14% 6%)", decimals allowed), consumed as var(--x).
+  color: /^hsl\(\d{1,3}(?:\.\d+)? \d{1,3}(?:\.\d+)?% \d{1,3}(?:\.\d+)?%\)$/,
+  // Bare var() reference aliasing another authored token.
+  alias: /^var\(--[\w-]+\)$/,
   radius: /^\d*\.?\d+rem$/,
   // Authored font stacks lead with the brand family.
   font: /^"(?:Inter|JetBrains Mono)",/,
