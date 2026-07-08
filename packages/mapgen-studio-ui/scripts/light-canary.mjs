@@ -16,9 +16,10 @@
 // `.design-sync/light-canary-tokens.json` (screenshots are ephemeral —
 // re-run to regenerate). First run: 2026-07-02, 7/7 picks zero drift.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const require = createRequire(resolve(".ds-sync/package.json"));
 const pw = require("playwright");
@@ -84,7 +85,16 @@ const picks = [
     620,
   ],
 ];
-const TOKENS = [
+// The core theme tokens sampled on both sides. Named explicitly (a curated,
+// token-heavy subset — not every color), then validated against the verified
+// authored-token fixture at startup: each MUST be a kind=color entry in
+// test/fixtures/authored-tokens.json, which test/designTokens.test.ts keeps in
+// lockstep with src/styles/theme.css. So a token renamed or dropped in
+// theme.css falls out of the fixture and trips this assertion LOUDLY — instead
+// of the canary silently sampling "" on both sides and reporting zero drift (a
+// false pass). To retire or rename a sampled token, edit theme.css, the
+// fixture, and this list together.
+const CORE_TOKENS = [
   "--background",
   "--foreground",
   "--card",
@@ -93,6 +103,21 @@ const TOKENS = [
   "--border",
   "--destructive",
 ];
+const authoredTokens = JSON.parse(
+  readFileSync(
+    fileURLToPath(new URL("../test/fixtures/authored-tokens.json", import.meta.url)),
+    "utf8"
+  )
+).tokens;
+const staleTokens = CORE_TOKENS.filter((t) => authoredTokens[t] !== "color");
+if (staleTokens.length) {
+  throw new Error(
+    `light-canary: ${staleTokens.join(", ")} not a kind=color entry in ` +
+      "test/fixtures/authored-tokens.json — renamed or removed in src/styles/theme.css? " +
+      "Update CORE_TOKENS + the fixture together so the canary samples real tokens."
+  );
+}
+const TOKENS = CORE_TOKENS;
 const SB = resolve(".design-sync/sb-reference");
 const OUT = resolve("ds-bundle");
 const { srv: s1, port: p1 } = await serveDir(SB);

@@ -144,8 +144,16 @@ stack diff. Dispositions:
 - Cross-layer `src/styles/theme.css` ↔ dist freshness pin: the nx
   `test → build` edge covers the proof path; direct-vitest staleness is a
   known dev-loop property shared by the sibling test.
-- `scripts/light-canary.mjs`'s hand-listed token subset: pre-existing file
-  outside this slice; spun off as a follow-up task chip.
+- `scripts/light-canary.mjs`'s hand-listed token subset — **subsequently
+  ACTIONED (2026-07-08)** at the owner's request, on branch
+  `studio-ui-canary-fixture-source` stacked on branch 3. The 7-token subset now
+  loads and validates against `test/fixtures/authored-tokens.json` at startup
+  (each must be a `kind=color` entry), so a token renamed/removed in
+  `src/styles/theme.css` — which the guard forces out of the fixture — trips a
+  loud startup error instead of the canary silently sampling `""` on both sides
+  and reporting zero drift (a false pass). Behavior is otherwise identical (same
+  7 tokens); re-run against the built reference confirmed 7/7 zero drift.
+  Originally deferred here as a pre-existing file outside this slice.
 
 ## Verification (final gate run, 2026-07-08, stack tip)
 
