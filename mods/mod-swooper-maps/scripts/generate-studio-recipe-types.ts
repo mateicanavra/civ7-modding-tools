@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import {
   deriveRecipeConfigSchema,
   deriveStageAuthoringModel,
@@ -10,6 +10,7 @@ import {
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { compile } from "json-schema-to-typescript";
 import type { TObject, TSchema } from "typebox";
+import { STANDARD_STAGES } from "../dist/recipes/standard.js";
 import { CatalogSourceIndex } from "../src/maps/catalog/sourceIndex.js";
 import {
   catalogConfigFileNameFromPath,
@@ -54,6 +55,12 @@ type StageLike = Readonly<{
     rawSteps: Record<string, unknown>;
   };
 }>;
+
+function assertStageLikes(value: unknown, label: string): asserts value is readonly StageLike[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} missing export STANDARD_STAGES`);
+  }
+}
 
 type StudioRecipeUiMeta = Readonly<{
   namespace: string;
@@ -251,22 +258,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
 
-const distStandard = resolve(pkgRoot, "dist", "recipes", "standard.js");
+assertStageLikes(STANDARD_STAGES, "[recipe:mod-swooper-maps.standard]");
+const standardStages = STANDARD_STAGES;
 
-const standardMod = (await import(pathToFileURL(distStandard).href)) as unknown as {
-  STANDARD_STAGES: readonly StageLike[];
-  compileOpsById: Readonly<Record<string, unknown>>;
-};
-if (!Array.isArray(standardMod.STANDARD_STAGES)) {
-  throw new Error(`[recipe:mod-swooper-maps.standard] missing export STANDARD_STAGES`);
-}
-
-const standardSchema = deriveRecipeConfigSchema(standardMod.STANDARD_STAGES);
+const standardSchema = deriveRecipeConfigSchema(standardStages);
 const standardSchemaJson = stableJson(standardSchema);
 const standardUiMeta = deriveStudioRecipeUiMeta({
   namespace: "mod-swooper-maps",
   recipeId: "standard",
-  stages: standardMod.STANDARD_STAGES,
+  stages: standardStages,
 });
 const standardDefaultPresetPath = resolve(
   pkgRoot,
@@ -282,7 +282,7 @@ const standardDefaultMapConfig = validateCanonicalMapConfig({
   fileName: "swooper-earthlike.config.json",
   raw: standardDefaultPresetRaw,
   recipeSchema: standardSchema,
-  stages: standardMod.STANDARD_STAGES,
+  stages: standardStages,
 });
 const standardDefaultPresetClean = {
   ...buildDefaultsSkeleton(standardUiMeta),
@@ -365,7 +365,7 @@ async function validateStandardMapConfigPresets(): Promise<void> {
         fileName,
         raw,
         recipeSchema: standardSchema,
-        stages: standardMod.STANDARD_STAGES,
+        stages: standardStages,
       });
     } catch (err) {
       errors.push({

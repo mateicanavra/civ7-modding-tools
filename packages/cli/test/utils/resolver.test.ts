@@ -1,6 +1,6 @@
 import * as fssync from "node:fs";
 import { promises as fs } from "node:fs";
-import type * as os from "node:os";
+import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -41,7 +41,7 @@ vi.mock("node:fs", async () => {
 
 const mockedFs = vi.mocked(fssync);
 const mockedFsPromises = vi.mocked(fs);
-const mockedOs = vi.mocked(await import("node:os"));
+const mockedOs = vi.mocked(os);
 
 describe("CLI Resolver Utilities", () => {
   const projectRoot = "/fake/project";
