@@ -8,17 +8,23 @@
 
 ## 2. Token-signal guard (stack branch 2)
 
-- [ ] 2.1 Generate `test/fixtures/authored-tokens.json` from the built
+- [x] 2.1 Generate `test/fixtures/authored-tokens.json` from the built
   `dist/styles.css` authored scopes (names + kinds + scopes), reconciled
-  against the handoff inventory (`~46` authored names; 25 HSL-triplet color
-  tokens).
-- [ ] 2.2 Add `test/designTokens.test.ts`: brace-tracking extraction of custom
+  against the handoff inventory. Reconciliation outcome: 32 authored names
+  (27 dual-scope HSL color tokens, 2 `hsl(var())` aliases, `--radius`, 2 font
+  stacks) — the handoff's "~46 KEEP" list mixed in Tailwind-emitted scale
+  defaults (`--text-sm`, `--spacing`, `--container-*`, `--font-weight-*`,
+  palette `--color-*-N`), which the fixture classifies as framework-owned.
+- [x] 2.2 Add `test/designTokens.test.ts`: brace-tracking extraction of custom
   properties + `@property` rules; partition authored/framework; assert fixture
-  exactness, no strays, kind value-shapes (HSL triplet, `var()` alias).
-- [ ] 2.3 Negative proof: temporarily mutate fixture both directions (drop one
-  authored name; add one fake) and record both failures in the phase record;
-  restore.
-- [ ] 2.4 `bunx nx run mapgen-studio-ui:test --outputStyle=static` green.
+  exactness, no strays, kind value-shapes (HSL triplet, `var()` alias); plus a
+  predicate-does-not-swallow-fixture assertion and dual-scope (dark+light)
+  coverage pinning both palettes.
+- [x] 2.3 Negative proof: dropping `--warning` fails the partition test (stray
+  named); adding `--fake-token` fails the scope test (both scopes named);
+  restored fixture green (evidence in phase record).
+- [x] 2.4 Package test suite green: 17 files, 172 tests (168 pre-existing + 4
+  guard).
 
 ## 3. Knowledge surfaces + upstream routing (stack branch 3)
 

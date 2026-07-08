@@ -1,0 +1,224 @@
+{
+  "$comment": "Authored design-token inventory for @swooper/mapgen-studio-ui, verified against built dist/styles.css by test/designTokens.test.ts. Every custom property in the built stylesheet must be either listed here or framework-owned (see the test's framework predicate). Adding a token to src/styles/theme.css requires adding it here with a kind; a Tailwind upgrade that changes the engine-variable surface must be absorbed as a reviewed diff. Authority: openspec/changes/studio-ui-token-noise-disposition.",
+  "tokens": {
+    "--background": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--card": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--card-foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--popover": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--popover-foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--primary": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--primary-foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--secondary": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--secondary-foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--muted": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--muted-foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--accent": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--accent-foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--destructive": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--destructive-foreground": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--border": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--input": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--ring": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--border-subtle": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--border-strong": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--input-background": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--elevation-1": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--elevation-2": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--surface-sunken": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--success": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--warning": {
+      "kind": "color",
+      "scopes": [
+        "dark",
+        "light"
+      ]
+    },
+    "--color-border-secondary": {
+      "kind": "alias",
+      "scopes": [
+        "invariant"
+      ]
+    },
+    "--color-text-muted": {
+      "kind": "alias",
+      "scopes": [
+        "invariant"
+      ]
+    },
+    "--radius": {
+      "kind": "radius",
+      "scopes": [
+        "invariant"
+      ]
+    },
+    "--font-sans": {
+      "kind": "font",
+      "scopes": [
+        "theme"
+      ]
+    },
+    "--font-mono": {
+      "kind": "font",
+      "scopes": [
+        "theme"
+      ]
+    }
+  }
+}
