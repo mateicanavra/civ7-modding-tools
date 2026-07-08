@@ -71,16 +71,17 @@
 
 ## 5. Verification And Closure
 
-- [ ] 5.1 `bunx nx run mapgen-studio-ui:test --outputStyle=static` and
-  `bunx nx run mapgen-studio-ui:check --outputStyle=static` at the stack tip.
-- [ ] 5.2 `bunx nx run mapgen-studio-ui:design-sync:check --outputStyle=static`
-  (re-run after the guidelines relocation).
-- [ ] 5.3 `bun run openspec -- validate studio-ui-token-noise-disposition
-  --strict` and `git diff --check` across the stack.
-- [ ] 5.4 Submit the stack as draft PRs (`gt submit --draft --no-interactive`),
-  parent-verified against `main`.
-- [ ] 5.5 Record in the phase record: the next re-sync ships `guidelines/**`
-  (docs-tier); the live upload remains gated on the user's explicit go-ahead.
-- [ ] 5.6 Update task checkboxes; archiving happens only after the gated
-  re-sync lands and the change's deltas are promoted per change-management
-  spec.
+- [x] 5.1 Package suite + typecheck green at the stack tip (17 files / 174
+  tests; `tsc` for both configs).
+- [x] 5.2 `design-sync:check` re-run green after the guidelines relocation
+  (exit 0, `anchor: ok`, changed 0, `guidelines/docs/design-tokens.md` +
+  `guidelines/index.md` staged).
+- [x] 5.3 `openspec validate studio-ui-token-noise-disposition --strict` and
+  `git diff --check` green across the stack.
+- [x] 5.4 Stack submitted as draft PRs, parent-verified against `main`:
+  #2044 (openspec) → #2045 (guard) → #2046 (knowledge surfaces + review
+  fold).
+- [x] 5.5 Recorded: the next re-sync ships `guidelines/**` (docs-tier); the
+  live upload remains gated on the user's explicit go-ahead.
+- [ ] 5.6 Archive after the gated re-sync lands and the change's deltas are
+  promoted per change-management spec.

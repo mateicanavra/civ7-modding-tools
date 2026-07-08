@@ -147,6 +147,25 @@ stack diff. Dispositions:
 - `scripts/light-canary.mjs`'s hand-listed token subset: pre-existing file
   outside this slice; spun off as a follow-up task chip.
 
-## Verification
+## Verification (final gate run, 2026-07-08, stack tip)
 
-- (final gate run recorded at closure)
+- `mapgen-studio-ui` package suite: 17 files / 174 tests green (168
+  pre-existing + 6 guard); `tsc -p tsconfig.json` + `tsc -p
+  tsconfig.test.json` clean.
+- Four-direction negative proof against the final guard: drop `--warning`
+  from the authored fixture → partition + cross-fixture tests fail naming it;
+  append `--text-accent` to a scratch `.light` block → partition test fails
+  naming it (prefix-swallow hole closed); add a fake snapshot entry → stale
+  check fails naming it; set an unknown kind → named failures (no TypeError).
+  Restore → 6/6 green, clean tree.
+- `design-sync:check`: exit 0 against the live anchor (`anchor: ok`,
+  changed/added/removed 0); staged output contains
+  `guidelines/docs/design-tokens.md` + `guidelines/index.md` (non-dot,
+  aux-hashed). `[REFERENCE_STALE?]` warn is the expected fresh-worktree
+  bundle-rebuild note, non-blocking.
+- `openspec validate studio-ui-token-noise-disposition --strict` valid;
+  `git diff --check` clean.
+- Stack submitted as draft PRs off `main`: #2044 → #2045 → #2046.
+- Outstanding: the live re-sync/upload of `guidelines/**` to DS project
+  `531d158d…` awaits the user's explicit go-ahead (standing upload gate);
+  archiving waits for that re-sync + delta promotion.
