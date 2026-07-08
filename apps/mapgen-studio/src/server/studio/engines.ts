@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import {
@@ -23,6 +23,7 @@ import type {
 import { readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import {
   dependencyUnavailable,
+  deployFailed,
   invalidRequest,
   isStudioRuntimeFailure,
   materializationFailed,
@@ -445,6 +446,57 @@ async function deployGeneratedSwooperRunMod(
   };
 }
 
+async function snapshotDeployedMod(
+  options: Readonly<{
+    requestId: string;
+    deployedModId: string;
+    targetRoot: string;
+    signal: AbortSignal;
+  }>
+): Promise<NonNullable<RunInGameDeployment["deployedSnapshot"]>> {
+  throwIfRunDeployAborted(options.signal);
+  const files = await listFiles(options.targetRoot);
+  const snapshotFiles = await Promise.all(
+    files.map(async (file) => {
+      throwIfRunDeployAborted(options.signal);
+      const relativePath = relative(options.targetRoot, file).replaceAll("\\", "/");
+      const bytes = await readFile(file);
+      const fileStat = await stat(file);
+      return {
+        path: relativePath,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+        sizeBytes: fileStat.size,
+        bytes,
+      };
+    })
+  );
+  throwIfRunDeployAborted(options.signal);
+  const digest = createHash("sha256");
+  for (const file of snapshotFiles) {
+    digest.update(file.path, "utf8");
+    digest.update("\0");
+    digest.update(file.bytes);
+    digest.update("\0");
+  }
+  return {
+    requestId: options.requestId,
+    deployedModId: options.deployedModId,
+    targetRoot: options.targetRoot,
+    observedAt: new Date().toISOString(),
+    fileCount: snapshotFiles.length,
+    digest: digest.digest("hex"),
+    files: snapshotFiles.map(({ bytes: _bytes, ...file }) => file),
+  };
+}
+
+function throwIfRunDeployAborted(signal: AbortSignal): void {
+  if (signal.aborted) {
+    throw signal.reason instanceof Error
+      ? signal.reason
+      : new Error("Run in Game deployment was cancelled.");
+  }
+}
+
 async function digestFileTree(root: string): Promise<{ fileCount: number; digest: string }> {
   const files = await listFiles(root);
   const hash = createHash("sha256");
@@ -712,7 +764,8 @@ export function createStudioOperationRuntimePorts(
         },
       };
     },
-    deployRunInGame: async ({ requestId, prepared, generatedMod }) => {
+    deployRunInGame: async ({ requestId, prepared, generatedMod, signal }) => {
+      throwIfRunDeployAborted(signal);
       const context = makeRunInGameLeafContext({ requestId, prepared });
       const materialization = requireContextValue(
         generatedMod.materialization,
@@ -733,22 +786,67 @@ export function createStudioOperationRuntimePorts(
         "Run in Game run artifact id",
         requestId
       );
+      const deploymentStartedAt = new Date().toISOString();
+      throwIfRunDeployAborted(signal);
       const deploy = await deployGeneratedSwooperRunMod({ generatedModRoot });
+      throwIfRunDeployAborted(signal);
+      const deployedSnapshot = await snapshotDeployedMod({
+        requestId,
+        deployedModId: SWOOPER_STUDIO_RUN_MOD_ID,
+        targetRoot: deploy.targetDir,
+        signal,
+      });
+      throwIfRunDeployAborted(signal);
+      if (deployedSnapshot.digest !== materialization.generatedModDigest) {
+        throw deployFailed({
+          message: "Deployed Studio run mod snapshot does not match the generated mod",
+          reason: "deploy-failed",
+          diagnostics: boundedDiagnostics({
+            code: "run-in-game-deployed-snapshot-digest-mismatch",
+            requestId,
+            deployedModId: SWOOPER_STUDIO_RUN_MOD_ID,
+            targetRoot: deploy.targetDir,
+            generatedModDigest: materialization.generatedModDigest,
+            deployedModDigest: deployedSnapshot.digest,
+            generatedModFileCount: materialization.generatedModFileCount,
+            deployedModFileCount: deployedSnapshot.fileCount,
+          }),
+          recoveryActions: [
+            "copy-diagnostics",
+            "retry-status",
+            "retry-run",
+            "inspect-deploy-output",
+          ],
+        });
+      }
+      const runDeployment: NonNullable<RunInGameDeployment["runDeployment"]> = {
+        requestId,
+        deployedModId: SWOOPER_STUDIO_RUN_MOD_ID,
+        generatedModRoot,
+        generatedModDigest: materialization.generatedModDigest,
+        targetRoot: deploy.targetDir,
+        startedAt: deploymentStartedAt,
+        completedAt: deployedSnapshot.observedAt,
+        filesCopied: deploy.filesCopied,
+      };
       const generatedSourceScript = await optionalFileIdentity({
         repoRoot,
         path: generatedSourceScriptPath(generatedModRoot, runArtifactId),
         exposeAs: "absolute",
       });
+      throwIfRunDeployAborted(signal);
       const localModScript = await optionalFileIdentity({
         repoRoot,
         path: localModScriptPath(generatedModRoot, runArtifactId),
         exposeAs: "absolute",
       });
+      throwIfRunDeployAborted(signal);
       const deployedModScript = await optionalFileIdentity({
         repoRoot,
         path: deployedModScriptPath(deploy.targetDir, runArtifactId),
         exposeAs: "absolute",
       });
+      throwIfRunDeployAborted(signal);
       const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
         requestId,
         configHash: context.configHash,
@@ -760,12 +858,14 @@ export function createStudioOperationRuntimePorts(
         exposeAs: "absolute",
         markers: requiredMaterializationMarkers,
       });
+      throwIfRunDeployAborted(signal);
       const deployedModScriptContent = await optionalFileContentMarkerProof({
         repoRoot,
         path: deployedModScriptPath(deploy.targetDir, runArtifactId),
         exposeAs: "absolute",
         markers: requiredMaterializationMarkers,
       });
+      throwIfRunDeployAborted(signal);
       context.materialization = {
         ...materialization,
         ...(generatedSourceScript ? { generatedSourceScript } : {}),
@@ -809,7 +909,12 @@ export function createStudioOperationRuntimePorts(
         });
       }
 
-      context.deployment = { materialization: context.materialization, deploy };
+      context.deployment = {
+        materialization: context.materialization,
+        deploy,
+        runDeployment,
+        deployedSnapshot,
+      };
       context.launchMapScript = materialization.mapScript;
       return context.deployment;
     },

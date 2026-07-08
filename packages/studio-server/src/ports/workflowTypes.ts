@@ -77,10 +77,43 @@ export type RunInGameGeneratedMod = Readonly<{
   cleanup?(): Promise<void>;
 }>;
 
-export type RunInGameDeployment = Readonly<{
-  materialization?: RunInGameMaterializationStatus;
-  deploy?: unknown;
+export type RunDeployment = Readonly<{
+  requestId: string;
+  deployedModId: string;
+  generatedModRoot: string;
+  generatedModDigest: string;
+  targetRoot: string;
+  startedAt: string;
+  completedAt: string;
+  filesCopied: number;
 }>;
+
+export type DeployedModSnapshotFile = Readonly<{
+  path: string;
+  sha256: string;
+  sizeBytes: number;
+}>;
+
+export type DeployedModSnapshot = Readonly<{
+  requestId: string;
+  deployedModId: string;
+  targetRoot: string;
+  observedAt: string;
+  fileCount: number;
+  digest: string;
+  files: readonly DeployedModSnapshotFile[];
+}>;
+
+export type RunInGameDeploymentEvidence = Readonly<{
+  runDeployment: RunDeployment;
+  deployedSnapshot: DeployedModSnapshot;
+}>;
+
+export type RunInGameDeployment = RunInGameDeploymentEvidence &
+  Readonly<{
+    materialization?: RunInGameMaterializationStatus;
+    deploy?: unknown;
+  }>;
 
 export type RunInGameRestartResult = Readonly<{
   processRestart?: RunInGameProcessRestartStatus;

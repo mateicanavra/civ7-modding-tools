@@ -210,18 +210,24 @@ describe("StudioOperationRuntime", () => {
     const events: StudioEvent[] = [];
     const deployBlocker = deferred<void>();
     let cleanupCalls = 0;
+    const runInGameWorkspaceRoot = join(
+      tmpdir(),
+      `studio-operation-runtime-cancel-deploy-${process.pid}-${++runtimeWorkspaceSequence}`
+    );
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
+        runInGameWorkspaceRoot,
         generateRunInGameMod: async () => ({
           ...generatedRunInGameMod(),
           cleanup: async () => {
             cleanupCalls += 1;
           },
         }),
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await deployBlocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -237,9 +243,25 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe("deploying");
 
-    const cancelled = await runtime.runPromise(
-      service.runInGameCancel({ requestId: accepted.requestId })
-    );
+    let cancelResolved = false;
+    const cancelPromise = runtime
+      .runPromise(service.runInGameCancel({ requestId: accepted.requestId }))
+      .then((cancelled) => {
+        cancelResolved = true;
+        return cancelled;
+      });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(cancelResolved).toBe(false);
+    const heldLease = JSON.parse(
+      await readFile(join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json"), "utf8")
+    ) as Record<string, unknown>;
+    expect(heldLease).toMatchObject({
+      ownerKind: "run-in-game",
+      requestId: accepted.requestId,
+    });
+
+    deployBlocker.resolve();
+    const cancelled = await cancelPromise;
 
     expect(cancelled).toMatchObject({
       requestId: accepted.requestId,
@@ -253,12 +275,22 @@ describe("StudioOperationRuntime", () => {
     const current = await runtime.runPromise(service.operationsCurrent);
     expect(current.runInGame.active).toBeNull();
     expect(current.runInGame.recent).toContainEqual(cancelled);
-
-    deployBlocker.resolve();
     await new Promise((resolve) => setTimeout(resolve, 0));
     await expect(
       runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
     ).resolves.toEqual(cancelled);
+    await expect(
+      runtime.runPromise(
+        service.saveDeployStart({
+          requestId: "save-after-run-cancel",
+          id: "test-config",
+          envelope: {},
+        })
+      )
+    ).resolves.toMatchObject({
+      requestId: "save-after-run-cancel",
+      status: "running",
+    });
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
     expectTypeboxValid(operationStatusTypeSchema, cancelled);
   });
@@ -277,9 +309,9 @@ describe("StudioOperationRuntime", () => {
             throw new Error("cleanup exploded");
           },
         }),
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await deployBlocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -295,9 +327,18 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe("deploying");
 
-    const cancelled = await runtime.runPromise(
-      service.runInGameCancel({ requestId: accepted.requestId })
-    );
+    let cancelResolved = false;
+    const cancelPromise = runtime
+      .runPromise(service.runInGameCancel({ requestId: accepted.requestId }))
+      .then((cancelled) => {
+        cancelResolved = true;
+        return cancelled;
+      });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(cancelResolved).toBe(false);
+
+    deployBlocker.resolve();
+    const cancelled = await cancelPromise;
 
     expect(cancelled).toMatchObject({
       requestId: accepted.requestId,
@@ -321,7 +362,6 @@ describe("StudioOperationRuntime", () => {
       },
     });
 
-    deployBlocker.resolve();
     await new Promise((resolve) => setTimeout(resolve, 0));
     await expect(
       runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
@@ -457,9 +497,9 @@ describe("StudioOperationRuntime", () => {
             throw new Error("sync cleanup exploded");
           },
         }),
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await deployBlocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -475,9 +515,18 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe("deploying");
 
-    const cancelled = await runtime.runPromise(
-      service.runInGameCancel({ requestId: accepted.requestId })
-    );
+    let cancelResolved = false;
+    const cancelPromise = runtime
+      .runPromise(service.runInGameCancel({ requestId: accepted.requestId }))
+      .then((cancelled) => {
+        cancelResolved = true;
+        return cancelled;
+      });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(cancelResolved).toBe(false);
+
+    deployBlocker.resolve();
+    const cancelled = await cancelPromise;
 
     expect(cancelled).toMatchObject({
       requestId: accepted.requestId,
@@ -498,7 +547,6 @@ describe("StudioOperationRuntime", () => {
         cause: expect.stringContaining("sync cleanup exploded"),
       },
     });
-    deployBlocker.resolve();
     expectTypeboxValid(operationStatusTypeSchema, cancelled);
   });
 
@@ -631,9 +679,9 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await deployBlocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -648,9 +696,18 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe("deploying");
 
-    const first = await runtime.runPromise(
-      service.runInGameCancel({ requestId: accepted.requestId })
-    );
+    let cancelResolved = false;
+    const cancelPromise = runtime
+      .runPromise(service.runInGameCancel({ requestId: accepted.requestId }))
+      .then((cancelled) => {
+        cancelResolved = true;
+        return cancelled;
+      });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(cancelResolved).toBe(false);
+
+    deployBlocker.resolve();
+    const first = await cancelPromise;
     const terminalEventCount = terminalRunInGameEvents(events, accepted.requestId).length;
     const repeated = await runtime.runPromise(
       service.runInGameCancel({ requestId: accepted.requestId })
@@ -659,7 +716,6 @@ describe("StudioOperationRuntime", () => {
     expect(first).toMatchObject({ status: "cancelled", phase: "cancelled" });
     expect(repeated).toEqual(first);
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(terminalEventCount);
-    deployBlocker.resolve();
   });
 
   test("cancelling a terminal Run in Game operation returns the terminal without mutation", async () => {
@@ -708,9 +764,9 @@ describe("StudioOperationRuntime", () => {
       eventSink: events,
       eventPublishBlocker: publishBlocker.promise,
       ports: {
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await deployBlocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -766,9 +822,9 @@ describe("StudioOperationRuntime", () => {
     const runBlocker = deferred<void>();
     const { runtime: runRuntime } = makeRuntime({
       ports: {
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await runBlocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -859,9 +915,9 @@ describe("StudioOperationRuntime", () => {
     let observedSourceSnapshot: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        deployRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
           observedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -906,9 +962,9 @@ describe("StudioOperationRuntime", () => {
     let observedRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        deployRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
           observedRequest = prepared.request as Record<string, unknown>;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -995,9 +1051,9 @@ describe("StudioOperationRuntime", () => {
     let observedDurableRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        deployRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
           observedDurableRequest = prepared.request as Record<string, unknown>;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -1017,9 +1073,9 @@ describe("StudioOperationRuntime", () => {
     let observedRestartRequest: Record<string, unknown> | undefined;
     const { runtime: restartRuntime } = makeRuntime({
       ports: {
-        deployRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
           observedRestartRequest = prepared.request as Record<string, unknown>;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -1304,6 +1360,147 @@ describe("StudioOperationRuntime", () => {
     });
   });
 
+  test("records Run in Game deployment and deployed snapshot only in private diagnostics", async () => {
+    const events: StudioEvent[] = [];
+    const observedDeploymentDigests: string[] = [];
+    const observeDeployment = (deployment: Awaited<
+      ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>
+    >) => {
+      observedDeploymentDigests.push(
+        `${deployment.runDeployment.deployedModId}:${deployment.runDeployment.generatedModDigest}:${deployment.deployedSnapshot.digest}`
+      );
+    };
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
+          const generatedModRoot = "/tmp/studio-generated-run";
+          const generatedModDigest = "sha256-generated-tree";
+          return {
+            materialization: {
+              ...generatedMod.materialization,
+              generatedModRoot,
+              generatedModDigest,
+            },
+            runDeployment: {
+              requestId,
+              deployedModId: "mod-swooper-studio-run",
+              generatedModRoot,
+              generatedModDigest,
+              targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+              startedAt: "2026-06-10T00:00:00.000Z",
+              completedAt: "2026-06-10T00:00:01.000Z",
+              filesCopied: 3,
+            },
+            deployedSnapshot: {
+              requestId,
+              deployedModId: "mod-swooper-studio-run",
+              targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+              observedAt: "2026-06-10T00:00:01.000Z",
+              fileCount: 3,
+              digest: generatedModDigest,
+              files: [
+                {
+                  path: "maps/run-test.js",
+                  sha256: "sha256-map-script",
+                  sizeBytes: 512,
+                },
+                {
+                  path: "maps/run-test.config.json",
+                  sha256: "sha256-map-config",
+                  sizeBytes: 128,
+                },
+                {
+                  path: "modinfo.json",
+                  sha256: "sha256-modinfo",
+                  sizeBytes: 96,
+                },
+              ],
+            },
+          };
+        },
+        waitForRunInGameLogProof: async ({ deployment }) => {
+          observeDeployment(deployment);
+          return { result: { ok: true } };
+        },
+        buildRunInGameProof: async ({ deployment }) => {
+          observeDeployment(deployment);
+          return { result: { ok: true } };
+        },
+      },
+      civ7: {
+        checkPlayable: ({ deployment }) =>
+          Effect.sync(() => {
+            observeDeployment(deployment);
+          }),
+        prepareSetup: ({ deployment }) =>
+          Effect.sync(() => {
+            observeDeployment(deployment);
+            return {};
+          }),
+        startGame: ({ deployment }) =>
+          Effect.sync(() => {
+            observeDeployment(deployment);
+            return {};
+          }),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
+
+    const status = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const current = await runtime.runPromise(service.operationsCurrent);
+    const publicEvents = events.filter(
+      (event) =>
+        event.type === "operation" &&
+        event.kind === "run-in-game" &&
+        event.status.requestId === accepted.requestId
+    );
+    for (const publicValue of [accepted, status, current, ...publicEvents]) {
+      expect(JSON.stringify(publicValue)).not.toMatch(
+        /runDeployment|deployedSnapshot|targetRoot|generatedModRoot|deployedModId|generatedModDigest|filesCopied/
+      );
+    }
+    expect(observedDeploymentDigests).toEqual(
+      Array(5).fill("mod-swooper-studio-run:sha256-generated-tree:sha256-generated-tree")
+    );
+
+    const privateOperation = await readPrivateRunOperation(
+      runtime,
+      service,
+      accepted.diagnosticsId
+    );
+    expect(privateOperation.deploymentEvidence?.runDeployment).toMatchObject({
+      requestId: accepted.requestId,
+      deployedModId: "mod-swooper-studio-run",
+      generatedModDigest: "sha256-generated-tree",
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      filesCopied: 3,
+    });
+    expect(privateOperation.deploymentEvidence?.deployedSnapshot).toMatchObject({
+      requestId: accepted.requestId,
+      deployedModId: "mod-swooper-studio-run",
+      fileCount: 3,
+      digest: "sha256-generated-tree",
+      files: [
+        { path: "maps/run-test.js", sha256: "sha256-map-script", sizeBytes: 512 },
+        { path: "maps/run-test.config.json", sha256: "sha256-map-config", sizeBytes: 128 },
+        { path: "modinfo.json", sha256: "sha256-modinfo", sizeBytes: 96 },
+      ],
+    });
+  });
+
   test("rejects raw-control Run in Game payloads before admission", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
@@ -1489,9 +1686,9 @@ describe("StudioOperationRuntime", () => {
     let observedMapScript: string | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        deployRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
           observedMapScript = prepared.request.setupConfig?.mapScript;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -1561,9 +1758,9 @@ describe("StudioOperationRuntime", () => {
         const status = await runtime.runPromise(
           service.runInGameStatus({ requestId: accepted.requestId })
         );
-        return status.phase;
+        return status.phase === "failed" && status.diagnosticsId === accepted.diagnosticsId;
       })
-      .toBe("failed");
+      .toBe(true);
 
     const status = await runtime.runPromise(
       service.runInGameStatus({ requestId: accepted.requestId })
@@ -1593,9 +1790,9 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await blocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -1659,9 +1856,9 @@ describe("StudioOperationRuntime", () => {
     const blocker = deferred<void>();
     const { runtime } = makeRuntime({
       ports: {
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await blocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
       },
     });
@@ -1684,15 +1881,191 @@ describe("StudioOperationRuntime", () => {
     blocker.resolve();
   });
 
+  test("reports deployed Studio-run mod ownership while Run in Game holds the runtime lease", async () => {
+    const blocker = deferred<void>();
+    const runInGameWorkspaceRoot = join(
+      tmpdir(),
+      `studio-operation-runtime-lease-evidence-${process.pid}-${++runtimeWorkspaceSequence}`
+    );
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot,
+        deployRunInGame: async ({ requestId, generatedMod }) =>
+          runInGameDeployment({
+            requestId,
+            materialization: {
+              ...generatedMod.materialization,
+              generatedModRoot: "/tmp/studio-generated-run",
+              generatedModDigest: "sha256-generated-tree",
+            },
+            filesCopied: 3,
+            files: [
+              { path: "maps/run-test.js", sha256: "sha256-map-script", sizeBytes: 512 },
+              { path: "maps/run-test.config.json", sha256: "sha256-map-config", sizeBytes: 128 },
+              { path: "modinfo.json", sha256: "sha256-modinfo", sizeBytes: 96 },
+            ],
+          }),
+        buildRunInGameProof: async () => {
+          await blocker.promise;
+          return { result: { ok: true } };
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const run = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: run.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("observing-runtime");
+
+    const lease = JSON.parse(
+      await readFile(join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json"), "utf8")
+    ) as Record<string, unknown>;
+    expect(lease).toMatchObject({
+      ownerKind: "run-in-game",
+      requestId: run.requestId,
+      deployedModId: "mod-swooper-studio-run",
+    });
+
+    await expect(
+      expectFailure(
+        runtime,
+        service.saveDeployStart({
+          requestId: "save-while-run-owns-studio-mod",
+          id: "test-config",
+          envelope: {},
+        })
+      )
+    ).resolves.toMatchObject({
+      tag: "OperationBlocked",
+      activeRequestId: run.requestId,
+      diagnostics: {
+        code: "studio-operation-active",
+      },
+    });
+
+    blocker.resolve();
+  });
+
+  test("fails before Civ7 control when deployed-mod lease evidence cannot attach", async () => {
+    let proofCalls = 0;
+    const runInGameWorkspaceRoot = join(
+      tmpdir(),
+      `studio-operation-runtime-lease-attach-failure-${process.pid}-${++runtimeWorkspaceSequence}`
+    );
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot,
+        deployRunInGame: async ({ requestId, generatedMod }) => {
+          await rm(join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json"), {
+            force: true,
+          });
+          return runInGameDeployment({
+            requestId,
+            materialization: generatedMod.materialization,
+          });
+        },
+        buildRunInGameProof: async () => {
+          proofCalls += 1;
+          return { result: { ok: true } };
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const run = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: run.requestId })
+        );
+        return status.status === "running" ? "running" : "terminal";
+      })
+      .toBe("terminal");
+
+    const failed = await runtime.runPromise(service.runInGameStatus({ requestId: run.requestId }));
+    expect(failed).toMatchObject({
+      requestId: run.requestId,
+      status: "failed",
+      phase: "failed",
+      safeFailureCategory: "dependency-unavailable",
+      diagnosticsId: run.diagnosticsId,
+    });
+    const privateOperation = await readPrivateRunOperation(runtime, service, failed.diagnosticsId);
+    expect(privateOperation.failure).toMatchObject({
+      diagnostics: {
+        code: "runtime-lease-deployment-evidence-unavailable",
+        requestId: run.requestId,
+        deployedModId: "mod-swooper-studio-run",
+        failedAtPhase: "deploying",
+      },
+    });
+    expect(privateOperation.deploymentEvidence?.runDeployment.deployedModId).toBe(
+      "mod-swooper-studio-run"
+    );
+    expect(proofCalls).toBe(0);
+  });
+
+  test("blocks Run in Game while Save/Deploy owns the runtime lease", async () => {
+    const blocker = deferred<void>();
+    let generationCalls = 0;
+    const { runtime } = makeRuntime({
+      ports: {
+        prepareSaveDeployStart: async () => {
+          await blocker.promise;
+          return {};
+        },
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const save = await runtime.runPromise(
+      service.saveDeployStart({ requestId: "save-blocks-run", id: "test-config", envelope: {} })
+    );
+    await expect(
+      expectFailure(runtime, service.runInGameStart(runInGameInput()))
+    ).resolves.toMatchObject({
+      tag: "OperationBlocked",
+      activeRequestId: save.requestId,
+    });
+    expect(generationCalls).toBe(0);
+
+    blocker.resolve();
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: save.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+    await expect(
+      runtime.runPromise(service.runInGameStart(runInGameInput()))
+    ).resolves.toMatchObject({
+      status: "running",
+    });
+  });
+
   test("blocked starts do not call mutation leaf ports", async () => {
     const blocker = deferred<void>();
     let savePrepareCalls = 0;
     let autoplayCalls = 0;
     const { runtime } = makeRuntime({
       ports: {
-        deployRunInGame: async () => {
+        deployRunInGame: async ({ requestId, generatedMod }) => {
           await blocker.promise;
-          return {};
+          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
         prepareSaveDeployStart: async () => {
           savePrepareCalls += 1;
@@ -2669,6 +3042,19 @@ describe("StudioOperationRuntime", () => {
       status: "running",
     });
     blocker.resolve();
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.saveDeployStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+    await expect(
+      runtime.runPromise(service.runInGameStart(runInGameInput()))
+    ).resolves.toMatchObject({
+      status: "running",
+    });
   });
 
   test("post-disposal starts do not call leaf ports for any mutation", async () => {
@@ -2980,7 +3366,8 @@ function makePorts(
       sortIndex: 900,
       config: {},
     }),
-    deployRunInGame: async () => ({}),
+    deployRunInGame: async ({ requestId, generatedMod }) =>
+      runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
@@ -2998,9 +3385,7 @@ function makePorts(
 }
 
 function generatedRunInGameMod(
-  options: Partial<
-    Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>>
-  > = {}
+  options: Partial<Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>>> = {}
 ): Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>> {
   return {
     materialization: {
@@ -3016,6 +3401,53 @@ function generatedRunInGameMod(
       ...options.materialization,
     },
     ...(options.cleanup === undefined ? {} : { cleanup: options.cleanup }),
+  };
+}
+
+function runInGameDeployment(
+  args: Readonly<{
+    requestId: string;
+    materialization: Awaited<
+      ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+    >["materialization"];
+    filesCopied?: number;
+    files?: Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>["deployedSnapshot"]["files"];
+  }>
+): Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>> {
+  const { materialization, requestId } = args;
+  const filesCopied = args.filesCopied ?? 1;
+  const files = args.files ?? [
+    {
+      path: "maps/run-test.js",
+      sha256: "sha256-map-script",
+      sizeBytes: 512,
+    },
+  ];
+  return {
+    materialization,
+    deploy: {
+      targetDir: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      filesCopied,
+    },
+    runDeployment: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      generatedModRoot: materialization.generatedModRoot,
+      generatedModDigest: materialization.generatedModDigest,
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      startedAt: "2026-06-10T00:00:00.000Z",
+      completedAt: "2026-06-10T00:00:01.000Z",
+      filesCopied,
+    },
+    deployedSnapshot: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      observedAt: "2026-06-10T00:00:01.000Z",
+      fileCount: files.length,
+      digest: materialization.generatedModDigest,
+      files,
+    },
   };
 }
 
