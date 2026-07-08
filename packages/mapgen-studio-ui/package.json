@@ -30,6 +30,7 @@
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio-ui",
+    "test:light-canary-browser": "node scripts/light-canary-browser-test.mjs",
     "verify": "node scripts/verify.mjs",
     "design-sync:check": "node scripts/design-sync-check.mjs",
     "clean": "rm -rf dist",
