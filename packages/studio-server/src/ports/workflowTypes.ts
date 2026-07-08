@@ -59,8 +59,21 @@ export type RunInGameCatalogSource = Readonly<{
   config: Record<string, unknown>;
 }>;
 
-export type RunInGameMaterialized = Readonly<{
-  materialization?: RunInGameMaterializationStatus;
+export type RunInGameGeneratedModMaterialization = RunInGameMaterializationStatus &
+  Readonly<{
+    mapScript: string;
+    configHash: string;
+    envelopeHash: string;
+    generationManifestDigest: string;
+    runArtifactId: string;
+    generatedModRoot: string;
+    generatedModFileCount: number;
+    generatedModDigest: string;
+    mapRowId: string;
+  }>;
+
+export type RunInGameGeneratedMod = Readonly<{
+  materialization: RunInGameGeneratedModMaterialization;
   cleanup?(): Promise<void>;
 }>;
 

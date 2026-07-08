@@ -1,0 +1,718 @@
+
+ NX   Running target test for project mapgen-studio and 25 tasks it depends on:
+
+
+
+> nx run mapgen-viz:build
+
+(node:89433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:89487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+ESM dist/index.js 1.92 KB
+ESM ⚡️ Build success in 12ms
+(node:89487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 917ms
+DTS dist/index.d.ts 6.61 KB
+
+> nx run civ7-map-policy:build
+
+(node:89432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
+(node:89489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 106.28 KB
+ESM ⚡️ Build success in 15ms
+(node:89489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1365ms
+DTS dist/index.d.ts 62.46 KB
+
+> nx run civ7-config:build
+
+(node:89568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:89586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 7.00 KB
+CJS ⚡️ Build success in 17ms
+ESM dist/index.js 4.72 KB
+ESM ⚡️ Build success in 17ms
+(node:89586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 815ms
+DTS dist/index.d.ts  1.80 KB
+DTS dist/index.d.cts 1.80 KB
+
+> nx run control-direct:build-bundle
+
+> tsup --config tsup.config.ts
+
+CLI Building entry: src/index.ts, src/proof/advisor-warning-proof-policy.ts, src/proof/diplomacy-response-proof-policy.ts, src/proof/first-meet-response-proof-policy.ts, src/proof/government-choice-proof-policy.ts, src/proof/narrative-choice-proof-policy.ts, src/proof/notification-dismissal-proof-policy.ts, src/proof/population-placement-proof-policy.ts, src/proof/progression-player-choice-proof-policy.ts, src/proof/progression-target-proof-policy.ts, src/proof/town-focus-proof-policy.ts, src/proof/turn-completion-proof-policy.ts, src/proof/unit-target-proof-policy.ts, src/play/notifications/postconditions.ts, src/play/progression/choice-postconditions.ts, src/play/operations/production-choice-proof.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
+(node:89680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+CJS Build start
+CJS dist/proof/advisor-warning-proof-policy.cjs           1.69 KB
+CJS dist/proof/diplomacy-response-proof-policy.cjs        3.54 KB
+CJS dist/proof/progression-target-proof-policy.cjs        1.83 KB
+CJS dist/proof/first-meet-response-proof-policy.cjs       2.32 KB
+CJS dist/proof/population-placement-proof-policy.cjs      3.80 KB
+CJS dist/proof/notification-dismissal-proof-policy.cjs    7.39 KB
+CJS dist/proof/turn-completion-proof-policy.cjs           4.73 KB
+CJS dist/proof/town-focus-proof-policy.cjs                1.72 KB
+CJS dist/play/progression/choice-postconditions.cjs       6.19 KB
+CJS dist/proof/government-choice-proof-policy.cjs         1.81 KB
+CJS dist/play/operations/production-choice-proof.cjs      2.41 KB
+CJS dist/proof/narrative-choice-proof-policy.cjs          3.49 KB
+CJS dist/proof/unit-target-proof-policy.cjs               3.04 KB
+CJS dist/play/notifications/postconditions.cjs            8.56 KB
+CJS dist/proof/progression-player-choice-proof-policy.cjs 1.91 KB
+CJS dist/index.cjs                                        777.08 KB
+CJS ⚡️ Build success in 102ms
+ESM dist/proof/progression-player-choice-proof-policy.js 218.00 B
+ESM dist/proof/unit-target-proof-policy.js               166.00 B
+ESM dist/proof/turn-completion-proof-policy.js           262.00 B
+ESM dist/play/progression/choice-postconditions.js       317.00 B
+ESM dist/proof/progression-target-proof-policy.js        194.00 B
+ESM dist/chunk-H6VSHXDZ.js                               699.00 B
+ESM dist/play/operations/production-choice-proof.js      287.00 B
+ESM dist/chunk-35BKMMLH.js                               662.00 B
+ESM dist/chunk-SBJ4NEBA.js                               614.00 B
+ESM dist/chunk-DE5QAK6F.js                               3.49 KB
+ESM dist/chunk-ZGRAA6DD.js                               1.91 KB
+ESM dist/chunk-HVSADZMW.js                               4.91 KB
+ESM dist/chunk-TIGRIXS6.js                               1.16 KB
+ESM dist/proof/advisor-warning-proof-policy.js           122.00 B
+ESM dist/chunk-OA3KHPOF.js                               604.00 B
+ESM dist/proof/diplomacy-response-proof-policy.js        280.00 B
+ESM dist/chunk-B2HNLYNP.js                               2.27 KB
+ESM dist/proof/first-meet-response-proof-policy.js       194.00 B
+ESM dist/chunk-NRZVGPXC.js                               1.14 KB
+ESM dist/chunk-FFKDRHLA.js                               656.00 B
+ESM dist/chunk-U2GTLZMO.js                               2.24 KB
+ESM dist/proof/government-choice-proof-policy.js         190.00 B
+ESM dist/proof/narrative-choice-proof-policy.js          268.00 B
+ESM dist/proof/notification-dismissal-proof-policy.js    241.00 B
+ESM dist/chunk-7FIB7KVB.js                               7.45 KB
+ESM dist/chunk-R7TX2HUS.js                               2.26 KB
+ESM dist/proof/population-placement-proof-policy.js      202.00 B
+ESM dist/chunk-PVUQC3ND.js                               2.73 KB
+ESM dist/proof/town-focus-proof-policy.js                162.00 B
+ESM dist/play/notifications/postconditions.js            619.00 B
+ESM dist/index.js                                        688.88 KB
+ESM ⚡️ Build success in 104ms
+
+> nx run civ7-adapter:build
+
+(node:89589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/civ7-adapter.ts, src/index.ts, src/mock-adapter.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-adapter/tsup.config.ts
+(node:89607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js          1.11 KB
+ESM dist/civ7-adapter.js   34.69 KB
+ESM dist/chunk-OZ5NINDO.js 48.82 KB
+ESM dist/mock-adapter.js   463.00 B
+ESM dist/chunk-QWSVGM4D.js 235.00 B
+ESM ⚡️ Build success in 18ms
+(node:89607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1451ms
+DTS dist/civ7-adapter.d.ts   6.91 KB
+DTS dist/index.d.ts          3.06 KB
+DTS dist/mock-adapter.d.ts   14.21 KB
+DTS dist/types-CuMGbHqX.d.ts 25.58 KB
+
+> nx run control-direct:build-types
+
+> tsc -b tsconfig.json --force --emitDeclarationOnly
+
+
+> nx run studio-contract:build
+
+(node:89434) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
+(node:89488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 70.27 KB
+ESM ⚡️ Build success in 15ms
+(node:89488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 4968ms
+DTS dist/index.d.ts 600.14 KB
+
+> nx run plugin-files:build
+
+(node:89798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:89867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/index.js 6.97 KB
+ESM ⚡️ Build success in 17ms
+CJS dist/index.cjs 8.93 KB
+CJS ⚡️ Build success in 17ms
+(node:89867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 841ms
+DTS dist/index.d.ts  1.79 KB
+DTS dist/index.d.cts 1.79 KB
+
+> nx run studio-run-workspace:build
+
+(node:89865) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
+(node:89885) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 7.91 KB
+ESM ⚡️ Build success in 13ms
+(node:89885) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1425ms
+DTS dist/index.d.ts 13.06 KB
+
+> nx run control-orpc:clean
+
+(node:89930) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mrimraf dist tsconfig.tsbuildinfo[0m
+(node:89999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> nx run plugin-git:build
+
+(node:89908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:89926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/index.js 29.12 KB
+ESM ⚡️ Build success in 17ms
+CJS dist/index.cjs 32.69 KB
+CJS ⚡️ Build success in 17ms
+(node:89926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1019ms
+DTS dist/index.d.ts  12.59 KB
+DTS dist/index.d.cts 12.59 KB
+
+> nx run plugin-mods:build
+
+(node:90031) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:90050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/index.js 12.16 KB
+ESM ⚡️ Build success in 16ms
+CJS dist/index.cjs 14.66 KB
+CJS ⚡️ Build success in 16ms
+(node:90050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 893ms
+DTS dist/index.d.ts  5.73 KB
+DTS dist/index.d.cts 5.73 KB
+
+> nx run mapgen-studio-ui:build
+
+(node:90072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup && tsc -p tsconfig.dts.json && tailwindcss -i src/styles/index.css -o dist/styles.css && node scripts/copy-fonts.mjs[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/mapgen-studio-ui/tsup.config.ts
+(node:90092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 234.31 KB
+ESM ⚡️ Build success in 43ms
+≈ tailwindcss v4.3.0
+
+(node:90172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Done in 61ms
+copy-fonts: dist/fonts.css + 80 font files → dist/fonts/
+(node:90173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> nx run control-orpc:build
+
+> node scripts/build.mjs
+
+CLI Building entry: src/contract.ts, src/game-ui.ts, src/index.ts, src/runtime.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-control-orpc/tsup.config.ts
+(node:90021) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+CJS Build start
+ESM dist/game-ui.js        180.76 KB
+ESM dist/index.js          14.85 KB
+ESM dist/contract.js       103.00 B
+ESM dist/chunk-E2WLZAB7.js 212.59 KB
+ESM dist/runtime.js        6.21 KB
+ESM dist/chunk-V34YZ3CZ.js 258.99 KB
+ESM ⚡️ Build success in 81ms
+CJS dist/contract.cjs 213.50 KB
+CJS dist/runtime.cjs  7.21 KB
+CJS dist/game-ui.cjs  686.54 KB
+CJS dist/index.cjs    528.13 KB
+CJS ⚡️ Build success in 88ms
+
+> nx run mapgen-core:build
+
+(node:89754) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts, src/authoring/contracts.ts, src/authoring/index.ts, src/authoring/recipe-dag.ts, src/compiler/normalize.ts, src/compiler/recipe-compile.ts, src/engine/index.ts, src/polyfills/text-encoder.ts, src/lib/math/index.ts, src/lib/mesh/index.ts, src/lib/plates/index.ts, src/lib/noise/index.ts, src/lib/rng/index.ts, src/lib/grid/index.ts, src/lib/collections/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/mapgen-core/tsup.config.ts
+(node:89772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+(node:89772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+ESM dist/chunk-NDPW26EB.js          214.00 B
+ESM dist/lib/math/index.js          1.07 KB
+ESM dist/lib/plates/index.js        4.74 KB
+ESM dist/lib/rng/index.js           1.08 KB
+ESM dist/lib/mesh/index.js          8.21 KB
+ESM dist/chunk-SMOCTAOU.js          545.00 B
+ESM dist/chunk-BJPDK4G3.js          167.00 B
+ESM dist/chunk-5HLW34JS.js          1.13 KB
+ESM dist/chunk-YN2VUKFR.js          403.00 B
+ESM dist/chunk-QTPSALFN.js          2.48 KB
+ESM dist/lib/grid/index.js          13.83 KB
+ESM dist/chunk-ABODEIIM.js          802.00 B
+ESM dist/chunk-QPDI6DWW.js          352.00 B
+ESM dist/chunk-H3PFKOMU.js          569.00 B
+ESM dist/lib/collections/index.js   671.00 B
+ESM dist/lib/noise/index.js         4.31 KB
+ESM dist/chunk-TNHUJOIC.js          809.00 B
+ESM dist/chunk-AYH6ZW6Y.js          112.00 B
+ESM dist/authoring/contracts.js     513.00 B
+ESM dist/authoring/recipe-dag.js    117.00 B
+ESM dist/authoring/index.js         28.97 KB
+ESM dist/compiler/normalize.js      319.00 B
+ESM dist/chunk-253A6B53.js          6.65 KB
+ESM dist/chunk-XIDQFAK3.js          8.93 KB
+ESM dist/chunk-MLR2KZPR.js          5.58 KB
+ESM dist/engine/index.js            1.39 KB
+ESM dist/compiler/recipe-compile.js 264.00 B
+ESM dist/chunk-H7B452A2.js          26.46 KB
+ESM dist/polyfills/text-encoder.js  31.00 B
+ESM dist/chunk-MLKGABMK.js          191.00 B
+ESM dist/chunk-IRMAJG7Q.js          1.33 KB
+ESM dist/index.js                   49.48 KB
+ESM dist/chunk-IDBIXU25.js          8.76 KB
+ESM dist/chunk-JGQB2ORM.js          225.05 KB
+ESM dist/chunk-S23W5VLY.js          143.70 KB
+ESM ⚡️ Build success in 227ms
+DTS ⚡️ Build success in 10827ms
+DTS dist/polyfills/text-encoder.d.ts       13.00 B
+DTS dist/authoring/contracts.d.ts          902.00 B
+DTS dist/authoring/recipe-dag.d.ts         2.94 KB
+DTS dist/lib/collections/index.d.ts        282.00 B
+DTS dist/lib/mesh/index.d.ts               1.24 KB
+DTS dist/lib/noise/index.d.ts              732.00 B
+DTS dist/lib/math/index.d.ts               816.00 B
+DTS dist/lib/plates/index.d.ts             2.40 KB
+DTS dist/lib/rng/index.d.ts                587.00 B
+DTS dist/lib/grid/index.d.ts               6.36 KB
+DTS dist/authoring/index.d.ts              12.70 KB
+DTS dist/index.d.ts                        26.01 KB
+DTS dist/engine/index.d.ts                 4.78 KB
+DTS dist/compiler/recipe-compile.d.ts      595.00 B
+DTS dist/compiler/normalize.d.ts           260.00 B
+DTS dist/contract-h4JpOxYJ.d.ts            3.86 KB
+DTS dist/contract-D27M8aDx.d.ts            974.00 B
+DTS dist/types-D36aNocJ.d.ts               10.14 KB
+DTS dist/label-60ObDTHH.d.ts               570.00 B
+DTS dist/typed-array-schemas-BgwB9MXu.d.ts 1.56 KB
+DTS dist/types-Cho0VwBk.d.ts               3.25 KB
+DTS dist/types-BU4k0Lnn.d.ts               16.71 KB
+DTS dist/normalize-Ca15pQ3F.d.ts           3.95 KB
+DTS dist/ops-BD8Zz6gt.d.ts                 6.30 KB
+DTS dist/wrap-J5N5_jXJ.d.ts                378.00 B
+DTS dist/execution-plan-DwE2pmw1.d.ts      6.16 KB
+DTS dist/range-nD1uC0Gi.d.ts               1.17 KB
+
+> nx run mod-swooper-maps:"gen:map-artifacts"
+
+> bun ./scripts/generate-map-artifacts.ts
+
+Generated 9 Swooper map configs from mods/mod-swooper-maps/src/maps/configs: swooper-desert-mountains, swooper-earthlike, shattered-ring, sundered-archipelago, mountains-of-time-earthlike, latest-juicy, mountain-patch, mountains-of-time-original, mountain-rivers-patch
+
+> nx run mod-swooper-maps:"gen:studio-map-catalog"
+
+> bun ./scripts/generate-studio-map-catalog.ts
+
+Generated 9 Studio catalog map configs from CatalogSourceIndex.
+
+> nx run mod-swooper-maps:"gen:maps"
+
+> node -e ""
+
+
+> nx run civ7-sdk:build
+
+(node:90219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts, src/mapgen/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:90239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs        200.86 KB
+CJS dist/mapgen/index.cjs 5.81 KB
+CJS ⚡️ Build success in 62ms
+ESM dist/mapgen/index.js 4.77 KB
+ESM dist/index.js        192.39 KB
+ESM ⚡️ Build success in 62ms
+(node:90239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 2573ms
+DTS dist/index.d.ts         413.72 KB
+DTS dist/mapgen/index.d.ts  1.72 KB
+DTS dist/index.d.cts        413.72 KB
+DTS dist/mapgen/index.d.cts 1.72 KB
+
+> nx run mod-swooper-maps:"build:studio-recipes:bundle"
+
+> tsup --config tsup.studio-recipes.config.ts
+
+CLI Building entry: {"recipes/standard":"src/recipes/standard/recipe.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/tsup.studio-recipes.config.ts
+(node:90469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+ESM Build start
+ESM dist/recipes/standard.js 2.01 MB
+ESM ⚡️ Build success in 190ms
+
+> nx run mod-swooper-maps:build
+
+> tsup
+
+CLI Building entry: {"latest-juicy":"src/maps/generated/latest-juicy.ts","mountain-patch":"src/maps/generated/mountain-patch.ts","mountain-rivers-patch":"src/maps/generated/mountain-rivers-patch.ts","mountains-of-time-earthlike":"src/maps/generated/mountains-of-time-earthlike.ts","mountains-of-time-original":"src/maps/generated/mountains-of-time-original.ts","shattered-ring":"src/maps/generated/shattered-ring.ts","sundered-archipelago":"src/maps/generated/sundered-archipelago.ts","swooper-desert-mountains":"src/maps/generated/swooper-desert-mountains.ts","swooper-earthlike":"src/maps/generated/swooper-earthlike.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/tsup.config.ts
+(node:90468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM mod/maps/mountain-patch.js              2.94 MB
+ESM mod/maps/shattered-ring.js              2.93 MB
+ESM mod/maps/mountains-of-time-original.js  2.94 MB
+ESM mod/maps/mountain-rivers-patch.js       2.94 MB
+ESM mod/maps/latest-juicy.js                2.94 MB
+ESM mod/maps/mountains-of-time-earthlike.js 2.94 MB
+ESM mod/maps/swooper-earthlike.js           2.94 MB
+ESM mod/maps/sundered-archipelago.js        2.93 MB
+ESM mod/maps/swooper-desert-mountains.js    2.93 MB
+ESM ⚡️ Build success in 562ms
+
+> nx run mod-swooper-maps:"gen:studio-recipes-types"
+
+> bun ./scripts/generate-studio-recipe-types.ts
+
+[0m[33mWarning[0m[2m:[0m [1mThe 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.[0m
+[0m      [2mat [0m[0m[1m[3mwarnOnDeactivatedColors[0m[2m ([0m[0m[36minternal:tty[0m[2m:[0m[33m33[0m[2m:[33m24[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mgetColorDepth[0m[2m ([0m[0m[36minternal:tty[0m[2m:[0m[33m42[0m[2m:[33m39[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mshouldColorize[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m14[0m[2m:[33m109[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mrefresh[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m18[0m[2m:[33m31[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3minternal:util/colors[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m24[0m[2m:[33m16[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3minternal:assert/assertion_error[0m[2m ([0m[0m[36minternal:assert/assertion_error[0m[2m:[0m[33m2[0m[2m:[33m187[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mloadAssertionError[0m[2m ([0m[0m[36mnode:assert[0m[2m:[0m[33m28[0m[2m:[33m96[0m[2m)[0m
+
+
+> nx run mod-swooper-maps:"build:studio-recipes"
+
+> node -e ""
+
+
+> nx run control-studio-server:build
+
+(node:90198) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts, src/contract/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-server/tsup.config.ts
+(node:90217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/chunk-7RZ6QRAM.js 373.00 B
+ESM dist/contract/index.js 74.00 B
+ESM dist/index.js          202.28 KB
+ESM ⚡️ Build success in 28ms
+(node:90217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 5592ms
+DTS dist/index.d.ts          35.15 KB
+DTS dist/contract/index.d.ts 1.89 KB
+
+> nx run mapgen-studio:test
+
+> vitest run --config ../../vitest.config.ts --project mapgen-studio
+
+(node:90496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v4.1.9 /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/apps/mapgen-studio
+
+(node:90502) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90509) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90503) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90587) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90606) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90610) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90615) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90619) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90625) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90626) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90629) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90634) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90635) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90641) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90643) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  67 passed (67)
+      Tests  383 passed (383)
+   Start at  23:17:22
+   Duration  6.46s (transform 11.84s, setup 0ms, import 29.52s, tests 7.42s, environment 9.95s)
+
+
+
+
+ NX   Successfully ran target test for project mapgen-studio and 25 tasks it depends on
+
+
+
+ NX   Nx detected 2 flaky tasks
+
+  control-direct:build-bundle
+  mapgen-core:build
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+

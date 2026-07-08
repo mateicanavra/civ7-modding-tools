@@ -1,0 +1,12 @@
+
+> nx run studio-contract:check
+
+(node:85768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsc -p tsconfig.json --noEmit[0m
+
+
+
+ NX   Successfully ran target check for project studio-contract
+
+

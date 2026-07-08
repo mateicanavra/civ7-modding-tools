@@ -141,6 +141,11 @@
     "gen:run-manifest": {
       "command": "bun ./scripts/generate-run-manifest.ts",
       "dependsOn": ["build:studio-recipes:bundle", { "projects": ["civ7-sdk"], "target": "build" }],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/packages/studio-run-workspace/src/**"
+      ],
       "cache": false,
       "options": {
         "cwd": "mods/mod-swooper-maps"

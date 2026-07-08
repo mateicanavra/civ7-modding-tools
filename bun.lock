@@ -47,6 +47,7 @@
         "@civ7/map-policy": "workspace:*",
         "@civ7/plugin-mods": "workspace:*",
         "@civ7/studio-contract": "workspace:*",
+        "@civ7/studio-run-workspace": "workspace:*",
         "@civ7/studio-server": "workspace:*",
         "@deck.gl/core": "^9.0.43",
         "@deck.gl/layers": "^9.0.43",
