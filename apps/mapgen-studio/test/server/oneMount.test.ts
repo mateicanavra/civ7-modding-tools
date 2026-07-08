@@ -248,7 +248,8 @@ function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
       now: () => new Date("2026-06-12T00:00:00.000Z"),
     },
     generateRunInGameMod: async () => generatedRunInGameMod(),
-    deployRunInGame: async () => ({}),
+    deployRunInGame: async ({ requestId, generatedMod }) =>
+      runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
@@ -272,6 +273,52 @@ function generatedRunInGameMod(): Awaited<
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
       mapRowId: "MAP_RUN_TEST",
+    },
+  };
+}
+
+function runInGameDeployment(
+  args: Readonly<{
+    requestId: string;
+    materialization: Awaited<
+      ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+    >["materialization"];
+  }>
+): Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>> {
+  const { materialization, requestId } = args;
+  const files: Awaited<
+    ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>
+  >["deployedSnapshot"]["files"] = [
+    {
+      path: "maps/run-test.js",
+      sha256: "sha256-map-script",
+      sizeBytes: 512,
+    },
+  ];
+  return {
+    materialization,
+    deploy: {
+      targetDir: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      filesCopied: 1,
+    },
+    runDeployment: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      generatedModRoot: materialization.generatedModRoot,
+      generatedModDigest: materialization.generatedModDigest,
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      startedAt: "2026-06-12T00:00:00.000Z",
+      completedAt: "2026-06-12T00:00:01.000Z",
+      filesCopied: 1,
+    },
+    deployedSnapshot: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      observedAt: "2026-06-12T00:00:01.000Z",
+      fileCount: files.length,
+      digest: materialization.generatedModDigest,
+      files,
     },
   };
 }

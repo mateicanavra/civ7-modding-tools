@@ -11,8 +11,11 @@ export type { RunInGameArtifactGenerator } from "./RunInGameArtifactGenerator.js
 export type { ScriptingLog } from "./ScriptingLog.js";
 export type {
   CanonicalRunInGameRequest,
+  DeployedModSnapshot,
+  DeployedModSnapshotFile,
   RunInGameCatalogSource,
   RunInGameDeployment,
+  RunInGameDeploymentEvidence,
   RunInGameGeneratedMod,
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
@@ -20,6 +23,7 @@ export type {
   RunInGameRestartResult,
   RunInGameSetupPrepared,
   RunInGameStarted,
+  RunDeployment,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,
   SaveDeployRollback,

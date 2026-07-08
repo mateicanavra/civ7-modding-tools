@@ -26,7 +26,8 @@ export function publicRunInGameFailureCategory(
     case "DeployFailed":
       return "deployment";
     case "DependencyUnavailable":
-      return failure.reason === "direct-control-unavailable" || failure.reason === "restart-failed"
+      return failure.reason === "restart-failed" ||
+        (failure.reason === "direct-control-unavailable" && failure.dependency !== "filesystem")
         ? "runtime-control"
         : "dependency-unavailable";
     case "ProofFailed":

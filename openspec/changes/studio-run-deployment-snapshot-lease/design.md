@@ -10,8 +10,9 @@ correlation markers.
 
 `RunDeployment` records deployment start/end, request id, generated mod root,
 deployed mod id, and target root. `DeployedModSnapshot` records post-copy file
-count, file identities, digests, marker observations, and target root in private
-records.
+count, file identities, digests, and target root in private records. Marker
+observations remain part of the materialization proof attached to the private
+runtime diagnostics.
 
 ## Lease
 
