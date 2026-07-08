@@ -81,6 +81,16 @@ describe("Run in Game request validation", () => {
     expect(
       Value.Check(startInputSchema, validRunInGameRequest({ serverInstanceId: "studio-server" }))
     ).toBe(false);
+    for (const privateField of [
+      "runArtifactId",
+      "runCorrelation",
+      "generationManifest",
+      "generationManifestDigest",
+      "manifestPath",
+    ]) {
+      expect(Value.Check(startInputSchema, validRunInGameRequest({ [privateField]: "private" })))
+        .toBe(false);
+    }
     expect(
       "issues" in
         standardSchema["~standard"].validate(validRunInGameRequest({ leaseId: "runtime-lease" }))
@@ -95,6 +105,7 @@ describe("Run in Game request validation", () => {
 
   it("keeps cancellation input to request id only", () => {
     const cancelInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.cancel);
+    const cancelStandardSchema = runInGame.cancel["~orpc"].inputSchema as StandardSchemaV1;
 
     expect(Value.Check(cancelInputSchema, { requestId: "studio-run-in-game-1" })).toBe(true);
     expect(
@@ -112,6 +123,34 @@ describe("Run in Game request validation", () => {
         leaseId: "runtime-lease-private",
       })
     ).toBe(false);
+    expect(
+      "issues" in
+        cancelStandardSchema["~standard"].validate({
+          requestId: "studio-run-in-game-1",
+          leaseId: "runtime-lease-private",
+        })
+    ).toBe(true);
+  });
+
+  it("keeps status and diagnostics lookup inputs closed at the oRPC boundary", () => {
+    const statusStandardSchema = runInGame.status["~orpc"].inputSchema as StandardSchemaV1;
+    const diagnosticsStandardSchema = runInGame.diagnostics["~orpc"]
+      .inputSchema as StandardSchemaV1;
+
+    expect(
+      "issues" in
+        statusStandardSchema["~standard"].validate({
+          requestId: "studio-run-in-game-1",
+          generationManifest: "private",
+        })
+    ).toBe(true);
+    expect(
+      "issues" in
+        diagnosticsStandardSchema["~standard"].validate({
+          diagnosticsId: "run-diagnostics-public",
+          sections: {},
+        })
+    ).toBe(true);
   });
 });
 

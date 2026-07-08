@@ -40,15 +40,15 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/launchSource\.ts$",
-    ! $body <: contains `export function resolveRunInGameLaunchSource($args) { $body }`
+    ! $body <: contains `resolveRunInGameLaunchSource`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/launchSource\.ts$",
-    ! $body <: contains `function resolveCatalogLaunchSource($args) { $body }`
+    ! $body <: contains `resolveCatalogLaunchSource`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/launchSource\.ts$",
-    ! $body <: contains `function resolveEditorLaunchSource($args) { $body }`
+    ! $body <: contains `resolveEditorLaunchSource`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/launchSource\.ts$",

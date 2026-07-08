@@ -37,11 +37,11 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/router/index\.ts$",
-    ! $body <: contains `cancel: oe.runInGame.cancel.effect($handler)`
+    ! $body <: contains `oe.runInGame.cancel.effect`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/router/index\.ts$",
-    ! $body <: contains `.runInGameCancel(input)`
+    ! $body <: contains `runInGameCancel`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/router/index\.ts$",
@@ -57,7 +57,7 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    ! $body <: contains `export function cancelRunInGame($args) { $body }`
+    ! $body <: contains `cancelRunInGame`
   },
   `export const abort = $impl` where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$"

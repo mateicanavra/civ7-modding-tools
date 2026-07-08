@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { RunInGameSafeFailureCategory, StudioRuntimeFailure } from "@civ7/studio-contract";
 
 const RUN_DIAGNOSTICS_ID_PREFIX = "run-diagnostics-";
+export const SAFE_RUN_DIAGNOSTICS_ID = /^run-diagnostics-[A-Za-z0-9._-]{1,191}$/;
 
 export function createRunDiagnosticsId(): string {
   return `${RUN_DIAGNOSTICS_ID_PREFIX}${randomUUID()}`;

@@ -1,18 +1,24 @@
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { link, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
-import { dirname, relative, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { Effect, type Scope } from "effect";
 import { operationBlocked, type StudioRuntimeFailure } from "../errors/index.js";
+import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
 import {
-  statusForRunInGamePhase,
   type RunInGameInternalOperation,
   type SaveDeployInternalOperation,
+  statusForRunInGamePhase,
 } from "./model.js";
 import type { StudioDaemonIdentity } from "./ports.js";
+import {
+  assertSafeRunRequestId,
+  assertSafeRunStorageId,
+  jailedRunWorkspacePath,
+  resolveRunWorkspaceRoot,
+  SAFE_RUN_REQUEST_ID,
+} from "./runWorkspace/paths.js";
 
-const DEFAULT_WORKSPACE_ROOT = resolve(".mapgen-studio/run-in-game");
-const SAFE_STORAGE_ID = /^[A-Za-z0-9._-]{1,191}$/;
 const OPERATION_RECORD_FILE = "operation-record.json";
 const RUNTIME_LEASE_FILE = "runtime-ownership-lease.json";
 const RUNTIME_LEASE_LOCK_DIR = "runtime-ownership-lease.lock";
@@ -77,7 +83,7 @@ type LeaseReadState =
   | Readonly<{ state: "valid"; lease: RuntimeOwnershipLease }>
   | Readonly<{ state: "corrupt"; error: unknown }>;
 
-type LeaseOwnerState = "dead" | "live" | "ambiguous-live-pid";
+type LeaseOwnerState = "dead" | "live";
 
 type RunRecordReadState =
   | Readonly<{ state: "missing" }>
@@ -210,7 +216,10 @@ export function writeRunOperationRecord(
 ): Effect.Effect<void, unknown> {
   return Effect.tryPromise({
     try: async () => {
-      const path = runOperationRecordPath(workspaceRoot(options.workspaceRoot), operation.requestId);
+      const path = runOperationRecordPath(
+        workspaceRoot(options.workspaceRoot),
+        operation.requestId
+      );
       await writeJsonFile(path, toRunOperationRecord(operation, identity));
     },
     catch: (err) => err,
@@ -234,7 +243,7 @@ export function readAbandonedRunOperationRecords(
       });
       const records: RunOperationRecord[] = [];
       for (const entry of entries) {
-        if (!entry.isDirectory() || !SAFE_STORAGE_ID.test(entry.name)) continue;
+        if (!entry.isDirectory() || !SAFE_RUN_REQUEST_ID.test(entry.name)) continue;
         const recordState = await readRunOperationRecordState(root, entry.name);
         const record =
           recordState.state === "valid"
@@ -458,29 +467,25 @@ async function readRunOperationRecordState(
 }
 
 function workspaceRoot(root: string | undefined): string {
-  return resolve(root ?? DEFAULT_WORKSPACE_ROOT);
+  return resolveRunWorkspaceRoot(root);
 }
 
 function runtimeLeasePath(root: string): string {
-  return jailedPath(root, "_runtime", RUNTIME_LEASE_FILE);
+  return jailedRunWorkspacePath(root, "_runtime", RUNTIME_LEASE_FILE);
 }
 
 function runtimeLeaseLockPath(root: string): string {
-  return jailedPath(root, "_runtime", RUNTIME_LEASE_LOCK_DIR);
+  return jailedRunWorkspacePath(root, "_runtime", RUNTIME_LEASE_LOCK_DIR);
 }
 
 function runtimeDaemonHeartbeatPath(root: string, daemonId: string): string {
-  if (!SAFE_STORAGE_ID.test(daemonId)) {
-    throw new Error("Studio daemon id is not a safe storage key.");
-  }
-  return jailedPath(root, "_runtime", "daemons", `${daemonId}.json`);
+  assertSafeRunStorageId(daemonId, "Studio daemon id");
+  return jailedRunWorkspacePath(root, "_runtime", "daemons", `${daemonId}.json`);
 }
 
 function runOperationRecordPath(root: string, requestId: string): string {
-  if (!SAFE_STORAGE_ID.test(requestId)) {
-    throw new Error("Run in Game request id is not a safe storage key.");
-  }
-  return jailedPath(root, requestId, OPERATION_RECORD_FILE);
+  assertSafeRunRequestId(requestId);
+  return jailedRunWorkspacePath(root, requestId, OPERATION_RECORD_FILE);
 }
 
 function corruptRecordForRequest(requestId: string, nowIso: string): RunOperationRecord {
@@ -501,15 +506,6 @@ function corruptRecordForRequest(requestId: string, nowIso: string): RunOperatio
 
 function nowIsoFromSystem(): string {
   return new Date().toISOString();
-}
-
-function jailedPath(root: string, ...segments: string[]): string {
-  const path = resolve(root, ...segments);
-  const rootRelative = relative(root, path);
-  if (rootRelative.startsWith("..") || rootRelative === "" || rootRelative.startsWith("/")) {
-    throw new Error("Run in Game operation record path escaped workspace root.");
-  }
-  return path;
 }
 
 function ownershipConflict(err: unknown, requestId: string): StudioRuntimeFailure {
@@ -633,7 +629,9 @@ function isRunOperationRecord(value: unknown, requestId: string): value is RunOp
   if (
     record.recordType !== "RunOperationRecord" ||
     record.requestId !== requestId ||
-    !SAFE_STORAGE_ID.test(record.requestId) ||
+    !SAFE_RUN_REQUEST_ID.test(record.requestId) ||
+    record.requestId === "." ||
+    record.requestId === ".." ||
     typeof record.daemonId !== "string" ||
     !isTimestampString(record.daemonStartedAt) ||
     typeof record.leaseId !== "string" ||
@@ -645,14 +643,18 @@ function isRunOperationRecord(value: unknown, requestId: string): value is RunOp
   ) {
     return false;
   }
+  if (
+    record.diagnosticsId !== undefined &&
+    (typeof record.diagnosticsId !== "string" ||
+      !SAFE_RUN_DIAGNOSTICS_ID.test(record.diagnosticsId))
+  ) {
+    return false;
+  }
   if (statusForRunInGamePhase(record.phase) !== record.status) return false;
   if (record.status === "running") {
     return record.terminalAt === undefined && record.terminalOutcome === undefined;
   }
-  return (
-    typeof record.terminalAt === "string" &&
-    record.terminalOutcome === record.status
-  );
+  return isTimestampString(record.terminalAt) && record.terminalOutcome === record.status;
 }
 
 function isNotFoundError(err: unknown): boolean {
@@ -695,14 +697,20 @@ function leaseMayKeepRecordAlive(
   );
 }
 
-function recordOwnedByIdentity(record: RunOperationRecord, identity: StudioDaemonIdentity): boolean {
+function recordOwnedByIdentity(
+  record: RunOperationRecord,
+  identity: StudioDaemonIdentity
+): boolean {
   return (
     record.daemonId === identity.serverInstanceId &&
     record.daemonStartedAt === identity.serverStartedAt
   );
 }
 
-function leaseOwnedByIdentity(lease: RuntimeOwnershipLease, identity: StudioDaemonIdentity): boolean {
+function leaseOwnedByIdentity(
+  lease: RuntimeOwnershipLease,
+  identity: StudioDaemonIdentity
+): boolean {
   return (
     lease.daemonId === identity.serverInstanceId &&
     lease.daemonStartedAt === identity.serverStartedAt
@@ -710,8 +718,7 @@ function leaseOwnedByIdentity(lease: RuntimeOwnershipLease, identity: StudioDaem
 }
 
 function leaseOwnerState(root: string, lease: RuntimeOwnershipLease): LeaseOwnerState {
-  if (!processIsLive(lease.processId)) return "dead";
-  return heartbeatMatchesLease(root, lease) ? "live" : "ambiguous-live-pid";
+  return heartbeatMatchesLease(root, lease) ? "live" : "dead";
 }
 
 function processIsLive(processId: number): boolean {
