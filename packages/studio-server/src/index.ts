@@ -144,6 +144,11 @@ export {
 } from "./liveGame/watcher.js";
 export type {
   CanonicalRunInGameRequest,
+  RunInGameDeployment,
+  RunInGameLogEvidence,
+  RunInGamePreparedRequest,
+  RunInGameRuntimeObservation,
+  RunInGameSetupPrepared,
   StudioOperationRuntimePorts,
 } from "./operationRuntime/index.js";
 export {

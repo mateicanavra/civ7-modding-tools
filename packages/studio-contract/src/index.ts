@@ -72,6 +72,7 @@ export type StudioEffectContract = typeof studioEffectContract;
 export * from "./errors/errorData.js";
 export * from "./errors/failure.js";
 export * from "./lib/typeboxStandardSchema.js";
+export type { Civ7LiveSnapshotOutput, Civ7LiveStatusOutput } from "./live.js";
 export * from "./liveGame/model.js";
 export type {
   MapConfigSaveDeployKind,

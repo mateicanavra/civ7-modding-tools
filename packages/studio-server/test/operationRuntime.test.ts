@@ -253,7 +253,10 @@ describe("StudioOperationRuntime", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(cancelResolved).toBe(false);
     const heldLease = JSON.parse(
-      await readFile(join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json"), "utf8")
+      await readFile(
+        join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json"),
+        "utf8"
+      )
     ) as Record<string, unknown>;
     expect(heldLease).toMatchObject({
       ownerKind: "run-in-game",
@@ -1098,13 +1101,17 @@ describe("StudioOperationRuntime", () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-source-proof-"));
     runtimeWorkspaceRoots.push(workspaceRoot);
     let acceptedSourceSnapshot: Record<string, unknown> | undefined;
+    let observedRuntimeObservation:
+      | Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>>
+      | undefined;
     const recordingEventHub = makeEventHub({ eventSink: events });
     const runtime = ManagedRuntime.make(
       makeStudioOperationRuntimeLayer({
         ports: makePorts({
           runInGameWorkspaceRoot: workspaceRoot,
-          buildRunInGameProof: async ({ requestId, prepared, deployment }) => {
+          buildRunInGameProof: async ({ requestId, prepared, deployment, observation }) => {
             acceptedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
+            observedRuntimeObservation = observation;
             return {
               result: { ok: true },
               exactAuthorshipProof: {
@@ -1188,6 +1195,17 @@ describe("StudioOperationRuntime", () => {
     expect(finalPrivateOperation.exactAuthorshipProof?.sourceSnapshot).toEqual(
       acceptedSourceSnapshot
     );
+    expect(observedRuntimeObservation).toMatchObject({
+      requestId: accepted.requestId,
+      deploymentEvidence: {
+        runDeployment: { deployedModId: "mod-swooper-studio-run" },
+        deployedSnapshot: { digest: "test-generated-mod-digest" },
+      },
+      loadedGame: {
+        marker: { requestId: accepted.requestId },
+        deployedSnapshotDigest: "test-generated-mod-digest",
+      },
+    });
 
     const diagnosticsRecordPath = resolve(
       workspaceRoot,
@@ -1363,9 +1381,9 @@ describe("StudioOperationRuntime", () => {
   test("records Run in Game deployment and deployed snapshot only in private diagnostics", async () => {
     const events: StudioEvent[] = [];
     const observedDeploymentDigests: string[] = [];
-    const observeDeployment = (deployment: Awaited<
-      ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>
-    >) => {
+    const observeDeployment = (
+      deployment: Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>
+    ) => {
       observedDeploymentDigests.push(
         `${deployment.runDeployment.deployedModId}:${deployment.runDeployment.generatedModDigest}:${deployment.deployedSnapshot.digest}`
       );
@@ -1925,7 +1943,10 @@ describe("StudioOperationRuntime", () => {
       .toBe("observing-runtime");
 
     const lease = JSON.parse(
-      await readFile(join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json"), "utf8")
+      await readFile(
+        join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json"),
+        "utf8"
+      )
     ) as Record<string, unknown>;
     expect(lease).toMatchObject({
       ownerKind: "run-in-game",
@@ -2450,6 +2471,28 @@ describe("StudioOperationRuntime", () => {
           safeFailureCategory: "runtime-observation",
           code: "run-in-game-log-proof-missing",
           reason: "log-proof-missing",
+          failedAtPhase: "waiting-for-proof",
+        },
+      },
+      {
+        requestId: "run-loaded-game-readback-fail",
+        ports: {
+          observeRunInGameRuntime: async () => {
+            throw proofFailed({
+              message: "Loaded game readback did not match",
+              reason: "exact-authorship-mismatch",
+              diagnostics: {
+                code: "run-in-game-loaded-readback-mismatch",
+                failedAtPhase: "waiting-for-proof",
+              },
+            });
+          },
+        },
+        expected: {
+          status: "failed",
+          safeFailureCategory: "runtime-observation",
+          code: "run-in-game-loaded-readback-mismatch",
+          reason: "exact-authorship-mismatch",
           failedAtPhase: "waiting-for-proof",
         },
       },
@@ -3369,6 +3412,8 @@ function makePorts(
     deployRunInGame: async ({ requestId, generatedMod }) =>
       runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    observeRunInGameRuntime: async ({ requestId, prepared, deployment, log }) =>
+      runInGameRuntimeObservation({ requestId, prepared, deployment, log }),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({
@@ -3411,7 +3456,9 @@ function runInGameDeployment(
       ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
     >["materialization"];
     filesCopied?: number;
-    files?: Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>["deployedSnapshot"]["files"];
+    files?: Awaited<
+      ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>
+    >["deployedSnapshot"]["files"];
   }>
 ): Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>> {
   const { materialization, requestId } = args;
@@ -3447,6 +3494,80 @@ function runInGameDeployment(
       fileCount: files.length,
       digest: materialization.generatedModDigest,
       files,
+    },
+  };
+}
+
+function runInGameRuntimeObservation(
+  args: Readonly<{
+    requestId: string;
+    prepared: RunInGamePreparedRequest;
+    deployment: Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>;
+    log?: Awaited<ReturnType<StudioOperationRuntimePorts["waitForRunInGameLogProof"]>>;
+  }>
+): Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>> {
+  const materialization = args.deployment.materialization;
+  const correlation = {
+    requestId: args.requestId,
+    runArtifactId: materialization?.runArtifactId ?? "run-test",
+    launchSourceDigest: args.prepared.launchSourceDigest,
+    launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
+    generationManifestDigest:
+      materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
+  };
+  return {
+    requestId: args.requestId,
+    correlation,
+    deploymentEvidence: {
+      runDeployment: args.deployment.runDeployment,
+      deployedSnapshot: args.deployment.deployedSnapshot,
+    },
+    scriptingLog: {
+      requestId: args.requestId,
+      correlation,
+      logPath: "/tmp/CivilizationVII/Logs/Scripting.log",
+      observedAt: "2026-06-10T00:00:02.000Z",
+      startOffset: 128,
+      matchedMarkers: ["[mapgen-proof]", args.requestId, "[mapgen-complete]"],
+      proof: args.log?.logProof,
+    },
+    setupRow: {
+      requestId: args.requestId,
+      correlation,
+      state: "matched",
+      mapScript: materialization?.mapScript ?? "test-map-script",
+      runArtifactId: correlation.runArtifactId,
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      rowProof: { ok: true },
+      rowVisibility: { visible: true },
+    },
+    loadedGame: {
+      requestId: args.requestId,
+      correlation,
+      marker: { requestId: args.requestId, runArtifactId: correlation.runArtifactId },
+      liveStatus: {
+        ok: true,
+        playable: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        status: { readiness: "app-ui-game" },
+        appUi: { snapshot: { ui: { inGame: { ok: true, value: true } } } },
+        mapSummary: { mapSize: "MAPSIZE_STANDARD" },
+        autoplay: {},
+      },
+      liveSnapshot: {
+        ok: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        grid: {
+          map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
+          plotCount: 4536,
+          plots: [{}],
+        },
+      },
+      snapshotId: "status:1:test-snapshot",
+      snapshotHash: "test-snapshot",
+      dimensions: { width: 84, height: 54 },
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      deployedSnapshotDigest: args.deployment.deployedSnapshot.digest,
     },
   };
 }
