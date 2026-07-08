@@ -282,3 +282,23 @@ historical.
     concurrent-React `createRoot` pages; run one Chrome per invocation with a
     unique `--user-data-dir` and a hard background `kill -9` after ~12s, then
     read the written PNG.
+
+## Token-noise disposition (2026-07-08)
+- **`check_design_system`'s two recurring token findings are permanent framework
+  noise — do not chase them on any re-sync.** The "~80 unclassified tokens" and
+  "33 selector-scoped custom properties" are Tailwind v4 engine internals
+  (78 `@property` `--tw-*` vars + `@theme` defaults) in the compiled bundle;
+  the classifier is app-side (the claude.ai/design self-check that regenerates
+  `_adherence.oxlintrc.json`), so no repo or project edit clears them. The
+  `x-omelette.tokenKinds` map it emits is also wrong (semantic colors tagged
+  "other") — ignore it. Authority + evidence:
+  `openspec/changes/studio-ui-token-noise-disposition/` (frame, upstream
+  feedback packet, DEF-017 trigger). Repo-side truth: the token guard
+  `test/designTokens.test.ts` + `test/fixtures/authored-tokens.json` (32
+  authored names; update the fixture when adding a token to
+  `src/styles/theme.css`).
+- **Guidelines channel is now wired**: `cfg.guidelinesGlob =
+  ".design-sync/guidelines/*.md"` ships `guidelines/design-tokens.md` (token
+  vocabulary + the noise disposition for design agents). Guidelines are
+  docs-tier for the driver (aux/README change, sampled render check, no grade
+  re-key — `guidelinesGlob` is not a grade-contract key).

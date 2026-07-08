@@ -64,6 +64,19 @@
   Path resolution note: `import.meta.url` is not a `file:` URL under the
   root vitest transform — the test resolves `dist/styles.css` from cwd
   (package dir or repo root).
+- **Branch 3 (`studio-ui-token-knowledge-surfaces`).** Guidelines channel
+  wired (`guidelinesGlob: ".design-sync/guidelines/*.md"` →
+  `guidelines/design-tokens.md`), NOTES.md disposition appended, DEF-017
+  recorded. Render-neutrality proof: fetched the live `_ds_sync.json` anchor
+  (bundleSha12 `2040d4d634b7`) into `.design-sync/.cache/remote-sync.json`,
+  ran `design-sync:check` → exit 0, verdict `anchor: ok`,
+  `changed/added/removed: []`, `guidelines: 1 file(s)` in the aux/docs tier,
+  47/47 anchor render hashes recomputed and matched. Fresh-worktree rebuild
+  byte-churn produced 7 artifact-churned-with-stable-sources entries
+  (render_churn canary spot-checked 5 with grades kept — environmental,
+  pre-existing driver behavior, not caused by this change). Known
+  non-blocking `[RENDER_BLANK] Toaster` heuristic warning (0x0 toast
+  anchor), pre-existing.
 
 ## Verification
 

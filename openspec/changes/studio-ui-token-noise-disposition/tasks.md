@@ -28,17 +28,22 @@
 
 ## 3. Knowledge surfaces + upstream routing (stack branch 3)
 
-- [ ] 3.1 Author `.design-sync/guidelines/design-tokens.md` (authored
+- [x] 3.1 Author `.design-sync/guidelines/design-tokens.md` (authored
   vocabulary table + noise disposition + prohibitions).
-- [ ] 3.2 Add `"guidelinesGlob"` to `.design-sync/config.json`; prove
-  render-neutrality: `design-sync:check` green and driver classifies the delta
-  as docs-tier (no component render hashes moved, no grade-key change).
-- [ ] 3.3 Append the disposition bullet to `.design-sync/NOTES.md` (append-only
+- [x] 3.2 Add `"guidelinesGlob"` to `.design-sync/config.json`; proven
+  render-neutral against the freshly fetched live anchor (2026-07-08):
+  `design-sync:check` exit 0, verdict `anchor: ok`,
+  `changed/added/removed: []`, `guidelines: 1 file(s)` shipped under
+  aux/docs, all 47 anchor render hashes matched on disk. (The 7
+  artifact-churned-with-stable-sources entries are fresh-worktree rebuild
+  byte-churn — canary spot-check with grades kept, pre-existing behavior.)
+- [x] 3.3 Append the disposition bullet to `.design-sync/NOTES.md` (append-only
   convention; bottom-up read order).
-- [ ] 3.4 Add `docs/system/DEFERRALS.md` entry: upstream classifier fix with
-  re-check trigger on Claude Code / design-sync version bumps.
-- [ ] 3.5 Finalize `workstream/upstream-feedback.md` (corrected fix surface;
-  exclusion predicate; evidence appendix).
+- [x] 3.4 Add `docs/system/DEFERRALS.md` entry DEF-017: upstream classifier fix
+  with re-check trigger on Claude Code / design-sync version bumps.
+- [x] 3.5 Finalize `workstream/upstream-feedback.md` (corrected fix surface;
+  exclusion predicate; evidence appendix) — landed with branch 1; confirmed
+  against the live `x-omelette` map.
 
 ## 4. Verification And Closure
 
