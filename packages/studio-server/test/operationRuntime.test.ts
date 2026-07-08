@@ -5,6 +5,7 @@ import {
   invalidRequest,
   operationStatusTypeSchema,
   proofFailed,
+  type RunInGameRequestStatus,
   type StudioEvent,
   studio,
   typeboxOutputSchemaFromContractProcedure,
@@ -886,9 +887,11 @@ describe("StudioOperationRuntime", () => {
         return status.phase;
       })
       .toBe("completed");
-    const save = await runtime.runPromise(
-      service.saveDeployStart({ requestId: "save-terminal", id: "test-config", envelope: {} })
-    );
+    const save = await startSaveDeployWhenLeaseReleased(runtime, service, {
+      requestId: "save-terminal",
+      id: "test-config",
+      envelope: {},
+    });
     await expect
       .poll(async () => {
         const status = await runtime.runPromise(
@@ -1168,9 +1171,7 @@ describe("StudioOperationRuntime", () => {
       .toBe("completed");
     expect(acceptedSourceSnapshot).toBeDefined();
 
-    const status = await runtime.runPromise(
-      service.runInGameStatus({ requestId: accepted.requestId })
-    );
+    const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
     const operationEvents = events.filter(
       (event) =>
         event.type === "operation" &&
@@ -1222,128 +1223,122 @@ describe("StudioOperationRuntime", () => {
 
   test("stores Run in Game diagnostics under the configured workspace root", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-diagnostics-"));
-    try {
-      const { runtime } = makeRuntime({
-        ports: {
-          runInGameWorkspaceRoot: workspaceRoot,
-        },
-      });
-      const service = await runtime.runPromise(StudioOperationRuntime);
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
 
-      const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-      await expect
-        .poll(async () => {
-          const status = await runtime.runPromise(
-            service.runInGameStatus({ requestId: accepted.requestId })
-          );
-          return status.phase;
-        })
-        .toBe("completed");
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
 
-      const diagnosticsId = accepted.diagnosticsId;
-      if (!diagnosticsId) throw new Error("Expected admitted Run in Game diagnostics id");
-      const diagnosticsRecordPath = resolve(
-        workspaceRoot,
-        accepted.requestId,
-        "diagnostics",
-        "diagnostics.json"
-      );
-      const diagnosticsRecord = JSON.parse(await readFile(diagnosticsRecordPath, "utf8"));
-      expect(diagnosticsRecord).toMatchObject({
+    const diagnosticsId = accepted.diagnosticsId;
+    if (!diagnosticsId) throw new Error("Expected admitted Run in Game diagnostics id");
+    const diagnosticsRecordPath = resolve(
+      workspaceRoot,
+      accepted.requestId,
+      "diagnostics",
+      "diagnostics.json"
+    );
+    const diagnosticsRecord = JSON.parse(await readFile(diagnosticsRecordPath, "utf8"));
+    expect(diagnosticsRecord).toMatchObject({
+      diagnosticsId,
+      requestId: accepted.requestId,
+    });
+
+    const lookup = await runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId }));
+    expect(lookup).toMatchObject({
+      ok: true,
+      diagnostics: {
         diagnosticsId,
         requestId: accepted.requestId,
-      });
-
-      const lookup = await runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId }));
-      expect(lookup).toMatchObject({
-        ok: true,
-        diagnostics: {
-          diagnosticsId,
-          requestId: accepted.requestId,
-        },
-      });
-    } finally {
-      await rm(workspaceRoot, { recursive: true, force: true });
-    }
+      },
+    });
   });
 
   test("writes a complete private Run in Game attribution report behind diagnostics lookup", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-attribution-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
     const events: StudioEvent[] = [];
-    try {
-      const { runtime } = makeRuntime({
-        eventSink: events,
-        ports: {
-          runInGameWorkspaceRoot: workspaceRoot,
-        },
-      });
-      const service = await runtime.runPromise(StudioOperationRuntime);
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
 
-      const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-      await expect
-        .poll(async () => {
-          const status = await runtime.runPromise(
-            service.runInGameStatus({ requestId: accepted.requestId })
-          );
-          return status.phase;
-        })
-        .toBe("completed");
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
 
-      const status = await runtime.runPromise(
-        service.runInGameStatus({ requestId: accepted.requestId })
-      );
-      const current = await runtime.runPromise(service.operationsCurrent);
-      const operationEvents = events.filter(
-        (event) =>
-          event.type === "operation" &&
-          event.kind === "run-in-game" &&
-          event.status.requestId === accepted.requestId
-      );
-      for (const publicValue of [accepted, status, current, ...operationEvents]) {
-        expect(JSON.stringify(publicValue)).not.toContain("attribution");
-      }
-      expectTypeboxValid(operationStatusTypeSchema, status);
-      expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
-      for (const event of operationEvents) {
-        expectTypeboxValid(studioEventSchema, event);
-      }
-
-      const diagnostics = await readPrivateRunDiagnostics(runtime, service, accepted.diagnosticsId);
-      const attribution = diagnostics.sections.attribution;
-      expect(attribution).toMatchObject({
-        report: {
-          requestId: accepted.requestId,
-          runArtifactId: expect.stringMatching(/^run-[a-f0-9]{20}$/),
-          status: "complete",
-          missingSections: [],
-          sections: {
-            source: expect.any(Object),
-            manifest: expect.any(Object),
-            generation: expect.objectContaining({
-              generatedModDigest: "test-generated-mod-digest",
-            }),
-            deployment: expect.objectContaining({
-              runDeployment: expect.objectContaining({ deployedModId: "mod-swooper-studio-run" }),
-            }),
-            scriptingLogObservation: expect.objectContaining({ requestId: accepted.requestId }),
-            setupRowReadback: expect.objectContaining({ requestId: accepted.requestId }),
-            boundedLoadedGameReadback: expect.objectContaining({ requestId: accepted.requestId }),
-            terminalResult: expect.objectContaining({
-              status: "complete",
-              phase: "complete",
-            }),
-          },
-        },
-      });
-      const attributionRecord = attributionRecordValue(attribution);
-      const reportOnDisk = JSON.parse(await readFile(String(attributionRecord.path), "utf8"));
-      expect(reportOnDisk).toEqual(attributionRecord.report);
-      expect(String(attributionRecord.path)).toBe(
-        resolve(workspaceRoot, accepted.requestId, "attribution", "attribution.json")
-      );
-    } finally {
-      await rm(workspaceRoot, { recursive: true, force: true });
+    const status = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const current = await runtime.runPromise(service.operationsCurrent);
+    const operationEvents = events.filter(
+      (event) =>
+        event.type === "operation" &&
+        event.kind === "run-in-game" &&
+        event.status.requestId === accepted.requestId
+    );
+    for (const publicValue of [accepted, status, current, ...operationEvents]) {
+      expect(JSON.stringify(publicValue)).not.toContain("attribution");
     }
+    expectTypeboxValid(operationStatusTypeSchema, status);
+    expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
+    for (const event of operationEvents) {
+      expectTypeboxValid(studioEventSchema, event);
+    }
+
+    const diagnostics = await readPrivateRunDiagnostics(runtime, service, accepted.diagnosticsId);
+    const attribution = diagnostics.sections.attribution;
+    expect(attribution).toMatchObject({
+      report: {
+        requestId: accepted.requestId,
+        runArtifactId: expect.stringMatching(/^run-[a-f0-9]{20}$/),
+        status: "complete",
+        missingSections: [],
+        sections: {
+          source: expect.any(Object),
+          manifest: expect.any(Object),
+          generation: expect.objectContaining({
+            generatedModDigest: "test-generated-mod-digest",
+          }),
+          deployment: expect.objectContaining({
+            runDeployment: expect.objectContaining({ deployedModId: "mod-swooper-studio-run" }),
+          }),
+          scriptingLogObservation: expect.objectContaining({ requestId: accepted.requestId }),
+          setupRowReadback: expect.objectContaining({ requestId: accepted.requestId }),
+          boundedLoadedGameReadback: expect.objectContaining({ requestId: accepted.requestId }),
+          terminalResult: expect.objectContaining({
+            status: "complete",
+            phase: "complete",
+          }),
+        },
+      },
+    });
+    const attributionRecord = attributionRecordValue(attribution);
+    const reportOnDisk = JSON.parse(await readFile(String(attributionRecord.path), "utf8"));
+    expect(reportOnDisk).toEqual(attributionRecord.report);
+    expect(String(attributionRecord.path)).toBe(
+      resolve(workspaceRoot, accepted.requestId, "attribution", "attribution.json")
+    );
   });
 
   test("marks private Run in Game attribution incomplete for failed partial runs", async () => {
@@ -1917,14 +1912,6 @@ describe("StudioOperationRuntime", () => {
       service.runInGameStatus({ requestId: accepted.requestId })
     );
     const current = await runtime.runPromise(service.operationsCurrent);
-    const terminalEvent = events.find(
-      (event) =>
-        event.type === "operation" &&
-        event.kind === "run-in-game" &&
-        event.status.requestId === accepted.requestId &&
-        event.status.phase === "failed"
-    );
-
     expect(observedSeed).toBe(43);
     expect(status.safeFailureCategory).toBe("request-validation");
     expect(status.diagnosticsId).toBe(accepted.diagnosticsId);
@@ -1932,6 +1919,24 @@ describe("StudioOperationRuntime", () => {
     expect(privateOperation.failure?.diagnostics?.materialization).toContain("studio-current.js");
     expectTypeboxValid(operationStatusTypeSchema, status);
     expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
+    await expect
+      .poll(() =>
+        events.some(
+          (event) =>
+            event.type === "operation" &&
+            event.kind === "run-in-game" &&
+            event.status.requestId === accepted.requestId &&
+            event.status.phase === "failed"
+        )
+      )
+      .toBe(true);
+    const terminalEvent = events.find(
+      (event) =>
+        event.type === "operation" &&
+        event.kind === "run-in-game" &&
+        event.status.requestId === accepted.requestId &&
+        event.status.phase === "failed"
+    );
     expectTypeboxValid(studioEventSchema, terminalEvent);
   });
 
@@ -1970,7 +1975,7 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe(true);
 
-    const repeatAfterComplete = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    const repeatAfterComplete = await startRunInGameWhenLeaseReleased(runtime, service);
     expect(repeatAfterComplete.requestId).not.toBe(first.requestId);
     expect(repeatAfterComplete).toMatchObject({ status: "running" });
   });
@@ -1998,7 +2003,7 @@ describe("StudioOperationRuntime", () => {
       )
       .toBe("terminal");
 
-    const repeatAfterFailure = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    const repeatAfterFailure = await startRunInGameWhenLeaseReleased(runtime, service);
     expect(repeatAfterFailure.requestId).not.toBe(first.requestId);
     expect(repeatAfterFailure).toMatchObject({ status: "running" });
   }, 10_000);
@@ -3104,9 +3109,9 @@ describe("StudioOperationRuntime", () => {
     await expect(pathExists(join(workspaceRoot, retentionRequestId(98)))).resolves.toBe(true);
     await expect(pathExists(join(workspaceRoot, retentionRequestId(99)))).resolves.toBe(false);
     await expect(pathExists(join(workspaceRoot, retentionRequestId(100)))).resolves.toBe(false);
-    await expect(pathExists(join(workspaceRoot, "studio-run-in-game-retention-young"))).resolves.toBe(
-      true
-    );
+    await expect(
+      pathExists(join(workspaceRoot, "studio-run-in-game-retention-young"))
+    ).resolves.toBe(true);
     await expect(
       pathExists(join(workspaceRoot, retentionRequestId(0), "attribution", "attribution.json"))
     ).resolves.toBe(true);
@@ -3169,9 +3174,7 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe("completed");
 
-    await expect
-      .poll(() => pathExists(join(workspaceRoot, retentionRequestId(100))))
-      .toBe(false);
+    await expect.poll(() => pathExists(join(workspaceRoot, retentionRequestId(100)))).toBe(false);
     await expect(pathExists(join(workspaceRoot, accepted.requestId))).resolves.toBe(true);
   });
 
@@ -3467,9 +3470,7 @@ describe("StudioOperationRuntime", () => {
       tag: "OperationExpired",
       requestId: accepted.requestId,
     });
-    await expect(
-      runtime.runPromise(service.runInGameStart(runInGameInput()))
-    ).resolves.toMatchObject({
+    await expect(startRunInGameWhenLeaseReleased(runtime, service)).resolves.toMatchObject({
       requestId: expect.not.stringMatching(accepted.requestId),
       status: "running",
     });
@@ -3994,9 +3995,73 @@ async function readPrivateRunDiagnostics(
   diagnosticsId: string | undefined
 ) {
   if (!diagnosticsId) throw new Error("Expected Run in Game diagnostics id");
-  const lookup = await runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId }));
-  if (!lookup.ok) throw new Error(`Expected private diagnostics for ${diagnosticsId}`);
-  return lookup.diagnostics;
+  const deadline = Date.now() + 2_000;
+  let lastReason = "not-read";
+  do {
+    const lookup = await runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId }));
+    if (lookup.ok) return lookup.diagnostics;
+    lastReason = lookup.reason;
+    await delay(25);
+  } while (Date.now() < deadline);
+  throw new Error(`Expected private diagnostics for ${diagnosticsId}; last reason: ${lastReason}`);
+}
+
+async function readPublicRunStatusWithDiagnostics(
+  runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
+  service: StudioOperationRuntimeApi,
+  expected: Pick<RunInGameRequestStatus, "requestId" | "diagnosticsId">
+) {
+  const deadline = Date.now() + 2_000;
+  let status: RunInGameRequestStatus | undefined;
+  do {
+    status = await runtime.runPromise(service.runInGameStatus({ requestId: expected.requestId }));
+    if (expected.diagnosticsId === undefined || status.diagnosticsId === expected.diagnosticsId) {
+      return status;
+    }
+    await delay(25);
+  } while (Date.now() < deadline);
+  return status;
+}
+
+async function startRunInGameWhenLeaseReleased(
+  runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
+  service: StudioOperationRuntimeApi
+) {
+  const deadline = Date.now() + 2_000;
+  let lastError: unknown;
+  do {
+    try {
+      return await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    } catch (err) {
+      lastError = err;
+      if (!String(err).includes("studio-runtime-ownership-lease-held")) throw err;
+      await delay(25);
+    }
+  } while (Date.now() < deadline);
+  throw lastError;
+}
+
+async function startSaveDeployWhenLeaseReleased(
+  runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
+  service: StudioOperationRuntimeApi,
+  input: StudioInputs["mapConfigs"]["saveDeploy"]
+) {
+  const deadline = Date.now() + 2_000;
+  let lastError: unknown;
+  do {
+    try {
+      return await runtime.runPromise(service.saveDeployStart(input));
+    } catch (err) {
+      lastError = err;
+      if (!String(err).includes("studio-runtime-ownership-lease-held")) throw err;
+      await delay(25);
+    }
+  } while (Date.now() < deadline);
+  throw lastError;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolveDelay) => setTimeout(resolveDelay, ms));
 }
 
 function attributionRecordValue(value: unknown): Readonly<{
@@ -4018,45 +4083,31 @@ async function seedRunOperationWorkspace(
   args: Readonly<{
     requestId: string;
     diagnosticsId?: string;
-    terminalAt?: string;
+    terminalAt: string;
     attributionReport?: unknown;
   }>
 ) {
-  const createdAt = args.terminalAt ?? "2026-06-06T00:00:00.000Z";
+  const createdAt = "2026-06-06T00:00:00.000Z";
   const requestRoot = join(workspaceRoot, args.requestId);
   await mkdir(requestRoot, { recursive: true });
   await writeFile(
     join(requestRoot, "operation-record.json"),
     `${JSON.stringify(
-      args.terminalAt === undefined
-        ? {
-            recordType: "RunOperationRecord",
-            requestId: args.requestId,
-            daemonId: "studio-server-retention-seed",
-            daemonStartedAt: createdAt,
-            leaseId: `runtime-lease-${args.requestId}`,
-            phase: "waiting-for-proof",
-            status: "running",
-            operationRevision: 1,
-            ...(args.diagnosticsId === undefined ? {} : { diagnosticsId: args.diagnosticsId }),
-            createdAt,
-            updatedAt: createdAt,
-          }
-        : {
-            recordType: "RunOperationRecord",
-            requestId: args.requestId,
-            daemonId: "studio-server-retention-seed",
-            daemonStartedAt: createdAt,
-            leaseId: `runtime-lease-${args.requestId}`,
-            phase: "complete",
-            status: "complete",
-            operationRevision: 1,
-            ...(args.diagnosticsId === undefined ? {} : { diagnosticsId: args.diagnosticsId }),
-            createdAt,
-            updatedAt: args.terminalAt,
-            terminalAt: args.terminalAt,
-            terminalOutcome: "complete",
-          },
+      {
+        recordType: "RunOperationRecord",
+        requestId: args.requestId,
+        daemonId: "studio-server-retention-seed",
+        daemonStartedAt: createdAt,
+        leaseId: `runtime-lease-${args.requestId}`,
+        phase: "complete",
+        status: "complete",
+        operationRevision: 1,
+        ...(args.diagnosticsId === undefined ? {} : { diagnosticsId: args.diagnosticsId }),
+        createdAt,
+        updatedAt: args.terminalAt,
+        terminalAt: args.terminalAt,
+        terminalOutcome: "complete",
+      },
       null,
       2
     )}\n`,
@@ -4082,7 +4133,7 @@ async function seedRunOperationWorkspace(
         requestId: args.requestId,
         operationRevision: 1,
         createdAt,
-        updatedAt: args.terminalAt ?? createdAt,
+        updatedAt: args.terminalAt,
         summary: "Seeded retained Run in Game diagnostics",
         sections: {
           ...(args.attributionReport === undefined

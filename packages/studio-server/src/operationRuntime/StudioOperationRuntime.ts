@@ -190,7 +190,8 @@ function makeStudioOperationRuntime(
       workspaceRoot: runInGameWorkspaceRoot,
       identity,
     });
-    let retentionCleanupRunning = false;
+    let retentionCleanupActive = false;
+    let retentionCleanupRerunRequested = false;
 
     const releaseTerminalLease = (operation: RuntimeEventOperation): Effect.Effect<void, never> => {
       if (!isRuntimeOperationTerminal(operation)) return Effect.void;
@@ -216,25 +217,36 @@ function makeStudioOperationRuntime(
         )
       );
 
+    const runRetentionCleanupLoop = (): Effect.Effect<void, never> =>
+      cleanupRunRetention().pipe(
+        Effect.flatMap(() =>
+          Effect.sync(() => {
+            if (!retentionCleanupRerunRequested) {
+              retentionCleanupActive = false;
+              return false;
+            }
+            retentionCleanupRerunRequested = false;
+            return true;
+          })
+        ),
+        Effect.flatMap((shouldRerun) => (shouldRerun ? runRetentionCleanupLoop() : Effect.void))
+      );
+
     const scheduleRunRetentionCleanup = (): Effect.Effect<void, never> =>
       Effect.sync(() => {
-        if (retentionCleanupRunning) return false;
-        retentionCleanupRunning = true;
+        if (retentionCleanupActive) {
+          retentionCleanupRerunRequested = true;
+          return false;
+        }
+        retentionCleanupActive = true;
+        retentionCleanupRerunRequested = false;
         return true;
       }).pipe(
         Effect.flatMap((shouldRun) =>
           shouldRun
-            ? FiberSet.run(
-                fibers,
-                cleanupRunRetention().pipe(
-                  Effect.ensuring(
-                    Effect.sync(() => {
-                      retentionCleanupRunning = false;
-                    })
-                  )
-                ),
-                { propagateInterruption: false }
-              ).pipe(Effect.asVoid)
+            ? FiberSet.run(fibers, runRetentionCleanupLoop(), {
+                propagateInterruption: false,
+              }).pipe(Effect.asVoid)
             : Effect.void
         )
       );
@@ -453,7 +465,10 @@ function makeStudioOperationRuntime(
               Effect.flatMap(publishRunMutation),
               Effect.catchAll((publishErr) =>
                 Effect.sync(() => {
-                  console.error("[studio-server] failed to publish Run in Game failure", publishErr);
+                  console.error(
+                    "[studio-server] failed to publish Run in Game failure",
+                    publishErr
+                  );
                 })
               ),
               Effect.uninterruptible,
@@ -710,9 +725,7 @@ function isPostDeployRunPhase(phase: RunInGameInternalOperation["phase"]): boole
   );
 }
 
-function missingRunDeploymentEvidence(
-  operation: RunInGameInternalOperation
-): StudioRuntimeFailure {
+function missingRunDeploymentEvidence(operation: RunInGameInternalOperation): StudioRuntimeFailure {
   return dependencyUnavailable({
     message: "Run in Game reached a post-deploy runtime phase without deployment evidence.",
     dependency: "runtime",
