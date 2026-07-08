@@ -251,6 +251,7 @@ function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
     deployRunInGame: async ({ requestId, generatedMod }) =>
       runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    observeRunInGameRuntime: async (args) => runInGameRuntimeObservation(args),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
@@ -319,6 +320,70 @@ function runInGameDeployment(
       fileCount: files.length,
       digest: materialization.generatedModDigest,
       files,
+    },
+  };
+}
+
+function runInGameRuntimeObservation(
+  args: Parameters<StudioOperationRuntimePorts["observeRunInGameRuntime"]>[0]
+): Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>> {
+  const materialization = args.deployment.materialization;
+  const correlation = {
+    requestId: args.requestId,
+    runArtifactId: materialization?.runArtifactId ?? "run-test",
+    launchSourceDigest: args.prepared.launchSourceDigest,
+    launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
+    generationManifestDigest:
+      materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
+  };
+  return {
+    requestId: args.requestId,
+    correlation,
+    deploymentEvidence: {
+      runDeployment: args.deployment.runDeployment,
+      deployedSnapshot: args.deployment.deployedSnapshot,
+    },
+    scriptingLog: {
+      requestId: args.requestId,
+      correlation,
+      matchedMarkers: ["[mapgen-proof]", args.requestId, "[mapgen-complete]"],
+      proof: args.log.logProof,
+    },
+    setupRow: {
+      requestId: args.requestId,
+      correlation,
+      state: "matched",
+      mapScript: materialization?.mapScript ?? "test-map-script",
+      runArtifactId: correlation.runArtifactId,
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      rowProof: { ok: true },
+      rowVisibility: { visible: true },
+    },
+    loadedGame: {
+      requestId: args.requestId,
+      correlation,
+      marker: { requestId: args.requestId, runArtifactId: correlation.runArtifactId },
+      liveStatus: {
+        ok: true,
+        playable: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        status: { readiness: "app-ui-game" },
+        appUi: { snapshot: { ui: { inGame: { ok: true, value: true } } } },
+        mapSummary: { mapSize: "MAPSIZE_STANDARD" },
+        autoplay: {},
+      },
+      liveSnapshot: {
+        ok: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        grid: {
+          map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
+          plotCount: 4536,
+          plots: [{}],
+        },
+      },
+      dimensions: { width: 84, height: 54 },
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      deployedSnapshotDigest: args.deployment.deployedSnapshot.digest,
     },
   };
 }

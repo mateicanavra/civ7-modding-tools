@@ -2,6 +2,8 @@ import type {
   LaunchEnvelope,
   LaunchEnvelopeDigest,
   LaunchSourceDigest,
+  Civ7LiveSnapshotOutput,
+  Civ7LiveStatusOutput,
   MapConfigSaveDeployStatus,
   ResolvedLaunchSource,
   RunInGameExactAuthorshipProof,
@@ -10,6 +12,7 @@ import type {
   RunInGameSetupConfig,
   RunInGameSourceSnapshotProof,
 } from "@civ7/studio-contract";
+import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import type { StudioInputs, StudioOutputs } from "../context.js";
 import type { StudioBoundedDiagnostics } from "../errors/index.js";
 
@@ -134,6 +137,49 @@ export type RunInGameLogEvidence = Readonly<{
   materialization?: RunInGameMaterializationStatus;
   logMarkerProof?: unknown;
   logProof?: unknown;
+}>;
+
+export type ScriptingLogObservation = Readonly<{
+  requestId: string;
+  correlation: RunCorrelation;
+  logPath?: string;
+  observedAt?: string;
+  startOffset?: number;
+  matchedMarkers: readonly string[];
+  proof?: unknown;
+}>;
+
+export type SetupRowReadback = Readonly<{
+  requestId: string;
+  correlation: RunCorrelation;
+  state: "matched";
+  mapScript: string;
+  runArtifactId: string;
+  deployedModId: string;
+  rowProof: unknown;
+  rowVisibility: unknown;
+}>;
+
+export type LoadedGameReadback = Readonly<{
+  requestId: string;
+  correlation: RunCorrelation;
+  marker: unknown;
+  liveStatus: Civ7LiveStatusOutput;
+  liveSnapshot: Civ7LiveSnapshotOutput;
+  snapshotId?: string;
+  snapshotHash?: string;
+  dimensions: Readonly<{ width: number; height: number }>;
+  deployedModId: string;
+  deployedSnapshotDigest: string;
+}>;
+
+export type RunInGameRuntimeObservation = Readonly<{
+  requestId: string;
+  correlation: RunCorrelation;
+  deploymentEvidence: RunInGameDeploymentEvidence;
+  scriptingLog: ScriptingLogObservation;
+  setupRow: SetupRowReadback;
+  loadedGame: LoadedGameReadback;
 }>;
 
 export type RunInGameProof = Readonly<{

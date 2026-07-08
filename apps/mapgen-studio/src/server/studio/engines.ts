@@ -30,7 +30,6 @@ import {
   proofFailed,
 } from "@civ7/studio-server";
 import { readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
-import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
@@ -47,6 +46,10 @@ import {
   runInGameMaterializationScriptUnresolvedLinks,
   runInGameRequiredMaterializationMarkers,
 } from "../runInGame/proofIdentity";
+import {
+  liveRuntimeStatusFromObservation,
+  observeRunInGameRuntimeThroughStudioRpc,
+} from "../runInGame/runtimeObservation";
 import type { RunInGameDetailedProofLog } from "../runInGame/proofTypes";
 
 // ============================================================================
@@ -699,7 +702,7 @@ type SaveDeployLeafContext = SaveDeployPrepared &
   }>;
 
 export function createStudioOperationRuntimePorts(
-  options: Readonly<{ repoRoot: string }>
+  options: Readonly<{ repoRoot: string; selfRpcUrl?: () => string | undefined }>
 ): StudioOperationRuntimePorts {
   const { repoRoot } = options;
   const runContexts = new Map<string, RunInGameLeafContext>();
@@ -1018,7 +1021,22 @@ export function createStudioOperationRuntimePorts(
         logProof,
       };
     },
-    buildRunInGameProof: async ({ requestId, setup, started, log }) => {
+    observeRunInGameRuntime: async ({ requestId, prepared, deployment, setup, log, signal }) => {
+      const context = requireRunContext(runContexts, requestId);
+      const observation = await observeRunInGameRuntimeThroughStudioRpc({
+        requestId,
+        prepared,
+        deployment,
+        setup,
+        log,
+        selfRpcUrl: options.selfRpcUrl?.(),
+        signal,
+      });
+      context.rowProof = setup.rowProof;
+      context.rowVisibility = setup.rowVisibility;
+      return observation;
+    },
+    buildRunInGameProof: async ({ requestId, setup, started, log, observation }) => {
       const context = requireRunContext(runContexts, requestId);
       const materialization = requireMaterialization(context, requestId);
       const startedResult = started.start as
@@ -1027,17 +1045,7 @@ export function createStudioOperationRuntimePorts(
             start?: { mapSummary?: unknown };
           }
         | undefined;
-      const liveRuntimeStatus = startedResult?.start?.mapSummary
-        ? buildLiveRuntimeStatusState({
-            body: {
-              ok: true,
-              observedAt: new Date().toISOString(),
-              status: { readiness: "running-game" },
-              mapSummary: startedResult.start.mapSummary,
-            },
-            observedAtFallback: new Date().toISOString(),
-          })
-        : undefined;
+      const liveRuntimeStatus = liveRuntimeStatusFromObservation(observation.loadedGame.liveStatus);
       const exactAuthorshipProof = buildRunInGameExactAuthorshipProof({
         requestId,
         request: context.requestStatus,

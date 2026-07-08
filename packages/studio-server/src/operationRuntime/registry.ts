@@ -40,6 +40,7 @@ import {
 import type {
   RunInGameDeploymentEvidence,
   RunInGamePreparedRequest,
+  RunInGameRuntimeObservation,
   StudioDaemonIdentity,
 } from "./ports.js";
 import { projectRunInGame, projectSaveDeploy } from "./projection.js";
@@ -104,6 +105,7 @@ export type RunInGameTransition =
       result?: unknown;
       materialization?: RunInGameMaterializationStatus;
       deploymentEvidence: RunInGameDeploymentEvidence;
+      runtimeObservation: RunInGameRuntimeObservation;
       exactAuthorshipProof?: RunInGameExactAuthorshipProof;
     }>;
 

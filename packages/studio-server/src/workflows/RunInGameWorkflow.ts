@@ -340,6 +340,17 @@ function makeRunInGameWorkflow(
               started,
             })
           );
+          const observation = yield* tryPromise((signal) =>
+            args.ports.observeRunInGameRuntime({
+              requestId: workflow.requestId,
+              prepared: workflow.prepared,
+              deployment,
+              setup,
+              started,
+              log,
+              signal,
+            })
+          );
           const proof = yield* tryPromise(() =>
             args.ports.buildRunInGameProof({
               requestId: workflow.requestId,
@@ -348,6 +359,7 @@ function makeRunInGameWorkflow(
               setup,
               started,
               log,
+              observation,
             })
           );
           yield* cleanupGeneratedMod();
@@ -357,6 +369,7 @@ function makeRunInGameWorkflow(
             materialization:
               proof.materialization ?? deployment.materialization ?? generated.materialization,
             ...deploymentEvidence(deployment),
+            runtimeObservation: observation,
             ...(proof.exactAuthorshipProof === undefined
               ? {}
               : { exactAuthorshipProof: proof.exactAuthorshipProof }),
