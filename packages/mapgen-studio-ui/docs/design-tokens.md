@@ -2,8 +2,10 @@
 
 ## The authored token vocabulary — everything else in the stylesheets is framework plumbing
 
-All color tokens are HSL channel triplets consumed as `hsl(var(--token))` (or
-`hsl(var(--token) / alpha)`). Dark is the default (`:root, .dark`); `.light`
+All color tokens carry full CSS color values (`hsl(…)`) and are consumed as
+`var(--token)`. Opacity composes with
+`color-mix(in oklab, var(--token) N%, transparent)` — never
+`hsl(var(--token) / alpha)`. Dark is the default (`:root, .dark`); `.light`
 re-skins every color token with the hand-tuned light palette. Never hardcode
 hex/oklch values — compose from these.
 
@@ -25,7 +27,7 @@ hex/oklch values — compose from these.
 | `--surface-sunken` | color | nested cards: between page and panel |
 | `--radius` | radius | 0.25rem default (inputs, buttons, tags) |
 | `--font-sans` · `--font-mono` | font | Inter / JetBrains Mono — the only two families |
-| `--color-border-secondary` · `--color-text-muted` | alias | legacy `hsl(var())` aliases used by the custom scrollbar |
+| `--color-border-secondary` · `--color-text-muted` | alias | legacy `var(--other-token)` aliases used by the custom scrollbar |
 
 The repo verifies this vocabulary on every build
 (`test/designTokens.test.ts` against `dist/styles.css`): every custom property
@@ -51,10 +53,6 @@ Running the design-system check in this project will report, on every sync
    **Do not follow the finding's advice**: hoisting `--tw-*` variables to
    `:root` breaks the `space-*`/`divide-*`/transform/gradient/ring/filter
    utilities.
-
-Also known: the generated `_adherence.oxlintrc.json` token→kind map mislabels
-the semantic color tokens as `"other"` (they are colors; the HSL-triplet value
-form isn't recognized). Treat the table above as the authority on kinds.
 
 Scope note: the repo guard pins `dist/styles.css` (the package's compiled
 stylesheet). If the check's findings ever shift without a matching repo-side
