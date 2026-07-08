@@ -53,7 +53,17 @@
 
 ## Implementation
 
-- (to be filled per stack branch)
+- **Branch 2 (`studio-ui-token-guard`).** Fixture generated from the built
+  `dist/styles.css` (64,809 bytes; 136 unique custom properties; 78
+  `@property` rules — byte-consistent with the handoff inventory). Partition:
+  32 authored / 104 framework-owned / 0 strays. Guard test
+  `test/designTokens.test.ts` (4 assertions). Negative proof (2026-07-08):
+  drop `--warning` → partition test fails naming `--warning`; add
+  `--fake-token` → scope test fails naming `--fake-token @ dark, @ light`;
+  restore → 4/4 green. Full package suite: 17 files / 172 tests green.
+  Path resolution note: `import.meta.url` is not a `file:` URL under the
+  root vitest transform — the test resolves `dist/styles.css` from cwd
+  (package dir or repo root).
 
 ## Verification
 
