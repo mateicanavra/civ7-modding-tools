@@ -114,7 +114,12 @@ export const sourceSnapshotProof = Type.Object(
 );
 export type RunInGameSourceSnapshotProof = Static<typeof sourceSnapshotProof>;
 
-// RunInGameMaterializationStatus
+/**
+ * Private diagnostics/proof evidence for how a Run in Game request became a
+ * concrete map script. This schema intentionally admits absolute generated-mod
+ * paths and tree digests, so it must stay behind diagnostics lookup and must
+ * never be projected into public status.
+ */
 export const materializationStatus = Type.Object(
   {
     mode: Type.Optional(Type.String()),
@@ -122,6 +127,12 @@ export const materializationStatus = Type.Object(
     mapScript: Type.Optional(Type.String()),
     configHash: Type.Optional(Type.String()),
     envelopeHash: Type.Optional(Type.String()),
+    generationManifestDigest: Type.Optional(Type.String()),
+    runArtifactId: Type.Optional(Type.String()),
+    generatedModRoot: Type.Optional(Type.String()),
+    generatedModFileCount: Type.Optional(Type.Number()),
+    generatedModDigest: Type.Optional(Type.String()),
+    mapRowId: Type.Optional(Type.String()),
     sourceConfig: Type.Optional(fileIdentity),
     generatedSourceScript: Type.Optional(fileIdentity),
     localModScript: Type.Optional(fileIdentity),
@@ -692,6 +703,11 @@ export const cancel = oc
   .input(requestIdInputSchema)
   .output(operationStatusSchema);
 
+/**
+ * Explicit private diagnostics lookup. Public Run in Game status exposes only a
+ * diagnostics id; callers must opt into this command to retrieve internal paths,
+ * proofs, generated artifact metadata, and bounded failure details.
+ */
 export const diagnostics = oc
   .input(
     contractSchema(

@@ -1,0 +1,200 @@
+$ bun tools/habitat/bin/dev.ts check --owner mapgen-studio --json
+{
+  "schemaVersion": 1,
+  "command": "habitat check --owner mapgen-studio --json",
+  "startedAt": "2026-07-08T03:20:32.550Z",
+  "ok": true,
+  "rules": [
+    {
+      "ruleId": "ensure_studio_worker_bundle_is_browser_safe",
+      "runner": "habitat",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 74,
+      "diagnostics": [],
+      "message": "Studio worker bundle contains forbidden runtime or Node references.",
+      "remediate": "Move forbidden runtime access behind server/direct-control or artifact boundaries."
+    },
+    {
+      "ruleId": "enforce_studio_dev_runner_topology",
+      "runner": "habitat",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 141,
+      "diagnostics": [],
+      "message": "MapGen Studio dev runner topology drifted.",
+      "remediate": "Keep Studio dev orchestration in Nx project targets, run the dev daemon with the dev-only bun-source watch condition, and keep generated/deploy outputs ignored by Vite watch."
+    },
+    {
+      "ruleId": "prohibit_recipe_dag_runtime_source_dependencies",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "Recipe-DAG source crossed into runtime recipe implementation.",
+      "remediate": "Route recipe-DAG metadata through contract-only studio contract surfaces."
+    },
+    {
+      "ruleId": "require_recipe_dag_contract_metadata",
+      "runner": "habitat",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 65,
+      "diagnostics": [],
+      "message": "Studio recipe-DAG import graph crossed contract-only boundaries.",
+      "remediate": "Route Studio recipe-DAG metadata through contract-only recipe surfaces."
+    },
+    {
+      "ruleId": "require_studio_ui_recipe_artifact_imports",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "MapGen Studio UI must import recipe artifacts, not runtime recipe modules.",
+      "remediate": "Use mod-swooper-maps/recipes/*-artifacts."
+    },
+    {
+      "ruleId": "grit-studio-run-cancel-command-owner",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "Run in Game cancellation command ownership drifted from the explicit public cancel command.",
+      "remediate": "Expose cancellation only as runInGame.cancel({ requestId }) and route it through the operation runtime cancellation owner."
+    },
+    {
+      "ruleId": "grit-studio-run-generator-port-boundary",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "Studio Run in Game generator port boundary drifted.",
+      "remediate": "Keep generateRunInGameMod as the only Studio generator port, call it with the StudioRunGenerationManifestReference, and implement the app port by invoking the Swooper manifest generator from generationManifest.path."
+    },
+    {
+      "ruleId": "grit-studio-run-launch-source-boundary",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "Run in Game launch-source ownership drifted from the closed public contract and runtime resolver boundary.",
+      "remediate": "Keep runInGame.start shaped as { source, recipeSettings, worldSettings } and route all launch-source realization through the studio-server operation runtime resolver."
+    },
+    {
+      "ruleId": "grit-studio-run-operation-identity-owner",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "Run in Game operation identity drifted away from request-id admission and durable ownership lease records.",
+      "remediate": "Admit Run in Game operations by requestId, keep content digests as correlation data only, and route restart reconciliation through RunOperationRecord plus RuntimeOwnershipLease."
+    },
+    {
+      "ruleId": "grit-studio-run-public-contract-closed",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "Run in Game public contract reopened private diagnostics or open payload fields.",
+      "remediate": "Keep public Run in Game status as a closed discriminated schema and expose private diagnostics only through runInGame.diagnostics({ diagnosticsId })."
+    },
+    {
+      "ruleId": "structure-studio-run-workspace-topology",
+      "runner": "habitat",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 7,
+      "diagnostics": [],
+      "message": "Studio Run in Game workspace topology drifted.",
+      "remediate": "Keep Run in Game request-workspace path, manifest, artifact id, and correlation helpers under packages/studio-run-workspace/src."
+    },
+    {
+      "ruleId": "enforce_studio_rpc_eventhub_topology",
+      "runner": "habitat",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 38,
+      "diagnostics": [],
+      "message": "Studio daemon no longer mounts the RPC handler through runtime context.",
+      "remediate": "Keep the daemon mounting createStudioRpcHandler(context). EventHub lifecycle leaks are owned by prohibit_studio_rpc_eventhub_lifecycle_leaks."
+    },
+    {
+      "ruleId": "prohibit_studio_rpc_eventhub_lifecycle_leaks",
+      "runner": "grit",
+      "lane": "enforced",
+      "status": "pass",
+      "locked": true,
+      "durationMs": 1917,
+      "timing": {
+        "kind": "shared",
+        "groupId": "grit:rules",
+        "durationMs": 1917,
+        "ruleCount": 8
+      },
+      "diagnostics": [],
+      "message": "Studio RPC daemon leaked EventHub lifecycle ownership.",
+      "remediate": "Keep EventHub creation and shutdown inside the Studio runtime context."
+    }
+  ]
+}

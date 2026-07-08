@@ -213,7 +213,8 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => ({
+        generateRunInGameMod: async () => ({
+          ...generatedRunInGameMod(),
           cleanup: async () => {
             cleanupCalls += 1;
           },
@@ -269,7 +270,8 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => ({
+        generateRunInGameMod: async () => ({
+          ...generatedRunInGameMod(),
           cleanup: async () => {
             cleanupCalls += 1;
             throw new Error("cleanup exploded");
@@ -336,7 +338,8 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => ({
+        generateRunInGameMod: async () => ({
+          ...generatedRunInGameMod(),
           cleanup: async () => {
             cleanupCalls += 1;
             cleanupStarted.resolve();
@@ -382,23 +385,25 @@ describe("StudioOperationRuntime", () => {
     expectTypeboxValid(operationStatusTypeSchema, cancelled);
   });
 
-  test("cancellation during in-flight materialization waits for late cleanup before publishing", async () => {
+  test("cancellation during in-flight generation waits for late cleanup before publishing", async () => {
     const events: StudioEvent[] = [];
-    const materializationBlocker = deferred<void>();
+    const generationBlocker = deferred<void>();
     const cleanupStarted = deferred<void>();
     const cleanupBlocker = deferred<void>();
     let cleanupCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => {
-          await materializationBlocker.promise;
+        generateRunInGameMod: async () => {
+          await generationBlocker.promise;
           return {
-            cleanup: async () => {
-              cleanupCalls += 1;
-              cleanupStarted.resolve();
-              await cleanupBlocker.promise;
-            },
+            ...generatedRunInGameMod({
+              cleanup: async () => {
+                cleanupCalls += 1;
+                cleanupStarted.resolve();
+                await cleanupBlocker.promise;
+              },
+            }),
           };
         },
       },
@@ -421,7 +426,7 @@ describe("StudioOperationRuntime", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
 
-    materializationBlocker.resolve();
+    generationBlocker.resolve();
     await cleanupStarted.promise;
     expect(cleanupCalls).toBe(1);
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
@@ -446,7 +451,8 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => ({
+        generateRunInGameMod: async () => ({
+          ...generatedRunInGameMod(),
           cleanup: () => {
             throw new Error("sync cleanup exploded");
           },
@@ -510,7 +516,8 @@ describe("StudioOperationRuntime", () => {
           ? deployPublishBlocker.promise
           : undefined,
       ports: {
-        materializeRunInGame: async () => ({
+        generateRunInGameMod: async () => ({
+          ...generatedRunInGameMod(),
           cleanup: async () => {
             cleanupCalls += 1;
           },
@@ -538,12 +545,12 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("cancels Run in Game before deployment without stale worker mutation", async () => {
-    const materializeBlocker = deferred<void>();
+    const generationBlocker = deferred<void>();
     const { runtime } = makeRuntime({
       ports: {
-        materializeRunInGame: async () => {
-          await materializeBlocker.promise;
-          return {};
+        generateRunInGameMod: async () => {
+          await generationBlocker.promise;
+          return generatedRunInGameMod();
         },
       },
     });
@@ -562,7 +569,7 @@ describe("StudioOperationRuntime", () => {
       service.runInGameCancel({ requestId: accepted.requestId })
     );
     await new Promise((resolve) => setTimeout(resolve, 0));
-    materializeBlocker.resolve();
+    generationBlocker.resolve();
     const cancelled = await cancellation;
     expect(cancelled).toMatchObject({
       requestId: accepted.requestId,
@@ -581,7 +588,8 @@ describe("StudioOperationRuntime", () => {
     let cleanupCalls = 0;
     const { runtime } = makeRuntime({
       ports: {
-        materializeRunInGame: async () => ({
+        generateRunInGameMod: async () => ({
+          ...generatedRunInGameMod(),
           cleanup: async () => {
             cleanupCalls += 1;
           },
@@ -851,7 +859,7 @@ describe("StudioOperationRuntime", () => {
     let observedSourceSnapshot: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        materializeRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ prepared }) => {
           observedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
           return {};
         },
@@ -898,7 +906,7 @@ describe("StudioOperationRuntime", () => {
     let observedRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        materializeRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ prepared }) => {
           observedRequest = prepared.request as Record<string, unknown>;
           return {};
         },
@@ -987,7 +995,7 @@ describe("StudioOperationRuntime", () => {
     let observedDurableRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        materializeRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ prepared }) => {
           observedDurableRequest = prepared.request as Record<string, unknown>;
           return {};
         },
@@ -1009,7 +1017,7 @@ describe("StudioOperationRuntime", () => {
     let observedRestartRequest: Record<string, unknown> | undefined;
     const { runtime: restartRuntime } = makeRuntime({
       ports: {
-        materializeRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ prepared }) => {
           observedRestartRequest = prepared.request as Record<string, unknown>;
           return {};
         },
@@ -1185,22 +1193,31 @@ describe("StudioOperationRuntime", () => {
     }
   });
 
-  test("writes one private generation manifest before materialization starts", async () => {
+  test("writes one private generation manifest before the generator port starts", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-generation-manifest-runtime-"));
     runtimeWorkspaceRoots.push(workspaceRoot);
     const events: StudioEvent[] = [];
-    let manifestPathDuringMaterialization: string | undefined;
-    let manifestDigestDuringMaterialization: string | undefined;
+    let manifestPathDuringGeneration: string | undefined;
+    let manifestDigestDuringGeneration: string | undefined;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
         runInGameWorkspaceRoot: workspaceRoot,
-        materializeRunInGame: async ({ requestId }) => {
-          const manifestPath = resolve(workspaceRoot, requestId, "generation-manifest.json");
+        generateRunInGameMod: async ({ generationManifest }) => {
+          const manifestPath = generationManifest.path;
           const manifest = await readStudioRunGenerationManifest(manifestPath);
-          manifestPathDuringMaterialization = manifestPath;
-          manifestDigestDuringMaterialization = manifest.generationManifestDigest;
-          return {};
+          manifestPathDuringGeneration = manifestPath;
+          manifestDigestDuringGeneration = manifest.generationManifestDigest;
+          return {
+            materialization: {
+              generationManifestDigest: generationManifest.generationManifestDigest,
+              runArtifactId: manifest.payload.runArtifactId,
+              generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
+              generatedModFileCount: 7,
+              generatedModDigest: "sha256-generated-mod",
+              mapRowId: "MAP_RUN_TEST",
+            },
+          };
         },
       },
     });
@@ -1214,7 +1231,7 @@ describe("StudioOperationRuntime", () => {
       )
     );
 
-    await expect.poll(() => manifestPathDuringMaterialization).toBeDefined();
+    await expect.poll(() => manifestPathDuringGeneration).toBeDefined();
     await expect
       .poll(async () => {
         const status = await runtime.runPromise(
@@ -1225,9 +1242,9 @@ describe("StudioOperationRuntime", () => {
       .toBe("completed");
 
     const manifestPath = resolve(workspaceRoot, accepted.requestId, "generation-manifest.json");
-    expect(manifestPathDuringMaterialization).toBe(manifestPath);
+    expect(manifestPathDuringGeneration).toBe(manifestPath);
     const manifest = await readStudioRunGenerationManifest(manifestPath);
-    expect(manifest.generationManifestDigest).toBe(manifestDigestDuringMaterialization);
+    expect(manifest.generationManifestDigest).toBe(manifestDigestDuringGeneration);
     expect(manifest.payload).toMatchObject({
       requestId: accepted.requestId,
       workspace: {
@@ -1278,17 +1295,24 @@ describe("StudioOperationRuntime", () => {
       runArtifactId: manifest.payload.runArtifactId,
       generationManifestDigest: manifest.generationManifestDigest,
     });
+    expect(privateOperation.materialization).toMatchObject({
+      generationManifestDigest: manifest.generationManifestDigest,
+      runArtifactId: manifest.payload.runArtifactId,
+      generatedModFileCount: 7,
+      generatedModDigest: "sha256-generated-mod",
+      mapRowId: "MAP_RUN_TEST",
+    });
   });
 
   test("rejects raw-control Run in Game payloads before admission", async () => {
     const events: StudioEvent[] = [];
-    let materializeCalls = 0;
+    let generationCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => {
-          materializeCalls += 1;
-          return {};
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
         },
       },
     });
@@ -1314,20 +1338,20 @@ describe("StudioOperationRuntime", () => {
 
     const current = await runtime.runPromise(service.operationsCurrent);
     expect(events).toEqual([]);
-    expect(materializeCalls).toBe(0);
+    expect(generationCalls).toBe(0);
     expect(current.runInGame.active).toBeNull();
     expect(current.runInGame.recent).toEqual([]);
   });
 
   test("rejects missing Run in Game config before admission", async () => {
     const events: StudioEvent[] = [];
-    let materializeCalls = 0;
+    let generationCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => {
-          materializeCalls += 1;
-          return {};
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
         },
       },
     });
@@ -1360,20 +1384,20 @@ describe("StudioOperationRuntime", () => {
 
     const current = await runtime.runPromise(service.operationsCurrent);
     expect(events).toEqual([]);
-    expect(materializeCalls).toBe(0);
+    expect(generationCalls).toBe(0);
     expect(current.runInGame.active).toBeNull();
     expect(current.runInGame.recent).toEqual([]);
   });
 
   test("rejects editor launch sources that do not resolve to studio-current", async () => {
     const events: StudioEvent[] = [];
-    let materializeCalls = 0;
+    let generationCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => {
-          materializeCalls += 1;
-          return {};
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
         },
       },
     });
@@ -1406,7 +1430,7 @@ describe("StudioOperationRuntime", () => {
 
     const current = await runtime.runPromise(service.operationsCurrent);
     expect(events).toEqual([]);
-    expect(materializeCalls).toBe(0);
+    expect(generationCalls).toBe(0);
     expect(current.runInGame.active).toBeNull();
     expect(current.runInGame.recent).toEqual([]);
   });
@@ -1419,13 +1443,13 @@ describe("StudioOperationRuntime", () => {
     "bad\0script.js",
   ])("rejects invalid Run in Game setup mapScript before admission: %j", async (mapScript) => {
     const events: StudioEvent[] = [];
-    let materializeCalls = 0;
+    let generationCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        materializeRunInGame: async () => {
-          materializeCalls += 1;
-          return {};
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
         },
       },
     });
@@ -1455,7 +1479,7 @@ describe("StudioOperationRuntime", () => {
 
     const current = await runtime.runPromise(service.operationsCurrent);
     expect(events).toEqual([]);
-    expect(materializeCalls).toBe(0);
+    expect(generationCalls).toBe(0);
     expect(current.runInGame.active).toBeNull();
     expect(current.runInGame.recent).toEqual([]);
   });
@@ -1465,7 +1489,7 @@ describe("StudioOperationRuntime", () => {
     let observedMapScript: string | undefined;
     const { runtime } = makeRuntime({
       ports: {
-        materializeRunInGame: async ({ prepared }) => {
+        deployRunInGame: async ({ prepared }) => {
           observedMapScript = prepared.request.setupConfig?.mapScript;
           return {};
         },
@@ -1965,10 +1989,10 @@ describe("StudioOperationRuntime", () => {
       };
     }> = [
       {
-        requestId: "run-materialize-fail",
+        requestId: "run-generation-fail",
         ports: {
-          materializeRunInGame: async () => {
-            throw new Error("materialize failed");
+          generateRunInGameMod: async () => {
+            throw new Error("generation failed");
           },
         },
         expected: {
@@ -2648,14 +2672,14 @@ describe("StudioOperationRuntime", () => {
   });
 
   test("post-disposal starts do not call leaf ports for any mutation", async () => {
-    let materializeCalls = 0;
+    let generationCalls = 0;
     let savePrepareCalls = 0;
     let autoplayCalls = 0;
     const { runtime } = makeRuntime({
       ports: {
-        materializeRunInGame: async () => {
-          materializeCalls += 1;
-          return {};
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
         },
         prepareSaveDeployStart: async () => {
           savePrepareCalls += 1;
@@ -2692,7 +2716,7 @@ describe("StudioOperationRuntime", () => {
       tag: "RuntimeDisposed",
     });
 
-    expect(materializeCalls).toBe(0);
+    expect(generationCalls).toBe(0);
     expect(savePrepareCalls).toBe(0);
     expect(autoplayCalls).toBe(0);
   });
@@ -2947,7 +2971,7 @@ function makePorts(
       now: () => new Date("2026-06-10T00:00:00.000Z"),
     },
     runInGameWorkspaceRoot,
-    materializeRunInGame: async () => ({}),
+    generateRunInGameMod: async () => generatedRunInGameMod(),
     readRunInGameCatalogSource: async ({ catalogSourceId }) => ({
       catalogSourceId,
       configPath: `mods/mod-swooper-maps/src/maps/configs/${catalogSourceId}.config.json`,
@@ -2970,6 +2994,28 @@ function makePorts(
       restored: true,
     }),
     ...overrides,
+  };
+}
+
+function generatedRunInGameMod(
+  options: Partial<
+    Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>>
+  > = {}
+): Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>> {
+  return {
+    materialization: {
+      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      configHash: "test-config-hash",
+      envelopeHash: "test-envelope-hash",
+      generationManifestDigest: "test-generation-manifest-digest",
+      runArtifactId: "run-test",
+      generatedModRoot: join(tmpdir(), "studio-generated-run-test"),
+      generatedModFileCount: 1,
+      generatedModDigest: "test-generated-mod-digest",
+      mapRowId: "MAP_RUN_TEST",
+      ...options.materialization,
+    },
+    ...(options.cleanup === undefined ? {} : { cleanup: options.cleanup }),
   };
 }
 
