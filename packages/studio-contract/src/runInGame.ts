@@ -706,7 +706,8 @@ export const cancel = oc
 /**
  * Explicit private diagnostics lookup. Public Run in Game status exposes only a
  * diagnostics id; callers must opt into this command to retrieve internal paths,
- * proofs, generated artifact metadata, and bounded failure details.
+ * private attribution reports, generated artifact metadata, and bounded failure
+ * details.
  */
 export const diagnostics = oc
   .input(

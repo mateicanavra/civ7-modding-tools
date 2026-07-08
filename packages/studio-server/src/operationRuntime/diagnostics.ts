@@ -11,7 +11,9 @@ import {
 import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
+import { writeRunAttributionReport } from "./attributionReport.js";
 import type { RunInGameInternalOperation } from "./model.js";
+import { privateJson } from "./privateJson.js";
 
 export function lookupRunDiagnostics(
   diagnosticsId: string,
@@ -38,6 +40,10 @@ export function writeRunDiagnostics(
   if (!diagnosticsId) return Effect.void;
   return Effect.tryPromise({
     try: async () => {
+      const root = workspaceRoot(options.workspaceRoot);
+      const attribution = await writeRunAttributionReport(operation, {
+        workspaceRoot: root,
+      });
       const record: RunDiagnosticsRecord = {
         diagnosticsId,
         requestId: operation.requestId,
@@ -46,13 +52,11 @@ export function writeRunDiagnostics(
         updatedAt: operation.updatedAt,
         summary: operation.failure?.message ?? `Run in Game ${operation.phase}`,
         sections: {
+          attribution: privateJson(attribution),
           operation: privateJson(operation),
         },
       };
-      const path = requestDiagnosticsPath(
-        workspaceRoot(options.workspaceRoot),
-        operation.requestId
-      );
+      const path = requestDiagnosticsPath(root, operation.requestId);
       await mkdir(dirname(path), { recursive: true });
       await writeFile(path, `${JSON.stringify(record, null, 2)}\n`, "utf8");
     },
@@ -119,22 +123,5 @@ function isNotFoundError(err: unknown): boolean {
     typeof err === "object" &&
     "code" in err &&
     (err as { code?: unknown }).code === "ENOENT"
-  );
-}
-
-function privateJson(value: unknown): unknown {
-  const ancestors: object[] = [];
-  return JSON.parse(
-    JSON.stringify(value, function (this: unknown, _key, current) {
-      if (typeof current === "bigint") return current.toString();
-      if (current instanceof Map) return Object.fromEntries(current);
-      if (current instanceof Set) return [...current];
-      if (current && typeof current === "object") {
-        while (ancestors.length > 0 && ancestors.at(-1) !== this) ancestors.pop();
-        if (ancestors.includes(current)) return "[Circular]";
-        ancestors.push(current);
-      }
-      return current;
-    })
   );
 }

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-studio-run-attribution-report-boundary",
+  "title": "Grit Studio Run Attribution Report Boundary",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "Studio Run in Game attribution assembly or diagnostics-section wiring outside the private runtime diagnostics/reporting boundary",
+  "why": "Packet 13 makes attribution one private report assembled from the operation's source, manifest, generation, deployment, observation, and terminal records. Runtime workspace files are evidence from behavior/live gates; source authority is the diagnostics/reporting boundary that builds and links the report behind explicit lookup.",
+  "remediate": "Keep attribution report assembly in the Studio server runtime diagnostics/reporting boundary, write it before diagnostics are marked available, include it only through diagnostics sections, and rely on the closed public status authority rule for public projections.",
+  "message": "Studio Run in Game attribution report boundary drifted.",
+  "pathCoverage": [
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": ["packages/studio-server/src", "apps/mapgen-studio/src/server"],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-attribution-report-boundary/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-attribution-report-boundary/pattern.md"
+    },
+    "patternName": "grit_studio_run_attribution_report_boundary"
+  }
+}
