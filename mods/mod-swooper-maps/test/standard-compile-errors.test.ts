@@ -42,6 +42,9 @@ describe("standard recipe compile errors", () => {
       ...foundationConfig,
       "foundation-mantle": { mesh: { computeMesh: { strategy: "default", config: {} } } },
       "foundation-lithosphere": { "plate-graph": { computePlateGraph: {} } },
+      "foundation-orogeny": {
+        "crust-evolution": { computeCrustEvolution: { strategy: "default", config: {} } },
+      },
       "hydrology-climate-baseline": {
         "climate-baseline": { computeRadiativeForcing: { strategy: "default", config: {} } },
       },
@@ -65,6 +68,7 @@ describe("standard recipe compile errors", () => {
       expect.arrayContaining([
         "/config/foundation-mantle/mesh",
         "/config/foundation-lithosphere/plate-graph",
+        "/config/foundation-orogeny/crust-evolution",
         "/config/hydrology-climate-baseline/climate-baseline",
         "/config/hydrology-hydrography/rivers",
         "/config/hydrology-climate-refine/climate-refine",

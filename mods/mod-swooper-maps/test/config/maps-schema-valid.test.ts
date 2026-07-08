@@ -30,6 +30,7 @@ const RETIRED_RAW_STAGE_KEYS: Record<string, readonly string[]> = {
   "foundation-mantle": ["mesh"],
   "foundation-lithosphere": ["plate-graph"],
   "foundation-tectonics": ["plate-motion", "tectonics"],
+  "foundation-orogeny": ["crust-evolution"],
   "hydrology-climate-baseline": ["climate-baseline"],
   "hydrology-hydrography": ["rivers"],
   "hydrology-climate-refine": ["climate-refine"],
@@ -175,6 +176,11 @@ describe("Shipped map configs", () => {
       errorPathsFor(
         {
           "hydrology-climate-baseline": { "climate-baseline": { seasonality: { modeCount: 2 } } },
+          "foundation-orogeny": {
+            "crust-evolution": {
+              computeCrustEvolution: { strategy: "default", config: {} },
+            },
+          },
           "map-ecology": { "plot-biomes": { bindings: { marine: "BIOME_DESERT" } } },
           placement: {
             resources: { candidateResourceTypes: [1, 2, 3] },
@@ -186,6 +192,7 @@ describe("Shipped map configs", () => {
     ).toEqual(
       expect.arrayContaining([
         "/maps/retired-shape/hydrology-climate-baseline/climate-baseline",
+        "/maps/retired-shape/foundation-orogeny/crust-evolution",
         "/maps/retired-shape/map-ecology/plot-biomes",
         "/maps/retired-shape/placement/resources/candidateResourceTypes",
         "/maps/retired-shape/placement/starts/overrides",

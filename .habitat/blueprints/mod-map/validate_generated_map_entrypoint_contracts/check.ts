@@ -3,24 +3,20 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { CatalogSourceIndex } from "../../../../mods/mod-swooper-maps/src/maps/catalog/sourceIndex";
+import {
+  catalogConfigFileNameFromPath,
+  parseCatalogSourceIndex,
+} from "../../../../mods/mod-swooper-maps/src/maps/catalog/sources";
+import { validateCanonicalMapConfig } from "../../../../mods/mod-swooper-maps/src/maps/configs/canonical";
+import { STANDARD_STAGES } from "../../../../mods/mod-swooper-maps/src/recipes/standard/recipe";
+import { deriveRecipeConfigSchema } from "../../../../packages/mapgen-core/src/authoring/index";
 
 const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
 const modRoot = join(repoRoot, "mods/mod-swooper-maps");
-const TRANSIENT_STUDIO_CONFIGS = new Set(["studio-current.config.json"]);
 const failures: string[] = [];
-
-const { STANDARD_STAGES } = await import(
-  pathToFileURL(join(modRoot, "src/recipes/standard/recipe.ts")).href
-);
-const { deriveRecipeConfigSchema } = await import(
-  pathToFileURL(join(repoRoot, "packages/mapgen-core/src/authoring/index.ts")).href
-);
-const { validateCanonicalMapConfig } = await import(
-  pathToFileURL(join(modRoot, "src/maps/configs/canonical.ts")).href
-);
 
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -64,29 +60,28 @@ function createMapConfigExpression(source: string): string | null {
   return source.match(/\n\s+config:\s*([^,\n]+),?\n\}\);/)?.[1]?.trim() ?? null;
 }
 
-const configsDir = join(modRoot, "src/maps/configs");
 const generatedDir = join(modRoot, "src/maps/generated");
-const configIds = readdirSync(configsDir)
-  .filter((entry) => entry.endsWith(".config.json"))
-  .filter((entry) => !TRANSIENT_STUDIO_CONFIGS.has(entry))
-  .map((entry) => entry.replace(/\.config\.json$/, ""))
+const catalogEntries = [...parseCatalogSourceIndex(CatalogSourceIndex).entries];
+const configIds = catalogEntries
+  .map((entry) => catalogConfigFileNameFromPath(entry.configPath).replace(/\.config\.json$/, ""))
   .sort();
 const generatedIds = readdirSync(generatedDir)
   .filter((entry) => entry.endsWith(".ts"))
-  .filter((entry) => !TRANSIENT_STUDIO_CONFIGS.has(entry.replace(/\.ts$/, ".config.json")))
   .map((entry) => entry.replace(/\.ts$/, ""))
   .sort();
 
 if (JSON.stringify(generatedIds) !== JSON.stringify(configIds)) {
   failures.push(
-    `generated map ids differ from config ids: ${JSON.stringify(generatedIds)} !== ${JSON.stringify(configIds)}`
+    `generated map ids differ from catalog source ids: ${JSON.stringify(generatedIds)} !== ${JSON.stringify(configIds)}`
   );
 }
 
-for (const id of configIds) {
-  const rawConfig = JSON.parse(readFileSync(join(configsDir, `${id}.config.json`), "utf8"));
+for (const entry of catalogEntries) {
+  const fileName = catalogConfigFileNameFromPath(entry.configPath);
+  const id = fileName.replace(/\.config\.json$/, "");
+  const rawConfig = JSON.parse(readFileSync(join(repoRoot, entry.configPath), "utf8"));
   const mapConfig = validateCanonicalMapConfig({
-    fileName: `${id}.config.json`,
+    fileName,
     raw: rawConfig,
     recipeSchema: deriveRecipeConfigSchema(STANDARD_STAGES),
     stages: STANDARD_STAGES,

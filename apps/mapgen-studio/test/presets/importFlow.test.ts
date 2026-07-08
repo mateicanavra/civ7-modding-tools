@@ -40,4 +40,42 @@ describe("resolveImportedPreset", () => {
       expect(result.details?.length ?? 0).toBeGreaterThan(0);
     }
   });
+
+  it("rejects imported legacy Foundation Orogeny envelopes instead of migrating them", () => {
+    const presetFile: StudioPresetExportFileV1 = {
+      $schema: "https://civ7.tools/schemas/mapgen-studio/studio-preset-export.v1.schema.json",
+      version: 1,
+      recipeId: "mod-swooper-maps/standard",
+      preset: {
+        label: "Legacy Foundation Orogeny",
+        config: {
+          "foundation-orogeny": {
+            "crust-evolution": {
+              computeCrustEvolution: {
+                strategy: "default",
+                config: {
+                  continentalSurvivalMaturity: 0.6,
+                  continentalFreeboard: 0.35,
+                  hyperextensionBreakupBase: 0.1,
+                  thinningThicknessLoss: 0.55,
+                  oceanicAbyssalDepth: 0.75,
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = resolveImportedPreset({ presetFile, findRecipeArtifacts });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.kind).toBe("invalid-config");
+      expect(result.details).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("/preset/import/foundation-orogeny/crust-evolution"),
+        ])
+      );
+    }
+  });
 });
