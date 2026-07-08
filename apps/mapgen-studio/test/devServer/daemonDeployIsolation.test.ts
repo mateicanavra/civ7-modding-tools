@@ -17,7 +17,10 @@ describe("daemon deploy isolation", () => {
     expect(
       buildSwooperMapsStudioDeployPlan({
         requestId: "studio-run-in-game-test",
-        launchConfigId: "studio-current",
+        launchConfig: {
+          id: "studio-current",
+          path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        },
         launchEnvelopeDigest: "launch-envelope-digest-test",
         env: { PATH: "/bin" },
       }).buildTask
@@ -25,15 +28,31 @@ describe("daemon deploy isolation", () => {
     expect(
       buildSwooperMapsStudioDeployPlan({
         requestId: "studio-run-in-game-test",
-        launchConfigId: "studio-current",
+        launchConfig: {
+          id: "studio-current",
+          path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        },
         launchEnvelopeDigest: "launch-envelope-digest-test",
         env: { PATH: "/bin" },
       }).env
     ).toMatchObject({
+      SWOOPER_STUDIO_DEPLOY_CONFIG_ID: "studio-current",
+      SWOOPER_STUDIO_DEPLOY_CONFIG_PATH:
+        "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
       SWOOPER_STUDIO_RUN_ID: "studio-run-in-game-test",
-      SWOOPER_INCLUDE_STUDIO_CURRENT: "1",
       SWOOPER_STUDIO_LAUNCH_CONFIG_ID: "studio-current",
       SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST: "launch-envelope-digest-test",
     });
+    expect(
+      buildSwooperMapsStudioDeployPlan({
+        requestId: "studio-run-in-game-test",
+        launchConfig: {
+          id: "studio-current",
+          path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        },
+        launchEnvelopeDigest: "launch-envelope-digest-test",
+        env: { PATH: "/bin" },
+      }).env
+    ).not.toHaveProperty("SWOOPER_INCLUDE_STUDIO_CURRENT");
   });
 });

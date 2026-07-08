@@ -342,7 +342,10 @@ function directControlProbeValue<T>(
 // rivers-era canonical shape; the old parsed-stdout deploy command is gone).
 // Run proof builds thread the selected launch envelope into the generated map
 // script so post-deploy evidence can be tied back to one resolved source.
-async function deploySwooperMaps(repoRoot: string): Promise<{
+async function deploySwooperMaps(
+  repoRoot: string,
+  launchConfig: Readonly<{ id: string; path: string }>
+): Promise<{
   build: {
     task: string;
     stdout: string;
@@ -352,7 +355,7 @@ async function deploySwooperMaps(repoRoot: string): Promise<{
   modsDir: string;
   filesCopied: number;
 }> {
-  const plan = buildSwooperMapsStudioDeployPlan();
+  const plan = buildSwooperMapsStudioDeployPlan({ launchConfig });
   const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
     cwd: repoRoot,
     timeout: DEPLOY_TIMEOUT_MS,
@@ -382,6 +385,7 @@ async function deploySwooperMapsForRun(
     repoRoot: string;
     requestId: string;
     launchConfigId: string;
+    launchConfigPath: string;
     launchEnvelopeDigest: string;
   }>
 ): Promise<{
@@ -396,7 +400,7 @@ async function deploySwooperMapsForRun(
 }> {
   const plan = buildSwooperMapsStudioDeployPlan({
     requestId: options.requestId,
-    launchConfigId: options.launchConfigId,
+    launchConfig: { id: options.launchConfigId, path: options.launchConfigPath },
     launchEnvelopeDigest: options.launchEnvelopeDigest,
   });
   const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
@@ -781,10 +785,16 @@ export function createStudioOperationRuntimePorts(
       const materialization = requireMaterialization(context, requestId);
       context.scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
       context.scriptingSnapshot = await snapshotFile(context.scriptingLogPath);
+      const launchConfigPath = requireContextValue(
+        materialization.path,
+        "Run in Game materialization path",
+        requestId
+      );
       const deploy = await deploySwooperMapsForRun({
         repoRoot,
         requestId,
         launchConfigId: context.id,
+        launchConfigPath,
         launchEnvelopeDigest: context.envelopeHash,
       });
       try {
@@ -1083,7 +1093,11 @@ export function createStudioOperationRuntimePorts(
     },
     deploySavedMapConfig: async ({ requestId }) => {
       const context = requireSaveContext(saveContexts, requestId);
-      const deploy = await deploySwooperMaps(repoRoot);
+      const path = requireContextValue(context.path, "Save/Deploy config path", requestId);
+      const deploy = await deploySwooperMaps(repoRoot, {
+        id: context.parsedRequest.id,
+        path,
+      });
       return { path: context.path, saved: true, deployed: true, deploy };
     },
     rollbackSaveDeploy: async ({ requestId }) => {

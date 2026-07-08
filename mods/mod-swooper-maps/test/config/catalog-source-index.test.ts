@@ -1,10 +1,11 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { describe, expect, it } from "vitest";
 import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
 import {
   type CatalogSourceEntry,
+  catalogConfigFileNameFromPath,
   parseCatalogSourceIndex,
   readCatalogSourceIndex,
   validateCatalogSourceIndex,
@@ -16,7 +17,6 @@ import {
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
 const pkgRoot = resolve(import.meta.dirname, "../..");
-const configsDir = resolve(pkgRoot, "src/maps/configs");
 const transientStudioCurrentConfig = "studio-current.config.json";
 
 describe("Swooper catalog source index", () => {
@@ -39,15 +39,13 @@ describe("Swooper catalog source index", () => {
     );
   });
 
-  it("matches the current default catalog generation source set", async () => {
+  it("keeps transient Studio current out of durable catalog source authority", async () => {
     const { knownConfigPaths, metadataByPath } = await loadCanonicalConfigMetadata();
-    const expectedPaths = await currentDefaultGenerationConfigPaths();
     const indexPaths = readCatalogSourceIndex({
       knownConfigPaths,
       configMetadataByPath: metadataByPath,
     }).map((entry) => entry.configPath);
 
-    expect(indexPaths).toEqual(expectedPaths);
     expect(indexPaths).not.toContain(
       `mods/mod-swooper-maps/src/maps/configs/${transientStudioCurrentConfig}`
     );
@@ -144,32 +142,6 @@ describe("Swooper catalog source index", () => {
   });
 });
 
-async function currentDefaultGenerationConfigPaths(): Promise<string[]> {
-  const entries = await readdir(configsDir, { withFileTypes: true });
-  const configs = await Promise.all(
-    entries
-      .filter(
-        (entry) =>
-          entry.isFile() &&
-          entry.name.endsWith(".config.json") &&
-          entry.name !== transientStudioCurrentConfig
-      )
-      .map(async (entry) => {
-        const raw = JSON.parse(await readFile(resolve(configsDir, entry.name), "utf8")) as {
-          id: string;
-          sortIndex: number;
-        };
-        return {
-          path: `mods/mod-swooper-maps/src/maps/configs/${entry.name}`,
-          id: raw.id,
-          sortIndex: raw.sortIndex,
-        };
-      })
-  );
-  configs.sort((a, b) => a.sortIndex - b.sortIndex || a.id.localeCompare(b.id));
-  return configs.map((config) => config.path);
-}
-
 async function loadCanonicalConfigMetadata(): Promise<{
   knownConfigPaths: ReadonlySet<string>;
   metadataByPath: ReadonlyMap<
@@ -185,10 +157,10 @@ async function loadCanonicalConfigMetadata(): Promise<{
   >;
 }> {
   const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
-  const paths = await currentDefaultGenerationConfigPaths();
+  const paths = CatalogSourceIndex.map((entry) => entry.configPath);
   const metadata = new Map<string, CanonicalMapConfigEnvelope>();
   for (const path of paths) {
-    const fileName = path.replace("mods/mod-swooper-maps/src/maps/configs/", "");
+    const fileName = catalogConfigFileNameFromPath(path);
     const raw = JSON.parse(
       await readFile(resolve(pkgRoot, `src/maps/configs/${fileName}`), "utf8")
     );

@@ -78,14 +78,19 @@ Observed files:
 
 Current shape:
 
-- `generate-map-artifacts.ts` scans `src/maps/configs` for
-  `*.config.json`;
-- `studio-current.config.json` is skipped unless
-  `SWOOPER_INCLUDE_STUDIO_CURRENT=1`;
-- generated map entries embed `SWOOPER_STUDIO_RUN_ID` when present;
-- Nx target `mod-swooper-maps:build:studio-deploy` depends on `gen:maps`;
+- `generate-map-artifacts.ts` reads `CatalogSourceIndex` for catalog
+  membership;
+- an operation-selected config path is added only by the explicit
+  `gen:studio-deploy-map-artifacts` deploy overlay target when Studio supplies
+  `SWOOPER_STUDIO_DEPLOY_CONFIG_ID` and `SWOOPER_STUDIO_DEPLOY_CONFIG_PATH`;
+  this is deploy input, not catalog membership;
+- generated map entries embed `SWOOPER_STUDIO_RUN_ID` when present on the
+  deploy overlay path;
+- Nx target `mod-swooper-maps:build:studio-deploy` depends on
+  `gen:studio-deploy-map-artifacts`;
 - Run in Game deployment passes `SWOOPER_STUDIO_RUN_ID` and
-  `SWOOPER_INCLUDE_STUDIO_CURRENT=1`;
+  launch-envelope proof env, while operation deployment passes the selected
+  deploy config id/path explicitly;
 - the deploy port returns `RunInGameDeployment` with `materialization` and
   optional opaque `deploy`.
 

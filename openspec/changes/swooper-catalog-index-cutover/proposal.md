@@ -41,18 +41,19 @@ failure for missing index entries. They do not search for retired path names.
 
 Permanent positive assertions:
 
-- catalog generation has exactly one source index input;
-- Studio catalog/recipe targets own metadata outputs;
-- catalog metadata targets emit exactly the metadata-only output classes defined
-  in `target-vocabulary.md`.
+- catalog source files and the Studio catalog metadata generator remain in the
+  Swooper-owned topology;
+- the Packet 4 transitional catalog-index advisory remains retired;
+- Studio catalog/recipe metadata output classes are proven by target execution
+  and behavior tests, not by a brittle source-shape mirror.
 
-Structural authority row: SA-09 `nx-swooper-catalog-index-target-topology`.
+Structural authority row: SA-09 `structure-swooper-catalog-index-target-topology`.
 
 ## Verification Gates
 
 - Catalog generation behavior tests.
-- Nx target metadata verification.
-- SA-09 `nx-swooper-catalog-index-target-topology`.
+- Nx target execution/output verification.
+- SA-09 `structure-swooper-catalog-index-target-topology`.
 - No declared verification gate is skipped; packet closure records evidence in
   `workstream/verification-evidence.md`.
 - `bun run openspec -- validate swooper-catalog-index-cutover --strict`.

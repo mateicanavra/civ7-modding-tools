@@ -15,9 +15,9 @@ function catalogSource(entry: CatalogSourceEntryDefinition): CatalogSourceEntry 
 /**
  * Durable Swooper Maps catalog membership.
  *
- * This is source data, not generated output. Packet 4 keeps generation on its
- * current reader, but later launch-source and catalog-cutover packets use this
- * list as the stable source-id vocabulary for shipped catalog maps.
+ * This is source data, not generated output. Catalog generation uses this list
+ * as the stable source-id vocabulary for shipped catalog maps; disposable
+ * Studio editor content is a runtime overlay, not catalog membership.
  */
 export const CatalogSourceIndex = [
   catalogSource({

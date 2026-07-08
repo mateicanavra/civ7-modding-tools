@@ -1,7 +1,7 @@
 import { CatalogSourceIndex } from "./sourceIndex.js";
 
-const CONFIG_PATH_PREFIX = "mods/mod-swooper-maps/src/maps/configs/";
-const CONFIG_PATH_SUFFIX = ".config.json";
+export const CATALOG_CONFIG_PATH_PREFIX = "mods/mod-swooper-maps/src/maps/configs/";
+export const CATALOG_CONFIG_PATH_SUFFIX = ".config.json";
 const ENTRY_KEYS = new Set([
   "catalogSourceId",
   "configPath",
@@ -98,6 +98,19 @@ export function parseCatalogSourceIndex(
     );
   }
   return { ok: true, entries: value as readonly CatalogSourceEntry[] };
+}
+
+export function catalogConfigFileNameFromPath(configPath: string): string {
+  if (
+    !configPath.startsWith(CATALOG_CONFIG_PATH_PREFIX) ||
+    !configPath.endsWith(CATALOG_CONFIG_PATH_SUFFIX) ||
+    configPath.includes("..")
+  ) {
+    throw new Error(
+      `Catalog source config path must point at ${CATALOG_CONFIG_PATH_PREFIX}*${CATALOG_CONFIG_PATH_SUFFIX}`
+    );
+  }
+  return configPath.slice(CATALOG_CONFIG_PATH_PREFIX.length);
 }
 
 export function validateCatalogSourceIndex(
@@ -209,8 +222,10 @@ function stringField(
 }
 
 function validateConfigPath(path: string, label: string, errors: string[]): void {
-  if (!path.startsWith(CONFIG_PATH_PREFIX) || !path.endsWith(CONFIG_PATH_SUFFIX)) {
-    errors.push(`${label}/configPath must point at ${CONFIG_PATH_PREFIX}*${CONFIG_PATH_SUFFIX}`);
+  if (!path.startsWith(CATALOG_CONFIG_PATH_PREFIX) || !path.endsWith(CATALOG_CONFIG_PATH_SUFFIX)) {
+    errors.push(
+      `${label}/configPath must point at ${CATALOG_CONFIG_PATH_PREFIX}*${CATALOG_CONFIG_PATH_SUFFIX}`
+    );
   }
   if (path.includes("..")) {
     errors.push(`${label}/configPath must not contain parent-directory segments`);

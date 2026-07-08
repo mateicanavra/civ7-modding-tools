@@ -13,6 +13,8 @@ Game generator.
 
 ## Enforcement
 
-Behavior tests compare generated catalog metadata. SA-09
-`nx-swooper-catalog-index-target-topology` enforces the target and topology
-shape.
+Behavior tests compare generated catalog metadata and the focused Nx target
+gates prove the metadata-only output classes. SA-09
+`structure-swooper-catalog-index-target-topology` enforces the durable source
+topology for the cutover and the retirement of the Packet 4 transitional
+advisory.

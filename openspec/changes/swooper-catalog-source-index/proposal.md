@@ -71,7 +71,7 @@ Temporary pattern:
 - baseline action: committed empty baseline after validator lands;
 - hook scope: none;
 - removal condition: remove after `swooper-catalog-index-cutover` registers
-  SA-09 `nx-swooper-catalog-index-target-topology`.
+  SA-09 `structure-swooper-catalog-index-target-topology`.
 
 ## Verification Gates
 
