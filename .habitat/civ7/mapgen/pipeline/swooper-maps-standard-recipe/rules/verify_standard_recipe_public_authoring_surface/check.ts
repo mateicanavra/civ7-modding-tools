@@ -1,18 +1,6 @@
 #!/usr/bin/env bun
-import { execFileSync } from "node:child_process";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
-
-const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
-  encoding: "utf8",
-}).trim();
-
-const { STANDARD_STAGES } = await import(
-  pathToFileURL(join(repoRoot, "mods/mod-swooper-maps/src/recipes/standard/recipe.ts")).href
-);
-const { deriveStageAuthoringModel } = await import(
-  pathToFileURL(join(repoRoot, "packages/mapgen-core/src/authoring/index.ts")).href
-);
+import { STANDARD_STAGES } from "../../../../../../../mods/mod-swooper-maps/src/recipes/standard/recipe";
+import { deriveStageAuthoringModel } from "../../../../../../../packages/mapgen-core/src/authoring/index";
 
 const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "foundation-mantle": ["knobs", "mantleForcing", "mantleSources", "meshResolution"],
@@ -25,7 +13,7 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "tectonicRollups",
     "tectonicSegmentation",
   ],
-  "foundation-orogeny": ["knobs", "crust-evolution"],
+  "foundation-orogeny": ["knobs", "crustCharacter"],
   "foundation-projection": ["knobs"],
   "morphology-coasts": [
     "knobs",

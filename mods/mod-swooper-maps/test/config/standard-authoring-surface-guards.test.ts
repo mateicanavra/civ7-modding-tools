@@ -4,13 +4,16 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
+import {
+  catalogConfigFileNameFromPath,
+  parseCatalogSourceIndex,
+} from "../../src/maps/catalog/sources";
 import {
   type ValidatedMapConfig,
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical.js";
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
-
-const TRANSIENT_STUDIO_CONFIGS = new Set(["studio-current.config.json"]);
 
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -53,27 +56,28 @@ function createMapConfigExpression(source: string, id: string): string {
 
 describe("standard map config artifacts", () => {
   it("keeps generated SDK map entrypoints bound to canonical source config envelopes", () => {
-    const configsDir = join(import.meta.dir, "../../src/maps/configs");
     const generatedDir = join(import.meta.dir, "../../src/maps/generated");
-    const configIds = readdirSync(configsDir)
-      .filter((entry) => entry.endsWith(".config.json"))
-      .filter((entry) => !TRANSIENT_STUDIO_CONFIGS.has(entry))
-      .map((entry) => entry.replace(/\.config\.json$/, ""))
+    const catalogEntries = [...parseCatalogSourceIndex(CatalogSourceIndex).entries];
+    const configIds = catalogEntries
+      .map((entry) =>
+        catalogConfigFileNameFromPath(entry.configPath).replace(/\.config\.json$/, "")
+      )
       .sort();
     const generatedIds = readdirSync(generatedDir)
       .filter((entry) => entry.endsWith(".ts"))
-      .filter((entry) => !TRANSIENT_STUDIO_CONFIGS.has(entry.replace(/\.ts$/, ".config.json")))
       .map((entry) => entry.replace(/\.ts$/, ""))
       .sort();
 
     expect(generatedIds).toEqual(configIds);
 
-    for (const id of configIds) {
+    for (const entry of catalogEntries) {
+      const fileName = catalogConfigFileNameFromPath(entry.configPath);
+      const id = fileName.replace(/\.config\.json$/, "");
       const rawConfig = JSON.parse(
-        readFileSync(join(configsDir, `${id}.config.json`), "utf8")
+        readFileSync(join(import.meta.dir, "../../../..", entry.configPath), "utf8")
       ) as unknown;
       const mapConfig = validateCanonicalMapConfig({
-        fileName: `${id}.config.json`,
+        fileName,
         raw: rawConfig,
         recipeSchema: deriveRecipeConfigSchema(STANDARD_STAGES),
         stages: STANDARD_STAGES,

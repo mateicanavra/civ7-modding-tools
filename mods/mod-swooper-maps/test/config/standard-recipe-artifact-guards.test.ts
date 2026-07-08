@@ -123,6 +123,9 @@ describe("standard recipe source artifact guards", () => {
       "/standard/defaults"
     );
     expect(errors).toEqual([]);
-    expect(STANDARD_RECIPE_CONFIG).toEqual(stripSchemaMetadataRoot(value));
+    const sourceDefaults = stripSchemaMetadataRoot(value) as Record<string, any>;
+    expect(sourceDefaults["foundation-orogeny"]).toHaveProperty("crustCharacter");
+    expect(sourceDefaults["foundation-orogeny"]).not.toHaveProperty("crust-evolution");
+    expect(STANDARD_RECIPE_CONFIG).toEqual(sourceDefaults);
   });
 });

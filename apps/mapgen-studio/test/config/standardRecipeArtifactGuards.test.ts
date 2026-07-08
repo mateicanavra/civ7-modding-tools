@@ -7,6 +7,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 import { migratePipelineConfigUnknown } from "../../src/features/configMigrations/pipelineConfig";
+import { applyPresetConfig } from "../../src/features/configOverrides/configBuilders";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
   getRecipeArtifacts,
@@ -103,6 +104,13 @@ describe("standard recipe generated artifact guardrails", () => {
         getConfigAtPath(stageDefaults, focusPath);
       }
     }
+
+    const foundationOrogenyDefaults = (STANDARD_RECIPE_CONFIG as Record<string, unknown>)[
+      "foundation-orogeny"
+    ];
+    expect(foundationOrogenyDefaults).toHaveProperty("crustCharacter");
+    expect(foundationOrogenyDefaults).not.toHaveProperty("crust-evolution");
+    expect(hasRawOpEnvelope(foundationOrogenyDefaults)).toBe(false);
   });
 
   it("keeps built-in standard map presets on generated public schema", () => {
@@ -114,12 +122,25 @@ describe("standard recipe generated artifact guardrails", () => {
       expect(hasRawOpEnvelope(preset.config), `${preset.id} public config raw envelopes`).toBe(
         false
       );
+      expect(
+        (preset.config as Record<string, unknown>)["foundation-orogeny"] ?? {}
+      ).not.toHaveProperty("crust-evolution");
       const { errors } = normalizeStrict<Record<string, unknown>>(
         STANDARD_RECIPE_CONFIG_SCHEMA,
         preset.config,
         `/studio/presets/${preset.id}`
       );
       expect(errors).toEqual([]);
+
+      const applied = applyPresetConfig({
+        schema: STANDARD_RECIPE_CONFIG_SCHEMA,
+        uiMeta: STANDARD_RECIPE_UI_META,
+        presetConfig: preset.config,
+        label: preset.id,
+      });
+      expect(applied.errors, `${preset.id} applied preset errors`).toEqual([]);
+      expect(applied.value?.["foundation-orogeny"]).not.toHaveProperty("crust-evolution");
+      expect(hasRawOpEnvelope(applied.value?.["foundation-orogeny"])).toBe(false);
     }
   });
 

@@ -789,7 +789,7 @@ describe("Studio default config", () => {
         "tectonicRollups",
         "tectonicSegmentation",
       ],
-      "foundation-orogeny": ["knobs", "crust-evolution"],
+      "foundation-orogeny": ["knobs", "crustCharacter"],
       "foundation-projection": ["knobs"],
     };
 
@@ -811,10 +811,8 @@ describe("Studio default config", () => {
       expect(stageProps).not.toHaveProperty("plate-graph");
       expect(stageProps).not.toHaveProperty("plate-motion");
       expect(stageProps).not.toHaveProperty("tectonics");
-      if (stageId !== "foundation-orogeny") {
-        expect(JSON.stringify(stageProps)).not.toContain('"strategy"');
-        expect(JSON.stringify(stageProps)).not.toContain('"config"');
-      }
+      expect(JSON.stringify(stageProps)).not.toContain('"strategy"');
+      expect(JSON.stringify(stageProps)).not.toContain('"config"');
     }
     const foundationProps = (
       rootProps["foundation-mantle"] as { properties?: Record<string, unknown> }
@@ -857,6 +855,10 @@ describe("Studio default config", () => {
         "regimeMinIntensity",
       ]),
       "foundation-tectonics.tectonicSegmentation.regimeMinIntensity"
+    );
+    expectSchemaHasDescription(
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation-orogeny", "crustCharacter"]),
+      "foundation-orogeny.crustCharacter"
     );
 
     const rootProps =

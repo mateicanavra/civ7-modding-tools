@@ -1,6 +1,7 @@
-import { type TSchema, Type } from "typebox";
+import { type Static, type TSchema, Type } from "typebox";
 import { crust, plateGraph } from "./foundation-lithosphere/steps/index.js";
 import { mantleForcing, mantlePotential, mesh } from "./foundation-mantle/steps/index.js";
+import { crustEvolution } from "./foundation-orogeny/steps/index.js";
 import { plateMotion, tectonics } from "./foundation-tectonics/steps/index.js";
 
 function defaultStrategyConfigSchema(
@@ -97,6 +98,11 @@ const TectonicRollupsSchema = defaultStrategyConfigSchema(
   "Tectonic rollup controls. These fields determine how per-era activity is summarized into current history scalars."
 );
 
+const CrustCharacterSchema = defaultStrategyConfigSchema(
+  opConfigSchema(crustEvolution.contract.ops, "computeCrustEvolution"),
+  "Crust character controls. These semantic fields shape continental abundance, freeboard, fragmentation, shelf depth, and abyssal relief."
+);
+
 function defaultOp(config: unknown) {
   return {
     strategy: "default" as const,
@@ -157,6 +163,19 @@ export const FoundationTectonicsPublicSchema = Type.Object(
   }
 );
 
+export const FoundationOrogenyPublicSchema = Type.Object(
+  {
+    crustCharacter: Type.Optional(CrustCharacterSchema),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Foundation orogeny authoring controls for final crust character after initial crust and tectonic history are merged.",
+  }
+);
+
+export type FoundationOrogenyPublicConfig = Static<typeof FoundationOrogenyPublicSchema>;
+
 export function compileFoundationMantlePublicConfig(config: Record<string, unknown>) {
   const rawSteps: Record<string, unknown> = {};
   assignIfDefined(rawSteps, "mesh", stepOp("computeMesh", config.meshResolution));
@@ -204,5 +223,18 @@ export function compileFoundationTectonicsPublicConfig(config: Record<string, un
   );
   if (Object.keys(tectonicsConfig).length > 0) rawSteps.tectonics = tectonicsConfig;
 
+  return rawSteps;
+}
+
+// Foundation Orogeny is public as semantic crustCharacter config. The raw
+// compute-crust-evolution operation envelope is emitted only at this compile
+// boundary so Studio and presets never author it directly.
+export function compileFoundationOrogenyPublicConfig(config: FoundationOrogenyPublicConfig) {
+  const rawSteps: Record<string, unknown> = {};
+  assignIfDefined(
+    rawSteps,
+    "crust-evolution",
+    stepOp("computeCrustEvolution", config.crustCharacter)
+  );
   return rawSteps;
 }

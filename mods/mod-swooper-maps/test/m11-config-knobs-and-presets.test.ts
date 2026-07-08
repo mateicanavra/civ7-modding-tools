@@ -195,6 +195,51 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     }
   });
 
+  it("compiles Foundation Orogeny crustCharacter into the internal crust-evolution op envelope", () => {
+    const crustCharacter = {
+      continentalSurvivalMaturity: 0.72,
+      continentalFreeboard: 0.2,
+      hyperextensionBreakupBase: 0.18,
+      thinningThicknessLoss: 0.62,
+      oceanicAbyssalDepth: 0.84,
+    };
+
+    const compiled = standardRecipe.compileConfig(env, {
+      ...foundationBaseConfig,
+      "foundation-orogeny": { crustCharacter },
+    });
+
+    const op = compiled["foundation-orogeny"]["crust-evolution"].computeCrustEvolution;
+    expect(op.strategy).toBe("default");
+    expect(op.config).toEqual(crustCharacter);
+  });
+
+  it("lets explicit Foundation Orogeny knobs override their coupled crustCharacter fields", () => {
+    const compiled = standardRecipe.compileConfig(env, {
+      ...foundationBaseConfig,
+      "foundation-orogeny": {
+        knobs: {
+          continentalAbundance: 1,
+          continentalRelief: 0,
+        },
+        crustCharacter: {
+          continentalSurvivalMaturity: 0.72,
+          continentalFreeboard: 0.5,
+          hyperextensionBreakupBase: 0.18,
+          thinningThicknessLoss: 0.62,
+          oceanicAbyssalDepth: 0.84,
+        },
+      },
+    });
+
+    const config = compiled["foundation-orogeny"]["crust-evolution"].computeCrustEvolution.config;
+    expect(config.continentalSurvivalMaturity).toBeCloseTo(0.4, 6);
+    expect(config.hyperextensionBreakupBase).toBeCloseTo(0.3, 6);
+    expect(config.continentalFreeboard).toBeCloseTo(0.15, 6);
+    expect(config.thinningThicknessLoss).toBeCloseTo(0.4, 6);
+    expect(config.oceanicAbyssalDepth).toBeCloseTo(0.35, 6);
+  });
+
   it("rejects stale internal ridge/foothill mountain-family config on the public surface", () => {
     expect(() =>
       standardRecipe.compileConfig(env, {
