@@ -630,7 +630,8 @@ const requestIdInputSchema = contractSchema(
       requestId: Type.String({ minLength: 1 }),
     },
     { additionalProperties: false }
-  )
+  ),
+  { cleanUnknownProperties: false }
 );
 
 export const runDiagnosticsRecordSchema = Type.Object(
@@ -699,7 +700,8 @@ export const diagnostics = oc
           diagnosticsId: Type.String({ minLength: 1 }),
         },
         { additionalProperties: false }
-      )
+      ),
+      { cleanUnknownProperties: false }
     )
   )
   .output(contractSchema(diagnosticsLookupResultSchema));

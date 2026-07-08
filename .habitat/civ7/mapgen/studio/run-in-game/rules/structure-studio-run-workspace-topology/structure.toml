@@ -1,0 +1,23 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "studio-run-runtime-workspace-owner"
+root = "packages/studio-server/src/operationRuntime"
+kind = "directory"
+mode = "open"
+required = [
+  "runWorkspace",
+]
+
+[[scopes]]
+name = "studio-run-workspace-owner-files"
+root = "packages/studio-server/src/operationRuntime/runWorkspace"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "paths.ts",
+  "generationManifest.ts",
+  "correlation.ts",
+]
+allowed = []

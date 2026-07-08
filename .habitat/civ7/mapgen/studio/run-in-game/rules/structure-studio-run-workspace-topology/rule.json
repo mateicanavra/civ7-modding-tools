@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "structure-studio-run-workspace-topology",
+  "title": "Structure Studio Run Workspace Topology",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "Run in Game request workspace ownership drifting out of the Studio server operation runtime",
+  "why": "Packet 7 makes the generation manifest a private request-workspace input before later packets add generated mod, deployment, observation, and attribution records.",
+  "remediate": "Keep Run in Game request-workspace path, manifest, artifact id, and correlation helpers under packages/studio-server/src/operationRuntime/runWorkspace.",
+  "message": "Studio Run in Game workspace topology drifted.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/studio-server/src/operationRuntime"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-studio-run-workspace-topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-studio-run-workspace-topology/structure.toml"
+    }
+  }
+}

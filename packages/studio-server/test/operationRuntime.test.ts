@@ -29,6 +29,7 @@ import {
   markRunInGameDiagnosticsAvailable,
   transitionRunInGame,
 } from "../src/operationRuntime/registry";
+import { readStudioRunGenerationManifest } from "../src/operationRuntime/runWorkspace";
 import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
 import { StudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
 
@@ -1184,6 +1185,101 @@ describe("StudioOperationRuntime", () => {
     }
   });
 
+  test("writes one private generation manifest before materialization starts", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-generation-manifest-runtime-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const events: StudioEvent[] = [];
+    let manifestPathDuringMaterialization: string | undefined;
+    let manifestDigestDuringMaterialization: string | undefined;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        materializeRunInGame: async ({ requestId }) => {
+          const manifestPath = resolve(workspaceRoot, requestId, "generation-manifest.json");
+          const manifest = await readStudioRunGenerationManifest(manifestPath);
+          manifestPathDuringMaterialization = manifestPath;
+          manifestDigestDuringMaterialization = manifest.generationManifestDigest;
+          return {};
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(
+        runInGameInput({
+          config: { beta: undefined, alpha: { z: 1, a: 2 } },
+        })
+      )
+    );
+
+    await expect.poll(() => manifestPathDuringMaterialization).toBeDefined();
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
+
+    const manifestPath = resolve(workspaceRoot, accepted.requestId, "generation-manifest.json");
+    expect(manifestPathDuringMaterialization).toBe(manifestPath);
+    const manifest = await readStudioRunGenerationManifest(manifestPath);
+    expect(manifest.generationManifestDigest).toBe(manifestDigestDuringMaterialization);
+    expect(manifest.payload).toMatchObject({
+      requestId: accepted.requestId,
+      workspace: {
+        requestRoot: `.mapgen-studio/run-in-game/${accepted.requestId}`,
+        generationManifestPath: "generation-manifest.json",
+        generatedModRoot: "generated-mod",
+      },
+      request: {
+        selectedConfigId: "studio-current",
+        materializationMode: "disposable",
+      },
+    });
+
+    const status = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const current = await runtime.runPromise(service.operationsCurrent);
+    const publicEvents = events.filter(
+      (event) =>
+        event.type === "operation" &&
+        event.kind === "run-in-game" &&
+        event.status.requestId === accepted.requestId
+    );
+    for (const publicValue of [accepted, status, current, ...publicEvents]) {
+      expect(JSON.stringify(publicValue)).not.toMatch(
+        /generationManifest|runArtifactId|RunCorrelation|resolvedLaunchSource|launchEnvelope/
+      );
+    }
+
+    const privateOperation = await readPrivateRunOperation(
+      runtime,
+      service,
+      accepted.diagnosticsId
+    );
+    expect(privateOperation.generationManifest).toMatchObject({
+      path: manifestPath,
+      generationManifestDigest: manifest.generationManifestDigest,
+      runArtifactId: manifest.payload.runArtifactId,
+    });
+    expect(
+      (
+        privateOperation.generationManifest as {
+          correlation?: Record<string, unknown>;
+        }
+      ).correlation
+    ).toMatchObject({
+      requestId: accepted.requestId,
+      runArtifactId: manifest.payload.runArtifactId,
+      generationManifestDigest: manifest.generationManifestDigest,
+    });
+  });
+
   test("rejects raw-control Run in Game payloads before admission", async () => {
     const events: StudioEvent[] = [];
     let materializeCalls = 0;
@@ -2176,6 +2272,7 @@ describe("StudioOperationRuntime", () => {
       status: "failed",
       phase: "failed",
       safeFailureCategory: "ownership",
+      diagnosticsId: `run-diagnostics-corrupt-${requestId}`,
     });
     const entries = await readdir(join(workspaceRoot, requestId));
     expect(entries.some((entry) => entry.startsWith("operation-record.json.corrupt-"))).toBe(true);
@@ -2204,6 +2301,54 @@ describe("StudioOperationRuntime", () => {
           status: "running",
           operationRevision: 3,
           diagnosticsId: "run-diagnostics-mismatched-record",
+          createdAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        clock: { now: () => new Date("2026-06-10T00:00:01.000Z") },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const recovered = await runtime.runPromise(service.runInGameStatus({ requestId }));
+    expect(recovered).toMatchObject({
+      requestId,
+      status: "failed",
+      phase: "failed",
+      safeFailureCategory: "ownership",
+      diagnosticsId: `run-diagnostics-corrupt-${requestId}`,
+    });
+    expect(recovered.diagnosticsId).not.toBe("not-safe-for-public-diagnostics");
+    const entries = await readdir(join(workspaceRoot, requestId));
+    expect(entries.some((entry) => entry.startsWith("operation-record.json.corrupt-"))).toBe(true);
+  });
+
+  test("daemon startup rejects persisted records with invalid diagnostics ids", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-invalid-record-fields-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const requestId = "studio-run-in-game-invalid-record-fields";
+    await mkdir(join(workspaceRoot, requestId), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, requestId, "operation-record.json"),
+      `${JSON.stringify(
+        {
+          recordType: "RunOperationRecord",
+          requestId,
+          daemonId: "studio-server-previous",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          leaseId: "runtime-lease-invalid-record-fields",
+          phase: "waiting-for-proof",
+          status: "running",
+          operationRevision: 3,
+          diagnosticsId: "not-safe-for-public-diagnostics",
           createdAt: "2026-06-10T00:00:00.000Z",
           updatedAt: "2026-06-10T00:00:00.500Z",
         },
@@ -2276,7 +2421,7 @@ describe("StudioOperationRuntime", () => {
     }
   });
 
-  test("daemon startup preserves live-pid leases with missing heartbeat proof", async () => {
+  test("daemon startup releases live-pid leases without matching heartbeat proof", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-ambiguous-ownership-"));
     runtimeWorkspaceRoots.push(workspaceRoot);
     await mkdir(join(workspaceRoot, "_runtime"), { recursive: true });
@@ -2307,10 +2452,9 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     await expect(
-      expectFailure(runtime, service.runInGameStart(runInGameInput()))
+      runtime.runPromise(service.runInGameStart(runInGameInput()))
     ).resolves.toMatchObject({
-      tag: "OperationBlocked",
-      activeRequestId: "foreign-live-without-heartbeat",
+      status: "running",
     });
   });
 
@@ -2752,11 +2896,10 @@ function makeRuntime(
   if (overrides.ports?.runInGameWorkspaceRoot === undefined) {
     runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
   }
-  const ports: StudioOperationRuntimePorts = {
-    ...makePorts(),
+  const ports: StudioOperationRuntimePorts = makePorts({
     ...overrides.ports,
     runInGameWorkspaceRoot,
-  };
+  });
   const runtime = ManagedRuntime.make(
     makeStudioOperationRuntimeLayer({
       ports,
@@ -2793,10 +2936,17 @@ function makeEventHub(
 function makePorts(
   overrides: Partial<StudioOperationRuntimePorts> = {}
 ): StudioOperationRuntimePorts {
+  const runInGameWorkspaceRoot =
+    overrides.runInGameWorkspaceRoot ??
+    join(tmpdir(), `studio-operation-runtime-port-${process.pid}-${++runtimeWorkspaceSequence}`);
+  if (overrides.runInGameWorkspaceRoot === undefined) {
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
+  }
   return {
     clock: {
       now: () => new Date("2026-06-10T00:00:00.000Z"),
     },
+    runInGameWorkspaceRoot,
     materializeRunInGame: async () => ({}),
     readRunInGameCatalogSource: async ({ catalogSourceId }) => ({
       catalogSourceId,

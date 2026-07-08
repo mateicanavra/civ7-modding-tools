@@ -8,6 +8,7 @@ import type {
 } from "@civ7/studio-contract";
 import type { StudioRuntimeFailure } from "../errors/index.js";
 import type { StudioDaemonIdentity } from "./ports.js";
+import type { StudioRunGenerationManifestReference } from "./runWorkspace/index.js";
 
 export const OPERATION_TTL_MS = 30 * 60_000;
 
@@ -63,6 +64,7 @@ export type RunInGameInternalOperation = Readonly<{
   updatedAt: string;
   diagnosticsId?: string;
   diagnosticsPersistedRevision?: number;
+  generationManifest?: StudioRunGenerationManifestReference;
   completedPhases: readonly RunInGamePhase[];
   materialization?: RunInGameMaterializationStatus;
   processRestart?: RunInGameProcessRestartStatus;

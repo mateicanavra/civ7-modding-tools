@@ -137,6 +137,7 @@ export {
   runDiagnosticsRecordSchema,
   runInGameRecipeSettings,
   runInGameWorldSettings,
+  setupConfig,
   STUDIO_CURRENT_CONFIG_ID,
   STUDIO_CURRENT_MAP_SCRIPT,
   validateRunInGameSetupConfig,
