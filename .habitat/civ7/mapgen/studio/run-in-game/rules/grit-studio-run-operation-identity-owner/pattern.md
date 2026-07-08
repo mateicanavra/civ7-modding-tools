@@ -12,18 +12,26 @@ slot for Run in Game plus Save/Deploy deployed-mod ownership.
 language js(typescript)
 
 or {
-  program(statements=$body) where {
+  program(statements=$modelSlotBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$",
-    ! $body <: contains `export type RuntimeActiveSlot = Readonly<{
+    ! $modelSlotBody <: contains `RuntimeActiveSlot`
+  },
+  program(statements=$modelSlotShapeBody) where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$",
+    ! $modelSlotShapeBody <: contains `export type RuntimeActiveSlot = Readonly<{
   $...
   requestId: string;
   leaseId: string;
   $...
 }>`
   },
-  program(statements=$body) where {
+  program(statements=$modelOperationBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$",
-    ! $body <: contains `export type RunInGameInternalOperation = Readonly<{
+    ! $modelOperationBody <: contains `RunInGameInternalOperation`
+  },
+  program(statements=$modelOperationShapeBody) where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$",
+    ! $modelOperationShapeBody <: contains `export type RunInGameInternalOperation = Readonly<{
   $...
   requestId: string;
   leaseId: string;
@@ -31,12 +39,20 @@ or {
   $...
 }>`
   },
-  program(statements=$body) where {
+  program(statements=$modelCorrelationBody) where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$",
+    ! $modelCorrelationBody <: contains `correlationDigest: string`
+  },
+  program(statements=$recordsLeaseBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export type RuntimeOwnershipLease = Readonly<{
+    ! $recordsLeaseBody <: contains `RuntimeOwnershipLease`
+  },
+  program(statements=$recordsLeaseShapeBody) where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
+    ! $recordsLeaseShapeBody <: contains `export type RuntimeOwnershipLease = Readonly<{
   $...
   leaseId: string;
-  ownerKind: "run-in-game" | "save-deploy";
+  ownerKind: $ownerKind;
   requestId: string;
   daemonId: string;
   daemonStartedAt: string;
@@ -46,9 +62,13 @@ or {
   $...
 }>`
   },
-  program(statements=$body) where {
+  program(statements=$recordsRecordBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `type RunOperationRecordBase = Readonly<{
+    ! $recordsRecordBody <: contains `RunOperationRecord`
+  },
+  program(statements=$recordsRecordBaseShapeBody) where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
+    ! $recordsRecordBaseShapeBody <: contains `type RunOperationRecordBase = Readonly<{
   $...
   recordType: "RunOperationRecord";
   requestId: string;
@@ -57,79 +77,37 @@ or {
   leaseId: string;
   phase: RunInGameInternalOperation["phase"];
   operationRevision: number;
+  diagnosticsId?: string;
+  createdAt: string;
+  updatedAt: string;
   $...
 }>`
   },
-  program(statements=$body) where {
+  program(statements=$recordsRunningShapeBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `type RunningRunOperationRecord = RunOperationRecordBase &
+    ! $recordsRunningShapeBody <: contains `type RunningRunOperationRecord = RunOperationRecordBase &
   Readonly<{
     status: "running";
     terminalAt?: never;
     terminalOutcome?: never;
   }>`
   },
-  program(statements=$body) where {
+  program(statements=$recordsTerminalShapeBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `type TerminalRunOperationRecord = RunOperationRecordBase &
+    ! $recordsTerminalShapeBody <: contains `type TerminalRunOperationRecord = RunOperationRecordBase &
   Readonly<{
     status: Exclude<RunInGameInternalOperation["status"], "running">;
     terminalAt: string;
     terminalOutcome: Exclude<RunInGameInternalOperation["status"], "running">;
   }>`
   },
-  program(statements=$body) where {
+  program(statements=$recordsAcquireBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export type RunOperationRecord = RunningRunOperationRecord | TerminalRunOperationRecord`
+    ! $recordsAcquireBody <: contains `acquireRuntimeOwnershipLease`
   },
-  program(statements=$body) where {
+  program(statements=$recordsAcquireLockBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function acquireRuntimeOwnershipLease`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `type LeaseOwnerState = "dead" | "live" | "ambiguous-live-pid"`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `async function withRuntimeLeaseLock`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `type RuntimeLeaseLockOwner = Readonly<{
-  $...
-  token: string;
-  processId: number;
-  acquiredAt: string;
-  $...
-}>`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `await writeJsonFile(runtimeLeaseLockOwnerPath(lockPath), owner)`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `async function releaseRuntimeLeaseLock(lockPath: string, token: string): Promise<void> {
-  $...
-  if (owner?.token === token) {
-    await rm(lockPath, { recursive: true, force: true });
-  }
-}`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `async function removeStaleRuntimeLeaseLock(lockPath: string): Promise<void> {
-  $...
-  if (owner && processIsLive(owner.processId)) return;
-  $...
-  await rename(lockPath, stalePath).catch(() => undefined);
-  await rm(stalePath, { recursive: true, force: true });
-}`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function acquireRuntimeOwnershipLease($args): $returnType {
+    ! $recordsAcquireLockBody <: contains `export function acquireRuntimeOwnershipLease($args): $returnType {
   $...
   return Effect.tryPromise({
     try: async () => {
@@ -144,9 +122,9 @@ or {
   });
 }`
   },
-  program(statements=$body) where {
+  program(statements=$recordsReleaseLockBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function releaseRuntimeOwnershipLease($args): $returnType {
+    ! $recordsReleaseLockBody <: contains `export function releaseRuntimeOwnershipLease($args): $returnType {
   $...
   return Effect.tryPromise({
     try: async () => {
@@ -160,9 +138,9 @@ or {
   }).pipe($...);
 }`
   },
-  program(statements=$body) where {
+  program(statements=$recordsStaleReleaseLockBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function releaseStaleRuntimeOwnershipLease($args): $returnType {
+    ! $recordsStaleReleaseLockBody <: contains `export function releaseStaleRuntimeOwnershipLease($args): $returnType {
   $...
   return Effect.tryPromise({
     try: async () => {
@@ -177,105 +155,78 @@ or {
   }).pipe($...);
 }`
   },
-  program(statements=$body) where {
+  program(statements=$recordsWriteBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `function leaseOwnerState(root: string, lease: RuntimeOwnershipLease): LeaseOwnerState {
-  $...
-  return heartbeatMatchesLease(root, lease) ? "live" : "ambiguous-live-pid";
-}`
+    ! $recordsWriteBody <: contains `writeRunOperationRecord`
   },
-  program(statements=$body) where {
+  program(statements=$recordsAbandonedBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function readAbandonedRunOperationRecords`
+    ! $recordsAbandonedBody <: contains `readAbandonedRunOperationRecords`
   },
-  program(statements=$body) where {
+  program(statements=$recordsAdoptBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function releaseStaleRuntimeOwnershipLease`
+    ! $recordsAdoptBody <: contains `operationFromAbandonedRecord`
   },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function operationFromAbandonedRecord`
+  `"ambiguous-live-pid"` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$"
   },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/operationRecords\.ts$",
-    ! $body <: contains `export function acquireRuntimeDaemonHeartbeat`
-  },
-  program(statements=$body) where {
+  program(statements=$registryKnownBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    ! $body <: contains `const known = state.runInGame[args.requestId]`
+    ! $registryKnownBody <: contains `const known = state.runInGame[args.requestId]`
   },
-  program(statements=$body) where {
+  program(statements=$registryTombstoneBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    ! $body <: contains `const tombstone = state.tombstones[args.requestId]`
+    ! $registryTombstoneBody <: contains `const tombstone = state.tombstones[args.requestId]`
   },
-  program(statements=$body) where {
+  program(statements=$runtimeLeaseBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/StudioOperationRuntime\.ts$",
-    ! $body <: contains `const lease = yield* acquireRuntimeOwnershipLease($leaseArgs);
-$...
-leaseId: lease.leaseId,
-$...`
+    ! $runtimeLeaseBody <: contains `acquireRuntimeOwnershipLease`
   },
-  program(statements=$body) where {
+  program(statements=$runtimeAbandonedBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/StudioOperationRuntime\.ts$",
-    ! $body <: contains `yield* acquireRuntimeDaemonHeartbeat($heartbeatArgs);
-$...
-yield* releaseStaleRuntimeOwnershipLease($staleLeaseArgs);
-$...
-const abandonedRecords = yield* readAbandonedRunOperationRecords($recordArgs);
-$...
-const abandonedOperations = abandonedRecords.map(($record) =>
-  operationFromAbandonedRecord($record, $nowIso)
-);
-$...
-yield* adoptRunInGameOperations(registry, abandonedOperations)`
+    ! $runtimeAbandonedBody <: contains `readAbandonedRunOperationRecords`
   },
-  program(statements=$body) where {
+  program(statements=$runtimeRecordBody) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/StudioOperationRuntime\.ts$",
-    ! $body <: contains `releaseStaleRuntimeOwnershipLease`
-  },
-  program(statements=$body) where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/StudioOperationRuntime\.ts$",
-    ! $body <: contains `writeRunOperationRecord(marked ?? operation, identity, $options)`
+    ! $runtimeRecordBody <: contains `writeRunOperationRecord`
   },
   `fingerprint?: string` where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$",
-    within `export type RuntimeTombstone = Readonly<$shape>`
+    $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$"
   },
   `fingerprint: string` where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$",
-    within `export type RunInGameInternalOperation = Readonly<$shape>`
+    $filename <: r".*packages/studio-server/src/operationRuntime/model\.ts$"
   },
-  `operation.fingerprint === args.prepared.fingerprint` where {
+  `operation.fingerprint === args.prepared.fingerprint` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   },
-  `tombstone.fingerprint === args.prepared.fingerprint` where {
+  `tombstone.fingerprint === args.prepared.fingerprint` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   },
-  `operation.correlationDigest === args.prepared.correlationDigest` where {
+  `operation.correlationDigest === args.prepared.correlationDigest` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   },
-  `tombstone.correlationDigest === args.prepared.correlationDigest` where {
+  `tombstone.correlationDigest === args.prepared.correlationDigest` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   },
-  `Object.values(state.runInGame).find($predicate)` where {
+  `Object.values(state.runInGame).find($predicate)` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   },
-  `Object.values(state.runInGame).some($predicate)` where {
+  `Object.values(state.runInGame).some($predicate)` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   },
-  `Object.values(state.tombstones).find($predicate)` where {
+  `Object.values(state.tombstones).find($predicate)` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   },
-  `Object.values(state.tombstones).some($predicate)` where {
+  `Object.values(state.tombstones).some($predicate)` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/registry\.ts$",
-    within `export function admitRunInGame($args) { $body }`
+    $match <: within `export function admitRunInGame($args) { $body }`
   }
 }
 ```
@@ -374,7 +325,7 @@ type TerminalRunOperationRecord = RunOperationRecordBase &
   }>;
 export type RunOperationRecord = RunningRunOperationRecord | TerminalRunOperationRecord;
 export function acquireRuntimeOwnershipLease() {}
-type LeaseOwnerState = "dead" | "live" | "ambiguous-live-pid";
+type LeaseOwnerState = "dead" | "live";
 async function withRuntimeLeaseLock() {}
 type RuntimeLeaseLockOwner = Readonly<{
   token: string;
@@ -429,7 +380,7 @@ export function releaseStaleRuntimeOwnershipLease(args): Effect.Effect<RuntimeOw
   }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
 }
 function leaseOwnerState(root: string, lease: RuntimeOwnershipLease): LeaseOwnerState {
-  return heartbeatMatchesLease(root, lease) ? "live" : "ambiguous-live-pid";
+  return heartbeatMatchesLease(root, lease) ? "live" : "dead";
 }
 export function readAbandonedRunOperationRecords() {}
 export function operationFromAbandonedRecord() {}

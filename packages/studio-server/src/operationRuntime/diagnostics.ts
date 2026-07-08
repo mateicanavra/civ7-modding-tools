@@ -1,21 +1,24 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, relative, resolve } from "node:path";
+import { dirname } from "node:path";
 import type { RunDiagnosticsLookupResult, RunDiagnosticsRecord } from "@civ7/studio-contract";
 import { runDiagnosticsRecordSchema } from "@civ7/studio-contract";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
+import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
 import type { RunInGameInternalOperation } from "./model.js";
-
-const DEFAULT_WORKSPACE_ROOT = resolve(".mapgen-studio/run-in-game");
-const SAFE_DIAGNOSTICS_ID = /^run-diagnostics-[A-Za-z0-9._-]{1,191}$/;
-const SAFE_REQUEST_ID = /^[A-Za-z0-9._-]{1,191}$/;
+import {
+  assertSafeRunRequestId,
+  jailedRunWorkspacePath,
+  resolveRunWorkspaceRoot,
+  SAFE_RUN_REQUEST_ID,
+} from "./runWorkspace/paths.js";
 
 export function lookupRunDiagnostics(
   diagnosticsId: string,
   options: Readonly<{ workspaceRoot?: string }> = {}
 ): Effect.Effect<RunDiagnosticsLookupResult> {
   return Effect.promise(async () => {
-    if (!SAFE_DIAGNOSTICS_ID.test(diagnosticsId)) return notFound(diagnosticsId);
+    if (!SAFE_RUN_DIAGNOSTICS_ID.test(diagnosticsId)) return notFound(diagnosticsId);
     try {
       const root = workspaceRoot(options.workspaceRoot);
       const path = await findDiagnosticsRecordPath(root, diagnosticsId);
@@ -46,7 +49,10 @@ export function writeRunDiagnostics(
           operation: privateJson(operation),
         },
       };
-      const path = requestDiagnosticsPath(workspaceRoot(options.workspaceRoot), operation.requestId);
+      const path = requestDiagnosticsPath(
+        workspaceRoot(options.workspaceRoot),
+        operation.requestId
+      );
       await mkdir(dirname(path), { recursive: true });
       await writeFile(path, `${JSON.stringify(record, null, 2)}\n`, "utf8");
     },
@@ -60,7 +66,7 @@ async function findDiagnosticsRecordPath(
 ): Promise<string | null> {
   const entries = await readdir(root, { withFileTypes: true });
   for (const entry of entries) {
-    if (!entry.isDirectory() || !SAFE_REQUEST_ID.test(entry.name)) continue;
+    if (!entry.isDirectory() || !SAFE_RUN_REQUEST_ID.test(entry.name)) continue;
     const path = requestDiagnosticsPath(root, entry.name);
     try {
       const content = await readFile(path, "utf8");
@@ -91,19 +97,12 @@ async function readDiagnosticsRecord(
 }
 
 function workspaceRoot(root: string | undefined): string {
-  return resolve(root ?? DEFAULT_WORKSPACE_ROOT);
+  return resolveRunWorkspaceRoot(root);
 }
 
 function requestDiagnosticsPath(root: string, requestId: string): string {
-  if (!SAFE_REQUEST_ID.test(requestId)) {
-    throw new Error("Run in Game request id is not a safe storage key.");
-  }
-  const path = resolve(root, requestId, "diagnostics", "diagnostics.json");
-  const rootRelative = relative(root, path);
-  if (rootRelative.startsWith("..") || rootRelative === "" || rootRelative.startsWith("/")) {
-    throw new Error("Run in Game diagnostics path escaped workspace root.");
-  }
-  return path;
+  assertSafeRunRequestId(requestId);
+  return jailedRunWorkspacePath(root, requestId, "diagnostics", "diagnostics.json");
 }
 
 function notFound(diagnosticsId: string): RunDiagnosticsLookupResult {

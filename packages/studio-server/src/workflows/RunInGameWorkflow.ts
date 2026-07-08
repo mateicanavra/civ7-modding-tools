@@ -8,6 +8,7 @@ import {
   type StudioBoundedDiagnosticValue,
 } from "../errors/index.js";
 import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
+import { writeStudioRunGenerationManifest } from "../operationRuntime/runWorkspace/index.js";
 import type {
   RunInGameDeployment,
   RunInGameMaterialized,
@@ -51,9 +52,9 @@ function makeRunInGameWorkflow(
     civ7: Civ7WorkflowControlApi;
   }>
 ): RunInGameWorkflowApi {
-  const tryPromise = <A>(try_: () => Promise<A>) =>
+  const tryPromise = <A>(try_: (signal: AbortSignal) => Promise<A>) =>
     Effect.tryPromise({
-      try: try_,
+      try: (signal) => try_(signal),
       catch: (err) => err,
     });
 
@@ -126,6 +127,15 @@ function makeRunInGameWorkflow(
         };
         const work = Effect.gen(function* () {
           yield* workflow.transitions.registerCleanup(() => cleanupMaterialized());
+          const generationManifest = yield* tryPromise((signal) =>
+            writeStudioRunGenerationManifest({
+              requestId: workflow.requestId,
+              prepared: workflow.prepared,
+              workspaceRoot: args.ports.runInGameWorkspaceRoot,
+              signal,
+            })
+          );
+          yield* workflow.transitions.transition({ phase, generationManifest });
           materializationPromise = Promise.resolve().then(() =>
             args.ports.materializeRunInGame({
               requestId: workflow.requestId,
@@ -137,7 +147,6 @@ function makeRunInGameWorkflow(
             })
           );
           void materializationPromise.catch(() => undefined);
-          yield* workflow.transitions.transition({ phase });
           const pendingMaterialization = materializationPromise;
           materialized = yield* tryPromise(() => pendingMaterialization).pipe(
             Effect.tapError(() =>

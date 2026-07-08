@@ -22,11 +22,15 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
+    ! $body <: contains `const requestIdInputSchema = contractSchema($schema, { cleanUnknownProperties: false })`
+  },
+  program(statements=$body) where {
+    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
     ! $body <: contains `diagnosticsId: Type.String({ minLength: 1 })`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    ! $body <: contains `.output(contractSchema(diagnosticsLookupResultSchema))`
+    ! $body <: contains `diagnosticsLookupResultSchema`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/operationRuntime/StudioOperationRuntime\.ts$",
@@ -39,69 +43,137 @@ or {
   `export const publicRunStatusTypeSchema = Type.Intersect($schemas)` where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$"
   },
-  `Type.Object($fields, { $..., additionalProperties: true, $... })` where {
+  `Type.Unknown()` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Record($key, $value)` where {
+  `Type.Any()` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Unknown()` where {
+  `Type.Record($key, $value)` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Any()` where {
+  `details: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `runDiagnosticsRecordSchema` where {
+  `error: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., details: $details, $... }, $options)` where {
+  `result: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., error: $error, $... }, $options)` where {
+  `diagnostics: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., result: $result, $... }, $options)` where {
+  `sections: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., diagnostics: $diagnostics, $... }, $options)` where {
+  `sourceSnapshot: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., sections: $sections, $... }, $options)` where {
+  `materialization: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., sourceSnapshot: $sourceSnapshot, $... }, $options)` where {
+  `exactAuthorshipProof: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., materialization: $materialization, $... }, $options)` where {
+  `attribution: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `Type.Object({ $..., exactAuthorshipProof: $proof, $... }, $options)` where {
+  `launchEnvelope: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `sections: $sections` where {
+  `resolvedLaunchSource: $value` as $match where {
+    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+  },
+  `generationManifest: $value` as $match where {
+    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+  },
+  `runCorrelation: $value` as $match where {
+    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+  },
+  `runArtifactId: $value` as $match where {
+    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
+    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
+  },
+  `details: $value` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
-    within `export function projectRunInGame($args) { $body }`
+    $match <: within `export function projectRunInGame($args) { $body }`
   },
-  `operation: $operation` where {
+  `error: $value` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
-    within `export function projectRunInGame($args) { $body }`
+    $match <: within `export function projectRunInGame($args) { $body }`
   },
-  `details: $details` where {
+  `result: $value` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
-    within `export function projectRunInGame($args) { $body }`
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `diagnostics: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `sections: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `sourceSnapshot: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `materialization: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `exactAuthorshipProof: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `attribution: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `launchEnvelope: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `resolvedLaunchSource: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `generationManifest: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `runCorrelation: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `runArtifactId: $value` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame($args) { $body }`
+  },
+  `...operation` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame(operation) { $body }`
+  },
+  `return operation` as $match where {
+    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
+    $match <: within `export function projectRunInGame(operation) { $body }`
   }
 }
 ```
@@ -120,6 +192,11 @@ export const publicRunStatusTypeSchema = Type.Union([
 // @filename: packages/studio-server/src/operationRuntime/projection.ts
 export function projectRunInGame(operation) {
   return { requestId: operation.requestId, sections: operation.sections };
+}
+
+// @filename: packages/studio-server/src/operationRuntime/projection.ts
+export function projectRunInGame(operation) {
+  return { ...operation, phase: "failed" };
 }
 
 // @filename: packages/studio-server/src/operationRuntime/StudioOperationRuntime.ts

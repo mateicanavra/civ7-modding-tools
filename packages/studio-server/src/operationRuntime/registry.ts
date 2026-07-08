@@ -23,6 +23,7 @@ import {
   type StudioRuntimeFailure,
 } from "../errors/index.js";
 import { createRunDiagnosticsId } from "../runInGamePublic.js";
+import type { StudioRunGenerationManifestReference } from "./runWorkspace/index.js";
 import type {
   RegistryState,
   RunInGameInternalOperation,
@@ -73,7 +74,11 @@ export type RunInGameCancellation =
     }>;
 
 export type RunInGameTransition =
-  | Readonly<{ phase: "materializing"; materialization?: RunInGameMaterializationStatus }>
+  | Readonly<{
+      phase: "materializing";
+      materialization?: RunInGameMaterializationStatus;
+      generationManifest?: StudioRunGenerationManifestReference;
+    }>
   | Readonly<{ phase: "deploying"; materialization?: RunInGameMaterializationStatus }>
   | Readonly<{ phase: "restarting-civ" }>
   | Readonly<{
