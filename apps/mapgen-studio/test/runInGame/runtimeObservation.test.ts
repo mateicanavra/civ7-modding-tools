@@ -52,6 +52,54 @@ const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
 const RUN_ARTIFACT_ID = "run-test" satisfies RunCorrelation["runArtifactId"];
 
+type RunCorrelationMismatchCase<
+  Field extends keyof RunCorrelation = keyof RunCorrelation,
+> = Field extends keyof RunCorrelation
+  ? Readonly<{
+      label: Field;
+      field: Field;
+      value: RunCorrelation[Field];
+      mismatches: readonly Field[];
+    }>
+  : never;
+
+type RunCorrelationMismatchCases = {
+  readonly [Field in keyof RunCorrelation]: RunCorrelationMismatchCase<Field>;
+};
+
+const runCorrelationMismatchCases = {
+  requestId: {
+    label: "requestId",
+    field: "requestId",
+    value: "different-run",
+    mismatches: ["requestId"],
+  },
+  runArtifactId: {
+    label: "runArtifactId",
+    field: "runArtifactId",
+    value: "run-different",
+    mismatches: ["runArtifactId"],
+  },
+  launchEnvelopeDigest: {
+    label: "launchEnvelopeDigest",
+    field: "launchEnvelopeDigest",
+    value: "different-envelope",
+    mismatches: ["launchEnvelopeDigest"],
+  },
+  generationManifestDigest: {
+    label: "generationManifestDigest",
+    field: "generationManifestDigest",
+    value: "different-manifest",
+    mismatches: ["generationManifestDigest"],
+  },
+  launchSourceDigest: {
+    label: "launchSourceDigest",
+    field: "launchSourceDigest",
+    value: { configContentDigest: "different-config" },
+    mismatches: ["launchSourceDigest"],
+  },
+} satisfies RunCorrelationMismatchCases;
+
 type LogProofFixture =
   | Readonly<{ kind: "valid"; payloadOverrides?: Record<string, unknown> }>
   | Readonly<{ kind: "shape-only" }>;
@@ -119,13 +167,95 @@ describe("Run in Game runtime observation", () => {
     );
   });
 
-  it("rejects mismatched runtime markers before live endpoint readback", async () => {
+  it("accepts setup row readback whose value field names the generated map script", async () => {
+    const { origin } = await listenWithStudioServer();
+    const generatedMapScript = "{mod-swooper-studio-run}/maps/run-test.js";
+    const fixture = makeObservationFixture({
+      setup: {
+        rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/display-row.js", value: generatedMapScript }] },
+        rowVisibility: { visible: true },
+      },
+    });
+
+    const observation = await observeRunInGameRuntimeThroughStudioRpc({
+      ...fixture,
+      selfRpcUrl: origin,
+    });
+
+    expect(observation.setupRow).toMatchObject({
+      state: "matched",
+      mapScript: generatedMapScript,
+      rowProof: {
+        rows: [{ file: "{mod-swooper-studio-run}/maps/display-row.js", value: generatedMapScript }],
+      },
+    });
+    expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(1);
+    expect(directControl.getCiv7MapGrid).toHaveBeenCalledTimes(1);
+  });
+
+  it("accepts setup row readback whose legacy mapScript field names the generated map script", async () => {
+    const { origin } = await listenWithStudioServer();
+    const generatedMapScript = "{mod-swooper-studio-run}/maps/run-test.js";
+    const fixture = makeObservationFixture({
+      setup: {
+        rowProof: { rows: [{ mapScript: generatedMapScript }] },
+        rowVisibility: { visible: true },
+      },
+    });
+
+    const observation = await observeRunInGameRuntimeThroughStudioRpc({
+      ...fixture,
+      selfRpcUrl: origin,
+    });
+
+    expect(observation.setupRow).toMatchObject({
+      state: "matched",
+      mapScript: generatedMapScript,
+      rowProof: { rows: [{ mapScript: generatedMapScript }] },
+    });
+    expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(1);
+    expect(directControl.getCiv7MapGrid).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(Object.values(runCorrelationMismatchCases))(
+    "rejects runtime markers with $label correlation mismatch before live endpoint readback",
+    async ({ field, value, mismatches }) => {
+      const { origin } = await listenWithStudioServer();
+      const base = makeObservationFixture();
+      const fixture = makeObservationFixture({
+        logProof: {
+          kind: "valid",
+          payloadOverrides: {
+            runCorrelation: { ...base.correlation, [field]: value },
+            dimensions: { width: 84, height: 54 },
+          },
+        },
+      });
+
+      const failure = await expectRuntimeObservationFailure(
+        observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+      );
+
+      expect(failure).toMatchObject({
+        tag: "ProofFailed",
+        reason: "exact-authorship-mismatch",
+        diagnostics: {
+          code: "run-in-game-runtime-marker-mismatch",
+          mismatches,
+        },
+      });
+      expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
+      expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
+    }
+  );
+
+  it("rejects runtime markers without run correlation before live endpoint readback", async () => {
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture({
       logProof: {
         kind: "valid",
         payloadOverrides: {
-          runCorrelation: { ...makeObservationFixture().correlation, requestId: "different-run" },
+          runCorrelation: undefined,
           dimensions: { width: 84, height: 54 },
         },
       },
@@ -140,7 +270,7 @@ describe("Run in Game runtime observation", () => {
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-runtime-marker-mismatch",
-        mismatches: ["requestId"],
+        mismatches: ["runCorrelation"],
       },
     });
     expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
@@ -211,6 +341,54 @@ describe("Run in Game runtime observation", () => {
     expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
   });
 
+  it("rejects missing setup visibility readback before loaded-game observation", async () => {
+    const { origin } = await listenWithStudioServer();
+    const fixture = makeObservationFixture({
+      setup: { rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/run-test.js" }] } },
+    });
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "exact-authorship-mismatch",
+      diagnostics: {
+        code: "run-in-game-setup-row-readback-missing",
+        missing: "rowVisibility",
+      },
+    });
+    expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
+    expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
+  });
+
+  it("rejects setup row readback that does not match the generated map script", async () => {
+    const { origin } = await listenWithStudioServer();
+    const fixture = makeObservationFixture({
+      setup: {
+        rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/other-run.js" }] },
+        rowVisibility: { visible: true },
+      },
+    });
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "exact-authorship-mismatch",
+      diagnostics: {
+        code: "run-in-game-setup-row-readback-mismatch",
+        expectedMapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+        observedMapScripts: ["{mod-swooper-studio-run}/maps/other-run.js"],
+      },
+    });
+    expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
+    expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
+  });
+
   it("fails safely when the public live endpoint is unavailable", async () => {
     const fixture = makeObservationFixture();
 
@@ -226,6 +404,35 @@ describe("Run in Game runtime observation", () => {
       },
     });
     expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
+    expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
+  });
+
+  it("fails safely when live status transport fails", async () => {
+    const requests: string[] = [];
+    const origin = await listen((req, res) => {
+      requests.push(`${req.method ?? "GET"} ${req.url ?? "/"}`);
+      if (req.url?.includes("/rpc/civ7/live/status")) {
+        res.statusCode = 503;
+        res.end("status down");
+        return;
+      }
+      res.statusCode = 404;
+      res.end("not found");
+    });
+    const fixture = makeObservationFixture();
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "timeout-uncertain",
+      diagnostics: {
+        code: "run-in-game-live-status-unavailable",
+      },
+    });
+    expect(requests).toEqual(["POST /rpc/civ7/live/status"]);
     expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
   });
 
@@ -246,6 +453,44 @@ describe("Run in Game runtime observation", () => {
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
         problems: ["live-app-ui-field-error", "live-app-ui-not-in-game"],
+      },
+    });
+  });
+
+  it("treats embedded playable-status field errors as private readback mismatch evidence", async () => {
+    directControl.getCiv7PlayableStatus.mockRejectedValue(new Error("status down"));
+    const { origin } = await listenWithStudioServer();
+    const fixture = makeObservationFixture();
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "exact-authorship-mismatch",
+      diagnostics: {
+        code: "run-in-game-loaded-readback-mismatch",
+        problems: expect.arrayContaining(["live-status-not-loaded", "live-status-field-error"]),
+      },
+    });
+  });
+
+  it("treats embedded map-summary field errors as private readback mismatch evidence", async () => {
+    directControl.getCiv7MapSummary.mockRejectedValue(new Error("map-summary down"));
+    const { origin } = await listenWithStudioServer();
+    const fixture = makeObservationFixture();
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "exact-authorship-mismatch",
+      diagnostics: {
+        code: "run-in-game-loaded-readback-mismatch",
+        problems: ["live-map-summary-field-error"],
       },
     });
   });
@@ -288,6 +533,108 @@ describe("Run in Game runtime observation", () => {
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
         problems: ["live-snapshot-dimensions-mismatch"],
+      },
+    });
+  });
+
+  it("fails safely when the live snapshot procedure reports a readback failure", async () => {
+    directControl.getCiv7MapGrid.mockRejectedValue(new Error("snapshot down"));
+    const { origin } = await listenWithStudioServer();
+    const fixture = makeObservationFixture();
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "timeout-uncertain",
+      diagnostics: {
+        code: "run-in-game-live-snapshot-unavailable",
+        cause: "snapshot down",
+      },
+    });
+  });
+
+  it("fails safely when live snapshot transport fails after status readback", async () => {
+    const handler = createStudioRpcHandler(makeContext({}));
+    openHandles.push(handler);
+    const requests: string[] = [];
+    const origin = await listen(async (req, res) => {
+      requests.push(`${req.method ?? "GET"} ${req.url ?? "/"}`);
+      if (req.url?.includes("/rpc/civ7/live/snapshot")) {
+        res.statusCode = 503;
+        res.end("snapshot down");
+        return;
+      }
+      const request = await nodeRequestToWebRequest(req);
+      const { matched, response } = await handler.handle(request, { prefix: "/rpc" });
+      if (!matched || !response) {
+        res.statusCode = 404;
+        res.end("not found");
+        return;
+      }
+      res.statusCode = response.status;
+      response.headers.forEach((value, key) => res.setHeader(key, value));
+      res.end(response.body ? Buffer.from(await response.arrayBuffer()) : undefined);
+    });
+    const fixture = makeObservationFixture();
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "timeout-uncertain",
+      diagnostics: {
+        code: "run-in-game-live-snapshot-unavailable",
+      },
+    });
+    expect(requests).toEqual(["POST /rpc/civ7/live/status", "POST /rpc/civ7/live/snapshot"]);
+    expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(1);
+    expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
+  });
+
+  it("rejects empty loaded-game snapshots as shape-only endpoint evidence", async () => {
+    setLiveReadbacks({
+      mapGrid: { ...liveMapGrid(), plotCount: 0, plots: [] },
+    });
+    const { origin } = await listenWithStudioServer();
+    const fixture = makeObservationFixture();
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "exact-authorship-mismatch",
+      diagnostics: {
+        code: "run-in-game-loaded-readback-mismatch",
+        problems: ["live-snapshot-empty-grid"],
+      },
+    });
+  });
+
+  it("rejects loaded-game snapshots without map dimensions as shape-only endpoint evidence", async () => {
+    const { map: _map, ...gridWithoutMapDimensions } = liveMapGrid();
+    setLiveReadbacks({
+      mapGrid: gridWithoutMapDimensions,
+    });
+    const { origin } = await listenWithStudioServer();
+    const fixture = makeObservationFixture();
+
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
+
+    expect(failure).toMatchObject({
+      tag: "ProofFailed",
+      reason: "exact-authorship-mismatch",
+      diagnostics: {
+        code: "run-in-game-loaded-readback-mismatch",
+        problems: ["live-snapshot-dimensions-missing"],
       },
     });
   });

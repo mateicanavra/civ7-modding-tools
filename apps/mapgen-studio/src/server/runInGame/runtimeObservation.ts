@@ -93,6 +93,12 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
     key: "rowVisibility",
     value: args.setup.rowVisibility,
   });
+  assertSetupRowReadbackMatches({
+    requestId: args.requestId,
+    materialization,
+    mapScript,
+    rowProof,
+  });
   const baseUrl = args.selfRpcUrl;
   if (!baseUrl) {
     throw proofFailed({
@@ -391,6 +397,47 @@ function requiredSetupReadbackValue(
     }),
     recoveryActions: ["retry-run", "copy-diagnostics"],
   });
+}
+
+function assertSetupRowReadbackMatches(
+  args: Readonly<{
+    requestId: string;
+    materialization: RunInGameDeployment["materialization"];
+    mapScript: string;
+    rowProof: unknown;
+  }>
+): void {
+  const rows = setupReadbackRows(args.rowProof);
+  if (rows.some((row) => setupReadbackRowScripts(row).includes(args.mapScript))) return;
+  throw proofFailed({
+    message: "Run in Game setup row readback did not match the generated request",
+    reason: "exact-authorship-mismatch",
+    diagnostics: boundedDiagnostics({
+      code: "run-in-game-setup-row-readback-mismatch",
+      requestId: args.requestId,
+      expectedMapScript: args.mapScript,
+      observedMapScripts: rows.flatMap((row) => setupReadbackRowScripts(row)),
+      materialization: args.materialization,
+    }),
+    recoveryActions: ["retry-run", "copy-diagnostics"],
+  });
+}
+
+function setupReadbackRows(value: unknown): readonly Record<string, unknown>[] {
+  const rows = asRecord(value)?.rows;
+  return Array.isArray(rows)
+    ? rows.reduce<Record<string, unknown>[]>((records, row) => {
+        const record = asRecord(row);
+        if (record) records.push(record);
+        return records;
+      }, [])
+    : [];
+}
+
+function setupReadbackRowScripts(row: Record<string, unknown>): readonly string[] {
+  return [stringValue(row.file), stringValue(row.value), stringValue(row.mapScript)].filter(
+    (value): value is string => value !== undefined
+  );
 }
 
 function loadedGameReadbackProblems(
