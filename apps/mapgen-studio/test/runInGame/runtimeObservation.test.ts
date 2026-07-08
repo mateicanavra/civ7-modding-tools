@@ -95,7 +95,10 @@ const runCorrelationMismatchCases = {
   launchSourceDigest: {
     label: "launchSourceDigest",
     field: "launchSourceDigest",
-    value: { configContentDigest: "different-config" },
+    value: {
+      configContentDigest: "different-config",
+      launchEnvelopeDigest: "test-envelope-hash",
+    },
     mismatches: ["launchSourceDigest"],
   },
 } satisfies RunCorrelationMismatchCases;
@@ -165,6 +168,58 @@ describe("Run in Game runtime observation", () => {
       }),
       expect.any(Object)
     );
+  });
+
+  it("waits for live status to become playable before reading the loaded-game snapshot", async () => {
+    directControl.getCiv7PlayableStatus
+      .mockResolvedValueOnce(playableStatusResult({ playable: false, readiness: "loading" }))
+      .mockResolvedValueOnce(playableStatusResult());
+    directControl.getCiv7AppUiSnapshot
+      .mockResolvedValueOnce(liveAppUiSnapshot({ inGame: false }))
+      .mockResolvedValueOnce(liveAppUiSnapshot());
+    const { origin, requests } = await listenWithStudioServer();
+    const fixture = makeObservationFixture();
+
+    const observation = await observeRunInGameRuntimeThroughStudioRpc({
+      ...fixture,
+      selfRpcUrl: origin,
+      sleep: async () => {},
+    });
+
+    expect(observation.loadedGame.liveStatus.playable).toBe(true);
+    expect(requests).toEqual([
+      "POST /rpc/civ7/live/status",
+      "POST /rpc/civ7/live/status",
+      "POST /rpc/civ7/live/snapshot",
+    ]);
+    expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(2);
+    expect(directControl.getCiv7MapGrid).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps waiting when playable status is true before App UI proves an in-game load", async () => {
+    directControl.getCiv7PlayableStatus
+      .mockResolvedValueOnce(playableStatusResult({ playable: true, readiness: "app-ui-shell" }))
+      .mockResolvedValueOnce(playableStatusResult());
+    directControl.getCiv7AppUiSnapshot
+      .mockResolvedValueOnce(liveAppUiSnapshot({ inGame: false }))
+      .mockResolvedValueOnce(liveAppUiSnapshot());
+    const { origin, requests } = await listenWithStudioServer();
+    const fixture = makeObservationFixture();
+
+    const observation = await observeRunInGameRuntimeThroughStudioRpc({
+      ...fixture,
+      selfRpcUrl: origin,
+      sleep: async () => {},
+    });
+
+    expect(observation.loadedGame.liveStatus.playable).toBe(true);
+    expect(requests).toEqual([
+      "POST /rpc/civ7/live/status",
+      "POST /rpc/civ7/live/status",
+      "POST /rpc/civ7/live/snapshot",
+    ]);
+    expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(2);
+    expect(directControl.getCiv7MapGrid).toHaveBeenCalledTimes(1);
   });
 
   it("accepts setup row readback whose value field names the generated map script", async () => {
@@ -249,13 +304,14 @@ describe("Run in Game runtime observation", () => {
     }
   );
 
-  it("rejects runtime markers without run correlation before live endpoint readback", async () => {
+  it("rejects runtime markers without enough compact identity to reconstruct run correlation before live endpoint readback", async () => {
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture({
       logProof: {
         kind: "valid",
         payloadOverrides: {
           runCorrelation: undefined,
+          runArtifactId: undefined,
           dimensions: { width: 84, height: 54 },
         },
       },
@@ -495,25 +551,33 @@ describe("Run in Game runtime observation", () => {
     });
   });
 
-  it("requires the App UI readback to prove the game is in-game", async () => {
+  it("waits instead of snapshotting when App UI has not reached in-game", async () => {
     setLiveReadbacks({
       appUiSnapshot: liveAppUiSnapshot({ inGame: false }),
     });
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture();
+    const controller = new AbortController();
 
     const failure = await expectRuntimeObservationFailure(
-      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+      observeRunInGameRuntimeThroughStudioRpc({
+        ...fixture,
+        selfRpcUrl: origin,
+        sleep: async () => {
+          controller.abort();
+        },
+        signal: controller.signal,
+      })
     );
 
     expect(failure).toMatchObject({
       tag: "ProofFailed",
-      reason: "exact-authorship-mismatch",
+      reason: "timeout-uncertain",
       diagnostics: {
-        code: "run-in-game-loaded-readback-mismatch",
-        problems: ["live-app-ui-not-in-game"],
+        code: "run-in-game-live-status-aborted",
       },
     });
+    expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
   });
 
   it("requires the loaded-game snapshot dimensions to match the generated request", async () => {
@@ -812,8 +876,9 @@ function makeObservationFixture(
               proofPayload: {
                 requestId,
                 runArtifactId: generated.runArtifactId,
+                configHash: prepared.launchSourceDigest.configContentDigest,
+                envelopeHash: prepared.launchEnvelopeDigest,
                 generationManifestDigest: generated.generationManifestDigest,
-                runCorrelation: correlation,
                 dimensions: { width: 84, height: 54 },
                 ...overrides.logProof?.payloadOverrides,
               },
@@ -957,12 +1022,14 @@ function setLiveReadbacks(
   directControl.getCiv7MapGrid.mockResolvedValue(overrides.mapGrid ?? liveMapGrid());
 }
 
-function playableStatusResult(): Civ7PlayableStatusResult {
+function playableStatusResult(
+  args: Partial<Pick<Civ7PlayableStatusResult, "playable" | "readiness">> = {}
+): Civ7PlayableStatusResult {
   return {
     host: "127.0.0.1",
     port: 4318,
-    playable: true,
-    readiness: "app-ui-game",
+    playable: args.playable ?? true,
+    readiness: args.readiness ?? "app-ui-game",
     appUi: liveAppUiSnapshot(),
     tuner: {
       host: "127.0.0.1",

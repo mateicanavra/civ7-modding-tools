@@ -25,7 +25,6 @@ export type SwooperMapArtifactFileKind =
   | "mod-info"
   | "mod-data"
   | "mod-text"
-  | "mod-module-text"
   | "recipe-schema"
   | "studio-catalog-module"
   | "studio-catalog-types";
@@ -229,8 +228,6 @@ export default createMap({
   description: mapConfig.description,
   recipe: standardRecipe,${latitudeBounds}${logPrefix}
   sourceConfigId: ${JSON.stringify(input.selectedConfigId)},
-  configHash: ${JSON.stringify(input.correlation.launchSourceDigest.configContentDigest)},
-  envelopeHash: ${JSON.stringify(input.correlation.launchEnvelopeDigest)},
   runCorrelation,
   seed: ${JSON.stringify(input.seed)},
   config: mapConfig.config as StandardRecipeConfig,
@@ -264,7 +261,18 @@ ${rows}
 `;
 }
 
-function renderMapText(configs: readonly ValidatedMapConfig[]): string {
+type SwooperModRenderMode =
+  | Readonly<{ kind: "catalog"; moduleId?: string }>
+  | Readonly<{
+      kind: "studio-run";
+      moduleId: string;
+      dependencyModules: readonly Readonly<{ id: string; title: string }>[];
+    }>;
+
+function renderMapText(
+  configs: readonly ValidatedMapConfig[],
+  mode: SwooperModRenderMode = { kind: "catalog" }
+): string {
   const rows = configs
     .flatMap((config) => [
       `\t\t<Row Tag="${config.localizationNameTag}">
@@ -275,11 +283,10 @@ function renderMapText(configs: readonly ValidatedMapConfig[]): string {
 \t\t</Row>`,
     ])
     .join("\n");
-  return `<?xml version="1.0" encoding="utf-8"?>
-<Database>
-\t<EnglishText>
-${rows}
-\t\t<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
+  const biomeHazardRows =
+    mode.kind === "studio-run"
+      ? ""
+      : `\t\t<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
 \t\t\t<Text>Deep Desert Heat</Text>
 \t\t</Row>
 \t\t<Row Tag="LOC_PLOTEFFECT_FROSTBITE_NAME">
@@ -287,22 +294,11 @@ ${rows}
 \t\t</Row>
 \t\t<Row Tag="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME">
 \t\t\t<Text>Jungle Fever</Text>
-\t\t</Row>
-\t</EnglishText>
-</Database>
-`;
-}
-
-function renderModuleText(options: Readonly<{ name: string; description: string }>): string {
+\t\t</Row>`;
   return `<?xml version="1.0" encoding="utf-8"?>
 <Database>
 \t<EnglishText>
-\t\t<Row Tag="LOC_MODULE_SWOOPER_MAPS_NAME">
-\t\t\t<Text>${xmlEscape(options.name)}</Text>
-\t\t</Row>
-\t\t<Row Tag="LOC_MODULE_SWOOPER_MAPS_DESCRIPTION">
-\t\t\t<Text>${xmlEscape(options.description)}</Text>
-\t\t</Row>
+${rows}${biomeHazardRows ? `\n${biomeHazardRows}` : ""}
 \t</EnglishText>
 </Database>
 `;
@@ -353,9 +349,29 @@ function renderBiomeHazardData(): string {
 
 function renderModInfo(
   configs: readonly ValidatedMapConfig[],
-  options: Readonly<{ moduleId?: string }> = {}
+  mode: SwooperModRenderMode = { kind: "catalog" }
 ): string {
-  const moduleId = options.moduleId ?? "swooper-maps";
+  const moduleId = mode.moduleId ?? "swooper-maps";
+  const dependencyModules = mode.kind === "studio-run" ? mode.dependencyModules : [];
+  const extraDependencies = dependencyModules
+    .map(
+      (dependency) =>
+        `\t\t<Mod id="${xmlEscape(dependency.id)}" title="${xmlEscape(dependency.title)}"/>`
+    )
+    .join("\n");
+  const biomeHazardDatabaseAction =
+    mode.kind === "studio-run"
+      ? ""
+      : `\t\t\t\t<UpdateDatabase>
+\t\t\t\t\t<Item>data/biome-hazards.xml</Item>
+\t\t\t\t</UpdateDatabase>`;
+  const localizedModuleText =
+    mode.kind === "studio-run"
+      ? ""
+      : `\t<LocalizedText>
+\t\t<File>text/en_us/ModuleText.xml</File>
+\t</LocalizedText>
+`;
   const imports = configs
     .map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`)
     .join("\n");
@@ -368,7 +384,7 @@ function renderModInfo(
 \t\t<Package>Mod</Package>
 \t</Properties>
 \t<Dependencies>
-\t\t<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>
+\t\t<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>${extraDependencies ? `\n${extraDependencies}` : ""}
 \t</Dependencies>
 \t<ActionCriteria>
 \t\t<Criteria id="always">
@@ -380,10 +396,7 @@ function renderModInfo(
 \t\t\t<Actions>
 \t\t\t\t<UpdateText>
 \t\t\t\t\t<Item>text/en_us/MapText.xml</Item>
-\t\t\t\t</UpdateText>
-\t\t\t\t<UpdateDatabase>
-\t\t\t\t\t<Item>data/biome-hazards.xml</Item>
-\t\t\t\t</UpdateDatabase>
+\t\t\t\t</UpdateText>${biomeHazardDatabaseAction ? `\n${biomeHazardDatabaseAction}` : ""}
 \t\t\t\t<ImportFiles>
 ${imports}
 \t\t\t\t</ImportFiles>
@@ -400,10 +413,7 @@ ${imports}
 \t\t\t</Actions>
 \t\t</ActionGroup>
 \t</ActionGroups>
-\t<LocalizedText>
-\t\t<File>text/en_us/ModuleText.xml</File>
-\t</LocalizedText>
-</Mod>
+${localizedModuleText}</Mod>
 `;
 }
 
@@ -572,14 +582,20 @@ export function runMapRowIdForArtifact(runArtifactId: string): string {
 
 /**
  * Builds the request-local generated mod tree from a Studio generation
- * manifest. It deliberately shares the same mod file classes as catalog
- * generation while changing the identity axis to the manifest correlation.
+ * manifest. The run mod owns only the generated map row, map script, and
+ * request correlation; shared gameplay data stays owned by the durable
+ * Swooper mod that this run depends on.
  */
 export function buildSwooperRunGeneratedModFilePlan(
   input: SwooperRunGeneratedModPlanInput
 ): SwooperMapArtifactFilePlan {
   const entry = renderRunMapEntryArtifact(input);
   const config = input.config;
+  const renderMode = {
+    kind: "studio-run",
+    dependencyModules: [{ id: "swooper-maps", title: "LOC_MODULE_SWOOPER_MAPS_NAME" }],
+    moduleId: SWOOPER_STUDIO_RUN_MOD_ID,
+  } satisfies SwooperModRenderMode;
   return {
     exclusiveSets: [
       {
@@ -609,29 +625,13 @@ export function buildSwooperRunGeneratedModFilePlan(
         kind: "mod-info",
         content: {
           kind: "text",
-          text: renderModInfo([config], { moduleId: SWOOPER_STUDIO_RUN_MOD_ID }),
+          text: renderModInfo([config], renderMode),
         },
-      },
-      {
-        relativePath: "data/biome-hazards.xml",
-        kind: "mod-data",
-        content: { kind: "text", text: renderBiomeHazardData() },
       },
       {
         relativePath: "text/en_us/MapText.xml",
         kind: "mod-text",
-        content: { kind: "text", text: renderMapText([config]) },
-      },
-      {
-        relativePath: "text/en_us/ModuleText.xml",
-        kind: "mod-module-text",
-        content: {
-          kind: "text",
-          text: renderModuleText({
-            name: "Swooper Studio Run",
-            description: "Request-local Swooper map generated by MapGen Studio.",
-          }),
-        },
+        content: { kind: "text", text: renderMapText([config], renderMode) },
       },
     ],
   };

@@ -28,7 +28,7 @@
       missing, setup-row mismatch, loaded-game marker missing/mismatch, and
       shape-only status/snapshot evidence not satisfying the loaded-game
       oracle.
-- [ ] 3.3 Run and record live Studio endpoint plus Civ7-controlled observation
+- [x] 3.3 Run and record live Studio endpoint plus Civ7-controlled observation
       gate that establishes a fresh log window, excludes stale log markers,
       observes the generated-artifact marker from the running game, reads setup
       row state, reads loaded-game status and bounded map snapshot through
@@ -37,7 +37,7 @@
 - [x] 3.4 Register SA-12
       `grit-studio-run-direct-control-observation-boundary` with Pattern
       Authority metadata from the structural authority matrix.
-- [ ] 3.5 Record verification evidence for every declared gate in
+- [x] 3.5 Record verification evidence for every declared gate in
       `workstream/verification-evidence.md`; this packet does not close with
       skipped gates.
 - [x] 3.6 Run and record the required TypeScript refactoring, code

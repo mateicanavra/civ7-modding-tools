@@ -24,7 +24,7 @@ export type MapRunCorrelation = Readonly<{
   generationManifestDigest: string;
 }>;
 
-export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> = Readonly<{
+type MapDefinitionCore<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> = Readonly<{
   id: string;
   name: string;
   recipe: TRecipe;
@@ -33,11 +33,25 @@ export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, 
   latitudeBounds?: MapLatitudeBounds;
   logPrefix?: string;
   sourceConfigId?: string;
-  configHash?: string;
-  envelopeHash?: string;
-  runCorrelation?: MapRunCorrelation;
   seed?: number;
 }>;
+
+type MapDefinitionStandaloneProof = Readonly<{
+  requestId?: string;
+  configHash?: string;
+  envelopeHash?: string;
+  runCorrelation?: never;
+}>;
+
+type MapDefinitionRunProof = Readonly<{
+  runCorrelation: MapRunCorrelation;
+  requestId?: never;
+  configHash?: never;
+  envelopeHash?: never;
+}>;
+
+export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> =
+  MapDefinitionCore<TRecipe> & (MapDefinitionStandaloneProof | MapDefinitionRunProof);
 
 type MapDefinitionInput<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> =
   MapDefinition<TRecipe>;
@@ -54,6 +68,33 @@ type InitCapture = {
     Required<Pick<MapInitParams, "topLatitude" | "bottomLatitude">> &
     Pick<MapInitParams, "mapSize">;
 };
+
+type MapProofPayloadIdentity = Readonly<{
+  requestId: string | null;
+  runArtifactId: string | null;
+  configHash: string | null;
+  envelopeHash: string | null;
+  generationManifestDigest: string | null;
+}>;
+
+function mapProofPayloadIdentityFor(def: MapDefinition<any>): MapProofPayloadIdentity {
+  if (def.runCorrelation) {
+    return {
+      requestId: def.runCorrelation.requestId,
+      runArtifactId: def.runCorrelation.runArtifactId,
+      configHash: def.runCorrelation.launchSourceDigest.configContentDigest,
+      envelopeHash: def.runCorrelation.launchEnvelopeDigest,
+      generationManifestDigest: def.runCorrelation.generationManifestDigest,
+    };
+  }
+  return {
+    requestId: def.requestId ?? null,
+    runArtifactId: null,
+    configHash: def.configHash ?? null,
+    envelopeHash: def.envelopeHash ?? null,
+    generationManifestDigest: null,
+  };
+}
 
 function resolveSeed(def: MapDefinition<any>): number {
   const seed = def.seed ?? GameplayMap.getRandomSeed();
@@ -191,16 +232,11 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
-    const runCorrelation = def.runCorrelation ?? null;
+    const proofIdentity = mapProofPayloadIdentityFor(def);
     const proofPayload = {
       mapId: def.id,
       sourceConfigId: def.sourceConfigId ?? def.id,
-      requestId: runCorrelation?.requestId ?? null,
-      runArtifactId: runCorrelation?.runArtifactId ?? null,
-      configHash: def.configHash ?? runCorrelation?.launchSourceDigest.configContentDigest ?? null,
-      envelopeHash: def.envelopeHash ?? runCorrelation?.launchEnvelopeDigest ?? null,
-      generationManifestDigest: runCorrelation?.generationManifestDigest ?? null,
-      runCorrelation,
+      ...proofIdentity,
       seed,
       mapSize: captured.mapSizeId,
       dimensions: { width, height },
