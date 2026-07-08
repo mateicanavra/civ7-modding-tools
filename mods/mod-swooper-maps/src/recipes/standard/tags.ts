@@ -1,7 +1,6 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DependencyTagDefinition, TagOwner } from "@swooper/mapgen-core/engine";
 import { artifacts as placementArtifacts } from "./stages/placement/artifacts/index.js";
-import type { PlacementInputsV1 } from "./stages/placement/artifacts/placement-inputs.artifact.js";
 import type { PlacementOutputsV1 } from "./stages/placement/artifacts/placement-outputs.artifact.js";
 import {
   FIELD_DEPENDENCY_TAGS,
@@ -22,12 +21,20 @@ export const CANONICAL_FIELD_AND_ENGINE_TAGS: ReadonlySet<string> = new Set([
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine),
 ]);
 
-const VERIFIED_EFFECT_TAGS = new Set<string>([
-  STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied,
-  STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied,
-]);
+type EffectTagOwnerProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "owner">;
+type EffectTagSatisfiesProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "satisfies">;
 
-const EFFECT_OWNERS: Record<string, TagOwner> = {
+const VERIFIED_EFFECT_SATISFIES: Partial<Record<string, EffectTagSatisfiesProperties>> = {
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied]: {
+    satisfies: (context) =>
+      context.adapter.verifyEffect(STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied),
+  },
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]: {
+    satisfies: (context, state) => isPlacementOutputSatisfied(context, state),
+  },
+};
+
+const EFFECT_OWNERS: Partial<Record<string, TagOwner>> = {
   [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "morphology",
@@ -165,6 +172,9 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
   },
 };
 
+const EFFECT_OWNER_PROPERTIES: Partial<Record<string, EffectTagOwnerProperties>> =
+  Object.fromEntries(Object.entries(EFFECT_OWNERS).map(([id, owner]) => [id, { owner }]));
+
 type SatisfactionState = {
   satisfied: ReadonlySet<string>;
 };
@@ -205,46 +215,9 @@ export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<Extended
     demo: new Int16Array(0),
     validateDemo: (demo) => isInt16Array(demo),
   },
-  ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map((id) => {
-    const definition: DependencyTagDefinition<ExtendedMapContext> = {
-      id,
-      kind: "effect",
-    };
-    const owner = EFFECT_OWNERS[id];
-    if (owner) {
-      definition.owner = owner;
-    }
-    return definition;
-  }),
-  ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map((id) => {
-    const definition: DependencyTagDefinition<ExtendedMapContext> = {
-      id,
-      kind: "effect",
-    };
-    const owner = EFFECT_OWNERS[id];
-    if (owner) {
-      definition.owner = owner;
-    }
-    return definition;
-  }),
-  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map((id) => {
-    const definition: DependencyTagDefinition<ExtendedMapContext> = {
-      id,
-      kind: "effect",
-    };
-    const owner = EFFECT_OWNERS[id];
-    if (owner) {
-      definition.owner = owner;
-    }
-    if (VERIFIED_EFFECT_TAGS.has(id)) {
-      if (id === STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied) {
-        definition.satisfies = (context, state) => isPlacementOutputSatisfied(context, state);
-      } else {
-        definition.satisfies = (context) => context.adapter.verifyEffect(id);
-      }
-    }
-    return definition;
-  }),
+  ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(effectTagDefinition),
+  ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map(effectTagDefinition),
+  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(standardEngineEffectTagDefinition),
 ];
 
 export function registerStandardTags(registry: {
@@ -260,27 +233,62 @@ function isPlacementOutputSatisfied(
   if (!state.satisfied.has(STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied)) return false;
 
   const outputs = context.artifacts.get(placementArtifacts.placementOutputs.id);
-  if (!outputs || typeof outputs !== "object") return false;
-  const candidate = outputs as PlacementOutputsV1;
-
-  const counts = [
-    candidate.naturalWondersCount,
-    candidate.resourcesCount,
-    candidate.startsAssigned,
-    candidate.discoveriesCount,
-  ];
-  if (!counts.every((value) => Number.isFinite(value) && value >= 0)) return false;
-  if (!Number.isInteger(candidate.startsAssigned)) return false;
+  if (!isPlacementOutputsV1(outputs)) return false;
+  const candidate = outputs;
 
   const inputs = context.artifacts.get(placementArtifacts.placementInputs.id);
-  if (inputs && typeof inputs === "object") {
-    const candidates = inputs as PlacementInputsV1;
-    const expectedPlayers =
-      (candidates.starts?.playersLandmass1 ?? 0) + (candidates.starts?.playersLandmass2 ?? 0);
-    if (expectedPlayers > 0 && candidate.startsAssigned < expectedPlayers) return false;
-  }
+  const expectedPlayers = getExpectedPlayers(inputs);
+  if (expectedPlayers > 0 && candidate.startsAssigned < expectedPlayers) return false;
 
   return true;
+}
+
+function effectTagDefinition(id: string): DependencyTagDefinition<ExtendedMapContext> {
+  return {
+    id,
+    kind: "effect",
+    ...EFFECT_OWNER_PROPERTIES[id],
+  };
+}
+
+function standardEngineEffectTagDefinition(
+  id: string
+): DependencyTagDefinition<ExtendedMapContext> {
+  return {
+    ...effectTagDefinition(id),
+    ...VERIFIED_EFFECT_SATISFIES[id],
+  };
+}
+
+function isPlacementOutputsV1(value: unknown): value is PlacementOutputsV1 {
+  return (
+    isRecord(value) &&
+    isNonNegativeInteger(value.naturalWondersCount) &&
+    isNonNegativeInteger(value.resourcesCount) &&
+    isNonNegativeInteger(value.startsAssigned) &&
+    isNonNegativeInteger(value.discoveriesCount)
+  );
+}
+
+function getExpectedPlayers(value: unknown): number {
+  if (!isRecord(value) || !isRecord(value.starts)) return 0;
+  return countOrZero(value.starts.playersLandmass1) + countOrZero(value.starts.playersLandmass2);
+}
+
+function countOrZero(value: unknown): number {
+  if (typeof value !== "number") return 0;
+  if (!Number.isFinite(value) || value < 0) return 0;
+  return value;
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  if (typeof value !== "number") return false;
+  if (!Number.isInteger(value) || value < 0) return false;
+  return true;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function getExpectedSize(context: ExtendedMapContext): number {

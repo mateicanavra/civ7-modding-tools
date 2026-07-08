@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { deployMod, listMods, resolveModsDir } from "../src/index";
 
 vi.mock("@civ7/plugin-files", async () => {
-  const path = await import("node:path");
   return {
     copyDirectoryRecursive: vi.fn(() => ({ copiedFiles: 2, skippedEntries: 0, errors: 0 })),
     ensureDirectory: vi.fn(),
