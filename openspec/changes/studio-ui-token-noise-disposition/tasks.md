@@ -15,41 +15,73 @@
   stacks) — the handoff's "~46 KEEP" list mixed in Tailwind-emitted scale
   defaults (`--text-sm`, `--spacing`, `--container-*`, `--font-weight-*`,
   palette `--color-*-N`), which the fixture classifies as framework-owned.
-- [x] 2.2 Add `test/designTokens.test.ts`: brace-tracking extraction of custom
-  properties + `@property` rules; partition authored/framework; assert fixture
-  exactness, no strays, kind value-shapes (HSL triplet, `var()` alias); plus a
-  predicate-does-not-swallow-fixture assertion and dual-scope (dark+light)
-  coverage pinning both palettes.
-- [x] 2.3 Negative proof: dropping `--warning` fails the partition test (stray
-  named); adding `--fake-token` fails the scope test (both scopes named);
-  restored fixture green (evidence in phase record).
-- [x] 2.4 Package test suite green: 17 files, 172 tests (168 pre-existing + 4
-  guard).
+- [x] 2.2 Add `test/designTokens.test.ts` (final shape after the review fold):
+  comment-stripped, string-safe, block-final-safe brace-tracking scan;
+  structural `@property` harvesting (non-empty sanity assertion); three-bucket
+  exact-name partition (authored kind-map fixture with kind-derived scopes +
+  `framework-tokens.json` snapshot checked in both directions); bidirectional
+  scope assertions; kind value-shapes with named unknown-kind failures;
+  cross-fixture pin against `token-contract.json`; synced-guidelines
+  vocabulary pin. No name-prefix heuristics.
+- [x] 2.3 Negative proof re-run against the final guard (evidence in phase
+  record): dropping `--warning` → stray named; appending a `--text-accent`
+  declaration to a scratch CSS copy → stray named (the prefix-swallow hole is
+  closed); removing `--animate-spin` from the snapshot → stray named; scope
+  narrowing is unrepresentable (scopes derive from kind).
+- [x] 2.4 Package test suite green after the fold (count recorded in the phase
+  record).
 
 ## 3. Knowledge surfaces + upstream routing (stack branch 3)
 
-- [ ] 3.1 Author `.design-sync/guidelines/design-tokens.md` (authored
-  vocabulary table + noise disposition + prohibitions).
-- [ ] 3.2 Add `"guidelinesGlob"` to `.design-sync/config.json`; prove
-  render-neutrality: `design-sync:check` green and driver classifies the delta
-  as docs-tier (no component render hashes moved, no grade-key change).
-- [ ] 3.3 Append the disposition bullet to `.design-sync/NOTES.md` (append-only
+- [x] 3.1 Author `docs/design-tokens.md` (authored vocabulary table + noise
+  disposition + prohibitions + guard-scope note). Relocated out of
+  `.design-sync/` by the review fold: `emitGuidelines` preserves the
+  package-relative subpath and `sync-hashes.mjs` skips dot-entries, so a
+  dot-nested guideline would upload once and never re-ship on edits.
+- [x] 3.2 Add `"guidelinesGlob": "docs/*.md"` to `.design-sync/config.json`;
+  proven render-neutral against the freshly fetched live anchor (2026-07-08):
+  `design-sync:check` exit 0, verdict `anchor: ok`,
+  `changed/added/removed: []`, `guidelines: 1 file(s)` shipped under
+  aux/docs at `guidelines/docs/design-tokens.md`, all 47 anchor render hashes
+  matched on disk. (The 7 artifact-churned-with-stable-sources entries are
+  fresh-worktree rebuild byte-churn — canary spot-check with grades kept,
+  pre-existing behavior.)
+- [x] 3.3 Append the disposition bullet to `.design-sync/NOTES.md` (append-only
   convention; bottom-up read order).
-- [ ] 3.4 Add `docs/system/DEFERRALS.md` entry: upstream classifier fix with
-  re-check trigger on Claude Code / design-sync version bumps.
-- [ ] 3.5 Finalize `workstream/upstream-feedback.md` (corrected fix surface;
-  exclusion predicate; evidence appendix).
+- [x] 3.4 Add `docs/system/DEFERRALS.md` entry DEF-017: upstream classifier fix
+  with re-check trigger on Claude Code / design-sync version bumps.
+- [x] 3.5 Finalize `workstream/upstream-feedback.md` (corrected fix surface;
+  exclusion predicate; evidence appendix) — landed with branch 1; confirmed
+  against the live `x-omelette` map.
 
-## 4. Verification And Closure
+## 4. Review Fold (design.md review lanes 2 + 3)
 
-- [ ] 4.1 `bunx nx run mapgen-studio-ui:test --outputStyle=static`.
-- [ ] 4.2 `bunx nx run mapgen-studio-ui:design-sync:check --outputStyle=static`.
-- [ ] 4.3 `bun run openspec -- validate studio-ui-token-noise-disposition
-  --strict` and `git diff --check` across the stack.
-- [ ] 4.4 Submit the stack as draft PRs (`gt submit --draft --no-interactive`),
-  parent-verified against `main`.
-- [ ] 4.5 Record in the phase record: the next re-sync ships `guidelines/**`
-  (docs-tier); the live upload remains gated on the user's explicit go-ahead.
-- [ ] 4.6 Update task checkboxes; archiving happens only after the gated
-  re-sync lands and the change's deltas are promoted per change-management
-  spec.
+- [x] 4.1 Eight-angle finder fan-out over the stack diff (line-scan,
+  removed-behavior, cross-file tracer, reuse, simplification, efficiency,
+  altitude, conventions) + five-dimension adversarial augmentation workflow
+  (prose-facts, guard mutations, sync-contract, OpenSpec consistency,
+  partition re-derivation).
+- [x] 4.2 Fold all confirmed findings (dead `@property` harvesting,
+  prefix-swallow hole, dot-path aux-hash blind spot, one-directional scope
+  assertion, unknown-kind TypeError, scanner string/comment/block-final
+  hardening, cwd-dependent path resolution, DEF-017 ledger ambiguity, doc
+  drift, dangling evidence pointer, stale phase-record status, missing review
+  lanes in design.md); record refuted findings and adjudicated non-actions in
+  the phase record.
+
+## 5. Verification And Closure
+
+- [x] 5.1 Package suite + typecheck green at the stack tip (17 files / 174
+  tests; `tsc` for both configs).
+- [x] 5.2 `design-sync:check` re-run green after the guidelines relocation
+  (exit 0, `anchor: ok`, changed 0, `guidelines/docs/design-tokens.md` +
+  `guidelines/index.md` staged).
+- [x] 5.3 `openspec validate studio-ui-token-noise-disposition --strict` and
+  `git diff --check` green across the stack.
+- [x] 5.4 Stack submitted as draft PRs, parent-verified against `main`:
+  #2044 (openspec) → #2045 (guard) → #2046 (knowledge surfaces + review
+  fold).
+- [x] 5.5 Recorded: the next re-sync ships `guidelines/**` (docs-tier); the
+  live upload remains gated on the user's explicit go-ahead.
+- [ ] 5.6 Archive after the gated re-sync lands and the change's deltas are
+  promoted per change-management spec.

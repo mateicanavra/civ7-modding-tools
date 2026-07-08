@@ -34,18 +34,23 @@ owns.
 ## What Changes
 
 - **Token-signal guard (repo-owned truth).** A package test in
-  `@swooper/mapgen-studio-ui` parses built `dist/styles.css`, classifies every
-  CSS custom property as either *authored* (must match a committed fixture of
-  names + kinds) or *framework-owned* (`@property`-registered or Tailwind
-  internal prefixes), and fails on any stray. This gives the repo a correct,
-  strict token check independent of the noisy upstream one.
+  `@swooper/mapgen-studio-ui` parses built `dist/styles.css` and requires
+  every CSS custom property to fall into exactly one of three buckets:
+  *authored* (a committed name → kind fixture; scopes derived from kind so a
+  dark-only color token is unrepresentable), *`@property`-registered* (engine
+  vars, detected structurally), or *framework snapshot* (the exact
+  non-`@property` Tailwind defaults, a second committed fixture). Strays fail
+  in both directions; no name-prefix heuristics. This gives the repo a
+  correct, strict token check independent of the noisy upstream one.
 - **Synced knowledge surfaces.** Author
-  `.design-sync/guidelines/design-tokens.md` (wired via `cfg.guidelinesGlob`)
-  documenting the authored token vocabulary and the known-noise disposition, so
-  every future design agent in the DS project inherits "these findings are
-  framework noise — do not chase, do not hoist `--tw-*` to `:root`." Append the
-  same disposition to `.design-sync/NOTES.md` (the sync operator's required
-  reading).
+  `packages/mapgen-studio-ui/docs/design-tokens.md` (shipped as
+  `guidelines/docs/design-tokens.md` via `cfg.guidelinesGlob: "docs/*.md"` —
+  a non-dot path, required for aux-hash change detection) documenting the
+  authored token vocabulary and the known-noise disposition, so every future
+  design agent in the DS project inherits "these findings are framework noise
+  — do not chase, do not hoist `--tw-*` to `:root`." The guard asserts the
+  doc names every authored token. Append the same disposition to
+  `.design-sync/NOTES.md` (the sync operator's required reading).
 - **Upstream routing.** A polished defect report for the design-sync /
   claude.ai-design maintainers (`workstream/upstream-feedback.md`) with the
   exact exclusion predicate and evidence, plus a `docs/system/DEFERRALS.md`
@@ -64,9 +69,9 @@ owns.
 
 ## Affected Owners
 
-- `packages/mapgen-studio-ui/test/**` (new guard test + fixture)
+- `packages/mapgen-studio-ui/test/**` (new guard test + two fixtures)
 - `packages/mapgen-studio-ui/.design-sync/config.json` (`guidelinesGlob` key)
-- `packages/mapgen-studio-ui/.design-sync/guidelines/**` (new)
+- `packages/mapgen-studio-ui/docs/**` (new — the synced guidelines source)
 - `packages/mapgen-studio-ui/.design-sync/NOTES.md` (append-only)
 - `docs/system/DEFERRALS.md`
 - `openspec/changes/studio-ui-token-noise-disposition/**`

@@ -58,9 +58,10 @@ converter contain no token classifier and no annotation mechanism).
 ## Evidence appendix
 
 - Exact token lists (78 `@property` `--tw-*`, 12 `@theme` defaults, authored
-  set): `scraps/design_handoff_ds_sync_token_noise/token-inventory.md` in the
-  DS project — regenerated counts verified against the package's
-  `dist/styles.css` (78 `@property` rules).
+  set): `workstream/token-inventory.md` next to this file (archived from the
+  2026-07-02 handoff packet) — counts verified against the package's
+  `dist/styles.css` (78 `@property` rules), and pinned live by
+  `packages/mapgen-studio-ui/test/fixtures/{authored,framework}-tokens.json`.
 - Live `x-omelette.tokenKinds` mis-map: fetched 2026-07-08 via
   `DesignSync(get_file, "_adherence.oxlintrc.json")`.
 - The check ignores the uploaded/edited map (hand-editing it does not clear
