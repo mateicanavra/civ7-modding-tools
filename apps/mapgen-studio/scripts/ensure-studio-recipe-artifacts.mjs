@@ -36,16 +36,23 @@ const requiredArtifacts = [
   // Artifacts modules consumed by Studio for schema + defaults + UI metadata.
   "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
   "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
+
+  // Catalog metadata consumed by Studio to list built-in map configs.
+  "mods/mod-swooper-maps/dist/recipes/standard-map-config.schema.json",
+  "mods/mod-swooper-maps/dist/recipes/standard-map-configs.js",
+  "mods/mod-swooper-maps/dist/recipes/standard-map-configs.d.ts",
 ];
 
 const artifactSources = [
   "mods/mod-swooper-maps/src/domain",
   "mods/mod-swooper-maps/src/maps/configs",
+  "mods/mod-swooper-maps/src/maps/catalog",
   "mods/mod-swooper-maps/src/maps/presets",
   "mods/mod-swooper-maps/src/recipes",
-  "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+  "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
   "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
   "mods/mod-swooper-maps/package.json",
+  "mods/mod-swooper-maps/project.json",
   "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
   "packages/mapgen-core/dist",
 ];
@@ -185,11 +192,21 @@ try {
       console.log("[preflight] studio recipe artifacts are stale; rebuilding.");
     }
 
-    const result = spawnSync("bun", ["run", "build:studio-recipes"], {
-      cwd: join(repoRoot, "mods", "mod-swooper-maps"),
-      stdio: "inherit",
-      env: process.env,
-    });
+    const nxBin = join(repoRoot, "node_modules", ".bin", "nx");
+    const result = spawnSync(
+      nxBin,
+      ["run", "mod-swooper-maps:build:studio-recipes", "--outputStyle=static"],
+      {
+        cwd: repoRoot,
+        stdio: "inherit",
+        env: process.env,
+      }
+    );
+    if (result.error) {
+      console.error(
+        `[preflight] failed to start Studio recipe artifact rebuild: ${result.error.message}`
+      );
+    }
     rebuildStatus = result.status ?? 1;
   }
 } finally {
