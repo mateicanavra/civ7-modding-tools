@@ -3,6 +3,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
 
+import { buildRunInGameStartRequest } from "../../src/features/runInGame/api";
 import { assertNoRawControlFields } from "../../src/server/runInGame/requestValidation";
 
 describe("Run in Game request validation", () => {
@@ -23,7 +24,7 @@ describe("Run in Game request validation", () => {
 
     for (const key of rawKeys) {
       const topLevelPayload = validRunInGameRequest({ [key]: "raw-control" });
-      expect(Value.Check(startInputSchema, topLevelPayload)).toBe(true);
+      expect(Value.Check(startInputSchema, topLevelPayload)).toBe(false);
       expect(() => assertNoRawControlFields(topLevelPayload)).toThrow("raw control commands");
 
       const nestedPayload = validRunInGameRequest({
@@ -151,6 +152,75 @@ describe("Run in Game request validation", () => {
           sections: {},
         })
     ).toBe(true);
+  });
+
+  it("builds the public oRPC start input from the browser handoff shape", () => {
+    const startInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.start);
+    const setupConfig = {
+      savedConfig: {
+        id: "tot-basic-mods",
+        displayName: "Test of Time Basic Mods",
+        fileName: "ToT_BasicModsEnabled.Civ7Cfg",
+        path: "/private-sentinel/Civ7/Saves/ToT_BasicModsEnabled.Civ7Cfg",
+      },
+      gameOptions: { GameSpeeds: "GAMESPEED_STANDARD" },
+      playerOptions: [{ playerId: 0, options: { PlayerLeader: "LEADER_HATSHEPSUT" } }],
+    };
+
+    const request = buildRunInGameStartRequest({
+      source: {
+        kind: "editor",
+        editorSessionId: "studio-current",
+        payload: {
+          configId: "studio-current",
+          label: "Studio Current",
+          mapScript: "{swooper-maps}/maps/studio-current.js",
+          pipelineConfig: { continents: { targetLandRatio: 0.42 } },
+          recipeId: "mod-swooper-maps/standard",
+        },
+      },
+      recipeSettings: {
+        preset: "none",
+        recipe: "mod-swooper-maps/standard",
+        seed: "1538316415",
+      },
+      worldSettings: {
+        mapSize: "MAPSIZE_HUGE",
+        playerCount: 10,
+        resources: "balanced",
+      },
+      setupConfig,
+      restartCivProcess: true,
+    });
+
+    expect(Value.Check(startInputSchema, request)).toBe(true);
+    expect(request).toEqual({
+      source: {
+        kind: "editor",
+        editorSessionId: "studio-current",
+        payload: {
+          configId: "studio-current",
+          label: "Studio Current",
+          mapScript: "{swooper-maps}/maps/studio-current.js",
+          pipelineConfig: { continents: { targetLandRatio: 0.42 } },
+          recipeId: "mod-swooper-maps/standard",
+        },
+      },
+      recipeSettings: {
+        preset: "none",
+        recipe: "mod-swooper-maps/standard",
+        seed: "1538316415",
+      },
+      worldSettings: {
+        mapSize: "MAPSIZE_HUGE",
+        playerCount: 10,
+        resources: "balanced",
+      },
+      setupConfig,
+      recovery: { restartCivProcess: true },
+    });
+    expect(request).not.toHaveProperty("restartCivProcess");
+    expect(() => assertNoRawControlFields(request)).not.toThrow();
   });
 });
 

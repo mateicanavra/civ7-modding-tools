@@ -12,8 +12,9 @@ request surface whose admitted operation is visible through public status.
 - **THEN** Studio sends one `runInGame.start` request through the public `/rpc`
   oRPC mount
 - **AND** the admitted public status includes the daemon `requestId`
-- **AND** the public status reflects the selected source, seed, map size, and
-  player count through public fields only
+- **AND** the browser-originated evidence row records the selected source, seed,
+  map size, and player count without expanding the public operation status
+  projection beyond safe public fields
 
 #### Scenario: Event and current surfaces agree
 

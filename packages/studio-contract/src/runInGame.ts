@@ -748,16 +748,6 @@ export const start = oc
           source: launchSource,
           recipeSettings: runInGameRecipeSettings,
           worldSettings: runInGameWorldSettings,
-          args: Type.Optional(Type.Unknown()),
-          command: Type.Optional(Type.Unknown()),
-          context: Type.Optional(Type.Unknown()),
-          javascript: Type.Optional(Type.Unknown()),
-          operationType: Type.Optional(Type.Unknown()),
-          rawCommand: Type.Optional(Type.Unknown()),
-          rawJs: Type.Optional(Type.Unknown()),
-          script: Type.Optional(Type.Unknown()),
-          session: Type.Optional(Type.Unknown()),
-          stateName: Type.Optional(Type.Unknown()),
           recovery: Type.Optional(
             Type.Object(
               {

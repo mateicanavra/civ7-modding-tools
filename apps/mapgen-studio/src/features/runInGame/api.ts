@@ -26,13 +26,29 @@ import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
 import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
 
-export async function runCurrentConfigInGame(args: {
+export type RunCurrentConfigInGameArgs = {
   source: LaunchSource;
   recipeSettings: RunInGameRecipeSettings;
   worldSettings: RunInGameWorldSettings;
   setupConfig: Civ7StudioSetupConfig;
   restartCivProcess?: boolean;
-}): Promise<
+};
+
+export type RunInGameStartRequest = Parameters<typeof orpcClient.runInGame.start>[0];
+
+export function buildRunInGameStartRequest(
+  args: RunCurrentConfigInGameArgs
+): RunInGameStartRequest {
+  return {
+    source: args.source,
+    recipeSettings: args.recipeSettings,
+    worldSettings: args.worldSettings,
+    setupConfig: normalizeStudioSetupConfig(args.setupConfig),
+    ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
+  };
+}
+
+export async function runCurrentConfigInGame(args: RunCurrentConfigInGameArgs): Promise<
   | RunInGameOperationStatus
   | {
       ok: false;
@@ -42,13 +58,7 @@ export async function runCurrentConfigInGame(args: {
       statusCode?: number;
     }
 > {
-  const request: Parameters<typeof orpcClient.runInGame.start>[0] = {
-    source: args.source,
-    recipeSettings: args.recipeSettings,
-    worldSettings: args.worldSettings,
-    setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-    ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
-  };
+  const request = buildRunInGameStartRequest(args);
   const { error, data } = await safe(orpcClient.runInGame.start(request));
   if (error) {
     const projected = projectStudioBrowserError<Record<string, unknown>>(
