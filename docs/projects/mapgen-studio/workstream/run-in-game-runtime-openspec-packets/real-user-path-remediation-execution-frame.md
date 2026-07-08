@@ -1,12 +1,45 @@
 # Real User Path Remediation Execution Frame
 
-Status: reviewed execution frame for implementation after branch preflight
+Status: active six-packet execution frame after Packet 1 closure
 
 Packet index:
 `docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/real-user-path-remediation-packet-index.md`
 
 Source proposal:
 `docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/real-user-path-remediation-proposal.md`
+
+## Authority Order For This Wave
+
+Use the normal repo authority order, with the following remediation-specific
+tie-breaker:
+
+1. current user instruction and this execution frame;
+2. `real-user-path-remediation-packet-index.md` and the six remaining
+   remediation OpenSpec packets;
+3. `real-user-path-remediation-proposal.md`;
+4. `packet-authoring-contract.md`;
+5. `target-vocabulary.md` for public status vocabulary, correlation fields,
+   generated-mod file classes, retention, endpoint evidence shape, public `/rpc`
+   surface requirements, and live-gate mechanics;
+6. earlier fourteen-packet runtime records and older target-vocabulary matrix
+   rows as historical authority for topology already implemented, not as the
+   final successful scenario matrix for this remediation wave.
+
+The final successful matrix for this wave is owned by
+`studio-run-real-user-matrix-closure`: Swooper Earthlike, Latest Juicy, and
+Swooper Desert Mountains through the rendered browser path using
+`ToT_BasicModsEnabled.Civ7Cfg`, Huge map, 10 players, balanced resources, and
+seed `1538316415`. If an older target-vocabulary row conflicts with that matrix
+shape, treat the older row as superseded for this remediation wave and update
+the owning packet/workstream record if implementation reveals a durable
+vocabulary change that should be promoted.
+
+`EditorLaunchSource` remains binding while it exists in the accepted
+start-input union. The final packet must either run an editor launch-source
+contract row through the live public `/rpc` surface, or land an accepted scope
+change that removes `EditorLaunchSource` from the closed union before closure.
+That row does not replace the three rendered saved-config user scenarios; it
+protects launch-source coverage inherited from the earlier runtime train.
 
 ## Objective
 
@@ -22,27 +55,67 @@ requested. If a run cannot start, the public UI reaches a terminal safe status
 with no private leakage, and explicit diagnostics retain the detail needed to
 repair the failure.
 
-## Packet Train
+## Current Starting Point
 
-The train has seven OpenSpec packets: one public config precondition followed
-by six runtime/user-path packets.
+The public config precondition packet,
+`foundation-orogeny-public-config-surface`, is closed at this stack head. Its
+evidence ledger records green OpenSpec validation, Habitat classify-reported
+checks, full `mapgen-studio` and `mod-swooper-maps` tests, workspace lint after
+the dedicated Effect Biome baseline branch, direct Habitat public-authoring and
+generated-entrypoint checks, and required review lanes.
 
-1. `foundation-orogeny-public-config-surface`
-2. `studio-run-terminal-adoption-invariant`
-3. `studio-run-browser-originated-contract`
-4. `studio-run-setup-failure-taxonomy`
-5. `studio-run-generated-map-mod-visibility`
-6. `studio-run-saved-config-modset-reconciliation`
-7. `studio-run-real-user-matrix-closure`
+The remaining initiative is the six runtime/user-path packets. The stack has a
+dedicated lint stabilization layer below Packet 1:
 
-The first packet removes config noise before runtime debugging. Terminal
-adoption then gives the browser a stable way to accept daemon truth. The
+```text
+codex/effect-biome-lint-rules-audit
+  -> codex/effect-biome-lint-baseline-stabilization
+  -> codex/run-game-remediation-frame
+  -> codex/foundation-orogeny-public-config-surface
+  -> six remaining remediation packet branches
+```
+
+Two unrelated local files are known and protected from staging:
+
+- `scripts/restart-mapgen-studio.sh`;
+- `mods/mod-swooper-maps/src/maps/configs/earthlike-wowza.config.json`.
+
+## Remaining Packet Train
+
+The completed public config packet removed config noise before runtime
+debugging. The remaining train has six packets:
+
+1. `studio-run-terminal-adoption-invariant`
+2. `studio-run-browser-originated-contract`
+3. `studio-run-setup-failure-taxonomy`
+4. `studio-run-generated-map-mod-visibility`
+5. `studio-run-saved-config-modset-reconciliation`
+6. `studio-run-real-user-matrix-closure`
+
+Terminal adoption gives the browser a stable way to accept daemon truth. The
 browser-originated contract turns the rendered button into the admitted product
 surface. Failure taxonomy gives runtime setup failures precise private names.
-Generated mod visibility verifies the request-local mod can show a generated row.
-Saved-config reconciliation composes that generated row with the user's Test of
-Time setup. The final matrix runs the actual user path for the required map
-sources and records the retained evidence chain.
+Generated mod visibility verifies the request-local mod can show a generated
+row. Saved-config reconciliation composes that generated row with the user's
+Test of Time setup. The final matrix runs the actual user path for the required
+map sources and records the retained evidence chain.
+
+The intended collapse is:
+
+```text
+daemon terminal truth
+  -> rendered browser request
+  -> specific setup diagnostics
+  -> visible request-local generated map mod
+  -> one reconciled saved setup state
+  -> retained browser-originated in-game matrix
+```
+
+The packets should make each next packet boring: browser tests can trust
+terminal adoption, setup repair can trust browser request identity, generated
+mod investigation can trust precise setup failure names, saved-config
+reconciliation can trust the generated row as a real setup object, and final
+closure can run the user matrix instead of discovering architecture mid-flight.
 
 ## Execution Rules
 
@@ -124,8 +197,11 @@ Packet-specific lanes:
 - Habitat/authority for config, structural, or rule changes.
 - Testing-design for behavior/harness changes and final matrix closure.
 - Direct-control/Civ7 runtime behavior for setup, mod visibility, saved config,
-  and live-game readback packets. This lane is mandatory for packets 4 through
-  7.
+  and live-game readback packets. This lane is mandatory for
+  `studio-run-setup-failure-taxonomy`,
+  `studio-run-generated-map-mod-visibility`,
+  `studio-run-saved-config-modset-reconciliation`, and
+  `studio-run-real-user-matrix-closure`.
 
 ## Verification Baseline
 
@@ -141,6 +217,9 @@ Every packet starts with:
   final matrix behavior
 - rendered browser-originated checks when the packet admits, observes, or closes
   the visible Studio button path
+- packet-level redaction scans whenever public payloads, diagnostics lookup,
+  retained evidence, or status/current/event surfaces change; final closure
+  still reruns the aggregate redaction scan over all retained logs and payloads
 - a direct non-watch Studio daemon for endpoint evidence; watch-mode
   `mapgen-studio:serve-daemon` is a development convenience and is not the live
   endpoint harness for Run in Game
@@ -163,6 +242,9 @@ The final packet additionally runs:
 - post-start request-specific generated-artifact marker observed from the
   running game and matching `RunCorrelation`; status or snapshot shape alone is
   supporting evidence, not closure
+- `EditorLaunchSource` live public `/rpc` row while the accepted start-input
+  schema still contains that source kind, unless an accepted scope change removes
+  it before final closure
 - stale-artifact freshness rows from target vocabulary: repeat launch and
   distinct launch variants with fresh request/workspace/generated artifact and
   deployment identities
@@ -181,10 +263,12 @@ The final packet additionally runs:
 The evidence row for each gate must identify:
 
 - gate id;
+- required, conditionally required, or supporting classification;
 - command, protocol, or reviewer prompt;
 - preconditions;
 - result or exit status;
-- artifact path when one exists;
+- artifact path or captured evidence location for every live, review, and
+  command gate;
 - behavioral oracle;
 - evidence class;
 - what the result verifies;
@@ -203,7 +287,6 @@ Frame branch:
 
 Implementation branch sequence:
 
-- `codex/foundation-orogeny-public-config-surface`
 - `codex/studio-run-terminal-adoption-invariant`
 - `codex/studio-run-browser-originated-contract`
 - `codex/studio-run-setup-failure-taxonomy`
