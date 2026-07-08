@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
   invalidRequest,
+  operationBlocked,
   operationStatusTypeSchema,
   proofFailed,
   type RunInGameRequestStatus,
@@ -22,7 +23,12 @@ import {
   type StudioOperationRuntimeApi,
   type StudioOperationRuntimePorts,
 } from "../src/operationRuntime";
+import type { RegistryState, RunInGameInternalOperation } from "../src/operationRuntime/model";
 import type { RunInGamePreparedRequest } from "../src/operationRuntime/ports";
+import {
+  projectCurrent,
+  operationEvent as projectOperationEvent,
+} from "../src/operationRuntime/projection";
 import {
   admitRunInGame,
   cancelRunInGame,
@@ -156,6 +162,61 @@ describe("StudioOperationRuntime", () => {
       })
     );
     expect(persistedTransition.diagnosticsId).toBe(persistedAccepted.diagnosticsId);
+  });
+
+  test("projects current and event Run in Game payloads without private operation detail", () => {
+    const now = "2026-06-10T00:00:00.000Z";
+    const privateOperation = {
+      kind: "run-in-game",
+      requestId: "run-private-projection",
+      leaseId: "runtime-lease-private-projection",
+      correlationDigest: "private-correlation-digest",
+      request: runInGameInput({
+        config: {
+          privateSourcePath: "/Users/matei/private/source.config.json",
+        },
+      }),
+      phase: "failed",
+      status: "failed",
+      operationRevision: 3,
+      startedAt: now,
+      updatedAt: "2026-06-10T00:00:01.000Z",
+      diagnosticsId: "run-diagnostics-private-projection",
+      diagnosticsPersistedRevision: 3,
+      completedPhases: ["resolving-source"],
+      result: {
+        rawOutput: "Traceback: setup cannot see /tmp/private-deploy/Swooper.lua",
+      },
+      failure: operationBlocked({
+        message: "setup cannot see /Users/matei/private/Civ7/Mods/Swooper.lua",
+        activeRequestId: "run-other-private",
+      }),
+    } satisfies RunInGameInternalOperation;
+    const registryState = {
+      identity: {
+        serverInstanceId: "studio-server-private-projection",
+        serverStartedAt: now,
+      },
+      disposed: false,
+      active: null,
+      runInGame: {
+        [privateOperation.requestId]: privateOperation,
+      },
+      saveDeploy: {},
+      tombstones: {},
+    } satisfies RegistryState;
+
+    const current = projectCurrent(registryState, "2026-06-10T00:00:02.000Z");
+    const event = projectOperationEvent(privateOperation);
+    const serializedPublicPayloads = JSON.stringify([current, event]);
+
+    expect(serializedPublicPayloads).toContain("run-diagnostics-private-projection");
+    expect(serializedPublicPayloads).toContain("ownership");
+    expect(serializedPublicPayloads).not.toMatch(
+      /privateSourcePath|leaseId|runtime-lease-private-projection|correlationDigest|private-correlation-digest|completedPhases|rawOutput|Traceback|setup cannot see|\/Users\/|\/tmp\/private-deploy|Swooper\.lua|run-other-private/
+    );
+    expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
+    expectTypeboxValid(studioEventSchema, event);
   });
 
   test("projects cancellation through the explicit Run in Game cancellation owner", async () => {

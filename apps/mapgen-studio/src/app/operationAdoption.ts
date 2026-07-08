@@ -6,7 +6,6 @@ import type {
   StudioOperationsCurrent,
 } from "@civ7/studio-contract";
 import type { LiveRuntimeStatusState } from "../features/liveRuntime/model";
-import { isRunInGameTerminalPhase } from "../features/runInGame/status";
 
 export interface StudioOperationAdoptionTargets {
   setRunInGameOperation(operation: RunInGameOperationStatus | null): void;
@@ -22,15 +21,19 @@ export function adoptStudioOperationsCurrent(
     currentSaveDeployOperation?: MapConfigSaveDeployStatus | null;
   }> = {}
 ): void {
-  const runInGame = selectOperationForAdoption(
+  const runInGame = selectRunInGameOperationForAdoption(
     current.runInGame.active ?? current.runInGame.recent[0] ?? null,
     options.currentRunInGameOperation ?? null,
     current.observedAt
   );
   if (runInGame) {
+    const currentRunInGameOperation = options.currentRunInGameOperation ?? null;
     const operation = runInGame;
     targets.setRunInGameOperation(operation);
-    if (isRunInGameTerminalPhase(operation.phase)) {
+    if (
+      isTerminalRunInGameOperation(operation) &&
+      !isSameTerminalRunInGameOperation(operation, currentRunInGameOperation)
+    ) {
       targets.markRunInGameToastHandled(operation.requestId);
     }
   } else {
@@ -101,8 +104,35 @@ function selectOperationForAdoption<Operation extends { status: string; updatedA
   return Date.parse(local.updatedAt) > Date.parse(incoming.updatedAt) ? local : incoming;
 }
 
+function selectRunInGameOperationForAdoption(
+  incoming: RunInGameOperationStatus | null,
+  local: RunInGameOperationStatus | null,
+  observedAt: string
+): RunInGameOperationStatus | null {
+  if (incoming) return incoming;
+  if (!local || local.status === "running") return null;
+  return isLocalNewerThanObserved(local, observedAt) ? local : null;
+}
+
 function isLocalNewerThanObserved(local: { updatedAt: string }, observedAt: string): boolean {
   const localTime = Date.parse(local.updatedAt);
   const observedTime = Date.parse(observedAt);
   return Number.isFinite(localTime) && Number.isFinite(observedTime) && localTime > observedTime;
+}
+
+type TerminalRunInGameOperationStatus = Exclude<RunInGameOperationStatus, { status: "running" }>;
+
+function isTerminalRunInGameOperation(
+  operation: RunInGameOperationStatus
+): operation is TerminalRunInGameOperationStatus {
+  return operation.status !== "running";
+}
+
+function isSameTerminalRunInGameOperation(
+  incoming: TerminalRunInGameOperationStatus,
+  local: RunInGameOperationStatus | null
+): boolean {
+  return (
+    local !== null && incoming.requestId === local.requestId && isTerminalRunInGameOperation(local)
+  );
 }
