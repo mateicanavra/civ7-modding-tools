@@ -299,7 +299,7 @@ historical.
   semantic tokens classify "color"); residual mislabels are confined to `--tw-*`
   utility internals (e.g. `--tw-translate-y`/`--tw-blur` tagged "color") —
   still ignore the map for framework internals. Authority +
-  evidence: `openspec/changes/studio-ui-token-noise-disposition/` (frame,
+  evidence: `openspec/changes/archive/2026-07-08-studio-ui-token-noise-disposition/` (frame,
   upstream feedback packet; deferral DEF-017 in the ROOT ledger
   `docs/system/DEFERRALS.md` — distinct from engine-refactor-v1's DEF-017).
   Repo-side truth: the token guard `test/designTokens.test.ts` +

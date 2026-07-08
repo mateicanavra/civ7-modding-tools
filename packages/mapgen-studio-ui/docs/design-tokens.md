@@ -64,6 +64,6 @@ app-side over regenerated artifacts, and the stylesheets here are build
 artifacts of `@swooper/mapgen-studio-ui` — **never hand-edit `_ds_bundle.css`,
 `styles.css`, or anything under `components/`**; edits are overwritten by the
 next sync. The upstream fix request is tracked in the repo
-(`openspec/changes/studio-ui-token-noise-disposition/workstream/upstream-feedback.md`;
+(`openspec/changes/archive/2026-07-08-studio-ui-token-noise-disposition/workstream/upstream-feedback.md`;
 deferral DEF-017 in the root ledger `docs/system/DEFERRALS.md` — distinct from
 the engine-refactor project's own DEF-017).
