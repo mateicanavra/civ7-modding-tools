@@ -294,7 +294,11 @@ historical.
   vars + `@theme` defaults) in the compiled bundle; the classifier is app-side
   (the claude.ai/design self-check that regenerates `_adherence.oxlintrc.json`),
   so no repo or project edit clears them. The `x-omelette.tokenKinds` map it
-  emits is also wrong (semantic colors tagged "other") — ignore it. Authority +
+  emits mislabeled semantic colors as "other" under the legacy triplet dialect —
+  FIXED by the value-form migration (post-upload check 2026-07-08: sampled
+  semantic tokens classify "color"); residual mislabels are confined to `--tw-*`
+  utility internals (e.g. `--tw-translate-y`/`--tw-blur` tagged "color") —
+  still ignore the map for framework internals. Authority +
   evidence: `openspec/changes/studio-ui-token-noise-disposition/` (frame,
   upstream feedback packet; deferral DEF-017 in the ROOT ledger
   `docs/system/DEFERRALS.md` — distinct from engine-refactor-v1's DEF-017).
