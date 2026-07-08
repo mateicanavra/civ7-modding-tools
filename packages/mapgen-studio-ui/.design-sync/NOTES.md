@@ -240,9 +240,12 @@ historical.
   `Legend panel.html` (new-component proposal, ported from App Shell's DC-format
   originals — intent kept, implementation rebuilt on the live bundle with the
   real ExplorePanel). Also: the 74 leftover hash-suffixed remote fonts were
-  deleted (glob-fenced plan); token consumption in explorations MUST be
-  `hsl(var(--token))` — bare `var(--token)` computes to transparent and only
-  *looks* right because `color-scheme: dark` darkens the canvas.
+  deleted (glob-fenced plan); token consumption in explorations MUST be bare
+  `var(--token)` — now that the tokens carry full `hsl(…)` values (the 2026-07-08
+  value-form migration below), re-wrapping them as `hsl(var(--token))`
+  double-wraps to an invalid `hsl(hsl(…))` that computes to transparent. This
+  INVERTS the pre-migration triplet-era rule (which required `hsl(var(--token))`);
+  opacity uses `color-mix(in oklab, var(--token) N%, transparent)`.
 
 - **2026-07-02 — operating structure made concrete (47th component + nested
   explorations + cloud fixtures).** The operating model is now enforced by
@@ -291,7 +294,11 @@ historical.
   vars + `@theme` defaults) in the compiled bundle; the classifier is app-side
   (the claude.ai/design self-check that regenerates `_adherence.oxlintrc.json`),
   so no repo or project edit clears them. The `x-omelette.tokenKinds` map it
-  emits is also wrong (semantic colors tagged "other") — ignore it. Authority +
+  emits mislabeled semantic colors as "other" under the legacy triplet dialect —
+  FIXED by the value-form migration (post-upload check 2026-07-08: sampled
+  semantic tokens classify "color"); residual mislabels are confined to `--tw-*`
+  utility internals (e.g. `--tw-translate-y`/`--tw-blur` tagged "color") —
+  still ignore the map for framework internals. Authority +
   evidence: `openspec/changes/studio-ui-token-noise-disposition/` (frame,
   upstream feedback packet; deferral DEF-017 in the ROOT ledger
   `docs/system/DEFERRALS.md` — distinct from engine-refactor-v1's DEF-017).
@@ -310,3 +317,21 @@ historical.
   hidden from upload globs/file listings. Guidelines are docs-tier for the
   driver (aux/README change, sampled render check, no grade re-key —
   `guidelinesGlob` is not a grade-contract key).
+
+## Token value-form migration (2026-07-08)
+- **Authored color tokens now carry full `hsl(…)` values consumed as
+  `var(--token)`; opacity uses `color-mix(in oklab, var(--token) N%,
+  transparent)`.** The legacy dialect (bare HSL triplets consumed as
+  `hsl(var(--token))`, with `hsl(var(--token) / a)` for alpha) is retired.
+  Authority: OpenSpec change `studio-ui-token-value-form` (extends
+  `studio-ui-token-noise-disposition`'s `studio-ui-design-sync` spec). Re-sync
+  consequences: (1) the explorations rule **inverted** — bare `var(--token)` is
+  now correct and `hsl(var(--token))` double-wraps to transparent (the
+  2026-07-02 bullet above is corrected in place); (2) the two remaining
+  DS-project explorations must be rewritten `hsl(var(--x))` → `var(--x)` and
+  `hsl(var(--x) / a)` → `color-mix` on the gated upload — snapshot first, they
+  have no repo copy; (3) `test/designTokens.test.ts` re-pins `VALUE_SHAPES.color`
+  to the full-`hsl()` form and `VALUE_SHAPES.alias` to `var(--…)`. Rendered colors
+  are byte-identical (lossless HSL rewrap), so the 47-component grades carry;
+  only the two story files whose bytes changed (`StudioShellLayout.stories.tsx`)
+  are expected to re-grade.
