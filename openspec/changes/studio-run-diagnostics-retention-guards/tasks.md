@@ -21,12 +21,12 @@
 
 - [x] 3.1 Add behavior tests for retention and diagnostics lookup.
 - [x] 3.2 Run Habitat authority checks for registered structural assertions.
-- [ ] 3.3 Run the full live Run in Game verification matrix from
+- [x] 3.3 Run the full live Run in Game verification matrix from
       `target-vocabulary.md`, using actual Studio endpoint calls and
       successful in-game Civ7 launch variants with generated content proven
       present through post-start Civ7 evidence.
 - [x] 3.4 Run `bun run openspec:validate`.
-- [ ] 3.5 Complete final adversarial packet-set review.
+- [x] 3.5 Complete final adversarial packet-set review.
 - [x] 3.6 Record verification evidence for every declared gate in
       `workstream/verification-evidence.md`; final closure remains open until
       every behavioral unit, endpoint, structural, OpenSpec, and in-game gate is
