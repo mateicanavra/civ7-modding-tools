@@ -11,6 +11,7 @@ vi.mock("../../src/features/runInGame/api", () => ({
   runCurrentConfigInGame: vi.fn(),
 }));
 
+import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
 import { LIVE_GAME_PRESET_KEY } from "../../src/features/civ7Setup/livePreset";
@@ -84,8 +85,257 @@ function setup(over: Partial<UseRunInGameArgs> = {}) {
   return { result, rerender, props };
 }
 
+function expectNoPrivateRunRequestFields(value: unknown) {
+  const forbiddenKeys = new Set([
+    "attribution",
+    "diagnostics",
+    "diagnosticsId",
+    "exactAuthorshipProof",
+    "failureDetails",
+    "generatedModRoot",
+    "launchEnvelope",
+    "localModScript",
+    "materialization",
+    "resolvedLaunchSource",
+    "sourcePath",
+    "sourceSnapshot",
+  ]);
+  const found: string[] = [];
+  const visit = (entry: unknown, path: string) => {
+    if (Array.isArray(entry)) {
+      entry.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!entry || typeof entry !== "object") return;
+    for (const [key, child] of Object.entries(entry)) {
+      const childPath = path ? `${path}.${key}` : key;
+      if (forbiddenKeys.has(key)) found.push(childPath);
+      visit(child, childPath);
+    }
+  };
+  visit(value, "");
+  expect(found).toEqual([]);
+}
+
+function expectNoStringValue(value: unknown, needle: string) {
+  const matches: string[] = [];
+  const visit = (entry: unknown, path: string) => {
+    if (typeof entry === "string") {
+      if (entry.includes(needle)) matches.push(path);
+      return;
+    }
+    if (Array.isArray(entry)) {
+      entry.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!entry || typeof entry !== "object") return;
+    for (const [key, child] of Object.entries(entry)) {
+      visit(child, path ? `${path}.${key}` : key);
+    }
+  };
+  visit(value, "");
+  expect(matches).toEqual([]);
+}
+
 afterEach(() => {
   vi.clearAllMocks();
+});
+
+describe("useRunInGame — browser-originated visible selection handoff", () => {
+  it("starts an editor-source run from visible selections and records daemon-admitted identity", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-editor-42",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: ["retry-run"],
+      createdAt: "2026-07-08T12:00:00.000Z",
+      updatedAt: "2026-07-08T12:00:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    const setupConfig = {
+      mapScript: "{swooper-maps}/maps/custom-visible-selection.js",
+      gameOptions: {
+        Difficulty: "DIFFICULTY_PRINCE",
+        GameSpeeds: "GAMESPEED_STANDARD",
+      },
+      playerOptions: [
+        {
+          playerId: 0,
+          options: {
+            PlayerLeader: "LEADER_HATSHEPSUT",
+            PlayerCivilization: "CIVILIZATION_EGYPT",
+          },
+        },
+      ],
+    } satisfies Civ7StudioSetupConfig;
+    const pipelineConfigWithSchema = {
+      $schema: "https://example.invalid/studio.schema.json",
+      continents: { targetLandRatio: 0.42 },
+    } satisfies PipelineConfig & { $schema: string };
+
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "987654321",
+        preset: "none",
+      },
+      worldSettings: {
+        ...DEFAULT_WORLD_SETTINGS,
+        mapSize: "MAPSIZE_SMALL",
+        playerCount: 4,
+        resources: "abundant",
+      },
+      pipelineConfig: pipelineConfigWithSchema,
+      setupConfig,
+      runInGameMaterializationMode: "disposable",
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame({ restartCivProcess: true });
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff).toEqual(
+      expect.objectContaining({
+        recipeSettings: {
+          preset: "none",
+          recipe: "mod-swooper-maps/standard",
+          seed: "987654321",
+        },
+        worldSettings: {
+          mapSize: "MAPSIZE_SMALL",
+          playerCount: 4,
+          resources: "abundant",
+        },
+        setupConfig,
+        restartCivProcess: true,
+      })
+    );
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "editor",
+        editorSessionId: "studio-current",
+        payload: expect.objectContaining({
+          configId: "studio-current",
+          label: "Studio Current",
+          mapScript: "{swooper-maps}/maps/studio-current.js",
+          pipelineConfig: { continents: { targetLandRatio: 0.42 } },
+          recipeId: "mod-swooper-maps/standard",
+        }),
+      })
+    );
+    expect(handoff).not.toHaveProperty("requestId");
+    expectNoPrivateRunRequestFields(handoff);
+
+    expect(props.setRunInGameOperation).toHaveBeenCalledWith(daemonStatus);
+    expect(props.setRunInGameSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-editor-42",
+        seed: "987654321",
+        mapSize: "MAPSIZE_SMALL",
+        playerCount: 4,
+        resources: "abundant",
+        setupConfig,
+        materializationMode: "disposable",
+      })
+    );
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-editor-42",
+        setupConfig,
+        materializationMode: "disposable",
+      })
+    );
+    expect(props.toast).toHaveBeenCalledWith("Run in Game started: daemon-admitted-editor-42", {
+      variant: "info",
+    });
+  });
+
+  it("uses a durable catalog source without leaking preset source paths into the public request", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-catalog-7",
+      status: "running",
+      phase: "resolving-source",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:10:00.000Z",
+      updatedAt: "2026-07-08T12:10:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    const presetSourcePath =
+      "/private-sentinel/worktree/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json";
+
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:swooper-earthlike",
+      },
+      worldSettings: {
+        ...DEFAULT_WORLD_SETTINGS,
+        mapSize: "MAPSIZE_HUGE",
+        playerCount: 10,
+        resources: "sparse",
+      },
+      runInGameMaterializationMode: "durable",
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        description: "Durable catalog config",
+        sourcePath: presetSourcePath,
+        sortIndex: 25,
+        latitudeBounds: { min: -65, max: 75 },
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual({
+      kind: "catalog",
+      catalogSourceId: "swooper-earthlike",
+    });
+    expect(handoff).toEqual(
+      expect.objectContaining({
+        recipeSettings: expect.objectContaining({
+          preset: "builtin:swooper-earthlike",
+          seed: "2468",
+        }),
+        worldSettings: {
+          mapSize: "MAPSIZE_HUGE",
+          playerCount: 10,
+          resources: "sparse",
+        },
+      })
+    );
+    expectNoPrivateRunRequestFields(handoff);
+    expectNoStringValue(handoff, presetSourcePath);
+
+    expect(props.setRunInGameOperation).toHaveBeenCalledWith(daemonStatus);
+    expect(props.setRunInGameSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-catalog-7",
+        seed: "2468",
+        mapSize: "MAPSIZE_HUGE",
+        playerCount: 10,
+        resources: "sparse",
+        materializationMode: "durable",
+      })
+    );
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-catalog-7",
+        materializationMode: "durable",
+        selectedConfig: expect.objectContaining({
+          id: "swooper-earthlike",
+          sourcePath: presetSourcePath,
+        }),
+      })
+    );
+  });
 });
 
 describe("useRunInGame — RIG-5 (syncStudioFromLiveGame proved path → applyAuthoringSnapshot)", () => {

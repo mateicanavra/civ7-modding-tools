@@ -1,0 +1,427 @@
+{
+  "schemaVersion": 1,
+  "kind": "browser-originated-run-in-game-admission",
+  "capturedAt": "2026-07-08T23:39:22.521Z",
+  "worktree": "$WORKTREE",
+  "server": {
+    "daemonUrl": "http://127.0.0.1:5198",
+    "studioUrl": "http://127.0.0.1:5299",
+    "daemonCommand": "bun --conditions bun-source src/server/daemon/daemon.ts --port 5198 --repo-root $WORKTREE",
+    "viteCommand": "STUDIO_DEV_PORT=5299 STUDIO_DEV_RPC_TARGET=http://127.0.0.1:5198 bunx vite --host 127.0.0.1"
+  },
+  "playwrightActions": [
+    "goto http://127.0.0.1:5299/",
+    "select visible Saved config ToT_BasicModsEnabled",
+    "fill visible Generation seed with 1538316415",
+    "select visible World size option Huge",
+    "select visible Players option 10",
+    "click rendered Run in Game control"
+  ],
+  "visibleInputs": {
+    "source": "Studio Current editor source",
+    "savedSetupConfig": "ToT_BasicModsEnabled",
+    "seed": "1538316415",
+    "mapSize": "MAPSIZE_HUGE",
+    "playerCount": 10,
+    "resources": "balanced"
+  },
+  "browserRpcStart": {
+    "count": 1,
+    "requests": [
+      {
+        "method": "POST",
+        "url": "$STUDIO/rpc/runInGame/start",
+        "publicInput": {
+          "source": {
+            "kind": "editor",
+            "editorSessionId": "studio-current",
+            "payload": {
+              "configId": "studio-current",
+              "label": "Studio Current",
+              "mapScript": "{swooper-maps}/maps/studio-current.js",
+              "recipeId": "mod-swooper-maps/standard",
+              "pipelineConfigStageCount": 22,
+              "pipelineConfigStageKeys": [
+                "foundation-mantle",
+                "foundation-lithosphere",
+                "foundation-tectonics",
+                "foundation-orogeny",
+                "foundation-projection",
+                "morphology-coasts",
+                "morphology-routing",
+                "morphology-erosion",
+                "morphology-features",
+                "morphology-shelf",
+                "hydrology-climate-baseline",
+                "hydrology-hydrography",
+                "hydrology-climate-refine",
+                "ecology-pedology",
+                "ecology-biomes",
+                "map-morphology",
+                "map-hydrology",
+                "map-elevation",
+                "map-rivers",
+                "ecology-features",
+                "map-ecology",
+                "placement"
+              ]
+            }
+          },
+          "recipeSettings": {
+            "preset": "none",
+            "recipe": "mod-swooper-maps/standard",
+            "seed": "1538316415"
+          },
+          "worldSettings": {
+            "mapSize": "MAPSIZE_HUGE",
+            "playerCount": 10,
+            "resources": "balanced"
+          },
+          "setupConfig": {
+            "savedConfig": {
+              "id": "tot-basicmodsenabled",
+              "displayName": "ToT_BasicModsEnabled",
+              "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
+              "path": "$PRIVATE_LOCAL_PATH"
+            },
+            "gameOptions": {
+              "Difficulty": "DIFFICULTY_CUSTOM",
+              "GameSpeeds": "GAMESPEED_STANDARD"
+            },
+            "playerOptions": [
+              {
+                "playerId": 0,
+                "options": {
+                  "PlayerDifficulty": "DIFFICULTY_CUSTOM"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "responses": [
+      {
+        "url": "$STUDIO/rpc/runInGame/start",
+        "status": 200
+      }
+    ],
+    "assertions": {
+      "exactlyOneStartRequest": true,
+      "selectedSetupConfig": "ToT_BasicModsEnabled",
+      "selectedSeed": "1538316415",
+      "selectedMapSize": "MAPSIZE_HUGE",
+      "selectedPlayerCount": 10
+    }
+  },
+  "admittedRequestId": "studio-run-in-game-mrcpz748-7as-4",
+  "publicStatusInitial": {
+    "requestId": "studio-run-in-game-mrcpz748-7as-4",
+    "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+    "recoveryActions": [
+      "copy-diagnostics",
+      "retry-status"
+    ],
+    "createdAt": "2026-07-08T23:39:19.885Z",
+    "updatedAt": "2026-07-08T23:39:19.897Z",
+    "status": "running",
+    "phase": "generating-artifacts"
+  },
+  "publicStatusFinal": {
+    "requestId": "studio-run-in-game-mrcpz748-7as-4",
+    "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+    "recoveryActions": [
+      "copy-diagnostics",
+      "retry-status",
+      "retry-run"
+    ],
+    "createdAt": "2026-07-08T23:39:19.885Z",
+    "updatedAt": "2026-07-08T23:39:21.028Z",
+    "status": "failed",
+    "phase": "failed",
+    "safeFailureCategory": "runtime-control",
+    "terminalAt": "2026-07-08T23:39:21.028Z"
+  },
+  "operationsCurrentInitial": {
+    "ok": true,
+    "serverInstanceId": "studio-server-mrcpuzt8-7as-1-e45179fc-3af7-4495-8211-0151277eb85c",
+    "serverStartedAt": "2026-07-08T23:36:03.788Z",
+    "observedAt": "2026-07-08T23:39:20.083Z",
+    "runInGame": {
+      "active": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:19.897Z",
+        "status": "running",
+        "phase": "generating-artifacts"
+      },
+      "recent": [
+        {
+          "requestId": "studio-run-in-game-mrcpy3i4-7as-3",
+          "diagnosticsId": "run-diagnostics-bc331015-00bf-4998-8aa3-569bfa738403",
+          "recoveryActions": [
+            "copy-diagnostics",
+            "retry-status",
+            "retry-run"
+          ],
+          "createdAt": "2026-07-08T23:38:28.545Z",
+          "updatedAt": "2026-07-08T23:38:29.499Z",
+          "status": "failed",
+          "phase": "failed",
+          "safeFailureCategory": "runtime-control",
+          "terminalAt": "2026-07-08T23:38:29.499Z"
+        },
+        {
+          "requestId": "studio-run-in-game-mrcpxcg9-7as-2",
+          "diagnosticsId": "run-diagnostics-272f67d8-781d-493b-99af-3984d874234b",
+          "recoveryActions": [
+            "copy-diagnostics",
+            "retry-status",
+            "retry-run"
+          ],
+          "createdAt": "2026-07-08T23:37:53.494Z",
+          "updatedAt": "2026-07-08T23:37:59.134Z",
+          "status": "failed",
+          "phase": "failed",
+          "safeFailureCategory": "runtime-control",
+          "terminalAt": "2026-07-08T23:37:59.134Z"
+        }
+      ]
+    },
+    "saveDeploy": {
+      "active": null,
+      "recent": []
+    }
+  },
+  "operationsCurrentFinal": {
+    "ok": true,
+    "serverInstanceId": "studio-server-mrcpuzt8-7as-1-e45179fc-3af7-4495-8211-0151277eb85c",
+    "serverStartedAt": "2026-07-08T23:36:03.788Z",
+    "observedAt": "2026-07-08T23:39:21.320Z",
+    "runInGame": {
+      "active": null,
+      "recent": [
+        {
+          "requestId": "studio-run-in-game-mrcpz748-7as-4",
+          "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+          "recoveryActions": [
+            "copy-diagnostics",
+            "retry-status",
+            "retry-run"
+          ],
+          "createdAt": "2026-07-08T23:39:19.885Z",
+          "updatedAt": "2026-07-08T23:39:21.028Z",
+          "status": "failed",
+          "phase": "failed",
+          "safeFailureCategory": "runtime-control",
+          "terminalAt": "2026-07-08T23:39:21.028Z"
+        },
+        {
+          "requestId": "studio-run-in-game-mrcpy3i4-7as-3",
+          "diagnosticsId": "run-diagnostics-bc331015-00bf-4998-8aa3-569bfa738403",
+          "recoveryActions": [
+            "copy-diagnostics",
+            "retry-status",
+            "retry-run"
+          ],
+          "createdAt": "2026-07-08T23:38:28.545Z",
+          "updatedAt": "2026-07-08T23:38:29.499Z",
+          "status": "failed",
+          "phase": "failed",
+          "safeFailureCategory": "runtime-control",
+          "terminalAt": "2026-07-08T23:38:29.499Z"
+        },
+        {
+          "requestId": "studio-run-in-game-mrcpxcg9-7as-2",
+          "diagnosticsId": "run-diagnostics-272f67d8-781d-493b-99af-3984d874234b",
+          "recoveryActions": [
+            "copy-diagnostics",
+            "retry-status",
+            "retry-run"
+          ],
+          "createdAt": "2026-07-08T23:37:53.494Z",
+          "updatedAt": "2026-07-08T23:37:59.134Z",
+          "status": "failed",
+          "phase": "failed",
+          "safeFailureCategory": "runtime-control",
+          "terminalAt": "2026-07-08T23:37:59.134Z"
+        }
+      ]
+    },
+    "saveDeploy": {
+      "active": null,
+      "recent": []
+    }
+  },
+  "eventsWatch": [
+    {
+      "type": "hello",
+      "serverInstanceId": "studio-server-mrcpuzt8-7as-1-e45179fc-3af7-4495-8211-0151277eb85c",
+      "serverStartedAt": "2026-07-08T23:36:03.788Z",
+      "observedAt": "2026-07-08T23:39:16.005Z"
+    },
+    {
+      "type": "operation",
+      "kind": "run-in-game",
+      "status": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:19.885Z",
+        "status": "running",
+        "phase": "resolving-source"
+      },
+      "observedAt": "2026-07-08T23:39:19.885Z"
+    },
+    {
+      "type": "operation",
+      "kind": "run-in-game",
+      "status": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:19.897Z",
+        "status": "running",
+        "phase": "generating-artifacts"
+      },
+      "observedAt": "2026-07-08T23:39:19.897Z"
+    },
+    {
+      "type": "operation",
+      "kind": "run-in-game",
+      "status": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:20.970Z",
+        "status": "running",
+        "phase": "generating-artifacts"
+      },
+      "observedAt": "2026-07-08T23:39:20.970Z"
+    },
+    {
+      "type": "operation",
+      "kind": "run-in-game",
+      "status": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:20.972Z",
+        "status": "running",
+        "phase": "deploying"
+      },
+      "observedAt": "2026-07-08T23:39:20.972Z"
+    },
+    {
+      "type": "operation",
+      "kind": "run-in-game",
+      "status": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:21.005Z",
+        "status": "running",
+        "phase": "deploying"
+      },
+      "observedAt": "2026-07-08T23:39:21.005Z"
+    },
+    {
+      "type": "operation",
+      "kind": "run-in-game",
+      "status": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:21.014Z",
+        "status": "running",
+        "phase": "preparing-civ7"
+      },
+      "observedAt": "2026-07-08T23:39:21.014Z"
+    },
+    {
+      "type": "operation",
+      "kind": "run-in-game",
+      "status": {
+        "requestId": "studio-run-in-game-mrcpz748-7as-4",
+        "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status",
+          "retry-run"
+        ],
+        "createdAt": "2026-07-08T23:39:19.885Z",
+        "updatedAt": "2026-07-08T23:39:21.028Z",
+        "status": "failed",
+        "phase": "failed",
+        "safeFailureCategory": "runtime-control",
+        "terminalAt": "2026-07-08T23:39:21.028Z"
+      },
+      "observedAt": "2026-07-08T23:39:21.028Z"
+    }
+  ],
+  "diagnosticsLookup": {
+    "diagnosticsId": "run-diagnostics-c212e2d0-74e0-49b7-b9d4-6f66a782286c",
+    "result": "ok",
+    "topLevelKeys": [
+      "ok",
+      "diagnostics"
+    ]
+  },
+  "publicPayloadMarkerScan": {
+    "payloads": [
+      "runInGame.status.initial",
+      "runInGame.status.final",
+      "studio.operations.current.initial",
+      "studio.operations.current.final",
+      "studio.events.watch"
+    ],
+    "forbiddenMarkers": [
+      "local home-directory path",
+      "sourcePath",
+      "generatedModRoot",
+      "attribution",
+      "rawOutput",
+      "command",
+      "launchEnvelope",
+      "sourceSnapshot"
+    ],
+    "matches": []
+  },
+  "terminalContext": {
+    "status": "failed",
+    "safeFailureCategory": "runtime-control",
+    "reason": "Civ7 tuner was unavailable during this packet admission/status row; generated setup/start repair remains owned by later remediation packets."
+  },
+  "artifacts": {
+    "screenshot": "output/playwright/studio-run-browser-originated-contract-live-browser-2026-07-08.png"
+  }
+}

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import type { RunInGameOperationStatus } from "@civ7/studio-contract";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GameConsole, type GameConsoleProps } from "../src/components/panels/GameConsole.js";
 import { TooltipProvider } from "../src/components/ui/tooltip.js";
@@ -79,16 +79,16 @@ function terminalStatusWithPrivateSentinels(
   terminalStatus: "failed" | "cancelled"
 ): RunInGameOperationStatus & PrivateRunStatusLeakSentinel {
   const privateSentinels = {
-    command: "runInGame.start --source /Users/matei/private/source.config.json",
+    command: "runInGame.start --source /private-sentinel/user/source.config.json",
     rawOutput: "Traceback: setup cannot see /tmp/private-deploy/Swooper.lua",
     stack: "Error: hidden\n    at internal (/private/workspace/run.ts:12:3)",
-    workspaceRoot: "/Users/matei/private/run-workspace",
+    workspaceRoot: "/private-sentinel/user/run-workspace",
     materialization: {
-      generatedModRoot: "/Users/matei/private/generated-mod",
+      generatedModRoot: "/private-sentinel/user/generated-mod",
       sourcePath: "mods/mod-swooper-maps/src/maps/configs/private.config.json",
     },
     attribution: {
-      sourceDeploymentPath: "/Users/matei/private/Civ7/Mods/Swooper.lua",
+      sourceDeploymentPath: "/private-sentinel/user/Civ7/Mods/Swooper.lua",
     },
     diagnostics: {
       sections: {
@@ -123,6 +123,24 @@ function terminalStatusWithPrivateSentinels(
 }
 
 describe("GameConsole Run in Game status", () => {
+  it("wires the rendered Play control to the Run in Game callback", () => {
+    const onRunInGame = vi.fn();
+    render(
+      <TooltipProvider>
+        <GameConsole
+          operationControlsDisabled={false}
+          isRunInGameRunning={false}
+          onRunInGame={onRunInGame}
+          liveRuntime={{ status: "ok", readiness: "shell" }}
+        />
+      </TooltipProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Launches the current config in Civ7/i }));
+
+    expect(onRunInGame).toHaveBeenCalledTimes(1);
+  });
+
   it("renders the active Run in Game phase with its diagnostics affordance", () => {
     const html = renderWithStatus({
       requestId: "studio-run-in-game-test",
@@ -184,7 +202,7 @@ describe("GameConsole Run in Game status", () => {
 
     for (const unsafeCopy of [
       "runInGame.start",
-      "/Users/matei/private",
+      "/private-sentinel/user",
       "/tmp/private-deploy",
       "/private/workspace",
       "mods/mod-swooper-maps/src/maps/configs/private.config.json",

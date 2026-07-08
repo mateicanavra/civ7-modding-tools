@@ -268,7 +268,16 @@ describe("studio-server RPC handler", () => {
       const { error } = await safe(
         client.runInGame.start({
           ...runInGameStartInput(),
-          rawJs: "UI.notifyUIReady()",
+          source: {
+            kind: "editor",
+            editorSessionId: "studio-current",
+            payload: {
+              ...runInGameStartInput().source.payload,
+              pipelineConfig: {
+                rawJs: "UI.notifyUIReady()",
+              },
+            },
+          },
         } as StudioInputs["runInGame"]["start"])
       );
 
