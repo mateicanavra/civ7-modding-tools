@@ -15,8 +15,9 @@ Affected owners:
 - Swooper manifest generator target/port
 - Nx target/project configuration for request generation
 
-This packet does not change deployment copy/snapshot behavior; it produces the
-generated mod that the deployment packet consumes.
+This packet does not own the deployment snapshot/lease guardrail; it produces
+the generated mod record and private metadata that the deployment packet
+formalizes.
 
 ## Before And After
 
@@ -42,8 +43,9 @@ generation success/failure, records diagnostics, and exposes safe public status.
 
 Permanent positive assertions:
 
-- Run in Game request generation has one manifest input;
-- request generated output root is the request workspace generated-mod root.
+- Run in Game exposes one manifest-reference generator port;
+- workflow/app generator calls do not accept request/prepared/output-root side
+  channels.
 
 Structural authority row: SA-10 `grit-studio-run-generator-port-boundary`.
 

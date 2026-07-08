@@ -1,7 +1,8 @@
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
-import { isDeepStrictEqual, promisify } from "node:util";
+import { promisify } from "node:util";
 import {
   Civ7DirectControlError,
   closeCiv7Displays,
@@ -14,12 +15,12 @@ import {
 } from "@civ7/direct-control";
 import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
 import type {
-  CanonicalRunInGameRequest,
   RunInGameRequestStatus,
   StudioBoundedDiagnostics,
   StudioOperationRuntimePorts,
   StudioRuntimeFailure,
 } from "@civ7/studio-server";
+import { readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import {
   dependencyUnavailable,
   invalidRequest,
@@ -29,7 +30,7 @@ import {
 } from "@civ7/studio-server";
 import { readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
-import { buildSwooperMapsStudioDeployPlan, withoutStudioRunProofEnv } from "../mapConfigs/deploy";
+import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
 import {
@@ -59,6 +60,7 @@ import type { RunInGameDetailedProofLog } from "../runInGame/proofTypes";
 
 const execFileAsync = promisify(execFile);
 const DEPLOY_TIMEOUT_MS = 120_000;
+const RUN_MANIFEST_GENERATION_TIMEOUT_MS = 120_000;
 const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const SCRIPTING_LOG_FAILURE_GRACE_MS = 5_000;
 const SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS = 250;
@@ -77,6 +79,7 @@ const CIV7_PROCESS_LAUNCH_RETRY_DELAY_MS = 5_000;
 const CIV7_PROCESS_LAUNCH_SHELL_TIMEOUT_MS = 180_000;
 const CIV7_PROCESS_INTRO_DISMISS_INTERVAL_MS = 4_000;
 const CIV7_PROCESS_INTRO_DISMISS_CATEGORIES = ["Cinematic"] as const;
+const SWOOPER_STUDIO_RUN_MOD_ID = "mod-swooper-studio-run";
 
 function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
@@ -380,51 +383,95 @@ async function deploySwooperMaps(
   };
 }
 
-async function deploySwooperMapsForRun(
+async function generateSwooperRunMod(
   options: Readonly<{
     repoRoot: string;
-    requestId: string;
-    launchConfigId: string;
-    launchConfigPath: string;
-    launchEnvelopeDigest: string;
+    manifestPath: string;
+    signal?: AbortSignal;
   }>
 ): Promise<{
-  build: {
-    task: string;
-    stdout: string;
-    stderr: string;
+  runArtifactId: string;
+  generatedModRoot: string;
+  mapRowId: string;
+  mapScriptPath: string;
+  fileCount: number;
+  digest: string;
+}> {
+  await execFileAsync(
+    "bun",
+    ["nx", "run", "mod-swooper-maps:gen:run-manifest", "--", options.manifestPath],
+    {
+      cwd: options.repoRoot,
+      timeout: RUN_MANIFEST_GENERATION_TIMEOUT_MS,
+      maxBuffer: 16 * 1024 * 1024,
+      signal: options.signal,
+    }
+  );
+  const manifest = await readStudioRunGenerationManifest(options.manifestPath);
+  const generatedModRoot = resolve(
+    dirname(options.manifestPath),
+    manifest.payload.workspace.generatedModRoot
+  );
+  const tree = await digestFileTree(generatedModRoot);
+  return {
+    runArtifactId: manifest.payload.runArtifactId,
+    generatedModRoot,
+    mapRowId: runMapRowIdForArtifact(manifest.payload.runArtifactId),
+    mapScriptPath: `maps/${manifest.payload.runArtifactId}.js`,
+    fileCount: tree.fileCount,
+    digest: tree.digest,
   };
+}
+
+async function deployGeneratedSwooperRunMod(
+  options: Readonly<{
+    generatedModRoot: string;
+  }>
+): Promise<{
   targetDir: string;
   modsDir: string;
   filesCopied: number;
 }> {
-  const plan = buildSwooperMapsStudioDeployPlan({
-    requestId: options.requestId,
-    launchConfig: { id: options.launchConfigId, path: options.launchConfigPath },
-    launchEnvelopeDigest: options.launchEnvelopeDigest,
-  });
-  const { stdout, stderr } = await execFileAsync("bun", [...plan.buildArgs], {
-    cwd: options.repoRoot,
-    timeout: DEPLOY_TIMEOUT_MS,
-    maxBuffer: 16 * 1024 * 1024,
-    env: plan.env,
-  });
   const modsDir = resolveModsDir().modsDir;
   const deployed = deployMod({
-    inputDir: resolve(options.repoRoot, "mods/mod-swooper-maps/mod"),
-    modId: "mod-swooper-maps",
+    inputDir: options.generatedModRoot,
+    modId: SWOOPER_STUDIO_RUN_MOD_ID,
     modsDir,
   });
   return {
-    build: {
-      task: plan.buildTask,
-      stdout: tail(stdout),
-      stderr: tail(stderr),
-    },
     targetDir: deployed.targetDir,
     modsDir: deployed.modsDir,
     filesCopied: deployed.filesCopied,
   };
+}
+
+async function digestFileTree(root: string): Promise<{ fileCount: number; digest: string }> {
+  const files = await listFiles(root);
+  const hash = createHash("sha256");
+  for (const file of files) {
+    const relativePath = relative(root, file).replaceAll("\\", "/");
+    hash.update(relativePath, "utf8");
+    hash.update("\0");
+    hash.update(await readFile(file));
+    hash.update("\0");
+  }
+  return { fileCount: files.length, digest: hash.digest("hex") };
+}
+
+async function listFiles(root: string): Promise<string[]> {
+  const entries = await readdir(root, { withFileTypes: true });
+  const files = await Promise.all(
+    entries.map(async (entry) => {
+      const absolute = resolve(root, entry.name);
+      if (entry.isDirectory()) return listFiles(absolute);
+      return entry.isFile() ? [absolute] : [];
+    })
+  );
+  return files.flat().sort((a, b) => relative(root, a).localeCompare(relative(root, b)));
+}
+
+function runMapRowIdForArtifact(runArtifactId: string): string {
+  return `MAP_${runArtifactId.replace(/-/g, "_").toUpperCase()}`;
 }
 
 async function optionalFileIdentity(args: {
@@ -439,26 +486,16 @@ async function optionalFileContentMarkerProof(args: Parameters<typeof fileConten
   return await fileContentMarkerProof(args).catch(() => undefined);
 }
 
-function generatedSourceScriptPath(repoRoot: string, id: string): string {
-  return resolve(repoRoot, "mods/mod-swooper-maps/src/maps/generated", `${id}.ts`);
+function generatedSourceScriptPath(generatedModRoot: string, runArtifactId: string): string {
+  return resolve(generatedModRoot, ".source/maps", `${runArtifactId}.ts`);
 }
 
-function localModScriptPath(repoRoot: string, id: string): string {
-  return resolve(repoRoot, "mods/mod-swooper-maps/mod/maps", `${id}.js`);
+function localModScriptPath(generatedModRoot: string, runArtifactId: string): string {
+  return resolve(generatedModRoot, "maps", `${runArtifactId}.js`);
 }
 
-function deployedModScriptPath(targetDir: string, id: string): string {
-  return resolve(targetDir, "maps", `${id}.js`);
-}
-
-async function regenerateSwooperMapArtifacts(repoRoot: string): Promise<void> {
-  const plan = buildSwooperMapsStudioDeployPlan({ env: withoutStudioRunProofEnv(process.env) });
-  await execFileAsync("bun", [...plan.buildArgs, "--skip-nx-cache"], {
-    cwd: repoRoot,
-    timeout: DEPLOY_TIMEOUT_MS,
-    maxBuffer: 16 * 1024 * 1024,
-    env: withoutStudioRunProofEnv(process.env),
-  });
+function deployedModScriptPath(targetDir: string, runArtifactId: string): string {
+  return resolve(targetDir, "maps", `${runArtifactId}.js`);
 }
 
 function isNodeNotFound(err: unknown): boolean {
@@ -509,39 +546,6 @@ function assertRepoMapEnvelope(envelope: unknown, id: string): void {
   }
 }
 
-function mapScriptForConfigId(id: string): string {
-  return `{swooper-maps}/maps/${id}.js`;
-}
-
-function jsonTextMatchesValue(text: string | null, value: unknown): boolean {
-  if (text === null) return false;
-  try {
-    return isDeepStrictEqual(JSON.parse(text), value);
-  } catch {
-    return false;
-  }
-}
-
-function makeRepoMapEnvelope(args: {
-  id: string;
-  name: string;
-  description?: string;
-  sortIndex: number;
-  latitudeBounds?: unknown;
-  config: unknown;
-}): Record<string, unknown> {
-  return {
-    $schema: "../../../dist/recipes/standard-map-config.schema.json",
-    id: args.id,
-    name: args.name,
-    description: args.description?.trim() || args.name,
-    recipe: "standard",
-    sortIndex: args.sortIndex,
-    ...(args.latitudeBounds ? { latitudeBounds: args.latitudeBounds } : {}),
-    config: args.config,
-  };
-}
-
 async function knownSwooperConfigPaths(repoRoot: string): Promise<ReadonlySet<string>> {
   const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
   const entries = await readdir(configRoot);
@@ -550,56 +554,6 @@ async function knownSwooperConfigPaths(repoRoot: string): Promise<ReadonlySet<st
       .filter((entry) => entry.endsWith(".config.json"))
       .map((entry) => relative(repoRoot, resolve(configRoot, entry)))
   );
-}
-
-async function materializeRunInGameConfig(args: {
-  repoRoot: string;
-  id: string;
-  sourcePath?: string;
-  envelope: Record<string, unknown>;
-  mode: "durable" | "disposable";
-  registerCleanup?(cleanup: () => Promise<void>): void;
-}): Promise<{
-  path: string;
-  mapScript: string;
-  cleanup: () => Promise<void>;
-}> {
-  const configRoot = resolve(args.repoRoot, "mods/mod-swooper-maps/src/maps/configs");
-  const target = args.sourcePath
-    ? resolve(args.repoRoot, args.sourcePath)
-    : resolve(configRoot, `${args.id}.config.json`);
-  if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
-    throw invalidEngineRequest(
-      "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
-      "map-config-path-outside-config-root",
-      { sourcePath: args.sourcePath }
-    );
-  }
-  const path = relative(args.repoRoot, target);
-  const previous = await readFile(target, "utf8").catch((err: unknown) => {
-    if (isNodeNotFound(err)) return null;
-    throw unavailableEngineDependency(
-      "Unable to read existing map config before Run in Game materialization",
-      "map-config-read-unavailable",
-      err,
-      { path, sourcePath: args.sourcePath }
-    );
-  });
-  await mkdir(dirname(target), { recursive: true });
-  if (!jsonTextMatchesValue(previous, args.envelope)) {
-    await writeFile(target, `${JSON.stringify(args.envelope, null, 2)}\n`);
-  }
-  const cleanup = async () => {
-    if (args.mode !== "disposable") return;
-    await restoreRepoConfig(target, previous);
-    await regenerateSwooperMapArtifacts(args.repoRoot);
-  };
-  args.registerCleanup?.(cleanup);
-  return {
-    path,
-    mapScript: mapScriptForConfigId(args.id),
-    cleanup,
-  };
 }
 
 function cloneForJson(value: unknown): unknown {
@@ -659,8 +613,8 @@ async function restoreRepoConfig(target: string, previous: string | null): Promi
   await writeFile(target, previous);
 }
 
-type RunInGameMaterialized = Awaited<
-  ReturnType<StudioOperationRuntimePorts["materializeRunInGame"]>
+type RunInGameGeneratedMod = Awaited<
+  ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
 >;
 type RunInGameDeployment = Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>;
 type RunInGameStarted = Readonly<{ start?: unknown }>;
@@ -669,21 +623,13 @@ type SaveDeployPrepared = Awaited<
 >;
 
 type RunInGameLeafContext = Readonly<{
-  id: string;
   seed: number;
-  mapSize: string;
-  playerCount?: number;
-  restartCivProcess: boolean;
-  setupConfig: CanonicalRunInGameRequest["setupConfig"];
-  requestedMode: "durable" | "disposable";
   configHash: string;
   envelopeHash: string;
-  envelope: Record<string, unknown>;
-  resolvedLaunchSource: CanonicalRunInGameRequest["resolvedLaunchSource"];
   sourceSnapshotProof?: RunInGameRequestStatus["sourceSnapshot"];
   requestStatus: RunInGameRequestStatus;
 }> & {
-  materialization?: NonNullable<RunInGameMaterialized["materialization"]>;
+  materialization?: RunInGameGeneratedMod["materialization"];
   scriptingLogPath?: string;
   scriptingSnapshot?: Awaited<ReturnType<typeof snapshotFile>>;
   deployment?: RunInGameDeployment;
@@ -739,148 +685,133 @@ export function createStudioOperationRuntimePorts(
         config: envelope.config as Record<string, unknown>,
       };
     },
-    materializeRunInGame: async ({ requestId, prepared, registerCleanup }) => {
-      const context = makeRunInGameLeafContext({ requestId, prepared });
-      let materialized: Awaited<ReturnType<typeof materializeRunInGameConfig>> | undefined;
-      let cleaned = false;
-      const cleanupMaterialized = async (cleanup?: () => Promise<void>) => {
-        cleaned = true;
-        runContexts.delete(requestId);
-        await cleanup?.();
-      };
-      materialized = await materializeRunInGameConfig({
+    generateRunInGameMod: async ({ generationManifest, signal }) => {
+      const manifest = await readStudioRunGenerationManifest(generationManifest.path);
+      const generated = await generateSwooperRunMod({
         repoRoot,
-        id: context.id,
-        sourcePath:
-          context.resolvedLaunchSource.kind === "catalog"
-            ? context.resolvedLaunchSource.catalogSourcePath
-            : undefined,
-        envelope: context.envelope,
-        mode: context.requestedMode,
-        registerCleanup: (cleanup) => {
-          registerCleanup(() => cleanupMaterialized(cleanup));
-        },
+        manifestPath: generationManifest.path,
+        signal,
       });
       const materialization = {
-        mode: context.requestedMode,
-        path: materialized.path,
-        mapScript: materialized.mapScript,
-        configHash: context.configHash,
-        envelopeHash: context.envelopeHash,
-        ...(await optionalFileIdentity({ repoRoot, path: materialized.path }).then(
-          (sourceConfig) => (sourceConfig ? { sourceConfig } : {})
-        )),
+        mode: manifest.payload.request.materializationMode,
+        path: relative(repoRoot, generated.generatedModRoot),
+        mapScript: `{${SWOOPER_STUDIO_RUN_MOD_ID}}/${generated.mapScriptPath}`,
+        configHash: manifest.payload.launchSourceDigest.configContentDigest,
+        envelopeHash: manifest.payload.launchEnvelopeDigest,
+        generationManifestDigest: generationManifest.generationManifestDigest,
+        runArtifactId: generated.runArtifactId,
+        generatedModRoot: generated.generatedModRoot,
+        generatedModFileCount: generated.fileCount,
+        generatedModDigest: generated.digest,
+        mapRowId: generated.mapRowId,
       };
-      if (!cleaned) {
-        context.materialization = materialization;
-        runContexts.set(requestId, context);
-      }
       return {
         materialization,
-        cleanup: () => cleanupMaterialized(materialized?.cleanup),
+        cleanup: async () => {
+          runContexts.delete(manifest.payload.requestId);
+        },
       };
     },
-    deployRunInGame: async ({ requestId }) => {
-      const context = requireRunContext(runContexts, requestId);
-      const materialization = requireMaterialization(context, requestId);
-      context.scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
-      context.scriptingSnapshot = await snapshotFile(context.scriptingLogPath);
-      const launchConfigPath = requireContextValue(
-        materialization.path,
-        "Run in Game materialization path",
+    deployRunInGame: async ({ requestId, prepared, generatedMod }) => {
+      const context = makeRunInGameLeafContext({ requestId, prepared });
+      const materialization = requireContextValue(
+        generatedMod.materialization,
+        "Run in Game generated mod materialization",
         requestId
       );
-      const deploy = await deploySwooperMapsForRun({
+      context.materialization = materialization;
+      runContexts.set(requestId, context);
+      context.scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
+      context.scriptingSnapshot = await snapshotFile(context.scriptingLogPath);
+      const generatedModRoot = requireContextValue(
+        materialization.generatedModRoot,
+        "Run in Game generated mod root",
+        requestId
+      );
+      const runArtifactId = requireContextValue(
+        materialization.runArtifactId,
+        "Run in Game run artifact id",
+        requestId
+      );
+      const deploy = await deployGeneratedSwooperRunMod({ generatedModRoot });
+      const generatedSourceScript = await optionalFileIdentity({
         repoRoot,
-        requestId,
-        launchConfigId: context.id,
-        launchConfigPath,
-        launchEnvelopeDigest: context.envelopeHash,
+        path: generatedSourceScriptPath(generatedModRoot, runArtifactId),
+        exposeAs: "absolute",
       });
-      try {
-        const generatedSourceScript = await optionalFileIdentity({
-          repoRoot,
-          path: generatedSourceScriptPath(repoRoot, context.id),
+      const localModScript = await optionalFileIdentity({
+        repoRoot,
+        path: localModScriptPath(generatedModRoot, runArtifactId),
+        exposeAs: "absolute",
+      });
+      const deployedModScript = await optionalFileIdentity({
+        repoRoot,
+        path: deployedModScriptPath(deploy.targetDir, runArtifactId),
+        exposeAs: "absolute",
+      });
+      const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
+        requestId,
+        configHash: context.configHash,
+        envelopeHash: context.envelopeHash,
+      });
+      const localModScriptContent = await optionalFileContentMarkerProof({
+        repoRoot,
+        path: localModScriptPath(generatedModRoot, runArtifactId),
+        exposeAs: "absolute",
+        markers: requiredMaterializationMarkers,
+      });
+      const deployedModScriptContent = await optionalFileContentMarkerProof({
+        repoRoot,
+        path: deployedModScriptPath(deploy.targetDir, runArtifactId),
+        exposeAs: "absolute",
+        markers: requiredMaterializationMarkers,
+      });
+      context.materialization = {
+        ...materialization,
+        ...(generatedSourceScript ? { generatedSourceScript } : {}),
+        ...(localModScript ? { localModScript } : {}),
+        ...(deployedModScript ? { deployedModScript } : {}),
+        ...(localModScriptContent ? { localModScriptContent } : {}),
+        ...(deployedModScriptContent ? { deployedModScriptContent } : {}),
+      };
+      const unresolved = runInGameMaterializationScriptUnresolvedLinks({
+        materialization: context.materialization,
+        localModScript,
+        deployedModScript,
+        requiredMarkers: requiredMaterializationMarkers,
+      });
+      if (unresolved.length > 0) {
+        throw materializationFailed({
+          message: "Generated Swooper map script is missing current materialization proof markers",
+          diagnostics: boundedDiagnostics({
+            code: "map-script-materialization-proof-missing",
+            unresolvedLinks: unresolved,
+            materialization: context.materialization,
+          }),
         });
-        const localModScript = await optionalFileIdentity({
-          repoRoot,
-          path: localModScriptPath(repoRoot, context.id),
-        });
-        const deployedModScript = deploy.targetDir
-          ? await optionalFileIdentity({
-              repoRoot,
-              path: deployedModScriptPath(deploy.targetDir, context.id),
-              exposeAs: "absolute",
-            })
-          : undefined;
-        const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
-          requestId,
-          configHash: context.configHash,
-          envelopeHash: context.envelopeHash,
-        });
-        const localModScriptContent = await optionalFileContentMarkerProof({
-          repoRoot,
-          path: localModScriptPath(repoRoot, context.id),
-          markers: requiredMaterializationMarkers,
-        });
-        const deployedModScriptContent = deploy.targetDir
-          ? await optionalFileContentMarkerProof({
-              repoRoot,
-              path: deployedModScriptPath(deploy.targetDir, context.id),
-              exposeAs: "absolute",
-              markers: requiredMaterializationMarkers,
-            })
-          : undefined;
-        context.materialization = {
-          ...materialization,
-          ...(generatedSourceScript ? { generatedSourceScript } : {}),
-          ...(localModScript ? { localModScript } : {}),
-          ...(deployedModScript ? { deployedModScript } : {}),
-          ...(localModScriptContent ? { localModScriptContent } : {}),
-          ...(deployedModScriptContent ? { deployedModScriptContent } : {}),
-        };
-        const unresolved = runInGameMaterializationScriptUnresolvedLinks({
-          materialization: context.materialization,
-          localModScript,
-          deployedModScript,
-          requiredMarkers: requiredMaterializationMarkers,
-        });
-        if (unresolved.length > 0) {
-          throw materializationFailed({
-            message:
-              "Generated Swooper map script is missing current materialization proof markers",
-            diagnostics: boundedDiagnostics({
-              code: "map-script-materialization-proof-missing",
-              unresolvedLinks: unresolved,
-              materialization: context.materialization,
-            }),
-          });
-        }
-
-        const localBundlePath = localModScriptPath(repoRoot, context.id);
-        const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
-        if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
-          throw materializationFailed({
-            message:
-              "Deployed map bundle does not embed the Run in Game request id; the in-game proof could never match.",
-            diagnostics: boundedDiagnostics({
-              code: "run-request-id-not-materialized",
-              requestId,
-              mapScript: materialization.mapScript,
-              localModScript: relative(repoRoot, localBundlePath),
-              recoveryHint:
-                "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check the nx env input/cache for mod-swooper-maps:build), then retry the run.",
-              materialization: context.materialization,
-            }),
-          });
-        }
-
-        context.deployment = { materialization: context.materialization, deploy };
-        context.launchMapScript = materialization.mapScript;
-        return context.deployment;
-      } finally {
-        await regenerateSwooperMapArtifacts(repoRoot);
       }
+
+      const localBundlePath = localModScriptPath(generatedModRoot, runArtifactId);
+      const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
+      if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
+        throw materializationFailed({
+          message:
+            "Generated map bundle does not embed the Run in Game request id; the in-game proof could never match.",
+          diagnostics: boundedDiagnostics({
+            code: "run-request-id-not-materialized",
+            requestId,
+            mapScript: materialization.mapScript,
+            localModScript: localBundlePath,
+            recoveryHint:
+              "Regenerate the request-local Studio run mod from its generation manifest, then retry the run.",
+            materialization: context.materialization,
+          }),
+        });
+      }
+
+      context.deployment = { materialization: context.materialization, deploy };
+      context.launchMapScript = materialization.mapScript;
+      return context.deployment;
     },
     restartCivForRunInGame: async () => ({ processRestart: await restartCiv7ProcessViaSteam() }),
     waitForRunInGameLogProof: async ({ requestId, setup, started }) => {
@@ -1114,31 +1045,15 @@ export function createStudioOperationRuntimePorts(
   function makeRunInGameLeafContext(
     args: Readonly<{
       requestId: string;
-      prepared: Parameters<StudioOperationRuntimePorts["materializeRunInGame"]>[0]["prepared"];
+      prepared: Parameters<StudioOperationRuntimePorts["deployRunInGame"]>[0]["prepared"];
     }>
   ): RunInGameLeafContext {
     const request = args.prepared.request;
-    const launchEnvelope = args.prepared.launchEnvelope;
-    const resolvedLaunchSource = args.prepared.resolvedLaunchSource;
-    const requestedMode = request.materializationMode;
-    const id = request.selectedConfigId;
     const seed = request.seed;
     const mapSize = request.mapSize;
     const playerCount = request.playerCount;
-    const restartCivProcess = request.restartCivProcess === true;
     const setupConfig = request.setupConfig;
     const configHash = args.prepared.launchSourceDigest.configContentDigest;
-    const envelope = makeRepoMapEnvelope({
-      id,
-      name: launchEnvelope.source.label,
-      ...(launchEnvelope.source.description === undefined
-        ? {}
-        : { description: launchEnvelope.source.description }),
-      sortIndex: launchEnvelope.source.sortIndex,
-      latitudeBounds: launchEnvelope.source.latitudeBounds,
-      config: launchEnvelope.config,
-    });
-    assertRepoMapEnvelope(envelope, id);
     const envelopeHash = args.prepared.launchEnvelopeDigest;
     const sourceSnapshotProof = request.sourceSnapshot;
     const requestStatus: RunInGameRequestStatus = {
@@ -1147,24 +1062,16 @@ export function createStudioOperationRuntimePorts(
       seed,
       mapSize,
       ...(playerCount === undefined ? {} : { playerCount }),
-      selectedConfigId: id,
+      selectedConfigId: request.selectedConfigId,
       setupConfig,
-      materializationMode: requestedMode,
-      ...(restartCivProcess ? { restartCivProcess } : {}),
+      materializationMode: request.materializationMode,
+      ...(request.restartCivProcess === true ? { restartCivProcess: true } : {}),
       ...(sourceSnapshotProof ? { sourceSnapshot: sourceSnapshotProof } : {}),
     };
     return {
-      id,
       seed,
-      mapSize,
-      ...(playerCount === undefined ? {} : { playerCount }),
-      restartCivProcess,
-      setupConfig,
-      requestedMode,
       configHash,
       envelopeHash,
-      envelope,
-      resolvedLaunchSource,
       ...(sourceSnapshotProof ? { sourceSnapshotProof } : {}),
       requestStatus,
     };
@@ -1221,7 +1128,7 @@ function requireSaveContext(
 function requireMaterialization(
   context: RunInGameLeafContext,
   requestId: string
-): NonNullable<RunInGameMaterialized["materialization"]> {
+): NonNullable<RunInGameGeneratedMod["materialization"]> {
   return requireContextValue(context.materialization, "Run in Game materialization", requestId);
 }
 

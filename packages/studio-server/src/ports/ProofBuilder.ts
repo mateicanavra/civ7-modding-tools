@@ -1,8 +1,6 @@
-import type { StudioInputs } from "../context.js";
 import type {
   RunInGameDeployment,
   RunInGameLogEvidence,
-  RunInGameMaterialized,
   RunInGamePreparedRequest,
   RunInGameProof,
   RunInGameSetupPrepared,
@@ -10,14 +8,6 @@ import type {
 } from "./workflowTypes.js";
 
 export type ProofBuilder = Readonly<{
-  materializeRunInGame(
-    args: Readonly<{
-      requestId: string;
-      input: StudioInputs["runInGame"]["start"];
-      prepared: RunInGamePreparedRequest;
-      registerCleanup(cleanup: () => Promise<void>): void;
-    }>
-  ): Promise<RunInGameMaterialized>;
   buildRunInGameProof(
     args: Readonly<{
       requestId: string;

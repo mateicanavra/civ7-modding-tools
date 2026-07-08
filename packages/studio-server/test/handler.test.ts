@@ -205,7 +205,8 @@ describe("studio-server RPC handler", () => {
     try {
       const context = makeContext({
         operationRuntime: makeOperationRuntimePorts({
-          materializeRunInGame: async () => ({
+          generateRunInGameMod: async () => ({
+            ...generatedRunInGameMod(),
             cleanup: async () => {
               cleanupCalls += 1;
             },
@@ -917,7 +918,7 @@ function makeOperationRuntimePorts(
       now: () => new Date("2026-06-10T00:00:00.000Z"),
     },
     runInGameWorkspaceRoot,
-    materializeRunInGame: async () => ({}),
+    generateRunInGameMod: async () => generatedRunInGameMod(),
     readRunInGameCatalogSource: async ({ catalogSourceId }) => ({
       catalogSourceId,
       configPath: `mods/mod-swooper-maps/src/maps/configs/${catalogSourceId}.config.json`,
@@ -934,6 +935,24 @@ function makeOperationRuntimePorts(
     deploySavedMapConfig: async () => ({ deployed: true }),
     rollbackSaveDeploy: async () => ({ restored: true }),
     ...overrides,
+  };
+}
+
+function generatedRunInGameMod(): Awaited<
+  ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+> {
+  return {
+    materialization: {
+      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      configHash: "test-config-hash",
+      envelopeHash: "test-envelope-hash",
+      generationManifestDigest: "test-generation-manifest-digest",
+      runArtifactId: "run-test",
+      generatedModRoot: join(tmpdir(), "studio-handler-generated-run-test"),
+      generatedModFileCount: 1,
+      generatedModDigest: "test-generated-mod-digest",
+      mapRowId: "MAP_RUN_TEST",
+    },
   };
 }
 
