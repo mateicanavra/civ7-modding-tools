@@ -1,6 +1,6 @@
 # Run In Game Real User Path Remediation Packet Index
 
-Status: draft packet train ready for implementation-team review
+Status: reviewed packet train ready for implementation
 
 Source proposal:
 `docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/real-user-path-remediation-proposal.md`
@@ -66,7 +66,8 @@ implementation closure, every packet receives the three required review lanes:
 TypeScript refactoring, code quality/structure, and library correctness for
 oRPC/Effect/direct-control/TypeBox as relevant. Runtime/config packets also
 receive focused testing-design and Habitat/authority review where their
-proposal declares it.
+proposal declares it. Packets 4 through 7 also receive dedicated
+direct-control/Civ7 runtime behavior review before closure.
 
 Reviewers must hunt for shortcut language, endpoint-only substitution, brittle
 structural assertions, internal-data leakage, and comments that narrate code
@@ -75,7 +76,8 @@ packet until repaired or dispositioned through source authority.
 
 ## Final Live Matrix
 
-The remediation train closes only after the rendered browser path succeeds for:
+The remediation train closes only after the rendered browser path succeeds for
+the required success rows:
 
 - saved setup config `ToT_BasicModsEnabled.Civ7Cfg`;
 - map size `MAPSIZE_HUGE`;
@@ -85,6 +87,20 @@ The remediation train closes only after the rendered browser path succeeds for:
   execution;
 - Swooper Earthlike, Latest Juicy, and Swooper Desert Mountains.
 
+The final packet also closes the rows that prevent false green status:
+
+- generated row readback after saved-config/mod-set reconciliation and before
+  Begin, with no later setup reload that invalidates the checked state;
+- post-start request-specific generated-artifact marker observed from the
+  running game and matching `RunCorrelation`;
+- repeat launch and distinct launch freshness rows from `target-vocabulary.md`;
+- missed terminal event or browser reload recovery;
+- generated-row-missing failure;
+- stale saved-config/generated-mod mismatch;
+- validation failure, ownership conflict, and cancellation through the public
+  `/rpc` surface.
+
 The final packet records request id, diagnostics id, generated artifact id,
-deployed snapshot identity, setup-row readback, terminal public status, and
-post-start in-game readback for every row.
+deployed snapshot identity, setup-row readback, terminal public status,
+post-start in-game readback, and redacted public/private evidence status for
+every row.
