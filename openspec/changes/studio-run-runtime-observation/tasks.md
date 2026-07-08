@@ -1,30 +1,30 @@
 ## 1. Observation
 
-- [ ] 1.1 Add observation precondition checks.
-- [ ] 1.2 Establish scripting-log observation window before Civ7 start or
+- [x] 1.1 Add observation precondition checks.
+- [x] 1.2 Establish scripting-log observation window before Civ7 start or
       focus.
-- [ ] 1.3 Exclude stale log lines before the observation cursor.
-- [ ] 1.4 Collect scripting log observation.
-- [ ] 1.5 Collect setup row readback.
-- [ ] 1.6 Collect loaded-game readback after game start: the
+- [x] 1.3 Exclude stale log lines before the observation cursor.
+- [x] 1.4 Collect scripting log observation.
+- [x] 1.5 Collect setup row readback.
+- [x] 1.6 Collect loaded-game readback after game start: the
       generated-artifact marker emitted by the running game plus
       `civ7.live.status` and `civ7.live.snapshot` over the public `/rpc` oRPC
       mount.
-- [ ] 1.7 Match observations against every `RunCorrelation` field.
+- [x] 1.7 Match observations against every `RunCorrelation` field.
 
 ## 2. Failure Mapping
 
-- [ ] 2.1 Map direct-control failures to public category `runtime-control`.
-- [ ] 2.2 Map observation timeout, mismatch, missing setup row, and mismatched
+- [x] 2.1 Map direct-control failures to public category `runtime-control`.
+- [x] 2.2 Map observation timeout, mismatch, missing setup row, and mismatched
       setup row to `runtime-observation`.
-- [ ] 2.3 Map missing or mismatched loaded-game readback to
+- [x] 2.3 Map missing or mismatched loaded-game readback to
       `runtime-observation`.
-- [ ] 2.4 Record private diagnostics for observation failures.
+- [x] 2.4 Record private diagnostics for observation failures.
 
 ## 3. Verification
 
-- [ ] 3.1 Add behavior tests with fake direct-control/log readers.
-- [ ] 3.2 Add behavior tests for stale-log exclusion, timeout, setup-row
+- [x] 3.1 Add behavior tests with fake direct-control/log readers.
+- [x] 3.2 Add behavior tests for stale-log exclusion, timeout, setup-row
       missing, setup-row mismatch, loaded-game marker missing/mismatch, and
       shape-only status/snapshot evidence not satisfying the loaded-game
       oracle.
