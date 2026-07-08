@@ -16,7 +16,6 @@ import {
 } from "@civ7/studio-contract";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import type { RunInGamePreparedRequest } from "../../ports/workflowTypes.js";
 import { type RunCorrelation, runCorrelationForManifest } from "./correlation.js";
 import {
   createRunArtifactId,
@@ -77,12 +76,18 @@ type StudioRunGenerationManifestPayloadSchemaStatic = Static<
   typeof studioRunGenerationManifestPayloadSchema
 >;
 
-type StudioRunGenerationManifestRequest = Omit<
-  StudioRunGenerationManifestPayloadSchemaStatic["request"],
-  "setupConfig"
-> & {
-  readonly setupConfig: RunInGameSetupConfig;
-};
+export type StudioRunGenerationManifestInput = Readonly<{
+  requestId: string;
+  request: Omit<StudioRunGenerationManifestPayloadSchemaStatic["request"], "setupConfig"> & {
+    readonly setupConfig: RunInGameSetupConfig;
+  };
+  resolvedLaunchSource: ResolvedLaunchSource;
+  launchEnvelope: LaunchEnvelope;
+  launchSourceDigest: LaunchSourceDigest;
+  launchEnvelopeDigest: LaunchEnvelopeDigest;
+}>;
+
+type StudioRunGenerationManifestRequest = StudioRunGenerationManifestInput["request"];
 
 export type StudioRunGenerationManifestPayload = Omit<
   StudioRunGenerationManifestPayloadSchemaStatic,
@@ -119,38 +124,22 @@ export type StudioRunGenerationManifestReference = Readonly<{
  * that digest field is intentionally outside the hash input.
  */
 export function buildStudioRunGenerationManifestPayload(
-  args: Readonly<{
-    requestId: string;
-    prepared: RunInGamePreparedRequest;
-  }>
+  input: StudioRunGenerationManifestInput
 ): StudioRunGenerationManifestPayload {
-  const request = args.prepared.request;
   return {
     schemaVersion: 1,
-    requestId: args.requestId,
-    runArtifactId: createRunArtifactId(args.requestId),
+    requestId: input.requestId,
+    runArtifactId: createRunArtifactId(input.requestId),
     workspace: {
-      requestRoot: logicalRunRequestRoot(args.requestId),
+      requestRoot: logicalRunRequestRoot(input.requestId),
       generationManifestPath: RUN_GENERATION_MANIFEST_FILE,
       generatedModRoot: "generated-mod",
     },
-    request: {
-      recipeId: request.recipeId,
-      seed: request.seed,
-      mapSize: request.mapSize,
-      ...(request.playerCount === undefined ? {} : { playerCount: request.playerCount }),
-      ...(request.resources === undefined ? {} : { resources: request.resources }),
-      selectedConfigId: request.selectedConfigId,
-      setupConfig: request.setupConfig,
-      materializationMode: request.materializationMode,
-      ...(request.restartCivProcess === undefined
-        ? {}
-        : { restartCivProcess: request.restartCivProcess }),
-    },
-    resolvedLaunchSource: args.prepared.resolvedLaunchSource,
-    launchEnvelope: args.prepared.launchEnvelope,
-    launchSourceDigest: args.prepared.launchSourceDigest,
-    launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
+    request: input.request,
+    resolvedLaunchSource: input.resolvedLaunchSource,
+    launchEnvelope: input.launchEnvelope,
+    launchSourceDigest: input.launchSourceDigest,
+    launchEnvelopeDigest: input.launchEnvelopeDigest,
   };
 }
 
@@ -205,14 +194,15 @@ export async function readStudioRunGenerationManifest(
 
 export async function writeStudioRunGenerationManifest(
   args: Readonly<{
-    requestId: string;
-    prepared: RunInGamePreparedRequest;
+    manifestInput: StudioRunGenerationManifestInput;
     workspaceRoot?: string;
     signal?: AbortSignal;
   }>
 ): Promise<StudioRunGenerationManifestReference> {
-  const paths = studioRunWorkspacePaths(args.requestId, { workspaceRoot: args.workspaceRoot });
-  const payload = buildStudioRunGenerationManifestPayload(args);
+  const paths = studioRunWorkspacePaths(args.manifestInput.requestId, {
+    workspaceRoot: args.workspaceRoot,
+  });
+  const payload = buildStudioRunGenerationManifestPayload(args.manifestInput);
   const manifest = buildStudioRunGenerationManifest(payload);
   await mkdir(dirname(paths.generationManifestPath), { recursive: true });
   await writeFile(paths.generationManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, {

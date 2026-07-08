@@ -6,9 +6,9 @@ import type {
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
 } from "@civ7/studio-contract";
+import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import type { StudioRuntimeFailure } from "../errors/index.js";
 import type { StudioDaemonIdentity } from "./ports.js";
-import type { StudioRunGenerationManifestReference } from "./runWorkspace/index.js";
 
 export const OPERATION_TTL_MS = 30 * 60_000;
 

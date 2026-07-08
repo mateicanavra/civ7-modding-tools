@@ -2,16 +2,16 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import type { RunDiagnosticsLookupResult, RunDiagnosticsRecord } from "@civ7/studio-contract";
 import { runDiagnosticsRecordSchema } from "@civ7/studio-contract";
-import { Effect } from "effect";
-import { Value } from "typebox/value";
-import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
-import type { RunInGameInternalOperation } from "./model.js";
 import {
   assertSafeRunRequestId,
   jailedRunWorkspacePath,
   resolveRunWorkspaceRoot,
   SAFE_RUN_REQUEST_ID,
-} from "./runWorkspace/paths.js";
+} from "@civ7/studio-run-workspace";
+import { Effect } from "effect";
+import { Value } from "typebox/value";
+import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
+import type { RunInGameInternalOperation } from "./model.js";
 
 export function lookupRunDiagnostics(
   diagnosticsId: string,

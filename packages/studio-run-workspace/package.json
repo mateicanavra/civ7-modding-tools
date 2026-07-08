@@ -1,0 +1,29 @@
+{
+  "name": "@civ7/studio-run-workspace",
+  "version": "0.1.0",
+  "description": "Private MapGen Studio Run in Game workspace manifest and correlation artifact contract",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "bun-source": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --config ./vitest.config.ts",
+    "clean": "rimraf dist tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@civ7/studio-contract": "workspace:*",
+    "typebox": "^1.0.80"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.9"
+  }
+}

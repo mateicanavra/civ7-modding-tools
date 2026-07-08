@@ -74,6 +74,17 @@ function isMissingPathError(error: unknown): boolean {
   );
 }
 
+async function assertOutputRootIsNotSymlink(outputRoot: string): Promise<void> {
+  try {
+    if ((await lstat(outputRoot)).isSymbolicLink()) {
+      throw new Error(`Swooper artifact output root must not be a symlink: ${outputRoot}`);
+    }
+  } catch (error) {
+    if (isMissingPathError(error)) return;
+    throw error;
+  }
+}
+
 /**
  * Applies a complete Swooper artifact file plan under one output root. The
  * writer resolves and validates every target before deleting stale generated
@@ -83,6 +94,7 @@ export async function writeSwooperMapArtifactFilePlan(
   plan: SwooperMapArtifactFilePlan,
   options: Readonly<{ outputRoot: string }>
 ): Promise<void> {
+  await assertOutputRootIsNotSymlink(options.outputRoot);
   const resolvedPlan = resolveSwooperMapArtifactFilePlan(plan, options.outputRoot);
   for (const exclusiveSet of resolvedPlan.exclusiveSets) {
     await assertNoSymlinkedPlanPathComponent(options.outputRoot, exclusiveSet.relativeDir);

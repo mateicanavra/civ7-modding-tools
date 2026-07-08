@@ -113,6 +113,7 @@
       "dependencies": {
         "@civ7/adapter": "workspace:*",
         "@civ7/map-policy": "workspace:*",
+        "@civ7/studio-run-workspace": "workspace:*",
         "@mateicanavra/civ7-sdk": "workspace:*",
         "@swooper/mapgen-core": "workspace:*",
         "@swooper/mapgen-viz": "workspace:*",
@@ -122,6 +123,7 @@
         "@civ7/direct-control": "workspace:*",
         "@civ7/plugin-mods": "workspace:*",
         "@civ7/types": "workspace:*",
+        "esbuild": "^0.27.2",
         "json-schema-to-typescript": "^15.0.4",
         "type-fest": "^5.7.0",
       },
@@ -317,6 +319,17 @@
         "typebox": "^1.0.80",
       },
     },
+    "packages/studio-run-workspace": {
+      "name": "@civ7/studio-run-workspace",
+      "version": "0.1.0",
+      "dependencies": {
+        "@civ7/studio-contract": "workspace:*",
+        "typebox": "^1.0.80",
+      },
+      "devDependencies": {
+        "vitest": "^4.1.9",
+      },
+    },
     "packages/studio-server": {
       "name": "@civ7/studio-server",
       "version": "0.1.0",
@@ -324,6 +337,7 @@
         "@civ7/control-orpc": "workspace:*",
         "@civ7/direct-control": "workspace:*",
         "@civ7/studio-contract": "workspace:*",
+        "@civ7/studio-run-workspace": "workspace:*",
         "@orpc/client": "1.14.6",
         "@orpc/contract": "1.14.6",
         "@orpc/server": "1.14.6",
@@ -694,6 +708,8 @@
     "@civ7/plugin-mods": ["@civ7/plugin-mods@workspace:packages/plugins/plugin-mods"],
 
     "@civ7/studio-contract": ["@civ7/studio-contract@workspace:packages/studio-contract"],
+
+    "@civ7/studio-run-workspace": ["@civ7/studio-run-workspace@workspace:packages/studio-run-workspace"],
 
     "@civ7/studio-server": ["@civ7/studio-server@workspace:packages/studio-server"],
 

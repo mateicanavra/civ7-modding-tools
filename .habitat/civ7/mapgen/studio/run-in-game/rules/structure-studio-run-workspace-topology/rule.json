@@ -12,14 +12,14 @@
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "forbids": "Run in Game request workspace ownership drifting out of the Studio server operation runtime",
-  "why": "Packet 7 makes the generation manifest a private request-workspace input before later packets add generated mod, deployment, observation, and attribution records.",
-  "remediate": "Keep Run in Game request-workspace path, manifest, artifact id, and correlation helpers under packages/studio-server/src/operationRuntime/runWorkspace.",
+  "forbids": "Run in Game request workspace artifact-contract ownership drifting out of the private shared workspace package",
+  "why": "Packet 8 makes the generation manifest the private handoff between the Studio server writer and Swooper generator reader, so the schema, paths, artifact id, and correlation helpers live in a shared foundation package rather than server internals.",
+  "remediate": "Keep Run in Game request-workspace path, manifest, artifact id, and correlation helpers under packages/studio-run-workspace/src.",
   "message": "Studio Run in Game workspace topology drifted.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/studio-server/src/operationRuntime"]
+      "patterns": ["packages/studio-run-workspace/src"]
     },
     {
       "kind": "project-owner"

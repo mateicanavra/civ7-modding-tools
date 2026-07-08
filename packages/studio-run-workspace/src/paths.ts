@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { relative, resolve } from "node:path";
+import { isAbsolute, relative, resolve, sep } from "node:path";
 
 export const DEFAULT_RUN_IN_GAME_WORKSPACE_ROOT = resolve(".mapgen-studio/run-in-game");
 export const SAFE_RUN_REQUEST_ID = /^[A-Za-z0-9._-]{1,191}$/;
@@ -18,7 +18,7 @@ export type StudioRunWorkspacePaths = Readonly<{
 /**
  * Owns the private request workspace path model for Run in Game artifacts.
  *
- * Public status only reports progress. Durable runtime evidence is rooted by
+ * Public status reports progress. Durable runtime evidence is rooted by
  * request id under this jailed workspace topology.
  */
 export function studioRunWorkspacePaths(
@@ -66,7 +66,12 @@ export function assertSafeRunStorageId(value: string, label: string): void {
 export function jailedRunWorkspacePath(root: string, ...segments: string[]): string {
   const path = resolve(root, ...segments);
   const rootRelative = relative(root, path);
-  if (rootRelative.startsWith("..") || rootRelative === "" || rootRelative.startsWith("/")) {
+  if (
+    rootRelative === "" ||
+    rootRelative === ".." ||
+    rootRelative.startsWith(`..${sep}`) ||
+    isAbsolute(rootRelative)
+  ) {
     throw new Error("Run in Game workspace path escaped workspace root.");
   }
   return path;
