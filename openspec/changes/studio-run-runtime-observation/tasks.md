@@ -34,12 +34,12 @@
       row state, reads loaded-game status and bounded map snapshot through
       `civ7.live.status` and `civ7.live.snapshot` over `/rpc`, and correlates
       the deployed run.
-- [ ] 3.4 Register SA-12
+- [x] 3.4 Register SA-12
       `grit-studio-run-direct-control-observation-boundary` with Pattern
       Authority metadata from the structural authority matrix.
 - [ ] 3.5 Record verification evidence for every declared gate in
       `workstream/verification-evidence.md`; this packet does not close with
       skipped gates.
-- [ ] 3.6 Run and record the required TypeScript refactoring, code
+- [x] 3.6 Run and record the required TypeScript refactoring, code
       quality/structure, and oRPC/Effect/library correctness review lanes,
       including JSDoc and anchor-comment review.
