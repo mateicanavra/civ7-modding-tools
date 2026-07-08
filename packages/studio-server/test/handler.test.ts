@@ -203,6 +203,26 @@ describe("studio-server RPC handler", () => {
         expect(JSON.stringify(publicValue)).not.toContain("attribution");
       }
 
+      await expect
+        .poll(async () => {
+          const lookup = await client.runInGame.diagnostics({
+            diagnosticsId: accepted.diagnosticsId,
+          });
+          if (!lookup.ok) return false;
+          const attribution = lookup.diagnostics.sections.attribution;
+          if (attribution == null || typeof attribution !== "object" || Array.isArray(attribution)) {
+            return false;
+          }
+          const report = (attribution as { report?: unknown }).report;
+          if (report == null || typeof report !== "object" || Array.isArray(report)) return false;
+          const fields = report as { status?: unknown; missingSections?: unknown };
+          return (
+            fields.status === "complete" &&
+            Array.isArray(fields.missingSections) &&
+            fields.missingSections.length === 0
+          );
+        })
+        .toBe(true);
       const diagnostics = await client.runInGame.diagnostics({
         diagnosticsId: accepted.diagnosticsId,
       });

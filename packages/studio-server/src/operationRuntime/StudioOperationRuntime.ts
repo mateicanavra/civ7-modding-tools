@@ -36,6 +36,7 @@ import {
   acquireRuntimeDaemonHeartbeat,
   acquireRuntimeOwnershipLease,
   attachRuntimeOwnershipLeaseDeployment,
+  cleanupRunInGameRetention,
   isRuntimeOperationTerminal,
   operationFromAbandonedRecord,
   type RuntimeOwnershipLease,
@@ -189,6 +190,7 @@ function makeStudioOperationRuntime(
       workspaceRoot: runInGameWorkspaceRoot,
       identity,
     });
+    let retentionCleanupRunning = false;
 
     const releaseTerminalLease = (operation: RuntimeEventOperation): Effect.Effect<void, never> => {
       if (!isRuntimeOperationTerminal(operation)) return Effect.void;
@@ -198,6 +200,44 @@ function makeStudioOperationRuntime(
         requestId: operation.requestId,
       });
     };
+
+    const cleanupRunRetention = (): Effect.Effect<void, never> =>
+      cleanupRunInGameRetention({
+        workspaceRoot: runInGameWorkspaceRoot,
+        nowIso: nowIso(),
+      }).pipe(
+        Effect.catchAll((error) =>
+          Effect.sync(() => {
+            console.error(
+              "[studio-server] failed to clean up retained Run in Game workspaces",
+              error
+            );
+          })
+        )
+      );
+
+    const scheduleRunRetentionCleanup = (): Effect.Effect<void, never> =>
+      Effect.sync(() => {
+        if (retentionCleanupRunning) return false;
+        retentionCleanupRunning = true;
+        return true;
+      }).pipe(
+        Effect.flatMap((shouldRun) =>
+          shouldRun
+            ? FiberSet.run(
+                fibers,
+                cleanupRunRetention().pipe(
+                  Effect.ensuring(
+                    Effect.sync(() => {
+                      retentionCleanupRunning = false;
+                    })
+                  )
+                ),
+                { propagateInterruption: false }
+              ).pipe(Effect.asVoid)
+            : Effect.void
+        )
+      );
 
     const persistedOperation = (
       operation: RuntimeEventOperation
@@ -236,6 +276,12 @@ function makeStudioOperationRuntime(
             })
           )
         );
+        if (
+          availableOperation.kind === "run-in-game" &&
+          isRuntimeOperationTerminal(availableOperation)
+        ) {
+          yield* scheduleRunRetentionCleanup();
+        }
       });
 
     const publishMany = (operations: ReadonlyArray<RuntimeEventOperation>) =>
@@ -295,6 +341,7 @@ function makeStudioOperationRuntime(
         Effect.flatMap(publishMany)
       );
     }
+    yield* cleanupRunRetention();
 
     const runWorker = (effect: Effect.Effect<void, never>) =>
       FiberSet.run(fibers, effect, { propagateInterruption: false }).pipe(Effect.asVoid);
