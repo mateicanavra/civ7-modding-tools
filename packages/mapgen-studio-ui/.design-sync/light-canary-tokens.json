@@ -19,15 +19,7 @@
       "--border": "hsl(220 13% 88%)",
       "--destructive": "hsl(350 72% 48%)"
     },
-    "drift": [
-      "--background",
-      "--foreground",
-      "--card",
-      "--primary",
-      "--muted-foreground",
-      "--border",
-      "--destructive"
-    ]
+    "drift": []
   },
   "Tabs": {
     "sbClass": "light",
@@ -49,15 +41,7 @@
       "--border": "hsl(220 13% 88%)",
       "--destructive": "hsl(350 72% 48%)"
     },
-    "drift": [
-      "--background",
-      "--foreground",
-      "--card",
-      "--primary",
-      "--muted-foreground",
-      "--border",
-      "--destructive"
-    ]
+    "drift": []
   },
   "ErrorBanner": {
     "sbClass": "light",
@@ -79,15 +63,7 @@
       "--border": "hsl(220 13% 88%)",
       "--destructive": "hsl(350 72% 48%)"
     },
-    "drift": [
-      "--background",
-      "--foreground",
-      "--card",
-      "--primary",
-      "--muted-foreground",
-      "--border",
-      "--destructive"
-    ]
+    "drift": []
   },
   "AppFooter": {
     "sbClass": "light",
@@ -109,15 +85,7 @@
       "--border": "hsl(220 13% 88%)",
       "--destructive": "hsl(350 72% 48%)"
     },
-    "drift": [
-      "--background",
-      "--foreground",
-      "--card",
-      "--primary",
-      "--muted-foreground",
-      "--border",
-      "--destructive"
-    ]
+    "drift": []
   },
   "GameConsole": {
     "sbClass": "light",
@@ -139,15 +107,7 @@
       "--border": "hsl(220 13% 88%)",
       "--destructive": "hsl(350 72% 48%)"
     },
-    "drift": [
-      "--background",
-      "--foreground",
-      "--card",
-      "--primary",
-      "--muted-foreground",
-      "--border",
-      "--destructive"
-    ]
+    "drift": []
   },
   "WaterStatsSection": {
     "sbClass": "light",
@@ -169,15 +129,7 @@
       "--border": "hsl(220 13% 88%)",
       "--destructive": "hsl(350 72% 48%)"
     },
-    "drift": [
-      "--background",
-      "--foreground",
-      "--card",
-      "--primary",
-      "--muted-foreground",
-      "--border",
-      "--destructive"
-    ]
+    "drift": []
   },
   "PipelineStage": {
     "sbClass": "light",
@@ -199,14 +151,6 @@
       "--border": "hsl(220 13% 88%)",
       "--destructive": "hsl(350 72% 48%)"
     },
-    "drift": [
-      "--background",
-      "--foreground",
-      "--card",
-      "--primary",
-      "--muted-foreground",
-      "--border",
-      "--destructive"
-    ]
+    "drift": []
   }
 }
