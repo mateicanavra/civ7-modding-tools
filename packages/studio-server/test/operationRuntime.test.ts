@@ -1267,6 +1267,139 @@ describe("StudioOperationRuntime", () => {
     }
   });
 
+  test("writes a complete private Run in Game attribution report behind diagnostics lookup", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-attribution-"));
+    const events: StudioEvent[] = [];
+    try {
+      const { runtime } = makeRuntime({
+        eventSink: events,
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+        },
+      });
+      const service = await runtime.runPromise(StudioOperationRuntime);
+
+      const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+      await expect
+        .poll(async () => {
+          const status = await runtime.runPromise(
+            service.runInGameStatus({ requestId: accepted.requestId })
+          );
+          return status.phase;
+        })
+        .toBe("completed");
+
+      const status = await runtime.runPromise(
+        service.runInGameStatus({ requestId: accepted.requestId })
+      );
+      const current = await runtime.runPromise(service.operationsCurrent);
+      const operationEvents = events.filter(
+        (event) =>
+          event.type === "operation" &&
+          event.kind === "run-in-game" &&
+          event.status.requestId === accepted.requestId
+      );
+      for (const publicValue of [accepted, status, current, ...operationEvents]) {
+        expect(JSON.stringify(publicValue)).not.toContain("attribution");
+      }
+      expectTypeboxValid(operationStatusTypeSchema, status);
+      expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
+      for (const event of operationEvents) {
+        expectTypeboxValid(studioEventSchema, event);
+      }
+
+      const diagnostics = await readPrivateRunDiagnostics(runtime, service, accepted.diagnosticsId);
+      const attribution = diagnostics.sections.attribution;
+      expect(attribution).toMatchObject({
+        report: {
+          requestId: accepted.requestId,
+          runArtifactId: expect.stringMatching(/^run-[a-f0-9]{20}$/),
+          status: "complete",
+          missingSections: [],
+          sections: {
+            source: expect.any(Object),
+            manifest: expect.any(Object),
+            generation: expect.objectContaining({
+              generatedModDigest: "test-generated-mod-digest",
+            }),
+            deployment: expect.objectContaining({
+              runDeployment: expect.objectContaining({ deployedModId: "mod-swooper-studio-run" }),
+            }),
+            scriptingLogObservation: expect.objectContaining({ requestId: accepted.requestId }),
+            setupRowReadback: expect.objectContaining({ requestId: accepted.requestId }),
+            boundedLoadedGameReadback: expect.objectContaining({ requestId: accepted.requestId }),
+            terminalResult: expect.objectContaining({
+              status: "complete",
+              phase: "complete",
+            }),
+          },
+        },
+      });
+      const attributionRecord = attributionRecordValue(attribution);
+      const reportOnDisk = JSON.parse(await readFile(String(attributionRecord.path), "utf8"));
+      expect(reportOnDisk).toEqual(attributionRecord.report);
+      expect(String(attributionRecord.path)).toBe(
+        resolve(workspaceRoot, accepted.requestId, "attribution", "attribution.json")
+      );
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("marks private Run in Game attribution incomplete for failed partial runs", async () => {
+    const { runtime } = makeRuntime({
+      ports: {
+        generateRunInGameMod: async () => {
+          throw new Error("generator exploded");
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("failed");
+
+    const failed = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    expect(failed).toMatchObject({
+      requestId: accepted.requestId,
+      status: "failed",
+      safeFailureCategory: "artifact-generation",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+
+    const diagnostics = await readPrivateRunDiagnostics(runtime, service, failed.diagnosticsId);
+    expect(diagnostics.sections.attribution).toMatchObject({
+      report: {
+        requestId: accepted.requestId,
+        status: "incomplete",
+        missingSections: expect.arrayContaining([
+          "generation",
+          "deployment",
+          "scripting-log-observation",
+          "setup-row-readback",
+          "bounded-loaded-game-readback",
+        ]),
+        sections: {
+          source: expect.any(Object),
+          manifest: expect.any(Object),
+          terminalResult: expect.objectContaining({
+            status: "failed",
+            phase: "failed",
+          }),
+        },
+      },
+    });
+  });
+
   test("writes one private generation manifest before the generator port starts", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-generation-manifest-runtime-"));
     runtimeWorkspaceRoots.push(workspaceRoot);
@@ -3693,14 +3826,37 @@ async function readPrivateRunOperation(
   service: StudioOperationRuntimeApi,
   diagnosticsId: string | undefined
 ): Promise<Record<string, unknown>> {
-  if (!diagnosticsId) throw new Error("Expected Run in Game diagnostics id");
-  const lookup = await runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId }));
-  if (!lookup.ok) throw new Error(`Expected private diagnostics for ${diagnosticsId}`);
-  const operation = lookup.diagnostics.sections.operation;
+  const diagnostics = await readPrivateRunDiagnostics(runtime, service, diagnosticsId);
+  const operation = diagnostics.sections.operation;
   if (operation == null || typeof operation !== "object" || Array.isArray(operation)) {
     throw new Error(`Expected operation diagnostics for ${diagnosticsId}`);
   }
   return operation as Record<string, unknown>;
+}
+
+async function readPrivateRunDiagnostics(
+  runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
+  service: StudioOperationRuntimeApi,
+  diagnosticsId: string | undefined
+) {
+  if (!diagnosticsId) throw new Error("Expected Run in Game diagnostics id");
+  const lookup = await runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId }));
+  if (!lookup.ok) throw new Error(`Expected private diagnostics for ${diagnosticsId}`);
+  return lookup.diagnostics;
+}
+
+function attributionRecordValue(value: unknown): Readonly<{
+  path: unknown;
+  report: unknown;
+}> {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Expected attribution diagnostics object");
+  }
+  const record = value as Record<string, unknown>;
+  if (!("path" in record) || !("report" in record)) {
+    throw new Error("Expected attribution diagnostics path and report");
+  }
+  return { path: record.path, report: record.report };
 }
 
 function deferred<T>() {

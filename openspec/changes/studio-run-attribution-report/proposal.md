@@ -45,19 +45,23 @@ status, diagnostics lookup inclusion, and mismatch failure behavior.
 
 Permanent positive assertions:
 
-- attribution records live in the request workspace;
+- attribution report assembly stays in the private runtime
+  diagnostics/reporting boundary;
 - public status references diagnostics id only and never embeds attribution;
-- copy-diagnostics includes attribution through private lookup.
+- diagnostics lookup includes attribution through private lookup.
 
-Structural authority row: SA-13 `structure-studio-run-attribution-records`.
+Structural authority row: SA-13
+`grit-studio-run-attribution-report-boundary`. Request-workspace attribution
+files are runtime evidence and are verified by behavior/live gates, not source
+topology checks.
 
 ## Verification Gates
 
 - Attribution report behavior tests.
-- Copy-diagnostics behavior tests.
+- Diagnostics lookup behavior tests.
 - Live Studio endpoint evidence that diagnostics lookup returns private
   attribution while public status/current/events do not expose it.
-- SA-13 `structure-studio-run-attribution-records`.
+- SA-13 `grit-studio-run-attribution-report-boundary`.
 - No declared verification gate is skipped; packet closure records evidence in
   `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-attribution-report --strict`.

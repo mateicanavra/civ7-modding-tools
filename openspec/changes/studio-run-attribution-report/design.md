@@ -11,6 +11,7 @@
 - deployed snapshot digest and file summary;
 - scripting-log observation;
 - setup-row readback;
+- bounded post-start loaded-game readback;
 - terminal operation result.
 
 The report is private and lives under the request workspace. It can be included
@@ -21,7 +22,8 @@ in copy-diagnostics output by explicit lookup.
 Attribution report status is `complete` when all required sections are present.
 It is `incomplete` when a required section is absent. Required sections are
 defined in `target-vocabulary.md`: source, manifest, generation, deployment,
-scripting-log observation, setup-row readback, and terminal result.
+scripting-log observation, setup-row readback, bounded post-start loaded-game
+readback, and terminal result.
 
 If the missing section belongs to a step required for launch success, the
 operation also fails with that step's public failure category. Correlation

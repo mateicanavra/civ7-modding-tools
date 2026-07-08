@@ -27,9 +27,11 @@ import {
   studioEventSubscriptionIterator,
 } from "../src/index";
 import {
+  makeStudioOperationRuntimeLayer,
   StudioOperationRuntime,
   type StudioOperationRuntimeApi,
 } from "../src/operationRuntime/index";
+import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
@@ -173,6 +175,69 @@ describe("studio-server RPC handler", () => {
       safeFailureCategory: "request-validation",
     });
   });
+
+  test("serves private Run in Game attribution through diagnostics lookup only", async () => {
+    const runtime = makeTestStudioRuntime(makeContext());
+    const client = directRuntimeClient(runtime);
+    const iterator = await client.studio.events.watch({});
+    try {
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "hello" },
+      });
+
+      const accepted = await client.runInGame.start(runInGameStartInput());
+      if (!accepted.diagnosticsId) throw new Error("Expected accepted run diagnostics id");
+
+      const runEvent = await readOperationEvent(
+        iterator,
+        (event) => event.kind === "run-in-game" && event.status.requestId === accepted.requestId
+      );
+      await expect
+        .poll(async () => (await client.runInGame.status({ requestId: accepted.requestId })).phase)
+        .toBe("completed");
+
+      const status = await client.runInGame.status({ requestId: accepted.requestId });
+      const current = await client.studio.operations.current({});
+      for (const publicValue of [accepted, runEvent, status, current]) {
+        expect(JSON.stringify(publicValue)).not.toContain("attribution");
+      }
+
+      const diagnostics = await client.runInGame.diagnostics({
+        diagnosticsId: accepted.diagnosticsId,
+      });
+      expect(diagnostics.ok).toBe(true);
+      if (!diagnostics.ok) throw new Error("Expected diagnostics lookup result");
+      expect(diagnostics.diagnostics.sections.attribution).toMatchObject({
+        report: {
+          requestId: accepted.requestId,
+          status: "complete",
+          missingSections: [],
+          sections: {
+            source: expect.any(Object),
+            manifest: expect.any(Object),
+            generation: expect.any(Object),
+            deployment: expect.any(Object),
+            scriptingLogObservation: expect.any(Object),
+            setupRowReadback: expect.any(Object),
+            boundedLoadedGameReadback: expect.any(Object),
+            terminalResult: expect.any(Object),
+          },
+        },
+      });
+
+      await expect(
+        client.runInGame.diagnostics({ diagnosticsId: "run-diagnostics-handler-missing" })
+      ).resolves.toEqual({
+        ok: false,
+        diagnosticsId: "run-diagnostics-handler-missing",
+        reason: "not-found",
+      });
+    } finally {
+      await iterator.return?.();
+      await runtime.dispose();
+    }
+  }, 10_000);
 
   test("maps raw-control Run in Game start payloads to the declared invalid-request error", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
@@ -789,6 +854,34 @@ function directClient(handler: StudioRpcHandle): RouterClient<StudioRouter> {
   );
 }
 
+function directRuntimeClient(runtime: StudioRuntime): RouterClient<StudioRouter> {
+  const handler = new RPCHandler(createStudioRouter(runtime));
+  return createORPCClient<RouterClient<StudioRouter>>(
+    new RPCLink({
+      url: "http://studio.test/rpc",
+      fetch: async (request) => {
+        const result = await handler.handle(request, { prefix: "/rpc" });
+        if (!result.matched || !result.response) {
+          return new Response("not found", { status: 404 });
+        }
+        return result.response;
+      },
+    })
+  );
+}
+
+function makeTestStudioRuntime(context: StudioServerContext): StudioRuntime {
+  const eventHubLayer = StudioEventHubLive;
+  const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
+    ports: context.operationRuntime,
+    civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
+  }).pipe(Layer.provide(eventHubLayer));
+  const runtime: StudioRuntime = ManagedRuntime.make(
+    Layer.mergeAll(eventHubLayer, operationRuntimeLayer, Layer.succeed(StudioConfig, context))
+  );
+  return runtime;
+}
+
 async function listenWithClient(context: StudioServerContext): Promise<RouterClient<StudioRouter>> {
   const studioRpc = trackHandle(createStudioRpcHandler(context));
   const origin = await listen(async (req, res) => {
@@ -884,6 +977,27 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
     operationRuntime: makeOperationRuntimePorts(),
     ...overrides,
   };
+}
+
+function makeCiv7WorkflowControlLayer(
+  overrides: Partial<Civ7WorkflowControlApi> = {}
+): Layer.Layer<Civ7WorkflowControl> {
+  const service: Civ7WorkflowControlApi = {
+    checkPlayable: () => Effect.void,
+    prepareSetup: () => Effect.succeed({}),
+    startGame: () => Effect.succeed({}),
+    runAutoplay: (input) =>
+      Effect.succeed({
+        ok: true,
+        action: input.action,
+        autoplay: {},
+        game: {},
+        gameContext: {},
+        result: {},
+      }),
+    ...overrides,
+  };
+  return Layer.succeed(Civ7WorkflowControl, service);
 }
 
 function namedError(name: string, message: string): Error {
