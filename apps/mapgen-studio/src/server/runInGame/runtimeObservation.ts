@@ -14,18 +14,27 @@ import type { StudioContract } from "@civ7/studio-server/contract";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { ContractRouterClient } from "@orpc/contract";
+import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 
 type RuntimeMarker = Readonly<{
   requestId?: string;
   runArtifactId?: string;
   generationManifestDigest?: string;
-  runCorrelation?: Record<string, unknown>;
+  runCorrelation?: RunCorrelation;
   dimensions?: Readonly<{ width: number; height: number }>;
   payload: unknown;
 }>;
 
 type Dimensions = Readonly<{ width: number; height: number }>;
+
+type LiveStatusReadiness =
+  | Readonly<{ kind: "loaded"; status: Civ7LiveStatusOutput }>
+  | Readonly<{ kind: "loading"; status: Civ7LiveStatusOutput }>
+  | Readonly<{ kind: "terminal"; status: Civ7LiveStatusOutput }>;
+
+const LIVE_STATUS_READY_TIMEOUT_MS = 30_000;
+const LIVE_STATUS_READY_POLL_INTERVAL_MS = 1_000;
 
 export async function observeRunInGameRuntimeThroughStudioRpc(
   args: Readonly<{
@@ -36,6 +45,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
     log: RunInGameLogEvidence;
     selfRpcUrl?: string;
     signal?: AbortSignal;
+    sleep?: (ms: number, signal?: AbortSignal) => Promise<void>;
   }>
 ): Promise<RunInGameRuntimeObservation> {
   const materialization = args.deployment.materialization;
@@ -115,21 +125,15 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
   const liveClient: ContractRouterClient<StudioContract> = createORPCClient(
     new RPCLink({ url: `${baseUrl.replace(/\/$/, "")}/rpc` })
   );
-  const liveStatus: Civ7LiveStatusOutput = await liveClient.civ7.live
-    .status({}, { signal: args.signal })
-    .catch((err: unknown) => {
-      throw proofFailed({
-        message: "Run in Game live status readback failed",
-        reason: "timeout-uncertain",
-        diagnostics: boundedDiagnostics({
-          code: "run-in-game-live-status-unavailable",
-          requestId: args.requestId,
-          cause: diagnosticString(err),
-          materialization,
-        }),
-        recoveryActions: ["retry-status", "retry-run", "copy-diagnostics"],
-      });
-    });
+  const liveStatus = await waitForLoadedLiveStatus({
+    client: liveClient,
+    requestId: args.requestId,
+    materialization,
+    signal: args.signal,
+    sleep: args.sleep ?? sleep,
+    timeoutMs: LIVE_STATUS_READY_TIMEOUT_MS,
+    pollIntervalMs: LIVE_STATUS_READY_POLL_INTERVAL_MS,
+  });
   const liveSnapshot: Civ7LiveSnapshotOutput = await liveClient.civ7.live
     .snapshot(
       {
@@ -210,6 +214,91 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
   };
 }
 
+async function waitForLoadedLiveStatus(args: Readonly<{
+  client: ContractRouterClient<StudioContract>;
+  requestId: string;
+  materialization: RunInGameDeployment["materialization"];
+  signal?: AbortSignal;
+  sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
+  timeoutMs: number;
+  pollIntervalMs: number;
+}>): Promise<Civ7LiveStatusOutput> {
+  const deadline = Date.now() + args.timeoutMs;
+  let lastStatus: Civ7LiveStatusOutput | undefined;
+  for (;;) {
+    if (args.signal?.aborted) {
+      throw proofFailed({
+        message: "Run in Game live status readback was aborted",
+        reason: "timeout-uncertain",
+        diagnostics: boundedDiagnostics({
+          code: "run-in-game-live-status-aborted",
+          requestId: args.requestId,
+          materialization: args.materialization,
+        }),
+        recoveryActions: ["retry-status", "retry-run", "copy-diagnostics"],
+      });
+    }
+    try {
+      const status = await args.client.civ7.live.status({}, { signal: args.signal });
+      lastStatus = status;
+      const readiness = classifyLiveStatusReadiness(status);
+      if (readiness.kind === "loaded" || readiness.kind === "terminal") {
+        return readiness.status;
+      }
+    } catch (err) {
+      if (args.signal?.aborted) {
+        throw proofFailed({
+          message: "Run in Game live status readback was aborted",
+          reason: "timeout-uncertain",
+          diagnostics: boundedDiagnostics({
+            code: "run-in-game-live-status-aborted",
+            requestId: args.requestId,
+            materialization: args.materialization,
+          }),
+          recoveryActions: ["retry-status", "retry-run", "copy-diagnostics"],
+        });
+      }
+      throw proofFailed({
+        message: "Run in Game live status readback failed",
+        reason: "timeout-uncertain",
+        diagnostics: boundedDiagnostics({
+          code: "run-in-game-live-status-unavailable",
+          requestId: args.requestId,
+          cause: diagnosticString(err),
+          materialization: args.materialization,
+        }),
+        recoveryActions: ["retry-status", "retry-run", "copy-diagnostics"],
+      });
+    }
+
+    const remainingMs = deadline - Date.now();
+    if (remainingMs <= 0) {
+      throw proofFailed({
+        message: "Run in Game live status did not become playable after map generation completed",
+        reason: "timeout-uncertain",
+        diagnostics: boundedDiagnostics({
+          code: "run-in-game-live-status-not-loaded",
+          requestId: args.requestId,
+          ...(lastStatus === undefined ? {} : { liveStatus: lastStatus }),
+          materialization: args.materialization,
+        }),
+        recoveryActions: ["retry-status", "retry-run", "copy-diagnostics"],
+      });
+    }
+    await args.sleep(Math.min(args.pollIntervalMs, remainingMs), args.signal);
+  }
+}
+
+function classifyLiveStatusReadiness(status: Civ7LiveStatusOutput): LiveStatusReadiness {
+  if (status.ok !== true || hasEmbeddedError(status.status) || hasEmbeddedError(status.appUi)) {
+    return { kind: "terminal", status };
+  }
+  if (status.playable === true && appUiReadbackInGame(status.appUi)) {
+    return { kind: "loaded", status };
+  }
+  return { kind: "loading", status };
+}
+
 export function liveRuntimeStatusFromObservation(
   value: Civ7LiveStatusOutput
 ): ReturnType<typeof buildLiveRuntimeStatusState> | undefined {
@@ -288,33 +377,35 @@ function optionalProbe(
 function runtimeMarkerFromLogProof(value: unknown): RuntimeMarker | undefined {
   const payload = recordValue(value, "proofPayload");
   if (!payload) return undefined;
-  const runCorrelation = recordValue(payload, "runCorrelation");
+  const requestId = stringValue(payload.requestId);
+  const runArtifactId = stringValue(payload.runArtifactId);
+  const configHash = stringValue(payload.configHash);
+  const envelopeHash = stringValue(payload.envelopeHash);
+  const generationManifestDigest = stringValue(payload.generationManifestDigest);
+  const hasNestedRunCorrelation = Object.prototype.hasOwnProperty.call(payload, "runCorrelation");
+  const runCorrelation = hasNestedRunCorrelation
+    ? runCorrelationFromValue(recordValue(payload, "runCorrelation"))
+    : compactRunCorrelationFromPayload({
+        requestId,
+        runArtifactId,
+        configHash,
+        envelopeHash,
+        generationManifestDigest,
+      });
   const dimensions = dimensionsFromValue(payload.dimensions);
   return {
     payload,
-    ...(stringValue(payload.requestId) === undefined
-      ? {}
-      : { requestId: stringValue(payload.requestId) }),
-    ...(stringValue(payload.runArtifactId) === undefined
-      ? {}
-      : { runArtifactId: stringValue(payload.runArtifactId) }),
-    ...(stringValue(payload.generationManifestDigest) === undefined
-      ? {}
-      : { generationManifestDigest: stringValue(payload.generationManifestDigest) }),
+    ...(requestId === undefined ? {} : { requestId }),
+    ...(runArtifactId === undefined ? {} : { runArtifactId }),
+    ...(generationManifestDigest === undefined ? {} : { generationManifestDigest }),
     ...(runCorrelation === undefined ? {} : { runCorrelation }),
     ...(dimensions === undefined ? {} : { dimensions }),
   };
 }
 
 function runCorrelationMismatches(
-  observed: Record<string, unknown> | undefined,
-  expected: Readonly<{
-    requestId: string;
-    runArtifactId: string;
-    launchSourceDigest: unknown;
-    launchEnvelopeDigest: string;
-    generationManifestDigest: string;
-  }>
+  observed: RunCorrelation | undefined,
+  expected: RunCorrelation
 ): string[] {
   if (!observed) return ["runCorrelation"];
   const mismatches: string[] = [];
@@ -330,6 +421,73 @@ function runCorrelationMismatches(
     mismatches.push("launchSourceDigest");
   }
   return mismatches;
+}
+
+function compactRunCorrelationFromPayload(
+  value: Readonly<{
+    requestId: string | undefined;
+    runArtifactId: string | undefined;
+    configHash: string | undefined;
+    envelopeHash: string | undefined;
+    generationManifestDigest: string | undefined;
+  }>
+): RunCorrelation | undefined {
+  if (
+    !value.requestId ||
+    !value.runArtifactId ||
+    !value.configHash ||
+    !value.envelopeHash ||
+    !value.generationManifestDigest
+  ) {
+    return undefined;
+  }
+  const runArtifactId = runArtifactIdFromMarker(value.runArtifactId);
+  if (!runArtifactId) return undefined;
+  return {
+    requestId: value.requestId,
+    runArtifactId,
+    launchSourceDigest: {
+      configContentDigest: value.configHash,
+      launchEnvelopeDigest: value.envelopeHash,
+    },
+    launchEnvelopeDigest: value.envelopeHash,
+    generationManifestDigest: value.generationManifestDigest,
+  };
+}
+
+function runCorrelationFromValue(value: Record<string, unknown> | undefined): RunCorrelation | undefined {
+  if (!value) return undefined;
+  const launchSourceDigest = recordValue(value, "launchSourceDigest");
+  const requestId = stringValue(value.requestId);
+  const runArtifactId = runArtifactIdFromMarker(stringValue(value.runArtifactId));
+  const configContentDigest = stringValue(launchSourceDigest?.configContentDigest);
+  const sourceEnvelopeDigest = stringValue(launchSourceDigest?.launchEnvelopeDigest);
+  const launchEnvelopeDigest = stringValue(value.launchEnvelopeDigest);
+  const generationManifestDigest = stringValue(value.generationManifestDigest);
+  if (
+    !requestId ||
+    runArtifactId === undefined ||
+    !configContentDigest ||
+    !sourceEnvelopeDigest ||
+    !launchEnvelopeDigest ||
+    !generationManifestDigest
+  ) {
+    return undefined;
+  }
+  return {
+    requestId,
+    runArtifactId,
+    launchSourceDigest: {
+      configContentDigest,
+      launchEnvelopeDigest: sourceEnvelopeDigest,
+    },
+    launchEnvelopeDigest,
+    generationManifestDigest,
+  };
+}
+
+function runArtifactIdFromMarker(value: string | undefined): RunCorrelation["runArtifactId"] | undefined {
+  return value?.startsWith("run-") ? (value as RunCorrelation["runArtifactId"]) : undefined;
 }
 
 function runArtifactIdFromMaterialization(value: string | undefined): `run-${string}` {
@@ -546,6 +704,20 @@ function numberValue(value: unknown): number | undefined {
 
 function booleanValue(value: unknown): boolean | undefined {
   return typeof value === "boolean" ? value : undefined;
+}
+
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  if (signal?.aborted) return Promise.resolve();
+  return new Promise((resolve) => {
+    let timeout: ReturnType<typeof setTimeout>;
+    const finish = () => {
+      clearTimeout(timeout);
+      signal?.removeEventListener("abort", finish);
+      resolve();
+    };
+    timeout = setTimeout(finish, ms);
+    signal?.addEventListener("abort", finish, { once: true });
+  });
 }
 
 function probeNumber(value: unknown): number | undefined {
