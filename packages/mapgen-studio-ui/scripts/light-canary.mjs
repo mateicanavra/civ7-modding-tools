@@ -132,6 +132,33 @@ const sample = () =>
     const cs = getComputedStyle(document.documentElement);
     return Object.fromEntries(tokens.map((t) => [t, cs.getPropertyValue(t).trim()]));
   }, TOKENS);
+// The two sides serialize the SAME sRGB color differently: the reference
+// storybook (Vite/Lightning CSS) minifies authored `hsl(H S% L%)` custom-prop
+// values to `#rrggbb`, while the ds-bundle (Tailwind CLI) preserves the raw
+// `hsl()` text. A byte compare therefore reports drift on numerically-equal
+// colors. Normalize each color to a resolved `r,g,b` tuple before comparing;
+// a value that parses as neither `hsl()` nor hex is returned unchanged, so
+// non-color tokens keep the original raw-string comparison.
+const normColor = (v) => {
+  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v);
+  if (hex) {
+    const h = hex[1].length === 3 ? hex[1].replace(/./g, (c) => c + c) : hex[1];
+    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)).join(",");
+  }
+  const hsl = /^hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)$/i.exec(v);
+  if (hsl) {
+    const H = +hsl[1];
+    const L = +hsl[3] / 100;
+    const a = (+hsl[2] / 100) * Math.min(L, 1 - L);
+    // MDN hsl→sRGB, rounded to 8-bit — matches Lightning CSS's hex minify.
+    const f = (n) => {
+      const k = (n + H / 30) % 12;
+      return Math.round(255 * (L - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))));
+    };
+    return [f(0), f(8), f(4)].join(",");
+  }
+  return v;
+};
 const result = {};
 for (const [name, id, rel, label, w, h] of picks) {
   await page.setViewportSize({ width: w, height: h });
@@ -168,7 +195,7 @@ for (const [name, id, rel, label, w, h] of picks) {
     join(OUTDIR, `${name}__light-ds.png`),
     await page.screenshot({ animations: "disabled" })
   );
-  const drift = TOKENS.filter((t) => sbTokens[t] !== dsTokens[t]);
+  const drift = TOKENS.filter((t) => normColor(sbTokens[t]) !== normColor(dsTokens[t]));
   result[name] = { sbClass: sbLight, sbTokens, dsTokens, drift };
   console.error(
     `${name}: html class="${sbLight}" tokenDrift=${drift.length ? drift.join(",") : "NONE"}`

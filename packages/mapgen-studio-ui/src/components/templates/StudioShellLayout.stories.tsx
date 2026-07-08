@@ -246,9 +246,9 @@ function CanvasPlaceholder() {
       className="relative h-full w-full"
       style={{
         background:
-          "radial-gradient(ellipse 90% 70% at 50% 42%, hsl(var(--primary) / .07), transparent 65%)," +
-          "radial-gradient(ellipse 60% 45% at 38% 55%, hsl(var(--foreground) / .04), transparent 70%)," +
-          "hsl(var(--background))",
+          "radial-gradient(ellipse 90% 70% at 50% 42%, color-mix(in oklab, var(--primary) 7%, transparent), transparent 65%)," +
+          "radial-gradient(ellipse 60% 45% at 38% 55%, color-mix(in oklab, var(--foreground) 4%, transparent), transparent 70%)," +
+          "var(--background)",
       }}
     >
       <span className="absolute left-1/2 top-[58%] -translate-x-1/2 text-label uppercase tracking-widest text-muted-foreground opacity-55 text-center">

@@ -49,7 +49,7 @@ export type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
  * furniture. A luminance token (not a hex fork) so it follows the theme;
  * exported for the static-markup behavioral pins.
  */
-export const PIPELINE_EDGE_INK = "hsl(var(--muted-foreground) / 0.55)";
+export const PIPELINE_EDGE_INK = "color-mix(in oklab, var(--muted-foreground) 55%, transparent)";
 
 export interface PipelineStageProps {
   recipeId: string;
@@ -165,8 +165,8 @@ export function PipelineStage(props: PipelineStageProps) {
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage: `
-            linear-gradient(hsl(var(--muted-foreground) / 0.06) 1px, transparent 1px),
-            linear-gradient(90deg, hsl(var(--muted-foreground) / 0.06) 1px, transparent 1px)
+            linear-gradient(color-mix(in oklab, var(--muted-foreground) 6%, transparent) 1px, transparent 1px),
+            linear-gradient(90deg, color-mix(in oklab, var(--muted-foreground) 6%, transparent) 1px, transparent 1px)
           `,
           backgroundSize: "48px 48px",
         }}
@@ -282,14 +282,14 @@ export function PipelineStage(props: PipelineStageProps) {
                       y1={48}
                       x2={column.x + 124}
                       y2={layout.height - 58}
-                      stroke="hsl(var(--muted-foreground) / 0.25)"
+                      stroke="color-mix(in oklab, var(--muted-foreground) 25%, transparent)"
                       strokeWidth="1"
                       strokeDasharray="3 8"
                     />
                     <text
                       x={column.x}
                       y={28}
-                      fill="hsl(var(--muted-foreground))"
+                      fill="var(--muted-foreground)"
                       fontSize="10"
                       fontWeight="700"
                     >
@@ -308,7 +308,7 @@ export function PipelineStage(props: PipelineStageProps) {
                         height={phase.height}
                         rx={8}
                         fill={lane.fill}
-                        stroke="hsl(var(--border))"
+                        stroke="var(--border)"
                       />
                       <rect
                         x={32}

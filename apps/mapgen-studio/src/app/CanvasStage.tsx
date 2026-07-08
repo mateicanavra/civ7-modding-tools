@@ -56,9 +56,9 @@ export function CanvasStage(props: CanvasStageProps) {
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 30% 40%, hsl(var(--muted-foreground) / 0.18) 0%, transparent 55%),
-            radial-gradient(circle at 70% 60%, hsl(var(--muted-foreground) / 0.18) 0%, transparent 45%),
-            radial-gradient(circle at 50% 80%, hsl(var(--muted-foreground) / 0.18) 0%, transparent 35%)
+            radial-gradient(circle at 30% 40%, color-mix(in oklab, var(--muted-foreground) 18%, transparent) 0%, transparent 55%),
+            radial-gradient(circle at 70% 60%, color-mix(in oklab, var(--muted-foreground) 18%, transparent) 0%, transparent 45%),
+            radial-gradient(circle at 50% 80%, color-mix(in oklab, var(--muted-foreground) 18%, transparent) 0%, transparent 35%)
           `,
         }}
       />
@@ -67,8 +67,8 @@ export function CanvasStage(props: CanvasStageProps) {
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage: `
-              linear-gradient(hsl(var(--muted-foreground) / 0.06) 1px, transparent 1px),
-              linear-gradient(90deg, hsl(var(--muted-foreground) / 0.06) 1px, transparent 1px)
+              linear-gradient(color-mix(in oklab, var(--muted-foreground) 6%, transparent) 1px, transparent 1px),
+              linear-gradient(90deg, color-mix(in oklab, var(--muted-foreground) 6%, transparent) 1px, transparent 1px)
             `,
             backgroundSize: "56px 56px",
           }}
@@ -92,8 +92,8 @@ export function CanvasStage(props: CanvasStageProps) {
             className="absolute inset-0 opacity-40"
             style={{
               backgroundImage: `
-                linear-gradient(hsl(var(--muted-foreground) / 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, hsl(var(--muted-foreground) / 0.05) 1px, transparent 1px)
+                linear-gradient(color-mix(in oklab, var(--muted-foreground) 5%, transparent) 1px, transparent 1px),
+                linear-gradient(90deg, color-mix(in oklab, var(--muted-foreground) 5%, transparent) 1px, transparent 1px)
               `,
               backgroundSize: "120px 120px",
             }}
