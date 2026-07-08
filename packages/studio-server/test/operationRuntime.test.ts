@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
@@ -3070,6 +3070,160 @@ describe("StudioOperationRuntime", () => {
     });
   });
 
+  test("daemon startup retains latest terminal Run in Game diagnostics and removes only outside-policy workspaces", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-retention-startup-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const oldTerminalAt = "2026-06-06T00:00:00.000Z";
+    for (let index = 0; index <= 100; index += 1) {
+      await seedRunOperationWorkspace(workspaceRoot, {
+        requestId: retentionRequestId(index),
+        terminalAt: oldTerminalAt,
+        diagnosticsId: retentionDiagnosticsId(index),
+        attributionReport: {
+          status: "incomplete",
+          missingSections: ["bounded-loaded-game-readback"],
+        },
+      });
+    }
+    await seedRunOperationWorkspace(workspaceRoot, {
+      requestId: "studio-run-in-game-retention-young",
+      terminalAt: "2026-06-09T23:00:00.000Z",
+      diagnosticsId: "run-diagnostics-retention-young",
+      attributionReport: { status: "complete", missingSections: [] },
+    });
+
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        clock: { now: () => new Date("2026-06-10T00:00:00.000Z") },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    await expect(pathExists(join(workspaceRoot, retentionRequestId(0)))).resolves.toBe(true);
+    await expect(pathExists(join(workspaceRoot, retentionRequestId(98)))).resolves.toBe(true);
+    await expect(pathExists(join(workspaceRoot, retentionRequestId(99)))).resolves.toBe(false);
+    await expect(pathExists(join(workspaceRoot, retentionRequestId(100)))).resolves.toBe(false);
+    await expect(pathExists(join(workspaceRoot, "studio-run-in-game-retention-young"))).resolves.toBe(
+      true
+    );
+    await expect(
+      pathExists(join(workspaceRoot, retentionRequestId(0), "attribution", "attribution.json"))
+    ).resolves.toBe(true);
+    await expect(
+      pathExists(join(workspaceRoot, retentionRequestId(100), "attribution", "attribution.json"))
+    ).resolves.toBe(false);
+    await expect(
+      runtime.runPromise(service.runInGameDiagnostics({ diagnosticsId: retentionDiagnosticsId(0) }))
+    ).resolves.toMatchObject({
+      ok: true,
+      diagnostics: {
+        requestId: retentionRequestId(0),
+        sections: {
+          attribution: {
+            report: {
+              status: "incomplete",
+              missingSections: ["bounded-loaded-game-readback"],
+            },
+          },
+        },
+      },
+    });
+    await expect(
+      runtime.runPromise(
+        service.runInGameDiagnostics({ diagnosticsId: retentionDiagnosticsId(100) })
+      )
+    ).resolves.toEqual({
+      ok: false,
+      diagnosticsId: retentionDiagnosticsId(100),
+      reason: "not-found",
+    });
+  });
+
+  test("Run in Game terminalization applies workspace retention after publishing the terminal record", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-retention-terminal-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        clock: { now: () => new Date("2026-06-10T00:00:00.000Z") },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const oldTerminalAt = "2026-06-06T00:00:00.000Z";
+    for (let index = 0; index <= 100; index += 1) {
+      await seedRunOperationWorkspace(workspaceRoot, {
+        requestId: retentionRequestId(index),
+        terminalAt: oldTerminalAt,
+        diagnosticsId: retentionDiagnosticsId(index),
+      });
+    }
+
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
+
+    await expect
+      .poll(() => pathExists(join(workspaceRoot, retentionRequestId(100))))
+      .toBe(false);
+    await expect(pathExists(join(workspaceRoot, accepted.requestId))).resolves.toBe(true);
+  });
+
+  test("retention cleanup preserves a live active Run in Game workspace", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-retention-active-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const blocker = deferred<void>();
+    try {
+      const first = makeRuntime({
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+          buildRunInGameProof: async () => {
+            await blocker.promise;
+            return { result: { ok: true } };
+          },
+        },
+      });
+      const firstService = await first.runtime.runPromise(StudioOperationRuntime);
+      const active = await first.runtime.runPromise(firstService.runInGameStart(runInGameInput()));
+      await expect
+        .poll(async () => {
+          const content = await readFile(
+            join(workspaceRoot, active.requestId, "operation-record.json"),
+            "utf8"
+          ).catch(() => "{}");
+          return (JSON.parse(content) as { status?: string }).status;
+        })
+        .toBe("running");
+      const oldTerminalAt = "2026-06-06T00:00:00.000Z";
+      for (let index = 0; index <= 100; index += 1) {
+        await seedRunOperationWorkspace(workspaceRoot, {
+          requestId: retentionRequestId(index),
+          terminalAt: oldTerminalAt,
+          diagnosticsId: retentionDiagnosticsId(index),
+        });
+      }
+
+      const second = makeRuntime({
+        ports: {
+          runInGameWorkspaceRoot: workspaceRoot,
+          clock: { now: () => new Date("2026-06-10T00:00:00.000Z") },
+        },
+      });
+      await second.runtime.runPromise(StudioOperationRuntime);
+
+      await expect(pathExists(join(workspaceRoot, active.requestId))).resolves.toBe(true);
+      await expect(pathExists(join(workspaceRoot, retentionRequestId(100)))).resolves.toBe(false);
+    } finally {
+      blocker.resolve();
+    }
+  });
+
   test("competing daemons cannot both acquire one stale runtime lease", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-stale-lease-race-"));
     runtimeWorkspaceRoots.push(workspaceRoot);
@@ -3857,6 +4011,113 @@ function attributionRecordValue(value: unknown): Readonly<{
     throw new Error("Expected attribution diagnostics path and report");
   }
   return { path: record.path, report: record.report };
+}
+
+async function seedRunOperationWorkspace(
+  workspaceRoot: string,
+  args: Readonly<{
+    requestId: string;
+    diagnosticsId?: string;
+    terminalAt?: string;
+    attributionReport?: unknown;
+  }>
+) {
+  const createdAt = args.terminalAt ?? "2026-06-06T00:00:00.000Z";
+  const requestRoot = join(workspaceRoot, args.requestId);
+  await mkdir(requestRoot, { recursive: true });
+  await writeFile(
+    join(requestRoot, "operation-record.json"),
+    `${JSON.stringify(
+      args.terminalAt === undefined
+        ? {
+            recordType: "RunOperationRecord",
+            requestId: args.requestId,
+            daemonId: "studio-server-retention-seed",
+            daemonStartedAt: createdAt,
+            leaseId: `runtime-lease-${args.requestId}`,
+            phase: "waiting-for-proof",
+            status: "running",
+            operationRevision: 1,
+            ...(args.diagnosticsId === undefined ? {} : { diagnosticsId: args.diagnosticsId }),
+            createdAt,
+            updatedAt: createdAt,
+          }
+        : {
+            recordType: "RunOperationRecord",
+            requestId: args.requestId,
+            daemonId: "studio-server-retention-seed",
+            daemonStartedAt: createdAt,
+            leaseId: `runtime-lease-${args.requestId}`,
+            phase: "complete",
+            status: "complete",
+            operationRevision: 1,
+            ...(args.diagnosticsId === undefined ? {} : { diagnosticsId: args.diagnosticsId }),
+            createdAt,
+            updatedAt: args.terminalAt,
+            terminalAt: args.terminalAt,
+            terminalOutcome: "complete",
+          },
+      null,
+      2
+    )}\n`,
+    "utf8"
+  );
+  if (args.diagnosticsId === undefined) return;
+  if (args.attributionReport !== undefined) {
+    const attributionRoot = join(requestRoot, "attribution");
+    await mkdir(attributionRoot, { recursive: true });
+    await writeFile(
+      join(attributionRoot, "attribution.json"),
+      `${JSON.stringify(args.attributionReport, null, 2)}\n`,
+      "utf8"
+    );
+  }
+  const diagnosticsRoot = join(requestRoot, "diagnostics");
+  await mkdir(diagnosticsRoot, { recursive: true });
+  await writeFile(
+    join(diagnosticsRoot, "diagnostics.json"),
+    `${JSON.stringify(
+      {
+        diagnosticsId: args.diagnosticsId,
+        requestId: args.requestId,
+        operationRevision: 1,
+        createdAt,
+        updatedAt: args.terminalAt ?? createdAt,
+        summary: "Seeded retained Run in Game diagnostics",
+        sections: {
+          ...(args.attributionReport === undefined
+            ? {}
+            : {
+                attribution: {
+                  path: join(requestRoot, "attribution", "attribution.json"),
+                  report: args.attributionReport,
+                },
+              }),
+          operation: {
+            requestId: args.requestId,
+          },
+        },
+      },
+      null,
+      2
+    )}\n`,
+    "utf8"
+  );
+}
+
+function retentionRequestId(index: number): string {
+  return `studio-run-in-game-retention-${String(index).padStart(3, "0")}`;
+}
+
+function retentionDiagnosticsId(index: number): string {
+  return `run-diagnostics-retention-${String(index).padStart(3, "0")}`;
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  return access(path).then(
+    () => true,
+    () => false
+  );
 }
 
 function deferred<T>() {

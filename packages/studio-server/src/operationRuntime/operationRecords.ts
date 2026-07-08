@@ -28,6 +28,8 @@ const RUNTIME_LEASE_LOCK_TIMEOUT_MS = 2_000;
 const RUNTIME_LEASE_LOCK_STALE_MS = 30_000;
 const DAEMON_HEARTBEAT_TTL_MS = 10_000;
 const DAEMON_HEARTBEAT_INTERVAL_MS = 1_000;
+export const RUN_WORKSPACE_RETENTION_MS = 72 * 60 * 60 * 1_000;
+export const RUN_WORKSPACE_RETENTION_MIN_TERMINAL_OPERATIONS = 100;
 const RUN_IN_GAME_RECORD_PHASES = new Set<RunInGameInternalOperation["phase"]>([
   "accepted",
   "materializing",
@@ -350,6 +352,43 @@ export function releaseStaleRuntimeOwnershipLease(
 }
 
 /**
+ * Applies the private Run in Game workspace retention policy.
+ *
+ * Cleanup only removes valid terminal request workspaces that are both older
+ * than the age window and outside the latest terminal-operation floor. Running,
+ * corrupt, and pre-record workspaces are left in place because they are either
+ * active runtime state or require explicit recovery/inspection.
+ */
+export function cleanupRunInGameRetention(
+  args: Readonly<{
+    workspaceRoot?: string;
+    nowIso: string;
+  }>
+): Effect.Effect<void, unknown> {
+  return Effect.tryPromise({
+    try: async () => {
+      const root = workspaceRoot(args.workspaceRoot);
+      const cutoffMs = Date.parse(args.nowIso) - RUN_WORKSPACE_RETENTION_MS;
+      if (!Number.isFinite(cutoffMs)) {
+        throw new Error(`Invalid retention timestamp: ${args.nowIso}`);
+      }
+      const terminalRecords = await listTerminalRunOperationRecords(root);
+      const retainedByFloor = latestTerminalRequestIds(
+        terminalRecords,
+        RUN_WORKSPACE_RETENTION_MIN_TERMINAL_OPERATIONS
+      );
+      for (const record of terminalRecords) {
+        if (Date.parse(record.terminalAt) >= cutoffMs || retainedByFloor.has(record.requestId)) {
+          continue;
+        }
+        await rm(jailedRunWorkspacePath(root, record.requestId), { recursive: true, force: true });
+      }
+    },
+    catch: (err) => err,
+  });
+}
+
+/**
  * Publishes the current daemon's liveness inside the runtime workspace.
  *
  * PID checks only prove some process exists. The heartbeat ties that process to
@@ -512,6 +551,38 @@ async function readRunOperationRecordState(
     await quarantineRunOperationRecord(root, requestId);
     return { state: "corrupt", requestId, error: err };
   }
+}
+
+async function listTerminalRunOperationRecords(root: string): Promise<TerminalRunOperationRecord[]> {
+  const entries = await readdir(root, { withFileTypes: true }).catch((err: unknown) => {
+    if (isNotFoundError(err)) return [];
+    throw err;
+  });
+  const records: TerminalRunOperationRecord[] = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !SAFE_RUN_REQUEST_ID.test(entry.name)) continue;
+    const recordState = await readRunOperationRecordState(root, entry.name);
+    if (recordState.state === "valid" && recordState.record.status !== "running") {
+      records.push(recordState.record);
+    }
+  }
+  return records;
+}
+
+function latestTerminalRequestIds(
+  records: readonly TerminalRunOperationRecord[],
+  count: number
+): Set<string> {
+  return new Set(
+    [...records]
+      .sort((left, right) => {
+        const terminalDelta = Date.parse(right.terminalAt) - Date.parse(left.terminalAt);
+        if (terminalDelta !== 0) return terminalDelta;
+        return left.requestId.localeCompare(right.requestId);
+      })
+      .slice(0, count)
+      .map((record) => record.requestId)
+  );
 }
 
 function workspaceRoot(root: string | undefined): string {

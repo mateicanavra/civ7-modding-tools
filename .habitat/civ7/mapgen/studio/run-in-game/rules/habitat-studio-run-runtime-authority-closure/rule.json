@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "id": "habitat-studio-run-runtime-authority-closure",
+  "title": "Habitat Studio Run Runtime Authority Closure",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "Run in Game runtime packet closure while structural authority rows SA-01 through SA-13 are missing, non-green, or obscured by unresolved packet-local temporary rules",
+  "why": "Packet 14 closes the runtime/materialization packet train by verifying the already-registered authority rows as the durable topology guardrail set. This command check coordinates Habitat-owned rule outputs; it does not create a second authority tree.",
+  "remediate": "Register and fix the owning SA-01 through SA-13 Habitat rules, remove or promote packet-local temporary rules, then rerun this closure check.",
+  "message": "Studio Run in Game runtime authority closure is incomplete.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        ".habitat/civ7/mapgen/studio/run-in-game/rules",
+        "docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/structural-authority-matrix.md"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "files": {
+      "script": ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs"
+    },
+    "runtime": "bun"
+  }
+}
