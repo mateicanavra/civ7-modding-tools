@@ -2,7 +2,6 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, test } from "vitest";
-import type { RunInGamePreparedRequest } from "../src/operationRuntime/ports";
 import {
   buildStudioRunGenerationManifest,
   buildStudioRunGenerationManifestPayload,
@@ -11,9 +10,10 @@ import {
   generationManifestDigest,
   parseStudioRunGenerationManifest,
   readStudioRunGenerationManifest,
+  type StudioRunGenerationManifestInput,
   studioRunWorkspacePaths,
   writeStudioRunGenerationManifest,
-} from "../src/operationRuntime/runWorkspace";
+} from "../src/index.js";
 
 describe("Studio Run generation manifest", () => {
   test("allocates request workspace paths and a stable artifact id", () => {
@@ -40,12 +40,11 @@ describe("Studio Run generation manifest", () => {
   });
 
   test("computes the manifest digest from canonical sorted payload JSON only", () => {
-    const payload = buildStudioRunGenerationManifestPayload({
-      requestId: "studio-run-in-game-digest",
-      prepared: preparedRequest({
+    const payload = buildStudioRunGenerationManifestPayload(
+      manifestInput({
         config: { beta: undefined, alpha: { z: 1, a: 2 } },
-      }),
-    });
+      })
+    );
     const samePayloadDifferentKeyOrder = {
       ...payload,
       request: {
@@ -138,8 +137,7 @@ describe("Studio Run generation manifest", () => {
     try {
       const requestId = "studio-run-in-game-write";
       const written = await writeStudioRunGenerationManifest({
-        requestId,
-        prepared: preparedRequest(),
+        manifestInput: manifestInput({ requestId }),
         workspaceRoot,
       });
 
@@ -155,7 +153,10 @@ describe("Studio Run generation manifest", () => {
       expect(JSON.parse(await readFile(written.path, "utf8"))).toEqual(manifest);
 
       await expect(
-        writeStudioRunGenerationManifest({ requestId, prepared: preparedRequest(), workspaceRoot })
+        writeStudioRunGenerationManifest({
+          manifestInput: manifestInput({ requestId }),
+          workspaceRoot,
+        })
       ).rejects.toThrow();
     } finally {
       await rm(workspaceRoot, { recursive: true, force: true });
@@ -163,11 +164,12 @@ describe("Studio Run generation manifest", () => {
   });
 });
 
-function preparedRequest(
+function manifestInput(
   overrides: Readonly<{
+    requestId?: string;
     config?: Record<string, unknown>;
   }> = {}
-): RunInGamePreparedRequest {
+): StudioRunGenerationManifestInput {
   const config = overrides.config ?? {};
   const launchEnvelope = {
     recipeSettings: {
@@ -192,7 +194,7 @@ function preparedRequest(
   };
   const launchEnvelopeDigest = "a".repeat(64);
   return {
-    correlationDigest: "prepared-correlation",
+    requestId: overrides.requestId ?? "studio-run-in-game-digest",
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 43,
@@ -200,21 +202,6 @@ function preparedRequest(
       selectedConfigId: "studio-current",
       setupConfig: launchEnvelope.setupConfig,
       materializationMode: "disposable",
-      resolvedLaunchSource: {
-        kind: "editor",
-        editorSessionId: "manifest-test-editor",
-        configId: "studio-current",
-        label: "Studio Current",
-        mapScript: "{swooper-maps}/maps/studio-current.js",
-        sortIndex: 9999,
-        config,
-      },
-      launchEnvelope,
-      launchSourceDigest: {
-        configContentDigest: "b".repeat(64),
-        launchEnvelopeDigest,
-      },
-      launchEnvelopeDigest,
     },
     resolvedLaunchSource: {
       kind: "editor",

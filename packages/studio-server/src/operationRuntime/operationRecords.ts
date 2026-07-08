@@ -2,6 +2,13 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { link, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import {
+  assertSafeRunRequestId,
+  assertSafeRunStorageId,
+  jailedRunWorkspacePath,
+  resolveRunWorkspaceRoot,
+  SAFE_RUN_REQUEST_ID,
+} from "@civ7/studio-run-workspace";
 import { Effect, type Scope } from "effect";
 import { operationBlocked, type StudioRuntimeFailure } from "../errors/index.js";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
@@ -11,13 +18,6 @@ import {
   statusForRunInGamePhase,
 } from "./model.js";
 import type { StudioDaemonIdentity } from "./ports.js";
-import {
-  assertSafeRunRequestId,
-  assertSafeRunStorageId,
-  jailedRunWorkspacePath,
-  resolveRunWorkspaceRoot,
-  SAFE_RUN_REQUEST_ID,
-} from "./runWorkspace/paths.js";
 
 const OPERATION_RECORD_FILE = "operation-record.json";
 const RUNTIME_LEASE_FILE = "runtime-ownership-lease.json";

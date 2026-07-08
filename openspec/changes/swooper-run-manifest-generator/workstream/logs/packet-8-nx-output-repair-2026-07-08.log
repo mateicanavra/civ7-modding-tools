@@ -1,0 +1,923 @@
+
+===== nx run mod-swooper-maps:build:studio-recipes --skip-nx-cache --outputStyle=static =====
+
+ NX   Running target build:studio-recipes for project mod-swooper-maps and 19 tasks it depends on:
+
+
+
+> nx run mapgen-viz:build
+
+(node:60990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:61017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+ESM dist/index.js 1.92 KB
+ESM ⚡️ Build success in 12ms
+(node:61017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 869ms
+DTS dist/index.d.ts 6.61 KB
+
+> nx run civ7-config:build
+
+(node:60991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:61016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 7.00 KB
+CJS ⚡️ Build success in 15ms
+ESM dist/index.js 4.72 KB
+ESM ⚡️ Build success in 15ms
+(node:61016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 874ms
+DTS dist/index.d.ts  1.80 KB
+DTS dist/index.d.cts 1.80 KB
+
+> nx run control-direct:build-bundle
+
+> tsup --config tsup.config.ts
+
+CLI Building entry: src/index.ts, src/proof/advisor-warning-proof-policy.ts, src/proof/diplomacy-response-proof-policy.ts, src/proof/first-meet-response-proof-policy.ts, src/proof/government-choice-proof-policy.ts, src/proof/narrative-choice-proof-policy.ts, src/proof/notification-dismissal-proof-policy.ts, src/proof/population-placement-proof-policy.ts, src/proof/progression-player-choice-proof-policy.ts, src/proof/progression-target-proof-policy.ts, src/proof/town-focus-proof-policy.ts, src/proof/turn-completion-proof-policy.ts, src/proof/unit-target-proof-policy.ts, src/play/operations/production-choice-proof.ts, src/play/progression/choice-postconditions.ts, src/play/notifications/postconditions.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
+(node:61092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+CJS Build start
+CJS dist/proof/government-choice-proof-policy.cjs         1.81 KB
+CJS dist/proof/diplomacy-response-proof-policy.cjs        3.54 KB
+CJS dist/proof/advisor-warning-proof-policy.cjs           1.69 KB
+CJS dist/proof/first-meet-response-proof-policy.cjs       2.32 KB
+CJS dist/proof/narrative-choice-proof-policy.cjs          3.49 KB
+CJS dist/proof/town-focus-proof-policy.cjs                1.72 KB
+CJS dist/proof/progression-player-choice-proof-policy.cjs 1.91 KB
+CJS dist/proof/population-placement-proof-policy.cjs      3.80 KB
+CJS dist/proof/progression-target-proof-policy.cjs        1.83 KB
+CJS dist/proof/unit-target-proof-policy.cjs               3.04 KB
+CJS dist/play/progression/choice-postconditions.cjs       6.19 KB
+CJS dist/play/operations/production-choice-proof.cjs      2.41 KB
+CJS dist/proof/turn-completion-proof-policy.cjs           4.73 KB
+CJS dist/play/notifications/postconditions.cjs            8.56 KB
+CJS dist/proof/notification-dismissal-proof-policy.cjs    7.39 KB
+CJS dist/index.cjs                                        777.08 KB
+CJS ⚡️ Build success in 74ms
+ESM dist/proof/town-focus-proof-policy.js                162.00 B
+ESM dist/proof/progression-player-choice-proof-policy.js 218.00 B
+ESM dist/proof/unit-target-proof-policy.js               166.00 B
+ESM dist/proof/progression-target-proof-policy.js        194.00 B
+ESM dist/play/progression/choice-postconditions.js       317.00 B
+ESM dist/play/operations/production-choice-proof.js      287.00 B
+ESM dist/play/notifications/postconditions.js            619.00 B
+ESM dist/proof/turn-completion-proof-policy.js           262.00 B
+ESM dist/chunk-H6VSHXDZ.js                               699.00 B
+ESM dist/chunk-SBJ4NEBA.js                               614.00 B
+ESM dist/chunk-DE5QAK6F.js                               3.49 KB
+ESM dist/chunk-HVSADZMW.js                               4.91 KB
+ESM dist/chunk-TIGRIXS6.js                               1.16 KB
+ESM dist/chunk-ZGRAA6DD.js                               1.91 KB
+ESM dist/chunk-OA3KHPOF.js                               604.00 B
+ESM dist/proof/advisor-warning-proof-policy.js           122.00 B
+ESM dist/chunk-35BKMMLH.js                               662.00 B
+ESM dist/chunk-B2HNLYNP.js                               2.27 KB
+ESM dist/chunk-NRZVGPXC.js                               1.14 KB
+ESM dist/proof/government-choice-proof-policy.js         190.00 B
+ESM dist/proof/diplomacy-response-proof-policy.js        280.00 B
+ESM dist/chunk-U2GTLZMO.js                               2.24 KB
+ESM dist/proof/first-meet-response-proof-policy.js       194.00 B
+ESM dist/chunk-FFKDRHLA.js                               656.00 B
+ESM dist/proof/notification-dismissal-proof-policy.js    241.00 B
+ESM dist/chunk-7FIB7KVB.js                               7.45 KB
+ESM dist/chunk-R7TX2HUS.js                               2.26 KB
+ESM dist/chunk-PVUQC3ND.js                               2.73 KB
+ESM dist/proof/population-placement-proof-policy.js      202.00 B
+ESM dist/proof/narrative-choice-proof-policy.js          268.00 B
+ESM dist/index.js                                        688.88 KB
+ESM ⚡️ Build success in 76ms
+
+> nx run civ7-map-policy:build
+
+(node:60989) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
+(node:61018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 106.28 KB
+ESM ⚡️ Build success in 13ms
+(node:61018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1316ms
+DTS dist/index.d.ts 62.46 KB
+
+> nx run plugin-files:build
+
+(node:61104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:61118) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/index.js 6.97 KB
+ESM ⚡️ Build success in 16ms
+CJS dist/index.cjs 8.93 KB
+CJS ⚡️ Build success in 17ms
+(node:61118) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 900ms
+DTS dist/index.d.ts  1.79 KB
+DTS dist/index.d.cts 1.79 KB
+
+> nx run civ7-adapter:build
+
+(node:61113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/civ7-adapter.ts, src/index.ts, src/mock-adapter.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-adapter/tsup.config.ts
+(node:61148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/civ7-adapter.js   34.69 KB
+ESM dist/index.js          1.11 KB
+ESM dist/chunk-QWSVGM4D.js 235.00 B
+ESM dist/mock-adapter.js   463.00 B
+ESM dist/chunk-OZ5NINDO.js 48.82 KB
+ESM ⚡️ Build success in 11ms
+(node:61148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1373ms
+DTS dist/civ7-adapter.d.ts   6.91 KB
+DTS dist/index.d.ts          3.06 KB
+DTS dist/mock-adapter.d.ts   14.21 KB
+DTS dist/types-CuMGbHqX.d.ts 25.58 KB
+
+> nx run control-direct:build-types
+
+> tsc -b tsconfig.json --force --emitDeclarationOnly
+
+
+> nx run studio-contract:build
+
+(node:61093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
+(node:61102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 69.94 KB
+ESM ⚡️ Build success in 16ms
+(node:61102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 4945ms
+DTS dist/index.d.ts 598.66 KB
+
+> nx run plugin-git:build
+
+(node:61249) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:61261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 32.69 KB
+CJS ⚡️ Build success in 29ms
+ESM dist/index.js 29.12 KB
+ESM ⚡️ Build success in 30ms
+(node:61261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 997ms
+DTS dist/index.d.ts  12.59 KB
+DTS dist/index.d.cts 12.59 KB
+
+> nx run plugin-mods:build
+
+(node:61437) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:61462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 14.66 KB
+CJS ⚡️ Build success in 15ms
+ESM dist/index.js 12.16 KB
+ESM ⚡️ Build success in 15ms
+(node:61462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 887ms
+DTS dist/index.d.ts  5.73 KB
+DTS dist/index.d.cts 5.73 KB
+
+> nx run studio-run-workspace:build
+
+(node:61429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
+(node:61446) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 7.91 KB
+ESM ⚡️ Build success in 7ms
+(node:61446) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1402ms
+DTS dist/index.d.ts 13.06 KB
+
+> nx run mapgen-core:build
+
+(node:61194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts, src/compiler/normalize.ts, src/compiler/recipe-compile.ts, src/authoring/contracts.ts, src/authoring/index.ts, src/authoring/recipe-dag.ts, src/engine/index.ts, src/polyfills/text-encoder.ts, src/lib/collections/index.ts, src/lib/grid/index.ts, src/lib/math/index.ts, src/lib/mesh/index.ts, src/lib/noise/index.ts, src/lib/plates/index.ts, src/lib/rng/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/mapgen-core/tsup.config.ts
+(node:61203) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/lib/collections/index.js   671.00 B
+ESM dist/chunk-YN2VUKFR.js          403.00 B
+ESM dist/chunk-SMOCTAOU.js          545.00 B
+ESM dist/lib/grid/index.js          13.83 KB
+ESM dist/lib/math/index.js          1.07 KB
+ESM dist/lib/plates/index.js        4.74 KB
+ESM dist/lib/noise/index.js         4.31 KB
+ESM dist/chunk-5HLW34JS.js          1.13 KB
+ESM dist/chunk-BJPDK4G3.js          167.00 B
+ESM dist/chunk-NDPW26EB.js          214.00 B
+ESM dist/chunk-QPDI6DWW.js          352.00 B
+ESM dist/chunk-QTPSALFN.js          2.48 KB
+ESM dist/lib/rng/index.js           1.08 KB
+ESM dist/chunk-H3PFKOMU.js          569.00 B
+ESM dist/lib/mesh/index.js          8.21 KB
+ESM dist/chunk-AYH6ZW6Y.js          112.00 B
+ESM dist/index.js                   49.48 KB
+ESM dist/authoring/contracts.js     513.00 B
+ESM dist/compiler/normalize.js      319.00 B
+ESM dist/chunk-ABODEIIM.js          802.00 B
+ESM dist/compiler/recipe-compile.js 264.00 B
+ESM dist/chunk-BNPMLBSQ.js          5.58 KB
+ESM dist/chunk-XMOW2QQE.js          8.93 KB
+ESM dist/chunk-TNHUJOIC.js          809.00 B
+ESM dist/chunk-OKVI263N.js          8.76 KB
+ESM dist/engine/index.js            1.39 KB
+ESM dist/authoring/recipe-dag.js    117.00 B
+ESM dist/authoring/index.js         28.97 KB
+ESM dist/chunk-253A6B53.js          6.65 KB
+ESM dist/chunk-MLKGABMK.js          191.00 B
+ESM dist/chunk-FWP24ZCG.js          143.70 KB
+ESM dist/chunk-IRMAJG7Q.js          1.33 KB
+ESM dist/chunk-JGQB2ORM.js          225.05 KB
+ESM dist/chunk-H7B452A2.js          26.46 KB
+ESM dist/polyfills/text-encoder.js  31.00 B
+ESM ⚡️ Build success in 222ms
+(node:61203) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 13106ms
+DTS dist/polyfills/text-encoder.d.ts       13.00 B
+DTS dist/authoring/contracts.d.ts          902.00 B
+DTS dist/authoring/recipe-dag.d.ts         2.94 KB
+DTS dist/lib/collections/index.d.ts        282.00 B
+DTS dist/lib/mesh/index.d.ts               1.24 KB
+DTS dist/lib/noise/index.d.ts              732.00 B
+DTS dist/lib/math/index.d.ts               816.00 B
+DTS dist/lib/plates/index.d.ts             2.40 KB
+DTS dist/lib/rng/index.d.ts                587.00 B
+DTS dist/lib/grid/index.d.ts               6.36 KB
+DTS dist/authoring/index.d.ts              12.70 KB
+DTS dist/index.d.ts                        26.01 KB
+DTS dist/engine/index.d.ts                 4.78 KB
+DTS dist/compiler/recipe-compile.d.ts      595.00 B
+DTS dist/compiler/normalize.d.ts           260.00 B
+DTS dist/contract-h4JpOxYJ.d.ts            3.86 KB
+DTS dist/contract-D27M8aDx.d.ts            974.00 B
+DTS dist/types-D36aNocJ.d.ts               10.14 KB
+DTS dist/label-60ObDTHH.d.ts               570.00 B
+DTS dist/typed-array-schemas-BgwB9MXu.d.ts 1.56 KB
+DTS dist/types-Cho0VwBk.d.ts               3.25 KB
+DTS dist/types-BU4k0Lnn.d.ts               16.71 KB
+DTS dist/normalize-Ca15pQ3F.d.ts           3.95 KB
+DTS dist/ops-BD8Zz6gt.d.ts                 6.30 KB
+DTS dist/wrap-J5N5_jXJ.d.ts                378.00 B
+DTS dist/execution-plan-DwE2pmw1.d.ts      6.16 KB
+DTS dist/range-nD1uC0Gi.d.ts               1.17 KB
+
+> nx run mod-swooper-maps:"gen:configs:shape-check"
+
+> bun ./scripts/migrate-config-shapes.ts --dry
+
+ok    latest-juicy.config.json
+ok    mountain-patch.config.json
+ok    mountain-rivers-patch.config.json
+ok    mountains-of-time-earthlike.config.json
+ok    mountains-of-time-original.config.json
+ok    shattered-ring.config.json
+ok    sundered-archipelago.config.json
+ok    swooper-desert-mountains.config.json
+ok    swooper-earthlike.config.json
+
+All configs conform to the current recipe schema.
+
+> nx run civ7-sdk:build
+
+(node:62501) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts, src/mapgen/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:62539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/mapgen/index.js 4.77 KB
+ESM dist/index.js        192.39 KB
+ESM ⚡️ Build success in 45ms
+CJS dist/mapgen/index.cjs 5.81 KB
+CJS dist/index.cjs        200.86 KB
+CJS ⚡️ Build success in 46ms
+(node:62539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 2540ms
+DTS dist/index.d.ts         413.72 KB
+DTS dist/mapgen/index.d.ts  1.72 KB
+DTS dist/index.d.cts        413.72 KB
+DTS dist/mapgen/index.d.cts 1.72 KB
+
+> nx run mod-swooper-maps:"build:studio-recipes:bundle"
+
+> tsup --config tsup.studio-recipes.config.ts
+
+CLI Building entry: {"recipes/standard":"src/recipes/standard/recipe.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/tsup.studio-recipes.config.ts
+(node:62811) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+ESM Build start
+ESM dist/recipes/standard.js 2.01 MB
+ESM ⚡️ Build success in 112ms
+
+> nx run mod-swooper-maps:"gen:studio-recipes-types"
+
+> bun ./scripts/generate-studio-recipe-types.ts
+
+[0m[33mWarning[0m[2m:[0m [1mThe 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.[0m
+[0m      [2mat [0m[0m[1m[3mwarnOnDeactivatedColors[0m[2m ([0m[0m[36minternal:tty[0m[2m:[0m[33m33[0m[2m:[33m24[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mgetColorDepth[0m[2m ([0m[0m[36minternal:tty[0m[2m:[0m[33m42[0m[2m:[33m39[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mshouldColorize[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m14[0m[2m:[33m109[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mrefresh[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m18[0m[2m:[33m31[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3minternal:util/colors[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m24[0m[2m:[33m16[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3minternal:assert/assertion_error[0m[2m ([0m[0m[36minternal:assert/assertion_error[0m[2m:[0m[33m2[0m[2m:[33m187[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mloadAssertionError[0m[2m ([0m[0m[36mnode:assert[0m[2m:[0m[33m28[0m[2m:[33m96[0m[2m)[0m
+
+
+> nx run mod-swooper-maps:"gen:map-artifacts"
+
+> bun ./scripts/generate-map-artifacts.ts
+
+Generated 9 Swooper map configs from mods/mod-swooper-maps/src/maps/configs: swooper-desert-mountains, swooper-earthlike, shattered-ring, sundered-archipelago, mountains-of-time-earthlike, latest-juicy, mountain-patch, mountains-of-time-original, mountain-rivers-patch
+
+> nx run mod-swooper-maps:"build:studio-recipes:maps"
+
+> node -e ""
+
+
+> nx run mod-swooper-maps:"build:studio-recipes"
+
+> node -e ""
+
+
+
+
+ NX   Successfully ran target build:studio-recipes for project mod-swooper-maps and 19 tasks it depends on
+
+
+
+ NX   Nx detected 2 flaky tasks
+
+  control-direct:build-bundle
+  mapgen-core:build
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+
+
+===== nx run mod-swooper-maps:gen:run-manifest --skip-nx-cache --outputStyle=static -- /var/folders/jm/kcfb9h7d4rd12343rb95ddsc0000gn/T/packet8-nx-proof-ZYW7bK/studio-run-in-game-nx-proof/generation-manifest.json =====
+
+ NX   Running target gen:run-manifest for project mod-swooper-maps and 15 tasks it depends on:
+
+
+
+> nx run civ7-config:build
+
+(node:63307) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:63334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/index.js 4.72 KB
+ESM ⚡️ Build success in 15ms
+CJS dist/index.cjs 7.00 KB
+CJS ⚡️ Build success in 15ms
+(node:63334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 908ms
+DTS dist/index.d.ts  1.80 KB
+DTS dist/index.d.cts 1.80 KB
+
+> nx run mapgen-viz:build
+
+(node:63306) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:63333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+ESM dist/index.js 1.92 KB
+ESM ⚡️ Build success in 15ms
+(node:63333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 910ms
+DTS dist/index.d.ts 6.61 KB
+
+> nx run control-direct:build-bundle
+
+> tsup --config tsup.config.ts
+
+CLI Building entry: src/index.ts, src/proof/advisor-warning-proof-policy.ts, src/proof/diplomacy-response-proof-policy.ts, src/proof/first-meet-response-proof-policy.ts, src/proof/government-choice-proof-policy.ts, src/proof/narrative-choice-proof-policy.ts, src/proof/notification-dismissal-proof-policy.ts, src/proof/population-placement-proof-policy.ts, src/proof/progression-player-choice-proof-policy.ts, src/proof/progression-target-proof-policy.ts, src/proof/town-focus-proof-policy.ts, src/proof/turn-completion-proof-policy.ts, src/proof/unit-target-proof-policy.ts, src/play/operations/production-choice-proof.ts, src/play/notifications/postconditions.ts, src/play/progression/choice-postconditions.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
+(node:63520) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+CJS Build start
+CJS dist/proof/population-placement-proof-policy.cjs      3.80 KB
+CJS dist/proof/first-meet-response-proof-policy.cjs       2.32 KB
+CJS dist/proof/notification-dismissal-proof-policy.cjs    7.39 KB
+CJS dist/proof/diplomacy-response-proof-policy.cjs        3.54 KB
+CJS dist/proof/progression-player-choice-proof-policy.cjs 1.91 KB
+CJS dist/proof/turn-completion-proof-policy.cjs           4.73 KB
+CJS dist/proof/town-focus-proof-policy.cjs                1.72 KB
+CJS dist/proof/progression-target-proof-policy.cjs        1.83 KB
+CJS dist/play/notifications/postconditions.cjs            8.56 KB
+CJS dist/proof/advisor-warning-proof-policy.cjs           1.69 KB
+CJS dist/proof/unit-target-proof-policy.cjs               3.04 KB
+CJS dist/play/progression/choice-postconditions.cjs       6.19 KB
+CJS dist/play/operations/production-choice-proof.cjs      2.41 KB
+CJS dist/proof/government-choice-proof-policy.cjs         1.81 KB
+CJS dist/proof/narrative-choice-proof-policy.cjs          3.49 KB
+CJS dist/index.cjs                                        777.08 KB
+CJS ⚡️ Build success in 83ms
+ESM dist/proof/progression-target-proof-policy.js        194.00 B
+ESM dist/proof/town-focus-proof-policy.js                162.00 B
+ESM dist/proof/progression-player-choice-proof-policy.js 218.00 B
+ESM dist/play/operations/production-choice-proof.js      287.00 B
+ESM dist/proof/unit-target-proof-policy.js               166.00 B
+ESM dist/play/notifications/postconditions.js            619.00 B
+ESM dist/chunk-35BKMMLH.js                               662.00 B
+ESM dist/play/progression/choice-postconditions.js       317.00 B
+ESM dist/chunk-ZGRAA6DD.js                               1.91 KB
+ESM dist/chunk-H6VSHXDZ.js                               699.00 B
+ESM dist/proof/turn-completion-proof-policy.js           262.00 B
+ESM dist/chunk-TIGRIXS6.js                               1.16 KB
+ESM dist/chunk-OA3KHPOF.js                               604.00 B
+ESM dist/chunk-HVSADZMW.js                               4.91 KB
+ESM dist/chunk-DE5QAK6F.js                               3.49 KB
+ESM dist/proof/advisor-warning-proof-policy.js           122.00 B
+ESM dist/chunk-SBJ4NEBA.js                               614.00 B
+ESM dist/proof/first-meet-response-proof-policy.js       194.00 B
+ESM dist/proof/diplomacy-response-proof-policy.js        280.00 B
+ESM dist/proof/notification-dismissal-proof-policy.js    241.00 B
+ESM dist/proof/government-choice-proof-policy.js         190.00 B
+ESM dist/chunk-NRZVGPXC.js                               1.14 KB
+ESM dist/chunk-U2GTLZMO.js                               2.24 KB
+ESM dist/chunk-B2HNLYNP.js                               2.27 KB
+ESM dist/proof/narrative-choice-proof-policy.js          268.00 B
+ESM dist/chunk-PVUQC3ND.js                               2.73 KB
+ESM dist/chunk-7FIB7KVB.js                               7.45 KB
+ESM dist/proof/population-placement-proof-policy.js      202.00 B
+ESM dist/chunk-FFKDRHLA.js                               656.00 B
+ESM dist/chunk-R7TX2HUS.js                               2.26 KB
+ESM dist/index.js                                        688.88 KB
+ESM ⚡️ Build success in 86ms
+
+> nx run civ7-map-policy:build
+
+(node:63305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
+(node:63332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 106.28 KB
+ESM ⚡️ Build success in 14ms
+(node:63332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1423ms
+DTS dist/index.d.ts 62.46 KB
+
+> nx run plugin-files:build
+
+(node:63560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:63584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/index.js 6.97 KB
+ESM ⚡️ Build success in 18ms
+CJS dist/index.cjs 8.93 KB
+CJS ⚡️ Build success in 19ms
+(node:63584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1014ms
+DTS dist/index.d.ts  1.79 KB
+DTS dist/index.d.cts 1.79 KB
+
+> nx run civ7-adapter:build
+
+(node:63595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/civ7-adapter.ts, src/index.ts, src/mock-adapter.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-adapter/tsup.config.ts
+(node:63607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/civ7-adapter.js   34.69 KB
+ESM dist/index.js          1.11 KB
+ESM dist/mock-adapter.js   463.00 B
+ESM dist/chunk-QWSVGM4D.js 235.00 B
+ESM dist/chunk-OZ5NINDO.js 48.82 KB
+ESM ⚡️ Build success in 12ms
+(node:63607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1590ms
+DTS dist/civ7-adapter.d.ts   6.91 KB
+DTS dist/index.d.ts          3.06 KB
+DTS dist/mock-adapter.d.ts   14.21 KB
+DTS dist/types-CuMGbHqX.d.ts 25.58 KB
+
+> nx run control-direct:build-types
+
+> tsc -b tsconfig.json --force --emitDeclarationOnly
+
+
+> nx run plugin-git:build
+
+(node:64246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:64258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 32.69 KB
+CJS ⚡️ Build success in 37ms
+ESM dist/index.js 29.12 KB
+ESM ⚡️ Build success in 37ms
+(node:64258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1054ms
+DTS dist/index.d.ts  12.59 KB
+DTS dist/index.d.cts 12.59 KB
+
+> nx run studio-contract:build
+
+(node:63521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
+(node:63558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 69.94 KB
+ESM ⚡️ Build success in 14ms
+(node:63558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 5658ms
+DTS dist/index.d.ts 598.66 KB
+
+> nx run plugin-mods:build
+
+(node:64406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:64451) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 14.66 KB
+CJS ⚡️ Build success in 17ms
+ESM dist/index.js 12.16 KB
+ESM ⚡️ Build success in 17ms
+(node:64451) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 903ms
+DTS dist/index.d.ts  5.73 KB
+DTS dist/index.d.cts 5.73 KB
+
+> nx run studio-run-workspace:build
+
+(node:64414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
+(node:64481) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 7.91 KB
+ESM ⚡️ Build success in 8ms
+(node:64481) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1477ms
+DTS dist/index.d.ts 13.06 KB
+
+> nx run mapgen-core:build
+
+(node:63918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts, src/authoring/contracts.ts, src/authoring/index.ts, src/authoring/recipe-dag.ts, src/compiler/normalize.ts, src/compiler/recipe-compile.ts, src/engine/index.ts, src/polyfills/text-encoder.ts, src/lib/collections/index.ts, src/lib/math/index.ts, src/lib/grid/index.ts, src/lib/mesh/index.ts, src/lib/plates/index.ts, src/lib/noise/index.ts, src/lib/rng/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/mapgen-core/tsup.config.ts
+(node:63957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+(node:63957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ESM dist/chunk-SMOCTAOU.js          545.00 B
+ESM dist/lib/grid/index.js          13.83 KB
+ESM dist/lib/mesh/index.js          8.21 KB
+ESM dist/lib/collections/index.js   671.00 B
+ESM dist/chunk-QTPSALFN.js          2.48 KB
+ESM dist/lib/noise/index.js         4.31 KB
+ESM dist/chunk-YN2VUKFR.js          403.00 B
+ESM dist/lib/plates/index.js        4.74 KB
+ESM dist/chunk-NDPW26EB.js          214.00 B
+ESM dist/lib/rng/index.js           1.08 KB
+ESM dist/chunk-BJPDK4G3.js          167.00 B
+ESM dist/index.js                   49.48 KB
+ESM dist/chunk-H3PFKOMU.js          569.00 B
+ESM dist/chunk-QPDI6DWW.js          352.00 B
+ESM dist/chunk-TNHUJOIC.js          809.00 B
+ESM dist/lib/math/index.js          1.07 KB
+ESM dist/chunk-IDBIXU25.js          8.76 KB
+ESM dist/chunk-253A6B53.js          6.65 KB
+ESM dist/chunk-ABODEIIM.js          802.00 B
+ESM dist/authoring/recipe-dag.js    117.00 B
+ESM dist/chunk-MLR2KZPR.js          5.58 KB
+ESM dist/compiler/normalize.js      319.00 B
+ESM dist/chunk-XIDQFAK3.js          8.93 KB
+ESM dist/authoring/index.js         28.97 KB
+ESM dist/chunk-AYH6ZW6Y.js          112.00 B
+ESM dist/compiler/recipe-compile.js 264.00 B
+ESM dist/engine/index.js            1.39 KB
+ESM dist/chunk-S23W5VLY.js          143.70 KB
+ESM dist/chunk-MLKGABMK.js          191.00 B
+ESM dist/chunk-JGQB2ORM.js          225.05 KB
+ESM dist/chunk-H7B452A2.js          26.46 KB
+ESM dist/authoring/contracts.js     513.00 B
+ESM dist/chunk-5HLW34JS.js          1.13 KB
+ESM dist/chunk-IRMAJG7Q.js          1.33 KB
+ESM dist/polyfills/text-encoder.js  31.00 B
+ESM ⚡️ Build success in 183ms
+DTS Build start
+DTS ⚡️ Build success in 11065ms
+DTS dist/polyfills/text-encoder.d.ts       13.00 B
+DTS dist/authoring/contracts.d.ts          902.00 B
+DTS dist/authoring/recipe-dag.d.ts         2.94 KB
+DTS dist/lib/collections/index.d.ts        282.00 B
+DTS dist/lib/mesh/index.d.ts               1.24 KB
+DTS dist/lib/noise/index.d.ts              732.00 B
+DTS dist/lib/math/index.d.ts               816.00 B
+DTS dist/lib/plates/index.d.ts             2.40 KB
+DTS dist/lib/rng/index.d.ts                587.00 B
+DTS dist/lib/grid/index.d.ts               6.36 KB
+DTS dist/authoring/index.d.ts              12.70 KB
+DTS dist/index.d.ts                        26.01 KB
+DTS dist/engine/index.d.ts                 4.78 KB
+DTS dist/compiler/recipe-compile.d.ts      595.00 B
+DTS dist/compiler/normalize.d.ts           260.00 B
+DTS dist/contract-h4JpOxYJ.d.ts            3.86 KB
+DTS dist/contract-D27M8aDx.d.ts            974.00 B
+DTS dist/types-D36aNocJ.d.ts               10.14 KB
+DTS dist/label-60ObDTHH.d.ts               570.00 B
+DTS dist/typed-array-schemas-BgwB9MXu.d.ts 1.56 KB
+DTS dist/types-Cho0VwBk.d.ts               3.25 KB
+DTS dist/types-BU4k0Lnn.d.ts               16.71 KB
+DTS dist/normalize-Ca15pQ3F.d.ts           3.95 KB
+DTS dist/ops-BD8Zz6gt.d.ts                 6.30 KB
+DTS dist/wrap-J5N5_jXJ.d.ts                378.00 B
+DTS dist/execution-plan-DwE2pmw1.d.ts      6.16 KB
+DTS dist/range-nD1uC0Gi.d.ts               1.17 KB
+
+> nx run civ7-sdk:build
+
+(node:65384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts, src/mapgen/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:65393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs        200.86 KB
+CJS dist/mapgen/index.cjs 5.81 KB
+CJS ⚡️ Build success in 54ms
+ESM dist/index.js        192.39 KB
+ESM dist/mapgen/index.js 4.77 KB
+ESM ⚡️ Build success in 54ms
+(node:65393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 2527ms
+DTS dist/index.d.ts         413.72 KB
+DTS dist/mapgen/index.d.ts  1.72 KB
+DTS dist/index.d.cts        413.72 KB
+DTS dist/mapgen/index.d.cts 1.72 KB
+
+> nx run mod-swooper-maps:"build:studio-recipes:bundle"
+
+> tsup --config tsup.studio-recipes.config.ts
+
+CLI Building entry: {"recipes/standard":"src/recipes/standard/recipe.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/tsup.studio-recipes.config.ts
+(node:65471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+ESM Build start
+ESM dist/recipes/standard.js 2.01 MB
+ESM ⚡️ Build success in 115ms
+
+> nx run mod-swooper-maps:"gen:run-manifest" /var/folders/jm/kcfb9h7d4rd12343rb95ddsc0000gn/T/packet8-nx-proof-ZYW7bK/studio-run-in-game-nx-proof/generation-manifest.json
+
+> bun ./scripts/generate-run-manifest.ts /var/folders/jm/kcfb9h7d4rd12343rb95ddsc0000gn/T/packet8-nx-proof-ZYW7bK/studio-run-in-game-nx-proof/generation-manifest.json
+
+[0m[1m162 |[0m     [0m[35mthrow[0m [0m[35mnew[0m [0m[1mError[0m([0m[32m"StudioRunGenerationManifest launchEnvelopeDigest is inconsistent."[0m)[0m[2m;[0m
+[0m[1m163 |[0m   }
+[0m[1m164 |[0m   [0m[35mreturn[0m manifest[0m[2m;[0m
+[0m[1m165 |[0m }
+[0m[1m166 |[0m [0m[35masync[0m [0m[35mfunction[0m readStudioRunGenerationManifest(path) {
+[0m[1m167 |[0m   [0m[35mreturn[0m parseStudioRunGenerationManifest(JSON[0m[3m[1m.parse[0m([0m[35mawait[0m readFile(path, [0m[32m"utf8"[0m)))[0m[2m;[0m
+                                                                 [31m[1m^[0m
+[0m[31mENOENT[0m[2m:[0m [1mno such file or directory, open '/var/folders/jm/kcfb9h7d4rd12343rb95ddsc0000gn/T/packet8-nx-proof-ZYW7bK/studio-run-in-game-nx-proof/generation-manifest.json'[0m
+    path[0m[2m:[0m [0m[32m"/var/folders/jm/kcfb9h7d4rd12343rb95ddsc0000gn/T/packet8-nx-proof-ZYW7bK/studio-run-in-game-nx-proof/generation-manifest.json"[0m[0m[2m,[0m
+ syscall[0m[2m:[0m [0m[32m"open"[0m[0m[2m,[0m
+   errno[0m[2m:[0m [0m[33m-2[0m[0m[2m,[0m
+    code[0m[2m:[0m [32m"ENOENT"[0m
+
+[0m      [2mat [0m[0m[1m[3masync readStudioRunGenerationManifest[0m[2m ([0m[0m[36m/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/dist/index.js[0m[2m:[0m[33m167[0m[2m:[33m60[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3masync generateSwooperRunGeneratedModFromManifestPath[0m[2m ([0m[0m[36m[2m/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/[0m[36mscripts/run-manifest-generator.ts[0m[2m:[0m[33m79[0m[2m:[33m26[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3masync main[0m[2m ([0m[0m[36m[2m/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/[0m[36mscripts/generate-run-manifest.ts[0m[2m:[0m[33m12[0m[2m:[33m27[0m[2m)[0m
+[0m
+[2mBun v1.3.14 (macOS arm64)[0m
+Warning: command "bun ./scripts/generate-run-manifest.ts /var/folders/jm/kcfb9h7d4rd12343rb95ddsc0000gn/T/packet8-nx-proof-ZYW7bK/studio-run-in-game-nx-proof/generation-manifest.json" exited with non-zero status code
+
+
+ NX   Running target gen:run-manifest for project mod-swooper-maps and 15 tasks it depends on failed
+
+Failed tasks:
+
+- mod-swooper-maps:gen:run-manifest
+
+Hint: run the command with --verbose for more details.
+
+
+ NX   Nx detected 2 flaky tasks
+
+  control-direct:build-bundle
+  mapgen-core:build
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks

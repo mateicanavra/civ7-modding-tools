@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 
+import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import type { ValidatedMapConfig } from "../../src/maps/configs/canonical.js";
 
 export type StudioRunProofEnv =
@@ -11,12 +12,20 @@ export type StudioRunProofEnv =
       launchEnvelopeDigest: string;
     }>;
 
+export type SwooperRunGeneratedModPlanInput = Readonly<{
+  selectedConfigId: string;
+  correlation: RunCorrelation;
+  config: ValidatedMapConfig;
+  seed: number;
+}>;
+
 export type SwooperMapArtifactFileKind =
   | "generated-map-entry"
   | "mod-config"
   | "mod-info"
   | "mod-data"
   | "mod-text"
+  | "mod-module-text"
   | "recipe-schema"
   | "studio-catalog-module"
   | "studio-catalog-types";
@@ -167,11 +176,79 @@ export default createMap({
   };
 }
 
-function renderConfigXml(configs: readonly ValidatedMapConfig[]): string {
+function renderRunMapEntryArtifact(
+  input: SwooperRunGeneratedModPlanInput
+): Pick<
+  Extract<SwooperMapArtifactPlannedFile, { kind: "generated-map-entry" }>,
+  "content" | "markerMetadata"
+> {
+  const config = input.config;
+  const latitudeBounds = config.latitudeBounds
+    ? `\n  latitudeBounds: ${JSON.stringify(config.latitudeBounds, null, 2).replace(/\n/g, "\n  ")},`
+    : "";
+  const logPrefix = config.logPrefix ? `\n  logPrefix: ${JSON.stringify(config.logPrefix)},` : "";
+  return {
+    markerMetadata: {
+      configId: input.selectedConfigId,
+      configHash: input.correlation.launchSourceDigest.configContentDigest,
+      envelopeHash: input.correlation.launchEnvelopeDigest,
+      requestId: input.correlation.requestId,
+    },
+    content: {
+      kind: "text",
+      text: `/**
+ * Generated from a Studio Run in Game generation manifest.
+ * Do not edit by hand; re-run the manifest generator.
+ */
+
+/// <reference types="@civ7/types" />
+
+import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
+import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard";
+import standardRecipe from "mod-swooper-maps/recipes/standard";
+
+const runCorrelation = ${JSON.stringify(input.correlation, null, 2)} as const;
+const mapConfig = ${JSON.stringify(
+        {
+          id: config.id,
+          name: config.name,
+          description: config.description,
+          recipe: config.recipe,
+          sortIndex: config.sortIndex,
+          ...(config.latitudeBounds === undefined ? {} : { latitudeBounds: config.latitudeBounds }),
+          ...(config.logPrefix === undefined ? {} : { logPrefix: config.logPrefix }),
+          config: config.config,
+        },
+        null,
+        2
+      )} as const;
+
+export default createMap({
+  id: mapConfig.id,
+  name: mapConfig.name,
+  description: mapConfig.description,
+  recipe: standardRecipe,${latitudeBounds}${logPrefix}
+  sourceConfigId: ${JSON.stringify(input.selectedConfigId)},
+  configHash: ${JSON.stringify(input.correlation.launchSourceDigest.configContentDigest)},
+  envelopeHash: ${JSON.stringify(input.correlation.launchEnvelopeDigest)},
+  runCorrelation,
+  seed: ${JSON.stringify(input.seed)},
+  config: mapConfig.config as StandardRecipeConfig,
+});
+`,
+    },
+  };
+}
+
+function renderConfigXml(
+  configs: readonly ValidatedMapConfig[],
+  options: Readonly<{ moduleId?: string }> = {}
+): string {
+  const moduleId = options.moduleId ?? "swooper-maps";
   const rows = configs
     .map(
       (config) => `\t\t<Row
-\t\t\tFile="{swooper-maps}/maps/${config.outputFile}"
+\t\t\tFile="{${moduleId}}/maps/${config.outputFile}"
 \t\t\tName="${config.localizationNameTag}"
 \t\t\tDescription="${config.localizationDescriptionTag}"
 \t\t\tSortIndex="${config.sortIndex}"
@@ -210,6 +287,21 @@ ${rows}
 \t\t</Row>
 \t\t<Row Tag="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME">
 \t\t\t<Text>Jungle Fever</Text>
+\t\t</Row>
+\t</EnglishText>
+</Database>
+`;
+}
+
+function renderModuleText(options: Readonly<{ name: string; description: string }>): string {
+  return `<?xml version="1.0" encoding="utf-8"?>
+<Database>
+\t<EnglishText>
+\t\t<Row Tag="LOC_MODULE_SWOOPER_MAPS_NAME">
+\t\t\t<Text>${xmlEscape(options.name)}</Text>
+\t\t</Row>
+\t\t<Row Tag="LOC_MODULE_SWOOPER_MAPS_DESCRIPTION">
+\t\t\t<Text>${xmlEscape(options.description)}</Text>
 \t\t</Row>
 \t</EnglishText>
 </Database>
@@ -259,12 +351,16 @@ function renderBiomeHazardData(): string {
 `;
 }
 
-function renderModInfo(configs: readonly ValidatedMapConfig[]): string {
+function renderModInfo(
+  configs: readonly ValidatedMapConfig[],
+  options: Readonly<{ moduleId?: string }> = {}
+): string {
+  const moduleId = options.moduleId ?? "swooper-maps";
   const imports = configs
     .map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`)
     .join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
-<Mod id="swooper-maps" version="1" xmlns="ModInfo">
+<Mod id="${xmlEscape(moduleId)}" version="1" xmlns="ModInfo">
 \t<Properties>
 \t\t<Name>LOC_MODULE_SWOOPER_MAPS_NAME</Name>
 \t\t<Description>LOC_MODULE_SWOOPER_MAPS_DESCRIPTION</Description>
@@ -424,6 +520,79 @@ export function buildSwooperMapArtifactFilePlan(
         relativePath: "dist/recipes/standard-map-configs.d.ts",
         kind: "studio-catalog-types",
         content: { kind: "text", text: renderMapConfigsDts() },
+      },
+    ],
+  };
+}
+
+export const SWOOPER_STUDIO_RUN_MOD_ID = "mod-swooper-studio-run";
+
+export function runMapRowIdForArtifact(runArtifactId: string): string {
+  return `MAP_${runArtifactId.replace(/-/g, "_").toUpperCase()}`;
+}
+
+/**
+ * Builds the request-local generated mod tree from a Studio generation
+ * manifest. It deliberately shares the same mod file classes as catalog
+ * generation while changing the identity axis to the manifest correlation.
+ */
+export function buildSwooperRunGeneratedModFilePlan(
+  input: SwooperRunGeneratedModPlanInput
+): SwooperMapArtifactFilePlan {
+  const entry = renderRunMapEntryArtifact(input);
+  const config = input.config;
+  return {
+    exclusiveSets: [
+      {
+        id: "generated-map-entrypoints",
+        relativeDir: ".source/maps",
+        fileExtension: ".ts",
+        artifactKind: "generated-map-entry",
+      },
+    ],
+    files: [
+      {
+        relativePath: `.source/maps/${input.correlation.runArtifactId}.ts`,
+        kind: "generated-map-entry",
+        content: entry.content,
+        markerMetadata: entry.markerMetadata,
+      },
+      {
+        relativePath: "config/config.xml",
+        kind: "mod-config",
+        content: {
+          kind: "text",
+          text: renderConfigXml([config], { moduleId: SWOOPER_STUDIO_RUN_MOD_ID }),
+        },
+      },
+      {
+        relativePath: `${SWOOPER_STUDIO_RUN_MOD_ID}.modinfo`,
+        kind: "mod-info",
+        content: {
+          kind: "text",
+          text: renderModInfo([config], { moduleId: SWOOPER_STUDIO_RUN_MOD_ID }),
+        },
+      },
+      {
+        relativePath: "data/biome-hazards.xml",
+        kind: "mod-data",
+        content: { kind: "text", text: renderBiomeHazardData() },
+      },
+      {
+        relativePath: "text/en_us/MapText.xml",
+        kind: "mod-text",
+        content: { kind: "text", text: renderMapText([config]) },
+      },
+      {
+        relativePath: "text/en_us/ModuleText.xml",
+        kind: "mod-module-text",
+        content: {
+          kind: "text",
+          text: renderModuleText({
+            name: "Swooper Studio Run",
+            description: "Request-local Swooper map generated by MapGen Studio.",
+          }),
+        },
       },
     ],
   };

@@ -1,3 +1,4 @@
+import { writeStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { Context, Effect, Layer } from "effect";
 
 import type { StudioInputs } from "../context.js";
@@ -8,7 +9,6 @@ import {
   type StudioBoundedDiagnosticValue,
 } from "../errors/index.js";
 import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
-import { writeStudioRunGenerationManifest } from "../operationRuntime/runWorkspace/index.js";
 import type {
   RunInGameDeployment,
   RunInGameMaterialized,
@@ -129,8 +129,30 @@ function makeRunInGameWorkflow(
           yield* workflow.transitions.registerCleanup(() => cleanupMaterialized());
           const generationManifest = yield* tryPromise((signal) =>
             writeStudioRunGenerationManifest({
-              requestId: workflow.requestId,
-              prepared: workflow.prepared,
+              manifestInput: {
+                requestId: workflow.requestId,
+                request: {
+                  recipeId: workflow.prepared.request.recipeId,
+                  seed: workflow.prepared.request.seed,
+                  mapSize: workflow.prepared.request.mapSize,
+                  ...(workflow.prepared.request.playerCount === undefined
+                    ? {}
+                    : { playerCount: workflow.prepared.request.playerCount }),
+                  ...(workflow.prepared.request.resources === undefined
+                    ? {}
+                    : { resources: workflow.prepared.request.resources }),
+                  selectedConfigId: workflow.prepared.request.selectedConfigId,
+                  setupConfig: workflow.prepared.request.setupConfig,
+                  materializationMode: workflow.prepared.request.materializationMode,
+                  ...(workflow.prepared.request.restartCivProcess === undefined
+                    ? {}
+                    : { restartCivProcess: workflow.prepared.request.restartCivProcess }),
+                },
+                resolvedLaunchSource: workflow.prepared.resolvedLaunchSource,
+                launchEnvelope: workflow.prepared.launchEnvelope,
+                launchSourceDigest: workflow.prepared.launchSourceDigest,
+                launchEnvelopeDigest: workflow.prepared.launchEnvelopeDigest,
+              },
               workspaceRoot: args.ports.runInGameWorkspaceRoot,
               signal,
             })
