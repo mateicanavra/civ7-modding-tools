@@ -9,6 +9,7 @@ import {
   studio,
   typeboxOutputSchemaFromContractProcedure,
 } from "@civ7/studio-contract";
+import { readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
@@ -29,7 +30,6 @@ import {
   markRunInGameDiagnosticsAvailable,
   transitionRunInGame,
 } from "../src/operationRuntime/registry";
-import { readStudioRunGenerationManifest } from "../src/operationRuntime/runWorkspace";
 import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
 import { StudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
 

@@ -147,11 +147,19 @@
         "cwd": "mods/mod-swooper-maps"
       }
     },
+    "gen:run-manifest": {
+      "command": "bun ./scripts/generate-run-manifest.ts",
+      "dependsOn": ["build:studio-recipes:bundle", { "projects": ["civ7-sdk"], "target": "build" }],
+      "cache": false,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
     "build:studio-recipes:bundle": {
       "command": "tsup --config tsup.studio-recipes.config.ts",
       "dependsOn": ["^build"],
       "cache": true,
-      "outputs": ["{projectRoot}/dist/**"],
+      "outputs": ["{projectRoot}/dist/recipes/standard.js"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }

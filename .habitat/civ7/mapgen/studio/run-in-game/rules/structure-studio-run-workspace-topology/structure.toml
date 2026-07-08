@@ -1,17 +1,17 @@
 schemaVersion = 1
 
 [[scopes]]
-name = "studio-run-runtime-workspace-owner"
-root = "packages/studio-server/src/operationRuntime"
+name = "studio-run-workspace-package-owner"
+root = "packages"
 kind = "directory"
 mode = "open"
 required = [
-  "runWorkspace",
+  "studio-run-workspace",
 ]
 
 [[scopes]]
 name = "studio-run-workspace-owner-files"
-root = "packages/studio-server/src/operationRuntime/runWorkspace"
+root = "packages/studio-run-workspace/src"
 kind = "directory"
 mode = "closed"
 required = [

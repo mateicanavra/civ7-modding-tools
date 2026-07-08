@@ -6,6 +6,7 @@ import type {
   RunInGamePhase,
   RunInGameProcessRestartStatus,
 } from "@civ7/studio-contract";
+import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import { Effect, SynchronizedRef } from "effect";
 import {
   dependencyUnavailable,
@@ -23,7 +24,6 @@ import {
   type StudioRuntimeFailure,
 } from "../errors/index.js";
 import { createRunDiagnosticsId } from "../runInGamePublic.js";
-import type { StudioRunGenerationManifestReference } from "./runWorkspace/index.js";
 import type {
   RegistryState,
   RunInGameInternalOperation,

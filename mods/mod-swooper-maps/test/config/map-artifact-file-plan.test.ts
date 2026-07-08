@@ -304,6 +304,27 @@ describe("Swooper map artifact file plan", () => {
     }
   });
 
+  it("rejects a symlinked output root before deleting outside generated entries", async () => {
+    const { plan } = await buildCurrentPlan();
+    const outputRootParent = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-root-link-"));
+    const outsideRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-root-link-outside-"));
+    const outputRoot = resolve(outputRootParent, "generated-mod");
+    try {
+      const outsideGenerated = resolve(outsideRoot, "src/maps/generated/stale.ts");
+      await mkdir(resolve(outsideRoot, "src/maps/generated"), { recursive: true });
+      await writeFile(outsideGenerated, "outside");
+      await symlink(outsideRoot, outputRoot);
+
+      await expect(writeSwooperMapArtifactFilePlan(plan, { outputRoot })).rejects.toThrow(
+        "output root must not be a symlink"
+      );
+      expect(await readFile(outsideGenerated, "utf8")).toBe("outside");
+    } finally {
+      await rm(outputRootParent, { recursive: true, force: true });
+      await rm(outsideRoot, { recursive: true, force: true });
+    }
+  });
+
   it("rejects symlinked write paths before deleting stale generated entries", async () => {
     const { plan } = await buildCurrentPlan();
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-plan-write-link-"));
