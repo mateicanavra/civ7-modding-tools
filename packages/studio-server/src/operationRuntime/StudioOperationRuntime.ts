@@ -7,7 +7,12 @@ import {
 } from "@civ7/studio-contract";
 import { Context, Effect, Fiber, FiberSet, Layer, type Scope } from "effect";
 import type { StudioInputs, StudioOutputs } from "../context.js";
-import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
+import {
+  dependencyUnavailable,
+  invalidRequest,
+  runtimeDisposed,
+  type StudioRuntimeFailure,
+} from "../errors/index.js";
 import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
 import { StudioEventHub } from "../services/StudioEventHub.js";
 import {
@@ -30,6 +35,7 @@ import type { RunInGameInternalOperation, SaveDeployInternalOperation } from "./
 import {
   acquireRuntimeDaemonHeartbeat,
   acquireRuntimeOwnershipLease,
+  attachRuntimeOwnershipLeaseDeployment,
   isRuntimeOperationTerminal,
   operationFromAbandonedRecord,
   type RuntimeOwnershipLease,
@@ -235,6 +241,26 @@ function makeStudioOperationRuntime(
     const publishMany = (operations: ReadonlyArray<RuntimeEventOperation>) =>
       Effect.all(operations.map(publish), { discard: true });
 
+    const attachRunDeploymentLeaseEvidence = (
+      operation: RunInGameInternalOperation
+    ): Effect.Effect<RunInGameInternalOperation, StudioRuntimeFailure> => {
+      if (operation.status !== "running") {
+        return Effect.succeed(operation);
+      }
+      if (operation.deploymentEvidence === undefined) {
+        return isPostDeployRunPhase(operation.phase)
+          ? Effect.fail(missingRunDeploymentEvidence(operation))
+          : Effect.succeed(operation);
+      }
+      return attachRuntimeOwnershipLeaseDeployment({
+        workspaceRoot: runInGameWorkspaceRoot,
+        leaseId: operation.leaseId,
+        requestId: operation.requestId,
+        deployedModId: operation.deploymentEvidence.runDeployment.deployedModId,
+        nowIso: operation.updatedAt,
+      }).pipe(Effect.as(operation));
+    };
+
     const dispose = markDisposed(
       registry,
       nowIso(),
@@ -291,16 +317,22 @@ function makeStudioOperationRuntime(
         Effect.asVoid
       );
 
-    const publishRunMutation = (mutation: RunInGameMutation): Effect.Effect<void, never> => {
+    const publishRunMutation = (
+      mutation: RunInGameMutation
+    ): Effect.Effect<void, StudioRuntimeFailure> => {
       if (mutation.kind !== "changed") return Effect.void;
       if (mutation.operation.status === "cancelled") return Effect.void;
-      const cleanupTerminalHandle =
-        mutation.operation.status === "running"
-          ? Effect.void
-          : Effect.sync(() => {
-              runInGameCleanup.delete(mutation.operation.requestId);
-            });
-      return publish(mutation.operation).pipe(Effect.zipRight(cleanupTerminalHandle));
+      return attachRunDeploymentLeaseEvidence(mutation.operation).pipe(
+        Effect.flatMap((operation) => {
+          const cleanupTerminalHandle =
+            operation.status === "running"
+              ? Effect.void
+              : Effect.sync(() => {
+                  runInGameCleanup.delete(operation.requestId);
+                });
+          return publish(operation).pipe(Effect.zipRight(cleanupTerminalHandle));
+        })
+      );
     };
 
     const recordRunInGameCleanupFailure = (
@@ -370,7 +402,16 @@ function makeStudioOperationRuntime(
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publishRunMutation), Effect.uninterruptible, Effect.asVoid),
+            }).pipe(
+              Effect.flatMap(publishRunMutation),
+              Effect.catchAll((publishErr) =>
+                Effect.sync(() => {
+                  console.error("[studio-server] failed to publish Run in Game failure", publishErr);
+                })
+              ),
+              Effect.uninterruptible,
+              Effect.asVoid
+            ),
         },
       });
 
@@ -608,6 +649,33 @@ function makeStudioOperationRuntime(
     };
 
     return yield* Effect.acquireRelease(Effect.succeed(api), () => dispose);
+  });
+}
+
+function isPostDeployRunPhase(phase: RunInGameInternalOperation["phase"]): boolean {
+  return (
+    phase === "restarting-civ" ||
+    phase === "checking-civ7" ||
+    phase === "reload-needed" ||
+    phase === "preparing-setup" ||
+    phase === "starting-game" ||
+    phase === "waiting-for-proof"
+  );
+}
+
+function missingRunDeploymentEvidence(
+  operation: RunInGameInternalOperation
+): StudioRuntimeFailure {
+  return dependencyUnavailable({
+    message: "Run in Game reached a post-deploy runtime phase without deployment evidence.",
+    dependency: "runtime",
+    diagnostics: {
+      code: "run-in-game-deployment-evidence-missing",
+      failedAtPhase: operation.phase,
+      requestId: operation.requestId,
+      leaseId: operation.leaseId,
+    },
+    recoveryActions: ["copy-diagnostics", "retry-run"],
   });
 }
 

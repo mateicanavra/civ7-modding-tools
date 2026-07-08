@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-studio-run-copy-deploy-boundary",
+  "title": "Grit Studio Run Copy Deploy Boundary",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "Studio Run in Game deployment rebuilding the Swooper mod or losing private deployment snapshot evidence",
+  "why": "Packet 11 makes deployment a copy from the request-local generated mod to the stable Studio-run mod id, with private deployment and snapshot records protected by the active runtime lease.",
+  "remediate": "Keep Run in Game deploy as deployMod(inputDir: generatedModRoot, modId: mod-swooper-studio-run), thread RunDeployment and DeployedModSnapshot through private runtime diagnostics, and keep Save/Deploy build behavior out of the Run in Game deployment path.",
+  "message": "Studio Run in Game copy-deploy boundary drifted.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/studio-server/src/ports/workflowTypes.ts",
+        "packages/studio-server/src/operationRuntime/model.ts",
+        "packages/studio-server/src/operationRuntime/operationRecords.ts",
+        "packages/studio-server/src/operationRuntime/registry.ts",
+        "packages/studio-server/src/workflows/RunInGameWorkflow.ts",
+        "apps/mapgen-studio/src/server/studio/engines.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "packages/studio-server/src",
+    "apps/mapgen-studio/src/server"
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/pattern.md"
+    },
+    "patternName": "grit_studio_run_copy_deploy_boundary"
+  }
+}

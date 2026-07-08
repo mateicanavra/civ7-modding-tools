@@ -231,6 +231,7 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
           const request = args.prepared.request;
           const mapSize = request.mapSize;
           const seed = request.seed;
+          const launchSetupConfig = { ...request.setupConfig, mapScript: launchMapScript };
           if (!launchMapScript || !mapSize || seed === undefined) {
             return Effect.fail(
               invalidRequest({
@@ -256,11 +257,11 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
                   ...(request.playerCount === undefined
                     ? {}
                     : { playerCount: request.playerCount }),
-                  ...(readSavedConfig(request.setupConfig) === undefined
+                  ...(readSavedConfig(launchSetupConfig) === undefined
                     ? {}
-                    : { savedConfig: readSavedConfig(request.setupConfig) }),
-                  options: readGameOptions(request.setupConfig),
-                  playerOptions: readPlayerOptions(request.setupConfig),
+                    : { savedConfig: readSavedConfig(launchSetupConfig) }),
+                  options: readGameOptions(launchSetupConfig),
+                  playerOptions: readPlayerOptions(launchSetupConfig),
                   fromRunningGame: "exit-to-shell",
                   waitForTuner: true,
                   waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,

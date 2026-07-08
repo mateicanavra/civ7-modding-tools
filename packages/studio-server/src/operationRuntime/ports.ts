@@ -1,7 +1,10 @@
 export type {
   CanonicalRunInGameRequest,
+  DeployedModSnapshot,
+  DeployedModSnapshotFile,
   RunInGameCatalogSource,
   RunInGameDeployment,
+  RunInGameDeploymentEvidence,
   RunInGameGeneratedMod,
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
@@ -9,6 +12,7 @@ export type {
   RunInGameRestartResult,
   RunInGameSetupPrepared,
   RunInGameStarted,
+  RunDeployment,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,
   SaveDeployRollback,
