@@ -83,5 +83,5 @@
   fold).
 - [x] 5.5 Recorded: the next re-sync ships `guidelines/**` (docs-tier); the
   live upload remains gated on the user's explicit go-ahead.
-- [ ] 5.6 Archive after the gated re-sync lands and the change's deltas are
+- [x] 5.6 Archive after the gated re-sync lands and the change's deltas are
   promoted per change-management spec.
