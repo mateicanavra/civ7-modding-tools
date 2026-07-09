@@ -11,7 +11,25 @@ vi.mock("../../src/features/runInGame/api", () => ({
   runCurrentConfigInGame: vi.fn(),
 }));
 
-import type { RunInGameOperationStatus } from "@civ7/studio-contract";
+const orpcMocks = vi.hoisted(() => ({
+  diagnostics: vi.fn(),
+  operationsCurrent: vi.fn(),
+}));
+
+vi.mock("../../src/lib/orpc", () => ({
+  orpcClient: {
+    runInGame: {
+      diagnostics: orpcMocks.diagnostics,
+    },
+    studio: {
+      operations: {
+        current: orpcMocks.operationsCurrent,
+      },
+    },
+  },
+}));
+
+import type { RunInGameOperationStatus, StudioOperationsCurrent } from "@civ7/studio-contract";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
@@ -26,6 +44,15 @@ const runRpc = vi.mocked(runCurrentConfigInGame);
 
 const SETUP = { gameOptions: {}, players: [] } as unknown as Civ7StudioSetupConfig;
 const PIPELINE = STANDARD_RECIPE_CONFIG as PipelineConfig;
+
+function withWaterTarget(config: PipelineConfig, targetWaterPercent: number): PipelineConfig {
+  const next = JSON.parse(JSON.stringify(config)) as PipelineConfig;
+  const coasts = next["morphology-coasts"] as {
+    waterCoverage: { targetWaterPercent: number };
+  };
+  coasts.waterCoverage.targetWaterPercent = targetWaterPercent;
+  return next;
+}
 
 const liveOk = (over: Partial<LiveRuntimeStatusState> = {}): LiveRuntimeStatusState =>
   ({
@@ -189,7 +216,7 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
     });
 
     await act(async () => {
-      await result.current.handleRunInGame({ restartCivProcess: true });
+      await result.current.handleRunInGame();
     });
 
     expect(runRpc).toHaveBeenCalledTimes(1);
@@ -207,7 +234,6 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
           resources: "abundant",
         },
         setupConfig,
-        restartCivProcess: true,
       })
     );
     expect(handoff.source).toEqual(
@@ -251,7 +277,7 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
     });
   });
 
-  it("rejects an editor-source run when the current config is not exact recipe JSON", async () => {
+  it("rejects an editor-source run when the current config fails schema validation", async () => {
     const invalidConfig = {
       $schema: "https://example.invalid/studio.schema.json",
       continents: { targetLandRatio: 0.42 },
@@ -302,9 +328,12 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
         id: "swooper-earthlike",
         label: "Swooper Earthlike",
         description: "Durable catalog config",
+        catalogSourceId: "swooper-earthlike",
         sourcePath: presetSourcePath,
         sortIndex: 25,
-        latitudeBounds: { min: -65, max: 75 },
+        latitudeBounds: { topLatitude: 75, bottomLatitude: -65 },
+        source: "builtin",
+        config: PIPELINE,
       })),
     });
 
@@ -351,36 +380,41 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
         materializationMode: "durable",
         selectedConfig: expect.objectContaining({
           id: "swooper-earthlike",
+          catalogSourceId: "swooper-earthlike",
           sourcePath: presetSourcePath,
+          latitudeBounds: { topLatitude: 75, bottomLatitude: -65 },
         }),
       })
     );
   });
 
-  it("uses the recipe default editor source when overrides are disabled", async () => {
+  it("keeps repo-backed session presets on the disposable editor path until they are catalog-indexed", async () => {
     const daemonStatus = {
-      requestId: "daemon-admitted-default-override-disabled",
+      requestId: "daemon-admitted-session-repo-backed",
       status: "running",
       phase: "deploying",
       recoveryActions: [],
-      createdAt: "2026-07-08T12:15:00.000Z",
-      updatedAt: "2026-07-08T12:15:01.000Z",
+      createdAt: "2026-07-08T12:11:00.000Z",
+      updatedAt: "2026-07-08T12:11:01.000Z",
     } satisfies RunInGameOperationStatus;
     runRpc.mockResolvedValue(daemonStatus);
+    const sessionSourcePath =
+      "mods/mod-swooper-maps/src/maps/configs/new-session-config.config.json";
     const { result, props } = setup({
-      overridesDisabled: true,
-      pipelineConfig: { staleDraft: true } as unknown as PipelineConfig,
-      runInGameMaterializationMode: "durable",
       recipeSettings: {
         ...DEFAULT_RECIPE_SETTINGS,
         seed: "2468",
-        preset: "builtin:swooper-earthlike",
+        preset: "builtin:new-session-config",
       },
+      runInGameMaterializationMode: "durable",
       resolvePreset: vi.fn(() => ({
-        id: "swooper-earthlike",
-        label: "Swooper Earthlike",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-        sortIndex: 25,
+        id: "new-session-config",
+        label: "New Session Config",
+        description: "Saved during this Studio session",
+        sourcePath: sessionSourcePath,
+        sortIndex: 1025,
+        source: "builtin",
+        config: PIPELINE,
       })),
     });
 
@@ -394,19 +428,224 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
       expect.objectContaining({
         kind: "editor",
         payload: expect.objectContaining({
+          configId: "studio-current",
+          label: "New Session Config",
           pipelineConfig: PIPELINE,
         }),
+      })
+    );
+    expect(handoff.source).not.toHaveProperty("catalogSourceId");
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-session-repo-backed",
+        materializationMode: "disposable",
+        selectedConfig: expect.objectContaining({
+          id: "new-session-config",
+          sourcePath: sessionSourcePath,
+        }),
+      })
+    );
+  });
+
+  it("does not catalog-launch when the durable prop is stale for the effective draft bytes", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-stale-durable-prop",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:12:00.000Z",
+      updatedAt: "2026-07-08T12:12:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    const editedPipeline = withWaterTarget(PIPELINE, 52);
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:swooper-earthlike",
+      },
+      pipelineConfig: editedPipeline,
+      runInGameMaterializationMode: "durable",
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        catalogSourceId: "swooper-earthlike",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        sortIndex: 25,
+        source: "builtin",
+        config: PIPELINE,
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "editor",
+        payload: expect.objectContaining({
+          configId: "studio-current",
+          pipelineConfig: editedPipeline,
+        }),
+      })
+    );
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-stale-durable-prop",
+        materializationMode: "disposable",
+        pipelineConfig: editedPipeline,
+        selectedConfig: expect.objectContaining({
+          id: "swooper-earthlike",
+        }),
+      })
+    );
+  });
+
+  it("does not replace the selected/current config with recipe defaults when overrides are disabled", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-default-override-disabled",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:15:00.000Z",
+      updatedAt: "2026-07-08T12:15:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, rerender, props } = setup({
+      overridesDisabled: true,
+      pipelineConfig: PIPELINE,
+      runInGameMaterializationMode: "durable",
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:swooper-earthlike",
+      },
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        catalogSourceId: "swooper-earthlike",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        sortIndex: 25,
+        source: "builtin",
+        config: PIPELINE,
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "catalog",
+        catalogSourceId: "swooper-earthlike",
       })
     );
     const sourceSnapshot = props.setLastRunInGameSource.mock.calls[0]?.[0];
     expect(sourceSnapshot).toEqual(
       expect.objectContaining({
         requestId: "daemon-admitted-default-override-disabled",
-        materializationMode: "disposable",
+        materializationMode: "durable",
         pipelineConfig: PIPELINE,
+        selectedConfig: expect.objectContaining({
+          id: "swooper-earthlike",
+          catalogSourceId: "swooper-earthlike",
+          sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        }),
       })
     );
-    expect(sourceSnapshot).not.toHaveProperty("selectedConfig");
+    const clientSnapshot = props.setRunInGameSnapshot.mock.calls[0]?.[0];
+    rerender(
+      makeArgs({
+        ...props,
+        overridesDisabled: true,
+        pipelineConfig: PIPELINE,
+        runInGameMaterializationMode: "durable",
+        recipeSettings: {
+          ...DEFAULT_RECIPE_SETTINGS,
+          seed: "2468",
+          preset: "builtin:swooper-earthlike",
+        },
+        resolvePreset: props.resolvePreset,
+        runInGameOperation: daemonStatus,
+        runInGameSnapshot: clientSnapshot,
+      })
+    );
+    expect(result.current.runInGameCurrentRelation).toBe("current");
+  });
+
+  it("reconciles a running operation from daemon current when the event stream misses a transition", async () => {
+    vi.useFakeTimers();
+    try {
+      const initial = {
+        requestId: "daemon-admitted-reconcile-1",
+        status: "running",
+        phase: "resolving-source",
+        recoveryActions: [],
+        createdAt: "2026-07-08T12:20:00.000Z",
+        updatedAt: "2026-07-08T12:20:00.000Z",
+      } satisfies RunInGameOperationStatus;
+      const reconciled = {
+        ...initial,
+        phase: "generating-artifacts",
+        updatedAt: "2026-07-08T12:20:02.000Z",
+      } satisfies RunInGameOperationStatus;
+      orpcMocks.operationsCurrent.mockResolvedValue({
+        ok: true,
+        serverInstanceId: "studio-server-test",
+        serverStartedAt: "2026-07-08T12:00:00.000Z",
+        observedAt: "2026-07-08T12:20:02.000Z",
+        runInGame: { active: reconciled, recent: [] },
+        saveDeploy: { active: null, recent: [] },
+      } satisfies StudioOperationsCurrent);
+      const { props } = setup({ runInGameOperation: initial });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1_500);
+      });
+
+      expect(orpcMocks.operationsCurrent).toHaveBeenCalledWith({});
+      expect(props.setRunInGameOperation).toHaveBeenCalledWith(reconciled);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("clears a local running operation when daemon current no longer owns it", async () => {
+    vi.useFakeTimers();
+    try {
+      const initial = {
+        requestId: "daemon-admitted-vanished-1",
+        status: "running",
+        phase: "resolving-source",
+        recoveryActions: [],
+        createdAt: "2026-07-08T12:20:00.000Z",
+        updatedAt: "2026-07-08T12:20:00.000Z",
+      } satisfies RunInGameOperationStatus;
+      orpcMocks.operationsCurrent.mockResolvedValue({
+        ok: true,
+        serverInstanceId: "studio-server-test",
+        serverStartedAt: "2026-07-08T12:00:00.000Z",
+        observedAt: "2026-07-08T12:20:02.000Z",
+        runInGame: { active: null, recent: [] },
+        saveDeploy: { active: null, recent: [] },
+      } satisfies StudioOperationsCurrent);
+      const { props } = setup({ runInGameOperation: initial });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1_500);
+      });
+
+      expect(orpcMocks.operationsCurrent).toHaveBeenCalledWith({});
+      expect(props.setRunInGameOperation).toHaveBeenCalledWith(null);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
@@ -608,8 +847,11 @@ describe("useRunInGame — RIG-2 (materializationMode is a render-time prop, sel
       resolvePreset: vi.fn(() => ({
         id: "swooper-earthlike",
         label: "Swooper Earthlike",
+        catalogSourceId: "swooper-earthlike",
         sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
         sortIndex: 100,
+        source: "builtin",
+        config: PIPELINE,
       })),
     });
     await act(async () => {

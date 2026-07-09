@@ -466,7 +466,6 @@ export const requestStatus = Type.Object(
     setupConfig: Type.Optional(setupConfig),
     setupConfigSource: Type.Optional(Type.String()),
     materializationMode: Type.Optional(Type.String()),
-    restartCivProcess: Type.Optional(Type.Boolean()),
     fingerprint: Type.Optional(Type.String()),
     sourceSnapshot: Type.Optional(sourceSnapshotProof),
     resolvedLaunchSource: Type.Optional(resolvedLaunchSource),
@@ -477,17 +476,6 @@ export const requestStatus = Type.Object(
   { additionalProperties: false }
 );
 export type RunInGameRequestStatus = Static<typeof requestStatus>;
-
-// RunInGameProcessRestartStatus - { command?, launchAttempts?, [key]: unknown }
-export const processRestartStatus = Type.Object(
-  {
-    command: Type.Optional(Type.String()),
-    launchAttempts: Type.Optional(Type.Unknown()),
-  },
-  { additionalProperties: Type.Unknown() }
-);
-export type RunInGameProcessRestartStatus = Static<typeof processRestartStatus> &
-  Readonly<Record<string, unknown>>;
 
 // RunInGameFailureDetails - private legacy diagnostics shape. It is not part of
 // the public Run in Game status wire contract.
@@ -748,14 +736,6 @@ export const start = oc
           source: launchSource,
           recipeSettings: runInGameRecipeSettings,
           worldSettings: runInGameWorldSettings,
-          recovery: Type.Optional(
-            Type.Object(
-              {
-                restartCivProcess: Type.Optional(Type.Boolean()),
-              },
-              { additionalProperties: false }
-            )
-          ),
           setupConfig: Type.Optional(Type.Unknown()),
         },
         { additionalProperties: false }

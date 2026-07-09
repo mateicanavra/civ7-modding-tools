@@ -127,7 +127,6 @@ export {
   formatRunInGamePhaseLabel,
   type RunInGameRelation,
   runInGamePrimaryActionLabel,
-  runInGameRequiresProcessRestart,
 } from "./components/panels/statusLabels.js";
 // templates — canonical assemblies (the graduation target for reference
 // explorations that earn reuse; operating model in README.md)

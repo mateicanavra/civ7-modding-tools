@@ -13,7 +13,7 @@
       }
     },
     "serve-daemon": {
-      "command": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
+      "command": "bun --conditions bun-source src/server/daemon/daemon.ts",
       "dependsOn": [
         "^build",
         {

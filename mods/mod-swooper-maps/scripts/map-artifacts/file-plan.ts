@@ -1,9 +1,14 @@
 import { createHash } from "node:crypto";
 
-import type { RunCorrelation } from "@civ7/studio-run-workspace";
-import type { ValidatedMapConfig } from "../../src/maps/configs/canonical.js";
+import {
+  type RunCorrelation,
+  STUDIO_RUN_MAP_ROW_ID,
+  STUDIO_RUN_MAP_SCRIPT_PATH,
+  STUDIO_RUN_MOD_ID,
+} from "@civ7/studio-run-workspace";
+import { mapLocalizationTag, type ValidatedMapConfig } from "../../src/maps/configs/canonical.js";
 
-export type StudioRunProofEnv =
+export type StudioRunEvidenceEnv =
   | Readonly<{ kind: "none" }>
   | Readonly<{
       kind: "run";
@@ -65,6 +70,16 @@ export type SwooperMapArtifactExclusiveSet = Readonly<{
   artifactKind: "generated-map-entry";
 }>;
 
+const DEFAULT_GENERATED_MAP_LATITUDE_BOUNDS = {
+  topLatitude: 80,
+  bottomLatitude: -80,
+} as const;
+
+type GeneratedMapLatitudeBounds = Readonly<{
+  topLatitude: number;
+  bottomLatitude: number;
+}>;
+
 /**
  * Pure artifact intent for Swooper map generation. The renderer owns relative
  * paths, content, and marker metadata; the writer owns output-root resolution,
@@ -101,11 +116,19 @@ function configHashFor(config: ValidatedMapConfig): string {
   return stableHash(config.config);
 }
 
+function mapLatitudeBoundsFor(config: ValidatedMapConfig): GeneratedMapLatitudeBounds {
+  return config.latitudeBounds ?? DEFAULT_GENERATED_MAP_LATITUDE_BOUNDS;
+}
+
+function latitudeBoundsProperty(config: ValidatedMapConfig): string {
+  return `\n  latitudeBounds: ${JSON.stringify(mapLatitudeBoundsFor(config), null, 2).replace(/\n/g, "\n  ")},`;
+}
+
 function envelopeHashFor(config: ValidatedMapConfig, configHash: string): string {
   return stableHash({
     id: config.id,
     recipe: config.recipe,
-    latitudeBounds: config.latitudeBounds ?? null,
+    latitudeBounds: mapLatitudeBoundsFor(config),
     configHash,
   });
 }
@@ -121,21 +144,19 @@ function xmlEscape(value: string): string {
 
 function renderMapEntryArtifact(
   config: ValidatedMapConfig,
-  studioRunProofEnv: StudioRunProofEnv
+  studioRunEvidenceEnv: StudioRunEvidenceEnv
 ): Pick<
   Extract<SwooperMapArtifactPlannedFile, { kind: "generated-map-entry" }>,
   "content" | "markerMetadata"
 > {
   const configHash = configHashFor(config);
-  const isSelectedProofConfig =
-    studioRunProofEnv.kind === "run" && studioRunProofEnv.launchConfigId === config.id;
-  const envelopeHash = isSelectedProofConfig
-    ? studioRunProofEnv.launchEnvelopeDigest
+  const isSelectedRunConfig =
+    studioRunEvidenceEnv.kind === "run" && studioRunEvidenceEnv.launchConfigId === config.id;
+  const envelopeHash = isSelectedRunConfig
+    ? studioRunEvidenceEnv.launchEnvelopeDigest
     : envelopeHashFor(config, configHash);
-  const requestId = isSelectedProofConfig ? studioRunProofEnv.requestId : undefined;
-  const latitudeBounds = config.latitudeBounds
-    ? `\n  latitudeBounds: ${JSON.stringify(config.latitudeBounds, null, 2).replace(/\n/g, "\n  ")},`
-    : "";
+  const requestId = isSelectedRunConfig ? studioRunEvidenceEnv.requestId : undefined;
+  const latitudeBounds = latitudeBoundsProperty(config);
   const logPrefix = config.logPrefix ? `\n  logPrefix: ${JSON.stringify(config.logPrefix)},` : "";
   const requestIdLine = requestId ? `\n  requestId: ${JSON.stringify(requestId)},` : "";
   return {
@@ -158,6 +179,17 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = ${JSON.stringify(
         {
           id: config.id,
@@ -165,13 +197,13 @@ const mapConfig = ${JSON.stringify(
           description: config.description,
           recipe: config.recipe,
           sortIndex: config.sortIndex,
-          ...(config.latitudeBounds === undefined ? {} : { latitudeBounds: config.latitudeBounds }),
+          latitudeBounds: mapLatitudeBoundsFor(config),
           ...(config.logPrefix === undefined ? {} : { logPrefix: config.logPrefix }),
           config: config.config,
         },
         null,
         2
-      )} as const;
+      )} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
@@ -181,7 +213,7 @@ export default createMap({
   sourceConfigId: ${JSON.stringify(config.id)},
   configHash: ${JSON.stringify(configHash)},
   envelopeHash: ${JSON.stringify(envelopeHash)},${requestIdLine}
-  config: mapConfig.config as StandardRecipeConfig,
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });
 `,
     },
@@ -196,9 +228,7 @@ function renderRunMapEntryArtifact(
 > {
   const config = input.config;
   const configHash = configHashFor(config);
-  const latitudeBounds = config.latitudeBounds
-    ? `\n  latitudeBounds: ${JSON.stringify(config.latitudeBounds, null, 2).replace(/\n/g, "\n  ")},`
-    : "";
+  const latitudeBounds = latitudeBoundsProperty(config);
   const logPrefix = config.logPrefix ? `\n  logPrefix: ${JSON.stringify(config.logPrefix)},` : "";
   return {
     markerMetadata: {
@@ -220,6 +250,17 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const runCorrelation = ${JSON.stringify(input.correlation, null, 2)} as const;
 const mapConfig = ${JSON.stringify(
         {
@@ -228,13 +269,13 @@ const mapConfig = ${JSON.stringify(
           description: config.description,
           recipe: config.recipe,
           sortIndex: config.sortIndex,
-          ...(config.latitudeBounds === undefined ? {} : { latitudeBounds: config.latitudeBounds }),
+          latitudeBounds: mapLatitudeBoundsFor(config),
           ...(config.logPrefix === undefined ? {} : { logPrefix: config.logPrefix }),
           config: config.config,
         },
         null,
         2
-      )} as const;
+      )} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
@@ -244,7 +285,7 @@ export default createMap({
   sourceConfigId: ${JSON.stringify(input.selectedConfigId)},
   runCorrelation,
   seed: ${JSON.stringify(input.seed)},
-  config: mapConfig.config as StandardRecipeConfig,
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });
 `,
     },
@@ -253,15 +294,15 @@ export default createMap({
 
 function renderConfigXml(
   configs: readonly ValidatedMapConfig[],
-  options: Readonly<{ moduleId?: string }> = {}
+  options: Readonly<{ moduleId?: string; outputFile?: string; mapRowId?: string }> = {}
 ): string {
   const moduleId = options.moduleId ?? "swooper-maps";
   const rows = configs
     .map(
       (config) => `\t\t<Row
-\t\t\tFile="{${moduleId}}/maps/${config.outputFile}"
-\t\t\tName="${config.localizationNameTag}"
-\t\t\tDescription="${config.localizationDescriptionTag}"
+\t\t\tFile="{${moduleId}}/${options.outputFile ?? `maps/${config.outputFile}`}"
+\t\t\tName="${options.mapRowId ? mapLocalizationTag(options.mapRowId, "name") : config.localizationNameTag}"
+\t\t\tDescription="${options.mapRowId ? mapLocalizationTag(options.mapRowId, "description") : config.localizationDescriptionTag}"
 \t\t\tSortIndex="${config.sortIndex}"
 \t\t/>`
     )
@@ -280,6 +321,7 @@ type SwooperModRenderMode =
   | Readonly<{
       kind: "studio-run";
       moduleId: string;
+      mapRowId: string;
       dependencyModules: readonly Readonly<{ id: string; title: string }>[];
     }>;
 
@@ -288,14 +330,24 @@ function renderMapText(
   mode: SwooperModRenderMode = { kind: "catalog" }
 ): string {
   const rows = configs
-    .flatMap((config) => [
-      `\t\t<Row Tag="${config.localizationNameTag}">
+    .flatMap((config) => {
+      const nameTag =
+        mode.kind === "studio-run"
+          ? mapLocalizationTag(mode.mapRowId, "name")
+          : config.localizationNameTag;
+      const descriptionTag =
+        mode.kind === "studio-run"
+          ? mapLocalizationTag(mode.mapRowId, "description")
+          : config.localizationDescriptionTag;
+      return [
+        `\t\t<Row Tag="${nameTag}">
 \t\t\t<Text>${xmlEscape(config.name)}</Text>
 \t\t</Row>`,
-      `\t\t<Row Tag="${config.localizationDescriptionTag}">
+        `\t\t<Row Tag="${descriptionTag}">
 \t\t\t<Text>${xmlEscape(config.description)}</Text>
 \t\t</Row>`,
-    ])
+      ];
+    })
     .join("\n");
   const biomeHazardRows =
     mode.kind === "studio-run"
@@ -366,6 +418,10 @@ function renderModInfo(
   mode: SwooperModRenderMode = { kind: "catalog" }
 ): string {
   const moduleId = mode.moduleId ?? "swooper-maps";
+  const criteriaId = mode.kind === "studio-run" ? `always-${moduleId}` : "always";
+  const gameActionGroupId = mode.kind === "studio-run" ? `game-${moduleId}` : "game-swooper-maps";
+  const shellActionGroupId =
+    mode.kind === "studio-run" ? `shell-${moduleId}` : "shell-swooper-maps";
   const dependencyModules = mode.kind === "studio-run" ? mode.dependencyModules : [];
   const extraDependencies = dependencyModules
     .map(
@@ -386,8 +442,9 @@ function renderModInfo(
 \t\t<File>text/en_us/ModuleText.xml</File>
 \t</LocalizedText>
 `;
+  const importPath = mode.kind === "studio-run" ? STUDIO_RUN_MAP_SCRIPT_PATH : undefined;
   const imports = configs
-    .map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`)
+    .map((config) => `\t\t\t\t\t<Item>${importPath ?? `maps/${config.outputFile}`}</Item>`)
     .join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
 <Mod id="${xmlEscape(moduleId)}" version="1" xmlns="ModInfo">
@@ -401,12 +458,12 @@ function renderModInfo(
 \t\t<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>${extraDependencies ? `\n${extraDependencies}` : ""}
 \t</Dependencies>
 \t<ActionCriteria>
-\t\t<Criteria id="always">
+\t\t<Criteria id="${xmlEscape(criteriaId)}">
 \t\t\t<AlwaysMet></AlwaysMet>
 \t\t</Criteria>
 \t</ActionCriteria>
 \t<ActionGroups>
-\t\t<ActionGroup id="game-swooper-maps" scope="game" criteria="always">
+\t\t<ActionGroup id="${xmlEscape(gameActionGroupId)}" scope="game" criteria="${xmlEscape(criteriaId)}">
 \t\t\t<Actions>
 \t\t\t\t<UpdateText>
 \t\t\t\t\t<Item>text/en_us/MapText.xml</Item>
@@ -416,7 +473,7 @@ ${imports}
 \t\t\t\t</ImportFiles>
 \t\t\t</Actions>
 \t\t</ActionGroup>
-\t\t<ActionGroup id="shell-swooper-maps" scope="shell" criteria="always">
+\t\t<ActionGroup id="${xmlEscape(shellActionGroupId)}" scope="shell" criteria="${xmlEscape(criteriaId)}">
 \t\t\t<Actions>
 \t\t\t\t<UpdateDatabase>
 \t\t\t\t\t<Item>config/config.xml</Item>
@@ -439,7 +496,7 @@ function renderMapConfigsArtifact(configs: readonly ValidatedMapConfig[]): strin
     description: config.description,
     recipe: config.recipe,
     sortIndex: config.sortIndex,
-    latitudeBounds: config.latitudeBounds,
+    latitudeBounds: mapLatitudeBoundsFor(config),
     configHash: configHashFor(config),
     envelopeHash: envelopeHashFor(config, configHashFor(config)),
     sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
@@ -486,12 +543,12 @@ export function buildSwooperCatalogModFilePlan(
   options: Readonly<{
     configs: readonly ValidatedMapConfig[];
     envelopeSchema: unknown;
-    proofEnv?: StudioRunProofEnv;
+    evidenceEnv?: StudioRunEvidenceEnv;
   }>
 ): SwooperMapArtifactFilePlan {
-  const proofEnv = options.proofEnv ?? { kind: "none" };
+  const evidenceEnv = options.evidenceEnv ?? { kind: "none" };
   const generatedMapFiles = options.configs.map((config) => {
-    const entry = renderMapEntryArtifact(config, proofEnv);
+    const entry = renderMapEntryArtifact(config, evidenceEnv);
     return {
       relativePath: `src/maps/generated/${config.id}.ts`,
       kind: "generated-map-entry",
@@ -577,7 +634,7 @@ export function buildSwooperMapArtifactFilePlan(
   options: Readonly<{
     configs: readonly ValidatedMapConfig[];
     envelopeSchema: unknown;
-    proofEnv?: StudioRunProofEnv;
+    evidenceEnv?: StudioRunEvidenceEnv;
   }>
 ): SwooperMapArtifactFilePlan {
   const modPlan = buildSwooperCatalogModFilePlan(options);
@@ -586,12 +643,6 @@ export function buildSwooperMapArtifactFilePlan(
     exclusiveSets: modPlan.exclusiveSets,
     files: [...modPlan.files, ...metadataPlan.files],
   };
-}
-
-export const SWOOPER_STUDIO_RUN_MOD_ID = "mod-swooper-studio-run";
-
-export function runMapRowIdForArtifact(runArtifactId: string): string {
-  return `MAP_${runArtifactId.replace(/-/g, "_").toUpperCase()}`;
 }
 
 /**
@@ -612,7 +663,8 @@ export function buildSwooperRunGeneratedModFilePlan(
   const renderMode = {
     kind: "studio-run",
     dependencyModules: [{ id: "swooper-maps", title: "LOC_MODULE_SWOOPER_MAPS_NAME" }],
-    moduleId: SWOOPER_STUDIO_RUN_MOD_ID,
+    mapRowId: STUDIO_RUN_MAP_ROW_ID,
+    moduleId: STUDIO_RUN_MOD_ID,
   } satisfies SwooperModRenderMode;
   return {
     exclusiveSets: [
@@ -635,11 +687,15 @@ export function buildSwooperRunGeneratedModFilePlan(
         kind: "mod-config",
         content: {
           kind: "text",
-          text: renderConfigXml([config], { moduleId: SWOOPER_STUDIO_RUN_MOD_ID }),
+          text: renderConfigXml([config], {
+            moduleId: STUDIO_RUN_MOD_ID,
+            outputFile: STUDIO_RUN_MAP_SCRIPT_PATH,
+            mapRowId: STUDIO_RUN_MAP_ROW_ID,
+          }),
         },
       },
       {
-        relativePath: `${SWOOPER_STUDIO_RUN_MOD_ID}.modinfo`,
+        relativePath: `${STUDIO_RUN_MOD_ID}.modinfo`,
         kind: "mod-info",
         content: {
           kind: "text",

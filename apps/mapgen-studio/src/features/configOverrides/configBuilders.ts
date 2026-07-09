@@ -55,7 +55,7 @@ function toJsonConfig(value: unknown): { ok: true; value: unknown } | { ok: fals
   }
 }
 
-export function validateExactPipelineConfig(args: {
+export function materializePipelineConfig(args: {
   schema: TSchema;
   config: unknown;
   label: string;
@@ -80,15 +80,13 @@ export function validateExactPipelineConfig(args: {
     `/config/${label}`
   );
   if (errors.length > 0) return { ok: false, errors };
-
   if (!Value.Equal(value, jsonConfig.value)) {
     return {
       ok: false,
       errors: [
         {
           path: `/config/${label}`,
-          message:
-            "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
+          message: "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
         },
       ],
     };
@@ -102,7 +100,7 @@ export function applyPresetConfig(args: {
   presetConfig: unknown;
   label: string;
 }): PresetApplyResult {
-  return validateExactPipelineConfig({
+  return materializePipelineConfig({
     schema: args.schema,
     config: args.presetConfig,
     label: args.label,

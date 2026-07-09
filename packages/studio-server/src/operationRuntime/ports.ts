@@ -9,7 +9,6 @@ export type {
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameProof,
-  RunInGameRestartResult,
   RunInGameRuntimeObservation,
   RunInGameSetupPrepared,
   RunInGameStarted,

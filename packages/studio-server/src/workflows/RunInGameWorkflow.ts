@@ -3,7 +3,6 @@ import { Context, Effect, Layer } from "effect";
 
 import type { StudioInputs } from "../context.js";
 import {
-  isStudioRuntimeFailure,
   materializationFailed,
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
@@ -13,7 +12,6 @@ import type {
   RunInGameDeployment,
   RunInGameGeneratedMod,
   RunInGamePreparedRequest,
-  RunInGameRestartResult,
   StudioWorkflowPorts,
 } from "../ports/index.js";
 import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../ports/index.js";
@@ -58,34 +56,6 @@ function makeRunInGameWorkflow(
       catch: (err) => err,
     });
 
-  const restartCiv = (
-    workflow: RunInGameWorkflowStart,
-    deployment: RunInGameDeployment
-  ): Effect.Effect<RunInGameRestartResult, unknown> => {
-    return Effect.gen(function* () {
-      yield* workflow.transitions.transition({
-        phase: "restarting-civ",
-        ...deploymentEvidence(deployment),
-      });
-      return yield* tryPromise(
-        () =>
-          args.ports.restartCivForRunInGame?.({
-            requestId: workflow.requestId,
-            prepared: workflow.prepared,
-            deployment,
-          }) ?? Promise.resolve({})
-      );
-    });
-  };
-  const maybeRequestedRestart = (
-    workflow: RunInGameWorkflowStart,
-    deployment: RunInGameDeployment
-  ): Effect.Effect<RunInGameRestartResult, unknown> => {
-    if (!workflow.prepared.request.restartCivProcess || !args.ports.restartCivForRunInGame) {
-      return Effect.succeed({});
-    }
-    return restartCiv(workflow, deployment);
-  };
   const deploymentEvidence = (deployment: RunInGameDeployment) => ({
     deploymentEvidence: {
       runDeployment: deployment.runDeployment,
@@ -178,9 +148,6 @@ function makeRunInGameWorkflow(
                   selectedConfigId: workflow.prepared.request.selectedConfigId,
                   setupConfig: workflow.prepared.request.setupConfig,
                   materializationMode: workflow.prepared.request.materializationMode,
-                  ...(workflow.prepared.request.restartCivProcess === undefined
-                    ? {}
-                    : { restartCivProcess: workflow.prepared.request.restartCivProcess }),
                 },
                 resolvedLaunchSource: workflow.prepared.resolvedLaunchSource,
                 launchEnvelope: workflow.prepared.launchEnvelope,
@@ -248,18 +215,11 @@ function makeRunInGameWorkflow(
             ...deploymentEvidence(deployment),
           });
 
-          if (workflow.prepared.request.restartCivProcess && args.ports.restartCivForRunInGame) {
-            phase = "restarting-civ";
-          }
-          let restart = yield* maybeRequestedRestart(workflow, deployment);
           phase = "checking-civ7";
           yield* workflow.transitions.transition({
             phase,
             materialization: deployment.materialization ?? generated.materialization,
             ...deploymentEvidence(deployment),
-            ...(restart.processRestart === undefined
-              ? {}
-              : { processRestart: restart.processRestart }),
           });
           yield* args.civ7.checkPlayable({
             requestId: workflow.requestId,
@@ -269,56 +229,11 @@ function makeRunInGameWorkflow(
 
           phase = "preparing-setup";
           yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
-          const setup = yield* args.civ7
-            .prepareSetup({
-              requestId: workflow.requestId,
-              prepared: workflow.prepared,
-              deployment,
-            })
-            .pipe(
-              Effect.catchAll((err) => {
-                if (!shouldRestartAfterSetupRowMiss({ workflow, err, restart })) {
-                  return Effect.fail(err);
-                }
-                return Effect.gen(function* () {
-                  phase = "reload-needed";
-                  yield* workflow.transitions.transition({
-                    phase,
-                    ...deploymentEvidence(deployment),
-                  });
-                  phase = "restarting-civ";
-                  restart = yield* restartCiv(workflow, deployment);
-                  phase = "checking-civ7";
-                  yield* workflow.transitions.transition({
-                    phase,
-                    materialization: deployment.materialization ?? generated.materialization,
-                    ...deploymentEvidence(deployment),
-                    ...(restart.processRestart === undefined
-                      ? {}
-                      : { processRestart: restart.processRestart }),
-                  });
-                  yield* args.civ7.checkPlayable({
-                    requestId: workflow.requestId,
-                    prepared: workflow.prepared,
-                    deployment,
-                  });
-                  phase = "preparing-setup";
-                  yield* workflow.transitions.transition({
-                    phase,
-                    ...deploymentEvidence(deployment),
-                  });
-                  return yield* args.civ7.prepareSetup({
-                    requestId: workflow.requestId,
-                    prepared: workflow.prepared,
-                    deployment,
-                  });
-                });
-              })
-            );
-          if (setup.reloadRequired) {
-            phase = "reload-needed";
-            yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
-          }
+          const setup = yield* args.civ7.prepareSetup({
+            requestId: workflow.requestId,
+            prepared: workflow.prepared,
+            deployment,
+          });
 
           phase = "starting-game";
           yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
@@ -387,23 +302,6 @@ function makeRunInGameWorkflow(
         );
       }).pipe(Effect.catchAll(() => Effect.void)),
   };
-}
-
-function shouldRestartAfterSetupRowMiss(
-  args: Readonly<{
-    workflow: RunInGameWorkflowStart;
-    err: unknown;
-    restart: RunInGameRestartResult;
-  }>
-): boolean {
-  if (args.restart.processRestart !== undefined) return false;
-  if (args.workflow.prepared.request.restartCivProcess) return false;
-  if (args.workflow.prepared.request.materializationMode !== "disposable") return false;
-  if (!isStudioRuntimeFailure(args.err)) return false;
-  return (
-    args.err.reason === "setup-row-unavailable" &&
-    args.err.diagnostics?.reloadBoundary === "process-restart-required"
-  );
 }
 
 function runInGameCleanupFailure(

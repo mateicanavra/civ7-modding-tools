@@ -7,7 +7,6 @@ export const STUDIO_RECOVERY_ACTIONS = [
   "copy-diagnostics",
   "dismiss-civ-notification-and-retry",
   "edit-config",
-  "exit-to-shell-and-continue",
   "inspect-deploy-output",
   "restart-civ-process-and-retry",
   "retry-run",

@@ -3,7 +3,6 @@ import type {
   RecipeSettings,
   WorldSettings,
 } from "@swooper/mapgen-studio-ui/types";
-import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { describe, expect, it } from "vitest";
 import {
   loadStudioAuthoringState,
@@ -104,7 +103,7 @@ describe("Studio authoring-state persistence", () => {
     expect(parsed).not.toHaveProperty("repoBackedPresetOverridesByRecipe");
   });
 
-  it("hydrates no authoring state when the persisted recipe config is not exact JSON", () => {
+  it("hydrates no authoring state when the persisted recipe config fails schema validation", () => {
     const storage = memoryStorage();
     storage.setItem(
       STUDIO_AUTHORING_STATE_KEY,
@@ -150,21 +149,22 @@ describe("Studio authoring-state persistence", () => {
     expect(storage.getItem(STUDIO_AUTHORING_STATE_KEY)).toBe(before);
   });
 
-  it("persists the recipe default config when overrides are disabled", () => {
+  it("persists the current complete config when overrides are disabled", () => {
     const storage = memoryStorage();
+    const disabledConfig = { ...pipelineConfig } as PipelineConfig;
     saveStudioAuthoringState(
       {
         worldSettings,
         recipeSettings,
         setupConfig,
-        pipelineConfig: { staleDraft: true } as unknown as PipelineConfig,
+        pipelineConfig: disabledConfig,
         overridesDisabled: true,
       },
       storage
     );
 
     expect(loadStudioAuthoringState(storage)).toMatchObject({
-      pipelineConfig: STANDARD_RECIPE_CONFIG,
+      pipelineConfig: disabledConfig,
       overridesDisabled: true,
     });
   });

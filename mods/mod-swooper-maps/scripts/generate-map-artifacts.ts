@@ -19,7 +19,7 @@ import {
 import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 import {
   buildSwooperCatalogModFilePlan,
-  type StudioRunProofEnv,
+  type StudioRunEvidenceEnv,
 } from "./map-artifacts/file-plan.js";
 import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
 
@@ -34,11 +34,13 @@ const studioDeployConfigIdEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_ID";
 const studioDeployConfigPathEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH";
 
 /**
- * Reads the all-or-nothing Studio run proof tuple before generation performs
+ * Reads the all-or-nothing Studio run evidence tuple before generation performs
  * discovery I/O. The executable script owns ambient env discovery; the renderer
- * receives an explicit proof state and stays deterministic.
+ * receives an explicit evidence state and stays deterministic.
  */
-export function readStudioRunProofEnv(env: NodeJS.ProcessEnv = process.env): StudioRunProofEnv {
+export function readStudioRunEvidenceEnv(
+  env: NodeJS.ProcessEnv = process.env
+): StudioRunEvidenceEnv {
   const requestId = env.SWOOPER_STUDIO_RUN_ID;
   const launchConfigId = env.SWOOPER_STUDIO_LAUNCH_CONFIG_ID;
   const launchEnvelopeDigest = env.SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST;
@@ -51,7 +53,7 @@ export function readStudioRunProofEnv(env: NodeJS.ProcessEnv = process.env): Stu
   }
   if (!requestId || !launchConfigId || !launchEnvelopeDigest) {
     throw new Error(
-      "Studio run proof env must set SWOOPER_STUDIO_RUN_ID, SWOOPER_STUDIO_LAUNCH_CONFIG_ID, and SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST together"
+      "Studio run evidence env must set SWOOPER_STUDIO_RUN_ID, SWOOPER_STUDIO_LAUNCH_CONFIG_ID, and SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST together"
     );
   }
   return { kind: "run", requestId, launchConfigId, launchEnvelopeDigest };
@@ -229,7 +231,7 @@ function shouldIncludeStudioDeployConfig(args: readonly string[]): boolean {
 
 async function main(): Promise<void> {
   const includeStudioDeployConfig = shouldIncludeStudioDeployConfig(process.argv.slice(2));
-  const proofEnv = includeStudioDeployConfig ? readStudioRunProofEnv() : { kind: "none" };
+  const evidenceEnv = includeStudioDeployConfig ? readStudioRunEvidenceEnv() : { kind: "none" };
   const configs = includeStudioDeployConfig
     ? await loadSwooperStudioDeployConfigRegistry({
         deployConfig: readStudioDeployConfigReference(process.env),
@@ -240,7 +242,7 @@ async function main(): Promise<void> {
   const plan = buildSwooperCatalogModFilePlan({
     configs,
     envelopeSchema,
-    proofEnv,
+    evidenceEnv,
   });
   await writeSwooperMapArtifactFilePlan(plan, { outputRoot: pkgRoot });
 

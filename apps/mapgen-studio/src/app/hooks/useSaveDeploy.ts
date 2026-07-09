@@ -8,7 +8,7 @@ import {
   saveDeployResultFromTerminalStatus,
   updateMapConfigSaveDeployStatus,
 } from "../../features/mapConfigSave/status";
-import { validateExactPipelineConfig } from "../../features/configOverrides/configBuilders";
+import { materializePipelineConfig } from "../../features/configOverrides/configBuilders";
 import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
 import { toRepoBackedPreset } from "../../features/presets/repoBacked";
 import { type PresetKey, parsePresetKey } from "../../features/presets/types";
@@ -51,7 +51,7 @@ export type UseSaveDeployArgs = {
   recipeSettings: RecipeSettings;
   /** Current authoring draft config. Outbound saves use the effective config source. */
   pipelineConfig: PipelineConfig;
-  /** When overrides are disabled, outbound saves use the recipe default config. */
+  /** UI edit/autorun gate; outbound saves still use the current complete config. */
   overridesDisabled: boolean;
   setRecipeSettings: AuthoringState["setRecipeSettings"];
   setPipelineConfig: AuthoringState["setPipelineConfig"];
@@ -220,7 +220,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
         pipelineConfig,
         overridesDisabled,
       }).recipeArtifacts;
-      const validatedConfig = validateExactPipelineConfig({
+      const validatedConfig = materializePipelineConfig({
         schema: recipeArtifacts.configSchema,
         config: args.config,
         label: "save-deploy",
@@ -324,8 +324,8 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
           })
         );
         markPresetApplied({ key: `builtin:${id}`, config: result.config });
-        setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
         setPipelineConfig(result.config);
+        setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
       }
       if (!result.ok) {
         toast(
@@ -416,7 +416,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       });
       return;
     }
-    const validatedConfig = validateExactPipelineConfig({
+    const validatedConfig = materializePipelineConfig({
       schema: outboundConfigSource.recipeArtifacts.configSchema,
       config: outboundPipelineConfig,
       label: "save-current",
@@ -467,8 +467,8 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
         })
       );
       markPresetApplied({ key: `builtin:${id}`, config: repoResult.config });
-      setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
       setPipelineConfig(repoResult.config);
+      setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
     }
     if (!repoResult.ok) {
       toast(

@@ -61,6 +61,7 @@ function renderBrowserRun(initial: Partial<UseBrowserRunArgs> = {}) {
     viz,
     runInGameRunning: false,
     saveDeployRunning: false,
+    resolvePreset: vi.fn(() => null),
     toast,
     setLocalError,
     ...initial,
@@ -110,12 +111,15 @@ describe("useBrowserRun — run actions (BR-6 / BR-7)", () => {
 // startBrowserRun internals — overrides + seed validation (BR-8, BR-9)
 // ---------------------------------------------------------------------------
 describe("useBrowserRun — startBrowserRun config + seed (BR-8 / BR-9)", () => {
-  it("BR-8: passes one exact pipelineConfig object for both default and edited runs", () => {
+  it("BR-8: passes one exact pipelineConfig object for disabled and edited runs", () => {
+    const disabledConfig = { ...DEFAULT_CONFIG } as typeof DEFAULT_CONFIG;
     const disabled = renderBrowserRun();
-    act(() => useAuthoringStore.setState({ overridesDisabled: true }));
+    act(() =>
+      useAuthoringStore.setState({ overridesDisabled: true, pipelineConfig: disabledConfig })
+    );
     act(() => disabled.view.result.current.triggerRun());
     expect(disabled.runnerActions.start).toHaveBeenCalledTimes(1);
-    expect(disabled.runnerActions.start.mock.calls[0][0].pipelineConfig).toEqual(DEFAULT_CONFIG);
+    expect(disabled.runnerActions.start.mock.calls[0][0].pipelineConfig).toEqual(disabledConfig);
 
     const exactConfig = { ...DEFAULT_CONFIG } as typeof DEFAULT_CONFIG;
     const enabled = renderBrowserRun();
@@ -124,6 +128,34 @@ describe("useBrowserRun — startBrowserRun config + seed (BR-8 / BR-9)", () => 
     expect(enabled.runnerActions.start).toHaveBeenCalledTimes(1);
     expect(enabled.runnerActions.start.mock.calls[0][0].pipelineConfig).toEqual(exactConfig);
     expect(useRunStore.getState().lastRunSnapshot?.pipelineConfig).toEqual(exactConfig);
+  });
+
+  it("BR-8: uses selected config latitude metadata for browser runs", () => {
+    const selectedLatitudeBounds = { topLatitude: 40, bottomLatitude: -40 };
+    const browserRun = renderBrowserRun({
+      resolvePreset: vi.fn(() => ({
+        source: "builtin",
+        id: "swooper-desert-mountains",
+        label: "Swooper Desert Mountains",
+        latitudeBounds: selectedLatitudeBounds,
+        config: DEFAULT_CONFIG,
+      })),
+    });
+    act(() =>
+      useAuthoringStore.setState({
+        recipeSettings: {
+          recipe: DEFAULT_RECIPE,
+          preset: "builtin:swooper-desert-mountains",
+          seed: "123",
+        },
+      })
+    );
+    act(() => browserRun.view.result.current.triggerRun());
+
+    expect(browserRun.runnerActions.start).toHaveBeenCalledTimes(1);
+    expect(browserRun.runnerActions.start.mock.calls[0][0].latitudeBounds).toEqual(
+      selectedLatitudeBounds
+    );
   });
 
   it("BR-8: rejects invalid pipelineConfig before snapshot or worker start", () => {

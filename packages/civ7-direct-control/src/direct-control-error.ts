@@ -12,6 +12,7 @@ export type Civ7DirectControlErrorCode =
   | "setup-api-unavailable"
   | "setup-phase-invalid"
   | "setup-map-row-missing"
+  | "setup-mod-reconciliation-failed"
   | "setup-parameter-invalid"
   | "setup-apply-timeout"
   | "setup-readback-mismatch"

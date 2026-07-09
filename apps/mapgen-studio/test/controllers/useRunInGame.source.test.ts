@@ -14,21 +14,10 @@ describe("useRunInGame source — RIG-2 (materializationMode is a render-time pr
     // render-time prop. The hook must NOT own it via state or an effect-assigned ref —
     // that would forward a previous-render mode to the daemon.
     expect(hook).toMatch(/const \{[\s\S]*runInGameMaterializationMode,[\s\S]*\} = args;/);
-    // No effect ever assigns a materialization-mode ref, and the hook does not
-    // re-derive the mode from preset/config (that derivation stays HOST, §7.6).
+    // No effect ever assigns a materialization-mode ref. The hook may still
+    // defend the launch decision against a stale durable prop in render scope.
     expect(hook).not.toMatch(/MaterializationModeRef/);
     expect(hook).not.toMatch(/useState<["']durable["']/);
-    expect(hook).not.toMatch(/configsEqual/);
-  });
-});
-
-describe("useRunInGame source — RIG-4 (fingerprint includes materializationMode)", () => {
-  it("the run-in-game fingerprint memo passes materializationMode into buildRunInGameFingerprint", () => {
-    const fingerprint = hook.slice(
-      hook.indexOf("buildRunInGameFingerprint({"),
-      hook.indexOf("buildRunInGameFingerprint({") + 400
-    );
-    expect(fingerprint).toContain("materializationMode: effectiveMaterializationMode");
   });
 });
 

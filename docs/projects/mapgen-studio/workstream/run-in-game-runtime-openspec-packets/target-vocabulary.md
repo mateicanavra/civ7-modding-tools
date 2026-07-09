@@ -80,9 +80,9 @@ category `ownership`.
 A complete `StudioRunGeneratedMod` contains:
 
 - modinfo/config file for stable deployed mod id `mod-swooper-studio-run`;
-- map data/config file containing the request map row;
-- localized text for the request map row;
-- runtime map script at `maps/${runArtifactId}.js`;
+- map data/config file containing the stable generated Studio-run setup row;
+- localized text for the generated Studio-run setup row;
+- runtime map script at `maps/studio-run.js`, overwritten per request;
 - marker/correlation payload embedded in generated runtime assets;
 - any static files required for the deployed mod to load in Civ7.
 

@@ -26,6 +26,9 @@ export {
   resolveRunWorkspaceRoot,
   SAFE_RUN_ARTIFACT_ID,
   SAFE_RUN_REQUEST_ID,
+  STUDIO_RUN_MAP_ROW_ID,
+  STUDIO_RUN_MAP_SCRIPT_PATH,
+  STUDIO_RUN_MOD_ID,
   type StudioRunWorkspacePaths,
   studioRunWorkspacePaths,
 } from "./paths.js";

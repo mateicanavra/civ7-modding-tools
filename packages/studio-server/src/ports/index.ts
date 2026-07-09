@@ -1,4 +1,3 @@
-export type { Civ7ProcessControl } from "./Civ7ProcessControl.js";
 export {
   Civ7WorkflowControl,
   type Civ7WorkflowControlApi,
@@ -22,7 +21,6 @@ export type {
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameProof,
-  RunInGameRestartResult,
   RunInGameRuntimeObservation,
   RunInGameSetupPrepared,
   RunInGameStarted,
@@ -40,7 +38,6 @@ export type {
   WorkflowOutput,
 } from "./workflowTypes.js";
 
-import type { Civ7ProcessControl } from "./Civ7ProcessControl.js";
 import type { DeployRunner } from "./DeployRunner.js";
 import type { MapConfigStore } from "./MapConfigStore.js";
 import type { ProofBuilder } from "./ProofBuilder.js";
@@ -59,7 +56,6 @@ export type StudioWorkflowPorts = Readonly<{
   ProofBuilder &
   RunInGameArtifactGenerator &
   DeployRunner &
-  Civ7ProcessControl &
   ScriptingLog &
   RuntimeObservation &
   MapConfigStore;

@@ -9,12 +9,27 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "mountain-patch",
   "name": "Mountain Patch",
   "description": "Config and seed last proved through Run in Game.",
   "recipe": "standard",
   "sortIndex": 1900,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -803,15 +818,19 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,
+  latitudeBounds: {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   sourceConfigId: "mountain-patch",
   configHash: "edce16a18043eb2b4f13181474fba15733b38563a84510c87c7a4d4210c95181",
-  envelopeHash: "6a3182027afe441f02adde3f18096ce7c044b1191fdfa2e318118729c1672ac5",
-  config: mapConfig.config as StandardRecipeConfig,
+  envelopeHash: "bfc3f5dbeb0a6dbf291869c04845420f917f0cdb017b33abce526a8641109345",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

@@ -211,7 +211,7 @@ describe("useSaveDeploy — waiter contract (SD-1/2/3/4)", () => {
 });
 
 describe("useSaveDeploy — busy gate + RPC short-circuits (SD-6/7/8)", () => {
-  it("rejects save/deploy when the current config is not exact recipe JSON", async () => {
+  it("rejects save/deploy when the current config fails schema validation", async () => {
     const invalidConfig = {
       $schema: "sentinel",
       exact: { value: 1 },
@@ -378,15 +378,16 @@ describe("useSaveDeploy — confirm ref/config gate (SD-11) + key-flip order (PL
     expect(props.setRecipeSettings).toHaveBeenCalled();
   });
 
-  it("uses the recipe default config for outbound saves when overrides are disabled", async () => {
+  it("uses the current complete config for outbound saves when overrides are disabled", async () => {
     saveRpc.mockImplementation(async ({ requestId }) => ({
       ok: true as const,
       status: status(requestId, "complete", { saved: true, deployed: true }),
       path: "p.json",
     }));
+    const disabledConfig = { ...CONFIG } as PipelineConfig;
     const { result } = setup({
       overridesDisabled: true,
-      pipelineConfig: { staleDraft: true } as unknown as PipelineConfig,
+      pipelineConfig: disabledConfig,
     });
 
     await act(async () => {
@@ -394,7 +395,7 @@ describe("useSaveDeploy — confirm ref/config gate (SD-11) + key-flip order (PL
     });
 
     expect(saveRpc).toHaveBeenCalledTimes(1);
-    expect(saveRpc.mock.calls[0]?.[0].config).toEqual(CONFIG);
+    expect(saveRpc.mock.calls[0]?.[0].config).toEqual(disabledConfig);
   });
 
   it("PL-7: markPresetApplied + rememberRepoBackedConfig run BEFORE the key-flip setRecipeSettings", async () => {

@@ -25,6 +25,7 @@ export type BuiltInPreset = Readonly<{
   id: string;
   label: string;
   description?: string;
+  catalogSourceId?: string;
   sourcePath?: string;
   sortIndex?: number;
   latitudeBounds?: Readonly<{

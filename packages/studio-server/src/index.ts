@@ -43,7 +43,6 @@ export type {
   RunInGameOperationKind,
   RunInGameOperationStatus,
   RunInGamePhase,
-  RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
   RunInGameSourceSnapshotProof,
   StudioEffectContract,

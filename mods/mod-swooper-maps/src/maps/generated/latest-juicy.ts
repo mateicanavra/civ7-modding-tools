@@ -9,12 +9,27 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "latest-juicy",
   "name": "Latest Juicy",
   "description": "Config and seed last proved through Run in Game.",
   "recipe": "standard",
   "sortIndex": 1900,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -816,15 +831,19 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,
+  latitudeBounds: {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   sourceConfigId: "latest-juicy",
   configHash: "2c429b18d6c98d2056cc0cb76f49fbd4f3e72ada9c5ef4ae86cc60ee79405d9f",
-  envelopeHash: "5d316f6b4c5471a3b5714a34a8bdd49bb5a868b85cdc609e2417b48f99faab83",
-  config: mapConfig.config as StandardRecipeConfig,
+  envelopeHash: "d11883237c6085541beb7329c1e45a8efb2603b89256e87d919d210d39e8a874",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

@@ -1026,7 +1026,7 @@ describe("StudioOperationRuntime", () => {
     });
   });
 
-  test("keeps disposable studio-current launches on exit-to-shell unless row proof requires restart", async () => {
+  test("keeps disposable studio-current launches restart-free by default", async () => {
     let observedRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
@@ -1050,39 +1050,24 @@ describe("StudioOperationRuntime", () => {
     expect(observedRequest?.restartCivProcess).toBeUndefined();
   });
 
-  test("restarts and retries setup only after disposable setup row proof misses", async () => {
+  test("does not process-restart after generated setup row remains unavailable", async () => {
     const events: StudioEvent[] = [];
-    let prepareSetupCalls = 0;
-    let restartCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
-      ports: {
-        restartCivForRunInGame: async () => {
-          restartCalls += 1;
-          return {
-            processRestart: {
-              command: "restart-civ",
-            },
-          };
-        },
-      },
       civ7: {
-        prepareSetup: () => {
-          prepareSetupCalls += 1;
-          if (prepareSetupCalls === 1) {
-            return Effect.fail(
-              proofFailed({
-                message: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-                reason: "setup-row-unavailable",
-                diagnostics: {
-                  code: "setup-map-row-not-visible",
-                  reloadBoundary: "process-restart-required",
-                },
-              })
-            );
-          }
-          return Effect.succeed({ rowProof: { rows: [{ file: "studio-current.js" }] } });
-        },
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+              reason: "setup-row-unavailable",
+              recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
+              diagnostics: {
+                code: "setup-map-row-not-visible",
+                reloadBoundary: "process-restart-required",
+                reloadAttempted: true,
+              },
+            })
+          ),
       },
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
@@ -1098,24 +1083,24 @@ describe("StudioOperationRuntime", () => {
         );
         return status.phase;
       })
-      .toBe("completed");
+      .toBe("failed");
 
-    expect(prepareSetupCalls).toBe(2);
-    expect(restartCalls).toBe(1);
-    await expect
-      .poll(() => operationPhases(events, accepted.requestId))
-      .toEqual(
-        expect.arrayContaining([
-          "preparing-civ7",
-          "preparing-civ7",
-          "preparing-civ7",
-          "starting-game",
-          "completed",
-        ])
-      );
+    const failed = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    expect(failed).toMatchObject({
+      status: "failed",
+      safeFailureCategory: "runtime-observation",
+    });
+    expect(failed.recoveryActions).toEqual(
+      expect.arrayContaining(["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"])
+    );
+    expect(failed.recoveryActions).not.toContain("exit-to-shell-and-continue");
+    expect(operationPhases(events, accepted.requestId)).not.toContain("restarting-civ");
+    expect(operationPhases(events, accepted.requestId)).not.toContain("completed");
   });
 
-  test("keeps durable Run in Game launches restart opt-in", async () => {
+  test("keeps durable Run in Game first attempt restart-free", async () => {
     let observedDurableRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
@@ -1137,28 +1122,44 @@ describe("StudioOperationRuntime", () => {
     );
     await expect.poll(() => observedDurableRequest).toBeDefined();
     expect(observedDurableRequest?.restartCivProcess).toBeUndefined();
+  });
 
-    let observedRestartRequest: Record<string, unknown> | undefined;
-    const { runtime: restartRuntime } = makeRuntime({
-      ports: {
-        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
-          observedRestartRequest = prepared.request as Record<string, unknown>;
-          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
-        },
+  test("does not process-restart durable setup after generated row remains unavailable", async () => {
+    const { runtime } = makeRuntime({
+      civ7: {
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message: "Civ7 setup cannot see {mod-swooper-studio-run}/maps/studio-run.js",
+              reason: "setup-row-unavailable",
+              recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
+              diagnostics: {
+                code: "setup-map-row-not-visible",
+                reloadAttempted: true,
+              },
+            })
+          ),
       },
     });
-    const restartService = await restartRuntime.runPromise(StudioOperationRuntime);
-    const restartDurable = await restartRuntime.runPromise(
-      restartService.runInGameStart(
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(
         runInGameInput({
           materialization: { mode: "durable" },
-          selectedConfig: { id: "latest-juicy" },
-          recovery: { restartCivProcess: true },
+          selectedConfig: { id: "swooper-earthlike" },
         })
       )
     );
-    await expect.poll(() => observedRestartRequest).toBeDefined();
-    expect(observedRestartRequest?.restartCivProcess).toBe(true);
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("failed");
   });
 
   test("keeps one source snapshot proof identity across runtime projections and final proof", async () => {
@@ -1479,7 +1480,7 @@ describe("StudioOperationRuntime", () => {
               generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
               generatedModFileCount: 7,
               generatedModDigest: "sha256-generated-mod",
-              mapRowId: "MAP_RUN_TEST",
+              mapRowId: "MAP_STUDIO_RUN",
             },
           };
         },
@@ -1564,7 +1565,7 @@ describe("StudioOperationRuntime", () => {
       runArtifactId: manifest.payload.runArtifactId,
       generatedModFileCount: 7,
       generatedModDigest: "sha256-generated-mod",
-      mapRowId: "MAP_RUN_TEST",
+      mapRowId: "MAP_STUDIO_RUN",
     });
   });
 
@@ -1609,7 +1610,7 @@ describe("StudioOperationRuntime", () => {
               digest: generatedModDigest,
               files: [
                 {
-                  path: "maps/run-test.js",
+                  path: "maps/studio-run.js",
                   sha256: "sha256-map-script",
                   sizeBytes: 512,
                 },
@@ -1702,7 +1703,7 @@ describe("StudioOperationRuntime", () => {
       fileCount: 3,
       digest: "sha256-generated-tree",
       files: [
-        { path: "maps/run-test.js", sha256: "sha256-map-script", sizeBytes: 512 },
+        { path: "maps/studio-run.js", sha256: "sha256-map-script", sizeBytes: 512 },
         { path: "maps/run-test.config.json", sha256: "sha256-map-config", sizeBytes: 128 },
         { path: "modinfo.json", sha256: "sha256-modinfo", sizeBytes: 96 },
       ],
@@ -2119,7 +2120,7 @@ describe("StudioOperationRuntime", () => {
             },
             filesCopied: 3,
             files: [
-              { path: "maps/run-test.js", sha256: "sha256-map-script", sizeBytes: 512 },
+              { path: "maps/studio-run.js", sha256: "sha256-map-script", sizeBytes: 512 },
               { path: "maps/run-test.config.json", sha256: "sha256-map-config", sizeBytes: 128 },
               { path: "modinfo.json", sha256: "sha256-modinfo", sizeBytes: 96 },
             ],
@@ -2428,7 +2429,9 @@ describe("StudioOperationRuntime", () => {
     });
     expect(rollbackCalls).toBe(1);
     expect(cleanupCalls).toBe(1);
-    expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
+    await expect
+      .poll(() => terminalSaveDeployEvents(events, accepted.requestId).length)
+      .toBe(1);
 
     await expect(
       runtime.runPromise(service.runInGameStart(runInGameInput()))
@@ -2614,23 +2617,6 @@ describe("StudioOperationRuntime", () => {
         },
       },
       {
-        requestId: "run-restart-fail",
-        input: { recovery: { restartCivProcess: true } },
-        ports: {
-          restartCivForRunInGame: async () => {
-            throw new Error("restart failed");
-          },
-        },
-        expected: {
-          status: "failed",
-          safeFailureCategory: "runtime-control",
-          code: "run-in-game-restart-failed",
-          reason: "restart-failed",
-          failedAtPhase: "restarting-civ",
-          recoveryActions: ["restart-civ-process-and-retry"],
-        },
-      },
-      {
         requestId: "run-setup-row-fail",
         civ7: {
           prepareSetup: () =>
@@ -2642,7 +2628,7 @@ describe("StudioOperationRuntime", () => {
           code: "run-in-game-setup-row-unavailable",
           reason: "setup-row-unavailable",
           failedAtPhase: "preparing-setup",
-          recoveryActions: ["exit-to-shell-and-continue"],
+          recoveryActions: ["retry-run"],
         },
       },
       {
@@ -2769,12 +2755,12 @@ describe("StudioOperationRuntime", () => {
           Effect.fail(
             proofFailed({
               message:
-                "Civilization is not loading the generated Studio Run mod, so its setup map list cannot show {mod-swooper-studio-run}/maps/run-test.js.",
+                "Civilization is not loading the generated Studio Run mod, so its setup map list cannot show {mod-swooper-studio-run}/maps/studio-run.js.",
               reason: "setup-row-unavailable",
               diagnostics: {
                 code: "generated-map-mod-not-enabled",
                 setupFailureReason: "generated-map-mod-not-enabled",
-                mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+                mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
                 targetModId: "mod-swooper-studio-run",
                 activeTargetModSet: {
                   available: true,
@@ -2886,9 +2872,7 @@ describe("StudioOperationRuntime", () => {
         })
         .toBe("failed");
 
-      const status = await runtime.runPromise(
-        service.runInGameStatus({ requestId: accepted.requestId })
-      );
+      const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
       expect(status).toMatchObject({
         safeFailureCategory: "runtime-control",
         diagnosticsId: accepted.diagnosticsId,
@@ -2915,7 +2899,7 @@ describe("StudioOperationRuntime", () => {
               diagnostics: {
                 code: "setup-map-row-mismatched",
                 setupFailureReason: "setup-map-row-mismatched",
-                mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+                mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
                 observedMapScripts: ["{base-standard}/maps/continents.js"],
               },
             })
@@ -2936,9 +2920,7 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe("failed");
 
-    const status = await runtime.runPromise(
-      service.runInGameStatus({ requestId: accepted.requestId })
-    );
+    const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
     const publicPayload = JSON.stringify(status);
     expect(status).toMatchObject({
       safeFailureCategory: "runtime-observation",
@@ -3979,7 +3961,7 @@ function generatedRunInGameMod(
 ): Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>> {
   return {
     materialization: {
-      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
       configHash: "test-config-hash",
       envelopeHash: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
@@ -3987,7 +3969,7 @@ function generatedRunInGameMod(
       generatedModRoot: join(tmpdir(), "studio-generated-run-test"),
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
-      mapRowId: "MAP_RUN_TEST",
+      mapRowId: "MAP_STUDIO_RUN",
       ...options.materialization,
     },
     ...(options.cleanup === undefined ? {} : { cleanup: options.cleanup }),
@@ -4010,7 +3992,7 @@ function runInGameDeployment(
   const filesCopied = args.filesCopied ?? 1;
   const files = args.files ?? [
     {
-      path: "maps/run-test.js",
+      path: "maps/studio-run.js",
       sha256: "sha256-map-script",
       sizeBytes: 512,
     },

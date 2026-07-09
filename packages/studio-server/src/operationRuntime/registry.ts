@@ -4,7 +4,6 @@ import type {
   RunInGameMaterializationStatus,
   RunInGameOperationStatus,
   RunInGamePhase,
-  RunInGameProcessRestartStatus,
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import { Effect, SynchronizedRef } from "effect";
@@ -89,15 +88,12 @@ export type RunInGameTransition =
       materialization?: RunInGameMaterializationStatus;
       deploymentEvidence?: RunInGameDeploymentEvidence;
     }>
-  | Readonly<{ phase: "restarting-civ"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{
       phase: "checking-civ7";
       materialization?: RunInGameMaterializationStatus;
       deploymentEvidence: RunInGameDeploymentEvidence;
-      processRestart?: RunInGameProcessRestartStatus;
     }>
   | Readonly<{ phase: "preparing-setup"; deploymentEvidence: RunInGameDeploymentEvidence }>
-  | Readonly<{ phase: "reload-needed"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{ phase: "starting-game"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{ phase: "waiting-for-proof"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{
@@ -880,9 +876,7 @@ function failRunOperation(
 function failurePhaseForRunOperation(operation: RunInGameInternalOperation): RunInGameFailurePhase {
   switch (operation.phase) {
     case "deploying":
-    case "restarting-civ":
     case "checking-civ7":
-    case "reload-needed":
     case "preparing-setup":
     case "starting-game":
     case "waiting-for-proof":
@@ -972,18 +966,6 @@ function runInGameFailureForPhase(
         }),
         recoveryActions: ["inspect-deploy-output", "retry-run", "copy-diagnostics"],
       });
-    case "restarting-civ":
-      return dependencyUnavailable({
-        message,
-        reason: "restart-failed",
-        dependency: "civ7-process",
-        diagnostics: runInGameDiagnostics(err, phase, {
-          code: "run-in-game-restart-failed",
-          failureTag: "DependencyUnavailable",
-          reason: "restart-failed",
-        }),
-        recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
-      });
     case "checking-civ7":
       return dependencyUnavailable({
         message,
@@ -997,7 +979,6 @@ function runInGameFailureForPhase(
         recoveryActions: ["check-dev-server", "retry-run", "copy-diagnostics"],
       });
     case "preparing-setup":
-    case "reload-needed":
       return proofFailed({
         message,
         reason: "setup-row-unavailable",
@@ -1006,7 +987,7 @@ function runInGameFailureForPhase(
           failureTag: "ProofFailed",
           reason: "setup-row-unavailable",
         }),
-        recoveryActions: ["exit-to-shell-and-continue", "retry-run", "copy-diagnostics"],
+        recoveryActions: ["retry-run", "copy-diagnostics"],
       });
     case "starting-game":
       return proofFailed({

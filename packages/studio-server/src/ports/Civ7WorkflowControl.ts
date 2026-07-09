@@ -1,14 +1,11 @@
 import {
-  type Civ7DirectControlSession,
   type Civ7PlayerSetupOptions,
   type Civ7SavedGameConfigurationRef,
   type Civ7SetupOptionValue,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-  ensureCiv7SetupMapRowVisible,
-  getCiv7ActiveTargetMods,
   getCiv7PlayableStatus,
-  getCiv7SetupMapRows,
-  runCiv7SinglePlayerFromSetup,
+  prepareCiv7SinglePlayerSetup,
+  startPreparedCiv7SinglePlayerGame,
   startCiv7Autoplay,
   stopCiv7Autoplay,
 } from "@civ7/direct-control";
@@ -24,10 +21,15 @@ import {
   proofFailed,
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
+  type StudioRecoveryAction,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
 import { setupFailureReasonFromDirectControlCode } from "../runInGameSetupFailureTaxonomy.js";
-import { Civ7TunerBackoffError, Civ7TunerSession } from "../services/Civ7TunerSession.js";
+import {
+  Civ7TunerBackoffError,
+  Civ7TunerSession,
+  type Civ7TunerSessionApi,
+} from "../services/Civ7TunerSession.js";
 import { classifyMapRowVisibilityFailure } from "./mapModVisibility.js";
 import type {
   RunInGameDeployment,
@@ -77,7 +79,7 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
     Effect.gen(function* () {
       const tuner = yield* Civ7TunerSession;
       const runTuner = <A>(
-        action: (options: { readonly session: Civ7DirectControlSession }) => Promise<A>,
+        action: (options: { readonly session: Civ7TunerSessionApi["session"] }) => Promise<A>,
         toFailure: (err: unknown) => StudioRuntimeFailure
       ) => tuner.use((options) => action(options)).pipe(Effect.mapError((err) => toFailure(err)));
 
@@ -106,6 +108,67 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
           recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
         });
       };
+      const setupPreparationFailure = (
+        err: unknown,
+        args: Readonly<{
+          launchMapScript: string;
+          materialization: unknown;
+          materializationMode: string;
+          targetModId: string;
+        }>
+      ): StudioRuntimeFailure => {
+        const directControlCode = directControlErrorCode(err);
+        const setupFailureReason = setupFailureReasonFromDirectControlCode(directControlCode);
+        if (
+          setupFailureReason !== "setup-map-row-not-visible" &&
+          setupFailureReason !== "generated-map-mod-not-enabled"
+        ) {
+          return directControlUnavailable(
+            "Civ7 setup preparation is unavailable",
+            "direct-control-setup-preparation-unavailable",
+            err,
+            { materialization: args.materialization, mapScript: args.launchMapScript }
+          );
+        }
+        const details = directControlErrorDetails(err);
+        const activeReadback = activeTargetModSetReadback(readActiveTargetModSet(details));
+        const targetModReconciliation = targetModReconciliationReadback(
+          readTargetModReconciliation(details)
+        );
+        const rowVisibility = readRowVisibility(details);
+        const visibleRows = rowVisibility?.final?.rows ?? [];
+        const classification = classifyMapRowVisibilityFailure({
+          launchMapScript: args.launchMapScript,
+          visibleMapRows: visibleRows,
+          materializationMode: args.materializationMode,
+          targetModId: args.targetModId,
+          activeTargetModSet: activeReadback,
+          targetModReconciliation,
+        });
+        return proofFailed({
+          message: classification.message,
+          reason: "setup-row-unavailable",
+          recoveryActions: setupRowRecoveryActions(classification.code),
+          diagnostics: boundedDiagnostics({
+            code: classification.code,
+            setupFailureReason: classification.code,
+            directControlCode,
+            ...(classification.modNamespace ? { modNamespace: classification.modNamespace } : {}),
+            targetModId: classification.targetModId,
+            siblingMapRowCount: classification.siblingMapRowCount,
+            visibleMapRowCount: classification.visibleMapRowCount,
+            activeTargetModSet: classification.activeTargetModSet,
+            targetModReconciliation: classification.targetModReconciliation,
+            activeTargetModSetReadbackLimitation: activeTargetModSetReadbackLimitation(activeReadback),
+            recoveryHint: classification.recoveryHint,
+            reloadAttempted: rowVisibility?.refreshed ?? false,
+            mapScript: args.launchMapScript,
+            materialization: args.materialization,
+            cause: diagnosticString(err),
+            directControlDetails: details,
+          }),
+        });
+      };
 
       return {
         checkPlayable: (args) =>
@@ -127,6 +190,7 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
         prepareSetup: (args) => {
           const materialization = args.deployment.materialization;
           const launchMapScript = materialization?.mapScript;
+          const request = args.prepared.request;
           if (!launchMapScript) {
             return Effect.fail(
               materializationFailed({
@@ -139,124 +203,71 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
               })
             );
           }
+          const mapSize = request.mapSize;
+          const seed = request.seed;
+          const launchSetupConfig = { ...request.setupConfig, mapScript: launchMapScript };
+          const savedConfig = readSavedConfig(launchSetupConfig);
+          if (!mapSize || seed === undefined) {
+            return Effect.fail(
+              invalidRequest({
+                message: "Run in Game setup is missing map size or seed",
+                diagnostics: boundedDiagnostics({
+                  code: "run-in-game-setup-input-missing",
+                  requestId: args.requestId,
+                  materialization,
+                  mapSize,
+                  seed,
+                }),
+              })
+            );
+          }
           return runTuner(
-            (options) =>
-              ensureCiv7SetupMapRowVisible(
+            async (options) => {
+              const prepared = await prepareCiv7SinglePlayerSetup(
                 {
-                  file: launchMapScript,
-                  limit: 20,
-                  reloadIfMissing:
-                    args.prepared.request.materializationMode === "disposable"
-                      ? "exit-to-shell"
-                      : "none",
-                  waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-                  pollIntervalMs: 1_000,
+                  mapScript: launchMapScript,
+                  mapSize,
+                  seed,
+                  gameSeed: seed,
+                  ...(request.playerCount === undefined ? {} : { playerCount: request.playerCount }),
+                  requiredActiveTargetModId: args.deployment.runDeployment.deployedModId,
+                  ...(savedConfig === undefined ? {} : { savedConfig }),
+                  options: readGameOptions(launchSetupConfig),
+                  playerOptions: readPlayerOptions(launchSetupConfig),
+                  fromRunningGame: "exit-to-shell",
+                  requireShell: true,
                 },
                 { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
-              ),
-            (err) =>
-              directControlUnavailable(
-                "Civ7 setup row visibility check is unavailable",
-                "direct-control-setup-row-unavailable",
-                err,
-                { materialization }
-              )
-          ).pipe(
-            Effect.flatMap((rowVisibility) => {
-              const rowProof = rowVisibility.final;
-              if (rowProof.rows.length === 0) {
-                const reloadBoundary =
-                  args.prepared.request.materializationMode === "disposable"
-                    ? "process-restart-required"
-                    : "setup-row-missing";
-                const failFromContext = (
-                  visibleMapRows: ReadonlyArray<{ readonly file: string }>,
-                  activeTargetModSet: unknown,
-                  activeTargetModSetReadbackLimitation?: string
-                ) => {
-                  const classification = classifyMapRowVisibilityFailure({
-                    launchMapScript,
-                    visibleMapRows,
-                    materializationMode: args.prepared.request.materializationMode,
-                    targetModId: args.deployment.runDeployment.deployedModId,
-                    activeTargetModSet: activeTargetModSetReadback(activeTargetModSet),
-                  });
-                  return proofFailed({
-                    message: classification.message,
-                    reason: "setup-row-unavailable",
-                    diagnostics: boundedDiagnostics({
-                      code: classification.code,
-                      setupFailureReason: classification.code,
-                      ...(classification.modNamespace
-                        ? { modNamespace: classification.modNamespace }
-                        : {}),
-                      targetModId: classification.targetModId,
-                      siblingMapRowCount: classification.siblingMapRowCount,
-                      visibleMapRowCount: classification.visibleMapRowCount,
-                      activeTargetModSet: classification.activeTargetModSet,
-                      activeTargetModSetReadbackLimitation,
-                      recoveryHint: classification.recoveryHint,
-                      reloadRequired: true,
-                      reloadBoundary,
-                      reloadAttempted: rowVisibility.refreshed,
-                      mapScript: launchMapScript,
-                      materialization,
-                    }),
-                  });
-                };
-                return Effect.all(
-                  {
-                    allRows: runTuner(
-                      (options) =>
-                        getCiv7SetupMapRows(
-                          {},
-                          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
-                        ),
-                      (err) =>
-                        directControlUnavailable(
-                          "Civ7 setup map list is unavailable",
-                          "direct-control-setup-rows-unavailable",
-                          err,
-                          { materialization }
-                        )
-                    ).pipe(Effect.either),
-                    activeTargetModSet: runTuner(
-                      (options) =>
-                        getCiv7ActiveTargetMods(
-                          { limit: 100 },
-                          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
-                        ),
-                      (err) =>
-                        directControlUnavailable(
-                          "Civ7 active target mod-set readback is unavailable",
-                          "direct-control-active-target-mods-unavailable",
-                          err,
-                          { materialization }
-                        )
-                    ).pipe(Effect.either),
-                  },
-                  { concurrency: 1 }
-                ).pipe(
-                  Effect.flatMap(({ allRows, activeTargetModSet }) => {
-                    const visibleRows = allRows._tag === "Right" ? allRows.right.rows : rowProof.rows;
-                    const activeReadback =
-                      activeTargetModSet._tag === "Right" ? activeTargetModSet.right : undefined;
-                    const activeReadbackLimitation =
-                      activeTargetModSet._tag === "Left"
-                        ? diagnosticString(activeTargetModSet.left)
-                        : activeTargetModSetReadbackLimitation(activeReadback);
-                    return Effect.fail(
-                      failFromContext(visibleRows, activeReadback, activeReadbackLimitation)
-                    );
-                  })
-                );
+              );
+              if (!prepared.targetModReconciliation) {
+                throw new Error("Direct-control setup did not return target mod reconciliation");
               }
-              return Effect.succeed({
-                rowProof,
-                rowVisibility,
-                reloadRequired: rowVisibility.refreshed,
-              });
-            })
+              return {
+                kind: "run-in-game-prepared-setup",
+                requestId: args.requestId,
+                correlationDigest: args.prepared.correlationDigest,
+                deploymentRequestId: args.deployment.runDeployment.requestId,
+                deployedModId: args.deployment.runDeployment.deployedModId,
+                targetModId: args.deployment.runDeployment.deployedModId,
+                launchMapScript,
+                seed: request.seed,
+                mapSize,
+                ...(request.playerCount === undefined ? {} : { playerCount: request.playerCount }),
+                rowProof: prepared.rowVisibility.final,
+                rowVisibility: prepared.rowVisibility,
+                targetModReconciliation: prepared.targetModReconciliation,
+                savedConfigLoad: prepared.savedConfigLoad,
+                setupSnapshot: prepared.after.snapshot,
+                softRefreshPerformed: prepared.rowVisibility.refreshed,
+              };
+            },
+            (err) =>
+              setupPreparationFailure(err, {
+                launchMapScript,
+                materialization,
+                materializationMode: args.prepared.request.materializationMode,
+                targetModId: args.deployment.runDeployment.deployedModId,
+              })
           );
         },
 
@@ -281,25 +292,51 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
               })
             );
           }
+          const setupValidation = validatePreparedSetupToken({
+            requestId: args.requestId,
+            prepared: args.prepared,
+            deployment: args.deployment,
+            setup: args.setup,
+            launchMapScript,
+            seed,
+            mapSize,
+            playerCount: request.playerCount,
+          });
+          if (!setupValidation.ok) {
+            return Effect.fail(
+              invalidRequest({
+                message: setupValidation.message,
+                diagnostics: boundedDiagnostics({
+                  code: "run-in-game-prepared-setup-mismatch",
+                  requestId: args.requestId,
+                  expected: setupValidation.expected,
+                  actual: setupValidation.actual,
+                }),
+              })
+            );
+          }
           return runTuner(
             (options) =>
-              runCiv7SinglePlayerFromSetup(
+              startPreparedCiv7SinglePlayerGame(
                 {
-                  mapScript: launchMapScript,
-                  mapSize,
-                  seed,
-                  gameSeed: seed,
-                  ...(request.playerCount === undefined
-                    ? {}
-                    : { playerCount: request.playerCount }),
-                  ...(readSavedConfig(launchSetupConfig) === undefined
-                    ? {}
-                    : { savedConfig: readSavedConfig(launchSetupConfig) }),
-                  options: readGameOptions(launchSetupConfig),
-                  playerOptions: readPlayerOptions(launchSetupConfig),
-                  fromRunningGame: "exit-to-shell",
+                  expected: {
+                    mapScript: launchMapScript,
+                    mapSize,
+                    seed,
+                    gameSeed: seed,
+                    requiredActiveTargetModId: args.deployment.runDeployment.deployedModId,
+                    ...(request.playerCount === undefined
+                      ? {}
+                      : { playerCount: request.playerCount }),
+                    ...(readSavedConfig(launchSetupConfig) === undefined
+                      ? {}
+                      : { savedConfig: readSavedConfig(launchSetupConfig) }),
+                    options: readGameOptions(launchSetupConfig),
+                    playerOptions: readPlayerOptions(launchSetupConfig),
+                  },
                   waitForTuner: true,
                   waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+                  pollIntervalMs: 1_000,
                 },
                 { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
               ),
@@ -310,7 +347,7 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
                 err,
                 { materialization }
               )
-          ).pipe(Effect.map((start) => ({ start })));
+          ).pipe(Effect.map((start) => ({ setup: args.setup, start })));
         },
 
         runAutoplay: (input) => {
@@ -406,6 +443,13 @@ function readPlayerOptions(value: unknown): ReadonlyArray<Civ7PlayerSetupOptions
     : undefined;
 }
 
+function setupRowRecoveryActions(code: string): readonly StudioRecoveryAction[] {
+  if (code === "setup-map-row-not-visible") {
+    return ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"];
+  }
+  return ["retry-run", "copy-diagnostics"];
+}
+
 function boundedDiagnostics(value: Record<string, unknown>): StudioBoundedDiagnostics {
   const out: Record<string, StudioBoundedDiagnosticValue> = {};
   for (const [key, entry] of Object.entries(value)) {
@@ -448,6 +492,77 @@ function errorCause(value: Error): unknown {
   return (value as Error & { cause?: unknown }).cause;
 }
 
+function validatePreparedSetupToken(args: Readonly<{
+  requestId: string;
+  prepared: RunInGamePreparedRequest;
+  deployment: RunInGameDeployment;
+  setup: RunInGameSetupPrepared;
+  launchMapScript: string;
+  seed: number;
+  mapSize: string;
+  playerCount?: number;
+}>):
+  | Readonly<{ ok: true }>
+  | Readonly<{
+      ok: false;
+      message: string;
+      expected: Record<string, unknown>;
+      actual: Record<string, unknown>;
+    }> {
+  const expected = {
+    kind: "run-in-game-prepared-setup",
+    requestId: args.requestId,
+    correlationDigest: args.prepared.correlationDigest,
+    deploymentRequestId: args.deployment.runDeployment.requestId,
+    deployedModId: args.deployment.runDeployment.deployedModId,
+    targetModId: args.deployment.runDeployment.deployedModId,
+    launchMapScript: args.launchMapScript,
+    seed: args.seed,
+    mapSize: args.mapSize,
+    ...(args.playerCount === undefined ? {} : { playerCount: args.playerCount }),
+  };
+  const actual = {
+    kind: args.setup.kind,
+    requestId: args.setup.requestId,
+    correlationDigest: args.setup.correlationDigest,
+    deploymentRequestId: args.setup.deploymentRequestId,
+    deployedModId: args.setup.deployedModId,
+    targetModId: args.setup.targetModId,
+    launchMapScript: args.setup.launchMapScript,
+    seed: args.setup.seed,
+    mapSize: args.setup.mapSize,
+    ...(args.setup.playerCount === undefined ? {} : { playerCount: args.setup.playerCount }),
+  };
+  const actualByKey: Record<string, unknown> = actual;
+  for (const [key, value] of Object.entries(expected)) {
+    if (actualByKey[key] !== value) {
+      return {
+        ok: false,
+        message: `Run in Game prepared setup token does not match start request (${key})`,
+        expected,
+        actual,
+      };
+    }
+  }
+  if (!args.setup.targetModReconciliation.verified) {
+    return {
+      ok: false,
+      message: "Run in Game prepared setup token has unverified target mod reconciliation",
+      expected: { targetModVerified: true },
+      actual: { targetModVerified: args.setup.targetModReconciliation.verified },
+    };
+  }
+  if (!args.setup.rowVisibility.verified) {
+    return {
+      ok: false,
+      message: "Run in Game prepared setup token has unverified row visibility",
+      expected: { rowVisibilityVerified: true },
+      actual: { rowVisibilityVerified: args.setup.rowVisibility.verified },
+    };
+  }
+  return { ok: true };
+}
+
 function directControlErrorCode(err: unknown): string | undefined {
   if (err instanceof Civ7TunerBackoffError) return "civ7-tuner-backoff";
   return err != null &&
@@ -462,6 +577,91 @@ function directControlErrorDetails(err: unknown): unknown {
   return err != null && typeof err === "object" && "details" in err
     ? (err as { details?: unknown }).details
     : undefined;
+}
+
+function readActiveTargetModSet(details: unknown): unknown {
+  if (!details || typeof details !== "object" || Array.isArray(details)) return details;
+  return (details as { activeTargetModSet?: unknown }).activeTargetModSet ?? details;
+}
+
+function readTargetModReconciliation(details: unknown): unknown {
+  if (!details || typeof details !== "object" || Array.isArray(details)) return undefined;
+  return (details as { targetModReconciliation?: unknown }).targetModReconciliation;
+}
+
+function readRowVisibility(details: unknown):
+  | {
+      final?: { rows?: ReadonlyArray<{ readonly file: string }> };
+      refreshed?: boolean;
+    }
+  | undefined {
+  if (!details || typeof details !== "object" || Array.isArray(details)) return undefined;
+  const candidate =
+    (details as { rowVisibility?: unknown }).rowVisibility ??
+    (details as { final?: unknown; refreshed?: unknown });
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return undefined;
+  const final = (candidate as { final?: unknown }).final;
+  const refreshed = (candidate as { refreshed?: unknown }).refreshed;
+  const filteredRows =
+    final && typeof final === "object" && !Array.isArray(final)
+      ? (final as { rows?: unknown }).rows
+      : undefined;
+  const allRows = (details as { allRows?: { rows?: unknown } }).allRows?.rows;
+  const rows = normalizeMapRowVisibilityRows(Array.isArray(allRows) ? allRows : filteredRows);
+  return {
+    ...(rows === undefined ? {} : { final: { rows } }),
+    ...(typeof refreshed === "boolean" ? { refreshed } : {}),
+  };
+}
+
+function normalizeMapRowVisibilityRows(rows: unknown): ReadonlyArray<{ readonly file: string }> | undefined {
+  if (!Array.isArray(rows)) return undefined;
+  const normalized = rows.flatMap((row) => {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return [];
+    const record = row as Record<string, unknown>;
+    const file = record.file ?? record.File ?? record.value ?? record.Value ?? record.mapScript;
+    return typeof file === "string" ? [{ file }] : [];
+  });
+  return normalized;
+}
+
+function targetModReconciliationReadback(value: unknown):
+  | {
+      targetModId?: string;
+      verified?: boolean;
+      result?: {
+        targetActive?: boolean;
+        enabledModsMetaContainsTarget?: boolean;
+      };
+    }
+  | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const record = value as Record<string, unknown>;
+  const result = record.result;
+  const normalizedResult =
+    result && typeof result === "object" && !Array.isArray(result)
+      ? {
+          ...(typeof (result as { targetActive?: unknown }).targetActive === "boolean"
+            ? { targetActive: (result as { targetActive: boolean }).targetActive }
+            : {}),
+          ...(typeof (result as { enabledModsMetaContainsTarget?: unknown })
+            .enabledModsMetaContainsTarget === "boolean"
+            ? {
+                enabledModsMetaContainsTarget: (result as {
+                  enabledModsMetaContainsTarget: boolean;
+                }).enabledModsMetaContainsTarget,
+              }
+            : {}),
+        }
+      : undefined;
+  const out = {
+    ...(typeof record.targetModId === "string" ? { targetModId: record.targetModId } : {}),
+    ...(typeof record.verified === "boolean" ? { verified: record.verified } : {}),
+    ...(normalizedResult && Object.keys(normalizedResult).length > 0
+      ? { result: normalizedResult }
+      : {}),
+  };
+  return Object.keys(out).length === 0 ? undefined : out;
 }
 
 function activeTargetModSetReadbackLimitation(

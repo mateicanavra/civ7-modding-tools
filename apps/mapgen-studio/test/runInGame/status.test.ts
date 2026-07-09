@@ -5,7 +5,6 @@ import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 import {
   formatRunInGamePhaseLabel,
   runInGamePrimaryActionLabel,
-  runInGameRequiresProcessRestart,
 } from "@swooper/mapgen-studio-ui";
 import { describe, expect, it } from "vitest";
 import { isRunInGameTerminalPhase, kindForRunInGamePhase } from "../../src/features/runInGame/status";
@@ -24,7 +23,7 @@ describe("Run in Game status helpers", () => {
     expect(formatRunInGamePhaseLabel("observing-runtime")).toBe("Observing Runtime");
   });
 
-  it("marks process-restart recovery as an explicit Run in Game action", () => {
+  it("keeps process-restart recovery as a diagnostic suggestion, not the Play action", () => {
     const status: RunInGameOperationStatus = {
       requestId: "studio-run-in-game-reload",
       phase: "failed",
@@ -36,9 +35,7 @@ describe("Run in Game status helpers", () => {
       terminalAt: "2026-06-01T00:00:01.000Z",
     };
 
-    expect(runInGameRequiresProcessRestart(status)).toBe(true);
-    expect(runInGameRequiresProcessRestart(status, "stale")).toBe(false);
-    expect(runInGamePrimaryActionLabel(status, "current")).toBe("Restart Civ & Run");
+    expect(runInGamePrimaryActionLabel(status, "current")).toBe("Retry Run");
     expect(runInGamePrimaryActionLabel(status, "stale")).toBe("Run Current");
     expect(
       runInGamePrimaryActionLabel({ ...status, recoveryActions: ["retry-run"] }, "current")

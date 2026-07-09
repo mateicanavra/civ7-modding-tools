@@ -217,7 +217,7 @@ describe("GameConsole Run in Game status", () => {
     }
   });
 
-  it("renders restart-Civ recovery as the primary Run in Game action", () => {
+  it("keeps restart-Civ recovery off the primary Run in Game action", () => {
     const html = renderWithStatus(
       {
         requestId: "studio-run-in-game-restart-needed",
@@ -232,7 +232,8 @@ describe("GameConsole Run in Game status", () => {
       "current"
     );
 
-    expect(html).toContain("Restart Civ &amp; Run");
+    expect(html).toContain("Retry Run");
+    expect(html).not.toContain("Restart Civ &amp; Run");
   });
 
   it("does not carry restart-Civ recovery onto stale authored Studio state", () => {

@@ -12,8 +12,8 @@
   "config": {
     "foundation-mantle": {
       "meshResolution": {
-        "plateCount": 12,
-        "cellsPerPlate": 2,
+        "plateCount": 24,
+        "cellsPerPlate": 4,
         "relaxationSteps": 2
       },
       "mantleSources": {
@@ -45,7 +45,7 @@
         "riftWeakening01": 0.35
       },
       "platePartition": {
-        "plateCount": 12,
+        "plateCount": 24,
         "polarCaps": {
           "capFraction": 0.1,
           "microplateBandFraction": 0.2,
@@ -70,20 +70,8 @@
         "regimeMinIntensity": 4
       },
       "tectonicEras": {
-        "eraWeights": [
-          0.3,
-          0.25,
-          0.2,
-          0.15,
-          0.1
-        ],
-        "driftStepsByEra": [
-          12,
-          9,
-          6,
-          3,
-          1
-        ]
+        "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
+        "driftStepsByEra": [12, 9, 6, 3, 1]
       },
       "tectonicFields": {
         "beltInfluenceDistance": 8,
@@ -484,12 +472,7 @@
           "tropicalThreshold": 25
         },
         "moisture": {
-          "thresholds": [
-            48,
-            78,
-            112,
-            160
-          ]
+          "thresholds": [48, 78, 112, 160]
         },
         "aridity": {
           "temperatureMin": 2,
@@ -500,10 +483,7 @@
           "rainfallWeight": 0.95,
           "bias": 24,
           "normalization": 76,
-          "moistureShiftThresholds": [
-            0.38,
-            0.62
-          ],
+          "moistureShiftThresholds": [0.38, 0.62],
           "vegetationPenalty": 0.31
         },
         "vegetation": {
@@ -657,10 +637,7 @@
           "maxFreeze": 0.2,
           "maxVegetation": 0.15,
           "maxMoisture": 70,
-          "allowedBiomes": [
-            "desert",
-            "temperateDry"
-          ]
+          "allowedBiomes": ["desert", "temperateDry"]
         },
         "burned": {
           "minAridity": 0.62,
@@ -668,11 +645,7 @@
           "maxFreeze": 0.15,
           "maxVegetation": 0.22,
           "maxMoisture": 90,
-          "allowedBiomes": [
-            "desert",
-            "temperateDry",
-            "tropicalSeasonal"
-          ]
+          "allowedBiomes": ["desert", "temperateDry", "tropicalSeasonal"]
         }
       },
       "plotEffectCoverage": {

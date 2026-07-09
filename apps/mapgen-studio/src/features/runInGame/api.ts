@@ -31,7 +31,6 @@ export type RunCurrentConfigInGameArgs = {
   recipeSettings: RunInGameRecipeSettings;
   worldSettings: RunInGameWorldSettings;
   setupConfig: Civ7StudioSetupConfig;
-  restartCivProcess?: boolean;
 };
 
 export type RunInGameStartRequest = Parameters<typeof orpcClient.runInGame.start>[0];
@@ -44,7 +43,6 @@ export function buildRunInGameStartRequest(
     recipeSettings: args.recipeSettings,
     worldSettings: args.worldSettings,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-    ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
   };
 }
 

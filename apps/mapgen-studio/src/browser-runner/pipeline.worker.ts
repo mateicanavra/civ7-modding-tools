@@ -4,7 +4,7 @@ import { createMockAdapter } from "@civ7/adapter/mock";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-import { validateExactPipelineConfig } from "../features/configOverrides/configBuilders";
+import { materializePipelineConfig } from "../features/configOverrides/configBuilders";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
 import { createWorkerTraceSink } from "./worker-trace-sink";
@@ -110,7 +110,7 @@ async function runRecipe(
     latitudeBounds,
   };
 
-  const configResult = validateExactPipelineConfig({
+  const configResult = materializePipelineConfig({
     schema: recipeEntry.configSchema,
     config: pipelineConfig,
     label: "browser-run",

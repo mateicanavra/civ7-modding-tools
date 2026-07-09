@@ -42,7 +42,7 @@ describe("Run in Game deployment snapshot", () => {
         materialization: {
           mode: "disposable",
           path: "generated-mod",
-          mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+          mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
           configHash: "config-hash-test",
           envelopeHash: "envelope-hash-test",
           generationManifestDigest: "generation-manifest-digest-test",
@@ -50,13 +50,13 @@ describe("Run in Game deployment snapshot", () => {
           generatedModRoot,
           generatedModFileCount: generatedTree.fileCount,
           generatedModDigest: generatedTree.digest,
-          mapRowId: "MAP_RUN_TEST",
+          mapRowId: "MAP_STUDIO_RUN",
         },
       },
     });
 
     const targetRoot = join(root, "Library", "Application Support", "Civilization VII", "Mods");
-    const deployedScript = join(targetRoot, "mod-swooper-studio-run", "maps", "run-test.js");
+    const deployedScript = join(targetRoot, "mod-swooper-studio-run", "maps", "studio-run.js");
     await expect(readFile(deployedScript, "utf8")).resolves.toContain("run-deploy-snapshot");
     expect(deployment.runDeployment).toMatchObject({
       requestId: "run-deploy-snapshot",
@@ -73,7 +73,7 @@ describe("Run in Game deployment snapshot", () => {
       digest: generatedTree.digest,
       files: expect.arrayContaining([
         expect.objectContaining({
-          path: "maps/run-test.js",
+          path: "maps/studio-run.js",
           sizeBytes: expect.any(Number),
         }),
       ]),
@@ -91,7 +91,7 @@ async function writeGeneratedRunMod(root: string): Promise<void> {
   ].join("\n");
   await mkdir(join(root, "maps"), { recursive: true });
   await mkdir(join(root, "config"), { recursive: true });
-  await writeFile(join(root, "maps", "run-test.js"), script, "utf8");
+  await writeFile(join(root, "maps", "studio-run.js"), script, "utf8");
   await writeFile(join(root, "config", "run-test.json"), '{"id":"run-deploy-snapshot"}\n', "utf8");
 }
 

@@ -25,6 +25,7 @@
         "packages/studio-server/src/operationRuntime/operationRecords.ts",
         "packages/studio-server/src/operationRuntime/registry.ts",
         "packages/studio-server/src/workflows/RunInGameWorkflow.ts",
+        "packages/studio-run-workspace/src/paths.ts",
         "apps/mapgen-studio/src/server/studio/engines.ts"
       ]
     },
@@ -34,6 +35,7 @@
   ],
   "scanRoots": [
     "packages/studio-server/src",
+    "packages/studio-run-workspace/src",
     "apps/mapgen-studio/src/server"
   ],
   "supportFiles": {

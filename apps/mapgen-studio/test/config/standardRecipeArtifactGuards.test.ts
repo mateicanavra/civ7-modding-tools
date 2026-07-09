@@ -81,7 +81,7 @@ describe("standard recipe generated artifact guardrails", () => {
     }
   });
 
-  it("keeps every generated config on complete exact public config JSON", () => {
+  it("keeps every generated config materialized through the current recipe schema", () => {
     const standardEntry = getRecipeArtifacts("mod-swooper-maps/standard");
     const presets = standardEntry.studioBuiltInPresets ?? [];
     const configs = [
@@ -115,7 +115,7 @@ describe("standard recipe generated artifact guardrails", () => {
     }
   });
 
-  it("rejects config values that would need recipe default materialization", () => {
+  it("rejects incomplete config JSON at the config boundary", () => {
     const [firstStage] = Object.keys(STANDARD_RECIPE_CONFIG);
     const incompleteConfig = { ...(STANDARD_RECIPE_CONFIG as Record<string, unknown>) };
     delete incompleteConfig[firstStage!];
@@ -127,15 +127,13 @@ describe("standard recipe generated artifact guardrails", () => {
     });
 
     expect(applied.ok).toBe(false);
-    if (applied.ok) throw new Error("incomplete config unexpectedly applied");
-    expect(applied.errors).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          path: "/config/incomplete",
-          message: expect.stringContaining("complete recipe config JSON"),
-        }),
-      ])
-    );
+    if (applied.ok) throw new Error("incomplete config was accepted");
+    expect(applied.errors).toEqual([
+      {
+        path: "/config/incomplete",
+        message: "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
+      },
+    ]);
   });
 
   it("rejects non-object and root-metadata config values without repairing them", () => {

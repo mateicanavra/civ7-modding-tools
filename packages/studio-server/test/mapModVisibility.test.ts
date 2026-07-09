@@ -20,6 +20,32 @@ const SWOOPER_SIBLINGS = [
   { file: "{swooper-maps}/maps/swooper-earthlike.js" },
 ];
 
+function authoritativeReadback(
+  mods: ReadonlyArray<{
+    id?: string;
+    packageId?: string;
+    name?: string;
+    source?: string;
+  }>
+) {
+  return {
+    available: true,
+    identityAvailable: true,
+    truncated: false,
+    mods,
+    readbacks: [
+      {
+        source: "Configuration.getGame",
+        available: true,
+        identityReadable: true,
+        count: mods.length,
+        identityCount: mods.length,
+        truncated: false,
+      },
+    ],
+  };
+}
+
 describe("modNamespaceFromMapScript", () => {
   it("parses the mod namespace token", () => {
     expect(modNamespaceFromMapScript(TARGET)).toBe("{swooper-maps}");
@@ -39,12 +65,7 @@ describe("classifyMapRowVisibilityFailure", () => {
       visibleMapRows: BASE_GAME_ROWS,
       materializationMode: "disposable",
       targetModId: "swooper-maps",
-      activeTargetModSet: {
-        available: true,
-        identityAvailable: true,
-        truncated: false,
-        mods: [{ id: "base-standard" }],
-      },
+      activeTargetModSet: authoritativeReadback([{ id: "base-standard", source: "Configuration.getGame" }]),
     });
     expect(result.code).toBe("generated-map-mod-not-enabled");
     expect(result.modNamespace).toBe("{swooper-maps}");
@@ -58,12 +79,7 @@ describe("classifyMapRowVisibilityFailure", () => {
       visibleMapRows: [...BASE_GAME_ROWS, ...SWOOPER_SIBLINGS],
       materializationMode: "disposable",
       targetModId: "swooper-maps",
-      activeTargetModSet: {
-        available: true,
-        identityAvailable: true,
-        truncated: false,
-        mods: [{ id: "swooper-maps" }],
-      },
+      activeTargetModSet: authoritativeReadback([{ id: "swooper-maps", source: "Configuration.getGame" }]),
     });
     expect(result.code).toBe("setup-map-row-not-visible");
     expect(result.siblingMapRowCount).toBe(2);
@@ -133,12 +149,7 @@ describe("classifyMapRowVisibilityFailure", () => {
       launchMapScript: TARGET,
       visibleMapRows: BASE_GAME_ROWS,
       targetModId: "swooper-maps",
-      activeTargetModSet: {
-        available: true,
-        identityAvailable: true,
-        truncated: false,
-        mods: [{ name: "swooper-maps" }],
-      },
+      activeTargetModSet: authoritativeReadback([{ name: "swooper-maps", source: "Configuration.getGame" }]),
     });
     expect(result.code).toBe("generated-map-mod-not-enabled");
   });

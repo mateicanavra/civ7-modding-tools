@@ -15,7 +15,7 @@ import {
   type StudioAuthoringStateSnapshot,
   saveStudioAuthoringState,
 } from "../features/studioState/persistence";
-import { getExactRecipeDefaultConfig } from "../features/configOverrides/effectiveConfig";
+import { getMaterializedRecipeDefaultConfig } from "../features/configOverrides/effectiveConfig";
 import type { BuiltInPreset } from "../recipes/catalog";
 import { DEFAULT_STUDIO_RECIPE_ID } from "../recipes/catalog";
 
@@ -25,8 +25,8 @@ import { DEFAULT_STUDIO_RECIPE_ID } from "../recipes/catalog";
  * config, and the overrides-disabled flag).
  *
  * The on-disk localStorage envelope is parsed at the persistence boundary, where
- * the selected recipe config must validate as exact current recipe JSON before it
- * can hydrate live authoring state.
+ * the selected recipe config must validate and materialize through the current
+ * recipe schema before it can hydrate live authoring state.
  *
  * The persist `storage` adapter below is a thin translation between zustand's
  * `StorageValue` envelope and `features/studioState/persistence.ts`. Session
@@ -87,7 +87,7 @@ function buildInitialAuthoringData(): AuthoringData {
   const repoBackedSessionPresetsByRecipe: Record<string, Record<string, BuiltInPreset>> = {};
   const pipelineConfig: PipelineConfig = persisted?.pipelineConfig
     ? persisted.pipelineConfig
-    : getExactRecipeDefaultConfig(recipeSettings.recipe, "initial-authoring");
+    : getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "initial-authoring");
   return {
     worldSettings,
     recipeSettings,

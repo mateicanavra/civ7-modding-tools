@@ -6,7 +6,7 @@ Run in Game currently generates and deploys the request-local Studio-run mod,
 but Civ7 setup readback can still fail to see the generated map row after the
 saved Test of Time config is loaded. Deployment is not the launch boundary.
 The launch boundary is a generated map row visible in the active Civ7 setup
-state after saved-config and mod-set reconciliation.
+state after saved-config load and targeted generated-mod reconciliation.
 
 This packet repairs the saved-config/generated-mod/setup/start sequence so a
 browser-originated request can start the generated content the user selected.
@@ -35,7 +35,8 @@ browser-originated request can start the generated content the user selected.
 
 - Studio Run in Game server workflow
 - saved setup config application for `ToT_BasicModsEnabled.Civ7Cfg`
-- generated `mod-swooper-studio-run` metadata and deployment snapshot
+- generated `mod-swooper-studio-run` metadata, stable setup row, and deployment
+  snapshot
 - `@civ7/direct-control` setup preparation/start APIs where needed
 - setup row readback and pre-Begin setup value readback
 - Run in Game workflow evidence types
@@ -64,13 +65,14 @@ Likely write set:
 ## Consumer Impact
 
 Run in Game uses the user's saved Test of Time setup while ensuring the
-request-local generated mod remains active and selected. If reconciliation
-cannot produce a visible generated row, the operation terminalizes safely with
+generated Studio-run mod remains active and selected. If reconciliation cannot
+produce the stable generated setup row, the operation terminalizes safely with
 specific diagnostics.
 
 ## Stop Conditions
 
-- Row readback happens before saved-config/mod-set reconciliation.
+- Row readback happens before saved-config load and targeted generated-mod
+  reconciliation.
 - Start reloads a different setup state than the checked one.
 - Test of Time config cannot be composed with `mod-swooper-studio-run` and no
   specific failure is recorded.
@@ -89,10 +91,10 @@ Before:
 
 After:
 
-- the workflow composes the saved setup config with the request-local generated
-  mod before row readback;
-- the generated map row is read after config/mod-set reconciliation and before
-  Begin;
+- the workflow loads the saved setup config and reconciles the request-local
+  generated mod before row readback;
+- the stable generated map row is read after config/reconciliation and
+  before Begin;
 - seed, Huge map size, 10 players, active generated mod, and generated map
   identity are read back from setup before start;
 - resources remain verified through the visible UI selection, admitted request,
@@ -110,8 +112,7 @@ and show generated row visibility before Begin.
 Permanent positive assertions:
 
 - setup/start consumes a single reconciled setup snapshot for a request;
-- generated mod identity is included in the active setup target before row
-  readback;
+- targeted generated-mod reconciliation completes before row readback;
 - setup row readback is after saved-config load, not before it.
 
 Use TypeScript state modeling and direct-control contracts first. Use Habitat

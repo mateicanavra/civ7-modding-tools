@@ -5,6 +5,9 @@ export const DEFAULT_RUN_IN_GAME_WORKSPACE_ROOT = resolve(".mapgen-studio/run-in
 export const SAFE_RUN_REQUEST_ID = /^[A-Za-z0-9._-]{1,191}$/;
 export const SAFE_RUN_ARTIFACT_ID = /^run-[a-f0-9]{20}$/;
 export const RUN_GENERATION_MANIFEST_FILE = "generation-manifest.json";
+export const STUDIO_RUN_MOD_ID = "mod-swooper-studio-run";
+export const STUDIO_RUN_MAP_ROW_ID = "MAP_STUDIO_RUN";
+export const STUDIO_RUN_MAP_SCRIPT_PATH = "maps/studio-run.js";
 
 export type RunArtifactId = `run-${string}`;
 
