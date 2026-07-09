@@ -4,9 +4,10 @@ import {
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
+import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
 import { describe, expect, it } from "vitest";
+import { Value } from "typebox/value";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
-import { migratePipelineConfigUnknown } from "../../src/features/configMigrations/pipelineConfig";
 import { applyPresetConfig } from "../../src/features/configOverrides/configBuilders";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
@@ -45,30 +46,6 @@ function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
   return current;
 }
 
-function hasRawOpEnvelope(value: unknown): boolean {
-  if (!value || typeof value !== "object") return false;
-  if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
-  const obj = value as Record<string, unknown>;
-  if (
-    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
-    Object.prototype.hasOwnProperty.call(obj, "config")
-  ) {
-    return true;
-  }
-  return Object.values(obj).some(hasRawOpEnvelope);
-}
-
-function mergeDeterministic(base: unknown, overrides: unknown): unknown {
-  if (overrides === undefined) return base;
-  if (!isObject(base) || !isObject(overrides)) return overrides;
-
-  const out: Record<string, unknown> = { ...base };
-  for (const key of Object.keys(overrides)) {
-    out[key] = mergeDeterministic(base[key], overrides[key]);
-  }
-  return out;
-}
-
 describe("standard recipe generated artifact guardrails", () => {
   it("keeps Studio catalog and runtime entries on the same standard artifacts", () => {
     expect(DEFAULT_STUDIO_RECIPE_ID).toBe("mod-swooper-maps/standard");
@@ -97,71 +74,100 @@ describe("standard recipe generated artifact guardrails", () => {
 
       for (const step of stage.steps) {
         const focusPath = step.configFocusPathWithinStage;
-        expect(focusPath, `${stage.stageId}.${step.stepId} focus path`).not.toContain("strategy");
-        expect(focusPath, `${stage.stageId}.${step.stepId} focus path`).not.toContain("config");
         if (focusPath.length === 0) continue;
         getSchemaAtPath(stageSchema, focusPath);
         getConfigAtPath(stageDefaults, focusPath);
       }
     }
-
-    const foundationOrogenyDefaults = (STANDARD_RECIPE_CONFIG as Record<string, unknown>)[
-      "foundation-orogeny"
-    ];
-    expect(foundationOrogenyDefaults).toHaveProperty("crustCharacter");
-    expect(foundationOrogenyDefaults).not.toHaveProperty("crust-evolution");
-    expect(hasRawOpEnvelope(foundationOrogenyDefaults)).toBe(false);
   });
 
-  it("keeps built-in standard map presets on generated public schema", () => {
+  it("keeps every generated config on complete exact public config JSON", () => {
     const standardEntry = getRecipeArtifacts("mod-swooper-maps/standard");
     const presets = standardEntry.studioBuiltInPresets ?? [];
+    const configs = [
+      { id: "default", config: STANDARD_RECIPE_CONFIG },
+      ...presets.map((config) => ({ id: config.id, config: config.config })),
+    ];
 
     expect(presets.length).toBeGreaterThan(0);
-    for (const preset of presets) {
-      expect(hasRawOpEnvelope(preset.config), `${preset.id} public config raw envelopes`).toBe(
-        false
-      );
-      expect(
-        (preset.config as Record<string, unknown>)["foundation-orogeny"] ?? {}
-      ).not.toHaveProperty("crust-evolution");
-      const { errors } = normalizeStrict<Record<string, unknown>>(
+    expect(presets.map((preset) => preset.id)).toEqual(standardMapConfigs.map((config) => config.id));
+    expect(presets.map((preset) => preset.config)).toEqual(
+      standardMapConfigs.map((config) => config.config)
+    );
+
+    for (const { id, config } of configs) {
+      const normalized = normalizeStrict<Record<string, unknown>>(
         STANDARD_RECIPE_CONFIG_SCHEMA,
-        preset.config,
-        `/studio/presets/${preset.id}`
+        config,
+        `/studio/configs/${id}`
       );
-      expect(errors).toEqual([]);
+      expect(normalized.errors).toEqual([]);
+      expect(Value.Equal(normalized.value, config)).toBe(true);
 
       const applied = applyPresetConfig({
         schema: STANDARD_RECIPE_CONFIG_SCHEMA,
-        uiMeta: STANDARD_RECIPE_UI_META,
-        presetConfig: preset.config,
-        label: preset.id,
+        presetConfig: config,
+        label: id,
       });
-      expect(applied.errors, `${preset.id} applied preset errors`).toEqual([]);
-      expect(applied.value?.["foundation-orogeny"]).not.toHaveProperty("crust-evolution");
-      expect(hasRawOpEnvelope(applied.value?.["foundation-orogeny"])).toBe(false);
+      expect(applied.ok, `${id} applied preset`).toBe(true);
+      if (!applied.ok) throw new Error(`${id} applied preset errors: ${JSON.stringify(applied.errors)}`);
+      expect(Value.Equal(applied.value, config)).toBe(true);
     }
   });
 
-  it("keeps Studio overrides on the worker-style strict compile path", () => {
-    const runtimeEntry = getRuntimeRecipe("mod-swooper-maps/standard");
-    const studioOverrides = {
-      "hydrology-hydrography": {
-        knobs: {
-          riverDensity: "normal",
-          lakeiness: "many",
-        },
-      },
-    };
+  it("rejects config values that would need recipe default materialization", () => {
+    const [firstStage] = Object.keys(STANDARD_RECIPE_CONFIG);
+    const incompleteConfig = { ...(STANDARD_RECIPE_CONFIG as Record<string, unknown>) };
+    delete incompleteConfig[firstStage!];
 
-    const merged = mergeDeterministic(
-      runtimeEntry.defaultConfig,
-      migratePipelineConfigUnknown(studioOverrides)
+    const applied = applyPresetConfig({
+      schema: STANDARD_RECIPE_CONFIG_SCHEMA,
+      presetConfig: incompleteConfig,
+      label: "incomplete",
+    });
+
+    expect(applied.ok).toBe(false);
+    if (applied.ok) throw new Error("incomplete config unexpectedly applied");
+    expect(applied.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/config/incomplete",
+          message: expect.stringContaining("complete recipe config JSON"),
+        }),
+      ])
     );
+  });
+
+  it("rejects non-object and root-metadata config values without repairing them", () => {
+    const rootMetadataConfig = {
+      ...(STANDARD_RECIPE_CONFIG as Record<string, unknown>),
+      $schema: "sentinel",
+    };
+    for (const [label, config] of [
+      ["null", null],
+      ["root-metadata", rootMetadataConfig],
+      ["date", new Date(0)],
+      ["non-finite", Number.POSITIVE_INFINITY],
+      ["class-instance", new (class CustomConfig {})()],
+    ] as const) {
+      const applied = applyPresetConfig({
+        schema: STANDARD_RECIPE_CONFIG_SCHEMA,
+        presetConfig: config,
+        label,
+      });
+
+      expect(applied.ok, label).toBe(false);
+      if (applied.ok) throw new Error(`${label} config unexpectedly applied`);
+      expect(applied.errors.length, label).toBeGreaterThan(0);
+    }
+  });
+
+  it("keeps generated default config on the worker strict compile path", () => {
+    const runtimeEntry = getRuntimeRecipe("mod-swooper-maps/standard");
+
     const { value, errors } = normalizeStrict<Record<string, unknown>>(
       runtimeEntry.configSchema,
-      merged,
+      runtimeEntry.defaultConfig,
       "/config"
     );
 

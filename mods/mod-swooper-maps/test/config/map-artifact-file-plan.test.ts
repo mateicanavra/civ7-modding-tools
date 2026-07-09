@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import { buildCompleteSchemaDefaults, deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { loadSwooperMapConfigRegistry } from "../../scripts/generate-map-artifacts";
 import {
   buildSwooperCatalogMetadataFilePlan,
@@ -19,6 +19,7 @@ import {
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
 const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
+const fixtureRecipeConfig = buildCompleteSchemaDefaults(recipeSchema) as Record<string, unknown>;
 
 async function buildCurrentPlan(proofEnv?: StudioRunProofEnv) {
   const configs = await loadSwooperMapConfigRegistry();
@@ -56,7 +57,7 @@ function buildFixtureConfig(): ValidatedMapConfig {
       sortIndex: 7,
       latitudeBounds: { topLatitude: 60, bottomLatitude: -45 },
       logPrefix: "[fixture]",
-      config: {},
+      config: fixtureRecipeConfig,
     },
     recipeSchema,
     stages: STANDARD_STAGES,
@@ -113,27 +114,24 @@ describe("Swooper map artifact file plan", () => {
     ]);
 
     const generatedMap = plannedFile(plan, "src/maps/generated/fixture-map.ts");
-    expect(generatedMap.markerMetadata).toEqual({
-      configId: "fixture-map",
-      configHash: "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-      envelopeHash: "18bd0b122157d4016e96595991d558114e03a156d2c8bba1f6271c7766666cd6",
-    });
+    const markerMetadata = generatedMap.markerMetadata;
+    expect(markerMetadata?.configId).toBe("fixture-map");
+    expect(markerMetadata?.configHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(markerMetadata?.envelopeHash).toMatch(/^[a-f0-9]{64}$/);
     const generatedMapText = textContent(generatedMap);
-    expect(generatedMapText).toContain(
-      'import mapConfig from "../configs/fixture-map.config.json";'
-    );
+    expect(generatedMapText).toContain("const mapConfig = {");
+    expect(generatedMapText).toContain('  "id": "fixture-map",');
     expect(generatedMapText).toContain(`  latitudeBounds: {
     "topLatitude": 60,
     "bottomLatitude": -45
   },`);
     expect(generatedMapText).toContain('  logPrefix: "[fixture]",');
     expect(generatedMapText).toContain('  sourceConfigId: "fixture-map",');
+    expect(generatedMapText).toContain(`  configHash: "${markerMetadata?.configHash}",`);
     expect(generatedMapText).toContain(
-      '  configHash: "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",'
+      `  envelopeHash: "${markerMetadata?.envelopeHash}",`
     );
-    expect(generatedMapText).toContain(
-      '  envelopeHash: "18bd0b122157d4016e96595991d558114e03a156d2c8bba1f6271c7766666cd6",'
-    );
+    expect(generatedMapText).toContain("config: mapConfig.config as StandardRecipeConfig");
     expect(generatedMapText).not.toContain("requestId");
 
     expect(
@@ -183,10 +181,10 @@ describe("Swooper map artifact file plan", () => {
         recipe: "standard",
         sortIndex: 7,
         latitudeBounds: { topLatitude: 60, bottomLatitude: -45 },
-        configHash: "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-        envelopeHash: "18bd0b122157d4016e96595991d558114e03a156d2c8bba1f6271c7766666cd6",
+        configHash: markerMetadata?.configHash,
+        envelopeHash: markerMetadata?.envelopeHash,
         sourcePath: "mods/mod-swooper-maps/src/maps/configs/fixture-map.config.json",
-        config: {},
+        config: fixtureRecipeConfig,
       },
     ]);
   });

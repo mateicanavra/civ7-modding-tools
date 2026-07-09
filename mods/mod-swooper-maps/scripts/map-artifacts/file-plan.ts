@@ -157,8 +157,21 @@ function renderMapEntryArtifact(
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
-import { canonicalRecipeConfig } from "../configs/canonical.js";
-import mapConfig from "../configs/${config.fileName}";
+
+const mapConfig = ${JSON.stringify(
+        {
+          id: config.id,
+          name: config.name,
+          description: config.description,
+          recipe: config.recipe,
+          sortIndex: config.sortIndex,
+          ...(config.latitudeBounds === undefined ? {} : { latitudeBounds: config.latitudeBounds }),
+          ...(config.logPrefix === undefined ? {} : { logPrefix: config.logPrefix }),
+          config: config.config,
+        },
+        null,
+        2
+      )} as const;
 
 export default createMap({
   id: mapConfig.id,
@@ -168,7 +181,7 @@ export default createMap({
   sourceConfigId: ${JSON.stringify(config.id)},
   configHash: ${JSON.stringify(configHash)},
   envelopeHash: ${JSON.stringify(envelopeHash)},${requestIdLine}
-  config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
+  config: mapConfig.config as StandardRecipeConfig,
 });
 `,
     },
@@ -182,6 +195,7 @@ function renderRunMapEntryArtifact(
   "content" | "markerMetadata"
 > {
   const config = input.config;
+  const configHash = configHashFor(config);
   const latitudeBounds = config.latitudeBounds
     ? `\n  latitudeBounds: ${JSON.stringify(config.latitudeBounds, null, 2).replace(/\n/g, "\n  ")},`
     : "";
@@ -189,7 +203,7 @@ function renderRunMapEntryArtifact(
   return {
     markerMetadata: {
       configId: input.selectedConfigId,
-      configHash: input.correlation.launchSourceDigest.configContentDigest,
+      configHash,
       envelopeHash: input.correlation.launchEnvelopeDigest,
       requestId: input.correlation.requestId,
     },
@@ -589,6 +603,10 @@ export function runMapRowIdForArtifact(runArtifactId: string): string {
 export function buildSwooperRunGeneratedModFilePlan(
   input: SwooperRunGeneratedModPlanInput
 ): SwooperMapArtifactFilePlan {
+  const configHash = configHashFor(input.config);
+  if (configHash !== input.correlation.launchSourceDigest.configContentDigest) {
+    throw new Error("Studio run config digest does not match the launch config.");
+  }
   const entry = renderRunMapEntryArtifact(input);
   const config = input.config;
   const renderMode = {

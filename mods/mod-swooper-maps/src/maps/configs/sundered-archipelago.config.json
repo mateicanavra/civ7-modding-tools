@@ -30,7 +30,8 @@
         "curvatureWeight": 0.35,
         "upwellingThreshold": 0.35,
         "downwellingThreshold": 0.35
-      }
+      },
+      "knobs": {}
     },
     "foundation-lithosphere": {
       "lithosphere": {
@@ -48,7 +49,8 @@
           "microplatesMinPlateCount": 14,
           "microplateMinAreaCells": 8
         }
-      }
+      },
+      "knobs": {}
     },
     "foundation-tectonics": {
       "plateMotion": {
@@ -64,8 +66,20 @@
         "regimeMinIntensity": 4
       },
       "tectonicEras": {
-        "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
-        "driftStepsByEra": [12, 9, 6, 3, 1]
+        "eraWeights": [
+          0.3,
+          0.25,
+          0.2,
+          0.15,
+          0.1
+        ],
+        "driftStepsByEra": [
+          12,
+          9,
+          6,
+          3,
+          1
+        ]
       },
       "tectonicFields": {
         "beltInfluenceDistance": 8,
@@ -74,6 +88,9 @@
       },
       "tectonicRollups": {
         "activityThreshold": 1
+      },
+      "knobs": {
+        "plateActivity": 0.5
       }
     },
     "morphology-coasts": {
@@ -147,9 +164,27 @@
           "activeBonus": 1,
           "passiveBonus": 2
         }
+      },
+      "knobs": {
+        "seaLevel": "earthlike",
+        "coastRuggedness": "normal"
+      },
+      "continentalMargin": {
+        "breakCrustFraction": 0.45,
+        "apronTopCrustFraction": 0.62,
+        "apronBlendStrength": 0.8,
+        "baseApronLengthTiles": 3,
+        "activeApronFactor": 0.4,
+        "riftApronFactor": 0.6,
+        "passiveApronFactor": 1.5,
+        "ageApronGain": 0.6,
+        "buoyancyApronGain": 0.4,
+        "activeClosenessThreshold": 0.35
       }
     },
-    "morphology-routing": {},
+    "morphology-routing": {
+      "knobs": {}
+    },
     "morphology-erosion": {
       "geomorphicCycle": {
         "geomorphology": {
@@ -168,6 +203,9 @@
           "eras": 2
         },
         "worldAge": "mature"
+      },
+      "knobs": {
+        "erosion": "normal"
       }
     },
     "morphology-features": {
@@ -194,6 +232,22 @@
         "randomJitter": 0.18,
         "minVolcanoes": 16,
         "maxVolcanoes": 70
+      },
+      "knobs": {
+        "orogeny": "normal",
+        "volcanism": "normal"
+      },
+      "mountainRanges": {
+        "tectonicActivity": 1,
+        "rangeSystemSpacingTiles": 20,
+        "rangeSystemLengthTiles": 22,
+        "provinceRadiusTiles": 4,
+        "ridgeWidthTiles": 1,
+        "foothillExtentTiles": 3,
+        "interiorHighlandExpression": 0.55,
+        "terrainTextureFractalMix": 0.45,
+        "erosionMaturity": 0.45,
+        "tectonicSignalSensitivity": 1
       }
     },
     "morphology-shelf": {
@@ -201,6 +255,9 @@
         "activeClosenessThreshold": 0.45,
         "breakGradient": 8,
         "breakGradientScale": 1
+      },
+      "knobs": {
+        "shelfWidth": "normal"
       }
     },
     "hydrology-climate-baseline": {
@@ -279,6 +336,12 @@
         },
         "upliftStrength": 22,
         "convergenceStrength": 16
+      },
+      "knobs": {
+        "dryness": "mix",
+        "temperature": "temperate",
+        "seasonality": "normal",
+        "oceanCoupling": "earthlike"
       }
     },
     "hydrology-hydrography": {
@@ -298,6 +361,13 @@
         "maxUpstreamSteps": 1,
         "sinkDischargePercentileMin": 0.94,
         "maxLakeLandFraction": 0.003
+      },
+      "knobs": {
+        "riverDensity": "normal",
+        "lakeiness": "normal"
+      },
+      "drainageRouting": {
+        "allowExternalEdgeOutlets": false
       }
     },
     "hydrology-climate-refine": {
@@ -369,6 +439,11 @@
         "barrierElevationM": 500,
         "continentalityMaxDist": 12,
         "convergenceNormalization": 64
+      },
+      "knobs": {
+        "dryness": "mix",
+        "temperature": "temperate",
+        "cryosphere": "on"
       }
     },
     "ecology-pedology": {
@@ -405,7 +480,12 @@
           "tropicalThreshold": 24
         },
         "moisture": {
-          "thresholds": [88, 120, 162, 210]
+          "thresholds": [
+            88,
+            120,
+            162,
+            210
+          ]
         },
         "aridity": {
           "temperatureMin": 2,
@@ -416,7 +496,10 @@
           "rainfallWeight": 1.08,
           "bias": 2,
           "normalization": 132,
-          "moistureShiftThresholds": [0.43, 0.66],
+          "moistureShiftThresholds": [
+            0.43,
+            0.66
+          ],
           "vegetationPenalty": 0.14
         },
         "vegetation": {
@@ -570,7 +653,10 @@
           "maxFreeze": 0.2,
           "maxVegetation": 0.1,
           "maxMoisture": 70,
-          "allowedBiomes": ["desert", "temperateDry"]
+          "allowedBiomes": [
+            "desert",
+            "temperateDry"
+          ]
         },
         "burned": {
           "minAridity": 0.65,
@@ -578,7 +664,10 @@
           "maxFreeze": 0.15,
           "maxVegetation": 0.15,
           "maxMoisture": 90,
-          "allowedBiomes": ["temperateDry", "tropicalSeasonal"]
+          "allowedBiomes": [
+            "temperateDry",
+            "tropicalSeasonal"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -597,6 +686,9 @@
           "enabled": false,
           "coveragePct": 4
         }
+      },
+      "floodplainPlanning": {
+        "minConfidence01": 0.5
       }
     },
     "map-morphology": {
@@ -646,7 +738,59 @@
           "geological": 1
         },
         "affinityRules": []
+      },
+      "starts": {
+        "overrides": {},
+        "minContiguousLandTiles": 24,
+        "expansionRadiusTiles": 4,
+        "minExpansionLandTiles": 14,
+        "islandClusterRadiusTiles": 5,
+        "minIslandClusterLandTiles": 18,
+        "maxIslandStartCoastDistance": 1,
+        "marginalLandRatio": 0.5,
+        "marginalExpansionRatio": 0.65,
+        "spacingFloorTiles": 6,
+        "desiredSpacingTiles": 12,
+        "fertilityWeight": 2.2,
+        "resourceSupportWeight": 0.5,
+        "resourceSupportRadiusTiles": 4,
+        "freshwaterWeight": 1.1,
+        "largeLandmassWeight": 1,
+        "climateWeight": 1.6,
+        "climateExtremePenaltyWeight": 1.5,
+        "roughnessPenaltyWeight": 0.6,
+        "roughnessDivisor": 900,
+        "tierBias": {
+          "primary": 0.08,
+          "islandCluster": 0.02,
+          "marginal": -0.08
+        },
+        "rankingBlend": 0.86,
+        "fairnessTolerance": 0.3,
+        "coastalPreferenceWeight": 0,
+        "riverPreferenceWeight": 0,
+        "startBiasWeight": 1
+      },
+      "support": {
+        "enabled": true,
+        "supportFloor": 2,
+        "supportRadiusTiles": 4,
+        "equityTolerance": 2,
+        "strength": 1
       }
+    },
+    "foundation-orogeny": {
+      "knobs": {},
+      "crustCharacter": {
+        "continentalSurvivalMaturity": 0.6,
+        "continentalFreeboard": 0.35,
+        "hyperextensionBreakupBase": 0.1,
+        "thinningThicknessLoss": 0.55,
+        "oceanicAbyssalDepth": 0.75
+      }
+    },
+    "foundation-projection": {
+      "knobs": {}
     }
   }
 }

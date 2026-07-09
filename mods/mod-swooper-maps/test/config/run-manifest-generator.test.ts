@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -14,6 +15,7 @@ import {
   SWOOPER_STUDIO_RUN_MOD_ID,
 } from "../../scripts/map-artifacts/file-plan";
 import { generateSwooperRunGeneratedModFromManifestPath } from "../../scripts/run-manifest-generator";
+import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {
@@ -132,6 +134,29 @@ describe("Swooper run manifest generator", () => {
     }
   });
 
+  test("rejects a manifest whose config digest does not match the launch config", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-digest-mismatch-"));
+    try {
+      const manifestRef = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput({ configContentDigest: "b".repeat(64) }),
+        workspaceRoot,
+      });
+
+      await expect(
+        generateSwooperRunGeneratedModFromManifestPath(manifestRef.path)
+      ).rejects.toThrow("config digest does not match");
+      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+      await expect(
+        readFile(
+          resolve(workspaceRoot, manifest.payload.requestId, "generated-mod/config/config.xml"),
+          "utf8"
+        )
+      ).rejects.toThrow();
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
   test("rejects a symlinked generated-mod root before writing through it", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-root-link-"));
     const outsideRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-root-link-outside-"));
@@ -158,10 +183,15 @@ describe("Swooper run manifest generator", () => {
 });
 
 function manifestInput(
-  options: Readonly<{ recipeId?: string; envelopeRecipe?: string }> = {}
+  options: Readonly<{
+    recipeId?: string;
+    envelopeRecipe?: string;
+    configContentDigest?: string;
+  }> = {}
 ): StudioRunGenerationManifestInput {
   const launchEnvelopeDigest = "a".repeat(64);
-  const config = {};
+  const config = standardMapConfigs.find((entry) => entry.id === "latest-juicy")?.config;
+  if (!config) throw new Error("latest-juicy config fixture is missing");
   const recipeId = options.recipeId ?? "mod-swooper-maps/standard";
   const envelopeRecipe = options.envelopeRecipe ?? recipeId;
   return {
@@ -209,9 +239,27 @@ function manifestInput(
       config,
     },
     launchSourceDigest: {
-      configContentDigest: "b".repeat(64),
+      configContentDigest: options.configContentDigest ?? stableHash(config),
       launchEnvelopeDigest,
     },
     launchEnvelopeDigest,
   };
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      out[key] = canonicalize((value as Record<string, unknown>)[key]);
+    }
+    return out;
+  }
+  return value;
+}
+
+function stableHash(value: unknown): string {
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
 }

@@ -1,4 +1,3 @@
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import {
   AppFooter,
   AppHeader,
@@ -20,7 +19,10 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
-import { buildDefaultConfig } from "../features/configOverrides/configBuilders";
+import {
+  getExactRecipeDefaultConfig,
+  resolveEffectivePipelineConfig,
+} from "../features/configOverrides/effectiveConfig";
 import { type PresetKey, parsePresetKey } from "../features/presets/types";
 import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
 import { orpcClient } from "../lib/orpc";
@@ -111,8 +113,8 @@ export function StudioShell(props: StudioShellProps) {
 
   // Authoring state is owned by `authoringStore` (Zustand persist, architecture/10 §3).
   // The store seeds itself from the reference persistence (`loadStudioAuthoringState`)
-  // and persists through the same serializer — so the on-disk schema is byte-identical
-  // and the prior manual `saveStudioAuthoringState` effect is gone. Setters mirror the
+  // and persists through the same serializer. Session catalog entries stay out of
+  // disk state, and the prior manual `saveStudioAuthoringState` effect is gone. Setters mirror the
   // `useState` (value-or-updater) signature, so the call sites below are unchanged.
   const worldSettings = useAuthoringStore((s) => s.worldSettings);
   const setWorldSettings = useAuthoringStore((s) => s.setWorldSettings);
@@ -124,11 +126,11 @@ export function StudioShell(props: StudioShellProps) {
   const setPipelineConfig = useAuthoringStore((s) => s.setPipelineConfig);
   const overridesDisabled = useAuthoringStore((s) => s.overridesDisabled);
   const setOverridesDisabled = useAuthoringStore((s) => s.setOverridesDisabled);
-  const repoBackedPresetOverridesByRecipe = useAuthoringStore(
-    (s) => s.repoBackedPresetOverridesByRecipe
+  const repoBackedSessionPresetsByRecipe = useAuthoringStore(
+    (s) => s.repoBackedSessionPresetsByRecipe
   );
-  const setRepoBackedPresetOverridesByRecipe = useAuthoringStore(
-    (s) => s.setRepoBackedPresetOverridesByRecipe
+  const setRepoBackedSessionPresetsByRecipe = useAuthoringStore(
+    (s) => s.setRepoBackedSessionPresetsByRecipe
   );
 
   // View-only state is owned by `viewStore` (Zustand, architecture/10 §3). These
@@ -275,7 +277,7 @@ export function StudioShell(props: StudioShellProps) {
     cancelImportSwitch,
   } = usePresetLifecycle({
     recipeSettings,
-    repoBackedPresetOverridesByRecipe,
+    repoBackedSessionPresetsByRecipe,
     livePresets,
     pipelineConfig,
     setWorldSettings,
@@ -283,10 +285,21 @@ export function StudioShell(props: StudioShellProps) {
     setPipelineConfig,
     setOverridesDisabled,
     setRecipeSettings,
-    setRepoBackedPresetOverridesByRecipe,
+    setRepoBackedSessionPresetsByRecipe,
     setLastRunSnapshot,
     toast,
   });
+
+  const effectivePipelineConfigSource = useMemo(
+    () =>
+      resolveEffectivePipelineConfig({
+        recipeId: recipeSettings.recipe,
+        pipelineConfig,
+        overridesDisabled,
+      }),
+    [overridesDisabled, pipelineConfig, recipeSettings.recipe]
+  );
+  const effectivePipelineConfig = effectivePipelineConfigSource.config;
 
   // Authoring persistence is now driven by `authoringStore`'s `persist` middleware
   // (same serializer, same key, same schema) — the prior manual save effect is removed.
@@ -430,6 +443,7 @@ export function StudioShell(props: StudioShellProps) {
     presetActions,
     recipeSettings,
     pipelineConfig,
+    overridesDisabled,
     setRecipeSettings,
     setPipelineConfig,
     setLastSaveDeployConfig,
@@ -459,27 +473,27 @@ export function StudioShell(props: StudioShellProps) {
   // effect: an effect could lag a render and let an edited config inherit a stale
   // "durable" verdict, deploying unintended bytes. Threaded INTO `useRunInGame`.
   const runInGameMaterializationMode = useMemo<"durable" | "disposable">(() => {
+    if (overridesDisabled) return "disposable";
     const parsed = parsePresetKey(recipeSettings.preset);
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    const currentConfig = stripSchemaMetadataRoot(pipelineConfig);
     const selectedConfigMatches = resolved?.config
-      ? configsEqual(
-          stripSchemaMetadataRoot(resolved.config) as PipelineConfig,
-          currentConfig as PipelineConfig
-        )
+      ? configsEqual(resolved.config as PipelineConfig, effectivePipelineConfig)
       : false;
     const savedConfigMatches = lastSaveDeployConfig
-      ? configsEqual(
-          stripSchemaMetadataRoot(lastSaveDeployConfig) as PipelineConfig,
-          currentConfig as PipelineConfig
-        )
+      ? configsEqual(lastSaveDeployConfig as PipelineConfig, effectivePipelineConfig)
       : false;
     return parsed.kind === "builtin" &&
       resolved?.sourcePath &&
       (selectedConfigMatches || savedConfigMatches)
       ? "durable"
       : "disposable";
-  }, [lastSaveDeployConfig, pipelineConfig, recipeSettings.preset, resolvePreset]);
+  }, [
+    effectivePipelineConfig,
+    lastSaveDeployConfig,
+    overridesDisabled,
+    recipeSettings.preset,
+    resolvePreset,
+  ]);
 
   // Run-in-game cluster (slice 2.11): the current fingerprint + relation memos,
   // the launch + sync-back + diagnostics handlers, and the run-in-game terminal
@@ -498,6 +512,7 @@ export function StudioShell(props: StudioShellProps) {
     recipeSettings,
     worldSettings,
     pipelineConfig,
+    overridesDisabled,
     setupConfig,
     setRecipeSettings,
     setSetupConfig,
@@ -541,14 +556,14 @@ export function StudioShell(props: StudioShellProps) {
       recipeSettings,
       worldSettings,
       setupConfig,
-      pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+      pipelineConfig: effectivePipelineConfig,
     })
       ? "current"
       : "stale";
   }, [
     liveRuntime.seed,
     liveRuntime.status,
-    pipelineConfig,
+    effectivePipelineConfig,
     provedRunInGameSource,
     recipeSettings,
     setupConfig,
@@ -566,9 +581,15 @@ export function StudioShell(props: StudioShellProps) {
       recipeSettings,
       worldSettings,
       setupConfig,
-      pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+      pipelineConfig: effectivePipelineConfig,
     });
-  }, [pipelineConfig, provedRunInGameSource, recipeSettings, setupConfig, worldSettings]);
+  }, [
+    effectivePipelineConfig,
+    provedRunInGameSource,
+    recipeSettings,
+    setupConfig,
+    worldSettings,
+  ]);
 
   // Cycle break (§7.6): the preset dropdown options actually rendered. When the current
   // authoring state IS the proved disposable live source, the standalone "Live Game" row
@@ -785,13 +806,7 @@ export function StudioShell(props: StudioShellProps) {
       configSchema={recipeArtifacts.configSchema}
       onConfigChange={(next) => setPipelineConfig(next)}
       onConfigReset={() =>
-        setPipelineConfig(
-          buildDefaultConfig(
-            recipeArtifacts.configSchema,
-            recipeArtifacts.uiMeta,
-            recipeArtifacts.defaultConfig
-          )
-        )
+        setPipelineConfig(getExactRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
       }
       recipeOptions={recipeOptions}
       presetOptions={displayedPresetOptions}

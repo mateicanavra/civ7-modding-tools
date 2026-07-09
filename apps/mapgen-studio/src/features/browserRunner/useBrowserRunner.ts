@@ -15,7 +15,7 @@ export type BrowserRunnerInputs = {
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
   playerCount?: number;
   resourcesMode?: "balanced" | "strategic";
-  configOverrides?: unknown;
+  pipelineConfig: unknown;
 };
 
 export type BrowserRunnerState = {
@@ -121,7 +121,7 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
         latitudeBounds: inputs.latitudeBounds,
         playerCount: inputs.playerCount,
         resourcesMode: inputs.resourcesMode,
-        configOverrides: inputs.configOverrides,
+        pipelineConfig: inputs.pipelineConfig,
       };
 
       clientRef.current.start(request, {

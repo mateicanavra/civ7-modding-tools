@@ -3,6 +3,7 @@ import type {
   RecipeSettings,
   WorldSettings,
 } from "@swooper/mapgen-studio-ui/types";
+import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { describe, expect, it } from "vitest";
 import {
   loadStudioAuthoringState,
@@ -10,6 +11,7 @@ import {
   STUDIO_AUTHORING_STATE_KEY,
   saveStudioAuthoringState,
 } from "../../src/features/studioState/persistence";
+import { useAuthoringStore } from "../../src/stores/authoringStore";
 
 function memoryStorage() {
   const values = new Map<string, string>();
@@ -33,13 +35,7 @@ const recipeSettings: RecipeSettings = {
   seed: "987654321",
 };
 
-const pipelineConfig = {
-  morphology: {
-    knobs: {
-      landmasses: "earthlike",
-    },
-  },
-} as unknown as PipelineConfig;
+const pipelineConfig = useAuthoringStore.getState().pipelineConfig;
 
 const setupConfig = {
   gameOptions: {
@@ -57,10 +53,36 @@ const setupConfig = {
 };
 
 describe("Studio authoring-state persistence", () => {
-  it("saves and reloads selected config, seed, setup config, world settings, and repo-backed overrides", () => {
+  it("saves and reloads selected config, seed, setup config, and world settings", () => {
     const storage = memoryStorage();
     saveStudioAuthoringState(
       {
+        worldSettings,
+        recipeSettings,
+        setupConfig,
+        pipelineConfig,
+        overridesDisabled: false,
+      },
+      storage
+    );
+
+    const saved = storage.getItem(STUDIO_AUTHORING_STATE_KEY);
+    expect(saved).toContain("987654321");
+    expect(saved).not.toContain("repoBackedPresetOverridesByRecipe");
+    expect(loadStudioAuthoringState(storage)).toMatchObject({
+      worldSettings,
+      recipeSettings,
+      setupConfig,
+      pipelineConfig,
+      overridesDisabled: false,
+    });
+  });
+
+  it("ignores stale persisted built-in replacement payloads", () => {
+    const parsed = parseStudioAuthoringState(
+      JSON.stringify({
+        schemaVersion: 1,
+        savedAt: "2026-06-01T00:00:00.000Z",
         worldSettings,
         recipeSettings,
         setupConfig,
@@ -70,32 +92,80 @@ describe("Studio authoring-state persistence", () => {
           "mod-swooper-maps/standard": {
             "swooper-earthlike": {
               id: "swooper-earthlike",
-              label: "Swooper Earthlike",
-              sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-              config: pipelineConfig,
+              label: "Stale Replacement",
+              config: { stale: true },
             },
           },
         },
+      })
+    );
+
+    expect(parsed).toMatchObject({ recipeSettings, pipelineConfig });
+    expect(parsed).not.toHaveProperty("repoBackedPresetOverridesByRecipe");
+  });
+
+  it("hydrates no authoring state when the persisted recipe config is not exact JSON", () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      STUDIO_AUTHORING_STATE_KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        savedAt: "2026-06-01T00:00:00.000Z",
+        worldSettings,
+        recipeSettings,
+        setupConfig,
+        pipelineConfig: { stale: true },
+        overridesDisabled: false,
+      })
+    );
+
+    expect(loadStudioAuthoringState(storage)).toBeNull();
+  });
+
+  it("does not overwrite the last good snapshot with invalid draft config", () => {
+    const storage = memoryStorage();
+    saveStudioAuthoringState(
+      {
+        worldSettings,
+        recipeSettings,
+        setupConfig,
+        pipelineConfig,
+        overridesDisabled: false,
+      },
+      storage
+    );
+    const before = storage.getItem(STUDIO_AUTHORING_STATE_KEY);
+
+    saveStudioAuthoringState(
+      {
+        worldSettings,
+        recipeSettings,
+        setupConfig,
+        pipelineConfig: { stale: true } as unknown as PipelineConfig,
+        overridesDisabled: false,
       },
       storage
     );
 
-    const saved = storage.getItem(STUDIO_AUTHORING_STATE_KEY);
-    expect(saved).toContain("987654321");
-    expect(loadStudioAuthoringState(storage)).toMatchObject({
-      worldSettings,
-      recipeSettings,
-      setupConfig,
-      pipelineConfig,
-      overridesDisabled: false,
-      repoBackedPresetOverridesByRecipe: {
-        "mod-swooper-maps/standard": {
-          "swooper-earthlike": {
-            id: "swooper-earthlike",
-            label: "Swooper Earthlike",
-          },
-        },
+    expect(storage.getItem(STUDIO_AUTHORING_STATE_KEY)).toBe(before);
+  });
+
+  it("persists the recipe default config when overrides are disabled", () => {
+    const storage = memoryStorage();
+    saveStudioAuthoringState(
+      {
+        worldSettings,
+        recipeSettings,
+        setupConfig,
+        pipelineConfig: { staleDraft: true } as unknown as PipelineConfig,
+        overridesDisabled: true,
       },
+      storage
+    );
+
+    expect(loadStudioAuthoringState(storage)).toMatchObject({
+      pipelineConfig: STANDARD_RECIPE_CONFIG,
+      overridesDisabled: true,
     });
   });
 

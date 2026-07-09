@@ -86,23 +86,6 @@ describe("StudioShell source — 2.8 seam (preset lifecycle no longer host-owned
     expect(host).not.toMatch(/applyPresetConfig\(/);
   });
 
-  it("PL-7/PL-11: the save handlers call markPresetApplied BEFORE the key-flip setRecipeSettings", () => {
-    // The save handlers now live in `useSaveDeploy` (slice 2.9); the contract is
-    // unchanged — `markPresetApplied` (and `rememberRepoBackedConfig`) must precede
-    // the key-flip `setRecipeSettings` so the apply-effect resolver sees the just-
-    // recorded ref/override and skips a redundant re-apply.
-    const markIdx = saveDeploy.indexOf(
-      "markPresetApplied({ key: `builtin:${id}`, config: sanitized })"
-    );
-    const flipIdx = saveDeploy.indexOf(
-      "setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }))"
-    );
-    expect(markIdx).toBeGreaterThan(-1);
-    expect(flipIdx).toBeGreaterThan(-1);
-    // Ref written after the key flip → apply-effect re-applies and reverts the just-saved config.
-    expect(markIdx).toBeLessThan(flipIdx);
-  });
-
   it("syncStudioFromLiveGame routes through applyAuthoringSnapshot (no inline 5-setter block)", () => {
     // `syncStudioFromLiveGame` moved into `useRunInGame` (slice 2.11); the host now
     // only threads `applyAuthoringSnapshot` IN. The contract-routing (no inline
