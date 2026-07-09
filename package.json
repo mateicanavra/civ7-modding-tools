@@ -18,6 +18,8 @@
     "resources:publish": "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh",
     "resources:status": "bash ./packages/cli/scripts/resources-submodule/status.sh",
     "resources:unlock": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py",
+    "effect:init": "bash ./scripts/effect-submodule/init-submodule.sh",
+    "effect:status": "bash ./scripts/effect-submodule/status.sh",
     "refresh:data": "bun run resources:init && nx run civ7-cli:data:zip:default && nx run civ7-cli:data:unzip:default",
     "ci:architecture-strict-core": "bun habitat check --runner grit && bun habitat check --runner habitat",
     "deploy:mods": "nx run-many --targets=deploy",
