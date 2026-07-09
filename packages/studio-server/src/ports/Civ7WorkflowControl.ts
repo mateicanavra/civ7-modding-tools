@@ -5,6 +5,7 @@ import {
   type Civ7SetupOptionValue,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   ensureCiv7SetupMapRowVisible,
+  getCiv7ActiveTargetMods,
   getCiv7PlayableStatus,
   getCiv7SetupMapRows,
   runCiv7SinglePlayerFromSetup,
@@ -25,7 +26,8 @@ import {
   type StudioBoundedDiagnosticValue,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
-import { Civ7TunerSession } from "../services/Civ7TunerSession.js";
+import { setupFailureReasonFromDirectControlCode } from "../runInGameSetupFailureTaxonomy.js";
+import { Civ7TunerBackoffError, Civ7TunerSession } from "../services/Civ7TunerSession.js";
 import { classifyMapRowVisibilityFailure } from "./mapModVisibility.js";
 import type {
   RunInGameDeployment,
@@ -84,18 +86,26 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
         code: string,
         err: unknown,
         details: Record<string, unknown> = {}
-      ) =>
-        dependencyUnavailable({
+      ) => {
+        const directControlCode = directControlErrorCode(err);
+        const setupFailureReason = setupFailureReasonFromDirectControlCode(directControlCode);
+        return dependencyUnavailable({
           message,
           dependency: "direct-control",
+          directControlCode,
           causeSummary: diagnosticString(err),
           diagnostics: boundedDiagnostics({
-            code,
+            code: setupFailureReason,
+            priorCode: code,
+            setupFailureReason,
+            directControlCode,
             ...details,
             cause: diagnosticString(err),
+            directControlDetails: directControlErrorDetails(err),
           }),
           recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
         });
+      };
 
       return {
         checkPlayable: (args) =>
@@ -159,31 +169,32 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
                   args.prepared.request.materializationMode === "disposable"
                     ? "process-restart-required"
                     : "setup-row-missing";
-                // The map is materialized + deployed + registered (verified above)
-                // yet Civ7 setup cannot see it. Read the FULL setup map list to tell
-                // the two real causes apart: a disabled/unloaded map mod (NO sibling
-                // maps from the mod visible) vs. a freshly-deployed disposable row
-                // that has not been enumerated yet (siblings visible). This turns the
-                // opaque `setup-map-row-not-visible` into the actionable, named
-                // `map-mod-not-loaded` known error when the mod is disabled.
-                const failFromVisibleRows = (
-                  visibleMapRows: ReadonlyArray<{ readonly file: string }>
+                const failFromContext = (
+                  visibleMapRows: ReadonlyArray<{ readonly file: string }>,
+                  activeTargetModSet: unknown,
+                  activeTargetModSetReadbackLimitation?: string
                 ) => {
                   const classification = classifyMapRowVisibilityFailure({
                     launchMapScript,
                     visibleMapRows,
                     materializationMode: args.prepared.request.materializationMode,
+                    targetModId: args.deployment.runDeployment.deployedModId,
+                    activeTargetModSet: activeTargetModSetReadback(activeTargetModSet),
                   });
                   return proofFailed({
                     message: classification.message,
                     reason: "setup-row-unavailable",
                     diagnostics: boundedDiagnostics({
                       code: classification.code,
+                      setupFailureReason: classification.code,
                       ...(classification.modNamespace
                         ? { modNamespace: classification.modNamespace }
                         : {}),
+                      targetModId: classification.targetModId,
                       siblingMapRowCount: classification.siblingMapRowCount,
                       visibleMapRowCount: classification.visibleMapRowCount,
+                      activeTargetModSet: classification.activeTargetModSet,
+                      activeTargetModSetReadbackLimitation,
                       recoveryHint: classification.recoveryHint,
                       reloadRequired: true,
                       reloadBoundary,
@@ -193,26 +204,50 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
                     }),
                   });
                 };
-                return runTuner(
-                  (options) =>
-                    getCiv7SetupMapRows(
-                      {},
-                      { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
-                    ),
-                  (err) =>
-                    directControlUnavailable(
-                      "Civ7 setup map list is unavailable",
-                      "direct-control-setup-rows-unavailable",
-                      err,
-                      { materialization }
-                    )
+                return Effect.all(
+                  {
+                    allRows: runTuner(
+                      (options) =>
+                        getCiv7SetupMapRows(
+                          {},
+                          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
+                        ),
+                      (err) =>
+                        directControlUnavailable(
+                          "Civ7 setup map list is unavailable",
+                          "direct-control-setup-rows-unavailable",
+                          err,
+                          { materialization }
+                        )
+                    ).pipe(Effect.either),
+                    activeTargetModSet: runTuner(
+                      (options) =>
+                        getCiv7ActiveTargetMods(
+                          { limit: 100 },
+                          { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, ...options }
+                        ),
+                      (err) =>
+                        directControlUnavailable(
+                          "Civ7 active target mod-set readback is unavailable",
+                          "direct-control-active-target-mods-unavailable",
+                          err,
+                          { materialization }
+                        )
+                    ).pipe(Effect.either),
+                  },
+                  { concurrency: 1 }
                 ).pipe(
-                  Effect.matchEffect({
-                    // If the full-list read fails we do NOT guess "mod disabled":
-                    // classify from the (empty) rows we already have, which the
-                    // false-positive guard reports as `setup-map-row-not-visible`.
-                    onFailure: () => Effect.fail(failFromVisibleRows(rowProof.rows)),
-                    onSuccess: (allRows) => Effect.fail(failFromVisibleRows(allRows.rows)),
+                  Effect.flatMap(({ allRows, activeTargetModSet }) => {
+                    const visibleRows = allRows._tag === "Right" ? allRows.right.rows : rowProof.rows;
+                    const activeReadback =
+                      activeTargetModSet._tag === "Right" ? activeTargetModSet.right : undefined;
+                    const activeReadbackLimitation =
+                      activeTargetModSet._tag === "Left"
+                        ? diagnosticString(activeTargetModSet.left)
+                        : activeTargetModSetReadbackLimitation(activeReadback);
+                    return Effect.fail(
+                      failFromContext(visibleRows, activeReadback, activeReadbackLimitation)
+                    );
                   })
                 );
               }
@@ -411,4 +446,134 @@ function diagnosticString(value: unknown): string | undefined {
 
 function errorCause(value: Error): unknown {
   return (value as Error & { cause?: unknown }).cause;
+}
+
+function directControlErrorCode(err: unknown): string | undefined {
+  if (err instanceof Civ7TunerBackoffError) return "civ7-tuner-backoff";
+  return err != null &&
+    typeof err === "object" &&
+    "code" in err &&
+    typeof (err as { code?: unknown }).code === "string"
+    ? (err as { code: string }).code
+    : undefined;
+}
+
+function directControlErrorDetails(err: unknown): unknown {
+  return err != null && typeof err === "object" && "details" in err
+    ? (err as { details?: unknown }).details
+    : undefined;
+}
+
+function activeTargetModSetReadbackLimitation(
+  readback:
+    | {
+      readonly available: boolean;
+      readonly identityAvailable: boolean;
+      readonly truncated?: boolean;
+      readonly readbacks?: ReadonlyArray<Readonly<{ truncated?: boolean }>>;
+    }
+    | undefined
+): string | undefined {
+  if (!readback) return undefined;
+  if (!readback.available) {
+    return "active target mod-set readback did not expose a supported active-mod API";
+  }
+  if (!readback.identityAvailable) {
+    return "active target mod-set readback did not expose comparable mod identity";
+  }
+  if (readback.truncated === true) return "active target mod-set readback was truncated";
+  if (readback.readbacks?.some((entry) => entry.truncated === true)) {
+    return "active target mod-set readback was truncated";
+  }
+  return undefined;
+}
+
+function activeTargetModSetReadback(value: unknown):
+  | {
+      available: boolean;
+      identityAvailable: boolean;
+      mods: ReadonlyArray<{
+        id?: string;
+        packageId?: string;
+        name?: string;
+        title?: string;
+        handle?: string | number;
+        enabled?: boolean;
+        source?: string;
+      }>;
+      truncated: boolean;
+      readbacks?: ReadonlyArray<
+        Readonly<{
+          source?: string;
+          available?: boolean;
+          identityReadable?: boolean;
+          count?: number;
+          identityCount?: number;
+          truncated?: boolean;
+          error?: string;
+        }>
+      >;
+    }
+  | undefined {
+  if (
+    value == null ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    !("available" in value) ||
+    !("mods" in value) ||
+    typeof (value as { available?: unknown }).available !== "boolean" ||
+    typeof (value as { identityAvailable?: unknown }).identityAvailable !== "boolean" ||
+    typeof (value as { truncated?: unknown }).truncated !== "boolean" ||
+    !Array.isArray((value as { mods?: unknown }).mods)
+  ) {
+    return undefined;
+  }
+  const candidate = value as {
+    available: boolean;
+    identityAvailable: boolean;
+    mods: unknown[];
+    truncated: boolean;
+    readbacks?: unknown;
+  };
+  const mods = candidate.mods.flatMap((entry) => {
+    if (entry == null || typeof entry !== "object" || Array.isArray(entry)) return [];
+    const record = entry as Record<string, unknown>;
+    const mod = {
+      ...(typeof record.id === "string" ? { id: record.id } : {}),
+      ...(typeof record.packageId === "string" ? { packageId: record.packageId } : {}),
+      ...(typeof record.name === "string" ? { name: record.name } : {}),
+      ...(typeof record.title === "string" ? { title: record.title } : {}),
+      ...(typeof record.handle === "string" || typeof record.handle === "number"
+        ? { handle: record.handle }
+        : {}),
+      ...(typeof record.enabled === "boolean" ? { enabled: record.enabled } : {}),
+      ...(typeof record.source === "string" ? { source: record.source } : {}),
+    };
+    return Object.keys(mod).length === 0 ? [] : [mod];
+  });
+  const readbacks = Array.isArray(candidate.readbacks)
+    ? candidate.readbacks.flatMap((entry) => {
+        if (entry == null || typeof entry !== "object" || Array.isArray(entry)) return [];
+        const record = entry as Record<string, unknown>;
+        const readback = {
+          ...(typeof record.source === "string" ? { source: record.source } : {}),
+          ...(typeof record.available === "boolean" ? { available: record.available } : {}),
+          ...(typeof record.identityReadable === "boolean"
+            ? { identityReadable: record.identityReadable }
+            : {}),
+          ...(typeof record.count === "number" ? { count: record.count } : {}),
+          ...(typeof record.identityCount === "number" ? { identityCount: record.identityCount } : {}),
+          ...(typeof record.truncated === "boolean" ? { truncated: record.truncated } : {}),
+          ...(typeof record.error === "string" ? { error: record.error } : {}),
+        };
+        return Object.keys(readback).length === 0 ? [] : [readback];
+      })
+    : undefined;
+  return {
+    available: candidate.available,
+    identityAvailable: candidate.identityAvailable,
+    mods,
+    truncated: candidate.truncated,
+    ...(readbacks === undefined ? {} : { readbacks }),
+  };
 }

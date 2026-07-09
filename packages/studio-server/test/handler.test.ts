@@ -24,6 +24,7 @@ import {
   type StudioRpcHandle,
   type StudioRuntime,
   type StudioServerContext,
+  proofFailed,
   studioEventSubscriptionIterator,
 } from "../src/index";
 import {
@@ -255,6 +256,62 @@ describe("studio-server RPC handler", () => {
       });
     } finally {
       await iterator.return?.();
+      await runtime.dispose();
+    }
+  }, 10_000);
+
+  test("reports generated setup-row misses through safe public RPC status and private diagnostics", async () => {
+    const runtime = makeTestStudioRuntime(
+      makeContext(),
+      {
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message: "Civ7 setup cannot see the generated Studio Run map row.",
+              reason: "setup-row-unavailable",
+              diagnostics: {
+                code: "setup-map-row-not-visible",
+                setupFailureReason: "setup-map-row-not-visible",
+                mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+                rowProof: JSON.stringify({ rows: [] }),
+                rowVisibility: JSON.stringify({ refreshed: true, final: { rows: [] } }),
+              },
+            })
+          ),
+      }
+    );
+    const client = directRuntimeClient(runtime);
+    try {
+      const accepted = await client.runInGame.start(runInGameStartInput());
+      if (!accepted.diagnosticsId) throw new Error("Expected accepted run diagnostics id");
+
+      await expect
+        .poll(async () => (await client.runInGame.status({ requestId: accepted.requestId })).status)
+        .toBe("failed");
+
+      const status = await client.runInGame.status({ requestId: accepted.requestId });
+      const current = await client.studio.operations.current({});
+      const publicPayload = JSON.stringify([accepted, status, current]);
+      expect(status).toMatchObject({
+        status: "failed",
+        safeFailureCategory: "runtime-observation",
+        diagnosticsId: accepted.diagnosticsId,
+      });
+      expect(publicPayload).not.toMatch(
+        /setup-map-row-not-visible|rowProof|rowVisibility|mod-swooper-studio-run|\/tmp\//
+      );
+
+      const diagnostics = await client.runInGame.diagnostics({
+        diagnosticsId: accepted.diagnosticsId,
+      });
+      expect(diagnostics.ok).toBe(true);
+      if (!diagnostics.ok) throw new Error("Expected diagnostics lookup result");
+      expect(diagnostics.diagnostics.sections.setupFailure).toMatchObject({
+        setupFailureReason: "setup-map-row-not-visible",
+        expectedGeneratedMapFile: "{mod-swooper-studio-run}/maps/run-test.js",
+        rowSample: { rows: [] },
+      });
+    } finally {
       await runtime.dispose();
     }
   }, 10_000);
@@ -899,11 +956,14 @@ function directRuntimeClient(runtime: StudioRuntime): RouterClient<StudioRouter>
   );
 }
 
-function makeTestStudioRuntime(context: StudioServerContext): StudioRuntime {
+function makeTestStudioRuntime(
+  context: StudioServerContext,
+  civ7Overrides: Partial<Civ7WorkflowControlApi> = {}
+): StudioRuntime {
   const eventHubLayer = StudioEventHubLive;
   const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
     ports: context.operationRuntime,
-    civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
+    civ7WorkflowControl: makeCiv7WorkflowControlLayer(civ7Overrides),
   }).pipe(Layer.provide(eventHubLayer));
   const runtime: StudioRuntime = ManagedRuntime.make(
     Layer.mergeAll(eventHubLayer, operationRuntimeLayer, Layer.succeed(StudioConfig, context))
