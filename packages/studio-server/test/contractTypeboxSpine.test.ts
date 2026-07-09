@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import {
   operationStatusTypeSchema,
   RecipeDagGetContract,
-  runInGame,
   saveDeployStatusTypeSchema,
   studio,
   toStandardSchema,
@@ -91,13 +90,13 @@ describe("studio-server TypeBox contract spine", () => {
           active: null,
           recent: [
             {
+              ok: true,
               requestId: "run-1",
-              phase: "completed",
-              status: "completed",
-              recoveryActions: ["copy-diagnostics"],
-              createdAt: "2026-06-15T00:00:00.000Z",
+              phase: "complete",
+              status: "complete",
+              startedAt: "2026-06-15T00:00:00.000Z",
               updatedAt: "2026-06-15T00:00:01.000Z",
-              terminalAt: "2026-06-15T00:00:01.000Z",
+              completedPhases: ["materializing", "complete"],
             },
           ],
         },
@@ -119,22 +118,6 @@ describe("studio-server TypeBox contract spine", () => {
     const saveDeployOperationEvent = unionOption(studioOperationEventSchema, 1);
     expect(schemaProperty(runInGameOperationEvent, "status")).toBe(operationStatusTypeSchema);
     expect(schemaProperty(saveDeployOperationEvent, "status")).toBe(saveDeployStatusTypeSchema);
-  });
-
-  test("keeps runInGame.cancel on the closed request-id input and public status output", () => {
-    const input = typeboxInputSchemaFromContractProcedure(runInGame.cancel);
-    const output = typeboxOutputSchemaFromContractProcedure(runInGame.cancel);
-
-    expect(schemaProperty(input, "requestId")).toBeTruthy();
-    expect(Object.keys((input as { properties?: Record<string, unknown> }).properties ?? {})).toEqual([
-      "requestId",
-    ]);
-    expect((input as { additionalProperties?: unknown }).additionalProperties).toBe(false);
-    expect(output).toBe(operationStatusTypeSchema);
-    expect(Value.Check(input, { requestId: "studio-run-in-game-cancel" })).toBe(true);
-    expect(Value.Check(input, { requestId: "studio-run-in-game-cancel", leaseId: "private" })).toBe(
-      false
-    );
   });
 
   test("keeps the Studio event union TypeBox-owned and sealed to hello, operation, and live-game", () => {

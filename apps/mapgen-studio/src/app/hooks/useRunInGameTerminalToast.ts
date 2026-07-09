@@ -30,11 +30,14 @@ export function useRunInGameTerminalToast(args: {
     if (!isRunInGameTerminalPhase(runInGameOperation.phase)) return;
     if (lastRunInGameToastRef.current === runInGameOperation.requestId) return;
     lastRunInGameToastRef.current = runInGameOperation.requestId;
-    if (runInGameOperation.status === "completed") {
-      toast(`Run in Game complete: ${runInGameOperation.requestId}`, { variant: "success" });
+    if (runInGameOperation.status === "complete") {
+      toast(
+        `Run in Game complete: ${runInGameOperation.materialization?.mapScript ?? runInGameOperation.requestId}`,
+        { variant: "success" }
+      );
     } else if (runInGameOperation.status !== "running") {
       toast(
-        `Run in Game ${runInGameOperation.status}: ${runInGameOperation.safeFailureCategory ?? runInGameOperation.requestId}`,
+        `Run in Game ${runInGameOperation.status}: ${runInGameOperation.error ?? runInGameOperation.requestId}`,
         {
           variant: "error",
         }

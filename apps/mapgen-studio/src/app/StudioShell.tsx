@@ -211,12 +211,12 @@ export function StudioShell(props: StudioShellProps) {
   // Cycle break (§7.6): the run-in-game source that was actually PROVED through to a
   // completed operation — `lastRunInGameSource` is what the user last requested, but
   // it only counts as proved once an operation with the SAME requestId reports
-  // `completed`. Computed here (not in `useRunInGame`) because both `usePresetLifecycle`
+  // `complete`. Computed here (not in `useRunInGame`) because both `usePresetLifecycle`
   // (via `livePresets`) and `useRunInGame` consume it, and it must exist before either.
   const provedRunInGameSource = useMemo(
     () =>
       lastRunInGameSource &&
-      runInGameOperation?.status === "completed" &&
+      runInGameOperation?.status === "complete" &&
       runInGameOperation.requestId === lastRunInGameSource.requestId
         ? lastRunInGameSource
         : null,
@@ -637,9 +637,8 @@ export function StudioShell(props: StudioShellProps) {
   // restores both op states and stamps the toast guard so an already-finished operation
   // is not re-toasted. Reads the live op state via the `*Ref` mirrors (not deps) so it
   // runs ONCE; `markRunInGameToastHandled` is its only reactive dep (and is `[]`-stable).
-  // This is the live-stream's static counterpart; `useStudioEvents` keeps it current
+  // This is the live-stream's static counterpart — `useStudioEvents` keeps it current
   // afterward. Initialized after save/live/run hooks so their setters exist here.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-time adoption intentionally reads operation refs without subscribing; live updates are owned by useStudioEvents.
   useEffect(() => {
     let cancelled = false;
     void readAndAdoptStudioOperationsCurrent({

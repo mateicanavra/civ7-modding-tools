@@ -1,9 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import {
-  compileFoundationTectonicsPublicConfig,
-  FoundationTectonicsPublicSchema,
-} from "../foundation-public-config.js";
 import { plateMotion, tectonics } from "./steps/index.js";
 
 const FoundationPlateActivityKnobSchema = Type.Number({
@@ -25,9 +21,6 @@ export default createStage({
         "Tectonics lever: plateActivity (scales orogeny intensity — convergent uplift + subduction volcanism — after regime classification, so the lever is smooth and never relocates land).",
     }
   ),
-  public: FoundationTectonicsPublicSchema,
-  compile: ({ config }: { config: Record<string, unknown> }) =>
-    compileFoundationTectonicsPublicConfig(config),
   steps: orderStandardStageSteps("foundation-tectonics", {
     "plate-motion": plateMotion,
     tectonics,

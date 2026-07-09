@@ -1,4 +1,3 @@
-import path from "node:path";
 import {
   type DiagnosticFinding,
   type DiagnosticRunOutcome,
@@ -140,7 +139,7 @@ function gritRuleOutcomeFromReport(
     .filter((result) =>
       observedGritIdentityMatches(observedGritDiagnosticIdentity(result), entry.diagnosticIdentity)
     )
-    .map((result) => diagnosticFindingFromGritResult(rule, entry, result, options));
+    .map((result) => diagnosticFindingFromGritResult(rule, entry, result));
   if (diagnostics.length > 0) {
     return {
       kind: "findings",
@@ -157,23 +156,17 @@ function gritRuleOutcomeFromReport(
 function diagnosticFindingFromGritResult(
   rule: RuleSourceFacts,
   entry: ReturnType<typeof diagnosticCatalogEntryFromRuleSourceFacts>,
-  result: GritResult,
-  options: GritDiagnosticOptions = {}
+  result: GritResult
 ): DiagnosticFinding {
   return {
     kind: "diagnostic-finding",
     ruleId: rule.id,
-    path: normalizeDiagnosticPath(result.path, options.repoRoot),
+    path: normalizeGritPath(result.path),
     line: result.start?.line,
     message: result.extra?.message ?? rule.message,
     severity: rule.lane === "advisory" ? "advisory" : "error",
     baselineState: "unbaselined",
   };
-}
-
-function normalizeDiagnosticPath(gritPath: string | undefined, repoRoot: string | undefined) {
-  if (!repoRoot || !gritPath || !path.isAbsolute(gritPath)) return normalizeGritPath(gritPath);
-  return normalizeGritPath(path.relative(repoRoot, gritPath));
 }
 
 function unexpectedIdentityOutcome(

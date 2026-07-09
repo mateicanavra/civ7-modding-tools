@@ -9,10 +9,6 @@
       "types": "./src/recipes/studio-contracts/index.ts",
       "import": "./src/recipes/studio-contracts/index.ts"
     },
-    "./maps/catalog": {
-      "types": "./src/maps/catalog/index.ts",
-      "import": "./src/maps/catalog/index.ts"
-    },
     "./recipes/standard": {
       "types": "./dist/recipes/standard.d.ts",
       "import": "./dist/recipes/standard.js"
@@ -40,7 +36,6 @@
     "@swooper/mapgen-viz": "workspace:*",
     "@civ7/adapter": "workspace:*",
     "@civ7/map-policy": "workspace:*",
-    "@civ7/studio-run-workspace": "workspace:*",
     "@mateicanavra/civ7-sdk": "workspace:*",
     "typebox": "^1.0.80"
   },
@@ -48,8 +43,6 @@
     "@civ7/direct-control": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
     "@civ7/types": "workspace:*",
-    "esbuild": "^0.27.2",
-    "json-schema-to-typescript": "^15.0.4",
-    "type-fest": "^5.7.0"
+    "json-schema-to-typescript": "^15.0.4"
   }
 }

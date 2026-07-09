@@ -22,14 +22,7 @@
       "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/contract.ts"]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/ecology/ops",
-    "mods/mod-swooper-maps/src/domain/foundation/ops",
-    "mods/mod-swooper-maps/src/domain/hydrology/ops",
-    "mods/mod-swooper-maps/src/domain/morphology/ops",
-    "mods/mod-swooper-maps/src/domain/placement/ops",
-    "mods/mod-swooper-maps/src/domain/resources/ops"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/baseline.json"

@@ -87,10 +87,14 @@ export function runInGameRequiredMaterializationMarkers(args: {
 }
 
 /**
- * The deployed map bundle must embed the run request id because the in-game
- * `[mapgen-proof]` log line echoes that id and the proof waiter matches it.
- * Checking the bundle before Civ7 startup turns an otherwise long proof timeout
- * into an immediate artifact-generation/deployment diagnostic.
+ * The deployed map bundle must EMBED the run request id — `gen:maps` bakes it
+ * into the generated source (via `SWOOPER_STUDIO_RUN_ID`) and the in-game
+ * `[mapgen-proof]` log line echoes it, which is what the proof waiter matches
+ * on. When the id is missing (the historical cached/strict-env failure: a
+ * `build` task dropped the env var, so the bundle logged `requestId: null`),
+ * the proof can NEVER match and the operation zombies in "Waiting for Proof"
+ * for the full log timeout. Checking the bundle right after deploy turns that
+ * silent 90s wait into an immediate, precisely attributed failure.
  */
 export function mapScriptEmbedsRequestId(bundleText: string, requestId: string): boolean {
   return bundleText.includes(requestId);
@@ -126,7 +130,6 @@ export function buildRunInGameExactAuthorshipProof(args: {
     args.generatedSourceScript ?? args.materialization.generatedSourceScript;
   const localModScript = args.localModScript ?? args.materialization.localModScript;
   const deployedModScript = args.deployedModScript ?? args.materialization.deployedModScript;
-  const usesRequestGeneratedMod = isRequestGeneratedModMaterialization(args.materialization);
   const unresolvedLinks: string[] = [];
   const requiredMaterializationMarkers =
     args.materialization.configHash && args.materialization.envelopeHash
@@ -206,45 +209,12 @@ export function buildRunInGameExactAuthorshipProof(args: {
     Boolean(args.materialization.envelopeHash),
     "materialization.envelope-hash"
   );
-  if (usesRequestGeneratedMod) {
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.generationManifestDigest),
-      "materialization.generation-manifest-digest"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.runArtifactId),
-      "materialization.run-artifact-id"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.generatedModRoot),
-      "materialization.generated-mod-root"
-    );
-    addMissing(
-      unresolvedLinks,
-      args.materialization.generatedModFileCount !== undefined,
-      "materialization.generated-mod-file-count"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.generatedModDigest),
-      "materialization.generated-mod-digest"
-    );
-    addMissing(
-      unresolvedLinks,
-      Boolean(args.materialization.mapRowId),
-      "materialization.map-row-id"
-    );
-  } else {
-    addMissing(unresolvedLinks, Boolean(sourceConfig), "materialization.source-config-file");
-    addMissing(
-      unresolvedLinks,
-      Boolean(generatedSourceScript),
-      "materialization.generated-source-script"
-    );
-  }
+  addMissing(unresolvedLinks, Boolean(sourceConfig), "materialization.source-config-file");
+  addMissing(
+    unresolvedLinks,
+    Boolean(generatedSourceScript),
+    "materialization.generated-source-script"
+  );
   addMissing(unresolvedLinks, Boolean(localModScript), "materialization.local-mod-script");
   addMissing(unresolvedLinks, Boolean(deployedModScript), "materialization.deployed-mod-script");
   addMissing(unresolvedLinks, hasRows(args.rowProof), "civ-setup.map-row");
@@ -400,24 +370,6 @@ export function buildRunInGameExactAuthorshipProof(args: {
       ...(args.materialization.envelopeHash === undefined
         ? {}
         : { envelopeHash: args.materialization.envelopeHash }),
-      ...(args.materialization.generationManifestDigest === undefined
-        ? {}
-        : { generationManifestDigest: args.materialization.generationManifestDigest }),
-      ...(args.materialization.runArtifactId === undefined
-        ? {}
-        : { runArtifactId: args.materialization.runArtifactId }),
-      ...(args.materialization.generatedModRoot === undefined
-        ? {}
-        : { generatedModRoot: args.materialization.generatedModRoot }),
-      ...(args.materialization.generatedModFileCount === undefined
-        ? {}
-        : { generatedModFileCount: args.materialization.generatedModFileCount }),
-      ...(args.materialization.generatedModDigest === undefined
-        ? {}
-        : { generatedModDigest: args.materialization.generatedModDigest }),
-      ...(args.materialization.mapRowId === undefined
-        ? {}
-        : { mapRowId: args.materialization.mapRowId }),
       ...(sourceConfig ? { sourceConfig } : {}),
       ...(generatedSourceScript ? { generatedSourceScript } : {}),
       ...(localModScript ? { localModScript } : {}),
@@ -508,19 +460,6 @@ export function runInGameMaterializationScriptUnresolvedLinks(args: {
     args.requiredMarkers
   );
   return links;
-}
-
-function isRequestGeneratedModMaterialization(
-  materialization: RunInGameMaterializationStatus
-): boolean {
-  return (
-    materialization.generationManifestDigest !== undefined ||
-    materialization.runArtifactId !== undefined ||
-    materialization.generatedModRoot !== undefined ||
-    materialization.generatedModFileCount !== undefined ||
-    materialization.generatedModDigest !== undefined ||
-    materialization.mapRowId !== undefined
-  );
 }
 
 function pushMissingContentMarkers(

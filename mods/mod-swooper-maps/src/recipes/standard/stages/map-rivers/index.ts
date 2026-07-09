@@ -32,17 +32,6 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "map-rivers",
   knobsSchema,
-  public: Type.Object(
-    {},
-    {
-      additionalProperties: false,
-      description:
-        "Map river projection controls. Navigable river materialization currently uses recipe defaults and stage knobs rather than per-run authored fields.",
-    }
-  ),
-  compile: () => ({
-    "plot-rivers": {},
-  }),
   steps: orderStandardStageSteps("map-rivers", {
     "plot-rivers": plotRivers,
   }),

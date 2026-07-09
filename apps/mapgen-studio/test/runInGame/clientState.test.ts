@@ -51,13 +51,20 @@ const setupConfig = {
 };
 
 const status: RunInGameOperationStatus = {
+  ok: true,
   requestId: "studio-run-in-game-test",
-  phase: "completed",
-  status: "completed",
-  createdAt: "2026-06-01T00:00:00.000Z",
+  phase: "complete",
+  status: "complete",
+  startedAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-01T00:00:01.000Z",
-  terminalAt: "2026-06-01T00:00:01.000Z",
-  recoveryActions: ["copy-diagnostics"],
+  completedPhases: [
+    "materializing",
+    "deploying",
+    "checking-civ7",
+    "preparing-setup",
+    "starting-game",
+    "waiting-for-proof",
+  ],
 };
 
 describe("Run in Game client state", () => {

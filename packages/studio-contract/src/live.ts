@@ -1,5 +1,4 @@
 import { oc } from "@orpc/contract";
-import type { Static } from "typebox";
 import { Type } from "typebox";
 
 import { liveEntitiesErrors, liveGameInfoErrors, liveSnapshotErrors } from "./errors.js";
@@ -41,21 +40,22 @@ const fieldOrErrorSchema = Type.Union([
 // mapSummary, autoplay } where ok = playableStatus && readiness !== "unavailable",
 // and each of status/appUi/mapSummary/autoplay may be the payload OR { error }
 // (Promise.allSettled). Error 500 ONLY on outer throw.
-const statusOutputSchema = Type.Object(
-  {
-    ok: Type.Boolean(),
-    playable: Type.Boolean(),
-    observedAt: isoTimestampSchema,
-    status: fieldOrErrorSchema,
-    appUi: fieldOrErrorSchema,
-    mapSummary: fieldOrErrorSchema,
-    autoplay: fieldOrErrorSchema,
-  },
-  { additionalProperties: false }
+export const status = oc.input(emptyInputSchema).output(
+  contractSchema(
+    Type.Object(
+      {
+        ok: Type.Boolean(),
+        playable: Type.Boolean(),
+        observedAt: isoTimestampSchema,
+        status: fieldOrErrorSchema,
+        appUi: fieldOrErrorSchema,
+        mapSummary: fieldOrErrorSchema,
+        autoplay: fieldOrErrorSchema,
+      },
+      { additionalProperties: false }
+    )
+  )
 );
-export type Civ7LiveStatusOutput = Static<typeof statusOutputSchema>;
-
-export const status = oc.input(emptyInputSchema).output(contractSchema(statusOutputSchema));
 
 // ---------------------------------------------------------------------------
 // #5 civ7.live.snapshot - live snapshot read (retired REST parity: GET /api/civ7/live/snapshot)
@@ -69,17 +69,6 @@ export const status = oc.input(emptyInputSchema).output(contractSchema(statusOut
 // `fields` csv split/trim/filter, `playerId` null->omit - lives in the handler.
 // Contract input optionality documents the wire defaults; clamping is applied
 // server-side. `fields` is accepted as the raw csv string to preserve parsing parity.
-const snapshotOutputSchema = Type.Object(
-  {
-    ok: Type.Literal(true),
-    observedAt: isoTimestampSchema,
-    // Civ7MapGridResult (@civ7/direct-control). Opaque payload.
-    grid: unknownRecordSchema,
-  },
-  { additionalProperties: false }
-);
-export type Civ7LiveSnapshotOutput = Static<typeof snapshotOutputSchema>;
-
 export const snapshot = oc
   .errors(liveSnapshotErrors)
   .input(
@@ -98,7 +87,19 @@ export const snapshot = oc
       )
     )
   )
-  .output(contractSchema(snapshotOutputSchema));
+  .output(
+    contractSchema(
+      Type.Object(
+        {
+          ok: Type.Literal(true),
+          observedAt: isoTimestampSchema,
+          // Civ7MapGridResult (@civ7/direct-control). Opaque payload.
+          grid: unknownRecordSchema,
+        },
+        { additionalProperties: false }
+      )
+    )
+  );
 
 // ---------------------------------------------------------------------------
 // #6 civ7.live.entities - live entities read (retired REST parity: GET /api/civ7/live/entities)
