@@ -11,6 +11,7 @@
     "docs:project": "./.habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh && bunx docsify-cli serve ./docs --port 7979",
     "restart:mapgen-studio": "bash ./scripts/restart-mapgen-studio.sh",
     "dev:mapgen-studio:restart": "bun run restart:mapgen-studio",
+    "dev:mapgen-studio:down": "bash ./scripts/down-mapgen-studio.sh",
     "lint": "nx run-many --targets=lint",
     "test": "nx run-many --targets=test",
     "clean": "nx run-many --targets=clean",

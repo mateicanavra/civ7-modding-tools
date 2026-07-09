@@ -19,7 +19,7 @@ Restarts MapGen Studio end to end:
   1. optionally builds mapgen-studio through Nx;
   2. stops the existing tmux session and listeners on ${FRONTEND_PORT}/${DAEMON_PORT};
   3. starts the Studio daemon and Vite frontend in a detached tmux session;
-  4. waits until the frontend answers HTTP 200.
+  4. waits until the frontend answers HTTP 200 and daemon health is OK.
 
 Environment:
   MAPGEN_STUDIO_TMUX_SESSION  tmux session name (default: mapgen-studio-runner)
@@ -66,45 +66,24 @@ require_cmd() {
   fi
 }
 
-kill_port_listeners() {
-  local port="$1"
-  local pids
-  pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
-  if [[ -z "$pids" ]]; then
-    return 0
-  fi
-
-  echo "Stopping listener(s) on port $port: ${pids//$'\n'/ }"
-  kill $pids 2>/dev/null || true
-
-  for _ in {1..20}; do
-    if [[ -z "$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)" ]]; then
-      return 0
-    fi
-    sleep 0.25
-  done
-
-  pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
-  if [[ -n "$pids" ]]; then
-    echo "Force-stopping listener(s) on port $port: ${pids//$'\n'/ }"
-    kill -9 $pids 2>/dev/null || true
-  fi
-}
-
-wait_for_frontend() {
-  local url="http://localhost:${FRONTEND_PORT}/"
+wait_for_services() {
+  local frontend_url="http://localhost:${FRONTEND_PORT}/"
+  local daemon_url="http://127.0.0.1:${DAEMON_PORT}/healthz"
   local deadline=$((SECONDS + WAIT_SECONDS))
-  local status
+  local frontend_status
+  local daemon_status
 
   while (( SECONDS < deadline )); do
-    status="$(curl -sS -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || true)"
-    if [[ "$status" == "200" ]]; then
+    frontend_status="$(curl -sS -o /dev/null -w "%{http_code}" "$frontend_url" 2>/dev/null || true)"
+    daemon_status="$(curl -sS -o /dev/null -w "%{http_code}" "$daemon_url" 2>/dev/null || true)"
+    if [[ "$frontend_status" == "200" && "$daemon_status" == "200" ]]; then
       return 0
     fi
     sleep 1
   done
 
-  echo "Timed out waiting for $url." >&2
+  echo "Timed out waiting for frontend $frontend_url and daemon $daemon_url." >&2
+  echo "Last frontend status: ${frontend_status:-unreachable}; daemon status: ${daemon_status:-unreachable}" >&2
   echo "--- daemon pane ---" >&2
   tmux capture-pane -t "${SESSION}:daemon" -p -S -120 >&2 || true
   echo "--- vite pane ---" >&2
@@ -114,7 +93,6 @@ wait_for_frontend() {
 
 require_cmd bun
 require_cmd curl
-require_cmd lsof
 require_cmd tmux
 require_cmd nx
 
@@ -126,20 +104,20 @@ if [[ "$RUN_BUILD" == "1" ]]; then
 fi
 
 echo "Stopping existing MapGen Studio session/listeners..."
-tmux kill-session -t "$SESSION" 2>/dev/null || true
-kill_port_listeners "$FRONTEND_PORT"
-kill_port_listeners "$DAEMON_PORT"
+MAPGEN_STUDIO_TMUX_SESSION="$SESSION" \
+  STUDIO_DEV_PORT="$FRONTEND_PORT" \
+  STUDIO_DAEMON_PORT="$DAEMON_PORT" \
+  bash "$ROOT/scripts/down-mapgen-studio.sh"
 
 echo "Starting MapGen Studio tmux session '$SESSION'..."
-# Daemon runs via the Habitat-owned Nx target, whose command includes
-# `bun --conditions bun-source --watch`: it resolves @civ7/studio-server to
-# SOURCE and hot-reloads on server-package edits.
+# Daemon runs via the Habitat-owned Nx target, whose command resolves
+# @civ7/studio-server to source and follows the repo-owned dev topology.
 tmux new-session -d -s "$SESSION" -n daemon -c "$ROOT" \
   "STUDIO_DAEMON_PORT='$DAEMON_PORT' nx run mapgen-studio:serve-daemon"
 tmux new-window -t "$SESSION" -n vite -c "$APP_DIR" \
   "STUDIO_DEV_PORT='$FRONTEND_PORT' STUDIO_DEV_RPC_TARGET='$RPC_TARGET' bun vite"
 
-wait_for_frontend
+wait_for_services
 
 echo "MapGen Studio is running."
 echo "  Frontend: http://localhost:${FRONTEND_PORT}/"
