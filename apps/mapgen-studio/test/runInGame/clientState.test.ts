@@ -180,6 +180,10 @@ describe("Run in Game client state", () => {
       selectedConfig: {
         id: "studio-current",
         label: "Live Game",
+        catalogSourceId: "swooper-desert-mountains",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-desert-mountains.config.json",
+        sortIndex: 25,
+        latitudeBounds: { topLatitude: 40, bottomLatitude: -40 },
       },
       now: () => new Date("2026-06-01T00:00:00.000Z"),
     });

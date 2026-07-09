@@ -9,12 +9,27 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "sundered-archipelago",
   "name": "The Sundered Archipelago",
   "description": "A world shattered by ancient tectonic rifting into countless volcanic islands and shallow seas. Hundreds of islands form chains connected by coral reefs and strategic straits. Naval supremacy determines the fate of empires as civilizations island-hop toward dominance. Lush tropical paradises contrast with smoldering volcanic peaks, while narrow channels create natural choke points for trade and warfare.",
   "recipe": "standard",
   "sortIndex": 503,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -803,15 +818,19 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,
+  latitudeBounds: {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   sourceConfigId: "sundered-archipelago",
   configHash: "76ba54cac3036ea51287f0c4b238a4ddb2c511dc49074280c8502a29874665a8",
-  envelopeHash: "3ec792218d1b2e90200189c9fbe7fcd1389ab9d7344cf79fba071e9ceb258b5d",
-  config: mapConfig.config as StandardRecipeConfig,
+  envelopeHash: "de2d8ba1b3a7f0206a69b6b5013ffa1678ebb65208b2936635d545b9db9865a7",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

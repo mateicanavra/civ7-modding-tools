@@ -51,22 +51,11 @@ export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   }
 }
 
-export function runInGameRequiresProcessRestart(
-  status?: RunInGameOperationStatus | null,
-  relation: RunInGameRelation = "unknown"
-): boolean {
-  return (
-    relation !== "stale" &&
-    status?.recoveryActions.includes("restart-civ-process-and-retry") === true
-  );
-}
-
 export function runInGamePrimaryActionLabel(
   status?: RunInGameOperationStatus | null,
   relation: RunInGameRelation = "unknown"
 ): string {
   if (status?.status === "running") return formatRunInGamePhaseLabel(status.phase);
-  if (status && runInGameRequiresProcessRestart(status, relation)) return "Restart Civ & Run";
   if (status?.status === "failed" || status?.status === "cancelled") {
     return relation === "stale" ? "Run Current" : "Retry Run";
   }

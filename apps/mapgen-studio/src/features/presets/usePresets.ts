@@ -15,6 +15,10 @@ export type LivePreset = Readonly<{
   id: string;
   label: string;
   description?: string;
+  latitudeBounds?: Readonly<{
+    topLatitude: number;
+    bottomLatitude: number;
+  }>;
   config: unknown;
 }>;
 
@@ -97,6 +101,7 @@ export function usePresets(args: {
               id: preset.id,
               label: preset.label,
               description: preset.description,
+              catalogSourceId: preset.catalogSourceId,
               sourcePath: preset.sourcePath,
               sortIndex: preset.sortIndex,
               latitudeBounds: preset.latitudeBounds,
@@ -124,6 +129,7 @@ export function usePresets(args: {
               id: preset.id,
               label: preset.label,
               description: preset.description,
+              latitudeBounds: preset.latitudeBounds,
               config: preset.config,
             }
           : null;

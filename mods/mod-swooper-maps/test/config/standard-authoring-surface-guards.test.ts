@@ -33,7 +33,9 @@ describe("standard map config artifacts", () => {
       .map((entry) => entry.replace(/\.ts$/, ""))
       .sort();
     const expectedIds = expectedEntries
-      .map((entry) => entry.relativePath.replace(/^src\/maps\/generated\//, "").replace(/\.ts$/, ""))
+      .map((entry) =>
+        entry.relativePath.replace(/^src\/maps\/generated\//, "").replace(/\.ts$/, "")
+      )
       .sort();
 
     expect(generatedIds).toEqual(expectedIds);

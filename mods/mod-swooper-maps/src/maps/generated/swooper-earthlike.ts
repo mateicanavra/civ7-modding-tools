@@ -9,12 +9,27 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "swooper-earthlike",
   "name": "Swooper Earthlike",
   "description": "An Earth-analogue world with vast oceans, a handful of major continents, and familiar climate belts. Expect wet equatorial jungles, dry subtropical deserts, temperate heartlands, and polar tundra shaped by plate-driven mountain arcs and broad passive coasts.",
   "recipe": "standard",
   "sortIndex": 501,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -805,15 +820,19 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,
+  latitudeBounds: {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   sourceConfigId: "swooper-earthlike",
   configHash: "40ae3e948fa6f6a2730ddd774fc6cd660142c86d868b184df7fc62b450774acf",
-  envelopeHash: "24ab6523ab022abc45211867e90abc165d37d9145cba526870de36ccd7107d0a",
-  config: mapConfig.config as StandardRecipeConfig,
+  envelopeHash: "bbc3c1db38259f4bb27a500c7f6755426cc02bfa604b3d0ec83bbb040aeefcec",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

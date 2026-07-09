@@ -132,7 +132,7 @@ describe("Run in Game runtime observation", () => {
       deploymentEvidence: {
         deployedSnapshot: {
           digest: "test-generated-mod-digest",
-          files: [{ path: "maps/run-test.js" }],
+          files: [{ path: "maps/studio-run.js" }],
         },
       },
       scriptingLog: {
@@ -140,8 +140,8 @@ describe("Run in Game runtime observation", () => {
       },
       setupRow: {
         state: "matched",
-        mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
-        rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/run-test.js" }] },
+        mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+        rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/studio-run.js" }] },
         rowVisibility: { visible: true },
       },
       loadedGame: {
@@ -224,7 +224,7 @@ describe("Run in Game runtime observation", () => {
 
   it("accepts setup row readback whose value field names the generated map script", async () => {
     const { origin } = await listenWithStudioServer();
-    const generatedMapScript = "{mod-swooper-studio-run}/maps/run-test.js";
+    const generatedMapScript = "{mod-swooper-studio-run}/maps/studio-run.js";
     const fixture = makeObservationFixture({
       setup: {
         rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/display-row.js", value: generatedMapScript }] },
@@ -250,7 +250,7 @@ describe("Run in Game runtime observation", () => {
 
   it("accepts setup row readback whose legacy mapScript field names the generated map script", async () => {
     const { origin } = await listenWithStudioServer();
-    const generatedMapScript = "{mod-swooper-studio-run}/maps/run-test.js";
+    const generatedMapScript = "{mod-swooper-studio-run}/maps/studio-run.js";
     const fixture = makeObservationFixture({
       setup: {
         rowProof: { rows: [{ mapScript: generatedMapScript }] },
@@ -402,7 +402,7 @@ describe("Run in Game runtime observation", () => {
   it("rejects missing setup visibility readback before loaded-game observation", async () => {
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture({
-      setup: { rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/run-test.js" }] } },
+      setup: { rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/studio-run.js" }] } },
     });
 
     const failure = await expectRuntimeObservationFailure(
@@ -443,7 +443,7 @@ describe("Run in Game runtime observation", () => {
         code: "setup-map-row-mismatched",
         setupFailureReason: "setup-map-row-mismatched",
         priorCode: "run-in-game-setup-row-readback-mismatch",
-        expectedMapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+        expectedMapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
         observedMapScripts: ["{mod-swooper-studio-run}/maps/other-run.js"],
       },
     });
@@ -954,7 +954,7 @@ function preparedRequest(): RunInGamePreparedRequest {
 function materialization() {
   return {
     mode: "disposable",
-    mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+    mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
     configHash: "test-config-hash",
     envelopeHash: "test-envelope-hash",
     generationManifestDigest: "test-generation-manifest-digest",
@@ -962,7 +962,7 @@ function materialization() {
     generatedModRoot: "/tmp/studio-run-runtime-observation-generated",
     generatedModFileCount: 1,
     generatedModDigest: "test-generated-mod-digest",
-    mapRowId: "MAP_RUN_TEST",
+    mapRowId: "MAP_STUDIO_RUN",
   } satisfies NonNullable<RunInGameDeployment["materialization"]>;
 }
 
@@ -970,7 +970,7 @@ function deployment(args: Readonly<{
   requestId: string;
   materialization: NonNullable<RunInGameDeployment["materialization"]>;
 }>): RunInGameDeployment {
-  const files = [{ path: "maps/run-test.js", sha256: "sha256-map-script", sizeBytes: 512 }];
+  const files = [{ path: "maps/studio-run.js", sha256: "sha256-map-script", sizeBytes: 512 }];
   return {
     materialization: args.materialization,
     deploy: { targetDir: "/tmp/Civ7/Mods/mod-swooper-studio-run", filesCopied: 1 },

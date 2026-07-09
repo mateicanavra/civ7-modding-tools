@@ -614,16 +614,18 @@ export function collectWorldBalanceStats(
     width?: number;
     height?: number;
     seed?: number;
+    latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
   }>
 ): WorldBalanceStats {
   const width = args.width ?? 106;
   const height = args.height ?? 66;
   const seed = args.seed ?? 1018;
+  const latitudeBounds = args.latitudeBounds ?? { topLatitude: 80, bottomLatitude: -80 };
   const mapInfo = {
     GridWidth: width,
     GridHeight: height,
-    MinLatitude: -80,
-    MaxLatitude: 80,
+    MinLatitude: latitudeBounds.bottomLatitude,
+    MaxLatitude: latitudeBounds.topLatitude,
     PlayersLandmass1: 4,
     PlayersLandmass2: 4,
     StartSectorRows: 4,
@@ -632,7 +634,7 @@ export function collectWorldBalanceStats(
   const env = {
     seed,
     dimensions: { width, height },
-    latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
+    latitudeBounds,
   };
 
   let adapter: MockAdapter;

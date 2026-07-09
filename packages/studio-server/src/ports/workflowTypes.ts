@@ -8,10 +8,17 @@ import type {
   ResolvedLaunchSource,
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
-  RunInGameProcessRestartStatus,
   RunInGameSetupConfig,
   RunInGameSourceSnapshotProof,
 } from "@civ7/studio-contract";
+import type {
+  Civ7SavedGameConfigurationLoadResult,
+  Civ7SetupMapRowsResult,
+  Civ7SetupMapRowVisibilityResult,
+  Civ7SetupSnapshot,
+  Civ7SinglePlayerStartResult,
+  Civ7TargetModReconciliationResult,
+} from "@civ7/direct-control";
 import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import type { StudioInputs, StudioOutputs } from "../context.js";
 import type { StudioBoundedDiagnostics } from "../errors/index.js";
@@ -34,7 +41,6 @@ export type CanonicalRunInGameRequest = Readonly<{
   selectedConfigId: string;
   setupConfig: RunInGameSetupConfig;
   materializationMode: "durable" | "disposable";
-  restartCivProcess?: boolean;
   fingerprint?: string;
   sourceSnapshot?: RunInGameSourceSnapshotProof;
   resolvedLaunchSource: ResolvedLaunchSource;
@@ -118,18 +124,28 @@ export type RunInGameDeployment = RunInGameDeploymentEvidence &
     deploy?: unknown;
   }>;
 
-export type RunInGameRestartResult = Readonly<{
-  processRestart?: RunInGameProcessRestartStatus;
-}>;
-
 export type RunInGameSetupPrepared = Readonly<{
-  rowProof?: unknown;
-  rowVisibility?: unknown;
-  reloadRequired?: boolean;
+  kind: "run-in-game-prepared-setup";
+  requestId: string;
+  correlationDigest: string;
+  deploymentRequestId: string;
+  deployedModId: string;
+  targetModId: string;
+  launchMapScript: string;
+  seed: number;
+  mapSize: string;
+  playerCount?: number;
+  rowProof: Civ7SetupMapRowsResult;
+  rowVisibility: Civ7SetupMapRowVisibilityResult;
+  targetModReconciliation: Civ7TargetModReconciliationResult;
+  savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
+  setupSnapshot: Civ7SetupSnapshot;
+  softRefreshPerformed: boolean;
 }>;
 
 export type RunInGameStarted = Readonly<{
-  start?: unknown;
+  setup: RunInGameSetupPrepared;
+  start: Civ7SinglePlayerStartResult;
 }>;
 
 export type RunInGameLogEvidence = Readonly<{

@@ -7,6 +7,10 @@
  */
 
 import type { SetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
+import {
+  activeTargetModSetContainsAuthoritativeTarget,
+  isAuthoritativeActiveTargetModSetReadback,
+} from "@civ7/direct-control";
 
 export type MapRowVisibilityFailureCode = Extract<
   SetupFailureReason,
@@ -31,6 +35,15 @@ export type ActiveTargetModSetReadback = Readonly<{
   readbacks?: ReadonlyArray<Readonly<{ truncated?: boolean }>>;
 }>;
 
+export type TargetModReconciliationReadback = Readonly<{
+  targetModId?: string;
+  verified?: boolean;
+  result?: Readonly<{
+    targetActive?: boolean;
+    enabledModsMetaContainsTarget?: boolean;
+  }>;
+}>;
+
 export type MapRowVisibilityClassification = Readonly<{
   code: MapRowVisibilityFailureCode;
   message: string;
@@ -42,6 +55,7 @@ export type MapRowVisibilityClassification = Readonly<{
   /** Total map rows Civ7 setup is currently showing (base game + any mods). */
   visibleMapRowCount: number;
   activeTargetModSet?: ActiveTargetModSetReadback;
+  targetModReconciliation?: TargetModReconciliationReadback;
   targetModId?: string;
 }>;
 
@@ -66,6 +80,9 @@ function isSameModRow(file: string, modNamespace: string): boolean {
  * `visibleMapRows` is the FULL Civ7 setup map list (call `getCiv7SetupMapRows({})`
  * with no `file` filter). `activeTargetModSet` is the separate mod-set readback;
  * without it this classifier never guesses that the generated mod is disabled.
+ * `targetModReconciliation` is the narrower happy-path setup action result; a
+ * negative target-active readback from that action is enough to classify the
+ * generated run mod as inactive without running broad inventory diagnostics.
  */
 export function classifyMapRowVisibilityFailure(args: {
   readonly launchMapScript: string;
@@ -73,6 +90,7 @@ export function classifyMapRowVisibilityFailure(args: {
   readonly materializationMode?: string;
   readonly targetModId?: string;
   readonly activeTargetModSet?: ActiveTargetModSetReadback;
+  readonly targetModReconciliation?: TargetModReconciliationReadback;
 }): MapRowVisibilityClassification {
   const launchMapScript = args.launchMapScript;
   const modNamespace = modNamespaceFromMapScript(launchMapScript);
@@ -86,8 +104,25 @@ export function classifyMapRowVisibilityFailure(args: {
 
   if (
     targetModId &&
+    reconciliationExcludesTarget(args.targetModReconciliation, targetModId)
+  ) {
+    return {
+      code: "generated-map-mod-not-enabled",
+      message: `Civilization is not loading the generated Studio Run mod, so its setup map list cannot show ${launchMapScript}.`,
+      recoveryHint:
+        "Civilization is missing the active generated Studio Run mod. Enable the generated Studio Run mod in Civilization, then retry Run in Game.",
+      modNamespace,
+      siblingMapRowCount,
+      visibleMapRowCount,
+      targetModReconciliation: args.targetModReconciliation,
+      targetModId,
+    };
+  }
+
+  if (
+    targetModId &&
     isAuthoritativeActiveModSetReadback(args.activeTargetModSet) &&
-    !activeModSetContainsTarget(args.activeTargetModSet, targetModId)
+    !activeTargetModSetContainsAuthoritativeTarget(args.activeTargetModSet, targetModId)
   ) {
     return {
       code: "generated-map-mod-not-enabled",
@@ -118,6 +153,9 @@ export function classifyMapRowVisibilityFailure(args: {
     ...(args.activeTargetModSet === undefined
       ? {}
       : { activeTargetModSet: args.activeTargetModSet }),
+    ...(args.targetModReconciliation === undefined
+      ? {}
+      : { targetModReconciliation: args.targetModReconciliation }),
     ...(targetModId === undefined ? {} : { targetModId }),
   };
 }
@@ -125,30 +163,28 @@ export function classifyMapRowVisibilityFailure(args: {
 function isAuthoritativeActiveModSetReadback(
   readback: ActiveTargetModSetReadback | undefined
 ): readback is ActiveTargetModSetReadback {
-  return (
-    readback !== undefined &&
-    readback.available === true &&
-    readback.identityAvailable === true &&
-    readback.truncated === false &&
-    readback.readbacks?.some((entry) => entry.truncated === true) !== true
-  );
+  return isAuthoritativeActiveTargetModSetReadback(readback);
 }
 
 function modIdFromNamespace(namespace: string | null): string | undefined {
   return namespace?.replace(/^\{|\}$/g, "");
 }
 
-function activeModSetContainsTarget(
-  readback: ActiveTargetModSetReadback,
+function reconciliationExcludesTarget(
+  reconciliation: TargetModReconciliationReadback | undefined,
   targetModId: string
 ): boolean {
-  const normalizedTarget = normalizeModToken(targetModId);
-  return readback.mods.some((mod) => {
-    if (mod.enabled === false) return false;
-    return [mod.id, mod.packageId].some(
-      (value) => value !== undefined && normalizeModToken(value) === normalizedTarget
-    );
-  });
+  if (!reconciliation) return false;
+  if (
+    typeof reconciliation.targetModId === "string" &&
+    normalizeModToken(reconciliation.targetModId) !== normalizeModToken(targetModId)
+  ) {
+    return false;
+  }
+  if (reconciliation.verified === false) return true;
+  const targetActive = reconciliation.result?.targetActive;
+  const metadataContainsTarget = reconciliation.result?.enabledModsMetaContainsTarget;
+  return targetActive === false || metadataContainsTarget === false;
 }
 
 function normalizeModToken(value: string): string {

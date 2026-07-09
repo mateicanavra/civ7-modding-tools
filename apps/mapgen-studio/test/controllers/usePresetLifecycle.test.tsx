@@ -75,7 +75,7 @@ afterEach(() => {
 });
 
 describe("usePresetLifecycle — markPresetApplied / applyAuthoringSnapshot identity contracts", () => {
-  it("ADD-1: markPresetApplied stores the EXACT config so the post-save apply-effect skip-guard short-circuits", () => {
+  it("ADD-1: markPresetApplied stores the same config object so the post-save apply-effect skip-guard short-circuits", () => {
     const { result, props, withPreset } = setup({
       repoBackedSessionPresetsByRecipe: SESSION_PRESETS,
     });
@@ -90,7 +90,15 @@ describe("usePresetLifecycle — markPresetApplied / applyAuthoringSnapshot iden
 
   it("ADD-1b: applyAuthoringSnapshot records snapshot.pipelineConfig by reference (no re-apply) and writes the 5 setters in order", () => {
     const LIVE_CFG = { ...VALID_CFG } as PipelineConfig;
-    const livePresets = [{ id: LIVE_GAME_PRESET_ID, label: "Live Game", config: LIVE_CFG }];
+    const liveLatitudeBounds = { topLatitude: 40, bottomLatitude: -40 } as const;
+    const livePresets = [
+      {
+        id: LIVE_GAME_PRESET_ID,
+        label: "Live Game",
+        latitudeBounds: liveLatitudeBounds,
+        config: LIVE_CFG,
+      },
+    ];
     const { result, props, withPreset } = setup({ livePresets });
     applySpy.mockClear();
     act(() =>
@@ -111,6 +119,9 @@ describe("usePresetLifecycle — markPresetApplied / applyAuthoringSnapshot iden
     expect(order(props.setSetupConfig)).toBeLessThan(order(props.setOverridesDisabled));
     expect(order(props.setOverridesDisabled)).toBeLessThan(order(props.setRecipeSettings));
     expect(props.setOverridesDisabled).toHaveBeenCalledWith(false);
+    expect(result.current.resolvePreset(LIVE_GAME_PRESET_KEY)?.latitudeBounds).toBe(
+      liveLatitudeBounds
+    );
   });
 });
 
@@ -124,6 +135,28 @@ describe("usePresetLifecycle — preset apply-effects (PL-2..6, Tier-A)", () => 
     // Ref advanced synchronously inside the apply → a same-key re-render skips.
     withPreset("builtin:saved-cfg");
     expect(applySpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("applies selected preset config before exposing the selected preset key", () => {
+    const { result, props } = setup({ repoBackedSessionPresetsByRecipe: SESSION_PRESETS });
+    applySpy.mockClear();
+
+    act(() =>
+      result.current.applyRecipeSettingsChange({
+        ...props.recipeSettings,
+        preset: "builtin:saved-cfg",
+      })
+    );
+
+    expect(applySpy).toHaveBeenCalledTimes(1);
+    expect(props.setPipelineConfig).toHaveBeenCalledWith(SAVED_CFG);
+    expect(props.setRecipeSettings).toHaveBeenCalledWith({
+      ...props.recipeSettings,
+      preset: "builtin:saved-cfg",
+    });
+    expect(order(props.setPipelineConfig)).toBeLessThan(order(props.setRecipeSettings));
+    expect(props.setOverridesDisabled).toHaveBeenCalledWith(false);
+    expect(props.setLastRunSnapshot).toHaveBeenCalledWith(null);
   });
 
   it("PL-2: an unresolvable preset key sets presetError and leaves the config untouched", () => {
@@ -194,10 +227,7 @@ describe("usePresetLifecycle — delete + import handlers (PL-10, PL-15)", () =>
     rerender({ ...props, recipeSettings: { ...props.recipeSettings, preset: `local:${localId}` } });
     act(() => result.current.handleDeletePreset());
     expect(props.setRecipeSettings).toHaveBeenCalled();
-    const updater = props.setRecipeSettings.mock.calls.at(-1)?.[0] as (
-      prev: typeof props.recipeSettings
-    ) => typeof props.recipeSettings;
-    expect(updater(props.recipeSettings)).toMatchObject({ preset: "none" });
+    expect(props.setRecipeSettings.mock.calls.at(-1)?.[0]).toMatchObject({ preset: "none" });
   });
 
   it("PL-15: handleDeletePreset does NOT reset when a local preset is selected but nothing was deleted", () => {

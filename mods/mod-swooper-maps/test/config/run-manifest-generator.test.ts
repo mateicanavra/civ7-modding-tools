@@ -6,16 +6,15 @@ import { join, resolve } from "node:path";
 import {
   createRunArtifactId,
   readStudioRunGenerationManifest,
+  STUDIO_RUN_MAP_ROW_ID,
+  STUDIO_RUN_MAP_SCRIPT_PATH,
+  STUDIO_RUN_MOD_ID,
   type StudioRunGenerationManifestInput,
   writeStudioRunGenerationManifest,
 } from "@civ7/studio-run-workspace";
-import { parseSwooperRunManifestPathArg } from "../../scripts/generate-run-manifest";
-import {
-  runMapRowIdForArtifact,
-  SWOOPER_STUDIO_RUN_MOD_ID,
-} from "../../scripts/map-artifacts/file-plan";
-import { generateSwooperRunGeneratedModFromManifestPath } from "../../scripts/run-manifest-generator";
 import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
+import { parseSwooperRunManifestPathArg } from "../../scripts/generate-run-manifest";
+import { generateSwooperRunGeneratedModFromManifestPath } from "../../scripts/run-manifest-generator";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {
@@ -26,7 +25,7 @@ describe("Swooper run manifest generator", () => {
     );
   });
 
-  test("generates one request-local mod tree from a valid Studio manifest", async () => {
+  test("generates the stable Studio run mod tree from a valid Studio manifest", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-generator-"));
     try {
       const manifestRef = await writeStudioRunGenerationManifest({
@@ -36,31 +35,28 @@ describe("Swooper run manifest generator", () => {
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
       const generated = await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
       const runArtifactId = createRunArtifactId(manifest.payload.requestId);
-      const mapRowId = runMapRowIdForArtifact(runArtifactId);
+      const mapRowId = STUDIO_RUN_MAP_ROW_ID;
 
       expect(generated).toMatchObject({
         requestId: manifest.payload.requestId,
         runArtifactId,
         generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
-        mapRowId,
-        mapScriptPath: `maps/${runArtifactId}.js`,
+        mapRowId: STUDIO_RUN_MAP_ROW_ID,
+        mapScriptPath: STUDIO_RUN_MAP_SCRIPT_PATH,
         fileCount: 5,
       });
       expect(
-        await readFile(
-          resolve(generated.generatedModRoot, `${SWOOPER_STUDIO_RUN_MOD_ID}.modinfo`),
-          "utf8"
-        )
-      ).toContain(`<Mod id="${SWOOPER_STUDIO_RUN_MOD_ID}"`);
+        await readFile(resolve(generated.generatedModRoot, `${STUDIO_RUN_MOD_ID}.modinfo`), "utf8")
+      ).toContain(`<Mod id="${STUDIO_RUN_MOD_ID}"`);
       const modInfo = await readFile(
-        resolve(generated.generatedModRoot, `${SWOOPER_STUDIO_RUN_MOD_ID}.modinfo`),
+        resolve(generated.generatedModRoot, `${STUDIO_RUN_MOD_ID}.modinfo`),
         "utf8"
       );
       expect(modInfo).toContain(`<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>`);
       expect(modInfo).not.toContain("data/biome-hazards.xml");
       expect(
         await readFile(resolve(generated.generatedModRoot, "config/config.xml"), "utf8")
-      ).toContain(`File="{${SWOOPER_STUDIO_RUN_MOD_ID}}/maps/${runArtifactId}.js"`);
+      ).toContain(`File="{${STUDIO_RUN_MOD_ID}}/${STUDIO_RUN_MAP_SCRIPT_PATH}"`);
       const mapText = await readFile(
         resolve(generated.generatedModRoot, "text/en_us/MapText.xml"),
         "utf8"
@@ -74,7 +70,7 @@ describe("Swooper run manifest generator", () => {
         readFile(resolve(generated.generatedModRoot, "text/en_us/ModuleText.xml"), "utf8")
       ).rejects.toThrow();
       const mapScript = await readFile(
-        resolve(generated.generatedModRoot, `maps/${runArtifactId}.js`),
+        resolve(generated.generatedModRoot, STUDIO_RUN_MAP_SCRIPT_PATH),
         "utf8"
       );
       expect(mapScript).toContain(manifest.payload.requestId);

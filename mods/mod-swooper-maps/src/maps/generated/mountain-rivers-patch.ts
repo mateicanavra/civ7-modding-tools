@@ -9,12 +9,27 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "mountain-rivers-patch",
   "name": "Mountain Rivers Patch",
   "description": "Mountain Patch terrain configuration with the current visible-river projection settings applied for Studio comparison.",
   "recipe": "standard",
   "sortIndex": 1901,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -803,15 +818,19 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,
+  latitudeBounds: {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   sourceConfigId: "mountain-rivers-patch",
   configHash: "edce16a18043eb2b4f13181474fba15733b38563a84510c87c7a4d4210c95181",
-  envelopeHash: "cbb005b3a102eccccd5d41f1b6d5ef49c7172626a06fcbe60ff0eb96de018424",
-  config: mapConfig.config as StandardRecipeConfig,
+  envelopeHash: "ab6471f4f180a415a7690f64f09d334a3440822729044497572fa5d1c7b8ced0",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

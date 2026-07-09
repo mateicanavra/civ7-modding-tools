@@ -31,7 +31,7 @@ export type SwooperMapsStudioDeployOptions =
       env?: NodeJS.ProcessEnv;
     }>;
 
-export function withoutStudioRunProofEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+export function withoutStudioRunEvidenceEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const {
     SWOOPER_STUDIO_DEPLOY_CONFIG_ID: _deployConfigId,
     SWOOPER_STUDIO_DEPLOY_CONFIG_PATH: _deployConfigPath,
@@ -50,7 +50,7 @@ export function buildSwooperMapsStudioDeployPlan(
   const env =
     options.requestId !== undefined
       ? {
-          ...withoutStudioRunProofEnv(options.env ?? process.env),
+          ...withoutStudioRunEvidenceEnv(options.env ?? process.env),
           SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfig.id,
           SWOOPER_STUDIO_DEPLOY_CONFIG_PATH: options.launchConfig.path,
           SWOOPER_STUDIO_RUN_ID: options.requestId,
@@ -59,11 +59,11 @@ export function buildSwooperMapsStudioDeployPlan(
         }
       : options.launchConfig !== undefined
         ? {
-            ...withoutStudioRunProofEnv(options.env ?? process.env),
+            ...withoutStudioRunEvidenceEnv(options.env ?? process.env),
             SWOOPER_STUDIO_DEPLOY_CONFIG_ID: options.launchConfig.id,
             SWOOPER_STUDIO_DEPLOY_CONFIG_PATH: options.launchConfig.path,
           }
-        : withoutStudioRunProofEnv(options.env ?? process.env);
+        : withoutStudioRunEvidenceEnv(options.env ?? process.env);
   return {
     buildTask: "mod-swooper-maps:build:studio-deploy",
     buildArgs: ["run", "nx", "run", "mod-swooper-maps:build:studio-deploy", "--outputStyle=static"],

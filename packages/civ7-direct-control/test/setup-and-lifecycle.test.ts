@@ -7,6 +7,7 @@ import {
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   CIV7_RELOAD_UI_COMMAND,
   CIV7_SIGNED_INT_SEED_MAX,
+  assertPreparedSetupMatches,
   type Civ7SetupMapRow,
   type Civ7SetupSnapshot,
   type Civ7SinglePlayerSetupInput,
@@ -18,6 +19,7 @@ import {
   runCiv7SinglePlayerFromSetup,
   startPreparedCiv7SinglePlayerGame,
 } from "../src/index";
+import { buildReconcileTargetModCommand } from "../src/setup/prepare";
 import {
   buildActiveTargetModsCommand,
   type Civ7ActiveTargetModsResult,
@@ -266,6 +268,194 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     );
   });
 
+  test("target mod reconciliation appends to editable saved-config metadata without dropping existing mods", () => {
+    const result = evaluateReconcileTargetModCommand({
+      Modding: {
+        getInstalledMods: () => [
+          {
+            Id: "mod-swooper-studio-run",
+            Enabled: true,
+            Version: "1",
+            Name: "Studio Run",
+            handle: 42,
+          },
+        ],
+        getModHandle: () => 42,
+      },
+      Configuration: createReconcileConfiguration({
+        editMeta: {
+          mods: [
+            { modid: "tot-basic-mod-a", version: "1", title: "Basic Mod A" },
+            { modid: "tot-basic-mod-b", version: "7", title: "Basic Mod B" },
+          ],
+        },
+      }),
+    });
+
+    expect(result).toMatchObject({
+      targetActive: true,
+      enabledModsMetaSource: "Configuration.editGame",
+      enabledModsMetaUpdated: true,
+      enabledModCount: 3,
+      enabledModsMetaModCount: 3,
+      enabledModsMetaContainsTarget: true,
+    });
+    expect("enabledModsMeta" in result).toBe(false);
+  });
+
+  test("target mod reconciliation falls back to installed mod handles", () => {
+    const result = evaluateReconcileTargetModCommand({
+      Modding: {
+        getInstalledMods: () => [
+          {
+            Id: "mod-swooper-studio-run",
+            Enabled: false,
+            Version: "1",
+            Name: "Studio Run",
+            handle: 42,
+          },
+        ],
+        getModHandle: () => -1,
+        canEnableMods: (handles: number[]) => ({ status: handles[0] === 42 ? 0 : 1 }),
+        enableMods: (handles: number[]) => ({ status: handles[0] === 42 ? 0 : 1 }),
+      },
+      Configuration: createReconcileConfiguration({
+        editMeta: {
+          mods: [{ modid: "tot-basic-mod-a", version: "1", title: "Basic Mod A" }],
+        },
+      }),
+    });
+
+    expect(result).toMatchObject({
+      targetActive: true,
+      canEnableResult: { status: 0 },
+      enableResult: { status: 0 },
+      enabledModsMetaUpdated: true,
+      enabledModCount: 2,
+      enabledModsMetaModCount: 2,
+      enabledModsMetaContainsTarget: true,
+    });
+  });
+
+  test("prepared setup readback rejects player count drift before Begin", () => {
+    expect(() =>
+      assertPreparedSetupMatches(
+        {
+          mapScript: MAP_SCRIPT,
+          mapSize: "MAPSIZE_HUGE",
+          seed: 1538316511,
+          playerCount: 10,
+        },
+        preparedSetupSnapshot({
+          setupMapScript: MAP_SCRIPT,
+          setupMapSize: "MAPSIZE_HUGE",
+          setupMapSeed: 1538316511,
+          setupGameSeed: 1538316511,
+          playerCount: 8,
+        })
+      )
+    ).toThrow("Civ7 setup player count readback mismatch: 8");
+  });
+
+  test("prepared setup readback rejects runtime map config drift before Begin", () => {
+    const snapshot = preparedSetupSnapshot({
+      setupMapScript: MAP_SCRIPT,
+      setupMapSize: "MAPSIZE_HUGE",
+      setupMapSeed: 1538316511,
+      setupGameSeed: 1538316511,
+      playerCount: 10,
+    });
+
+    expect(() =>
+      assertPreparedSetupMatches(
+        {
+          mapScript: MAP_SCRIPT,
+          mapSize: "MAPSIZE_HUGE",
+          seed: 1538316511,
+          playerCount: 10,
+        },
+        {
+          ...snapshot,
+          config: {
+            ...snapshot.config,
+            mapScript: { ok: true, value: "{swooper-maps}/maps/stale.js" },
+          },
+        }
+      )
+    ).toThrow("Civ7 runtime mapScript readback mismatch");
+  });
+
+  test("prepared setup readback accepts Civ7 internal numeric map size when setup parameter matches", () => {
+    expect(() =>
+      assertPreparedSetupMatches(
+        {
+          mapScript: MAP_SCRIPT,
+          mapSize: "MAPSIZE_HUGE",
+          seed: 1538316511,
+          playerCount: 10,
+        },
+        preparedSetupSnapshot({
+          setupMapScript: MAP_SCRIPT,
+          setupMapSize: "MAPSIZE_HUGE",
+          setupMapSeed: 1538316511,
+          setupGameSeed: 1538316511,
+          playerCount: 10,
+          runtimeMapSize: 370405108,
+        })
+      )
+    ).not.toThrow();
+  });
+
+  test("target mod reconciliation fails closed instead of overwriting missing enabled mod metadata", () => {
+    expect(() =>
+      evaluateReconcileTargetModCommand({
+        Modding: {
+          getInstalledMods: () => [{ Id: "mod-swooper-studio-run", Enabled: true, handle: 42 }],
+          getModHandle: () => 42,
+        },
+        Configuration: createReconcileConfiguration({ editMeta: undefined, gameMeta: undefined }),
+      })
+    ).toThrow("Current enabled mod metadata unavailable");
+  });
+
+  test("required target reconciliation uses the narrow editable setup metadata path", async () => {
+    const server = await startSetupLifecycleServer({
+      activeTargetMods: [
+        {
+          id: "mod-swooper-studio-run",
+          name: "Studio Run",
+          enabled: true,
+          source: "Modding.getInstalledMods.enabled",
+        },
+      ],
+    });
+    try {
+      const { port } = server.address();
+      const prepare = await prepareCiv7SinglePlayerSetup(
+        {
+          mapScript: MAP_SCRIPT,
+          mapSize: "MAPSIZE_SMALL",
+          seed: 222,
+          requiredActiveTargetModId: "mod-swooper-studio-run",
+        },
+        { host: HOST, port, timeoutMs: 1_000 }
+      );
+
+      expect(prepare.targetModReconciliation).toMatchObject({
+        refreshed: true,
+        verified: true,
+        result: {
+          enabledModsMetaContainsTarget: true,
+          targetActive: true,
+        },
+      });
+      expect(server.operationsFor("target-mod-reconcile")).toHaveLength(1);
+      expect(server.operationsFor("active-target-mods")).toHaveLength(0);
+    } finally {
+      await server.close();
+    }
+  });
+
   test("prepares, starts, begins, and verifies a configured single-player setup", async () => {
     const server = await startSetupLifecycleServer();
     try {
@@ -320,6 +510,56 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       expect(server.operationsFor("prepare-setup")).toHaveLength(1);
       expect(server.operationsFor("host-game")).toHaveLength(1);
       expect(server.operationsFor("begin-game")).toHaveLength(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("loads saved config before generated mod reconciliation, row visibility, and setup mutation", async () => {
+    const server = await startSetupLifecycleServer();
+    try {
+      const { port } = server.address();
+      const prepare = await prepareCiv7SinglePlayerSetup(
+        {
+          mapScript: MAP_SCRIPT,
+          mapSize: "MAPSIZE_SMALL",
+          seed: 222,
+          gameSeed: 223,
+          requiredActiveTargetModId: "mod-swooper-studio-run",
+          savedConfig: {
+            id: "tot-basic-mods",
+            displayName: "Test of Time Basic Mods",
+            fileName: "ToT_BasicModsEnabled.Civ7Cfg",
+            path: "/tmp/ToT_BasicModsEnabled.Civ7Cfg",
+          },
+        },
+        { host: HOST, port, timeoutMs: 1_000 }
+      );
+
+      expect(prepare).toMatchObject({
+        targetModReconciliation: {
+          refreshed: true,
+          verified: true,
+          result: {
+            enabledModsMetaContainsTarget: true,
+            targetActive: true,
+          },
+        },
+        rowVisibility: { verified: true },
+        verified: true,
+      });
+      const operations = server.operations().map((entry) => entry.operation);
+      const loadIndex = operations.indexOf("load-saved-config");
+      const reconcileIndex = operations.indexOf("target-mod-reconcile");
+      expect(loadIndex).toBeGreaterThan(-1);
+      expect(reconcileIndex).toBeGreaterThan(loadIndex);
+      expect(operations).not.toContain("active-target-mods");
+      expect(operations.indexOf("setup-map-rows")).toBeGreaterThan(
+        reconcileIndex
+      );
+      expect(operations.indexOf("prepare-setup")).toBeGreaterThan(
+        operations.indexOf("setup-map-rows")
+      );
     } finally {
       await server.close();
     }
@@ -459,11 +699,13 @@ type SetupLifecycleOperation =
   | "active-target-mods"
   | "exit-to-main-menu"
   | "host-game"
+  | "load-saved-config"
   | "map-summary"
   | "prepare-setup"
   | "reload-ui"
   | "setup-map-rows"
   | "setup-snapshot"
+  | "target-mod-reconcile"
   | "tuner-health";
 
 type ObservedOperation = Readonly<{
@@ -487,6 +729,7 @@ type SetupLifecycleServerOptions = Readonly<{
       title?: string;
       handle?: number | string;
       enabled?: boolean;
+      source?: string;
     }>
   >;
   activeTargetModsAvailable?: boolean;
@@ -511,6 +754,7 @@ async function startSetupLifecycleServer(
   let setupMapSeed = 111;
   let setupGameSeed = 112;
   let hiddenMapRowVisible = false;
+  let activeTargetMods = [...(options.activeTargetMods ?? [])];
 
   const visibleMapRows = (): Civ7SetupMapRow[] => [
     {
@@ -647,6 +891,41 @@ async function startSetupLifecycleServer(
           socket.write(encodeResponse(frame.listenerId, ["null"]));
         } else if (operation === "reload-ui") {
           socket.write(encodeResponse(frame.listenerId, ["null"]));
+        } else if (operation === "load-saved-config") {
+          setupRevision += 1;
+          socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"serverType":0}']));
+        } else if (operation === "target-mod-reconcile") {
+          if (
+            !activeTargetMods.some(
+              (mod) => mod.id === "mod-swooper-studio-run" && mod.source === "Configuration.getGame"
+            )
+          ) {
+            activeTargetMods = [
+              ...activeTargetMods,
+              {
+                id: "mod-swooper-studio-run",
+                name: "Studio Run",
+                enabled: true,
+                source: "Configuration.getGame",
+              },
+            ];
+          }
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                targetModId: "mod-swooper-studio-run",
+                targetInstalled: true,
+                targetWasEnabled: true,
+                refreshed: true,
+                enabledModCount: 1,
+                enabledModsMetaSource: "Configuration.editGame",
+                enabledModsMetaUpdated: true,
+                enabledModsMetaModCount: 1,
+                enabledModsMetaContainsTarget: true,
+                targetActive: true,
+              }),
+            ])
+          );
         } else if (operation === "prepare-setup") {
           if (options.closeOnSetupMutation) {
             socket.destroy();
@@ -704,7 +983,6 @@ async function startSetupLifecycleServer(
           );
         } else if (operation === "active-target-mods") {
           const limit = parseRequestedActiveTargetModsLimit(command.script) ?? 100;
-          const activeTargetMods = options.activeTargetMods ?? [];
           const activeTargetModsAvailable = options.activeTargetModsAvailable !== false;
           socket.write(
             encodeResponse(frame.listenerId, [
@@ -865,12 +1143,113 @@ function evaluateActiveTargetModsCommand(
   return JSON.parse(runInNewContext(command, globals) as string) as Civ7ActiveTargetModsResult;
 }
 
+function evaluateReconcileTargetModCommand(globals: Record<string, unknown>) {
+  const command = buildReconcileTargetModCommand(
+    { targetModId: "mod-swooper-studio-run" },
+    defaultSetupReadDependencies
+  );
+  return JSON.parse(runInNewContext(command, globals) as string) as {
+    targetActive: boolean;
+    enabledModCount: number;
+    enabledModsMetaSource: string;
+    enabledModsMetaUpdated: boolean;
+    enabledModsMetaModCount: number;
+    enabledModsMetaContainsTarget: boolean;
+  };
+}
+
+function preparedSetupSnapshot(input: {
+  setupMapScript: string;
+  setupMapSize: string;
+  setupMapSeed: number;
+  setupGameSeed: number;
+  playerCount: number;
+  runtimeMapSize?: string | number;
+}): Civ7SetupSnapshot {
+  const mapRow: Civ7SetupMapRow = {
+    source: "setup-domain",
+    file: input.setupMapScript,
+    value: input.setupMapScript,
+    name: "LOC_MAP_TEST_NAME",
+    sortIndex: 1,
+  };
+  return {
+    phase: "begin-ready",
+    ui: {
+      inGame: { ok: true, value: false },
+      inShell: { ok: true, value: false },
+      inLoading: { ok: true, value: false },
+      loadingState: { ok: true, value: 6 },
+      loadingStateName: "WaitingForUIReady",
+      canBeginGame: { ok: true, value: true },
+    },
+    setup: {
+      parameters: [
+        { id: "Map", exists: true, value: input.setupMapScript, possibleValues: [] },
+        { id: "MapSize", exists: true, value: input.setupMapSize, possibleValues: [] },
+        { id: "MapRandomSeed", exists: true, value: input.setupMapSeed, possibleValues: [] },
+        { id: "GameRandomSeed", exists: true, value: input.setupGameSeed, possibleValues: [] },
+      ],
+      playerParameters: [],
+      localPlayerId: { ok: true, value: 0 },
+    },
+    selectedMapRow: mapRow,
+    mapRows: [mapRow],
+    config: {
+      mapScript: { ok: true, value: input.setupMapScript },
+      mapSize: { ok: true, value: input.runtimeMapSize ?? input.setupMapSize },
+      mapSeed: { ok: true, value: input.setupMapSeed },
+      gameSeed: { ok: true, value: input.setupGameSeed },
+      playerCount: { ok: true, value: input.playerCount },
+    },
+  };
+}
+
+function createReconcileConfiguration(input: {
+  editMeta?: { mods: ReadonlyArray<Record<string, unknown>> };
+  gameMeta?: { mods: ReadonlyArray<Record<string, unknown>> };
+}) {
+  let meta =
+    input.editMeta === undefined ? undefined : JSON.stringify({ mods: [...input.editMeta.mods] });
+  const gameMeta =
+    input.gameMeta === undefined
+      ? () => meta
+      : () => JSON.stringify({ mods: [...input.gameMeta.mods] });
+  return {
+    editGame: () => ({
+      get enableModsMetaString() {
+        return meta;
+      },
+      set enableModsMetaString(value: string | undefined) {
+        meta = value;
+      },
+      setValue: (_key: string, value: string) => {
+        meta = value;
+      },
+      refreshEnabledMods: () => null,
+    }),
+    getGame: () => {
+      const parsed = JSON.parse(gameMeta() ?? "{\"mods\":[]}") as {
+        mods?: ReadonlyArray<Record<string, unknown>>;
+      };
+      const mods = parsed.mods ?? [];
+      return {
+        enableModsMetaString: gameMeta(),
+        enabledModCount: mods.length,
+        getEnabledModId: (index: number) => mods[index]?.modid ?? mods[index]?.id,
+      };
+    },
+  };
+}
+
 function classifyCommand(script: string): SetupLifecycleOperation | undefined {
   if (script === CIV7_EXIT_TO_MAIN_MENU_COMMAND) return "exit-to-main-menu";
   if (script === CIV7_RELOAD_UI_COMMAND) return "reload-ui";
   if (script === CIV7_BEGIN_GAME_COMMAND) return "begin-game";
   if (script.includes("editMap.setScript")) return "prepare-setup";
+  if (script.includes("Network.loadGame")) return "load-saved-config";
   if (script.includes("Network.hostGame")) return "host-game";
+  if (script.includes("refreshEnabledMods")) return "target-mod-reconcile";
   if (script.includes("const rows = readSetupMapRows")) return "setup-map-rows";
   if (script.includes("readSetupSnapshot")) return "setup-snapshot";
   if (script.includes("Modding.getActiveMods")) return "active-target-mods";

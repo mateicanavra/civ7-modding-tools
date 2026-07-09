@@ -9,12 +9,27 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "shattered-ring",
   "name": "The Shattered Ring",
   "description": "A world forever changed by an ancient cosmic impact. A vast crater sea dominates the center, ringed by towering mountains thrust up by the cataclysm. Volcanic islands dot the inner waters while fractured outer lands offer expansive frontiers. Three theaters of play: the protected inner sea for naval dominance, the ring mountains for defensive strongholds, and the outer lands for continental expansion.",
   "recipe": "standard",
   "sortIndex": 502,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -804,15 +819,19 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,
+  latitudeBounds: {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   sourceConfigId: "shattered-ring",
   configHash: "8f0e56e071e4832ad101c2b7c84d9d5e3f6145382738fa8656148cbd41c270cd",
-  envelopeHash: "b327156084956c03dc2d677a7bda1195bf0f94972f0f08bf4f68f4d7169b1217",
-  config: mapConfig.config as StandardRecipeConfig,
+  envelopeHash: "fd8bf3bbbdc006ef83160467928ded9a31709578a58356d70cbc859c97092252",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

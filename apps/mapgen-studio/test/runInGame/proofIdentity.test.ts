@@ -552,7 +552,7 @@ describe("Run in Game exact authorship proof identity", () => {
         generatedModRoot: "/tmp/studio-run/run-test/generated-mod",
         generatedModFileCount: 4,
         generatedModDigest: "generated-mod-tree-hash",
-        mapRowId: "MAP_RUN_TEST",
+        mapRowId: "MAP_STUDIO_RUN",
       },
       sourceConfig: undefined,
       generatedSourceScript: undefined,
@@ -565,7 +565,7 @@ describe("Run in Game exact authorship proof identity", () => {
       generationManifestDigest: "generation-manifest-hash",
       runArtifactId: "run-test",
       generatedModDigest: "generated-mod-tree-hash",
-      mapRowId: "MAP_RUN_TEST",
+      mapRowId: "MAP_STUDIO_RUN",
     });
   });
 

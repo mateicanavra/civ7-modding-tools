@@ -18,13 +18,15 @@ import {
 } from "../../features/civ7Setup/seedPolicy";
 import {
   formatPresetErrors,
-  validateExactPipelineConfig,
+  materializePipelineConfig,
 } from "../../features/configOverrides/configBuilders";
 import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
+import { type PresetKey } from "../../features/presets/types";
 import type { UseVizStateResult } from "../../features/viz/useVizState";
 import { useAuthoringStore } from "../../stores/authoringStore";
 import { useRunStore } from "../../stores/runStore";
 import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "../../ui/utils/config";
+import type { UsePresetLifecycleResult } from "./usePresetLifecycle";
 import type { ToastFn } from "./useToast";
 
 /**
@@ -52,10 +54,14 @@ export type UseBrowserRunArgs = {
   /** Threaded busy flags from `useStudioOperations` (slice 2.4) — received, never re-derived. */
   runInGameRunning: boolean;
   saveDeployRunning: boolean;
+  /** Preset resolver (from `usePresetLifecycle`) so preview uses selected config metadata. */
+  resolvePreset: UsePresetLifecycleResult["resolvePreset"];
   toast: ToastFn;
   /** The single-owner error channel setter from `useStudioOperations`. */
   setLocalError: (message: string | null) => void;
 };
+
+const DEFAULT_LATITUDE_BOUNDS = { topLatitude: 80, bottomLatitude: -80 } as const;
 
 export type UseBrowserRun = {
   startBrowserRun: (overrides?: { seed?: string }) => void;
@@ -91,6 +97,7 @@ export function useBrowserRun({
   viz,
   runInGameRunning,
   saveDeployRunning,
+  resolvePreset,
   toast,
   setLocalError,
 }: UseBrowserRunArgs): UseBrowserRun {
@@ -129,7 +136,12 @@ export function useBrowserRun({
         pipelineConfig,
         overridesDisabled,
       });
-      const validatedConfig = validateExactPipelineConfig({
+      const selectedPreset = resolvePreset(recipeSettings.preset as PresetKey);
+      const latitudeBounds =
+        effectiveConfigSource.kind === "draft"
+          ? (selectedPreset?.latitudeBounds ?? DEFAULT_LATITUDE_BOUNDS)
+          : DEFAULT_LATITUDE_BOUNDS;
+      const validatedConfig = materializePipelineConfig({
         schema: effectiveConfigSource.recipeArtifacts.configSchema,
         config: effectiveConfigSource.config,
         label: "browser-run",
@@ -164,7 +176,7 @@ export function useBrowserRun({
         seed,
         mapSizeId: mapSize.id,
         dimensions: mapSize.dimensions,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+        latitudeBounds,
         playerCount: worldSettings.playerCount,
         resourcesMode: worldSettings.resources,
         pipelineConfig: validatedConfig.value,
@@ -175,6 +187,7 @@ export function useBrowserRun({
       overridesDisabled,
       pipelineConfig,
       recipeSettings,
+      resolvePreset,
       setLastRunSnapshot,
       setLocalError,
       toast,

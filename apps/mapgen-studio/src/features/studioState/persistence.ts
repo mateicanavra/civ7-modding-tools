@@ -8,7 +8,7 @@ import {
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
-import { validateExactPipelineConfig } from "../configOverrides/configBuilders";
+import { materializePipelineConfig } from "../configOverrides/configBuilders";
 import { resolveEffectivePipelineConfig } from "../configOverrides/effectiveConfig";
 import { findRecipeArtifacts } from "../../recipes/catalog";
 
@@ -84,7 +84,7 @@ export function parseStudioAuthoringState(
     if (!worldSettings || !recipeSettings || !isRecord(parsed.pipelineConfig)) return null;
     const recipeArtifacts = findRecipeArtifacts(recipeSettings.recipe);
     if (!recipeArtifacts) return null;
-    const pipelineConfig = validateExactPipelineConfig({
+    const pipelineConfig = materializePipelineConfig({
       schema: recipeArtifacts.configSchema,
       config: parsed.pipelineConfig,
       label: "persisted-authoring",
@@ -128,7 +128,7 @@ export function saveStudioAuthoringState(
       pipelineConfig: args.pipelineConfig,
       overridesDisabled: args.overridesDisabled,
     });
-    const pipelineConfig = validateExactPipelineConfig({
+    const pipelineConfig = materializePipelineConfig({
       schema: effectiveConfig.recipeArtifacts.configSchema,
       config: effectiveConfig.config,
       label: "persisted-authoring",

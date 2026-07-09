@@ -168,6 +168,7 @@ export function validateCanonicalMapConfig(args: {
     errors.push(`${label}/logPrefix must be a non-empty string when present`);
   }
 
+  let materializedConfig: JsonObject | undefined;
   if (assertPlainObject(raw.config, `${label}/config`, errors)) {
     const { value: normalizedConfig, errors: schemaErrors } = normalizeStrict<JsonObject>(
       recipeSchema,
@@ -175,8 +176,14 @@ export function validateCanonicalMapConfig(args: {
       `${label}/config`
     );
     errors.push(...schemaErrors.map((err) => `${err.path}: ${err.message}`));
-    if (schemaErrors.length === 0 && !Value.Equal(normalizedConfig, raw.config)) {
-      errors.push(`${label}/config must be complete exact recipe config JSON`);
+    if (schemaErrors.length === 0) {
+      if (!Value.Equal(normalizedConfig, raw.config)) {
+        errors.push(
+          `${label}/config must be the complete recipe config JSON produced by the current recipe artifacts`
+        );
+      } else {
+        materializedConfig = normalizedConfig;
+      }
     }
   }
 
@@ -189,6 +196,7 @@ export function validateCanonicalMapConfig(args: {
   const envelope = raw as unknown as CanonicalMapConfigEnvelope;
   return {
     ...envelope,
+    config: materializedConfig ?? envelope.config,
     fileName,
     fileStem,
     outputFile: `${envelope.id}.js`,

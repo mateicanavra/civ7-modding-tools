@@ -272,7 +272,7 @@ describe("studio-server RPC handler", () => {
               diagnostics: {
                 code: "setup-map-row-not-visible",
                 setupFailureReason: "setup-map-row-not-visible",
-                mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+                mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
                 rowProof: JSON.stringify({ rows: [] }),
                 rowVisibility: JSON.stringify({ refreshed: true, final: { rows: [] } }),
               },
@@ -308,7 +308,7 @@ describe("studio-server RPC handler", () => {
       if (!diagnostics.ok) throw new Error("Expected diagnostics lookup result");
       expect(diagnostics.diagnostics.sections.setupFailure).toMatchObject({
         setupFailureReason: "setup-map-row-not-visible",
-        expectedGeneratedMapFile: "{mod-swooper-studio-run}/maps/run-test.js",
+        expectedGeneratedMapFile: "{mod-swooper-studio-run}/maps/studio-run.js",
         rowSample: { rows: [] },
       });
     } finally {
@@ -1168,7 +1168,7 @@ function generatedRunInGameMod(): Awaited<
 > {
   return {
     materialization: {
-      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
       configHash: "test-config-hash",
       envelopeHash: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
@@ -1176,7 +1176,7 @@ function generatedRunInGameMod(): Awaited<
       generatedModRoot: join(tmpdir(), "studio-handler-generated-run-test"),
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
-      mapRowId: "MAP_RUN_TEST",
+      mapRowId: "MAP_STUDIO_RUN",
     },
   };
 }
@@ -1194,7 +1194,7 @@ function runInGameDeployment(
     ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>
   >["deployedSnapshot"]["files"] = [
     {
-      path: "maps/run-test.js",
+      path: "maps/studio-run.js",
       sha256: "sha256-map-script",
       sizeBytes: 512,
     },

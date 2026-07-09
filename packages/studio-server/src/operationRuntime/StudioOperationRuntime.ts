@@ -716,9 +716,7 @@ function makeStudioOperationRuntime(
 
 function isPostDeployRunPhase(phase: RunInGameInternalOperation["phase"]): boolean {
   return (
-    phase === "restarting-civ" ||
     phase === "checking-civ7" ||
-    phase === "reload-needed" ||
     phase === "preparing-setup" ||
     phase === "starting-game" ||
     phase === "waiting-for-proof"
@@ -848,7 +846,6 @@ function prepareRunInGameRequest(
         selectedConfigId: resolution.selectedConfigId,
         setupConfig: setupConfig.value,
         materializationMode: resolution.materializationMode,
-        ...(input.recovery?.restartCivProcess === true ? { restartCivProcess: true } : {}),
         ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
         resolvedLaunchSource: resolution.resolvedLaunchSource,
         launchEnvelope: resolution.launchEnvelope,

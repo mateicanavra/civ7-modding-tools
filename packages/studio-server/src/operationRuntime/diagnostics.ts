@@ -135,6 +135,7 @@ function setupFailureSection(operation: RunInGameInternalOperation) {
     rowSample: parseMaybeJson(diagnostics?.rowProof) ?? parseMaybeJson(diagnostics?.rowVisibility),
     observedMapScripts: diagnostics?.observedMapScripts,
     activeTargetModSet: parseMaybeJson(diagnostics?.activeTargetModSet),
+    targetModReconciliation: parseMaybeJson(diagnostics?.targetModReconciliation),
     activeTargetModSetReadbackLimitation: diagnostics?.activeTargetModSetReadbackLimitation,
     directControlCode: diagnostics?.directControlCode ?? operation.failure?.directControlCode,
     directControlDetails: parseMaybeJson(diagnostics?.directControlDetails),

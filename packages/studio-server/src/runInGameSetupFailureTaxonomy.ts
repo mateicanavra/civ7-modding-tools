@@ -25,6 +25,9 @@ const STUDIO_TUNER_UNAVAILABLE_CODES = new Set(["civ7-tuner-backoff"]);
 const SETUP_ROW_NOT_VISIBLE_CODES = new Set<Civ7DirectControlErrorCode>([
   "setup-map-row-missing",
 ]);
+const GENERATED_MOD_NOT_ENABLED_CODES = new Set<Civ7DirectControlErrorCode>([
+  "setup-mod-reconciliation-failed",
+]);
 
 const SETUP_READ_TIMEOUT_CODES = new Set<Civ7DirectControlErrorCode>([
   "log-timeout",
@@ -57,6 +60,9 @@ export function setupFailureReasonFromDirectControlCode(
   }
   if (SETUP_ROW_NOT_VISIBLE_CODES.has(code as Civ7DirectControlErrorCode)) {
     return "setup-map-row-not-visible";
+  }
+  if (GENERATED_MOD_NOT_ENABLED_CODES.has(code as Civ7DirectControlErrorCode)) {
+    return "generated-map-mod-not-enabled";
   }
   if (SETUP_READ_TIMEOUT_CODES.has(code as Civ7DirectControlErrorCode)) {
     return "setup-read-timeout";

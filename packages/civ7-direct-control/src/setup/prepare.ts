@@ -12,7 +12,12 @@ import type {
 import { validateIdentifier } from "../validation.js";
 import {
   buildSetupSnapshotCommand,
+  ensureCiv7SetupMapRowVisible,
+  getCiv7SetupMapRows,
+  waitForCiv7SetupPhase,
   type Civ7SetupMapRow,
+  type Civ7SetupMapRowsResult,
+  type Civ7SetupMapRowVisibilityResult,
   type Civ7SetupParameterSnapshot,
   type Civ7SetupParameterValue,
   type Civ7SetupSnapshot,
@@ -94,10 +99,41 @@ export type Civ7SinglePlayerSetupInput = Readonly<{
   seed: number;
   gameSeed?: number;
   playerCount?: number;
+  requiredActiveTargetModId?: string;
   savedConfig?: Civ7SavedGameConfigurationRef;
   options?: Readonly<Record<string, Civ7SetupOptionValue>>;
   playerOptions?: ReadonlyArray<Civ7PlayerSetupOptions>;
+  fromRunningGame?: "reject" | "exit-to-shell";
   requireShell?: boolean;
+}>;
+
+export type Civ7TargetModReconciliationResult = Readonly<{
+  targetModId: string;
+  command?: Civ7CommandResult;
+  result?: Civ7TargetModReconciliationCommandResult;
+  refreshed: boolean;
+  verified: boolean;
+}>;
+
+export type Civ7TargetModReconciliationCommandResult = Readonly<{
+  targetModId: string;
+  targetInstalled: boolean;
+  targetWasEnabled: boolean;
+  canEnableResult?: unknown;
+  enableResult?: unknown;
+  refreshResult?: unknown;
+  enabledModCount: number;
+  enabledModsMetaSource: string;
+  enabledModsMetaUpdated: boolean;
+  enabledModsMetaModCount: number;
+  enabledModsMetaContainsTarget: boolean;
+  targetActive: boolean;
+}>;
+
+export type Civ7SetupShellTransitionResult = Readonly<{
+  before: Civ7SetupSnapshotResult;
+  shellExit?: Civ7CommandResult;
+  after: Civ7SetupSnapshotResult;
 }>;
 
 export type Civ7PreparedSetupResult = Readonly<{
@@ -107,7 +143,10 @@ export type Civ7PreparedSetupResult = Readonly<{
   before: Civ7SetupSnapshotResult;
   after: Civ7SetupSnapshotResult;
   command: Civ7CommandResult;
+  shellTransition?: Civ7SetupShellTransitionResult;
   savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
+  targetModReconciliation?: Civ7TargetModReconciliationResult;
+  rowVisibility: Civ7SetupMapRowVisibilityResult;
   applied: Readonly<Record<string, Civ7SetupOptionValue>>;
   verified: boolean;
 }>;
@@ -135,6 +174,7 @@ export async function prepareCiv7SinglePlayerSetup(
   dependencies: SetupPrepareDependencies = defaultSetupPrepareDependencies
 ): Promise<Civ7PreparedSetupResult> {
   const normalized = normalizeSinglePlayerSetupInput(input, dependencies);
+  const shellTransition = await ensureSetupShell(normalized, options, dependencies);
   const savedConfigLoad = normalized.savedConfig
     ? await dependencies.loadSavedGameConfiguration(normalized.savedConfig, options, {
         waitTimeoutMs: options.timeoutMs,
@@ -146,6 +186,37 @@ export async function prepareCiv7SinglePlayerSetup(
       "setup-config-load-failed",
       `Civ7 did not load saved configuration ${savedConfigLoad.savedConfig.fileName}`,
       { details: savedConfigLoad }
+    );
+  }
+  const targetModReconciliation = normalized.requiredActiveTargetModId
+    ? await reconcileCiv7RequiredTargetMod(normalized.requiredActiveTargetModId, options, dependencies)
+    : undefined;
+  if (targetModReconciliation && !targetModReconciliation.verified) {
+    throw new Civ7DirectControlError(
+      "setup-mod-reconciliation-failed",
+      `Civ7 setup active mod set does not include ${targetModReconciliation.targetModId}`,
+      { details: { targetModReconciliation } }
+    );
+  }
+  const rowVisibility = await ensureCiv7SetupMapRowVisible(
+    {
+      file: normalized.mapScript,
+      limit: 20,
+      reloadIfMissing: "exit-to-shell",
+      waitTimeoutMs: options.timeoutMs,
+      pollIntervalMs: 1_000,
+    },
+    options,
+    dependencies
+  );
+  if (!rowVisibility.verified) {
+    const allRows = await getCiv7SetupMapRows({ limit: 100 }, options, dependencies).catch(
+      () => undefined
+    );
+    throw new Civ7DirectControlError(
+      "setup-map-row-missing",
+      `Civ7 setup map row is not visible for ${normalized.mapScript}`,
+      { details: { rowVisibility, allRows, targetModReconciliation } }
     );
   }
   const before = await dependencies.parseSetupSnapshot(
@@ -191,9 +262,68 @@ export async function prepareCiv7SinglePlayerSetup(
     before,
     after,
     command,
+    ...(shellTransition ? { shellTransition } : {}),
     ...(savedConfigLoad ? { savedConfigLoad } : {}),
+    ...(targetModReconciliation ? { targetModReconciliation } : {}),
+    rowVisibility,
     applied: payload.applied,
     verified: true,
+  };
+}
+
+async function ensureSetupShell(
+  input: Civ7SinglePlayerSetupInput,
+  options: Civ7DirectControlOptions,
+  dependencies: SetupPrepareDependencies
+): Promise<Civ7SetupShellTransitionResult | undefined> {
+  if (input.requireShell === false) return undefined;
+  const before = await dependencies.parseSetupSnapshot(
+    await dependencies.executeAppUiCommand({
+      ...options,
+      command: buildSetupSnapshotCommand(dependencies),
+    }),
+    "Civ7 setup snapshot"
+  );
+  if (before.snapshot.phase === "shell") return { before, after: before };
+  if (input.fromRunningGame !== "exit-to-shell") {
+    throw new Civ7DirectControlError(
+      "setup-phase-invalid",
+      `Civ7 setup requires shell/main-menu phase; observed ${before.snapshot.phase}`,
+      { details: before }
+    );
+  }
+  const shellExit = await dependencies.executeAppUiCommand({
+    ...options,
+    command: dependencies.exitToMainMenuCommand,
+  });
+  const after = await waitForCiv7SetupPhase(
+    "shell",
+    options,
+    { waitTimeoutMs: options.timeoutMs ?? 120_000, pollIntervalMs: 1_000 },
+    dependencies
+  );
+  return { before, shellExit, after };
+}
+
+async function reconcileCiv7RequiredTargetMod(
+  targetModId: string,
+  options: Civ7DirectControlOptions,
+  dependencies: SetupPrepareDependencies
+): Promise<Civ7TargetModReconciliationResult> {
+  const command = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildReconcileTargetModCommand({ targetModId }, dependencies),
+  });
+  const result = jsonPayloadFromCommandResult<Civ7TargetModReconciliationCommandResult>(
+    command,
+    "Civ7 target mod reconciliation"
+  );
+  return {
+    targetModId,
+    command,
+    result,
+    refreshed: true,
+    verified: result.targetActive === true && result.enabledModsMetaContainsTarget === true,
   };
 }
 
@@ -275,6 +405,131 @@ export function buildPrepareSinglePlayerSetupCommand(
   })()`;
 }
 
+export function buildReconcileTargetModCommand(
+  input: Readonly<{ targetModId: string }>,
+  dependencies: Pick<SetupReadDependencies, "jsLiteral">
+): string {
+  return `(() => {
+    const input = ${dependencies.jsLiteral(input)};
+    const asArray = (value) => {
+      if (value == null) return [];
+      if (Array.isArray(value)) return value;
+      if (typeof value[Symbol.iterator] === "function") return Array.from(value);
+      return [];
+    };
+    const modId = String(input.targetModId ?? "").trim();
+    if (!modId) throw new Error("targetModId is required");
+    if (typeof Modding === "undefined" || !Modding) throw new Error("Modding API unavailable");
+    if (typeof Configuration === "undefined" || !Configuration || typeof Configuration.editGame !== "function") {
+      throw new Error("Configuration edit game API unavailable");
+    }
+    const normalizeId = (value) => String(value ?? "").trim().replace(/^\\{|\\}$/g, "").toLowerCase();
+    const targetKey = normalizeId(modId);
+    const installed = typeof Modding.getInstalledMods === "function"
+      ? asArray(Modding.getInstalledMods())
+      : [];
+    const target = installed.find((mod) => {
+      const id = mod?.id ?? mod?.ID ?? mod?.Id ?? mod?.modID ?? mod?.modId ?? mod?.ModID ?? mod?.ModId;
+      const packageId = mod?.packageId ?? mod?.PackageId ?? mod?.PackageID;
+      return normalizeId(id) === targetKey || normalizeId(packageId) === targetKey;
+    });
+    const targetId = target?.id ?? target?.ID ?? target?.Id ?? target?.modID ?? target?.modId ?? target?.ModID ?? target?.ModId;
+    const targetPackageId = target?.packageId ?? target?.PackageId ?? target?.PackageID;
+    const getHandle = (id) =>
+      typeof Modding.getModHandle === "function" && id !== undefined && id !== null && String(id).trim()
+        ? Modding.getModHandle(id)
+        : undefined;
+    const handleCandidates = [
+      getHandle(modId),
+      getHandle(targetId),
+      getHandle(targetPackageId),
+      target?.handle,
+      target?.Handle,
+    ];
+    const handle = handleCandidates.find((candidate) => candidate !== undefined && candidate !== null && candidate !== -1);
+    if (handle === undefined || handle === null || handle === -1) {
+      throw new Error("Target mod is not installed: " + modId);
+    }
+    const targetEnabled = target?.enabled ?? target?.Enabled ?? target?.isEnabled ?? target?.IsEnabled;
+    let canEnableResult = null;
+    let enableResult = null;
+    if (targetEnabled !== true) {
+      if (typeof Modding.canEnableMods === "function") {
+        canEnableResult = Modding.canEnableMods([handle], true);
+        if (canEnableResult && typeof canEnableResult === "object" && canEnableResult.status !== 0) {
+          throw new Error("Target mod cannot be enabled: " + modId);
+        }
+      }
+      if (typeof Modding.enableMods !== "function") throw new Error("Modding.enableMods unavailable");
+      enableResult = Modding.enableMods([handle], true);
+    }
+    const editGame = Configuration.editGame();
+    if (!editGame || typeof editGame.refreshEnabledMods !== "function") {
+      throw new Error("Configuration.editGame().refreshEnabledMods unavailable");
+    }
+    const readEnabledModsMeta = () => {
+      const candidates = [
+        ["Configuration.editGame", editGame.enableModsMetaString],
+        ["Configuration.getGame", typeof Configuration.getGame === "function" ? Configuration.getGame()?.enableModsMetaString : undefined],
+      ];
+      for (const [source, value] of candidates) {
+        if (typeof value !== "string" || !value.trim()) continue;
+        try {
+          const parsed = JSON.parse(value);
+          if (parsed && typeof parsed === "object" && Array.isArray(parsed.mods)) {
+            return { source, parsed };
+          }
+        } catch {}
+      }
+      throw new Error("Current enabled mod metadata unavailable");
+    };
+    const enabledModsMetaRead = readEnabledModsMeta();
+    const enabledModsMeta = enabledModsMetaRead.parsed;
+    const enabledMods = enabledModsMeta.mods;
+    const targetAlreadyInMetadata = enabledMods.some((mod) => normalizeId(mod?.modid ?? mod?.id) === targetKey);
+    if (!targetAlreadyInMetadata) {
+      enabledMods.push({
+        modid: modId,
+        version: String(target?.version ?? target?.Version ?? "1"),
+        title: String(target?.title ?? target?.Title ?? target?.name ?? target?.Name ?? modId),
+        subscriptionid: target?.subscriptionid ?? target?.subscriptionId ?? target?.SubscriptionId ?? null,
+      });
+    }
+    enabledModsMeta.mods = enabledMods;
+    const nextEnabledModsMeta = JSON.stringify(enabledModsMeta);
+    editGame.enableModsMetaString = nextEnabledModsMeta;
+    if (typeof editGame.setValue === "function") {
+      try {
+        editGame.setValue("EnableModsMetaString", nextEnabledModsMeta);
+      } catch {}
+    }
+    const refreshResult = editGame.refreshEnabledMods();
+    const game = typeof Configuration.getGame === "function" ? Configuration.getGame() : undefined;
+    const enabledModCount = Number(game?.enabledModCount ?? 0);
+    const enabledModIds = [];
+    if (Number.isInteger(enabledModCount) && enabledModCount >= 0 && typeof game?.getEnabledModId === "function") {
+      for (let index = 0; index < enabledModCount; index += 1) {
+        enabledModIds.push(game.getEnabledModId(index));
+      }
+    }
+    return JSON.stringify({
+      targetModId: modId,
+      handle,
+      targetInstalled: !!target,
+      targetWasEnabled: targetEnabled === true,
+      canEnableResult,
+      enableResult,
+      refreshResult,
+      enabledModCount: enabledModIds.length,
+      enabledModsMetaSource: enabledModsMetaRead.source,
+      enabledModsMetaUpdated: !targetAlreadyInMetadata,
+      enabledModsMetaModCount: enabledMods.length,
+      enabledModsMetaContainsTarget: enabledMods.some((mod) => normalizeId(mod?.modid ?? mod?.id) === targetKey),
+      targetActive: enabledModIds.some((id) => normalizeId(id) === targetKey),
+    });
+  })()`;
+}
+
 export function normalizeSinglePlayerSetupInput(
   input: Civ7SinglePlayerSetupInput,
   dependencies: Pick<SetupPrepareDependencies, "boundedInteger" | "validateIdentifier">
@@ -293,6 +548,10 @@ export function normalizeSinglePlayerSetupInput(
     input.playerCount !== undefined
       ? dependencies.boundedInteger(input.playerCount, 1, 64, "playerCount")
       : undefined;
+  const requiredActiveTargetModId =
+    input.requiredActiveTargetModId === undefined
+      ? undefined
+      : validateModIdentity(input.requiredActiveTargetModId, "requiredActiveTargetModId");
   const options: Record<string, Civ7SetupOptionValue> = {};
   for (const [key, value] of Object.entries(input.options ?? {})) {
     dependencies.validateIdentifier(key, "setup option id");
@@ -329,12 +588,24 @@ export function normalizeSinglePlayerSetupInput(
     seed,
     ...(gameSeed !== undefined ? { gameSeed } : {}),
     ...(playerCount !== undefined ? { playerCount } : {}),
+    ...(requiredActiveTargetModId !== undefined ? { requiredActiveTargetModId } : {}),
     ...(input.savedConfig
       ? { savedConfig: normalizeSavedGameConfigurationRef(input.savedConfig) }
       : {}),
     options,
     playerOptions,
   };
+}
+
+function validateModIdentity(value: string, label: string): string {
+  const normalized = value.trim();
+  if (!normalized || /[\0\r\n]/.test(normalized)) {
+    throw new Civ7DirectControlError(
+      "setup-parameter-invalid",
+      `${label} must be a non-empty single-line mod id`
+    );
+  }
+  return normalized.replace(/^\{|\}$/g, "");
 }
 
 export function normalizeSavedGameConfigurationRef(
@@ -534,6 +805,7 @@ export function assertPreparedSetupMatches(
   const mapSize = setupParameterValue(snapshot, "MapSize");
   const mapSeed = setupParameterValue(snapshot, "MapRandomSeed");
   const gameSeed = setupParameterValue(snapshot, "GameRandomSeed");
+  const playerCount = snapshot.config.playerCount.ok ? snapshot.config.playerCount.value : undefined;
   if (script !== input.mapScript) {
     throw new Civ7DirectControlError(
       "setup-readback-mismatch",
@@ -570,6 +842,23 @@ export function assertPreparedSetupMatches(
       }
     );
   }
+  if (input.playerCount !== undefined && playerCount !== input.playerCount) {
+    throw new Civ7DirectControlError(
+      "setup-readback-mismatch",
+      `Civ7 setup player count readback mismatch: ${String(playerCount)}`,
+      {
+        details: { expected: input.playerCount, actual: playerCount, snapshot },
+      }
+    );
+  }
+  assertRuntimeConfigValue(snapshot, "mapScript", input.mapScript);
+  assertRuntimeConfigValue(snapshot, "mapSeed", input.seed);
+  if (input.gameSeed !== undefined) {
+    assertRuntimeConfigValue(snapshot, "gameSeed", input.gameSeed);
+  }
+  if (input.playerCount !== undefined) {
+    assertRuntimeConfigValue(snapshot, "playerCount", input.playerCount);
+  }
   for (const [key, expected] of Object.entries(input.options ?? {})) {
     const actual = setupParameterValue(snapshot, key);
     if (actual !== expected) {
@@ -593,6 +882,29 @@ export function assertPreparedSetupMatches(
         );
       }
     }
+  }
+}
+
+type Civ7SetupRuntimeConfigValue = string | number;
+
+function assertRuntimeConfigValue(
+  snapshot: Civ7SetupSnapshot,
+  key: keyof Civ7SetupSnapshot["config"],
+  expected: Civ7SetupRuntimeConfigValue
+): void {
+  const actual = snapshot.config[key];
+  if (!actual.ok || actual.value !== expected) {
+    throw new Civ7DirectControlError(
+      "setup-readback-mismatch",
+      `Civ7 runtime ${key} readback mismatch: ${actual.ok ? String(actual.value) : actual.error}`,
+      {
+        details: {
+          expected,
+          actual,
+          snapshot,
+        },
+      }
+    );
   }
 }
 

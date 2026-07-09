@@ -261,7 +261,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     .filter(Boolean)
     .join("\n");
   // The labeled CTA keeps the full operation story in its accessible name:
-  // dynamic action ("Run in Game", "Retry Run", "Restart Civ & Run") first.
+  // dynamic action ("Run in Game" or "Retry Run") first.
   const runInGameTitle = [
     runInGameButtonText,
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Launches the current config in Civ7",

@@ -9,6 +9,17 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "swooper-desert-mountains",
   "name": "Swooper Desert Mountains",
@@ -22,8 +33,8 @@ const mapConfig = {
   "config": {
     "foundation-mantle": {
       "meshResolution": {
-        "plateCount": 12,
-        "cellsPerPlate": 2,
+        "plateCount": 24,
+        "cellsPerPlate": 4,
         "relaxationSteps": 2
       },
       "mantleSources": {
@@ -55,7 +66,7 @@ const mapConfig = {
         "riftWeakening01": 0.35
       },
       "platePartition": {
-        "plateCount": 12,
+        "plateCount": 24,
         "polarCaps": {
           "capFraction": 0.1,
           "microplateBandFraction": 0.2,
@@ -808,7 +819,7 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
@@ -820,7 +831,7 @@ export default createMap({
     "bottomLatitude": -40
   },
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "65e949e6939ea4b40c50bc02106427540d5c2f646614c7535828cd2861459b95",
-  envelopeHash: "658bc9d5852f34747c5821e5f0f436ad9e7a2ebe9ca966739932fafd44aa41cc",
-  config: mapConfig.config as StandardRecipeConfig,
+  configHash: "91165343c208b4d96a46aaef6b384e6061da1cdabcaaf2f7c2562368e5a45a30",
+  envelopeHash: "01728f9e56c29630ebe43fc6d54b72b92a9f6cfef1acbf4d20acdd0cfe276608",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

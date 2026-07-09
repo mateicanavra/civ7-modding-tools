@@ -11,9 +11,12 @@ active Civ7 setup state before reading setup rows or starting the game.
 - **AND** the request generated `mod-swooper-studio-run`
 - **THEN** Studio ensures the generated mod is active in the setup target
   before map-row readback
-- **AND** active mod-set readback confirms `mod-swooper-studio-run` is enabled
-- **AND** setup readback sees the generated map row for the request-local run
-  artifact
+- **AND** targeted reconciliation confirms `mod-swooper-studio-run` is active
+  in the setup target
+- **AND** setup readback sees the stable generated map row
+  `{mod-swooper-studio-run}/maps/studio-run.js`
+- **AND** private evidence retains the request `runArtifactId` and deployment
+  digest for the overwritten generated script content
 
 #### Scenario: Setup values are read before Begin
 

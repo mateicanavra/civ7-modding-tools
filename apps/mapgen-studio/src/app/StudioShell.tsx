@@ -11,7 +11,6 @@ import {
   PresetSaveDialog,
   RecipePanel,
   RightDock,
-  runInGameRequiresProcessRestart,
   StageViewTabs,
 } from "@swooper/mapgen-studio-ui";
 import type { GenerationStatus, PipelineConfig } from "@swooper/mapgen-studio-ui/types";
@@ -20,7 +19,7 @@ import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
 import {
-  getExactRecipeDefaultConfig,
+  getMaterializedRecipeDefaultConfig,
   resolveEffectivePipelineConfig,
 } from "../features/configOverrides/effectiveConfig";
 import { type PresetKey, parsePresetKey } from "../features/presets/types";
@@ -244,6 +243,9 @@ export function StudioShell(props: StudioShellProps) {
               description: provedRunInGameSource
                 ? "Config and seed last proved through Run in Game."
                 : "Config and seed from the last Studio Run in Game request.",
+              ...(lastRunInGameSource.selectedConfig?.latitudeBounds === undefined
+                ? {}
+                : { latitudeBounds: lastRunInGameSource.selectedConfig.latitudeBounds }),
               config: lastRunInGameSource.pipelineConfig,
             },
           ]
@@ -268,6 +270,7 @@ export function StudioShell(props: StudioShellProps) {
     importInputRef,
     markPresetApplied,
     applyAuthoringSnapshot,
+    applyRecipeSettingsChange,
     rememberRepoBackedConfig,
     handleDeletePreset,
     handleExportPreset,
@@ -324,7 +327,6 @@ export function StudioShell(props: StudioShellProps) {
   // daemon-owned through `studio.operations.current`.
   const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
   const setRunInGameSnapshot = useRunStore((s) => s.setRunInGameSnapshot);
-  const lastSaveDeployConfig = useRunStore((s) => s.lastSaveDeployConfig);
   const setLastSaveDeployConfig = useRunStore((s) => s.setLastSaveDeployConfig);
   const lastRunInGameToastRef = useRef<string | null>(null);
 
@@ -412,6 +414,7 @@ export function StudioShell(props: StudioShellProps) {
     viz,
     runInGameRunning,
     saveDeployRunning,
+    resolvePreset,
     toast,
     setLocalError,
   });
@@ -466,30 +469,26 @@ export function StudioShell(props: StudioShellProps) {
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
   // Cycle break + SECURITY-ADJACENT (§7.6). Decides whether Run in Game writes the
-  // config to a DURABLE on-disk map script or a DISPOSABLE one. "durable" requires a
-  // built-in preset WITH a source path AND the current config still matching either the
-  // resolved preset config or the last save/deploy config — i.e. the bytes about to run
-  // are exactly the bytes already on disk. Derived synchronously here, never from an
-  // effect: an effect could lag a render and let an edited config inherit a stale
-  // "durable" verdict, deploying unintended bytes. Threaded INTO `useRunInGame`.
+  // config to a DURABLE catalog source or a DISPOSABLE editor source. "durable"
+  // requires a built-in preset WITH a source path AND the launchable source to be
+  // the selected config itself. Disabled overrides only gate editing/autorun; they
+  // must not swap the selected/current config for recipe defaults.
+  // The last save/deploy snapshot is deliberately not a separate durable source
+  // here; otherwise Run in Game could send the selected catalog id while the
+  // visible bytes only matched a different saved config. Derived synchronously
+  // here, never from an effect: an effect could lag a render and let an edited
+  // config inherit a stale "durable" verdict. Threaded INTO `useRunInGame`.
   const runInGameMaterializationMode = useMemo<"durable" | "disposable">(() => {
-    if (overridesDisabled) return "disposable";
     const parsed = parsePresetKey(recipeSettings.preset);
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
     const selectedConfigMatches = resolved?.config
       ? configsEqual(resolved.config as PipelineConfig, effectivePipelineConfig)
       : false;
-    const savedConfigMatches = lastSaveDeployConfig
-      ? configsEqual(lastSaveDeployConfig as PipelineConfig, effectivePipelineConfig)
-      : false;
-    return parsed.kind === "builtin" &&
-      resolved?.sourcePath &&
-      (selectedConfigMatches || savedConfigMatches)
+    return parsed.kind === "builtin" && resolved?.catalogSourceId && selectedConfigMatches
       ? "durable"
       : "disposable";
   }, [
     effectivePipelineConfig,
-    lastSaveDeployConfig,
     overridesDisabled,
     recipeSettings.preset,
     resolvePreset,
@@ -786,12 +785,7 @@ export function StudioShell(props: StudioShellProps) {
           runInGameStatus={runInGameOperation}
           runInGameCurrentRelation={runInGameCurrentRelation}
           onRunInGame={() => {
-            void handleRunInGame({
-              restartCivProcess: runInGameRequiresProcessRestart(
-                runInGameOperation,
-                runInGameCurrentRelation
-              ),
-            });
+            void handleRunInGame();
           }}
           onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
           saveDeployStatus={saveDeployOperation}
@@ -806,16 +800,14 @@ export function StudioShell(props: StudioShellProps) {
       configSchema={recipeArtifacts.configSchema}
       onConfigChange={(next) => setPipelineConfig(next)}
       onConfigReset={() =>
-        setPipelineConfig(getExactRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
+        setPipelineConfig(getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
       }
       recipeOptions={recipeOptions}
       presetOptions={displayedPresetOptions}
       selectedStep={selectedStageId}
       settings={recipeSettings}
       onSettingsChange={(next) => {
-        setRecipeSettings((prev) =>
-          next.recipe !== prev.recipe ? { ...next, preset: "none" } : next
-        );
+        applyRecipeSettingsChange(next);
         if (next.recipe !== recipeSettings.recipe)
           toast(`Recipe: ${next.recipe}`, { variant: "info" });
       }}

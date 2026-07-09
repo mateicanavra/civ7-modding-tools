@@ -61,7 +61,7 @@ describe("resolveImportedPreset", () => {
     }
   });
 
-  it("rejects config JSON that would need recipe default materialization", () => {
+  it("rejects imported config JSON that is missing current recipe keys", () => {
     const [firstStage] = Object.keys(STANDARD_RECIPE_CONFIG);
     const config = { ...(STANDARD_RECIPE_CONFIG as Record<string, unknown>) };
     delete config[firstStage!];
@@ -77,13 +77,9 @@ describe("resolveImportedPreset", () => {
 
     const result = resolveImportedPreset({ presetFile, findRecipeArtifacts });
     expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.kind).toBe("invalid-config");
-      expect(result.details).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining("complete recipe config JSON"),
-        ])
-      );
-    }
+    if (result.ok) throw new Error("incomplete imported config was accepted");
+    expect(result.details).toContain(
+      "/config/import: Config must be the complete recipe config JSON produced by the current recipe artifacts."
+    );
   });
 });

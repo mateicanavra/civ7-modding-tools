@@ -11,6 +11,11 @@ import {
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
 
+type LatitudeBounds = Readonly<{
+  topLatitude: number;
+  bottomLatitude: number;
+}>;
+
 export type RunInGameClientSnapshot = Readonly<{
   requestId: string;
   createdAt: string;
@@ -37,7 +42,10 @@ export type RunInGameSourceSnapshot = Readonly<{
     id?: string;
     label?: string;
     description?: string;
+    catalogSourceId?: string;
     sourcePath?: string;
+    sortIndex?: number;
+    latitudeBounds?: LatitudeBounds;
   };
 }>;
 
@@ -179,11 +187,26 @@ function parseSelectedConfig(
 ): RunInGameSourceSnapshot["selectedConfig"] | undefined {
   if (value === undefined) return undefined;
   if (!isRecord(value)) return undefined;
+  const latitudeBounds = parseLatitudeBounds(value.latitudeBounds);
   return {
     ...(typeof value.id === "string" ? { id: value.id } : {}),
     ...(typeof value.label === "string" ? { label: value.label } : {}),
     ...(typeof value.description === "string" ? { description: value.description } : {}),
+    ...(typeof value.catalogSourceId === "string" ? { catalogSourceId: value.catalogSourceId } : {}),
     ...(typeof value.sourcePath === "string" ? { sourcePath: value.sourcePath } : {}),
+    ...(typeof value.sortIndex === "number" ? { sortIndex: value.sortIndex } : {}),
+    ...(latitudeBounds === undefined ? {} : { latitudeBounds }),
+  };
+}
+
+function parseLatitudeBounds(value: unknown): LatitudeBounds | undefined {
+  if (!isRecord(value)) return undefined;
+  if (typeof value.topLatitude !== "number" || typeof value.bottomLatitude !== "number") {
+    return undefined;
+  }
+  return {
+    topLatitude: value.topLatitude,
+    bottomLatitude: value.bottomLatitude,
   };
 }
 

@@ -64,7 +64,7 @@ export type Civ7SetupSnapshot = Readonly<{
   mapRows: ReadonlyArray<Civ7SetupMapRow>;
   config: Readonly<{
     mapScript: Civ7RuntimeProbe<string>;
-    mapSize: Civ7RuntimeProbe<string>;
+    mapSize: Civ7RuntimeProbe<string | number>;
     mapSeed: Civ7RuntimeProbe<number>;
     gameSeed: Civ7RuntimeProbe<number>;
     playerCount: Civ7RuntimeProbe<number>;

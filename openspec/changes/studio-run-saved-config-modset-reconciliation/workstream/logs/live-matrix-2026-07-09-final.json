@@ -1,0 +1,599 @@
+{
+  "generatedAt": "2026-07-09T08:25:24.724Z",
+  "daemon": "http://127.0.0.1:5174",
+  "serverInfo": {
+    "ok": true,
+    "serverInstanceId": "studio-server-mrd8etbz-1pp1-1-b5d78fc7-be5e-4301-b7e3-5a7043af1c65",
+    "startedAt": "2026-07-09T08:15:21.599Z",
+    "runInGameApiVersion": 2,
+    "viteCommand": "daemon"
+  },
+  "finalServerInfo": {
+    "ok": true,
+    "serverInstanceId": "studio-server-mrd8etbz-1pp1-1-b5d78fc7-be5e-4301-b7e3-5a7043af1c65",
+    "startedAt": "2026-07-09T08:15:21.599Z",
+    "runInGameApiVersion": 2,
+    "viteCommand": "daemon"
+  },
+  "initialLiveStatusSummary": {
+    "ok": true,
+    "playable": false,
+    "readiness": "shell",
+    "observedAt": "2026-07-09T08:21:17.441Z",
+    "ui": {
+      "inGame": {
+        "ok": true,
+        "value": false
+      },
+      "inShell": {
+        "ok": true,
+        "value": true
+      },
+      "inLoading": {
+        "ok": true,
+        "value": false
+      },
+      "loadingState": {
+        "ok": true,
+        "value": 0
+      },
+      "loadingStateName": "NotStarted",
+      "canBeginGame": {
+        "ok": true,
+        "value": false
+      },
+      "canNotifyUIReady": "function",
+      "skipStartButton": {
+        "ok": true,
+        "value": false
+      },
+      "automationActive": {
+        "ok": true,
+        "value": false
+      },
+      "activeInputContext": {
+        "ok": true,
+        "value": 2
+      },
+      "activeInputContextName": "Shell"
+    },
+    "map": {
+      "width": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getGridWidth')"
+      },
+      "height": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getGridHeight')"
+      },
+      "plotCount": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getPlotCount')"
+      },
+      "mapSize": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getMapSize')"
+      },
+      "randomSeed": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getRandomSeed')"
+      }
+    },
+    "players": {
+      "maxPlayers": 0,
+      "aliveIds": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getAliveIds')"
+      },
+      "aliveHumanIds": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getAliveHumanIds')"
+      },
+      "numAliveHumans": {
+        "ok": false,
+        "error": "TypeError: Cannot read properties of undefined (reading 'getNumAliveHumans')"
+      }
+    },
+    "turn": -1
+  },
+  "savedSetupConfig": {
+    "id": "tot-basicmodsenabled",
+    "displayName": "ToT_BasicModsEnabled",
+    "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
+    "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+  },
+  "results": [
+    {
+      "variant": "swooper-earthlike",
+      "requestId": "studio-run-in-game-mrd8mgkx-1pp1-2",
+      "input": {
+        "source": {
+          "kind": "catalog",
+          "catalogSourceId": "swooper-earthlike"
+        },
+        "recipeSettings": {
+          "preset": "swooper-earthlike",
+          "recipe": "mod-swooper-maps/standard",
+          "seed": 1538316521
+        },
+        "worldSettings": {
+          "mapSize": "MAPSIZE_HUGE",
+          "playerCount": 10,
+          "resources": "balanced"
+        },
+        "setupConfig": {
+          "savedConfig": {
+            "id": "tot-basicmodsenabled",
+            "displayName": "ToT_BasicModsEnabled",
+            "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
+            "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+          },
+          "gameOptions": {
+            "Difficulty": "DIFFICULTY_CUSTOM",
+            "GameSpeeds": "GAMESPEED_STANDARD"
+          },
+          "playerOptions": [
+            {
+              "playerId": 0,
+              "options": {
+                "PlayerDifficulty": "DIFFICULTY_CUSTOM"
+              }
+            }
+          ]
+        }
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrd8mgkx-1pp1-2",
+        "diagnosticsId": "run-diagnostics-c3f203a9-284f-4e3e-a188-e72882401679",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "createdAt": "2026-07-09T08:21:18.690Z",
+        "updatedAt": "2026-07-09T08:22:41.785Z",
+        "status": "completed",
+        "phase": "completed",
+        "terminalAt": "2026-07-09T08:22:41.785Z"
+      },
+      "phases": [
+        "running:resolving-source",
+        "running:generating-artifacts",
+        "running:deploying",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "diagnosticsSummary": {
+        "ok": true,
+        "diagnosticsId": "run-diagnostics-c3f203a9-284f-4e3e-a188-e72882401679",
+        "sectionKeys": [
+          "attribution",
+          "operation"
+        ],
+        "summary": "Run in Game complete"
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivateNeedle": false,
+        "phasesContainPrivateNeedle": false
+      },
+      "liveStatusSummary": {
+        "ok": true,
+        "playable": true,
+        "readiness": "tuner-ready",
+        "observedAt": "2026-07-09T08:22:44.635Z",
+        "ui": {
+          "inGame": {
+            "ok": true,
+            "value": true
+          },
+          "inShell": {
+            "ok": true,
+            "value": false
+          },
+          "inLoading": {
+            "ok": true,
+            "value": false
+          },
+          "loadingState": {
+            "ok": true,
+            "value": 8
+          },
+          "loadingStateName": "GameStarted",
+          "canBeginGame": {
+            "ok": true,
+            "value": false
+          },
+          "canNotifyUIReady": "function",
+          "skipStartButton": {
+            "ok": true,
+            "value": false
+          },
+          "automationActive": {
+            "ok": true,
+            "value": false
+          },
+          "activeInputContext": {
+            "ok": true,
+            "value": 3
+          },
+          "activeInputContextName": "World"
+        },
+        "map": {
+          "width": {
+            "ok": true,
+            "value": 106
+          },
+          "height": {
+            "ok": true,
+            "value": 66
+          },
+          "plotCount": {
+            "ok": true,
+            "value": 6996
+          },
+          "mapSize": {
+            "ok": true,
+            "value": 370405108
+          },
+          "randomSeed": {
+            "ok": true,
+            "value": 1538316521
+          }
+        },
+        "players": {
+          "maxPlayers": 64,
+          "aliveIds": {
+            "ok": true,
+            "value": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          },
+          "aliveHumanIds": {
+            "ok": true,
+            "value": [
+              0
+            ]
+          },
+          "numAliveHumans": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        "turn": 1
+      }
+    },
+    {
+      "variant": "latest-juicy",
+      "requestId": "studio-run-in-game-mrd8ob73-1pp1-3",
+      "input": {
+        "source": {
+          "kind": "catalog",
+          "catalogSourceId": "latest-juicy"
+        },
+        "recipeSettings": {
+          "preset": "latest-juicy",
+          "recipe": "mod-swooper-maps/standard",
+          "seed": 1538316522
+        },
+        "worldSettings": {
+          "mapSize": "MAPSIZE_HUGE",
+          "playerCount": 10,
+          "resources": "balanced"
+        },
+        "setupConfig": {
+          "savedConfig": {
+            "id": "tot-basicmodsenabled",
+            "displayName": "ToT_BasicModsEnabled",
+            "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
+            "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+          },
+          "gameOptions": {
+            "Difficulty": "DIFFICULTY_CUSTOM",
+            "GameSpeeds": "GAMESPEED_STANDARD"
+          },
+          "playerOptions": [
+            {
+              "playerId": 0,
+              "options": {
+                "PlayerDifficulty": "DIFFICULTY_CUSTOM"
+              }
+            }
+          ]
+        }
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrd8ob73-1pp1-3",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "createdAt": "2026-07-09T08:22:44.801Z",
+        "updatedAt": "2026-07-09T08:23:54.438Z",
+        "status": "completed",
+        "phase": "completed",
+        "terminalAt": "2026-07-09T08:23:54.438Z"
+      },
+      "phases": [
+        "running:resolving-source",
+        "running:generating-artifacts",
+        "running:deploying",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "completed:completed"
+      ],
+      "publicLeakScan": {
+        "terminalStatusContainsPrivateNeedle": false,
+        "phasesContainPrivateNeedle": false
+      },
+      "liveStatusSummary": {
+        "ok": true,
+        "playable": true,
+        "readiness": "tuner-ready",
+        "observedAt": "2026-07-09T08:23:55.547Z",
+        "ui": {
+          "inGame": {
+            "ok": true,
+            "value": true
+          },
+          "inShell": {
+            "ok": true,
+            "value": false
+          },
+          "inLoading": {
+            "ok": true,
+            "value": false
+          },
+          "loadingState": {
+            "ok": true,
+            "value": 8
+          },
+          "loadingStateName": "GameStarted",
+          "canBeginGame": {
+            "ok": true,
+            "value": false
+          },
+          "canNotifyUIReady": "function",
+          "skipStartButton": {
+            "ok": true,
+            "value": false
+          },
+          "automationActive": {
+            "ok": true,
+            "value": false
+          },
+          "activeInputContext": {
+            "ok": true,
+            "value": 3
+          },
+          "activeInputContextName": "World"
+        },
+        "map": {
+          "width": {
+            "ok": true,
+            "value": 106
+          },
+          "height": {
+            "ok": true,
+            "value": 66
+          },
+          "plotCount": {
+            "ok": true,
+            "value": 6996
+          },
+          "mapSize": {
+            "ok": true,
+            "value": 370405108
+          },
+          "randomSeed": {
+            "ok": true,
+            "value": 1538316522
+          }
+        },
+        "players": {
+          "maxPlayers": 64,
+          "aliveIds": {
+            "ok": true,
+            "value": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          },
+          "aliveHumanIds": {
+            "ok": true,
+            "value": [
+              0
+            ]
+          },
+          "numAliveHumans": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        "turn": 1
+      }
+    },
+    {
+      "variant": "swooper-desert-mountains",
+      "requestId": "studio-run-in-game-mrd8ptwm-1pp1-4",
+      "input": {
+        "source": {
+          "kind": "catalog",
+          "catalogSourceId": "swooper-desert-mountains"
+        },
+        "recipeSettings": {
+          "preset": "swooper-desert-mountains",
+          "recipe": "mod-swooper-maps/standard",
+          "seed": 1538316523
+        },
+        "worldSettings": {
+          "mapSize": "MAPSIZE_HUGE",
+          "playerCount": 10,
+          "resources": "balanced"
+        },
+        "setupConfig": {
+          "savedConfig": {
+            "id": "tot-basicmodsenabled",
+            "displayName": "ToT_BasicModsEnabled",
+            "fileName": "ToT_BasicModsEnabled.Civ7Cfg",
+            "path": "/Users/mateicanavra/Library/Application Support/Civilization VII/Saves/Single/ToT_BasicModsEnabled.Civ7Cfg"
+          },
+          "gameOptions": {
+            "Difficulty": "DIFFICULTY_CUSTOM",
+            "GameSpeeds": "GAMESPEED_STANDARD"
+          },
+          "playerOptions": [
+            {
+              "playerId": 0,
+              "options": {
+                "PlayerDifficulty": "DIFFICULTY_CUSTOM"
+              }
+            }
+          ]
+        }
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrd8ptwm-1pp1-4",
+        "diagnosticsId": "run-diagnostics-8bfcd320-8af0-4c40-8cd7-c6158e5a7348",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "createdAt": "2026-07-09T08:23:55.744Z",
+        "updatedAt": "2026-07-09T08:25:22.199Z",
+        "status": "completed",
+        "phase": "completed",
+        "terminalAt": "2026-07-09T08:25:22.199Z"
+      },
+      "phases": [
+        "running:resolving-source",
+        "running:generating-artifacts",
+        "running:deploying",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "completed:completed"
+      ],
+      "diagnosticsSummary": {
+        "ok": true,
+        "diagnosticsId": "run-diagnostics-8bfcd320-8af0-4c40-8cd7-c6158e5a7348",
+        "sectionKeys": [
+          "attribution",
+          "operation"
+        ],
+        "summary": "Run in Game complete"
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivateNeedle": false,
+        "phasesContainPrivateNeedle": false
+      },
+      "liveStatusSummary": {
+        "ok": true,
+        "playable": true,
+        "readiness": "tuner-ready",
+        "observedAt": "2026-07-09T08:25:24.687Z",
+        "ui": {
+          "inGame": {
+            "ok": true,
+            "value": true
+          },
+          "inShell": {
+            "ok": true,
+            "value": false
+          },
+          "inLoading": {
+            "ok": true,
+            "value": false
+          },
+          "loadingState": {
+            "ok": true,
+            "value": 8
+          },
+          "loadingStateName": "GameStarted",
+          "canBeginGame": {
+            "ok": true,
+            "value": false
+          },
+          "canNotifyUIReady": "function",
+          "skipStartButton": {
+            "ok": true,
+            "value": false
+          },
+          "automationActive": {
+            "ok": true,
+            "value": false
+          },
+          "activeInputContext": {
+            "ok": true,
+            "value": 3
+          },
+          "activeInputContextName": "World"
+        },
+        "map": {
+          "width": {
+            "ok": true,
+            "value": 106
+          },
+          "height": {
+            "ok": true,
+            "value": 66
+          },
+          "plotCount": {
+            "ok": true,
+            "value": 6996
+          },
+          "mapSize": {
+            "ok": true,
+            "value": 370405108
+          },
+          "randomSeed": {
+            "ok": true,
+            "value": 1538316523
+          }
+        },
+        "players": {
+          "maxPlayers": 64,
+          "aliveIds": {
+            "ok": true,
+            "value": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          },
+          "aliveHumanIds": {
+            "ok": true,
+            "value": [
+              0
+            ]
+          },
+          "numAliveHumans": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        "turn": 1
+      }
+    }
+  ]
+}

@@ -9,12 +9,27 @@ import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
+type GeneratedMapConfig = Readonly<{
+  id: string;
+  name: string;
+  description?: string;
+  recipe: "standard";
+  sortIndex: number;
+  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+  logPrefix?: string;
+  config: unknown;
+}>;
+
 const mapConfig = {
   "id": "mountains-of-time-earthlike",
   "name": "Mountains of Time Earthlike",
   "description": "Mountains of Time Earthlike",
   "recipe": "standard",
   "sortIndex": 900,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -803,15 +818,19 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const;
+} as const satisfies GeneratedMapConfig;
 
 export default createMap({
   id: mapConfig.id,
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,
+  latitudeBounds: {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   sourceConfigId: "mountains-of-time-earthlike",
   configHash: "224118303383aa9a6778aa0ef7f291682eb2efdb114504f96d13919d37839041",
-  envelopeHash: "708f01e9097dd602f8d78428b8d1bf71b87fc61763ba28f49f371fffa1cd217b",
-  config: mapConfig.config as StandardRecipeConfig,
+  envelopeHash: "5343b36577b39f4bc2767774606d3ccbddc74f01fdcbb0d3cbaf27e0d15fdf51",
+  config: mapConfig.config as unknown as StandardRecipeConfig,
 });

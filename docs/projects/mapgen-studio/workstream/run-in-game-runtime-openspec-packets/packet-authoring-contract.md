@@ -55,11 +55,11 @@ endpoint do not satisfy this gate. Evidence records the server start command
 and URL, oRPC operation, request payload shape, request id when admitted,
 timestamps, redacted response/status payloads, terminal status when applicable,
 command output, and the oracle each result satisfies.
-Use a direct non-watch daemon for endpoint proof runs. The development
-`mapgen-studio:serve-daemon` target runs `bun --watch`; Run in Game
-materialization intentionally writes generated content inside the repo, and
-those writes can restart the watcher mid-operation. Watch-mode restarts are
-useful development behavior, but they are not the endpoint-proof harness.
+Endpoint and UI runs use the same stable `mapgen-studio:serve-daemon` target.
+That target must run the Studio daemon with the dev-only `bun-source` condition
+and without Bun watch. Run in Game materialization intentionally writes
+generated content inside the repo, and those writes must not restart the process
+that owns the active operation registry.
 
 Declared verification gates include every item listed under a packet's
 `Verification Gates`, every command returned by `bun habitat classify`, every

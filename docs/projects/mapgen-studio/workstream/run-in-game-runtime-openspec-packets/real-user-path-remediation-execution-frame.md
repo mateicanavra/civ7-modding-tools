@@ -220,9 +220,9 @@ Every packet starts with:
 - packet-level redaction scans whenever public payloads, diagnostics lookup,
   retained evidence, or status/current/event surfaces change; final closure
   still reruns the aggregate redaction scan over all retained logs and payloads
-- a direct non-watch Studio daemon for endpoint evidence; watch-mode
-  `mapgen-studio:serve-daemon` is a development convenience and is not the live
-  endpoint harness for Run in Game
+- the stable `mapgen-studio:serve-daemon` target for endpoint and rendered UI
+  evidence; it keeps `bun-source` source resolution while excluding Bun watch so
+  Run in Game materialization cannot restart the operation owner mid-run
 - required review lanes
 - structural-rule evidence for any Habitat/Grit change: lifecycle, owner
   surface, scan roots, positive assertion, fixture strategy, current-tree scan

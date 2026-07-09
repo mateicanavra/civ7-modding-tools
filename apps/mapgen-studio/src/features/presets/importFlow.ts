@@ -1,5 +1,6 @@
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
-import { validateExactPipelineConfig } from "../configOverrides/configBuilders";
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { materializePipelineConfig } from "../configOverrides/configBuilders";
 import type { RecipeArtifacts } from "../../recipes/catalog";
 
 export type ImportPresetResult =
@@ -8,7 +9,7 @@ export type ImportPresetResult =
       recipeId: string;
       label: string;
       description?: string;
-      config: Record<string, unknown>;
+      config: PipelineConfig;
     }>
   | Readonly<{
       ok: false;
@@ -37,7 +38,7 @@ export function resolveImportedPreset(args: {
     };
   }
 
-  const validated = validateExactPipelineConfig({
+  const validated = materializePipelineConfig({
     schema: recipe.configSchema,
     config: presetFile.preset.config,
     label: "import",
@@ -56,6 +57,6 @@ export function resolveImportedPreset(args: {
     recipeId: presetFile.recipeId,
     label: presetFile.preset.label,
     description: presetFile.preset.description,
-    config: validated.value as Record<string, unknown>,
+    config: validated.value,
   };
 }

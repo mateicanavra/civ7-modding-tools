@@ -190,7 +190,6 @@ describe("Run in Game request validation", () => {
         resources: "balanced",
       },
       setupConfig,
-      restartCivProcess: true,
     });
 
     expect(Value.Check(startInputSchema, request)).toBe(true);
@@ -217,9 +216,9 @@ describe("Run in Game request validation", () => {
         resources: "balanced",
       },
       setupConfig,
-      recovery: { restartCivProcess: true },
     });
     expect(request).not.toHaveProperty("restartCivProcess");
+    expect(request).not.toHaveProperty("recovery");
     expect(() => assertNoRawControlFields(request)).not.toThrow();
   });
 });
