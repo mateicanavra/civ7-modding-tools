@@ -14,7 +14,9 @@ bun habitat classify <path-or-diff>
 
 Use the targets Habitat reports with `nx run <project>:<target>`. Root `bun` scripts are reserved for repository-wide workflows and explicit operational commands. Generated `dist/`, `mod/`, map output, lockfiles, and `.civ7/outputs` are evidence surfaces: regenerate them rather than editing them.
 
-The environment setup is intentionally complete rather than fast: it initializes and validates the resources submodule, installs the locked Bun workspace and Husky hooks, bootstraps the Habitat Nx-plugin artifact, then builds the workspace. It does not copy ignored files because this repository has no `.worktreeinclude`.
+Environment setup runs the same bootstrap expected in a fully provisioned clean worktree: initialize the resources submodule and pinned read-only Effect source reference, install the frozen Bun graph and Husky hooks, build the workspace, then run its static checks. It has no Codex-specific prebuild and does not copy ignored files because this repository has no `.worktreeinclude`.
+
+The Effect checkout at `.repos/effect` is reference source, not a build input. `bun run effect:init` validates the recorded pin without updating it remotely or replacing a conflicting checkout; recovery belongs to [the Effect source-submodule runbook](docs/process/effect-source-submodule.md).
 
 ## Toolbar Actions
 
@@ -82,4 +84,4 @@ Routine `bun run lint`, `bun run test`, `bun run check`, `bun run biome:format`,
 3. For resources, use `bun run resources:status`; do not hand-edit the submodule or remove a lock speculatively.
 4. For Studio, use the helper's `status`; capture its named tmux panes before stopping it.
 5. For a failed runtime probe, validate Civ7/Tuner availability before retrying; no environment action starts or changes a game.
-6. For setup failure, fix the source-backed setup command or prerequisite, not a single managed worktree, then create a fresh worktree to prove it.
+6. For setup failure, fix [`.codex/environments/environment.toml`](.codex/environments/environment.toml) or the underlying repository prerequisite, not a single managed worktree, then create a fresh worktree to prove it.

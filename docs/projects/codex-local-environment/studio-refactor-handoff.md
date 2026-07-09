@@ -10,14 +10,18 @@ developer's normal Studio process.
 
 ## What The Studio Stack Must Preserve Or Repoint
 
-- `.codex/environment.toml` invokes `scripts/codex/manage-mapgen-studio.sh`
+- `.codex/environments/environment.toml` invokes `scripts/codex/manage-mapgen-studio.sh`
   for explicit start/stop and cleanup. Keep that contract as the one
   worktree-owned lifecycle entrypoint.
-- The helper first runs `nx run mapgen-studio:build`, then launches the current
-  daemon source with Bun and the current Vite application with `bun vite`.
-  If the Studio refactor moves either executable boundary, update those two
-  launch commands together and retain the environment variables
-  `STUDIO_DAEMON_PORT`, `STUDIO_DEV_PORT`, and `STUDIO_DEV_RPC_TARGET`.
+- The helper first runs `nx run mapgen-studio:build`. During Studio lifecycle
+  composition, repoint its daemon pane to the canonical
+  `nx run mapgen-studio:serve-daemon` target rather than preserving a duplicate
+  raw Bun watch command. Keep the frontend launch aligned with the canonical
+  Vite owner and retain `STUDIO_DAEMON_PORT`, `STUDIO_DEV_PORT`, and
+  `STUDIO_DEV_RPC_TARGET`.
+- Readiness and status must require the frontend and the daemon's `/healthz`
+  endpoint. A nonzero HTTP response from an arbitrary daemon route is not a
+  health proof.
 - The helper owns a private tmux socket and derives a unique session and port
   pair from the Git worktree root. Its state is under the already ignored
   `.mapgen-studio/codex-environment/`. Do not replace this with the shared
@@ -27,14 +31,13 @@ developer's normal Studio process.
 
 ## Environment Bootstrap Coupling
 
-Managed-worktree setup initializes the resources submodule, performs the
-canonical resource check, installs the frozen Bun graph, builds the ignored
-Habitat Nx-plugin artifact, and runs the workspace build. The direct TypeScript
-bootstrap is intentional: a clean worktree cannot load the custom Nx plugin
-until `tools/habitat/dist` exists. If the refactor changes plugin build output
-or removes that bootstrap need, change the setup command and its references in
-`CODEX-LOCAL-ENVIRONMENT-REFERENCE.md` and `OPERATIONAL-FIELD-GUIDE.md`
-together.
+Managed-worktree setup uses the normal clean-checkout sequence: initialize the
+resources submodule and pinned Effect reference source, install the frozen Bun
+graph, build, and check. It does not prebuild Habitat or copy generated output
+from another checkout. The Habitat Nx plugin must load directly from source
+before ignored `tools/habitat/dist` exists. If that bootstrap contract changes,
+update `CODEX-LOCAL-ENVIRONMENT-REFERENCE.md` and
+`OPERATIONAL-FIELD-GUIDE.md` together.
 
 ## Composition Check
 
@@ -45,6 +48,7 @@ bash -n scripts/codex/manage-mapgen-studio.sh
 nx run mapgen-studio:build
 bash scripts/codex/manage-mapgen-studio.sh start
 bash scripts/codex/manage-mapgen-studio.sh status
+curl --fail http://127.0.0.1:<daemon-port>/healthz
 bash scripts/codex/manage-mapgen-studio.sh stop
 ```
 

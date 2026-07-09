@@ -7,7 +7,7 @@
       "command": "tsup",
       "dependsOn": ["^build", "gen:modinfo"],
       "cache": true,
-      "outputs": ["{projectRoot}/dist/**"],
+      "outputs": ["{projectRoot}/mod/ui/**"],
       "options": {
         "cwd": "mods/mod-civ7-intelligence-bridge"
       }
@@ -16,6 +16,10 @@
       "command": "node -e \"\"",
       "dependsOn": ["build:bundle"],
       "cache": true,
+      "outputs": [
+        "{projectRoot}/mod/civ7-intelligence-bridge.modinfo",
+        "{projectRoot}/mod/ui/civ7-intelligence-bridge.js"
+      ],
       "options": {
         "cwd": "mods/mod-civ7-intelligence-bridge"
       }
@@ -23,7 +27,7 @@
     "gen:modinfo": {
       "command": "bun ./scripts/generate-mod-artifacts.ts",
       "cache": true,
-      "outputs": ["{projectRoot}/mod/**"],
+      "outputs": ["{projectRoot}/mod/civ7-intelligence-bridge.modinfo"],
       "options": {
         "cwd": "mods/mod-civ7-intelligence-bridge"
       }

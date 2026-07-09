@@ -1,12 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
+import type {
+  RuleRegistryDocument,
+  RuleRegistryRecord,
+} from "./service/model/rules/dto/registry.schema.ts";
 import {
   loadRuleRegistryDocument,
   type RuleRegistryDirectoryEntry,
-  type RuleRegistryDocument,
-  type RuleRegistryRecord,
   type RuleRegistrySyncFileSystem,
-} from "@habitat/cli/service/model/rules/index";
+} from "./service/model/rules/repositories/registry.repository.ts";
 
 export type NxRuleRegistryRecord = RuleRegistryRecord;
 export type NxRuleRegistryDocument = RuleRegistryDocument;
