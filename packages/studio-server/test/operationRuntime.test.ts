@@ -2,6 +2,7 @@ import { access, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:f
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
+  dependencyUnavailable,
   invalidRequest,
   operationBlocked,
   operationStatusTypeSchema,
@@ -2757,6 +2758,201 @@ describe("StudioOperationRuntime", () => {
       });
       expectTypeboxValid(operationStatusTypeSchema, failed);
     }
+  });
+
+  test("setup failure taxonomy stays private while public Run in Game status is safe", async () => {
+    const events: StudioEvent[] = [];
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      civ7: {
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message:
+                "Civilization is not loading the generated Studio Run mod, so its setup map list cannot show {mod-swooper-studio-run}/maps/run-test.js.",
+              reason: "setup-row-unavailable",
+              diagnostics: {
+                code: "generated-map-mod-not-enabled",
+                setupFailureReason: "generated-map-mod-not-enabled",
+                mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+                targetModId: "mod-swooper-studio-run",
+                activeTargetModSet: {
+                  available: true,
+                  identityAvailable: true,
+                  truncated: false,
+                  mods: [{ id: "base-standard", name: "Base Standard" }],
+                },
+                materialization: {
+                  generatedModRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+                },
+              },
+            })
+          ),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({ requestId: "run-setup-taxonomy-private" }))
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("failed");
+
+    const status = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const current = await runtime.runPromise(service.operationsCurrent);
+    const publicPayloads = JSON.stringify([
+      status,
+      current,
+      events.filter((event) => event.type === "operation"),
+    ]);
+
+    expect(status).toMatchObject({
+      safeFailureCategory: "runtime-observation",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(publicPayloads).toContain("runtime-observation");
+    expect(publicPayloads).not.toMatch(
+      /generated-map-mod-not-enabled|activeTargetModSet|base-standard|mapScript|mod-swooper-studio-run|\/tmp\/Civ7/
+    );
+
+    const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
+    expect(diagnostics.sections.setupFailure).toMatchObject({
+      requestId: accepted.requestId,
+      setupFailureReason: "generated-map-mod-not-enabled",
+      activeTargetModSet: {
+        available: true,
+        identityAvailable: true,
+        truncated: false,
+        mods: [{ id: "base-standard" }],
+      },
+    });
+  });
+
+  test.each([
+    {
+      requestId: "run-setup-timeout-private",
+      setupFailureReason: "setup-read-timeout",
+      directControlCode: "setup-apply-timeout",
+    },
+    {
+      requestId: "run-tuner-unavailable-private",
+      setupFailureReason: "tuner-unavailable",
+      directControlCode: "connection-failed",
+    },
+    {
+      requestId: "run-direct-control-command-private",
+      setupFailureReason: "direct-control-command-failed",
+      directControlCode: "unexpected-command-failed",
+    },
+  ])(
+    "keeps $setupFailureReason private while public Run in Game status is safe",
+    async ({ directControlCode, requestId, setupFailureReason }) => {
+      const { runtime } = makeRuntime({
+        civ7: {
+          prepareSetup: () =>
+            Effect.fail(
+              dependencyUnavailable({
+                message: "Civ7 setup control is unavailable",
+                dependency: "direct-control",
+                directControlCode,
+                diagnostics: {
+                  code: setupFailureReason,
+                  setupFailureReason,
+                  directControlCode,
+                },
+              })
+            ),
+        },
+      });
+      const service = await runtime.runPromise(StudioOperationRuntime);
+
+      const accepted = await runtime.runPromise(
+        service.runInGameStart(runInGameInput({ requestId }))
+      );
+      await expect
+        .poll(async () => {
+          const status = await runtime.runPromise(
+            service.runInGameStatus({ requestId: accepted.requestId })
+          );
+          return status.status;
+        })
+        .toBe("failed");
+
+      const status = await runtime.runPromise(
+        service.runInGameStatus({ requestId: accepted.requestId })
+      );
+      expect(status).toMatchObject({
+        safeFailureCategory: "runtime-control",
+        diagnosticsId: accepted.diagnosticsId,
+      });
+      expect(JSON.stringify(status)).not.toContain(setupFailureReason);
+
+      const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
+      expect(diagnostics.sections.setupFailure).toMatchObject({
+        setupFailureReason,
+        directControlCode,
+      });
+    }
+  );
+
+  test("keeps setup-map-row-mismatched private while public Run in Game status is safe", async () => {
+    const { runtime } = makeRuntime({
+      civ7: {
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message:
+                "Civ7 selected a different setup map row than the generated Studio Run map.",
+              reason: "exact-authorship-mismatch",
+              diagnostics: {
+                code: "setup-map-row-mismatched",
+                setupFailureReason: "setup-map-row-mismatched",
+                mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+                observedMapScripts: ["{base-standard}/maps/continents.js"],
+              },
+            })
+          ),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({ requestId: "run-setup-mismatch-private" }))
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("failed");
+
+    const status = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const publicPayload = JSON.stringify(status);
+    expect(status).toMatchObject({
+      safeFailureCategory: "runtime-observation",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(publicPayload).not.toMatch(
+      /setup-map-row-mismatched|observedMapScripts|base-standard|mapScript|mod-swooper-studio-run/
+    );
+
+    const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
+    expect(diagnostics.sections.setupFailure).toMatchObject({
+      setupFailureReason: "setup-map-row-mismatched",
+      observedMapScripts: ["{base-standard}/maps/continents.js"],
+    });
   });
 
   test("maps Run in Game status misses to request-owned safe not-found failures", async () => {

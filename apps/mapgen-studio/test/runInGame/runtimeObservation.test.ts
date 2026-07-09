@@ -389,7 +389,9 @@ describe("Run in Game runtime observation", () => {
       tag: "ProofFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
-        code: "run-in-game-setup-row-readback-missing",
+        code: "setup-map-row-not-visible",
+        setupFailureReason: "setup-map-row-not-visible",
+        priorCode: "run-in-game-setup-row-readback-missing",
         missing: "rowProof",
       },
     });
@@ -411,7 +413,9 @@ describe("Run in Game runtime observation", () => {
       tag: "ProofFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
-        code: "run-in-game-setup-row-readback-missing",
+        code: "setup-map-row-not-visible",
+        setupFailureReason: "setup-map-row-not-visible",
+        priorCode: "run-in-game-setup-row-readback-missing",
         missing: "rowVisibility",
       },
     });
@@ -436,7 +440,9 @@ describe("Run in Game runtime observation", () => {
       tag: "ProofFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
-        code: "run-in-game-setup-row-readback-mismatch",
+        code: "setup-map-row-mismatched",
+        setupFailureReason: "setup-map-row-mismatched",
+        priorCode: "run-in-game-setup-row-readback-mismatch",
         expectedMapScript: "{mod-swooper-studio-run}/maps/run-test.js",
         observedMapScripts: ["{mod-swooper-studio-run}/maps/other-run.js"],
       },
