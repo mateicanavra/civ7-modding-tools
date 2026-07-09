@@ -93,6 +93,11 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 - Official game resources are maintained as a git submodule at `.civ7/outputs/resources` (published at `mateicanavra/civ7-official-resources`).
 - One-time + recurring workflow: see `docs/process/resources-submodule.md`.
 
+## Effect Source
+
+- `.repos/effect` is a source-only reference submodule; the Effect skill is supplied globally by RAWR HQ and must not be copied into Civ7.
+- Initialize and verify it with `bun run effect:init` and `bun run effect:status`; see `docs/process/effect-source-submodule.md`.
+
 ## Domain Routers
 
 - MapGen / Swooper Maps mod: `mods/mod-swooper-maps/AGENTS.md`, `docs/system/mods/swooper-maps/`, `docs/system/libs/mapgen/`.
