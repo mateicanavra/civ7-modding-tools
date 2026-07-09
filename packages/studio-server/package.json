@@ -34,6 +34,7 @@
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@civ7/studio-contract": "workspace:*",
+    "@civ7/studio-run-workspace": "workspace:*",
     "@standard-schema/spec": "^1.1.0",
     "typebox": "^1.0.80",
     "@orpc/client": "1.14.6",

@@ -1,0 +1,44 @@
+
+ NX   Running target check for project mapgen-studio-ui and 2 tasks it depends on:
+
+
+
+> nx run studio-contract:check
+
+(node:85770) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsc -p tsconfig.json --noEmit[0m
+
+> nx run studio-contract:build
+
+(node:85769) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
+(node:85925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 70.27 KB
+ESM ⚡️ Build success in 64ms
+(node:85925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 10422ms
+DTS dist/index.d.ts 600.14 KB
+
+> nx run mapgen-studio-ui:check
+
+(node:86517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit[0m
+
+
+
+ NX   Successfully ran target check for project mapgen-studio-ui and 2 tasks it depends on
+
+

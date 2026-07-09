@@ -12,14 +12,17 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "standard recipe stage root files that are not the authoring owner shape: createStage must be present, imports must be from stage rails or domain model/artifact surfaces, and operation contract internals must not be mirrored into stage authoring",
-  "why": "A recipe stage root index.ts is the authoring surface. Public schema, knobs, compile mapping, and step selection belong at that surface; domain modules provide reusable model schemas, model policy, artifact contracts, and public domain surfaces. Stage-local public-config, knobs, and binding helper files are topology residue, not extra authority.",
-  "remediate": "Inline stage authoring schema/knob/compile surfaces into the owning stage index.ts, move reusable primitives to domain model/schemas or model/policy, and stop mirroring operation input/output/config/strategy members in stage authoring.",
+  "forbids": "standard recipe stage root files that are not the authoring owner shape: createStage must be present, imports must be from stage rails, standard public-config rails, or domain model/artifact surfaces, and operation contract internals must not be mirrored into stage authoring",
+  "why": "A recipe stage root index.ts is the authoring surface for createStage and step selection. Shared standard-recipe public-config modules may own family-level schema and compile helpers when several stages consume the same authoring rail; domain modules provide reusable model schemas, model policy, artifact contracts, and public domain surfaces. Stage-local public-config, knobs, and binding helper files remain topology residue, not extra authority.",
+  "remediate": "Keep createStage and step selection in the owning stage index.ts, move genuinely shared standard recipe schema/compile helpers to root public-config rails, move reusable domain primitives to domain model/schemas or model/policy, and stop mirroring operation input/output/config/strategy members in stage authoring.",
   "message": "Stage root index.ts must be the positive authoring owner shape.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/*-public-config.ts"
+      ]
     }
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],

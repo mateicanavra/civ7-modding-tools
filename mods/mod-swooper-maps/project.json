@@ -6,16 +6,7 @@
     "build": {
       "command": "tsup",
       "dependsOn": ["^build", "gen:maps"],
-      "inputs": [
-        "default",
-        "^default",
-        {
-          "env": "SWOOPER_STUDIO_RUN_ID"
-        },
-        {
-          "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
-        }
-      ],
+      "inputs": ["default", "^default"],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
@@ -24,8 +15,8 @@
     "build:studio-recipes": {
       "command": "node -e \"\"",
       "cache": false,
-      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/src/maps/generated/**"],
-      "dependsOn": ["build:studio-recipes:maps"],
+      "outputs": ["{projectRoot}/dist/recipes/**"],
+      "dependsOn": ["gen:studio-recipes-types", "gen:studio-map-catalog"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -35,14 +26,23 @@
       "inputs": [
         "default",
         {
+          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
+        },
+        {
+          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
+        },
+        {
           "env": "SWOOPER_STUDIO_RUN_ID"
         },
         {
-          "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
-      "dependsOn": ["^build", "gen:maps"],
+      "dependsOn": ["^build", "gen:studio-deploy-map-artifacts"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -86,8 +86,20 @@
     "gen:map-artifacts": {
       "command": "bun ./scripts/generate-map-artifacts.ts",
       "dependsOn": [
-        "gen:studio-recipes-types",
-        "gen:configs:shape-check",
+        {
+          "projects": ["mapgen-core"],
+          "target": "build"
+        }
+      ],
+      "inputs": ["default", "^default"],
+      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "gen:studio-deploy-map-artifacts": {
+      "command": "bun ./scripts/generate-map-artifacts.ts --include-studio-deploy-config",
+      "dependsOn": [
         {
           "projects": ["mapgen-core"],
           "target": "build"
@@ -97,19 +109,22 @@
         "default",
         "^default",
         {
+          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
+        },
+        {
+          "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
+        },
+        {
           "env": "SWOOPER_STUDIO_RUN_ID"
         },
         {
-          "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
+        },
+        {
+          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
-      "outputs": [
-        "{projectRoot}/mod/**",
-        "{projectRoot}/src/maps/generated/**",
-        "{projectRoot}/dist/recipes/standard-map-config.schema.json",
-        "{projectRoot}/dist/recipes/standard-map-configs.js",
-        "{projectRoot}/dist/recipes/standard-map-configs.d.ts"
-      ],
+      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -118,13 +133,16 @@
       "command": "node -e \"\"",
       "dependsOn": ["gen:map-artifacts"],
       "cache": false,
-      "outputs": [
-        "{projectRoot}/mod/**",
-        "{projectRoot}/src/maps/generated/**",
-        "{projectRoot}/dist/recipes/standard-map-config.schema.json",
-        "{projectRoot}/dist/recipes/standard-map-configs.js",
-        "{projectRoot}/dist/recipes/standard-map-configs.d.ts"
-      ],
+      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "gen:run-manifest": {
+      "command": "bun ./scripts/generate-run-manifest.ts",
+      "dependsOn": ["build:studio-recipes:bundle", { "projects": ["civ7-sdk"], "target": "build" }],
+      "inputs": ["default", "^default", "{workspaceRoot}/packages/studio-run-workspace/src/**"],
+      "cache": false,
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -133,7 +151,7 @@
       "command": "tsup --config tsup.studio-recipes.config.ts",
       "dependsOn": ["^build"],
       "cache": true,
-      "outputs": ["{projectRoot}/dist/**"],
+      "outputs": ["{projectRoot}/dist/recipes/standard.js"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -154,15 +172,26 @@
         "cwd": "mods/mod-swooper-maps"
       }
     },
-    "build:studio-recipes:maps": {
-      "command": "node -e \"\"",
-      "dependsOn": ["gen:map-artifacts"],
-      "cache": false,
+    "gen:studio-map-catalog": {
+      "command": "bun ./scripts/generate-studio-map-catalog.ts",
+      "dependsOn": [
+        {
+          "projects": ["mapgen-core"],
+          "target": "build"
+        }
+      ],
+      "inputs": [
+        "default",
+        "^default",
+        "{projectRoot}/src/maps/catalog/index.ts",
+        "{projectRoot}/src/maps/catalog/sourceIndex.ts",
+        "{projectRoot}/src/maps/catalog/sources.ts"
+      ],
+      "cache": true,
       "outputs": [
         "{projectRoot}/dist/recipes/standard-map-config.schema.json",
         "{projectRoot}/dist/recipes/standard-map-configs.js",
-        "{projectRoot}/dist/recipes/standard-map-configs.d.ts",
-        "{projectRoot}/src/maps/generated/**"
+        "{projectRoot}/dist/recipes/standard-map-configs.d.ts"
       ],
       "options": {
         "cwd": "mods/mod-swooper-maps"

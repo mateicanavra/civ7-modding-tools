@@ -1,3 +1,4 @@
+import { writeStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { Context, Effect, Layer } from "effect";
 
 import type { StudioInputs } from "../context.js";
@@ -10,7 +11,7 @@ import {
 import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
 import type {
   RunInGameDeployment,
-  RunInGameMaterialized,
+  RunInGameGeneratedMod,
   RunInGamePreparedRequest,
   RunInGameRestartResult,
   StudioWorkflowPorts,
@@ -51,9 +52,9 @@ function makeRunInGameWorkflow(
     civ7: Civ7WorkflowControlApi;
   }>
 ): RunInGameWorkflowApi {
-  const tryPromise = <A>(try_: () => Promise<A>) =>
+  const tryPromise = <A>(try_: (signal: AbortSignal) => Promise<A>) =>
     Effect.tryPromise({
-      try: try_,
+      try: (signal) => try_(signal),
       catch: (err) => err,
     });
 
@@ -62,7 +63,10 @@ function makeRunInGameWorkflow(
     deployment: RunInGameDeployment
   ): Effect.Effect<RunInGameRestartResult, unknown> => {
     return Effect.gen(function* () {
-      yield* workflow.transitions.transition({ phase: "restarting-civ" });
+      yield* workflow.transitions.transition({
+        phase: "restarting-civ",
+        ...deploymentEvidence(deployment),
+      });
       return yield* tryPromise(
         () =>
           args.ports.restartCivForRunInGame?.({
@@ -82,19 +86,35 @@ function makeRunInGameWorkflow(
     }
     return restartCiv(workflow, deployment);
   };
+  const deploymentEvidence = (deployment: RunInGameDeployment) => ({
+    deploymentEvidence: {
+      runDeployment: deployment.runDeployment,
+      deployedSnapshot: deployment.deployedSnapshot,
+    },
+  });
 
   return {
     start: (workflow) =>
       Effect.gen(function* () {
         let phase: RunInGameFailurePhase = "materializing";
-        let materialized: RunInGameMaterialized = {};
-        let cleanupAttempted = false;
-        const cleanupMaterialized = (failure?: unknown) => {
-          if (cleanupAttempted || materialized.cleanup === undefined) return Effect.void;
-          return Effect.sync(() => {
-            cleanupAttempted = true;
-          }).pipe(
-            Effect.flatMap(() => tryPromise(() => materialized.cleanup?.() ?? Promise.resolve())),
+        let generatedMod: RunInGameGeneratedMod | undefined;
+        let cleanup: (() => Promise<void>) | undefined;
+        let cleanupPromise: Promise<void> | undefined;
+        let generationPromise: Promise<RunInGameGeneratedMod> | undefined;
+        let deploymentPromise: Promise<RunInGameDeployment> | undefined;
+        let deploymentSettled = false;
+        let generationRejected = false;
+        const rememberGeneratedMod = (next: RunInGameGeneratedMod): RunInGameGeneratedMod => {
+          generatedMod = next;
+          if (next.cleanup !== undefined) cleanup = next.cleanup;
+          return next;
+        };
+        const runCleanupOnce = (
+          cleanupToRun: () => Promise<void>,
+          failure?: unknown
+        ): Effect.Effect<void, unknown> => {
+          const run = () => (cleanupPromise ??= Promise.resolve().then(cleanupToRun));
+          return tryPromise(run).pipe(
             Effect.mapError((err) =>
               runInGameCleanupFailure({
                 err,
@@ -104,37 +124,128 @@ function makeRunInGameWorkflow(
             )
           );
         };
-        const work = Effect.gen(function* () {
-          yield* workflow.transitions.transition({ phase });
-          materialized = yield* tryPromise(() =>
-            args.ports.materializeRunInGame({
-              requestId: workflow.requestId,
-              input: workflow.input,
-              prepared: workflow.prepared,
+        const cleanupGeneratedMod = (failure?: unknown): Effect.Effect<void, unknown> => {
+          const waitForDeployment = (() => {
+            if (deploymentPromise === undefined || deploymentSettled) return Effect.void;
+            const pendingDeployment = deploymentPromise;
+            return tryPromise(async () => {
+              try {
+                await pendingDeployment;
+              } catch {
+                // Cancellation cleanup only needs the shared deploy copy/snapshot
+                // section to settle before the runtime lease can be released.
+              }
+            });
+          })();
+          return waitForDeployment.pipe(
+            Effect.flatMap(() => {
+              if (cleanup !== undefined) return runCleanupOnce(cleanup, failure);
+              if (generationPromise === undefined) return Effect.void;
+              if (generationRejected) return Effect.void;
+              const pendingGeneration = generationPromise;
+              return tryPromise(async () => {
+                try {
+                  return await pendingGeneration;
+                } catch {
+                  generationRejected = true;
+                  return undefined;
+                }
+              }).pipe(
+                Effect.map((next) => (next === undefined ? undefined : rememberGeneratedMod(next))),
+                Effect.flatMap((next) =>
+                  next?.cleanup === undefined ? Effect.void : runCleanupOnce(next.cleanup, failure)
+                )
+              );
             })
           );
-          if (materialized.materialization) {
-            yield* workflow.transitions.transition({
-              phase,
-              materialization: materialized.materialization,
-            });
+        };
+        const work = Effect.gen(function* () {
+          yield* workflow.transitions.registerCleanup(() => cleanupGeneratedMod());
+          const generationManifest = yield* tryPromise((signal) =>
+            writeStudioRunGenerationManifest({
+              manifestInput: {
+                requestId: workflow.requestId,
+                request: {
+                  recipeId: workflow.prepared.request.recipeId,
+                  seed: workflow.prepared.request.seed,
+                  mapSize: workflow.prepared.request.mapSize,
+                  ...(workflow.prepared.request.playerCount === undefined
+                    ? {}
+                    : { playerCount: workflow.prepared.request.playerCount }),
+                  ...(workflow.prepared.request.resources === undefined
+                    ? {}
+                    : { resources: workflow.prepared.request.resources }),
+                  selectedConfigId: workflow.prepared.request.selectedConfigId,
+                  setupConfig: workflow.prepared.request.setupConfig,
+                  materializationMode: workflow.prepared.request.materializationMode,
+                  ...(workflow.prepared.request.restartCivProcess === undefined
+                    ? {}
+                    : { restartCivProcess: workflow.prepared.request.restartCivProcess }),
+                },
+                resolvedLaunchSource: workflow.prepared.resolvedLaunchSource,
+                launchEnvelope: workflow.prepared.launchEnvelope,
+                launchSourceDigest: workflow.prepared.launchSourceDigest,
+                launchEnvelopeDigest: workflow.prepared.launchEnvelopeDigest,
+              },
+              workspaceRoot: args.ports.runInGameWorkspaceRoot,
+              signal,
+            })
+          );
+          yield* workflow.transitions.transition({ phase: "materializing", generationManifest });
+          const generated = yield* tryPromise((signal) => {
+            generationPromise = Promise.resolve()
+              .then(() =>
+                args.ports.generateRunInGameMod({
+                  generationManifest,
+                  signal,
+                })
+              )
+              .catch((err) => {
+                generationRejected = true;
+                throw err;
+              });
+            void generationPromise.catch(() => undefined);
+            return generationPromise;
+          }).pipe(
+            Effect.tapError(() =>
+              Effect.sync(() => {
+                generationRejected = true;
+              })
+            ),
+            Effect.map(rememberGeneratedMod)
+          );
+          if (generated.cleanup !== undefined) {
+            cleanup = generated.cleanup;
           }
+          yield* workflow.transitions.transition({
+            phase: "materializing",
+            materialization: generated.materialization,
+          });
 
           phase = "deploying";
           yield* workflow.transitions.transition({
             phase,
-            materialization: materialized.materialization,
+            materialization: generated.materialization,
           });
-          const deployment = yield* tryPromise(() =>
-            args.ports.deployRunInGame({
-              requestId: workflow.requestId,
-              prepared: workflow.prepared,
-              materialized,
-            })
-          );
+          const deployment = yield* tryPromise((signal) => {
+            deploymentPromise = Promise.resolve()
+              .then(() =>
+                args.ports.deployRunInGame({
+                  requestId: workflow.requestId,
+                  prepared: workflow.prepared,
+                  generatedMod: generated,
+                  signal,
+                })
+              )
+              .finally(() => {
+                deploymentSettled = true;
+              });
+            return deploymentPromise;
+          });
           yield* workflow.transitions.transition({
             phase,
-            materialization: deployment.materialization ?? materialized.materialization,
+            materialization: deployment.materialization ?? generated.materialization,
+            ...deploymentEvidence(deployment),
           });
 
           if (workflow.prepared.request.restartCivProcess && args.ports.restartCivForRunInGame) {
@@ -144,7 +255,8 @@ function makeRunInGameWorkflow(
           phase = "checking-civ7";
           yield* workflow.transitions.transition({
             phase,
-            materialization: deployment.materialization ?? materialized.materialization,
+            materialization: deployment.materialization ?? generated.materialization,
+            ...deploymentEvidence(deployment),
             ...(restart.processRestart === undefined
               ? {}
               : { processRestart: restart.processRestart }),
@@ -156,7 +268,7 @@ function makeRunInGameWorkflow(
           });
 
           phase = "preparing-setup";
-          yield* workflow.transitions.transition({ phase });
+          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
           const setup = yield* args.civ7
             .prepareSetup({
               requestId: workflow.requestId,
@@ -170,13 +282,17 @@ function makeRunInGameWorkflow(
                 }
                 return Effect.gen(function* () {
                   phase = "reload-needed";
-                  yield* workflow.transitions.transition({ phase });
+                  yield* workflow.transitions.transition({
+                    phase,
+                    ...deploymentEvidence(deployment),
+                  });
                   phase = "restarting-civ";
                   restart = yield* restartCiv(workflow, deployment);
                   phase = "checking-civ7";
                   yield* workflow.transitions.transition({
                     phase,
-                    materialization: deployment.materialization ?? materialized.materialization,
+                    materialization: deployment.materialization ?? generated.materialization,
+                    ...deploymentEvidence(deployment),
                     ...(restart.processRestart === undefined
                       ? {}
                       : { processRestart: restart.processRestart }),
@@ -187,7 +303,10 @@ function makeRunInGameWorkflow(
                     deployment,
                   });
                   phase = "preparing-setup";
-                  yield* workflow.transitions.transition({ phase });
+                  yield* workflow.transitions.transition({
+                    phase,
+                    ...deploymentEvidence(deployment),
+                  });
                   return yield* args.civ7.prepareSetup({
                     requestId: workflow.requestId,
                     prepared: workflow.prepared,
@@ -198,11 +317,11 @@ function makeRunInGameWorkflow(
             );
           if (setup.reloadRequired) {
             phase = "reload-needed";
-            yield* workflow.transitions.transition({ phase });
+            yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
           }
 
           phase = "starting-game";
-          yield* workflow.transitions.transition({ phase });
+          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
           const started = yield* args.civ7.startGame({
             requestId: workflow.requestId,
             prepared: workflow.prepared,
@@ -211,7 +330,7 @@ function makeRunInGameWorkflow(
           });
 
           phase = "waiting-for-proof";
-          yield* workflow.transitions.transition({ phase });
+          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
           const log = yield* tryPromise(() =>
             args.ports.waitForRunInGameLogProof({
               requestId: workflow.requestId,
@@ -219,6 +338,17 @@ function makeRunInGameWorkflow(
               deployment,
               setup,
               started,
+            })
+          );
+          const observation = yield* tryPromise((signal) =>
+            args.ports.observeRunInGameRuntime({
+              requestId: workflow.requestId,
+              prepared: workflow.prepared,
+              deployment,
+              setup,
+              started,
+              log,
+              signal,
             })
           );
           const proof = yield* tryPromise(() =>
@@ -229,14 +359,17 @@ function makeRunInGameWorkflow(
               setup,
               started,
               log,
+              observation,
             })
           );
-          yield* cleanupMaterialized();
+          yield* cleanupGeneratedMod();
           yield* workflow.transitions.transition({
             phase: "complete",
             result: proof.result ?? { ok: true },
             materialization:
-              proof.materialization ?? deployment.materialization ?? materialized.materialization,
+              proof.materialization ?? deployment.materialization ?? generated.materialization,
+            ...deploymentEvidence(deployment),
+            runtimeObservation: observation,
             ...(proof.exactAuthorshipProof === undefined
               ? {}
               : { exactAuthorshipProof: proof.exactAuthorshipProof }),
@@ -245,12 +378,12 @@ function makeRunInGameWorkflow(
 
         yield* work.pipe(
           Effect.catchAll((err) =>
-            cleanupMaterialized(err).pipe(
+            cleanupGeneratedMod(err).pipe(
               Effect.flatMap(() => workflow.transitions.fail({ phase, err })),
               Effect.catchAll((cleanupErr) => workflow.transitions.fail({ phase, err: cleanupErr }))
             )
           ),
-          Effect.ensuring(cleanupMaterialized().pipe(Effect.catchAll(() => Effect.void)))
+          Effect.ensuring(cleanupGeneratedMod().pipe(Effect.catchAll(() => Effect.void)))
         );
       }).pipe(Effect.catchAll(() => Effect.void)),
   };

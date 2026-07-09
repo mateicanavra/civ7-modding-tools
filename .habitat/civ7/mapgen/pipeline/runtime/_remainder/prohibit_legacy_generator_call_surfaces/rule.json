@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_legacy_generator_call_surfaces",
+  "title": "Prohibit Legacy Generator Call Surfaces",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_remainder",
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "legacy official generator call tokens in hydrology and placement planning surfaces",
+  "why": "The command-check split corpus keeps legacy generator call bans as structural Grit authority; this packet isolates call tokens from module path tokens so Grit remains bounded.",
+  "remediate": "Remove legacy generator calls or explicitly reclassify the invariant before changing this check.",
+  "message": "MapGen hydrology or placement planning source contains a forbidden legacy generator call.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/placement/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/placement/**/*.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes",
+    "mods/mod-swooper-maps/src/domain/placement",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/placement"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_legacy_generator_call_surfaces/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_legacy_generator_call_surfaces/pattern.md"
+    },
+    "patternName": "prohibit_legacy_generator_call_surfaces"
+  }
+}

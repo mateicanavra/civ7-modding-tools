@@ -1,9 +1,18 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type { StudioOperationsCurrent } from "@civ7/studio-contract";
-import { type RunInGameRequestStatus, validateRunInGameSetupConfig } from "@civ7/studio-contract";
-import { Context, Effect, FiberSet, Layer, type Scope } from "effect";
+import {
+  type MapConfigSaveDeployStatus,
+  type RunInGameRequestStatus,
+  validateRunInGameSetupConfig,
+} from "@civ7/studio-contract";
+import { Context, Effect, Fiber, FiberSet, Layer, type Scope } from "effect";
 import type { StudioInputs, StudioOutputs } from "../context.js";
-import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
+import {
+  dependencyUnavailable,
+  invalidRequest,
+  runtimeDisposed,
+  type StudioRuntimeFailure,
+} from "../errors/index.js";
 import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
 import { StudioEventHub } from "../services/StudioEventHub.js";
 import {
@@ -16,31 +25,57 @@ import {
   RunInGameWorkflow,
   SaveDeployWorkflow,
 } from "../workflows/index.js";
+import { lookupRunDiagnostics, writeRunDiagnostics } from "./diagnostics.js";
 import { createStudioOperationId } from "./ids.js";
+import {
+  resolveRunInGameLaunchSource,
+  sourceSnapshotFromLaunchResolution,
+} from "./launchSource.js";
+import type { RunInGameInternalOperation, SaveDeployInternalOperation } from "./model.js";
+import {
+  acquireRuntimeDaemonHeartbeat,
+  acquireRuntimeOwnershipLease,
+  attachRuntimeOwnershipLeaseDeployment,
+  isRuntimeOperationTerminal,
+  operationFromAbandonedRecord,
+  type RuntimeOwnershipLease,
+  readAbandonedRunOperationRecords,
+  releaseRuntimeOwnershipLease,
+  releaseRuntimeOwnershipLeaseForRecord,
+  releaseStaleRuntimeOwnershipLease,
+  writeRunOperationRecord,
+} from "./operationRecords.js";
 import type {
+  CanonicalRunInGameRequest,
   RunInGamePreparedRequest,
   StudioDaemonIdentity,
   StudioOperationRuntimePorts,
 } from "./ports.js";
 import { operationEvent, projectCurrent } from "./projection.js";
 import {
+  type Admission,
   admitRunInGame,
   admitSaveDeploy,
+  adoptRunInGameOperations,
+  cancelRunInGame,
   ensureAdmissionOpen,
-  ensureRuntimeOpen,
-  failRunInGame,
+  failRunInGameMutation,
   failSaveDeploy,
   getRunInGame,
   getSaveDeploy,
   getState,
+  lookupSaveDeployAdmission,
   makeRegistry,
   markDisposed,
+  markRunInGameCancellationCleanupFailure,
+  markRunInGameDiagnosticsAvailable,
+  type RunInGameMutation,
   type RunInGameTransition,
   type SaveDeployTransition,
-  transitionRunInGame,
+  transitionRunInGameMutation,
   transitionSaveDeploy,
 } from "./registry.js";
-import { buildStandardRunInGameSourceSnapshotProof } from "./sourceSnapshot.js";
+import { buildRunInGameSourceSnapshotProof } from "./sourceSnapshot.js";
 
 export interface StudioOperationRuntimeApi {
   readonly identity: StudioDaemonIdentity;
@@ -50,6 +85,12 @@ export interface StudioOperationRuntimeApi {
   readonly runInGameStatus: (
     input: StudioInputs["runInGame"]["status"]
   ) => Effect.Effect<StudioOutputs["runInGame"]["status"], StudioRuntimeFailure>;
+  readonly runInGameCancel: (
+    input: StudioInputs["runInGame"]["cancel"]
+  ) => Effect.Effect<StudioOutputs["runInGame"]["cancel"], StudioRuntimeFailure>;
+  readonly runInGameDiagnostics: (
+    input: StudioInputs["runInGame"]["diagnostics"]
+  ) => Effect.Effect<StudioOutputs["runInGame"]["diagnostics"], never>;
   readonly saveDeployStart: (
     input: StudioInputs["mapConfigs"]["saveDeploy"]
   ) => Effect.Effect<StudioOutputs["mapConfigs"]["saveDeploy"], StudioRuntimeFailure>;
@@ -65,6 +106,19 @@ export interface StudioOperationRuntimeApi {
 export class StudioOperationRuntime extends Context.Tag(
   "@civ7/studio-server/StudioOperationRuntime"
 )<StudioOperationRuntime, StudioOperationRuntimeApi>() {}
+
+type RuntimeEventOperation = RunInGameInternalOperation | SaveDeployInternalOperation;
+
+type SaveDeployAdmissionResult =
+  | Readonly<{
+      kind: "existing";
+      admitted: Extract<Admission<MapConfigSaveDeployStatus>, { kind: "existing" }>;
+    }>
+  | Readonly<{
+      kind: "new";
+      admitted: Admission<MapConfigSaveDeployStatus, SaveDeployInternalOperation>;
+      lease: RuntimeOwnershipLease;
+    }>;
 
 type StudioOperationRuntimeLayerBaseArgs = Readonly<{
   ports: StudioOperationRuntimePorts;
@@ -118,28 +172,94 @@ function makeStudioOperationRuntime(
     const nextRuntimeId = (prefix: string) =>
       createStudioOperationId({ prefix, nowMs: nowMs(), sequence: ++idSequence });
     const identity = {
-      serverInstanceId: nextRuntimeId("studio-server"),
+      serverInstanceId: `${nextRuntimeId("studio-server")}-${randomUUID()}`,
       serverStartedAt: nowIso(),
     };
+    const runInGameWorkspaceRoot = args.ports.runInGameWorkspaceRoot;
     const registry = yield* makeRegistry(identity);
     const admissionGate = yield* Effect.makeSemaphore(1);
     const fibers = yield* FiberSet.make<void, never>();
+    const runInGameWorkerFibers = new Map<string, Fiber.RuntimeFiber<void, never>>();
+    const runInGameCleanup = new Map<string, () => Effect.Effect<void, unknown>>();
     const runInGameWorkflow = yield* RunInGameWorkflow;
     const saveDeployWorkflow = yield* SaveDeployWorkflow;
     const autoplayWorkflow = yield* AutoplayWorkflow;
     const eventHub = yield* StudioEventHub;
+    yield* acquireRuntimeDaemonHeartbeat({
+      workspaceRoot: runInGameWorkspaceRoot,
+      identity,
+    });
 
-    const publish = (operation: Parameters<typeof operationEvent>[0]) =>
-      eventHub.publish(operationEvent(operation)).pipe(
-        Effect.catchAll((error) =>
-          Effect.sync(() => {
-            console.error("[studio-server] failed to publish operation event", error);
-          })
-        )
-      );
+    const releaseTerminalLease = (operation: RuntimeEventOperation): Effect.Effect<void, never> => {
+      if (!isRuntimeOperationTerminal(operation)) return Effect.void;
+      return releaseRuntimeOwnershipLease({
+        workspaceRoot: runInGameWorkspaceRoot,
+        leaseId: operation.leaseId,
+        requestId: operation.requestId,
+      });
+    };
 
-    const publishMany = (operations: ReadonlyArray<Parameters<typeof operationEvent>[0]>) =>
+    const persistedOperation = (
+      operation: RuntimeEventOperation
+    ): Effect.Effect<RuntimeEventOperation, never> =>
+      operation.kind !== "run-in-game"
+        ? releaseTerminalLease(operation).pipe(Effect.as(operation))
+        : writeRunDiagnostics(operation, { workspaceRoot: runInGameWorkspaceRoot }).pipe(
+            Effect.flatMap(() =>
+              markRunInGameDiagnosticsAvailable(
+                registry,
+                operation.requestId,
+                operation.operationRevision
+              )
+            ),
+            Effect.flatMap((marked) =>
+              writeRunOperationRecord(marked ?? operation, identity, {
+                workspaceRoot: runInGameWorkspaceRoot,
+              }).pipe(Effect.as(marked ?? operation))
+            ),
+            Effect.tap(releaseTerminalLease),
+            Effect.catchAll((error) =>
+              Effect.sync(() => {
+                console.error("[studio-server] failed to persist run diagnostics", error);
+                return operation;
+              }).pipe(Effect.tap(releaseTerminalLease))
+            )
+          );
+
+    const publish = (operation: RuntimeEventOperation): Effect.Effect<void, never> =>
+      Effect.gen(function* () {
+        const availableOperation = yield* persistedOperation(operation);
+        yield* eventHub.publish(operationEvent(availableOperation)).pipe(
+          Effect.catchAll((error) =>
+            Effect.sync(() => {
+              console.error("[studio-server] failed to publish operation event", error);
+            })
+          )
+        );
+      });
+
+    const publishMany = (operations: ReadonlyArray<RuntimeEventOperation>) =>
       Effect.all(operations.map(publish), { discard: true });
+
+    const attachRunDeploymentLeaseEvidence = (
+      operation: RunInGameInternalOperation
+    ): Effect.Effect<RunInGameInternalOperation, StudioRuntimeFailure> => {
+      if (operation.status !== "running") {
+        return Effect.succeed(operation);
+      }
+      if (operation.deploymentEvidence === undefined) {
+        return isPostDeployRunPhase(operation.phase)
+          ? Effect.fail(missingRunDeploymentEvidence(operation))
+          : Effect.succeed(operation);
+      }
+      return attachRuntimeOwnershipLeaseDeployment({
+        workspaceRoot: runInGameWorkspaceRoot,
+        leaseId: operation.leaseId,
+        requestId: operation.requestId,
+        deployedModId: operation.deploymentEvidence.runDeployment.deployedModId,
+        nowIso: operation.updatedAt,
+      }).pipe(Effect.as(operation));
+    };
 
     const dispose = markDisposed(
       registry,
@@ -150,8 +270,115 @@ function makeStudioOperationRuntime(
       })
     ).pipe(Effect.flatMap(publishMany));
 
+    yield* releaseStaleRuntimeOwnershipLease({
+      workspaceRoot: runInGameWorkspaceRoot,
+      identity,
+    });
+    const abandonedRecords = yield* readAbandonedRunOperationRecords({
+      workspaceRoot: runInGameWorkspaceRoot,
+      identity,
+    });
+    if (abandonedRecords.length > 0) {
+      const abandonedOperations = abandonedRecords.map((record) =>
+        operationFromAbandonedRecord(record, nowIso())
+      );
+      yield* Effect.all(
+        abandonedRecords.map((record) =>
+          releaseRuntimeOwnershipLeaseForRecord({
+            workspaceRoot: runInGameWorkspaceRoot,
+            record,
+          })
+        ),
+        { discard: true }
+      );
+      yield* adoptRunInGameOperations(registry, abandonedOperations).pipe(
+        Effect.flatMap(publishMany)
+      );
+    }
+
     const runWorker = (effect: Effect.Effect<void, never>) =>
       FiberSet.run(fibers, effect, { propagateInterruption: false }).pipe(Effect.asVoid);
+
+    const runTrackedRunInGameWorker = (
+      requestId: string,
+      effect: Effect.Effect<void, never>
+    ): Effect.Effect<void, never> =>
+      FiberSet.run(fibers, effect, { propagateInterruption: false }).pipe(
+        Effect.tap((fiber) =>
+          Effect.sync(() => {
+            runInGameWorkerFibers.set(requestId, fiber);
+            fiber.addObserver(() => {
+              if (runInGameWorkerFibers.get(requestId) === fiber) {
+                runInGameWorkerFibers.delete(requestId);
+              }
+            });
+          })
+        ),
+        Effect.asVoid
+      );
+
+    const publishRunMutation = (
+      mutation: RunInGameMutation
+    ): Effect.Effect<void, StudioRuntimeFailure> => {
+      if (mutation.kind !== "changed") return Effect.void;
+      if (mutation.operation.status === "cancelled") return Effect.void;
+      return attachRunDeploymentLeaseEvidence(mutation.operation).pipe(
+        Effect.flatMap((operation) => {
+          const cleanupTerminalHandle =
+            operation.status === "running"
+              ? Effect.void
+              : Effect.sync(() => {
+                  runInGameCleanup.delete(operation.requestId);
+                });
+          return publish(operation).pipe(Effect.zipRight(cleanupTerminalHandle));
+        })
+      );
+    };
+
+    const recordRunInGameCleanupFailure = (
+      requestId: string,
+      operationRevision: number,
+      err: unknown
+    ): Effect.Effect<void, never> =>
+      markRunInGameCancellationCleanupFailure({
+        registry,
+        requestId,
+        operationRevision,
+        nowIso: nowIso(),
+        err,
+      }).pipe(
+        Effect.asVoid,
+        Effect.catchAll(() =>
+          Effect.sync(() => {
+            console.error(
+              "[studio-server] failed to record cancelled Run in Game cleanup failure",
+              err
+            );
+          })
+        )
+      );
+
+    const fallbackCleanupRunInGame = (
+      requestId: string,
+      operationRevision: number
+    ): Effect.Effect<void, never> => {
+      const cleanup = runInGameCleanup.get(requestId);
+      if (cleanup === undefined) return Effect.void;
+      return cleanup().pipe(
+        Effect.catchAll((err) => recordRunInGameCleanupFailure(requestId, operationRevision, err))
+      );
+    };
+
+    const interruptRunInGameForCancel = (
+      requestId: string,
+      operationRevision: number
+    ): Effect.Effect<void, never> => {
+      const fiber = runInGameWorkerFibers.get(requestId);
+      if (fiber === undefined) return fallbackCleanupRunInGame(requestId, operationRevision);
+      return Fiber.interruptFork(fiber).pipe(
+        Effect.zipRight(fallbackCleanupRunInGame(requestId, operationRevision))
+      );
+    };
 
     const runInGameWorker = (
       requestId: string,
@@ -164,14 +391,27 @@ function makeStudioOperationRuntime(
         prepared,
         transitions: {
           transition: (transition) => transitionRun(requestId, transition).pipe(Effect.asVoid),
+          registerCleanup: (cleanup) =>
+            Effect.sync(() => {
+              runInGameCleanup.set(requestId, cleanup);
+            }),
           fail: ({ phase, err }) =>
-            failRunInGame({
+            failRunInGameMutation({
               registry,
               requestId,
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publish), Effect.asVoid),
+            }).pipe(
+              Effect.flatMap(publishRunMutation),
+              Effect.catchAll((publishErr) =>
+                Effect.sync(() => {
+                  console.error("[studio-server] failed to publish Run in Game failure", publishErr);
+                })
+              ),
+              Effect.uninterruptible,
+              Effect.asVoid
+            ),
         },
       });
 
@@ -188,47 +428,95 @@ function makeStudioOperationRuntime(
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publish), Effect.asVoid),
+            }).pipe(Effect.flatMap(publish), Effect.uninterruptible, Effect.asVoid),
         },
       });
 
     const transitionRun = (requestId: string, transition: RunInGameTransition) =>
-      transitionRunInGame({ registry, requestId, nowIso: nowIso(), transition }).pipe(
-        Effect.flatMap(publish)
+      transitionRunInGameMutation({ registry, requestId, nowIso: nowIso(), transition }).pipe(
+        Effect.flatMap(publishRunMutation),
+        Effect.uninterruptible
       );
 
     const transitionSave = (requestId: string, transition: SaveDeployTransition) =>
       transitionSaveDeploy({ registry, requestId, nowIso: nowIso(), transition }).pipe(
-        Effect.flatMap(publish)
+        Effect.flatMap(publish),
+        Effect.uninterruptible
+      );
+
+    const runInGameInternalForPublish = (
+      requestId: string,
+      fallback: RunInGameInternalOperation
+    ): Effect.Effect<RunInGameInternalOperation, never> =>
+      getState(registry, nowMs(), nowIso(), args.ttlMs).pipe(
+        Effect.map((state) => state.runInGame[requestId] ?? fallback)
       );
 
     const api: StudioOperationRuntimeApi = {
       identity,
       runInGameStart: (input) =>
         admissionGate.withPermits(1)(
-          Effect.gen(function* () {
-            const requestId = nextRuntimeId("studio-run-in-game");
-            yield* ensureRuntimeOpen({
-              registry,
-              nowMs: nowMs(),
-              nowIso: nowIso(),
-              ttlMs: args.ttlMs,
-            });
-            const prepared = yield* prepareRunInGameRequest(input, requestId);
-            const admitted = yield* admitRunInGame({
-              registry,
-              nowMs: nowMs(),
-              nowIso: nowIso(),
-              ttlMs: args.ttlMs,
-              requestId,
-              prepared,
-            });
-            if (admitted.admitted) {
-              if (admitted.eventOperation) yield* publish(admitted.eventOperation);
-              yield* runWorker(runInGameWorker(admitted.operation.requestId, input, prepared));
-            }
-            return admitted.operation;
-          })
+          Effect.uninterruptibleMask((restore) =>
+            Effect.gen(function* () {
+              const requestId = nextRuntimeId("studio-run-in-game");
+              yield* ensureAdmissionOpen({
+                registry,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+              });
+              const prepared = yield* prepareRunInGameRequest({
+                input,
+                requestId,
+                ports: args.ports,
+              });
+              const lease = yield* acquireRuntimeOwnershipLease({
+                workspaceRoot: runInGameWorkspaceRoot,
+                identity,
+                ownerKind: "run-in-game",
+                requestId,
+                nowIso: nowIso(),
+              });
+              const admitted = yield* admitRunInGame({
+                registry,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+                requestId,
+                leaseId: lease.leaseId,
+                prepared,
+              }).pipe(
+                Effect.catchAll((err) =>
+                  releaseRuntimeOwnershipLease({
+                    workspaceRoot: runInGameWorkspaceRoot,
+                    leaseId: lease.leaseId,
+                    requestId,
+                  }).pipe(Effect.flatMap(() => Effect.fail(err)))
+                )
+              );
+              if (admitted.kind === "admitted") {
+                yield* publish(admitted.eventOperation);
+                const publicOperation = yield* getRunInGame({
+                  registry,
+                  requestId: admitted.operation.requestId,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                });
+                yield* runTrackedRunInGameWorker(
+                  admitted.operation.requestId,
+                  restore(runInGameWorker(admitted.operation.requestId, input, prepared))
+                );
+                return publicOperation;
+              }
+              yield* releaseRuntimeOwnershipLease({
+                workspaceRoot: runInGameWorkspaceRoot,
+                leaseId: lease.leaseId,
+                requestId,
+              });
+              return admitted.operation;
+            })
+          )
         ),
       runInGameStatus: (input) =>
         getRunInGame({
@@ -238,24 +526,102 @@ function makeStudioOperationRuntime(
           nowIso: nowIso(),
           ttlMs: args.ttlMs,
         }),
-      saveDeployStart: (input) =>
-        Effect.gen(function* () {
-          const requestId = input.requestId ?? nextRuntimeId("studio-save-deploy");
-          const admitted = yield* admissionGate.withPermits(1)(
-            admitSaveDeploy({
-              registry,
-              nowMs: nowMs(),
-              nowIso: nowIso(),
-              ttlMs: args.ttlMs,
-              requestId,
+      runInGameCancel: (input) =>
+        admissionGate.withPermits(1)(
+          Effect.uninterruptibleMask(() =>
+            Effect.gen(function* () {
+              const cancellation = yield* cancelRunInGame({
+                registry,
+                requestId: input.requestId,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+              });
+              if (cancellation.kind === "existing") return cancellation.operation;
+              yield* interruptRunInGameForCancel(
+                input.requestId,
+                cancellation.eventOperation.operationRevision
+              );
+              const cancelled = yield* runInGameInternalForPublish(
+                input.requestId,
+                cancellation.eventOperation
+              );
+              yield* publish(cancelled);
+              yield* Effect.sync(() => {
+                runInGameCleanup.delete(input.requestId);
+              });
+              return yield* getRunInGame({
+                registry,
+                requestId: input.requestId,
+                nowMs: nowMs(),
+                nowIso: nowIso(),
+                ttlMs: args.ttlMs,
+              });
             })
-          );
-          if (admitted.admitted) {
-            if (admitted.eventOperation) yield* publish(admitted.eventOperation);
-            yield* runWorker(saveDeployWorker(admitted.operation.requestId, input));
-          }
-          return admitted.operation;
-        }),
+          )
+        ),
+      runInGameDiagnostics: (input) =>
+        lookupRunDiagnostics(input.diagnosticsId, { workspaceRoot: runInGameWorkspaceRoot }),
+      saveDeployStart: (input) =>
+        Effect.uninterruptibleMask((restore) =>
+          Effect.gen(function* () {
+            const requestId = input.requestId ?? nextRuntimeId("studio-save-deploy");
+            const admission = yield* admissionGate.withPermits(1)(
+              Effect.gen(function* () {
+                const existing = yield* lookupSaveDeployAdmission({
+                  registry,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                  requestId,
+                });
+                if (existing) return { kind: "existing", admitted: existing } as const;
+                yield* ensureAdmissionOpen({
+                  registry,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                });
+                const lease = yield* acquireRuntimeOwnershipLease({
+                  workspaceRoot: runInGameWorkspaceRoot,
+                  identity,
+                  ownerKind: "save-deploy",
+                  requestId,
+                  nowIso: nowIso(),
+                });
+                const admitted = yield* admitSaveDeploy({
+                  registry,
+                  nowMs: nowMs(),
+                  nowIso: nowIso(),
+                  ttlMs: args.ttlMs,
+                  requestId,
+                  leaseId: lease.leaseId,
+                }).pipe(
+                  Effect.catchAll((err) =>
+                    releaseRuntimeOwnershipLease({
+                      workspaceRoot: runInGameWorkspaceRoot,
+                      leaseId: lease.leaseId,
+                      requestId,
+                    }).pipe(Effect.flatMap(() => Effect.fail(err)))
+                  )
+                );
+                return { kind: "new", admitted, lease } as const;
+              })
+            );
+            const admitted = admission.admitted;
+            if (admitted.kind === "admitted") {
+              yield* publish(admitted.eventOperation);
+              yield* runWorker(restore(saveDeployWorker(admitted.operation.requestId, input)));
+            } else if (admission.kind === "new") {
+              yield* releaseRuntimeOwnershipLease({
+                workspaceRoot: runInGameWorkspaceRoot,
+                leaseId: admission.lease.leaseId,
+                requestId,
+              });
+            }
+            return admitted.operation;
+          })
+        ),
       saveDeployStatus: (input) =>
         getSaveDeploy({
           registry,
@@ -286,10 +652,41 @@ function makeStudioOperationRuntime(
   });
 }
 
+function isPostDeployRunPhase(phase: RunInGameInternalOperation["phase"]): boolean {
+  return (
+    phase === "restarting-civ" ||
+    phase === "checking-civ7" ||
+    phase === "reload-needed" ||
+    phase === "preparing-setup" ||
+    phase === "starting-game" ||
+    phase === "waiting-for-proof"
+  );
+}
+
+function missingRunDeploymentEvidence(
+  operation: RunInGameInternalOperation
+): StudioRuntimeFailure {
+  return dependencyUnavailable({
+    message: "Run in Game reached a post-deploy runtime phase without deployment evidence.",
+    dependency: "runtime",
+    diagnostics: {
+      code: "run-in-game-deployment-evidence-missing",
+      failedAtPhase: operation.phase,
+      requestId: operation.requestId,
+      leaseId: operation.leaseId,
+    },
+    recoveryActions: ["copy-diagnostics", "retry-run"],
+  });
+}
+
 function prepareRunInGameRequest(
-  input: StudioInputs["runInGame"]["start"],
-  requestId: string
+  args: Readonly<{
+    input: StudioInputs["runInGame"]["start"];
+    requestId: string;
+    ports: StudioOperationRuntimePorts;
+  }>
 ): Effect.Effect<RunInGamePreparedRequest, StudioRuntimeFailure> {
+  const { input, requestId, ports } = args;
   const rawControlField = findRawControlField(input);
   if (rawControlField !== undefined) {
     return Effect.fail(
@@ -302,17 +699,7 @@ function prepareRunInGameRequest(
       })
     );
   }
-  if (!isRecord(input.config)) {
-    return Effect.fail(
-      invalidRequest({
-        message: "Run in Game requires a sanitized config object.",
-        diagnostics: { code: "run-in-game-config-invalid" },
-      })
-    );
-  }
-  const selected = input.selectedConfig ?? {};
-  const materializationMode = input.materialization?.mode === "durable" ? "durable" : "disposable";
-  const seed = parseSeed(input.seed);
+  const seed = parseSeed(input.recipeSettings.seed);
   if (!seed.ok) {
     return Effect.fail(
       invalidRequest({
@@ -321,7 +708,10 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const mapSize = typeof input.mapSize === "string" ? input.mapSize : "MAPSIZE_STANDARD";
+  const mapSize =
+    typeof input.worldSettings.mapSize === "string"
+      ? input.worldSettings.mapSize
+      : "MAPSIZE_STANDARD";
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) {
     return Effect.fail(
       invalidRequest({
@@ -330,7 +720,10 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const playerCount = input.playerCount === undefined ? undefined : Number(input.playerCount);
+  const playerCount =
+    input.worldSettings.playerCount === undefined
+      ? undefined
+      : Number(input.worldSettings.playerCount);
   if (
     playerCount !== undefined &&
     (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)
@@ -342,7 +735,7 @@ function prepareRunInGameRequest(
       })
     );
   }
-  if (input.recipeId !== undefined && input.recipeId !== "mod-swooper-maps/standard") {
+  if (input.recipeSettings.recipe !== "mod-swooper-maps/standard") {
     return Effect.fail(
       invalidRequest({
         message: "Run in Game currently supports only mod-swooper-maps/standard",
@@ -359,47 +752,75 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const selectedConfigId =
-    materializationMode === "durable" &&
-    typeof selected.id === "string" &&
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
-      ? selected.id
-      : "studio-current";
-  const sourceSnapshot = buildStandardRunInGameSourceSnapshotProof({
-    requestId,
-    input,
-  });
-  const request: RunInGameRequestStatus = {
-    recipeId: input.recipeId ?? "mod-swooper-maps/standard",
-    seed: seed.value,
-    mapSize,
-    ...(playerCount === undefined ? {} : { playerCount }),
-    ...(typeof input.resources === "string" ? { resources: input.resources } : {}),
-    selectedConfigId,
-    setupConfig: setupConfig.value,
-    materializationMode,
-    ...(input.recovery?.restartCivProcess === true ? { restartCivProcess: true } : {}),
-    ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
-  };
-  const fingerprint = stableHash({
-    recipeId: request.recipeId,
-    seed: request.seed ?? null,
-    mapSize: request.mapSize ?? null,
-    playerCount: request.playerCount ?? null,
-    resources: request.resources ?? null,
-    selectedConfigId: request.selectedConfigId ?? null,
-    setupConfig: request.setupConfig ?? null,
-    materializationMode: request.materializationMode ?? null,
-    config: input.config ?? null,
-    sourceSnapshot: input.sourceSnapshot ?? null,
-  });
-  return Effect.succeed({
-    fingerprint,
-    request: {
-      ...request,
-      fingerprint,
+  return resolveRunInGameLaunchSource({
+    input: {
+      source: input.source,
+      recipeSettings: {
+        ...input.recipeSettings,
+        seed: seed.value,
+      },
+      worldSettings: {
+        mapSize,
+        ...(playerCount === undefined ? {} : { playerCount }),
+        ...(typeof input.worldSettings.resources === "string"
+          ? { resources: input.worldSettings.resources }
+          : {}),
+      },
+      setupConfig: setupConfig.value,
     },
-  });
+    ports,
+  }).pipe(
+    Effect.map((resolution) => {
+      const sourceSnapshot = buildRunInGameSourceSnapshotProof({
+        requestId,
+        sourceSnapshot: sourceSnapshotFromLaunchResolution(resolution),
+        configHash: resolution.launchSourceDigest.configContentDigest,
+        envelopeHash: resolution.launchEnvelopeDigest,
+      });
+      const request: CanonicalRunInGameRequest = {
+        recipeId: input.recipeSettings.recipe,
+        seed: seed.value,
+        mapSize,
+        ...(playerCount === undefined ? {} : { playerCount }),
+        ...(typeof input.worldSettings.resources === "string"
+          ? { resources: input.worldSettings.resources }
+          : {}),
+        selectedConfigId: resolution.selectedConfigId,
+        setupConfig: setupConfig.value,
+        materializationMode: resolution.materializationMode,
+        ...(input.recovery?.restartCivProcess === true ? { restartCivProcess: true } : {}),
+        ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
+        resolvedLaunchSource: resolution.resolvedLaunchSource,
+        launchEnvelope: resolution.launchEnvelope,
+        launchSourceDigest: resolution.launchSourceDigest,
+        launchEnvelopeDigest: resolution.launchEnvelopeDigest,
+      };
+      const correlationDigest = stableHash({
+        recipeId: request.recipeId,
+        seed: request.seed ?? null,
+        mapSize: request.mapSize ?? null,
+        playerCount: request.playerCount ?? null,
+        resources: request.resources ?? null,
+        selectedConfigId: request.selectedConfigId ?? null,
+        setupConfig: request.setupConfig ?? null,
+        materializationMode: request.materializationMode ?? null,
+        resolvedLaunchSource: resolution.resolvedLaunchSource,
+        launchEnvelope: resolution.launchEnvelope,
+        launchSourceDigest: resolution.launchSourceDigest,
+      });
+      return {
+        correlationDigest,
+        request: {
+          ...request,
+          fingerprint: correlationDigest,
+        },
+        resolvedLaunchSource: resolution.resolvedLaunchSource,
+        launchEnvelope: resolution.launchEnvelope,
+        launchSourceDigest: resolution.launchSourceDigest,
+        launchEnvelopeDigest: resolution.launchEnvelopeDigest,
+      };
+    })
+  );
 }
 
 const RUN_IN_GAME_SEED_MIN = 0;

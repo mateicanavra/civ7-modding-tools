@@ -52,8 +52,8 @@ describe("studio-server error spine", () => {
       code: "RUN_IN_GAME_FAILED",
       status: 500,
       data: {
-        tag: "UnexpectedDefect",
         namespace: "runInGame",
+        safeFailureCategory: "internal-defect",
       },
     });
   });
@@ -118,8 +118,19 @@ describe("studio-server error spine", () => {
       status: 404,
       data: {
         requestId: "run-1",
-        serverInstanceId: identity.serverInstanceId,
-        serverStartedAt: identity.serverStartedAt,
+      },
+    });
+    expect(
+      mapStudioFailureToDefinedError({
+        failure: expired,
+        procedure: "runInGame.cancel",
+        identity,
+      })
+    ).toMatchObject({
+      code: "RUN_IN_GAME_STATUS_NOT_FOUND",
+      status: 404,
+      data: {
+        requestId: "run-1",
       },
     });
     expect(
@@ -153,15 +164,19 @@ describe("studio-server error spine", () => {
     ).toMatchObject({ code: "SAVE_DEPLOY_INVALID", status: 400 });
   });
 
-  test("requires daemon identity and request id for status-not-found projections", () => {
+  test("requires request id for status-not-found projections", () => {
     const missing = operationNotFound({ message: "missing", requestId: "run-1" });
 
-    expect(() =>
+    expect(
       mapStudioFailureToDefinedError({
         failure: missing,
         procedure: "runInGame.status",
       })
-    ).toThrow(/requires daemon identity/);
+    ).toMatchObject({
+      code: "RUN_IN_GAME_STATUS_NOT_FOUND",
+      status: 404,
+      data: { requestId: "run-1" },
+    });
     expect(() =>
       mapStudioFailureToDefinedError({
         failure: operationExpired({ message: "expired" }),
@@ -293,6 +308,18 @@ describe("studio-server error spine", () => {
         message: "missing",
         recoveryActions: ["retry-status", "copy-diagnostics"],
         requestId: "run-1",
+        serverInstanceId: identity.serverInstanceId,
+        serverStartedAt: identity.serverStartedAt,
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(statusNotFoundErrorDataSchema, {
+        tag: "OperationNotFound",
+        reason: "status-not-found",
+        namespace: "saveDeploy",
+        message: "missing",
+        recoveryActions: ["retry-status", "copy-diagnostics"],
+        requestId: "save-1",
         serverInstanceId: identity.serverInstanceId,
         serverStartedAt: identity.serverStartedAt,
       })

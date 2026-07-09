@@ -8,82 +8,70 @@
 // preserved verbatim; failures are read through oRPC's NATIVE typed contract
 // errors: `safe(...)` + `isDefinedError(...)` expose the DECLARED code
 // (RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE/STATUS_NOT_FOUND, statuses
-// pinned in packages/studio-contract/src/errors.ts) and sealed typed
-// failure data.
+// pinned in packages/studio-contract/src/errors.ts) and safe public failure
+// category data.
 
-import type { RunInGameFailureDetails, RunInGameOperationStatus } from "@civ7/studio-contract";
+import {
+  type LaunchSource,
+  operationStatusTypeSchema,
+  RUN_IN_GAME_SAFE_FAILURE_CATEGORIES,
+  type RunInGameOperationStatus,
+  type RunInGameRecipeSettings,
+  type RunInGameSafeFailureCategory,
+  type RunInGameWorldSettings,
+} from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
+import { Value } from "typebox/value";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
 import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
 
 export async function runCurrentConfigInGame(args: {
-  recipeId: string;
-  seed: string;
-  mapSize: string;
-  playerCount: number;
-  resources: string;
+  source: LaunchSource;
+  recipeSettings: RunInGameRecipeSettings;
+  worldSettings: RunInGameWorldSettings;
   setupConfig: Civ7StudioSetupConfig;
-  materializationMode: "durable" | "disposable";
   restartCivProcess?: boolean;
-  selectedConfig?: {
-    id?: string;
-    label?: string;
-    description?: string;
-    sourcePath?: string;
-    sortIndex?: number;
-    latitudeBounds?: Readonly<{
-      topLatitude: number;
-      bottomLatitude: number;
-    }>;
-  };
-  config: unknown;
-  sourceSnapshot?: unknown;
 }): Promise<
   | RunInGameOperationStatus
   | {
       ok: false;
       error: string;
-      details?: RunInGameFailureDetails;
+      safeFailureCategory: RunInGameSafeFailureCategory;
       code?: string;
       statusCode?: number;
     }
 > {
-  // The request envelope is assembled exactly as before (the server runs
-  // `assertNoRawControlFields` over it); only the transport is the oRPC client.
-  // The legacy handler posted `selectedConfig` verbatim; the package operation
-  // runtime now derives canonical selected id, seed, setup config, materialization
-  // mode, and fingerprint before the workflow leaf ports run.
-  // The request envelope type-checks directly against the start input now that
-  // `selectedConfig.id` is optional in the contract (a disposable run sends
-  // `selectedConfig` without an `id`). No `as unknown as Parameters<…>` cast — the
-  // `assertNoRawControlFields`-protected payload is fully input-typed end to end.
   const request: Parameters<typeof orpcClient.runInGame.start>[0] = {
-    recipeId: args.recipeId,
-    seed: args.seed,
-    mapSize: args.mapSize,
-    playerCount: args.playerCount,
-    resources: args.resources,
+    source: args.source,
+    recipeSettings: args.recipeSettings,
+    worldSettings: args.worldSettings,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-    materialization: { mode: args.materializationMode },
     ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
-    ...(args.selectedConfig ? { selectedConfig: args.selectedConfig } : {}),
-    config: args.config,
-    sourceSnapshot: args.sourceSnapshot,
   };
   const { error, data } = await safe(orpcClient.runInGame.start(request));
   if (error) {
-    const projected = projectStudioBrowserError<RunInGameFailureDetails>(
+    const projected = projectStudioBrowserError<Record<string, unknown>>(
       error,
       "Run in Game failed"
     );
     return {
       ok: false,
       error: projected.error,
+      safeFailureCategory: safeFailureCategoryFromDetails(projected.details),
       ...(projected.code === undefined ? {} : { code: projected.code }),
       ...(projected.statusCode === undefined ? {} : { statusCode: projected.statusCode }),
-      ...(projected.details === undefined ? {} : { details: projected.details }),
     };
   }
-  return data;
+  return Value.Parse(operationStatusTypeSchema, data);
+}
+
+function safeFailureCategoryFromDetails(
+  details: Record<string, unknown> | undefined
+): RunInGameSafeFailureCategory {
+  const category = details?.safeFailureCategory;
+  return typeof category === "string" &&
+    RUN_IN_GAME_SAFE_FAILURE_CATEGORIES.includes(category as RunInGameSafeFailureCategory)
+    ? (category as RunInGameSafeFailureCategory)
+    : "internal-defect";
 }

@@ -1,4 +1,7 @@
+import { rm } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
@@ -15,6 +18,7 @@ import {
   StudioEventHub,
   type StudioEventHubApi,
   StudioEventHubLive,
+  type StudioInputs,
   type StudioOperationRuntimePorts,
   type StudioRouter,
   type StudioRpcHandle,
@@ -29,10 +33,15 @@ import {
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
+const runtimeWorkspaceRoots: string[] = [];
+let runtimeWorkspaceSequence = 0;
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
   await Promise.all(openHandles.splice(0).map((handle) => handle.dispose()));
+  await Promise.all(
+    runtimeWorkspaceRoots.splice(0).map((root) => rm(root, { recursive: true, force: true }))
+  );
 });
 
 describe("studio-server RPC handler", () => {
@@ -107,19 +116,17 @@ describe("studio-server RPC handler", () => {
     try {
       const context = makeContext({
         operationRuntime: makeOperationRuntimePorts({
-          deployRunInGame: async () => {
+          deployRunInGame: async ({ requestId, generatedMod }) => {
             await blocker.promise;
-            return {};
+            return runInGameDeployment({
+              requestId,
+              materialization: generatedMod.materialization,
+            });
           },
         }),
       });
       const client = await listenWithClient(context);
-      const run = await client.runInGame.start({
-        recipeId: "mod-swooper-maps/standard",
-        seed: 43,
-        mapSize: "MAPSIZE_STANDARD",
-        config: {},
-      });
+      const run = await client.runInGame.start(runInGameStartInput());
 
       const { error } = await safe(
         client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
@@ -148,7 +155,7 @@ describe("studio-server RPC handler", () => {
     }
   });
 
-  test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND with the server-identity echo", async () => {
+  test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND without daemon identity", async () => {
     const context = makeContext();
     const client = await listenWithClient(context);
 
@@ -159,17 +166,160 @@ describe("studio-server RPC handler", () => {
     expect(isDefinedError(error)).toBe(true);
     expect(error.code).toBe("RUN_IN_GAME_STATUS_NOT_FOUND");
     expect(error.status).toBe(404);
-    // PARITY INVARIANT: the 404 echoes the server identity for restart detection.
     expect(error.data).toEqual({
-      tag: "OperationNotFound",
       namespace: "runInGame",
-      reason: "status-not-found",
-      message: "Run in Game request not found: run-1",
-      recoveryActions: ["retry-status", "copy-diagnostics"],
+      recoveryActions: ["copy-diagnostics", "retry-status"],
       requestId: "run-1",
-      diagnostics: { code: "run-in-game-request-not-found" },
-      serverInstanceId: expect.stringMatching(/^studio-server-/),
-      serverStartedAt: "2026-06-10T00:00:00.000Z",
+      safeFailureCategory: "request-validation",
+    });
+  });
+
+  test("maps raw-control Run in Game start payloads to the declared invalid-request error", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const context = makeContext();
+      const client = await listenWithClient(context);
+
+      const { error } = await safe(
+        client.runInGame.start({
+          ...runInGameStartInput(),
+          rawJs: "UI.notifyUIReady()",
+        } as StudioInputs["runInGame"]["start"])
+      );
+
+      expect(error).toBeInstanceOf(ORPCError);
+      if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+      expect(isDefinedError(error)).toBe(true);
+      expect(error.code).toBe("RUN_IN_GAME_INVALID");
+      expect(error.status).toBe(400);
+      expect(error.data).toMatchObject({
+        namespace: "runInGame",
+        safeFailureCategory: "request-validation",
+      });
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  test("serves explicit Run in Game cancellation through the public command", async () => {
+    const blocker = deferred<void>();
+    let cleanupCalls = 0;
+    try {
+      const context = makeContext({
+        operationRuntime: makeOperationRuntimePorts({
+          generateRunInGameMod: async () => ({
+            ...generatedRunInGameMod(),
+            cleanup: async () => {
+              cleanupCalls += 1;
+            },
+          }),
+          deployRunInGame: async ({ requestId, generatedMod }) => {
+            await blocker.promise;
+            return runInGameDeployment({
+              requestId,
+              materialization: generatedMod.materialization,
+            });
+          },
+        }),
+      });
+      const client = await listenWithClient(context);
+      const run = await client.runInGame.start(runInGameStartInput());
+
+      await expect
+        .poll(async () => (await client.runInGame.status({ requestId: run.requestId })).phase)
+        .toBe("deploying");
+      let cancelResolved = false;
+      const cancelPromise = client.runInGame
+        .cancel({ requestId: run.requestId })
+        .then((cancelled) => {
+          cancelResolved = true;
+          return cancelled;
+        });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(cancelResolved).toBe(false);
+
+      blocker.resolve();
+      await expect(cancelPromise).resolves.toMatchObject({
+        requestId: run.requestId,
+        status: "cancelled",
+        phase: "cancelled",
+        safeFailureCategory: "operation-cancelled",
+        diagnosticsId: run.diagnosticsId,
+      });
+      expect(cleanupCalls).toBe(1);
+      await expect(client.runInGame.cancel({ requestId: run.requestId })).resolves.toMatchObject({
+        requestId: run.requestId,
+        status: "cancelled",
+        phase: "cancelled",
+      });
+    } finally {
+      blocker.resolve();
+    }
+  });
+
+  test("does not treat an aborted transport signal as Run in Game cancellation", async () => {
+    const blocker = deferred<void>();
+    try {
+      const context = makeContext({
+        operationRuntime: makeOperationRuntimePorts({
+          deployRunInGame: async ({ requestId, generatedMod }) => {
+            await blocker.promise;
+            return runInGameDeployment({
+              requestId,
+              materialization: generatedMod.materialization,
+            });
+          },
+        }),
+      });
+      const studioRpc = trackHandle(createStudioRpcHandler(context));
+      const controller = new AbortController();
+      const client = createORPCClient<RouterClient<StudioRouter>>(
+        new RPCLink({
+          url: "http://studio.test/rpc",
+          fetch: async (request) => {
+            const result = await studioRpc.handle(request, { prefix: "/rpc" });
+            controller.abort();
+            if (!result.matched || !result.response) {
+              return new Response("not found", { status: 404 });
+            }
+            return result.response;
+          },
+        })
+      );
+
+      const run = await client.runInGame.start(runInGameStartInput(), {
+        signal: controller.signal,
+      });
+
+      await expect
+        .poll(async () => (await client.runInGame.status({ requestId: run.requestId })).phase)
+        .toBe("deploying");
+      await expect(client.runInGame.status({ requestId: run.requestId })).resolves.toMatchObject({
+        requestId: run.requestId,
+        status: "running",
+      });
+    } finally {
+      blocker.resolve();
+    }
+  });
+
+  test("delivers a run-in-game cancel miss as RUN_IN_GAME_STATUS_NOT_FOUND without daemon identity", async () => {
+    const context = makeContext();
+    const client = await listenWithClient(context);
+
+    const { error } = await safe(client.runInGame.cancel({ requestId: "run-1" }));
+
+    expect(error).toBeInstanceOf(ORPCError);
+    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+    expect(isDefinedError(error)).toBe(true);
+    expect(error.code).toBe("RUN_IN_GAME_STATUS_NOT_FOUND");
+    expect(error.status).toBe(404);
+    expect(error.data).toEqual({
+      namespace: "runInGame",
+      recoveryActions: ["copy-diagnostics", "retry-status"],
+      requestId: "run-1",
+      safeFailureCategory: "request-validation",
     });
   });
 
@@ -403,13 +553,15 @@ describe("studio-server RPC handler", () => {
     await expect
       .poll(async () => (await client.mapConfigs.status({ requestId: save.requestId })).phase)
       .toBe("complete");
+    await readOperationEvent(
+      iterator,
+      (event) =>
+        event.kind === "save-deploy" &&
+        event.status.requestId === save.requestId &&
+        event.status.phase === "complete"
+    );
 
-    const run = await client.runInGame.start({
-      recipeId: "mod-swooper-maps/standard",
-      seed: 43,
-      mapSize: "MAPSIZE_STANDARD",
-      config: {},
-    });
+    const run = await client.runInGame.start(runInGameStartInput());
     const runEvent = await readOperationEvent(
       iterator,
       (event) => event.kind === "run-in-game" && event.status.requestId === run.requestId
@@ -775,19 +927,187 @@ function unavailableTunerClient(message: string): Civ7TunerClient {
 function makeOperationRuntimePorts(
   overrides: Partial<StudioOperationRuntimePorts> = {}
 ): StudioOperationRuntimePorts {
+  const runInGameWorkspaceRoot =
+    overrides.runInGameWorkspaceRoot ??
+    join(tmpdir(), `studio-server-handler-${process.pid}-${++runtimeWorkspaceSequence}`);
+  if (overrides.runInGameWorkspaceRoot === undefined) {
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
+  }
   return {
     clock: {
       now: () => new Date("2026-06-10T00:00:00.000Z"),
     },
-    materializeRunInGame: async () => ({}),
-    deployRunInGame: async () => ({}),
+    runInGameWorkspaceRoot,
+    generateRunInGameMod: async () => generatedRunInGameMod(),
+    readRunInGameCatalogSource: async ({ catalogSourceId }) => ({
+      catalogSourceId,
+      configPath: `mods/mod-swooper-maps/src/maps/configs/${catalogSourceId}.config.json`,
+      name: catalogSourceId,
+      description: catalogSourceId,
+      sortIndex: 900,
+      config: {},
+    }),
+    deployRunInGame: async ({ requestId, generatedMod }) =>
+      runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    observeRunInGameRuntime: async (args) => runInGameRuntimeObservation(args),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
     deploySavedMapConfig: async () => ({ deployed: true }),
     rollbackSaveDeploy: async () => ({ restored: true }),
     ...overrides,
+  };
+}
+
+function generatedRunInGameMod(): Awaited<
+  ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+> {
+  return {
+    materialization: {
+      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      configHash: "test-config-hash",
+      envelopeHash: "test-envelope-hash",
+      generationManifestDigest: "test-generation-manifest-digest",
+      runArtifactId: "run-test",
+      generatedModRoot: join(tmpdir(), "studio-handler-generated-run-test"),
+      generatedModFileCount: 1,
+      generatedModDigest: "test-generated-mod-digest",
+      mapRowId: "MAP_RUN_TEST",
+    },
+  };
+}
+
+function runInGameDeployment(
+  args: Readonly<{
+    requestId: string;
+    materialization: Awaited<
+      ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+    >["materialization"];
+  }>
+): Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>> {
+  const { materialization, requestId } = args;
+  const files: Awaited<
+    ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>
+  >["deployedSnapshot"]["files"] = [
+    {
+      path: "maps/run-test.js",
+      sha256: "sha256-map-script",
+      sizeBytes: 512,
+    },
+  ];
+  return {
+    materialization,
+    deploy: {
+      targetDir: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      filesCopied: 1,
+    },
+    runDeployment: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      generatedModRoot: materialization.generatedModRoot,
+      generatedModDigest: materialization.generatedModDigest,
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      startedAt: "2026-06-10T00:00:00.000Z",
+      completedAt: "2026-06-10T00:00:01.000Z",
+      filesCopied: 1,
+    },
+    deployedSnapshot: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      observedAt: "2026-06-10T00:00:01.000Z",
+      fileCount: files.length,
+      digest: materialization.generatedModDigest,
+      files,
+    },
+  };
+}
+
+function runInGameRuntimeObservation(
+  args: Parameters<StudioOperationRuntimePorts["observeRunInGameRuntime"]>[0]
+): Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>> {
+  const materialization = args.deployment.materialization;
+  const correlation = {
+    requestId: args.requestId,
+    runArtifactId: materialization?.runArtifactId ?? "run-test",
+    launchSourceDigest: args.prepared.launchSourceDigest,
+    launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
+    generationManifestDigest:
+      materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
+  };
+  return {
+    requestId: args.requestId,
+    correlation,
+    deploymentEvidence: {
+      runDeployment: args.deployment.runDeployment,
+      deployedSnapshot: args.deployment.deployedSnapshot,
+    },
+    scriptingLog: {
+      requestId: args.requestId,
+      correlation,
+      matchedMarkers: ["[mapgen-proof]", args.requestId, "[mapgen-complete]"],
+      proof: args.log.logProof,
+    },
+    setupRow: {
+      requestId: args.requestId,
+      correlation,
+      state: "matched",
+      mapScript: materialization?.mapScript ?? "test-map-script",
+      runArtifactId: correlation.runArtifactId,
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      rowProof: { ok: true },
+      rowVisibility: { visible: true },
+    },
+    loadedGame: {
+      requestId: args.requestId,
+      correlation,
+      marker: { requestId: args.requestId, runArtifactId: correlation.runArtifactId },
+      liveStatus: {
+        ok: true,
+        playable: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        status: { readiness: "app-ui-game" },
+        appUi: { snapshot: { ui: { inGame: { ok: true, value: true } } } },
+        mapSummary: { mapSize: "MAPSIZE_STANDARD" },
+        autoplay: {},
+      },
+      liveSnapshot: {
+        ok: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        grid: {
+          map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
+          plotCount: 4536,
+          plots: [{}],
+        },
+      },
+      dimensions: { width: 84, height: 54 },
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      deployedSnapshotDigest: args.deployment.deployedSnapshot.digest,
+    },
+  };
+}
+
+function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
+  return {
+    source: {
+      kind: "editor",
+      editorSessionId: "handler-test-editor",
+      payload: {
+        configId: "studio-current",
+        label: "Studio Current",
+        mapScript: "{swooper-maps}/maps/studio-current.js",
+        pipelineConfig: {},
+        recipeId: "mod-swooper-maps/standard",
+      },
+    },
+    recipeSettings: {
+      recipe: "mod-swooper-maps/standard",
+      seed: 43,
+    },
+    worldSettings: {
+      mapSize: "MAPSIZE_STANDARD",
+    },
   };
 }
 
@@ -801,6 +1121,8 @@ function makeOperationRuntimeApi(): StudioOperationRuntimeApi {
     identity,
     runInGameStart: unsupported,
     runInGameStatus: unsupported,
+    runInGameCancel: unsupported,
+    runInGameDiagnostics: unsupported,
     saveDeployStart: unsupported,
     saveDeployStatus: unsupported,
     autoplay: unsupported,

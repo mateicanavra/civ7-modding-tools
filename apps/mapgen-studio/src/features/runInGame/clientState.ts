@@ -11,7 +11,6 @@ import {
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
 import { migratePipelineConfig } from "../configMigrations/pipelineConfig";
-import { stableRunInGameStringify } from "./status";
 
 export type RunInGameClientSnapshot = Readonly<{
   requestId: string;
@@ -66,6 +65,23 @@ export function buildRunInGameFingerprint(args: {
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
     config: pipelineConfig,
   });
+}
+
+function stableRunInGameStringify(value: unknown): string {
+  return JSON.stringify(canonicalize(value));
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, item]) => item !== undefined)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, item]) => [key, canonicalize(item)])
+    );
+  }
+  return value;
 }
 
 export function buildRunInGameClientSnapshot(args: {

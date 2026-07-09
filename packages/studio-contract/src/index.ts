@@ -46,6 +46,8 @@ export const studioEffectContract = oc.router({
   runInGame: {
     start: runInGame.start,
     status: runInGame.status,
+    cancel: runInGame.cancel,
+    diagnostics: runInGame.diagnostics,
   },
   mapConfigs: {
     saveDeploy: mapConfigs.saveDeploy,
@@ -70,6 +72,7 @@ export type StudioEffectContract = typeof studioEffectContract;
 export * from "./errors/errorData.js";
 export * from "./errors/failure.js";
 export * from "./lib/typeboxStandardSchema.js";
+export type { Civ7LiveSnapshotOutput, Civ7LiveStatusOutput } from "./live.js";
 export * from "./liveGame/model.js";
 export type {
   MapConfigSaveDeployKind,
@@ -84,6 +87,17 @@ export * from "./recipeDag/contract.js";
 export * from "./recipeDag/errors.js";
 export * from "./recipeDag/schema.js";
 export type {
+  CatalogLaunchSource,
+  EditorLaunchPayload,
+  EditorLaunchSource,
+  LaunchEnvelope,
+  LaunchEnvelopeDigest,
+  LaunchSource,
+  LaunchSourceDigest,
+  PublicRunStatus,
+  ResolvedLaunchSource,
+  RunDiagnosticsLookupResult,
+  RunDiagnosticsRecord,
   RunInGameContentMarkerProof,
   RunInGameExactAuthorshipProof,
   RunInGameFailureDetails,
@@ -95,23 +109,45 @@ export type {
   RunInGamePhase,
   RunInGamePlayerSetupConfig,
   RunInGameProcessRestartStatus,
+  RunInGameRecipeSettings,
   RunInGameRequestStatus,
   RunInGameSavedSetupConfigRef,
   RunInGameSetupConfig,
   RunInGameSetupOptionValue,
   RunInGameSourceSnapshotProof,
+  RunInGameWorldSettings,
 } from "./runInGame.js";
 export {
+  catalogLaunchSource,
   DEFAULT_RUN_IN_GAME_SETUP_CONFIG,
+  diagnosticsLookupResultSchema,
+  editorLaunchPayload,
+  editorLaunchSource,
+  launchEnvelope,
+  launchSource,
+  launchSourceDigest,
   materializationStatus,
   normalizeRunInGameSetupConfig,
   operationStatusTypeSchema,
+  publicRunStatusTypeSchema,
   RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
   RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
   RUN_IN_GAME_PHASES,
   RUN_IN_GAME_PLAYER_OPTION_IDS,
+  resolvedLaunchSource,
+  runDiagnosticsRecordSchema,
+  runInGameRecipeSettings,
+  runInGameWorldSettings,
+  setupConfig,
+  STUDIO_CURRENT_CONFIG_ID,
+  STUDIO_CURRENT_MAP_SCRIPT,
   validateRunInGameSetupConfig,
 } from "./runInGame.js";
+export type { RunInGameSafeFailureCategory } from "./runInGamePublic.js";
+export {
+  RUN_IN_GAME_SAFE_FAILURE_CATEGORIES,
+  runInGameSafeFailureCategory,
+} from "./runInGamePublic.js";
 export type {
   StudioEvent,
   StudioHelloEvent,

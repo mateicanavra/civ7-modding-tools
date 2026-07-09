@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "structure-swooper-catalog-index-target-topology",
+  "title": "Structure Swooper Catalog Index Target Topology",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "Swooper catalog cutover source files missing or retired transitional catalog-index authority still present",
+  "why": "Packet 9 makes the tracked catalog source index the catalog generation input and splits Studio catalog metadata generation into its own source-owned generator.",
+  "remediate": "Keep the catalog index source files and Studio catalog metadata generator in place, and do not restore the retired Packet 4 transitional advisory rule.",
+  "message": "Swooper catalog index cutover topology drifted.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/maps/catalog",
+        "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+        "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
+        ".habitat/civ7/mapgen/studio/run-in-game/rules"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-index-target-topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-index-target-topology/structure.toml"
+    }
+  }
+}
