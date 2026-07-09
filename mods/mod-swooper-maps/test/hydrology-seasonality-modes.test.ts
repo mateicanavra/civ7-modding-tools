@@ -54,7 +54,9 @@ function runWithTilt(axialTiltDeg: number): {
     {
       "hydrology-climate-baseline": {
         knobs: { seasonality: "normal" },
-        seasonalCycle: { modeCount: 2, axialTiltDeg },
+        "climate-baseline": {
+          seasonality: { modeCount: 2, axialTiltDeg },
+        },
       },
     },
     { log: () => {} }

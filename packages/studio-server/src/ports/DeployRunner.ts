@@ -1,7 +1,7 @@
 import type { StudioInputs } from "../context.js";
 import type {
   RunInGameDeployment,
-  RunInGameGeneratedMod,
+  RunInGameMaterialized,
   RunInGamePreparedRequest,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,
@@ -13,8 +13,7 @@ export type DeployRunner = Readonly<{
     args: Readonly<{
       requestId: string;
       prepared: RunInGamePreparedRequest;
-      generatedMod: RunInGameGeneratedMod;
-      signal: AbortSignal;
+      materialized: RunInGameMaterialized;
     }>
   ): Promise<RunInGameDeployment>;
   deploySavedMapConfig(

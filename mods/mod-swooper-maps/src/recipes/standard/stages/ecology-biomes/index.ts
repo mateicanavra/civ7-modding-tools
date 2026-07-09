@@ -1,9 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import {
-  compileEcologyBiomesPublicConfig,
-  EcologyBiomesPublicSchema,
-} from "../ecology-public-config.js";
 import biomes from "./steps/biomes/index.js";
 
 /**
@@ -20,8 +16,5 @@ export default createStage({
         "Ecology-biomes currently has no stage-level knobs; authoring control lives in biome classification.",
     }
   ),
-  public: EcologyBiomesPublicSchema,
   steps: orderStandardStageSteps("ecology-biomes", { biomes }),
-  compile: ({ config }: { config: Record<string, unknown> }) =>
-    compileEcologyBiomesPublicConfig(config),
 } as const);

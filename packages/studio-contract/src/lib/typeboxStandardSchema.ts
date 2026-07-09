@@ -12,39 +12,25 @@ type OrpcContractProcedureWithSchemas = Readonly<{
   }>;
 }>;
 
-export type TypeBoxStandardSchemaOptions = Readonly<{
-  cleanUnknownProperties?: boolean;
-}>;
-
 export function toStandardSchema<TypeSchema extends TSchema>(
-  schema: TypeSchema,
-  options: TypeBoxStandardSchemaOptions = {}
+  schema: TypeSchema
 ): StandardSchemaV1<Static<TypeSchema>, Static<TypeSchema>> {
   const validator = Compile(schema);
-  const cleanUnknownProperties = options.cleanUnknownProperties ?? true;
 
   const standardSchema: StandardSchemaV1<Static<TypeSchema>, Static<TypeSchema>> = {
     "~standard": {
       version: 1,
       vendor: "typebox",
       validate(value) {
-        const checked = cleanUnknownProperties ? Value.Clean(schema, value) : value;
-        if (!cleanUnknownProperties && !validator.Check(checked)) {
-          return {
-            issues: [...validator.Errors(checked)].map((error) => ({
-              message: error.message,
-              path: pathSegments(error.instancePath),
-            })),
-          };
-        }
+        const cleaned = Value.Clean(schema, value);
         try {
-          return { value: Value.Parse(schema, checked) as Static<TypeSchema> };
+          return { value: Value.Parse(schema, cleaned) as Static<TypeSchema> };
         } catch {
           // Fall through to TypeBox's structural errors after cleanup so closed
           // object extras keep the existing Studio wire-surface strip behavior.
         }
         return {
-          issues: [...validator.Errors(checked)].map((error) => ({
+          issues: [...validator.Errors(cleaned)].map((error) => ({
             message: error.message,
             path: pathSegments(error.instancePath),
           })),

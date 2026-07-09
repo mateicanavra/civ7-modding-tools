@@ -171,11 +171,7 @@ export function createStudioDaemonFetch(
 }
 
 export async function createStudioDaemon(args: StudioDaemonArgs) {
-  let selfRpcBaseUrl: string | undefined;
-  const operationRuntime = createStudioOperationRuntimePorts({
-    repoRoot: args.repoRoot,
-    selfRpcUrl: () => selfRpcBaseUrl,
-  });
+  const operationRuntime = createStudioOperationRuntimePorts({ repoRoot: args.repoRoot });
   const context = createStudioServerContext({
     operationRuntime,
     hostCommand: "daemon",
@@ -221,7 +217,6 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
         idleTimeout: 0,
         fetch,
       });
-      selfRpcBaseUrl = `http://${server.hostname}:${server.port}`;
       return server;
     },
   };

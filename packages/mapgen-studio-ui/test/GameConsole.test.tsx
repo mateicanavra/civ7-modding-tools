@@ -59,51 +59,66 @@ function renderWithStatus(
 describe("GameConsole Run in Game status", () => {
   it("renders the active Run in Game phase with its diagnostics affordance", () => {
     const html = renderWithStatus({
+      ok: true,
       requestId: "studio-run-in-game-test",
-      phase: "observing-runtime",
+      phase: "waiting-for-proof",
       status: "running",
-      createdAt: "2026-06-01T00:00:00.000Z",
+      startedAt: "2026-06-01T00:00:00.000Z",
       updatedAt: "2026-06-01T00:00:01.000Z",
-      diagnosticsId: "run-diagnostics-studio-run-in-game-test",
-      recoveryActions: ["copy-diagnostics", "retry-status"],
+      completedPhases: [
+        "materializing",
+        "deploying",
+        "checking-civ7",
+        "preparing-setup",
+        "starting-game",
+      ],
+      materialization: {
+        mode: "disposable",
+        mapScript: "{swooper-maps}/maps/studio-current.js",
+      },
     });
 
-    expect(html).toContain("Observing Runtime");
+    expect(html).toContain("Waiting for Proof");
     expect(html).toContain("studio-run-in-game-test");
     expect(html).toContain("Copy Run in Game diagnostics");
-    expect(html).toContain("run-diagnostics-studio-run-in-game-test");
   });
 
   it("renders diagnostics and retry run affordances for failed operations", () => {
     const html = renderWithStatus({
+      ok: false,
       requestId: "studio-run-in-game-failed",
       phase: "failed",
       status: "failed",
-      createdAt: "2026-06-01T00:00:00.000Z",
+      startedAt: "2026-06-01T00:00:00.000Z",
       updatedAt: "2026-06-01T00:00:01.000Z",
-      terminalAt: "2026-06-01T00:00:01.000Z",
-      safeFailureCategory: "runtime-observation",
-      diagnosticsId: "run-diagnostics-studio-run-in-game-failed",
-      recoveryActions: ["copy-diagnostics", "retry-run"],
+      completedPhases: ["materializing", "deploying"],
+      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+      details: {
+        code: "setup-map-row-not-visible",
+        reloadRequired: true,
+      },
     });
 
     expect(html).not.toContain("Refresh Run in Game status");
     expect(html).toContain("Retry Run");
-    expect(html).toContain("runtime-observation");
-    expect(html).not.toContain("setup cannot see");
+    expect(html).toContain("setup cannot see");
   });
 
   it("renders restart-Civ recovery as the primary Run in Game action", () => {
     const html = renderWithStatus(
       {
+        ok: false,
         requestId: "studio-run-in-game-restart-needed",
-        phase: "failed",
-        status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        phase: "blocked",
+        status: "blocked",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
-        safeFailureCategory: "runtime-control",
-        recoveryActions: ["copy-diagnostics", "restart-civ-process-and-retry", "retry-run"],
+        completedPhases: ["materializing", "deploying", "checking-civ7"],
+        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+        details: {
+          code: "setup-map-row-not-visible",
+          reloadBoundary: "process-restart-required",
+        },
       },
       "current"
     );
@@ -114,14 +129,18 @@ describe("GameConsole Run in Game status", () => {
   it("does not carry restart-Civ recovery onto stale authored Studio state", () => {
     const html = renderWithStatus(
       {
+        ok: false,
         requestId: "studio-run-in-game-stale-restart-needed",
-        phase: "failed",
-        status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        phase: "blocked",
+        status: "blocked",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
-        safeFailureCategory: "runtime-control",
-        recoveryActions: ["copy-diagnostics", "restart-civ-process-and-retry", "retry-run"],
+        completedPhases: ["materializing", "deploying", "checking-civ7"],
+        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+        details: {
+          code: "setup-map-row-not-visible",
+          reloadBoundary: "process-restart-required",
+        },
       },
       "stale"
     );
@@ -133,34 +152,53 @@ describe("GameConsole Run in Game status", () => {
   it("keeps map script fatal recovery on retry instead of process restart", () => {
     const html = renderWithStatus(
       {
+        ok: false,
         requestId: "studio-run-in-game-map-script-failed",
         phase: "failed",
         status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
-        safeFailureCategory: "runtime-observation",
-        recoveryActions: ["copy-diagnostics", "dismiss-civ-notification-and-retry", "retry-run"],
+        completedPhases: [
+          "materializing",
+          "deploying",
+          "preparing-setup",
+          "starting-game",
+          "waiting-for-proof",
+        ],
+        error: "Civ7 could not load generated map script",
+        details: {
+          code: "map-script-load-failed",
+          dismissNotificationRequired: true,
+          recoveryBoundary: "civ-notification-dismiss",
+          recoveryHint:
+            "Dismiss the Civ fatal notification, fix or regenerate the map script, then retry Run in Game.",
+        },
       },
       "current"
     );
 
     expect(html).toContain("Retry Run");
     expect(html).not.toContain("Restart Civ &amp; Run");
-    expect(html).toContain("runtime-observation");
-    expect(html).not.toContain("Dismiss the Civ fatal notification");
+    expect(html).toContain("Dismiss the Civ fatal notification");
   });
 
   it("marks a previous operation stale when the authored Studio state has changed", () => {
     const html = renderWithStatus(
       {
+        ok: true,
         requestId: "studio-run-in-game-complete",
-        phase: "completed",
-        status: "completed",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        phase: "complete",
+        status: "complete",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
-        recoveryActions: ["copy-diagnostics"],
+        completedPhases: [
+          "materializing",
+          "deploying",
+          "checking-civ7",
+          "preparing-setup",
+          "starting-game",
+          "waiting-for-proof",
+        ],
       },
       "stale"
     );
@@ -273,13 +311,13 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
     const html = renderConsole({
       defaultStatusOpen: false,
       runInGameStatus: {
+        ok: true,
         requestId: "studio-run-in-game-closed",
-        phase: "completed",
-        status: "completed",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        phase: "complete",
+        status: "complete",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
-        recoveryActions: ["copy-diagnostics"],
+        completedPhases: ["materializing", "deploying"],
       },
       onCopyRunInGameDiagnostics: vi.fn(),
     });
@@ -298,12 +336,13 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
       defaultStatusOpen: false,
       isRunInGameRunning: true,
       runInGameStatus: {
+        ok: true,
         requestId: "studio-run-in-game-running",
         phase: "deploying",
         status: "running",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        recoveryActions: ["copy-diagnostics", "retry-status"],
+        completedPhases: ["materializing"],
       },
     });
     expect(running).toContain("Playing...");
@@ -320,13 +359,13 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
     // id keeps the trigger↔content linkage intact.
     renderConsole({
       runInGameStatus: {
+        ok: true,
         requestId: "studio-run-in-game-aria",
-        phase: "completed",
-        status: "completed",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        phase: "complete",
+        status: "complete",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
-        recoveryActions: ["copy-diagnostics"],
+        completedPhases: ["materializing", "deploying"],
       },
       onCopyRunInGameDiagnostics: vi.fn(),
     });
@@ -349,14 +388,14 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
     const html = renderConsole({
       defaultStatusOpen: false,
       runInGameStatus: {
+        ok: false,
         requestId: "studio-run-in-game-folded",
         phase: "failed",
         status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
+        startedAt: "2026-06-01T00:00:00.000Z",
         updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
-        safeFailureCategory: "deployment",
-        recoveryActions: ["copy-diagnostics", "retry-run"],
+        completedPhases: ["materializing"],
+        error: "deploy exploded",
       },
     });
 

@@ -2,57 +2,36 @@ import type {
   MapConfigSaveDeployStatus,
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
+  RunInGameOperationKind,
   RunInGamePhase,
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
 } from "@civ7/studio-contract";
-import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import type { StudioRuntimeFailure } from "../errors/index.js";
-import type {
-  RunInGameDeploymentEvidence,
-  RunInGameRuntimeObservation,
-  StudioDaemonIdentity,
-} from "./ports.js";
+import type { StudioDaemonIdentity } from "./ports.js";
 
 export const OPERATION_TTL_MS = 30 * 60_000;
 
 export type RuntimeOperationKind = "run-in-game" | "save-deploy" | "autoplay";
 
-export type RuntimeActiveSlot =
-  | Readonly<{
-      kind: "run-in-game";
-      requestId: string;
-      leaseId: string;
-      phase: string;
-      deploymentEvidence?: RunInGameDeploymentEvidence;
-    }>
-  | Readonly<{
-      kind: "save-deploy" | "autoplay";
-      requestId: string;
-      leaseId: string;
-      phase: string;
-    }>;
+export type RuntimeActiveSlot = Readonly<{
+  kind: RuntimeOperationKind;
+  requestId: string;
+  phase: string;
+}>;
 
 export type RuntimeTombstone = Readonly<{
   requestId: string;
   kind: Exclude<RuntimeOperationKind, "autoplay">;
+  fingerprint?: string;
   expiredAt: string;
   lastUpdatedAt: string;
 }>;
 
-export type RunInGameInternalStatus =
-  | "running"
-  | "complete"
-  | "blocked"
-  | "failed"
-  | "uncertain"
-  | "cancelled";
-
 export type RunInGameInternalOperation = Readonly<{
   kind: "run-in-game";
   requestId: string;
-  leaseId: string;
-  correlationDigest: string;
+  fingerprint: string;
   request: RunInGameRequestStatus;
   phase:
     | "accepted"
@@ -68,30 +47,21 @@ export type RunInGameInternalOperation = Readonly<{
     | "blocked"
     | "failed"
     | "uncertain"
-    | "cancelled"
     | "runtime-disposed";
-  status: RunInGameInternalStatus;
-  operationRevision: number;
+  status: RunInGameOperationKind;
   startedAt: string;
   updatedAt: string;
-  diagnosticsId?: string;
-  diagnosticsPersistedRevision?: number;
-  generationManifest?: StudioRunGenerationManifestReference;
   completedPhases: readonly RunInGamePhase[];
   materialization?: RunInGameMaterializationStatus;
-  deploymentEvidence?: RunInGameDeploymentEvidence;
   processRestart?: RunInGameProcessRestartStatus;
-  runtimeObservation?: RunInGameRuntimeObservation;
   exactAuthorshipProof?: RunInGameExactAuthorshipProof;
   result?: unknown;
   failure?: StudioRuntimeFailure;
-  cancellationCleanupFailure?: StudioRuntimeFailure;
 }>;
 
 export type SaveDeployInternalOperation = Readonly<{
   kind: "save-deploy";
   requestId: string;
-  leaseId: string;
   phase:
     | "accepted"
     | "queued"
@@ -133,12 +103,11 @@ export function emptyRegistry(identity: StudioDaemonIdentity): RegistryState {
 
 export function statusForRunInGamePhase(
   phase: RunInGameInternalOperation["phase"]
-): RunInGameInternalStatus {
+): RunInGameOperationKind {
   if (phase === "complete") return "complete";
   if (phase === "blocked") return "blocked";
   if (phase === "failed" || phase === "runtime-disposed") return "failed";
   if (phase === "uncertain") return "uncertain";
-  if (phase === "cancelled") return "cancelled";
   return "running";
 }
 
@@ -151,32 +120,9 @@ export function statusForSaveDeployPhase(
 }
 
 export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"]): RunInGamePhase {
-  switch (phase) {
-    case "accepted":
-      return "resolving-source";
-    case "materializing":
-      return "generating-artifacts";
-    case "deploying":
-      return "deploying";
-    case "restarting-civ":
-    case "checking-civ7":
-    case "reload-needed":
-    case "preparing-setup":
-      return "preparing-civ7";
-    case "starting-game":
-      return "starting-game";
-    case "waiting-for-proof":
-      return "observing-runtime";
-    case "complete":
-      return "completed";
-    case "blocked":
-    case "failed":
-    case "uncertain":
-    case "runtime-disposed":
-      return "failed";
-    case "cancelled":
-      return "cancelled";
-  }
+  if (phase === "accepted") return "materializing";
+  if (phase === "runtime-disposed") return "failed";
+  return phase;
 }
 
 export function publicSaveDeployPhase(

@@ -26,33 +26,60 @@ const mapCatalogConfigs = [
   ["mountain-rivers-patch.config.json", mountainRiversPatchConfig],
 ] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
 
-const RETIRED_RAW_STAGE_KEYS: Record<string, readonly string[]> = {
-  "foundation-mantle": ["mesh"],
-  "foundation-lithosphere": ["plate-graph"],
-  "foundation-tectonics": ["plate-motion", "tectonics"],
-  "hydrology-climate-baseline": ["climate-baseline"],
-  "hydrology-hydrography": ["rivers"],
-  "hydrology-climate-refine": ["climate-refine"],
-  "ecology-pedology": ["pedology", "resource-basins"],
-  "ecology-biomes": ["biomes"],
-  "ecology-features": [
-    "score-layers",
-    "plan-vegetation",
-    "plan-wetlands",
-    "plan-reefs",
-    "plan-ice",
-    "plan-floodplains",
-    "plan-plot-effects",
+const RETIRED_STAGE_PUBLIC_KEYS: Record<string, readonly string[]> = {
+  "foundation-mantle": ["meshResolution", "mantleSources", "mantleForcing"],
+  "foundation-lithosphere": ["lithosphere", "platePartition"],
+  "foundation-tectonics": [
+    "plateMotion",
+    "tectonicSegmentation",
+    "tectonicEras",
+    "tectonicFields",
+    "tectonicRollups",
   ],
-  "map-ecology": ["plot-biomes", "features-apply", "plot-effects"],
-  placement: ["plan-resources", "assign-starts", "place-resources"],
+  "hydrology-climate-baseline": [
+    "seasonalCycle",
+    "solarForcing",
+    "thermalState",
+    "atmosphericCirculation",
+    "oceanCurrents",
+    "oceanGeometry",
+    "oceanThermalState",
+    "evaporation",
+    "moistureTransport",
+    "precipitation",
+  ],
+  "hydrology-hydrography": ["drainageRouting", "runoff", "riverNetwork"],
+  "hydrology-climate-refine": [
+    "precipitationRefinement",
+    "albedoFeedback",
+    "cryosphereState",
+    "landWaterBudget",
+    "diagnostics",
+  ],
+  "ecology-pedology": ["soilClassification", "resourceBasinPlanning", "resourceBasinScoring"],
+  "ecology-biomes": ["biomeClassification"],
+  "ecology-features": [
+    "substrateScoring",
+    "wetlandScoring",
+    "reefScoring",
+    "iceScoring",
+    "icePlanning",
+    "reefPlanning",
+    "wetlandPlanning",
+    "floodplainPlanning",
+    "vegetationPlanning",
+    "plotEffectScoring",
+    "plotEffectCoverage",
+  ],
+  "map-ecology": ["biomeBindings"],
+  placement: ["naturalWonders", "resources", "starts", "support"],
 };
 
 function retiredStagePublicKeyPaths(config: unknown): string[] {
   if (!config || typeof config !== "object" || Array.isArray(config)) return [];
 
   const offenders: string[] = [];
-  for (const [stageId, retiredKeys] of Object.entries(RETIRED_RAW_STAGE_KEYS)) {
+  for (const [stageId, retiredKeys] of Object.entries(RETIRED_STAGE_PUBLIC_KEYS)) {
     const stageConfig = (config as Record<string, unknown>)[stageId];
     if (!stageConfig || typeof stageConfig !== "object" || Array.isArray(stageConfig)) continue;
     for (const key of retiredKeys) {
@@ -112,30 +139,37 @@ describe("Shipped map configs", () => {
     );
   });
 
-  it("does not preserve raw internal step keys in shipped configs", () => {
+  it("does not preserve retired semantic-public mirror keys in shipped configs", () => {
     for (const [fileName, raw] of mapCatalogConfigs) {
       expect(retiredStagePublicKeyPaths(raw.config), fileName).toEqual([]);
     }
   });
 
-  it("keeps authored Swooper Earthlike values in the current semantic public destinations", () => {
+  it("keeps authored Swooper Earthlike values in the current flat destinations", () => {
     const config = swooperEarthlikeConfig.config as any;
 
-    expect(config["foundation-mantle"].meshResolution.plateCount).toBe(28);
-    expect(config["foundation-lithosphere"].platePartition.plateCount).toBe(42);
-    expect(config["foundation-tectonics"].plateMotion.omegaFactor).toBe(1);
-    expect(config["hydrology-climate-baseline"].seasonalCycle).toEqual({
+    expect(config["foundation-mantle"].mesh.computeMesh.config.plateCount).toBe(28);
+    expect(
+      config["foundation-lithosphere"]["plate-graph"].computePlateGraph.config.plateCount
+    ).toBe(42);
+    expect(
+      config["foundation-tectonics"]["plate-motion"].computePlateMotion.config.omegaFactor
+    ).toBe(1);
+    expect(config["hydrology-climate-baseline"]["climate-baseline"].seasonality).toEqual({
       modeCount: 4,
       axialTiltDeg: 23,
     });
     expect(
-      config["hydrology-hydrography"].lakes.highOrderConfluenceUpstreamAreaMin
+      config["hydrology-hydrography"].lakes.planLakes.config.highOrderConfluenceUpstreamAreaMin
     ).toBeUndefined();
-    expect(config["hydrology-hydrography"].riverNetwork.minorPercentile).toBe(0.74);
-    expect(config["ecology-pedology"].soilClassification.profile).toBe("orogenyBoosted");
-    expect(config["ecology-pedology"].resourceBasinPlanning.profile).toBe("mixed");
-    expect(config["map-ecology"].biomeBindings.marine).toBe("BIOME_MARINE");
-    expect(config.placement.starts.desiredSpacingTiles).toBe(9);
+    expect(
+      config["hydrology-hydrography"].lakes.computeRiverNetworkMetrics.config
+        .highOrderConfluenceUpstreamAreaMin
+    ).toBe(64);
+    expect(config["ecology-pedology"].pedology.classify.strategy).toBe("orogeny-boosted");
+    expect(config["ecology-pedology"]["resource-basins"].plan.strategy).toBe("mixed");
+    expect(config["map-ecology"]).toEqual({ knobs: {} });
+    expect(config.placement["assign-starts"].starts.config.desiredSpacingTiles).toBe(9);
   });
 
   it("compiles the current Swooper Earthlike config into executable stage plans", () => {
@@ -163,19 +197,19 @@ describe("Shipped map configs", () => {
     expect(
       compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow.coveragePct
     ).toBe(55);
-    expect(compiled["map-ecology"]["plot-biomes"].bindings.marine).toBe("BIOME_MARINE");
+    expect(compiled["map-ecology"]["plot-biomes"]).toEqual({});
     expect(
       compiled.placement["derive-placement-inputs"].naturalWonders.config.minSpacingTiles
     ).toBe(6);
     expect(compiled.placement["assign-starts"].starts.config.desiredSpacingTiles).toBe(9);
   });
 
-  it("rejects retired raw step keys and Civ/resource owner leakage", () => {
+  it("rejects retired authoring keys and Civ/resource owner leakage", () => {
     expect(
       errorPathsFor(
         {
-          "hydrology-climate-baseline": { "climate-baseline": { seasonality: { modeCount: 2 } } },
-          "map-ecology": { "plot-biomes": { bindings: { marine: "BIOME_DESERT" } } },
+          "hydrology-climate-baseline": { seasonalCycle: { modeCount: 2 } },
+          "map-ecology": { biomeBindings: { marine: "BIOME_DESERT" } },
           placement: {
             resources: { candidateResourceTypes: [1, 2, 3] },
             starts: { overrides: { startSectors: [] } },
@@ -185,10 +219,10 @@ describe("Shipped map configs", () => {
       )
     ).toEqual(
       expect.arrayContaining([
-        "/maps/retired-shape/hydrology-climate-baseline/climate-baseline",
-        "/maps/retired-shape/map-ecology/plot-biomes",
-        "/maps/retired-shape/placement/resources/candidateResourceTypes",
-        "/maps/retired-shape/placement/starts/overrides",
+        "/maps/retired-shape/hydrology-climate-baseline/seasonalCycle",
+        "/maps/retired-shape/map-ecology/biomeBindings",
+        "/maps/retired-shape/placement/resources",
+        "/maps/retired-shape/placement/starts",
       ])
     );
   });

@@ -115,7 +115,7 @@ export default defineConfig({
   format: ["esm"],
   target: "esnext",
   dts: false,
-  clean: false,
+  clean: true,
   bundle: true,
   splitting: false,
   esbuildPlugins: [mapgenDomainAlias(), resolveJsToTsInRepo()],

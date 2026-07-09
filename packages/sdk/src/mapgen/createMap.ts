@@ -13,17 +13,6 @@ export type MapLatitudeBounds = Readonly<{
   bottomLatitude: number;
 }>;
 
-export type MapRunCorrelation = Readonly<{
-  requestId: string;
-  runArtifactId: string;
-  launchSourceDigest: Readonly<{
-    configContentDigest: string;
-    launchEnvelopeDigest: string;
-  }>;
-  launchEnvelopeDigest: string;
-  generationManifestDigest: string;
-}>;
-
 export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> = Readonly<{
   id: string;
   name: string;
@@ -35,7 +24,7 @@ export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, 
   sourceConfigId?: string;
   configHash?: string;
   envelopeHash?: string;
-  runCorrelation?: MapRunCorrelation;
+  requestId?: string;
   seed?: number;
 }>;
 
@@ -191,16 +180,12 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
-    const runCorrelation = def.runCorrelation ?? null;
     const proofPayload = {
       mapId: def.id,
       sourceConfigId: def.sourceConfigId ?? def.id,
-      requestId: runCorrelation?.requestId ?? null,
-      runArtifactId: runCorrelation?.runArtifactId ?? null,
-      configHash: def.configHash ?? runCorrelation?.launchSourceDigest.configContentDigest ?? null,
-      envelopeHash: def.envelopeHash ?? runCorrelation?.launchEnvelopeDigest ?? null,
-      generationManifestDigest: runCorrelation?.generationManifestDigest ?? null,
-      runCorrelation,
+      requestId: def.requestId ?? null,
+      configHash: def.configHash ?? null,
+      envelopeHash: def.envelopeHash ?? null,
       seed,
       mapSize: captured.mapSizeId,
       dimensions: { width, height },

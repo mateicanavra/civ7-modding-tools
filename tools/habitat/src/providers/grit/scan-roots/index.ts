@@ -25,7 +25,7 @@ export function selectedScanRootsForRules(
   const declaredRoots = selectedRules.flatMap((rule) => rule.scanRoots);
   if (declaredRoots.length === 0) return [...scanRoots];
   const matchingRoots = scanRoots.filter((scanRoot) =>
-    declaredRoots.some((declaredRoot) => scanRootIsWithinDeclaredRoot(scanRoot, declaredRoot))
+    declaredRoots.some((declaredRoot) => pathsOverlap(scanRoot, declaredRoot))
   );
   return matchingRoots.length > 0 ? matchingRoots : [...scanRoots];
 }
@@ -117,24 +117,10 @@ function isApprovedScanRoot(
   options: Pick<PatternScanRootValidationOptions, "allowDocsRoot" | "approvedScanRoots"> = {}
 ): boolean {
   if (options.approvedScanRoots && options.approvedScanRoots.length > 0) {
-    return options.approvedScanRoots.some((approvedRoot) =>
-      scanRootIsWithinDeclaredRoot(relative, approvedRoot)
-    );
+    return options.approvedScanRoots.some((approvedRoot) => pathsOverlap(relative, approvedRoot));
   }
   if (!options.allowDocsRoot && path.extname(relative) === ".md") return false;
   return true;
-}
-
-export function scanRootIsWithinDeclaredRoot(candidate: string, declaredRoot: string): boolean {
-  const normalizedCandidate = normalizeRepoPath(candidate);
-  const normalizedRoot = normalizeRepoPath(declaredRoot);
-  return (
-    normalizedCandidate === normalizedRoot || normalizedCandidate.startsWith(`${normalizedRoot}/`)
-  );
-}
-
-export function scanRootMatchesDeclaredRoot(candidate: string, declaredRoot: string): boolean {
-  return normalizeRepoPath(candidate) === normalizeRepoPath(declaredRoot);
 }
 
 export function pathsOverlap(candidate: string, declaredRoot: string): boolean {

@@ -1,14 +1,10 @@
 export { createStudioOperationId } from "./ids.js";
 export type {
-  CanonicalRunInGameRequest,
-  RunInGameCatalogSource,
   RunInGameDeployment,
-  RunInGameGeneratedMod,
-  RunInGameLogEvidence,
+  RunInGameMaterialized,
   RunInGamePreparedRequest,
   RunInGameProof,
   RunInGameRestartResult,
-  RunInGameRuntimeObservation,
   RunInGameSetupPrepared,
   RunInGameStarted,
   SaveDeployDeployed,
@@ -24,5 +20,6 @@ export {
 } from "./StudioOperationRuntime.js";
 export {
   buildRunInGameSourceSnapshotProof,
+  buildStandardRunInGameSourceSnapshotProof,
   hashRunInGameProofValue,
 } from "./sourceSnapshot.js";

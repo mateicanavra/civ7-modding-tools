@@ -22,14 +22,7 @@
       "patterns": ["mods/mod-swooper-maps/src/domain/*/ops/index.ts"]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/ecology/ops/index.ts",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts",
-    "mods/mod-swooper-maps/src/domain/hydrology/ops/index.ts",
-    "mods/mod-swooper-maps/src/domain/morphology/ops/index.ts",
-    "mods/mod-swooper-maps/src/domain/placement/ops/index.ts",
-    "mods/mod-swooper-maps/src/domain/resources/ops/index.ts"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/baseline.json"

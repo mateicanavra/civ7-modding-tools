@@ -42,10 +42,6 @@ mods/mod-swooper-maps/mod/maps/
 mods/mod-swooper-maps/src/maps/configs/studio-current.config.json
 mods/mod-swooper-maps/src/maps/generated/studio-current.ts
 
-# MapGen Studio runtime diagnostics are private local evidence, not source.
-.mapgen-studio/
-packages/*/.mapgen-studio/
-
 
 # OS/system files
 .DS_Store

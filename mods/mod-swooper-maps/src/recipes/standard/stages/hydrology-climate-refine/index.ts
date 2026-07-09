@@ -1,6 +1,5 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { HydrologyClimateRefinePublicSchema } from "../hydrology-public-config.js";
 import { climateRefine } from "./steps/index.js";
 
 const HydrologyDrynessKnobSchema = Type.Union(
@@ -61,22 +60,7 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "hydrology-climate-refine",
   knobsSchema,
-  public: HydrologyClimateRefinePublicSchema,
   steps: orderStandardStageSteps("hydrology-climate-refine", {
     "climate-refine": climateRefine,
-  }),
-  compile: ({ config }: { config: Record<string, unknown> }) => ({
-    "climate-refine": {
-      computePrecipitation: {
-        strategy: "refine",
-        config: config.precipitationRefinement ?? {},
-      },
-      computeRadiativeForcing: { strategy: "default", config: config.solarForcing ?? {} },
-      computeThermalState: { strategy: "default", config: config.thermalState ?? {} },
-      applyAlbedoFeedback: { strategy: "default", config: config.albedoFeedback ?? {} },
-      computeCryosphereState: { strategy: "default", config: config.cryosphereState ?? {} },
-      computeLandWaterBudget: { strategy: "default", config: config.landWaterBudget ?? {} },
-      computeClimateDiagnostics: { strategy: "default", config: config.diagnostics ?? {} },
-    },
   }),
 } as const);

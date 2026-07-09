@@ -540,35 +540,6 @@ describe("Run in Game exact authorship proof identity", () => {
     });
   });
 
-  it("uses request-local generated mod evidence instead of legacy source-script links", () => {
-    const args = completeProofArgs();
-    const proof = buildRunInGameExactAuthorshipProof({
-      ...args,
-      materialization: {
-        ...args.materialization,
-        path: ".mapgen-studio/run-in-game/run-test/generated-mod",
-        generationManifestDigest: "generation-manifest-hash",
-        runArtifactId: "run-test",
-        generatedModRoot: "/tmp/studio-run/run-test/generated-mod",
-        generatedModFileCount: 4,
-        generatedModDigest: "generated-mod-tree-hash",
-        mapRowId: "MAP_RUN_TEST",
-      },
-      sourceConfig: undefined,
-      generatedSourceScript: undefined,
-    });
-
-    expect(proof.status).toBe("complete");
-    expect(proof.unresolvedLinks).not.toContain("materialization.source-config-file");
-    expect(proof.unresolvedLinks).not.toContain("materialization.generated-source-script");
-    expect(proof.materialization).toMatchObject({
-      generationManifestDigest: "generation-manifest-hash",
-      runArtifactId: "run-test",
-      generatedModDigest: "generated-mod-tree-hash",
-      mapRowId: "MAP_RUN_TEST",
-    });
-  });
-
   it("keeps exact authorship unresolved when source snapshot body is not auditable", () => {
     const proof = buildRunInGameExactAuthorshipProof({
       ...completeProofArgs(),

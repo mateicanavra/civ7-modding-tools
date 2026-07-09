@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { RunInGameSourceSnapshotProof } from "@civ7/studio-contract";
+import type { StudioInputs } from "../context.js";
 
 export function buildRunInGameSourceSnapshotProof(
   args: Readonly<{
@@ -42,6 +43,27 @@ export function buildRunInGameSourceSnapshotProof(
   };
 }
 
+export function buildStandardRunInGameSourceSnapshotProof(
+  args: Readonly<{
+    requestId: string;
+    input: StudioInputs["runInGame"]["start"];
+  }>
+): RunInGameSourceSnapshotProof | undefined {
+  const configHash = hashProofValue(args.input.config);
+  const envelopeHash = hashProofValue({
+    id: standardRunInGameMapConfigId(args.input),
+    recipe: "standard",
+    latitudeBounds: selectedConfigRecord(args.input.selectedConfig)?.latitudeBounds ?? null,
+    configHash,
+  });
+  return buildRunInGameSourceSnapshotProof({
+    requestId: args.requestId,
+    sourceSnapshot: args.input.sourceSnapshot,
+    configHash,
+    envelopeHash,
+  });
+}
+
 export function hashRunInGameProofValue(value: unknown): string {
   return hashProofValue(value);
 }
@@ -63,6 +85,20 @@ function canonicalize(value: unknown): unknown {
     return out;
   }
   return value;
+}
+
+function standardRunInGameMapConfigId(input: StudioInputs["runInGame"]["start"]): string {
+  if (input.materialization?.mode !== "durable") return "studio-current";
+  const selected = selectedConfigRecord(input.selectedConfig);
+  return typeof selected?.id === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
+    ? selected.id
+    : "studio-current";
+}
+
+function selectedConfigRecord(
+  selectedConfig: StudioInputs["runInGame"]["start"]["selectedConfig"]
+): Record<string, unknown> | undefined {
+  return isRecord(selectedConfig) ? selectedConfig : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

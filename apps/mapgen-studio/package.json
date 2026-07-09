@@ -18,7 +18,6 @@
     "@civ7/map-policy": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
     "@civ7/studio-contract": "workspace:*",
-    "@civ7/studio-run-workspace": "workspace:*",
     "@civ7/studio-server": "workspace:*",
     "@orpc/client": "1.14.6",
     "@orpc/contract": "1.14.6",
