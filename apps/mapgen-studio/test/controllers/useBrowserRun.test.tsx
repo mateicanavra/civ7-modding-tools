@@ -15,7 +15,7 @@ vi.mock("../../src/features/civ7Setup/seedPolicy", async (orig) => {
 });
 
 // Default authoring state captured once (the recipe-derived default pipelineConfig
-// is a real, migratable config — reused as the per-test baseline).
+// is reused as the per-test baseline).
 const DEFAULT_RECIPE = useAuthoringStore.getState().recipeSettings.recipe;
 const DEFAULT_CONFIG = useAuthoringStore.getState().pipelineConfig;
 
@@ -110,18 +110,37 @@ describe("useBrowserRun — run actions (BR-6 / BR-7)", () => {
 // startBrowserRun internals — overrides + seed validation (BR-8, BR-9)
 // ---------------------------------------------------------------------------
 describe("useBrowserRun — startBrowserRun config + seed (BR-8 / BR-9)", () => {
-  it("BR-8: passes configOverrides:undefined when overrides are disabled, migrated config when enabled", () => {
+  it("BR-8: passes one exact pipelineConfig object for both default and edited runs", () => {
     const disabled = renderBrowserRun();
     act(() => useAuthoringStore.setState({ overridesDisabled: true }));
     act(() => disabled.view.result.current.triggerRun());
     expect(disabled.runnerActions.start).toHaveBeenCalledTimes(1);
-    expect(disabled.runnerActions.start.mock.calls[0][0].configOverrides).toBeUndefined();
+    expect(disabled.runnerActions.start.mock.calls[0][0].pipelineConfig).toEqual(DEFAULT_CONFIG);
 
+    const exactConfig = { ...DEFAULT_CONFIG } as typeof DEFAULT_CONFIG;
     const enabled = renderBrowserRun();
-    act(() => useAuthoringStore.setState({ overridesDisabled: false }));
+    act(() => useAuthoringStore.setState({ overridesDisabled: false, pipelineConfig: exactConfig }));
     act(() => enabled.view.result.current.triggerRun());
     expect(enabled.runnerActions.start).toHaveBeenCalledTimes(1);
-    expect(enabled.runnerActions.start.mock.calls[0][0].configOverrides).not.toBeUndefined();
+    expect(enabled.runnerActions.start.mock.calls[0][0].pipelineConfig).toEqual(exactConfig);
+    expect(useRunStore.getState().lastRunSnapshot?.pipelineConfig).toEqual(exactConfig);
+  });
+
+  it("BR-8: rejects invalid pipelineConfig before snapshot or worker start", () => {
+    const invalidConfig = { ...DEFAULT_CONFIG, $schema: "sentinel" } as unknown as typeof DEFAULT_CONFIG;
+    const enabled = renderBrowserRun();
+    act(() => useAuthoringStore.setState({ overridesDisabled: false, pipelineConfig: invalidConfig }));
+    act(() => enabled.view.result.current.triggerRun());
+
+    expect(enabled.runnerActions.start).not.toHaveBeenCalled();
+    expect(useRunStore.getState().lastRunSnapshot).toBeNull();
+    expect(enabled.setLocalError).toHaveBeenCalledWith(
+      expect.stringContaining("Browser run failed: config is invalid")
+    );
+    expect(enabled.toast).toHaveBeenCalledWith(
+      "Browser run failed: config is invalid for this recipe.",
+      expect.objectContaining({ variant: "error" })
+    );
   });
 
   it("BR-9: aborts on an invalid seed — sets localError, toasts, and never calls start", () => {

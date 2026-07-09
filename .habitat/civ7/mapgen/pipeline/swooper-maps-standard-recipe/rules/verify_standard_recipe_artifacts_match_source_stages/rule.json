@@ -12,7 +12,7 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "generated standard recipe artifacts that drift from source stages or expose raw operation envelopes through semantic-public stage surfaces",
+  "forbids": "generated standard recipe artifacts that drift from source stages or schema-derived default config JSON",
   "why": "Standard recipe artifacts are structural authoring outputs consumed by Studio and SDK surfaces.",
   "remediate": "Regenerate standard recipe artifacts from source stages and canonical defaults.",
   "message": "Standard recipe generated artifacts drifted from source stages.",
@@ -21,8 +21,7 @@
       "kind": "exact-path",
       "patterns": [
         "mods/mod-swooper-maps/src/recipes/standard/**",
-        "mods/mod-swooper-maps/dist/recipes/standard-artifacts.*",
-        "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json"
+        "mods/mod-swooper-maps/dist/recipes/standard-artifacts.*"
       ]
     },
     {

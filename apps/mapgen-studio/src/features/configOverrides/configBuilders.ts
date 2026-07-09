@@ -1,110 +1,20 @@
-// Deterministic config construction for the Studio authoring model.
-//
-// These helpers are pure (no React, no I/O): they build the per-recipe pipeline
-// config skeleton, merge schema defaults and presets deterministically, and
-// normalize the result through the recipe schema. They were extracted verbatim
-// from `App.tsx` during the app-decomposition slice — behavior is unchanged.
-
-import { stripSchemaMetadataRoot, type TSchema } from "@swooper/mapgen-core/authoring";
+import type { TSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
-import type { StudioRecipeUiMeta } from "../../recipes/catalog";
-import { migratePipelineConfigUnknown } from "../configMigrations/pipelineConfig";
+import { Value } from "typebox/value";
 import type { PresetKey } from "../presets/types";
 
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function isNumericPathSegment(segment: string): boolean {
-  return /^[0-9]+$/.test(segment);
-}
-
-const FORBIDDEN_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
-
-export function mergeDeterministic(base: unknown, overrides: unknown): unknown {
-  if (overrides === undefined) return base;
-  if (!isPlainObject(base) || !isPlainObject(overrides)) return overrides;
-
-  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
-  for (const key of Object.keys(overrides)) {
-    if (FORBIDDEN_MERGE_KEYS.has(key)) continue;
-    out[key] = mergeDeterministic((base as Record<string, unknown>)[key], overrides[key]);
-  }
-  return out;
-}
-
-export function setAtPath(
-  root: Record<string, unknown>,
-  path: readonly string[],
-  value: unknown
-): void {
-  let current: unknown = root;
-  for (let i = 0; i < path.length; i += 1) {
-    const key = path[i];
-    const isLast = i === path.length - 1;
-    const nextKey = path[i + 1];
-    const wantsArray = typeof nextKey === "string" && isNumericPathSegment(nextKey);
-
-    if (Array.isArray(current) && isNumericPathSegment(key)) {
-      const idx = Number(key);
-      if (isLast) {
-        if (current[idx] === undefined) current[idx] = value;
-        return;
-      }
-      const next = current[idx];
-      if (!isPlainObject(next) && !Array.isArray(next)) {
-        current[idx] = wantsArray ? [] : {};
-      }
-      current = current[idx];
-      continue;
-    }
-
-    if (!isPlainObject(current) && !Array.isArray(current)) {
-      return;
-    }
-    const record = current as Record<string, unknown>;
-    if (isLast) {
-      if (record[key] === undefined) record[key] = value;
-      return;
-    }
-    const existing = record[key];
-    if (!isPlainObject(existing) && !Array.isArray(existing)) {
-      record[key] = wantsArray ? [] : {};
-    }
-    current = record[key];
-  }
-}
-
-export function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): PipelineConfig {
-  const skeleton: PipelineConfig = {};
-  for (const stage of uiMeta.stages) {
-    const stageConfig: Record<string, unknown> = { knobs: {} };
-    for (const step of stage.steps) {
-      setAtPath(stageConfig, step.configFocusPathWithinStage, {});
-    }
-    skeleton[stage.stageId] = stageConfig;
-  }
-  return skeleton;
-}
-
-export function buildDefaultConfig(
-  schema: TSchema,
-  uiMeta: StudioRecipeUiMeta,
-  defaultConfig: unknown
-): PipelineConfig {
-  const skeleton = buildConfigSkeleton(uiMeta);
-  const merged = mergeDeterministic(skeleton, stripSchemaMetadataRoot(defaultConfig));
-  const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, "/defaultConfig");
-  if (errors.length > 0) {
-    console.error("[mapgen-studio] invalid recipe config schema defaults", errors);
-    return skeleton;
-  }
-  return value;
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
 }
 
 export type PresetApplyResult = Readonly<{
-  value: PipelineConfig | null;
+  ok: true;
+  value: PipelineConfig;
+}> | Readonly<{
+  ok: false;
   errors: ReadonlyArray<{ path: string; message: string }>;
 }>;
 
@@ -113,19 +23,90 @@ export type AppliedPresetSnapshot = Readonly<{
   config: unknown;
 }>;
 
+function jsonClone(value: unknown): unknown {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "boolean"
+  ) {
+    return value;
+  }
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new Error("number must be finite");
+    return value;
+  }
+  if (Array.isArray(value)) return value.map(jsonClone);
+  if (isPlainObject(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(value)) {
+      const cloned = jsonClone(child);
+      out[key] = cloned;
+    }
+    return out;
+  }
+  throw new Error("value must be JSON data");
+}
+
+function toJsonConfig(value: unknown): { ok: true; value: unknown } | { ok: false } {
+  try {
+    return { ok: true, value: jsonClone(value) };
+  } catch {
+    return { ok: false };
+  }
+}
+
+export function validateExactPipelineConfig(args: {
+  schema: TSchema;
+  config: unknown;
+  label: string;
+}): PresetApplyResult {
+  const { schema, config, label } = args;
+  const jsonConfig = toJsonConfig(config);
+  if (!jsonConfig.ok) {
+    return {
+      ok: false,
+      errors: [
+        {
+          path: `/config/${label}`,
+          message: "Config must be plain JSON data.",
+        },
+      ],
+    };
+  }
+
+  const { value, errors } = normalizeStrict<PipelineConfig>(
+    schema,
+    jsonConfig.value,
+    `/config/${label}`
+  );
+  if (errors.length > 0) return { ok: false, errors };
+
+  if (!Value.Equal(value, jsonConfig.value)) {
+    return {
+      ok: false,
+      errors: [
+        {
+          path: `/config/${label}`,
+          message:
+            "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
+        },
+      ],
+    };
+  }
+
+  return { ok: true, value };
+}
+
 export function applyPresetConfig(args: {
   schema: TSchema;
-  uiMeta: StudioRecipeUiMeta;
   presetConfig: unknown;
   label: string;
 }): PresetApplyResult {
-  const { schema, uiMeta, presetConfig, label } = args;
-  const skeleton = buildConfigSkeleton(uiMeta);
-  const migratedPresetConfig = migratePipelineConfigUnknown(stripSchemaMetadataRoot(presetConfig));
-  const merged = mergeDeterministic(skeleton, migratedPresetConfig);
-  const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, `/preset/${label}`);
-  if (errors.length > 0) return { value: null, errors };
-  return { value, errors: [] };
+  return validateExactPipelineConfig({
+    schema: args.schema,
+    config: args.presetConfig,
+    label: args.label,
+  });
 }
 
 export function formatPresetErrors(

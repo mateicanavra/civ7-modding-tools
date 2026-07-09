@@ -1,6 +1,5 @@
 import {
   type StudioPresetExportFileV1,
-  stripSchemaMetadataRoot,
 } from "@swooper/mapgen-core/authoring";
 import type {
   PipelineConfig,
@@ -12,10 +11,10 @@ import { type Civ7StudioSetupConfig } from "../../features/civ7Setup/setupConfig
 import {
   type AppliedPresetSnapshot,
   applyPresetConfig,
-  buildDefaultConfig,
   formatPresetErrors,
   isPlainObject,
 } from "../../features/configOverrides/configBuilders";
+import { getExactRecipeDefaultConfig } from "../../features/configOverrides/effectiveConfig";
 import type { PresetErrorState } from "../../features/presets/dialogState";
 import {
   buildPresetExportFile,
@@ -23,7 +22,7 @@ import {
   parsePresetExportFile,
 } from "../../features/presets/importExport";
 import { resolveImportedPreset } from "../../features/presets/importFlow";
-import { mergeBuiltInPresets } from "../../features/presets/repoBacked";
+import { mergeBuiltInPresetsWithSessionPresets } from "../../features/presets/repoBacked";
 import { type PresetKey, parsePresetKey } from "../../features/presets/types";
 import { type LivePreset, usePresets } from "../../features/presets/usePresets";
 import { type BuiltInPreset, findRecipeArtifacts, getRecipeArtifacts } from "../../recipes/catalog";
@@ -47,8 +46,8 @@ export type AuthoringSnapshotInput = {
 export type UsePresetLifecycleArgs = {
   /** Authoring recipe/preset selection — drives the catalog + apply-effects. */
   recipeSettings: RecipeSettings;
-  /** Authoring-store repo-backed override map; feeds `builtInPresets` (UN-CLONED). */
-  repoBackedPresetOverridesByRecipe: Record<string, Record<string, BuiltInPreset>>;
+  /** Session-only configs saved before the generated recipe catalog reloads. */
+  repoBackedSessionPresetsByRecipe: Record<string, Record<string, BuiltInPreset>>;
   /**
    * Host-owned live-preset projection (cycle break, design.md §7.6) threaded in so
    * `resolvePreset(LIVE_GAME_PRESET_KEY).config` stays referentially the proved
@@ -62,7 +61,7 @@ export type UsePresetLifecycleArgs = {
   setPipelineConfig: AuthoringState["setPipelineConfig"];
   setOverridesDisabled: AuthoringState["setOverridesDisabled"];
   setRecipeSettings: AuthoringState["setRecipeSettings"];
-  setRepoBackedPresetOverridesByRecipe: AuthoringState["setRepoBackedPresetOverridesByRecipe"];
+  setRepoBackedSessionPresetsByRecipe: AuthoringState["setRepoBackedSessionPresetsByRecipe"];
   setLastRunSnapshot: RunState["setLastRunSnapshot"];
   toast: ToastFn;
 };
@@ -118,7 +117,7 @@ export type UsePresetLifecycleResult = {
 export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifecycleResult {
   const {
     recipeSettings,
-    repoBackedPresetOverridesByRecipe,
+    repoBackedSessionPresetsByRecipe,
     livePresets,
     pipelineConfig,
     setWorldSettings,
@@ -126,7 +125,7 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
     setPipelineConfig,
     setOverridesDisabled,
     setRecipeSettings,
-    setRepoBackedPresetOverridesByRecipe,
+    setRepoBackedSessionPresetsByRecipe,
     setLastRunSnapshot,
     toast,
   } = args;
@@ -144,11 +143,11 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
   );
   const builtInPresets = useMemo(
     () =>
-      mergeBuiltInPresets(
+      mergeBuiltInPresetsWithSessionPresets(
         recipeArtifacts.studioBuiltInPresets ?? [],
-        repoBackedPresetOverridesByRecipe[recipeSettings.recipe] ?? {}
+        repoBackedSessionPresetsByRecipe[recipeSettings.recipe] ?? {}
       ),
-    [recipeArtifacts.studioBuiltInPresets, recipeSettings.recipe, repoBackedPresetOverridesByRecipe]
+    [recipeArtifacts.studioBuiltInPresets, recipeSettings.recipe, repoBackedSessionPresetsByRecipe]
   );
   const {
     options: presetOptions,
@@ -170,19 +169,11 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
     if (parsePresetKey(recipeSettings.preset).kind !== "none") return;
     if (previousPreset === recipeSettings.preset && previousRecipe === recipeSettings.recipe)
       return;
-    const base = buildDefaultConfig(
-      recipeArtifacts.configSchema,
-      recipeArtifacts.uiMeta,
-      recipeArtifacts.defaultConfig
-    );
-    setPipelineConfig(base);
+    setPipelineConfig(getExactRecipeDefaultConfig(recipeSettings.recipe, "preset-none"));
     setOverridesDisabled(false);
     setLastRunSnapshot(null);
     lastAppliedPresetRef.current = null;
   }, [
-    recipeArtifacts.configSchema,
-    recipeArtifacts.defaultConfig,
-    recipeArtifacts.uiMeta,
     recipeSettings.recipe,
     recipeSettings.preset,
   ]);
@@ -208,11 +199,10 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
     if (lastApplied?.key === nextKey && lastApplied.config === resolved.config) return;
     const applied = applyPresetConfig({
       schema: recipeArtifacts.configSchema,
-      uiMeta: recipeArtifacts.uiMeta,
       presetConfig: resolved.config,
       label: resolved.label,
     });
-    if (!applied.value) {
+    if (!applied.ok) {
       toast("Preset invalid", { variant: "error" });
       setPresetError({
         title: "Preset invalid",
@@ -226,7 +216,6 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
   }, [
     resolvePreset,
     recipeArtifacts.configSchema,
-    recipeArtifacts.uiMeta,
     recipeSettings.preset,
     toast,
   ]);
@@ -261,7 +250,7 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
 
   const rememberRepoBackedConfig = useCallback(
     (recipeId: string, preset: BuiltInPreset) => {
-      setRepoBackedPresetOverridesByRecipe((prev) => ({
+      setRepoBackedSessionPresetsByRecipe((prev) => ({
         ...prev,
         [recipeId]: {
           ...(prev[recipeId] ?? {}),
@@ -269,7 +258,7 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
         },
       }));
     },
-    [setRepoBackedPresetOverridesByRecipe]
+    [setRepoBackedSessionPresetsByRecipe]
   );
 
   const handleDeletePreset = useCallback(() => {
@@ -297,27 +286,46 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
   const handleExportPreset = useCallback(() => {
     const key = recipeSettings.preset as PresetKey;
     const resolved = resolvePreset(key);
-    const sanitizedConfig = resolved
-      ? stripSchemaMetadataRoot(resolved.config)
-      : stripSchemaMetadataRoot(pipelineConfig);
-    if (!isPlainObject(sanitizedConfig)) {
+    const config = resolved ? resolved.config : pipelineConfig;
+    if (!isPlainObject(config)) {
       toast("Preset export failed: config must be an object", { variant: "error" });
+      return;
+    }
+    const validated = applyPresetConfig({
+      schema: recipeArtifacts.configSchema,
+      presetConfig: config,
+      label: "export",
+    });
+    if (!validated.ok) {
+      toast("Preset export failed: config is invalid for this recipe", { variant: "error" });
+      setPresetError({
+        title: "Preset export failed",
+        message: "The selected config failed schema validation.",
+        details: formatPresetErrors(validated.errors),
+      });
       return;
     }
     const payload = resolved
       ? {
           label: resolved.label,
           description: resolved.description,
-          config: sanitizedConfig,
+          config: validated.value as Record<string, unknown>,
         }
       : {
           label: "Current Config",
-          config: sanitizedConfig,
+          config: validated.value as Record<string, unknown>,
         };
     const built = buildPresetExportFile({ recipeId: recipeSettings.recipe, preset: payload });
     downloadPresetFile(built.filename, built.json);
     toast("Preset exported", { variant: "success" });
-  }, [pipelineConfig, recipeSettings.preset, recipeSettings.recipe, resolvePreset, toast]);
+  }, [
+    pipelineConfig,
+    recipeArtifacts.configSchema,
+    recipeSettings.preset,
+    recipeSettings.recipe,
+    resolvePreset,
+    toast,
+  ]);
 
   const importPresetValue = useCallback(
     (presetFile: StudioPresetExportFileV1) => {

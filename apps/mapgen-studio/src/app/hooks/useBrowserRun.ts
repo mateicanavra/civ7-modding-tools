@@ -16,7 +16,11 @@ import {
   parseCiv7StudioSeed,
   randomCiv7StudioSeed,
 } from "../../features/civ7Setup/seedPolicy";
-import { migratePipelineConfig } from "../../features/configMigrations/pipelineConfig";
+import {
+  formatPresetErrors,
+  validateExactPipelineConfig,
+} from "../../features/configOverrides/configBuilders";
+import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
 import type { UseVizStateResult } from "../../features/viz/useVizState";
 import { useAuthoringStore } from "../../stores/authoringStore";
 import { useRunStore } from "../../stores/runStore";
@@ -120,7 +124,24 @@ export function useBrowserRun({
       }
       const seed = seedPolicy.value;
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      const runPipelineConfig = migratePipelineConfig(pipelineConfig);
+      const effectiveConfigSource = resolveEffectivePipelineConfig({
+        recipeId: recipeSettings.recipe,
+        pipelineConfig,
+        overridesDisabled,
+      });
+      const validatedConfig = validateExactPipelineConfig({
+        schema: effectiveConfigSource.recipeArtifacts.configSchema,
+        config: effectiveConfigSource.config,
+        label: "browser-run",
+      });
+      if (!validatedConfig.ok) {
+        const message = `Browser run failed: config is invalid for this recipe.\n${formatPresetErrors(
+          validatedConfig.errors
+        ).join("\n")}`;
+        setLocalError(message);
+        toast("Browser run failed: config is invalid for this recipe.", { variant: "error" });
+        return;
+      }
 
       const pinned = capturePinnedSelection({
         selectedStepId: viz.selectedStepId,
@@ -135,7 +156,7 @@ export function useBrowserRun({
       setLastRunSnapshot({
         worldSettings,
         recipeSettings: { ...recipeSettings, seed: seedStr },
-        pipelineConfig: runPipelineConfig,
+        pipelineConfig: validatedConfig.value,
       });
 
       runnerActions.start({
@@ -146,12 +167,20 @@ export function useBrowserRun({
         latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
         playerCount: worldSettings.playerCount,
         resourcesMode: worldSettings.resources,
-        configOverrides: overridesDisabled ? undefined : (runPipelineConfig as unknown),
+        pipelineConfig: validatedConfig.value,
       });
     },
-    // Dep set preserved verbatim from the host original; the stable store/state
-    // setters (`setLocalError`, `setLastRunSnapshot`) are intentionally omitted.
-    [runnerActions, overridesDisabled, pipelineConfig, recipeSettings, toast, worldSettings, viz]
+    [
+      runnerActions,
+      overridesDisabled,
+      pipelineConfig,
+      recipeSettings,
+      setLastRunSnapshot,
+      setLocalError,
+      toast,
+      worldSettings,
+      viz,
+    ]
   );
 
   useEffect(() => {

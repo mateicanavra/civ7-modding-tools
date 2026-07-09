@@ -3,16 +3,14 @@ import type {
   RecipeSettings,
   WorldSettings,
 } from "@swooper/mapgen-studio-ui/types";
-import type { BuiltInPreset } from "../../recipes/catalog";
 import {
   type Civ7StudioSetupConfig,
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
-import {
-  migratePipelineConfig,
-  migratePipelineConfigUnknown,
-} from "../configMigrations/pipelineConfig";
+import { validateExactPipelineConfig } from "../configOverrides/configBuilders";
+import { resolveEffectivePipelineConfig } from "../configOverrides/effectiveConfig";
+import { findRecipeArtifacts } from "../../recipes/catalog";
 
 export const STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v1";
 
@@ -24,7 +22,6 @@ export type StudioAuthoringStateSnapshot = Readonly<{
   setupConfig: Civ7StudioSetupConfig;
   pipelineConfig: PipelineConfig;
   overridesDisabled: boolean;
-  repoBackedPresetOverridesByRecipe: Record<string, Record<string, BuiltInPreset>>;
 }>;
 
 type KeyValueStorage = Pick<Storage, "getItem" | "setItem">;
@@ -74,38 +71,6 @@ function parseRecipeSettings(value: unknown): RecipeSettings | null {
   };
 }
 
-function parseBuiltInPreset(value: unknown): BuiltInPreset | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.id !== "string" || typeof value.label !== "string" || !isRecord(value.config))
-    return null;
-  return {
-    id: value.id,
-    label: value.label,
-    ...(typeof value.description === "string" ? { description: value.description } : {}),
-    ...(typeof value.sourcePath === "string" ? { sourcePath: value.sourcePath } : {}),
-    ...(typeof value.sortIndex === "number" ? { sortIndex: value.sortIndex } : {}),
-    ...(isRecord(value.latitudeBounds)
-      ? { latitudeBounds: value.latitudeBounds as BuiltInPreset["latitudeBounds"] }
-      : {}),
-    config: migratePipelineConfigUnknown(value.config),
-  };
-}
-
-function parseRepoBackedOverrides(value: unknown): Record<string, Record<string, BuiltInPreset>> {
-  if (!isRecord(value)) return {};
-  const out: Record<string, Record<string, BuiltInPreset>> = {};
-  for (const [recipeId, presets] of Object.entries(value)) {
-    if (!isRecord(presets)) continue;
-    const recipePresets: Record<string, BuiltInPreset> = {};
-    for (const [presetId, preset] of Object.entries(presets)) {
-      const parsed = parseBuiltInPreset(preset);
-      if (parsed) recipePresets[presetId] = parsed;
-    }
-    if (Object.keys(recipePresets).length > 0) out[recipeId] = recipePresets;
-  }
-  return out;
-}
-
 export function parseStudioAuthoringState(
   value: string | null
 ): StudioAuthoringStateSnapshot | null {
@@ -117,6 +82,14 @@ export function parseStudioAuthoringState(
     const worldSettings = parseWorldSettings(parsed.worldSettings);
     const recipeSettings = parseRecipeSettings(parsed.recipeSettings);
     if (!worldSettings || !recipeSettings || !isRecord(parsed.pipelineConfig)) return null;
+    const recipeArtifacts = findRecipeArtifacts(recipeSettings.recipe);
+    if (!recipeArtifacts) return null;
+    const pipelineConfig = validateExactPipelineConfig({
+      schema: recipeArtifacts.configSchema,
+      config: parsed.pipelineConfig,
+      label: "persisted-authoring",
+    });
+    if (!pipelineConfig.ok) return null;
     return {
       schemaVersion: 1,
       savedAt: parsed.savedAt,
@@ -125,11 +98,8 @@ export function parseStudioAuthoringState(
       setupConfig: normalizeStudioSetupConfig(
         parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
       ),
-      pipelineConfig: migratePipelineConfig(parsed.pipelineConfig as PipelineConfig),
+      pipelineConfig: pipelineConfig.value,
       overridesDisabled: parsed.overridesDisabled === true,
-      repoBackedPresetOverridesByRecipe: parseRepoBackedOverrides(
-        parsed.repoBackedPresetOverridesByRecipe
-      ),
     };
   } catch {
     return null;
@@ -153,6 +123,17 @@ export function saveStudioAuthoringState(
 ): void {
   if (!storage) return;
   try {
+    const effectiveConfig = resolveEffectivePipelineConfig({
+      recipeId: args.recipeSettings.recipe,
+      pipelineConfig: args.pipelineConfig,
+      overridesDisabled: args.overridesDisabled,
+    });
+    const pipelineConfig = validateExactPipelineConfig({
+      schema: effectiveConfig.recipeArtifacts.configSchema,
+      config: effectiveConfig.config,
+      label: "persisted-authoring",
+    });
+    if (!pipelineConfig.ok) return;
     storage.setItem(
       STUDIO_AUTHORING_STATE_KEY,
       JSON.stringify({
@@ -161,11 +142,8 @@ export function saveStudioAuthoringState(
         worldSettings: args.worldSettings,
         recipeSettings: args.recipeSettings,
         setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-        pipelineConfig: migratePipelineConfig(args.pipelineConfig),
+        pipelineConfig: pipelineConfig.value,
         overridesDisabled: args.overridesDisabled,
-        repoBackedPresetOverridesByRecipe: parseRepoBackedOverrides(
-          args.repoBackedPresetOverridesByRecipe
-        ),
       })
     );
   } catch {

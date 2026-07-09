@@ -1,20 +1,17 @@
 import { describe, expect, it } from "bun:test";
 
 import {
+  buildCompleteSchemaDefaults,
   deriveRecipeConfigSchema,
   deriveStageAuthoringModel,
-  stripSchemaMetadataRoot,
   type TSchema,
 } from "@swooper/mapgen-core/authoring";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
 
-import { validateCanonicalMapConfig } from "../../src/maps/configs/canonical.js";
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
 function stableJson(value: unknown): unknown {
@@ -71,61 +68,14 @@ function deriveSourceStudioUiMeta() {
   };
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
-function setAtPath(root: Record<string, unknown>, path: readonly string[]): void {
-  let current = root;
-  for (const segment of path) {
-    const next = current[segment];
-    if (isPlainObject(next)) {
-      current = next;
-      continue;
-    }
-    const created: Record<string, unknown> = {};
-    current[segment] = created;
-    current = created;
-  }
-}
-
-function buildDefaultsSkeleton(uiMeta: ReturnType<typeof deriveSourceStudioUiMeta>) {
-  const out: Record<string, unknown> = {};
-  for (const stage of uiMeta.stages) {
-    const stageConfig: Record<string, unknown> = { knobs: {} };
-    for (const step of stage.steps) {
-      setAtPath(stageConfig, step.configFocusPathWithinStage);
-    }
-    out[stage.stageId] = stageConfig;
-  }
-  return out;
-}
-
 describe("standard recipe source artifact guards", () => {
   it("keeps generated standard schema and defaults aligned with source stages", () => {
     const sourceSchema = stableJson(deriveRecipeConfigSchema(STANDARD_STAGES as any)) as TSchema;
     const sourceUiMeta = deriveSourceStudioUiMeta();
+    const sourceDefaults = stableJson(buildCompleteSchemaDefaults(sourceSchema));
+
     expect(STANDARD_RECIPE_CONFIG_SCHEMA).toEqual(sourceSchema);
     expect(STANDARD_RECIPE_UI_META).toEqual(sourceUiMeta);
-
-    const standardDefaultPreset = validateCanonicalMapConfig({
-      fileName: "swooper-earthlike.config.json",
-      raw: swooperEarthlikeConfigRaw,
-      recipeSchema: sourceSchema,
-      stages: STANDARD_STAGES,
-    });
-    const { value, errors } = normalizeStrict<Record<string, unknown>>(
-      sourceSchema,
-      {
-        ...buildDefaultsSkeleton(sourceUiMeta),
-        ...stripSchemaMetadataRoot(standardDefaultPreset.config),
-      },
-      "/standard/defaults"
-    );
-    expect(errors).toEqual([]);
-    const sourceDefaults = stripSchemaMetadataRoot(value) as Record<string, any>;
-    expect(sourceDefaults["foundation-orogeny"]).toHaveProperty("crustCharacter");
-    expect(sourceDefaults["foundation-orogeny"]).not.toHaveProperty("crust-evolution");
     expect(STANDARD_RECIPE_CONFIG).toEqual(sourceDefaults);
   });
 });

@@ -3,17 +3,14 @@ import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./_setup";
 
-// Spy on the pure config builders so we can count apply/reset invocations WITHOUT
-// mocking the preset-resolution chain — `usePresets` / `mergeBuiltInPresets` /
-// `toRepoBackedPreset` run for real so the `===` identity guards (ADD-1/ADD-1b)
-// are exercised end-to-end, not against a stand-in. The spies wrap the real impls.
+// Spy on the config acceptance helper WITHOUT mocking the preset-resolution chain.
+// The test wants the real named-config source behavior, not a stand-in resolver.
 vi.mock("../../src/features/configOverrides/configBuilders", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../src/features/configOverrides/configBuilders")>();
   return {
     ...actual,
     applyPresetConfig: vi.fn(actual.applyPresetConfig),
-    buildDefaultConfig: vi.fn(actual.buildDefaultConfig),
   };
 });
 
@@ -24,34 +21,25 @@ import {
 } from "../../src/app/hooks/usePresetLifecycle";
 import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../../src/features/civ7Setup/livePreset";
 import { DEFAULT_CIV7_STUDIO_SETUP_CONFIG } from "../../src/features/civ7Setup/setupConfig";
-import {
-  applyPresetConfig,
-  buildDefaultConfig,
-} from "../../src/features/configOverrides/configBuilders";
+import { applyPresetConfig } from "../../src/features/configOverrides/configBuilders";
 import { buildPresetExportFile } from "../../src/features/presets/importExport";
 import type { BuiltInPreset } from "../../src/recipes/catalog";
 import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../../src/recipes/catalog";
 import { DEFAULT_RECIPE_SETTINGS, DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
 
 const applySpy = vi.mocked(applyPresetConfig);
-const buildSpy = vi.mocked(buildDefaultConfig);
 
 const RECIPE = DEFAULT_STUDIO_RECIPE_ID;
 const artifacts = getRecipeArtifacts(RECIPE);
-// A real, schema-valid config object (stable identity) used as the saved/preset config.
-const VALID_CFG = buildDefaultConfig(
-  artifacts.configSchema,
-  artifacts.uiMeta,
-  artifacts.defaultConfig
-) as PipelineConfig;
+const VALID_CFG = artifacts.defaultConfig as PipelineConfig;
 const SAVED_CFG = { ...VALID_CFG } as PipelineConfig;
 const SAVED_PRESET: BuiltInPreset = { id: "saved-cfg", label: "Saved", config: SAVED_CFG };
-const OVERRIDES = { [RECIPE]: { "saved-cfg": SAVED_PRESET } };
+const SESSION_PRESETS = { [RECIPE]: { "saved-cfg": SAVED_PRESET } };
 
 function makeProps(over: Partial<UsePresetLifecycleArgs> = {}): UsePresetLifecycleArgs {
   return {
     recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, recipe: RECIPE, preset: "none" },
-    repoBackedPresetOverridesByRecipe: {},
+    repoBackedSessionPresetsByRecipe: {},
     livePresets: [],
     pipelineConfig: VALID_CFG,
     setWorldSettings: vi.fn(),
@@ -59,7 +47,7 @@ function makeProps(over: Partial<UsePresetLifecycleArgs> = {}): UsePresetLifecyc
     setPipelineConfig: vi.fn(),
     setOverridesDisabled: vi.fn(),
     setRecipeSettings: vi.fn(),
-    setRepoBackedPresetOverridesByRecipe: vi.fn(),
+    setRepoBackedSessionPresetsByRecipe: vi.fn(),
     setLastRunSnapshot: vi.fn(),
     toast: vi.fn(),
     ...over,
@@ -81,7 +69,6 @@ const order = (fn: ReturnType<typeof vi.fn>) => fn.mock.invocationCallOrder[0];
 beforeEach(() => {
   localStorage.clear();
   applySpy.mockClear();
-  buildSpy.mockClear();
 });
 afterEach(() => {
   vi.clearAllMocks();
@@ -89,7 +76,9 @@ afterEach(() => {
 
 describe("usePresetLifecycle — markPresetApplied / applyAuthoringSnapshot identity contracts", () => {
   it("ADD-1: markPresetApplied stores the EXACT config so the post-save apply-effect skip-guard short-circuits", () => {
-    const { result, props, withPreset } = setup({ repoBackedPresetOverridesByRecipe: OVERRIDES });
+    const { result, props, withPreset } = setup({
+      repoBackedSessionPresetsByRecipe: SESSION_PRESETS,
+    });
     applySpy.mockClear();
     // Mimic the host save path: record the saved preset BEFORE the key flip.
     act(() => result.current.markPresetApplied({ key: "builtin:saved-cfg", config: SAVED_CFG }));
@@ -127,18 +116,20 @@ describe("usePresetLifecycle — markPresetApplied / applyAuthoringSnapshot iden
 
 describe("usePresetLifecycle — preset apply-effects (PL-2..6, Tier-A)", () => {
   it("PL-2/PL-4/PL-5: a resolvable preset applies once; a same-key re-render does not re-apply", () => {
-    const { props, withPreset } = setup({ repoBackedPresetOverridesByRecipe: OVERRIDES });
+    const { props, withPreset } = setup({ repoBackedSessionPresetsByRecipe: SESSION_PRESETS });
     applySpy.mockClear();
     withPreset("builtin:saved-cfg");
     expect(applySpy).toHaveBeenCalledTimes(1);
-    expect(props.setPipelineConfig).toHaveBeenCalledTimes(1);
+    expect(props.setPipelineConfig).toHaveBeenCalledWith(SAVED_CFG);
     // Ref advanced synchronously inside the apply → a same-key re-render skips.
     withPreset("builtin:saved-cfg");
     expect(applySpy).toHaveBeenCalledTimes(1);
   });
 
   it("PL-2: an unresolvable preset key sets presetError and leaves the config untouched", () => {
-    const { result, props, withPreset } = setup({ repoBackedPresetOverridesByRecipe: OVERRIDES });
+    const { result, props, withPreset } = setup({
+      repoBackedSessionPresetsByRecipe: SESSION_PRESETS,
+    });
     applySpy.mockClear();
     withPreset("builtin:does-not-exist");
     expect(applySpy).toHaveBeenCalledTimes(0);
@@ -147,23 +138,33 @@ describe("usePresetLifecycle — preset apply-effects (PL-2..6, Tier-A)", () => 
     expect(props.toast).toHaveBeenCalledWith("Preset not found", { variant: "error" });
   });
 
-  it("PL-3/PL-6: switching to 'none' resets via buildDefaultConfig + clears the ref, so re-selecting the same key re-applies", () => {
-    const { props, withPreset } = setup({ repoBackedPresetOverridesByRecipe: OVERRIDES });
+  it("PL-3/PL-6: switching to 'none' resets to the recipe artifact default and clears the ref", () => {
+    const { props, withPreset } = setup({ repoBackedSessionPresetsByRecipe: SESSION_PRESETS });
     withPreset("builtin:saved-cfg");
     applySpy.mockClear();
-    buildSpy.mockClear();
-    // → none: the reseed effect runs buildDefaultConfig + setLastRunSnapshot(null), and
-    // the ref is cleared. NOTE: the clear is written redundantly by BOTH the reseed effect
-    // and the apply-effect's `kind==='none'` branch — so the re-apply assertion below pins
-    // that AT LEAST ONE clear survives (removing both is the real falsifier); buildSpy /
-    // setLastRunSnapshot pin the reseed body directly.
     withPreset("none");
-    expect(buildSpy).toHaveBeenCalledTimes(1);
+    expect(props.setPipelineConfig).toHaveBeenCalledWith(artifacts.defaultConfig);
     expect(props.setLastRunSnapshot).toHaveBeenCalledWith(null);
     expect(applySpy).toHaveBeenCalledTimes(0);
-    // → same key again: ref was nulled → guard fails → re-applies.
     withPreset("builtin:saved-cfg");
     expect(applySpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps canonical built-in configs authoritative over same-id session payloads", () => {
+    const canonical = artifacts.studioBuiltInPresets?.[0];
+    expect(canonical).toBeDefined();
+    const staleReplacement: BuiltInPreset = {
+      ...canonical!,
+      config: { stale: true },
+    };
+    const { result } = setup({
+      repoBackedSessionPresetsByRecipe: {
+        [RECIPE]: { [canonical!.id]: staleReplacement },
+      },
+    });
+    expect(result.current.resolvePreset(`builtin:${canonical!.id}`)?.config).toBe(
+      canonical!.config
+    );
   });
 });
 
@@ -171,7 +172,7 @@ describe("usePresetLifecycle — delete + import handlers (PL-10, PL-15)", () =>
   it("PL-15: handleDeletePreset does NOT reset when the selected preset is not local", () => {
     const { result, props } = setup({
       recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, recipe: RECIPE, preset: "builtin:saved-cfg" },
-      repoBackedPresetOverridesByRecipe: OVERRIDES,
+      repoBackedSessionPresetsByRecipe: SESSION_PRESETS,
     });
     act(() => result.current.handleDeletePreset());
     expect(props.setRecipeSettings).not.toHaveBeenCalled();

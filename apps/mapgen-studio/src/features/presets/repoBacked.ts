@@ -1,25 +1,17 @@
-// Adapters for repo-backed preset overrides: merge per-recipe overrides over the
-// built-in preset list, and construct a built-in preset from a saved repo config.
-// Extracted verbatim from `App.tsx` during the app-decomposition slice.
 import type { BuiltInPreset } from "../../recipes/catalog";
 
-export function mergeBuiltInPresets(
+/**
+ * Adds configs saved during the current Studio session to the preset list without
+ * letting browser state replace recipe-owned built-ins. Canonical generated
+ * recipe artifacts stay authoritative for any id they already define.
+ */
+export function mergeBuiltInPresetsWithSessionPresets(
   base: ReadonlyArray<BuiltInPreset>,
-  overrides: Readonly<Record<string, BuiltInPreset>>
+  sessionPresets: Readonly<Record<string, BuiltInPreset>>
 ): ReadonlyArray<BuiltInPreset> {
-  const overrideIds = new Set(Object.keys(overrides));
-  if (overrideIds.size === 0) return base;
-  const merged = base.map((preset) => {
-    const override = overrides[preset.id];
-    if (!override) return preset;
-    overrideIds.delete(preset.id);
-    return override;
-  });
-  for (const id of overrideIds) {
-    const override = overrides[id];
-    if (override) merged.push(override);
-  }
-  return merged;
+  const baseIds = new Set(base.map((preset) => preset.id));
+  const additions = Object.values(sessionPresets).filter((preset) => !baseIds.has(preset.id));
+  return additions.length === 0 ? base : [...base, ...additions];
 }
 
 export function toRepoBackedPreset(args: {

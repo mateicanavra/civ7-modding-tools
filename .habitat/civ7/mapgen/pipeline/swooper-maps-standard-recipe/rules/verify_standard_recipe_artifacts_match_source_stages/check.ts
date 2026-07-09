@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -13,22 +12,14 @@ const failures: string[] = [];
 const { STANDARD_STAGES } = await import(
   pathToFileURL(join(modRoot, "src/recipes/standard/recipe.ts")).href
 );
-const { deriveRecipeConfigSchema, deriveStageAuthoringModel, stripSchemaMetadataRoot } =
-  await import(pathToFileURL(join(repoRoot, "packages/mapgen-core/src/authoring/index.ts")).href);
-const { normalizeStrict } = await import(
-  pathToFileURL(join(repoRoot, "packages/mapgen-core/src/compiler/normalize.ts")).href
+const { buildCompleteSchemaDefaults, deriveRecipeConfigSchema, deriveStageAuthoringModel } = await import(
+  pathToFileURL(join(repoRoot, "packages/mapgen-core/src/authoring/index.ts")).href
 );
 const {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta: STANDARD_RECIPE_UI_META,
 } = await import(pathToFileURL(join(modRoot, "dist/recipes/standard-artifacts.js")).href);
-const { validateCanonicalMapConfig } = await import(
-  pathToFileURL(join(modRoot, "src/maps/configs/canonical.ts")).href
-);
-const swooperEarthlikeConfigRaw = JSON.parse(
-  readFileSync(join(modRoot, "src/maps/configs/swooper-earthlike.config.json"), "utf8")
-);
 
 function stableJson(value: unknown): unknown {
   const text = JSON.stringify(value);
@@ -84,57 +75,6 @@ function deriveSourceStudioUiMeta() {
   };
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
-function setAtPath(root: Record<string, unknown>, path: readonly string[]): void {
-  let current = root;
-  for (const segment of path) {
-    const next = current[segment];
-    if (isPlainObject(next)) {
-      current = next;
-      continue;
-    }
-    const created: Record<string, unknown> = {};
-    current[segment] = created;
-    current = created;
-  }
-}
-
-function buildDefaultsSkeleton(uiMeta: ReturnType<typeof deriveSourceStudioUiMeta>) {
-  const out: Record<string, unknown> = {};
-  for (const stage of uiMeta.stages) {
-    const stageConfig: Record<string, unknown> = { knobs: {} };
-    for (const step of stage.steps) {
-      setAtPath(stageConfig, step.configFocusPathWithinStage);
-    }
-    out[stage.stageId] = stageConfig;
-  }
-  return out;
-}
-
-function collectRawOpEnvelopePaths(value: unknown, path: string[] = []): string[] {
-  if (!value || typeof value !== "object") return [];
-  if (Array.isArray(value)) {
-    return value.flatMap((item, index) =>
-      collectRawOpEnvelopePaths(item, [...path, String(index)])
-    );
-  }
-  const obj = value as Record<string, unknown>;
-  const paths: string[] = [];
-  if (
-    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
-    Object.prototype.hasOwnProperty.call(obj, "config")
-  ) {
-    paths.push(path.join("."));
-  }
-  for (const [key, child] of Object.entries(obj)) {
-    paths.push(...collectRawOpEnvelopePaths(child, [...path, key]));
-  }
-  return paths;
-}
-
 function assertJsonEqual(actual: unknown, expected: unknown, label: string) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     failures.push(`${label} drifted`);
@@ -143,40 +83,11 @@ function assertJsonEqual(actual: unknown, expected: unknown, label: string) {
 
 const sourceSchema = stableJson(deriveRecipeConfigSchema(STANDARD_STAGES));
 const sourceUiMeta = deriveSourceStudioUiMeta();
-const semanticPublicStageIds = new Set(
-  STANDARD_STAGES.filter((stage: { public?: unknown }) => Boolean(stage.public)).map(
-    (stage: { id: string }) => stage.id
-  )
-);
+const sourceDefaults = stableJson(buildCompleteSchemaDefaults(sourceSchema));
+
 assertJsonEqual(STANDARD_RECIPE_CONFIG_SCHEMA, sourceSchema, "standard recipe schema");
 assertJsonEqual(STANDARD_RECIPE_UI_META, sourceUiMeta, "standard recipe UI metadata");
-
-const standardDefaultPreset = validateCanonicalMapConfig({
-  fileName: "swooper-earthlike.config.json",
-  raw: swooperEarthlikeConfigRaw,
-  recipeSchema: sourceSchema,
-  stages: STANDARD_STAGES,
-});
-const { value, errors } = normalizeStrict<Record<string, unknown>>(
-  sourceSchema,
-  {
-    ...buildDefaultsSkeleton(sourceUiMeta),
-    ...stripSchemaMetadataRoot(standardDefaultPreset.config),
-  },
-  "/standard/defaults"
-);
-if (errors.length > 0) {
-  failures.push(`standard defaults failed strict normalization: ${JSON.stringify(errors)}`);
-}
-assertJsonEqual(STANDARD_RECIPE_CONFIG, stripSchemaMetadataRoot(value), "standard recipe defaults");
-const unexpectedRawEnvelopePaths = collectRawOpEnvelopePaths(STANDARD_RECIPE_CONFIG).filter(
-  (path) => semanticPublicStageIds.has(path.split(".")[0] ?? "")
-);
-if (unexpectedRawEnvelopePaths.length > 0) {
-  failures.push(
-    `semantic public stage defaults contain raw operation envelopes: ${unexpectedRawEnvelopePaths.join(", ")}`
-  );
-}
+assertJsonEqual(STANDARD_RECIPE_CONFIG, sourceDefaults, "standard recipe defaults");
 
 if (failures.length > 0) {
   console.error(failures.join("\n"));

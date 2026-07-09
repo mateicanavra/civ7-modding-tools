@@ -10,7 +10,6 @@ import {
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
-import { migratePipelineConfig } from "../configMigrations/pipelineConfig";
 
 export type RunInGameClientSnapshot = Readonly<{
   requestId: string;
@@ -53,7 +52,6 @@ export function buildRunInGameFingerprint(args: {
   setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
 }): string {
-  const pipelineConfig = migratePipelineConfig(args.pipelineConfig);
   return stableRunInGameStringify({
     recipe: args.recipeSettings.recipe,
     preset: args.recipeSettings.preset,
@@ -63,7 +61,7 @@ export function buildRunInGameFingerprint(args: {
     resources: args.worldSettings.resources,
     materializationMode: args.materializationMode,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-    config: pipelineConfig,
+    config: args.pipelineConfig,
   });
 }
 
@@ -118,13 +116,12 @@ export function buildRunInGameSourceSnapshot(args: {
   selectedConfig?: RunInGameSourceSnapshot["selectedConfig"];
   now?: () => Date;
 }): RunInGameSourceSnapshot {
-  const pipelineConfig = migratePipelineConfig(args.pipelineConfig);
   return {
     requestId: args.requestId,
     createdAt: (args.now ?? (() => new Date()))().toISOString(),
     recipeSettings: args.recipeSettings,
     worldSettings: args.worldSettings,
-    pipelineConfig,
+    pipelineConfig: args.pipelineConfig,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
     materializationMode: args.materializationMode,
     ...(args.selectedConfig === undefined ? {} : { selectedConfig: args.selectedConfig }),
@@ -241,7 +238,7 @@ export function parseRunInGameSourceSnapshot(value: string | null): RunInGameSou
       createdAt: parsed.createdAt,
       recipeSettings,
       worldSettings,
-      pipelineConfig: migratePipelineConfig(parsed.pipelineConfig as PipelineConfig),
+      pipelineConfig: parsed.pipelineConfig as PipelineConfig,
       setupConfig: normalizeStudioSetupConfig(
         parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
       ),

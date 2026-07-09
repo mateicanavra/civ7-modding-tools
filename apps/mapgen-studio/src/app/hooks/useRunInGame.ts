@@ -1,5 +1,4 @@
 import type { RunDiagnosticsLookupResult } from "@civ7/studio-contract";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import type {
   PipelineConfig,
   RecipeSettings,
@@ -16,7 +15,11 @@ import {
   type Civ7StudioSetupConfig,
   normalizeStudioSetupConfig,
 } from "../../features/civ7Setup/setupConfig";
-import { isPlainObject } from "../../features/configOverrides/configBuilders";
+import {
+  isPlainObject,
+  validateExactPipelineConfig,
+} from "../../features/configOverrides/configBuilders";
+import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
 import { buildLiveRuntimeSuggestionRecords } from "../../features/liveRuntime/model";
 import type { PresetKey } from "../../features/presets/types";
 import { runCurrentConfigInGame } from "../../features/runInGame/api";
@@ -42,8 +45,10 @@ export type UseRunInGameArgs = {
   recipeSettings: RecipeSettings;
   /** Authoring world settings (map size / player count / resources). */
   worldSettings: WorldSettings;
-  /** Current authoring pipeline config — the launch payload source. */
+  /** Current authoring draft config. Outbound launches use the effective config source. */
   pipelineConfig: PipelineConfig;
+  /** When overrides are disabled, outbound launches use the recipe default config. */
+  overridesDisabled: boolean;
   /** Current authoring setup config. */
   setupConfig: Civ7StudioSetupConfig;
   setRecipeSettings: AuthoringState["setRecipeSettings"];
@@ -124,6 +129,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     recipeSettings,
     worldSettings,
     pipelineConfig,
+    overridesDisabled,
     setupConfig,
     setRecipeSettings,
     setSetupConfig,
@@ -146,16 +152,35 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     toast,
   } = args;
 
+  const effectivePipelineConfigSource = useMemo(
+    () =>
+      resolveEffectivePipelineConfig({
+        recipeId: recipeSettings.recipe,
+        pipelineConfig,
+        overridesDisabled,
+      }),
+    [overridesDisabled, pipelineConfig, recipeSettings.recipe]
+  );
+  const effectiveMaterializationMode = effectivePipelineConfigSource.kind === "recipe-default"
+    ? "disposable"
+    : runInGameMaterializationMode;
+
   const runInGameCurrentFingerprint = useMemo(
     () =>
       buildRunInGameFingerprint({
         recipeSettings,
         worldSettings,
-        pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+        pipelineConfig: effectivePipelineConfigSource.config,
         setupConfig,
-        materializationMode: runInGameMaterializationMode,
+        materializationMode: effectiveMaterializationMode,
       }),
-    [pipelineConfig, recipeSettings, runInGameMaterializationMode, setupConfig, worldSettings]
+    [
+      effectivePipelineConfigSource.config,
+      effectiveMaterializationMode,
+      recipeSettings,
+      setupConfig,
+      worldSettings,
+    ]
   );
 
   const runInGameCurrentRelation = useMemo<RunInGameCurrentRelation>(
@@ -195,10 +220,21 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         toast(message, { variant: "error" });
         return;
       }
-      const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
+      const validatedConfig = validateExactPipelineConfig({
+        schema: effectivePipelineConfigSource.recipeArtifacts.configSchema,
+        config: effectivePipelineConfigSource.config,
+        label: "run-in-game",
+      });
+      if (!validatedConfig.ok) {
+        const message = "Run in Game failed: config is invalid for this recipe.";
+        setLocalError(message);
+        toast(message, { variant: "error" });
+        return;
+      }
+      const exactPipelineConfig = validatedConfig.value;
       const resolved = resolvePreset(recipeSettings.preset as PresetKey);
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      const selectedConfig = resolved
+      const selectedConfig = effectivePipelineConfigSource.kind === "draft" && resolved
         ? {
             id: resolved.id,
             label: resolved.label,
@@ -209,7 +245,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
           }
         : undefined;
       const launchSource =
-        runInGameMaterializationMode === "durable" && selectedConfig?.id
+        effectiveMaterializationMode === "durable" && selectedConfig?.id
           ? ({
               kind: "catalog" as const,
               catalogSourceId: selectedConfig.id,
@@ -224,7 +260,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
                   ? {}
                   : { description: selectedConfig.description }),
                 mapScript: "{swooper-maps}/maps/studio-current.js",
-                pipelineConfig: sanitized,
+                pipelineConfig: exactPipelineConfig,
                 recipeId: "mod-swooper-maps/standard",
                 sortIndex: selectedConfig?.sortIndex ?? 9999,
                 ...(selectedConfig?.latitudeBounds === undefined
@@ -267,18 +303,18 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         requestId: result.requestId,
         recipeSettings,
         worldSettings,
-        pipelineConfig: sanitized,
+        pipelineConfig: exactPipelineConfig,
         setupConfig,
-        materializationMode: runInGameMaterializationMode,
+        materializationMode: effectiveMaterializationMode,
       });
       setRunInGameSnapshot(snapshot);
       const sourceSnapshot = buildRunInGameSourceSnapshot({
         requestId: result.requestId,
         recipeSettings,
         worldSettings,
-        pipelineConfig: sanitized,
+        pipelineConfig: exactPipelineConfig,
         setupConfig,
-        materializationMode: runInGameMaterializationMode,
+        materializationMode: effectiveMaterializationMode,
         selectedConfig,
       });
       setLastRunInGameSource(sourceSnapshot);
@@ -287,12 +323,12 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       });
     },
     [
-      pipelineConfig,
+      effectivePipelineConfigSource,
+      effectiveMaterializationMode,
       recipeSettings.preset,
       recipeSettings,
       recipeSettings.seed,
       resolvePreset,
-      runInGameMaterializationMode,
       runInGameRunning,
       saveDeployRunning,
       setLastRunInGameSource,

@@ -28,7 +28,7 @@ describe("useRunInGame source — RIG-4 (fingerprint includes materializationMod
       hook.indexOf("buildRunInGameFingerprint({"),
       hook.indexOf("buildRunInGameFingerprint({") + 400
     );
-    expect(fingerprint).toContain("materializationMode: runInGameMaterializationMode");
+    expect(fingerprint).toContain("materializationMode: effectiveMaterializationMode");
   });
 });
 

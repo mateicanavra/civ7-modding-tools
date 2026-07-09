@@ -13,6 +13,7 @@ vi.mock("../../src/features/runInGame/api", () => ({
 
 import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
 import { LIVE_GAME_PRESET_KEY } from "../../src/features/civ7Setup/livePreset";
 import type { Civ7StudioSetupConfig } from "../../src/features/civ7Setup/setupConfig";
@@ -24,7 +25,7 @@ import { DEFAULT_RECIPE_SETTINGS, DEFAULT_WORLD_SETTINGS } from "../../src/ui/co
 const runRpc = vi.mocked(runCurrentConfigInGame);
 
 const SETUP = { gameOptions: {}, players: [] } as unknown as Civ7StudioSetupConfig;
-const PIPELINE = { foo: 1 } as unknown as PipelineConfig;
+const PIPELINE = STANDARD_RECIPE_CONFIG as PipelineConfig;
 
 const liveOk = (over: Partial<LiveRuntimeStatusState> = {}): LiveRuntimeStatusState =>
   ({
@@ -53,6 +54,7 @@ function makeArgs(over: Partial<UseRunInGameArgs> = {}): UseRunInGameArgs {
     recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, seed: "123", preset: "none" },
     worldSettings: { ...DEFAULT_WORLD_SETTINGS },
     pipelineConfig: PIPELINE,
+    overridesDisabled: false,
     setupConfig: SETUP,
     setRecipeSettings: vi.fn(),
     setSetupConfig: vi.fn(),
@@ -102,6 +104,7 @@ function expectNoPrivateRunRequestFields(value: unknown) {
   ]);
   const found: string[] = [];
   const visit = (entry: unknown, path: string) => {
+    if (path.endsWith("pipelineConfig")) return;
     if (Array.isArray(entry)) {
       entry.forEach((item, index) => visit(item, `${path}[${index}]`));
       return;
@@ -167,11 +170,6 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
         },
       ],
     } satisfies Civ7StudioSetupConfig;
-    const pipelineConfigWithSchema = {
-      $schema: "https://example.invalid/studio.schema.json",
-      continents: { targetLandRatio: 0.42 },
-    } satisfies PipelineConfig & { $schema: string };
-
     runRpc.mockResolvedValue(daemonStatus);
     const { result, props } = setup({
       recipeSettings: {
@@ -185,7 +183,7 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
         playerCount: 4,
         resources: "abundant",
       },
-      pipelineConfig: pipelineConfigWithSchema,
+      pipelineConfig: PIPELINE,
       setupConfig,
       runInGameMaterializationMode: "disposable",
     });
@@ -220,7 +218,7 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
           configId: "studio-current",
           label: "Studio Current",
           mapScript: "{swooper-maps}/maps/studio-current.js",
-          pipelineConfig: { continents: { targetLandRatio: 0.42 } },
+          pipelineConfig: PIPELINE,
           recipeId: "mod-swooper-maps/standard",
         }),
       })
@@ -247,9 +245,31 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
         materializationMode: "disposable",
       })
     );
+    expect(props.setLastRunInGameSource.mock.calls[0]?.[0].pipelineConfig).toEqual(PIPELINE);
     expect(props.toast).toHaveBeenCalledWith("Run in Game started: daemon-admitted-editor-42", {
       variant: "info",
     });
+  });
+
+  it("rejects an editor-source run when the current config is not exact recipe JSON", async () => {
+    const invalidConfig = {
+      $schema: "https://example.invalid/studio.schema.json",
+      continents: { targetLandRatio: 0.42 },
+    } as unknown as PipelineConfig;
+    const { result, props } = setup({ pipelineConfig: invalidConfig });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).not.toHaveBeenCalled();
+    expect(props.setLocalError).toHaveBeenCalledWith(
+      "Run in Game failed: config is invalid for this recipe."
+    );
+    expect(props.toast).toHaveBeenCalledWith(
+      "Run in Game failed: config is invalid for this recipe.",
+      { variant: "error" }
+    );
   });
 
   it("uses a durable catalog source without leaking preset source paths into the public request", async () => {
@@ -335,6 +355,58 @@ describe("useRunInGame — browser-originated visible selection handoff", () => 
         }),
       })
     );
+  });
+
+  it("uses the recipe default editor source when overrides are disabled", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-default-override-disabled",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:15:00.000Z",
+      updatedAt: "2026-07-08T12:15:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, props } = setup({
+      overridesDisabled: true,
+      pipelineConfig: { staleDraft: true } as unknown as PipelineConfig,
+      runInGameMaterializationMode: "durable",
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:swooper-earthlike",
+      },
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        sortIndex: 25,
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "editor",
+        payload: expect.objectContaining({
+          pipelineConfig: PIPELINE,
+        }),
+      })
+    );
+    const sourceSnapshot = props.setLastRunInGameSource.mock.calls[0]?.[0];
+    expect(sourceSnapshot).toEqual(
+      expect.objectContaining({
+        requestId: "daemon-admitted-default-override-disabled",
+        materializationMode: "disposable",
+        pipelineConfig: PIPELINE,
+      })
+    );
+    expect(sourceSnapshot).not.toHaveProperty("selectedConfig");
   });
 });
 
@@ -566,7 +638,7 @@ describe("useRunInGame — RIG-2 (materializationMode is a render-time prop, sel
         source: expect.objectContaining({
           kind: "editor",
           payload: expect.objectContaining({
-            pipelineConfig: { foo: 1 },
+            pipelineConfig: PIPELINE,
           }),
         }),
       })

@@ -44,7 +44,7 @@ export type RecipeArtifacts<TConfig = unknown> = {
    */
   configSchema: TSchema;
   /**
-   * Default recipe config object (used as the base for overrides).
+   * Complete default recipe config object produced by recipe artifacts.
    *
    * Treated as unknown by Studio so each recipe controls its config shape.
    */

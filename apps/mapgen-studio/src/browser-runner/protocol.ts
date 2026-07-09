@@ -20,10 +20,10 @@ export type BrowserRunStartRequest = {
   playerCount?: number;
   resourcesMode?: "balanced" | "strategic";
   /**
-   * Recipe-specific override payload. Treated as unknown at the protocol boundary
-   * to keep the runner engine decoupled from any given recipe runtime.
+   * Complete recipe config JSON for this browser run. The worker validates exact
+   * identity against the bundled recipe artifacts before compilation.
    */
-  configOverrides?: unknown;
+  pipelineConfig: unknown;
 };
 
 export type BrowserRunCancelRequest = {
