@@ -64,6 +64,7 @@ export interface GritCheckOptions {
   cacheMode?: GritCheckCacheMode;
   cwd?: string;
   gritDir?: string;
+  gritUserConfigDir?: string;
   requireObservableCacheStatus?: boolean;
   allowDocsRoot?: boolean;
   outputFormat?: GritCheckOutputFormat;
@@ -76,6 +77,7 @@ export interface GritCheckRequestOptions {
   cwd?: string;
   cacheDir?: string;
   gritDir?: string;
+  gritUserConfigDir?: string;
   observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
   outputFormat?: GritCheckOutputFormat;
   timeoutMs?: number;

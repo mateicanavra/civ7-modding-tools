@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-06",
+  "updatedOn": "2026-07-10",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -19,10 +19,10 @@
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
       "context admission": 26,
-      "no action": 57,
+      "no action": 58,
       "positive authority creation": 8,
       "retirement/garbage collection": 3,
-      "runtime/source validation": 3,
+      "runtime/source validation": 2,
       "split by owner": 9
     },
     "packetNeeded": {
@@ -128,18 +128,18 @@
     {
       "ruleId": "enforce_formatting_and_import_hygiene",
       "lane": "non-Civ docs/global/toolkit",
-      "actionDecision": "runtime/source validation",
+      "actionDecision": "no action",
       "packetNeeded": false,
-      "expectedRemediation": "Park as Biome/native workspace cleanup; exclude from authority-tree semantic remediation queue.",
-      "evidenceNote": "Corrective audit: check.sh runs only bun run biome:ci; root scripts and biome.json own formatter/linter/import organization; Habitat tool separation docs identify Biome as native hygiene owner.",
+      "expectedRemediation": "Completed as a native Biome workspace cleanup; retain the Habitat route without entering the authority-tree semantic remediation queue.",
+      "evidenceNote": "Native Biome cleanup added four exact exclusions for the Effect reference source, Studio vendor converter, Studio generated token record, and generated execution-surface report; it fixed 51 admitted repository-owned errors (40 format, 11 import organization). `biome ci .` passes with 53 unsilenced React exhaustive-dependencies warnings.",
       "currentPath": ".habitat/global/workspace/rules/enforce_formatting_and_import_hygiene/rule.json",
       "layer2Status": "excluded-native-rail-not-semantic-remediation",
       "packetSliceId": "workspace-hygiene-native-rail-residual",
       "wholeRuleFit": "native rail wrapper, not Civ7 authority semantic fit",
       "ruleIdPlan": "exclude from Layer 2/Layer 3 remediation queue; retain only as Habitat-routed Biome workspace gate if the harness still wants that alias",
       "semanticDecision": "Biome owns formatting, ordinary lint hygiene, and import organization; this rule delegates to bun run biome:ci and should not be converted into Grit, package tests, or authority-rule remediation.",
-      "residualFollowUp": "If a green hygiene proof is needed, scope a separate workspace-native cleanup against biome:ci/biome:format; do not count it as canonical authority-tree semantic remediation.",
-      "implementationReadiness": "not applicable to authority-tree remediation; any green proof requires separate Biome workspace cleanup"
+      "residualFollowUp": "Keep the 53 native React exhaustive-dependencies warnings visible; they do not fail the current Biome CI gate and are not a reason to disable or silence the rule.",
+      "implementationReadiness": "complete native cleanup; no authority-tree remediation is applicable"
     },
     {
       "ruleId": "enforce_studio_dev_runner_topology",
@@ -1321,9 +1321,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-studio-recipe-dag-owner-slice.md",
       "branch": "codex/habitat-studio-recipe-dag-owner-repair",
       "commit": "branch-head",
-      "rules": [
-        "require_studio_ui_recipe_artifact_imports"
-      ],
+      "rules": ["require_studio_ui_recipe_artifact_imports"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [],
@@ -1357,9 +1355,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-standard-recipe-topology-slice.md",
       "branch": "codex/habitat-standard-recipe-topology-rail",
       "commit": "branch-head",
-      "rules": [
-        "preserve_standard_stage_topology_and_path_invariants"
-      ],
+      "rules": ["preserve_standard_stage_topology_and_path_invariants"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1377,9 +1373,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-g9-advanced-guard-context-slice.md",
       "branch": "codex/habitat-g9-advanced-guard-context",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_wrapper_only_advanced_config"
-      ],
+      "rules": ["prohibit_wrapper_only_advanced_config"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [],
@@ -1392,9 +1386,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-standard-stage-key-freeze-retirement-slice.md",
       "branch": "codex/habitat-retire-standard-stage-key-freeze",
       "commit": "branch-head",
-      "rules": [
-        "verify_standard_recipe_declared_stage_keys"
-      ],
+      "rules": ["verify_standard_recipe_declared_stage_keys"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1432,12 +1424,8 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-morphology-public-surface-boundary-slice.md",
       "branch": "codex/habitat-morphology-public-surface-boundary",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_legacy_morphology_module_imports"
-      ],
-      "createdRows": [
-        "require_morphology_public_surface_imports"
-      ],
+      "rules": ["prohibit_legacy_morphology_module_imports"],
+      "createdRows": ["require_morphology_public_surface_imports"],
       "survivorRows": [],
       "excludedRows": [
         {
@@ -1454,13 +1442,9 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-morphology-belt-driver-contract-inversion.md",
       "branch": "codex/habitat-morphology-belt-driver-contract-inversion",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_morphology_contract_legacy_plate_driver_dependencies"
-      ],
+      "rules": ["prohibit_morphology_contract_legacy_plate_driver_dependencies"],
       "createdRows": [],
-      "survivorRows": [
-        "preserve_morphology_belt_driver_contracts"
-      ],
+      "survivorRows": ["preserve_morphology_belt_driver_contracts"],
       "excludedRows": [],
       "outcome": "Absorbed morphology contract legacy plate-driver dependency absence into the positive belt-driver contract survivor and retired the separate Grit packet."
     },
@@ -1523,9 +1507,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-service-module-shape-context.md",
       "branch": "codex/habitat-service-module-shape-context",
       "commit": "branch-head",
-      "rules": [
-        "validate_habitat_service_module_file_shape"
-      ],
+      "rules": ["validate_habitat_service_module_file_shape"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1634,9 +1616,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-runtime-helper-redeclaration-source-slice.md",
       "branch": "codex/habitat-runtime-helper-redeclaration-source",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_runtime_helper_redeclarations"
-      ],
+      "rules": ["prohibit_runtime_helper_redeclarations"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1658,9 +1638,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-standard-recipe-map-effect-name-grit-slice.md",
       "branch": "codex/habitat-standard-recipe-map-effect-grit-rail",
       "commit": "branch-head",
-      "rules": [
-        "require_standard_recipe_map_effect_name_suffixes"
-      ],
+      "rules": ["require_standard_recipe_map_effect_name_suffixes"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1678,9 +1656,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-physics-map-projection-dependency-grit-slice.md",
       "branch": "codex/habitat-physics-map-dependency-grit-rail",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_map_projection_dependencies_in_physics_contracts"
-      ],
+      "rules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1767,7 +1743,7 @@
       "excludedRows": [
         {
           "ruleId": "enforce_formatting_and_import_hygiene",
-          "reason": "Currently red from broad unrelated workspace formatting/import drift; not a clean retention closure."
+          "reason": "Historical exclusion: broad workspace formatting/import drift was red at this slice's closure. The completed native Biome cleanup now owns the green proof."
         },
         {
           "ruleId": "enforce_studio_rpc_eventhub_topology",
@@ -1828,7 +1804,7 @@
       "excludedRows": [
         {
           "ruleId": "enforce_formatting_and_import_hygiene",
-          "reason": "Focused check is currently red from broad workspace formatting/import drift; cannot close as retained proof."
+          "reason": "Historical exclusion: broad workspace formatting/import drift was red at this slice's closure. The completed native Biome cleanup now owns the green proof."
         },
         {
           "ruleId": "prohibit_runtime_local_config_default_merging",
@@ -1844,9 +1820,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-map-policy-import-independence-grit-rail.md",
       "branch": "codex/habitat-map-policy-import-independence-grit",
       "commit": "branch-head",
-      "rules": [
-        "ensure_map_policy_dependency_independence"
-      ],
+      "rules": ["ensure_map_policy_dependency_independence"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1868,9 +1842,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-placement-apply-grit-rail.md",
       "branch": "codex/habitat-placement-apply-grit-rail",
       "commit": "branch-head",
-      "rules": [
-        "require_typed_placement_outcomes_before_apply"
-      ],
+      "rules": ["require_typed_placement_outcomes_before_apply"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1892,9 +1864,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-docs-anchor-rail.md",
       "branch": "codex/habitat-mapgen-docs-anchor-rail",
       "commit": "branch-head",
-      "rules": [
-        "validate_mapgen_docs_anchors_and_references"
-      ],
+      "rules": ["validate_mapgen_docs_anchors_and_references"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1916,9 +1886,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-runtime-local-config-defaulting-rail.md",
       "branch": "codex/habitat-runtime-local-config-defaulting-rail",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_runtime_local_config_default_merging"
-      ],
+      "rules": ["prohibit_runtime_local_config_default_merging"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [],
@@ -1931,9 +1899,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-morphology-overlay-implementation-rail.md",
       "branch": "codex/habitat-morphology-overlay-implementation-rail",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_morphology_overlay_implementation_reads"
-      ],
+      "rules": ["prohibit_morphology_overlay_implementation_reads"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1955,9 +1921,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-standard-tag-catalog-retired-token-gc.md",
       "branch": "codex/habitat-standard-tag-catalog-retired-token-gc",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_standard_tag_catalog_legacy_morphology_effect_gates"
-      ],
+      "rules": ["prohibit_standard_tag_catalog_legacy_morphology_effect_gates"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -1983,9 +1947,7 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-foundation-helper-rail-admission.md",
       "branch": "codex/habitat-foundation-helper-rail-admission",
       "commit": "branch-head",
-      "rules": [
-        "prohibit_foundation_duplicate_math_helper_redefinitions"
-      ],
+      "rules": ["prohibit_foundation_duplicate_math_helper_redefinitions"],
       "createdRows": [],
       "survivorRows": [],
       "excludedRows": [
@@ -2096,16 +2058,12 @@
       "sliceId": "standard-stage-kind-truth-projection-authority",
       "status": "blocked-prior-source-owner-design",
       "actionClass": "retirement/garbage collection / native source validation",
-      "rules": [
-        "prohibit_map_projection_dependencies_in_physics_contracts"
-      ],
+      "rules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
       "reason": "Corrective audit rejected the stage-kind sidecar framing. Retired runtime/projection literals have been deleted; the remaining live truth/projection invariant belongs to source-native contract/package verification, not a Habitat stage-kind table.",
       "queueOrder": 2,
       "completedOn": "2026-07-01T22:45:00.000Z",
       "sourceCommit": "88cd1a344",
-      "selectedRules": [
-        "prohibit_map_projection_dependencies_in_physics_contracts"
-      ],
+      "selectedRules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
       "packetSummary": {
         "authorityConclusion": "stage-kind sidecar authority rejected",
         "correctedConclusion": "Retired runtime/projection literals should delete without replacement. Any live truth/projection invariant must be source-native: step contracts, typed deps, tag/artifact registries, package verify, or compiler validation.",
@@ -2145,9 +2103,7 @@
         ]
       },
       "reviewDisposition": {
-        "reviewers": [
-          "fresh stage/projection corrective reviewer"
-        ],
+        "reviewers": ["fresh stage/projection corrective reviewer"],
         "disposition": "corrected; prior stage-kind readiness superseded",
         "acceptedFindings": [
           "stage-kind framing was a reshuffle",
@@ -2266,10 +2222,7 @@
         ]
       },
       "reviewDisposition": {
-        "reviewers": [
-          "fresh tag-family authority reviewer",
-          "fresh tag-rule predicate reviewer"
-        ],
+        "reviewers": ["fresh tag-family authority reviewer", "fresh tag-rule predicate reviewer"],
         "disposition": "approved-for-layer2-record",
         "acceptedFindings": [],
         "semanticDisposition": "registered tag-family authority is source-backed; one rule has split residue; no user-level semantic blocker",
@@ -2794,18 +2747,14 @@
     },
     {
       "sliceId": "workspace-hygiene-native-rail-residual",
-      "status": "parked-native-cleanup",
+      "status": "complete-native-cleanup",
       "actionClass": "native workspace rail cleanup",
-      "rules": [
-        "enforce_formatting_and_import_hygiene"
-      ],
-      "reason": "Corrective audit: Biome owns this invariant. This row is excluded from authority-tree Layer 3 remediation and belongs to separate workspace-native cleanup only if green proof is required.",
+      "rules": ["enforce_formatting_and_import_hygiene"],
+      "reason": "Biome owns this invariant. The native cleanup is complete, while the row remains excluded from authority-tree Layer 3 remediation.",
       "queueOrder": 10,
       "completedOn": "2026-07-01T21:42:28.569Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
-      "selectedRules": [
-        "enforce_formatting_and_import_hygiene"
-      ],
+      "selectedRules": ["enforce_formatting_and_import_hygiene"],
       "packetSummary": {
         "authorityConclusion": "Biome/native formatter rail owns formatting, ordinary lint hygiene, and import organization; Habitat may route to that rail but should not duplicate or translate it into Grit/package tests.",
         "authoritySurface": "Root biome.json plus root biome:ci / inferred habitat:biome:ci target. The current Habitat script is an alias to bun run biome:ci and not independent semantic authority.",
@@ -2823,34 +2772,32 @@
         "proofClasses": [
           "native rail proof",
           "focused Habitat check",
-          "Biome command failure evidence",
+          "native Biome write/check/CI proof",
           "docs/tool-separation authority review"
         ],
-        "proofLimits": "The focused rule is currently red because Biome reports broad workspace drift. This packet does not clean the workspace or change formatter configuration."
+        "proofLimits": "The native CI gate accepts 53 unsilenced React exhaustive-dependencies warnings. They remain visible but do not require configuration or code suppression for this cleanup."
       },
       "perRuleDecisions": [
         {
           "ruleId": "enforce_formatting_and_import_hygiene",
-          "actionDecision": "runtime/source validation",
+          "actionDecision": "no action",
           "packetNeeded": false,
           "layer2Status": "excluded-native-rail-not-semantic-remediation",
-          "implementationReadiness": "not applicable to authority-tree remediation; any green proof requires separate Biome workspace cleanup",
+          "implementationReadiness": "complete native cleanup; no authority-tree remediation is applicable",
           "wholeRuleFit": "native rail wrapper, not Civ7 authority semantic fit",
           "ruleIdPlan": "exclude from Layer 2/Layer 3 remediation queue; retain only as Habitat-routed Biome workspace gate if the harness still wants that alias",
           "semanticDecision": "Biome owns formatting, ordinary lint hygiene, and import organization; this rule delegates to bun run biome:ci and should not be converted into Grit, package tests, or authority-rule remediation.",
-          "residualFollowUp": "If a green hygiene proof is needed, scope a separate workspace-native cleanup against biome:ci/biome:format; do not count it as canonical authority-tree semantic remediation.",
-          "evidenceNote": "Corrective audit: check.sh runs only bun run biome:ci; root scripts and biome.json own formatter/linter/import organization; Habitat tool separation docs identify Biome as native hygiene owner."
+          "residualFollowUp": "Keep the 53 native React exhaustive-dependencies warnings visible; they do not fail the current Biome CI gate and are not a reason to disable or silence the rule.",
+          "evidenceNote": "Native Biome cleanup added four exact exclusions for the Effect reference source, Studio vendor converter, Studio generated token record, and generated execution-surface report; it fixed 51 admitted repository-owned errors (40 format, 11 import organization). `biome ci .` passes with 53 unsilenced React exhaustive-dependencies warnings."
         }
       ],
       "implementationCandidate": {
-        "readiness": "not authority-remediation work",
-        "reason": "Cleaning Biome drift does not collapse Civ7 rule-remediation semantics.",
-        "suggestedSlice": "separate workspace-biome-cleanup-native-rail if needed"
+        "readiness": "complete",
+        "reason": "Native Biome cleanup cleared the routed hygiene gate without creating authority-tree remediation work.",
+        "suggestedSlice": null
       },
       "reviewDisposition": {
-        "accepted": [
-          "Biome/native rail owns formatting, lint hygiene, and import organization"
-        ],
+        "accepted": ["Biome/native rail owns formatting, lint hygiene, and import organization"],
         "rejected": [
           "Grit conversion",
           "package tests",
@@ -2862,16 +2809,12 @@
       "sliceId": "public-domain-test-import-surface",
       "status": "packet-complete",
       "actionClass": "split by owner",
-      "rules": [
-        "require_public_domain_surfaces_in_tests"
-      ],
+      "rules": ["require_public_domain_surfaces_in_tests"],
       "reason": "This remains packet-needed because current Habitat/Grit source execution ignores test files; the rule needs either explicit Habitat/Grit test-file scan capability or a public/internal test authority split.",
       "queueOrder": 11,
       "completedOn": "2026-07-01T21:42:28.569Z",
       "sourceCommit": "945d6b5181ba92af635923618a41b1dc69f5ed99",
-      "selectedRules": [
-        "require_public_domain_surfaces_in_tests"
-      ],
+      "selectedRules": ["require_public_domain_surfaces_in_tests"],
       "packetSummary": {
         "authorityConclusion": "The semantic policy is test-specific public-domain import authority: tests should use public domain surfaces by default, with focused internal-test exceptions when explicitly justified. Current enforcement must remain a Habitat script until Habitat/Grit has explicit test-file scan capability.",
         "authoritySurface": "MapGen domain public-surface policy for test consumers, enforced over mods/mod-swooper-maps/test and packages/*/test files. This is static import law, not package behavior-test responsibility.",
@@ -2926,14 +2869,9 @@
       "receipt": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md",
       "branch": "codex/domain-source-topology-ratchet-closure",
       "commit": null,
-      "rules": [
-        "prohibit_retired_domain_root_catalogs",
-        "require_domain_ops_root_presence"
-      ],
+      "rules": ["prohibit_retired_domain_root_catalogs", "require_domain_ops_root_presence"],
       "createdRows": [],
-      "survivorRows": [
-        "require_domain_source_topology"
-      ],
+      "survivorRows": ["require_domain_source_topology"],
       "excludedRows": [
         {
           "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
@@ -2962,10 +2900,7 @@
       ],
       "outcome": "Deleted the two absorbed rule packets and retired their live ledger rows. require_domain_source_topology remains the survivor authority for direct domain-root child shape and ops-root presence.",
       "completedOn": "2026-07-06",
-      "deletedRows": [
-        "prohibit_retired_domain_root_catalogs",
-        "require_domain_ops_root_presence"
-      ],
+      "deletedRows": ["prohibit_retired_domain_root_catalogs", "require_domain_ops_root_presence"],
       "verification": [
         "bun habitat check --json --rule require_domain_source_topology",
         "bun habitat classify .habitat",
@@ -2978,24 +2913,13 @@
   ],
   "blockers": [
     {
-      "kind": "workspace cleanup native-rail blocker",
-      "rules": [
-        "enforce_formatting_and_import_hygiene"
-      ],
-      "reason": "Biome/native rail owns the invariant, but focused Habitat check is red from broad workspace drift. This is a separate workspace cleanup/native rail task, not a Layer 2 semantic blocker."
-    },
-    {
       "kind": "test-file scan capability blocker",
-      "rules": [
-        "require_public_domain_surfaces_in_tests"
-      ],
+      "rules": ["require_public_domain_surfaces_in_tests"],
       "reason": "Current Habitat/Grit execution ignores test files via .gritignore, so converting the static import predicate to Grit would false-green. Keep the script until explicit test-file scan capability or a public/internal test exception policy exists."
     },
     {
       "kind": "projection artifact namespace native-owner blocker",
-      "rules": [
-        "prohibit_map_projection_dependencies_in_physics_contracts"
-      ],
+      "rules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
       "reason": "Broad truth/projection enforcement cannot use a stage-kind sidecar or blanket artifact:map ban while source-owned map artifacts remain valid. Decide source-native projection artifact subnamespace/contract verification before broad mutation."
     },
     {
@@ -3010,9 +2934,7 @@
     },
     {
       "kind": "retired story publisher native-boundary blocker",
-      "rules": [
-        "prohibit_morphology_hotspot_overlay_publishers"
-      ],
+      "rules": ["prohibit_morphology_hotspot_overlay_publishers"],
       "reason": "The current publisher surface was deleted by narrative burn-down. If a Gameplay story publisher returns, define a positive source/API boundary before adding enforcement."
     }
   ],
@@ -3059,7 +2981,7 @@
       "ruleId": "enforce_formatting_and_import_hygiene",
       "kind": "native-fix-dry-run-falsifier",
       "finding": "`bun habitat fix --dry-run` is not a clean remediation for the red Biome-backed hygiene gate. It plans broad historical/docs pattern rewrites and reports Markdown parse errors, rather than a bounded formatting/import hygiene mutation.",
-      "handling": "Do not run `bun habitat fix` as the Layer 3 remediation for this row. The row remains a runtime/source residual stop gate until workspace hygiene is handled as its own cleanup or the rule is routed to a narrower native Biome fix path.",
+      "handling": "Do not run `bun habitat fix` as the remediation for this row. The completed native `bun run biome:check -- --write` cleanup fixed 51 admitted errors, and `biome ci .` now passes with 53 visible warnings.",
       "rules": []
     },
     {
@@ -3149,19 +3071,15 @@
       "recordedOn": "2026-07-01",
       "kind": "layer2-packet",
       "sliceId": "workspace-hygiene-native-rail-residual",
-      "rules": [
-        "enforce_formatting_and_import_hygiene"
-      ],
-      "summary": "Biome owns the workspace hygiene invariant; current Habitat check is a native rail alias and is red from broad workspace drift."
+      "rules": ["enforce_formatting_and_import_hygiene"],
+      "summary": "Biome owns the workspace hygiene invariant; the completed native cleanup fixed 51 admitted errors and the Habitat route now passes with 53 visible native warnings."
     },
     {
       "findingId": "2026-07-01-public-domain-test-import-surface",
       "recordedOn": "2026-07-01",
       "kind": "layer2-packet",
       "sliceId": "public-domain-test-import-surface",
-      "rules": [
-        "require_public_domain_surfaces_in_tests"
-      ],
+      "rules": ["require_public_domain_surfaces_in_tests"],
       "summary": "Public-domain test import enforcement remains a valid Habitat script bridge until explicit test-file scan capability or a split exception policy exists."
     },
     {

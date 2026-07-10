@@ -15,11 +15,11 @@ working in this Civ7 codebase:
 - project-plane boundary enforcement;
 - formatter hygiene routing;
 - Habitat pattern source-shape checks;
-- guarded Habitat apply transactions for approved codemods;
+- Habitat apply-admission discovery and Grit dry-run diagnostics;
 - staged file-layer protection for generated/protected zones;
 - classification of paths and diffs into owning projects, rules, and targets;
-- two workspace generators for supported uniform projects and pattern lifecycle
-  scaffolding.
+- kind-scoped workspace generator support for uniform projects and candidate
+  pattern lifecycle scaffolding.
 
 This is meaningful platform-substrate work. It makes many architecture and
 tooling failures visible, routable, and graph-owned.
@@ -86,9 +86,13 @@ Implemented runners:
 
 Implemented rule state:
 
-- 124 registered rules;
-- 123 enforced;
-- 1 advisory;
+- the live manifest corpus, lane mix, runner mix, and owner distribution are
+  reported by the registry-loader query in
+  [CAPABILITIES.md](CAPABILITIES.md#live-rule-inventory), rather than copied
+  into this reference;
+- that query validates and counts the whole registry corpus, while a given
+  `habitat check` report describes only the rules selected and executed by that
+  invocation;
 - locked and debt-carrying baselines modeled explicitly;
 - selector validation for unknown, wrong-namespace, and empty-intersection
   rule selections.
@@ -97,21 +101,33 @@ Implemented rule state:
 
 Implemented diagnostic/check state:
 
-- 79 registered `grit` rules;
-- source checks are rule manifests that point at pattern files rather than
+- Grit-backed source checks are rule manifests that point at pattern files rather than
   source-check modules or owner-tool records;
 - fixture tests for pattern validity;
 - Grit provider normalization over machine JSON output;
 - cache/failure handling tests;
 - Effect-backed process boundary for the Grit provider.
 
-Implemented apply state:
+Implemented apply-admission and dry-run state:
 
-- two apply pattern files exist;
-- one apply pattern is wired into `habitat fix`;
-- apply transactions have clean-worktree protection for live writes;
-- apply transactions produce transaction records and fail closed on ambiguous
-  output, unapproved paths, creates, deletes, and unexpected file changes.
+- apply pattern files and default admission definitions exist;
+- at invocation, `habitat fix --dry-run` resolves approved apply-admission
+  definitions against the live Grit registry; a rule is admitted only when its
+  definition finds the required manifest role file (including
+  `runner.files.applyPattern` where that definition requires it);
+- an admitted dry-run invokes Grit without writing and returns diagnostic
+  command output;
+- a Grit check manifest or an unadmitted apply role does not grant automatic
+  fixes;
+- non-dry `habitat fix` requests live-write intent, but the
+  [fix router](../src/service/modules/fix/router.ts) supplies no protected-zone
+  decision, and the
+  [transaction policy](../src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts)
+  explicitly refuses live write execution as not implemented.
+
+Live writes, formatting, post-fix gates, rollback, changed-file/diff
+transaction records, and commit-readiness are not implemented. The current
+apply surface is admission/discovery and dry-run diagnostics only.
 
 ## Generators
 
@@ -153,7 +169,7 @@ Current tests cover:
 - baselines and baseline integrity;
 - classification;
 - Grit provider behavior;
-- Habitat apply transaction behavior;
+- Habitat apply admission, dry-run diagnostics, and live-write refusal behavior;
 - generated/protected zones;
 - hooks;
 - project generator behavior;

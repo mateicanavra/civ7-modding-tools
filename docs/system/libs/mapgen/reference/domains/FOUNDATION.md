@@ -37,7 +37,7 @@ FOUNDATION is **mesh-first**: the canonical domain model is authored and compute
 **Ground truth anchors**
 - `docs/system/libs/mapgen/architecture.md` (section “Modeling posture: mesh-first (not tile-first)”)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`ComputePlatesTensorsContract`, output field description for `tileToCellIndex`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `tileToCellIndex` construction)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (`projectPlatesFromModel`, `tileToCellIndex` construction)
 
 ## Contract
 
@@ -79,7 +79,7 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 
 **Ground truth anchors**
 - `packages/mapgen-core/src/core/types.ts` (`FOUNDATION_MESH_ARTIFACT_TAG`, `FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG`, `FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG`, `FOUNDATION_CRUST_ARTIFACT_TAG`, `FOUNDATION_PLATE_MOTION_ARTIFACT_TAG`, `FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG`, `FOUNDATION_TECTONICS_ARTIFACT_TAG`, `FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG`, `FOUNDATION_CRUST_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG`, `FOUNDATION_PLATES_ARTIFACT_TAG`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FOUNDATION_TECTONIC_SEGMENTS_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_HISTORY_ARTIFACT_TAG`, `FOUNDATION_PLATE_TOPOLOGY_ARTIFACT_TAG`, `foundationArtifacts`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (`artifacts.tectonicSegments`, `artifacts.tectonicHistory`, `artifacts.plateTopology`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/steps/mesh.contract.ts` (`MeshStepContract.artifacts.provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/steps/crust.contract.ts` (`CrustStepContract.artifacts.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/steps/plateGraph.contract.ts` (`PlateGraphStepContract.artifacts.requires/provides`)
@@ -130,7 +130,7 @@ Shape highlights:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (schema + derivation rules)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationMantlePotentialArtifactSchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-potential.artifact.ts` (`Schema`)
 
 ### `artifact:foundation.mantleForcing` (truth; mesh space)
 
@@ -145,7 +145,7 @@ Shape highlights:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (schema + derivation rules)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationMantleForcingArtifactSchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-forcing.artifact.ts` (`Schema`)
 
 ### `artifact:foundation.crust` (truth; mesh space)
 
@@ -184,7 +184,7 @@ Mapping notes:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md` (schema + derivation rules)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationPlateMotionArtifactSchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts` (`Schema`)
 
 ### `artifact:foundation.plateGraph` (truth; mesh space)
 
@@ -238,7 +238,7 @@ Shape highlights:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (schema + invariants)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicProvenanceArtifactSchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-provenance.artifact.ts` (`Schema`)
 
 ### `artifact:foundation.tectonics` (truth; mesh space)
 
@@ -252,7 +252,7 @@ Key fields (all u8 per mesh cell; `0..255`):
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/contract.ts` (`FoundationTectonicsSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts` (`computeTectonicsCurrent`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `baseUplift = tectonics.cumulativeUplift ?? tectonics.upliftPotential`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (`projectPlatesFromModel`, `baseUplift = tectonics.cumulativeUplift ?? tectonics.upliftPotential`)
 
 ### `artifact:map.foundationTileToCellIndex` (projection; tile space → mesh cell index)
 
@@ -260,7 +260,7 @@ Per-tile nearest mesh cell index. This is the canonical cross-walk used to sampl
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (output `tileToCellIndex` description)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`tileToCellIndex`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (`tileToCellIndex`)
 
 ### `artifact:map.foundationCrustTiles` (projection; tile space)
 
@@ -268,7 +268,7 @@ Per-tile crust drivers sampled via `tileToCellIndex`.
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`CrustTilesSchema`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (crust sampling loop)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (crust sampling loop)
 
 ### `artifact:map.foundationTectonicHistoryTiles` (projection; tile space)
 
@@ -281,7 +281,7 @@ Shape highlights:
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md` (tile contract)
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicHistoryTilesArtifactSchema`)
+- `mods/mod-swooper-maps/src/recipes/standard/artifacts/foundation-tectonic-history-tiles.artifact.ts` (`Schema`)
 
 ### `artifact:map.foundationTectonicProvenanceTiles` (projection; tile space)
 
@@ -295,7 +295,7 @@ Shape highlights:
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md` (tile contract)
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicProvenanceTilesArtifactSchema`)
+- `mods/mod-swooper-maps/src/recipes/standard/artifacts/foundation-tectonic-provenance-tiles.artifact.ts` (`Schema`)
 
 ### `artifact:map.foundationPlates` (projection; tile space)
 
@@ -312,7 +312,7 @@ Key fields (per tile):
 **Ground truth anchors**
 - `packages/mapgen-core/src/core/types.ts` (`FoundationPlateFields`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`PlatesTilesSchema`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `boundaryCloseness`, `tectonicStress`, motion scaling)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (`projectPlatesFromModel`, `boundaryCloseness`, `tectonicStress`, motion scaling)
 
 ### `artifact:foundation.plateTopology` (derived; currently tile-derived)
 
@@ -463,7 +463,7 @@ This page contains many inline “Ground truth anchors” callouts. This section
 
 - Domain entrypoint + op ids: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
 - Standard recipe stage definitions (five sibling stages): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/index.ts`, and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts`; overall step ordering + wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Stage artifact wiring (recipe-level tags, schemas, and helpers; shared hub): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts`
+- Foundation artifact registry (aggregate contracts, ids, and validators): `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (`artifactContracts`, `artifacts`, `validators`)
 - Core artifact tag constants (shared ids/types): `packages/mapgen-core/src/core/types.ts`
 
 - Mesh construction (truth root):
@@ -483,6 +483,6 @@ This page contains many inline “Ground truth anchors” callouts. This section
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/contract.ts` (`ComputeTracerAdvectionContract`)
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/contract.ts` (`ComputeTectonicProvenanceContract`)
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`ComputePlatesTensorsContract`, `tileToCellIndex`)
-  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `tileToCellIndex`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (`projectPlatesFromModel`, `tileToCellIndex`)
 
 - Policy (truth vs projection posture): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

@@ -51,8 +51,7 @@ function buildEngineFeatureLegality(): Readonly<
   const featureKeys = Object.keys(CIV7_BROWSER_TABLES_V0.featureTypes)
     .filter(hasOfficialFeatureLegality)
     .sort(
-      (a, b) =>
-        CIV7_BROWSER_TABLES_V0.featureTypes[a] - CIV7_BROWSER_TABLES_V0.featureTypes[b]
+      (a, b) => CIV7_BROWSER_TABLES_V0.featureTypes[a] - CIV7_BROWSER_TABLES_V0.featureTypes[b]
     );
   for (const feature of featureKeys) {
     const featureIndex = CIV7_BROWSER_TABLES_V0.featureTypes[feature];
@@ -102,10 +101,11 @@ export const FEATURE_PLACEMENT_KEYS: readonly FeatureKey[] = Object.keys(
   .filter(isEcologyPlacedOfficialFeature)
   .sort((a, b) => CIV7_BROWSER_TABLES_V0.featureTypes[a] - CIV7_BROWSER_TABLES_V0.featureTypes[b]);
 
-export const FEATURE_KEY_INDEX: Readonly<Record<FeatureKey, number>> = FEATURE_PLACEMENT_KEYS.reduce(
-  (acc, key, index) => {
-    acc[key] = index;
-    return acc;
-  },
-  {} as Record<FeatureKey, number>
-);
+export const FEATURE_KEY_INDEX: Readonly<Record<FeatureKey, number>> =
+  FEATURE_PLACEMENT_KEYS.reduce(
+    (acc, key, index) => {
+      acc[key] = index;
+      return acc;
+    },
+    {} as Record<FeatureKey, number>
+  );

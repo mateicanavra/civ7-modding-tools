@@ -105,8 +105,8 @@ When you need deeper grounding:
 
 - Studio runtime recipe selection boundary: `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
 - Studio bundled recipe catalog (config schema + UI meta): `apps/mapgen-studio/src/recipes/catalog.ts`
-- Studio mode selector (Browser/Dump): `apps/mapgen-studio/src/ui/components/AppHeader.tsx`
-- Studio config overrides switch + JSON view: `apps/mapgen-studio/src/ui/components/RecipePanel.tsx`
+- Studio mode selector (Browser/Dump): `packages/mapgen-studio-ui/src/components/composites/AppHeader.tsx`
+- Studio config overrides switch + JSON view: `packages/mapgen-studio-ui/src/components/panels/RecipePanel.tsx`
 - Studio config defaulting from schema defaults: `apps/mapgen-studio/src/App.tsx`
 - Studio worker client (worker creation): `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 - Studio worker entrypoint (plan compile + run): `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`

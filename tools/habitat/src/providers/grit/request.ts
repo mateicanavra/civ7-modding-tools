@@ -59,6 +59,7 @@ export function gritCheckProgram(
         cwd: options.cwd,
         cacheMode: requestOptions.cacheMode,
         gritDir: options.gritDir,
+        gritUserConfigDir: options.gritUserConfigDir,
         observableCacheStatus: requestOptions.observableCacheStatus,
         outputFormat: requestOptions.outputFormat,
       });
@@ -74,6 +75,7 @@ export function gritCheckProgram(
           cwd: options.cwd,
           cacheMode: requestOptions.cacheMode,
           gritDir: options.gritDir,
+          gritUserConfigDir: options.gritUserConfigDir,
           observableCacheStatus: requestOptions.observableCacheStatus,
           outputFormat: requestOptions.outputFormat,
         })

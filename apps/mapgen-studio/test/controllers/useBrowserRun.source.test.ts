@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { describe, expect, it } from "vitest";
-import hostSource from "../../src/app/StudioShell.tsx?raw";
 import hookSource from "../../src/app/hooks/useBrowserRun.ts?raw";
+import hostSource from "../../src/app/StudioShell.tsx?raw";
 
 // Strip comments so doc-comments (which legitimately name effects/errors/etc.)
 // don't trip the matchers.

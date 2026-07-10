@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import * as ts from "typescript";
 
@@ -62,7 +62,10 @@ function extractRuntimeStageIds(filePath) {
   function visit(node) {
     if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
       const stagesById = unwrapExpression(node.arguments[0]);
-      if (node.expression.text === "orderStandardStages" && ts.isObjectLiteralExpression(stagesById)) {
+      if (
+        node.expression.text === "orderStandardStages" &&
+        ts.isObjectLiteralExpression(stagesById)
+      ) {
         for (const property of stagesById.properties) {
           if (ts.isPropertyAssignment(property)) {
             const name = propertyNameText(property.name);

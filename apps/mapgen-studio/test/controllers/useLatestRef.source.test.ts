@@ -16,9 +16,7 @@ describe("useLatestRef source (IMPROVE-2)", () => {
   it("contains no effect-based sync — render-phase write only", () => {
     // The doc comment legitimately *describes* effects; strip comments before
     // matching so the guard only inspects executable code.
-    const code = useLatestRefSource
-      .replace(/\/\*[\s\S]*?\*\//g, "")
-      .replace(/\/\/.*$/gm, "");
+    const code = useLatestRefSource.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
     expect(code).not.toMatch(/\buseEffect\b/);
     expect(code).not.toMatch(/\buseLayoutEffect\b/);
     expect(code).toMatch(/ref\.current\s*=\s*value/);

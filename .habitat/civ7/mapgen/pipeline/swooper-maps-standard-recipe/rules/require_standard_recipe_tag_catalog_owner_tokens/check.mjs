@@ -26,4 +26,3 @@ for (const token of [
 }
 
 assertNoFindings("require_standard_recipe_tag_catalog_owner_tokens", findings);
-

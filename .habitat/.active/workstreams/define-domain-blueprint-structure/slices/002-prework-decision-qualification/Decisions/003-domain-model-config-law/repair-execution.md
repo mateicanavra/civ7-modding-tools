@@ -54,32 +54,32 @@ Required reads before any stage:
 - `agent-lane-appendix.md`
 - `disposition.md`
 - `resource-policy-data-contract.domino.md`
-- `.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/`
-- `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/`
-- `.habitat/blueprints/domain/require_domain_source_topology/`
+- `.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json`
+- `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json`
+- `.habitat/blueprints/domain/require_domain_source_topology/rule.json`
+- `.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json`
 - `.habitat/scopes/domain/`
 - `.habitat/blueprints/recipe-stage/`
-- `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/`
+- `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json`
 
 Required command baseline:
 
 ```bash
 git status --short
-cat .grit/grit.yaml
-find .grit -maxdepth 3 -type f -print
-GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns list --source local
-GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter require_recipe_stage_authoring_file_shape --verbose
-GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter require_domain_operation_contract_file_shape --verbose
+mkdir -p /tmp/habitat-red-experiment
 bun habitat check --rule require_recipe_stage_authoring_file_shape --json --output /tmp/habitat-red-experiment/stage-authoring.json
 bun habitat check --rule require_domain_operation_contract_file_shape --json --output /tmp/habitat-red-experiment/op-contract.json
 bun habitat check --rule require_domain_source_topology --json --output /tmp/habitat-red-experiment/domain-topology.json
 bun habitat check --rule preserve_standard_stage_topology_and_path_invariants --json --output /tmp/habitat-red-experiment/standard-stage-topology.json
+bun habitat check --rule require_public_domain_surfaces_in_tests --json --output /tmp/habitat-red-experiment/public-domain-tests.json
 ```
 
-Native Grit fixture note:
+Manifest-selected Grit execution:
 
-- In this checkout native `grit patterns test --filter <rule>` is expected to be unavailable unless the pattern is registered in the active `.grit` corpus. `.grit/grit.yaml` currently has `patterns: []`.
-- That unavailability is not a source-burn-down blocker when it is recorded as `NATIVE_GRIT_UNAVAILABLE_RECORDED` and replaced by the reliable workaround: Habitat wrapper current-tree red plus disposable injected bad/clean probes for each enforced file-shape rule.
+- `bun habitat check --rule require_recipe_stage_authoring_file_shape` selects `.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json`.
+- `bun habitat check --rule require_domain_operation_contract_file_shape` selects `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json`.
+- For either Grit-backed rule, Habitat reads the selected manifest's pattern, materializes an Effect-scoped temporary `grit.yaml`, and invokes pinned Grit with `--grit-dir`.
+- A prior native-fixture failure is historical evidence only; it is not a current command baseline, corpus, or execution gate.
 - Current-tree Habitat checks alone are not enough. The injected probes must prove the rule catches wrong carriers and ignores the intended clean owner shape before Stage 1 begins.
 
 Required row inputs:
@@ -116,7 +116,7 @@ Required proof matrix:
 
 | Proof row | Command/evidence | Required cases | Pass condition |
 | --- | --- | --- | --- |
-| `S0-NATIVE-GRIT-CAPABILITY` | `.grit/grit.yaml`, `.grit` file listing, `grit patterns list`, and the two native `grit patterns test --filter ...` commands. | active `.grit` corpus discovery for both file-shape rules. | If native fixtures are unavailable, record the exact failure and proceed only with injected probe proof. If native fixtures become available, run them and record the exact command. |
+| `S0-MANIFEST-GRIT-EXECUTION` | The selected stage and operation `rule.json` manifests plus their `bun habitat check --rule <id> --json` commands. | Manifest selection for both file-shape rules; Habitat's Effect-scoped `grit.yaml` and `--grit-dir` execution. | Both checks run through their selected manifests; injected probes remain required proof of bad/clean behavior. |
 | `S0-PROBE-STAGE` | Disposable bad/clean files under the scanned standard stage tree, followed by `bun habitat check --rule require_recipe_stage_authoring_file_shape --json --output /tmp/habitat-red-experiment/stage-authoring-probe.json`, then cleanup and `git status --short`. | good `createStage({ id, steps })`; wrong root helper carrier; outsourced `createStage(StageDefinition)` with sentinel constructor; forbidden operation mirror; re-export carrier; dynamic import carrier. | Bad probes appear in diagnostics, clean probe does not, and cleanup leaves no untracked or modified probe files. |
 | `S0-PROBE-OP` | Disposable bad/clean files under the scanned domain operation contract tree, followed by `bun habitat check --rule require_domain_operation_contract_file_shape --json --output /tmp/habitat-red-experiment/op-contract-probe.json`, then cleanup and `git status --short`. | good direct `defineOp({ input, output, strategies })`; good const + default export; outsourced `defineOp(DemoDefinition)` with sentinel constructor; sibling/cross-op contract import; re-export carrier; dynamic import carrier; `createOp`/`createStage` inside contract. | Bad probes appear in diagnostics, clean probe does not, and cleanup leaves no untracked or modified probe files. |
 | `S0-TOPO-STAGE` | `bun habitat check --rule preserve_standard_stage_topology_and_path_invariants --json --output /tmp/habitat-red-experiment/standard-stage-topology.json` plus source inspection. | source-derived standard stage topology owner; no static copied stage-root list. | Existing topology rail is green and execution record states that per-stage helper child-file bans remain owned by `require_recipe_stage_authoring_file_shape`, not this rule. |
@@ -127,7 +127,7 @@ Required proof matrix:
 
 Acceptance:
 
-- PASS if native fixture availability is recorded truthfully, injected bad/clean probe proof and current-tree checks run, rule IDs are normalized, the current red counts are reproducible in `red-ledger.md`, and every diagnostic is represented in `execution-status-register.md`.
+- PASS if manifest-selected Habitat checks and injected bad/clean probe proof run, rule IDs are normalized, the current red counts are reproducible in `red-ledger.md`, and every diagnostic is represented in `execution-status-register.md`.
 - PASS only if every Stage 1-3 row has exact destination, `deletion`, or exact track-out target before source editing begins.
 - FAIL if any file-shape rule false-greens a known wrong root helper carrier, ignores re-export/dynamic import carriers, or relies on stale static topology lists.
 - FAIL if stage-root child topology remains only a Grit content concern and is not assigned to a source-derived Habitat topology rail before closure.

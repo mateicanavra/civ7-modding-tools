@@ -142,13 +142,13 @@ describe("rule selector boundary", () => {
     });
   });
 
-  test("renders invalid selectors as schemaVersion 1 failing CheckReports", () => {
+  test("renders invalid selectors as schemaVersion 1 failing CheckReports with top-level runner remediation", () => {
     const report = Effect.runSync(
       selectorRefusalReportEffect(
-        selectionFailure({ rule: "definitely-not-a-rule" }),
+        selectionFailure({ runner: "definitely-not-a-runner" }),
         structuralCheckRequest({
-          command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
-          rule: "definitely-not-a-rule",
+          command: checkCommandContext(["--json", "--runner", "definitely-not-a-runner"]),
+          runner: "definitely-not-a-runner",
         })
       )
     );
@@ -161,7 +161,10 @@ describe("rule selector boundary", () => {
       runner: "habitat",
       status: "fail",
     });
-    expect(report.rules[0].diagnostics[0].message).toContain("Unknown Habitat rule id");
+    expect(report.rules[0].diagnostics[0].message).toContain("Unknown Habitat runner id");
+    expect(report.rules[0].remediate).toBe(
+      "Use --owner for owner project ids, --rule for rule ids, --runner for top-level runner names: grit, habitat, or nx; or omit selectors to run all rules."
+    );
 
     const json = renderCheckReport(report, { json: true });
     expect(JSON.parse(json)).toMatchObject({ schemaVersion: 1, ok: false });

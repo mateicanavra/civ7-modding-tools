@@ -58,7 +58,8 @@ const serveDaemon = target(appProject, "serve-daemon");
 if (dev) {
   if (dev.command !== "vite") failures.push(`dev.command must be vite, got ${dev.command}`);
   if (dev.executor !== undefined) failures.push("dev.executor must be undefined");
-  if (dev.options?.cwd !== "apps/mapgen-studio") failures.push("dev.options.cwd must be apps/mapgen-studio");
+  if (dev.options?.cwd !== "apps/mapgen-studio")
+    failures.push("dev.options.cwd must be apps/mapgen-studio");
   if (dev.options?.script !== undefined) failures.push("dev.options.script must be undefined");
   if (dev.continuous !== true) failures.push("dev.continuous must be true");
   if (!JSON.stringify(dev.dependsOn).includes("serve-daemon")) {

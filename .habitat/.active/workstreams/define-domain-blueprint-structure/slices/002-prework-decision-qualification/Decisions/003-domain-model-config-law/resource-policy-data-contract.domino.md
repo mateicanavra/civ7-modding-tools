@@ -47,6 +47,12 @@ Accepted owners:
 
 Closure proof:
 
+The structural checks select these current manifests:
+
+- `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/rule.json`
+- `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json`
+- `.habitat/blueprints/artifact/require_artifact_file_shape/rule.json`
+
 - `rg` clone scan reports zero `ExpectedCountRangeSchema` definitions under
   `mods/mod-swooper-maps/src/domain/resources/ops`;
 - `bun habitat check --rule require_domain_model_schema_policy_owner_shape --json`

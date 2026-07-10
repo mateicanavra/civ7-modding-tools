@@ -19,18 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "packages/**/*.ts",
-        "packages/**/*.tsx"
-      ]
+      "patterns": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"]
     }
   ],
-  "scanRoots": [
-    "apps/mapgen-studio/src",
-    "packages"
-  ],
+  "scanRoots": ["apps/mapgen-studio/src", "packages"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/baseline.json"

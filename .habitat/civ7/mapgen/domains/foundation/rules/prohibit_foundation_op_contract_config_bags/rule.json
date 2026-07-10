@@ -19,14 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/*/contract.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/*/contract.ts"]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/foundation/ops"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain/foundation/ops"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/baseline.json"

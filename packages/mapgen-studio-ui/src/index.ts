@@ -129,8 +129,6 @@ export {
   runInGamePrimaryActionLabel,
   runInGameRequiresProcessRestart,
 } from "./components/panels/statusLabels.js";
-// primitives — the shadcn sub-barrel (15 components + families)
-export * from "./components/ui/index.js";
 // templates — canonical assemblies (the graduation target for reference
 // explorations that earn reuse; operating model in README.md)
 export {
@@ -138,6 +136,8 @@ export {
   StudioShellLayout,
   type StudioShellLayoutProps,
 } from "./components/templates/StudioShellLayout.js";
+// primitives — the shadcn sub-barrel (15 components + families)
+export * from "./components/ui/index.js";
 
 // lib foundation
 export { LAYOUT, type LayoutConfig } from "./lib/layout.js";

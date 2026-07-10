@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-civ7-intelligence-bridge/src/ui/civ7-intelligence-bridge.ts"
-      ]
+      "patterns": ["mods/mod-civ7-intelligence-bridge/src/ui/civ7-intelligence-bridge.ts"]
     },
     {
       "kind": "project-owner"

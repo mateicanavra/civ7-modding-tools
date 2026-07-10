@@ -48,6 +48,11 @@ export interface RuleRegistrySyncFileSystem {
   readonly readText: (registryPath: string) => string;
 }
 
+export interface LoadedRuleRegistryDocument {
+  readonly document: RuleRegistryDocument;
+  readonly discoveredManifestPaths: readonly string[];
+}
+
 export class RuleRegistryLoadFailed extends Data.TaggedError("RuleRegistryLoadFailed")<{
   readonly issues: readonly RuleRegistryIssue[];
 }> {
@@ -103,9 +108,19 @@ export function loadRuleRegistryDocument(
   registryPath: string,
   fileSystem: RuleRegistrySyncFileSystem
 ): RuleRegistryDocument {
+  return loadRuleRegistryDocumentWithDiscovery(registryPath, fileSystem).document;
+}
+
+export function loadRuleRegistryDocumentWithDiscovery(
+  registryPath: string,
+  fileSystem: RuleRegistrySyncFileSystem
+): LoadedRuleRegistryDocument {
   return fileSystem.isDirectory(registryPath)
-    ? loadRuleRegistryDirectorySync(registryPath, fileSystem)
-    : parseRuleRegistryTextOrThrow(fileSystem.readText(registryPath), registryPath);
+    ? loadRuleRegistryDirectorySyncWithDiscovery(registryPath, fileSystem)
+    : {
+        document: parseRuleRegistryTextOrThrow(fileSystem.readText(registryPath), registryPath),
+        discoveredManifestPaths: [],
+      };
 }
 
 export function loadRuleRegistryDocumentEffect<R>(
@@ -151,17 +166,18 @@ function loadRuleRegistryDirectory<R>(
   });
 }
 
-function loadRuleRegistryDirectorySync(
+function loadRuleRegistryDirectorySyncWithDiscovery(
   registryDir: string,
   fileSystem: RuleRegistrySyncFileSystem
-): RuleRegistryDocument {
+): LoadedRuleRegistryDocument {
   const indexPath = ruleRegistryIndexPathSync(registryDir, fileSystem);
   const index = parseRegistryJsonSync<RuleRegistryIndex>(
     indexPath,
     RuleRegistryIndexSchema,
     fileSystem
   );
-  const rules = ruleFilePathsSync(registryDir, fileSystem)
+  const rulePaths = ruleFilePathsSync(registryDir, fileSystem);
+  const rules = rulePaths
     .map((rulePath) => parseRuleManifestJsonSync(rulePath, fileSystem))
     .sort((left, right) => left.id.localeCompare(right.id));
   const result = parseRuleRegistryDocument(
@@ -172,7 +188,12 @@ function loadRuleRegistryDirectorySync(
     },
     indexPath
   );
-  if (result.ok) return result.document;
+  if (result.ok) {
+    return {
+      document: result.document,
+      discoveredManifestPaths: rulePaths.map(toRepoRelativeManifestPath).sort(),
+    };
+  }
   throw new RuleRegistryLoadFailed({ issues: result.issues });
 }
 

@@ -1,14 +1,3 @@
-import path from "node:path";
-import {
-  existsSync,
-  lstatSync,
-  mkdtempSync,
-  mkdirSync,
-  readFileSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
 import {
   type DiagnosticCacheObservation,
   type DiagnosticFinding,
@@ -21,7 +10,6 @@ import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect } from "effect";
 import { gritDiagnosticOutcomesFromReport } from "./diagnostics.js";
 import type { GritDiagnosticAcquisition } from "./output.js";
-import { gritCheckProgram } from "./request.js";
 import type { GritProviderRequirements, GritProviderService } from "./resource.js";
 import {
   decidePatternScanRoots,
@@ -29,6 +17,7 @@ import {
   ruleHasDocsScanRoot,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
+import { runGritCheckWithScopedConfigEffect } from "./scoped-config.js";
 import type { GritCheckCacheMode, GritDiagnosticOptions } from "./types.js";
 
 export function runSourcePatternCheckOutcomesEffect(
@@ -56,9 +45,7 @@ export function runSourcePatternCheckOutcomesEffect(
     ),
   }));
   return Effect.all(
-    batches.map((batch) =>
-      runSourcePatternCheckBatchEffect(batch.rules, batch.scanRoots, options)
-    ),
+    batches.map((batch) => runSourcePatternCheckBatchEffect(batch.rules, batch.scanRoots, options)),
     { concurrency: 2 }
   ).pipe(Effect.map((batchOutcomes) => mergeBatchOutcomes(selectedRules, batchOutcomes)));
 }
@@ -96,23 +83,16 @@ function runSourcePatternCheckBatchEffect(
     );
   }
 
-  return materializeGritWorkspace(selectedRules, scanRoots, options.repoRoot).pipe(
-    Effect.flatMap((cwd) =>
-      gritCheckProgram(scanRoots, {
-        repoRoot: options.repoRoot,
-        grit: options.grit,
-        cacheMode: options.cacheMode,
-        requireObservableCacheStatus: options.requireObservableCacheStatus,
-        outputFormat: "json",
-        cwd,
-      })
-    ),
+  return runGritCheckWithScopedConfigEffect(selectedRules, scanRoots, {
+    ...options,
+    outputFormat: "json",
+  }).pipe(
     Effect.match({
       onFailure: () =>
         providerFailedOutcomes(
           selectedRules,
           "GritToolUnavailable",
-          "Grit packet pattern materialization or execution failed."
+          "Grit scoped configuration or execution failed."
         ),
       onSuccess: (acquisition) => {
         if (acquisition.kind === "parsed") {
@@ -150,64 +130,6 @@ function runSourcePatternCheckBatchEffect(
       },
     })
   );
-}
-
-function materializeGritWorkspace(
-  selectedRules: readonly RuleSourceFacts[],
-  scanRoots: readonly string[],
-  repoRoot: string
-): Effect.Effect<string> {
-  return Effect.sync(() => {
-    const tempRoot = mkdtempSync(path.join(tmpdir(), "habitat-grit-check-"));
-    const gritDir = path.join(tempRoot, ".grit");
-    mkdirSync(gritDir, { recursive: true });
-    const configPath = path.join(gritDir, "grit.yaml");
-    writeFileSync(configPath, renderSelectedGritConfig(selectedRules, repoRoot));
-    for (const scanRoot of scanRoots) {
-      materializeScanRootLink(tempRoot, repoRoot, scanRoot);
-    }
-    return tempRoot;
-  });
-}
-
-function renderSelectedGritConfig(selectedRules: readonly RuleSourceFacts[], repoRoot: string) {
-  const patternEntries = selectedRules.map((rule) => {
-    const source = path.join(repoRoot, rule.runner.files.pattern);
-      const contents = readFileSync(source, "utf8");
-      const body = extractGritBody(contents, source);
-      return [
-        `  - name: ${JSON.stringify(rule.patternName)}`,
-      `    title: ${JSON.stringify(rule.id)}`,
-      "    level: error",
-      "    body: |",
-      indentYamlBlock(body),
-    ].join("\n");
-  });
-  return ["version: 0.0.2", "patterns:", ...patternEntries, ""].join("\n");
-}
-
-function extractGritBody(contents: string, source: string) {
-  const match = contents.match(/```grit\n([\s\S]*?)\n```/);
-  if (!match) throw new Error(`Missing Grit code block in ${source}`);
-  return match[1] ?? "";
-}
-
-function indentYamlBlock(body: string) {
-  return body
-    .split("\n")
-    .map((line) => `      ${line}`)
-    .join("\n");
-}
-
-function materializeScanRootLink(tempRoot: string, repoRoot: string, scanRoot: string) {
-  const [topLevel] = scanRoot.split("/");
-  if (!topLevel) return;
-  const target = path.join(repoRoot, topLevel);
-  if (!existsSync(target)) return;
-  const link = path.join(tempRoot, topLevel);
-  if (existsSync(link)) return;
-  mkdirSync(path.dirname(link), { recursive: true });
-  symlinkSync(target, link, lstatSync(target).isDirectory() ? "dir" : "file");
 }
 
 function mergeBatchOutcomes(

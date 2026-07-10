@@ -13,9 +13,9 @@
   "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "formatter drift, ordinary lint hygiene violations, and import-organization drift",
-  "why": "The Habitat format-check lane owns formatter and ordinary hygiene checks; other rule lanes must not duplicate that responsibility.",
-  "remediate": "bun habitat fix",
-  "message": "Run `bun habitat fix`; keep generated and protected zones excluded from formatter coverage.",
+  "why": "Biome owns formatter, ordinary hygiene, and import-organization checks; Habitat routes that native gate without duplicating its authority.",
+  "remediate": "bun run biome:check -- --write",
+  "message": "Run `bun run biome:check -- --write`; keep external, vendored, and generated surfaces excluded from native Biome coverage.",
   "pathCoverage": [
     {
       "kind": "project-owner"

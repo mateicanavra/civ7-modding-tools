@@ -541,7 +541,7 @@ Actions:
 
 Gate:
 
-- native GRIT/Habitat fixtures pass;
+- each Grit-backed rule runs through its selected `.habitat/**/rule.json` manifest via `bun habitat check --rule <id>`, with Habitat's Effect-scoped `grit.yaml` and `--grit-dir` execution;
 - Habitat current-tree wrapper proof runs for each repaired pattern;
 - injected-violation proof demonstrates that bad public-config, knob, op-mirror,
   projection-policy, model-schema bucket, and artifact-proxy fixtures fail;

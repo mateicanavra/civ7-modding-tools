@@ -6,9 +6,9 @@ import {
   OFFICIAL_RESOURCE_CORPUS,
   OFFICIAL_RESOURCE_CORPUS_ARTIFACT,
   OFFICIAL_RESOURCE_TYPE_ORDER,
+  type OfficialResourceType,
   requireResourceRuntimeId,
   resolveResourceRuntimeIds,
-  type OfficialResourceType,
 } from "../src/index.js";
 
 const repoRoot = join(import.meta.dir, "../../..");

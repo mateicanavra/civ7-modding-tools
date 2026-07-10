@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/civ7-adapter/src/**"
-      ]
+      "patterns": ["packages/civ7-adapter/src/**"]
     },
     {
       "kind": "project-owner"

@@ -7,8 +7,6 @@ export function habitatInputs(): string[] {
   return [
     "{workspaceRoot}/.habitat/**",
     "{workspaceRoot}/tools/habitat/src/**",
-    "{workspaceRoot}/.grit/grit.yaml",
-    "{workspaceRoot}/.grit/patterns",
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
     "{workspaceRoot}/packages/**",
@@ -86,15 +84,8 @@ export function biomeTargets(): {
 } {
   const inputs = [
     "{workspaceRoot}/biome.json",
-    "{workspaceRoot}/bun.lock",
-    "{workspaceRoot}/package.json",
-    "{workspaceRoot}/apps/**",
-    "{workspaceRoot}/packages/**",
-    "{workspaceRoot}/mods/**",
-    "{workspaceRoot}/tools/**",
-    "{workspaceRoot}/scripts/**",
-    "{workspaceRoot}/docs/**",
-    "{workspaceRoot}/vitest.config.ts",
+    "{workspaceRoot}/.habitat/**",
+    "{workspaceRoot}/**/*",
   ];
   return {
     format: {
