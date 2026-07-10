@@ -44,16 +44,12 @@ The pass starts from a red inventory row with:
 If the row lacks the activated law or why-red reason, repair the inventory row
 before investigating source content.
 
-## Authority Order
+## Authority Delegation
 
-Authority order:
-
-1. direct user decisions;
-2. activated scope, file, and pattern documents for the slice;
-3. shared decision-book criteria;
-4. canonical Civ7 product and architecture authority;
-5. source, imports, callers, tests, generated output, and Narsil graph evidence;
-6. Git history and stale docs as explanatory evidence only.
+Apply the sole canonical source order in `.habitat/.active/frames/FRAME.md`.
+This investigation frame adds no source precedence. Activated slice law,
+decision criteria, current-tree evidence, and historical material retain the
+roles and ranks assigned there.
 
 Current location is evidence only. The red row already proves the current
 location is not accepted by the activated law.

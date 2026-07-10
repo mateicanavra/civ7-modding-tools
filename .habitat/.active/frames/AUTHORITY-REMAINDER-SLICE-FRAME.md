@@ -25,23 +25,10 @@ blueprints, and decide whether each rule is actually:
 The physical tree must carry the sorted state. The disposition table is a
 receipt, not the authority surface.
 
-Source order:
-
-1. Direct user decisions in the active Habitat authority-tree workstream.
-2. `.habitat/.active/frames/DOMINO-FRAME.md`, `.habitat/.active/frames/FRAME.md`, and
-   `.habitat/.active/dominoes/README.md`.
-3. `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, and
-   niche concepts.
-4. `.habitat/.active/frames/AUTHORITY-SLICE-FRAME.md` for bounded state-changing slices.
-5. `.habitat/AUTHORITY.md` for current-tree authority mechanics, manifest
-   identity, and Toolkit execution boundaries.
-6. `.habitat/AUTHORITY-TREE-SHAPE.md` for the current physical tree and lane
-   semantics.
-7. Completed slice frames, especially `.habitat/.active/workstreams/remediate-rule-authority/receipts/authority-slices/AUTHORITY-DOMAIN-KIND-SLICE.md`
-   and `.habitat/.active/workstreams/remediate-rule-authority/receipts/authority-slices/AUTHORITY-DOMAIN-OPERATION-SLICE.md`, as precedent and
-   evidence only.
-8. Current `.habitat/**/rule.json` manifests as evidence inventory.
-9. Current source code as constructibility and ownership evidence.
+Apply the sole canonical source order in `.habitat/.active/frames/FRAME.md`.
+This selected specialization adds remainder-slice method, not a local authority
+order. The selected domino, parent slice law, completed receipts, manifests,
+and source evidence retain the roles and ranks assigned by `FRAME.md`.
 
 In scope:
 

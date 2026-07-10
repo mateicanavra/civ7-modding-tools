@@ -4,25 +4,15 @@ Status: active sequence surface for Habitat Authority Consolidation dominoes
 
 This directory owns the active domino sequence at the Habitat authority level. Dominoes are higher-level than any single workstream: a domino may advance rule remediation, closed-structure prework, blueprint authority, source cleanup, or runner projection when it moves the authority tree forward.
 
-Each domino lives in one file under `items/`. The complete ordered map lives in [index.md](index.md). The source order, selection rule, reorder gates, and closure contract remain here because they govern the whole sequence rather than one item.
+Each domino lives in one file under `items/`. The complete ordered map lives in [index.md](index.md). The selection rule, reorder gates, and closure contract remain here because they govern the whole sequence rather than one item.
 
-## Source Order
+## Authority Delegation
 
-Use this source order when selecting or judging the next domino:
-
-1. Direct user decisions and current repo instructions.
-2. `.habitat/.active/frames/DOMINO-FRAME.md`.
-3. `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, and niche concepts.
-4. `.habitat/.active/frames/AUTHORITY-SLICE-FRAME.md` for bounded slice work.
-5. `.habitat/.active/frames/AUTHORITY-REMAINDER-SLICE-FRAME.md` for contextual remainder slices after parent kinds have moved.
-6. `.habitat/.active/frames/AUTHORITY-AUTONOMOUS-DOMINO-LOOP.md` for repeated bounded dominoes whose destinations already exist.
-7. `.habitat/.active/frames/*.md` for reusable method frames selected by the current domino.
-8. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`, `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/RULE-OPERATION-KINDS.md`, and `.habitat/SUBJECT-CATEGORIES.md`.
-9. Completed slice frames and receipts as precedent and evidence, not as the next active selector.
-10. Current `.habitat` tree shape, generic packet role files, Toolkit behavior, and fresh command evidence.
-11. Historical branch, PR, and session context as discovery material only.
-
-If sources conflict, preserve the higher source unless fresh disk or command evidence proves it stale.
+Apply the sole canonical source order in
+`.habitat/.active/frames/FRAME.md`. `DOMINO-FRAME.md`, the selected item and
+method frame, receipts, manifests, and source evidence retain the roles and
+ranks assigned there. This sequence surface selects work; it does not define
+authority precedence.
 
 ## Target Regime: Authority Activation
 

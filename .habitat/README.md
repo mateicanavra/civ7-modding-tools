@@ -41,15 +41,37 @@ Active frames and workstreams live under `.habitat/.active/`.
   authority-consolidation workstream: ledgers, receipts, decision packets,
   scopes, slices, investigations, and scratchpads.
 
-Canonical root authority remains at `.habitat/` only for ontology, tree shape,
-blueprint packets, niche rule packets, rule operation kinds, subject
-categories, registry metadata, and tool-separation authority.
+Durable root authority remains at `.habitat/` for the authority contract,
+ontology, tree shape, blueprint packets, niche rule packets, rule operation
+kinds, subject categories, registry metadata, and tool-separation authority.
+The semantic-ratchet addendum and future foundry draft also remain here because
+Habitat owns their method and ratcheting path; temporal execution state remains
+under `.habitat/.active/`.
+
+## Authority Routing
+
+`.habitat/.active/frames/FRAME.md` is the sole canonical source-order router.
+Apply its complete order rather than rebuilding one here. This README indexes
+the authority planes but does not assign precedence among them.
+
+The future foundry draft does not override accepted current system docs or
+MapGen baselines until a bounded authority slice promotes the relevant
+decision.
 
 ## Authority Planes
 
+- `.active/frames/FRAME.md`: current living lens and canonical source-order
+  router for the authority tree.
 - `AUTHORITY.md`: what may be authoritative here and what remains Toolkit execution machinery.
 - `AUTHORITY-ONTOLOGY.md`: normative conceptual model for Habitat, blueprints, instances, capabilities, niches, admission, and authority activation.
 - `AUTHORITY-TREE-SHAPE.md`: the current niche/blueprint tree shape.
+- `.active/frames/BLUEPRINT-AUTHORITY-RATCHET-DESCENT-FRAME.md`: controlling
+  specialization for blueprint-kind descent geometry, proof, closure, and
+  ascent.
+- `AUTHORITY-SEMANTIC-RATCHET-ADDENDUM.md`: generalized semantic-ratchet method;
+  it does not replace a selected active specialization.
+- `FUTURE-CIV7-FOUNDRY-ARCHITECTURE.md`: draft target product/technical
+  architecture for Habitat to validate and ratchet through bounded slices.
 - `scopes/`: authored blueprint scope references. These are visible staging
   authority for scope/file/pattern shape; they are not admitted executable
   rules unless a separate packet under `blueprints/` or a niche `rules/`

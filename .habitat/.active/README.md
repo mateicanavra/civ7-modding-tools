@@ -7,6 +7,9 @@ being shaped, reviewed, or executed. It is the home for Habitat method frames,
 workstream ledgers, receipts, decision packets, scopes, slices, investigation
 artifacts, and steward scratchpads.
 
+Apply the sole canonical source order in `.habitat/.active/frames/FRAME.md`.
+This index describes active lanes only and cannot reorder that authority.
+
 Canonical root authority remains at `.habitat/` for ontology, tree shape,
 blueprints, niche rule packets, registry metadata, subject categories,
 operation kinds, and tool-separation authority.

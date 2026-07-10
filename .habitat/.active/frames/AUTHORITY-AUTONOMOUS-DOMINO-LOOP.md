@@ -20,26 +20,10 @@ It composes the existing frames. It does not supersede the ontology, tree
 shape, slice, remainder, or domino documents. Use it only after those documents
 have already established the concepts and current physical lanes.
 
-Candidate selection and authority order:
-
-1. Direct user decisions in the active Habitat authority-tree workstream.
-2. `.habitat/.active/frames/DOMINO-FRAME.md` and `.habitat/.active/dominoes/README.md` for ratchet
-   discipline and candidate pocket selection.
-3. `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, and
-   niche concepts.
-4. `.habitat/AUTHORITY-TREE-SHAPE.md` for current physical lane semantics.
-5. `.habitat/AUTHORITY.md` and `.habitat/.active/frames/FRAME.md` for current-tree
-   mechanics, manifest identity, Toolkit execution boundaries, and the
-   standing Habitat frame.
-6. `.habitat/.active/frames/AUTHORITY-SLICE-FRAME.md` for bounded kind-family slices.
-7. `.habitat/.active/frames/AUTHORITY-REMAINDER-SLICE-FRAME.md` for contextual remainder
-   slices.
-8. This document, for when the next domino belongs to the repeatable
-   autonomous loop.
-9. Completed slice frames such as `.habitat/.active/workstreams/remediate-rule-authority/receipts/authority-slices/AUTHORITY-DOMAIN-KIND-SLICE.md`
-   and `.habitat/.active/workstreams/remediate-rule-authority/receipts/authority-slices/AUTHORITY-DOMAIN-OPERATION-SLICE.md` as precedent and
-   evidence only.
-10. Current `.habitat/**/rule.json` manifests and source code as evidence.
+Apply the sole canonical source order in `.habitat/.active/frames/FRAME.md`.
+This selected specialization adds candidate-selection and execution method, not
+a local authority order. Domino records, parent slice frames, receipts,
+manifests, and source evidence retain the roles and ranks assigned by `FRAME.md`.
 
 The domino ledger may select the next candidate pocket. It does not authorize
 lane creation, blueprint promotion, niche admission, capability creation, or

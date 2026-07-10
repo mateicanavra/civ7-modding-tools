@@ -161,14 +161,14 @@ Progress exists when the selected object has a positive target shape: allowed
 children, allowed files, allowed imports, allowed exports, required aggregation
 surface, or required relationship.
 
-The assertion follows the DRA authority order in
-`.agents/skills/civ7-habitat-dra-workstream/references/authority-map.md`.
-Direct current user instruction, accepted Habitat authority, architecture
-authority, and sealed decisions can establish target law. AGENTS and workflow
-docs establish source order, routing, and process constraints unless they carry
-a direct applicable structural instruction. Fresh source and command evidence
-can falsify stale claims or prove semantic fit, but common current layout does
-not become topology or file-shape law merely because it exists.
+The assertion follows the canonical source order in
+`.habitat/.active/frames/FRAME.md`. This descent frame is the selected active
+specialization only after that router reaches the method-frame layer. The older
+DRA recovery authority map supplies role-specific reading guidance but cannot
+reorder this frame, Habitat authority, accepted baselines, or canonical docs.
+Fresh source and command evidence can falsify stale claims or prove semantic
+fit, but common current layout does not become topology or file-shape law
+merely because it exists.
 
 This is where `CLOSED-STRUCTURE-ENFORCEMENT-METHOD-FRAME.md` operates as a
 primitive inside the larger ratchet.

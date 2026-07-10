@@ -4,16 +4,25 @@ Status: active authority contract with provisional physical hierarchy
 
 ## What This Establishes
 
-Use `.habitat/.active/frames/FRAME.md` as the current living lens for authority-tree
-direction, source order, stack geolocation, and pruning posture. Use
-`.habitat/AUTHORITY-ONTOLOGY.md` as the normative conceptual model for Habitat,
-blueprints, instances, capabilities, niches, admission, and authority
-activation. Use `.habitat/.active/frames/DOMINO-FRAME.md` as the operating frame for choosing,
-reviewing, and carrying authority-tree dominoes across Graphite branches and
-agent handoffs. This file defines the durable authority contract that those
-frames apply to the current repository tree.
+Use `.habitat/.active/frames/FRAME.md` as the current living lens and sole
+canonical source-order router. Apply its complete order rather than rebuilding
+one here. This file supplies the durable contract at the rank assigned there;
+it does not define a second local order.
+
+Use `.habitat/.active/frames/DOMINO-FRAME.md` as the operating specialization
+for choosing, reviewing, and carrying authority-tree dominoes across Graphite
+branches and agent handoffs. This file defines the durable authority contract
+that those frames apply to the current repository tree.
 
 `.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
+
+The semantic-ratchet addendum generalizes the method for converting architecture
+intuition into Habitat authority, proof, guardrails, and overwatch. The active
+blueprint descent frame specializes that method and controls blueprint-ratchet
+closure. The future architecture reference is not yet a replacement for current
+canonical system docs or accepted MapGen project baselines; it is draft target
+direction that Habitat work should validate and make executable through bounded
+authority slices.
 
 The current physical hierarchy has four packet lanes:
 

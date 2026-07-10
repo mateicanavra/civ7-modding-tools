@@ -61,9 +61,11 @@ Source pointers:
 - Direct user decision: build a reusable frame for remainder reclamation that
   starts from an idea, uses metrics to discover pockets and adjacent slices,
   then carries through movement, review, and proof.
+- `.habitat/.active/frames/FRAME.md` for canonical source order before this
+  selected specialization.
 - `.habitat/.active/dominoes/README.md`, `.habitat/.active/dominoes/index.md`,
-  and `.habitat/.active/dominoes/items/` for source order, completed receipts,
-  and the active next domino.
+  and `.habitat/.active/dominoes/items/` for completed receipts and active
+  domino selection.
 - `.habitat/AUTHORITY-ONTOLOGY.md` for blueprint, instance, capability, niche,
   and evidence-vs-authority concepts.
 - `.habitat/AUTHORITY-TREE-SHAPE.md` for `blueprints/`, `rules/`,
