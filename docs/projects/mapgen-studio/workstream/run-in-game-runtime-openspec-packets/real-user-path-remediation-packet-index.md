@@ -1,6 +1,16 @@
 # Run In Game Real User Path Remediation Packet Index
 
-Status: reviewed packet train ready for implementation
+Opening status snapshot: reviewed packet train ready for implementation
+
+Current stack closeout planning:
+`docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`.
+
+Execution hold: do not begin or resume any packet from this index until Stage 1
+of the closeout workstream has amended and strictly validated the controlling
+packet authority and its verification ledger explicitly names the next
+executable unit. The hold does not expire when Stage 0 opens. The closeout
+ledger owns current execution state; the status above is an opening snapshot,
+not permission to execute.
 
 Source proposal:
 `docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/real-user-path-remediation-proposal.md`
