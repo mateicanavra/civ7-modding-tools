@@ -18,7 +18,7 @@ if ! git config -f ".gitmodules" --get "submodule.${SUBMODULE_REL}.path" >/dev/n
   exit 0
 fi
 
-if [[ -d "$SUBMODULE_REL" ]]; then
+if [[ -d "$SUBMODULE_REL" && -n "$(find "$SUBMODULE_REL" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   EXPECTED_TOPLEVEL="$(cd "$SUBMODULE_REL" && pwd -P)"
   ACTUAL_TOPLEVEL="$(git -C "$SUBMODULE_REL" rev-parse --show-toplevel 2>/dev/null || true)"
   if [[ -n "$ACTUAL_TOPLEVEL" && "$ACTUAL_TOPLEVEL" != "$EXPECTED_TOPLEVEL" ]]; then
@@ -29,7 +29,9 @@ if [[ -d "$SUBMODULE_REL" ]]; then
   fi
 fi
 
-git submodule update --init --recursive -- "$SUBMODULE_REL"
+# Keep the checkout's transport configuration while preventing ambient Git
+# hooks from running during this managed resource acquisition.
+git -c core.hooksPath=/dev/null submodule update --init --recursive -- "$SUBMODULE_REL"
 
 EXPECTED_TOPLEVEL="$(cd "$SUBMODULE_REL" && pwd -P)"
 ACTUAL_TOPLEVEL="$(git -C "$SUBMODULE_REL" rev-parse --show-toplevel 2>/dev/null || true)"

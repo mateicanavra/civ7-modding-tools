@@ -5,7 +5,7 @@ import {
   loadRuleRegistryDocumentForNxPlugin,
   type NxRuleRegistryDocument,
   type NxRuleRegistryRecord,
-} from "./providers/nx/rule-registry-loader.ts";
+} from "./nx-rule-registry-loader.ts";
 import {
   habitatAuthorityProjectName,
   habitatAuthorityRoot,

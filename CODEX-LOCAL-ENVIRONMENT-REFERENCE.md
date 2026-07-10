@@ -1,12 +1,12 @@
 # Codex Local Environment Reference
 
-This is the source-backed contract for the project-local [`.codex/environment.toml`](.codex/environment.toml). It describes the ChatGPT Desktop Local Environments feature, not a general Codex CLI configuration format.
+This is the source-backed contract for the project-local [`.codex/environments/environment.toml`](.codex/environments/environment.toml). It describes the ChatGPT Desktop Local Environments feature, not a general Codex CLI configuration format.
 
 ## Authority and Scope
 
 OpenAI's [Local Environments](https://learn.chatgpt.com/docs/environments/local-environment) and [Git Worktrees](https://learn.chatgpt.com/docs/environments/git-worktrees) documentation is authoritative for lifecycle behavior. The installed ChatGPT Desktop application (`26.707.31123`, inspected on 2026-07-09) is the authority for the currently exposed TOML editor schema.
 
-- Put shared configuration at `<repository-root>/.codex/environment.toml`.
+- The installed Desktop application creates and selects shared configuration at `<repository-root>/.codex/environments/environment.toml`. Keep one executable environment authority; a sibling `.codex/environment.toml` is not selected by the current app.
 - Desktop runs setup when it creates a managed worktree, and cleanup before it deletes one. Managed worktrees use shared Git metadata and normally begin detached.
 - Toolbar actions run in the worktree's integrated terminal; an action is an intentionally invoked command, not lifecycle automation.
 - `.worktreeinclude` is an opt-in list of ignored files to copy. It does not overwrite worktree files and skips source symlinks. This repository intentionally has no such file: secrets, local game files, and generated local state must stay local.
@@ -36,20 +36,24 @@ Scripts are TOML strings. Multiline literal strings are suitable for lifecycle s
 
 ## Repository Contract
 
-The checked-in environment chooses a fully primed managed worktree:
+Automatic setup follows the repository's ordinary clean-worktree bootstrap:
 
-1. `git submodule update --init --recursive -- .civ7/outputs/resources` initializes the tracked official-resources checkout, and `bun run resources:init` validates it through the repository's canonical recovery-aware command.
-2. `bun install --frozen-lockfile` installs the locked workspace and runs the root Husky `prepare` hook.
-3. `./node_modules/.bin/tsc -p tools/habitat/tsconfig.json` bootstraps the ignored runtime artifact for the source-configured Habitat Nx plugin. This is required before Nx can load the full workspace graph in a new worktree.
+1. `bun run resources:init` initializes and validates the official-resources submodule.
+2. `bun run effect:init` initializes and validates the pinned, read-only Effect source reference. The workspace build uses its installed package dependency rather than this checkout.
+3. `bun install --frozen-lockfile` installs the locked workspace and runs the root Husky `prepare` hook.
 4. `bun run build` builds the Nx workspace.
+5. `bun run check` verifies the workspace's static checks.
 
-This trades creation speed for a worktree that can immediately run owner workflows. It intentionally does not refresh game data, publish resources, deploy a mod, mutate a running game, or copy ignored machine state.
+There is no environment-specific build path. In particular, setup does not copy generated output or prebuild Habitat. The source-configured Habitat Nx plugin must be able to load before `tools/habitat/dist` exists, just like every clean checkout.
+
+This trades creation speed for a fully primed worktree. `bun run check` does not include lint, tests, or Habitat enforcement; those remain in the repository's `bun run ci` aggregate rather than making task creation depend on the current health of every project. Game-data refresh, publication, deployment, live-game operations, and ignored machine state remain outside setup.
 
 Cleanup calls the worktree-scoped Studio helper only. The helper records a worktree-specific tmux server socket, session, and unused frontend/daemon port pair beneath ignored `.mapgen-studio/`; it kills only that session and never kills listeners merely because they use a recorded port. See the [operational field guide](OPERATIONAL-FIELD-GUIDE.md) for the action contract and recovery paths.
 
 ## Change Rules
 
 - Use the base lifecycle scripts for behavior common to every supported platform; add a platform override only when commands genuinely diverge.
+- Keep setup equivalent to the documented clean-worktree bootstrap. Do not add environment-only bootstrap commands or depend on generated artifacts from another checkout.
 - Keep action commands explicit about side effects. A command that publishes, deploys, or reaches a game must remain visibly named.
 - Do not add routine lint/test/check chains, formatter writes, Graphite mutation, broad cleanup, direct game mutation, or package publication to the toolbar. They belong in the field guide.
 - Parse the file after changes and verify it in the Desktop Local Environments editor before relying on a newly added schema feature.
