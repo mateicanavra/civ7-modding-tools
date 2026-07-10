@@ -38,7 +38,7 @@ export function selectorRefusalReportEffect(
           message:
             "Requested Habitat selectors must match real rule owners, rule ids, runners, and non-empty intersections before rule execution.",
           remediate:
-            "Use --owner for owner project ids, --rule for rule ids, --runner for derived runners, or omit selectors to run all rules.",
+            "Use --owner for owner project ids, --rule for rule ids, --runner for top-level runner names: grit, habitat, or nx; or omit selectors to run all rules.",
         },
       ],
     });

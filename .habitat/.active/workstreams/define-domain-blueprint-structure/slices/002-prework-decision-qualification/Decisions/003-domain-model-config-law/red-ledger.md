@@ -19,15 +19,15 @@ current red class remains in this repair overlay.
 
 ## Rule Map
 
-| Rule | Lane | Purpose | Current state |
-| --- | --- | --- | --- |
-| `require_recipe_stage_authoring_file_shape` | enforced | Standard recipe stage root authoring shape. Stage `index.ts` owns authoring; wrong root helper files go red. | green |
-| `require_domain_operation_contract_file_shape` | enforced | Domain operation `contract.ts` owns the operation contract envelope. | green |
-| `require_domain_model_schema_policy_owner_shape` | enforced | Domain `model/schemas` and `model/policy` own primitives/policy only; they may not become renamed config buckets. | green |
-| `require_public_domain_surfaces_in_recipes_and_maps` | enforced | Recipes and map entrypoints must use public domain/package surfaces instead of deep domain internals. | green |
-| `require_artifact_index_aggregate_shape` | enforced | Artifact indexes aggregate artifact objects and validators through the accepted artifact shape. | green |
-| `require_domain_source_topology` | enforced | Domain source topology as the positive domain blueprint destination. | green; 0 diagnostics |
-| `require_public_domain_surfaces_in_tests` | enforced | Test source should use public domain surfaces instead of deep domain internals. | green; 0 diagnostics |
+| Rule | Manifest | Lane | Purpose | Current state |
+| --- | --- | --- | --- | --- |
+| `require_recipe_stage_authoring_file_shape` | `.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json` | enforced | Standard recipe stage root authoring shape. Stage `index.ts` owns authoring; wrong root helper files go red. | green |
+| `require_domain_operation_contract_file_shape` | `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json` | enforced | Domain operation `contract.ts` owns the operation contract envelope. | green |
+| `require_domain_model_schema_policy_owner_shape` | `.habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/rule.json` | enforced | Domain `model/schemas` and `model/policy` own primitives/policy only; they may not become renamed config buckets. | green |
+| `require_public_domain_surfaces_in_recipes_and_maps` | `.habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json` | enforced | Recipes and map entrypoints must use public domain/package surfaces instead of deep domain internals. | green |
+| `require_artifact_index_aggregate_shape` | `.habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json` | enforced | Artifact indexes aggregate artifact objects and validators through the accepted artifact shape. | green |
+| `require_domain_source_topology` | `.habitat/blueprints/domain/require_domain_source_topology/rule.json` | enforced | Domain source topology as the positive domain blueprint destination. | green; 0 diagnostics |
+| `require_public_domain_surfaces_in_tests` | `.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/rule.json` | enforced | Test source should use public domain surfaces instead of deep domain internals. | green; 0 diagnostics |
 
 Retired experiment:
 
@@ -42,22 +42,29 @@ Renamed rules:
 | `require_operation_contract_file_shape` | `require_domain_operation_contract_file_shape` |
 | `require_stage_authoring_owner_shape` | `require_recipe_stage_authoring_file_shape` |
 
-## Habitat Commands
+## Manifest-Selected Habitat Commands
+
+Every current-state claim in this ledger is backed by its `rule.json` manifest
+and its selected `bun habitat check --rule <id>` command. Grit-backed rules run
+through Habitat's Effect-scoped temporary `grit.yaml` and `--grit-dir`; direct
+scripts and native fixture discovery are not current proof.
 
 ```bash
-cat .grit/grit.yaml
-find .grit -maxdepth 3 -type f -print
-GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns list --source local
+mkdir -p /tmp/habitat-red-experiment
 bun habitat check --rule require_recipe_stage_authoring_file_shape --json --output /tmp/habitat-red-experiment/stage-authoring.json
 bun habitat check --rule require_domain_operation_contract_file_shape --json --output /tmp/habitat-red-experiment/op-contract.json
+bun habitat check --rule require_domain_model_schema_policy_owner_shape --json --output /tmp/habitat-red-experiment/model-schema-policy.json
+bun habitat check --rule require_public_domain_surfaces_in_recipes_and_maps --json --output /tmp/habitat-red-experiment/public-domain-recipes-maps.json
+bun habitat check --rule require_artifact_index_aggregate_shape --json --output /tmp/habitat-red-experiment/artifact-index.json
 bun habitat check --rule require_domain_source_topology --json --output /tmp/habitat-red-experiment/domain-topology.json
-node .habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs
+bun habitat check --rule require_public_domain_surfaces_in_tests --json --output /tmp/habitat-red-experiment/public-domain-tests.json
+bun habitat check --rule preserve_standard_stage_topology_and_path_invariants --json --output /tmp/habitat-red-experiment/standard-stage-topology.json
 ```
 
-Native Grit fixture status:
+Historical root `.grit` observation (superseded):
 
-- Native `grit patterns test --filter <rule>` is not the fixture source of truth in this checkout because `.grit/grit.yaml` currently registers `patterns: []`.
-- Stage 0 must record that unavailability explicitly, then use Habitat current-tree checks plus disposable injected bad/clean probes for `require_recipe_stage_authoring_file_shape` and `require_domain_operation_contract_file_shape`.
+- A prior closure run found a root `.grit/grit.yaml` with `patterns: []`; that historical native-fixture limitation is retained only as `HISTORICAL_ROOT_GRIT_UNAVAILABLE_RECORDED` evidence in `execution-status-register.md`.
+- Current proof selects the manifest above with `bun habitat check --rule <id>` and uses injected bad/clean probes for `require_recipe_stage_authoring_file_shape` and `require_domain_operation_contract_file_shape`.
 - Green for `require_domain_source_topology` means the enforced rule reports
   zero diagnostics.
 
@@ -113,8 +120,8 @@ This register is the handoff matrix for `repair-execution.md`. A row is not clos
 
 | Row | Rule | Lines | Stage | Required correction | Positive owner/destination | Proof | Track-out |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `R00` | `require_recipe_stage_authoring_file_shape` | n/a | Stage 0 | Keep stage content checks as constructor-envelope assertions, including the positive assertion that stage authoring helper files do not live as ad hoc stage-root children. Do not claim the separate standard-stage topology rail proves that helper-file ban. | Habitat/Grit wrapper owns `index.ts` authoring envelope/import law and stage helper-file exclusion. `preserve_standard_stage_topology_and_path_invariants` owns only its source-derived standard stage topology checks. | Native fixture unavailability record, injected bad/clean probe, current-tree Habitat output, and explicit non-claim for standard-stage topology. | none |
-| `R01` | `require_domain_operation_contract_file_shape` | n/a | Stage 0 | Keep operation checks as `defineOp({ input, output, strategies })` envelope assertions. | Habitat/Grit wrapper owns operation `contract.ts` envelope/import law. | Native fixture unavailability record, injected bad/clean probe, and current-tree Habitat output. | none |
+| `R00` | `require_recipe_stage_authoring_file_shape` | n/a | Stage 0 | Keep stage content checks as constructor-envelope assertions, including the positive assertion that stage authoring helper files do not live as ad hoc stage-root children. Do not claim the separate standard-stage topology rail proves that helper-file ban. | Habitat/Grit wrapper owns `index.ts` authoring envelope/import law and stage helper-file exclusion. `preserve_standard_stage_topology_and_path_invariants` owns only its source-derived standard stage topology checks. | Historical root-config observation, manifest-selected Habitat check, injected bad/clean probe, current-tree Habitat output, and explicit non-claim for standard-stage topology. | none |
+| `R01` | `require_domain_operation_contract_file_shape` | n/a | Stage 0 | Keep operation checks as `defineOp({ input, output, strategies })` envelope assertions. | Habitat/Grit wrapper owns operation `contract.ts` envelope/import law. | Historical root-config observation, manifest-selected Habitat check, injected bad/clean probe, and current-tree Habitat output. | none |
 | `R02` | `require_domain_source_topology` | n/a | Stage 0 | Keep enforced now that all current-scope topology red is closed. Historical path-level rows are prior red evidence, not follow-up inventory. | Habitat structure rule owns domain topology. | Current-tree Habitat enforced output is green with zero diagnostics. | none |
 
 ### Stage 1 Recipe Stage Authoring Rows

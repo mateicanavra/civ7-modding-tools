@@ -86,10 +86,11 @@ function isForbiddenDomainSource(source, file) {
   if (tail === "artifacts" || tail === "artifacts/index.js") return false;
   if (tail === "model/schemas" || tail.startsWith("model/schemas/")) return false;
   if (tail === "model/policy" || tail.startsWith("model/policy/")) return false;
-  if (domain === "resources" && (
-    tail === "model/data/earthlike-expectations" ||
-    tail.startsWith("model/data/earthlike-expectations/")
-  )) {
+  if (
+    domain === "resources" &&
+    (tail === "model/data/earthlike-expectations" ||
+      tail.startsWith("model/data/earthlike-expectations/"))
+  ) {
     return false;
   }
   return true;
@@ -105,15 +106,15 @@ function relativeDomainImport(source, file) {
   if (afterDomain.length < 1 || !afterDomain[0]) return { domain: "", tail: "" };
   return {
     domain: afterDomain[0],
-    tail: afterDomain.slice(1).join("/").replace(/\.(?:ts|tsx|js|jsx)$/, ""),
+    tail: afterDomain
+      .slice(1)
+      .join("/")
+      .replace(/\.(?:ts|tsx|js|jsx)$/, ""),
   };
 }
 
 function isSourceFile(file) {
   return (
-    file.endsWith(".ts") ||
-    file.endsWith(".tsx") ||
-    file.endsWith(".js") ||
-    file.endsWith(".jsx")
+    file.endsWith(".ts") || file.endsWith(".tsx") || file.endsWith(".js") || file.endsWith(".jsx")
   );
 }

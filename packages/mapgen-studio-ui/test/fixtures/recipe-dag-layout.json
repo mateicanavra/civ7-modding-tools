@@ -102,9 +102,7 @@
       "id": "plates->relief",
       "fromStageId": "plates",
       "toStageId": "relief",
-      "artifacts": [
-        "crust"
-      ],
+      "artifacts": ["crust"],
       "points": [
         {
           "x": 328,
@@ -135,9 +133,7 @@
       "id": "relief->coastlines",
       "fromStageId": "relief",
       "toStageId": "coastlines",
-      "artifacts": [
-        "landmask"
-      ],
+      "artifacts": ["landmask"],
       "points": [
         {
           "x": 726,
@@ -168,9 +164,7 @@
       "id": "relief->rivers",
       "fromStageId": "relief",
       "toStageId": "rivers",
-      "artifacts": [
-        "elevation"
-      ],
+      "artifacts": ["elevation"],
       "points": [
         {
           "x": 726,
@@ -201,9 +195,7 @@
       "id": "coastlines->rivers",
       "fromStageId": "coastlines",
       "toStageId": "rivers",
-      "artifacts": [
-        "coast"
-      ],
+      "artifacts": ["coast"],
       "points": [
         {
           "x": 1124,
@@ -234,9 +226,7 @@
       "id": "relief->biomes",
       "fromStageId": "relief",
       "toStageId": "biomes",
-      "artifacts": [
-        "elevation"
-      ],
+      "artifacts": ["elevation"],
       "points": [
         {
           "x": 726,
@@ -267,9 +257,7 @@
       "id": "rivers->biomes",
       "fromStageId": "rivers",
       "toStageId": "biomes",
-      "artifacts": [
-        "rivers"
-      ],
+      "artifacts": ["rivers"],
       "points": [
         {
           "x": 1522,

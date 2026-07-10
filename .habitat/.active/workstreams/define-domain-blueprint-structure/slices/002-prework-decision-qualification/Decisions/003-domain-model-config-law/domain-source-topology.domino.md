@@ -10,6 +10,8 @@ paths.
 
 Current proof:
 
+Manifest: `.habitat/blueprints/domain/require_domain_source_topology/rule.json`.
+
 ```bash
 bun habitat check --rule require_domain_source_topology --json
 ```

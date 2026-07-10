@@ -34,6 +34,7 @@ export interface GritCheckProviderRequest {
   cwd?: string;
   cacheDir?: string;
   gritDir?: string;
+  gritUserConfigDir?: string;
   timeoutMs?: number;
   observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
 }
@@ -172,6 +173,7 @@ export function gritCheckRequest(
     cwd?: string;
     cacheDir?: string;
     gritDir?: string;
+    gritUserConfigDir?: string;
     outputFormat?: "json" | "text";
     timeoutMs?: number;
     observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
@@ -205,6 +207,7 @@ export function gritCheckRequest(
       ...gritMachineOutputEnv,
       GRIT_CACHE_DIR: cacheDir,
       GRIT_TELEMETRY_DISABLED: "true",
+      ...(options.gritUserConfigDir ? { GRIT_USER_CONFIG: options.gritUserConfigDir } : {}),
     },
     scanRoots,
     timeoutMs: options.timeoutMs ?? defaultGritCommandTimeoutMs,
@@ -225,6 +228,7 @@ function gritProviderCheckRequest(
     cwd: request.cwd,
     cacheDir: request.cacheDir,
     gritDir: request.gritDir,
+    gritUserConfigDir: request.gritUserConfigDir,
     observableCacheStatus: request.observableCacheStatus,
     outputFormat: request.outputFormat,
     timeoutMs: request.timeoutMs,

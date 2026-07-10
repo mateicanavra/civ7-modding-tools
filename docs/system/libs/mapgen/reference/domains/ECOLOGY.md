@@ -57,7 +57,7 @@ Projection posture:
 ## Key artifacts
 
 Ecology artifacts are authored by the standard recipe:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts/index.ts`
 
 Note: some Ecology artifact schemas are currently permissive (`Type.Any()` fields). Treat those as implementation detail until tightened.
 
@@ -115,7 +115,7 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/index.ts`
-- Ecology truth artifacts: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
+- Ecology truth artifacts: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts/index.ts`
 - Ecology domain op catalog (contracts + implementations):
   - `mods/mod-swooper-maps/src/domain/ecology/ops/contracts.ts`
   - `mods/mod-swooper-maps/src/domain/ecology/ops/index.ts`

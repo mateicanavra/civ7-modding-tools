@@ -88,5 +88,5 @@ Then:
 - Preset configs (author surface): `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
 - Foundation stage surface schema (knobs plus step-id overrides, “knobs apply last” statement): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts`
 - Morphology erosion knob application (normalize-time multiplier): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
-- Morphology erosion knob multipliers: `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts`
+- Morphology erosion knob multipliers: `mods/mod-swooper-maps/src/domain/morphology/model/policy/erosion-knob-policy.ts`
 - Studio knob option enums (UI): `apps/mapgen-studio/src/ui/constants/options.ts`

@@ -7,7 +7,7 @@ import {
   readTextSync,
 } from "@habitat/cli/resources/platform/filesystem";
 import {
-  loadRuleRegistryDocument,
+  loadRuleRegistryDocumentWithDiscovery,
   parseRuleRegistryDocument,
   parseRuleRegistryText,
 } from "@habitat/cli/service/model/rules/index";
@@ -24,25 +24,21 @@ import {
 } from "./helpers.js";
 
 describe("rule registry contract", () => {
-  test("loads the current manifest corpus through the TypeBox schema", () => {
-    const rules = loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
-      isDirectory: isDirectorySync,
-      readDirectory: readDirectorySync,
-      readText: readTextSync,
-    }).rules;
+  test("loads every registered manifest through the TypeBox schema", () => {
+    const registryPath = path.join(repoRoot, ruleRegistryRepoPath);
+    const { document, discoveredManifestPaths } = loadRuleRegistryDocumentWithDiscovery(
+      registryPath,
+      {
+        isDirectory: isDirectorySync,
+        readDirectory: readDirectorySync,
+        readText: readTextSync,
+      }
+    );
+    const { rules } = document;
 
-    expect(rules).toHaveLength(109);
-    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(67);
-    expect(
-      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
-    ).toHaveLength(31);
-    expect(
-      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure")
-    ).toHaveLength(5);
-    expect(
-      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer")
-    ).toHaveLength(5);
-    expect(rules.filter((rule) => rule.runner.name === "nx")).toHaveLength(1);
+    expect(discoveredManifestPaths.length).toBeGreaterThan(0);
+    expect(rules.map((rule) => rule.manifestFilePath).sort()).toEqual(discoveredManifestPaths);
+    expect(new Set(rules.map((rule) => rule.id)).size).toBe(rules.length);
     expect(rules.every((rule) => rule.schemaVersion === 2)).toBe(true);
     expect(rules.every((rule) => rule.operation.kind === "check")).toBe(true);
     expect(rules.every((rule) => rule.id && rule.title && rule.placement && rule.runner)).toBe(

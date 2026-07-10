@@ -70,12 +70,7 @@ const foundationStageArtifactSurfaces = [
   ],
   ["crustInit", "crust-init.artifact.ts", "artifact:foundation.crustInit", "crustInit"],
   ["crust", "crust.artifact.ts", "artifact:foundation.crust", "crust"],
-  [
-    "plateMotion",
-    "plate-motion.artifact.ts",
-    "artifact:foundation.plateMotion",
-    "plateMotion",
-  ],
+  ["plateMotion", "plate-motion.artifact.ts", "artifact:foundation.plateMotion", "plateMotion"],
   ["plateGraph", "plate-graph.artifact.ts", "artifact:foundation.plateGraph", "plateGraph"],
   [
     "tectonicSegments",
@@ -101,7 +96,12 @@ const foundationStageArtifactSurfaces = [
     "artifact:foundation.plateTopology",
     "plateTopology",
   ],
-  ["tectonics", "current-tectonics.artifact.ts", "artifact:foundation.tectonics", "currentTectonics"],
+  [
+    "tectonics",
+    "current-tectonics.artifact.ts",
+    "artifact:foundation.tectonics",
+    "currentTectonics",
+  ],
 ];
 
 const foundationInternalArtifactSurfaces = [

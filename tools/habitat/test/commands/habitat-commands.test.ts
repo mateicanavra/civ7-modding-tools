@@ -1,3 +1,6 @@
+import { spawnSync } from "node:child_process";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Value } from "typebox/value";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -182,7 +185,7 @@ describe("Habitat oclif commands", () => {
     logSpy.mockRestore();
   });
 
-  test("check parses JSON, output, rule, owner, and base flags", async () => {
+  test("check forwards top-level runner selection with other report flags", async () => {
     await Check.run([
       "--json",
       "--output",
@@ -192,7 +195,7 @@ describe("Habitat oclif commands", () => {
       "--owner",
       "habitat",
       "--runner",
-      "grit",
+      "habitat",
       "--staged",
       "--base",
       "HEAD",
@@ -215,18 +218,18 @@ describe("Habitat oclif commands", () => {
             "--owner",
             "habitat",
             "--runner",
-            "grit",
+            "habitat",
             "--staged",
             "--base",
             "HEAD",
           ],
           serialized:
-            "habitat check --json --output /tmp/report.json --rule block_unapproved_base_standard_boundary_leaks --owner habitat --runner grit --staged --base HEAD",
+            "habitat check --json --output /tmp/report.json --rule block_unapproved_base_standard_boundary_leaks --owner habitat --runner habitat --staged --base HEAD",
         },
         selectors: {
           owner: "habitat",
           rule: "block_unapproved_base_standard_boundary_leaks",
-          runner: "grit",
+          runner: "habitat",
         },
         staged: true,
       })
@@ -315,6 +318,18 @@ describe("Habitat oclif commands", () => {
     expect(mockFixApplyPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
+  });
+
+  test("fix help describes the no-write diagnostic path and live-mutation refusal", async () => {
+    const result = spawnSync(
+      process.execPath,
+      [resolve(dirname(fileURLToPath(import.meta.url)), "../../bin/dev.ts"), "fix", "--help"],
+      { encoding: "utf8" }
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("admitted Grit diagnostics without writing");
+    expect(result.stdout).toContain("live mutation is not implemented");
   });
 
   test("fix forwards live-write intent by default", async () => {

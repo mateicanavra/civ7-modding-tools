@@ -17,7 +17,6 @@ import {
 import { runDocsApplyBackedDiagnosticOutcomesEffect } from "./docs-apply.js";
 import { infrastructureFailure } from "./failure.js";
 import type { GritDiagnosticAcquisition } from "./output.js";
-import { gritCheckProgram } from "./request.js";
 import type { GritProviderRequirements, GritProviderService } from "./resource.js";
 import {
   decidePatternScanRoots,
@@ -26,6 +25,7 @@ import {
   ruleUsesDocsApplyDryRun,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
+import { runGritCheckWithScopedConfigEffect } from "./scoped-config.js";
 import { runSourcePatternCheckOutcomesEffect } from "./source-check.js";
 import type { GritCheckCacheMode, GritCheckOutputFormat, GritDiagnosticOptions } from "./types.js";
 
@@ -144,12 +144,11 @@ function runGritScanRootBatchEffect(
       )
     );
   }
-  const program = gritCheckProgram(scanRoots, {
+  const program = runGritCheckWithScopedConfigEffect(selectedRules, scanRoots, {
     repoRoot: options.repoRoot,
     grit: options.grit,
     cacheMode: options.cacheMode,
     requireObservableCacheStatus: options.requireObservableCacheStatus,
-    allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     outputFormat,
   });
   return program.pipe(

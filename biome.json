@@ -22,7 +22,11 @@
       "!**/_archive/**",
       "!mods/mod-swooper-maps/src/maps/generated/**",
       "!packages/civ7-types/generated/**",
-      "!packages/civ7-map-policy/src/civ7-tables.gen.ts"
+      "!packages/civ7-map-policy/src/civ7-tables.gen.ts",
+      "!.repos/effect/**",
+      "!packages/mapgen-studio-ui/.ds-sync/**",
+      "!packages/mapgen-studio-ui/.design-sync/light-canary-tokens.json",
+      "!docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json"
     ]
   },
   "formatter": {

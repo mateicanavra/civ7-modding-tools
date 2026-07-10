@@ -203,7 +203,15 @@ Falsifier awareness: if making a recipe-domain change *requires redefining* this
 These are enforced by tooling; respect them or CI/lint blocks the change. `civ7-architecture-authority` (`references/ownership-boundaries.md`) is the owner — reference it, don't restate it.
 
 - **Nx boundaries** (`eslint.boundaries.config.mjs`; `bun run nx run-many -t boundaries`): `kind:mod` may only import `kind:{sdk,engine,adapter,foundation,control}`. No reaching into engine internals.
-- **Grit checks** (`.grit/patterns/habitat/checks/`): notably `recipe_domain_surface`, `domain_ops_boundary_imports`, `domain_ops_projection_effects` (truth ops must not touch the adapter), `step_contract_domain_surface`, `sibling_stage_step_imports`, `runtime_run_validated`, `domain_ops_root_config`, `mapgen_core_runtime_civ7`, `domain_deep_import`, `placement_outcome_boundary`, `studio_recipe_artifacts`, `sdk_mapgen_entrypoint`.
+- **Habitat-routed Grit checks** (registered `.habitat/**/rule.json` manifests
+  with `runner.name: "grit"` and their `pattern.md` files): these protect the
+  recipe/domain public surface, domain-operation adapter and projection
+  boundaries, step and stage imports, runtime validation/config boundaries,
+  MapGen-core runtime neutrality, placement outcomes, Studio recipe artifacts,
+  and the SDK entrypoint. Run focused proof with
+  `bun habitat check --rule <registered-rule-id>`; use the graph-owned Habitat
+  check targets for owner or workspace scope. A future native fixture corpus
+  would validate patterns separately, not replace this authority.
 - **Biome** (`biome.json`): double quotes, semicolons, ES5 trailing commas, 100-char lines, LF, 2-space indent. `src/maps/generated/**` is excluded; all recipe/domain source is linted.
 - **Normalized domain layout** (accepted 2026-06-10): `ops/<op-id>/{contract.ts,index.ts,types.ts,strategies/}`, optional `ops/<op-id>/{rules,policy}/`, domain-level `policy/`, `lib/`.
 

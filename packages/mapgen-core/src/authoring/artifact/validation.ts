@@ -30,4 +30,3 @@ export function artifactCellCount(
   if (!Number.isFinite(width) || !Number.isFinite(height)) return undefined;
   return Math.max(0, (width! | 0) * (height! | 0));
 }
-

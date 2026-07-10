@@ -25,9 +25,7 @@
       ]
     }
   ],
-  "scanRoots": [
-    "packages/civ7-control-orpc/src"
-  ],
+  "scanRoots": ["packages/civ7-control-orpc/src"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/baseline.json"

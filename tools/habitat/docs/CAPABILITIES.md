@@ -9,15 +9,16 @@ unimplemented surfaces.
 
 Habitat is currently a repo-local structural harness for Civ7 modding work. It
 is strong at classification, enforcement, graph-owned checks, pattern diagnostics,
-baseline integrity, hooks, and guarded mechanical fixes. It is not yet a broad
-MapGen authoring toolkit.
+baseline integrity, hooks, and apply-admission discovery with dry-run diagnostics.
+It is not yet a broad MapGen authoring toolkit.
 
 Use Habitat in its current state to answer:
 
 - Which project and rule surfaces own this path or diff?
 - Which structural checks apply before and after a change?
 - Does the current tree violate locked Habitat rules?
-- Can an approved structural codemod be applied safely?
+- Which apply-admission definitions resolve against the live Grit registry?
+- What does an admitted Grit dry-run diagnostic report?
 - Can a supported uniform workspace project be scaffolded?
 - Can a Habitat pattern candidate or registered rule promotion be scaffolded under the
   pattern manifest contract?
@@ -28,6 +29,8 @@ Do not assume Habitat can yet answer:
 - How do I generate a new MapGen domain?
 - How do I add an operation, stage, or step to an existing recipe?
 - How do I convert every diagnostic pattern finding into an automatic fix?
+- How do I apply a live codemod, format its output, run its post-fix gates,
+  roll it back, or declare it ready to commit?
 
 Those are authoring-workflow capabilities, and they remain explicit gaps.
 
@@ -39,10 +42,10 @@ The direct command `bun habitat` dispatches through the root `habitat` script to
 
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
-| `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--runner` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
+| `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and top-level `--runner` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
 | `verify` | `bun habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
 | `classify` | `bun habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
-| `fix` | `bun habitat fix` | Runs the approved Habitat apply transaction, then hands changed files to the formatter. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
+| `fix` | `bun habitat fix --dry-run`; `bun habitat fix` | `--dry-run` resolves the default apply-admission definitions against live Grit registry facts and runs the resolved Grit dry-run diagnostics without writing. The non-dry invocation requests live-write intent, but current routing supplies no protected-zone decision and the transaction policy explicitly refuses live execution as not implemented. It does not write, format, gate, roll back, or establish commit readiness. |
 | `graph` | `bun habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
 | `hook` | `bun habitat hook pre-commit`, `bun habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
 
@@ -57,9 +60,12 @@ Root scripts also expose graph-owned entrypoints:
 - `habitat:habitat:check` runs the Toolkit-owned Habitat rules for CLI
   smoke, boundary taxonomy, service-module shape, and other registered
   `habitat` owner rules.
-- Native `grit patterns test` validation is not exposed as a current package
-  script or graph target because this checkout no longer has an active testable
-  pattern corpus for that command.
+- Registered Grit rules run through `bun habitat check --rule <rule-id>` for
+  focused proof, or the Habitat graph targets above for owner/workspace proof.
+  Each registered `.habitat/**/rule.json` manifest names its executable
+  `pattern.md`; there is no separate native `grit patterns test` fixture corpus
+  wired today. A future fixture corpus would be a distinct validation layer,
+  not another rule authority.
 - `bun run check` runs graph-discovered package check targets.
 - `bun habitat hook pre-push` runs changed-path hook Grit checks in
   process. Ordinary source changes then run affected package checks plus
@@ -100,31 +106,69 @@ pure parser and audit model with fixtures.
 The rule registry is authored as location-independent manifests discovered at
 `.habitat/**/rule.json`. Each manifest owns stable rule identity, current
 placement inventory facts, explicit runner file references, and explicit
-artifact references. The owner-root index is root registry metadata at
-`.habitat/index.json`. At this state it contains 124 registered rules:
+artifact references. `.habitat/index.json` supplies root registry metadata,
+including owner roots.
 
-| Habitat lane | Count | Role |
-| --- | ---: | --- |
-| `grit` | 79 | Source-shape diagnostics over registered scan roots. |
-| `habitat:structure` | 8 | Native file-tree topology checks. |
-| `habitat:file-layer` | 5 | Generated-zone and forbidden-file staged checks. |
-| `habitat:script` | 31 | Read-only script-backed gates wrapped without changing their semantics. |
-| `nx` | 1 | Project-plane import boundary enforcement through the graph. |
+### Live Rule Inventory
 
-Lane state:
+Rule-pack totals, lane mix, runner mix, and owner distribution are mutable
+registry data, not a documentation contract. Habitat currently has no
+inventory subcommand, so run this registry-loader query from the repository
+root when those facts are needed. It uses the same discovery, schema, and
+referenced-file validation boundary as the live Habitat service before it
+groups the valid manifests:
 
-- 123 enforced rules fail `habitat check` on unbaselined violations.
-- 1 advisory rule reports findings without failing the check.
+```sh
+bun -e '
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { loadRuleRegistryDocument } from "./tools/habitat/src/service/model/rules/repositories/registry.repository.ts";
 
-Owner state:
+const registry = loadRuleRegistryDocument(".habitat", {
+  isDirectory: (entry) => statSync(entry).isDirectory(),
+  readDirectory: (entry) =>
+    readdirSync(entry, { withFileTypes: true }).map((child) => ({
+      name: child.name,
+      kind: child.isDirectory() ? "directory" : child.isFile() ? "file" : "other",
+    })),
+  readText: (entry) => readFileSync(entry, "utf8"),
+});
+const count = (values) =>
+  Object.fromEntries(
+    [...values.reduce((result, value) => result.set(value, (result.get(value) ?? 0) + 1), new Map()).entries()].sort(
+      ([left], [right]) => left.localeCompare(right)
+    )
+  );
+const runner = (rule) =>
+  rule.runner.name === "habitat" ? `habitat:${rule.runner.mode}` : rule.runner.name;
 
-- `mod-swooper-maps`: 36 rules
-- `habitat`: 17 rules
-- `mapgen-core`: 1 rule
-- `control-orpc`: 1 rule
-- `civ7-sdk`: 1 rule
-- `mapgen-studio`: 2 rules
-- `civ7-docs`: 2 rules
+console.log(
+  JSON.stringify(
+    {
+      manifestCorpus: {
+        total: registry.rules.length,
+        lanes: count(registry.rules.map((rule) => rule.lane)),
+        runners: count(registry.rules.map(runner)),
+        owners: count(registry.rules.map((rule) => rule.ownerProject)),
+      },
+    },
+    null,
+    2
+  )
+);
+'
+```
+
+`manifestCorpus` is the complete valid registry corpus. The query normalizes
+Habitat modes as `habitat:<mode>` only for the inventory display; CLI
+`--runner` selection uses the manifest's top-level runner name (`grit`,
+`habitat`, or `nx`).
+
+The manifest corpus is not the execution count for an arbitrary check
+invocation. A bare `bun habitat check` uses the default local lane and executes
+only `grit` and `habitat` rules. `--owner`, `--rule`, and `--runner` select a
+different subset; use that invocation's `--json` report and its `rules` array
+to inspect what actually executed. In particular, `--runner habitat` selects
+all Habitat modes rather than one normalized inventory label.
 
 ## Baselines
 
@@ -156,8 +200,7 @@ Current active Grit state:
 - Registered Grit rules currently point at `pattern.md` sibling role files
   inside packet directories.
 - Hook eligibility uses `hookCheck` plus the packet's `scanRoots`.
-- Patterns are diagnostic/enforcing checks, not automatic transforms by
-  default.
+- Patterns are diagnostic/enforcing checks, not automatic transforms.
 - Habitat reports Grit diagnostics back to Habitat rule IDs.
 
 The active pattern checks cover families such as:
@@ -182,40 +225,50 @@ The active pattern checks cover families such as:
 - domain ops boundary, root config, engine import, and op-call-op
   rules.
 
-## Pattern Apply
+## Pattern Admission and Dry-Run Diagnostics
 
-Habitat has a guarded apply path, but its transform inventory is intentionally
-small.
+Habitat can discover narrowly defined apply admissions and run their Grit
+dry-run diagnostics. It does not currently apply a transform.
 
-Apply state:
+Current supported state:
 
-- Apply patterns are co-located `apply.pattern.md` role files referenced by
-  rule manifests: 2 files.
-- Wired into `habitat fix`: the apply role for
-  `require_public_domain_surfaces_in_recipes_and_maps`.
-- Not wired into `habitat fix`: the apply role for
-  `prohibit_runtime_helper_redeclarations`.
+- The registry can name an `apply.pattern.md` role file alongside `pattern.md`,
+  but neither role-file presence nor an ordinary Grit check admits automatic
+  fixing by itself.
+- At invocation, `habitat fix` resolves approved apply-admission definitions
+  against live Grit registry facts.
+- A definition is admitted only when its rule ID resolves to a live Grit
+  registry fact and its required manifest role file resolves. Definitions that
+  require `runner.files.applyPattern` require that role specifically.
+- An admitted `bun habitat fix --dry-run` runs the declared Grit dry-run
+  commands and returns their diagnostic output. It does not mutate the
+  worktree.
+- Unadmitted ordinary checks, including checks with an apply role, do not
+  receive automatic fixes.
 
-The apply transaction:
+`bun habitat fix` without `--dry-run` is a live-write request, not an
+implemented live-write capability. The router does not provide a protected-zone
+decision to the transaction request, so a clean worktree refuses with
+`missing-protected-zone-decision`; a dirty worktree refuses first with
+`dirty-worktree`. Even a hypothetical allowed decision reaches the explicit
+`live write execution is not implemented` refusal in the
+[transaction policy](../src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts).
 
-- runs an adapter dry-run first;
-- parses a Habitat-owned structured rewrite inventory when available;
-- compares an isolated working copy when dry-run output is not structured;
-- blocks unapproved creates, deletes, and outside-root rewrites;
-- rejects unexpected changed paths;
-- hands changed files to the formatter;
-- can run optional gate commands;
-- can roll back failed or preview-only writes;
-- records transaction data including changed paths, file digests, and diff
-  summaries.
+Live writes, formatting, post-fix gates, rollback, changed-file/diff transaction
+records, and commit-readiness are not implemented capabilities. They must not
+be inferred from the admission model, dry-run output, or transaction-policy
+types.
 
-`habitat fix` should be treated as a guarded structural repair entrypoint, not
-as a general-purpose "fix all Habitat findings" engine.
+**Future / not implemented:** a live write path would need the
+[fix router](../src/service/modules/fix/router.ts) to obtain and pass an
+approved protected-zone decision, followed by an execution implementation in
+the [transaction policy](../src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts).
+Until then, `habitat fix` is an admission/discovery and dry-run diagnostic
+surface, not a structural repair entrypoint.
 
 ## Generators
 
-Habitat exposes exactly two workspace generators in
-`tools/habitat/generators.json`.
+Habitat exposes workspace generators declared in `tools/habitat/generators.json`.
 
 ### `@habitat/cli:project`
 
@@ -285,7 +338,7 @@ Habitat does not own:
 - domain behavior;
 - ordinary formatting or lint hygiene beyond routing to the formatter;
 - all verification truth;
-- arbitrary codemod safety outside approved apply patterns;
+- arbitrary codemod application or safety, including live writes from `fix`;
 - generation of MapGen recipes, domains, operations, stages, or steps.
 
 Those boundaries matter. Habitat should wrap and enforce the tools that own

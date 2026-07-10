@@ -166,25 +166,47 @@ Supported outcome:
 This supports disciplined rule admission. It does not decide whether the pattern
 is useful; the manifest and review must establish that.
 
-### Apply The Approved Deep Import Repair
+### Inspect Apply Admissions With Dry-Run Diagnostics
 
 Use:
 
 ```bash
 bun habitat fix --dry-run
+```
+
+Supported outcome:
+
+- Habitat resolves the default apply-admission definitions against the live Grit
+  registry;
+- admitted definitions run their declared Grit dry-run diagnostics without
+  writing;
+- the command returns diagnostic output only;
+- ordinary Grit checks and unadmitted apply roles do not receive automatic
+  fixes.
+
+This is the only current `habitat fix` capability. It is an
+admission/discovery and no-write diagnostic surface, not a codemod path.
+
+### Observe The Live-Write Refusal
+
+Use:
+
+```bash
 bun habitat fix
 ```
 
 Supported outcome:
 
-- Habitat runs the wired apply pattern for domain ops deep imports;
-- live writes require clean worktree state;
-- unapproved writes are blocked;
-- changed files are handed to the formatter;
-- transaction records capture changed paths and diffs.
+- this is a no-write refusal check, not a repair command;
+- a dirty worktree refuses with `dirty-worktree`;
+- a clean worktree refuses because the router supplies no protected-zone
+  decision;
+- no formatting, post-fix gates, rollback, transaction diff records, or
+  commit-readiness result is produced.
 
-This is the only generic `habitat fix` codemod path that should be assumed
-available in the current toolkit.
+**Gap and re-entry condition:** live apply is not implemented. Re-enter this
+scenario only after the router passes an approved protected-zone decision and
+the transaction policy implements execution with the required safety proof.
 
 ### Run Local Hooks
 
@@ -262,12 +284,15 @@ Unsupported outcome:
 - inserting the step into a stage;
 - binding a domain operation to the step.
 
-### Automatically Fix Every Pattern Finding
+### Target Scenario: Automatically Fix Every Pattern Finding
 
-Unsupported outcome:
+This is a future / not implemented scenario. Current `habitat fix` remains a
+no-write admission and dry-run diagnostic command.
+
+Target outcome:
 
 - mapping every diagnostic rule to an apply pattern;
-- applying helper-redeclaration fixes through `habitat fix`;
+- applying helper-redeclaration fixes through a future live-fix workflow;
 - repairing architecture violations that require semantic decisions;
 - applying rewrites without per-pattern validation.
 
@@ -285,8 +310,9 @@ This is the next major product loop to build.
 
 ## Scenario Selection Rule
 
-If the scenario is about detecting, classifying, routing, checking, or guarded
-repair of existing structure, first look for the supported Habitat surface.
+If the scenario is about detecting, classifying, routing, checking, or
+no-write apply-admission diagnostics for existing structure, first look for the
+supported Habitat surface.
 
 If the scenario is about creating MapGen recipe/domain/op/stage/step topology,
 assume it is not supported until a generator and acceptance test exist.

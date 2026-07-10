@@ -42,10 +42,12 @@ itself.
 ## Source Pattern Execution Rule
 
 Habitat Grit rules are packet-local source-pattern authority. A rule's
-`runner.files.pattern` is the canonical pattern body, and Habitat may
-materialize selected packet patterns into an isolated native Grit workspace to
-run the pinned Grit CLI. Do not convert source-pattern rules to Habitat scripts
-only because native Grit needs execution plumbing.
+`runner.files.pattern` is the canonical pattern body. Habitat remains the sole
+checked-in authority tree: for Grit checks, it materializes only an
+Effect-scoped temporary `grit.yaml`, runs the pinned Grit CLI from the real
+repository root with `--grit-dir`, then releases that config resource. Do not
+convert source-pattern rules to Habitat scripts only because native Grit needs
+execution plumbing.
 
 Package tests are not a junk drawer for retired source tokens, stale schema
 keys, or static import/source-shape assertions. Product/package tests should

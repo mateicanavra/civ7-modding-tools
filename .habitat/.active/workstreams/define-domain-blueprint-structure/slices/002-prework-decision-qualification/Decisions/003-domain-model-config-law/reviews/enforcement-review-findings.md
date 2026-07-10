@@ -1,6 +1,11 @@
 # Enforcement Review Findings
 
-Status: first and second review waves incorporated into the repair frame
+Status: historical review record; superseded as current-runbook instruction by `repair-execution.md`, `red-ledger.md`, and `execution-status-register.md`
+
+Historical observations in this record retain their original evidence. Current
+rule authority is the selected `.habitat/**/rule.json` manifest and `bun habitat
+check --rule <id>`; Grit-backed checks use Habitat's Effect-scoped `grit.yaml`
+and `--grit-dir` execution.
 
 ## Accepted Findings
 
@@ -172,14 +177,17 @@ Accepted repair:
 
 ## Launch-Blocking Review Wave
 
-### P1: Native Grit Fixture Commands Were Not Real Proof In This Checkout
+### P1 (Historical, Superseded): Native Grit Fixture Commands Were Not Real Proof In This Checkout
 
-The launch packet required `grit patterns test --filter ...`, but the active repo `.grit/grit.yaml` registers `patterns: []`, so native Grit cannot discover the Habitat-owned pattern files as a testable corpus.
+Historical finding: the launch packet required `grit patterns test --filter ...`,
+but that review's root `.grit/grit.yaml` registered `patterns: []`, so native
+Grit could not discover the Habitat-owned pattern files as a testable corpus.
 
-Accepted repair:
+Superseding repair:
 
-- `repair-execution.md`, `red-ledger.md`, `agent-lane-appendix.md`, and `execution-status-register.md` now record native fixture unavailability as `NATIVE_GRIT_UNAVAILABLE_RECORDED`.
-- Stage 0 now requires the reliable workaround before source burn-down: Habitat current-tree red plus disposable injected bad/clean probes for both enforced file-shape rules.
+- `execution-status-register.md` preserves that observation as `HISTORICAL_ROOT_GRIT_UNAVAILABLE_RECORDED`, not a current execution label.
+- Current Stage 0 proof selects `.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json` or `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json` with `bun habitat check --rule <id>`; Habitat materializes the Effect-scoped `grit.yaml` and invokes pinned Grit with `--grit-dir`.
+- Stage 0 requires disposable injected bad/clean probes for both enforced file-shape rules.
 - Current-tree Habitat checks alone are explicitly insufficient as a fixture substitute.
 
 ### P1: Lane Prompts Still Used Category Scope Instead Of Exact Row IDs
@@ -260,11 +268,11 @@ Accepted repair:
   track-outs in `execution-status-register.md`, matching final closure.
 - Stage 2 resource rows `S2-004` and `S2-005` are reviewer-only for Lane 3C; findings route back to Lane 2B or Lane 2A.
 
-## Upfront Proof Results
+## Historical Upfront Proof Results (Superseded)
 
-Run from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-narrative-burndown`.
+Historical run from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-narrative-burndown`; this capture is not current execution authority.
 
-### Native Grit Discovery
+### Historical Native Grit Discovery
 
 Observed:
 
@@ -275,10 +283,10 @@ Observed:
 
 Disposition:
 
-- Native Grit fixture proof is unavailable in this checkout and must not be claimed.
-- `NATIVE_GRIT_UNAVAILABLE_RECORDED` is the correct Stage 0 proof label.
+- This former root `.grit` observation is retained as historical evidence only and must not be run or claimed in the current checkout.
+- `NATIVE_GRIT_UNAVAILABLE_RECORDED` was the historical proof label; the active closure overlay uses `HISTORICAL_ROOT_GRIT_UNAVAILABLE_RECORDED` and manifest-selected Habitat checks.
 
-### Injected Habitat Probe Workaround
+### Historical Injected Habitat Probe Record
 
 Disposable probe files were added under the actual Habitat scan roots, checked, then removed.
 
@@ -303,5 +311,4 @@ Observed after the 2026-07-05 proof refresh:
 
 Disposition:
 
-- The workaround is reliable enough to proceed when native Grit fixtures are unavailable.
-- Stage 0 still requires the executor to keep this proof current before source burn-down, especially if the file-shape rules change.
+- These probe results are historical evidence. Any current rule change requires fresh manifest-selected Habitat checks and fresh injected bad/clean probes before source burn-down.

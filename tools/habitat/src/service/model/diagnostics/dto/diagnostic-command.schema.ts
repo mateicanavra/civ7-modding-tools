@@ -1,8 +1,8 @@
+import path from "node:path";
 import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
-import path from "node:path";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import type { DiagnosticProviderFailureKind } from "../errors/diagnostic-provider.errors.js";

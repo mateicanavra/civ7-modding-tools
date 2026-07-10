@@ -152,7 +152,7 @@ Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES
 - Realignment project (diagnosis, expectations, refactor plan, per-slice evidence): `docs/projects/placement-realignment/`
 - ADR-008 (domain/resources owns resource planning; landmass-region divergence), ADR-009 (deterministic typed reconciliation; readbacks evidence-only), ADR-010 (knob taxonomy): `docs/system/ADR.md`
 - Stage definition: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
-- Public config: `mods/mod-swooper-maps/src/recipes/standard/stages/placement-public-config.ts`
+- Stage public config surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
 - Artifact contracts: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/contract/`
 - Domain ops: `mods/mod-swooper-maps/src/domain/placement/ops/`, `mods/mod-swooper-maps/src/domain/resources/ops/`
 - Policy tables: `packages/civ7-map-policy/src/civ7-tables.gen.ts` (generator-only writes)

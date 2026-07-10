@@ -26,7 +26,9 @@ export default class Check extends HabitatCommand {
       description: "Run only the requested Habitat rule id. Repeat to run a curated rule group.",
       multiple: true,
     }),
-    runner: Flags.string({ description: "Run only rules with this derived runner." }),
+    runner: Flags.string({
+      description: "Run only rules with this top-level runner name: grit, habitat, or nx.",
+    }),
     staged: Flags.boolean({ description: "Check staged file-layer protected zones." }),
     "expand-baseline": Flags.boolean({
       description: "Authoring-only: write current uncovered errors into selected rule baselines.",

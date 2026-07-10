@@ -5,14 +5,7 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import {
-  clamp,
-  fillBuffer,
-  idx,
-  inBounds,
-  lerp,
-  wrapX,
-} from "@mapgen/core/index.js";
+import { clamp, fillBuffer, idx, inBounds, lerp, wrapX } from "@mapgen/core/index.js";
 
 describe("core/utils", () => {
   describe("idx", () => {

@@ -39,7 +39,7 @@ import themeContract from "./fixtures/token-contract.json" with { type: "json" }
 const css = readFileSync(fileURLToPath(new URL("../dist/styles.css", import.meta.url)), "utf8");
 const guidelinesDoc = readFileSync(
   fileURLToPath(new URL("../docs/design-tokens.md", import.meta.url)),
-  "utf8",
+  "utf8"
 );
 
 // Scope labels map to the exact selector contexts authored in
@@ -76,7 +76,10 @@ const VALUE_SHAPES: Record<string, RegExp> = {
 };
 
 function normalizeSelector(selector: string): string {
-  return selector.replace(/\s+/g, " ").replace(/\s*,\s*/g, ", ").trim();
+  return selector
+    .replace(/\s+/g, " ")
+    .replace(/\s*,\s*/g, ", ")
+    .trim();
 }
 
 interface Declaration {
@@ -163,13 +166,13 @@ describe("design token surface (dist/styles.css)", () => {
 
     const strays = [...byName.keys()].filter(
       (name) =>
-        !(name in authoredTokens) && !atPropertyRegistered.has(name) && !frameworkTokens.has(name),
+        !(name in authoredTokens) && !atPropertyRegistered.has(name) && !frameworkTokens.has(name)
     );
     expect(
       strays,
       `Custom properties in dist/styles.css that are neither authored (fixtures/authored-tokens.json), @property-registered, nor in the framework snapshot (fixtures/framework-tokens.json): ${strays.join(", ")}. ` +
         "New authored token → add it to authored-tokens.json with a kind. " +
-        "Tailwind surface change → regenerate framework-tokens.json as a reviewed diff.",
+        "Tailwind surface change → regenerate framework-tokens.json as a reviewed diff."
     ).toEqual([]);
 
     // Keep the snapshot honest in the other direction too: entries that no
@@ -177,17 +180,17 @@ describe("design token surface (dist/styles.css)", () => {
     const stale = [...frameworkTokens].filter((name) => !byName.has(name));
     expect(
       stale,
-      `framework-tokens.json entries absent from dist/styles.css (stale snapshot): ${stale.join(", ")}`,
+      `framework-tokens.json entries absent from dist/styles.css (stale snapshot): ${stale.join(", ")}`
     ).toEqual([]);
   });
 
   it("keeps the authored fixture disjoint from the framework buckets", () => {
     const conflicts = Object.keys(authoredTokens).filter(
-      (name) => atPropertyRegistered.has(name) || frameworkTokens.has(name),
+      (name) => atPropertyRegistered.has(name) || frameworkTokens.has(name)
     );
     expect(
       conflicts,
-      `Authored tokens colliding with a framework bucket (rename the token or resolve the snapshot): ${conflicts.join(", ")}`,
+      `Authored tokens colliding with a framework bucket (rename the token or resolve the snapshot): ${conflicts.join(", ")}`
     ).toEqual([]);
   });
 
@@ -234,7 +237,7 @@ describe("design token surface (dist/styles.css)", () => {
       }
     }
     expect(violations, `Token values outside their kind's shape: ${violations.join("; ")}`).toEqual(
-      [],
+      []
     );
   });
 
@@ -253,7 +256,7 @@ describe("design token surface (dist/styles.css)", () => {
       .map(([name]) => name)
       .sort();
     expect(fixtureInvariants).toEqual(
-      ["--color-border-secondary", "--color-text-muted", "--radius"].sort(),
+      ["--color-border-secondary", "--color-text-muted", "--radius"].sort()
     );
   });
 
@@ -263,7 +266,7 @@ describe("design token surface (dist/styles.css)", () => {
     const missing = Object.keys(authoredTokens).filter((name) => !guidelinesDoc.includes(name));
     expect(
       missing,
-      `Authored tokens missing from docs/design-tokens.md (the synced vocabulary table): ${missing.join(", ")}`,
+      `Authored tokens missing from docs/design-tokens.md (the synced vocabulary table): ${missing.join(", ")}`
     ).toEqual([]);
   });
 });

@@ -19,15 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/sdk/src/index.ts",
-        "packages/sdk/src/**/*.ts"
-      ]
+      "patterns": ["packages/sdk/src/index.ts", "packages/sdk/src/**/*.ts"]
     }
   ],
-  "scanRoots": [
-    "packages/sdk/src"
-  ],
+  "scanRoots": ["packages/sdk/src"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/baseline.json"

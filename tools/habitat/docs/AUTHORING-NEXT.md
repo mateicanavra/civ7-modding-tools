@@ -2,7 +2,7 @@
 
 This document is the bridge from the current Habitat substrate to the missing
 authoring workflow. It is the starting reference for the next agent building
-generators and apply loops.
+generators and a future live-apply loop.
 
 ## North Star
 
@@ -70,9 +70,11 @@ Every authoring generator should demonstrate:
 - generated structure builds and passes relevant tests;
 - generated structure is understandable enough for a later agent to extend.
 
-## Apply Pattern Acceptance Contract
+## Future / Not Implemented: Apply Pattern Acceptance Contract
 
-Every new apply pattern should demonstrate:
+This is a target scenario, not current `habitat fix` behavior. Today the command
+only provides apply-admission discovery and Grit dry-run diagnostics; it refuses
+live writes. Every future apply pattern should demonstrate:
 
 - exact diagnostic rule or source shape it repairs;
 - exact allowed roots;
@@ -85,8 +87,8 @@ Every new apply pattern should demonstrate:
 - live clean-worktree behavior;
 - rollback behavior.
 
-Do not wire a pattern into `habitat fix` just because it has adapter fixtures.
-Fixture validation is necessary, but not sufficient.
+Do not present a pattern as a live `habitat fix` capability just because it has
+adapter fixtures. Fixture validation is necessary, but not sufficient.
 
 ## Work Discipline
 

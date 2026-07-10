@@ -155,11 +155,22 @@ function consumeVerifyTargetPlan(targetPlan: VerifyTargetPlan): VerifyReceipt["t
 
 function summarizeVerifyCheckReport(summary: VerifyCheckSummary): VerifyReceipt["habitatCheck"] {
   return Value.Parse(VerifyHabitatCheckSummarySchema, {
-    ...summary,
+    reportSchemaVersion: summary.reportSchemaVersion,
+    selectedRuleIds: summary.selectedRuleIds,
+    selectedRealRuleIds: summary.selectedRealRuleIds,
+    builtInRuleIds: summary.builtInRuleIds,
+    statusCounts: summary.statusCounts,
+    advisoryCount: summary.advisoryCount,
+    failingCount: summary.failingCount,
+    refusedCount: summary.refusedCount,
+    notApplicableCount: summary.notApplicableCount,
     consumption: summary.allowsAffectedExecution
       ? "allows-affected-execution"
       : "blocks-affected-execution",
     selectorState: selectorState(summary),
+    ...(summary.skippedAffectedReason
+      ? { skippedAffectedReason: summary.skippedAffectedReason }
+      : {}),
   });
 }
 

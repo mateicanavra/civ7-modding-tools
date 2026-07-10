@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/civ7-map-policy/src/civ7-tables.gen.ts"
-      ]
+      "patterns": ["packages/civ7-map-policy/src/civ7-tables.gen.ts"]
     }
   ],
   "generatedZone": "civ7-map-policy-tables",

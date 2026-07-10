@@ -45,7 +45,7 @@ Historical documents are useful for context, not closure authority. The historic
 - Do not track out a row unless the exact path, symbols, owner, destination, and re-entry trigger are recorded.
 - Do not solve `resource-policy-data-contract.domino.md` unless explicitly pulled in; current red rows are not pre-approved as that domino.
 - Behavior checks prove behavior only. Habitat checks prove structure only. Graphite submission proves publication only.
-- Native `grit patterns test --filter <rule>` is not a required fixture gate in this checkout unless a testable pattern corpus is registered in `.grit`. Record its current unavailability and use Habitat current-tree red plus injected bad/clean probes as the required workaround.
+- Historical closure evidence may record that native fixture discovery could not use a former root `.grit` configuration. That evidence is not current authority. Select the active `.habitat/**/rule.json` manifest with `bun habitat check --rule <rule-id>`; for Grit-backed rules Habitat reads the manifest pattern, creates an Effect-scoped temporary `grit.yaml`, and invokes pinned Grit with `--grit-dir`. Use the selected current-tree check plus injected bad/clean probes for active proof.
 - Public schemas that mimic operation input, output, strategy config, or operation contract envelopes are not allowed. They close by deletion/no public schema, not by inlining, renaming, or moving into another helper.
 - Use and trust Narsil first for symbol/reference/ownership checks, then use `rg` as a confirmation scan and gap detector.
 
@@ -225,20 +225,22 @@ Objective:
 Prove that the file-shape rules are positive assertions of the destination shape, not brittle negative smell lists.
 
 Required commands:
-- `cat .grit/grit.yaml`
-- `find .grit -maxdepth 3 -type f -print`
-- `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns list --source local`
-- `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter require_recipe_stage_authoring_file_shape --verbose`
-- `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter require_domain_operation_contract_file_shape --verbose`
-- `bun habitat check --rule require_recipe_stage_authoring_file_shape --json --output /tmp/habitat-red-experiment/stage-authoring.json`
-- `bun habitat check --rule require_domain_operation_contract_file_shape --json --output /tmp/habitat-red-experiment/op-contract.json`
+- `bun habitat check --rule require_recipe_stage_authoring_file_shape --json`
+- `bun habitat check --rule require_domain_operation_contract_file_shape --json`
+
+Current authority is `.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json`
+and `.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json`.
+For either selected Grit rule, Habitat reads the manifest's `pattern.md`, builds an
+Effect-scoped temporary `grit.yaml`, and calls pinned Grit with `--grit-dir`.
+Do not recreate root `.grit` or run native fixture-discovery commands as current
+proof. Preserve an earlier root-config limitation only as historical evidence.
 
 Focus:
 - recipe stage index.ts must own createStage({ id, steps, optional public/knobsSchema/compile });
 - operation contract.ts must own defineOp({ input, output, strategies });
 - wrong carriers must not false-green because a sentinel constructor exists elsewhere;
 - re-exports and dynamic imports must not bypass import law.
-- if native fixtures are unavailable, that must be recorded as `NATIVE_GRIT_UNAVAILABLE_RECORDED`;
+- if prior records cite an unavailable native fixture corpus, preserve that as `HISTORICAL_ROOT_GRIT_UNAVAILABLE_RECORDED`; it is not a current execution gate;
 - injected bad/clean probes must cover the Stage 0 proof matrix in repair-execution.md before source burn-down.
 
 Allowed edits:
@@ -253,7 +255,7 @@ Return:
 - whether each rule is fit for source burn-down;
 - exact findings with file paths and severity;
 - exact edits made, if any;
-- native Grit discovery outcome;
+- selected manifest and Habitat scoped-Grit execution outcome;
 - injected probe outcome;
 - Habitat commands run and observed red/green counts.
 ```

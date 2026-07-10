@@ -178,7 +178,7 @@ If your step introduces a new required/provided dependency tag:
 - **Forgetting to register the step**: writing a contract and implementation does nothing unless the stage/recipe composes it.
 - **Missing dependency tags**: the executor will fail early with `MissingDependencyError`; fix by adding tags/provides or adjusting ordering.
 - **Republishing buffer artifacts**: buffer artifacts are “publish once, mutate via `ctx.buffers`”; don’t republish in later steps.
-- **Import drift**: prefer published entrypoints (see import policy); avoid `@mapgen/*` aliases in docs/examples unless explicitly internal.
+- **Import drift**: prefer published entrypoints (see import policy); avoid workspace-only MapGen aliases in docs/examples unless explicitly internal.
 
 ## Ground truth anchors
 

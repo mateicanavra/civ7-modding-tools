@@ -3,9 +3,9 @@ export { Type } from "typebox";
 export type {
   ArtifactContract,
   ArtifactReadValueOf,
+  ArtifactRuntimeImpl,
   ArtifactValidationContext,
   ArtifactValidationIssue,
-  ArtifactRuntimeImpl,
   ArtifactValueOf,
   DeepReadonly,
   ProvidedArtifactRuntime,

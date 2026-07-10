@@ -29,7 +29,8 @@ bun habitat                # command help
 nx run-many -t habitat:check # Nx owner-level Habitat checks
 bun run check              # graph-owned package checks
 bun run lint               # graph-owned package lint targets
-bun habitat fix            # approved Grit codemods, then Biome safe writes
+bun habitat fix --dry-run  # admitted Grit diagnostics only; does not write
+bun habitat fix            # live-write request that currently refuses without writing
 bun run verify             # graph-owned heavier verification aggregate
 bun habitat check          # diagnostic Habitat CLI loop (add --json for JSON)
 bun habitat verify         # diagnostic Habitat CLI verify loop
@@ -128,15 +129,20 @@ nx g @habitat/cli:pattern grit-my-rule
 
 Candidate output lives under
 `.habitat/pattern-authority/candidates/`. It is not an
-active `.grit` check, not a `rules.json` entry, not a baseline file, and not
-hook-scoped. Registered advisory or enforced Grit rules require an accepted
-Pattern Authority Manifest, baseline contract, current-tree validation,
-fixture strategy, false-positive model, and hook-scope decision before they can
-enter the rule pack. Native Grit samples remain one validation class:
+active registered rule, not a `.habitat/**/rule.json` manifest, not a baseline
+file, and not hook-scoped. Registered advisory or enforced Grit rules require
+an accepted Pattern Authority Manifest, baseline contract, current-tree
+validation, fixture strategy, false-positive model, and hook-scope decision
+before they can enter the rule pack. Current executable validation runs the
+registered manifest and its `pattern.md` through Habitat:
 
 ```bash
-GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose
+bun habitat check --rule <registered-rule-id>
 ```
+
+The registered corpus has no separate native `grit patterns test` fixture
+surface today. A future fixture corpus is a distinct validation layer; it must
+not become another rule-authority tree.
 
 ## Git Hooks
 
@@ -172,10 +178,17 @@ Biome-owned rules into ESLint.
 Use:
 
 ```bash
-bun habitat fix --dry-run   # report approved Grit codemods + hygiene drift without writes
-bun habitat fix             # apply approved Grit codemods, then Biome format + safe assists
+bun habitat fix --dry-run  # admitted Grit dry-run diagnostics; no worktree writes
+bun habitat fix            # explicit live-write refusal; does not invoke Biome
 nx run-many -t biome:ci # CI-equivalent hygiene gate
 ```
+
+`habitat fix` is not a Biome orchestration path. It currently resolves
+apply-admission definitions and can run only Grit dry-run diagnostics. A
+non-dry invocation is intentionally refused: protected-zone routing and live
+execution are not implemented, so it cannot format output, run post-fix gates,
+roll back, record a transaction diff, or establish commit readiness. Biome
+formatting remains a separate hygiene and hook capability.
 
 Editor setup:
 

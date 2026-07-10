@@ -38,13 +38,13 @@ Inside `packages/mapgen-core/**`, use relative imports as needed.
 
 ### 3) Standard recipe imports use named domain surfaces
 
-Inside `mods/mod-swooper-maps/src/recipes/**`, imports from `@mapgen/domain/*`
-must stay on a named domain surface.
+Inside `mods/mod-swooper-maps/src/recipes/**`, imports from the workspace
+domain alias namespace must stay on a named domain surface.
 
 | Importing code                          | Allowed domain surface                                                         | Enforcement         |
 | --------------------------------------- | ------------------------------------------------------------------------------ | ------------------- |
-| Standard recipe assembly                | `@mapgen/domain/<domain>`                                                      | Policy only         |
-| Standard recipe op registry             | `@mapgen/domain/<domain>/ops`                                                  | Habitat `pattern-check` |
+| Standard recipe assembly                | domain root alias for the target domain                                        | Policy only         |
+| Standard recipe op registry             | domain ops alias for the target domain                                         | Habitat `pattern-check` |
 | Standard recipe config/knob compilation | Domain-owned config objects under `<domain>/model/config/*.config.ts` | Habitat `pattern-check` |
 | Cross-domain source code                | Domain-root contracts first; domain-internal imports only with a named owner   | Policy only         |
 | Domain internals                        | Relative imports within the same domain owner                                  | Policy only         |
@@ -58,7 +58,7 @@ beside the owning op or named op family.
 
 ### 1) Workspace-only aliases in canonical docs/examples
 
-Do not use `@mapgen/*` in canonical docs or examples. This alias:
+Do not use workspace-only MapGen aliases in canonical docs or examples. These aliases:
 
 - is not a public contract,
 - collides across packages,
@@ -76,10 +76,10 @@ Do not import:
 
 Do not import domain internals from recipe files, such as:
 
-- `@mapgen/domain/<domain>/shared/...`
-- `@mapgen/domain/<domain>/ops/<op>/...`
-- `@mapgen/domain/<domain>/rules/...`
-- `@mapgen/domain/<domain>/types.js`
+- domain shared internals through a workspace alias
+- operation internals through a workspace alias
+- domain rule internals through a workspace alias
+- domain type modules through a workspace alias
 
 If recipe assembly needs those symbols, expose them through the domain root,
 `/ops`, or the target model config surface with a named owner.
@@ -97,7 +97,7 @@ This policy is the simplest guardrail that keeps the ecosystem coherent: use the
 ## Ground truth anchors
 
 - Exported entrypoints (source of truth for allowed imports): `packages/mapgen-core/package.json`
-- `@mapgen/*` is an internal/workspace alias, used inside the package: `packages/mapgen-core/src/engine/index.ts`
+- Internal workspace aliases are used inside the monorepo only: `packages/mapgen-core/src/engine/index.ts`
 - Target posture for packaging and boundaries: `docs/projects/engine-refactor-v1/resources/spec/SPEC-packaging-and-file-structure.md`
 - Recipe import guard: Habitat Grit rule in
   `.habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json`

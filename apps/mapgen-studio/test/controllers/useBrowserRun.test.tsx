@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { type UseBrowserRunArgs, useBrowserRun } from "../../src/app/hooks/useBrowserRun";
 import { parseCiv7StudioSeed } from "../../src/features/civ7Setup/seedPolicy";
-import { useBrowserRun, type UseBrowserRunArgs } from "../../src/app/hooks/useBrowserRun";
 import { useAuthoringStore } from "../../src/stores/authoringStore";
 import { useRunStore } from "../../src/stores/runStore";
 import "./_setup";
@@ -127,7 +127,11 @@ describe("useBrowserRun — startBrowserRun config + seed (BR-8 / BR-9)", () => 
   it("BR-9: aborts on an invalid seed — sets localError, toasts, and never calls start", () => {
     for (const badSeed of ["", "abc", "-1", "0x8000_0000"]) {
       resetStores();
-      act(() => useAuthoringStore.setState({ recipeSettings: { recipe: DEFAULT_RECIPE, preset: "none", seed: badSeed } }));
+      act(() =>
+        useAuthoringStore.setState({
+          recipeSettings: { recipe: DEFAULT_RECIPE, preset: "none", seed: badSeed },
+        })
+      );
       const { view, runnerActions, toast, setLocalError } = renderBrowserRun();
       act(() => view.result.current.triggerRun());
       expect(runnerActions.start, `seed=${JSON.stringify(badSeed)}`).not.toHaveBeenCalled();
@@ -162,15 +166,27 @@ describe("useBrowserRun — isDirty (BR-10)", () => {
     expect(view.result.current.isDirty).toBe(false);
 
     // Diverge world only.
-    act(() => useAuthoringStore.setState({ worldSettings: { ...s.worldSettings, playerCount: 8 } }));
+    act(() =>
+      useAuthoringStore.setState({ worldSettings: { ...s.worldSettings, playerCount: 8 } })
+    );
     expect(view.result.current.isDirty).toBe(true);
 
     // Reset world, diverge recipe only.
-    act(() => useAuthoringStore.setState({ worldSettings: s.worldSettings, recipeSettings: { ...s.recipeSettings, seed: "777" } }));
+    act(() =>
+      useAuthoringStore.setState({
+        worldSettings: s.worldSettings,
+        recipeSettings: { ...s.recipeSettings, seed: "777" },
+      })
+    );
     expect(view.result.current.isDirty).toBe(true);
 
     // Reset recipe, diverge pipeline only.
-    act(() => useAuthoringStore.setState({ recipeSettings: s.recipeSettings, pipelineConfig: { ...s.pipelineConfig } as typeof s.pipelineConfig, }));
+    act(() =>
+      useAuthoringStore.setState({
+        recipeSettings: s.recipeSettings,
+        pipelineConfig: { ...s.pipelineConfig } as typeof s.pipelineConfig,
+      })
+    );
     // A new pipeline reference with identical content stays clean (deep-equal)…
     expect(view.result.current.isDirty).toBe(false);
   });
@@ -208,7 +224,9 @@ describe("useBrowserRun — auto-run trio (BR-1..BR-5)", () => {
     const { view, runnerActions, update } = renderBrowserRun({ browserRunning: true });
     act(() => view.result.current.setAutoRunEnabled(true)); // E2: running → pending=true; E3: running → bail
     // Config edits during the run keep deferring (still just pending).
-    act(() => useAuthoringStore.setState({ pipelineConfig: { ...DEFAULT_CONFIG } as typeof DEFAULT_CONFIG }));
+    act(() =>
+      useAuthoringStore.setState({ pipelineConfig: { ...DEFAULT_CONFIG } as typeof DEFAULT_CONFIG })
+    );
 
     // Run completes. start() must re-arm the runner → model browserRunning=true again,
     // which lets E2's cleanup cancel the timer it schedules on this transition.
@@ -248,7 +266,9 @@ describe("useBrowserRun — auto-run trio (BR-1..BR-5)", () => {
     const { view, runnerActions } = renderBrowserRun();
     act(() => view.result.current.setAutoRunEnabled(true)); // schedule #1
     act(() => vi.advanceTimersByTime(250)); // not yet
-    act(() => useAuthoringStore.setState({ pipelineConfig: { ...DEFAULT_CONFIG } as typeof DEFAULT_CONFIG })); // reschedule
+    act(() =>
+      useAuthoringStore.setState({ pipelineConfig: { ...DEFAULT_CONFIG } as typeof DEFAULT_CONFIG })
+    ); // reschedule
     act(() => vi.advanceTimersByTime(250)); // 500ms since first, but only 250 since reschedule → not yet
     expect(runnerActions.start).not.toHaveBeenCalled();
     act(() => vi.advanceTimersByTime(50)); // 300 since reschedule → fire once

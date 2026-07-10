@@ -15,21 +15,21 @@ export type {
 } from "./civ7-tables.gen.js";
 export { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "./civ7-tables.gen.js";
 export {
-  ENGINE_FEATURE_LEGALITY_BY_KEY,
-  FEATURE_KEY_INDEX,
-  FEATURE_PLACEMENT_KEYS,
-  getEngineFeatureLegality,
-  type EngineFeatureLegality,
-  type FeatureKey,
-  type PlotEffectKey,
-} from "./feature-placement.js";
-export {
   WATER_CLASS_COAST,
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
 } from "./coast-classification.js";
 export type { CoastRingPolicyResult } from "./coast-ring.js";
 export { applyCiv7CoastRingPolicy, CIV7_COAST_RING_POLICY_V0 } from "./coast-ring.js";
+export {
+  ENGINE_FEATURE_LEGALITY_BY_KEY,
+  type EngineFeatureLegality,
+  FEATURE_KEY_INDEX,
+  FEATURE_PLACEMENT_KEYS,
+  type FeatureKey,
+  getEngineFeatureLegality,
+  type PlotEffectKey,
+} from "./feature-placement.js";
 export type {
   NaturalWonderFootprintOffset,
   NaturalWonderFootprintOffsetsByParity,
@@ -59,10 +59,10 @@ export {
   OFFICIAL_RESOURCE_TYPE_ORDER,
 } from "./resources/index.js";
 export {
-  requireResourceRuntimeId,
-  resolveResourceRuntimeIds,
   type ResolvedResourceRuntimeId,
   type ResourceRuntimeIdResolution,
+  requireResourceRuntimeId,
+  resolveResourceRuntimeIds,
 } from "./resources/runtime-ids.js";
 export type {
   OfficialAgeType,

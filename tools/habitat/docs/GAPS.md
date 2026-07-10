@@ -57,31 +57,33 @@ Required acceptance properties for future authoring generators:
 - generated output does not weaken boundary, pattern, or baseline contracts;
 - generator tests validate both writes and refusals.
 
-## Diagnostic Patterns Are Not Broad Fixes
+## Diagnostic Patterns Are Not Live Fixes
 
 Most Habitat patterns are diagnostics. They detect structural violations
 and fail through Habitat, but they do not apply repairs.
 
-Current apply state:
+Current implemented state:
 
-- The co-located `apply.pattern.md` role for
-  `require_public_domain_surfaces_in_recipes_and_maps` is wired into
-  `habitat fix`.
-- The co-located `apply.pattern.md` role for
-  `prohibit_runtime_helper_redeclarations` exists but is not wired into
-  `habitat fix`.
-- No general mapping exists from each diagnostic Habitat rule to a safe apply
-  pattern.
+- `apply.pattern.md` role files and default apply-admission definitions resolve
+  against the live Grit registry.
+- `bun habitat fix --dry-run` runs admitted Grit diagnostics without writing.
+- A role file, a Grit check, or an admission definition does not grant a live
+  rewrite.
 
-This is partly deliberate and partly unfinished. It is deliberate that unsafe
-or ambiguous rewrites are not automatically applied. It is unfinished wherever a
-diagnostic pattern has a mechanical, locally provable repair that Habitat still
-does not expose.
+**Gap:** `habitat fix` has no live mutation path. The router supplies no
+protected-zone decision and the transaction policy explicitly refuses live
+execution. Formatting, post-fix gates, rollback, transaction diff records, and
+commit-readiness are consequently not implemented.
 
-## Apply Safety Still Needs Per-Pattern Product Validation
+**Re-entry condition:** a future live-fix design must first establish an
+approved protected-zone decision at the router and implement execution in the
+transaction policy. It must then supply the per-pattern evidence below before
+it is presented as runnable.
 
-The apply transaction has strong generic guardrails, but each new apply pattern
-still needs its own validation:
+## Future / Not Implemented: Apply Safety Acceptance Target
+
+The following is a target acceptance contract for a future live apply path, not
+current transaction behavior. Each future apply pattern would need:
 
 - exact rewrite inventory;
 - allowed roots;
@@ -90,10 +92,10 @@ still needs its own validation:
 - typecheck or package-local verification gate;
 - false-positive fixtures;
 - current-tree dry-run result;
-- rollback and dirty-worktree behavior.
+- live-write, rollback, and dirty-worktree proof.
 
-The transaction substrate cannot establish the semantic correctness of a pattern
-by itself.
+Even after an execution substrate exists, it cannot establish the semantic
+correctness of a pattern by itself.
 
 ## pattern manifest Can Overpower Product Focus
 
@@ -115,7 +117,7 @@ A future agent should prefer:
 - generator acceptance tests over prose claims;
 - current-tree command output over historical ledgers;
 - path-grounded code inspection over broad summaries;
-- applied diffs and rollback evidence over "pattern exists" claims.
+- future live-apply diffs and rollback evidence over "pattern exists" claims.
 
 ## Known Non-Goals For The Existing Surface
 

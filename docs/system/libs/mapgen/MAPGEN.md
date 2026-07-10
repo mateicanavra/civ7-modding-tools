@@ -57,7 +57,7 @@ architecture authority.
 
 Hard rules:
 - Do not guess contracts. If a claim can’t be anchored to code/spec, treat it as an open question.
-- Prefer published package entrypoints in docs/examples; avoid workspace-only aliases like `@mapgen/*`.
+- Prefer published package entrypoints in docs/examples; avoid workspace-only MapGen aliases.
 - Visualization (deck.gl pipeline viz) is **current canon**; do not create competing viz docs.
 
 ## Ground truth anchors

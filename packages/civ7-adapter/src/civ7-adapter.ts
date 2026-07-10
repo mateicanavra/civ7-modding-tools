@@ -11,8 +11,8 @@ import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintIndices,
   NATURAL_WONDER_CATALOG,
-  NO_RIVER_TYPE,
   NO_RESOURCE,
+  NO_RIVER_TYPE,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
