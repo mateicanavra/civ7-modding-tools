@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { RecipeDagResult } from "@civ7/studio-contract";
 import { describe, expect, it } from "vitest";
 import {
@@ -13,29 +10,20 @@ import {
   resolveEdgeLabelPositions,
 } from "../src/components/panels/recipe-dag/layout.js";
 import { recipeDagFixture } from "../src/storybook/recipeDagFixture.js";
+import recipeDagLayoutFixture from "./fixtures/recipe-dag-layout.json" with { type: "json" };
 
 describe("recipe DAG layout", () => {
-  // Move-fidelity pin (tasks.md 5.4): the committed fixture snapshot was
-  // generated from the APP module at the parent tip (63c6b7f01), immediately
-  // before the recipe-dag split moved `layout.ts` into the package. The moved
-  // module must reproduce that output byte-for-byte over the shared
-  // `recipeDagFixture` — any drift means the move was not verbatim.
-  it("reproduces the pre-move layout byte-identically over the story fixture", () => {
+  // The fixture is a whole-layout regression oracle. JSON whitespace and
+  // object-member order are serialization details, not layout behavior.
+  it("matches the committed whole-layout fixture", () => {
     const layout = buildRecipeDagLayout(recipeDagFixture);
-    const serialized = `${JSON.stringify(
-      layout,
-      (_key, value) => (value instanceof Map ? Object.fromEntries(value) : value),
-      2
-    )}\n`;
-    // join/dirname over the import.meta.url STRING (the plainCnMarkup pattern):
-    // under the project's jsdom environment the global `URL` is jsdom's, and
-    // node's fs rejects its instances ("The URL must be of scheme file").
-    const fixture = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "fixtures", "recipe-dag-layout.json"),
-      "utf8"
+    const layoutValue: unknown = JSON.parse(
+      JSON.stringify(layout, (_key, value) =>
+        value instanceof Map ? Object.fromEntries(value) : value
+      )
     );
 
-    expect(serialized).toBe(fixture);
+    expect(layoutValue).toEqual(recipeDagLayoutFixture);
   });
 
   it("places stages by dependency rank while preserving phase grouping", () => {
