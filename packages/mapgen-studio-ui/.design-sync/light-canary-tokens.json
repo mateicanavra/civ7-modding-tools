@@ -1,155 +1,169 @@
 {
   "Button": {
+    "storyMarker": "primitives-button--variants",
+    "exportMarker": "Variants",
     "sbClass": "light",
     "sbTokens": {
-      "--background": "#f6f6f9",
-      "--foreground": "#212a36",
-      "--card": "#fff",
-      "--primary": "#404e64",
-      "--muted-foreground": "#6b7280",
-      "--border": "#dcdfe4",
-      "--destructive": "#d32240"
+      "--background": "oklch(97.347% .00405 286.324)",
+      "--foreground": "oklch(28.037% .02669 256.838)",
+      "--card": "oklch(100% 0 0)",
+      "--primary": "oklch(42.05% .0405 258.341)",
+      "--muted-foreground": "oklch(55.026% .0235 264.362)",
+      "--border": "oklch(90.337% .00776 264.523)",
+      "--destructive": "oklch(56.081% .20695 19.466)"
     },
     "dsTokens": {
-      "--background": "hsl(240 20% 97%)",
-      "--foreground": "hsl(215 25% 17%)",
-      "--card": "hsl(0 0% 100%)",
-      "--primary": "hsl(216 22% 32%)",
-      "--muted-foreground": "hsl(220 9% 46%)",
-      "--border": "hsl(220 13% 88%)",
-      "--destructive": "hsl(350 72% 48%)"
+      "--background": "oklch(0.97347 0.00405 286.324)",
+      "--foreground": "oklch(0.28037 0.02669 256.838)",
+      "--card": "oklch(1 0 0)",
+      "--primary": "oklch(0.4205 0.0405 258.341)",
+      "--muted-foreground": "oklch(0.55026 0.0235 264.362)",
+      "--border": "oklch(0.90337 0.00776 264.523)",
+      "--destructive": "oklch(0.56081 0.20695 19.466)"
     },
     "drift": []
   },
   "Tabs": {
+    "storyMarker": "primitives-tabs--recipe-panel",
+    "exportMarker": "RecipePanel",
     "sbClass": "light",
     "sbTokens": {
-      "--background": "#f6f6f9",
-      "--foreground": "#212a36",
-      "--card": "#fff",
-      "--primary": "#404e64",
-      "--muted-foreground": "#6b7280",
-      "--border": "#dcdfe4",
-      "--destructive": "#d32240"
+      "--background": "oklch(97.347% .00405 286.324)",
+      "--foreground": "oklch(28.037% .02669 256.838)",
+      "--card": "oklch(100% 0 0)",
+      "--primary": "oklch(42.05% .0405 258.341)",
+      "--muted-foreground": "oklch(55.026% .0235 264.362)",
+      "--border": "oklch(90.337% .00776 264.523)",
+      "--destructive": "oklch(56.081% .20695 19.466)"
     },
     "dsTokens": {
-      "--background": "hsl(240 20% 97%)",
-      "--foreground": "hsl(215 25% 17%)",
-      "--card": "hsl(0 0% 100%)",
-      "--primary": "hsl(216 22% 32%)",
-      "--muted-foreground": "hsl(220 9% 46%)",
-      "--border": "hsl(220 13% 88%)",
-      "--destructive": "hsl(350 72% 48%)"
+      "--background": "oklch(0.97347 0.00405 286.324)",
+      "--foreground": "oklch(0.28037 0.02669 256.838)",
+      "--card": "oklch(1 0 0)",
+      "--primary": "oklch(0.4205 0.0405 258.341)",
+      "--muted-foreground": "oklch(0.55026 0.0235 264.362)",
+      "--border": "oklch(0.90337 0.00776 264.523)",
+      "--destructive": "oklch(0.56081 0.20695 19.466)"
     },
     "drift": []
   },
   "ErrorBanner": {
+    "storyMarker": "composites-errorbanner--generation-failed",
+    "exportMarker": "GenerationFailed",
     "sbClass": "light",
     "sbTokens": {
-      "--background": "#f6f6f9",
-      "--foreground": "#212a36",
-      "--card": "#fff",
-      "--primary": "#404e64",
-      "--muted-foreground": "#6b7280",
-      "--border": "#dcdfe4",
-      "--destructive": "#d32240"
+      "--background": "oklch(97.347% .00405 286.324)",
+      "--foreground": "oklch(28.037% .02669 256.838)",
+      "--card": "oklch(100% 0 0)",
+      "--primary": "oklch(42.05% .0405 258.341)",
+      "--muted-foreground": "oklch(55.026% .0235 264.362)",
+      "--border": "oklch(90.337% .00776 264.523)",
+      "--destructive": "oklch(56.081% .20695 19.466)"
     },
     "dsTokens": {
-      "--background": "hsl(240 20% 97%)",
-      "--foreground": "hsl(215 25% 17%)",
-      "--card": "hsl(0 0% 100%)",
-      "--primary": "hsl(216 22% 32%)",
-      "--muted-foreground": "hsl(220 9% 46%)",
-      "--border": "hsl(220 13% 88%)",
-      "--destructive": "hsl(350 72% 48%)"
+      "--background": "oklch(0.97347 0.00405 286.324)",
+      "--foreground": "oklch(0.28037 0.02669 256.838)",
+      "--card": "oklch(1 0 0)",
+      "--primary": "oklch(0.4205 0.0405 258.341)",
+      "--muted-foreground": "oklch(0.55026 0.0235 264.362)",
+      "--border": "oklch(0.90337 0.00776 264.523)",
+      "--destructive": "oklch(0.56081 0.20695 19.466)"
     },
     "drift": []
   },
   "AppFooter": {
+    "storyMarker": "composites-appfooter--ready",
+    "exportMarker": "Ready",
     "sbClass": "light",
     "sbTokens": {
-      "--background": "#f6f6f9",
-      "--foreground": "#212a36",
-      "--card": "#fff",
-      "--primary": "#404e64",
-      "--muted-foreground": "#6b7280",
-      "--border": "#dcdfe4",
-      "--destructive": "#d32240"
+      "--background": "oklch(97.347% .00405 286.324)",
+      "--foreground": "oklch(28.037% .02669 256.838)",
+      "--card": "oklch(100% 0 0)",
+      "--primary": "oklch(42.05% .0405 258.341)",
+      "--muted-foreground": "oklch(55.026% .0235 264.362)",
+      "--border": "oklch(90.337% .00776 264.523)",
+      "--destructive": "oklch(56.081% .20695 19.466)"
     },
     "dsTokens": {
-      "--background": "hsl(240 20% 97%)",
-      "--foreground": "hsl(215 25% 17%)",
-      "--card": "hsl(0 0% 100%)",
-      "--primary": "hsl(216 22% 32%)",
-      "--muted-foreground": "hsl(220 9% 46%)",
-      "--border": "hsl(220 13% 88%)",
-      "--destructive": "hsl(350 72% 48%)"
+      "--background": "oklch(0.97347 0.00405 286.324)",
+      "--foreground": "oklch(0.28037 0.02669 256.838)",
+      "--card": "oklch(1 0 0)",
+      "--primary": "oklch(0.4205 0.0405 258.341)",
+      "--muted-foreground": "oklch(0.55026 0.0235 264.362)",
+      "--border": "oklch(0.90337 0.00776 264.523)",
+      "--destructive": "oklch(0.56081 0.20695 19.466)"
     },
     "drift": []
   },
   "GameConsole": {
+    "storyMarker": "panels-gameconsole--live-ready",
+    "exportMarker": "LiveReady",
     "sbClass": "light",
     "sbTokens": {
-      "--background": "#f6f6f9",
-      "--foreground": "#212a36",
-      "--card": "#fff",
-      "--primary": "#404e64",
-      "--muted-foreground": "#6b7280",
-      "--border": "#dcdfe4",
-      "--destructive": "#d32240"
+      "--background": "oklch(97.347% .00405 286.324)",
+      "--foreground": "oklch(28.037% .02669 256.838)",
+      "--card": "oklch(100% 0 0)",
+      "--primary": "oklch(42.05% .0405 258.341)",
+      "--muted-foreground": "oklch(55.026% .0235 264.362)",
+      "--border": "oklch(90.337% .00776 264.523)",
+      "--destructive": "oklch(56.081% .20695 19.466)"
     },
     "dsTokens": {
-      "--background": "hsl(240 20% 97%)",
-      "--foreground": "hsl(215 25% 17%)",
-      "--card": "hsl(0 0% 100%)",
-      "--primary": "hsl(216 22% 32%)",
-      "--muted-foreground": "hsl(220 9% 46%)",
-      "--border": "hsl(220 13% 88%)",
-      "--destructive": "hsl(350 72% 48%)"
+      "--background": "oklch(0.97347 0.00405 286.324)",
+      "--foreground": "oklch(0.28037 0.02669 256.838)",
+      "--card": "oklch(1 0 0)",
+      "--primary": "oklch(0.4205 0.0405 258.341)",
+      "--muted-foreground": "oklch(0.55026 0.0235 264.362)",
+      "--border": "oklch(0.90337 0.00776 264.523)",
+      "--destructive": "oklch(0.56081 0.20695 19.466)"
     },
     "drift": []
   },
   "WaterStatsSection": {
+    "storyMarker": "composites-waterstatssection--expanded",
+    "exportMarker": "Expanded",
     "sbClass": "light",
     "sbTokens": {
-      "--background": "#f6f6f9",
-      "--foreground": "#212a36",
-      "--card": "#fff",
-      "--primary": "#404e64",
-      "--muted-foreground": "#6b7280",
-      "--border": "#dcdfe4",
-      "--destructive": "#d32240"
+      "--background": "oklch(97.347% .00405 286.324)",
+      "--foreground": "oklch(28.037% .02669 256.838)",
+      "--card": "oklch(100% 0 0)",
+      "--primary": "oklch(42.05% .0405 258.341)",
+      "--muted-foreground": "oklch(55.026% .0235 264.362)",
+      "--border": "oklch(90.337% .00776 264.523)",
+      "--destructive": "oklch(56.081% .20695 19.466)"
     },
     "dsTokens": {
-      "--background": "hsl(240 20% 97%)",
-      "--foreground": "hsl(215 25% 17%)",
-      "--card": "hsl(0 0% 100%)",
-      "--primary": "hsl(216 22% 32%)",
-      "--muted-foreground": "hsl(220 9% 46%)",
-      "--border": "hsl(220 13% 88%)",
-      "--destructive": "hsl(350 72% 48%)"
+      "--background": "oklch(0.97347 0.00405 286.324)",
+      "--foreground": "oklch(0.28037 0.02669 256.838)",
+      "--card": "oklch(1 0 0)",
+      "--primary": "oklch(0.4205 0.0405 258.341)",
+      "--muted-foreground": "oklch(0.55026 0.0235 264.362)",
+      "--border": "oklch(0.90337 0.00776 264.523)",
+      "--destructive": "oklch(0.56081 0.20695 19.466)"
     },
     "drift": []
   },
   "PipelineStage": {
+    "storyMarker": "panels-pipelinestage--pipeline-graph",
+    "exportMarker": "PipelineGraph",
     "sbClass": "light",
     "sbTokens": {
-      "--background": "#f6f6f9",
-      "--foreground": "#212a36",
-      "--card": "#fff",
-      "--primary": "#404e64",
-      "--muted-foreground": "#6b7280",
-      "--border": "#dcdfe4",
-      "--destructive": "#d32240"
+      "--background": "oklch(97.347% .00405 286.324)",
+      "--foreground": "oklch(28.037% .02669 256.838)",
+      "--card": "oklch(100% 0 0)",
+      "--primary": "oklch(42.05% .0405 258.341)",
+      "--muted-foreground": "oklch(55.026% .0235 264.362)",
+      "--border": "oklch(90.337% .00776 264.523)",
+      "--destructive": "oklch(56.081% .20695 19.466)"
     },
     "dsTokens": {
-      "--background": "hsl(240 20% 97%)",
-      "--foreground": "hsl(215 25% 17%)",
-      "--card": "hsl(0 0% 100%)",
-      "--primary": "hsl(216 22% 32%)",
-      "--muted-foreground": "hsl(220 9% 46%)",
-      "--border": "hsl(220 13% 88%)",
-      "--destructive": "hsl(350 72% 48%)"
+      "--background": "oklch(0.97347 0.00405 286.324)",
+      "--foreground": "oklch(0.28037 0.02669 256.838)",
+      "--card": "oklch(1 0 0)",
+      "--primary": "oklch(0.4205 0.0405 258.341)",
+      "--muted-foreground": "oklch(0.55026 0.0235 264.362)",
+      "--border": "oklch(0.90337 0.00776 264.523)",
+      "--destructive": "oklch(0.56081 0.20695 19.466)"
     },
     "drift": []
   }

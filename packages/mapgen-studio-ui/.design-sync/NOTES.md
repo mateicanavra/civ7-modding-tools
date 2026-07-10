@@ -200,7 +200,10 @@ historical.
   has produced `sb-reference/` + `ds-bundle/`) screenshots 7 token-heavy picks
   forced light on BOTH sides and cross-checks 7 core tokens programmatically —
   non-empty `drift` = FAIL. Latest run's durable record:
-  `.design-sync/light-canary-tokens.json` (2026-07-02, 7/7 zero drift;
+  `.design-sync/light-canary-tokens.json` (2026-07-10, 7/7 zero drift;
+  retained output is atomically replaced only by a complete successful run
+  after clean shutdown, so bootstrap, navigation, drift, cleanup, or write
+  failures cannot erase the last valid observation;
   screenshots ephemeral by design — re-run to regenerate). This is the FRAME §2
   both-modes leg; `design-sync:check` itself renders dark-only.
 - **A cleanup wave that edits COMPONENT INTERNALS must `--force` a full re-grade**
@@ -241,11 +244,11 @@ historical.
   originals — intent kept, implementation rebuilt on the live bundle with the
   real ExplorePanel). Also: the 74 leftover hash-suffixed remote fonts were
   deleted (glob-fenced plan); token consumption in explorations MUST be bare
-  `var(--token)` — now that the tokens carry full `hsl(…)` values (the 2026-07-08
-  value-form migration below), re-wrapping them as `hsl(var(--token))`
-  double-wraps to an invalid `hsl(hsl(…))` that computes to transparent. This
-  INVERTS the pre-migration triplet-era rule (which required `hsl(var(--token))`);
-  opacity uses `color-mix(in oklab, var(--token) N%, transparent)`.
+  `var(--token)` — the tokens carry full `oklch(…)` color values (the 2026-07-08
+  value-form migration below), so re-wrapping them as `hsl(var(--token))` /
+  `oklch(var(--token))` nests one color function inside another → invalid →
+  transparent. This INVERTS the pre-migration triplet-era rule (which required
+  `hsl(var(--token))`); opacity uses `color-mix(in oklab, var(--token) N%, transparent)`.
 
 - **2026-07-02 — operating structure made concrete (47th component + nested
   explorations + cloud fixtures).** The operating model is now enforced by
@@ -318,20 +321,41 @@ historical.
   driver (aux/README change, sampled render check, no grade re-key —
   `guidelinesGlob` is not a grade-contract key).
 
-## Token value-form migration (2026-07-08)
-- **Authored color tokens now carry full `hsl(…)` values consumed as
+## Token value-form migration → oklch (2026-07-08 to 2026-07-10)
+- **Authored color tokens carry full `oklch(…)` color values consumed as
   `var(--token)`; opacity uses `color-mix(in oklab, var(--token) N%,
-  transparent)`.** The legacy dialect (bare HSL triplets consumed as
-  `hsl(var(--token))`, with `hsl(var(--token) / a)` for alpha) is retired.
-  Authority: OpenSpec change `studio-ui-token-value-form` (extends
-  `studio-ui-token-noise-disposition`'s `studio-ui-design-sync` spec). Re-sync
-  consequences: (1) the explorations rule **inverted** — bare `var(--token)` is
-  now correct and `hsl(var(--token))` double-wraps to transparent (the
-  2026-07-02 bullet above is corrected in place); (2) the two remaining
-  DS-project explorations must be rewritten `hsl(var(--x))` → `var(--x)` and
-  `hsl(var(--x) / a)` → `color-mix` on the gated upload — snapshot first, they
-  have no repo copy; (3) `test/designTokens.test.ts` re-pins `VALUE_SHAPES.color`
-  to the full-`hsl()` form and `VALUE_SHAPES.alias` to `var(--…)`. Rendered colors
-  are byte-identical (lossless HSL rewrap), so the 47-component grades carry;
-  only the two story files whose bytes changed (`StudioShellLayout.stories.tsx`)
-  are expected to re-grade.
+  transparent)`.** **Step A (2026-07-08)** retired the legacy dialect
+  (bare HSL triplets consumed as `hsl(var(--token))`, alpha `hsl(var(--token) / a)`)
+  in favour of full `hsl(…)` values consumed as `var(--token)`; **Step B
+  (2026-07-10)**
+  re-authored those values into oklch — an **exact, pixel-preserving** conversion
+  (CSS Color 4; every one of the 38 unique palette values verified to render the
+  byte-identical 8-bit sRGB, max float Δ 4.9e-5), aligning the palette with the
+  Tailwind v4 / shadcn canonical color space. Authority: OpenSpec changes
+  `studio-ui-token-value-form` (Step A) and `studio-ui-token-oklch` (Step B),
+  both extending the `studio-ui-design-sync` spec. Re-sync consequences:
+  - Explorations consume tokens as **bare `var(--token)`** (wrapping one color
+    function in another — `hsl(var(--token))` / `oklch(var(--token))` — is
+    invalid → transparent). The 2026-07-02 bullet above is corrected in place.
+  - **No exploration surgery for the oklch step.** Explorations reference tokens
+    via `var(--x)` (form-agnostic), so the value change is invisible to them —
+    unlike Step A, which had to rewrite `hsl(var(--x))` → `var(--x)`. The gated
+    Step-B upload is package artifacts only (bundle + styling + guidelines).
+  - `test/designTokens.test.ts` pins `VALUE_GUARDS.color` to the `oklch(…)` shape
+    (was full-`hsl()`), `VALUE_GUARDS.alias` to `var(--…)`;
+    `test/fixtures/token-contract.json` re-captured to the oklch values;
+    `scripts/light-canary.mjs` `normColor` resolves oklch/rgb/hex/hsl → 8-bit rgb.
+  - Rendered colors are byte-identical at every step, and Step B changes only
+    `theme.css` values (no story bytes), so the 47-component grades carry with
+    no re-grade churn.
+- **Step B live closure (2026-07-10).** The first upload moved the styling and
+  guidelines partitions with `deletes: []`; the design-app self-check kept all
+  authored semantic OKLCH tokens classified as `"color"`. Restacking over
+  prerequisite PR #2058 then reordered two non-colliding package-barrel exports,
+  changing only the generated JavaScript bundle hash. The final re-sync followed
+  the atomic full-write contract rather than treating `upload.bundle` as a file
+  scope: all 326 managed paths were re-written, the sentinel fenced and re-armed
+  the content writes, and `_ds_sync.json` landed alone and last. Final remote
+  hashes are `styleSha: 038266...`, `auxSha: 5e3039...`, and
+  `bundleSha12: 26fc014c4139`; all 47 component source/render keys are unchanged,
+  no grades were reopened, and project-owned explorations remain untouched.

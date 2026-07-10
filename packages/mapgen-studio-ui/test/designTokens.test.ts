@@ -65,14 +65,35 @@ const KIND_SCOPES: Record<string, readonly (keyof typeof SCOPE_SELECTORS)[]> = {
   font: ["theme"],
 };
 
-const VALUE_SHAPES: Record<string, RegExp> = {
-  // Full hsl() color value ("hsl(240 14% 6%)", decimals allowed), consumed as var(--x).
-  color: /^hsl\(\d{1,3}(?:\.\d+)? \d{1,3}(?:\.\d+)?% \d{1,3}(?:\.\d+)?%\)$/,
+const UNSIGNED_DECIMAL = "\\d+(?:\\.\\d+)?";
+const OKLCH_VALUE = new RegExp(
+  `^oklch\\((${UNSIGNED_DECIMAL}) (${UNSIGNED_DECIMAL}) (${UNSIGNED_DECIMAL})\\)$`
+);
+
+function isCanonicalOklch(value: string): boolean {
+  const match = OKLCH_VALUE.exec(value);
+  if (!match) return false;
+  const [lightness, chroma, hue] = match.slice(1).map(Number);
+  return (
+    [lightness, chroma, hue].every(Number.isFinite) &&
+    lightness >= 0 &&
+    lightness <= 1 &&
+    chroma >= 0 &&
+    hue >= 0 &&
+    hue < 360
+  );
+}
+
+const VALUE_GUARDS: Record<string, (value: string) => boolean> = {
+  // Full canonical oklch() value, consumed as var(--x): finite unsigned decimal
+  // L∈[0,1], C∈[0,∞), H∈[0,360). Each component requires an integer part;
+  // percentages, units, none, and alternate color functions are rejected.
+  color: isCanonicalOklch,
   // Bare var() reference aliasing another authored token.
-  alias: /^var\(--[\w-]+\)$/,
-  radius: /^\d*\.?\d+rem$/,
+  alias: (value) => /^var\(--[\w-]+\)$/.test(value),
+  radius: (value) => /^\d*\.?\d+rem$/.test(value),
   // Authored font stacks lead with the brand family.
-  font: /^"(?:Inter|JetBrains Mono)",/,
+  font: (value) => /^"(?:Inter|JetBrains Mono)",/.test(value),
 };
 
 function normalizeSelector(selector: string): string {
@@ -106,7 +127,7 @@ function scanStylesheet(source: string): {
   const stack: string[] = [];
   let buf = "";
   const flushDeclaration = () => {
-    const decl = /^(--[\w-]+)\s*:\s*([\s\S]+)$/.exec(buf.trim());
+    const decl = /^(--[\w-]+)\s*:\s*([\s\S]*)$/.exec(buf.trim());
     if (decl) {
       declarations.push({ name: decl[1], value: decl[2].trim(), stack: [...stack] });
     }
@@ -153,8 +174,48 @@ for (const decl of declarations) {
 }
 
 function fixtureKindError(name: string, kind: string): string | null {
-  if (KIND_SCOPES[kind] && VALUE_SHAPES[kind]) return null;
-  return `${name} has unknown kind "${kind}" — add it to KIND_SCOPES and VALUE_SHAPES first`;
+  if (KIND_SCOPES[kind] && VALUE_GUARDS[kind]) return null;
+  return `${name} has unknown kind "${kind}" — add it to KIND_SCOPES and VALUE_GUARDS first`;
+}
+
+function valueGuardViolations(
+  declarationsByName: ReadonlyMap<string, readonly Declaration[]>
+): string[] {
+  const violations: string[] = [];
+  for (const [name, kind] of Object.entries(authoredTokens)) {
+    const kindError = fixtureKindError(name, kind);
+    if (kindError) {
+      violations.push(kindError);
+      continue;
+    }
+    for (const decl of declarationsByName.get(name) ?? []) {
+      if (!VALUE_GUARDS[kind](decl.value)) {
+        violations.push(`${name} (${kind}) = "${decl.value}"`);
+      }
+    }
+  }
+  return violations;
+}
+
+function declarationsByName(source: string): Map<string, Declaration[]> {
+  const result = new Map<string, Declaration[]>();
+  for (const declaration of scanStylesheet(source).declarations) {
+    const list = result.get(declaration.name) ?? [];
+    list.push(declaration);
+    result.set(declaration.name, list);
+  }
+  return result;
+}
+
+function replaceBackgroundValues(value: string): string {
+  const matches = css.match(/--background:\s*oklch\([^)]+\)/g) ?? [];
+  const mutatedCss = css.replace(
+    /(--background:\s*)oklch\([^)]+\)/g,
+    (_declaration, prefix) => `${prefix}${value}`
+  );
+  expect(matches).toHaveLength(2);
+  expect(mutatedCss).not.toBe(css);
+  return mutatedCss;
 }
 
 describe("design token surface (dist/styles.css)", () => {
@@ -222,23 +283,32 @@ describe("design token surface (dist/styles.css)", () => {
     expect(problems, `Authored token scope violations: ${problems.join("; ")}`).toEqual([]);
   });
 
-  it("keeps every authored token's value in its kind's shape", () => {
-    const violations: string[] = [];
-    for (const [name, kind] of Object.entries(authoredTokens)) {
-      const kindError = fixtureKindError(name, kind);
-      if (kindError) {
-        violations.push(kindError);
-        continue;
-      }
-      for (const decl of byName.get(name) ?? []) {
-        if (!VALUE_SHAPES[kind].test(decl.value)) {
-          violations.push(`${name} (${kind}) = "${decl.value}"`);
-        }
-      }
+  it("keeps every authored token's value inside its kind's canonical form", () => {
+    const violations = valueGuardViolations(byName);
+    expect(
+      violations,
+      `Token values outside their kind's contract: ${violations.join("; ")}`
+    ).toEqual([]);
+  });
+
+  it.each([
+    ["lower bounds", "oklch(0 0 0)", true],
+    ["upper finite bounds", "oklch(1 0 359.999)", true],
+    ["multidigit unbounded chroma", "oklch(0.5 12.25 180)", true],
+    ["out-of-range negative chroma", "oklch(0.5 -0.1 180)", false],
+    ["out-of-range lightness", "oklch(1.001 0 0)", false],
+    ["out-of-range hue", "oklch(0.5 0.1 360)", false],
+    ["percentage syntax", "oklch(50% 0.1 180)", false],
+    ["malformed component", "oklch(0.5 nope 180)", false],
+    ["empty value", "", false],
+    ["HSL value", "hsl(240 14% 6%)", false],
+  ])("routes %s through the built-artifact value guard", (_case, value, accepted) => {
+    const violations = valueGuardViolations(declarationsByName(replaceBackgroundValues(value)));
+    if (accepted) {
+      expect(violations).toEqual([]);
+    } else {
+      expect(violations).toContain(`--background (color) = "${value}"`);
     }
-    expect(violations, `Token values outside their kind's shape: ${violations.join("; ")}`).toEqual(
-      []
-    );
   });
 
   it("agrees with the theme token contract fixture on the authored surface", () => {

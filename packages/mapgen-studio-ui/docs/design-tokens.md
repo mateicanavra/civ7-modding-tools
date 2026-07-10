@@ -2,12 +2,14 @@
 
 ## The authored token vocabulary — everything else in the stylesheets is framework plumbing
 
-All color tokens carry full CSS color values (`hsl(…)`) and are consumed as
-`var(--token)`. Opacity composes with
-`color-mix(in oklab, var(--token) N%, transparent)` — never
+All color tokens carry full CSS color values (`oklch(…)`) and are consumed as
+`var(--token)`. The palette is authored in oklch — an exact, pixel-preserving
+conversion of the earlier hand-tuned `hsl()` values (same rendered sRGB),
+aligned with the Tailwind v4 / shadcn canonical color space. Opacity composes
+with `color-mix(in oklab, var(--token) N%, transparent)` — never
 `hsl(var(--token) / alpha)`. Dark is the default (`:root, .dark`); `.light`
 re-skins every color token with the hand-tuned light palette. Never hardcode
-hex/oklch values — compose from these.
+raw color literals (hex/hsl/oklch) — compose from these tokens.
 
 | Token | Kind | Role |
 |---|---|---|
