@@ -267,6 +267,11 @@ The correction lands in this order:
 3. **Diagnostics identity:** bind diagnostics and attribution to request and
    operation-revision identity, with envelope digests retained only as evidence;
    no config equality or digest may identify, recover, or route an operation.
+4. **Live parity replacement:** replace prior parity/source-snapshot inputs with
+   the exact manifest launch envelope and its derived evidence, then run the
+   required live parity verification against that input. Prior partial or duplicated
+   config evidence is not valid parity evidence after the cutover.
+
 ### FireTuner Restart Is A CLI-Owned Operation
 
 The append-only bridge log remains the protocol boundary with Windows-side
@@ -286,7 +291,7 @@ REQ <id> AGENT=<agent> RUN Network.restartGame()
 It resolves the bridge log from `--bridge-log`, then
 `CIV7_FIRETUNER_BRIDGE_LOG`, then the Parallels shared-folder default. The
 Windows bridge remains responsible for focusing FireTuner, submitting the
-command, and writing `ACK`, `RESULT`, or `BLOCKED`. Civ7 logs remain the evidence
+command, and writing `ACK`, `RESULT`, or `BLOCKED`. Civ7 logs remain the proof
 boundary for actual game reload behavior.
 
 Studio's dev-server save API calls this command after a successful deploy and
