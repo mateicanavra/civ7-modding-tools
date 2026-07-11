@@ -67,6 +67,55 @@ Planning and Stage 0 record its exact ref/commit before and after every
 Git/Graphite mutation. Any movement aborts the cohort and enters investigation;
 the closeout must not restack, reparent, merge, or delete that stack.
 
+### Recovery Receipt
+
+The historical recovery contract completed before the source restack:
+
+| Field | Recorded value |
+| --- | --- |
+| Artifact root | `<common-git-dir>/codex-recovery/mapgen-studio-runtime-closeout/20260710T152657Z/` |
+| Creation window | 2026-07-10 11:26-11:28 EDT |
+| Bundle checksum | `75f6b9871898cc6c120d6c34555eb70e95d486497401470ad693e6d35e0201bf` |
+| Included refs | 13 historical Studio branches plus `main@46943c5f1165` |
+| Bundle verification | passed; complete history reported |
+| Disposable restore | 14 of 14 commit/tree rows matched; restore removed |
+| Retention | bundle, checksum, refs, transcript, and comparison retained through Stage 9 |
+
+`HEAD` reflog records the later source restack beginning at 2026-07-10
+13:40:26 EDT. The recovery artifact therefore precedes and covers that rewrite.
+Changing branch names after the verified capture does not invalidate the
+historical bundle. Any claim that the opening refs were rewritten before
+recovery is rejected by these timestamped artifacts.
+
+## Post-Recovery Current Lineage
+
+The historical opening snapshot above remains immutable. The current lineage
+is a restacked continuation plus three workstream-owned additions:
+
+| Order | Branch | Tip | Tree | Role |
+| --- | --- | --- | --- | --- |
+| 0 | `main` | `46943c5f1165` | `7045724260a9` | refreshed trunk checkpoint |
+| 1 | current runtime tail through `codex/studio-run-live-playability` | `4f501fabfdc6` | `4f5afae58895` | 38 restacked runtime commits; opening Foundry duplicate dropped after its accepted main sink merged |
+| 2 | `codex/mapgen-studio-runtime-transition-planning` | `ca6a06d24fff` | `e1fdd42a43c6` | reviewed planning patch, restacked without semantic patch drift |
+| 3 | `codex/mapgen-studio-config-envelope-runtime-cutover` | `3f5ed12e81a5` | `cee65cc2cc97` | post-planning candidate source; canonical config-envelope cutover |
+| 4 | `codex/mapgen-studio-manifest-parity-replay` | `b2367c50d6ae` | `9fec971dd5dd` | post-planning candidate source; manifest-backed final-surface replay |
+
+Range comparison maps the 39 opening commits to 35 exact restacked patches,
+three conflict-adjusted patches, and one dropped future-Foundry duplicate. The
+historical and current identities remain separate accounting inputs until the
+three adjusted patches receive semantic review.
+
+The two post-planning implementation branches remain local, unsubmitted source
+refs with accounting state `needs-adoption`. They are not pre-authorized final
+sinks. Their focused and isolated branch verification does not close P20, P21,
+or the product matrix.
+
+The independently owned readiness stack moved after the Studio restack and
+before this resumed Stage 0 cohort. Its current sentinel is
+`codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
+The closeout does not mutate it; movement from this rebound identity during a
+Studio mutation lease is the new abort condition.
+
 ## Planning Child Mutation Contract
 
 The planning layer is the only pre-recovery child permitted. Its staged set is
@@ -143,6 +192,11 @@ follow the remediation packet index.
 | DAEMON-STABILITY | stable non-watch Studio runtime host | daemon/project/Habitat slices from `6b6946fe10` | prerequisite of P16 live ownership/adoption behavior |
 | CODEX-WORKTREE-LIFECYCLE | private Codex worktree Studio composition | final local-environment handoff plus integration-tree helper change | consumes canonical daemon/Vite owners; private socket/ports/state and ownership-only teardown |
 | CONFIG-AUTHORITY | all-config single-source JSON behavior | `d5f81b32a0` plus config regeneration slices from `6b6946fe10` | requires explicit change owner before recut |
+| CONFIG-ENVELOPE | complete portable config admission and one-envelope propagation | `3f5ed12e81a5`; contract, generated config, browser, server, manifest, SDK, diagnostics, and affected OpenSpec slices | candidate source only; Stage 1 must reconcile P01-P02, P04-P20, Save/Deploy, generic TypeBox admission, terminology, and removed structural-test ownership before sink design |
+| CONFIG-PARITY | final-surface replay from the retained run manifest | `b2367c50d6ae`; eight paths | depends on CONFIG-ENVELOPE and consumes P01/P07/P13/P14 diagnostics; behavior tests passed, live Civ7 comparison not run |
+| TOOL-CONTRACT-ADMISSION | generic non-mutating TypeBox admission behavior | shared adapter slice from `3f5ed12e81a5` | Stage 1 decides whether this is retained generic tooling or config-local behavior |
+| TOOL-STUDIO-STRUCTURAL-TEST-DISPOSITION | removed brittle source/topology tests and their valid residual invariants | deleted Studio source-test slices from `3f5ed12e81a5` | map each deleted assertion to TypeScript, behavior verification, Habitat structure/boundary authority, or terminal deletion; do not recreate code-shape tests |
+| EVIDENCE-VOCABULARY | nonstandard runtime marker, coordinate, authorship, diagnostics, and inspector terminology | SDK, generated artifact, direct-control, Studio runtime, and visualization slices from `3f5ed12e81a5` | cross-owner candidate with no final sink until Stage 1 confirms each professional term and updates its controlling contract |
 | MIXED-LATE | late daemon/config/runtime repair | `6b6946fe10` | must be split by P16-P20, lifecycle, and config owner |
 | AUTH-FOUNDRY | future foundry and semantic-ratchet authority | PR `#2057`, source `0b09b350f85c`, merged main identity `2eea5f7dedec`; opening draft `9f2e715fe1` | merged main-root authority prerequisite; keep the opening-chain draft reference-only until recovery/accounting permits retirement |
 | EXTERNAL-ENVIRONMENT | clean-worktree environment and Habitat bootstrap repair | PR `#2056`, source `36eb7be574`, merged main identity `ada321597b98` | merged trunk prerequisite; only its Studio handoff obligation enters the lifecycle sink |
@@ -180,9 +234,12 @@ P18 + generation/deployment packets -> P19 -> P20
 P15..P20 + original closure obligations -> P21
 ```
 
-`CONFIG-AUTHORITY`, `TOOL-STUDIO-LIFECYCLE`, `CODEX-WORKTREE-LIFECYCLE`, and
-`TOOL-EFFECT` receive final parents only after Stage 1 establishes whether they
-are prerequisites, independent stacks, or packet-owned changes.
+`CONFIG-AUTHORITY`, `CONFIG-ENVELOPE`, `CONFIG-PARITY`,
+`TOOL-CONTRACT-ADMISSION`, `TOOL-STUDIO-STRUCTURAL-TEST-DISPOSITION`,
+`EVIDENCE-VOCABULARY`, `TOOL-STUDIO-LIFECYCLE`,
+`CODEX-WORKTREE-LIFECYCLE`, and `TOOL-EFFECT` receive final parents only after
+Stage 1 establishes whether they are prerequisites, independent stacks, or
+packet-owned changes.
 
 Opening review establishes this minimum hard-edge graph for Stage 1
 confirmation:
@@ -191,6 +248,7 @@ confirmation:
 EXTERNAL-ENVIRONMENT + AUTH-FOUNDRY + EXTERNAL-HABITAT-HARNESS + EXTERNAL-STUDIO-UI-FIXTURE + EXTERNAL-TOKEN-VALUE -> refreshed main checkpoint
 P01..P14 -> TOOL-EFFECT
 P09 + P14 + P15 + TOOL-EFFECT -> CONFIG-AUTHORITY
+CONFIG-AUTHORITY + affected P01..P20 -> CONFIG-ENVELOPE -> CONFIG-PARITY
 TOOL-STUDIO-LIFECYCLE -> DAEMON-STABILITY -> P16
 DAEMON-STABILITY -> CODEX-WORKTREE-LIFECYCLE
 P15 + CONFIG-AUTHORITY + P16 -> P17 -> P18

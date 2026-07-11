@@ -1,68 +1,65 @@
 # Verification Ledger
 
-Status: planning reconciliation/review/commit closure; Stage 0 locked; no product closure claim
+Status: next repair packet prepared; paused at a clean boundary for context compaction; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-10T11:18:00-04:00 EDT
-- Current phase: `planning-closed-stage-0-admission`
-- Last completed gate: the complete prerequisite cohort is merged linearly on
-  `main@46943c5f1165`: environment `#2056@ada321597b98`, Foundry
-  `#2057@2eea5f7dedec`, Habitat harness `#2058@fab37f842728`, semantic Studio UI
-  fixture repair `#2059@3735af2ada6f`, and token value-form
-  `#2052@46943c5f1165`. The token DesignSync project was atomically reconciled,
-  its classifier and archive gates closed, and its source branch/worktree were
-  removed. The environment source branch was also retired after the primary
-  checkout returned to `main`. The opening Studio head remains unchanged at
-  `9f2e715fe1`, 39 commits ahead and 7 behind refreshed main; its root still
-  reports `needs restack`, which remains an observation rather than permission
-  to rewrite it.
-- Current gate: Planning Closure is terminal. Review attempt 05 passed, semantic
-  digest `da2ad7c0ca3a190ee88a1862f16a986001983b47aea692e02faff57f5795f56b`
-  is accepted, final static gates are green, and mutation attempt
-  `planning-child-mutation-01` created the one-parent planning child without
-  changing any opening or readiness ref. Stage 0 remains locked only until a
-  continuous Supervisor/Enforcer DRA accepts this ledger and the final
-  receipt-amended planning commit identity is recaptured.
-- Parked readiness sentinel:
-  `codex/readiness-final-aggregate-proof-green@92cc1513cc5c43795f7b800fddc2325849869f5e`;
-  any movement aborts the planning mutation cohort.
-- Next action:
-  1. amend this operation receipt into the existing one-commit planning child;
-  2. recapture its final commit/tree and clean ending census without changing a
-     semantic-corpus file;
-  3. assign one continuous Stage 0 Supervisor/Enforcer DRA and admit Stage 0;
-  4. execute the Stage 0 census, recovery bundle, validator/collector fixtures,
-     obligation corpus, inherited-red import, and terminal reviews exactly as
-     defined by `WORKSTREAM.md`.
-- Blocked by: no external or product blocker accepted; Stage 0 remains
-  intentionally design-locked until the planning layer itself closes
+- Last updated: 2026-07-11T14:08:20-04:00 EDT
+- Current phase: `packet-a-complete-config-admission-prepared`
+- Last completed gate: the worktree received a frozen install, fresh Nx build,
+  and controlled Studio restart. Frontend returned HTTP 200; daemon health
+  reported this exact repo root, runtime mode `studio-daemon-effect-orpc`, and
+  zero Tuner response timeouts. Three bounded investigations then closed:
+  browser/oRPC lifecycle, all-nine config admission/generation, and
+  direct-control/Civ7 ownership. Their concrete findings and packet order are
+  captured in `NEXT-PACKET.md`.
+- Current gate: Packet A must make complete schema materialization the generic
+  admission law at both Studio and Swooper boundaries, replace brittle
+  property/stage assertions with behavior tests, and close its focused gates
+  and three dedicated review lanes before Packet B starts.
+- Current readiness sentinel:
+  `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
+  This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
+  outside this workstream's mutation cohort. It is rebound as the external
+  sentinel for the resumed cohort and remains excluded from Studio mutation.
+- Next action after context compaction:
+  1. execute Packet A exactly as framed in `NEXT-PACKET.md`;
+  2. execute Packet B for typed control-oRPC setup/start ownership;
+  3. execute Packet C and the complete rendered-browser/Civ7 matrix;
+  4. reconcile, submit, merge, drain, and return to Habitat.
+- Blocked by: no external or product blocker accepted
 - Product/Development DRA: Codex closeout orchestrator in the named worktree
 - Prior Planning Supervisor/Enforcer DRA: Kuhn
   (`019f494a-0ef2-7be2-b0a4-9813c8d040ab`), closed with semantic pass over the
   prior bound corpus; the later alignment handoff reopens affected semantic
   closure before static/commit work may resume
-- Stage 0 Supervisor/Enforcer DRA: not assigned; Stage 0 admission remains
-  locked until one continuous execution owner accepts this ledger
+- Stage 0 Supervisor/Enforcer DRA: Kierkegaard the 4th
+  (`019f5237-deac-7102-b271-50a4d61c1297`); source-freeze review closed-passed
 - Last Graphite mutation lease:
-  `planning-child-forward-lock-20260710T111600-0400`, released after the exact
-  child, parent, protected-ref, clean-state, and ending-census assertions passed
+  S0-01 used no pre-recorded durable lease row. Its shell cohort was serialized
+  to this DRA and asserted parent/source/sentinel identities before and after
+  `gt create`; the omission is `S0-01-LEASE-01`. No mutation lease is active.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
-- Branch/head: `codex/mapgen-studio-runtime-transition-planning`; initial child
-  `279e0cd9a85b` with sole parent `9f2e715fe1`; Stage 0 must bind the final
-  receipt-amended identity before opening
-- Worktree state: operation-receipt edits only until the current commit is
-  amended; no implementation path is modified
-- Current-lane Graphite state: current `main` is `46943c5f1165`; head
-  `9f2e715fe1` is 39 commits ahead and 7 behind; the stack root
-  `agent-codex-mapgen-studio-runtime-openspec-packets` reports `needs restack`;
-  no matching remote branch, PR, staged file, or active Git operation observed
-- Runtime preservation: tmux session `mapgen-studio-runner` owns daemon pane
-  `82626` and Vite pane `82629` in this worktree; it remains active for later
-  rendered-browser gates and is not part of the planning mutation
+- Branch/head: this packet-boundary record commit on
+  `codex/mapgen-studio-runtime-stage-0-census`; its sole parent is
+  `codex/mapgen-studio-manifest-parity-replay@b2367c50d6ae`, whose parent is
+  `codex/mapgen-studio-config-envelope-runtime-cutover@3f5ed12e81a5`, whose
+  parent is `codex/mapgen-studio-runtime-transition-planning@ca6a06d24fff`
+- Worktree state: clean before this packet-boundary record amendment; no
+  `.playwright-cli` files and no Git operation are present
+- Current-lane Graphite state: `main == origin/main == 46943c5f1165`; the
+  receipt-bearing census branch is 42 commits ahead and 0 behind, with 30 valid
+  Graphite layers and no restack
+  marker on the current tail. The planning and two implementation branches are
+  local-only, unsubmitted, and have no remote branch or PR.
+- Runtime preservation: tmux session `mapgen-studio-runner` owns frontend PID
+  `4446` on `5173` and daemon PID `13148` on `5174`. The daemon instance
+  `studio-server-mrgo43iw-a58-1-f8a3ae27-2c3a-426b-a505-d5c30b1abb01`
+  started at `2026-07-11T17:58:13.976Z`, reports this worktree as `repoRoot`,
+  and remains active for the next packet.
 
 This section is the sole live resume state. Update it at every phase change,
 DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
@@ -96,17 +93,23 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | planning admission terminal review | information/loop, exact Graphite mutation contract, and zsh-safe semantic digest | closed-with-changes | Plato, Mendel, and Boyle findings repaired in `planning-admission-review-03.md` |
 | planning admission final review | repaired live receipt, fail-closed mutation contract, and fail-closed semantic digest | closed-with-changes-and-invalidation | Hegel returned no result; Huygens findings repaired; Beauvoir invalidated by source-first Habitat contract |
 | planning admission current-corpus review | source-first Habitat contract plus final command repairs | closed-passed | Pasteur and Dewey passed; Euler's anchors repaired; Franklin returned no result; Poincare passed the affected re-review |
+| Stage 0 topology reconciliation | current Graphite lineage, historical recovery timing, remote/PR state, and protected boundaries | closed-with-correction | Socrates the 4th returned a valid current census but incorrectly claimed the restack preceded recovery; that P1 is rejected by the timestamped verified bundle |
+| post-planning semantic accounting | packet/config/tooling ownership and invalidated evidence for `3f5ed12e8` and `b2367c50d` | closed-with-findings | Arendt the 4th mapped both commits; Stage 0 carries ownership conflicts without treating them as final dispositions |
+| continuous Stage 0 supervision | admission, source accounting, corpus, and exit gates | closed-passed | Kierkegaard the 4th completed the source-freeze review; agent is closed |
+| current browser/oRPC investigation | rendered state, browser-to-endpoint path, daemon freshness | closed-with-one-invalid-attempt | stale daemon/browser state identified; current path unified after restart; accidental direct mutation is recorded and excluded from acceptance |
+| all-config investigation | nine-config admission, complete materialization, deterministic generation, output sanity | closed-with-shared-defect | all current configs healthy; generic partial-default admission defect becomes Packet A |
+| direct-control/Civ7 investigation | live shell state, saved setup, generated row, setup/start ownership | closed-with-architectural-defect | missing control-oRPC setup/lifecycle family and caller-local Studio orchestration become Packet B |
 
-Three fresh review agents are assigned. Stage promotion requires every agent row
-to be `closed` or explicitly transferred to the continuous supervisor.
+Stage promotion requires every agent row to be `closed` or explicitly
+transferred to the continuous supervisor.
 
 ## Stage State
 
 | Stage | State | Closing condition |
 | --- | --- | --- |
-| 0 Opening census | prework drafted | full sparse path coverage, recovery artifact, and reviewed source corpus |
-| 1 Semantic disposition | not started | zero unresolved rows and accepted transition routing |
-| 2 Integration tree | not started | no known accepted product defect at recorded integration tree |
+| 0 Opening census | complete under 2026-07-11 lightweight-tracking correction; historical recovery and current lineage recorded | recovery artifact and sufficient source/owner accounting to execute product repair |
+| 1 Semantic disposition | bounded decisions move with each concrete product repair | zero unresolved authority conflict in the active repair |
+| 2 Integration tree | active | no known accepted product defect at recorded integration tree |
 | 3 Sink stack design | not started | deterministic acyclic sink graph |
 | 4 Mechanical recut | not started | approved sink stacks with source/sink integrity |
 | 5 Change-unit closure | not started | P01-P20/tooling branches closed and P21 `runtime-ready` |
@@ -177,6 +180,9 @@ when late changes invalidated their evidence.
 | P21 | no completed rows | absent | every packet-declared success/failure/recovery row |
 | Screenshots | supporting visual records | supporting only | never substitute for endpoint/setup/in-game evidence |
 | Fake direct-control tests | controlled behavior | behavior only | never substitute for live Studio/Civ7 |
+| Config-envelope cutover | changes config, source, manifest, persistence, status, diagnostics, and runtime identity contracts at `3f5ed12e8` | prior evidence for affected P01-P02 and P04-P20 surfaces is stale or invalidated | current-tree behavior/endpoint/browser/setup/in-game gates by affected packet |
+| Manifest parity replay | behavior tests passed at `b2367c50d`; no live final-surface comparison ran | bounded implementation evidence only | exact retained-manifest replay against the request-correlated live Civ7 run |
+| P21 after post-planning commits | no completed current-tree rows | absent | every declared success, failure, recovery, and freshness row at the frozen final tree |
 
 ## Required Review Register
 
@@ -215,8 +221,8 @@ workstream contract.
 
 | Scope | Expected gate set | Current state | Row home |
 | --- | --- | --- | --- |
-| Planning document | classify-reported docs checks, OpenSpec validation, review lanes, clean Graphite commit | running | `gate-register.jsonl` plus planning wave packets |
-| Stages 0-4 | each stage entry, corpus/recovery, authority, integration, simulation, and recut gate | not-run | `gate-register.jsonl` |
+| Planning document | classify-reported docs checks, OpenSpec validation, review lanes, clean Graphite commit | passed at the historical planning tree; topology receipt superseded by the recorded restack | `gate-register.jsonl` plus planning wave packets |
+| Stages 0-4 | each stage entry, corpus/recovery, authority, integration, simulation, and recut gate | Stage 0 admission reconciliation active | `gate-register.jsonl` |
 | Stage 5 packets | every packet-declared and classify-reported gate | not-run | packet evidence plus typed `gate-register.jsonl` cross-links |
 | Stage 5 cross-cutting units | Effect, config authority, lifecycle, daemon, transition/records | not-run | `gate-register.jsonl` |
 | Stages 6 and 8 | static, endpoint, browser, setup, in-game, review, and cleanup gates per checkpoint | not-run | `gate-register.jsonl` plus immutable runtime evidence |
