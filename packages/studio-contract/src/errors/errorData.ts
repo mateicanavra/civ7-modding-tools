@@ -17,7 +17,7 @@ const failureTagSchema = Type.Union([
   Type.Literal("DependencyUnavailable"),
   Type.Literal("MaterializationFailed"),
   Type.Literal("DeployFailed"),
-  Type.Literal("ProofFailed"),
+  Type.Literal("VerificationFailed"),
   Type.Literal("AutoplayStartStopFailed"),
   Type.Literal("AutoplayVerificationFailed"),
 ]);
@@ -29,8 +29,8 @@ const reasonCodeSchema = Type.Union([
   Type.Literal("exact-authorship-mismatch"),
   Type.Literal("expired-operation"),
   Type.Literal("invalid-request"),
-  Type.Literal("log-proof-missing"),
-  Type.Literal("materialization-proof-missing"),
+  Type.Literal("log-evidence-missing"),
+  Type.Literal("materialization-evidence-missing"),
   Type.Literal("path-jail-rejection"),
   Type.Literal("restart-failed"),
   Type.Literal("restart-unsupported"),
@@ -56,6 +56,15 @@ export const studioRecoveryActionSchema = Type.Union([
   Type.Literal("retry-run"),
   Type.Literal("retry-save-deploy"),
   Type.Literal("retry-status"),
+]);
+export const saveDeploySafeFailureCategorySchema = Type.Union([
+  Type.Literal("request-validation"),
+  Type.Literal("ownership"),
+  Type.Literal("dependency-unavailable"),
+  Type.Literal("save"),
+  Type.Literal("deployment"),
+  Type.Literal("cleanup"),
+  Type.Literal("internal-defect"),
 ]);
 const dependencyKindSchema = Type.Union([
   Type.Literal("civ7-process"),
@@ -141,7 +150,7 @@ const failedOperationDataSchema = Type.Union([
   Type.Object(
     {
       tag: Type.Literal("MaterializationFailed"),
-      reason: Type.Literal("materialization-proof-missing"),
+      reason: Type.Literal("materialization-evidence-missing"),
       ...commonFailureFields,
     },
     { additionalProperties: false }
@@ -160,10 +169,10 @@ const failedOperationDataSchema = Type.Union([
   ),
   Type.Object(
     {
-      tag: Type.Literal("ProofFailed"),
+      tag: Type.Literal("VerificationFailed"),
       reason: Type.Union([
         Type.Literal("exact-authorship-mismatch"),
-        Type.Literal("log-proof-missing"),
+        Type.Literal("log-evidence-missing"),
         Type.Literal("setup-row-unavailable"),
         Type.Literal("start-game-failed"),
         Type.Literal("timeout-uncertain"),
@@ -319,6 +328,29 @@ export const runInGameStatusNotFoundErrorDataSchema = Type.Object(
   { additionalProperties: false }
 );
 
+export const saveDeployPublicErrorDataSchema = Type.Union([
+  Type.Object(
+    {
+      namespace: Type.Literal("saveDeploy"),
+      recoveryActions: Type.Array(studioRecoveryActionSchema),
+      safeFailureCategory: saveDeploySafeFailureCategorySchema,
+      requestId: Type.Optional(Type.String()),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Undefined(),
+]);
+
+export const saveDeployStatusNotFoundErrorDataSchema = Type.Object(
+  {
+    namespace: Type.Literal("saveDeploy"),
+    recoveryActions: Type.Array(studioRecoveryActionSchema),
+    safeFailureCategory: saveDeploySafeFailureCategorySchema,
+    requestId: Type.String(),
+  },
+  { additionalProperties: false }
+);
+
 export type StudioFailureData = Static<typeof studioFailureDataSchema>;
 export type StatusNotFoundData = Static<typeof statusNotFoundDataSchema>;
 export type DependencyUnavailableData = Static<typeof dependencyUnavailableDataSchema>;
@@ -330,4 +362,9 @@ export type StatusNotFoundErrorData = Static<typeof statusNotFoundErrorDataSchem
 export type RunInGamePublicErrorData = Static<typeof runInGamePublicErrorDataSchema>;
 export type RunInGameStatusNotFoundErrorData = Static<
   typeof runInGameStatusNotFoundErrorDataSchema
+>;
+export type SaveDeploySafeFailureCategory = Static<typeof saveDeploySafeFailureCategorySchema>;
+export type SaveDeployPublicErrorData = Static<typeof saveDeployPublicErrorDataSchema>;
+export type SaveDeployStatusNotFoundErrorData = Static<
+  typeof saveDeployStatusNotFoundErrorDataSchema
 >;

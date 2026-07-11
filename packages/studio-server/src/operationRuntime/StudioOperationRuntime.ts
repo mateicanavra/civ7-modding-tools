@@ -1,8 +1,11 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import type { StudioOperationsCurrent } from "@civ7/studio-contract";
 import {
+  freezeSnapshot,
   type MapConfigSaveDeployStatus,
   type RunInGameRequestStatus,
+  snapshotMapConfigEnvelope,
+  snapshotRunInGameStartSource,
   validateRunInGameSetupConfig,
 } from "@civ7/studio-contract";
 import { Context, Effect, Fiber, FiberSet, Layer, type Scope } from "effect";
@@ -26,6 +29,7 @@ import {
   SaveDeployWorkflow,
 } from "../workflows/index.js";
 import { lookupRunDiagnostics, writeRunDiagnostics } from "./diagnostics.js";
+import { makeRequestDiagnosticsWriteGateRegistry } from "./diagnosticsWriteGates.js";
 import { createStudioOperationId } from "./ids.js";
 import {
   resolveRunInGameLaunchSource,
@@ -49,6 +53,7 @@ import {
 import type {
   CanonicalRunInGameRequest,
   RunInGamePreparedRequest,
+  SaveDeployRequest,
   StudioDaemonIdentity,
   StudioOperationRuntimePorts,
 } from "./ports.js";
@@ -76,7 +81,7 @@ import {
   transitionRunInGameMutation,
   transitionSaveDeploy,
 } from "./registry.js";
-import { buildRunInGameSourceSnapshotProof } from "./sourceSnapshot.js";
+import { buildRunInGameSourceSnapshotEvidence } from "./sourceSnapshot.js";
 
 export interface StudioOperationRuntimeApi {
   readonly identity: StudioDaemonIdentity;
@@ -124,6 +129,7 @@ type SaveDeployAdmissionResult =
 type StudioOperationRuntimeLayerBaseArgs = Readonly<{
   ports: StudioOperationRuntimePorts;
   ttlMs?: number;
+  diagnosticsWriter?: typeof writeRunDiagnostics;
 }>;
 
 export function makeStudioOperationRuntimeLayer(
@@ -156,10 +162,7 @@ export function makeStudioOperationRuntimeLayer(
 }
 
 function makeStudioOperationRuntime(
-  args: Readonly<{
-    ports: StudioOperationRuntimePorts;
-    ttlMs?: number;
-  }>
+  args: StudioOperationRuntimeLayerBaseArgs
 ): Effect.Effect<
   StudioOperationRuntimeApi,
   never,
@@ -179,6 +182,8 @@ function makeStudioOperationRuntime(
     const runInGameWorkspaceRoot = args.ports.runInGameWorkspaceRoot;
     const registry = yield* makeRegistry(identity);
     const admissionGate = yield* Effect.makeSemaphore(1);
+    const diagnosticsWriter = args.diagnosticsWriter ?? writeRunDiagnostics;
+    const runDiagnosticsWriteGates = yield* makeRequestDiagnosticsWriteGateRegistry();
     const fibers = yield* FiberSet.make<void, never>();
     const runInGameWorkerFibers = new Map<string, Fiber.RuntimeFiber<void, never>>();
     const runInGameCleanup = new Map<string, () => Effect.Effect<void, unknown>>();
@@ -251,24 +256,50 @@ function makeStudioOperationRuntime(
         )
       );
 
+    const currentRunInGameForDiagnosticsPersistence = (
+      operation: RunInGameInternalOperation
+    ): Effect.Effect<RunInGameInternalOperation | undefined> =>
+      getState(registry, nowMs(), nowIso(), args.ttlMs).pipe(
+        Effect.map((state) => {
+          const current = state.runInGame[operation.requestId];
+          return current?.operationRevision === operation.operationRevision ? current : undefined;
+        })
+      );
+
+    const persistRunInGameDiagnostics = (
+      operation: RunInGameInternalOperation
+    ): Effect.Effect<RunInGameInternalOperation, unknown> =>
+      runDiagnosticsWriteGates.withGate(
+        operation.requestId,
+        currentRunInGameForDiagnosticsPersistence(operation).pipe(
+          Effect.flatMap((current) => {
+            if (current === undefined) return Effect.succeed(operation);
+            return diagnosticsWriter(current, { workspaceRoot: runInGameWorkspaceRoot }).pipe(
+              Effect.flatMap(() =>
+                markRunInGameDiagnosticsAvailable(
+                  registry,
+                  current.requestId,
+                  current.operationRevision
+                )
+              ),
+              Effect.flatMap((marked) =>
+                marked === undefined
+                  ? Effect.succeed(operation)
+                  : writeRunOperationRecord(marked, identity, {
+                      workspaceRoot: runInGameWorkspaceRoot,
+                    }).pipe(Effect.as(marked))
+              )
+            );
+          })
+        )
+      );
+
     const persistedOperation = (
       operation: RuntimeEventOperation
     ): Effect.Effect<RuntimeEventOperation, never> =>
       operation.kind !== "run-in-game"
         ? releaseTerminalLease(operation).pipe(Effect.as(operation))
-        : writeRunDiagnostics(operation, { workspaceRoot: runInGameWorkspaceRoot }).pipe(
-            Effect.flatMap(() =>
-              markRunInGameDiagnosticsAvailable(
-                registry,
-                operation.requestId,
-                operation.operationRevision
-              )
-            ),
-            Effect.flatMap((marked) =>
-              writeRunOperationRecord(marked ?? operation, identity, {
-                workspaceRoot: runInGameWorkspaceRoot,
-              }).pipe(Effect.as(marked ?? operation))
-            ),
+        : persistRunInGameDiagnostics(operation).pipe(
             Effect.tap(releaseTerminalLease),
             Effect.catchAll((error) =>
               Effect.sync(() => {
@@ -439,14 +470,9 @@ function makeStudioOperationRuntime(
       );
     };
 
-    const runInGameWorker = (
-      requestId: string,
-      input: StudioInputs["runInGame"]["start"],
-      prepared: RunInGamePreparedRequest
-    ) =>
+    const runInGameWorker = (requestId: string, prepared: RunInGamePreparedRequest) =>
       runInGameWorkflow.start({
         requestId,
-        input,
         prepared,
         transitions: {
           transition: (transition) => transitionRun(requestId, transition).pipe(Effect.asVoid),
@@ -477,7 +503,7 @@ function makeStudioOperationRuntime(
         },
       });
 
-    const saveDeployWorker = (requestId: string, input: StudioInputs["mapConfigs"]["saveDeploy"]) =>
+    const saveDeployWorker = (requestId: string, input: SaveDeployRequest) =>
       saveDeployWorkflow.start({
         requestId,
         input,
@@ -567,7 +593,7 @@ function makeStudioOperationRuntime(
                 });
                 yield* runTrackedRunInGameWorker(
                   admitted.operation.requestId,
-                  restore(runInGameWorker(admitted.operation.requestId, input, prepared))
+                  restore(runInGameWorker(admitted.operation.requestId, prepared))
                 );
                 return publicOperation;
               }
@@ -624,10 +650,19 @@ function makeStudioOperationRuntime(
         ),
       runInGameDiagnostics: (input) =>
         lookupRunDiagnostics(input.diagnosticsId, { workspaceRoot: runInGameWorkspaceRoot }),
-      saveDeployStart: (input) =>
-        Effect.uninterruptibleMask((restore) =>
+      saveDeployStart: (input) => {
+        const admittedInput = snapshotSaveDeployRequest(input);
+        if (admittedInput === undefined) {
+          return Effect.fail(
+            invalidRequest({
+              message: "Map config canonicalConfig must be a complete portable config envelope.",
+              diagnostics: { code: "save-deploy-canonical-config-invalid" },
+            })
+          );
+        }
+        return Effect.uninterruptibleMask((restore) =>
           Effect.gen(function* () {
-            const requestId = input.requestId ?? nextRuntimeId("studio-save-deploy");
+            const requestId = admittedInput.requestId ?? nextRuntimeId("studio-save-deploy");
             const admission = yield* admissionGate.withPermits(1)(
               Effect.gen(function* () {
                 const existing = yield* lookupSaveDeployAdmission({
@@ -673,7 +708,9 @@ function makeStudioOperationRuntime(
             const admitted = admission.admitted;
             if (admitted.kind === "admitted") {
               yield* publish(admitted.eventOperation);
-              yield* runWorker(restore(saveDeployWorker(admitted.operation.requestId, input)));
+              yield* runWorker(
+                restore(saveDeployWorker(admitted.operation.requestId, admittedInput))
+              );
             } else if (admission.kind === "new") {
               yield* releaseRuntimeOwnershipLease({
                 workspaceRoot: runInGameWorkspaceRoot,
@@ -683,7 +720,8 @@ function makeStudioOperationRuntime(
             }
             return admitted.operation;
           })
-        ),
+        );
+      },
       saveDeployStatus: (input) =>
         getSaveDeploy({
           registry,
@@ -719,7 +757,7 @@ function isPostDeployRunPhase(phase: RunInGameInternalOperation["phase"]): boole
     phase === "checking-civ7" ||
     phase === "preparing-setup" ||
     phase === "starting-game" ||
-    phase === "waiting-for-proof"
+    phase === "collecting-evidence"
   );
 }
 
@@ -745,7 +783,23 @@ function prepareRunInGameRequest(
   }>
 ): Effect.Effect<RunInGamePreparedRequest, StudioRuntimeFailure> {
   const { input, requestId, ports } = args;
-  const rawControlField = findRawControlField(input);
+  // Freeze the external request before inspecting it. Direct callers bypass
+  // the TypeBox/oRPC adapter, so this matches the wire admission boundary.
+  const source = snapshotRunInGameStartSource(input.source);
+  if (source === undefined) {
+    return Effect.fail(
+      invalidRequest({
+        message: "Run in Game source is invalid.",
+        diagnostics: { code: "run-in-game-source-invalid" },
+      })
+    );
+  }
+  const rawControlField = findRawControlField({
+    recipeSettings: input.recipeSettings,
+    worldSettings: input.worldSettings,
+    setupConfig: input.setupConfig,
+    source,
+  });
   if (rawControlField !== undefined) {
     return Effect.fail(
       invalidRequest({
@@ -812,7 +866,7 @@ function prepareRunInGameRequest(
   }
   return resolveRunInGameLaunchSource({
     input: {
-      source: input.source,
+      source,
       recipeSettings: {
         ...input.recipeSettings,
         seed: seed.value,
@@ -829,55 +883,51 @@ function prepareRunInGameRequest(
     ports,
   }).pipe(
     Effect.map((resolution) => {
-      const sourceSnapshot = buildRunInGameSourceSnapshotProof({
+      const envelope = resolution.launchEnvelope;
+      const envelopeSeed = parseSeed(envelope.recipeSettings.seed);
+      if (!envelopeSeed.ok) {
+        throw new Error("Accepted Run in Game launch envelope has an invalid seed.");
+      }
+      const sourceSnapshot = buildRunInGameSourceSnapshotEvidence({
         requestId,
         sourceSnapshot: sourceSnapshotFromLaunchResolution(resolution),
-        configHash: resolution.launchSourceDigest.configContentDigest,
-        envelopeHash: resolution.launchEnvelopeDigest,
+        canonicalConfigDigest: resolution.launchSourceDigest.canonicalConfigDigest,
+        launchEnvelopeDigest: resolution.launchEnvelopeDigest,
       });
       const request: CanonicalRunInGameRequest = {
-        recipeId: input.recipeSettings.recipe,
-        seed: seed.value,
-        mapSize,
-        ...(playerCount === undefined ? {} : { playerCount }),
-        ...(typeof input.worldSettings.resources === "string"
-          ? { resources: input.worldSettings.resources }
-          : {}),
-        selectedConfigId: resolution.selectedConfigId,
-        setupConfig: setupConfig.value,
-        materializationMode: resolution.materializationMode,
+        recipeId: envelope.recipeSettings.recipe,
+        seed: envelopeSeed.value,
+        mapSize: envelope.worldSettings.mapSize,
+        ...(envelope.worldSettings.playerCount === undefined
+          ? {}
+          : { playerCount: envelope.worldSettings.playerCount }),
+        ...(envelope.worldSettings.resources === undefined
+          ? {}
+          : { resources: envelope.worldSettings.resources }),
+        setupConfig: envelope.setupConfig,
         ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
-        resolvedLaunchSource: resolution.resolvedLaunchSource,
-        launchEnvelope: resolution.launchEnvelope,
-        launchSourceDigest: resolution.launchSourceDigest,
-        launchEnvelopeDigest: resolution.launchEnvelopeDigest,
       };
-      const correlationDigest = stableHash({
-        recipeId: request.recipeId,
-        seed: request.seed ?? null,
-        mapSize: request.mapSize ?? null,
-        playerCount: request.playerCount ?? null,
-        resources: request.resources ?? null,
-        selectedConfigId: request.selectedConfigId ?? null,
-        setupConfig: request.setupConfig ?? null,
-        materializationMode: request.materializationMode ?? null,
-        resolvedLaunchSource: resolution.resolvedLaunchSource,
-        launchEnvelope: resolution.launchEnvelope,
-        launchSourceDigest: resolution.launchSourceDigest,
-      });
       return {
-        correlationDigest,
-        request: {
-          ...request,
-          fingerprint: correlationDigest,
-        },
-        resolvedLaunchSource: resolution.resolvedLaunchSource,
-        launchEnvelope: resolution.launchEnvelope,
+        request,
+        launchEnvelope: envelope,
         launchSourceDigest: resolution.launchSourceDigest,
         launchEnvelopeDigest: resolution.launchEnvelopeDigest,
       };
     })
   );
+}
+
+function snapshotSaveDeployRequest(
+  input: StudioInputs["mapConfigs"]["saveDeploy"]
+): SaveDeployRequest | undefined {
+  const canonicalConfig = snapshotMapConfigEnvelope(input.canonicalConfig);
+  if (canonicalConfig === undefined) return undefined;
+  return freezeSnapshot({
+    ...(input.requestId === undefined ? {} : { requestId: input.requestId }),
+    canonicalConfig,
+    ...(input.restart === undefined ? {} : { restart: input.restart }),
+    ...(input.verifyRestart === undefined ? {} : { verifyRestart: input.verifyRestart }),
+  });
 }
 
 const RUN_IN_GAME_SEED_MIN = 0;
@@ -918,9 +968,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function findRawControlField(value: unknown): string | undefined {
   if (!value || typeof value !== "object") return undefined;
   const stack: unknown[] = [value];
+  const visited = new Set<object>();
   while (stack.length) {
     const next = stack.pop();
     if (!next || typeof next !== "object") continue;
+    if (visited.has(next)) continue;
+    visited.add(next);
     const entries = Array.isArray(next)
       ? next.map((child, index) => [String(index), child] as const)
       : Object.entries(next);
@@ -930,22 +983,4 @@ function findRawControlField(value: unknown): string | undefined {
     }
   }
   return undefined;
-}
-
-function stableHash(value: unknown): string {
-  return createHash("sha256")
-    .update(JSON.stringify(canonicalize(value)))
-    .digest("hex");
-}
-
-function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (value && typeof value === "object") {
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      out[key] = canonicalize((value as Record<string, unknown>)[key]);
-    }
-    return out;
-  }
-  return value;
 }

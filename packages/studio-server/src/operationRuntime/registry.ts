@@ -1,10 +1,11 @@
 import type {
   MapConfigSaveDeployStatus,
-  RunInGameExactAuthorshipProof,
+  RunInGameExactAuthorshipEvidence,
   RunInGameMaterializationStatus,
   RunInGameOperationStatus,
   RunInGamePhase,
 } from "@civ7/studio-contract";
+import { snapshotRunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import { Effect, SynchronizedRef } from "effect";
 import {
@@ -16,11 +17,11 @@ import {
   operationBlocked,
   operationExpired,
   operationNotFound,
-  proofFailed,
   runtimeDisposed,
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
   type StudioRuntimeFailure,
+  verificationFailed,
 } from "../errors/index.js";
 import { createRunDiagnosticsId } from "../runInGamePublic.js";
 import type {
@@ -95,14 +96,14 @@ export type RunInGameTransition =
     }>
   | Readonly<{ phase: "preparing-setup"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{ phase: "starting-game"; deploymentEvidence: RunInGameDeploymentEvidence }>
-  | Readonly<{ phase: "waiting-for-proof"; deploymentEvidence: RunInGameDeploymentEvidence }>
+  | Readonly<{ phase: "collecting-evidence"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{
       phase: "complete";
       result?: unknown;
       materialization?: RunInGameMaterializationStatus;
       deploymentEvidence: RunInGameDeploymentEvidence;
       runtimeObservation: RunInGameRuntimeObservation;
-      exactAuthorshipProof?: RunInGameExactAuthorshipProof;
+      exactAuthorshipEvidence?: RunInGameExactAuthorshipEvidence;
     }>;
 
 export type RunInGameFailurePhase = Exclude<RunInGameTransition["phase"], "complete">;
@@ -115,7 +116,7 @@ export type SaveDeployTransition =
       path?: string;
       saved?: boolean;
       deployed?: boolean;
-      deploy?: MapConfigSaveDeployStatus["deploy"];
+      deploy?: unknown;
     }>;
 
 export function makeRegistry(identity: StudioDaemonIdentity): Effect.Effect<RuntimeRegistry> {
@@ -213,10 +214,10 @@ export function admitRunInGame(
       kind: "run-in-game",
       requestId: args.requestId,
       leaseId: args.leaseId,
-      correlationDigest: args.prepared.correlationDigest,
       request: {
         ...args.prepared.request,
-        fingerprint: args.prepared.correlationDigest,
+        launchSourceDigest: args.prepared.launchSourceDigest,
+        launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
       },
       phase: "accepted",
       status: "running",
@@ -266,7 +267,6 @@ export function transitionRunInGameMutation(
               kind: "run-in-game",
               requestId: args.requestId,
               leaseId: "missing",
-              correlationDigest: "missing",
               request: {},
               phase: "failed",
               status: "failed",
@@ -294,10 +294,11 @@ export function transitionRunInGameMutation(
       !current.completedPhases.includes(publicCurrentPhase)
         ? [...current.completedPhases, publicCurrentPhase]
         : current.completedPhases;
+    const transition = snapshotRetainedRunTransition(args.transition);
     const operation: RunInGameInternalOperation = {
       ...current,
-      ...args.transition,
-      status: statusForRunInGamePhase(args.transition.phase),
+      ...transition,
+      status: statusForRunInGamePhase(transition.phase),
       operationRevision: current.operationRevision + 1,
       completedPhases,
       updatedAt: args.nowIso,
@@ -311,6 +312,16 @@ export function transitionRunInGameMutation(
       },
     ] as const;
   });
+}
+
+function snapshotRetainedRunTransition(transition: RunInGameTransition): RunInGameTransition {
+  if (transition.phase !== "complete" || transition.exactAuthorshipEvidence === undefined) {
+    return transition;
+  }
+  const snapshot = snapshotRunInGameExactAuthorshipEvidence(transition.exactAuthorshipEvidence);
+  return snapshot === undefined
+    ? { ...transition, exactAuthorshipEvidence: undefined }
+    : { ...transition, exactAuthorshipEvidence: snapshot };
 }
 
 export function failRunInGameMutation(
@@ -332,7 +343,6 @@ export function failRunInGameMutation(
               kind: "run-in-game",
               requestId: args.requestId,
               leaseId: "missing",
-              correlationDigest: "missing",
               request: {},
               phase: "failed",
               status: "failed",
@@ -879,7 +889,7 @@ function failurePhaseForRunOperation(operation: RunInGameInternalOperation): Run
     case "checking-civ7":
     case "preparing-setup":
     case "starting-game":
-    case "waiting-for-proof":
+    case "collecting-evidence":
       return operation.phase;
     case "accepted":
     case "materializing":
@@ -952,7 +962,7 @@ function runInGameFailureForPhase(
         diagnostics: runInGameDiagnostics(err, phase, {
           code: "run-in-game-materialization-failed",
           failureTag: "MaterializationFailed",
-          reason: "materialization-proof-missing",
+          reason: "materialization-evidence-missing",
         }),
       });
     case "deploying":
@@ -979,35 +989,35 @@ function runInGameFailureForPhase(
         recoveryActions: ["check-dev-server", "retry-run", "copy-diagnostics"],
       });
     case "preparing-setup":
-      return proofFailed({
+      return verificationFailed({
         message,
         reason: "setup-row-unavailable",
         diagnostics: runInGameDiagnostics(err, phase, {
           code: "run-in-game-setup-row-unavailable",
-          failureTag: "ProofFailed",
+          failureTag: "VerificationFailed",
           reason: "setup-row-unavailable",
         }),
         recoveryActions: ["retry-run", "copy-diagnostics"],
       });
     case "starting-game":
-      return proofFailed({
+      return verificationFailed({
         message,
         reason: "start-game-failed",
         diagnostics: runInGameDiagnostics(err, phase, {
           code: "run-in-game-start-game-failed",
-          failureTag: "ProofFailed",
+          failureTag: "VerificationFailed",
           reason: "start-game-failed",
         }),
         recoveryActions: ["dismiss-civ-notification-and-retry", "retry-run", "copy-diagnostics"],
       });
-    case "waiting-for-proof":
-      return proofFailed({
+    case "collecting-evidence":
+      return verificationFailed({
         message,
-        reason: "log-proof-missing",
+        reason: "log-evidence-missing",
         diagnostics: runInGameDiagnostics(err, phase, {
-          code: "run-in-game-log-proof-missing",
-          failureTag: "ProofFailed",
-          reason: "log-proof-missing",
+          code: "run-in-game-log-evidence-missing",
+          failureTag: "VerificationFailed",
+          reason: "log-evidence-missing",
         }),
       });
   }

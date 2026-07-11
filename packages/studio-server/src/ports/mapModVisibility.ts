@@ -6,11 +6,11 @@
  * Labels and sibling map rows remain diagnostics; they are not identity.
  */
 
-import type { SetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
 import {
   activeTargetModSetContainsAuthoritativeTarget,
   isAuthoritativeActiveTargetModSetReadback,
 } from "@civ7/direct-control";
+import type { SetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
 
 export type MapRowVisibilityFailureCode = Extract<
   SetupFailureReason,
@@ -87,7 +87,6 @@ function isSameModRow(file: string, modNamespace: string): boolean {
 export function classifyMapRowVisibilityFailure(args: {
   readonly launchMapScript: string;
   readonly visibleMapRows: ReadonlyArray<{ readonly file: string }>;
-  readonly materializationMode?: string;
   readonly targetModId?: string;
   readonly activeTargetModSet?: ActiveTargetModSetReadback;
   readonly targetModReconciliation?: TargetModReconciliationReadback;
@@ -102,10 +101,7 @@ export function classifyMapRowVisibilityFailure(args: {
       ).length
     : 0;
 
-  if (
-    targetModId &&
-    reconciliationExcludesTarget(args.targetModReconciliation, targetModId)
-  ) {
+  if (targetModId && reconciliationExcludesTarget(args.targetModReconciliation, targetModId)) {
     return {
       code: "generated-map-mod-not-enabled",
       message: `Civilization is not loading the generated Studio Run mod, so its setup map list cannot show ${launchMapScript}.`,
@@ -188,5 +184,8 @@ function reconciliationExcludesTarget(
 }
 
 function normalizeModToken(value: string): string {
-  return value.trim().replace(/^\{|\}$/g, "").toLowerCase();
+  return value
+    .trim()
+    .replace(/^\{|\}$/g, "")
+    .toLowerCase();
 }

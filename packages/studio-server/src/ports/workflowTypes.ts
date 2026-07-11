@@ -1,17 +1,4 @@
 import type {
-  LaunchEnvelope,
-  LaunchEnvelopeDigest,
-  LaunchSourceDigest,
-  Civ7LiveSnapshotOutput,
-  Civ7LiveStatusOutput,
-  MapConfigSaveDeployStatus,
-  ResolvedLaunchSource,
-  RunInGameExactAuthorshipProof,
-  RunInGameMaterializationStatus,
-  RunInGameSetupConfig,
-  RunInGameSourceSnapshotProof,
-} from "@civ7/studio-contract";
-import type {
   Civ7SavedGameConfigurationLoadResult,
   Civ7SetupMapRowsResult,
   Civ7SetupMapRowVisibilityResult,
@@ -19,6 +6,18 @@ import type {
   Civ7SinglePlayerStartResult,
   Civ7TargetModReconciliationResult,
 } from "@civ7/direct-control";
+import type {
+  Civ7LiveSnapshotOutput,
+  Civ7LiveStatusOutput,
+  LaunchEnvelope,
+  LaunchEnvelopeDigest,
+  LaunchSourceDigest,
+  MapConfigEnvelope,
+  RunInGameExactAuthorshipEvidence,
+  RunInGameMaterializationStatus,
+  RunInGameSetupConfig,
+  RunInGameSourceSnapshotEvidence,
+} from "@civ7/studio-contract";
 import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import type { StudioInputs, StudioOutputs } from "../context.js";
 import type { StudioBoundedDiagnostics } from "../errors/index.js";
@@ -38,41 +37,43 @@ export type CanonicalRunInGameRequest = Readonly<{
   mapSize: string;
   playerCount?: number;
   resources?: string;
-  selectedConfigId: string;
   setupConfig: RunInGameSetupConfig;
-  materializationMode: "durable" | "disposable";
-  fingerprint?: string;
-  sourceSnapshot?: RunInGameSourceSnapshotProof;
-  resolvedLaunchSource: ResolvedLaunchSource;
-  launchEnvelope: LaunchEnvelope;
-  launchSourceDigest: LaunchSourceDigest;
-  launchEnvelopeDigest: LaunchEnvelopeDigest;
+  sourceSnapshot?: RunInGameSourceSnapshotEvidence;
 }>;
 
 export type RunInGamePreparedRequest = Readonly<{
-  correlationDigest: string;
   request: CanonicalRunInGameRequest;
-  resolvedLaunchSource: ResolvedLaunchSource;
   launchEnvelope: LaunchEnvelope;
   launchSourceDigest: LaunchSourceDigest;
   launchEnvelopeDigest: LaunchEnvelopeDigest;
 }>;
 
-export type RunInGameCatalogSource = Readonly<{
-  catalogSourceId: string;
-  configPath: string;
-  name: string;
-  description: string;
-  sortIndex: number;
-  latitudeBounds?: unknown;
-  config: Record<string, unknown>;
+export type RunInGameCanonicalConfigAdmission = Readonly<{
+  /**
+   * Resolves and admits a catalog path only when it belongs to Swooper's indexed
+   * catalog. The returned envelope already owns its immutable boundary snapshot.
+   */
+  resolveCatalogSource(sourcePath: string): Promise<MapConfigEnvelope | undefined>;
+  /**
+   * Swooper performs Standard semantic admission on Studio's frozen snapshot.
+   * It must return that same object and must not default, migrate, or rebuild it.
+   */
+  admit(canonicalConfig: MapConfigEnvelope): Promise<MapConfigEnvelope>;
+}>;
+
+/** Frozen Save/Deploy input retained after the public wire DTO is admitted. */
+export type SaveDeployRequest = Readonly<{
+  requestId?: string;
+  canonicalConfig: MapConfigEnvelope;
+  restart?: boolean;
+  verifyRestart?: boolean;
 }>;
 
 export type RunInGameGeneratedModMaterialization = RunInGameMaterializationStatus &
   Readonly<{
     mapScript: string;
-    configHash: string;
-    envelopeHash: string;
+    canonicalConfigDigest: string;
+    launchEnvelopeDigest: string;
     generationManifestDigest: string;
     runArtifactId: string;
     generatedModRoot: string;
@@ -127,15 +128,15 @@ export type RunInGameDeployment = RunInGameDeploymentEvidence &
 export type RunInGameSetupPrepared = Readonly<{
   kind: "run-in-game-prepared-setup";
   requestId: string;
-  correlationDigest: string;
   deploymentRequestId: string;
+  runArtifactId: string;
   deployedModId: string;
   targetModId: string;
   launchMapScript: string;
   seed: number;
   mapSize: string;
   playerCount?: number;
-  rowProof: Civ7SetupMapRowsResult;
+  rowEvidence: Civ7SetupMapRowsResult;
   rowVisibility: Civ7SetupMapRowVisibilityResult;
   targetModReconciliation: Civ7TargetModReconciliationResult;
   savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
@@ -151,8 +152,8 @@ export type RunInGameStarted = Readonly<{
 export type RunInGameLogEvidence = Readonly<{
   result?: unknown;
   materialization?: RunInGameMaterializationStatus;
-  logMarkerProof?: unknown;
-  logProof?: unknown;
+  logMarkerEvidence?: unknown;
+  logEvidence?: unknown;
 }>;
 
 export type ScriptingLogObservation = Readonly<{
@@ -162,7 +163,7 @@ export type ScriptingLogObservation = Readonly<{
   observedAt?: string;
   startOffset?: number;
   matchedMarkers: readonly string[];
-  proof?: unknown;
+  evidence?: unknown;
 }>;
 
 export type SetupRowReadback = Readonly<{
@@ -172,7 +173,7 @@ export type SetupRowReadback = Readonly<{
   mapScript: string;
   runArtifactId: string;
   deployedModId: string;
-  rowProof: unknown;
+  rowEvidence: unknown;
   rowVisibility: unknown;
 }>;
 
@@ -198,9 +199,9 @@ export type RunInGameRuntimeObservation = Readonly<{
   loadedGame: LoadedGameReadback;
 }>;
 
-export type RunInGameProof = Readonly<{
+export type RunInGameEvidence = Readonly<{
   result?: unknown;
-  exactAuthorshipProof?: RunInGameExactAuthorshipProof;
+  exactAuthorshipEvidence?: RunInGameExactAuthorshipEvidence;
   materialization?: RunInGameMaterializationStatus;
 }>;
 
@@ -224,7 +225,7 @@ export type SaveDeployDeployed = Readonly<{
   path?: string;
   saved?: boolean;
   deployed?: boolean;
-  deploy?: MapConfigSaveDeployStatus["deploy"];
+  deploy?: unknown;
 }>;
 
 export type WorkflowFailureDiagnosticsPort = Readonly<{

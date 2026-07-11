@@ -6,20 +6,11 @@
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
+// The file plan only receives an admitted immutable envelope; this assertion
+// projects its serialized data without adding a second runtime admission path.
 const mapConfig = {
   "id": "swooper-earthlike",
   "name": "Swooper Earthlike",
@@ -820,19 +811,13 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const satisfies GeneratedMapConfig;
+} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
+  ...mapConfig,
   recipe: standardRecipe,
-  latitudeBounds: {
-    "topLatitude": 80,
-    "bottomLatitude": -80
-  },
   sourceConfigId: "swooper-earthlike",
   configHash: "40ae3e948fa6f6a2730ddd774fc6cd660142c86d868b184df7fc62b450774acf",
-  envelopeHash: "bbc3c1db38259f4bb27a500c7f6755426cc02bfa604b3d0ec83bbb040aeefcec",
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  envelopeHash: "aa54f6662869d3f72c952727e9dc02fc6381146068e07ee0d105012f6402b842",
+  config: mapConfig.config,
 });

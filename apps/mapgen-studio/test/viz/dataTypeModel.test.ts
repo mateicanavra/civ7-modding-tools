@@ -98,7 +98,7 @@ describe("buildStepDataTypeModel", () => {
     ).toEqual(["f32", "u8"]);
   });
 
-  it("keeps river proof layers inspectable while hiding metadata diagnostics by default", () => {
+  it("keeps river evidence layers inspectable while hiding metadata diagnostics by default", () => {
     const stepId = "mod-swooper-maps.standard.map-rivers.plot-rivers";
     const layer = (
       dataTypeKey: string,
@@ -193,11 +193,12 @@ describe("buildStepDataTypeModel", () => {
         bottomLatitude: mapInfo.MinLatitude,
       },
     };
-    const standardConfig = standardMapConfigs.find(
-      (config) => config.id === "swooper-earthlike"
-    )?.config;
-    if (!standardConfig)
+    const earthlikeArtifact = standardMapConfigs.find(
+      ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"
+    );
+    if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
+    const standardConfig = earthlikeArtifact.canonicalConfig.config;
     const plan = standardRecipe.compile(envBase, standardConfig);
     const verboseSteps = Object.fromEntries(
       plan.nodes.map((node) => [node.stepId, "verbose"] as const)

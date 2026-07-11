@@ -97,8 +97,10 @@ After:
   before Begin;
 - seed, Huge map size, 10 players, active generated mod, and generated map
   identity are read back from setup before start;
-- resources remain verified through the visible UI selection, admitted request,
-  generation manifest, and retained evidence row;
+- the rendered Run in Game click produces a browser-originated
+  `runInGame.start` request with `worldSettings.resources: balanced`, and the
+  same request's generation manifest retains that value; this metadata chain
+  does not verify Civ7 resource distribution through setup/readback;
 - start does not repeat a setup load that invalidates the checked row.
 
 ## Behavior Verification

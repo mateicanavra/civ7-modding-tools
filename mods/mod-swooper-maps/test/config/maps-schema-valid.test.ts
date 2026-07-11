@@ -1,9 +1,14 @@
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { Type } from "typebox";
 import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
-import { loadSwooperMapConfigRegistry } from "../../scripts/generate-map-artifacts";
+import { admitSwooperCatalogConfig } from "../../src/maps/catalog/admission";
+import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
 import {
+  admitStandardMapConfig,
   buildCanonicalMapConfigSchema,
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
@@ -13,21 +18,28 @@ import standardRecipe, {
 } from "../../src/recipes/standard/recipe";
 import { collectWorldBalanceStats } from "../support/world-balance-stats";
 
-const DEFAULT_LATITUDE_BOUNDS = { topLatitude: 80, bottomLatitude: -80 } as const;
 const GEOGRAPHY_GUARD_SEEDS = [123, 1337, 1538316415, 1538316523] as const;
+const repoRoot = resolve(import.meta.dirname, "../../../..");
+
+async function loadSwooperMapConfigRegistry() {
+  const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
+  return Promise.all(
+    CatalogSourceIndex.map(async (sourcePath) =>
+      admitSwooperCatalogConfig({
+        sourcePath,
+        canonicalConfig: JSON.parse(
+          await readFile(resolve(repoRoot, sourcePath), "utf8")
+        ) as unknown,
+        recipeSchema,
+      })
+    )
+  );
+}
 
 function authoredEnvelope(
   config: Awaited<ReturnType<typeof loadSwooperMapConfigRegistry>>[number]
 ) {
-  return {
-    id: config.id,
-    name: config.name,
-    description: config.description,
-    recipe: config.recipe,
-    sortIndex: config.sortIndex,
-    ...(config.latitudeBounds === undefined ? {} : { latitudeBounds: config.latitudeBounds }),
-    config: config.config,
-  };
+  return config.canonicalConfig;
 }
 
 describe("Shipped map configs", () => {
@@ -35,7 +47,7 @@ describe("Shipped map configs", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
     const configs = await loadSwooperMapConfigRegistry();
 
-    expect(configs.map((config) => config.id).sort()).toEqual([
+    expect(configs.map((config) => config.canonicalConfig.id).sort()).toEqual([
       "latest-juicy",
       "mountain-patch",
       "mountain-rivers-patch",
@@ -46,18 +58,19 @@ describe("Shipped map configs", () => {
       "swooper-desert-mountains",
       "swooper-earthlike",
     ]);
-    expect(configs.every((config) => config.recipe === "standard")).toBe(true);
+    expect(configs.every((config) => config.canonicalConfig.recipe === "standard")).toBe(true);
     expect(schema).toHaveProperty("properties");
 
     for (const config of configs) {
+      const canonicalConfig = config.canonicalConfig;
       const normalized = normalizeStrict<Record<string, unknown>>(
         schema,
-        config.config,
-        `/maps/configs/${config.id}/config`
+        canonicalConfig.config,
+        `/maps/configs/${canonicalConfig.id}/config`
       );
-      expect(normalized.errors, config.id).toEqual([]);
-      expect(Value.Equal(normalized.value, config.config), config.id).toBe(true);
-      expect(Object.keys(config.config).sort(), config.id).toEqual(
+      expect(normalized.errors, canonicalConfig.id).toEqual([]);
+      expect(Value.Equal(normalized.value, canonicalConfig.config), canonicalConfig.id).toBe(true);
+      expect(Object.keys(canonicalConfig.config).sort(), canonicalConfig.id).toEqual(
         STANDARD_STAGES.map((stage) => stage.id).sort()
       );
     }
@@ -80,10 +93,9 @@ describe("Shipped map configs", () => {
 
     expect(() =>
       validateCanonicalMapConfig({
-        fileName: `${fixture.id}.config.json`,
+        fileName: `${fixture.canonicalConfig.id}.config.json`,
         raw: missingDefaultStage,
         recipeSchema: schema,
-        stages: STANDARD_STAGES,
       })
     ).toThrow("complete recipe config JSON");
 
@@ -95,29 +107,84 @@ describe("Shipped map configs", () => {
     unknownStageConfig["studio-test-unknown-stage"] = {};
     expect(() =>
       validateCanonicalMapConfig({
-        fileName: `${fixture.id}.config.json`,
+        fileName: `${fixture.canonicalConfig.id}.config.json`,
         raw: unknownStage,
         recipeSchema: schema,
-        stages: STANDARD_STAGES,
       })
     ).toThrow("Unknown key");
     expect(() => Value.Assert(envelopeSchema, unknownStage)).toThrow();
+  });
+
+  it("admits against the freshly supplied recipe schema into an immutable exact snapshot", async () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const freshSchema = Type.Object(
+      {
+        ...schema.properties,
+        "fresh-source-stage": Type.Object({}, { additionalProperties: false }),
+      },
+      { additionalProperties: false }
+    );
+    const [fixture] = await loadSwooperMapConfigRegistry();
+    if (!fixture) throw new Error("Expected a shipped Swooper map config");
+    const raw = structuredClone(fixture.canonicalConfig) as Record<string, unknown>;
+    const config = raw.config as Record<string, unknown>;
+    config["fresh-source-stage"] = {};
+    const sourcePath = `mods/mod-swooper-maps/src/maps/configs/${raw.id}.config.json`;
+
+    expect(() => admitStandardMapConfig(raw)).toThrow("Unknown key");
+    const admitted = admitSwooperCatalogConfig({
+      sourcePath,
+      canonicalConfig: raw,
+      recipeSchema: freshSchema,
+    });
+
+    expect(admitted.canonicalConfig).toEqual(raw);
+    expect(admitted.canonicalConfig).not.toBe(raw);
+    expect(Object.isFrozen(admitted.canonicalConfig)).toBe(true);
+    expect(Object.isFrozen(admitted.canonicalConfig.config)).toBe(true);
+    raw.name = "Mutated source alias";
+    expect(admitted.canonicalConfig.name).not.toBe(raw.name);
+  });
+
+  it("rejects catalog files whose path identity disagrees with the admitted id", async () => {
+    const [fixture] = await loadSwooperMapConfigRegistry();
+    if (!fixture) throw new Error("Expected a shipped Swooper map config");
+    const sourcePath = `mods/mod-swooper-maps/src/maps/configs/not-${fixture.canonicalConfig.id}.config.json`;
+
+    expect(() =>
+      admitSwooperCatalogConfig({ sourcePath, canonicalConfig: fixture.canonicalConfig })
+    ).toThrow("must match file stem");
+    expect(() =>
+      admitSwooperCatalogConfig({
+        sourcePath: `../${fixture.canonicalConfig.id}.config.json`,
+        canonicalConfig: fixture.canonicalConfig,
+      })
+    ).toThrow("must point at");
+  });
+
+  it("uses the studio-contract config id constraint", async () => {
+    const [fixture] = await loadSwooperMapConfigRegistry();
+    if (!fixture) throw new Error("Expected a shipped Swooper map config");
+    const raw = { ...fixture.canonicalConfig, id: "Invalid_Config_ID" };
+
+    expect(() => admitStandardMapConfig(raw)).toThrow("complete portable config envelope");
   });
 
   it("compiles every shipped config into an executable stage plan", async () => {
     const configs = await loadSwooperMapConfigRegistry();
 
     for (const config of configs) {
+      const canonicalConfig = config.canonicalConfig;
       const compiled = standardRecipe.compileConfig(
         {
           seed: 123,
           dimensions: { width: 80, height: 60 },
-          latitudeBounds: config.latitudeBounds ?? DEFAULT_LATITUDE_BOUNDS,
+          latitudeBounds: canonicalConfig.latitudeBounds,
         },
-        config.config
+        canonicalConfig.config
       );
 
-      expect(Object.keys(compiled), config.id).toEqual(
+      expect(Object.keys(compiled), canonicalConfig.id).toEqual(
         expect.arrayContaining(STANDARD_STAGES.map((stage) => stage.id))
       );
     }
@@ -129,26 +196,30 @@ describe("Shipped map configs", () => {
     const configs = await loadSwooperMapConfigRegistry();
 
     for (const config of configs) {
+      const canonicalConfig = config.canonicalConfig;
       for (const seed of GEOGRAPHY_GUARD_SEEDS) {
         const stats = collectWorldBalanceStats({
-          label: config.id,
-          config: config.config as StandardRecipeConfig,
+          label: canonicalConfig.id,
+          config: canonicalConfig.config as StandardRecipeConfig,
           seed,
           width: 106,
           height: 66,
-          latitudeBounds: config.latitudeBounds ?? DEFAULT_LATITUDE_BOUNDS,
+          latitudeBounds: canonicalConfig.latitudeBounds,
         });
 
-        expect(stats.preLakeLandTiles, `${config.id}@${seed} pre-lake land`).toBeGreaterThan(0);
+        expect(
+          stats.preLakeLandTiles,
+          `${canonicalConfig.id}@${seed} pre-lake land`
+        ).toBeGreaterThan(0);
         expect(
           stats.postProjectionLandTiles,
-          `${config.id}@${seed} post-projection land`
+          `${canonicalConfig.id}@${seed} post-projection land`
         ).toBeGreaterThan(0);
-        expect(stats.waterTiles, `${config.id}@${seed} water`).toBeGreaterThan(0);
+        expect(stats.waterTiles, `${canonicalConfig.id}@${seed} water`).toBeGreaterThan(0);
         const tileCount = stats.width * stats.height;
         const landShare = stats.postProjectionLandTiles / tileCount;
-        expect(landShare, `${config.id}@${seed} land share`).toBeGreaterThan(0.075);
-        expect(landShare, `${config.id}@${seed} land share`).toBeLessThan(0.95);
+        expect(landShare, `${canonicalConfig.id}@${seed} land share`).toBeGreaterThan(0.075);
+        expect(landShare, `${canonicalConfig.id}@${seed} land share`).toBeLessThan(0.95);
       }
     }
   });

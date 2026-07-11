@@ -27,7 +27,7 @@ export const STUDIO_FAILURE_TAGS = [
   "DependencyUnavailable",
   "MaterializationFailed",
   "DeployFailed",
-  "ProofFailed",
+  "VerificationFailed",
   "AutoplayStartStopFailed",
   "AutoplayVerificationFailed",
 ] as const;
@@ -42,8 +42,8 @@ export const STUDIO_FAILURE_REASON_CODES = [
   "exact-authorship-mismatch",
   "expired-operation",
   "invalid-request",
-  "log-proof-missing",
-  "materialization-proof-missing",
+  "log-evidence-missing",
+  "materialization-evidence-missing",
   "path-jail-rejection",
   "restart-failed",
   "restart-unsupported",
@@ -166,13 +166,13 @@ function tagAllowsReason(tag: StudioFailureTag, reason: StudioFailureReasonCode)
         reason === "restart-unsupported"
       );
     case "MaterializationFailed":
-      return reason === "materialization-proof-missing";
+      return reason === "materialization-evidence-missing";
     case "DeployFailed":
       return reason === "deploy-failed" || reason === "save-failed" || reason === "rollback-failed";
-    case "ProofFailed":
+    case "VerificationFailed":
       return (
         reason === "exact-authorship-mismatch" ||
-        reason === "log-proof-missing" ||
+        reason === "log-evidence-missing" ||
         reason === "setup-row-unavailable" ||
         reason === "start-game-failed" ||
         reason === "timeout-uncertain"
@@ -319,12 +319,12 @@ export function dependencyUnavailable(args: {
 
 export function materializationFailed(args: {
   message: string;
-  reason?: Extract<StudioFailureReasonCode, "materialization-proof-missing">;
+  reason?: Extract<StudioFailureReasonCode, "materialization-evidence-missing">;
   diagnostics?: StudioBoundedDiagnostics;
 }): StudioRuntimeFailure {
   return studioFailure({
     tag: "MaterializationFailed",
-    reason: args.reason ?? "materialization-proof-missing",
+    reason: args.reason ?? "materialization-evidence-missing",
     message: args.message,
     recoveryActions: ["edit-config", "copy-diagnostics"],
     ...(args.diagnostics === undefined ? {} : { diagnostics: args.diagnostics }),
@@ -346,13 +346,13 @@ export function deployFailed(args: {
   });
 }
 
-export function proofFailed(args: {
+export function verificationFailed(args: {
   message: string;
   reason: Extract<
     StudioFailureReasonCode,
     | "setup-row-unavailable"
     | "start-game-failed"
-    | "log-proof-missing"
+    | "log-evidence-missing"
     | "exact-authorship-mismatch"
     | "timeout-uncertain"
   >;
@@ -360,7 +360,7 @@ export function proofFailed(args: {
   recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
 }): StudioRuntimeFailure {
   return studioFailure({
-    tag: "ProofFailed",
+    tag: "VerificationFailed",
     reason: args.reason,
     message: args.message,
     recoveryActions: args.recoveryActions ?? ["retry-run", "copy-diagnostics"],

@@ -1,7 +1,7 @@
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
-import { materializePipelineConfig } from "../configOverrides/configBuilders";
 import type { RecipeArtifacts } from "../../recipes/catalog";
+import { materializePipelineConfig } from "../configAuthoring/canonicalConfig";
 
 export type ImportPresetResult =
   | Readonly<{

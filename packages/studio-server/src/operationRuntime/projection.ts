@@ -6,6 +6,7 @@ import type {
 import { type RunInGameOperationStatus, type RunInGamePhase } from "@civ7/studio-contract";
 import type { StudioRecoveryAction, StudioRuntimeFailure } from "../errors/index.js";
 import { publicRunInGameFailureCategory } from "../runInGamePublic.js";
+import { publicSaveDeployFailureCategory } from "../saveDeployPublic.js";
 import type {
   RegistryState,
   RunInGameInternalOperation,
@@ -28,8 +29,6 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
     requestId: operation.requestId,
     ...(diagnosticsId === undefined ? {} : { diagnosticsId }),
     recoveryActions,
-    createdAt: operation.startedAt,
-    updatedAt: operation.updatedAt,
   };
   const status = publicRunInGameStatus(operation);
   if (status === "completed") {
@@ -37,7 +36,6 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
       ...base,
       status,
       phase: "completed",
-      terminalAt: operation.updatedAt,
     };
   }
   if (status === "running") {
@@ -56,7 +54,6 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
         operation.failure === undefined
           ? "operation-cancelled"
           : publicRunInGameFailureCategory(operation.failure),
-      terminalAt: operation.updatedAt,
     };
   }
   return {
@@ -67,7 +64,6 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
       operation.failure === undefined
         ? "internal-defect"
         : publicRunInGameFailureCategory(operation.failure),
-    terminalAt: operation.updatedAt,
   };
 }
 
@@ -82,38 +78,64 @@ export function projectSaveDeploy(
           operation.failedAtPhase ?? (phase === "deploying" ? "deploying" : "saving"),
           operation.failure
         );
-  const failureDetails =
-    operation.failure === undefined
-      ? undefined
-      : {
-          ...(operation.failure.diagnostics ?? {}),
-          failureTag: operation.failure.tag,
-          reason: operation.failure.reason,
-          ...(operation.failedAtPhase === undefined
-            ? {}
-            : { failedAtPhase: operation.failedAtPhase }),
-          recoveryActions,
-        };
+  if (operation.status === "complete") {
+    return {
+      ok: true,
+      requestId: operation.requestId,
+      phase: "complete",
+      status: "complete",
+      saved: true,
+      deployed: true,
+      recoveryActions,
+    };
+  }
+  if (operation.status === "failed") {
+    return {
+      ok: false,
+      requestId: operation.requestId,
+      phase: "failed",
+      status: "failed",
+      saved: operation.saved ?? false,
+      deployed: operation.deployed ?? false,
+      safeFailureCategory:
+        operation.failure === undefined
+          ? "internal-defect"
+          : publicSaveDeployFailureCategory(operation.failure),
+      recoveryActions,
+    };
+  }
   return {
-    ok: operation.failure === undefined,
+    ok: true,
     requestId: operation.requestId,
-    phase,
+    phase: publicRunningSaveDeployPhase(operation.phase),
     status: operation.status,
-    startedAt: operation.startedAt,
-    updatedAt: operation.updatedAt,
-    ...(operation.path === undefined ? {} : { path: operation.path }),
     ...(operation.saved === undefined ? {} : { saved: operation.saved }),
     ...(operation.deployed === undefined ? {} : { deployed: operation.deployed }),
-    ...(operation.deploy === undefined ? {} : { deploy: operation.deploy }),
-    ...(operation.failure === undefined ? {} : { error: operation.failure.message }),
-    ...(failureDetails === undefined ? {} : { details: failureDetails }),
     recoveryActions,
   };
 }
 
+function publicRunningSaveDeployPhase(
+  phase: SaveDeployInternalOperation["phase"]
+): "idle" | "queued" | "saving" | "deploying" {
+  switch (phase) {
+    case "accepted":
+    case "queued":
+      return "queued";
+    case "saving":
+      return "saving";
+    case "deploying":
+      return "deploying";
+    case "complete":
+    case "failed":
+    case "runtime-disposed":
+      return "idle";
+  }
+}
+
 export function projectCurrent(state: RegistryState, observedAt: string): StudioOperationsCurrent {
-  const runInGame = Object.values(state.runInGame).map(projectRunInGame).sort(byUpdatedAtDesc);
-  const saveDeploy = Object.values(state.saveDeploy).map(projectSaveDeploy).sort(byUpdatedAtDesc);
+  const runInGame = Object.values(state.runInGame).sort(byUpdatedAtDesc).map(projectRunInGame);
+  const saveDeploy = Object.values(state.saveDeploy).sort(byUpdatedAtDesc).map(projectSaveDeploy);
   const activeRunInGame = runInGame.find(isRunningOperation) ?? null;
   const activeSaveDeploy = saveDeploy.find(isRunningOperation) ?? null;
   return {
@@ -141,7 +163,7 @@ export function operationEvent(
       type: "operation",
       kind: "run-in-game",
       status,
-      observedAt: status.updatedAt,
+      observedAt: operation.updatedAt,
     };
   }
   const status = projectSaveDeploy(operation);
@@ -149,7 +171,7 @@ export function operationEvent(
     type: "operation",
     kind: "save-deploy",
     status,
-    observedAt: status.updatedAt,
+    observedAt: operation.updatedAt,
   };
 }
 

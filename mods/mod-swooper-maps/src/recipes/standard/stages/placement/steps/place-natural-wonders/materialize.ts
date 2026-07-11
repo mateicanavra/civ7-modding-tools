@@ -23,7 +23,7 @@ export type NaturalWonderPlacementCoordinateDigest = {
   hash32: string;
 };
 
-export type NaturalWonderPlacementCoordinateProof = {
+export type NaturalWonderPlacementCoordinateEvidence = {
   version: 1;
   placed: NaturalWonderPlacementCoordinateDigest;
   rejected: NaturalWonderPlacementCoordinateDigest;
@@ -53,7 +53,7 @@ export type NaturalWonderStampingStats = {
   rejectedCount: number;
   shortfallCount: number;
   rejectionExamples: string[];
-  coordinateProof: NaturalWonderPlacementCoordinateProof;
+  coordinateEvidence: NaturalWonderPlacementCoordinateEvidence;
   coordinateRows: NaturalWonderPlacementCoordinateRow[];
 };
 
@@ -69,7 +69,7 @@ export type NaturalWonderPlacementRuntimeTelemetry = {
   rejectionExampleCount: number;
   rejectionExamples: string[];
   rejectedRows: NaturalWonderPlacementRuntimeRejectedRow[];
-  coordinateProof: {
+  coordinateEvidence: {
     version: 1;
     placedCount: number;
     placedHash32: string;
@@ -207,9 +207,9 @@ function formatNaturalWonderRejectionExample(args: {
   ].join(" ");
 }
 
-function naturalWonderCoordinateProof(
+function naturalWonderCoordinateEvidence(
   rows: readonly NaturalWonderPlacementCoordinateRow[]
-): NaturalWonderPlacementCoordinateProof {
+): NaturalWonderPlacementCoordinateEvidence {
   return {
     version: 1,
     placed: naturalWonderCoordinateDigest(rows, "placed"),
@@ -619,7 +619,7 @@ export function stampNaturalWondersFromPlan({
     rejectedCount,
     shortfallCount,
     rejectionExamples: rejectionDetails.slice(0, 8),
-    coordinateProof: naturalWonderCoordinateProof(coordinateRows),
+    coordinateEvidence: naturalWonderCoordinateEvidence(coordinateRows),
     coordinateRows,
   };
 }
@@ -628,7 +628,7 @@ export function stampNaturalWondersFromPlan({
  * Coerces a (possibly partial or cross-boundary) stats object back into a sound
  * `NaturalWonderStampingStats`: clamps every count to a non-negative integer,
  * enforces `targetCount >= plannedCount` and derives a `shortfallCount` when
- * absent, caps `rejectionExamples`, and re-validates the coordinate proof/rows.
+ * absent, caps `rejectionExamples`, and re-validates the coordinate evidence/rows.
  * Used when reading stats published across a step boundary (where the typed
  * shape is not guaranteed) before telemetry or reconciliation consume them.
  */
@@ -661,8 +661,8 @@ export function normalizeNaturalWonderStampingStats(
   const rejectionExamples = Array.isArray(rawRejectionExamples)
     ? rawRejectionExamples.map(String).slice(0, 8)
     : [];
-  const coordinateProof = normalizeNaturalWonderCoordinateProof(
-    (stats as { coordinateProof?: unknown }).coordinateProof
+  const coordinateEvidence = normalizeNaturalWonderCoordinateEvidence(
+    (stats as { coordinateEvidence?: unknown }).coordinateEvidence
   );
   const coordinateRows = normalizeNaturalWonderCoordinateRows(
     (stats as { coordinateRows?: unknown }).coordinateRows
@@ -676,14 +676,14 @@ export function normalizeNaturalWonderStampingStats(
     rejectedCount,
     shortfallCount,
     rejectionExamples,
-    coordinateProof,
+    coordinateEvidence,
     coordinateRows,
   };
 }
 
-function normalizeNaturalWonderCoordinateProof(
+function normalizeNaturalWonderCoordinateEvidence(
   value: unknown
-): NaturalWonderPlacementCoordinateProof {
+): NaturalWonderPlacementCoordinateEvidence {
   if (!value || typeof value !== "object") {
     return {
       version: 1,
@@ -819,7 +819,7 @@ function buildNaturalWonderRuntimeRejectedRows(
  *
  * PRECISION CAVEAT (load-bearing for evidence claims): the payload exposes
  * per-row coordinates ONLY for REJECTED rows (`rejectedRows`). Placed wonders are
- * summarized as an opaque `coordinateProof.placedHash32` (FNV-1a 32) plus a
+ * summarized as an opaque `coordinateEvidence.placedHash32` (FNV-1a 32) plus a
  * count — no individual placed coordinate. So a wonder's placed status is derived
  * as `planned − rejected`, and a specific placed coordinate or its row parity is
  * NOT directly provable from telemetry. The rejected-digest fields are omitted
@@ -841,14 +841,14 @@ export function buildNaturalWonderPlacementRuntimeTelemetry(
     rejectionExampleCount: normalized.rejectionExamples.length,
     rejectionExamples: normalized.rejectionExamples,
     rejectedRows: buildNaturalWonderRuntimeRejectedRows(normalized.coordinateRows),
-    coordinateProof: {
-      version: normalized.coordinateProof.version,
-      placedCount: normalized.coordinateProof.placed.count,
-      placedHash32: normalized.coordinateProof.placed.hash32,
-      ...(normalized.coordinateProof.rejected.count > 0
+    coordinateEvidence: {
+      version: normalized.coordinateEvidence.version,
+      placedCount: normalized.coordinateEvidence.placed.count,
+      placedHash32: normalized.coordinateEvidence.placed.hash32,
+      ...(normalized.coordinateEvidence.rejected.count > 0
         ? {
-            rejectedCount: normalized.coordinateProof.rejected.count,
-            rejectedHash32: normalized.coordinateProof.rejected.hash32,
+            rejectedCount: normalized.coordinateEvidence.rejected.count,
+            rejectedHash32: normalized.coordinateEvidence.rejected.hash32,
           }
         : {}),
     },
@@ -857,7 +857,7 @@ export function buildNaturalWonderPlacementRuntimeTelemetry(
 
 /**
  * Emits the `NATURAL_WONDER_PLACEMENT_V1` line to the engine log (the
- * `[SWOOPER_MOD]`-prefixed channel that live-proof tooling scrapes). The single
+ * `[SWOOPER_MOD]`-prefixed channel that live-evidence tooling scrapes). The single
  * runtime sink for placement evidence; see
  * {@link buildNaturalWonderPlacementRuntimeTelemetry} for the payload's
  * placed-vs-rejected precision caveat.

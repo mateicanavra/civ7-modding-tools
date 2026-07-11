@@ -16,7 +16,6 @@ export {
   filterDataTypesForStep,
   getConfigValue,
   getStageNames,
-  mergeConfigs,
   recipeSettingsEqual,
   updateConfigValue,
   worldSettingsEqual,

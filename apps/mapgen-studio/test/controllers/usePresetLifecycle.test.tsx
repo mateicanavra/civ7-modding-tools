@@ -1,53 +1,32 @@
 // @vitest-environment jsdom
 import { act, renderHook } from "@testing-library/react";
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./_setup";
-
-// Spy on the config acceptance helper WITHOUT mocking the preset-resolution chain.
-// The test wants the real named-config source behavior, not a stand-in resolver.
-vi.mock("../../src/features/configOverrides/configBuilders", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("../../src/features/configOverrides/configBuilders")>();
-  return {
-    ...actual,
-    applyPresetConfig: vi.fn(actual.applyPresetConfig),
-  };
-});
-
-import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import {
   type UsePresetLifecycleArgs,
   usePresetLifecycle,
 } from "../../src/app/hooks/usePresetLifecycle";
-import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../../src/features/civ7Setup/livePreset";
-import { DEFAULT_CIV7_STUDIO_SETUP_CONFIG } from "../../src/features/civ7Setup/setupConfig";
-import { applyPresetConfig } from "../../src/features/configOverrides/configBuilders";
-import { buildPresetExportFile } from "../../src/features/presets/importExport";
-import type { BuiltInPreset } from "../../src/recipes/catalog";
+import {
+  createStudioEditorCanonicalConfig,
+  materializePipelineConfig,
+} from "../../src/features/configAuthoring/canonicalConfig";
 import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../../src/recipes/catalog";
-import { DEFAULT_RECIPE_SETTINGS, DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
+import { DEFAULT_RECIPE_SETTINGS } from "../../src/ui/constants/defaults";
 
-const applySpy = vi.mocked(applyPresetConfig);
+const recipeArtifacts = getRecipeArtifacts(DEFAULT_STUDIO_RECIPE_ID);
+const catalog = recipeArtifacts.studioBuiltInPresets?.[0];
+if (!catalog) throw new Error("Expected a generated catalog config for lifecycle tests");
+const editor = createStudioEditorCanonicalConfig();
 
-const RECIPE = DEFAULT_STUDIO_RECIPE_ID;
-const artifacts = getRecipeArtifacts(RECIPE);
-const VALID_CFG = artifacts.defaultConfig as PipelineConfig;
-const SAVED_CFG = { ...VALID_CFG } as PipelineConfig;
-const SAVED_PRESET: BuiltInPreset = { id: "saved-cfg", label: "Saved", config: SAVED_CFG };
-const SESSION_PRESETS = { [RECIPE]: { "saved-cfg": SAVED_PRESET } };
-
-function makeProps(over: Partial<UsePresetLifecycleArgs> = {}): UsePresetLifecycleArgs {
+function makeArgs(over: Partial<UsePresetLifecycleArgs> = {}): UsePresetLifecycleArgs {
   return {
-    recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, recipe: RECIPE, preset: "none" },
-    repoBackedSessionPresetsByRecipe: {},
-    livePresets: [],
-    pipelineConfig: VALID_CFG,
-    setWorldSettings: vi.fn(),
-    setSetupConfig: vi.fn(),
-    setPipelineConfig: vi.fn(),
-    setOverridesDisabled: vi.fn(),
+    recipeSettings: { ...DEFAULT_RECIPE_SETTINGS },
+    authoringConfigSource: { kind: "editor", canonicalConfig: editor },
+    setAuthoringConfigSource: vi.fn(),
+    setAuthoringSelection: vi.fn(),
+    setConfigEditingEnabled: vi.fn(),
     setRecipeSettings: vi.fn(),
-    setRepoBackedSessionPresetsByRecipe: vi.fn(),
     setLastRunSnapshot: vi.fn(),
     toast: vi.fn(),
     ...over,
@@ -55,224 +34,162 @@ function makeProps(over: Partial<UsePresetLifecycleArgs> = {}): UsePresetLifecyc
 }
 
 function setup(over: Partial<UsePresetLifecycleArgs> = {}) {
-  const props = makeProps(over);
-  const { result, rerender } = renderHook((p: UsePresetLifecycleArgs) => usePresetLifecycle(p), {
+  const props = makeArgs(over);
+  const view = renderHook((current: UsePresetLifecycleArgs) => usePresetLifecycle(current), {
     initialProps: props,
   });
-  const withPreset = (preset: string) =>
-    rerender({ ...props, recipeSettings: { ...props.recipeSettings, preset } });
-  return { result, rerender, props, withPreset };
+  return { ...view, props };
 }
 
-const order = (fn: ReturnType<typeof vi.fn>) => fn.mock.invocationCallOrder[0];
+beforeEach(() => localStorage.clear());
+afterEach(() => vi.clearAllMocks());
 
-beforeEach(() => {
-  localStorage.clear();
-  applySpy.mockClear();
-});
-afterEach(() => {
-  vi.clearAllMocks();
-});
-
-describe("usePresetLifecycle — markPresetApplied / applyAuthoringSnapshot identity contracts", () => {
-  it("ADD-1: markPresetApplied stores the same config object so the post-save apply-effect skip-guard short-circuits", () => {
-    const { result, props, withPreset } = setup({
-      repoBackedSessionPresetsByRecipe: SESSION_PRESETS,
-    });
-    applySpy.mockClear();
-    // Mimic the host save path: record the saved preset BEFORE the key flip.
-    act(() => result.current.markPresetApplied({ key: "builtin:saved-cfg", config: SAVED_CFG }));
-    withPreset("builtin:saved-cfg");
-    // resolvePreset("builtin:saved-cfg").config === SAVED_CFG === lastApplied.config → skip.
-    expect(applySpy).toHaveBeenCalledTimes(0);
-    expect(props.setPipelineConfig).not.toHaveBeenCalled();
-  });
-
-  it("ADD-1b: applyAuthoringSnapshot records snapshot.pipelineConfig by reference (no re-apply) and writes the 5 setters in order", () => {
-    const LIVE_CFG = { ...VALID_CFG } as PipelineConfig;
-    const liveLatitudeBounds = { topLatitude: 40, bottomLatitude: -40 } as const;
-    const livePresets = [
-      {
-        id: LIVE_GAME_PRESET_ID,
-        label: "Live Game",
-        latitudeBounds: liveLatitudeBounds,
-        config: LIVE_CFG,
-      },
-    ];
-    const { result, props, withPreset } = setup({ livePresets });
-    applySpy.mockClear();
-    act(() =>
-      result.current.applyAuthoringSnapshot({
-        key: LIVE_GAME_PRESET_KEY,
-        worldSettings: DEFAULT_WORLD_SETTINGS,
-        pipelineConfig: LIVE_CFG,
-        setupConfig: DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
-        recipeSettings: { ...props.recipeSettings, preset: LIVE_GAME_PRESET_KEY },
-      })
-    );
-    withPreset(LIVE_GAME_PRESET_KEY);
-    // resolvePreset(LIVE_GAME_PRESET_KEY).config === LIVE_CFG === lastApplied.config → skip.
-    expect(applySpy).toHaveBeenCalledTimes(0);
-    // 5-setter ordered write: world → pipeline → setup → overrides → recipe.
-    expect(order(props.setWorldSettings)).toBeLessThan(order(props.setPipelineConfig));
-    expect(order(props.setPipelineConfig)).toBeLessThan(order(props.setSetupConfig));
-    expect(order(props.setSetupConfig)).toBeLessThan(order(props.setOverridesDisabled));
-    expect(order(props.setOverridesDisabled)).toBeLessThan(order(props.setRecipeSettings));
-    expect(props.setOverridesDisabled).toHaveBeenCalledWith(false);
-    expect(result.current.resolvePreset(LIVE_GAME_PRESET_KEY)?.latitudeBounds).toBe(
-      liveLatitudeBounds
-    );
-  });
-});
-
-describe("usePresetLifecycle — preset apply-effects (PL-2..6, Tier-A)", () => {
-  it("PL-2/PL-4/PL-5: a resolvable preset applies once; a same-key re-render does not re-apply", () => {
-    const { props, withPreset } = setup({ repoBackedSessionPresetsByRecipe: SESSION_PRESETS });
-    applySpy.mockClear();
-    withPreset("builtin:saved-cfg");
-    expect(applySpy).toHaveBeenCalledTimes(1);
-    expect(props.setPipelineConfig).toHaveBeenCalledWith(SAVED_CFG);
-    // Ref advanced synchronously inside the apply → a same-key re-render skips.
-    withPreset("builtin:saved-cfg");
-    expect(applySpy).toHaveBeenCalledTimes(1);
-  });
-
-  it("applies selected preset config before exposing the selected preset key", () => {
-    const { result, props } = setup({ repoBackedSessionPresetsByRecipe: SESSION_PRESETS });
-    applySpy.mockClear();
+describe("usePresetLifecycle catalog/editor ownership", () => {
+  it("selects a catalog config as a source-path reference rather than copying its bytes", () => {
+    const { result, props } = setup();
 
     act(() =>
       result.current.applyRecipeSettingsChange({
         ...props.recipeSettings,
-        preset: "builtin:saved-cfg",
+        preset: `builtin:${catalog.canonicalConfig.id}`,
       })
     );
 
-    expect(applySpy).toHaveBeenCalledTimes(1);
-    expect(props.setPipelineConfig).toHaveBeenCalledWith(SAVED_CFG);
-    expect(props.setRecipeSettings).toHaveBeenCalledWith({
-      ...props.recipeSettings,
-      preset: "builtin:saved-cfg",
+    expect(props.setAuthoringSelection).toHaveBeenCalledWith(
+      { kind: "catalog", sourcePath: catalog.sourcePath },
+      { ...props.recipeSettings, preset: `builtin:${catalog.canonicalConfig.id}` }
+    );
+    expect(props.setAuthoringConfigSource).not.toHaveBeenCalled();
+    expect(props.setRecipeSettings).not.toHaveBeenCalled();
+  });
+
+  it("turns a catalog edit into the visible editor-owned canonicalConfig", () => {
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        preset: `builtin:${catalog.canonicalConfig.id}`,
+      },
+      authoringConfigSource: { kind: "catalog", sourcePath: catalog.sourcePath },
     });
-    expect(order(props.setPipelineConfig)).toBeLessThan(order(props.setRecipeSettings));
-    expect(props.setOverridesDisabled).toHaveBeenCalledWith(false);
-    expect(props.setLastRunSnapshot).toHaveBeenCalledWith(null);
-  });
-
-  it("PL-2: an unresolvable preset key sets presetError and leaves the config untouched", () => {
-    const { result, props, withPreset } = setup({
-      repoBackedSessionPresetsByRecipe: SESSION_PRESETS,
+    const materialized = materializePipelineConfig({
+      schema: recipeArtifacts.configSchema,
+      config: catalog.canonicalConfig.config,
+      label: "edited-catalog-test",
     });
-    applySpy.mockClear();
-    withPreset("builtin:does-not-exist");
-    expect(applySpy).toHaveBeenCalledTimes(0);
-    expect(props.setPipelineConfig).not.toHaveBeenCalled();
-    expect(result.current.presetError?.title).toBe("Preset not found");
-    expect(props.toast).toHaveBeenCalledWith("Preset not found", { variant: "error" });
+    if (!materialized.ok) throw new Error("Expected catalog config to materialize");
+    const edited: PipelineConfig = materialized.value;
+
+    act(() => result.current.setPipelineConfig(edited));
+
+    expect(props.setAuthoringSelection).toHaveBeenCalledTimes(1);
+    const [nextSource, nextSettings] = vi.mocked(props.setAuthoringSelection).mock.calls[0] ?? [];
+    expect(nextSource).toMatchObject({
+      kind: "editor",
+      canonicalConfig: { id: "studio-current", config: edited },
+    });
+    expect(nextSettings).toEqual({ ...props.recipeSettings, preset: "none" });
+    if (!nextSource || nextSource.kind !== "editor") throw new Error("Expected editor source");
+    expect(nextSource.canonicalConfig).not.toBe(catalog.canonicalConfig);
+    expect(nextSource.canonicalConfig.id).not.toBe(catalog.canonicalConfig.id);
+    expect(nextSource.canonicalConfig.config).not.toBe(edited);
+    expect(Object.isFrozen(nextSource.canonicalConfig)).toBe(true);
   });
 
-  it("PL-3/PL-6: switching to 'none' resets to the recipe artifact default and clears the ref", () => {
-    const { props, withPreset } = setup({ repoBackedSessionPresetsByRecipe: SESSION_PRESETS });
-    withPreset("builtin:saved-cfg");
-    applySpy.mockClear();
-    withPreset("none");
-    expect(props.setPipelineConfig).toHaveBeenCalledWith(artifacts.defaultConfig);
-    expect(props.setLastRunSnapshot).toHaveBeenCalledWith(null);
-    expect(applySpy).toHaveBeenCalledTimes(0);
-    withPreset("builtin:saved-cfg");
-    expect(applySpy).toHaveBeenCalledTimes(1);
-  });
-
-  it("keeps canonical built-in configs authoritative over same-id session payloads", () => {
-    const canonical = artifacts.studioBuiltInPresets?.[0];
-    expect(canonical).toBeDefined();
-    const staleReplacement: BuiltInPreset = {
-      ...canonical!,
-      config: { stale: true },
-    };
-    const { result } = setup({
-      repoBackedSessionPresetsByRecipe: {
-        [RECIPE]: { [canonical!.id]: staleReplacement },
+  it("does not infer a catalog source from a stale preset key during hydration", () => {
+    const persistedEditor = createStudioEditorCanonicalConfig({
+      metadata: {
+        ...editor,
+        id: "editor-after-catalog-edit",
+        name: "Editor After Catalog Edit",
       },
     });
-    expect(result.current.resolvePreset(`builtin:${canonical!.id}`)?.config).toBe(
-      canonical!.config
+    const { props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        preset: `builtin:${catalog.canonicalConfig.id}`,
+      },
+      authoringConfigSource: { kind: "editor", canonicalConfig: persistedEditor },
+    });
+
+    expect(props.setAuthoringConfigSource).not.toHaveBeenCalled();
+    expect(props.setAuthoringSelection).not.toHaveBeenCalled();
+  });
+
+  it("rejects an invalid draft before it can become persisted editor state", () => {
+    const { result, props } = setup({
+      authoringConfigSource: { kind: "catalog", sourcePath: catalog.sourcePath },
+    });
+
+    act(() => result.current.setPipelineConfig({ invalid: true } as unknown as PipelineConfig));
+
+    expect(props.setAuthoringConfigSource).not.toHaveBeenCalled();
+    expect(props.setAuthoringSelection).not.toHaveBeenCalled();
+    expect(props.toast).toHaveBeenCalledWith(
+      "Config edit failed: config is invalid for this recipe.",
+      expect.objectContaining({ variant: "error" })
     );
   });
-});
 
-describe("usePresetLifecycle — delete + import handlers (PL-10, PL-15)", () => {
-  it("PL-15: handleDeletePreset does NOT reset when the selected preset is not local", () => {
+  it("resolves catalog data from immutable generated artifacts on demand", () => {
+    const { result } = setup();
+    const resolved = result.current.resolvePreset(`builtin:${catalog.canonicalConfig.id}`);
+
+    expect(Object.isFrozen(catalog.canonicalConfig)).toBe(true);
+    expect(Object.isFrozen(catalog.canonicalConfig.config)).toBe(true);
+    expect(resolved).toEqual({
+      source: "builtin",
+      id: catalog.canonicalConfig.id,
+      label: catalog.canonicalConfig.name,
+      description: catalog.canonicalConfig.description,
+      sourcePath: catalog.sourcePath,
+      canonicalConfig: catalog.canonicalConfig,
+    });
+  });
+
+  it("recovers a missing catalog source only through the explicit recovery actions", () => {
     const { result, props } = setup({
-      recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, recipe: RECIPE, preset: "builtin:saved-cfg" },
-      repoBackedSessionPresetsByRecipe: SESSION_PRESETS,
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        preset: "builtin:removed-config",
+      },
+      authoringConfigSource: {
+        kind: "blocked",
+        reason: "missing-catalog-source",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/removed-config.config.json",
+      },
     });
-    act(() => result.current.handleDeletePreset());
-    expect(props.setRecipeSettings).not.toHaveBeenCalled();
-    expect(props.toast).toHaveBeenCalledWith("Select a scratch config to delete.", {
-      variant: "info",
-    });
+
+    expect(result.current.pipelineConfig).toBeNull();
+    expect(result.current.authoringBlockReason).toBe("missing-catalog-source");
+
+    act(() => result.current.recoverWithCatalogConfig());
+    expect(props.setAuthoringSelection).toHaveBeenCalledWith(
+      { kind: "catalog", sourcePath: catalog.sourcePath },
+      expect.objectContaining({ preset: `builtin:${catalog.canonicalConfig.id}` })
+    );
+
+    vi.clearAllMocks();
+    act(() => result.current.recoverWithNewEditorConfig());
+    const recovered = vi.mocked(props.setAuthoringSelection).mock.calls[0]?.[0];
+    expect(recovered).toMatchObject({ kind: "editor" });
+    if (!recovered || recovered.kind !== "editor") {
+      throw new Error("Expected editor recovery source");
+    }
+    expect(
+      materializePipelineConfig({
+        schema: recipeArtifacts.configSchema,
+        config: recovered.canonicalConfig.config,
+        label: "recovered-editor-test",
+      }).ok
+    ).toBe(true);
   });
 
-  it("PL-15: handleDeletePreset resets to 'none' when a local scratch preset is deleted", () => {
-    const { result, props, rerender } = setup();
-    let localId = "";
-    act(() => {
-      localId = result.current.presetActions.saveAsNew({
-        recipeId: RECIPE,
-        label: "Scratch",
-        config: VALID_CFG,
-      }).preset.id;
-    });
-    rerender({ ...props, recipeSettings: { ...props.recipeSettings, preset: `local:${localId}` } });
-    act(() => result.current.handleDeletePreset());
-    expect(props.setRecipeSettings).toHaveBeenCalled();
-    expect(props.setRecipeSettings.mock.calls.at(-1)?.[0]).toMatchObject({ preset: "none" });
-  });
+  it("never exposes an admitted run snapshot as a selectable config", () => {
+    const { result } = setup();
 
-  it("PL-15: handleDeletePreset does NOT reset when a local preset is selected but nothing was deleted", () => {
-    const { result, props } = setup({
-      recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, recipe: RECIPE, preset: "local:nonexistent" },
-    });
-    act(() => result.current.handleDeletePreset());
-    // deleteLocal → { deleted:false } → the reset is gated on `deleted`, so it must NOT fire.
-    expect(props.setRecipeSettings).not.toHaveBeenCalled();
-  });
-
-  it("PL-10: a cross-recipe import file stages pendingImport and does NOT apply it (no resolve attempt)", async () => {
-    const built = buildPresetExportFile({
-      recipeId: "some-other-recipe",
-      preset: { label: "Foreign", config: VALID_CFG },
-    });
-    const file = new File([built.json], built.filename, { type: "application/json" });
-    const { result, props } = setup();
-    await act(async () => {
-      await result.current.handleImportFileChange({
-        target: { files: [file], value: "" },
-      } as unknown as React.ChangeEvent<HTMLInputElement>);
-    });
-    expect(result.current.pendingImport?.recipeId).toBe("some-other-recipe");
-    // Not applied: no recipe switch and no resolve-failure error surfaced.
-    expect(props.setRecipeSettings).not.toHaveBeenCalled();
-    expect(result.current.presetError).toBeNull();
-    // cancel clears the staged import.
-    act(() => result.current.cancelImportSwitch());
-    expect(result.current.pendingImport).toBeNull();
-  });
-
-  it("PL-10: a same-recipe import applies immediately (no confirm gate)", async () => {
-    const built = buildPresetExportFile({
-      recipeId: RECIPE,
-      preset: { label: "Imported", config: VALID_CFG },
-    });
-    const file = new File([built.json], built.filename, { type: "application/json" });
-    const { result, props } = setup();
-    await act(async () => {
-      await result.current.handleImportFileChange({
-        target: { files: [file], value: "" },
-      } as unknown as React.ChangeEvent<HTMLInputElement>);
-    });
-    expect(result.current.pendingImport).toBeNull();
-    expect(props.setRecipeSettings).toHaveBeenCalled();
+    expect(result.current.presetOptions.some((option) => option.value.startsWith("live:"))).toBe(
+      false
+    );
+    expect(result.current.resolvePreset("live:admitted-request")).toBeNull();
   });
 });

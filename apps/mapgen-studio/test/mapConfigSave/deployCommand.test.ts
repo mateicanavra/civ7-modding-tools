@@ -50,36 +50,4 @@ describe("Swooper Maps Studio deploy plan", () => {
     expect(plan.env).not.toHaveProperty("SWOOPER_STUDIO_LAUNCH_CONFIG_ID");
     expect(plan.env).not.toHaveProperty("SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST");
   });
-
-  it("adds Run in Game proof markers only for proof-correlated launches", () => {
-    const plan = buildSwooperMapsStudioDeployPlan({
-      requestId: "studio-run-in-game-test",
-      launchConfig: {
-        id: "studio-current",
-        path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
-      },
-      launchEnvelopeDigest: "launch-envelope-digest-test",
-      env: {
-        PATH: "/bin",
-        SWOOPER_INCLUDE_STUDIO_CURRENT: "1",
-        SWOOPER_STUDIO_RUN_ID: "stale-run",
-      },
-    });
-
-    expect(plan.buildArgs).toEqual([
-      "run",
-      "nx",
-      "run",
-      "mod-swooper-maps:build:studio-deploy",
-      "--outputStyle=static",
-    ]);
-    expect(plan.env.SWOOPER_STUDIO_DEPLOY_CONFIG_ID).toBe("studio-current");
-    expect(plan.env.SWOOPER_STUDIO_DEPLOY_CONFIG_PATH).toBe(
-      "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json"
-    );
-    expect(plan.env.SWOOPER_STUDIO_RUN_ID).toBe("studio-run-in-game-test");
-    expect(plan.env).not.toHaveProperty("SWOOPER_INCLUDE_STUDIO_CURRENT");
-    expect(plan.env.SWOOPER_STUDIO_LAUNCH_CONFIG_ID).toBe("studio-current");
-    expect(plan.env.SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST).toBe("launch-envelope-digest-test");
-  });
 });

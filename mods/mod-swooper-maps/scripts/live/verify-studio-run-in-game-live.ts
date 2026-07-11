@@ -21,7 +21,7 @@ import {
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
 
-type LiveProofArgs = {
+type LiveVerificationArgs = {
   host?: string;
   port?: number;
   timeoutMs?: number;
@@ -60,7 +60,7 @@ Read-only default:
   --host <host> --port <port> --timeout-ms <ms>
   --map-script <file>
 
-Mutating setup/start proof:
+Mutating setup/start evidence:
   --mutate --map-script <file> --map-size <size> --seed <seed>
   [--game-seed <seed>] [--player-count <n>]
   [--saved-config <name|fileName|path>]
@@ -93,7 +93,7 @@ export type MapScriptFileIdentity = Readonly<{
   mtimeIso: string;
 }>;
 
-export type MapScriptMarkerProof = Readonly<{
+export type MapScriptMarkerEvidence = Readonly<{
   marker: string;
   present: boolean;
 }>;
@@ -107,8 +107,8 @@ export type SwooperMapScriptDeploymentStage = Readonly<{
   deployedPath?: string;
   local?: MapScriptFileIdentity;
   deployed?: MapScriptFileIdentity;
-  localMarkers?: ReadonlyArray<MapScriptMarkerProof>;
-  deployedMarkers?: ReadonlyArray<MapScriptMarkerProof>;
+  localMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
+  deployedMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
   unresolvedLinks: ReadonlyArray<string>;
   recoveryHint?: string;
 }>;
@@ -121,8 +121,8 @@ export const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
   "POST-AUTHORED-RIVERS",
 ] as const;
 
-function parseArgs(argv: string[]): LiveProofArgs {
-  const args: LiveProofArgs = {
+function parseArgs(argv: string[]): LiveVerificationArgs {
+  const args: LiveVerificationArgs = {
     fromRunningGame: "reject",
     mutate: false,
     options: {},
@@ -273,8 +273,8 @@ export function buildSwooperMapScriptDeploymentStage(args: {
   deployedPath?: string;
   local?: MapScriptFileIdentity;
   deployed?: MapScriptFileIdentity;
-  localMarkers?: ReadonlyArray<MapScriptMarkerProof>;
-  deployedMarkers?: ReadonlyArray<MapScriptMarkerProof>;
+  localMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
+  deployedMarkers?: ReadonlyArray<MapScriptMarkerEvidence>;
 }): SwooperMapScriptDeploymentStage {
   if (!args.localPath || !args.deployedPath) {
     return {
@@ -292,13 +292,13 @@ export function buildSwooperMapScriptDeploymentStage(args: {
   if (args.local && args.deployed && args.local.sha256 !== args.deployed.sha256) {
     unresolvedLinks.push("deployed-mod-script.hash-mismatch");
   }
-  for (const proof of args.localMarkers ?? []) {
-    if (!proof.present)
-      unresolvedLinks.push(`local-mod-script.marker-missing.${markerId(proof.marker)}`);
+  for (const evidence of args.localMarkers ?? []) {
+    if (!evidence.present)
+      unresolvedLinks.push(`local-mod-script.marker-missing.${markerId(evidence.marker)}`);
   }
-  for (const proof of args.deployedMarkers ?? []) {
-    if (!proof.present)
-      unresolvedLinks.push(`deployed-mod-script.marker-missing.${markerId(proof.marker)}`);
+  for (const evidence of args.deployedMarkers ?? []) {
+    if (!evidence.present)
+      unresolvedLinks.push(`deployed-mod-script.marker-missing.${markerId(evidence.marker)}`);
   }
 
   const ok = unresolvedLinks.length === 0;
@@ -348,8 +348,8 @@ async function checkSwooperMapScriptDeployment(args: {
     ...paths,
     ...(local ? { local } : {}),
     ...(deployed ? { deployed } : {}),
-    ...(localText !== undefined ? { localMarkers: markerProofs(localText) } : {}),
-    ...(deployedText !== undefined ? { deployedMarkers: markerProofs(deployedText) } : {}),
+    ...(localText !== undefined ? { localMarkers: markerEvidence(localText) } : {}),
+    ...(deployedText !== undefined ? { deployedMarkers: markerEvidence(deployedText) } : {}),
   });
 }
 
@@ -368,7 +368,7 @@ async function fileIdentity(path: string): Promise<MapScriptFileIdentity | undef
   }
 }
 
-function markerProofs(text: string): ReadonlyArray<MapScriptMarkerProof> {
+function markerEvidence(text: string): ReadonlyArray<MapScriptMarkerEvidence> {
   return REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS.map((marker) => ({
     marker,
     present: text.includes(marker),
@@ -421,7 +421,7 @@ async function main(): Promise<number> {
     return 0;
   }
 
-  const proofId = createCiv7ControlRequestId("studio-run-in-game-live-proof");
+  const verificationId = createCiv7ControlRequestId("studio-run-in-game-live-verification");
   const options: Civ7DirectControlOptions = {
     host: args.host,
     port: args.port,
@@ -429,7 +429,7 @@ async function main(): Promise<number> {
   };
   const report: Record<string, unknown> = {
     ok: false,
-    proofId,
+    verificationId,
     startedAt: new Date().toISOString(),
     mode: args.mutate ? "mutating-setup-start" : "read-only",
     mutationAttempted: false,
@@ -556,7 +556,7 @@ async function main(): Promise<number> {
       mapSummary: run.start.mapSummary,
       observations: run.start.observations.length,
     });
-    const logProof = await waitForFreshLogMarkers({
+    const logEvidence = await waitForFreshLogMarkers({
       logPath: scriptingLogPath,
       snapshot: scriptingSnapshot,
       markers: ["[mapgen-complete]", `"seed":${args.seed}`],
@@ -568,9 +568,9 @@ async function main(): Promise<number> {
     stages.push({
       name: "mapgen-log-completion",
       ok: true,
-      logPath: logProof.logPath,
-      observedAt: logProof.observedAt,
-      matched: logProof.matched,
+      logPath: logEvidence.logPath,
+      observedAt: logEvidence.observedAt,
+      matched: logEvidence.matched,
     });
     report.ok = run.verified;
     report.finishedAt = new Date().toISOString();

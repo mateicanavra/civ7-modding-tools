@@ -63,9 +63,10 @@ describe("classifyMapRowVisibilityFailure", () => {
     const result = classifyMapRowVisibilityFailure({
       launchMapScript: TARGET,
       visibleMapRows: BASE_GAME_ROWS,
-      materializationMode: "disposable",
       targetModId: "swooper-maps",
-      activeTargetModSet: authoritativeReadback([{ id: "base-standard", source: "Configuration.getGame" }]),
+      activeTargetModSet: authoritativeReadback([
+        { id: "base-standard", source: "Configuration.getGame" },
+      ]),
     });
     expect(result.code).toBe("generated-map-mod-not-enabled");
     expect(result.modNamespace).toBe("{swooper-maps}");
@@ -77,9 +78,10 @@ describe("classifyMapRowVisibilityFailure", () => {
     const result = classifyMapRowVisibilityFailure({
       launchMapScript: TARGET,
       visibleMapRows: [...BASE_GAME_ROWS, ...SWOOPER_SIBLINGS],
-      materializationMode: "disposable",
       targetModId: "swooper-maps",
-      activeTargetModSet: authoritativeReadback([{ id: "swooper-maps", source: "Configuration.getGame" }]),
+      activeTargetModSet: authoritativeReadback([
+        { id: "swooper-maps", source: "Configuration.getGame" },
+      ]),
     });
     expect(result.code).toBe("setup-map-row-not-visible");
     expect(result.siblingMapRowCount).toBe(2);
@@ -90,7 +92,6 @@ describe("classifyMapRowVisibilityFailure", () => {
     const result = classifyMapRowVisibilityFailure({
       launchMapScript: TARGET,
       visibleMapRows: [],
-      materializationMode: "disposable",
       targetModId: "swooper-maps",
       activeTargetModSet: {
         available: false,
@@ -149,7 +150,9 @@ describe("classifyMapRowVisibilityFailure", () => {
       launchMapScript: TARGET,
       visibleMapRows: BASE_GAME_ROWS,
       targetModId: "swooper-maps",
-      activeTargetModSet: authoritativeReadback([{ name: "swooper-maps", source: "Configuration.getGame" }]),
+      activeTargetModSet: authoritativeReadback([
+        { name: "swooper-maps", source: "Configuration.getGame" },
+      ]),
     });
     expect(result.code).toBe("generated-map-mod-not-enabled");
   });

@@ -1,20 +1,20 @@
+import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import type { Civ7LiveSnapshotOutput, Civ7LiveStatusOutput } from "@civ7/studio-contract";
+import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import {
   materializationFailed,
-  proofFailed,
   type RunInGameDeployment,
   type RunInGameLogEvidence,
   type RunInGamePreparedRequest,
   type RunInGameRuntimeObservation,
   type RunInGameSetupPrepared,
   type StudioBoundedDiagnostics,
+  verificationFailed,
 } from "@civ7/studio-server";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
-import type { Civ7LiveSnapshotOutput, Civ7LiveStatusOutput } from "@civ7/studio-contract";
 import type { StudioContract } from "@civ7/studio-server/contract";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { ContractRouterClient } from "@orpc/contract";
-import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 
 type RuntimeMarker = Readonly<{
@@ -58,12 +58,12 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest: materialization?.generationManifestDigest ?? "",
   };
-  const marker = runtimeMarkerFromLogProof(args.log.logProof);
+  const marker = runtimeMarkerFromLogEvidence(args.log.logEvidence);
   const markerMismatch = runCorrelationMismatches(marker?.runCorrelation, correlation);
   if (!marker || markerMismatch.length > 0) {
-    throw proofFailed({
+    throw verificationFailed({
       message: "Run in Game runtime marker did not match the generated request",
-      reason: marker ? "exact-authorship-mismatch" : "log-proof-missing",
+      reason: marker ? "exact-authorship-mismatch" : "log-evidence-missing",
       diagnostics: boundedDiagnostics({
         code: marker ? "run-in-game-runtime-marker-mismatch" : "run-in-game-runtime-marker-missing",
         requestId: args.requestId,
@@ -74,28 +74,29 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
       }),
     });
   }
-  const dimensions = expectedDimensionsForMapSize(args.prepared.request.mapSize);
+  const mapSize = args.prepared.launchEnvelope.worldSettings.mapSize;
+  const dimensions = expectedDimensionsForMapSize(mapSize);
   const markerDimensionProblems = runtimeMarkerDimensionProblems(marker.dimensions, dimensions);
   if (markerDimensionProblems.length > 0) {
-    throw proofFailed({
+    throw verificationFailed({
       message: "Run in Game runtime marker dimensions did not match the requested map size",
       reason: "exact-authorship-mismatch",
       diagnostics: boundedDiagnostics({
         code: "run-in-game-runtime-marker-dimensions-mismatch",
         requestId: args.requestId,
         problems: markerDimensionProblems,
-        mapSize: args.prepared.request.mapSize,
+        mapSize,
         markerDimensions: marker.dimensions,
         expectedDimensions: dimensions,
         materialization,
       }),
     });
   }
-  const rowProof = requiredSetupReadbackValue({
+  const rowEvidence = requiredSetupReadbackValue({
     requestId: args.requestId,
     materialization,
-    key: "rowProof",
-    value: args.setup.rowProof,
+    key: "rowEvidence",
+    value: args.setup.rowEvidence,
   });
   const rowVisibility = requiredSetupReadbackValue({
     requestId: args.requestId,
@@ -107,11 +108,11 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
     requestId: args.requestId,
     materialization,
     mapScript,
-    rowProof,
+    rowEvidence,
   });
   const baseUrl = args.selfRpcUrl;
   if (!baseUrl) {
-    throw proofFailed({
+    throw verificationFailed({
       message: "Run in Game loaded-game readback endpoint is unavailable",
       reason: "timeout-uncertain",
       diagnostics: boundedDiagnostics({
@@ -144,7 +145,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
       { signal: args.signal }
     )
     .catch((err: unknown) => {
-      throw proofFailed({
+      throw verificationFailed({
         message: "Run in Game live snapshot readback failed",
         reason: "timeout-uncertain",
         diagnostics: boundedDiagnostics({
@@ -162,7 +163,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
     dimensions,
   });
   if (loadedGameProblems.length > 0) {
-    throw proofFailed({
+    throw verificationFailed({
       message: "Run in Game loaded-game readback did not prove the generated request",
       reason: "exact-authorship-mismatch",
       diagnostics: boundedDiagnostics({
@@ -188,7 +189,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
       requestId: args.requestId,
       correlation,
       ...scriptingLogObservationFields(args.log),
-      proof: args.log.logProof,
+      evidence: args.log.logEvidence,
     },
     setupRow: {
       requestId: args.requestId,
@@ -197,7 +198,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
       mapScript,
       runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowProof,
+      rowEvidence,
       rowVisibility,
     },
     loadedGame: {
@@ -214,20 +215,22 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
   };
 }
 
-async function waitForLoadedLiveStatus(args: Readonly<{
-  client: ContractRouterClient<StudioContract>;
-  requestId: string;
-  materialization: RunInGameDeployment["materialization"];
-  signal?: AbortSignal;
-  sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
-  timeoutMs: number;
-  pollIntervalMs: number;
-}>): Promise<Civ7LiveStatusOutput> {
+async function waitForLoadedLiveStatus(
+  args: Readonly<{
+    client: ContractRouterClient<StudioContract>;
+    requestId: string;
+    materialization: RunInGameDeployment["materialization"];
+    signal?: AbortSignal;
+    sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
+    timeoutMs: number;
+    pollIntervalMs: number;
+  }>
+): Promise<Civ7LiveStatusOutput> {
   const deadline = Date.now() + args.timeoutMs;
   let lastStatus: Civ7LiveStatusOutput | undefined;
   for (;;) {
     if (args.signal?.aborted) {
-      throw proofFailed({
+      throw verificationFailed({
         message: "Run in Game live status readback was aborted",
         reason: "timeout-uncertain",
         diagnostics: boundedDiagnostics({
@@ -247,7 +250,7 @@ async function waitForLoadedLiveStatus(args: Readonly<{
       }
     } catch (err) {
       if (args.signal?.aborted) {
-        throw proofFailed({
+        throw verificationFailed({
           message: "Run in Game live status readback was aborted",
           reason: "timeout-uncertain",
           diagnostics: boundedDiagnostics({
@@ -258,7 +261,7 @@ async function waitForLoadedLiveStatus(args: Readonly<{
           recoveryActions: ["retry-status", "retry-run", "copy-diagnostics"],
         });
       }
-      throw proofFailed({
+      throw verificationFailed({
         message: "Run in Game live status readback failed",
         reason: "timeout-uncertain",
         diagnostics: boundedDiagnostics({
@@ -273,7 +276,7 @@ async function waitForLoadedLiveStatus(args: Readonly<{
 
     const remainingMs = deadline - Date.now();
     if (remainingMs <= 0) {
-      throw proofFailed({
+      throw verificationFailed({
         message: "Run in Game live status did not become playable after map generation completed",
         reason: "timeout-uncertain",
         diagnostics: boundedDiagnostics({
@@ -374,13 +377,13 @@ function optionalProbe(
   return number === undefined ? {} : { [key]: { ok: true, value: number } };
 }
 
-function runtimeMarkerFromLogProof(value: unknown): RuntimeMarker | undefined {
-  const payload = recordValue(value, "proofPayload");
+function runtimeMarkerFromLogEvidence(value: unknown): RuntimeMarker | undefined {
+  const payload = recordValue(value, "evidencePayload");
   if (!payload) return undefined;
   const requestId = stringValue(payload.requestId);
   const runArtifactId = stringValue(payload.runArtifactId);
-  const configHash = stringValue(payload.configHash);
-  const envelopeHash = stringValue(payload.envelopeHash);
+  const canonicalConfigDigest = stringValue(payload.canonicalConfigDigest);
+  const launchEnvelopeDigest = stringValue(payload.launchEnvelopeDigest);
   const generationManifestDigest = stringValue(payload.generationManifestDigest);
   const hasNestedRunCorrelation = Object.prototype.hasOwnProperty.call(payload, "runCorrelation");
   const runCorrelation = hasNestedRunCorrelation
@@ -388,8 +391,8 @@ function runtimeMarkerFromLogProof(value: unknown): RuntimeMarker | undefined {
     : compactRunCorrelationFromPayload({
         requestId,
         runArtifactId,
-        configHash,
-        envelopeHash,
+        canonicalConfigDigest,
+        launchEnvelopeDigest,
         generationManifestDigest,
       });
   const dimensions = dimensionsFromValue(payload.dimensions);
@@ -427,16 +430,16 @@ function compactRunCorrelationFromPayload(
   value: Readonly<{
     requestId: string | undefined;
     runArtifactId: string | undefined;
-    configHash: string | undefined;
-    envelopeHash: string | undefined;
+    canonicalConfigDigest: string | undefined;
+    launchEnvelopeDigest: string | undefined;
     generationManifestDigest: string | undefined;
   }>
 ): RunCorrelation | undefined {
   if (
     !value.requestId ||
     !value.runArtifactId ||
-    !value.configHash ||
-    !value.envelopeHash ||
+    !value.canonicalConfigDigest ||
+    !value.launchEnvelopeDigest ||
     !value.generationManifestDigest
   ) {
     return undefined;
@@ -447,28 +450,27 @@ function compactRunCorrelationFromPayload(
     requestId: value.requestId,
     runArtifactId,
     launchSourceDigest: {
-      configContentDigest: value.configHash,
-      launchEnvelopeDigest: value.envelopeHash,
+      canonicalConfigDigest: value.canonicalConfigDigest,
     },
-    launchEnvelopeDigest: value.envelopeHash,
+    launchEnvelopeDigest: value.launchEnvelopeDigest,
     generationManifestDigest: value.generationManifestDigest,
   };
 }
 
-function runCorrelationFromValue(value: Record<string, unknown> | undefined): RunCorrelation | undefined {
+function runCorrelationFromValue(
+  value: Record<string, unknown> | undefined
+): RunCorrelation | undefined {
   if (!value) return undefined;
   const launchSourceDigest = recordValue(value, "launchSourceDigest");
   const requestId = stringValue(value.requestId);
   const runArtifactId = runArtifactIdFromMarker(stringValue(value.runArtifactId));
-  const configContentDigest = stringValue(launchSourceDigest?.configContentDigest);
-  const sourceEnvelopeDigest = stringValue(launchSourceDigest?.launchEnvelopeDigest);
+  const canonicalConfigDigest = stringValue(launchSourceDigest?.canonicalConfigDigest);
   const launchEnvelopeDigest = stringValue(value.launchEnvelopeDigest);
   const generationManifestDigest = stringValue(value.generationManifestDigest);
   if (
     !requestId ||
     runArtifactId === undefined ||
-    !configContentDigest ||
-    !sourceEnvelopeDigest ||
+    !canonicalConfigDigest ||
     !launchEnvelopeDigest ||
     !generationManifestDigest
   ) {
@@ -478,15 +480,16 @@ function runCorrelationFromValue(value: Record<string, unknown> | undefined): Ru
     requestId,
     runArtifactId,
     launchSourceDigest: {
-      configContentDigest,
-      launchEnvelopeDigest: sourceEnvelopeDigest,
+      canonicalConfigDigest,
     },
     launchEnvelopeDigest,
     generationManifestDigest,
   };
 }
 
-function runArtifactIdFromMarker(value: string | undefined): RunCorrelation["runArtifactId"] | undefined {
+function runArtifactIdFromMarker(
+  value: string | undefined
+): RunCorrelation["runArtifactId"] | undefined {
   return value?.startsWith("run-") ? (value as RunCorrelation["runArtifactId"]) : undefined;
 }
 
@@ -514,7 +517,7 @@ function mapScriptFromMaterialization(value: string | undefined): string {
 function expectedDimensionsForMapSize(mapSize: string): Dimensions {
   const preset = getCiv7StandardMapSizePreset(mapSize);
   if (preset) return preset.dimensions;
-  throw proofFailed({
+  throw verificationFailed({
     message: "Run in Game requested map size cannot be resolved for runtime observation",
     reason: "exact-authorship-mismatch",
     diagnostics: boundedDiagnostics({
@@ -539,12 +542,12 @@ function requiredSetupReadbackValue(
   args: Readonly<{
     requestId: string;
     materialization: RunInGameDeployment["materialization"];
-    key: "rowProof" | "rowVisibility";
+    key: "rowEvidence" | "rowVisibility";
     value: unknown;
   }>
 ): unknown {
   if (args.value !== undefined) return args.value;
-  throw proofFailed({
+  throw verificationFailed({
     message: "Run in Game setup row readback is missing",
     reason: "exact-authorship-mismatch",
     diagnostics: boundedDiagnostics({
@@ -564,12 +567,12 @@ function assertSetupRowReadbackMatches(
     requestId: string;
     materialization: RunInGameDeployment["materialization"];
     mapScript: string;
-    rowProof: unknown;
+    rowEvidence: unknown;
   }>
 ): void {
-  const rows = setupReadbackRows(args.rowProof);
+  const rows = setupReadbackRows(args.rowEvidence);
   if (rows.some((row) => setupReadbackRowScripts(row).includes(args.mapScript))) return;
-  throw proofFailed({
+  throw verificationFailed({
     message: "Run in Game setup row readback did not match the generated request",
     reason: "exact-authorship-mismatch",
     diagnostics: boundedDiagnostics({
@@ -653,19 +656,19 @@ function scriptingLogObservationFields(log: RunInGameLogEvidence): {
   startOffset?: number;
   matchedMarkers: readonly string[];
 } {
-  const markerProof = asRecord(log.logMarkerProof);
+  const markerEvidence = asRecord(log.logMarkerEvidence);
   return {
-    ...(stringValue(markerProof?.logPath) === undefined
+    ...(stringValue(markerEvidence?.logPath) === undefined
       ? {}
-      : { logPath: stringValue(markerProof?.logPath) }),
-    ...(stringValue(markerProof?.observedAt) === undefined
+      : { logPath: stringValue(markerEvidence?.logPath) }),
+    ...(stringValue(markerEvidence?.observedAt) === undefined
       ? {}
-      : { observedAt: stringValue(markerProof?.observedAt) }),
-    ...(numberValue(markerProof?.startOffset) === undefined
+      : { observedAt: stringValue(markerEvidence?.observedAt) }),
+    ...(numberValue(markerEvidence?.startOffset) === undefined
       ? {}
-      : { startOffset: numberValue(markerProof?.startOffset) }),
-    matchedMarkers: Array.isArray(markerProof?.matched)
-      ? markerProof.matched.filter((entry): entry is string => typeof entry === "string")
+      : { startOffset: numberValue(markerEvidence?.startOffset) }),
+    matchedMarkers: Array.isArray(markerEvidence?.matched)
+      ? markerEvidence.matched.filter((entry): entry is string => typeof entry === "string")
       : [],
   };
 }

@@ -123,28 +123,6 @@ export function recipeSettingsEqual(a: RecipeSettings, b: RecipeSettings): boole
   return a.recipe === b.recipe && a.preset === b.preset && a.seed === b.seed;
 }
 
-/**
- * Merge partial config into base config.
- * Useful for applying presets.
- */
-export function mergeConfigs(
-  base: PipelineConfig,
-  override: Partial<PipelineConfig>
-): PipelineConfig {
-  const result = cloneConfig(base);
-
-  for (const [stageName, stageConfig] of Object.entries(override)) {
-    if (stageConfig) {
-      result[stageName] = {
-        ...result[stageName],
-        ...stageConfig,
-      };
-    }
-  }
-
-  return result;
-}
-
 // ============================================================================
 // Derivation Helpers (for controlled components)
 // ============================================================================

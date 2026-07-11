@@ -67,7 +67,7 @@ describe("natural wonder placement materialization", () => {
     expect(adapter.getFeatureType(2, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(adapter.getFeatureType(1, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(stats).toEqual({
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placed: { count: 1, hash32: "deae8452" },
         rejected: { count: 0, hash32: "811c9dc5" },
@@ -147,7 +147,7 @@ describe("natural wonder placement materialization", () => {
       rejectionExampleCount: 0,
       rejectionExamples: [],
       rejectedRows: [],
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placedCount: 1,
         placedHash32: "deae8452",
@@ -186,7 +186,7 @@ describe("natural wonder placement materialization", () => {
     });
 
     expect(stats).toMatchObject({
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placed: { count: 0, hash32: "811c9dc5" },
         rejected: { count: 1, hash32: "55a47896" },
@@ -236,7 +236,7 @@ describe("natural wonder placement materialization", () => {
     });
 
     expect(stats).toMatchObject({
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placed: { count: 0, hash32: "811c9dc5" },
         rejected: { count: 1, hash32: "6f806eb2" },
@@ -270,7 +270,7 @@ describe("natural wonder placement materialization", () => {
           "partial-expected-footprint",
         ],
       ],
-      coordinateProof: {
+      coordinateEvidence: {
         rejectedCount: 1,
         rejectedHash32: "6f806eb2",
       },

@@ -84,13 +84,13 @@ Current shape:
   `gen:studio-deploy-map-artifacts` deploy overlay target when Studio supplies
   `SWOOPER_STUDIO_DEPLOY_CONFIG_ID` and `SWOOPER_STUDIO_DEPLOY_CONFIG_PATH`;
   this is deploy input, not catalog membership;
-- generated map entries embed `SWOOPER_STUDIO_RUN_ID` when present on the
-  deploy overlay path;
+- generated catalog map entries carry only their `configHash` and
+  `envelopeHash` identity;
 - Nx target `mod-swooper-maps:build:studio-deploy` depends on
   `gen:studio-deploy-map-artifacts`;
-- Run in Game deployment passes `SWOOPER_STUDIO_RUN_ID` and
-  launch-envelope proof env, while operation deployment passes the selected
-  deploy config id/path explicitly;
+- ordinary operation deployment passes the selected deploy config id/path
+  explicitly; Run in Game generates from its request manifest and deploys by
+  copying that generated mod;
 - the deploy port returns `RunInGameDeployment` with `materialization` and
   optional opaque `deploy`.
 

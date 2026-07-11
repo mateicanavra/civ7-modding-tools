@@ -1,7 +1,7 @@
 import type { RiverLakeInspectorLayerRef } from "./riverLakeInspector";
 
 /**
- * Ports the water-proof navigator needs to move the explore selection. Kept as
+ * Ports the water evidence navigator needs to move the explore selection. Kept as
  * a plain object so the helper stays pure and pinnable without React or store
  * imports (StudioShell supplies viewStore setters + `useVizState` setters).
  */
@@ -17,7 +17,7 @@ export interface RiverLakeInspectorSelectionPorts {
 }
 
 /**
- * Proof navigator: jumps the explore selection to a water-proof evidence layer.
+ * Evidence navigator: jumps the explore selection to a water evidence layer.
  *
  * The inspector row's layer chips are claims about pipeline evidence; clicking
  * one must land the user ON that evidence. That means (1) re-pointing the

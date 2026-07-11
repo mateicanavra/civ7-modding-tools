@@ -1,9 +1,8 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { buildCanonicalMapConfigSchema } from "../src/maps/configs/canonical.js";
-import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
+import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
 import { loadSwooperMapConfigRegistry } from "./generate-map-artifacts.js";
 import {
   buildSwooperCatalogMetadataFilePlan,
@@ -18,11 +17,12 @@ const pkgRoot = resolve(__dirname, "..");
 export async function buildSwooperStudioCatalogMetadataPlan(
   options: Readonly<{ catalogSourceIndex?: unknown; repoRoot?: string }> = {}
 ): Promise<SwooperMapArtifactFilePlan> {
+  const { schema: recipeSchema } = deriveStandardRecipeArtifacts();
   const configs = await loadSwooperMapConfigRegistry({
     catalogSourceIndex: options.catalogSourceIndex,
+    recipeSchema,
     repoRoot: options.repoRoot,
   });
-  const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
   const envelopeSchema = buildCanonicalMapConfigSchema(recipeSchema);
   return buildSwooperCatalogMetadataFilePlan({ configs, envelopeSchema });
 }
@@ -40,20 +40,9 @@ export async function generateSwooperStudioCatalogMetadata(
   });
   await writeSwooperMapArtifactFilePlan(plan, { outputRoot: options.outputRoot ?? pkgRoot });
   return {
-    configCount: countStudioMapConfigs(plan),
+    configCount: plan.metadata.configProjections.length,
     fileCount: plan.files.length,
   };
-}
-
-function countStudioMapConfigs(plan: SwooperMapArtifactFilePlan): number {
-  const module = plan.files.find(
-    (file) => file.relativePath === "dist/recipes/standard-map-configs.js"
-  );
-  if (!module || module.content.kind !== "text") return 0;
-  const catalogJson = module.content.text
-    .replace(/^.*export const standardMapConfigs = /s, "")
-    .replace(/;\n$/, "");
-  return (JSON.parse(catalogJson) as unknown[]).length;
 }
 
 async function main(): Promise<void> {

@@ -1,15 +1,15 @@
 import type {
   RunInGameDeployment,
+  RunInGameEvidence,
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
-  RunInGameProof,
   RunInGameRuntimeObservation,
   RunInGameSetupPrepared,
   RunInGameStarted,
 } from "./workflowTypes.js";
 
-export type ProofBuilder = Readonly<{
-  buildRunInGameProof(
+export type EvidenceBuilder = Readonly<{
+  buildRunInGameEvidence(
     args: Readonly<{
       requestId: string;
       prepared: RunInGamePreparedRequest;
@@ -19,5 +19,5 @@ export type ProofBuilder = Readonly<{
       log: RunInGameLogEvidence;
       observation: RunInGameRuntimeObservation;
     }>
-  ): Promise<RunInGameProof>;
+  ): Promise<RunInGameEvidence>;
 }>;

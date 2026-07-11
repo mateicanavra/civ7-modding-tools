@@ -1,55 +1,128 @@
+import {
+  type MapConfigEnvelope,
+  mapConfigIdSchema,
+  snapshotMapConfigEnvelope,
+} from "@civ7/studio-contract";
+import { sha256Hex, stableStringify } from "@swooper/mapgen-core";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { type TObject, type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
+import {
+  buildStandardRecipeDefaultConfig,
+  STANDARD_RECIPE_CONFIG_SCHEMA,
+} from "../../recipes/standard/artifacts.js";
+import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 
-type JsonObject = Record<string, unknown>;
+type JsonObject = MapConfigEnvelope["config"];
 
-export type CanonicalMapConfigEnvelope = Readonly<{
-  $schema?: string;
-  id: string;
-  name: string;
-  description: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
-  logPrefix?: string;
-  config: JsonObject;
+export type CanonicalMapConfigEnvelope = MapConfigEnvelope;
+
+export type StandardMapConfigEnvelope = CanonicalMapConfigEnvelope &
+  Readonly<{ recipe: "standard"; config: JsonObject & StandardRecipeConfig }>;
+
+/** The portable config record that may cross catalog and launch boundaries. */
+export type MaterializedCanonicalMapConfig = StandardMapConfigEnvelope;
+
+export type ValidatedMapConfig = Readonly<{
+  canonicalConfig: StandardMapConfigEnvelope;
+  fileName: string;
+  fileStem: string;
+  outputFile: string;
+  localizationNameTag: string;
+  localizationDescriptionTag: string;
 }>;
 
-export type CanonicalMapConfigWithRecipe = Readonly<{ config: JsonObject }>;
+export const STANDARD_MAP_CONFIG_ENVELOPE_SCHEMA = buildCanonicalMapConfigSchema();
 
-export type ValidatedMapConfig = CanonicalMapConfigEnvelope &
-  Readonly<{
-    fileName: string;
-    fileStem: string;
-    outputFile: string;
-    localizationNameTag: string;
-    localizationDescriptionTag: string;
-  }>;
+export const DEFAULT_CANONICAL_MAP_LATITUDE_BOUNDS = {
+  topLatitude: 80,
+  bottomLatitude: -80,
+} as const;
 
-const ENVELOPE_KEYS = new Set([
-  "$schema",
-  "id",
-  "name",
-  "description",
-  "recipe",
-  "sortIndex",
-  "latitudeBounds",
-  "logPrefix",
-  "config",
-]);
+type StandardRecipeConfigValidation = Readonly<{
+  complete: boolean;
+  errors: readonly string[];
+}>;
 
-export function isPlainObject(value: unknown): value is JsonObject {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+export function createStandardRecipeDefaultConfig(): StandardRecipeConfig {
+  return buildStandardRecipeDefaultConfig();
 }
 
-function assertPlainObject(value: unknown, label: string, errors: string[]): value is JsonObject {
-  if (isPlainObject(value)) return true;
-  errors.push(`${label} must be a JSON object`);
-  return false;
+function strictStandardRecipeConfigValidation(
+  value: unknown,
+  recipeSchema: TSchema
+): StandardRecipeConfigValidation {
+  const normalized = normalizeStrict<Record<string, unknown>>(recipeSchema, value, "/config");
+  if (normalized.errors.length > 0) {
+    return {
+      complete: false,
+      errors: normalized.errors.map((error) => `${error.path}: ${error.message}`),
+    } as const;
+  }
+  return {
+    complete: Value.Equal(normalized.value, value),
+    errors: [] as readonly string[],
+  } as const;
+}
+
+function isCompleteStandardMapConfig(
+  value: CanonicalMapConfigEnvelope,
+  validation: StandardRecipeConfigValidation
+): value is StandardMapConfigEnvelope {
+  return value.recipe === "standard" && validation.complete;
+}
+
+export function isStandardMapConfigEnvelope(
+  value: CanonicalMapConfigEnvelope
+): value is StandardMapConfigEnvelope {
+  return isCompleteStandardMapConfig(
+    value,
+    strictStandardRecipeConfigValidation(value.config, STANDARD_RECIPE_CONFIG_SCHEMA)
+  );
+}
+
+/** The Standard recipe's strict immutable admission boundary. */
+export function admitStandardMapConfig(
+  value: unknown,
+  recipeSchema: TSchema = STANDARD_RECIPE_CONFIG_SCHEMA
+): StandardMapConfigEnvelope {
+  return admitStandardMapConfigWithSchema(value, recipeSchema);
+}
+
+export function canonicalRecipeConfig(value: unknown): StandardRecipeConfig {
+  return admitStandardMapConfig(value).config;
+}
+
+export function canonicalMapConfigContentDigest(config: StandardMapConfigEnvelope): string {
+  return sha256Hex(stableStringify(config.config));
+}
+
+export function canonicalMapConfigDigest(config: StandardMapConfigEnvelope): string {
+  return sha256Hex(stableStringify(config));
+}
+
+export function buildCanonicalMapConfigSchema(
+  recipeConfigSchema: TSchema = STANDARD_RECIPE_CONFIG_SCHEMA
+): TObject {
+  return Type.Object(
+    {
+      id: mapConfigIdSchema,
+      name: Type.String({ minLength: 1 }),
+      description: Type.String({ minLength: 1 }),
+      recipe: Type.Literal("standard"),
+      sortIndex: Type.Integer(),
+      latitudeBounds: Type.Object(
+        {
+          topLatitude: Type.Number(),
+          bottomLatitude: Type.Number(),
+        },
+        { additionalProperties: false }
+      ),
+      logPrefix: Type.Optional(Type.String({ minLength: 1 })),
+      config: recipeConfigSchema,
+    },
+    { additionalProperties: false }
+  );
 }
 
 export function mapConfigFileStem(fileName: string): string {
@@ -61,146 +134,81 @@ export function mapLocalizationTag(id: string, field: "name" | "description"): s
   return `LOC_MAP_${id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
 }
 
-/**
- * Returns the recipe payload inside a shipped-map envelope.
- *
- * The envelope is the Swooper Maps product record: it carries Civ7-facing map
- * identity, localization ordering, and save/deploy metadata. The nested config
- * remains the standard recipe's authored public surface, so callers that need
- * to run diagnostics or legacy preset aliases cross that boundary here instead
- * of inferring wrapper shapes in each consumer.
- */
-export function canonicalRecipeConfig<TConfig extends JsonObject = JsonObject>(
-  envelope: CanonicalMapConfigWithRecipe
-): TConfig {
-  return envelope.config as TConfig;
-}
-
-export function buildCanonicalMapConfigSchema(recipeConfigSchema: TSchema): TObject {
-  return Type.Object(
-    {
-      $schema: Type.Optional(Type.String()),
-      id: Type.String({ minLength: 1 }),
-      name: Type.String({ minLength: 1 }),
-      description: Type.String({ minLength: 1 }),
-      recipe: Type.Literal("standard"),
-      sortIndex: Type.Integer(),
-      latitudeBounds: Type.Optional(
-        Type.Object(
-          {
-            topLatitude: Type.Number(),
-            bottomLatitude: Type.Number(),
-          },
-          { additionalProperties: false }
-        )
-      ),
-      logPrefix: Type.Optional(Type.String({ minLength: 1 })),
-      config: recipeConfigSchema,
-    },
-    { additionalProperties: false }
-  );
-}
-
 export function validateCanonicalMapConfig(args: {
   fileName: string;
   raw: unknown;
-  recipeSchema: TSchema;
-  stages: readonly unknown[];
+  recipeSchema?: TSchema;
 }): ValidatedMapConfig {
-  const { fileName, raw, recipeSchema, stages } = args;
-  void stages;
-  const label = `/maps/configs/${fileName}`;
-  const errors: string[] = [];
-  const fileStem = mapConfigFileStem(fileName);
+  assertCanonicalMapConfigFileName(args.fileName);
+  return validatedMapConfig(
+    args.fileName,
+    admitStandardMapConfigWithSchema(args.raw, args.recipeSchema)
+  );
+}
 
+function assertCanonicalMapConfigFileName(fileName: string): void {
   if (!fileName.endsWith(".config.json")) {
-    errors.push(`${label} must use the .config.json suffix`);
+    throw new Error(`Canonical map config must use the .config.json suffix: ${fileName}`);
   }
+}
 
-  if (!assertPlainObject(raw, label, errors)) {
-    throw new Error(errors.join("\n"));
-  }
-
-  for (const key of Object.keys(raw)) {
-    if (!ENVELOPE_KEYS.has(key)) errors.push(`${label}/${key} is not a canonical map config key`);
-  }
-
-  if (raw.$schema !== undefined && typeof raw.$schema !== "string") {
-    errors.push(`${label}/$schema must be a string`);
-  }
-  if (raw.id !== fileStem) errors.push(`${label}/id must match file stem "${fileStem}"`);
-  if (typeof raw.name !== "string" || raw.name.trim().length === 0) {
-    errors.push(`${label}/name must be a non-empty string`);
-  }
-  if (typeof raw.description !== "string" || raw.description.trim().length === 0) {
-    errors.push(`${label}/description must be a non-empty string`);
-  }
-  if (raw.recipe !== "standard") {
-    errors.push(`${label}/recipe must be "standard"`);
-  }
-  if (!Number.isInteger(raw.sortIndex)) {
-    errors.push(`${label}/sortIndex must be an integer`);
-  }
-
-  if (raw.latitudeBounds !== undefined) {
-    if (assertPlainObject(raw.latitudeBounds, `${label}/latitudeBounds`, errors)) {
-      const { topLatitude, bottomLatitude } = raw.latitudeBounds;
-      if (typeof topLatitude !== "number" || !Number.isFinite(topLatitude)) {
-        errors.push(`${label}/latitudeBounds/topLatitude must be a finite number`);
-      }
-      if (typeof bottomLatitude !== "number" || !Number.isFinite(bottomLatitude)) {
-        errors.push(`${label}/latitudeBounds/bottomLatitude must be a finite number`);
-      }
-      if (
-        typeof topLatitude === "number" &&
-        typeof bottomLatitude === "number" &&
-        topLatitude <= bottomLatitude
-      ) {
-        errors.push(`${label}/latitudeBounds/topLatitude must be greater than bottomLatitude`);
-      }
-    }
-  }
-
-  if (
-    raw.logPrefix !== undefined &&
-    (typeof raw.logPrefix !== "string" || raw.logPrefix.trim().length === 0)
-  ) {
-    errors.push(`${label}/logPrefix must be a non-empty string when present`);
-  }
-
-  let materializedConfig: JsonObject | undefined;
-  if (assertPlainObject(raw.config, `${label}/config`, errors)) {
-    const { value: normalizedConfig, errors: schemaErrors } = normalizeStrict<JsonObject>(
-      recipeSchema,
-      raw.config,
-      `${label}/config`
-    );
-    errors.push(...schemaErrors.map((err) => `${err.path}: ${err.message}`));
-    if (schemaErrors.length === 0) {
-      if (!Value.Equal(normalizedConfig, raw.config)) {
-        errors.push(
-          `${label}/config must be the complete recipe config JSON produced by the current recipe artifacts`
-        );
-      } else {
-        materializedConfig = normalizedConfig;
-      }
-    }
-  }
-
-  if (errors.length > 0) {
+function validatedMapConfig(
+  fileName: string,
+  canonicalConfig: StandardMapConfigEnvelope
+): ValidatedMapConfig {
+  const fileStem = mapConfigFileStem(fileName);
+  if (canonicalConfig.id !== fileStem) {
     throw new Error(
-      `Invalid canonical map config ${fileName}:\n${errors.map((err) => `- ${err}`).join("\n")}`
+      `Canonical map config id must match file stem "${fileStem}", got "${canonicalConfig.id}".`
     );
   }
-
-  const envelope = raw as unknown as CanonicalMapConfigEnvelope;
   return {
-    ...envelope,
-    config: materializedConfig ?? envelope.config,
+    canonicalConfig,
     fileName,
     fileStem,
-    outputFile: `${envelope.id}.js`,
-    localizationNameTag: mapLocalizationTag(envelope.id, "name"),
-    localizationDescriptionTag: mapLocalizationTag(envelope.id, "description"),
+    outputFile: `${canonicalConfig.id}.js`,
+    localizationNameTag: mapLocalizationTag(canonicalConfig.id, "name"),
+    localizationDescriptionTag: mapLocalizationTag(canonicalConfig.id, "description"),
   };
+}
+
+function admitStandardMapConfigWithSchema(
+  value: unknown,
+  recipeSchema: TSchema = STANDARD_RECIPE_CONFIG_SCHEMA
+): StandardMapConfigEnvelope {
+  const envelope = snapshotMapConfigEnvelope(value);
+  if (envelope === undefined) {
+    throw new Error("Map config must be a complete portable config envelope.");
+  }
+  return validateStandardMapConfigSnapshot(envelope, recipeSchema);
+}
+
+/** Validates Standard semantics on a canonical immutable envelope without rebuilding it. */
+export function validateStandardMapConfigSnapshot(
+  envelope: CanonicalMapConfigEnvelope,
+  recipeSchema: TSchema = STANDARD_RECIPE_CONFIG_SCHEMA
+): StandardMapConfigEnvelope {
+  if (envelope.recipe !== "standard") {
+    throw new Error(
+      `Map config must use the Standard recipe, got ${JSON.stringify(envelope.recipe)}.`
+    );
+  }
+  const validation = strictStandardRecipeConfigValidation(envelope.config, recipeSchema);
+  if (validation.errors.length > 0) {
+    throw new Error(
+      `Map config must carry a complete recipe config JSON:\n${validation.errors
+        .map((error) => `- ${error}`)
+        .join("\n")}`
+    );
+  }
+  if (!validation.complete) {
+    throw new Error("Map config must carry a complete recipe config JSON.");
+  }
+  if (envelope.latitudeBounds.topLatitude <= envelope.latitudeBounds.bottomLatitude) {
+    throw new Error("Map config latitudeBounds.topLatitude must exceed bottomLatitude.");
+  }
+  if (!isCompleteStandardMapConfig(envelope, validation)) {
+    throw new Error("Map config must carry a complete recipe config JSON.");
+  }
+  return envelope;
 }

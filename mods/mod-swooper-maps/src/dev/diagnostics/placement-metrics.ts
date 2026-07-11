@@ -17,6 +17,7 @@
 import type { GameMapAdapter } from "@civ7/adapter";
 import { createMockAdapter } from "@civ7/adapter";
 import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
+import { isMapConfigEnvelope } from "@civ7/studio-contract";
 import { createExtendedMapContext, createLabelRng, VOLCANO_FEATURE } from "@swooper/mapgen-core";
 import {
   getHexNeighborIndicesOddQ,
@@ -26,10 +27,7 @@ import {
 
 import resourcesDomainOps from "../../domain/resources/ops.js";
 
-import {
-  canonicalRecipeConfig,
-  isPlainObject as isCanonicalMapConfigObject,
-} from "../../maps/configs/canonical.js";
+import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
@@ -366,10 +364,9 @@ export function runPlacementMetrics(options: PlacementMetricsRunOptions): Placem
   } as const;
 
   const loadedConfig = swooperEarthlikeConfigRaw as unknown;
-  const config =
-    isCanonicalMapConfigObject(loadedConfig) && isCanonicalMapConfigObject(loadedConfig.config)
-      ? canonicalRecipeConfig(loadedConfig)
-      : loadedConfig;
+  const config = isMapConfigEnvelope(loadedConfig)
+    ? canonicalRecipeConfig(loadedConfig)
+    : loadedConfig;
 
   const adapter = createMockAdapter({
     width,
@@ -1467,7 +1464,7 @@ export function computePlacementMetricsFromRun(
     "requires-live-engine",
     {},
     {
-      note: "Needs a same-seed live run via civ7 game (milestone boundary proof).",
+      note: "Needs a same-seed live run via civ7 game (milestone boundary verification).",
     }
   );
   metrics["E4.2"] = metric(

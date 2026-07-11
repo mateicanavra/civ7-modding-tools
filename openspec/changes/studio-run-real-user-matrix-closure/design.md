@@ -8,7 +8,9 @@ Every successful row uses:
 - basic mods enabled through that saved config;
 - map size `MAPSIZE_HUGE`;
 - player count `10`;
-- resources `balanced` unless the UI selection explicitly says otherwise;
+- a browser-originated `runInGame.start` request with
+  `worldSettings.resources: balanced`, retained in that request's generation
+  manifest;
 - seed `1538316415` unless the row records a different explicit seed before
   execution;
 - Studio server and daemon running from this worktree/stack;
@@ -36,8 +38,10 @@ Each row records:
 - mismatch failure when setup shows a prior request row instead of the admitted
   run artifact id;
 - seed, map size, and player count readback before Begin;
-- resources retained in visible UI selection, admitted request, generation
-  manifest, and evidence row;
+- the rendered Run in Game click, browser-originated admitted request with
+  `worldSettings.resources: balanced`, and that request's generation manifest
+  are retained in the evidence row; Civ7 setup/readback does not establish a
+  resulting resource distribution;
 - fresh scripting-log markers with request id and generated artifact identity;
 - post-start `civ7.live.status` and `civ7.live.snapshot` showing in-game
   generated content with Huge dimensions expected as `106x66`.

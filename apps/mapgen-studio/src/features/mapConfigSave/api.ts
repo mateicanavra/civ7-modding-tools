@@ -1,20 +1,13 @@
-// Map-config save/deploy data surface.
-//
-// EVERYTHING talks oRPC (FRAME §4.7): these callers speak the studio's own
-// `@civ7/studio-server` contract through the typed oRPC client (`src/lib/orpc.ts`)
-// — there is NO manual `fetch` of `/api/map-configs*` here anymore. The request
-// shapes are preserved. Operation recovery and progress are daemon-owned through
-// `studio.operations.current` and `studio.events.watch`, not localStorage or a
-// private client-side status loop. Failures are read through oRPC's NATIVE typed
-// contract errors: `safe(...)` +
-// `isDefinedError(...)` expose the DECLARED code
-// (SAVE_DEPLOY_BLOCKED/INVALID/FAILED/STATUS_NOT_FOUND, statuses pinned in
-// packages/studio-contract/src/errors.ts).
-
-import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
+import {
+  type MapConfigEnvelope,
+  type MapConfigSaveDeployStatus,
+  type SaveDeploySafeFailureCategory,
+  serializeMapConfigEnvelope,
+  type StudioRecoveryAction,
+} from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
-import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
+import { createMapConfigSaveDeployStatus } from "./status";
 
 export function toConfigId(label: string): string {
   const id = label
@@ -27,67 +20,105 @@ export function toConfigId(label: string): string {
 
 export async function saveRepoBackedConfig(args: {
   requestId: string;
-  id: string;
-  name: string;
-  description?: string;
-  sourcePath?: string;
-  sortIndex: number;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
-  config: unknown;
+  canonicalConfig: MapConfigEnvelope;
+  restart?: boolean;
+  verifyRestart?: boolean;
   onStatus?: (status: MapConfigSaveDeployStatus) => void;
 }): Promise<
-  | { ok: true; status: MapConfigSaveDeployStatus; path?: string }
-  | {
-      ok: false;
-      error: string;
-      saved?: boolean;
-      deployed?: boolean;
-      path?: string;
-      code?: string;
-      statusCode?: number;
-      details?: MapConfigSaveDeployStatus["details"];
-    }
+  | { ok: true; status: MapConfigSaveDeployStatus }
+  | { ok: false; status: Extract<MapConfigSaveDeployStatus, { ok: false }> }
 > {
-  const path = args.sourcePath ?? `mods/mod-swooper-maps/src/maps/configs/${args.id}.config.json`;
-  const envelope = {
-    $schema: "../../../dist/recipes/standard-map-config.schema.json",
-    id: args.id,
-    name: args.name,
-    description: args.description?.trim() || args.name,
-    recipe: "standard",
-    sortIndex: args.sortIndex,
-    ...(args.latitudeBounds ? { latitudeBounds: args.latitudeBounds } : {}),
-    config: args.config,
-  };
   try {
     const saveResult = await safe(
       orpcClient.mapConfigs.saveDeploy({
         requestId: args.requestId,
-        id: args.id,
-        sourcePath: args.sourcePath,
-        envelope,
+        canonicalConfig: serializeMapConfigEnvelope(args.canonicalConfig),
+        ...(args.restart === undefined ? {} : { restart: args.restart }),
+        ...(args.verifyRestart === undefined ? {} : { verifyRestart: args.verifyRestart }),
       })
     );
     if (saveResult.error) {
-      const projected = projectStudioBrowserError<MapConfigSaveDeployStatus["details"]>(
-        saveResult.error,
-        "Repo config save failed"
-      );
       return {
         ok: false,
-        error: projected.error,
-        ...(projected.code === undefined ? {} : { code: projected.code }),
-        ...(projected.statusCode === undefined ? {} : { statusCode: projected.statusCode }),
-        ...(projected.details === undefined ? {} : { details: projected.details }),
+        status: failedStatusFromError(args.requestId, saveResult.error),
       };
     }
     const status = saveResult.data;
     args.onStatus?.(status);
-    return { ok: true, status, path: status.path ?? path };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Repo config save failed" };
+    return { ok: true, status };
+  } catch {
+    return {
+      ok: false,
+      status: createMapConfigSaveDeployStatus({
+        requestId: args.requestId,
+        phase: "failed",
+        safeFailureCategory: "internal-defect",
+        recoveryActions: ["copy-diagnostics", "retry-save-deploy"],
+      }),
+    };
   }
+}
+
+function failedStatusFromError(
+  requestId: string,
+  error: unknown
+): Extract<MapConfigSaveDeployStatus, { ok: false }> {
+  const code = isRecord(error) && typeof error.code === "string" ? error.code : undefined;
+  const data = isRecord(error) && isRecord(error.data) ? error.data : undefined;
+  const safeFailureCategory = isSaveDeployFailureCategory(data?.safeFailureCategory)
+    ? data.safeFailureCategory
+    : categoryFromDefinedErrorCode(code);
+  const recoveryActions = Array.isArray(data?.recoveryActions)
+    ? data.recoveryActions.filter(isStudioRecoveryAction)
+    : (["copy-diagnostics", "retry-save-deploy"] satisfies StudioRecoveryAction[]);
+  return createMapConfigSaveDeployStatus({
+    requestId,
+    phase: "failed",
+    safeFailureCategory,
+    recoveryActions,
+  });
+}
+
+function categoryFromDefinedErrorCode(code: string | undefined): SaveDeploySafeFailureCategory {
+  switch (code) {
+    case "SAVE_DEPLOY_BLOCKED":
+      return "ownership";
+    case "SAVE_DEPLOY_INVALID":
+    case "SAVE_DEPLOY_STATUS_NOT_FOUND":
+      return "request-validation";
+    case "SAVE_DEPLOY_UNAVAILABLE":
+      return "dependency-unavailable";
+    default:
+      return "internal-defect";
+  }
+}
+
+function isSaveDeployFailureCategory(value: unknown): value is SaveDeploySafeFailureCategory {
+  return (
+    value === "request-validation" ||
+    value === "ownership" ||
+    value === "dependency-unavailable" ||
+    value === "save" ||
+    value === "deployment" ||
+    value === "cleanup" ||
+    value === "internal-defect"
+  );
+}
+
+function isStudioRecoveryAction(value: unknown): value is StudioRecoveryAction {
+  return (
+    value === "check-dev-server" ||
+    value === "copy-diagnostics" ||
+    value === "dismiss-civ-notification-and-retry" ||
+    value === "edit-config" ||
+    value === "inspect-deploy-output" ||
+    value === "restart-civ-process-and-retry" ||
+    value === "retry-run" ||
+    value === "retry-save-deploy" ||
+    value === "retry-status"
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }

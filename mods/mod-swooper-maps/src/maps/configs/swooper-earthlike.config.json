@@ -1,10 +1,13 @@
 {
-  "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "swooper-earthlike",
   "name": "Swooper Earthlike",
   "description": "An Earth-analogue world with vast oceans, a handful of major continents, and familiar climate belts. Expect wet equatorial jungles, dry subtropical deserts, temperate heartlands, and polar tundra shaped by plate-driven mountain arcs and broad passive coasts.",
   "recipe": "standard",
   "sortIndex": 501,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {

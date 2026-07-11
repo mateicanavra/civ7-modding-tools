@@ -32,7 +32,7 @@ export {
   operationBlocked,
   operationExpired,
   operationNotFound,
-  proofFailed,
+  verificationFailed,
   runtimeDisposed,
   STUDIO_DEPENDENCY_KINDS,
   STUDIO_FAILURE_REASON_CODES,

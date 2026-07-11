@@ -6,16 +6,13 @@ import {
   STUDIO_RUN_MAP_ROW_ID,
   STUDIO_RUN_MAP_SCRIPT_PATH,
 } from "@civ7/studio-run-workspace";
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { build } from "esbuild";
-import {
-  type ValidatedMapConfig,
-  validateCanonicalMapConfig,
-} from "../src/maps/configs/canonical.js";
-import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
+import { admitSwooperCatalogConfig } from "../src/maps/catalog/admission.js";
+import { admitStandardMapConfig } from "../src/maps/configs/canonical.js";
 import {
   buildSwooperRunGeneratedModFilePlan,
   type SwooperMapArtifactFilePlan,
+  type SwooperRunGeneratedModPlanInput,
 } from "./map-artifacts/file-plan.js";
 import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
 
@@ -74,32 +71,41 @@ export type SwooperRunGeneratedMod = Readonly<{
   fileCount: number;
 }>;
 
+type StudioRunGenerationManifest = Awaited<ReturnType<typeof readStudioRunGenerationManifest>>;
+
+/**
+ * A deserialized manifest that has passed Swooper's Standard run verification.
+ * `renderInput.config` comes from the same pure Swooper admission rule used for
+ * a new source request. Repeating that rule here rejects malformed or
+ * self-consistently rehashed manifest data without creating another semantic
+ * owner or applying defaults.
+ */
+export type VerifiedSwooperStandardRun = Readonly<{
+  manifest: StudioRunGenerationManifest;
+  renderInput: SwooperRunGeneratedModPlanInput;
+}>;
+
 export async function generateSwooperRunGeneratedModFromManifestPath(
   manifestPath: string
 ): Promise<SwooperRunGeneratedMod> {
   const manifest = await readStudioRunGenerationManifest(manifestPath);
-  assertSwooperStandardRunManifest(manifest);
-  const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, manifest);
+  const verifiedRun = verifySwooperStandardRunManifest(manifest);
+  const { manifest: verifiedManifest, renderInput } = verifiedRun;
+  const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, verifiedManifest);
   const mapRowId = STUDIO_RUN_MAP_ROW_ID;
-  const config = validatedRunConfigFromManifest(manifest, mapRowId);
-  const plan = buildSwooperRunGeneratedModFilePlan({
-    selectedConfigId: manifest.payload.request.selectedConfigId,
-    correlation: runCorrelationForManifest(manifest),
-    config,
-    seed: manifest.payload.request.seed,
-  });
+  const plan = buildSwooperRunGeneratedModFilePlan(renderInput);
   await writeSwooperMapArtifactFilePlan(plan, { outputRoot: generatedModRoot });
 
   const mapScriptPath = STUDIO_RUN_MAP_SCRIPT_PATH;
   const bundledMap = await bundleRunMapScript({
     generatedModRoot,
-    runArtifactId: manifest.payload.runArtifactId,
+    correlation: renderInput.correlation,
   });
   await writeSwooperMapArtifactFilePlan(bundledMap, { outputRoot: generatedModRoot });
 
   return {
-    requestId: manifest.payload.requestId,
-    runArtifactId: manifest.payload.runArtifactId,
+    requestId: verifiedManifest.payload.requestId,
+    runArtifactId: verifiedManifest.payload.runArtifactId,
     generatedModRoot,
     mapRowId,
     mapScriptPath,
@@ -109,61 +115,61 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
 
 export function resolveSwooperRunGeneratedModRoot(
   manifestPath: string,
-  manifest: Awaited<ReturnType<typeof readStudioRunGenerationManifest>>
+  manifest: StudioRunGenerationManifest
 ): string {
   return resolve(dirname(manifestPath), manifest.payload.workspace.generatedModRoot);
 }
 
-function validatedRunConfigFromManifest(
-  manifest: Awaited<ReturnType<typeof readStudioRunGenerationManifest>>,
-  mapRowId: string
-): ValidatedMapConfig {
-  const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
-  const envelope = manifest.payload.launchEnvelope;
-  const validated = validateCanonicalMapConfig({
-    fileName: `${mapRowId}.config.json`,
-    raw: {
-      id: mapRowId,
-      name: envelope.source.label,
-      description: envelope.source.description ?? "Generated Studio Run in Game map",
-      recipe: "standard",
-      sortIndex: envelope.source.sortIndex,
-      ...(envelope.source.latitudeBounds === undefined
-        ? {}
-        : { latitudeBounds: envelope.source.latitudeBounds }),
-      config: envelope.config,
-    },
-    recipeSchema,
-    stages: STANDARD_STAGES,
-  });
-  return {
-    ...validated,
-    outputFile: STUDIO_RUN_MAP_SCRIPT_PATH.replace(/^maps\//, ""),
-  };
-}
-
-function assertSwooperStandardRunManifest(
-  manifest: Awaited<ReturnType<typeof readStudioRunGenerationManifest>>
-): void {
-  if (manifest.payload.request.recipeId !== SWOOPER_STANDARD_RECIPE_ID) {
-    throw new Error(
-      `Swooper run manifest generator only supports ${SWOOPER_STANDARD_RECIPE_ID}; got ${manifest.payload.request.recipeId}.`
-    );
-  }
+/**
+ * Verifies a deserialized Studio manifest before Swooper renders it. The
+ * Standard config check deliberately reuses source admission; it neither
+ * defines a second Standard semantic rule nor fills omitted values.
+ */
+export function verifySwooperStandardRunManifest(
+  manifest: StudioRunGenerationManifest
+): VerifiedSwooperStandardRun {
   if (manifest.payload.launchEnvelope.recipeSettings.recipe !== SWOOPER_STANDARD_RECIPE_ID) {
     throw new Error(
       `Swooper run manifest recipe envelope must be ${SWOOPER_STANDARD_RECIPE_ID}; got ${manifest.payload.launchEnvelope.recipeSettings.recipe}.`
     );
   }
+  const source = manifest.payload.launchEnvelope.source;
+  const config =
+    source.kind === "catalog"
+      ? admitSwooperCatalogConfig({
+          sourcePath: source.sourcePath,
+          canonicalConfig: source.canonicalConfig,
+        }).canonicalConfig
+      : admitStandardMapConfig(source.canonicalConfig);
+  return {
+    manifest,
+    renderInput: {
+      correlation: runCorrelationForManifest(manifest),
+      config,
+      seed: numericLaunchSeed(manifest.payload.launchEnvelope.recipeSettings.seed),
+    },
+  };
+}
+
+function numericLaunchSeed(value: number | string): number {
+  const seed = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(seed) || seed < 0 || seed > 0x7fff_ffff) {
+    throw new Error("Swooper run manifest seed must be a supported integer.");
+  }
+  return seed;
 }
 
 async function bundleRunMapScript(
   args: Readonly<{
     generatedModRoot: string;
-    runArtifactId: string;
+    correlation: ReturnType<typeof runCorrelationForManifest>;
   }>
 ): Promise<SwooperMapArtifactFilePlan> {
-  const entryPoint = resolve(args.generatedModRoot, ".source/maps", `${args.runArtifactId}.ts`);
+  const entryPoint = resolve(
+    args.generatedModRoot,
+    ".source/maps",
+    `${args.correlation.runArtifactId}.ts`
+  );
   const result = await build({
     entryPoints: [entryPoint],
     bundle: true,
@@ -217,6 +223,7 @@ async function bundleRunMapScript(
   if (!output) throw new Error("Swooper run manifest bundler produced no map script.");
 
   return {
+    metadata: { configProjections: [] },
     exclusiveSets: [
       {
         id: "generated-map-entrypoints",
@@ -231,9 +238,10 @@ async function bundleRunMapScript(
         kind: "generated-map-entry",
         content: { kind: "text", text: output.text },
         markerMetadata: {
-          configId: args.runArtifactId,
+          configId: args.correlation.runArtifactId,
           configHash: "bundled",
-          envelopeHash: "bundled",
+          launchEnvelopeDigest: args.correlation.launchEnvelopeDigest,
+          requestId: args.correlation.requestId,
         },
       },
     ],

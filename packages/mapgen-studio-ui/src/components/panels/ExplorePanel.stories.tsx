@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 /**
  * Adapted from `.design-sync/previews/ExplorePanel.tsx`. The Explore dock:
  * stage/step navigation + the layer inspector (data type · space · render mode ·
- * variant · overlay) + era and water-proof sections. The water-proof summary is
+ * variant · overlay) + era and water evidence sections. The water evidence summary is
  * null here (no active run). Tooltips come from the global decorator's
  * `TooltipProvider`.
  */

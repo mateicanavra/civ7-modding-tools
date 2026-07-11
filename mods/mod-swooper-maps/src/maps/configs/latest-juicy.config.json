@@ -1,10 +1,13 @@
 {
-  "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "latest-juicy",
   "name": "Latest Juicy",
   "description": "Config and seed last proved through Run in Game.",
   "recipe": "standard",
   "sortIndex": 1900,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {

@@ -24,8 +24,11 @@ active Civ7 setup state before reading setup rows or starting the game.
 - **THEN** Studio applies and reads back the generated map row, seed, map size,
   and player count before Begin
 - **AND** the readback values match the admitted request
-- **AND** resources are retained in the visible UI selection, admitted request,
-  generation manifest, and evidence row
+- **AND** the rendered Run in Game click produces a browser-originated
+  `runInGame.start` request with `worldSettings.resources: balanced`, and the
+  same request's generation manifest retains that value
+- **AND** Civ7 setup/readback does not establish a resulting resource
+  distribution
 
 #### Scenario: Start consumes the checked setup state
 

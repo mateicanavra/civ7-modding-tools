@@ -13,7 +13,7 @@ describe("Studio browser defined error projection", () => {
       message: "Run in Game failed",
       fallbackMessage: "fallback",
       data: {
-        tag: "ProofFailed",
+        tag: "VerificationFailed",
         reason: "setup-row-unavailable",
         requestId: "studio-run-1",
         recoveryActions: ["retry-run", "copy-diagnostics"],
@@ -32,7 +32,7 @@ describe("Studio browser defined error projection", () => {
       details: {
         code: "run-in-game-setup-row-unavailable",
         definedErrorCode: "RUN_IN_GAME_FAILED",
-        failureTag: "ProofFailed",
+        failureTag: "VerificationFailed",
         reason: "setup-row-unavailable",
         requestId: "studio-run-1",
         failedAtPhase: "preparing-setup",

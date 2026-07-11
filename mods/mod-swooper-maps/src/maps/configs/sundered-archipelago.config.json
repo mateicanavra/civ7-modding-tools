@@ -1,10 +1,13 @@
 {
-  "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "sundered-archipelago",
   "name": "The Sundered Archipelago",
   "description": "A world shattered by ancient tectonic rifting into countless volcanic islands and shallow seas. Hundreds of islands form chains connected by coral reefs and strategic straits. Naval supremacy determines the fate of empires as civilizations island-hop toward dominance. Lush tropical paradises contrast with smoldering volcanic peaks, while narrow channels create natural choke points for trade and warfare.",
   "recipe": "standard",
   "sortIndex": 503,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {

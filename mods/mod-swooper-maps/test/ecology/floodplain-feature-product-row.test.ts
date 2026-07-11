@@ -100,7 +100,7 @@ describe("floodplain feature product row", () => {
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
     };
-    // Keep the fixture on legal plains/flat terrain so the proof exercises
+    // Keep the fixture on legal plains/flat terrain so the test exercises
     // floodplain intent/apply plumbing instead of soft rejection diagnostics.
     const adapter = createMockAdapter({ width, height });
     adapter.fillWater(false);

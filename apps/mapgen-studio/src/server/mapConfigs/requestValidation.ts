@@ -1,21 +1,25 @@
+import { type MapConfigEnvelope, snapshotMapConfigEnvelope } from "@civ7/studio-contract";
+
 export type MapConfigSaveRequestInput = Readonly<{
   requestId?: unknown;
-  id?: unknown;
-  sourcePath?: unknown;
-  envelope?: unknown;
+  canonicalConfig?: unknown;
   restart?: unknown;
   verifyRestart?: unknown;
 }>;
 
 export type ParsedMapConfigSaveRequest = Readonly<{
   requestId?: string;
-  id: string;
-  sourcePath?: string;
-  envelope: unknown;
+  canonicalConfig: MapConfigEnvelope;
 }>;
 
-const MAP_CONFIG_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const REQUEST_ID_PATTERN = /^[a-zA-Z0-9._:-]+$/;
+const RUN_IDENTITY_FIELDS = [
+  "launchEnvelopeDigest",
+  "launchSourceDigest",
+  "runArtifactId",
+  "runCorrelation",
+  "generationManifestDigest",
+] as const;
 
 export function parseMapConfigSaveRequest(
   body: MapConfigSaveRequestInput
@@ -25,8 +29,14 @@ export function parseMapConfigSaveRequest(
       "Map config save/deploy does not restart Civ; use Run in Game for Civ lifecycle control."
     );
   }
-  if (typeof body.id !== "string" || !MAP_CONFIG_ID_PATTERN.test(body.id)) {
-    throw new Error("Map config id must be kebab-case");
+  const runIdentityField = RUN_IDENTITY_FIELDS.find((field) => Object.hasOwn(body, field));
+  if (runIdentityField) {
+    throw new Error(
+      `Map config save/deploy does not accept Run in Game identity: ${runIdentityField}`
+    );
+  }
+  if (Object.hasOwn(body, "sourcePath")) {
+    throw new Error("Map config save/deploy does not accept sourcePath");
   }
   if (
     body.requestId !== undefined &&
@@ -34,13 +44,12 @@ export function parseMapConfigSaveRequest(
   ) {
     throw new Error("Map config save/deploy requestId is malformed");
   }
-  if (body.sourcePath !== undefined && typeof body.sourcePath !== "string") {
-    throw new Error("Map config sourcePath must be a string");
+  const canonicalConfig = snapshotMapConfigEnvelope(body.canonicalConfig);
+  if (canonicalConfig === undefined) {
+    throw new Error("Map config canonicalConfig must be a complete config envelope");
   }
   return {
     ...(typeof body.requestId === "string" ? { requestId: body.requestId } : {}),
-    id: body.id,
-    ...(typeof body.sourcePath === "string" ? { sourcePath: body.sourcePath } : {}),
-    envelope: body.envelope,
+    canonicalConfig,
   };
 }

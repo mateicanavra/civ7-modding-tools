@@ -1,41 +1,21 @@
-import type {
-  PipelineConfig,
-  RecipeSettings,
-  WorldSettings,
-} from "@swooper/mapgen-studio-ui/types";
+import type { RecipeSettings, WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { create } from "zustand";
 import { type PersistStorage, persist, type StorageValue } from "zustand/middleware";
 import {
   type Civ7StudioSetupConfig,
-  DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
+  createDefaultCiv7StudioSetupConfig,
 } from "../features/civ7Setup/setupConfig";
+import { createStudioEditorCanonicalConfig } from "../features/configAuthoring/canonicalConfig";
+import type { AuthoringConfigSource } from "../features/presets/types";
 import {
   loadStudioAuthoringState,
   STUDIO_AUTHORING_STATE_KEY,
   type StudioAuthoringStateSnapshot,
   saveStudioAuthoringState,
 } from "../features/studioState/persistence";
-import { getMaterializedRecipeDefaultConfig } from "../features/configOverrides/effectiveConfig";
-import type { BuiltInPreset } from "../recipes/catalog";
 import { DEFAULT_STUDIO_RECIPE_ID } from "../recipes/catalog";
 
-/**
- * `authoringStore` — the single persisted owner of AUTHORING state
- * (world settings, recipe selection, setup config, current complete recipe
- * config, and the overrides-disabled flag).
- *
- * The on-disk localStorage envelope is parsed at the persistence boundary, where
- * the selected recipe config must validate and materialize through the current
- * recipe schema before it can hydrate live authoring state.
- *
- * The persist `storage` adapter below is a thin translation between zustand's
- * `StorageValue` envelope and `features/studioState/persistence.ts`. Session
- * repo-backed presets deliberately stay out of the disk schema: browser state may
- * recover authoring work, but it must not become an alternate built-in catalog.
- *
- * Setters mirror React's `useState` signature (value OR updater) so the migration off
- * scattered `setX((prev) => …)` call sites in `StudioShell` is a drop-in.
- */
+/** The single persisted owner of Studio authoring state and its active config source. */
 
 type Updater<T> = T | ((prev: T) => T);
 
@@ -43,33 +23,26 @@ function resolve<T>(updater: Updater<T>, prev: T): T {
   return typeof updater === "function" ? (updater as (p: T) => T)(prev) : updater;
 }
 
-/** Live authoring data fields. `repoBackedSessionPresetsByRecipe` is session-only. */
+/** Live authoring data fields. */
 type AuthoringData = {
   worldSettings: WorldSettings;
   recipeSettings: RecipeSettings;
   setupConfig: Civ7StudioSetupConfig;
-  pipelineConfig: PipelineConfig;
-  overridesDisabled: boolean;
-  repoBackedSessionPresetsByRecipe: Record<string, Record<string, BuiltInPreset>>;
+  authoringConfigSource: AuthoringConfigSource;
+  configEditingEnabled: boolean;
 };
 
 export type AuthoringState = AuthoringData & {
+  authoringRevision: number;
   setWorldSettings: (next: Updater<WorldSettings>) => void;
   setRecipeSettings: (next: Updater<RecipeSettings>) => void;
   setSetupConfig: (next: Updater<Civ7StudioSetupConfig>) => void;
-  setPipelineConfig: (next: Updater<PipelineConfig>) => void;
-  setOverridesDisabled: (next: Updater<boolean>) => void;
-  setRepoBackedSessionPresetsByRecipe: (
-    next: Updater<Record<string, Record<string, BuiltInPreset>>>
-  ) => void;
+  setAuthoringConfigSource: (next: Updater<AuthoringConfigSource>) => void;
+  setAuthoringSelection: (source: AuthoringConfigSource, settings: RecipeSettings) => void;
+  setConfigEditingEnabled: (next: Updater<boolean>) => void;
 };
 
-/**
- * The initial authoring data — reproduces the prior `StudioShell` lazy `useState`
- * initializers EXACTLY (lines that read `initialAuthoringState?.<field> ?? <default>`),
- * including the recipe-derived `pipelineConfig` default from the persisted/default
- * recipe's artifacts used when nothing is persisted.
- */
+/** Creates a deliberate editor default only when no persistence exists. */
 function buildInitialAuthoringData(): AuthoringData {
   const persisted = loadStudioAuthoringState();
   const worldSettings = persisted?.worldSettings ?? {
@@ -82,28 +55,22 @@ function buildInitialAuthoringData(): AuthoringData {
     preset: "none",
     seed: "123",
   };
-  const setupConfig = persisted?.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG;
-  const overridesDisabled = persisted?.overridesDisabled ?? false;
-  const repoBackedSessionPresetsByRecipe: Record<string, Record<string, BuiltInPreset>> = {};
-  const pipelineConfig: PipelineConfig = persisted?.pipelineConfig
-    ? persisted.pipelineConfig
-    : getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "initial-authoring");
+  const setupConfig = persisted?.setupConfig ?? createDefaultCiv7StudioSetupConfig();
+  const configEditingEnabled = persisted?.configEditingEnabled ?? true;
+  const authoringConfigSource: AuthoringConfigSource = persisted?.authoringConfigSource ?? {
+    kind: "editor",
+    canonicalConfig: createStudioEditorCanonicalConfig(),
+  };
   return {
     worldSettings,
     recipeSettings,
     setupConfig,
-    pipelineConfig,
-    overridesDisabled,
-    repoBackedSessionPresetsByRecipe,
+    authoringConfigSource,
+    configEditingEnabled,
   };
 }
 
-/**
- * zustand persist storage adapter delegating to the reference persistence impl, so the
- * disk schema stays byte-identical. `getItem` re-wraps the parsed snapshot in zustand's
- * `StorageValue` envelope (consumed by `partialize`/hydration); `setItem` unwraps it and
- * calls `saveStudioAuthoringState`, which writes the existing `schemaVersion:1` schema.
- */
+/** Adapts the source-discriminated persistence schema to Zustand storage. */
 const authoringPersistStorage: PersistStorage<AuthoringData> = {
   getItem: (_name): StorageValue<AuthoringData> | null => {
     const snapshot = loadStudioAuthoringState();
@@ -112,9 +79,8 @@ const authoringPersistStorage: PersistStorage<AuthoringData> = {
       worldSettings: snapshot.worldSettings,
       recipeSettings: snapshot.recipeSettings,
       setupConfig: snapshot.setupConfig,
-      pipelineConfig: snapshot.pipelineConfig,
-      overridesDisabled: snapshot.overridesDisabled,
-      repoBackedSessionPresetsByRecipe: {},
+      authoringConfigSource: snapshot.authoringConfigSource,
+      configEditingEnabled: snapshot.configEditingEnabled,
     };
     return { state };
   },
@@ -124,8 +90,8 @@ const authoringPersistStorage: PersistStorage<AuthoringData> = {
       worldSettings: s.worldSettings,
       recipeSettings: s.recipeSettings,
       setupConfig: s.setupConfig,
-      pipelineConfig: s.pipelineConfig,
-      overridesDisabled: s.overridesDisabled,
+      authoringConfigSource: s.authoringConfigSource,
+      configEditingEnabled: s.configEditingEnabled,
     });
   },
   removeItem: (_name): void => {
@@ -144,18 +110,37 @@ export const useAuthoringStore = create<AuthoringState>()(
   persist(
     (set) => ({
       ...buildInitialAuthoringData(),
+      authoringRevision: 0,
 
-      setWorldSettings: (next) => set((s) => ({ worldSettings: resolve(next, s.worldSettings) })),
-      setRecipeSettings: (next) =>
-        set((s) => ({ recipeSettings: resolve(next, s.recipeSettings) })),
-      setSetupConfig: (next) => set((s) => ({ setupConfig: resolve(next, s.setupConfig) })),
-      setPipelineConfig: (next) =>
-        set((s) => ({ pipelineConfig: resolve(next, s.pipelineConfig) })),
-      setOverridesDisabled: (next) =>
-        set((s) => ({ overridesDisabled: resolve(next, s.overridesDisabled) })),
-      setRepoBackedSessionPresetsByRecipe: (next) =>
+      setWorldSettings: (next) =>
         set((s) => ({
-          repoBackedSessionPresetsByRecipe: resolve(next, s.repoBackedSessionPresetsByRecipe),
+          worldSettings: resolve(next, s.worldSettings),
+          authoringRevision: s.authoringRevision + 1,
+        })),
+      setRecipeSettings: (next) =>
+        set((s) => ({
+          recipeSettings: resolve(next, s.recipeSettings),
+          authoringRevision: s.authoringRevision + 1,
+        })),
+      setSetupConfig: (next) =>
+        set((s) => ({
+          setupConfig: resolve(next, s.setupConfig),
+          authoringRevision: s.authoringRevision + 1,
+        })),
+      setAuthoringConfigSource: (next) =>
+        set((s) => ({
+          authoringConfigSource: resolve(next, s.authoringConfigSource),
+          authoringRevision: s.authoringRevision + 1,
+        })),
+      setAuthoringSelection: (authoringConfigSource, recipeSettings) =>
+        set((s) => ({
+          authoringConfigSource,
+          recipeSettings,
+          authoringRevision: s.authoringRevision + 1,
+        })),
+      setConfigEditingEnabled: (next) =>
+        set((s) => ({
+          configEditingEnabled: resolve(next, s.configEditingEnabled),
         })),
     }),
     {
@@ -167,9 +152,8 @@ export const useAuthoringStore = create<AuthoringState>()(
         worldSettings: state.worldSettings,
         recipeSettings: state.recipeSettings,
         setupConfig: state.setupConfig,
-        pipelineConfig: state.pipelineConfig,
-        overridesDisabled: state.overridesDisabled,
-        repoBackedSessionPresetsByRecipe: {},
+        authoringConfigSource: state.authoringConfigSource,
+        configEditingEnabled: state.configEditingEnabled,
       }),
     }
   )

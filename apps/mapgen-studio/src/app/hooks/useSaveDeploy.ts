@@ -1,20 +1,24 @@
-import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
-import type { PipelineConfig, RecipeSettings } from "@swooper/mapgen-studio-ui/types";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  isMapConfigEnvelope,
+  type MapConfigEnvelope,
+  type MapConfigSaveDeployStatus,
+} from "@civ7/studio-contract";
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  applyPresetConfig,
+  createStudioEditorCanonicalConfig,
+  STUDIO_EDITOR_CANONICAL_METADATA,
+} from "../../features/configAuthoring/canonicalConfig";
 import { saveRepoBackedConfig, toConfigId } from "../../features/mapConfigSave/api";
 import {
   createMapConfigSaveDeployStatus,
   isSaveDeployTerminal,
+  saveDeployFailureMessage,
   saveDeployResultFromTerminalStatus,
-  updateMapConfigSaveDeployStatus,
 } from "../../features/mapConfigSave/status";
-import { materializePipelineConfig } from "../../features/configOverrides/configBuilders";
-import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
-import { toRepoBackedPreset } from "../../features/presets/repoBacked";
-import { type PresetKey, parsePresetKey } from "../../features/presets/types";
-import type { AuthoringState } from "../../stores/authoringStore";
-import type { RunState } from "../../stores/runStore";
-import type { UsePresetLifecycleResult } from "./usePresetLifecycle";
+import type { AuthoringConfigSource } from "../../features/presets/types";
+import { findRecipeArtifacts } from "../../recipes/catalog";
 import type { StudioOperations } from "./useStudioOperations";
 import type { ToastFn } from "./useToast";
 
@@ -26,36 +30,51 @@ type SaveDeployTerminalWaiter = Readonly<{
   timeoutId: ReturnType<typeof setTimeout>;
 }>;
 
+function createNamedEditorCanonicalConfig(args: {
+  id: string;
+  name: string;
+  description?: string;
+  config: PipelineConfig;
+}): MapConfigEnvelope {
+  return createStudioEditorCanonicalConfig({
+    metadata: {
+      id: args.id,
+      name: args.name,
+      description: args.description ?? "Studio editor configuration.",
+      recipe: "standard",
+      sortIndex: STUDIO_EDITOR_CANONICAL_METADATA.sortIndex,
+      latitudeBounds: STUDIO_EDITOR_CANONICAL_METADATA.latitudeBounds,
+    },
+    config: args.config,
+  });
+}
+
+function isValidEditorCanonicalConfig(args: {
+  recipeId: string;
+  canonicalConfig: MapConfigEnvelope;
+}): boolean {
+  const recipeArtifacts = findRecipeArtifacts(args.recipeId);
+  return (
+    isMapConfigEnvelope(args.canonicalConfig) &&
+    recipeArtifacts !== null &&
+    applyPresetConfig({
+      schema: recipeArtifacts.configSchema,
+      presetConfig: args.canonicalConfig.config,
+      label: "save-editor",
+    }).ok
+  );
+}
+
 export type UseSaveDeployArgs = {
-  /** Live save/deploy operation status (owned by `useStudioOperations`). */
   saveDeployOperation: StudioOperations["saveDeployOperation"];
-  /** Setter for the save/deploy operation status (owned by `useStudioOperations`). */
   setSaveDeployOperation: StudioOperations["setSaveDeployOperation"];
-  /** Synchronous busy flag for save/deploy (owned by `useStudioOperations`). */
   saveDeployRunning: StudioOperations["saveDeployRunning"];
-  /** Synchronous busy flag for browser map generation (busy-gate priority 1). */
   browserRunning: boolean;
-  /** Synchronous busy flag for run-in-game (busy-gate priority 2). */
   runInGameRunning: StudioOperations["runInGameRunning"];
-  /** Preset resolver (from `usePresetLifecycle`) — read by the save handlers. */
-  resolvePreset: UsePresetLifecycleResult["resolvePreset"];
-  /** Records a session catalog entry (from `usePresetLifecycle`) before the key-flip. */
-  rememberRepoBackedConfig: UsePresetLifecycleResult["rememberRepoBackedConfig"];
-  /** Synchronous `lastAppliedPresetRef` writer (from `usePresetLifecycle`) — PL-7/PL-11. */
-  markPresetApplied: UsePresetLifecycleResult["markPresetApplied"];
-  /** Merged built-in presets (from `usePresetLifecycle`) — scratch id-collision check. */
-  builtInPresets: UsePresetLifecycleResult["builtInPresets"];
-  /** Local-preset persistence actions (from `usePresetLifecycle`) — save-to-current scratch path. */
-  presetActions: UsePresetLifecycleResult["presetActions"];
-  /** Current authoring recipe/preset selection. */
-  recipeSettings: RecipeSettings;
-  /** Current authoring draft config. Outbound saves use the effective config source. */
-  pipelineConfig: PipelineConfig;
-  /** UI edit/autorun gate; outbound saves still use the current complete config. */
-  overridesDisabled: boolean;
-  setRecipeSettings: AuthoringState["setRecipeSettings"];
-  setPipelineConfig: AuthoringState["setPipelineConfig"];
-  setLastSaveDeployConfig: RunState["setLastSaveDeployConfig"];
+  recipeId: string;
+  authoringConfigSource: AuthoringConfigSource;
+  pipelineConfig: PipelineConfig | null;
+  adoptSavedEditorConfig: (canonicalConfig: MapConfigEnvelope) => void;
   toast: ToastFn;
 };
 
@@ -66,34 +85,10 @@ export type UseSaveDeployResult = {
   handleSaveDialogConfirm: (args: { label: string; description?: string }) => Promise<void>;
   handleSaveAsNew: () => void;
   handleSaveToCurrent: () => Promise<void>;
+  canSaveToCurrent: boolean;
 };
 
-/**
- * `useSaveDeploy` — owns the repo-backed save/deploy cluster: the save-dialog
- * state, the save/deploy terminal-event waiter machinery (`waitForSaveDeploy
- * TerminalEvent` + the SSE-mirror effect that resolves a matching waiter and the
- * unmount-cleanup effect that rejects all pending waiters), and the three save
- * handlers (`handleSaveDialogConfirm`, `handleSaveAsNew`, `handleSaveToCurrent`)
- * plus their shared `saveRepoBackedConfigWithState` core.
- *
- * Load-bearing invariants preserved verbatim from the prior host body:
- * - SD-10: `saveDeployOperationRef.current = saveDeployOperation` is the FIRST
- *   statement of the SSE-mirror effect (so the sync waiter-check branch never
- *   reads a stale ref).
- * - SD-5: the SSE-mirror effect is declared BEFORE the unmount-cleanup effect
- *   (Tier-B ordered pair — same-commit, mirror wins).
- * - SD-8: `setSaveDeployOperation(initial 'queued')` runs BEFORE the first await
- *   in `saveRepoBackedConfigWithState`.
- * - SD-7: the waiter is awaited ONLY when the RPC status is not already terminal.
- * - SD-6: busy-gate priority browser ≻ run ≻ save.
- * - PL-7/PL-11: `markPresetApplied` + `rememberRepoBackedConfig` run BEFORE the
- *   key-flip `setRecipeSettings` (the apply-effect resolver must see the new
- *   repo-backed entry / pre-recorded ref so it skips a redundant re-apply).
- *
- * The operation state itself (`saveDeployOperation` + its current-ref) stays in
- * `useStudioOperations` and is threaded IN; the busy booleans are threaded IN
- * from the same owner (never republished).
- */
+/** Writes only editor-owned envelopes; catalog selections are read-only references. */
 export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   const {
     saveDeployOperation,
@@ -101,41 +96,17 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     saveDeployRunning,
     browserRunning,
     runInGameRunning,
-    resolvePreset,
-    rememberRepoBackedConfig,
-    markPresetApplied,
-    builtInPresets,
-    presetActions,
-    recipeSettings,
+    recipeId,
+    authoringConfigSource,
     pipelineConfig,
-    overridesDisabled,
-    setRecipeSettings,
-    setPipelineConfig,
-    setLastSaveDeployConfig,
+    adoptSavedEditorConfig,
     toast,
   } = args;
-
-  const outboundConfigSource = useMemo(
-    () =>
-      resolveEffectivePipelineConfig({
-        recipeId: recipeSettings.recipe,
-        pipelineConfig,
-        overridesDisabled,
-      }),
-    [overridesDisabled, pipelineConfig, recipeSettings.recipe]
-  );
-  const outboundPipelineConfig = outboundConfigSource.config;
-
-  const [saveDialogState, setSaveDialogState] = useState<{
-    open: boolean;
-    label: string;
-    description?: string;
-  }>({
+  const [saveDialogState, setSaveDialogState] = useState({
     open: false,
     label: "",
     description: "",
   });
-
   const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
 
@@ -149,354 +120,182 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     waiter.resolve(saveDeployOperation);
   }, [saveDeployOperation]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       for (const waiter of saveDeployWaitersRef.current.values()) {
         clearTimeout(waiter.timeoutId);
         waiter.reject(new Error("Save/Deploy wait cancelled"));
       }
       saveDeployWaitersRef.current.clear();
-    };
-  }, []);
-
-  const waitForSaveDeployTerminalEvent = useCallback(
-    (requestId: string): Promise<MapConfigSaveDeployStatus> => {
-      const current = saveDeployOperationRef.current;
-      if (current?.requestId === requestId && isSaveDeployTerminal(current)) {
-        return Promise.resolve(current);
-      }
-      return new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          saveDeployWaitersRef.current.delete(requestId);
-          reject(new Error("Save/Deploy event stream did not report a terminal status in time"));
-        }, SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS);
-        saveDeployWaitersRef.current.set(requestId, { resolve, reject, timeoutId });
-      });
     },
     []
   );
 
-  const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
-    setSaveDialogState({
-      open: true,
-      label: seed?.label ?? "",
-      description: seed?.description,
+  const waitForSaveDeployTerminalEvent = useCallback((requestId: string) => {
+    const current = saveDeployOperationRef.current;
+    if (current?.requestId === requestId && isSaveDeployTerminal(current)) {
+      return Promise.resolve(current);
+    }
+    return new Promise<MapConfigSaveDeployStatus>((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        saveDeployWaitersRef.current.delete(requestId);
+        reject(new Error("Save/Deploy event stream did not report a terminal status in time"));
+      }, SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS);
+      saveDeployWaitersRef.current.set(requestId, { resolve, reject, timeoutId });
     });
   }, []);
 
-  const closeSaveDialog = useCallback(() => {
-    setSaveDialogState((prev) => ({ ...prev, open: false }));
-  }, []);
-
-  const saveRepoBackedConfigWithState = useCallback(
-    async (args: {
-      id: string;
-      name: string;
-      description?: string;
-      sourcePath?: string;
-      sortIndex: number;
-      latitudeBounds?: Readonly<{
-        topLatitude: number;
-        bottomLatitude: number;
-      }>;
-      config: unknown;
-    }) => {
+  const saveEditorCanonicalConfig = useCallback(
+    async (canonicalConfig: MapConfigEnvelope) => {
       if (browserRunning || runInGameRunning || saveDeployRunning) {
         const reason = browserRunning
           ? "Map generation is running"
           : runInGameRunning
             ? "Run in Game is running"
             : "Save/deploy is already running";
-        return {
-          ok: false as const,
-          error: `${reason}; finish that operation before saving.`,
-          saved: false,
-          deployed: false,
-          path: undefined as string | undefined,
-        };
+        return { ok: false as const, error: `${reason}; finish that operation before saving.` };
       }
-      const recipeArtifacts = resolveEffectivePipelineConfig({
-        recipeId: recipeSettings.recipe,
-        pipelineConfig,
-        overridesDisabled,
-      }).recipeArtifacts;
-      const validatedConfig = materializePipelineConfig({
-        schema: recipeArtifacts.configSchema,
-        config: args.config,
-        label: "save-deploy",
-      });
-      if (!validatedConfig.ok) {
-        return {
-          ok: false as const,
-          error: "Config is invalid for this recipe.",
-          saved: false,
-          deployed: false,
-          path: undefined as string | undefined,
-        };
+      if (!isValidEditorCanonicalConfig({ recipeId, canonicalConfig })) {
+        return { ok: false as const, error: "Config is invalid for this recipe." };
       }
-
       const requestId = `studio-save-deploy-${Date.now().toString(36)}`;
-      const initial = createMapConfigSaveDeployStatus({ requestId, phase: "queued" });
-      setSaveDeployOperation(initial);
-
+      setSaveDeployOperation(createMapConfigSaveDeployStatus({ requestId, phase: "queued" }));
       const result = await saveRepoBackedConfig({
-        ...args,
-        config: validatedConfig.value,
         requestId,
-        onStatus: (status) => {
+        canonicalConfig,
+        onStatus: (status) =>
           setSaveDeployOperation((current) =>
             current?.requestId === requestId ? status : current
-          );
-        },
+          ),
       });
       if (!result.ok) {
         setSaveDeployOperation((current) => {
           if (!current || current.requestId !== requestId) return current;
-          return updateMapConfigSaveDeployStatus(current, {
-            phase: "failed",
-            error: result.error,
-            path: result.path,
-            saved: result.saved,
-            deployed: result.deployed,
-          });
+          return result.status;
         });
-        return { ...result, config: validatedConfig.value };
+        return saveDeployResultFromTerminalStatus(result.status);
       }
-
       try {
         const terminal = isSaveDeployTerminal(result.status)
           ? result.status
           : await waitForSaveDeployTerminalEvent(requestId);
-        const terminalResult = saveDeployResultFromTerminalStatus(terminal, result.path);
-        if (terminalResult.ok) setLastSaveDeployConfig(validatedConfig.value);
-        return { ...terminalResult, config: validatedConfig.value };
-      } catch (err) {
+        const terminalResult = saveDeployResultFromTerminalStatus(terminal);
+        return terminalResult;
+      } catch (error) {
         return {
           ok: false as const,
           error:
-            err instanceof Error
-              ? err.message
+            error instanceof Error
+              ? error.message
               : "Save/Deploy event stream did not report a terminal status",
           saved: result.status.saved,
           deployed: result.status.deployed,
-          path: result.path,
-          config: validatedConfig.value,
         };
       }
     },
     [
       browserRunning,
-      overridesDisabled,
-      pipelineConfig,
-      recipeSettings.recipe,
+      recipeId,
       runInGameRunning,
       saveDeployRunning,
-      setLastSaveDeployConfig,
+      setSaveDeployOperation,
       waitForSaveDeployTerminalEvent,
     ]
   );
 
-  const handleSaveDialogConfirm = useCallback(
-    async (args: { label: string; description?: string }) => {
-      const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-      const id = toConfigId(args.label);
-      const sortIndex = (resolved?.sortIndex ?? 900) + 1000;
-      const latitudeBounds = resolved?.latitudeBounds;
-      const result = await saveRepoBackedConfigWithState({
-        id,
-        name: args.label,
-        description: args.description,
-        sortIndex,
-        latitudeBounds,
-        config: outboundPipelineConfig,
-      });
-      if ((result.ok || result.saved) && "config" in result) {
-        rememberRepoBackedConfig(
-          recipeSettings.recipe,
-          toRepoBackedPreset({
-            id,
-            label: args.label,
-            description: args.description,
-            sourcePath: result.path ?? `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
-            sortIndex,
-            latitudeBounds,
-            config: result.config,
-          })
-        );
-        markPresetApplied({ key: `builtin:${id}`, config: result.config });
-        setPipelineConfig(result.config);
-        setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
-      }
+  const presentSaveResult = useCallback(
+    (result: Awaited<ReturnType<typeof saveEditorCanonicalConfig>>) => {
       if (!result.ok) {
-        toast(
-          result.saved && result.deployed
-            ? `Config saved and deployed from ${result.path ?? `${id}.config.json`} but post-save action failed: ${result.error}`
-            : result.saved
-              ? `Config saved to ${result.path ?? `${id}.config.json`} but deploy failed: ${result.error}`
-              : `Config save failed: ${result.error}`,
-          { variant: "error" }
-        );
-      } else {
-        toast(`Config saved and deployed from ${result.path ?? `${id}.config.json`}`, {
-          variant: "success",
-        });
+        const message =
+          "safeFailureCategory" in result
+            ? saveDeployFailureMessage(result.safeFailureCategory)
+            : result.error;
+        toast(`Config save failed: ${message}`, { variant: "error" });
+        return;
       }
-      setSaveDialogState({ open: false, label: "", description: "" });
+      toast("Config saved and deployed.", { variant: "success" });
+    },
+    [toast]
+  );
+
+  const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
+    setSaveDialogState({
+      open: true,
+      label: seed?.label ?? "",
+      description: seed?.description ?? "",
+    });
+  }, []);
+  const closeSaveDialog = useCallback(
+    () => setSaveDialogState((current) => ({ ...current, open: false })),
+    []
+  );
+
+  const handleSaveDialogConfirm = useCallback(
+    async ({ label, description }: { label: string; description?: string }) => {
+      if (pipelineConfig === null) {
+        toast("Recover the authoring source before saving config.", { variant: "info" });
+        closeSaveDialog();
+        return;
+      }
+      const id = toConfigId(label);
+      let canonicalConfig: MapConfigEnvelope;
+      try {
+        canonicalConfig = createNamedEditorCanonicalConfig({
+          id,
+          name: label,
+          description,
+          config: pipelineConfig,
+        });
+      } catch {
+        toast("Config save failed: config is invalid for this recipe.", { variant: "error" });
+        closeSaveDialog();
+        return;
+      }
+      if (!isValidEditorCanonicalConfig({ recipeId, canonicalConfig })) {
+        toast("Config save failed: config is invalid for this recipe.", { variant: "error" });
+        closeSaveDialog();
+        return;
+      }
+      const result = await saveEditorCanonicalConfig(canonicalConfig);
+      if (result.ok) adoptSavedEditorConfig(canonicalConfig);
+      presentSaveResult(result);
+      closeSaveDialog();
     },
     [
-      outboundPipelineConfig,
-      recipeSettings.preset,
-      recipeSettings.recipe,
-      rememberRepoBackedConfig,
-      resolvePreset,
-      saveRepoBackedConfigWithState,
+      adoptSavedEditorConfig,
+      closeSaveDialog,
+      pipelineConfig,
+      presentSaveResult,
+      recipeId,
+      saveEditorCanonicalConfig,
       toast,
     ]
   );
 
   const handleSaveAsNew = useCallback(() => {
-    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    const suggested = resolved ? `Copy of ${resolved.label}` : "New Config";
-    openSaveDialog({ label: suggested, description: resolved?.description });
-  }, [openSaveDialog, recipeSettings.preset, resolvePreset]);
+    const current =
+      authoringConfigSource.kind === "editor" ? authoringConfigSource.canonicalConfig : null;
+    openSaveDialog({
+      label: current ? `Copy of ${current.name}` : "New Editor Config",
+      description: current?.description,
+    });
+  }, [authoringConfigSource, openSaveDialog]);
 
   const handleSaveToCurrent = useCallback(async () => {
-    const parsed = parsePresetKey(recipeSettings.preset);
-    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    if (parsed.kind === "builtin" && resolved) {
-      const result = await saveRepoBackedConfigWithState({
-        id: resolved.id,
-        name: resolved.label,
-        description: resolved.description,
-        sourcePath: resolved.sourcePath,
-        sortIndex: resolved.sortIndex ?? 500,
-        latitudeBounds: resolved.latitudeBounds,
-        config: outboundPipelineConfig,
-      });
-      if ((result.ok || result.saved) && "config" in result) {
-        rememberRepoBackedConfig(
-          recipeSettings.recipe,
-          toRepoBackedPreset({
-            id: resolved.id,
-            label: resolved.label,
-            description: resolved.description,
-            sourcePath: result.path ?? resolved.sourcePath,
-            sortIndex: resolved.sortIndex,
-            latitudeBounds: resolved.latitudeBounds,
-            config: result.config,
-          })
-        );
-        markPresetApplied({
-          key: recipeSettings.preset as PresetKey,
-          config: result.config,
-        });
-        setPipelineConfig(result.config);
-      }
-      if (!result.ok) {
-        toast(
-          result.saved && result.deployed
-            ? `Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id} but post-save action failed: ${result.error}`
-            : result.saved
-              ? `Config saved to ${result.path ?? resolved.sourcePath ?? resolved.id} but deploy failed: ${result.error}`
-              : `Config save failed: ${result.error}`,
-          { variant: "error" }
-        );
-      } else {
-        toast(
-          `Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id}`,
-          { variant: "success" }
-        );
-      }
-      return;
-    }
-    if (parsed.kind !== "local") {
-      handleSaveAsNew();
-      toast("Save to Current requires a repo config or scratch config. Save as new instead.", {
+    if (authoringConfigSource.kind === "blocked") {
+      toast("Recover the authoring source before saving config.", {
         variant: "info",
       });
       return;
     }
-    const validatedConfig = materializePipelineConfig({
-      schema: outboundConfigSource.recipeArtifacts.configSchema,
-      config: outboundPipelineConfig,
-      label: "save-current",
-    });
-    if (!validatedConfig.ok) {
-      toast("Config save failed: Config is invalid for this recipe.", { variant: "error" });
-      return;
-    }
-    const result = presetActions.saveToCurrent({
-      recipeId: recipeSettings.recipe,
-      presetId: parsed.id,
-      config: validatedConfig.value,
-    });
-    if (result.error) {
-      toast(result.error, { variant: "error" });
-      return;
-    }
-    if (result.persistenceError) {
-      toast(`Scratch config updated but could not persist: ${result.persistenceError}`, {
-        variant: "error",
+    if (authoringConfigSource.kind === "catalog") {
+      toast("Catalog configs are read-only. Save & Deploy As creates an editor config.", {
+        variant: "info",
       });
       return;
     }
-
-    const label = result.preset?.label ?? resolved?.label ?? "Scratch Config";
-    const description = result.preset?.description ?? resolved?.description;
-    const baseId = toConfigId(label);
-    const id = builtInPresets.some((preset) => preset.id === baseId) ? `scratch-${baseId}` : baseId;
-    const repoResult = await saveRepoBackedConfigWithState({
-      id,
-      name: label,
-      description,
-      sortIndex: (resolved?.sortIndex ?? 900) + 1000,
-      latitudeBounds: resolved?.latitudeBounds,
-      config: validatedConfig.value,
-    });
-    if ((repoResult.ok || repoResult.saved) && "config" in repoResult) {
-      rememberRepoBackedConfig(
-        recipeSettings.recipe,
-        toRepoBackedPreset({
-          id,
-          label,
-          description,
-          sourcePath: repoResult.path ?? `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
-          sortIndex: (resolved?.sortIndex ?? 900) + 1000,
-          latitudeBounds: resolved?.latitudeBounds,
-          config: repoResult.config,
-        })
-      );
-      markPresetApplied({ key: `builtin:${id}`, config: repoResult.config });
-      setPipelineConfig(repoResult.config);
-      setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
-    }
-    if (!repoResult.ok) {
-      toast(
-        repoResult.saved && repoResult.deployed
-          ? `Config saved and deployed from ${repoResult.path ?? `${id}.config.json`} but post-save action failed: ${repoResult.error}`
-          : repoResult.saved
-            ? `Config saved to ${repoResult.path ?? `${id}.config.json`} but deploy failed: ${repoResult.error}`
-            : `Config save failed: ${repoResult.error}`,
-        { variant: "error" }
-      );
-    } else {
-      toast(`Config saved and deployed from ${repoResult.path ?? `${id}.config.json`}`, {
-        variant: "success",
-      });
-    }
-  }, [
-    builtInPresets,
-    handleSaveAsNew,
-    outboundConfigSource,
-    outboundPipelineConfig,
-    presetActions,
-    recipeSettings.preset,
-    recipeSettings.recipe,
-    rememberRepoBackedConfig,
-    resolvePreset,
-    saveRepoBackedConfigWithState,
-    toast,
-  ]);
+    await presentSaveResult(await saveEditorCanonicalConfig(authoringConfigSource.canonicalConfig));
+  }, [authoringConfigSource, presentSaveResult, saveEditorCanonicalConfig, toast]);
 
   return {
     saveDialogState,
@@ -505,5 +304,6 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     handleSaveDialogConfirm,
     handleSaveAsNew,
     handleSaveToCurrent,
+    canSaveToCurrent: authoringConfigSource.kind === "editor",
   };
 }

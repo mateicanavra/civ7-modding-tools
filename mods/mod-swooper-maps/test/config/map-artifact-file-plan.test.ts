@@ -11,12 +11,13 @@ import {
   buildSwooperCatalogMetadataFilePlan,
   buildSwooperMapArtifactFilePlan,
   buildSwooperRunGeneratedModFilePlan,
-  type StudioRunEvidenceEnv,
   type SwooperMapArtifactFilePlan,
 } from "../../scripts/map-artifacts/file-plan";
 import { writeSwooperMapArtifactFilePlan } from "../../scripts/map-artifacts/write-file-plan";
 import {
   buildCanonicalMapConfigSchema,
+  canonicalMapConfigDigest,
+  type MaterializedCanonicalMapConfig,
   type ValidatedMapConfig,
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
@@ -24,13 +25,14 @@ import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
 const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
 const fixtureRecipeConfig = buildCompleteSchemaDefaults(recipeSchema) as Record<string, unknown>;
+const fixtureEnvelopeSchema = buildCanonicalMapConfigSchema(recipeSchema);
 
-async function buildCurrentPlan(evidenceEnv?: StudioRunEvidenceEnv) {
+async function buildCurrentPlan() {
   const configs = await loadSwooperMapConfigRegistry();
   const envelopeSchema = buildCanonicalMapConfigSchema(recipeSchema);
   return {
     configs,
-    plan: buildSwooperMapArtifactFilePlan({ configs, envelopeSchema, evidenceEnv }),
+    plan: buildSwooperMapArtifactFilePlan({ configs, envelopeSchema }),
   };
 }
 
@@ -39,6 +41,10 @@ function textContent(file: { content: { kind: "text"; text: string } | { kind: "
     throw new Error("Expected text artifact content");
   }
   return file.content.text;
+}
+
+function artifactEnvelope(config: ValidatedMapConfig): MaterializedCanonicalMapConfig {
+  return config.canonicalConfig;
 }
 
 function plannedFile(
@@ -64,7 +70,6 @@ function buildFixtureConfig(): ValidatedMapConfig {
       config: fixtureRecipeConfig,
     },
     recipeSchema,
-    stages: STANDARD_STAGES,
   });
 }
 
@@ -82,7 +87,7 @@ describe("Swooper map artifact file plan", () => {
       },
     ]);
     for (const config of configs) {
-      expect(paths.has(`src/maps/generated/${config.id}.ts`)).toBe(true);
+      expect(paths.has(`src/maps/generated/${config.canonicalConfig.id}.ts`)).toBe(true);
     }
     expect(paths.has("mod/config/config.xml")).toBe(true);
     expect(paths.has("mod/swooper-maps.modinfo")).toBe(true);
@@ -99,11 +104,54 @@ describe("Swooper map artifact file plan", () => {
     ).toBe(true);
   });
 
+  it("feeds every schema-materialized catalog envelope into its generated artifact intact", async () => {
+    const { configs, plan } = await buildCurrentPlan();
+
+    for (const config of configs) {
+      const generatedMap = plannedFile(plan, `src/maps/generated/${config.canonicalConfig.id}.ts`);
+      expect(textContent(generatedMap), config.canonicalConfig.id).toContain(
+        JSON.stringify(artifactEnvelope(config), null, 2)
+      );
+    }
+    expect(plan.metadata.configProjections).toEqual(
+      configs.map((config) => ({
+        sourceKind: "catalog",
+        sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
+        canonicalConfig: config.canonicalConfig,
+      }))
+    );
+  });
+
+  it("hashes every portable canonical-envelope field", () => {
+    const canonicalConfig = artifactEnvelope(buildFixtureConfig());
+    const baselineDigest = canonicalMapConfigDigest(canonicalConfig);
+    const variants: readonly MaterializedCanonicalMapConfig[] = [
+      { ...canonicalConfig, id: "fixture-map-renamed" },
+      { ...canonicalConfig, name: "Different fixture name" },
+      { ...canonicalConfig, description: "Different fixture description" },
+      { ...canonicalConfig, recipe: "other-recipe" as never },
+      { ...canonicalConfig, sortIndex: canonicalConfig.sortIndex + 1 },
+      {
+        ...canonicalConfig,
+        latitudeBounds: {
+          topLatitude: 55,
+          bottomLatitude: canonicalConfig.latitudeBounds.bottomLatitude,
+        },
+      },
+      { ...canonicalConfig, logPrefix: "[different-fixture]" },
+      { ...canonicalConfig, config: { ...canonicalConfig.config, fixtureVariant: true } },
+    ];
+
+    for (const variant of variants) {
+      expect(canonicalMapConfigDigest(variant)).not.toBe(baselineDigest);
+    }
+  });
+
   it("renders exact file-plan content for a schema-valid fixture config", () => {
     const fixtureConfig = buildFixtureConfig();
     const plan = buildSwooperMapArtifactFilePlan({
       configs: [fixtureConfig],
-      envelopeSchema: { fixture: true },
+      envelopeSchema: fixtureEnvelopeSchema,
     });
 
     expect(plan.files.map((file) => [file.relativePath, file.kind])).toEqual([
@@ -123,21 +171,8 @@ describe("Swooper map artifact file plan", () => {
     expect(markerMetadata?.configHash).toMatch(/^[a-f0-9]{64}$/);
     expect(markerMetadata?.envelopeHash).toMatch(/^[a-f0-9]{64}$/);
     const generatedMapText = textContent(generatedMap);
-    expect(generatedMapText).toContain("const mapConfig = {");
-    expect(generatedMapText).toContain('  "id": "fixture-map",');
-    expect(generatedMapText).toContain(`  latitudeBounds: {
-    "topLatitude": 60,
-    "bottomLatitude": -45
-  },`);
-    expect(generatedMapText).toContain('  logPrefix: "[fixture]",');
-    expect(generatedMapText).toContain('  sourceConfigId: "fixture-map",');
-    expect(generatedMapText).toContain(`  configHash: "${markerMetadata?.configHash}",`);
-    expect(generatedMapText).toContain(`  envelopeHash: "${markerMetadata?.envelopeHash}",`);
-    expect(generatedMapText).toContain("export default createMap({");
-    expect(generatedMapText).toContain(
-      "config: mapConfig.config as unknown as StandardRecipeConfig"
-    );
-    expect(generatedMapText).not.toContain("requestId");
+    expect(generatedMapText).toContain(JSON.stringify(artifactEnvelope(fixtureConfig), null, 2));
+    expect(generatedMapText).not.toContain("admitStandardMapConfig");
 
     expect(
       textContent(plannedFile(plan, "mod/config/config.xml"))
@@ -165,31 +200,19 @@ describe("Swooper map artifact file plan", () => {
     expect(textContent(plannedFile(plan, "mod/data/biome-hazards.xml"))).toContain(
       '<Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME"'
     );
-    expect(textContent(plannedFile(plan, "dist/recipes/standard-map-config.schema.json"))).toBe(`{
-  "fixture": true
-}
-`);
+    expect(
+      JSON.parse(textContent(plannedFile(plan, "dist/recipes/standard-map-config.schema.json")))
+    ).toEqual(JSON.parse(JSON.stringify(fixtureEnvelopeSchema)));
 
     const catalogModule = textContent(plannedFile(plan, "dist/recipes/standard-map-configs.js"));
     expect(catalogModule).toStartWith(
       "// This file is generated by scripts/generate-studio-map-catalog.ts"
     );
-    const catalogJson = catalogModule
-      .replace(/^.*export const standardMapConfigs = /s, "")
-      .replace(/;\n$/, "");
-    expect(JSON.parse(catalogJson)).toEqual([
+    expect(plan.metadata.configProjections).toEqual([
       {
-        id: "fixture-map",
-        label: "Fixture & Map <One>",
-        name: "Fixture & Map <One>",
-        description: "Wet & dry edge",
-        recipe: "standard",
-        sortIndex: 7,
-        latitudeBounds: { topLatitude: 60, bottomLatitude: -45 },
-        configHash: markerMetadata?.configHash,
-        envelopeHash: markerMetadata?.envelopeHash,
+        sourceKind: "catalog",
         sourcePath: "mods/mod-swooper-maps/src/maps/configs/fixture-map.config.json",
-        config: fixtureRecipeConfig,
+        canonicalConfig: artifactEnvelope(fixtureConfig),
       },
     ]);
   });
@@ -198,7 +221,7 @@ describe("Swooper map artifact file plan", () => {
     const fixtureConfig = buildFixtureConfig();
     const plan = buildSwooperCatalogMetadataFilePlan({
       configs: [fixtureConfig],
-      envelopeSchema: { fixture: true },
+      envelopeSchema: fixtureEnvelopeSchema,
     });
 
     expect(plan.exclusiveSets).toEqual([]);
@@ -213,61 +236,34 @@ describe("Swooper map artifact file plan", () => {
     );
   });
 
-  it("attaches run evidence metadata only to the selected map entry", async () => {
-    const selectedConfigId = "swooper-earthlike";
-    const { plan } = await buildCurrentPlan({
-      kind: "run",
-      requestId: "studio-run-in-game-plan-test",
-      launchConfigId: selectedConfigId,
-      launchEnvelopeDigest: "launch-envelope-digest-plan-test",
-    });
-    const selectedFile = plan.files.find(
-      (file) => file.relativePath === `src/maps/generated/${selectedConfigId}.ts`
-    );
-    const otherGeneratedFiles = plan.files.filter(
-      (file) =>
-        file.kind === "generated-map-entry" &&
-        file.relativePath !== `src/maps/generated/${selectedConfigId}.ts`
-    );
+  it("emits catalog-only config identity for every catalog map entry", async () => {
+    const { plan } = await buildCurrentPlan();
+    const generatedMapFiles = plan.files.filter((file) => file.kind === "generated-map-entry");
 
-    expect(selectedFile?.markerMetadata).toMatchObject({
-      configId: selectedConfigId,
-      envelopeHash: "launch-envelope-digest-plan-test",
-      requestId: "studio-run-in-game-plan-test",
-    });
-    expect(selectedFile?.content.kind).toBe("text");
-    expect(selectedFile?.content.kind === "text" ? selectedFile.content.text : "").toContain(
-      "studio-run-in-game-plan-test"
-    );
-    expect(selectedFile?.content.kind === "text" ? selectedFile.content.text : "").toContain(
-      "launch-envelope-digest-plan-test"
-    );
-    for (const file of otherGeneratedFiles) {
+    for (const file of generatedMapFiles) {
+      expect(file.markerMetadata).toHaveProperty("configHash");
+      expect(file.markerMetadata).toHaveProperty("envelopeHash");
       expect(file.markerMetadata).not.toHaveProperty("requestId");
+      expect(file.markerMetadata).not.toHaveProperty("launchEnvelopeDigest");
       expect(file.content.kind).toBe("text");
       const text = file.content.kind === "text" ? file.content.text : "";
-      expect(text).not.toContain("studio-run-in-game-plan-test");
-      expect(text).not.toContain("launch-envelope-digest-plan-test");
+      expect(text).not.toContain("runCorrelation");
+      expect(text).not.toContain("requestId:");
+      expect(text).not.toContain("launchEnvelopeDigest");
+      expect(text).not.toContain("generationManifestDigest");
     }
   });
 
   it("renders generated run mod action groups under the run mod namespace", () => {
     const fixtureConfig = buildFixtureConfig();
-    const markerMetadata = buildSwooperMapArtifactFilePlan({
-      configs: [fixtureConfig],
-      envelopeSchema: { fixture: true },
-    }).files.find((file) => file.kind === "generated-map-entry")?.markerMetadata;
-    if (!markerMetadata) throw new Error("Missing fixture marker metadata.");
-
     const plan = buildSwooperRunGeneratedModFilePlan({
-      selectedConfigId: fixtureConfig.id,
-      config: fixtureConfig,
+      config: fixtureConfig.canonicalConfig,
       seed: 123,
       correlation: {
         requestId: "studio-run-in-game-action-groups",
         runArtifactId: "run-action-groups",
         launchSourceDigest: {
-          configContentDigest: markerMetadata.configHash,
+          canonicalConfigDigest: canonicalMapConfigDigest(fixtureConfig.canonicalConfig),
           launchEnvelopeDigest: "launch-envelope-digest",
         },
         launchEnvelopeDigest: "launch-envelope-digest",
@@ -277,6 +273,7 @@ describe("Swooper map artifact file plan", () => {
 
     const modInfo = textContent(plannedFile(plan, "mod-swooper-studio-run.modinfo"));
     const configXml = textContent(plannedFile(plan, "config/config.xml"));
+    const mapSource = textContent(plannedFile(plan, ".source/maps/run-action-groups.ts"));
     expect(modInfo).toContain('<Criteria id="always-mod-swooper-studio-run">');
     expect(modInfo).toContain(
       '<ActionGroup id="game-mod-swooper-studio-run" scope="game" criteria="always-mod-swooper-studio-run">'
@@ -288,6 +285,12 @@ describe("Swooper map artifact file plan", () => {
     expect(modInfo).not.toContain('id="shell-swooper-maps"');
     expect(configXml).toContain('File="{mod-swooper-studio-run}/maps/studio-run.js"');
     expect(configXml).toContain('Name="LOC_MAP_MAP_STUDIO_RUN_NAME"');
+    expect(mapSource).toContain(JSON.stringify(artifactEnvelope(fixtureConfig), null, 2));
+    expect(mapSource).not.toContain("admitStandardMapConfig");
+    expect(mapSource).not.toContain("@civ7/studio-contract");
+    expect(plan.metadata.configProjections).toEqual([
+      { sourceKind: "generated-run", canonicalConfig: fixtureConfig.canonicalConfig },
+    ]);
   });
 
   it("writes a file plan under the supplied output root and removes stale generated entries", async () => {
@@ -326,6 +329,7 @@ describe("Swooper map artifact file plan", () => {
       await mkdir(resolve(outputRoot, "src/maps/generated"), { recursive: true });
       await writeFile(staleGenerated, "stale");
       const invalidPlan: SwooperMapArtifactFilePlan = {
+        metadata: plan.metadata,
         exclusiveSets: plan.exclusiveSets,
         files: [
           {

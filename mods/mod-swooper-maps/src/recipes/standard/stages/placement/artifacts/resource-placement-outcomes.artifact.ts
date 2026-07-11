@@ -62,7 +62,7 @@ const ResourcePlacementCoordinateDigestSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const ResourcePlacementCoordinateProofSchema = Type.Object(
+const ResourcePlacementCoordinateEvidenceSchema = Type.Object(
   {
     version: Type.Literal(1),
     placed: ResourcePlacementCoordinateDigestSchema,
@@ -82,7 +82,7 @@ const ResourcePlacementSummarySchema = Type.Object(
     placedCount: Type.Integer({ minimum: 0 }),
     rejectedCount: Type.Integer({ minimum: 0 }),
     mismatchCount: Type.Integer({ minimum: 0 }),
-    coordinateProof: ResourcePlacementCoordinateProofSchema,
+    coordinateEvidence: ResourcePlacementCoordinateEvidenceSchema,
     byResource: Type.Array(ResourcePlacementResourceSummarySchema),
     byReason: Type.Array(ResourcePlacementReasonCountSchema),
   },

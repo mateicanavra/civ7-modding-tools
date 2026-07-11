@@ -1,55 +1,26 @@
-import type { RunInGameOperationStatus } from "@civ7/studio-contract";
-import type {
-  PipelineConfig,
-  RecipeSettings,
-  WorldSettings,
-} from "@swooper/mapgen-studio-ui/types";
+import {
+  type MapConfigEnvelope,
+  type RunInGameOperationStatus,
+  serializeMapConfigEnvelope,
+} from "@civ7/studio-contract";
 import { describe, expect, it } from "vitest";
+import { createStudioEditorCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
 import {
   buildRunInGameClientSnapshot,
-  buildRunInGameFingerprint,
-  buildRunInGameSourceSnapshot,
-  parseRunInGameClientSnapshot,
-  parseRunInGameSourceSnapshot,
   relationForRunInGameOperation,
 } from "../../src/features/runInGame/clientState";
 
-const recipeSettings: RecipeSettings = {
-  recipe: "standard",
-  preset: "builtin:swooper-earthlike",
+const recipeSettings = {
+  recipe: "mod-swooper-maps/standard",
+  preset: "none",
   seed: "123",
 };
-
-const worldSettings: WorldSettings = {
-  mapSize: "MAPSIZE_STANDARD",
+const worldSettings = {
+  mapSize: "MAPSIZE_STANDARD" as const,
   playerCount: 8,
-  resources: "balanced",
+  resources: "balanced" as const,
 };
-
-const pipelineConfig = {
-  morphology: {
-    knobs: {
-      landmasses: "earthlike",
-    },
-  },
-} as unknown as PipelineConfig;
-
-const setupConfig = {
-  gameOptions: {
-    Difficulty: "DIFFICULTY_PRINCE",
-  },
-  playerOptions: [
-    {
-      playerId: 0,
-      options: {
-        PlayerLeader: "LEADER_HARRIET_TUBMAN",
-        PlayerCivilization: "CIVILIZATION_AMERICA",
-        PlayerDifficulty: "DIFFICULTY_PRINCE",
-      },
-    },
-  ],
-};
-
+const setupConfig = { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] };
 const status: RunInGameOperationStatus = {
   requestId: "studio-run-in-game-test",
   phase: "completed",
@@ -61,144 +32,75 @@ const status: RunInGameOperationStatus = {
 };
 
 describe("Run in Game client state", () => {
-  it("detects whether a completed operation still matches the authored Studio state", () => {
+  it("correlates only a server request id and local authoring revision", () => {
+    const canonicalConfig = serializeMapConfigEnvelope(createStudioEditorCanonicalConfig());
     const snapshot = buildRunInGameClientSnapshot({
       requestId: status.requestId,
+      authoringRevision: 4,
       recipeSettings,
       worldSettings,
-      pipelineConfig,
       setupConfig,
-      materializationMode: "durable",
-      now: () => new Date("2026-06-01T00:00:00.000Z"),
-    });
-    const currentFingerprint = buildRunInGameFingerprint({
-      recipeSettings,
-      worldSettings,
-      pipelineConfig,
-      setupConfig,
-      materializationMode: "durable",
+      source: { kind: "editor", editorSessionId: "studio-current", canonicalConfig },
     });
 
-    expect(relationForRunInGameOperation({ status, snapshot, currentFingerprint })).toBe("current");
+    expect(relationForRunInGameOperation({ status, snapshot, authoringRevision: 4 })).toBe(
+      "current"
+    );
+    expect(relationForRunInGameOperation({ status, snapshot, authoringRevision: 5 })).toBe("stale");
     expect(
       relationForRunInGameOperation({
-        status,
+        status: { ...status, requestId: "different-server-request" },
         snapshot,
-        currentFingerprint: buildRunInGameFingerprint({
-          recipeSettings: { ...recipeSettings, seed: "456" },
-          worldSettings,
-          pipelineConfig,
-          setupConfig,
-          materializationMode: "durable",
-        }),
-      })
-    ).toBe("stale");
-    expect(
-      relationForRunInGameOperation({
-        status,
-        snapshot,
-        currentFingerprint: buildRunInGameFingerprint({
-          recipeSettings,
-          worldSettings,
-          pipelineConfig,
-          setupConfig: {
-            ...setupConfig,
-            playerOptions: [
-              {
-                playerId: 0,
-                options: {
-                  ...setupConfig.playerOptions[0]!.options,
-                  PlayerLeader: "LEADER_ASHOKA",
-                },
-              },
-            ],
-          },
-          materializationMode: "durable",
-        }),
-      })
-    ).toBe("stale");
-  });
-
-  it("treats missing or mismatched stored snapshots as unknown instead of current", () => {
-    expect(
-      relationForRunInGameOperation({
-        status,
-        snapshot: null,
-        currentFingerprint: "anything",
+        authoringRevision: 4,
       })
     ).toBe("unknown");
-    expect(
-      relationForRunInGameOperation({
-        status,
-        snapshot: {
-          requestId: "other-request",
-          createdAt: "2026-06-01T00:00:00.000Z",
-          fingerprint: "anything",
-          seed: "123",
-          mapSize: "MAPSIZE_STANDARD",
-          playerCount: 8,
-          resources: "balanced",
-          recipe: "standard",
-          preset: "builtin:swooper-earthlike",
-          setupConfig,
-          materializationMode: "durable",
-        },
-        currentFingerprint: "anything",
-      })
-    ).toBe("unknown");
+    expect(snapshot).not.toHaveProperty("fingerprint");
+    expect(snapshot).not.toHaveProperty("canonicalConfigDigest");
+    expect(snapshot).not.toHaveProperty("launchEnvelopeDigest");
   });
 
-  it("parses only complete stored snapshots", () => {
-    expect(
-      parseRunInGameClientSnapshot(
-        JSON.stringify({
-          requestId: "request",
-          createdAt: "2026-06-01T00:00:00.000Z",
-          fingerprint: "fingerprint",
-          seed: "123",
-          mapSize: "MAPSIZE_STANDARD",
-          playerCount: 8,
-          resources: "balanced",
-          recipe: "standard",
-          preset: "none",
-          materializationMode: "disposable",
-        })
-      )
-    ).toMatchObject({ requestId: "request" });
-    expect(parseRunInGameClientSnapshot('{"requestId":"request"}')).toBeNull();
-    expect(parseRunInGameClientSnapshot("not json")).toBeNull();
-  });
-
-  it("round-trips the stored source snapshot used to sync Studio from a proved live game", () => {
-    const source = buildRunInGameSourceSnapshot({
+  it("retains an immutable snapshot of the complete configuration that was admitted", () => {
+    const canonicalConfig = serializeMapConfigEnvelope(
+      createStudioEditorCanonicalConfig()
+    ) as unknown as MapConfigEnvelope;
+    const launchedName = canonicalConfig.name;
+    const snapshot = buildRunInGameClientSnapshot({
       requestId: status.requestId,
+      authoringRevision: 1,
       recipeSettings,
       worldSettings,
-      pipelineConfig,
       setupConfig,
-      materializationMode: "disposable",
-      selectedConfig: {
-        id: "studio-current",
-        label: "Live Game",
-        catalogSourceId: "swooper-desert-mountains",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-desert-mountains.config.json",
-        sortIndex: 25,
-        latitudeBounds: { topLatitude: 40, bottomLatitude: -40 },
-      },
-      now: () => new Date("2026-06-01T00:00:00.000Z"),
+      source: { kind: "editor", editorSessionId: "studio-current", canonicalConfig },
     });
 
-    expect(parseRunInGameSourceSnapshot(JSON.stringify(source))).toEqual(source);
-    expect(
-      parseRunInGameSourceSnapshot(
-        JSON.stringify({
-          requestId: status.requestId,
-          createdAt: "2026-06-01T00:00:00.000Z",
-          recipeSettings,
-          worldSettings,
-          materializationMode: "disposable",
-        })
-      )
-    ).toBeNull();
+    (canonicalConfig as { name: string }).name = "Edited after submission";
+
+    expect(snapshot.launchEnvelope.source.canonicalConfig.name).toBe(launchedName);
+    expect(snapshot.launchEnvelope.source.canonicalConfig).not.toBe(canonicalConfig);
+    expect(Object.isFrozen(snapshot.launchEnvelope.source.canonicalConfig)).toBe(true);
+    expect(snapshot.launchEnvelope.recipeSettings).toEqual(recipeSettings);
+    expect(snapshot.launchEnvelope.worldSettings).toEqual(worldSettings);
+  });
+
+  it("retains only sourcePath for a catalog request", () => {
+    const snapshot = buildRunInGameClientSnapshot({
+      requestId: "catalog-request-id",
+      authoringRevision: 1,
+      recipeSettings,
+      worldSettings,
+      setupConfig,
+      source: {
+        kind: "catalog",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        canonicalConfig: createStudioEditorCanonicalConfig(),
+      },
+    });
+
+    expect(snapshot.requestId).toBe("catalog-request-id");
+    expect(snapshot.launchEnvelope.source).toEqual({
+      kind: "catalog",
+      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+    });
+    expect(snapshot.launchEnvelope.source).not.toHaveProperty("canonicalConfig");
   });
 });

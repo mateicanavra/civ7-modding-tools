@@ -2,32 +2,34 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type {
-  RunInGameFileContentProof,
+  RunInGameFileContentEvidence,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
-  RunInGameSourceSnapshotProof,
+  RunInGameSourceSnapshotEvidence,
 } from "@civ7/studio-server";
+import { buildRunInGameSourceSnapshotEvidence } from "@civ7/studio-server";
 import { describe, expect, it } from "vitest";
 import {
-  buildRunInGameExactAuthorshipProof,
-  buildRunInGameSourceSnapshotProof,
-  fileContentMarkerProof,
-  fileIdentity,
-  parseSwooperMapgenLogProof,
+  buildRunInGameExactAuthorshipEvidence,
   runInGameMaterializationScriptUnresolvedLinks,
+} from "../../src/server/runInGame/authorshipEvidence";
+import type { RunInGameDetailedExactAuthorshipEvidence } from "../../src/server/runInGame/evidenceTypes";
+import {
+  fileContentMarkerEvidence,
+  fileIdentity,
   runInGameRequiredMaterializationMarkers,
-} from "../../src/server/runInGame/proofIdentity";
-import type { RunInGameDetailedExactAuthorshipProof } from "../../src/server/runInGame/proofTypes";
+} from "../../src/server/runInGame/fileEvidence";
+import { parseSwooperMapgenLogEvidence } from "../../src/server/runInGame/swooperLogEvidence";
 
 const requestId = "studio-run-in-game-test";
 const configHash = "config-hash";
-const envelopeHash = "envelope-hash";
+const launchEnvelopeDigest = "envelope-hash";
 const mapScript = "{swooper-maps}/maps/studio-current.js";
 
-describe("Run in Game exact authorship proof identity", () => {
+describe("Run in Game exact authorship evidence identity", () => {
   it("hashes file content for deployed artifact identity", async () => {
-    const dir = await mkdtemp(join(tmpdir(), "studio-proof-"));
+    const dir = await mkdtemp(join(tmpdir(), "studio-evidence-"));
     try {
       const path = join(dir, "studio-current.js");
       await writeFile(path, "export const marker = 1;\n", "utf8");
@@ -43,7 +45,7 @@ describe("Run in Game exact authorship proof identity", () => {
   });
 
   it("proves required materialization markers from generated script content", async () => {
-    const dir = await mkdtemp(join(tmpdir(), "studio-proof-markers-"));
+    const dir = await mkdtemp(join(tmpdir(), "studio-evidence-markers-"));
     try {
       const path = join(dir, "studio-current.js");
       await writeFile(
@@ -51,24 +53,28 @@ describe("Run in Game exact authorship proof identity", () => {
         [
           requestId,
           configHash,
-          envelopeHash,
+          launchEnvelopeDigest,
           "map.rivers.authoredTerrainMaterialization",
           "POST-AUTHORED-RIVERS",
         ].join("\n"),
         "utf8"
       );
 
-      const proof = await fileContentMarkerProof({
+      const evidence = await fileContentMarkerEvidence({
         repoRoot: dir,
         path,
-        markers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash }),
+        markers: runInGameRequiredMaterializationMarkers({
+          requestId,
+          canonicalConfigDigest: configHash,
+          launchEnvelopeDigest,
+        }),
       });
 
-      expect(proof.path).toBe("studio-current.js");
-      expect(proof.markers.map((marker) => [marker.id, marker.present])).toEqual([
+      expect(evidence.path).toBe("studio-current.js");
+      expect(evidence.markers.map((marker) => [marker.id, marker.present])).toEqual([
         ["run-request-id", true],
-        ["run-config-hash", true],
-        ["run-envelope-hash", true],
+        ["run-canonical-config-digest", true],
+        ["run-launch-envelope-digest", true],
         ["authored-river-materialization-trace", true],
         ["authored-river-materialization-checkpoint", true],
       ]);
@@ -77,63 +83,62 @@ describe("Run in Game exact authorship proof identity", () => {
     }
   });
 
-  it("builds stable source snapshot identity from Studio-authored visible state", () => {
-    const first = buildRunInGameSourceSnapshotProof({
+  it("builds a source snapshot from provenance and derived digests", () => {
+    const first = buildRunInGameSourceSnapshotEvidence({
       requestId,
       sourceSnapshot: {
-        recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
-        worldSettings: { resources: "balanced" },
-        pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
+        source: { kind: "editor", editorSessionId: "test-editor-session" },
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest: launchEnvelopeDigest,
       },
-      configHash,
-      envelopeHash,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest: launchEnvelopeDigest,
     });
-    const second = buildRunInGameSourceSnapshotProof({
+    const second = buildRunInGameSourceSnapshotEvidence({
       requestId,
       sourceSnapshot: {
-        worldSettings: { resources: "balanced" },
-        pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
-        recipeSettings: { mapSize: "MAPSIZE_STANDARD", seed: 42 },
+        source: { editorSessionId: "test-editor-session", kind: "editor" },
+        launchEnvelopeDigest: launchEnvelopeDigest,
+        canonicalConfigDigest: configHash,
       },
-      configHash,
-      envelopeHash,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest: launchEnvelopeDigest,
     });
 
-    expect(first?.identityHash).toBe(second?.identityHash);
+    expect(first).toEqual(second);
     expect(first).toMatchObject({
       requestId,
-      configHash,
-      envelopeHash,
-      recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
-      pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
+      source: { kind: "editor", editorSessionId: "test-editor-session" },
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest: launchEnvelopeDigest,
     });
     expect(
-      buildRunInGameSourceSnapshotProof({
+      buildRunInGameSourceSnapshotEvidence({
         requestId,
         sourceSnapshot: {
-          recipeSettings: { seed: 42, mapSize: "MAPSIZE_STANDARD" },
-          worldSettings: { resources: "balanced" },
-          pipelineConfig: { continents: { knobs: { landmassRatio: 0.5 } } },
+          source: { kind: "editor", editorSessionId: "test-editor-session" },
+          canonicalConfigDigest: "changed-config-hash",
+          launchEnvelopeDigest: launchEnvelopeDigest,
         },
-        configHash,
-        envelopeHash,
-      })?.identityHash
-    ).not.toBe(first?.identityHash);
+        canonicalConfigDigest: "changed-config-hash",
+        launchEnvelopeDigest: launchEnvelopeDigest,
+      })
+    ).not.toEqual(first);
     expect(
-      buildRunInGameSourceSnapshotProof({
+      buildRunInGameSourceSnapshotEvidence({
         requestId,
         sourceSnapshot: undefined,
-        configHash,
-        envelopeHash,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest: launchEnvelopeDigest,
       })
     ).toBeUndefined();
   });
 
-  it("parses bounded Swooper proof and completion log payloads for the same request chain", () => {
-    const logProof = parseSwooperMapgenLogProof({
+  it("parses bounded Swooper evidence and completion log payloads for the same request chain", () => {
+    const logEvidence = parseSwooperMapgenLogEvidence({
       text: [
-        `[mapgen-proof] ${JSON.stringify({ requestId: "old", configHash, envelopeHash, seed: 42, dimensions: { width: 1, height: 1 } })}`,
-        `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, mapSize: "MAPSIZE_STANDARD", dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-evidence] ${JSON.stringify({ requestId: "old", canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 1, height: 1 } })}`,
+        `[mapgen-evidence] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, mapSize: "MAPSIZE_STANDARD", dimensions: { width: 84, height: 54 } })}`,
         `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
           attempted: 1434,
           applied: 1430,
@@ -177,7 +182,7 @@ describe("Run in Game exact authorship proof identity", () => {
               targetMin: 7,
             },
           ],
-          coordinateProof: {
+          coordinateEvidence: {
             version: 1,
             placedCount: 3,
             placedHash32: "3c3530cb",
@@ -194,7 +199,7 @@ describe("Run in Game exact authorship proof identity", () => {
             ["p", 1320, 60, 15, 35, 0, 120, 610000],
             ["p", 1405, 61, 16, 36, 0, 90, 420000],
           ],
-          coordinateProof: {
+          coordinateEvidence: {
             version: 1,
             plannedCount: 2,
             plannedHash32: "bbbbbbbb",
@@ -232,7 +237,7 @@ describe("Run in Game exact authorship proof identity", () => {
           shortfallCount: 0,
           rejectionExampleCount: 1,
           rejectionExamples: ["feature=35 plot=1320 reason=adapter-rejected"],
-          coordinateProof: {
+          coordinateEvidence: {
             version: 1,
             placedCount: 6,
             placedHash32: "3c3530cb",
@@ -255,26 +260,32 @@ describe("Run in Game exact authorship proof identity", () => {
             ],
           ],
         })}`,
-        `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-complete] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 54 } })}`,
       ].join("\n"),
       logPath: "/tmp/Scripting.log",
       observedAt: "2026-06-06T00:00:00.000Z",
       requestId,
-      configHash,
-      envelopeHash,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
       seed: 42,
     });
 
-    expect(logProof).toMatchObject({
+    expect(logEvidence).toMatchObject({
       requestId,
-      configHash,
-      envelopeHash,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
       seed: 42,
       mapSize: "MAPSIZE_STANDARD",
       dimensions: { width: 84, height: 54 },
-      matched: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
+      matched: [
+        "[mapgen-evidence]",
+        requestId,
+        configHash,
+        launchEnvelopeDigest,
+        "[mapgen-complete]",
+      ],
     });
-    expect(logProof?.featureApply).toMatchObject({
+    expect(logEvidence?.featureApply).toMatchObject({
       marker: "FEATURE_APPLY_V1",
       stats: {
         attempted: 1434,
@@ -286,13 +297,13 @@ describe("Run in Game exact authorship proof identity", () => {
         rejectedCanHaveFeatureByFeature: { FEATURE_TAIGA: 4 },
       },
     });
-    expect(logProof?.placementSurfacePreparation).toMatchObject({
+    expect(logEvidence?.placementSurfacePreparation).toMatchObject({
       marker: "PLACEMENT_SURFACE_PREPARATION_V1",
       acceptedLakeTileCount: 63,
       finalLakeWaterDriftCount: 0,
       finalLakeClassificationDriftCount: 0,
     });
-    expect(logProof?.resourcePlacement).toMatchObject({
+    expect(logEvidence?.resourcePlacement).toMatchObject({
       marker: "RESOURCE_PLACEMENT_V1",
       stats: {
         version: 1,
@@ -324,13 +335,13 @@ describe("Run in Game exact authorship proof identity", () => {
           },
         ],
       },
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placed: { count: 3, hash32: "3c3530cb" },
         rejected: { count: 1, hash32: "aaaaaaaa" },
       },
     });
-    expect(logProof?.naturalWonderPlan).toMatchObject({
+    expect(logEvidence?.naturalWonderPlan).toMatchObject({
       marker: "NATURAL_WONDER_PLAN_V1",
       stats: {
         version: 1,
@@ -338,7 +349,7 @@ describe("Run in Game exact authorship proof identity", () => {
         targetCount: 7,
         plannedCount: 2,
       },
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         planned: { count: 2, hash32: "bbbbbbbb" },
       },
@@ -363,7 +374,7 @@ describe("Run in Game exact authorship proof identity", () => {
         },
       ],
     });
-    expect(logProof?.naturalWonderPlanInput).toMatchObject({
+    expect(logEvidence?.naturalWonderPlanInput).toMatchObject({
       marker: "NATURAL_WONDER_PLAN_INPUT_V1",
       stats: {
         version: 1,
@@ -416,7 +427,7 @@ describe("Run in Game exact authorship proof identity", () => {
         },
       ],
     });
-    expect(logProof?.naturalWonderPlacement).toMatchObject({
+    expect(logEvidence?.naturalWonderPlacement).toMatchObject({
       marker: "NATURAL_WONDER_PLACEMENT_V1",
       stats: {
         version: 1,
@@ -430,7 +441,7 @@ describe("Run in Game exact authorship proof identity", () => {
         rejectionExampleCount: 1,
         rejectionExamples: ["feature=35 plot=1320 reason=adapter-rejected"],
       },
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placed: { count: 6, hash32: "3c3530cb" },
         rejected: { count: 1, hash32: "aaaaaaaa" },
@@ -452,30 +463,53 @@ describe("Run in Game exact authorship proof identity", () => {
       ],
     });
     expect(
-      parseSwooperMapgenLogProof({
-        text: `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 41, dimensions: { width: 84, height: 54 } })}`,
+      parseSwooperMapgenLogEvidence({
+        text: `[mapgen-evidence] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 41, dimensions: { width: 84, height: 54 } })}`,
         requestId,
-        configHash,
-        envelopeHash,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest,
         seed: 42,
       })
     ).toBeUndefined();
     expect(
-      parseSwooperMapgenLogProof({
+      parseSwooperMapgenLogEvidence({
         text: [
-          `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
-          `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 55 } })}`,
+          `[mapgen-evidence] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+          `[mapgen-complete] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 55 } })}`,
         ].join("\n"),
         requestId,
-        configHash,
-        envelopeHash,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest,
         seed: 42,
       })
     ).toBeUndefined();
   });
 
-  it("ignores placement telemetry outside the matching proof section", () => {
-    const logProof = parseSwooperMapgenLogProof({
+  it("rejects the retired envelopeHash marker at the Swooper evidence boundary", () => {
+    const retiredPayload = {
+      requestId,
+      canonicalConfigDigest: configHash,
+      envelopeHash: launchEnvelopeDigest,
+      seed: 42,
+      dimensions: { width: 84, height: 54 },
+    };
+
+    expect(
+      parseSwooperMapgenLogEvidence({
+        text: [
+          `[mapgen-evidence] ${JSON.stringify(retiredPayload)}`,
+          `[mapgen-complete] ${JSON.stringify(retiredPayload)}`,
+        ].join("\n"),
+        requestId,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest,
+        seed: 42,
+      })
+    ).toBeUndefined();
+  });
+
+  it("ignores placement telemetry outside the matching evidence section", () => {
+    const logEvidence = parseSwooperMapgenLogEvidence({
       text: [
         `[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 ${JSON.stringify({
           acceptedLakeTileCount: 63,
@@ -490,7 +524,7 @@ describe("Run in Game exact authorship proof identity", () => {
         })}`,
         `[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
-          coordinateProof: { version: 1, placedCount: 4, placedHash32: "aaaaaaaa" },
+          coordinateEvidence: { version: 1, placedCount: 4, placedHash32: "aaaaaaaa" },
         })}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify({
           version: 1,
@@ -498,7 +532,7 @@ describe("Run in Game exact authorship proof identity", () => {
           targetCount: 1,
           plannedCount: 1,
           planRows: [["p", 0, 0, 0, 35, 0, 1, 1000000]],
-          coordinateProof: { version: 1, plannedCount: 1, plannedHash32: "aaaaaaaa" },
+          coordinateEvidence: { version: 1, plannedCount: 1, plannedHash32: "aaaaaaaa" },
         })}`,
         `[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 ${JSON.stringify({
           version: 1,
@@ -510,39 +544,49 @@ describe("Run in Game exact authorship proof identity", () => {
           rejectedCount: 0,
           shortfallCount: 0,
         })}`,
-        `[mapgen-proof] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
-        `[mapgen-complete] ${JSON.stringify({ requestId, configHash, envelopeHash, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-evidence] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 54 } })}`,
+        `[mapgen-complete] ${JSON.stringify({ requestId, canonicalConfigDigest: configHash, launchEnvelopeDigest, seed: 42, dimensions: { width: 84, height: 54 } })}`,
       ].join("\n"),
       requestId,
-      configHash,
-      envelopeHash,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
       seed: 42,
     });
 
-    expect(logProof?.featureApply).toBeUndefined();
-    expect(logProof?.placementSurfacePreparation).toBeUndefined();
-    expect(logProof?.resourcePlacement).toBeUndefined();
-    expect(logProof?.naturalWonderPlan).toBeUndefined();
-    expect(logProof?.naturalWonderPlacement).toBeUndefined();
+    expect(logEvidence?.featureApply).toBeUndefined();
+    expect(logEvidence?.placementSurfacePreparation).toBeUndefined();
+    expect(logEvidence?.resourcePlacement).toBeUndefined();
+    expect(logEvidence?.naturalWonderPlan).toBeUndefined();
+    expect(logEvidence?.naturalWonderPlacement).toBeUndefined();
   });
 
   it("marks exact authorship complete only when every required identity and equality link resolves", () => {
-    const proof = buildRunInGameExactAuthorshipProof(completeProofArgs());
+    const evidence = buildRunInGameExactAuthorshipEvidence(completeEvidenceArgs());
 
-    expect(proof.status).toBe("complete");
-    expect(proof.unresolvedLinks).toEqual([]);
-    expect(proof.runtime).toMatchObject({
+    expect(evidence.status).toBe("complete");
+    expect(evidence.unresolvedLinks).toEqual([]);
+    expect(evidence.runtime).toMatchObject({
       seed: 42,
       width: 84,
       height: 54,
       gameHash: 123456,
       sourceSnapshotId: "live-runtime:abc",
     });
+    expect(evidence.sourceSnapshot).toMatchObject({
+      source: { kind: "editor", editorSessionId: "test-editor-session" },
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest: launchEnvelopeDigest,
+    });
+    expect(Object.isFrozen(evidence)).toBe(true);
+    expect(Object.isFrozen(evidence.request)).toBe(true);
+    expect(Object.isFrozen(evidence.materialization)).toBe(true);
+    expect(Object.isFrozen(evidence.log)).toBe(true);
+    expect(Object.isFrozen(evidence.unresolvedLinks)).toBe(true);
   });
 
   it("uses request-local generated mod evidence instead of legacy source-script links", () => {
-    const args = completeProofArgs();
-    const proof = buildRunInGameExactAuthorshipProof({
+    const args = completeEvidenceArgs();
+    const evidence = buildRunInGameExactAuthorshipEvidence({
       ...args,
       materialization: {
         ...args.materialization,
@@ -558,10 +602,10 @@ describe("Run in Game exact authorship proof identity", () => {
       generatedSourceScript: undefined,
     });
 
-    expect(proof.status).toBe("complete");
-    expect(proof.unresolvedLinks).not.toContain("materialization.source-config-file");
-    expect(proof.unresolvedLinks).not.toContain("materialization.generated-source-script");
-    expect(proof.materialization).toMatchObject({
+    expect(evidence.status).toBe("complete");
+    expect(evidence.unresolvedLinks).not.toContain("materialization.source-config-file");
+    expect(evidence.unresolvedLinks).not.toContain("materialization.generated-source-script");
+    expect(evidence.materialization).toMatchObject({
       generationManifestDigest: "generation-manifest-hash",
       runArtifactId: "run-test",
       generatedModDigest: "generated-mod-tree-hash",
@@ -569,46 +613,22 @@ describe("Run in Game exact authorship proof identity", () => {
     });
   });
 
-  it("keeps exact authorship unresolved when source snapshot body is not auditable", () => {
-    const proof = buildRunInGameExactAuthorshipProof({
-      ...completeProofArgs(),
-      sourceSnapshot: {
-        identityHash: "source-snapshot-hash",
-        requestId,
-        configHash,
-        envelopeHash,
-      },
-    });
-
-    expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toEqual(
-      expect.arrayContaining([
-        "source-snapshot.recipe-settings",
-        "source-snapshot.world-settings",
-        "source-snapshot.pipeline-config",
-        "source-snapshot.setup-config",
-        "source-snapshot.materialization-mode",
-        "source-snapshot.selected-config",
-      ])
-    );
-  });
-
   it("keeps exact authorship unresolved when setup, runtime, log, or deployed content differs", () => {
-    const args = completeProofArgs();
-    const proof = buildRunInGameExactAuthorshipProof({
+    const args = completeEvidenceArgs();
+    const evidence = buildRunInGameExactAuthorshipEvidence({
       ...args,
       setupSnapshot: setupSnapshot({ mapSeed: 43 }),
       startMapSummary: mapSummary({ seed: 43 }),
-      logProof: {
-        ...args.logProof!,
+      logEvidence: {
+        ...args.logEvidence!,
         seed: 43,
         dimensions: { width: 84, height: 55 },
       },
-      deployedModScript: fileProof("deployed.js", "different-deployed-hash"),
+      deployedModScript: fileEvidence("deployed.js", "different-deployed-hash"),
     });
 
-    expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toEqual(
+    expect(evidence.status).toBe("unresolved");
+    expect(evidence.unresolvedLinks).toEqual(
       expect.arrayContaining([
         "civ-setup.map-seed-mismatch",
         "runtime.seed-mismatch",
@@ -620,31 +640,31 @@ describe("Run in Game exact authorship proof identity", () => {
   });
 
   it("keeps exact authorship unresolved when the deployed script lacks current river materialization markers", () => {
-    const args = completeProofArgs();
-    const proof = buildRunInGameExactAuthorshipProof({
+    const args = completeEvidenceArgs();
+    const evidence = buildRunInGameExactAuthorshipEvidence({
       ...args,
       materialization: {
         ...args.materialization,
-        deployedModScriptContent: contentProof(
+        deployedModScriptContent: contentEvidence(
           "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
           { "authored-river-materialization-checkpoint": false }
         ),
       },
     });
 
-    expect(proof.status).toBe("unresolved");
-    expect(proof.unresolvedLinks).toContain(
+    expect(evidence.status).toBe("unresolved");
+    expect(evidence.unresolvedLinks).toContain(
       "materialization.deployed-mod-script-marker.authored-river-materialization-checkpoint"
     );
   });
 
-  it("reports materialization script proof gaps before starting Civ", () => {
-    const args = completeProofArgs();
+  it("reports materialization script evidence gaps before starting Civ", () => {
+    const args = completeEvidenceArgs();
     const links = runInGameMaterializationScriptUnresolvedLinks({
       materialization: {
         ...args.materialization,
-        localModScriptContent: contentProof("different.js"),
-        deployedModScriptContent: contentProof(
+        localModScriptContent: contentEvidence("different.js"),
+        deployedModScriptContent: contentEvidence(
           "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
           { "run-request-id": false }
         ),
@@ -653,8 +673,8 @@ describe("Run in Game exact authorship proof identity", () => {
       deployedModScript: args.deployedModScript,
       requiredMarkers: runInGameRequiredMaterializationMarkers({
         requestId,
-        configHash,
-        envelopeHash,
+        canonicalConfigDigest: configHash,
+        launchEnvelopeDigest,
       }),
     });
 
@@ -667,68 +687,50 @@ describe("Run in Game exact authorship proof identity", () => {
   });
 
   it("uses setup config player count as exact-authorship readback", () => {
-    const proof = buildRunInGameExactAuthorshipProof({
-      ...completeProofArgs(),
+    const evidence = buildRunInGameExactAuthorshipEvidence({
+      ...completeEvidenceArgs(),
       setupSnapshot: setupSnapshot({ includePlayerCountParameter: false }),
     });
 
-    expect(proof.status).toBe("complete");
-    expect(proof.civSetup.playerCount).toBe(8);
-    expect(proof.unresolvedLinks).not.toContain("civ-setup.player-count-readback");
+    expect(evidence.status).toBe("complete");
+    expect(evidence.civSetup.playerCount).toBe(8);
+    expect(evidence.unresolvedLinks).not.toContain("civ-setup.player-count-readback");
   });
 });
 
-function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipProof>[0] {
+function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorshipEvidence>[0] {
+  const launchSourceDigest = {
+    canonicalConfigDigest: configHash,
+  };
   const request: RunInGameRequestStatus = {
     recipeId: "mod-swooper-maps/standard",
     seed: 42,
     mapSize: "MAPSIZE_STANDARD",
     playerCount: 8,
     resources: "balanced",
-    selectedConfigId: "studio-current",
-    setupConfigSource: "request",
-    fingerprint: "request-fingerprint",
+    launchSourceDigest,
+    launchEnvelopeDigest: launchEnvelopeDigest,
   };
-  const sourceSnapshot: RunInGameSourceSnapshotProof = {
-    identityHash: "source-snapshot-hash",
+  const sourceSnapshot: RunInGameSourceSnapshotEvidence = {
     requestId,
-    recipeSettings: {
-      seed: 42,
-      mapSize: "MAPSIZE_STANDARD",
-      playerCount: 8,
-    },
-    worldSettings: {
-      resources: "balanced",
-    },
-    pipelineConfig: {
-      continents: {
-        knobs: {
-          landmassRatio: 0.42,
-        },
-      },
-    },
-    setupConfig: {
-      gameOptions: {
-        StartAge: "AGE_ANTIQUITY",
-      },
-    },
-    materializationMode: "disposable",
-    selectedConfig: {
-      id: "studio-current",
-      label: "Studio Current",
-    },
-    configHash,
-    envelopeHash,
+    source: { kind: "editor", editorSessionId: "test-editor-session" },
+    canonicalConfigDigest: configHash,
+    launchEnvelopeDigest: launchEnvelopeDigest,
   };
   const materialization: RunInGameMaterializationStatus = {
-    mode: "disposable",
     path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
     mapScript,
-    configHash,
-    envelopeHash,
+    canonicalConfigDigest: configHash,
+    launchEnvelopeDigest,
+    generationManifestDigest: "generation-manifest-digest",
+    runArtifactId: "run-artifact-id",
+    generatedModRoot: ".mapgen-studio/run-in-game/run-test/generated-mod",
+    generatedModFileCount: 4,
+    generatedModDigest: "generated-mod-digest",
+    mapRowId: "MAP_STUDIO_RUN",
   };
-  const localModScript = fileProof("mod/maps/studio-current.js", "same-deployed-js-hash");
-  const deployedModScript = fileProof(
+  const localModScript = fileEvidence("mod/maps/studio-current.js", "same-deployed-js-hash");
+  const deployedModScript = fileEvidence(
     "/Users/test/Civ Mods/Swooper Maps/maps/studio-current.js",
     localModScript.sha256
   );
@@ -740,17 +742,17 @@ function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipPro
       ...materialization,
       localModScript,
       deployedModScript,
-      localModScriptContent: contentProof(localModScript.path),
-      deployedModScriptContent: contentProof(deployedModScript.path),
+      localModScriptContent: contentEvidence(localModScript.path),
+      deployedModScriptContent: contentEvidence(deployedModScript.path),
     },
-    sourceConfig: fileProof("configs/studio-current.config.json", "source-config-hash"),
-    generatedSourceScript: fileProof("generated/studio-current.ts", "generated-source-hash"),
+    sourceConfig: fileEvidence("configs/studio-current.config.json", "source-config-hash"),
+    generatedSourceScript: fileEvidence("generated/studio-current.ts", "generated-source-hash"),
     localModScript,
     deployedModScript,
-    rowProof: { rows: [{ file: mapScript }] },
+    rowEvidence: { rows: [{ file: mapScript }] },
     setupSnapshot: setupSnapshot(),
     startMapSummary: mapSummary(),
-    logProof: logProof(),
+    logEvidence: logEvidence(),
     liveRuntimeSnapshot: {
       snapshotId: "live-runtime:abc",
       snapshotHash: "live-runtime-hash",
@@ -761,23 +763,25 @@ function completeProofArgs(): Parameters<typeof buildRunInGameExactAuthorshipPro
   };
 }
 
-function contentProof(
+function contentEvidence(
   path: string,
   overrides: Partial<Record<string, boolean>> = {}
-): RunInGameFileContentProof {
+): RunInGameFileContentEvidence {
   return {
     path,
-    markers: runInGameRequiredMaterializationMarkers({ requestId, configHash, envelopeHash }).map(
-      (marker) => ({
-        id: marker.id,
-        marker: marker.marker,
-        present: overrides[marker.id] ?? true,
-      })
-    ),
+    markers: runInGameRequiredMaterializationMarkers({
+      requestId,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
+    }).map((marker) => ({
+      id: marker.id,
+      marker: marker.marker,
+      present: overrides[marker.id] ?? true,
+    })),
   };
 }
 
-function fileProof(path: string, sha256: string): RunInGameFileIdentity {
+function fileEvidence(path: string, sha256: string): RunInGameFileIdentity {
   return {
     path,
     sha256,
@@ -824,30 +828,36 @@ function mapSummary(overrides: { seed?: number } = {}): unknown {
   };
 }
 
-function logProof(): NonNullable<RunInGameDetailedExactAuthorshipProof["log"]> {
+function logEvidence(): NonNullable<RunInGameDetailedExactAuthorshipEvidence["log"]> {
   return {
     logPath: "/tmp/Scripting.log",
     observedAt: "2026-06-06T00:00:00.000Z",
     requestId,
-    configHash,
-    envelopeHash,
+    canonicalConfigDigest: configHash,
+    launchEnvelopeDigest,
     seed: 42,
     mapSize: "MAPSIZE_STANDARD",
     dimensions: { width: 84, height: 54 },
-    proofPayload: {
+    evidencePayload: {
       requestId,
-      configHash,
-      envelopeHash,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
       seed: 42,
       dimensions: { width: 84, height: 54 },
     },
     completionPayload: {
       requestId,
-      configHash,
-      envelopeHash,
+      canonicalConfigDigest: configHash,
+      launchEnvelopeDigest,
       seed: 42,
       dimensions: { width: 84, height: 54 },
     },
-    matched: ["[mapgen-proof]", requestId, configHash, envelopeHash, "[mapgen-complete]"],
+    matched: [
+      "[mapgen-evidence]",
+      requestId,
+      configHash,
+      launchEnvelopeDigest,
+      "[mapgen-complete]",
+    ],
   };
 }

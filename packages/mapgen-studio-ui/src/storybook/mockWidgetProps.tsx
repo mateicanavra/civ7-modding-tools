@@ -8,7 +8,7 @@ import {
 import type { ReactNode } from "react";
 
 /**
- * Shared rjsf mock support for the Stage-1 config-override stories.
+ * Shared rjsf mock support for the config editor stories.
  *
  * The widgets + templates accept large `@rjsf/utils` prop types but read only a
  * small subset at render; the design-sync previews exploited that with loose

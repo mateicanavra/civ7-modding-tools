@@ -1,8 +1,17 @@
 import { oc } from "@orpc/contract";
 import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
 
 import { studioRecoveryActionSchema } from "./errors/errorData.js";
 import { runInGameErrors } from "./errors.js";
+import {
+  type DeepReadonly,
+  freezeSnapshot,
+  isPortableJsonValue,
+  type MapConfigEnvelope,
+  mapConfigEnvelopeSchema,
+  snapshotMapConfigEnvelope,
+} from "./mapConfigEnvelope.js";
 import {
   RUN_IN_GAME_SAFE_FAILURE_CATEGORIES,
   type RunInGameSafeFailureCategory,
@@ -77,7 +86,7 @@ export const fileIdentity = Type.Object(
 );
 export type RunInGameFileIdentity = Static<typeof fileIdentity>;
 
-export const contentMarkerProof = Type.Object(
+export const contentMarkerEvidence = Type.Object(
   {
     id: Type.String(),
     marker: Type.String(),
@@ -85,48 +94,133 @@ export const contentMarkerProof = Type.Object(
   },
   { additionalProperties: false }
 );
-export type RunInGameContentMarkerProof = Static<typeof contentMarkerProof>;
+export type RunInGameContentMarkerEvidence = Static<typeof contentMarkerEvidence>;
 
-export const fileContentProof = Type.Object(
+export const fileContentEvidence = Type.Object(
   {
     path: Type.String(),
-    markers: Type.Array(contentMarkerProof),
+    markers: Type.Array(contentMarkerEvidence),
   },
   { additionalProperties: false }
 );
-export type RunInGameFileContentProof = Static<typeof fileContentProof>;
-
-// RunInGameSourceSnapshotProof
-export const sourceSnapshotProof = Type.Object(
-  {
-    identityHash: Type.String(),
-    requestId: Type.String(),
-    recipeSettings: Type.Optional(Type.Unknown()),
-    worldSettings: Type.Optional(Type.Unknown()),
-    pipelineConfig: Type.Optional(Type.Unknown()),
-    setupConfig: Type.Optional(Type.Unknown()),
-    materializationMode: Type.Optional(Type.String()),
-    selectedConfig: Type.Optional(Type.Unknown()),
-    configHash: Type.Optional(Type.String()),
-    envelopeHash: Type.Optional(Type.String()),
-  },
-  { additionalProperties: false }
-);
-export type RunInGameSourceSnapshotProof = Static<typeof sourceSnapshotProof>;
+export type RunInGameFileContentEvidence = Static<typeof fileContentEvidence>;
 
 /**
- * Private diagnostics/proof evidence for how a Run in Game request became a
+ * The external Run in Game source request. Catalog requests carry only an
+ * indexed Swooper path; editor requests carry the complete portable envelope.
+ */
+export const runInGameStartSource = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal("catalog"),
+      sourcePath: Type.String({ minLength: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("editor"),
+      editorSessionId: Type.String({ minLength: 1 }),
+      canonicalConfig: mapConfigEnvelopeSchema,
+    },
+    { additionalProperties: false }
+  ),
+]);
+/** Mutable source DTO accepted by the public oRPC start procedure. */
+export type RunInGameStartSourceWire = Static<typeof runInGameStartSource>;
+
+/** Frozen external source request retained only while server admission runs. */
+export type RunInGameStartSource = DeepReadonly<RunInGameStartSourceWire>;
+
+/**
+ * The internal resolved source retained by manifests. Every variant carries a
+ * snapshot because catalog bytes are resolved server-side before this type is
+ * constructed.
+ */
+export const configSource = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal("catalog"),
+      sourcePath: Type.String({ minLength: 1 }),
+      canonicalConfig: mapConfigEnvelopeSchema,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("editor"),
+      editorSessionId: Type.String({ minLength: 1 }),
+      canonicalConfig: mapConfigEnvelopeSchema,
+    },
+    { additionalProperties: false }
+  ),
+]);
+/** Mutable resolved-source DTO used only for manifest serialization. */
+export type ConfigSourceWire = Static<typeof configSource>;
+
+/** The immutable source snapshot retained after portable JSON admission. */
+export type ConfigSource = DeepReadonly<ConfigSourceWire>;
+
+/** Clones an immutable source snapshot into the TypeBox-derived oRPC DTO. */
+export function serializeConfigSource(source: ConfigSource): ConfigSourceWire {
+  return Value.Parse(configSource, Value.Clone(source));
+}
+
+/**
+ * Produces the public start DTO without leaking catalog config bytes back over
+ * the browser-to-server boundary.
+ */
+export function serializeRunInGameStartSource(source: ConfigSource): RunInGameStartSourceWire {
+  return source.kind === "catalog"
+    ? { kind: "catalog", sourcePath: source.sourcePath }
+    : Value.Parse(runInGameStartSource, Value.Clone(source));
+}
+
+/** Provenance retained after the envelope leaves the source boundary. */
+export const configSourceProvenance = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal("catalog"),
+      sourcePath: Type.String({ minLength: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("editor"),
+      editorSessionId: Type.String({ minLength: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+]);
+export type ConfigSourceProvenance =
+  | Readonly<{ kind: "catalog"; sourcePath: string }>
+  | Readonly<{ kind: "editor"; editorSessionId: string }>;
+
+// RunInGameSourceSnapshotEvidence
+export const sourceSnapshotEvidence = Type.Object(
+  {
+    requestId: Type.String(),
+    source: configSourceProvenance,
+    canonicalConfigDigest: Type.String(),
+    launchEnvelopeDigest: Type.String(),
+  },
+  { additionalProperties: false }
+);
+export type RunInGameSourceSnapshotEvidence = DeepReadonly<Static<typeof sourceSnapshotEvidence>>;
+
+/**
+ * Private diagnostics/evidence evidence for how a Run in Game request became a
  * concrete map script. This schema intentionally admits absolute generated-mod
  * paths and tree digests, so it must stay behind diagnostics lookup and must
  * never be projected into public status.
  */
 export const materializationStatus = Type.Object(
   {
-    mode: Type.Optional(Type.String()),
     path: Type.Optional(Type.String()),
     mapScript: Type.Optional(Type.String()),
-    configHash: Type.Optional(Type.String()),
-    envelopeHash: Type.Optional(Type.String()),
+    canonicalConfigDigest: Type.Optional(Type.String()),
+    launchEnvelopeDigest: Type.Optional(Type.String()),
     generationManifestDigest: Type.Optional(Type.String()),
     runArtifactId: Type.Optional(Type.String()),
     generatedModRoot: Type.Optional(Type.String()),
@@ -137,8 +231,8 @@ export const materializationStatus = Type.Object(
     generatedSourceScript: Type.Optional(fileIdentity),
     localModScript: Type.Optional(fileIdentity),
     deployedModScript: Type.Optional(fileIdentity),
-    localModScriptContent: Type.Optional(fileContentProof),
-    deployedModScriptContent: Type.Optional(fileContentProof),
+    localModScriptContent: Type.Optional(fileContentEvidence),
+    deployedModScriptContent: Type.Optional(fileContentEvidence),
   },
   { additionalProperties: false }
 );
@@ -176,47 +270,9 @@ export const setupConfig = Type.Object(
   },
   { additionalProperties: false }
 );
-export type RunInGameSetupConfig = Static<typeof setupConfig>;
+export type RunInGameSetupConfig = DeepReadonly<Static<typeof setupConfig>>;
 
 export const STUDIO_CURRENT_CONFIG_ID = "studio-current";
-export const STUDIO_CURRENT_MAP_SCRIPT = "{swooper-maps}/maps/studio-current.js";
-
-export const catalogLaunchSource = Type.Object(
-  {
-    kind: Type.Literal("catalog"),
-    catalogSourceId: Type.String({ minLength: 1 }),
-  },
-  { additionalProperties: false }
-);
-export type CatalogLaunchSource = Static<typeof catalogLaunchSource>;
-
-export const editorLaunchPayload = Type.Object(
-  {
-    configId: Type.Literal(STUDIO_CURRENT_CONFIG_ID),
-    label: Type.String({ minLength: 1 }),
-    description: Type.Optional(Type.String()),
-    mapScript: Type.Literal(STUDIO_CURRENT_MAP_SCRIPT),
-    pipelineConfig: unknownRecordSchema,
-    recipeId: Type.String({ minLength: 1 }),
-    sortIndex: Type.Optional(Type.Number()),
-    latitudeBounds: Type.Optional(Type.Unknown()),
-  },
-  { additionalProperties: false }
-);
-export type EditorLaunchPayload = Static<typeof editorLaunchPayload>;
-
-export const editorLaunchSource = Type.Object(
-  {
-    kind: Type.Literal("editor"),
-    editorSessionId: Type.String({ minLength: 1 }),
-    payload: editorLaunchPayload,
-  },
-  { additionalProperties: false }
-);
-export type EditorLaunchSource = Static<typeof editorLaunchSource>;
-
-export const launchSource = Type.Union([catalogLaunchSource, editorLaunchSource]);
-export type LaunchSource = Static<typeof launchSource>;
 
 export const runInGameWorldSettings = Type.Object(
   {
@@ -226,7 +282,11 @@ export const runInGameWorldSettings = Type.Object(
   },
   { additionalProperties: false }
 );
-export type RunInGameWorldSettings = Static<typeof runInGameWorldSettings>;
+export type RunInGameWorldSettings = Readonly<{
+  mapSize: string;
+  playerCount?: number;
+  resources?: string;
+}>;
 
 export const runInGameRecipeSettings = Type.Object(
   {
@@ -236,76 +296,196 @@ export const runInGameRecipeSettings = Type.Object(
   },
   { additionalProperties: false }
 );
-export type RunInGameRecipeSettings = Static<typeof runInGameRecipeSettings>;
+export type RunInGameRecipeSettings = Readonly<{
+  preset?: string;
+  recipe: string;
+  seed: number | string;
+}>;
 
 export const launchEnvelope = Type.Object(
   {
     recipeSettings: runInGameRecipeSettings,
     worldSettings: runInGameWorldSettings,
     setupConfig,
-    source: Type.Object(
-      {
-        kind: Type.Union([Type.Literal("catalog"), Type.Literal("editor")]),
-        id: Type.String(),
-        label: Type.String(),
-        description: Type.Optional(Type.String()),
-        mapScript: Type.String(),
-        sortIndex: Type.Number(),
-        latitudeBounds: Type.Optional(Type.Unknown()),
-      },
-      { additionalProperties: false }
-    ),
-    config: unknownRecordSchema,
+    source: configSource,
   },
   { additionalProperties: false }
 );
-export type LaunchEnvelope = Static<typeof launchEnvelope>;
+/**
+ * The runtime snapshot is deliberately separate from TypeBox's mutable wire
+ * static type. TypeBox owns structural validation; this type owns the frozen
+ * value that crosses the Studio/Swooper admission boundary.
+ */
+export type LaunchEnvelope = Readonly<{
+  recipeSettings: RunInGameRecipeSettings;
+  worldSettings: RunInGameWorldSettings;
+  setupConfig: RunInGameSetupConfig;
+  source: ConfigSource;
+}>;
 
 export const launchSourceDigest = Type.Object(
   {
-    configContentDigest: Type.String(),
-    launchEnvelopeDigest: Type.String(),
+    canonicalConfigDigest: Type.String(),
   },
   { additionalProperties: false }
 );
-export type LaunchSourceDigest = Static<typeof launchSourceDigest>;
+export type LaunchSourceDigest = DeepReadonly<Static<typeof launchSourceDigest>>;
 export type LaunchEnvelopeDigest = string;
 
-export const resolvedLaunchSource = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("catalog"),
-      catalogSourceId: Type.String(),
-      catalogSourcePath: Type.String(),
-      label: Type.String(),
-      description: Type.String(),
-      sortIndex: Type.Number(),
-      latitudeBounds: Type.Optional(Type.Unknown()),
-      config: unknownRecordSchema,
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("editor"),
-      editorSessionId: Type.String(),
-      configId: Type.String(),
-      label: Type.String(),
-      description: Type.Optional(Type.String()),
-      mapScript: Type.String(),
-      sortIndex: Type.Number(),
-      latitudeBounds: Type.Optional(Type.Unknown()),
-      config: unknownRecordSchema,
-    },
-    { additionalProperties: false }
-  ),
-]);
-export type ResolvedLaunchSource = Static<typeof resolvedLaunchSource>;
+/**
+ * Clones and freezes the external source request without assigning recipe
+ * semantics. Catalog paths deliberately remain config-free here.
+ */
+export function snapshotRunInGameStartSource(value: unknown): RunInGameStartSource | undefined {
+  if (!isPortableJsonValue(value) || !Value.Check(runInGameStartSource, value)) return undefined;
 
-export const DEFAULT_RUN_IN_GAME_SETUP_CONFIG: RunInGameSetupConfig = {
-  gameOptions: {},
-  playerOptions: [{ playerId: 0, options: {} }],
-};
+  const kind = ownDataProperty(value, "kind");
+  if (kind === "catalog") {
+    const sourcePath = ownDataProperty(value, "sourcePath");
+    return typeof sourcePath === "string" ? freezeSnapshot({ kind, sourcePath }) : undefined;
+  }
+  if (kind === "editor") {
+    const editorSessionId = ownDataProperty(value, "editorSessionId");
+    const canonicalConfig = snapshotMapConfigEnvelope(ownDataProperty(value, "canonicalConfig"));
+    return typeof editorSessionId === "string" && canonicalConfig !== undefined
+      ? freezeSnapshot({ kind, editorSessionId, canonicalConfig })
+      : undefined;
+  }
+  return undefined;
+}
+
+/**
+ * Clones and freezes an internal resolved source. This is manifest-only data:
+ * both variants have a complete envelope after server-side catalog resolution.
+ */
+export function snapshotConfigSource(value: unknown): ConfigSource | undefined {
+  if (!isPortableJsonValue(value) || !Value.Check(configSource, value)) return undefined;
+
+  const kind = ownDataProperty(value, "kind");
+  const canonicalConfig = snapshotMapConfigEnvelope(ownDataProperty(value, "canonicalConfig"));
+  if (canonicalConfig === undefined) return undefined;
+
+  if (kind === "catalog") {
+    const sourcePath = ownDataProperty(value, "sourcePath");
+    return typeof sourcePath === "string"
+      ? freezeSnapshot({ kind, sourcePath, canonicalConfig })
+      : undefined;
+  }
+  if (kind === "editor") {
+    const editorSessionId = ownDataProperty(value, "editorSessionId");
+    return typeof editorSessionId === "string"
+      ? freezeSnapshot({ kind, editorSessionId, canonicalConfig })
+      : undefined;
+  }
+  return undefined;
+}
+
+/** Creates an immutable launch envelope from the admitted source and normalized settings. */
+export function snapshotLaunchEnvelope(
+  args: Readonly<{
+    recipeSettings: RunInGameRecipeSettings;
+    worldSettings: RunInGameWorldSettings;
+    setupConfig: RunInGameSetupConfig;
+    source: ConfigSource;
+  }>
+): LaunchEnvelope {
+  const source = snapshotConfigSource(args.source);
+  if (source === undefined) {
+    throw new TypeError("Run in Game launch source must be a portable config snapshot.");
+  }
+  const snapshot = {
+    recipeSettings: {
+      ...(args.recipeSettings.preset === undefined ? {} : { preset: args.recipeSettings.preset }),
+      recipe: args.recipeSettings.recipe,
+      seed: args.recipeSettings.seed,
+    },
+    worldSettings: {
+      mapSize: args.worldSettings.mapSize,
+      ...(args.worldSettings.playerCount === undefined
+        ? {}
+        : { playerCount: args.worldSettings.playerCount }),
+      ...(args.worldSettings.resources === undefined
+        ? {}
+        : { resources: args.worldSettings.resources }),
+    },
+    setupConfig: snapshotRunInGameSetupConfig(args.setupConfig),
+    source,
+  };
+  freezeSnapshot(snapshot);
+  return snapshot;
+}
+
+/** Creates a frozen provenance-only source evidence input. */
+export function snapshotConfigSourceProvenance(value: unknown): ConfigSourceProvenance | undefined {
+  if (!isPortableJsonValue(value) || !Value.Check(configSourceProvenance, value)) {
+    return undefined;
+  }
+  const kind = ownDataProperty(value, "kind");
+  if (kind === "catalog") {
+    const sourcePath = ownDataProperty(value, "sourcePath");
+    return typeof sourcePath === "string" ? freezeSnapshot({ kind, sourcePath }) : undefined;
+  }
+  if (kind === "editor") {
+    const editorSessionId = ownDataProperty(value, "editorSessionId");
+    return typeof editorSessionId === "string"
+      ? freezeSnapshot({ kind, editorSessionId })
+      : undefined;
+  }
+  return undefined;
+}
+
+/** Used by the actual TypeBox Standard Schema adapter before it invokes TypeBox. */
+export function runInGameStartPortableInputIssue(value: unknown): string | undefined {
+  const source = ownDataProperty(value, "source");
+  return snapshotRunInGameStartSource(source) === undefined
+    ? "runInGame.start source must be a catalog path or a complete editor config envelope."
+    : undefined;
+}
+
+function snapshotRunInGameSetupConfig(
+  value: RunInGameSetupConfig
+): DeepReadonly<RunInGameSetupConfig> {
+  const gameOptions: Record<string, RunInGameSetupOptionValue> = {};
+  for (const key of Object.keys(value.gameOptions)) gameOptions[key] = value.gameOptions[key];
+
+  return freezeSnapshot({
+    ...(value.savedConfig === undefined
+      ? {}
+      : {
+          savedConfig: {
+            id: value.savedConfig.id,
+            displayName: value.savedConfig.displayName,
+            fileName: value.savedConfig.fileName,
+            path: value.savedConfig.path,
+          },
+        }),
+    ...(value.mapScript === undefined ? {} : { mapScript: value.mapScript }),
+    gameOptions,
+    playerOptions: value.playerOptions.map((player) => {
+      const options: Record<string, RunInGameSetupOptionValue> = {};
+      for (const key of Object.keys(player.options)) options[key] = player.options[key];
+      return { playerId: player.playerId, options };
+    }),
+  });
+}
+
+function ownDataProperty(value: unknown, key: string): unknown {
+  if (value === null || typeof value !== "object") return undefined;
+  try {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return descriptor !== undefined && "value" in descriptor ? descriptor.value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Returns a fresh, deeply frozen setup snapshot for callers that need defaults. */
+export function createDefaultRunInGameSetupConfig(): RunInGameSetupConfig {
+  return snapshotRunInGameSetupConfig({
+    gameOptions: {},
+    playerOptions: [{ playerId: 0, options: {} }],
+  });
+}
 
 export const RUN_IN_GAME_MAIN_GAME_OPTION_IDS = [
   "Difficulty",
@@ -360,12 +540,12 @@ export type RunInGameSetupConfigValidation =
 
 export function normalizeRunInGameSetupConfig(value: unknown): RunInGameSetupConfig {
   const validated = validateRunInGameSetupConfig(value);
-  if (!validated.ok) return DEFAULT_RUN_IN_GAME_SETUP_CONFIG;
+  if (!validated.ok) return createDefaultRunInGameSetupConfig();
   return validated.value;
 }
 
 export function validateRunInGameSetupConfig(value: unknown): RunInGameSetupConfigValidation {
-  if (!isRecord(value)) return { ok: true, value: DEFAULT_RUN_IN_GAME_SETUP_CONFIG };
+  if (!isRecord(value)) return { ok: true, value: createDefaultRunInGameSetupConfig() };
   const mapScript = normalizeSetupMapScript(value.mapScript);
   if (!mapScript.ok) {
     return {
@@ -380,12 +560,12 @@ export function validateRunInGameSetupConfig(value: unknown): RunInGameSetupConf
   const savedConfig = normalizeSavedConfigRef(value.savedConfig);
   return {
     ok: true,
-    value: {
+    value: snapshotRunInGameSetupConfig({
       ...(savedConfig === undefined ? {} : { savedConfig }),
       ...(mapScript.value === undefined ? {} : { mapScript: mapScript.value }),
       gameOptions: normalizeSetupOptions(value.gameOptions, RUN_IN_GAME_GAME_OPTION_ID_SET),
       playerOptions: normalizePlayerOptions(value.playerOptions),
-    },
+    }),
   };
 }
 
@@ -421,8 +601,11 @@ function normalizeSavedConfigRef(value: unknown): RunInGameSetupConfig["savedCon
 }
 
 function normalizePlayerOptions(value: unknown): RunInGameSetupConfig["playerOptions"] {
-  if (!Array.isArray(value)) return DEFAULT_RUN_IN_GAME_SETUP_CONFIG.playerOptions;
-  const players: RunInGameSetupConfig["playerOptions"] = [];
+  if (!Array.isArray(value)) return defaultRunInGamePlayerOptions();
+  const players: Array<{
+    playerId: number;
+    options: Record<string, RunInGameSetupOptionValue>;
+  }> = [];
   for (const entry of value) {
     if (!isRecord(entry)) continue;
     const playerId = Number(entry.playerId);
@@ -432,7 +615,11 @@ function normalizePlayerOptions(value: unknown): RunInGameSetupConfig["playerOpt
       options: normalizeSetupOptions(entry.options, RUN_IN_GAME_PLAYER_OPTION_ID_SET),
     });
   }
-  return players.length > 0 ? players : DEFAULT_RUN_IN_GAME_SETUP_CONFIG.playerOptions;
+  return players.length > 0 ? players : defaultRunInGamePlayerOptions();
+}
+
+function defaultRunInGamePlayerOptions(): RunInGameSetupConfig["playerOptions"] {
+  return [{ playerId: 0, options: {} }];
 }
 
 function normalizeSetupOptions(
@@ -462,20 +649,15 @@ export const requestStatus = Type.Object(
     mapSize: Type.Optional(Type.String()),
     playerCount: Type.Optional(Type.Number()),
     resources: Type.Optional(Type.String()),
-    selectedConfigId: Type.Optional(Type.String()),
     setupConfig: Type.Optional(setupConfig),
     setupConfigSource: Type.Optional(Type.String()),
-    materializationMode: Type.Optional(Type.String()),
-    fingerprint: Type.Optional(Type.String()),
-    sourceSnapshot: Type.Optional(sourceSnapshotProof),
-    resolvedLaunchSource: Type.Optional(resolvedLaunchSource),
-    launchEnvelope: Type.Optional(launchEnvelope),
+    sourceSnapshot: Type.Optional(sourceSnapshotEvidence),
     launchSourceDigest: Type.Optional(launchSourceDigest),
     launchEnvelopeDigest: Type.Optional(Type.String()),
   },
   { additionalProperties: false }
 );
-export type RunInGameRequestStatus = Static<typeof requestStatus>;
+export type RunInGameRequestStatus = DeepReadonly<Static<typeof requestStatus>>;
 
 // RunInGameFailureDetails - private legacy diagnostics shape. It is not part of
 // the public Run in Game status wire contract.
@@ -502,68 +684,145 @@ export const failureDetails = Type.Object(
 export type RunInGameFailureDetails = Static<typeof failureDetails> &
   Readonly<Record<string, unknown>>;
 
-// RunInGameExactAuthorshipProof - large nested proof. The `log` sub-tree is deep
-// and opaque (proof markers, per-domain stats) - modelled permissively; the stable
-// top-level shape (status/requestId/createdAt/request/materialization/civSetup/
-// runtime/unresolvedLinks) is reproduced.
-export const exactAuthorshipProof = Type.Object(
+const exactAuthorshipRequestEvidence = Type.Object(
   {
-    status: Type.Union([Type.Literal("complete"), Type.Literal("unresolved")]),
-    requestId: Type.String(),
-    createdAt: Type.String(),
-    sourceSnapshot: Type.Optional(sourceSnapshotProof),
-    request: Type.Object(
-      {
-        recipeId: Type.Optional(Type.String()),
-        seed: Type.Optional(Type.Number()),
-        mapSize: Type.Optional(Type.String()),
-        playerCount: Type.Optional(Type.Number()),
-        resources: Type.Optional(Type.String()),
-        selectedConfigId: Type.Optional(Type.String()),
-        setupConfigSource: Type.Optional(Type.String()),
-        fingerprint: Type.Optional(Type.String()),
-      },
-      { additionalProperties: false }
-    ),
-    materialization: materializationStatus,
-    civSetup: Type.Object(
-      {
-        mapScript: Type.Optional(Type.String()),
-        mapSize: Type.Optional(Type.Unknown()),
-        mapSeed: Type.Optional(Type.Unknown()),
-        gameSeed: Type.Optional(Type.Unknown()),
-        playerCount: Type.Optional(Type.Unknown()),
-        rowCount: Type.Optional(Type.Number()),
-      },
-      { additionalProperties: Type.Unknown() }
-    ),
-    runtime: Type.Object(
-      {
-        seed: Type.Optional(Type.Number()),
-        width: Type.Optional(Type.Number()),
-        height: Type.Optional(Type.Number()),
-        plotCount: Type.Optional(Type.Number()),
-        turn: Type.Optional(Type.Number()),
-        gameHash: Type.Optional(Type.Number()),
-        sourceSnapshotId: Type.Optional(Type.String()),
-        snapshotHash: Type.Optional(Type.String()),
-      },
-      { additionalProperties: Type.Unknown() }
-    ),
-    // RunInGameExactAuthorshipProof["log"] - deep proof payload. Opaque (see shared.ts).
-    log: Type.Optional(unknownRecordSchema),
-    unresolvedLinks: Type.Array(Type.String()),
+    recipeId: Type.String(),
+    seed: Type.Number(),
+    mapSize: Type.String(),
+    playerCount: Type.Optional(Type.Number()),
+    resources: Type.Optional(Type.String()),
+    setupConfigSource: Type.Optional(Type.String()),
   },
   { additionalProperties: false }
 );
-export type RunInGameExactAuthorshipProof = Static<typeof exactAuthorshipProof>;
+
+const partialExactAuthorshipRequestEvidence = Type.Partial(exactAuthorshipRequestEvidence);
+
+const exactAuthorshipCivSetupEvidence = Type.Object(
+  {
+    mapScript: Type.String(),
+    mapSize: Type.Unknown(),
+    mapSeed: Type.Unknown(),
+    gameSeed: Type.Unknown(),
+    playerCount: Type.Optional(Type.Unknown()),
+    rowCount: Type.Number(),
+  },
+  { additionalProperties: Type.Unknown() }
+);
+
+const partialExactAuthorshipCivSetupEvidence = Type.Partial(exactAuthorshipCivSetupEvidence);
+
+const exactAuthorshipRuntimeEvidence = Type.Object(
+  {
+    seed: Type.Number(),
+    width: Type.Number(),
+    height: Type.Number(),
+    plotCount: Type.Number(),
+    turn: Type.Number(),
+    gameHash: Type.Number(),
+    sourceSnapshotId: Type.String(),
+    snapshotHash: Type.String(),
+  },
+  { additionalProperties: Type.Unknown() }
+);
+
+const partialExactAuthorshipRuntimeEvidence = Type.Partial(exactAuthorshipRuntimeEvidence);
+
+const exactAuthorshipLogEvidence = Type.Object(
+  {
+    logPath: Type.Optional(Type.String()),
+    observedAt: Type.Optional(Type.String()),
+    requestId: Type.String(),
+    canonicalConfigDigest: Type.String(),
+    launchEnvelopeDigest: Type.String(),
+    seed: Type.Number(),
+    mapSize: Type.Optional(Type.String()),
+    dimensions: Type.Object(
+      {
+        width: Type.Number(),
+        height: Type.Number(),
+      },
+      { additionalProperties: false }
+    ),
+    evidencePayload: Type.Unknown(),
+    completionPayload: Type.Unknown(),
+    matched: Type.Array(Type.String()),
+  },
+  { additionalProperties: Type.Unknown() }
+);
+
+const completeExactAuthorshipMaterializationEvidence = Type.Object(
+  {
+    ...materializationStatus.properties,
+    mapScript: Type.String(),
+    canonicalConfigDigest: Type.String(),
+    launchEnvelopeDigest: Type.String(),
+    generationManifestDigest: Type.String(),
+    runArtifactId: Type.String(),
+    generatedModRoot: Type.String(),
+    generatedModFileCount: Type.Number(),
+    generatedModDigest: Type.String(),
+    mapRowId: Type.String(),
+    localModScript: fileIdentity,
+    deployedModScript: fileIdentity,
+    localModScriptContent: fileContentEvidence,
+    deployedModScriptContent: fileContentEvidence,
+  },
+  { additionalProperties: false }
+);
+
+/**
+ * Exact authorship is a closed state space. Complete evidence has every
+ * manifest-backed source, materialization, setup, runtime, and log fact and no
+ * unresolved links. Unresolved evidence retains partial evidence and at least one
+ * explicit missing or mismatched link.
+ */
+export const exactAuthorshipEvidence = Type.Union([
+  Type.Object(
+    {
+      status: Type.Literal("complete"),
+      requestId: Type.String(),
+      createdAt: Type.String(),
+      sourceSnapshot: sourceSnapshotEvidence,
+      request: exactAuthorshipRequestEvidence,
+      materialization: completeExactAuthorshipMaterializationEvidence,
+      civSetup: exactAuthorshipCivSetupEvidence,
+      runtime: exactAuthorshipRuntimeEvidence,
+      log: exactAuthorshipLogEvidence,
+      unresolvedLinks: Type.Tuple([]),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      status: Type.Literal("unresolved"),
+      requestId: Type.String(),
+      createdAt: Type.String(),
+      sourceSnapshot: Type.Optional(sourceSnapshotEvidence),
+      request: partialExactAuthorshipRequestEvidence,
+      materialization: materializationStatus,
+      civSetup: partialExactAuthorshipCivSetupEvidence,
+      runtime: partialExactAuthorshipRuntimeEvidence,
+      log: Type.Optional(unknownRecordSchema),
+      unresolvedLinks: Type.Array(Type.String(), { minItems: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+]);
+export type RunInGameExactAuthorshipEvidence = DeepReadonly<Static<typeof exactAuthorshipEvidence>>;
+
+/** Parses and freezes the single exact-authorship shape shared by builders and readers. */
+export function snapshotRunInGameExactAuthorshipEvidence(
+  value: unknown
+): DeepReadonly<RunInGameExactAuthorshipEvidence> | undefined {
+  if (!isPortableJsonValue(value) || !Value.Check(exactAuthorshipEvidence, value)) return undefined;
+  return freezeSnapshot(Value.Parse(exactAuthorshipEvidence, Value.Clone(value)));
+}
 
 const publicRunStatusBaseFields = {
   requestId: Type.String(),
   diagnosticsId: Type.Optional(Type.String()),
   recoveryActions: Type.Array(studioRecoveryActionSchema),
-  createdAt: Type.String(),
-  updatedAt: Type.String(),
 } as const;
 
 /**
@@ -589,7 +848,6 @@ export const publicRunStatusTypeSchema = Type.Union([
       ...publicRunStatusBaseFields,
       status: Type.Literal("completed"),
       phase: Type.Literal("completed"),
-      terminalAt: Type.String(),
     },
     { additionalProperties: false }
   ),
@@ -599,7 +857,6 @@ export const publicRunStatusTypeSchema = Type.Union([
       status: Type.Literal("failed"),
       phase: Type.Literal("failed"),
       safeFailureCategory: runInGameSafeFailureCategory,
-      terminalAt: Type.String(),
     },
     { additionalProperties: false }
   ),
@@ -609,7 +866,6 @@ export const publicRunStatusTypeSchema = Type.Union([
       status: Type.Literal("cancelled"),
       phase: Type.Literal("cancelled"),
       safeFailureCategory: runInGameSafeFailureCategory,
-      terminalAt: Type.String(),
     },
     { additionalProperties: false }
   ),
@@ -636,7 +892,7 @@ const requestIdInputSchema = contractSchema(
 export const runDiagnosticsRecordSchema = Type.Object(
   {
     diagnosticsId: Type.String(),
-    requestId: Type.Optional(Type.String()),
+    requestId: Type.String(),
     operationRevision: Type.Optional(Type.Number()),
     createdAt: Type.String(),
     updatedAt: Type.String(),
@@ -715,32 +971,36 @@ export const diagnostics = oc
 // #14 runInGame.start - accepted operation start.
 // ---------------------------------------------------------------------------
 // Body: one closed launch source plus launch settings. Success: PublicRunStatus
-// (async). Each accepted click owns a fresh request id; content fingerprints are
-// correlation data only.
+// (async). Each accepted click owns a fresh request id; control correlation uses
+// request, deployment, and run-artifact identity rather than content digests.
 // Errors: 409 (run-in-game OR save/deploy active), 400/500/503 via declared
 // RUN_IN_GAME_* codes whose data is limited to safe category/recovery fields.
-// Runtime internals, source snapshots, materialization, proof, and raw messages
+// Runtime internals, source snapshots, materialization, evidence, and raw messages
 // belong behind explicit diagnostics lookup, never this public procedure.
 //
 // SECURITY BOUNDARY (target-arch section 1): the TypeBox contract keeps the
-// top-level public input closed, while the host validator deep-scans opaque
-// source/setup payloads for raw-control vocabulary before any workflow port
-// runs. The package operation runtime owns canonical request admission and
-// source resolution; host ports supply only Swooper-owned catalog source reads.
+// public input closed, while the host validator scans the canonical source and
+// setup values for raw-control vocabulary before any workflow port runs. The
+// package operation runtime owns structural request admission and source
+// resolution; host ports supply indexed Swooper catalog reads and Standard
+// semantic admission.
 export const start = oc
   .errors(runInGameErrors)
   .input(
     contractSchema(
       Type.Object(
         {
-          source: launchSource,
+          source: runInGameStartSource,
           recipeSettings: runInGameRecipeSettings,
           worldSettings: runInGameWorldSettings,
           setupConfig: Type.Optional(Type.Unknown()),
         },
         { additionalProperties: false }
       ),
-      { cleanUnknownProperties: false }
+      {
+        cleanUnknownProperties: false,
+        precheck: runInGameStartPortableInputIssue,
+      }
     )
   )
   .output(operationStatusSchema);

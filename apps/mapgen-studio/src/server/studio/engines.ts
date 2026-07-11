@@ -11,48 +11,47 @@ import {
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
 import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
-import type {
-  RunInGameRequestStatus,
-  StudioBoundedDiagnostics,
-  StudioOperationRuntimePorts,
-  StudioRuntimeFailure,
-} from "@civ7/studio-server";
-import { deriveRecipeConfigSchema, type StageContractAny } from "@swooper/mapgen-core/authoring";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   readStudioRunGenerationManifest,
   STUDIO_RUN_MAP_ROW_ID,
   STUDIO_RUN_MAP_SCRIPT_PATH,
   STUDIO_RUN_MOD_ID,
 } from "@civ7/studio-run-workspace";
+import type {
+  RunInGameRequestStatus,
+  StudioBoundedDiagnostics,
+  StudioOperationRuntimePorts,
+  StudioRuntimeFailure,
+} from "@civ7/studio-server";
 import {
   dependencyUnavailable,
   deployFailed,
   invalidRequest,
   isStudioRuntimeFailure,
   materializationFailed,
-  proofFailed,
+  verificationFailed,
 } from "@civ7/studio-server";
-import { type CatalogSourceEntry, readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
-import { STANDARD_STAGES } from "mod-swooper-maps/recipes/standard";
-import { Value } from "typebox/value";
+import { admitSwooperCatalogConfig, readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
+import { validateStandardMapConfigSnapshot } from "mod-swooper-maps/maps/configs/canonical";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
-import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
 import {
-  buildRunInGameExactAuthorshipProof,
-  fileContentMarkerProof,
+  buildRunInGameExactAuthorshipEvidence,
+  runInGameMaterializationScriptUnresolvedLinks,
+} from "../runInGame/authorshipEvidence";
+import {
+  fileContentMarkerEvidence,
   fileIdentity,
   mapScriptEmbedsRequestId,
-  parseSwooperMapgenLogProof,
-  runInGameMaterializationScriptUnresolvedLinks,
   runInGameRequiredMaterializationMarkers,
-} from "../runInGame/proofIdentity";
+} from "../runInGame/fileEvidence";
+import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
+import type { RunInGameDetailedEvidenceLog } from "../runInGame/evidenceTypes";
 import {
   liveRuntimeStatusFromObservation,
   observeRunInGameRuntimeThroughStudioRpc,
 } from "../runInGame/runtimeObservation";
-import type { RunInGameDetailedProofLog } from "../runInGame/proofTypes";
+import { parseSwooperMapgenLogEvidence } from "../runInGame/swooperLogEvidence";
 
 // ============================================================================
 // Studio operation leaf ports — app-side filesystem/deploy/direct-control atoms
@@ -61,7 +60,7 @@ import type { RunInGameDetailedProofLog } from "../runInGame/proofTypes";
 // file deliberately does not own operation ids, admission, queues, registries,
 // status/current projections, event publication, or runtime disposal. It only
 // implements leaf work the package cannot own: repository writes, mod deploys,
-// Civ7 direct-control calls, and proof gathering.
+// Civ7 direct-control calls, and evidence gathering.
 // ============================================================================
 
 const execFileAsync = promisify(execFile);
@@ -71,8 +70,6 @@ const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const SCRIPTING_LOG_FAILURE_GRACE_MS = 5_000;
 const SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS = 250;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
-const swooperStandardStages = STANDARD_STAGES as readonly StageContractAny[];
-const swooperStandardRecipeSchema = deriveRecipeConfigSchema(swooperStandardStages);
 
 function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
@@ -106,67 +103,6 @@ function invalidEngineRequest(
   });
 }
 
-function materializeCatalogSourceConfig(args: {
-  catalogSourceId: string;
-  configPath: string;
-  config: unknown;
-}): Record<string, unknown> {
-  const { value, errors } = normalizeStrict<Record<string, unknown>>(
-    swooperStandardRecipeSchema,
-    args.config,
-    `/catalog/${args.catalogSourceId}/config`
-  );
-  if (errors.length === 0 && Value.Equal(value, args.config)) return value;
-  throw invalidEngineRequest(
-    "Catalog source config is not complete current recipe JSON",
-    "run-in-game-catalog-source-config-invalid",
-    {
-      catalogSourceId: args.catalogSourceId,
-      configPath: args.configPath,
-      errors:
-        errors.length > 0
-          ? errors
-          : [
-              {
-                path: `/catalog/${args.catalogSourceId}/config`,
-                message:
-                  "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
-              },
-            ],
-    }
-  );
-}
-
-function assertCatalogSourceEnvelopeMatchesEntry(args: {
-  catalogSourceId: string;
-  entry: CatalogSourceEntry;
-  envelope: Record<string, unknown>;
-}) {
-  const mismatches: string[] = [];
-  if (args.envelope.id !== args.entry.catalogSourceId) mismatches.push("id");
-  if (args.envelope.name !== args.entry.name) mismatches.push("name");
-  if (args.envelope.description !== args.entry.description) mismatches.push("description");
-  if (args.envelope.recipe !== args.entry.recipe) mismatches.push("recipe");
-  if (args.envelope.sortIndex !== args.entry.sortIndex) mismatches.push("sortIndex");
-  if (!Value.Equal(args.envelope.latitudeBounds ?? null, args.entry.latitudeBounds ?? null)) {
-    mismatches.push("latitudeBounds");
-  }
-  if (mismatches.length === 0) return;
-  throw invalidEngineRequest(
-    "Catalog source index does not match its config envelope",
-    "run-in-game-catalog-source-envelope-mismatch",
-    {
-      catalogSourceId: args.catalogSourceId,
-      configPath: args.entry.configPath,
-      mismatches,
-    }
-  );
-}
-
-function isJsonObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
 function unavailableEngineDependency(
   message: string,
   code: string,
@@ -191,7 +127,7 @@ function unavailableEngineDependency(
 
 // Deploy = the Nx build graph + the @civ7/plugin-mods deploy API (the
 // rivers-era canonical shape; the old parsed-stdout deploy command is gone).
-// Run proof builds thread the selected launch envelope into the generated map
+// Run evidence builds thread the selected launch envelope into the generated map
 // script so post-deploy evidence can be tied back to one resolved source.
 async function deploySwooperMaps(
   repoRoot: string,
@@ -377,8 +313,10 @@ async function optionalFileIdentity(args: {
   return await fileIdentity(args).catch(() => undefined);
 }
 
-async function optionalFileContentMarkerProof(args: Parameters<typeof fileContentMarkerProof>[0]) {
-  return await fileContentMarkerProof(args).catch(() => undefined);
+async function optionalFileContentMarkerEvidence(
+  args: Parameters<typeof fileContentMarkerEvidence>[0]
+) {
+  return await fileContentMarkerEvidence(args).catch(() => undefined);
 }
 
 function generatedSourceScriptPath(generatedModRoot: string, runArtifactId: string): string {
@@ -404,53 +342,56 @@ function isNodeNotFound(err: unknown): boolean {
   );
 }
 
-function assertRepoMapEnvelope(envelope: unknown, id: string): void {
-  if (!envelope || typeof envelope !== "object" || Array.isArray(envelope)) {
-    throw invalidEngineRequest(
-      "Map config envelope must be a JSON object",
-      "map-config-envelope-not-object"
-    );
-  }
-  const record = envelope as Record<string, unknown>;
-  if (record.id !== id) {
-    throw invalidEngineRequest(
-      "Map config envelope id must match the requested id",
-      "map-config-envelope-id-mismatch"
-    );
-  }
-  if (typeof record.name !== "string" || record.name.trim().length === 0) {
-    throw invalidEngineRequest("Map config name must be non-empty", "map-config-name-empty");
-  }
-  if (typeof record.description !== "string" || record.description.trim().length === 0) {
-    throw invalidEngineRequest(
-      "Map config description must be non-empty",
-      "map-config-description-empty"
-    );
-  }
-  if (record.recipe !== "standard") {
-    throw invalidEngineRequest('Map config recipe must be "standard"', "map-config-recipe-invalid");
-  }
-  if (!Number.isInteger(record.sortIndex))
-    throw invalidEngineRequest(
-      "Map config sortIndex must be an integer",
-      "map-config-sort-index-invalid"
-    );
-  if (!record.config || typeof record.config !== "object" || Array.isArray(record.config)) {
-    throw invalidEngineRequest(
-      "Map config payload must be a JSON object",
-      "map-config-payload-not-object"
-    );
-  }
+/**
+ * The app-side Swooper port owns catalog membership, immutable snapshotting, and
+ * Standard semantics. Studio-server snapshots editor input and orchestrates both.
+ */
+export function createSwooperRunInGameCanonicalConfigAdmission(
+  repoRoot: string
+): NonNullable<StudioOperationRuntimePorts["runInGameCanonicalConfigAdmission"]> {
+  const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
+
+  return {
+    resolveCatalogSource: async (sourcePath: string) => {
+      const entries = await readdir(configRoot, { withFileTypes: true });
+      const knownConfigPaths = new Set(
+        entries
+          .filter((entry) => entry.isFile() && entry.name.endsWith(".config.json"))
+          .map((entry) => relative(repoRoot, resolve(configRoot, entry.name)).replaceAll("\\", "/"))
+      );
+      const indexedSourcePaths = readCatalogSourceIndex({ knownConfigPaths });
+      if (!indexedSourcePaths.includes(sourcePath)) return undefined;
+
+      const sourceText = await readFile(resolve(repoRoot, sourcePath), "utf8");
+      const sourceValue: unknown = JSON.parse(sourceText);
+      try {
+        return admitSwooperCatalogConfig({
+          sourcePath,
+          canonicalConfig: sourceValue,
+        }).canonicalConfig;
+      } catch (err) {
+        throw invalidEngineRequest(
+          err instanceof Error ? err.message : "Catalog config could not be admitted",
+          "map-config-catalog-source-invalid",
+          { sourcePath }
+        );
+      }
+    },
+    admit: async (canonicalConfig) => validateRepoMapConfigSnapshot(canonicalConfig),
+  };
 }
 
-async function knownSwooperConfigPaths(repoRoot: string): Promise<ReadonlySet<string>> {
-  const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
-  const entries = await readdir(configRoot);
-  return new Set(
-    entries
-      .filter((entry) => entry.endsWith(".config.json"))
-      .map((entry) => relative(repoRoot, resolve(configRoot, entry)))
-  );
+function validateRepoMapConfigSnapshot(
+  canonicalConfig: Parameters<typeof validateStandardMapConfigSnapshot>[0]
+) {
+  try {
+    return validateStandardMapConfigSnapshot(canonicalConfig);
+  } catch (err) {
+    throw invalidEngineRequest(
+      err instanceof Error ? err.message : "Map config could not be admitted",
+      "map-config-envelope-invalid"
+    );
+  }
 }
 
 function cloneForJson(value: unknown): unknown {
@@ -524,9 +465,9 @@ type SaveDeployPrepared = Awaited<
 
 type RunInGameLeafContext = Readonly<{
   seed: number;
-  configHash: string;
-  envelopeHash: string;
-  sourceSnapshotProof?: RunInGameRequestStatus["sourceSnapshot"];
+  canonicalConfigDigest: string;
+  launchEnvelopeDigest: string;
+  sourceSnapshotEvidence?: RunInGameRequestStatus["sourceSnapshot"];
   requestStatus: RunInGameRequestStatus;
 }> & {
   materialization?: RunInGameGeneratedMod["materialization"];
@@ -534,7 +475,7 @@ type RunInGameLeafContext = Readonly<{
   scriptingSnapshot?: Awaited<ReturnType<typeof snapshotFile>>;
   deployment?: RunInGameDeployment;
   launchMapScript?: string;
-  rowProof?: unknown;
+  rowEvidence?: unknown;
   rowVisibility?: unknown;
   started?: RunInGameStarted;
 };
@@ -555,52 +496,7 @@ export function createStudioOperationRuntimePorts(
 
   return {
     runInGameWorkspaceRoot: resolve(repoRoot, ".mapgen-studio/run-in-game"),
-    readRunInGameCatalogSource: async ({ catalogSourceId }) => {
-      const entries = readCatalogSourceIndex({
-        knownConfigPaths: await knownSwooperConfigPaths(repoRoot),
-      });
-      const entry = entries.find((item) => item.catalogSourceId === catalogSourceId);
-      if (entry === undefined) return undefined;
-      const envelope = JSON.parse(await readFile(resolve(repoRoot, entry.configPath), "utf8")) as
-        unknown;
-      if (!isJsonObject(envelope)) {
-        throw invalidEngineRequest(
-          "Catalog source config must contain a map config envelope",
-          "run-in-game-catalog-source-config-invalid",
-          { catalogSourceId, configPath: entry.configPath }
-        );
-      }
-      assertCatalogSourceEnvelopeMatchesEntry({
-        catalogSourceId,
-        entry,
-        envelope,
-      });
-      if (
-        !envelope.config ||
-        typeof envelope.config !== "object" ||
-        Array.isArray(envelope.config)
-      ) {
-        throw invalidEngineRequest(
-          "Catalog source config must contain a map config object",
-          "run-in-game-catalog-source-config-invalid",
-          { catalogSourceId, configPath: entry.configPath }
-        );
-      }
-      const config = materializeCatalogSourceConfig({
-        catalogSourceId,
-        configPath: entry.configPath,
-        config: envelope.config,
-      });
-      return {
-        catalogSourceId: entry.catalogSourceId,
-        configPath: entry.configPath,
-        name: entry.name,
-        description: entry.description,
-        sortIndex: entry.sortIndex,
-        ...(entry.latitudeBounds === undefined ? {} : { latitudeBounds: entry.latitudeBounds }),
-        config,
-      };
-    },
+    runInGameCanonicalConfigAdmission: createSwooperRunInGameCanonicalConfigAdmission(repoRoot),
     generateRunInGameMod: async ({ generationManifest, signal }) => {
       const manifest = await readStudioRunGenerationManifest(generationManifest.path);
       const generated = await generateSwooperRunMod({
@@ -609,11 +505,10 @@ export function createStudioOperationRuntimePorts(
         signal,
       });
       const materialization = {
-        mode: manifest.payload.request.materializationMode,
         path: relative(repoRoot, generated.generatedModRoot),
         mapScript: `{${STUDIO_RUN_MOD_ID}}/${generated.mapScriptPath}`,
-        configHash: manifest.payload.launchSourceDigest.configContentDigest,
-        envelopeHash: manifest.payload.launchEnvelopeDigest,
+        canonicalConfigDigest: manifest.payload.launchSourceDigest.canonicalConfigDigest,
+        launchEnvelopeDigest: manifest.payload.launchEnvelopeDigest,
         generationManifestDigest: generationManifest.generationManifestDigest,
         runArtifactId: generated.runArtifactId,
         generatedModRoot: generated.generatedModRoot,
@@ -713,17 +608,17 @@ export function createStudioOperationRuntimePorts(
       throwIfRunDeployAborted(signal);
       const requiredMaterializationMarkers = runInGameRequiredMaterializationMarkers({
         requestId,
-        configHash: context.configHash,
-        envelopeHash: context.envelopeHash,
+        canonicalConfigDigest: context.canonicalConfigDigest,
+        launchEnvelopeDigest: context.launchEnvelopeDigest,
       });
-      const localModScriptContent = await optionalFileContentMarkerProof({
+      const localModScriptContent = await optionalFileContentMarkerEvidence({
         repoRoot,
         path: localModScriptPath(generatedModRoot, runArtifactId),
         exposeAs: "absolute",
         markers: requiredMaterializationMarkers,
       });
       throwIfRunDeployAborted(signal);
-      const deployedModScriptContent = await optionalFileContentMarkerProof({
+      const deployedModScriptContent = await optionalFileContentMarkerEvidence({
         repoRoot,
         path: deployedModScriptPath(deploy.targetDir, runArtifactId),
         exposeAs: "absolute",
@@ -746,9 +641,10 @@ export function createStudioOperationRuntimePorts(
       });
       if (unresolved.length > 0) {
         throw materializationFailed({
-          message: "Generated Swooper map script is missing current materialization proof markers",
+          message:
+            "Generated Swooper map script is missing current materialization evidence markers",
           diagnostics: boundedDiagnostics({
-            code: "map-script-materialization-proof-missing",
+            code: "map-script-materialization-evidence-missing",
             unresolvedLinks: unresolved,
             materialization: context.materialization,
           }),
@@ -760,7 +656,7 @@ export function createStudioOperationRuntimePorts(
       if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
         throw materializationFailed({
           message:
-            "Generated map bundle does not embed the Run in Game request id; the in-game proof could never match.",
+            "Generated map bundle does not embed the Run in Game request id; the in-game evidence could never match.",
           diagnostics: boundedDiagnostics({
             code: "run-request-id-not-materialized",
             requestId,
@@ -782,7 +678,7 @@ export function createStudioOperationRuntimePorts(
       context.launchMapScript = materialization.mapScript;
       return context.deployment;
     },
-    waitForRunInGameLogProof: async ({ requestId, setup, started }) => {
+    waitForRunInGameLogEvidence: async ({ requestId, setup, started }) => {
       const context = requireRunContext(runContexts, requestId);
       const materialization = requireMaterialization(context, requestId);
       const scriptingLogPath = requireContextValue(
@@ -796,14 +692,14 @@ export function createStudioOperationRuntimePorts(
         requestId
       );
       const launchMapScript = context.launchMapScript ?? materialization.mapScript;
-      const logMarkerProof = await waitForFreshLogMarkers({
+      const logMarkerEvidence = await waitForFreshLogMarkers({
         logPath: scriptingLogPath,
         snapshot: scriptingSnapshot,
         markers: [
-          "[mapgen-proof]",
+          "[mapgen-evidence]",
           requestId,
-          context.configHash,
-          context.envelopeHash,
+          context.canonicalConfigDigest,
+          context.launchEnvelopeDigest,
           "[mapgen-complete]",
         ],
         timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
@@ -817,9 +713,9 @@ export function createStudioOperationRuntimePorts(
           mapScript: launchMapScript,
         });
         if (mapgenFailure) {
-          throw proofFailed({
+          throw verificationFailed({
             message: mapgenFailure.message,
-            reason: "log-proof-missing",
+            reason: "log-evidence-missing",
             diagnostics: boundedDiagnostics({
               ...mapgenFailure,
               materialization,
@@ -828,8 +724,8 @@ export function createStudioOperationRuntimePorts(
           });
         }
         throw unavailableEngineDependency(
-          "Civ7 mapgen log proof is unavailable",
-          "direct-control-proof-unavailable",
+          "Civ7 mapgen log evidence is unavailable",
+          "direct-control-evidence-unavailable",
           err,
           { materialization }
         );
@@ -837,31 +733,31 @@ export function createStudioOperationRuntimePorts(
       const freshLogText = await readFreshLogText(scriptingLogPath, scriptingSnapshot).catch(
         () => ""
       );
-      const logProof = parseSwooperMapgenLogProof({
+      const logEvidence = parseSwooperMapgenLogEvidence({
         text: freshLogText,
-        logPath: logMarkerProof.logPath,
-        observedAt: logMarkerProof.observedAt,
+        logPath: logMarkerEvidence.logPath,
+        observedAt: logMarkerEvidence.observedAt,
         requestId,
-        configHash: context.configHash,
-        envelopeHash: context.envelopeHash,
+        canonicalConfigDigest: context.canonicalConfigDigest,
+        launchEnvelopeDigest: context.launchEnvelopeDigest,
         seed: context.seed,
       });
-      if (!logProof) {
-        throw proofFailed({
-          message: "Swooper log proof payload did not match the Studio Run in Game request",
-          reason: "log-proof-missing",
+      if (!logEvidence) {
+        throw verificationFailed({
+          message: "Swooper log evidence payload did not match the Studio Run in Game request",
+          reason: "log-evidence-missing",
           diagnostics: boundedDiagnostics({
-            code: "swooper-log-proof-missing",
+            code: "swooper-log-evidence-missing",
             requestId,
-            configHash: context.configHash,
-            envelopeHash: context.envelopeHash,
+            canonicalConfigDigest: context.canonicalConfigDigest,
+            launchEnvelopeDigest: context.launchEnvelopeDigest,
             seed: context.seed,
-            markers: logMarkerProof.matched,
+            markers: logMarkerEvidence.matched,
             materialization,
           }),
         });
       }
-      context.rowProof = setup.rowProof;
+      context.rowEvidence = setup.rowEvidence;
       context.rowVisibility = setup.rowVisibility;
       context.started = started;
       return {
@@ -870,15 +766,15 @@ export function createStudioOperationRuntimePorts(
           requestId,
           materialization,
           deploy: context.deployment?.deploy,
-          rowProof: setup.rowProof,
+          rowEvidence: setup.rowEvidence,
           rowVisibility: setup.rowVisibility,
           start: started.start,
-          logMarkerProof,
-          logProof,
+          logMarkerEvidence,
+          logEvidence,
         },
         materialization,
-        logMarkerProof,
-        logProof,
+        logMarkerEvidence,
+        logEvidence,
       };
     },
     observeRunInGameRuntime: async ({ requestId, prepared, deployment, setup, log, signal }) => {
@@ -892,27 +788,27 @@ export function createStudioOperationRuntimePorts(
         selfRpcUrl: options.selfRpcUrl?.(),
         signal,
       });
-      context.rowProof = setup.rowProof;
+      context.rowEvidence = setup.rowEvidence;
       context.rowVisibility = setup.rowVisibility;
       return observation;
     },
-    buildRunInGameProof: async ({ requestId, setup, started, log, observation }) => {
+    buildRunInGameEvidence: async ({ requestId, setup, started, log, observation }) => {
       const context = requireRunContext(runContexts, requestId);
       const materialization = requireMaterialization(context, requestId);
       const liveRuntimeStatus = liveRuntimeStatusFromObservation(observation.loadedGame.liveStatus);
-      const exactAuthorshipProof = buildRunInGameExactAuthorshipProof({
+      const exactAuthorshipEvidence = buildRunInGameExactAuthorshipEvidence({
         requestId,
         request: context.requestStatus,
-        sourceSnapshot: context.sourceSnapshotProof,
+        sourceSnapshot: context.sourceSnapshotEvidence,
         materialization,
         sourceConfig: materialization.sourceConfig,
         generatedSourceScript: materialization.generatedSourceScript,
         localModScript: materialization.localModScript,
         deployedModScript: materialization.deployedModScript,
-        rowProof: setup.rowProof,
+        rowEvidence: setup.rowEvidence,
         setupSnapshot: started.setup?.setupSnapshot ?? setup.setupSnapshot,
         startMapSummary: started.start?.mapSummary,
-        logProof: log.logProof as RunInGameDetailedProofLog | undefined,
+        logEvidence: log.logEvidence as RunInGameDetailedEvidenceLog | undefined,
         ...(liveRuntimeStatus
           ? {
               liveRuntimeSnapshot: {
@@ -936,29 +832,30 @@ export function createStudioOperationRuntimePorts(
           requestId,
           materialization,
           deploy: context.deployment?.deploy,
-          rowProof: setup.rowProof,
+          rowEvidence: setup.rowEvidence,
           rowVisibility: setup.rowVisibility,
           start: started.start,
-          logMarkerProof: log.logMarkerProof,
-          logProof: log.logProof,
-          exactAuthorshipProof,
+          logMarkerEvidence: log.logMarkerEvidence,
+          logEvidence: log.logEvidence,
+          exactAuthorshipEvidence,
         },
         materialization,
-        exactAuthorshipProof,
+        exactAuthorshipEvidence,
       };
     },
     prepareSaveDeployStart: async ({ requestId, input }) => {
-      const parsedRequest = parseSaveDeployInput(input);
-      assertRepoMapEnvelope(parsedRequest.envelope, parsedRequest.id);
+      const request = parseSaveDeployInput(input);
+      const parsedRequest = {
+        ...request,
+        canonicalConfig: validateRepoMapConfigSnapshot(request.canonicalConfig),
+      };
       const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
-      const target = parsedRequest.sourcePath
-        ? resolve(repoRoot, parsedRequest.sourcePath)
-        : resolve(configRoot, `${parsedRequest.id}.config.json`);
+      const target = resolve(configRoot, `${parsedRequest.canonicalConfig.id}.config.json`);
       if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
         throw invalidEngineRequest(
           "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs",
           "map-config-path-outside-config-root",
-          { sourcePath: parsedRequest.sourcePath }
+          { path: target }
         );
       }
       const path = relative(repoRoot, target);
@@ -968,7 +865,7 @@ export function createStudioOperationRuntimePorts(
           "Unable to read existing map config before Save/Deploy",
           "save-deploy-existing-config-unavailable",
           err,
-          { path, sourcePath: parsedRequest.sourcePath }
+          { path }
         );
       });
       const prepared = {
@@ -985,7 +882,7 @@ export function createStudioOperationRuntimePorts(
       await mkdir(dirname(context.target), { recursive: true });
       await writeFile(
         context.target,
-        `${JSON.stringify(context.parsedRequest.envelope, null, 2)}\n`
+        `${JSON.stringify(context.parsedRequest.canonicalConfig, null, 2)}\n`
       );
       return { path: context.path, saved: true };
     },
@@ -993,7 +890,7 @@ export function createStudioOperationRuntimePorts(
       const context = requireSaveContext(saveContexts, requestId);
       const path = requireContextValue(context.path, "Save/Deploy config path", requestId);
       const deploy = await deploySwooperMaps(repoRoot, {
-        id: context.parsedRequest.id,
+        id: context.parsedRequest.canonicalConfig.id,
         path,
       });
       return { path: context.path, saved: true, deployed: true, deploy };
@@ -1015,30 +912,29 @@ export function createStudioOperationRuntimePorts(
       prepared: Parameters<StudioOperationRuntimePorts["deployRunInGame"]>[0]["prepared"];
     }>
   ): RunInGameLeafContext {
-    const request = args.prepared.request;
-    const seed = request.seed;
-    const mapSize = request.mapSize;
-    const playerCount = request.playerCount;
-    const setupConfig = request.setupConfig;
-    const configHash = args.prepared.launchSourceDigest.configContentDigest;
-    const envelopeHash = args.prepared.launchEnvelopeDigest;
-    const sourceSnapshotProof = request.sourceSnapshot;
+    const launchEnvelope = args.prepared.launchEnvelope;
+    const seed = Number(launchEnvelope.recipeSettings.seed);
+    const mapSize = launchEnvelope.worldSettings.mapSize;
+    const playerCount = launchEnvelope.worldSettings.playerCount;
+    const setupConfig = launchEnvelope.setupConfig;
+    const canonicalConfigDigest = args.prepared.launchSourceDigest.canonicalConfigDigest;
+    const launchEnvelopeDigest = args.prepared.launchEnvelopeDigest;
+    const sourceSnapshotEvidence = args.prepared.request.sourceSnapshot;
     const requestStatus: RunInGameRequestStatus = {
-      ...args.prepared.request,
-      recipeId: "mod-swooper-maps/standard",
+      recipeId: launchEnvelope.recipeSettings.recipe,
       seed,
       mapSize,
       ...(playerCount === undefined ? {} : { playerCount }),
-      selectedConfigId: request.selectedConfigId,
       setupConfig,
-      materializationMode: request.materializationMode,
-      ...(sourceSnapshotProof ? { sourceSnapshot: sourceSnapshotProof } : {}),
+      ...(sourceSnapshotEvidence ? { sourceSnapshot: sourceSnapshotEvidence } : {}),
+      launchSourceDigest: args.prepared.launchSourceDigest,
+      launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     };
     return {
       seed,
-      configHash,
-      envelopeHash,
-      ...(sourceSnapshotProof ? { sourceSnapshotProof } : {}),
+      canonicalConfigDigest,
+      launchEnvelopeDigest,
+      ...(sourceSnapshotEvidence ? { sourceSnapshotEvidence } : {}),
       requestStatus,
     };
   }

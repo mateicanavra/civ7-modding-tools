@@ -1,10 +1,13 @@
 {
-  "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "shattered-ring",
   "name": "The Shattered Ring",
   "description": "A world forever changed by an ancient cosmic impact. A vast crater sea dominates the center, ringed by towering mountains thrust up by the cataclysm. Volcanic islands dot the inner waters while fractured outer lands offer expansive frontiers. Three theaters of play: the protected inner sea for naval dominance, the ring mountains for defensive strongholds, and the outer lands for continental expansion.",
   "recipe": "standard",
   "sortIndex": 502,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {

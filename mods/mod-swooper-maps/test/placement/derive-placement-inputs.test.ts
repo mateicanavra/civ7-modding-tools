@@ -242,7 +242,7 @@ describe("derive placement inputs", () => {
     });
   });
 
-  it("builds compact natural-wonder plan telemetry for exact runtime proof", () => {
+  it("builds compact natural-wonder plan telemetry for exact runtime evidence", () => {
     const telemetry = buildNaturalWonderPlanRuntimeTelemetry({
       width: 106,
       height: 66,
@@ -276,18 +276,18 @@ describe("derive placement inputs", () => {
         ["p", 4130, 102, 38, 30, 0, 3, 610704],
         ["p", 1785, 89, 16, 36, 0, 4, 827266],
       ],
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         plannedCount: 2,
       },
     });
-    expect(telemetry.coordinateProof.plannedHash32).toMatch(/^[0-9a-f]{8}$/);
+    expect(telemetry.coordinateEvidence.plannedHash32).toMatch(/^[0-9a-f]{8}$/);
     expect(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(telemetry)}`.length).toBeLessThan(
       700
     );
   });
 
-  it("builds compact natural-wonder plan input telemetry for exact runtime proof", () => {
+  it("builds compact natural-wonder plan input telemetry for exact runtime evidence", () => {
     const width = 4;
     const height = 4;
     const size = width * height;

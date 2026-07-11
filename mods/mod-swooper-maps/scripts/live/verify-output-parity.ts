@@ -5,7 +5,7 @@
 // `studio-run-in-game-live` SIGSEGV/[mapgen-complete] gate does NOT do: a map can
 // generate cleanly yet produce the wrong geography.
 //
-// Unlike `final-surface-parity` (which consumes a Studio exactAuthorshipProof), this
+// Unlike `final-surface-parity` (which consumes a Studio exactAuthorshipEvidence), this
 // mode is Studio-free: it loads the map itself (or reads the currently-loaded game with
 // --no-load), recomputes the headless surface from this worktree's config, and diffs
 // per-tile with the SAME primitives the official parity uses

@@ -1,3 +1,7 @@
+import {
+  saveDeployPublicErrorDataSchema,
+  saveDeployStatusNotFoundErrorDataSchema,
+} from "@civ7/studio-contract";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
@@ -17,12 +21,12 @@ import {
   operationBlocked,
   operationExpired,
   operationNotFound,
-  proofFailed,
   runtimeDisposed,
   type StudioRuntimeFailure,
   statusNotFoundErrorDataSchema,
   unavailableFailureErrorDataSchema,
   unsupportedOperationType,
+  verificationFailed,
 } from "../src/index";
 
 const identity = {
@@ -71,15 +75,15 @@ describe("studio-server error spine", () => {
       dependencyUnavailable({ message: "direct control unavailable" }),
       dependencyUnavailable({ message: "restart failed", reason: "restart-failed" }),
       dependencyUnavailable({ message: "restart unsupported", reason: "restart-unsupported" }),
-      materializationFailed({ message: "materialization proof missing" }),
+      materializationFailed({ message: "materialization evidence missing" }),
       deployFailed({ message: "deploy failed" }),
       deployFailed({ message: "save failed", reason: "save-failed" }),
       deployFailed({ message: "rollback failed", reason: "rollback-failed" }),
-      proofFailed({ message: "setup row missing", reason: "setup-row-unavailable" }),
-      proofFailed({ message: "game start failed", reason: "start-game-failed" }),
-      proofFailed({ message: "log proof missing", reason: "log-proof-missing" }),
-      proofFailed({ message: "authorship mismatch", reason: "exact-authorship-mismatch" }),
-      proofFailed({ message: "timeout uncertain", reason: "timeout-uncertain" }),
+      verificationFailed({ message: "setup row missing", reason: "setup-row-unavailable" }),
+      verificationFailed({ message: "game start failed", reason: "start-game-failed" }),
+      verificationFailed({ message: "log evidence missing", reason: "log-evidence-missing" }),
+      verificationFailed({ message: "authorship mismatch", reason: "exact-authorship-mismatch" }),
+      verificationFailed({ message: "timeout uncertain", reason: "timeout-uncertain" }),
       autoplayStartStopFailed({ message: "start failed", reason: "start-failed" }),
       autoplayStartStopFailed({ message: "stop failed", reason: "stop-failed" }),
       autoplayVerificationFailed({ message: "verification failed" }),
@@ -151,8 +155,7 @@ describe("studio-server error spine", () => {
       status: 404,
       data: {
         requestId: "save-1",
-        serverInstanceId: identity.serverInstanceId,
-        serverStartedAt: identity.serverStartedAt,
+        safeFailureCategory: "request-validation",
       },
     });
     expect(
@@ -238,10 +241,10 @@ describe("studio-server error spine", () => {
       fallbackMessage: "fallback",
     }).data;
 
-    expect(Value.Check(expectedFailureErrorDataSchema, invalidPayload)).toBe(true);
-    expect(Value.Check(unavailableFailureErrorDataSchema, unavailablePayload)).toBe(true);
-    expect(Value.Check(statusNotFoundErrorDataSchema, statusPayload)).toBe(true);
-    expect(Value.Check(failedErrorDataSchema, defectPayload)).toBe(true);
+    expect(Value.Check(saveDeployPublicErrorDataSchema, invalidPayload)).toBe(true);
+    expect(Value.Check(saveDeployPublicErrorDataSchema, unavailablePayload)).toBe(true);
+    expect(Value.Check(saveDeployStatusNotFoundErrorDataSchema, statusPayload)).toBe(true);
+    expect(Value.Check(saveDeployPublicErrorDataSchema, defectPayload)).toBe(true);
 
     expect(Value.Check(expectedFailureErrorDataSchema, unavailablePayload)).toBe(false);
     expect(Value.Check(expectedFailureErrorDataSchema, statusPayload)).toBe(false);
@@ -324,5 +327,27 @@ describe("studio-server error spine", () => {
         serverStartedAt: identity.serverStartedAt,
       })
     ).toBe(true);
+  });
+
+  test("seals unexpected Save/Deploy defects behind fixed public text", () => {
+    const projected = mapUnknownToStudioDefinedError({
+      err: Object.assign(new Error("failed at /Users/private with secret stderr"), {
+        cause: { deploymentRoot: "/tmp/private-mod", stdout: "secret stdout" },
+      }),
+      procedure: "saveDeploy.start",
+      fallbackMessage: "fallback",
+    });
+
+    expect(projected).toEqual({
+      code: "SAVE_DEPLOY_FAILED",
+      status: 500,
+      message: "Save/Deploy failed.",
+      data: {
+        namespace: "saveDeploy",
+        recoveryActions: ["copy-diagnostics"],
+        safeFailureCategory: "internal-defect",
+      },
+    });
+    expect(JSON.stringify(projected)).not.toMatch(/Users|stderr|stdout|deploymentRoot|private-mod/);
   });
 });

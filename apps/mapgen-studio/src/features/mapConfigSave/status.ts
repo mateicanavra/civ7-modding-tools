@@ -2,12 +2,9 @@ import type {
   MapConfigSaveDeployKind,
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
+  SaveDeploySafeFailureCategory,
   StudioRecoveryAction,
 } from "@civ7/studio-contract";
-
-// The presentation half of this module (`formatMapConfigSaveDeployPhaseLabel`)
-// lives in `@swooper/mapgen-studio-ui` (panels/statusLabels — B5 split); this
-// file keeps the status CONSTRUCTORS the save/deploy hooks build state with.
 
 export function kindForMapConfigSaveDeployPhase(
   phase: MapConfigSaveDeployPhase
@@ -18,104 +15,155 @@ export function kindForMapConfigSaveDeployPhase(
   return "running";
 }
 
-export function createMapConfigSaveDeployStatus(args: {
+type NonTerminalPhase = Exclude<MapConfigSaveDeployPhase, "complete" | "failed">;
+
+type NonTerminalStatus = Extract<MapConfigSaveDeployStatus, { ok: true; status: "idle" | "running" }>;
+type CompleteStatus = Extract<MapConfigSaveDeployStatus, { status: "complete" }>;
+type FailedStatus = Extract<MapConfigSaveDeployStatus, { ok: false }>;
+
+type NonTerminalStatusArgs = Readonly<{
   requestId: string;
-  phase: MapConfigSaveDeployPhase;
-  now?: () => Date;
-  path?: string;
+  phase: NonTerminalPhase;
   saved?: boolean;
   deployed?: boolean;
-  error?: string;
-  deploy?: MapConfigSaveDeployStatus["deploy"];
-  details?: MapConfigSaveDeployStatus["details"];
   recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
-}): MapConfigSaveDeployStatus {
-  const timestamp = (args.now ?? (() => new Date()))().toISOString();
-  const status = kindForMapConfigSaveDeployPhase(args.phase);
-  return {
-    ok: status !== "failed",
-    requestId: args.requestId,
-    phase: args.phase,
-    status,
-    startedAt: timestamp,
-    updatedAt: timestamp,
-    ...(args.path === undefined ? {} : { path: args.path }),
-    ...(args.saved === undefined ? {} : { saved: args.saved }),
-    ...(args.deployed === undefined ? {} : { deployed: args.deployed }),
-    ...(args.error === undefined ? {} : { error: args.error }),
-    ...(args.deploy === undefined ? {} : { deploy: args.deploy }),
-    ...(args.details === undefined ? {} : { details: args.details }),
-    ...(args.recoveryActions === undefined ? {} : { recoveryActions: [...args.recoveryActions] }),
-  };
-}
+}>;
 
-export function updateMapConfigSaveDeployStatus(
-  current: MapConfigSaveDeployStatus,
-  patch: Readonly<{
-    phase: MapConfigSaveDeployPhase;
-    now?: () => Date;
-    path?: string;
-    saved?: boolean;
-    deployed?: boolean;
-    error?: string;
-    deploy?: MapConfigSaveDeployStatus["deploy"];
-    details?: MapConfigSaveDeployStatus["details"];
-    recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
-  }>
+type CompleteStatusArgs = Readonly<{
+  requestId: string;
+  phase: "complete";
+  recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
+}>;
+
+type FailedStatusArgs = Readonly<{
+  requestId: string;
+  phase: "failed";
+  saved?: boolean;
+  deployed?: boolean;
+  safeFailureCategory: SaveDeploySafeFailureCategory;
+  recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
+}>;
+
+type CreateMapConfigSaveDeployStatusArgs =
+  | NonTerminalStatusArgs
+  | CompleteStatusArgs
+  | FailedStatusArgs;
+
+export function createMapConfigSaveDeployStatus(args: NonTerminalStatusArgs): NonTerminalStatus;
+export function createMapConfigSaveDeployStatus(args: CompleteStatusArgs): CompleteStatus;
+export function createMapConfigSaveDeployStatus(args: FailedStatusArgs): FailedStatus;
+export function createMapConfigSaveDeployStatus(
+  args: CreateMapConfigSaveDeployStatusArgs
 ): MapConfigSaveDeployStatus {
-  const status = kindForMapConfigSaveDeployPhase(patch.phase);
-  return {
-    ...current,
-    ok: status !== "failed",
-    phase: patch.phase,
-    status,
-    updatedAt: (patch.now ?? (() => new Date()))().toISOString(),
-    ...(patch.path === undefined ? {} : { path: patch.path }),
-    ...(patch.saved === undefined ? {} : { saved: patch.saved }),
-    ...(patch.deployed === undefined ? {} : { deployed: patch.deployed }),
-    ...(patch.error === undefined ? {} : { error: patch.error }),
-    ...(patch.deploy === undefined ? {} : { deploy: patch.deploy }),
-    ...(patch.details === undefined ? {} : { details: patch.details }),
-    ...(patch.recoveryActions === undefined ? {} : { recoveryActions: [...patch.recoveryActions] }),
-  };
-}
-
-/** A save/deploy operation is terminal once it is no longer `running`. */
-export function isSaveDeployTerminal(status: MapConfigSaveDeployStatus): boolean {
-  return status.status !== "running";
-}
-
-/**
- * Project a terminal save/deploy status into the `{ ok, ... }` result shape the
- * save handlers consume. `fallbackPath` is used when the status carries no path.
- */
-export function saveDeployResultFromTerminalStatus(
-  status: MapConfigSaveDeployStatus,
-  fallbackPath?: string
-):
-  | {
-      ok: true;
-      path?: string;
-      deploy?: MapConfigSaveDeployStatus["deploy"];
-      saved?: boolean;
-      deployed?: boolean;
-    }
-  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string } {
-  const path = status.path ?? fallbackPath;
-  if (!status.ok || status.status === "failed") {
+  const recoveryActions = [...(args.recoveryActions ?? [])];
+  if (args.phase === "complete") {
+    return {
+      ok: true,
+      requestId: args.requestId,
+      phase: "complete",
+      status: "complete",
+      saved: true,
+      deployed: true,
+      recoveryActions,
+    };
+  }
+  if (args.phase === "failed") {
     return {
       ok: false,
-      error: status.error ?? "Save/deploy failed",
-      saved: status.saved,
-      deployed: status.deployed,
-      path,
+      requestId: args.requestId,
+      phase: "failed",
+      status: "failed",
+      saved: args.saved ?? false,
+      deployed: args.deployed ?? false,
+      safeFailureCategory: args.safeFailureCategory,
+      recoveryActions,
     };
   }
   return {
     ok: true,
-    path,
-    deploy: status.deploy,
-    saved: status.saved,
-    deployed: status.deployed,
+    requestId: args.requestId,
+    phase: args.phase,
+    status: args.phase === "idle" ? "idle" : "running",
+    ...(args.saved === undefined ? {} : { saved: args.saved }),
+    ...(args.deployed === undefined ? {} : { deployed: args.deployed }),
+    recoveryActions,
   };
+}
+
+type UpdateMapConfigSaveDeployStatusPatch =
+  | Readonly<{
+      phase: NonTerminalPhase;
+      saved?: boolean;
+      deployed?: boolean;
+      recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
+    }>
+  | Readonly<{
+      phase: "complete";
+      recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
+    }>
+  | Readonly<{
+      phase: "failed";
+      saved?: boolean;
+      deployed?: boolean;
+      safeFailureCategory: SaveDeploySafeFailureCategory;
+      recoveryActions?: ReadonlyArray<StudioRecoveryAction>;
+    }>;
+
+export function updateMapConfigSaveDeployStatus(
+  current: MapConfigSaveDeployStatus,
+  patch: UpdateMapConfigSaveDeployStatusPatch
+): MapConfigSaveDeployStatus {
+  if (patch.phase === "failed") {
+    return createMapConfigSaveDeployStatus({
+      requestId: current.requestId,
+      phase: "failed",
+      saved: patch.saved ?? current.saved,
+      deployed: patch.deployed ?? current.deployed,
+      safeFailureCategory: patch.safeFailureCategory,
+      recoveryActions: patch.recoveryActions ?? current.recoveryActions,
+    });
+  }
+  if (patch.phase === "complete") {
+    return createMapConfigSaveDeployStatus({
+      requestId: current.requestId,
+      phase: "complete",
+      recoveryActions: patch.recoveryActions ?? current.recoveryActions,
+    });
+  }
+  return createMapConfigSaveDeployStatus({
+    requestId: current.requestId,
+    phase: patch.phase,
+    saved: patch.saved ?? current.saved,
+    deployed: patch.deployed ?? current.deployed,
+    recoveryActions: patch.recoveryActions ?? current.recoveryActions,
+  });
+}
+
+export function isSaveDeployTerminal(status: MapConfigSaveDeployStatus): boolean {
+  return status.status !== "running";
+}
+
+export function saveDeployResultFromTerminalStatus(
+  status: MapConfigSaveDeployStatus
+): MapConfigSaveDeployStatus {
+  return { ...status, recoveryActions: [...status.recoveryActions] };
+}
+
+export function saveDeployFailureMessage(category: SaveDeploySafeFailureCategory): string {
+  switch (category) {
+    case "request-validation":
+      return "Save/Deploy request could not be accepted.";
+    case "ownership":
+      return "Save/Deploy is blocked by another Studio operation.";
+    case "dependency-unavailable":
+      return "Save/Deploy dependency is unavailable.";
+    case "save":
+      return "Saving the map configuration failed.";
+    case "deployment":
+      return "Deploying the map configuration failed.";
+    case "cleanup":
+      return "Save/Deploy recovery failed.";
+    case "internal-defect":
+      return "Save/Deploy failed.";
+  }
 }

@@ -1,6 +1,6 @@
-import type { StudioInputs } from "../context.js";
 import type {
   SaveDeployPreparedRequest,
+  SaveDeployRequest,
   SaveDeployRollback,
   SaveDeploySaved,
   WorkflowFailureDiagnosticsPort,
@@ -11,20 +11,20 @@ export type MapConfigStore = WorkflowFailureDiagnosticsPort &
     prepareSaveDeployStart(
       args: Readonly<{
         requestId: string;
-        input: StudioInputs["mapConfigs"]["saveDeploy"];
+        input: SaveDeployRequest;
       }>
     ): Promise<SaveDeployPreparedRequest>;
     saveMapConfig(
       args: Readonly<{
         requestId: string;
-        input: StudioInputs["mapConfigs"]["saveDeploy"];
+        input: SaveDeployRequest;
         prepared: SaveDeployPreparedRequest;
       }>
     ): Promise<SaveDeploySaved>;
     rollbackSaveDeploy(
       args: Readonly<{
         requestId: string;
-        input: StudioInputs["mapConfigs"]["saveDeploy"];
+        input: SaveDeployRequest;
         prepared: SaveDeployPreparedRequest;
         saved?: SaveDeploySaved;
         failedAtPhase: "saving" | "deploying";

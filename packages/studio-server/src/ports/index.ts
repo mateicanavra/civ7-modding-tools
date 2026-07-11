@@ -4,33 +4,34 @@ export {
   Civ7WorkflowControlLive,
 } from "./Civ7WorkflowControl.js";
 export type { DeployRunner } from "./DeployRunner.js";
+export type { EvidenceBuilder } from "./EvidenceBuilder.js";
 export type { MapConfigStore } from "./MapConfigStore.js";
-export type { ProofBuilder } from "./ProofBuilder.js";
-export type { RuntimeObservation } from "./RuntimeObservation.js";
 export type { RunInGameArtifactGenerator } from "./RunInGameArtifactGenerator.js";
+export type { RuntimeObservation } from "./RuntimeObservation.js";
 export type { ScriptingLog } from "./ScriptingLog.js";
 export type {
-  LoadedGameReadback,
   CanonicalRunInGameRequest,
   DeployedModSnapshot,
   DeployedModSnapshotFile,
-  RunInGameCatalogSource,
+  LoadedGameReadback,
+  RunDeployment,
+  RunInGameCanonicalConfigAdmission,
   RunInGameDeployment,
   RunInGameDeploymentEvidence,
+  RunInGameEvidence,
   RunInGameGeneratedMod,
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
-  RunInGameProof,
   RunInGameRuntimeObservation,
   RunInGameSetupPrepared,
   RunInGameStarted,
-  RunDeployment,
-  ScriptingLogObservation,
-  SetupRowReadback,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,
+  SaveDeployRequest,
   SaveDeployRollback,
   SaveDeploySaved,
+  ScriptingLogObservation,
+  SetupRowReadback,
   StudioClock,
   StudioDaemonIdentity,
   WorkflowFailureDiagnosticsPort,
@@ -39,21 +40,19 @@ export type {
 } from "./workflowTypes.js";
 
 import type { DeployRunner } from "./DeployRunner.js";
+import type { EvidenceBuilder } from "./EvidenceBuilder.js";
 import type { MapConfigStore } from "./MapConfigStore.js";
-import type { ProofBuilder } from "./ProofBuilder.js";
-import type { RuntimeObservation } from "./RuntimeObservation.js";
 import type { RunInGameArtifactGenerator } from "./RunInGameArtifactGenerator.js";
+import type { RuntimeObservation } from "./RuntimeObservation.js";
 import type { ScriptingLog } from "./ScriptingLog.js";
-import type { RunInGameCatalogSource, StudioClock } from "./workflowTypes.js";
+import type { RunInGameCanonicalConfigAdmission, StudioClock } from "./workflowTypes.js";
 
 export type StudioWorkflowPorts = Readonly<{
   clock?: StudioClock;
   runInGameWorkspaceRoot?: string;
-  readRunInGameCatalogSource?(
-    args: Readonly<{ catalogSourceId: string }>
-  ): Promise<RunInGameCatalogSource | undefined>;
+  runInGameCanonicalConfigAdmission?: RunInGameCanonicalConfigAdmission;
 }> &
-  ProofBuilder &
+  EvidenceBuilder &
   RunInGameArtifactGenerator &
   DeployRunner &
   ScriptingLog &

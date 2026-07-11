@@ -5,10 +5,13 @@ import {
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
 import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
-import { describe, expect, it } from "vitest";
 import { Value } from "typebox/value";
+import { describe, expect, it } from "vitest";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
-import { applyPresetConfig } from "../../src/features/configOverrides/configBuilders";
+import {
+  applyPresetConfig,
+  createStudioEditorCanonicalConfig,
+} from "../../src/features/configAuthoring/canonicalConfig";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
   getRecipeArtifacts,
@@ -61,6 +64,10 @@ describe("standard recipe generated artifact guardrails", () => {
     expect(STUDIO_RECIPE_ARTIFACTS.map((entry) => entry.id)).toContain("mod-swooper-maps/standard");
   });
 
+  it("constructs editor defaults from the generated standard recipe config", () => {
+    expect(createStudioEditorCanonicalConfig().config).toEqual(STANDARD_RECIPE_CONFIG);
+  });
+
   it("keeps generated Studio focus paths on public schema/default paths", () => {
     const stageSchemas = schemaProperties(STANDARD_RECIPE_CONFIG_SCHEMA);
 
@@ -86,13 +93,18 @@ describe("standard recipe generated artifact guardrails", () => {
     const presets = standardEntry.studioBuiltInPresets ?? [];
     const configs = [
       { id: "default", config: STANDARD_RECIPE_CONFIG },
-      ...presets.map((config) => ({ id: config.id, config: config.config })),
+      ...presets.map((preset) => ({
+        id: preset.canonicalConfig.id,
+        config: preset.canonicalConfig.config,
+      })),
     ];
 
     expect(presets.length).toBeGreaterThan(0);
-    expect(presets.map((preset) => preset.id)).toEqual(standardMapConfigs.map((config) => config.id));
-    expect(presets.map((preset) => preset.config)).toEqual(
-      standardMapConfigs.map((config) => config.config)
+    expect(presets.map((preset) => preset.canonicalConfig.id)).toEqual(
+      standardMapConfigs.map((config) => config.canonicalConfig.id)
+    );
+    expect(presets.map((preset) => preset.canonicalConfig.config)).toEqual(
+      standardMapConfigs.map((config) => config.canonicalConfig.config)
     );
 
     for (const { id, config } of configs) {
@@ -110,7 +122,8 @@ describe("standard recipe generated artifact guardrails", () => {
         label: id,
       });
       expect(applied.ok, `${id} applied preset`).toBe(true);
-      if (!applied.ok) throw new Error(`${id} applied preset errors: ${JSON.stringify(applied.errors)}`);
+      if (!applied.ok)
+        throw new Error(`${id} applied preset errors: ${JSON.stringify(applied.errors)}`);
       expect(Value.Equal(applied.value, config)).toBe(true);
     }
   });
@@ -131,7 +144,8 @@ describe("standard recipe generated artifact guardrails", () => {
     expect(applied.errors).toEqual([
       {
         path: "/config/incomplete",
-        message: "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
+        message:
+          "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
       },
     ]);
   });

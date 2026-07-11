@@ -24,8 +24,8 @@ import {
   type StudioRpcHandle,
   type StudioRuntime,
   type StudioServerContext,
-  proofFailed,
   studioEventSubscriptionIterator,
+  verificationFailed,
 } from "../src/index";
 import {
   makeStudioOperationRuntimeLayer,
@@ -77,7 +77,11 @@ describe("studio-server RPC handler", () => {
       viteCommand: "serve",
     });
     await expect(
-      client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
+      client.mapConfigs.saveDeploy({
+        requestId: "save-1",
+        canonicalConfig: testCanonicalConfig({ id: "test-config", name: "Test Config" })
+          .canonicalConfig,
+      })
     ).resolves.toMatchObject({
       ok: true,
       requestId: "save-1",
@@ -129,10 +133,14 @@ describe("studio-server RPC handler", () => {
         }),
       });
       const client = await listenWithClient(context);
-      const run = await client.runInGame.start(runInGameStartInput());
+      await client.runInGame.start(runInGameStartInput());
 
       const { error } = await safe(
-        client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
+        client.mapConfigs.saveDeploy({
+          requestId: "save-1",
+          canonicalConfig: testCanonicalConfig({ id: "test-config", name: "Test Config" })
+            .canonicalConfig,
+        })
       );
       blocker.resolve();
 
@@ -141,16 +149,15 @@ describe("studio-server RPC handler", () => {
       expect(isDefinedError(error)).toBe(true);
       expect(error.code).toBe("SAVE_DEPLOY_BLOCKED");
       expect(error.status).toBe(409);
-      expect(error.message).toBe(
-        "run-in-game is running; wait for it to finish before starting another Studio operation."
-      );
-      expect(error.data).toMatchObject({
-        tag: "OperationBlocked",
+      expect(error.message).toBe("Save/Deploy is blocked by another Studio operation.");
+      expect(error.data).toEqual({
         namespace: "saveDeploy",
-        reason: "active-operation-conflict",
-        activeRequestId: run.requestId,
-        diagnostics: { code: "studio-operation-active" },
+        recoveryActions: ["copy-diagnostics", "retry-status"],
+        safeFailureCategory: "ownership",
       });
+      expect(JSON.stringify(error.data)).not.toMatch(
+        /activeRequestId|causeMessage|reason|tag|message|stdout|stderr|\/Users\//
+      );
       expect(consoleError).not.toHaveBeenCalled();
     } finally {
       blocker.resolve();
@@ -211,7 +218,11 @@ describe("studio-server RPC handler", () => {
           });
           if (!lookup.ok) return false;
           const attribution = lookup.diagnostics.sections.attribution;
-          if (attribution == null || typeof attribution !== "object" || Array.isArray(attribution)) {
+          if (
+            attribution == null ||
+            typeof attribution !== "object" ||
+            Array.isArray(attribution)
+          ) {
             return false;
           }
           const report = (attribution as { report?: unknown }).report;
@@ -261,25 +272,22 @@ describe("studio-server RPC handler", () => {
   }, 10_000);
 
   test("reports generated setup-row misses through safe public RPC status and private diagnostics", async () => {
-    const runtime = makeTestStudioRuntime(
-      makeContext(),
-      {
-        prepareSetup: () =>
-          Effect.fail(
-            proofFailed({
-              message: "Civ7 setup cannot see the generated Studio Run map row.",
-              reason: "setup-row-unavailable",
-              diagnostics: {
-                code: "setup-map-row-not-visible",
-                setupFailureReason: "setup-map-row-not-visible",
-                mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-                rowProof: JSON.stringify({ rows: [] }),
-                rowVisibility: JSON.stringify({ refreshed: true, final: { rows: [] } }),
-              },
-            })
-          ),
-      }
-    );
+    const runtime = makeTestStudioRuntime(makeContext(), {
+      prepareSetup: () =>
+        Effect.fail(
+          verificationFailed({
+            message: "Civ7 setup cannot see the generated Studio Run map row.",
+            reason: "setup-row-unavailable",
+            diagnostics: {
+              code: "setup-map-row-not-visible",
+              setupFailureReason: "setup-map-row-not-visible",
+              mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+              rowEvidence: JSON.stringify({ rows: [] }),
+              rowVisibility: JSON.stringify({ refreshed: true, final: { rows: [] } }),
+            },
+          })
+        ),
+    });
     const client = directRuntimeClient(runtime);
     try {
       const accepted = await client.runInGame.start(runInGameStartInput());
@@ -288,6 +296,12 @@ describe("studio-server RPC handler", () => {
       await expect
         .poll(async () => (await client.runInGame.status({ requestId: accepted.requestId })).status)
         .toBe("failed");
+      await expect
+        .poll(
+          async () =>
+            (await client.runInGame.status({ requestId: accepted.requestId })).diagnosticsId
+        )
+        .toBe(accepted.diagnosticsId);
 
       const status = await client.runInGame.status({ requestId: accepted.requestId });
       const current = await client.studio.operations.current({});
@@ -298,7 +312,7 @@ describe("studio-server RPC handler", () => {
         diagnosticsId: accepted.diagnosticsId,
       });
       expect(publicPayload).not.toMatch(
-        /setup-map-row-not-visible|rowProof|rowVisibility|mod-swooper-studio-run|\/tmp\//
+        /setup-map-row-not-visible|rowEvidence|rowVisibility|mod-swooper-studio-run|\/tmp\//
       );
 
       const diagnostics = await client.runInGame.diagnostics({
@@ -328,12 +342,11 @@ describe("studio-server RPC handler", () => {
           source: {
             kind: "editor",
             editorSessionId: "studio-current",
-            payload: {
-              ...runInGameStartInput().source.payload,
-              pipelineConfig: {
-                rawJs: "UI.notifyUIReady()",
-              },
-            },
+            canonicalConfig: testCanonicalConfig({
+              id: "studio-current",
+              name: "Studio Current",
+              config: { rawJs: "UI.notifyUIReady()" },
+            }).canonicalConfig,
           },
         } as StudioInputs["runInGame"]["start"])
       );
@@ -474,7 +487,7 @@ describe("studio-server RPC handler", () => {
     });
   });
 
-  test("delivers a save/deploy status miss as SAVE_DEPLOY_STATUS_NOT_FOUND with the server-identity echo", async () => {
+  test("delivers a sealed save/deploy status miss without daemon or diagnostic data", async () => {
     const context = makeContext();
     const client = await listenWithClient(context);
 
@@ -486,16 +499,14 @@ describe("studio-server RPC handler", () => {
     expect(error.code).toBe("SAVE_DEPLOY_STATUS_NOT_FOUND");
     expect(error.status).toBe(404);
     expect(error.data).toEqual({
-      tag: "OperationNotFound",
       namespace: "saveDeploy",
-      reason: "status-not-found",
-      message: "Save/Deploy request not found: save-1",
-      recoveryActions: ["retry-status", "copy-diagnostics"],
+      recoveryActions: ["copy-diagnostics", "retry-status"],
       requestId: "save-1",
-      serverInstanceId: expect.stringMatching(/^studio-server-/),
-      serverStartedAt: "2026-06-10T00:00:00.000Z",
-      diagnostics: { code: "save-deploy-request-not-found" },
+      safeFailureCategory: "request-validation",
     });
+    expect(JSON.stringify(error.data)).not.toMatch(
+      /serverInstance|serverStarted|causeMessage|message|tag|reason|stdout|stderr|\/Users\//
+    );
   });
 
   test("maps recipeDag.get not-found and explicit unavailable errors as defined errors without stack spam", async () => {
@@ -685,8 +696,8 @@ describe("studio-server RPC handler", () => {
 
     const save = await client.mapConfigs.saveDeploy({
       requestId: "save-watch-1",
-      id: "test-config",
-      envelope: {},
+      canonicalConfig: testCanonicalConfig({ id: "test-config", name: "Test Config" })
+        .canonicalConfig,
     });
     const saveEvent = await readOperationEvent(
       iterator,
@@ -1142,19 +1153,15 @@ function makeOperationRuntimePorts(
     },
     runInGameWorkspaceRoot,
     generateRunInGameMod: async () => generatedRunInGameMod(),
-    readRunInGameCatalogSource: async ({ catalogSourceId }) => ({
-      catalogSourceId,
-      configPath: `mods/mod-swooper-maps/src/maps/configs/${catalogSourceId}.config.json`,
-      name: catalogSourceId,
-      description: catalogSourceId,
-      sortIndex: 900,
-      config: {},
-    }),
+    runInGameCanonicalConfigAdmission: {
+      resolveCatalogSource: async () => undefined,
+      admit: async (canonicalConfig) => canonicalConfig,
+    },
     deployRunInGame: async ({ requestId, generatedMod }) =>
       runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
-    waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    waitForRunInGameLogEvidence: async () => ({ result: { ok: true } }),
     observeRunInGameRuntime: async (args) => runInGameRuntimeObservation(args),
-    buildRunInGameProof: async () => ({ result: { ok: true } }),
+    buildRunInGameEvidence: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
     deploySavedMapConfig: async () => ({ deployed: true }),
@@ -1169,8 +1176,8 @@ function generatedRunInGameMod(): Awaited<
   return {
     materialization: {
       mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-      configHash: "test-config-hash",
-      envelopeHash: "test-envelope-hash",
+      canonicalConfigDigest: "test-config-hash",
+      launchEnvelopeDigest: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
       runArtifactId: "run-test",
       generatedModRoot: join(tmpdir(), "studio-handler-generated-run-test"),
@@ -1249,8 +1256,8 @@ function runInGameRuntimeObservation(
     scriptingLog: {
       requestId: args.requestId,
       correlation,
-      matchedMarkers: ["[mapgen-proof]", args.requestId, "[mapgen-complete]"],
-      proof: args.log.logProof,
+      matchedMarkers: ["[mapgen-evidence]", args.requestId, "[mapgen-complete]"],
+      evidence: args.log.logEvidence,
     },
     setupRow: {
       requestId: args.requestId,
@@ -1259,7 +1266,7 @@ function runInGameRuntimeObservation(
       mapScript: materialization?.mapScript ?? "test-map-script",
       runArtifactId: correlation.runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowProof: { ok: true },
+      rowEvidence: { ok: true },
       rowVisibility: { visible: true },
     },
     loadedGame: {
@@ -1296,13 +1303,10 @@ function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
     source: {
       kind: "editor",
       editorSessionId: "handler-test-editor",
-      payload: {
-        configId: "studio-current",
-        label: "Studio Current",
-        mapScript: "{swooper-maps}/maps/studio-current.js",
-        pipelineConfig: {},
-        recipeId: "mod-swooper-maps/standard",
-      },
+      canonicalConfig: testCanonicalConfig({
+        id: "studio-current",
+        name: "Studio Current",
+      }).canonicalConfig,
     },
     recipeSettings: {
       recipe: "mod-swooper-maps/standard",
@@ -1311,6 +1315,30 @@ function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
+  };
+}
+
+function testCanonicalConfig(
+  args: Readonly<{
+    id: string;
+    name: string;
+    description?: string;
+    sortIndex?: number;
+    latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
+    config?: Record<string, unknown>;
+  }>
+) {
+  const canonicalConfig = {
+    id: args.id,
+    name: args.name,
+    description: args.description ?? "Current Studio editor configuration.",
+    recipe: "standard" as const,
+    sortIndex: args.sortIndex ?? 9999,
+    latitudeBounds: args.latitudeBounds ?? { topLatitude: 80, bottomLatitude: -80 },
+    config: args.config ?? {},
+  };
+  return {
+    canonicalConfig,
   };
 }
 

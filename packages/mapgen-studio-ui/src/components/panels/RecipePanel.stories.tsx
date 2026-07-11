@@ -9,8 +9,8 @@ import type { ReactNode } from "react";
 
 /**
  * Adapted from `.design-sync/previews/RecipePanel.tsx`. The 340px Recipe dock:
- * recipe/preset selection + a schema-driven config-override form. A small but
- * real RJSF schema + matching config drive the override form. Tooltips come from
+ * recipe/preset selection + a schema-driven config editor. A small but
+ * real RJSF schema + matching config drive the editor. Tooltips come from
  * the global decorator's `TooltipProvider`.
  */
 const meta = {
@@ -35,7 +35,7 @@ const presetOptions: SelectOption[] = [
 ];
 const settings = { recipe: "mod-swooper-maps/standard", preset: "continents", seed: "1474829" };
 
-// A small but real RJSF schema + matching config so the override form renders.
+// A small but real RJSF schema + matching config so the editor renders.
 const configSchema = {
   type: "object",
   properties: {
@@ -80,8 +80,6 @@ const base = {
   onSaveAsNew: noop,
   onImportPreset: noop,
   onExportPreset: noop,
-  onDeletePreset: noop,
-  canDeletePreset: true,
   isSaveDeployRunning: false,
   saveDeployStatus: null,
   isSaveDisabled: false,

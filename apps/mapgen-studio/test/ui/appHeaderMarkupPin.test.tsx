@@ -11,10 +11,10 @@ import { deriveAppHeaderSetupState } from "../../src/app/hooks/useSetupControls"
 import type { Civ7StudioSetupConfig } from "../../src/features/civ7Setup/setupConfig";
 
 // AppHeader rendered-markup regression pins. Originally the E4a redesign
-// no-op proof (tasks.md 6.1): the fixture was the byte-exact markup of the
+// no-op verification (tasks.md 6.1): the fixture was the byte-exact markup of the
 // PRE-redesign app-side AppHeader captured at the B6 parent tip
 // (studio-ui-panels, 1eb984728), and the redesigned package AppHeader +
-// container derivation reproduced it byte-identically — that proof is
+// container derivation reproduced it byte-identically — that verification is
 // anchored in git history (the fixture as of the B6/B7 commits). The fixture
 // has since advanced ONCE, for the E3 cleanup wave (B8): the only delta vs
 // the B6 capture, enumerated across all 7 scenarios, is `tabindex="0"` on

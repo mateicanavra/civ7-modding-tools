@@ -1,4 +1,4 @@
-import type { RunInGameExactAuthorshipProof as PublicRunInGameExactAuthorshipProof } from "@civ7/studio-server";
+import type { RunInGameExactAuthorshipEvidence as PublicRunInGameExactAuthorshipEvidence } from "@civ7/studio-server";
 
 type RunInGameDetailedResourcePlacementRejectionRow = Readonly<{
   status: "rejected" | "mismatch";
@@ -79,16 +79,16 @@ type RunInGameDetailedNaturalWonderPlanInputSurfaceDigests = Readonly<{
   featureTypeHash32: string;
 }>;
 
-export type RunInGameDetailedProofLog = Readonly<{
+export type RunInGameDetailedEvidenceLog = Readonly<{
   logPath?: string;
   observedAt?: string;
   requestId: string;
-  configHash: string;
-  envelopeHash: string;
+  canonicalConfigDigest: string;
+  launchEnvelopeDigest: string;
   seed: number;
   mapSize?: string;
   dimensions: Readonly<{ width: number; height: number }>;
-  proofPayload: unknown;
+  evidencePayload: unknown;
   completionPayload: unknown;
   featureApply?: Readonly<{
     marker: "FEATURE_APPLY_V1";
@@ -123,7 +123,7 @@ export type RunInGameDetailedProofLog = Readonly<{
       rejectionExamples?: ReadonlyArray<string>;
       rejectionRows?: ReadonlyArray<RunInGameDetailedResourcePlacementRejectionRow>;
     }>;
-    coordinateProof?: Readonly<{
+    coordinateEvidence?: Readonly<{
       version: number;
       placed: Readonly<{ count: number; hash32: string }>;
       rejected?: Readonly<{ count: number; hash32: string }>;
@@ -139,7 +139,7 @@ export type RunInGameDetailedProofLog = Readonly<{
       targetCount: number;
       plannedCount: number;
     }>;
-    coordinateProof?: Readonly<{
+    coordinateEvidence?: Readonly<{
       version: number;
       planned: Readonly<{ count: number; hash32: string }>;
     }>;
@@ -171,20 +171,21 @@ export type RunInGameDetailedProofLog = Readonly<{
       rejectionExampleCount?: number;
       rejectionExamples?: ReadonlyArray<string>;
     }>;
-    coordinateProof?: Readonly<{
+    coordinateEvidence?: Readonly<{
       version: number;
       placed: Readonly<{ count: number; hash32: string }>;
       rejected?: Readonly<{ count: number; hash32: string }>;
     }>;
     coordinateRows?: ReadonlyArray<RunInGameDetailedNaturalWonderPlacementCoordinateRow>;
   }>;
-  matched: ReadonlyArray<string>;
+  matched: string[];
 }>;
 
-export type RunInGameDetailedExactAuthorshipProof = Omit<
-  PublicRunInGameExactAuthorshipProof,
-  "log"
-> &
-  Readonly<{
-    log?: RunInGameDetailedProofLog;
-  }>;
+export type RunInGameDetailedExactAuthorshipEvidence =
+  PublicRunInGameExactAuthorshipEvidence extends infer Evidence
+    ? Evidence extends Readonly<{ status: "complete" }>
+      ? Omit<Evidence, "log"> & Readonly<{ log: RunInGameDetailedEvidenceLog }>
+      : Evidence extends Readonly<{ status: "unresolved" }>
+        ? Omit<Evidence, "log"> & Readonly<{ log?: RunInGameDetailedEvidenceLog }>
+        : never
+    : never;

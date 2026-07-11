@@ -9,21 +9,20 @@ import {
   getCiv7NativeRiverObjects,
 } from "@civ7/direct-control";
 import {
-  buildFinalSurfaceParityProof,
-  configFromExactAuthorshipProof,
-  dimensionsFromExactAuthorshipProof,
-  type ExactAuthorshipProofLike,
+  buildFinalSurfaceParityReport,
+  type CompleteExactAuthorshipEvidence,
+  configFromExactAuthorshipEvidence,
+  dimensionsFromExactAuthorshipEvidence,
   hashParityValue,
   liveGridToFinalSurfaceSnapshot,
   type NativeRiverObjectSnapshot,
+  parseCompleteExactAuthorshipEvidencePacket,
   runLocalFinalSurfaceSnapshot,
-  validateExactAuthorshipProofPacket,
 } from "../../src/dev/diagnostics/live-parity.js";
+import { admitSwooperCatalogConfig } from "../../src/maps/catalog/admission.js";
 
 type Args = Readonly<{
-  requestId?: string;
-  proofFile?: string;
-  studioUrl: string;
+  evidenceFile?: string;
   host?: string;
   port?: number;
   timeoutMs: number;
@@ -33,23 +32,20 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --request-id <id>
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --proof-file <status-or-proof.json>
+  nx run mod-swooper-maps:verify -- --mode final-surface-parity --evidence-file <diagnostics.json>
 
 Options:
-  --studio-url <url>          Studio URL for request status lookup (default: http://127.0.0.1:5174)
+  --evidence-file <path>      Read exact authorship evidence for the completed run
   --host <host>               Civ7 tuner host
   --port <port>               Civ7 tuner port
   --timeout-ms <ms>           Direct-control timeout (default: 45000)
   --max-plots-per-read <n>    Direct-control tile size cap (default: 512)
-  --output <path>             Write full proof JSON to path
+  --output <path>             Write the full verification report to path
 `;
 
-function parseArgs(argv: string[]): Args {
+export function parseFinalSurfaceParityArgs(argv: string[]): Args {
   const args: {
-    requestId?: string;
-    proofFile?: string;
-    studioUrl: string;
+    evidenceFile?: string;
     host?: string;
     port?: number;
     timeoutMs: number;
@@ -57,7 +53,6 @@ function parseArgs(argv: string[]): Args {
     output?: string;
     help: boolean;
   } = {
-    studioUrl: "http://127.0.0.1:5174",
     timeoutMs: 45_000,
     maxPlotsPerRead: 512,
     help: false,
@@ -76,14 +71,8 @@ function parseArgs(argv: string[]): Args {
       case "-h":
         args.help = true;
         break;
-      case "--request-id":
-        args.requestId = value();
-        break;
-      case "--proof-file":
-        args.proofFile = value();
-        break;
-      case "--studio-url":
-        args.studioUrl = value().replace(/\/+$/, "");
+      case "--evidence-file":
+        args.evidenceFile = value();
         break;
       case "--host":
         args.host = value();
@@ -104,6 +93,9 @@ function parseArgs(argv: string[]): Args {
         throw new Error(`Unknown argument: ${arg}`);
     }
   }
+  if (!args.help && args.evidenceFile === undefined) {
+    throw new Error("--evidence-file is required");
+  }
   return args;
 }
 
@@ -113,48 +105,50 @@ function parseInteger(value: string, label: string): number {
   return parsed;
 }
 
-async function loadExactAuthorshipProof(args: Args): Promise<ExactAuthorshipProofLike> {
-  if (args.proofFile) {
-    return extractExactAuthorshipProof(JSON.parse(readFileSync(args.proofFile, "utf8")));
-  }
-  if (!args.requestId) throw new Error("Expected --request-id or --proof-file");
-  // Studio oRPC transport (the legacy `/api/civ7/run-in-game/status` REST
-  // endpoint is retired): POST the RPC envelope to `runInGame.status` and
-  // unwrap the `json` payload — the same operation-state object the legacy
-  // endpoint returned.
-  const url = `${args.studioUrl}/rpc/runInGame/status`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ json: { requestId: args.requestId } }),
-  });
-  const envelope = (await response.json()) as { json?: unknown };
-  const payload = envelope?.json;
-  if (!response.ok || (isRecord(payload) && payload.ok === false)) {
-    throw new Error(
-      `Studio Run in Game status unavailable for ${args.requestId}: ${JSON.stringify(payload ?? envelope)}`
-    );
-  }
-  return extractExactAuthorshipProof(payload);
+export type FinalSurfaceParityEvidence = Readonly<{
+  exact: CompleteExactAuthorshipEvidence;
+  canonicalConfig?: unknown;
+}>;
+
+export function loadFinalSurfaceParityEvidence(path: string): FinalSurfaceParityEvidence {
+  const evidence = extractFinalSurfaceParityEvidence(JSON.parse(readFileSync(path, "utf8")));
+  if (evidence.canonicalConfig !== undefined) return evidence;
+  const source = evidence.exact.sourceSnapshot.source;
+  if (source.kind !== "catalog") return evidence;
+  const canonicalConfig = JSON.parse(readFileSync(resolve(source.sourcePath), "utf8"));
+  return {
+    exact: evidence.exact,
+    canonicalConfig: admitSwooperCatalogConfig({
+      sourcePath: source.sourcePath,
+      canonicalConfig,
+    }).canonicalConfig,
+  };
 }
 
-export function extractExactAuthorshipProof(payload: unknown): ExactAuthorshipProofLike {
-  if (!isRecord(payload)) throw new Error("Proof payload must be an object");
-  const direct = isRecord(payload.exactAuthorshipProof) ? payload.exactAuthorshipProof : undefined;
-  const status = isRecord(payload.status) ? payload.status : undefined;
-  const nested =
-    status && isRecord(status.exactAuthorshipProof) ? status.exactAuthorshipProof : undefined;
-  const result = isRecord(payload.result) ? payload.result : undefined;
-  const resultProof =
-    result && isRecord(result.exactAuthorshipProof) ? result.exactAuthorshipProof : undefined;
-  const parityProof = isRecord(payload.proof) ? payload.proof : undefined;
-  const parityProofPacket =
-    parityProof && isRecord(parityProof.exactAuthorshipPacket)
-      ? parityProof.exactAuthorshipPacket
-      : undefined;
-  const proof = direct ?? nested ?? resultProof ?? parityProofPacket;
-  if (!proof) throw new Error("Missing exactAuthorshipProof in status/proof payload");
-  return proof as ExactAuthorshipProofLike;
+export function extractFinalSurfaceParityEvidence(payload: unknown): FinalSurfaceParityEvidence {
+  if (!isRecord(payload)) throw new Error("Evidence payload must be an object");
+  const status = recordValue(payload, "status");
+  const result = recordValue(payload, "result");
+  const report = recordValue(payload, "report");
+  const sections = recordValue(payload, "sections");
+  const operation = recordValue(sections, "operation");
+  const rawEvidence =
+    payload.exactAuthorshipEvidence ??
+    status?.exactAuthorshipEvidence ??
+    result?.exactAuthorshipEvidence ??
+    report?.exactAuthorshipEvidence ??
+    operation?.exactAuthorshipEvidence ??
+    payload;
+  const parsed = parseCompleteExactAuthorshipEvidencePacket(rawEvidence);
+  if (parsed.evidence === undefined) {
+    throw new Error(
+      `Exact authorship evidence must be canonical and complete: ${parsed.unresolvedLinks.join(", ")}`
+    );
+  }
+  return {
+    exact: parsed.evidence,
+    ...(payload.canonicalConfig === undefined ? {} : { canonicalConfig: payload.canonicalConfig }),
+  };
 }
 
 function requireNumber(value: number | undefined, link: string, blockers: string[]): number {
@@ -163,6 +157,60 @@ function requireNumber(value: number | undefined, link: string, blockers: string
     return 0;
   }
   return value;
+}
+
+export type FinalSurfaceParityReplayResolution =
+  | Readonly<{
+      status: "ready";
+      dimensions: ReturnType<typeof dimensionsFromExactAuthorshipEvidence>;
+      input: Parameters<typeof runLocalFinalSurfaceSnapshot>[0];
+    }>
+  | Readonly<{
+      status: "blocked";
+      dimensions: ReturnType<typeof dimensionsFromExactAuthorshipEvidence>;
+      blockedBy: ReadonlyArray<string>;
+    }>;
+
+export function resolveFinalSurfaceParityReplay(
+  evidence: FinalSurfaceParityEvidence
+): FinalSurfaceParityReplayResolution {
+  const { exact } = evidence;
+  const validation = parseCompleteExactAuthorshipEvidencePacket(exact);
+  const dimensions = dimensionsFromExactAuthorshipEvidence(exact);
+  const blockers = [...validation.unresolvedLinks];
+  const width = requireNumber(
+    dimensions.width,
+    "exact-authorship-evidence.runtime.width",
+    blockers
+  );
+  const height = requireNumber(
+    dimensions.height,
+    "exact-authorship-evidence.runtime.height",
+    blockers
+  );
+  const seed = requireNumber(dimensions.seed, "exact-authorship-evidence.request.seed", blockers);
+  const config = configFromExactAuthorshipEvidence(exact, evidence.canonicalConfig);
+  if (config === undefined) {
+    blockers.push("exact-authorship-evidence.source-snapshot.canonical-config");
+  }
+  if (blockers.length > 0) {
+    return { status: "blocked", dimensions, blockedBy: blockers };
+  }
+  if (config === undefined) {
+    throw new Error("Final-surface parity config must resolve before local replay.");
+  }
+  return {
+    status: "ready",
+    dimensions,
+    input: {
+      width,
+      height,
+      seed,
+      config,
+      canonicalConfigDigest: exact.sourceSnapshot.canonicalConfigDigest,
+      launchEnvelopeDigest: exact.sourceSnapshot.launchEnvelopeDigest,
+    },
+  };
 }
 
 function probeNumber(value: Civ7RuntimeProbe<number> | undefined): number | undefined {
@@ -233,99 +281,58 @@ function nativeRiverObjectsSnapshot(
 }
 
 export function buildBlockedFinalSurfaceParityOutput(args: {
-  exact: ExactAuthorshipProofLike;
+  exact: CompleteExactAuthorshipEvidence;
   blockedBy: ReadonlyArray<string>;
-  dimensions: ReturnType<typeof dimensionsFromExactAuthorshipProof>;
+  dimensions: ReturnType<typeof dimensionsFromExactAuthorshipEvidence>;
 }) {
-  const exactAuthorshipUnresolvedLinks = Array.isArray(args.exact.unresolvedLinks)
-    ? [
-        ...new Set(
-          args.exact.unresolvedLinks.filter((link): link is string => typeof link === "string")
-        ),
-      ].sort((a, b) => a.localeCompare(b))
-    : [];
   return {
     ok: false,
     parityStatus: "blocked" as const,
     blockedBy: [...new Set(args.blockedBy)].sort((a, b) => a.localeCompare(b)),
-    ...(exactAuthorshipUnresolvedLinks.length === 0 ? {} : { exactAuthorshipUnresolvedLinks }),
     exactAuthorshipSummary: {
       requestId: args.exact.requestId,
       status: args.exact.status,
-      configHash: args.exact.sourceSnapshot?.configHash,
-      envelopeHash: args.exact.sourceSnapshot?.envelopeHash,
+      canonicalConfigDigest: args.exact.sourceSnapshot.canonicalConfigDigest,
+      launchEnvelopeDigest: args.exact.sourceSnapshot.launchEnvelopeDigest,
       dimensions: args.dimensions,
     },
   };
 }
 
 async function main(): Promise<number> {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseFinalSurfaceParityArgs(process.argv.slice(2));
   if (args.help) {
     console.log(usage);
     return 0;
   }
-
-  const exact = await loadExactAuthorshipProof(args);
-  const exactValidation = validateExactAuthorshipProofPacket(exact);
-  const dimensions = dimensionsFromExactAuthorshipProof(exact);
-  const localBlockers = [...exactValidation.unresolvedLinks];
-  const width = requireNumber(
-    dimensions.width,
-    "exact-authorship-proof.runtime.width",
-    localBlockers
-  );
-  const height = requireNumber(
-    dimensions.height,
-    "exact-authorship-proof.runtime.height",
-    localBlockers
-  );
-  const seed = requireNumber(dimensions.seed, "exact-authorship-proof.request.seed", localBlockers);
-  const config = configFromExactAuthorshipProof(exact);
-  if (config === undefined)
-    localBlockers.push("exact-authorship-proof.source-snapshot.pipeline-config");
-
-  if (localBlockers.length > 0) {
+  if (args.evidenceFile === undefined) throw new Error("--evidence-file is required");
+  const evidence = loadFinalSurfaceParityEvidence(args.evidenceFile);
+  const replay = resolveFinalSurfaceParityReplay(evidence);
+  if (replay.status === "blocked") {
     const output = buildBlockedFinalSurfaceParityOutput({
-      exact,
-      blockedBy: localBlockers,
-      dimensions,
+      exact: evidence.exact,
+      blockedBy: replay.blockedBy,
+      dimensions: replay.dimensions,
     });
     writeOutput(args.output, output);
     console.log(JSON.stringify(output, null, 2));
     return 2;
   }
 
-  const local = runLocalFinalSurfaceSnapshot({
-    width,
-    height,
-    seed,
-    config,
-    configHash: exact.sourceSnapshot?.configHash,
-    envelopeHash: exact.sourceSnapshot?.envelopeHash,
-  });
-
+  const exact = evidence.exact;
+  const local = runLocalFinalSurfaceSnapshot(replay.input);
   const grid = await getCiv7FullMapGrid(
     {
       fields: ["terrain", "biome", "feature", "resource", "hydrology"],
       includeHidden: true,
       maxPlotsPerRead: args.maxPlotsPerRead,
     },
-    {
-      host: args.host,
-      port: args.port,
-      timeoutMs: args.timeoutMs,
-    }
+    { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
   );
   const nativeRiverObjects = await getCiv7NativeRiverObjects(
     { maxSamples: 16 },
-    {
-      host: args.host,
-      port: args.port,
-      timeoutMs: args.timeoutMs,
-    }
+    { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
   );
-
   const liveSeed = probeNumber(grid.summary.map.randomSeed);
   const liveTurn = probeNumber(grid.summary.game.turn);
   const liveGameHash = probeNumber(grid.summary.game.hash);
@@ -334,8 +341,8 @@ async function main(): Promise<number> {
     width: grid.map.width,
     height: grid.map.height,
     ...(liveSeed === undefined ? {} : { seed: liveSeed }),
-    configHash: exact.sourceSnapshot?.configHash,
-    envelopeHash: exact.sourceSnapshot?.envelopeHash,
+    canonicalConfigDigest: exact.sourceSnapshot.canonicalConfigDigest,
+    launchEnvelopeDigest: exact.sourceSnapshot.launchEnvelopeDigest,
     nativeRiverObjects: nativeRiverObjectsSnapshot(nativeRiverObjects),
     evidence: {
       nativeRiverObjects,
@@ -373,24 +380,24 @@ async function main(): Promise<number> {
         height: grid.map.height,
       },
       exactRuntimeSnapshot: {
-        sourceSnapshotId: exact.runtime?.sourceSnapshotId,
-        snapshotHash: exact.runtime?.snapshotHash,
-        turn: exact.runtime?.turn,
-        gameHash: exact.runtime?.gameHash,
+        sourceSnapshotId: exact.runtime.sourceSnapshotId,
+        snapshotHash: exact.runtime.snapshotHash,
+        turn: exact.runtime.turn,
+        gameHash: exact.runtime.gameHash,
       },
     },
   });
 
-  const proof = buildFinalSurfaceParityProof({ exactAuthorship: exact, local, live });
+  const report = buildFinalSurfaceParityReport({ exactAuthorship: exact, local, live });
   const output = {
-    ok: proof.status === "complete",
-    parityStatus: proof.status,
-    proofHash: hashParityValue(proof),
-    proof,
+    ok: report.status === "complete",
+    parityStatus: report.status,
+    reportHash: hashParityValue(report),
+    report,
   };
   writeOutput(args.output, output);
   console.log(JSON.stringify(output, null, 2));
-  return proof.status === "complete" ? 0 : 2;
+  return report.status === "complete" ? 0 : 2;
 }
 
 function writeOutput(path: string | undefined, output: unknown): void {
@@ -402,6 +409,10 @@ function writeOutput(path: string | undefined, output: unknown): void {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function recordValue(value: unknown, key: string): Record<string, unknown> | undefined {
+  return isRecord(value) && isRecord(value[key]) ? value[key] : undefined;
 }
 
 if (import.meta.main) {

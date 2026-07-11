@@ -201,6 +201,72 @@ implementations are a local dev-server write API or the browser File System
 Access API. A browser-only app silently writing repo paths is not a valid
 design because the browser cannot reliably do that.
 
+### Accepted Correction: Portable Canonical Config Envelope
+
+This correction applies immediately to all remaining implementation and review
+work in this change. It does not assert that the target is already implemented
+or verified.
+
+The portable config is one complete, closed, recursively JSON envelope:
+
+```text
+id, name, description, recipe, sortIndex, latitudeBounds, logPrefix?, config
+```
+
+It carries only JSON objects, arrays, strings, finite numbers, booleans, and
+`null`; it carries no file path, selector, source provenance, executable value,
+or schema-default placeholder. `config` is the complete admitted public recipe
+payload, not an override, patch, or untyped object. Every required metadata
+field is present before the envelope crosses a boundary.
+
+Ownership is deliberately narrow:
+
+- `@civ7/studio-contract` owns only the portable wire schema, static type, and
+  predicate for this envelope. It owns neither Standard recipe defaults nor
+  recipe admission, metadata materialization, migration, or source lookup.
+- Swooper Maps owns Standard recipe defaults and strict Standard admission.
+  It admits catalog and saved data into the complete envelope before exposing
+  it, and rejects unknown recipe data, incomplete metadata, malformed JSON, and
+  every old persisted shape.
+- MapGen Studio owns construction of a fresh editor envelope. It supplies every
+  metadata field explicitly before Swooper admission and hashing; it must not
+  inherit, merge, or backfill editor metadata from a selected catalog envelope.
+
+After admission, catalog results, saved configs, editor state, Run in Game
+source resolution, and manifest input carry that exact envelope. A catalog
+index may identify ordered source paths, but it may not mirror envelope
+metadata. Consumers must not introduce a partial DTO, field-by-field merge,
+`unknown` config tunnel, legacy migration, or deep-equality/digest routing to
+reconstruct the envelope. A selector identifies a source before admission;
+schema admission decides whether its single envelope is usable.
+
+The launch envelope is the sole envelope-bearing launch artifact, and the
+generation manifest carries that launch envelope once. Source projections may
+carry only source identity such as catalog path or editor session; they must not
+repeat a second canonical config for comparison. Content, canonical-envelope,
+launch-envelope, and manifest digests are derived evidence only. They cannot
+select a source, admit a config, route an operation, or substitute for the
+envelope they describe.
+
+Malformed, incomplete, unknown-key, or old persisted data fails at its first
+admission boundary. There is no fallback envelope, partial recovery, inferred
+default, compatibility reader, or in-place migration. A future persisted-format
+change requires a separately accepted versioning and migration change.
+
+#### Cutover And Commit Slicing
+
+The correction lands in this order:
+
+1. **Catalog authority:** establish the catalog index as ordered source-path
+   membership only and expose each admitted catalog item as one complete
+   envelope. No catalog metadata mirror remains.
+2. **Atomic vertical envelope cutover:** in one dependent commit/Graphite
+   branch, cut `studio-contract`, Swooper admission, Studio saved/editor
+   construction, Run in Game resolution, launch envelope, and manifest to the
+   portable envelope. The branch contains no partial or compatibility lane.
+3. **Diagnostics identity:** bind diagnostics and attribution to request and
+   operation-revision identity, with envelope digests retained only as evidence;
+   no config equality or digest may identify, recover, or route an operation.
 ### FireTuner Restart Is A CLI-Owned Operation
 
 The append-only bridge log remains the protocol boundary with Windows-side
@@ -220,7 +286,7 @@ REQ <id> AGENT=<agent> RUN Network.restartGame()
 It resolves the bridge log from `--bridge-log`, then
 `CIV7_FIRETUNER_BRIDGE_LOG`, then the Parallels shared-folder default. The
 Windows bridge remains responsible for focusing FireTuner, submitting the
-command, and writing `ACK`, `RESULT`, or `BLOCKED`. Civ7 logs remain the proof
+command, and writing `ACK`, `RESULT`, or `BLOCKED`. Civ7 logs remain the evidence
 boundary for actual game reload behavior.
 
 Studio's dev-server save API calls this command after a successful deploy and

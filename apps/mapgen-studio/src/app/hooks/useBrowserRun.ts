@@ -1,3 +1,4 @@
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import {
   type Dispatch,
   type SetStateAction,
@@ -7,7 +8,6 @@ import {
   useRef,
   useState,
 } from "react";
-
 import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
 import { capturePinnedSelection } from "../../features/browserRunner/retention";
 import type { BrowserRunnerActions } from "../../features/browserRunner/useBrowserRunner";
@@ -16,17 +16,12 @@ import {
   parseCiv7StudioSeed,
   randomCiv7StudioSeed,
 } from "../../features/civ7Setup/seedPolicy";
-import {
-  formatPresetErrors,
-  materializePipelineConfig,
-} from "../../features/configOverrides/configBuilders";
-import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
-import { type PresetKey } from "../../features/presets/types";
+import { applyPresetConfig, isPlainObject } from "../../features/configAuthoring/canonicalConfig";
+import { buildBrowserRunSnapshot } from "../../features/runInGame/liveSource";
 import type { UseVizStateResult } from "../../features/viz/useVizState";
+import { findBuiltInPresetBySourcePath, findRecipeArtifacts } from "../../recipes/catalog";
 import { useAuthoringStore } from "../../stores/authoringStore";
 import { useRunStore } from "../../stores/runStore";
-import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "../../ui/utils/config";
-import type { UsePresetLifecycleResult } from "./usePresetLifecycle";
 import type { ToastFn } from "./useToast";
 
 /**
@@ -54,14 +49,12 @@ export type UseBrowserRunArgs = {
   /** Threaded busy flags from `useStudioOperations` (slice 2.4) — received, never re-derived. */
   runInGameRunning: boolean;
   saveDeployRunning: boolean;
-  /** Preset resolver (from `usePresetLifecycle`) so preview uses selected config metadata. */
-  resolvePreset: UsePresetLifecycleResult["resolvePreset"];
+  /** Resolved from the one current authoring source by the preset lifecycle. */
+  pipelineConfig: PipelineConfig | null;
   toast: ToastFn;
   /** The single-owner error channel setter from `useStudioOperations`. */
   setLocalError: (message: string | null) => void;
 };
-
-const DEFAULT_LATITUDE_BOUNDS = { topLatitude: 80, bottomLatitude: -80 } as const;
 
 export type UseBrowserRun = {
   startBrowserRun: (overrides?: { seed?: string }) => void;
@@ -97,17 +90,22 @@ export function useBrowserRun({
   viz,
   runInGameRunning,
   saveDeployRunning,
-  resolvePreset,
+  pipelineConfig,
   toast,
   setLocalError,
 }: UseBrowserRunArgs): UseBrowserRun {
   const worldSettings = useAuthoringStore((s) => s.worldSettings);
   const recipeSettings = useAuthoringStore((s) => s.recipeSettings);
   const setRecipeSettings = useAuthoringStore((s) => s.setRecipeSettings);
-  const pipelineConfig = useAuthoringStore((s) => s.pipelineConfig);
-  const overridesDisabled = useAuthoringStore((s) => s.overridesDisabled);
+  const authoringConfigSource = useAuthoringStore((s) => s.authoringConfigSource);
+  const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
   const lastRunSnapshot = useRunStore((s) => s.lastRunSnapshot);
   const setLastRunSnapshot = useRunStore((s) => s.setLastRunSnapshot);
+
+  const currentBrowserRunSnapshot = useMemo(
+    () => buildBrowserRunSnapshot(authoringRevision),
+    [authoringRevision]
+  );
 
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   // BR-13 invariant: the debounce timer ref MUST stay co-located with both the
@@ -131,27 +129,36 @@ export function useBrowserRun({
       }
       const seed = seedPolicy.value;
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      const effectiveConfigSource = resolveEffectivePipelineConfig({
-        recipeId: recipeSettings.recipe,
-        pipelineConfig,
-        overridesDisabled,
-      });
-      const selectedPreset = resolvePreset(recipeSettings.preset as PresetKey);
-      const latitudeBounds =
-        effectiveConfigSource.kind === "draft"
-          ? (selectedPreset?.latitudeBounds ?? DEFAULT_LATITUDE_BOUNDS)
-          : DEFAULT_LATITUDE_BOUNDS;
-      const validatedConfig = materializePipelineConfig({
-        schema: effectiveConfigSource.recipeArtifacts.configSchema,
-        config: effectiveConfigSource.config,
-        label: "browser-run",
-      });
-      if (!validatedConfig.ok) {
-        const message = `Browser run failed: config is invalid for this recipe.\n${formatPresetErrors(
-          validatedConfig.errors
-        ).join("\n")}`;
+      if (authoringConfigSource.kind === "blocked") {
+        const message =
+          "Browser run is unavailable until you select an existing catalog config or create a new editor config.";
         setLocalError(message);
-        toast("Browser run failed: config is invalid for this recipe.", { variant: "error" });
+        toast(message, { variant: "error" });
+        return;
+      }
+      const catalogConfig =
+        authoringConfigSource.kind === "catalog"
+          ? (findBuiltInPresetBySourcePath(recipeSettings.recipe, authoringConfigSource.sourcePath)
+              ?.canonicalConfig ?? null)
+          : null;
+      const activeConfig =
+        authoringConfigSource.kind === "editor"
+          ? authoringConfigSource.canonicalConfig
+          : catalogConfig;
+      const recipeArtifacts = findRecipeArtifacts(recipeSettings.recipe);
+      if (
+        !activeConfig ||
+        !isPlainObject(pipelineConfig) ||
+        !recipeArtifacts ||
+        !applyPresetConfig({
+          schema: recipeArtifacts.configSchema,
+          presetConfig: pipelineConfig,
+          label: "browser-run",
+        }).ok
+      ) {
+        const message = "Browser run failed: config is invalid for this recipe.";
+        setLocalError(message);
+        toast(message, { variant: "error" });
         return;
       }
 
@@ -165,29 +172,25 @@ export function useBrowserRun({
 
       runnerActions.clearError();
 
-      setLastRunSnapshot({
-        worldSettings,
-        recipeSettings: { ...recipeSettings, seed: seedStr },
-        pipelineConfig: validatedConfig.value,
-      });
+      setLastRunSnapshot(buildBrowserRunSnapshot(authoringRevision));
 
       runnerActions.start({
         recipeId: recipeSettings.recipe,
         seed,
         mapSizeId: mapSize.id,
         dimensions: mapSize.dimensions,
-        latitudeBounds,
+        latitudeBounds: activeConfig.latitudeBounds,
         playerCount: worldSettings.playerCount,
         resourcesMode: worldSettings.resources,
-        pipelineConfig: validatedConfig.value,
+        pipelineConfig,
       });
     },
     [
       runnerActions,
-      overridesDisabled,
+      authoringConfigSource,
+      authoringRevision,
       pipelineConfig,
       recipeSettings,
-      resolvePreset,
       setLastRunSnapshot,
       setLocalError,
       toast,
@@ -208,7 +211,6 @@ export function useBrowserRun({
 
   useEffect(() => {
     if (!autoRunEnabled) return;
-    if (overridesDisabled) return;
     if (runInGameRunning || saveDeployRunning) return;
 
     if (browserRunning) {
@@ -216,7 +218,7 @@ export function useBrowserRun({
       return;
     }
 
-    if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
+    if (lastRunSnapshot?.authoringRevision === currentBrowserRunSnapshot.authoringRevision) return;
 
     if (autoRunTimerRef.current) window.clearTimeout(autoRunTimerRef.current);
     autoRunTimerRef.current = window.setTimeout(() => {
@@ -232,9 +234,8 @@ export function useBrowserRun({
   }, [
     autoRunEnabled,
     browserRunning,
+    currentBrowserRunSnapshot.authoringRevision,
     lastRunSnapshot,
-    overridesDisabled,
-    pipelineConfig,
     runInGameRunning,
     saveDeployRunning,
     startBrowserRun,
@@ -242,20 +243,18 @@ export function useBrowserRun({
 
   useEffect(() => {
     if (!autoRunEnabled) return;
-    if (overridesDisabled) return;
     if (browserRunning) return;
     if (runInGameRunning || saveDeployRunning) return;
     if (!autoRunPendingRef.current) return;
 
     autoRunPendingRef.current = false;
-    if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
+    if (lastRunSnapshot?.authoringRevision === currentBrowserRunSnapshot.authoringRevision) return;
     startBrowserRun();
   }, [
     autoRunEnabled,
     browserRunning,
+    currentBrowserRunSnapshot.authoringRevision,
     lastRunSnapshot,
-    overridesDisabled,
-    pipelineConfig,
     runInGameRunning,
     saveDeployRunning,
     startBrowserRun,
@@ -269,8 +268,7 @@ export function useBrowserRun({
     const next = randomCiv7StudioSeed();
     setRecipeSettings((prev) => ({ ...prev, seed: next }));
     startBrowserRun({ seed: next });
-    // `setRecipeSettings` (stable store setter) omitted from deps, as in the host original.
-  }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
+  }, [runInGameRunning, saveDeployRunning, setRecipeSettings, startBrowserRun, toast]);
 
   const triggerRun = useCallback(() => {
     if (runInGameRunning || saveDeployRunning) {
@@ -280,14 +278,8 @@ export function useBrowserRun({
     startBrowserRun();
   }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
 
-  const isDirty = useMemo(() => {
-    if (!lastRunSnapshot) return true;
-    return (
-      !worldSettingsEqual(lastRunSnapshot.worldSettings, worldSettings) ||
-      !recipeSettingsEqual(lastRunSnapshot.recipeSettings, recipeSettings) ||
-      !configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)
-    );
-  }, [lastRunSnapshot, pipelineConfig, recipeSettings, worldSettings]);
+  const isDirty =
+    lastRunSnapshot?.authoringRevision !== currentBrowserRunSnapshot.authoringRevision;
 
   return {
     startBrowserRun,

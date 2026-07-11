@@ -17,8 +17,12 @@ scenario.
   readback
 - **AND** retained evidence records setup readback for the exact admitted
   `runArtifactId`, seed, `MAPSIZE_HUGE`, and 10 players
-- **AND** retained evidence records balanced resources in the visible UI
-  selection, admitted request, generation manifest, and evidence row
+- **AND** retained evidence records the rendered Run in Game click, its
+  browser-originated `runInGame.start` request with
+  `worldSettings.resources: balanced`, and the same request's generation
+  manifest retaining that value
+- **AND** Civ7 setup/readback does not establish a resulting resource
+  distribution
 - **AND** retained evidence records fresh scripting-log markers and `106x66`
   live snapshot dimensions
 
@@ -33,8 +37,12 @@ scenario.
   readback
 - **AND** retained evidence records setup readback for the exact admitted
   `runArtifactId`, seed, `MAPSIZE_HUGE`, and 10 players
-- **AND** retained evidence records balanced resources in the visible UI
-  selection, admitted request, generation manifest, and evidence row
+- **AND** retained evidence records the rendered Run in Game click, its
+  browser-originated `runInGame.start` request with
+  `worldSettings.resources: balanced`, and the same request's generation
+  manifest retaining that value
+- **AND** Civ7 setup/readback does not establish a resulting resource
+  distribution
 - **AND** retained evidence records fresh scripting-log markers and `106x66`
   live snapshot dimensions
 
@@ -49,8 +57,12 @@ scenario.
   readback
 - **AND** retained evidence records setup readback for the exact admitted
   `runArtifactId`, seed, `MAPSIZE_HUGE`, and 10 players
-- **AND** retained evidence records balanced resources in the visible UI
-  selection, admitted request, generation manifest, and evidence row
+- **AND** retained evidence records the rendered Run in Game click, its
+  browser-originated `runInGame.start` request with
+  `worldSettings.resources: balanced`, and the same request's generation
+  manifest retaining that value
+- **AND** Civ7 setup/readback does not establish a resulting resource
+  distribution
 - **AND** retained evidence records fresh scripting-log markers and `106x66`
   live snapshot dimensions
 
