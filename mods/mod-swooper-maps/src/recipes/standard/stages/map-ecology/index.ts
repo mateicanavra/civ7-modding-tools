@@ -23,7 +23,7 @@ export default createStage({
   id: "map-ecology",
   knobsSchema: MapEcologyKnobsSchema,
   public: MapEcologyPublicSchema,
-  compile: ({ config }: { config: { biomeBindings?: unknown } }) => ({
+  compile: ({ config }: { config: { biomeBindings: unknown } }) => ({
     "plot-biomes": { bindings: config.biomeBindings },
     "features-apply": {},
     "plot-effects": {},

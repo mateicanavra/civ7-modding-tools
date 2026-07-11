@@ -26,10 +26,10 @@ describe("terrestrial resource operation contract", () => {
     const width = 5;
     const height = 5;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(resources.ops.planTerrestrialResources, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      resources.ops.planTerrestrialResources,
+      structuredClone(resources.ops.planTerrestrialResources.defaultConfig)
+    );
 
     const result = resources.ops.planTerrestrialResources.run(
       {

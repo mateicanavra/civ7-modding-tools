@@ -110,10 +110,10 @@ describe("ecology-features plan-vegetation step", () => {
     });
 
     const config = {
-      planVegetation: normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
-        strategy: "default",
-        config: {},
-      }),
+      planVegetation: normalizeOpSelectionOrThrow(
+        ecology.ops.planVegetation,
+        ecology.ops.planVegetation.defaultConfig
+      ),
     };
     const ops = ecology.ops.bind(planVegetationStep.contract.ops!).runtime;
     planVegetationStep.run(ctx, config, ops, buildTestDeps(planVegetationStep));

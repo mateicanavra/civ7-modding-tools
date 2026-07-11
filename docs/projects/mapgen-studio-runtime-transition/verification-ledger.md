@@ -1,35 +1,36 @@
 # Verification Ledger
 
-Status: next repair packet prepared; paused at a clean boundary for context compaction; no product closure claim
+Status: Packet A closed-passed; A.1 test-topology preparation next; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-11T14:08:20-04:00 EDT
-- Current phase: `packet-a-complete-config-admission-prepared`
-- Last completed gate: the worktree received a frozen install, fresh Nx build,
-  and controlled Studio restart. Frontend returned HTTP 200; daemon health
-  reported this exact repo root, runtime mode `studio-daemon-effect-orpc`, and
-  zero Tuner response timeouts. Three bounded investigations then closed:
-  browser/oRPC lifecycle, all-nine config admission/generation, and
-  direct-control/Civ7 ownership. Their concrete findings and packet order are
-  captured in `NEXT-PACKET.md`.
-- Current gate: Packet A must make complete schema materialization the generic
-  admission law at both Studio and Swooper boundaries, replace brittle
-  property/stage assertions with behavior tests, and close its focused gates
-  and three dedicated review lanes before Packet B starts.
+- Last updated: 2026-07-11T19:52:38-04:00 EDT
+- Current phase: `packet-a-closed-prepare-test-topology`
+- Last completed gate: Packet A was committed as one Graphite layer and its
+  committed code tree was reinstalled and verified from a regular detached Git
+  worktree. The six affected production checks, five affected behavior targets,
+  and Studio production build passed there, and regeneration left that worktree
+  clean. The stale focused Run in Game target was then rebound from the deleted
+  identity-shape test to the generic complete-config boundary test; its full
+  dependency graph and 20 selected tests passed before the final amendment.
+- Current gate: prepare the mechanical A.1 test-topology child without mixing
+  in semantic static-debt repair.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action after context compaction:
-  1. execute Packet A exactly as framed in `NEXT-PACKET.md`;
-  2. execute Packet B for typed control-oRPC setup/start ownership;
-  3. execute Packet C and the complete rendered-browser/Civ7 matrix;
-  4. reconcile, submit, merge, drain, and return to Habitat.
+- Next action:
+  1. restore the intended test topology on a mechanical Graphite child;
+  2. normalize MapGen domain operations to the accepted operation blueprint;
+  3. clean and admit test/tool TypeScript coverage on semantic children;
+  4. collapse the redundant preset ontology on a separate Graphite child;
+  5. execute Packet B for typed control-oRPC setup/start ownership;
+  6. execute Packet C and the complete rendered-browser/Civ7 matrix;
+  7. reconcile, submit, merge, drain, and return to Habitat.
 - Blocked by: no external or product blocker accepted
 - Product/Development DRA: Codex closeout orchestrator in the named worktree
 - Prior Planning Supervisor/Enforcer DRA: Kuhn
@@ -43,23 +44,21 @@ Normative method:
   to this DRA and asserted parent/source/sentinel identities before and after
   `gt create`; the omission is `S0-01-LEASE-01`. No mutation lease is active.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
-- Branch/head: this packet-boundary record commit on
-  `codex/mapgen-studio-runtime-stage-0-census`; its sole parent is
+- Branch/head: `codex/mapgen-studio-complete-config-admission` at its single
+  committed Packet A HEAD above `codex/mapgen-studio-runtime-stage-0-census@76bfbcaa434d`;
+  the census branch's sole parent is
   `codex/mapgen-studio-manifest-parity-replay@b2367c50d6ae`, whose parent is
   `codex/mapgen-studio-config-envelope-runtime-cutover@3f5ed12e81a5`, whose
   parent is `codex/mapgen-studio-runtime-transition-planning@ca6a06d24fff`
-- Worktree state: clean before this packet-boundary record amendment; no
-  `.playwright-cli` files and no Git operation are present
+- Worktree state: clean; no `.playwright-cli` files and no Git operation are
+  present
 - Current-lane Graphite state: `main == origin/main == 46943c5f1165`; the
   receipt-bearing census branch is 42 commits ahead and 0 behind, with 30 valid
   Graphite layers and no restack
   marker on the current tail. The planning and two implementation branches are
   local-only, unsubmitted, and have no remote branch or PR.
-- Runtime preservation: tmux session `mapgen-studio-runner` owns frontend PID
-  `4446` on `5173` and daemon PID `13148` on `5174`. The daemon instance
-  `studio-server-mrgo43iw-a58-1-f8a3ae27-2c3a-426b-a505-d5c30b1abb01`
-  started at `2026-07-11T17:58:13.976Z`, reports this worktree as `repoRoot`,
-  and remains active for the next packet.
+- Runtime preservation: the prior Studio process receipt is historical and is
+  not used as Packet A acceptance. Runtime checks restart from a committed tree.
 
 This section is the sole live resume state. Update it at every phase change,
 DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
@@ -99,9 +98,37 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | current browser/oRPC investigation | rendered state, browser-to-endpoint path, daemon freshness | closed-with-one-invalid-attempt | stale daemon/browser state identified; current path unified after restart; accidental direct mutation is recorded and excluded from acceptance |
 | all-config investigation | nine-config admission, complete materialization, deterministic generation, output sanity | closed-with-shared-defect | all current configs healthy; generic partial-default admission defect becomes Packet A |
 | direct-control/Civ7 investigation | live shell state, saved setup, generated row, setup/start ownership | closed-with-architectural-defect | missing control-oRPC setup/lifecycle family and caller-local Studio orchestration become Packet B |
+| Packet A implementation | complete-config contracts, TypeBox-native defaults, exact admission, generic schema/config tests, typed operation fixtures | closed-passed | none; A.1 starts on a separate Graphite child |
+| A.1 test-topology preparation | historical move recovery, semantic ownership extension, import/path hazards, discovery and Habitat authority | closed-passed | execute the prepared 106-move mechanical child; no semantic repair belongs in A.1 |
 
 Stage promotion requires every agent row to be `closed` or explicitly
 transferred to the continuous supervisor.
+
+## Packet A Closure Receipts
+
+All receipts in this table bind to the dirty Packet A tree immediately before
+its Graphite commit. Generated build outputs remain ignored and are not part of
+the write set.
+
+| Surface | Command or method | Result |
+| --- | --- | --- |
+| affected production TypeScript | Nx `check` across MapGen Core, SDK, Studio contract, Swooper Maps, Studio UI, and Studio; MapGen Core and Swooper rerun after the final schema-value boundary rename | passed |
+| affected behavior graph | Nx `test` across MapGen Core, SDK, Swooper Maps, Studio UI, and Studio, followed by affected-target reruns | passed |
+| Swooper Maps | `nx run mod-swooper-maps:test --skip-nx-cache` | 534 passed, 2 intentionally skipped, 0 failed; owner Habitat 85/85 |
+| focused Studio Run in Game selection | `nx run mod-swooper-maps:test:studio-run-in-game --skip-nx-cache` after replacing its deleted brittle identity-shape test with the generic complete-config boundary test | dependency graph passed; 20 selected tests passed, 0 failed |
+| MapGen Core | `nx run mapgen-core:test --skip-nx-cache` | 126 passed, 0 failed |
+| Studio contract | `bun test packages/studio-contract/test` | 10 passed, 0 failed |
+| Studio build | `nx run mapgen-studio:build --skip-nx-cache` | passed, including Studio check and Vite production build |
+| formatting and lint | `bun run lint`, then the affected Swooper target after its one formatter repair | passed |
+| OpenSpec | `bun run openspec:validate` | 371 passed, 0 failed |
+| Habitat, Studio | `bun habitat check --owner mapgen-studio` | 17 passed, 0 failing or advisory |
+| Habitat, Swooper | owner check invoked by the final Nx Swooper test graph | 85 passed, 0 failing or advisory |
+| Habitat, MapGen Core | `bun habitat check --owner mapgen-core` | 1 passed, 0 failing or advisory |
+| source-derived recipe artifacts | `bun habitat check --rule verify_standard_recipe_artifacts_match_source_stages --json` | passed with no diagnostics |
+| classify routing | `bun habitat classify /tmp/packet-a.diff`; every available reported target was run, with the unavailable Studio contract test covered by its direct package suite | passed |
+| test-inclusive TypeScript comparison | base-comparable scan plus correctly typed current scan | 566 base diagnostics to 535 current; the only unmatched file/code pair is the intentionally ambient-incomplete Bun import; 284 independent historical test/dev/script diagnostics remain for A.3, with no changed config-test diagnostic |
+| change hygiene | `git diff --check` plus added-line suppression/cast and nonstandard `proof` scans | passed; no temporary TypeScript scan configs or `.playwright-cli` files remain |
+| committed-tree isolation | regular detached Git worktree at the initial Packet A commit, fresh `bun install --frozen-lockfile`, affected six-project check, affected five-project test graph, Studio build, and final tracked-status check | all passed; generated artifacts reproduced without tracked drift; temporary worktree removed |
 
 ## Stage State
 

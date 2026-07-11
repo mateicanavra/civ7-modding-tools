@@ -12,6 +12,11 @@ import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 type TectonicEventRecord = TectonicEvents[number];
 
+const BELT_INFLUENCE_DISTANCE_CLAMP_MIN = 1;
+const BELT_INFLUENCE_DISTANCE_CLAMP_MAX = 64;
+const BELT_DECAY_CLAMP_MIN = 0.01;
+const EMISSION_RADIUS_CLAMP_MIN = 1;
+
 const EMISSION_RADIUS_MUL = {
   uplift: 2.0,
   rift: 1.25,
@@ -49,16 +54,35 @@ export function deriveEmissionParams(config: {
   beltInfluenceDistance: number;
   beltDecay: number;
 }): EmissionParams {
-  const baseRadius = Math.max(1, Math.min(64, Math.round(config.beltInfluenceDistance ?? 0))) | 0;
-  const baseDecay = Math.max(0.01, Number.isFinite(config.beltDecay) ? config.beltDecay : 0);
+  const baseRadius =
+    Math.max(
+      BELT_INFLUENCE_DISTANCE_CLAMP_MIN,
+      Math.min(BELT_INFLUENCE_DISTANCE_CLAMP_MAX, Math.round(config.beltInfluenceDistance))
+    ) | 0;
+  const baseDecay = Math.max(
+    BELT_DECAY_CLAMP_MIN,
+    Number.isFinite(config.beltDecay) ? config.beltDecay : 0
+  );
 
   return {
     radius: {
-      uplift: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.uplift)),
-      rift: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.rift)),
-      shear: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.shear)),
-      volcanism: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.volcanism)),
-      fracture: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.fracture)),
+      uplift: Math.max(
+        EMISSION_RADIUS_CLAMP_MIN,
+        Math.round(baseRadius * EMISSION_RADIUS_MUL.uplift)
+      ),
+      rift: Math.max(EMISSION_RADIUS_CLAMP_MIN, Math.round(baseRadius * EMISSION_RADIUS_MUL.rift)),
+      shear: Math.max(
+        EMISSION_RADIUS_CLAMP_MIN,
+        Math.round(baseRadius * EMISSION_RADIUS_MUL.shear)
+      ),
+      volcanism: Math.max(
+        EMISSION_RADIUS_CLAMP_MIN,
+        Math.round(baseRadius * EMISSION_RADIUS_MUL.volcanism)
+      ),
+      fracture: Math.max(
+        EMISSION_RADIUS_CLAMP_MIN,
+        Math.round(baseRadius * EMISSION_RADIUS_MUL.fracture)
+      ),
     },
     decay: {
       uplift: baseDecay * EMISSION_DECAY_MUL.uplift,

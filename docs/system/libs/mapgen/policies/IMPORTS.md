@@ -29,7 +29,7 @@ Examples (public surfaces):
 ```ts
 import { createRecipe } from "@swooper/mapgen-core/authoring";
 import { PipelineExecutor } from "@swooper/mapgen-core/engine";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { validateStrict } from "@swooper/mapgen-core/compiler/normalize";
 ```
 
 ### 2) Within a single package, internal relative imports are allowed

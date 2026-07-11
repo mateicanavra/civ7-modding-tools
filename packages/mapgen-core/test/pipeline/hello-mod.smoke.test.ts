@@ -8,16 +8,18 @@ import {
   createStrategy,
   defineOp,
   defineStep,
+  deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
 import { Type } from "typebox";
+import { Value } from "typebox/value";
 
 const baseSettings = {
   seed: 1,
   dimensions: { width: 8, height: 6 },
   latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
 };
-const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
+const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("authoring: hello recipe compile/execute", () => {
   it("compiles and executes a minimal recipe module", () => {
@@ -51,11 +53,11 @@ describe("authoring: hello recipe compile/execute", () => {
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
     const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
 
-    const plan = recipe.compile(baseSettings, { foundation: { hello: {} } });
+    const plan = recipe.compile(baseSettings, { foundation: { knobs: {}, hello: {} } });
     expect(plan.nodes).toHaveLength(1);
     expect(plan.nodes[0]?.stepId).toContain("hello");
 
-    recipe.run(ctx, baseSettings, { foundation: { hello: {} } });
+    recipe.run(ctx, baseSettings, { foundation: { knobs: {}, hello: {} } });
     expect(ctx.metrics.warnings).toContain("hello");
   });
 
@@ -117,12 +119,13 @@ describe("authoring: hello recipe compile/execute", () => {
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
     const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
 
-    const plan = recipe.compile(baseSettings, { foundation: { "use-op": {} } });
+    const config = Value.Create(deriveRecipeConfigSchema([stage]));
+    const plan = recipe.compile(baseSettings, config);
     expect(plan.nodes[0]?.config).toEqual({
       trees: { strategy: "default", config: { enabled: false } },
     });
 
-    recipe.run(ctx, baseSettings, { foundation: { "use-op": {} } });
+    recipe.run(ctx, baseSettings, config);
     expect(ctx.metrics.warnings).toContain("trees:false");
   });
 });

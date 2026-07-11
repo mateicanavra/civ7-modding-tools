@@ -4,7 +4,7 @@ Copy this file to:
 
 `mods/mod-swooper-maps/test/pipeline/<domain>-stage-smoke.test.ts`
 
-Then replace the placeholders and follow the steps below. This template is intentionally narrow: it proves that a refactored domain stage is wired correctly and that its key artifacts/effects are satisfied.
+Then replace the placeholders and follow the steps below. This template is intentionally narrow: it verifies that a refactored domain stage is wired correctly and that its key artifacts/effects are satisfied.
 
 ## Required invariants
 
@@ -19,14 +19,12 @@ Then replace the placeholders and follow the steps below. This template is inten
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { normalizeStrictOrThrow } from "../support/compiler-helpers.js";
 
 import { STANDARD_ENGINE_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
 import { artifacts as __STAGE__Artifacts } from "../../src/recipes/standard/stages/__STAGE__/artifacts/index.js";
+import { buildStandardRecipeDefaultConfig } from "../../src/recipes/standard/artifacts.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
-import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { __DOMAIN__Config } from "../../src/maps/__DOMAIN__-map.js";
 
 const env = {
   seed: 0,
@@ -44,7 +42,7 @@ describe("__DOMAIN__ stage smoke", () => {
     const ctx = createExtendedMapContext(env.dimensions, adapter, env);
     initializeStandardRuntime(ctx, env);
 
-    const config = __DOMAIN__Config satisfies StandardRecipeConfig;
+    const config = structuredClone(buildStandardRecipeDefaultConfig());
     expect(() => standardRecipe.run(ctx, env, config, { log: () => {} })).not.toThrow();
 
     expect(ctx.artifacts.get(__STAGE__Artifacts.__ARTIFACT_KEY__.id)).toBeTruthy();
@@ -55,6 +53,5 @@ describe("__DOMAIN__ stage smoke", () => {
 
 Notes:
 
-- Use an existing canonical map config (e.g. `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`) to avoid re-creating the full config inline.
-- For a smaller test, you can construct a minimal config that only exercises your domain, but it must still satisfy the recipe schema.
+- Start from `buildStandardRecipeDefaultConfig()` and mutate only the domain behavior under test, or use an admitted complete shipped config when the test targets shipped behavior.
 - For a full reference, see `mods/mod-swooper-maps/test/standard-run.test.ts`.

@@ -11,6 +11,8 @@ const PlotEffectsScoreBurnedConfigSchema = Type.Object({
   }),
   minTemperature: Type.Number({
     default: 20,
+    minimum: -100,
+    maximum: 100,
     description: "Burned is eligible when surfaceTemperature >= minTemperature (C).",
   }),
   maxFreeze: Type.Number({
@@ -28,6 +30,7 @@ const PlotEffectsScoreBurnedConfigSchema = Type.Object({
   maxMoisture: Type.Number({
     default: 110,
     minimum: 0,
+    maximum: 1_000,
     description: "Burned is eligible when effectiveMoisture <= maxMoisture.",
   }),
   allowedBiomes: Type.Array(BiomeSymbolSchema, {

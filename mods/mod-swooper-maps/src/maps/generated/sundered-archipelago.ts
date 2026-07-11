@@ -684,6 +684,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -692,15 +700,22 @@ const mapConfig = {
           "coveragePct": 28,
           "lightThreshold": 0.45,
           "mediumThreshold": 0.7,
-          "heavyThreshold": 0.85
+          "heavyThreshold": 0.85,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": false,
-          "coveragePct": 5
+          "coveragePct": 5,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": false,
           "coveragePct": 4
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -756,7 +771,6 @@ const mapConfig = {
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,
@@ -815,7 +829,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "76ba54cac3036ea51287f0c4b238a4ddb2c511dc49074280c8502a29874665a8",
-  envelopeHash: "5048099f2510e037f67980ee2f6664f98aafcf333d0db394dcd1ae561bdc3921",
+  configHash: "cde7adab55f401ec4b3d429c800792f31cd8a6fda5667c975f912447da49d79d",
+  envelopeHash: "a6a3981e47f7169f9454e7599fa32be738b37abb54fb68d08f1bf4cb6f82b6ba",
   config: mapConfig.config,
 });

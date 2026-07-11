@@ -11,7 +11,6 @@ import type {
   PipelineConfig,
   RecipeSettings,
   StageOption,
-  StepConfig,
   StepOption,
   WorldSettings,
 } from "@swooper/mapgen-studio-ui/types";
@@ -32,25 +31,28 @@ export function cloneConfig<T>(config: T): T {
 export function applyConfigPatch(config: PipelineConfig, patch: ConfigPatch): PipelineConfig {
   const { path, value } = patch;
 
-  if (path.length === 0) {
-    return config;
+  if (path.length === 0) return config;
+
+  const nextConfig = { ...config };
+  let current: Record<string, unknown> = nextConfig;
+  for (const key of path.slice(0, -1)) {
+    const child = current[key];
+    if (!isConfigRecord(child)) {
+      throw new Error(`Config path does not exist: ${path.join(".")}`);
+    }
+    const nextChild = { ...child };
+    current[key] = nextChild;
+    current = nextChild;
   }
 
-  // Create shallow copy of root
-  const newConfig = { ...config };
-  let current: Record<string, unknown> = newConfig;
+  const leaf = path[path.length - 1];
+  if (!(leaf in current)) throw new Error(`Config path does not exist: ${path.join(".")}`);
+  current[leaf] = value;
+  return nextConfig;
+}
 
-  // Walk the path, creating shallow copies along the way
-  for (let i = 0; i < path.length - 1; i++) {
-    const key = path[i];
-    current[key] = { ...(current[key] as Record<string, unknown>) };
-    current = current[key] as Record<string, unknown>;
-  }
-
-  // Set the final value
-  current[path[path.length - 1]] = value;
-
-  return newConfig;
+function isConfigRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 /**
@@ -66,18 +68,7 @@ export function updateConfigValue(
   path: string[],
   value: ConfigValue
 ): PipelineConfig {
-  const newConfig = cloneConfig(config);
-  let current: Record<string, unknown> = newConfig;
-
-  for (let i = 0; i < path.length - 1; i++) {
-    if (current[path[i]] === undefined) {
-      current[path[i]] = {};
-    }
-    current = current[path[i]] as Record<string, unknown>;
-  }
-
-  current[path[path.length - 1]] = value;
-  return newConfig;
+  return applyConfigPatch(config, { path, value });
 }
 
 /**
@@ -144,9 +135,9 @@ export function deriveStagesFromConfig(config: PipelineConfig): StageOption[] {
  * Use this to populate step selectors in controlled components.
  */
 export function deriveStepsFromStage(config: PipelineConfig, stageName: string): StepOption[] {
-  const stageConfig = config[stageName] as Record<string, StepConfig | unknown> | undefined;
+  const stageConfig = config[stageName];
 
-  if (!stageConfig) return [];
+  if (stageConfig === undefined || !isConfigRecord(stageConfig)) return [];
 
   return Object.keys(stageConfig)
     .filter((key) => key !== "knobs")

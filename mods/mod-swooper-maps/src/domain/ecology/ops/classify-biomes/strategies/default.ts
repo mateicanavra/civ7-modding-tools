@@ -3,6 +3,8 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import BiomeClassificationContract from "../contract.js";
 import { classifyBiomesFromFields } from "../rules/classify.js";
 
+const GAUSSIAN_SIGMA_CLAMP_MIN = 1;
+
 function refineBiomeIndexGaussian(args: {
   width: number;
   height: number;
@@ -18,7 +20,7 @@ function refineBiomeIndexGaussian(args: {
   }
 
   const radius = args.radius | 0;
-  const sigma = Math.max(1, radius);
+  const sigma = Math.max(GAUSSIAN_SIGMA_CLAMP_MIN, radius);
   const kernel: number[] = [];
   let kernelSum = 0;
   for (let dy = -radius; dy <= radius; dy++) {
@@ -87,7 +89,6 @@ function refineBiomeIndexGaussian(args: {
 
 export const defaultStrategy = createStrategy(BiomeClassificationContract, "default", {
   run: (input, config) => {
-    const resolvedConfig = config;
     const { width, height } = input;
     const size = width * height;
 
@@ -119,7 +120,7 @@ export const defaultStrategy = createStrategy(BiomeClassificationContract, "defa
       aridityIndexF64,
       soilType,
       fertility,
-      config: resolvedConfig,
+      config,
     });
 
     // M3: Biome edge refinement is integrated into classifyBiomes (no separate refine step).
@@ -128,8 +129,8 @@ export const defaultStrategy = createStrategy(BiomeClassificationContract, "defa
       height,
       biomeIndex,
       landMask,
-      radius: resolvedConfig.edgeRefine?.radius ?? 1,
-      iterations: resolvedConfig.edgeRefine?.iterations ?? 1,
+      radius: config.edgeRefine.radius,
+      iterations: config.edgeRefine.iterations,
     });
 
     return {

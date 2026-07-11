@@ -43,14 +43,13 @@ const HypsometryConfigSchema = Type.Object(
       maximum: 1,
     }),
     /** Desired share of continental crust when balancing land vs. ocean plates (0..1). */
-    continentalFraction: Type.Optional(
-      Type.Number({
-        description:
-          "Desired share of continental crust when balancing land vs. ocean plates (0..1).",
-        minimum: 0,
-        maximum: 1,
-      })
-    ),
+    continentalFraction: Type.Number({
+      default: 0.39,
+      description:
+        "Desired share of continental crust when balancing land vs. ocean plates (0..1).",
+      minimum: 0,
+      maximum: 1,
+    }),
   },
   {
     additionalProperties: false,

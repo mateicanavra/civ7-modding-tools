@@ -54,10 +54,10 @@ describe("ecology-features plan-reefs step", () => {
     });
 
     const config = {
-      planReefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, {
-        strategy: "default",
-        config: {},
-      }),
+      planReefs: normalizeOpSelectionOrThrow(
+        ecology.ops.planReefs,
+        ecology.ops.planReefs.defaultConfig
+      ),
     };
     const ops = ecology.ops.bind(planReefsStep.contract.ops!).runtime;
     planReefsStep.run(ctx, config, ops, buildTestDeps(planReefsStep));

@@ -24,11 +24,11 @@ const PlotBiomesStepContract = defineStep({
   },
   schema: Type.Object(
     {
-      bindings: Type.Optional(BiomeEngineBindingsSchema),
+      bindings: BiomeEngineBindingsSchema,
     },
     {
       additionalProperties: false,
-      description: "Optional overrides for binding biome symbols to engine biome globals.",
+      description: "Complete bindings from biome symbols to engine biome globals.",
     }
   ),
 });

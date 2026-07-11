@@ -4,8 +4,8 @@ import { Value } from "typebox/value";
 /**
  * The portable JSON boundary owned by `studio-contract`. TypeBox defines the
  * structural shape; this guard rejects runtime values that JSON Schema cannot
- * distinguish from JSON objects. Swooper owns Standard config admission and
- * defaults after this boundary has admitted a portable envelope.
+ * distinguish from JSON objects. Swooper owns Standard config admission after
+ * this boundary has admitted a portable envelope.
  */
 export type DeepReadonly<Value> = Value extends (...args: never[]) => unknown
   ? Value
@@ -67,7 +67,6 @@ export const mapConfigEnvelopeSchema = Type.Object(
       },
       { additionalProperties: false }
     ),
-    logPrefix: Type.Optional(Type.String({ minLength: 1 })),
     config: jsonWireObjectSchema,
   },
   { additionalProperties: false }
@@ -84,50 +83,43 @@ export type MapConfigEnvelope = DeepReadonly<MapConfigEnvelopeWire>;
  * before retaining a value across an asynchronous or domain boundary.
  */
 export function isMapConfigEnvelope(value: unknown): value is MapConfigEnvelopeWire {
-  return isPortableJsonValue(value) && Value.Check(mapConfigEnvelopeSchema, value);
+  const snapshot = clonePortableJsonValueSafely(value);
+  return snapshot !== undefined && Value.Check(mapConfigEnvelopeSchema, snapshot);
 }
 
 /**
  * Clones an admitted immutable envelope into the exact TypeBox-derived DTO the
- * oRPC transport consumes. `Value.Clone` establishes new ownership; TypeBox
- * 1.3 `Value.Parse` returns that clone unchanged when it is already valid.
+ * oRPC transport consumes. Cloning establishes new ownership; assertion only
+ * validates the clone and cannot default, clean, repair, or otherwise rewrite it.
  */
 export function serializeMapConfigEnvelope(value: MapConfigEnvelope): MapConfigEnvelopeWire {
-  return Value.Parse(mapConfigEnvelopeSchema, Value.Clone(value));
+  const clone = Value.Clone(value);
+  Value.Assert(mapConfigEnvelopeSchema, clone);
+  return clone;
 }
 
 /**
  * Checks the runtime half of the portable JSON contract. TypeBox's recursive
  * `Type.Record` supplies only the structural half and accepts exotic objects.
  */
-export function isPortableJsonValue(
-  value: unknown,
-  ancestors = new Set<object>()
-): value is JsonWireValue {
-  try {
-    if (value === null || typeof value === "string" || typeof value === "boolean") return true;
-    if (typeof value === "number") return Number.isFinite(value);
-    if (typeof value !== "object") return false;
-    if (ancestors.has(value)) return false;
+export function isPortableJsonValue(value: unknown): value is JsonWireValue {
+  return clonePortableJsonValueSafely(value) !== undefined;
+}
 
-    ancestors.add(value);
-    try {
-      return Array.isArray(value)
-        ? isPortableJsonArray(value, ancestors)
-        : isPortableJsonObject(value, ancestors);
-    } finally {
-      ancestors.delete(value);
-    }
-  } catch {
-    return false;
-  }
+/** Admits an exact portable JSON value into an independently owned immutable snapshot. */
+export function snapshotPortableJsonValue(value: unknown): DeepReadonly<JsonWireValue> | undefined {
+  const snapshot = clonePortableJsonValueSafely(value);
+
+  return snapshot === undefined ? undefined : freezeSnapshot(snapshot);
 }
 
 /** Admits, clones, and recursively freezes a portable JSON envelope. */
 export function snapshotMapConfigEnvelope(value: unknown): MapConfigEnvelope | undefined {
-  if (!isMapConfigEnvelope(value)) return undefined;
+  const snapshot = clonePortableJsonValueSafely(value);
 
-  return freezeSnapshot(serializeMapConfigEnvelope(value));
+  return snapshot !== undefined && Value.Check(mapConfigEnvelopeSchema, snapshot)
+    ? freezeSnapshot(snapshot)
+    : undefined;
 }
 
 /** Recursively freezes a newly-created snapshot. It intentionally does not clone. */
@@ -140,39 +132,121 @@ export function freezeSnapshot<Value>(value: Value): DeepReadonly<Value> {
   return Object.freeze(value) as DeepReadonly<Value>;
 }
 
-function isPortableJsonArray(value: readonly unknown[], ancestors: Set<object>): boolean {
-  if (Object.getPrototypeOf(value) !== Array.prototype) return false;
-
-  const keys = Reflect.ownKeys(value);
-  for (const key of keys) {
-    if (typeof key === "symbol") return false;
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    if (descriptor === undefined || !("value" in descriptor)) return false;
-    if (key === "length") continue;
-    if (!isArrayIndex(key, value.length) || !descriptor.enumerable) return false;
+function clonePortableJsonValueSafely(value: unknown): JsonWireValue | undefined {
+  try {
+    return clonePortableJsonValue(
+      value,
+      new Set<object>(),
+      new WeakMap<object, JsonWireObject | JsonWireValue[]>()
+    );
+  } catch {
+    return undefined;
   }
-
-  for (let index = 0; index < value.length; index += 1) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
-    if (descriptor === undefined || !("value" in descriptor) || !descriptor.enumerable)
-      return false;
-    if (!isPortableJsonValue(descriptor.value, ancestors)) return false;
-  }
-  return true;
 }
 
-function isPortableJsonObject(value: object, ancestors: Set<object>): boolean {
-  if (!isPlainJsonObject(value)) return false;
+function clonePortableJsonValue(
+  value: unknown,
+  ancestors: Set<object>,
+  snapshots: WeakMap<object, JsonWireObject | JsonWireValue[]>
+): JsonWireValue | undefined {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return value;
+  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+  if (typeof value !== "object" || ancestors.has(value)) return undefined;
+  const existingSnapshot = snapshots.get(value);
+  if (existingSnapshot !== undefined) return existingSnapshot;
+
+  ancestors.add(value);
+  try {
+    const snapshot = Array.isArray(value)
+      ? clonePortableJsonArray(value, ancestors, snapshots)
+      : clonePortableJsonObject(value, ancestors, snapshots);
+    if (snapshot !== undefined) snapshots.set(value, snapshot);
+    return snapshot;
+  } finally {
+    ancestors.delete(value);
+  }
+}
+
+function clonePortableJsonArray(
+  value: readonly unknown[],
+  ancestors: Set<object>,
+  snapshots: WeakMap<object, JsonWireObject | JsonWireValue[]>
+): JsonWireValue[] | undefined {
+  if (Object.getPrototypeOf(value) !== Array.prototype) return undefined;
+
+  const keys = Reflect.ownKeys(value);
+  const indexedValues = new Map<number, unknown>();
+  let length: number | undefined;
+
+  for (const key of keys) {
+    if (typeof key === "symbol") return undefined;
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (descriptor === undefined || !("value" in descriptor)) return undefined;
+
+    const propertyValue: unknown = descriptor.value;
+    if (key === "length") {
+      if (
+        length !== undefined ||
+        descriptor.enumerable ||
+        typeof propertyValue !== "number" ||
+        !Number.isInteger(propertyValue) ||
+        propertyValue < 0 ||
+        propertyValue > 0xffff_ffff
+      ) {
+        return undefined;
+      }
+      length = propertyValue;
+      continue;
+    }
+
+    if (!descriptor.enumerable || !isArrayIndex(key)) return undefined;
+    const index = Number(key);
+    if (indexedValues.has(index)) return undefined;
+    indexedValues.set(index, propertyValue);
+  }
+
+  if (length === undefined || indexedValues.size !== length) return undefined;
+
+  const snapshot: JsonWireValue[] = [];
+  for (let index = 0; index < length; index += 1) {
+    if (!indexedValues.has(index)) return undefined;
+    const itemSnapshot = clonePortableJsonValue(indexedValues.get(index), ancestors, snapshots);
+    if (itemSnapshot === undefined) return undefined;
+    snapshot.push(itemSnapshot);
+  }
+  return snapshot;
+}
+
+function clonePortableJsonObject(
+  value: object,
+  ancestors: Set<object>,
+  snapshots: WeakMap<object, JsonWireObject | JsonWireValue[]>
+): JsonWireObject | undefined {
+  if (!isPlainJsonObject(value)) return undefined;
+
+  const properties: { key: string; value: unknown }[] = [];
 
   for (const key of Reflect.ownKeys(value)) {
-    if (typeof key === "symbol") return false;
-    if (isUnsafeJsonKey(key)) return false;
+    if (typeof key === "symbol" || isUnsafeJsonKey(key)) return undefined;
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
     if (descriptor === undefined || !("value" in descriptor) || !descriptor.enumerable)
-      return false;
-    if (!isPortableJsonValue(descriptor.value, ancestors)) return false;
+      return undefined;
+    const propertyValue: unknown = descriptor.value;
+    properties.push({ key, value: propertyValue });
   }
-  return true;
+
+  const snapshot: JsonWireObject = {};
+  for (const property of properties) {
+    const propertySnapshot = clonePortableJsonValue(property.value, ancestors, snapshots);
+    if (propertySnapshot === undefined) return undefined;
+    Object.defineProperty(snapshot, property.key, {
+      configurable: true,
+      enumerable: true,
+      value: propertySnapshot,
+      writable: true,
+    });
+  }
+  return snapshot;
 }
 
 /** Keys with prototype semantics are rejected before TypeBox inspects the value. */
@@ -185,8 +259,8 @@ function isPlainJsonObject(value: object): value is Record<string, unknown> {
   return prototype === Object.prototype || prototype === null;
 }
 
-function isArrayIndex(key: string, length: number): boolean {
+function isArrayIndex(key: string): boolean {
   if (!/^(?:0|[1-9]\d*)$/.test(key)) return false;
   const index = Number(key);
-  return Number.isSafeInteger(index) && index < length;
+  return Number.isSafeInteger(index) && index < 0xffff_ffff;
 }

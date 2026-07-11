@@ -18,6 +18,10 @@ import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
 const { computeRiverNetworkMetrics } = hydrologyOpsPublic.ops;
+const defaultMetricsSelection = {
+  ...computeRiverNetworkMetrics.defaultConfig,
+  config: { ...computeRiverNetworkMetrics.defaultConfig.config },
+};
 
 describe("hydrology/compute-river-network-metrics", () => {
   it("derives upstream area, stream hierarchy, and accepted-lake mouths", () => {
@@ -61,10 +65,7 @@ describe("hydrology/compute-river-network-metrics", () => {
         terminalType,
         lakeMask,
       },
-      {
-        strategy: "default",
-        config: {},
-      }
+      defaultMetricsSelection
     );
 
     expect(Array.from(result.upstreamArea)).toEqual([1, 2, 1, 1, 2, 6]);
@@ -159,10 +160,7 @@ describe("hydrology/compute-river-network-metrics", () => {
         terminalType,
         lakeMask,
       },
-      {
-        strategy: "default",
-        config: {},
-      }
+      defaultMetricsSelection
     );
 
     for (let i = 0; i < size; i++) {
@@ -264,10 +262,7 @@ describe("hydrology/compute-river-network-metrics", () => {
         terminalType,
         lakeMask,
       },
-      {
-        strategy: "default",
-        config: {},
-      }
+      defaultMetricsSelection
     );
 
     expect(result.benchmarkSummary).toMatchObject({
@@ -330,10 +325,7 @@ describe("hydrology/compute-river-network-metrics", () => {
         terminalType,
         lakeMask,
       },
-      {
-        strategy: "default",
-        config: {},
-      }
+      defaultMetricsSelection
     );
 
     expect(result.mouthType[4]).toBe(HYDROLOGY_MOUTH_OCEAN);
@@ -416,10 +408,7 @@ describe("hydrology/compute-river-network-metrics", () => {
         terminalType,
         lakeMask,
       },
-      {
-        strategy: "default",
-        config: {},
-      }
+      defaultMetricsSelection
     );
 
     expect(result.benchmarkSummary.invalidReceiverTileCount).toBe(1);

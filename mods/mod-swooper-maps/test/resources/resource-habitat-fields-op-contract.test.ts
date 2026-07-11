@@ -55,10 +55,11 @@ describe("derive-habitat-fields operation contract", () => {
   }
 
   it("derives every declared habitat lane mask plus per-family intensities", () => {
-    const result = runOpValidated(resources.ops.deriveHabitatFields, syntheticInput(), {
-      strategy: "default",
-      config: {},
-    }) as Record<string, unknown>;
+    const result = runOpValidated(
+      resources.ops.deriveHabitatFields,
+      syntheticInput(),
+      structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
+    ) as Record<string, unknown>;
 
     for (const field of HABITAT_MASK_FIELD_NAMES) {
       const mask = result[field];
@@ -86,10 +87,11 @@ describe("derive-habitat-fields operation contract", () => {
 
   it("keeps aquatic lanes on water and terrestrial lanes on land (E2.4 marine lane)", () => {
     const input = syntheticInput();
-    const result = runOpValidated(resources.ops.deriveHabitatFields, input, {
-      strategy: "default",
-      config: {},
-    }) as Record<string, Uint8Array>;
+    const result = runOpValidated(
+      resources.ops.deriveHabitatFields,
+      input,
+      structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
+    ) as Record<string, Uint8Array>;
 
     let coastalCount = 0;
     for (let i = 0; i < size; i++) {

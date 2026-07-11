@@ -18,7 +18,10 @@ import {
   generateSwooperRunGeneratedModFromManifestPath,
   verifySwooperStandardRunManifest,
 } from "../../scripts/run-manifest-generator";
-import { type MaterializedCanonicalMapConfig } from "../../src/maps/configs/canonical";
+import {
+  admitStandardMapConfig,
+  type StandardMapConfigEnvelope,
+} from "../../src/maps/configs/canonical";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {
@@ -91,10 +94,10 @@ describe("Swooper run manifest generator", () => {
   });
 
   test("preserves the complete canonical config in a generated run manifest", async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-log-prefix-"));
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-config-"));
     try {
       const manifestRef = await writeStudioRunGenerationManifest({
-        manifestInput: manifestInput({ logPrefix: "[run-log]" }),
+        manifestInput: manifestInput(),
         workspaceRoot,
       });
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
@@ -103,7 +106,7 @@ describe("Swooper run manifest generator", () => {
       expect(manifest.payload.launchEnvelope.source).toMatchObject({
         kind: "catalog",
         sourcePath: "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
-        canonicalConfig: { id: "latest-juicy", logPrefix: "[run-log]" },
+        canonicalConfig: { id: "latest-juicy" },
       });
     } finally {
       await rm(workspaceRoot, { recursive: true, force: true });
@@ -114,7 +117,7 @@ describe("Swooper run manifest generator", () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-verification-"));
     try {
       const manifestRef = await writeStudioRunGenerationManifest({
-        manifestInput: manifestInput({ logPrefix: "[run-log]" }),
+        manifestInput: manifestInput(),
         workspaceRoot,
       });
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
@@ -123,7 +126,7 @@ describe("Swooper run manifest generator", () => {
 
       expect(verifiedRun.manifest).toBe(manifest);
       expect(verifiedRun.renderInput.config).toEqual(
-        manifest.payload.launchEnvelope.source.canonicalConfig
+        admitStandardMapConfig(manifest.payload.launchEnvelope.source.canonicalConfig)
       );
       expect(verifiedRun.renderInput.seed).toBe(1538316418);
       expect(verifiedRun.renderInput.correlation.requestId).toBe(manifest.payload.requestId);
@@ -335,19 +338,15 @@ describe("Swooper run manifest generator", () => {
 function manifestInput(
   options: Readonly<{
     recipe?: string;
-    logPrefix?: string;
     sourceKind?: "catalog" | "editor";
     sourcePath?: string;
   }> = {}
 ): StudioRunGenerationManifestInput {
   const sourceCanonicalConfig = standardMapConfigs.find(
     (entry) => entry.canonicalConfig.id === "latest-juicy"
-  )?.canonicalConfig as MaterializedCanonicalMapConfig | undefined;
+  )?.canonicalConfig as StandardMapConfigEnvelope | undefined;
   if (!sourceCanonicalConfig) throw new Error("latest-juicy config fixture is missing");
-  const canonicalConfig =
-    options.logPrefix === undefined
-      ? sourceCanonicalConfig
-      : { ...sourceCanonicalConfig, logPrefix: options.logPrefix };
+  const canonicalConfig = sourceCanonicalConfig;
   const launchEnvelope = {
     recipeSettings: {
       recipe: options.recipe ?? "mod-swooper-maps/standard",

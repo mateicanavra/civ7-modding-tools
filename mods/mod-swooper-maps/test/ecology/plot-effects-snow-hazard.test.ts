@@ -18,8 +18,14 @@ const runSnowPlan = (snowConfig: Record<string, unknown>) => {
   const planSelection = normalizeOpSelectionOrThrow(
     ecology.ops.planPlotEffects,
     {
-      strategy: "default",
-      config: { snow: snowConfig, sand: { enabled: false }, burned: { enabled: false } },
+      ...ecology.ops.planPlotEffects.defaultConfig,
+      config: {
+        ...ecology.ops.planPlotEffects.defaultConfig.config,
+        snow: {
+          ...ecology.ops.planPlotEffects.defaultConfig.config.snow,
+          ...snowConfig,
+        },
+      },
     },
     { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }
   );

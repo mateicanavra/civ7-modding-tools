@@ -2,7 +2,6 @@ export type CompileErrorCode =
   | "config.invalid"
   | "stage.compile.failed"
   | "stage.unknown-step-id"
-  | "op.config.invalid"
   | "op.missing"
   | "step.normalize.failed"
   | "op.normalize.failed"
@@ -17,3 +16,14 @@ export type CompileErrorItem = Readonly<{
   opKey?: string;
   opId?: string;
 }>;
+
+export class RecipeCompileError extends Error {
+  readonly errors: CompileErrorItem[];
+
+  constructor(errors: CompileErrorItem[]) {
+    const message = errors.map((error) => `${error.path}: ${error.message}`).join("; ");
+    super(`Recipe compile failed: ${message}`);
+    this.name = "RecipeCompileError";
+    this.errors = errors;
+  }
+}

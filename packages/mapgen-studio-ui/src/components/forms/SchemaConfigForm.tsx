@@ -1,5 +1,6 @@
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
 import { useMemo } from "react";
+import type { XSchema } from "typebox/schema";
 import { getAtPath, setAtPath } from "./pathUtils.js";
 import type { BrowserConfigFormContext, ConfigCollapseContext } from "./rjsfTemplates.js";
 import { SchemaForm } from "./SchemaForm.js";
@@ -29,7 +30,7 @@ type FocusView<TConfig> = Readonly<{
 }>;
 
 export type SchemaConfigFormProps<TConfig> = Readonly<{
-  schema: unknown;
+  schema: XSchema;
   value: TConfig;
   onChange(next: TConfig): void;
   disabled: boolean;

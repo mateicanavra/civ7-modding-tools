@@ -123,8 +123,8 @@ export default createStep(PlotRiversStepContract, {
   ),
   normalize: (config, ctx) => {
     if (config.selectNavigableRiverTerrain.strategy !== "default") return config;
-    const { navigableRiverDensity = "normal" as NavigableRiverDensityKnob } = ctx.knobs as {
-      navigableRiverDensity?: NavigableRiverDensityKnob;
+    const { navigableRiverDensity } = ctx.knobs as {
+      navigableRiverDensity: NavigableRiverDensityKnob;
     };
 
     return {

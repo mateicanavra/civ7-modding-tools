@@ -28,9 +28,10 @@ We need explicit rules for what the recipe may author, what is forbidden, and ho
 
 - The recipe authors **per-step-occurrence config** only.
 - Global config overrides that silently affect multiple steps are forbidden in the target architecture.
-- Defaults are resolved during compile/validation:
-  - schema defaults and normalization-derived defaults are applied deterministically,
-  - the compiled plan contains explicit final configs for each step occurrence.
+- A public recipe config is complete before compilation. Recipe-owned default
+  construction and exact admission follow ADR-ER1-037.
+- The compiler translates complete public stage config into explicit internal
+  step configs. It does not repair sparse public config.
 - Any “authoring convenience” (bundles, presets-like selection) is a tooling concern that must compile down to explicit recipe content.
 
 ## Options considered

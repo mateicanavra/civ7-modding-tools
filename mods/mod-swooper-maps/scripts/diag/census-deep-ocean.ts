@@ -20,6 +20,7 @@ import {
   createFinalSurfaceParityMapInfo,
   runLocalFinalSurfaceSnapshot,
 } from "../../src/dev/diagnostics/live-parity.js";
+import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
 
 // HUGE by default (106 x 66, matching the live readback); override via CENSUS_W/CENSUS_H.
 const WIDTH = process.env.CENSUS_W ? Number(process.env.CENSUS_W) : 106;
@@ -81,16 +82,10 @@ function main(): number {
     repoRoot,
     "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json"
   );
-  const file = JSON.parse(readFileSync(cfgPath, "utf8")) as { config?: unknown };
-  // Pass the INNER pipeline config directly (no dependency on canonical.js).
-  const config = file.config ?? file;
+  const config = admitStandardMapConfig(JSON.parse(readFileSync(cfgPath, "utf8")));
+  const label = process.env.CENSUS_LABEL ?? "baseline";
 
-  // Optional deep-merge override (CENSUS_OVERRIDE='{"foundation-orogeny":{"knobs":{...}}}').
-  const overrideRaw = process.env.CENSUS_OVERRIDE;
-  const override = overrideRaw ? JSON.parse(overrideRaw) : undefined;
-  const label = process.env.CENSUS_LABEL ?? (override ? overrideRaw : "baseline");
-
-  const { mapInfo } = createFinalSurfaceParityMapInfo(WIDTH, HEIGHT);
+  const { mapInfo, mapSizeId } = createFinalSurfaceParityMapInfo(WIDTH, HEIGHT);
 
   for (const seed of SEEDS) {
     const snap = runLocalFinalSurfaceSnapshot({
@@ -98,13 +93,12 @@ function main(): number {
       height: HEIGHT,
       seed,
       config,
-      override,
     });
     const adapter = createMockAdapter({
       width: WIDTH,
       height: HEIGHT,
       mapInfo,
-      mapSizeId: mapInfo.MapSizeType ?? 1,
+      mapSizeId,
       rng: createLabelRng(seed),
     });
     const idx = (n: string) => adapter.getTerrainTypeIndex(n);

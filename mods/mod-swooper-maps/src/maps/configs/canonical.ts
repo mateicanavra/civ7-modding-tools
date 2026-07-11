@@ -4,13 +4,9 @@ import {
   snapshotMapConfigEnvelope,
 } from "@civ7/studio-contract";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { type TObject, type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
-import {
-  buildStandardRecipeDefaultConfig,
-  STANDARD_RECIPE_CONFIG_SCHEMA,
-} from "../../recipes/standard/artifacts.js";
+import { STANDARD_RECIPE_CONFIG_SCHEMA } from "../../recipes/standard/artifacts.js";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 
 type JsonObject = MapConfigEnvelope["config"];
@@ -19,9 +15,6 @@ export type CanonicalMapConfigEnvelope = MapConfigEnvelope;
 
 export type StandardMapConfigEnvelope = CanonicalMapConfigEnvelope &
   Readonly<{ recipe: "standard"; config: JsonObject & StandardRecipeConfig }>;
-
-/** The portable config record that may cross catalog and launch boundaries. */
-export type MaterializedCanonicalMapConfig = StandardMapConfigEnvelope;
 
 export type ValidatedMapConfig = Readonly<{
   canonicalConfig: StandardMapConfigEnvelope;
@@ -39,46 +32,32 @@ export const DEFAULT_CANONICAL_MAP_LATITUDE_BOUNDS = {
   bottomLatitude: -80,
 } as const;
 
-type StandardRecipeConfigValidation = Readonly<{
-  complete: boolean;
-  errors: readonly string[];
-}>;
-
-export function createStandardRecipeDefaultConfig(): StandardRecipeConfig {
-  return buildStandardRecipeDefaultConfig();
+function escapeJsonPointerSegment(value: string): string {
+  return value.replaceAll("~", "~0").replaceAll("/", "~1");
 }
 
-function strictStandardRecipeConfigValidation(
-  value: unknown,
-  recipeSchema: TSchema
-): StandardRecipeConfigValidation {
-  const normalized = normalizeStrict<Record<string, unknown>>(recipeSchema, value, "/config");
-  if (normalized.errors.length > 0) {
-    return {
-      complete: false,
-      errors: normalized.errors.map((error) => `${error.path}: ${error.message}`),
-    } as const;
-  }
-  return {
-    complete: Value.Equal(normalized.value, value),
-    errors: [] as readonly string[],
-  } as const;
+function formatStandardRecipeConfigErrors(value: unknown, recipeSchema: TSchema): string[] {
+  return Value.Errors(recipeSchema, value).flatMap((error) => {
+    if (error.keyword === "additionalProperties") {
+      return error.params.additionalProperties.map(
+        (key) => `/config${error.instancePath}/${escapeJsonPointerSegment(key)}: Unknown key`
+      );
+    }
+    return [`/config${error.instancePath}: ${error.message}`];
+  });
 }
 
-function isCompleteStandardMapConfig(
+function isStandardMapConfigEnvelopeForSchema(
   value: CanonicalMapConfigEnvelope,
-  validation: StandardRecipeConfigValidation
+  recipeSchema: TSchema
 ): value is StandardMapConfigEnvelope {
-  return value.recipe === "standard" && validation.complete;
+  return value.recipe === "standard" && Value.Check(recipeSchema, value.config);
 }
 
 export function isStandardMapConfigEnvelope(
   value: CanonicalMapConfigEnvelope
 ): value is StandardMapConfigEnvelope {
-  return isCompleteStandardMapConfig(
-    value,
-    strictStandardRecipeConfigValidation(value.config, STANDARD_RECIPE_CONFIG_SCHEMA)
-  );
+  return isStandardMapConfigEnvelopeForSchema(value, STANDARD_RECIPE_CONFIG_SCHEMA);
 }
 
 /** The Standard recipe's strict immutable admission boundary. */
@@ -97,7 +76,7 @@ export function canonicalMapConfigContentDigest(config: StandardMapConfigEnvelop
   return sha256Hex(stableStringify(config.config));
 }
 
-export function canonicalMapConfigDigest(config: StandardMapConfigEnvelope): string {
+export function canonicalMapConfigDigest(config: CanonicalMapConfigEnvelope): string {
   return sha256Hex(stableStringify(config));
 }
 
@@ -118,7 +97,6 @@ export function buildCanonicalMapConfigSchema(
         },
         { additionalProperties: false }
       ),
-      logPrefix: Type.Optional(Type.String({ minLength: 1 })),
       config: recipeConfigSchema,
     },
     { additionalProperties: false }
@@ -193,22 +171,16 @@ export function validateStandardMapConfigSnapshot(
       `Map config must use the Standard recipe, got ${JSON.stringify(envelope.recipe)}.`
     );
   }
-  const validation = strictStandardRecipeConfigValidation(envelope.config, recipeSchema);
-  if (validation.errors.length > 0) {
+  if (!isStandardMapConfigEnvelopeForSchema(envelope, recipeSchema)) {
+    const errors = formatStandardRecipeConfigErrors(envelope.config, recipeSchema);
     throw new Error(
-      `Map config must carry a complete recipe config JSON:\n${validation.errors
+      `Map config must carry a complete recipe config JSON:\n${errors
         .map((error) => `- ${error}`)
         .join("\n")}`
     );
   }
-  if (!validation.complete) {
-    throw new Error("Map config must carry a complete recipe config JSON.");
-  }
   if (envelope.latitudeBounds.topLatitude <= envelope.latitudeBounds.bottomLatitude) {
     throw new Error("Map config latitudeBounds.topLatitude must exceed bottomLatitude.");
-  }
-  if (!isCompleteStandardMapConfig(envelope, validation)) {
-    throw new Error("Map config must carry a complete recipe config JSON.");
   }
   return envelope;
 }

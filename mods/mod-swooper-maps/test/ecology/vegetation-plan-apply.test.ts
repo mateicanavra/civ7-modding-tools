@@ -120,10 +120,10 @@ describe("plan-vegetation/apply pipeline", () => {
     });
 
     const planConfig = {
-      planVegetation: normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
-        strategy: "default",
-        config: {},
-      }),
+      planVegetation: normalizeOpSelectionOrThrow(
+        ecology.ops.planVegetation,
+        ecology.ops.planVegetation.defaultConfig
+      ),
     };
     const planOps = ecology.ops.bind(planVegetationStep.contract.ops!).runtime;
     planVegetationStep.run(ctx, planConfig, planOps, buildTestDeps(planVegetationStep));
@@ -148,10 +148,10 @@ describe("plan-vegetation/apply pipeline", () => {
     expect((vegetationIntents as unknown[]).length).toBeGreaterThan(0);
 
     const applyConfig = {
-      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {
-        strategy: "default",
-        config: {},
-      }),
+      apply: normalizeOpSelectionOrThrow(
+        ecology.ops.applyFeatures,
+        ecology.ops.applyFeatures.defaultConfig
+      ),
     };
     const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
     featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));

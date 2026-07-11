@@ -1,24 +1,10 @@
-import { createStage, Type } from "@swooper/mapgen-core/authoring";
+import { createStage } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
+import {
+  MapElevationKnobsSchema,
+  MapElevationPublicSchema,
+} from "../map-projection-public-config.js";
 import { buildElevation } from "./steps/index.js";
-
-const MapElevationKnobsSchema = Type.Object(
-  {},
-  {
-    additionalProperties: false,
-    description:
-      "Map elevation knobs. Elevation materialization currently has no author-facing stage knobs.",
-  }
-);
-
-const MapElevationPublicSchema = Type.Object(
-  {},
-  {
-    additionalProperties: false,
-    description:
-      "Map elevation projection controls. This stage asks Civ7 to rebuild elevation after static water projection and before river modeling.",
-  }
-);
 
 /**
  * Engine elevation materialization stage.

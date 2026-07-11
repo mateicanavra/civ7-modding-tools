@@ -20,55 +20,39 @@ const MarineBiomeGlobalSchema = Type.Literal(CIV7_BIOME_GLOBAL.MARINE, {
  */
 export const BiomeEngineBindingsSchema = Type.Object(
   {
-    snow: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.TUNDRA,
-        "Engine biome global used for permanent snow/ice biomes."
-      )
+    snow: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.TUNDRA,
+      "Engine biome global used for permanent snow/ice biomes."
     ),
-    tundra: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.TUNDRA,
-        "Engine biome global used for tundra (cold, sparse vegetation)."
-      )
+    tundra: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.TUNDRA,
+      "Engine biome global used for tundra (cold, sparse vegetation)."
     ),
-    boreal: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.TUNDRA,
-        "Engine biome global used for boreal forests (cold conifers)."
-      )
+    boreal: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.TUNDRA,
+      "Engine biome global used for boreal forests (cold conifers)."
     ),
-    temperateDry: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.PLAINS,
-        "Engine biome global used for dry temperate grasslands/steppes."
-      )
+    temperateDry: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.PLAINS,
+      "Engine biome global used for dry temperate grasslands/steppes."
     ),
-    temperateHumid: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.GRASSLAND,
-        "Engine biome global used for humid temperate plains/forests."
-      )
+    temperateHumid: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.GRASSLAND,
+      "Engine biome global used for humid temperate plains/forests."
     ),
-    tropicalSeasonal: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.PLAINS,
-        "Engine biome global used for seasonal tropical savannas."
-      )
+    tropicalSeasonal: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.PLAINS,
+      "Engine biome global used for seasonal tropical savannas."
     ),
-    tropicalRainforest: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.TROPICAL,
-        "Engine biome global used for tropical rainforest zones."
-      )
+    tropicalRainforest: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.TROPICAL,
+      "Engine biome global used for tropical rainforest zones."
     ),
-    desert: Type.Optional(
-      EngineBiomeGlobalSchema(
-        CIV7_BIOME_GLOBAL.DESERT,
-        "Engine biome global used for hot/cold desert basins."
-      )
+    desert: EngineBiomeGlobalSchema(
+      CIV7_BIOME_GLOBAL.DESERT,
+      "Engine biome global used for hot/cold desert basins."
     ),
-    marine: Type.Optional(MarineBiomeGlobalSchema),
+    marine: MarineBiomeGlobalSchema,
   },
   {
     additionalProperties: false,
@@ -143,7 +127,7 @@ export const MapEcologyKnobsSchema = Type.Object(
 
 export const MapEcologyPublicSchema = Type.Object(
   {
-    biomeBindings: Type.Optional(BiomeEngineBindingsSchema),
+    biomeBindings: BiomeEngineBindingsSchema,
   },
   {
     additionalProperties: false,

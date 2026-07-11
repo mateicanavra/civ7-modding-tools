@@ -36,21 +36,21 @@ const knobsSchema = Type.Object(
      * - Transforms bounded refine deltas and diagnostics biases.
      * - Must not change baseline climate generation (that belongs to climate-baseline).
      */
-    dryness: Type.Optional(HydrologyDrynessKnobSchema),
+    dryness: HydrologyDrynessKnobSchema,
     /**
      * Global thermal bias.
      *
      * Stage scope:
      * - Transforms thermal regime over the defaulted baseline for refine/diagnostics.
      */
-    temperature: Type.Optional(HydrologyTemperatureKnobSchema),
+    temperature: HydrologyTemperatureKnobSchema,
     /**
      * Cryosphere enablement.
      *
      * Stage scope:
      * - When off: disables bounded albedo feedback and disables cryosphere products deterministically.
      */
-    cryosphere: Type.Optional(HydrologyCryosphereKnobSchema),
+    cryosphere: HydrologyCryosphereKnobSchema,
   },
   {
     description:
@@ -69,14 +69,14 @@ export default createStage({
     "climate-refine": {
       computePrecipitation: {
         strategy: "refine",
-        config: config.precipitationRefinement ?? {},
+        config: config.precipitationRefinement,
       },
-      computeRadiativeForcing: { strategy: "default", config: config.solarForcing ?? {} },
-      computeThermalState: { strategy: "default", config: config.thermalState ?? {} },
-      applyAlbedoFeedback: { strategy: "default", config: config.albedoFeedback ?? {} },
-      computeCryosphereState: { strategy: "default", config: config.cryosphereState ?? {} },
-      computeLandWaterBudget: { strategy: "default", config: config.landWaterBudget ?? {} },
-      computeClimateDiagnostics: { strategy: "default", config: config.diagnostics ?? {} },
+      computeRadiativeForcing: { strategy: "default", config: config.solarForcing },
+      computeThermalState: { strategy: "default", config: config.thermalState },
+      applyAlbedoFeedback: { strategy: "default", config: config.albedoFeedback },
+      computeCryosphereState: { strategy: "default", config: config.cryosphereState },
+      computeLandWaterBudget: { strategy: "default", config: config.landWaterBudget },
+      computeClimateDiagnostics: { strategy: "default", config: config.diagnostics },
     },
   }),
 } as const);

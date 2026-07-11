@@ -1,19 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { stableStringify } from "@swooper/mapgen-core";
-import { RecipeCompileError } from "@swooper/mapgen-core/compiler/recipe-compile";
 
+import { buildStandardRecipeDefaultConfig } from "../src/recipes/standard/artifacts.js";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 
 const env = {
   seed: 123,
   dimensions: { width: 80, height: 60 },
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-};
-
-const foundationBaseConfig = {
-  "foundation-mantle": { knobs: { plateCount: 28 } },
-  "foundation-lithosphere": { knobs: { plateCount: 28 } },
-  "foundation-tectonics": { knobs: { plateActivity: 0.5 } },
 };
 
 const FOUNDATION_STAGE_IDS = [
@@ -24,65 +18,61 @@ const FOUNDATION_STAGE_IDS = [
   "foundation-projection",
 ] as const;
 
-describe("M11 config layering: knobs-last (foundation + morphology)", () => {
-  it("applies knobs as deterministic transforms over step defaults", () => {
-    const compiled = standardRecipe.compileConfig(env, {
-      "foundation-mantle": { knobs: { plateCount: 12 } },
-      "foundation-lithosphere": { knobs: { plateCount: 12 } },
-      "foundation-tectonics": { knobs: { plateActivity: 0.8 } },
-      "morphology-coasts": {
-        knobs: { seaLevel: "water-heavy", coastRuggedness: "rugged" },
-        waterCoverage: { targetWaterPercent: 60 },
-        coastlineShape: {
-          plateBias: {
-            threshold: 0.4,
-            power: 1.4,
-            convergent: 2.2,
-            transform: 0.3,
-            divergent: -0.3,
-            interior: 0.5,
-            bayWeight: 1.0,
-            bayNoiseBonus: 0.6,
-            fjordWeight: 0.7,
-          },
-          bay: { noiseGateAdd: 0, rollDenActive: 4, rollDenDefault: 5 },
-          fjord: { baseDenom: 12, activeBonus: 1, passiveBonus: 2 },
-        },
+describe("M11 config layering: authored config and semantic knobs", () => {
+  it("uses direct plate authorities and applies remaining knob transforms", () => {
+    const config = structuredClone(buildStandardRecipeDefaultConfig());
+    config["foundation-mantle"].meshResolution.plateCount = 12;
+    config["foundation-lithosphere"].platePartition.plateCount = 12;
+    config["foundation-tectonics"].knobs.plateActivity = 0.8;
+    config["morphology-coasts"].knobs.seaLevel = "water-heavy";
+    config["morphology-coasts"].knobs.coastRuggedness = "rugged";
+    config["morphology-coasts"].waterCoverage.targetWaterPercent = 60;
+    config["morphology-coasts"].coastlineShape = {
+      plateBias: {
+        threshold: 0.4,
+        power: 1.4,
+        convergent: 2.2,
+        transform: 0.3,
+        divergent: -0.3,
+        interior: 0.5,
+        bayWeight: 1.0,
+        bayNoiseBonus: 0.6,
+        fjordWeight: 0.7,
       },
-      "morphology-erosion": {
-        knobs: { erosion: "high" },
-        geomorphicCycle: {
-          geomorphology: {
-            fluvial: { rate: 0.2, m: 0.5, n: 1.0 },
-            diffusion: { rate: 0.2, talus: 0.5 },
-            deposition: { rate: 0.1 },
-            eras: 2,
-          },
-          worldAge: "mature",
-        },
+      bay: { noiseGateAdd: 0, rollDenActive: 4, rollDenDefault: 5 },
+      fjord: { baseDenom: 12, activeBonus: 1, passiveBonus: 2 },
+    };
+    config["morphology-erosion"].knobs.erosion = "high";
+    config["morphology-erosion"].geomorphicCycle = {
+      geomorphology: {
+        fluvial: { rate: 0.2, m: 0.5, n: 1.0 },
+        diffusion: { rate: 0.2, talus: 0.5 },
+        deposition: { rate: 0.1 },
+        eras: 2,
       },
-      "morphology-features": {
-        knobs: { volcanism: "high", orogeny: "high" },
-        mountainRanges: {
-          tectonicActivity: 1.0,
-          rangeSystemSpacingTiles: 20,
-          rangeSystemLengthTiles: 22,
-          provinceRadiusTiles: 4,
-          ridgeWidthTiles: 1,
-          foothillExtentTiles: 3,
-          interiorHighlandExpression: 0.55,
-          terrainTextureFractalMix: 0.45,
-          erosionMaturity: 0.45,
-          tectonicSignalSensitivity: 1.0,
-        },
-        volcanoes: { baseDensity: 0.01, hotspotWeight: 0.12, convergentMultiplier: 2.4 },
-      },
-      "map-morphology": {},
-    });
+      worldAge: "mature",
+    };
+    config["morphology-features"].knobs.volcanism = "high";
+    config["morphology-features"].knobs.orogeny = "high";
+    config["morphology-features"].mountainRanges = {
+      tectonicActivity: 1.0,
+      rangeSystemSpacingTiles: 20,
+      rangeSystemLengthTiles: 22,
+      provinceRadiusTiles: 4,
+      ridgeWidthTiles: 1,
+      foothillExtentTiles: 3,
+      interiorHighlandExpression: 0.55,
+      terrainTextureFractalMix: 0.45,
+      erosionMaturity: 0.45,
+      tectonicSignalSensitivity: 1.0,
+    };
+    config["morphology-features"].volcanoes.baseDensity = 0.01;
+    config["morphology-features"].volcanoes.hotspotWeight = 0.12;
+    config["morphology-features"].volcanoes.convergentMultiplier = 2.4;
+    const compiled = standardRecipe.compileConfig(env, config);
 
     // Foundation:
-    // - plateCount is the authored override for the selected map size; it is a
-    //   cross-stage knob, so it reaches both the mantle (mesh) and plates (graph).
+    // plateCount is authored independently at each owning operation boundary.
     const mantle = compiled["foundation-mantle"];
     const plates = compiled["foundation-lithosphere"];
     const tectonics = compiled["foundation-tectonics"];
@@ -184,12 +174,11 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
   });
 
   it("compiles deterministically for identical inputs", () => {
-    const config = {
-      ...foundationBaseConfig,
-      "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal" } },
-    };
-    const first = standardRecipe.compileConfig(env, config) as Record<string, unknown>;
-    const second = standardRecipe.compileConfig(env, config) as Record<string, unknown>;
+    const config = structuredClone(buildStandardRecipeDefaultConfig());
+    config["morphology-coasts"].knobs.seaLevel = "earthlike";
+    config["morphology-coasts"].knobs.coastRuggedness = "normal";
+    const first = standardRecipe.compileConfig(env, config);
+    const second = standardRecipe.compileConfig(env, config);
     for (const stageId of FOUNDATION_STAGE_IDS) {
       expect(stableStringify(first[stageId]), stageId).toBe(stableStringify(second[stageId]));
     }
@@ -204,58 +193,12 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
       oceanicAbyssalDepth: 0.84,
     };
 
-    const compiled = standardRecipe.compileConfig(env, {
-      ...foundationBaseConfig,
-      "foundation-orogeny": { crustCharacter },
-    });
+    const config = structuredClone(buildStandardRecipeDefaultConfig());
+    config["foundation-orogeny"].crustCharacter = crustCharacter;
+    const compiled = standardRecipe.compileConfig(env, config);
 
     const op = compiled["foundation-orogeny"]["crust-evolution"].computeCrustEvolution;
     expect(op.strategy).toBe("default");
     expect(op.config).toEqual(crustCharacter);
-  });
-
-  it("lets explicit Foundation Orogeny knobs override their coupled crustCharacter fields", () => {
-    const compiled = standardRecipe.compileConfig(env, {
-      ...foundationBaseConfig,
-      "foundation-orogeny": {
-        knobs: {
-          continentalAbundance: 1,
-          continentalRelief: 0,
-        },
-        crustCharacter: {
-          continentalSurvivalMaturity: 0.72,
-          continentalFreeboard: 0.5,
-          hyperextensionBreakupBase: 0.18,
-          thinningThicknessLoss: 0.62,
-          oceanicAbyssalDepth: 0.84,
-        },
-      },
-    });
-
-    const config = compiled["foundation-orogeny"]["crust-evolution"].computeCrustEvolution.config;
-    expect(config.continentalSurvivalMaturity).toBeCloseTo(0.4, 6);
-    expect(config.hyperextensionBreakupBase).toBeCloseTo(0.3, 6);
-    expect(config.continentalFreeboard).toBeCloseTo(0.15, 6);
-    expect(config.thinningThicknessLoss).toBeCloseTo(0.4, 6);
-    expect(config.oceanicAbyssalDepth).toBeCloseTo(0.35, 6);
-  });
-
-  it("rejects stale internal ridge/foothill mountain-family config on the public surface", () => {
-    expect(() =>
-      standardRecipe.compileConfig(env, {
-        "morphology-features": {
-          mountains: {
-            ridges: {
-              strategy: "default",
-              config: { tectonicIntensity: 1.0 },
-            },
-            foothills: {
-              strategy: "default",
-              config: { tectonicIntensity: 0.8 },
-            },
-          },
-        },
-      })
-    ).toThrow(RecipeCompileError);
   });
 });

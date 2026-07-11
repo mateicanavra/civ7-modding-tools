@@ -11,7 +11,7 @@ import {
 import type { TraceEvent } from "@mapgen/trace/index.js";
 import { Type } from "typebox";
 
-const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
+const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("pipeline tracing", () => {
   it("emits run/step timing events with runId and plan fingerprint", () => {
@@ -160,7 +160,7 @@ describe("pipeline tracing", () => {
     };
 
     try {
-      recipe.run(ctx, env, { foundation: { alpha: {} } });
+      recipe.run(ctx, env, { foundation: { knobs: {}, alpha: {} } });
     } finally {
       console.log = originalLog;
     }

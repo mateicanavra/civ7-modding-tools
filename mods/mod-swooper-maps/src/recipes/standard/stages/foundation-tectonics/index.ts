@@ -18,7 +18,7 @@ const FoundationPlateActivityKnobSchema = Type.Number({
 export default createStage({
   id: "foundation-tectonics",
   knobsSchema: Type.Object(
-    { plateActivity: Type.Optional(FoundationPlateActivityKnobSchema) },
+    { plateActivity: FoundationPlateActivityKnobSchema },
     {
       additionalProperties: false,
       description:

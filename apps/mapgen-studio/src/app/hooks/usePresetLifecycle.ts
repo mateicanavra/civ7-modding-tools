@@ -6,7 +6,7 @@ import {
   applyPresetConfig,
   createStudioEditorCanonicalConfig,
   formatPresetErrors,
-  getMaterializedRecipeDefaultConfig,
+  getRecipeDefaultConfig,
   isPlainObject,
 } from "../../features/configAuthoring/canonicalConfig";
 import type { PresetErrorState } from "../../features/presets/dialogState";
@@ -75,7 +75,6 @@ function editorCanonicalConfig(args: {
             recipe: "standard",
             sortIndex: existing.sortIndex,
             latitudeBounds: existing.latitudeBounds,
-            ...(existing.logPrefix === undefined ? {} : { logPrefix: existing.logPrefix }),
           },
         }),
     config: args.config,
@@ -216,7 +215,7 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
         {
           kind: "editor",
           canonicalConfig: editorCanonicalConfig({
-            config: getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "preset-none"),
+            config: getRecipeDefaultConfig(recipeSettings.recipe, "preset-none"),
           }),
         },
         recipeSettings
@@ -314,7 +313,7 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
         return;
       }
       const nextCanonicalConfig = editorCanonicalConfig({
-        config: getMaterializedRecipeDefaultConfig(
+        config: getRecipeDefaultConfig(
           nextSettings.recipe,
           nextSettings.recipe === recipeSettings.recipe ? "preset-none" : "recipe-switch"
         ),
@@ -369,7 +368,7 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
   const recoverWithNewEditorConfig = useCallback(() => {
     const nextSettings = { ...recipeSettings, preset: "none" };
     const canonicalConfig = editorCanonicalConfig({
-      config: getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "recovery-new-editor"),
+      config: getRecipeDefaultConfig(recipeSettings.recipe, "recovery-new-editor"),
     });
     previousSelectionRef.current = {
       recipe: nextSettings.recipe,

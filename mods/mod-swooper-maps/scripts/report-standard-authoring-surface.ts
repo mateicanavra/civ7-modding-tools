@@ -124,9 +124,6 @@ const SHIPPED_CONFIG_REFS = [
   "mods/mod-swooper-maps/src/maps/configs/shattered-ring.config.json",
   "mods/mod-swooper-maps/src/maps/configs/sundered-archipelago.config.json",
   "mods/mod-swooper-maps/src/maps/configs/swooper-desert-mountains.config.json",
-  "mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts",
-  "mods/mod-swooper-maps/src/maps/presets/realism/old-erosion.config.ts",
-  "mods/mod-swooper-maps/src/maps/presets/realism/young-tectonics.config.ts",
   "apps/mapgen-studio/src/ui/data/defaultConfig.ts",
 ];
 

@@ -90,19 +90,19 @@ function addLandmass(
   }
 }
 
-function plan(input: StartInput, config: Record<string, unknown> = {}) {
-  return runOpValidated(planStarts, input, {
-    strategy: "default",
-    config: {
-      minContiguousLandTiles: 12,
-      minExpansionLandTiles: 6,
-      minIslandClusterLandTiles: 8,
-      maxIslandStartCoastDistance: 1,
-      spacingFloorTiles: 2,
-      desiredSpacingTiles: 4,
-      ...config,
-    },
-  });
+function plan(
+  input: StartInput,
+  configure?: (config: (typeof planStarts.defaultConfig)["config"]) => void
+) {
+  const selection = structuredClone(planStarts.defaultConfig);
+  selection.config.minContiguousLandTiles = 12;
+  selection.config.minExpansionLandTiles = 6;
+  selection.config.minIslandClusterLandTiles = 8;
+  selection.config.maxIslandStartCoastDistance = 1;
+  selection.config.spacingFloorTiles = 2;
+  selection.config.desiredSpacingTiles = 4;
+  configure?.(selection.config);
+  return runOpValidated(planStarts, input, selection);
 }
 
 describe("start viability planning", () => {
@@ -146,11 +146,11 @@ describe("start viability planning", () => {
       [6, 6],
     ]);
 
-    const result = plan(input, {
-      minContiguousLandTiles: 20,
-      minExpansionLandTiles: 10,
-      minIslandClusterLandTiles: 8,
-      islandClusterRadiusTiles: 5,
+    const result = plan(input, (config) => {
+      config.minContiguousLandTiles = 20;
+      config.minExpansionLandTiles = 10;
+      config.minIslandClusterLandTiles = 8;
+      config.islandClusterRadiusTiles = 5;
     });
 
     expect(result.tierCounts.primary).toBe(0);
@@ -179,9 +179,9 @@ describe("start viability planning", () => {
       [11, 6],
     ]);
 
-    const result = plan(input, {
-      minIslandClusterLandTiles: 6,
-      islandClusterRadiusTiles: 4,
+    const result = plan(input, (config) => {
+      config.minIslandClusterLandTiles = 6;
+      config.islandClusterRadiusTiles = 4;
     });
 
     expect(result.tierCounts.primary).toBeGreaterThan(0);
@@ -201,9 +201,9 @@ describe("start viability planning", () => {
     const unsupportedPlot = idx(input.width, 8, 6);
     input.plannedResourcePlotIndices = [supportedPlot];
 
-    const result = plan(input, {
-      resourceSupportRadiusTiles: 2,
-      resourceSupportWeight: 3,
+    const result = plan(input, (config) => {
+      config.resourceSupportRadiusTiles = 2;
+      config.resourceSupportWeight = 3;
     });
 
     expect(result.scoreByTile[supportedPlot]).toBeGreaterThan(result.scoreByTile[unsupportedPlot]);
@@ -248,7 +248,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
     );
 
-    const result = plan(input, { spacingFloorTiles: 3, desiredSpacingTiles: 5 });
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 3;
+      config.desiredSpacingTiles = 5;
+    });
 
     expect(result.status).toBe("full");
     expect(result.seats.length).toBe(2);
@@ -272,7 +275,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
     );
 
-    const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 4 });
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 2;
+      config.desiredSpacingTiles = 4;
+    });
 
     expect(result.seats.length).toBe(2);
     for (const seat of result.seats) {
@@ -308,10 +314,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       Array.from({ length: 36 }, (_value, i) => [10 + (i % 6), 1 + Math.floor(i / 6)] as const)
     );
 
-    const result = plan(input, {
-      minContiguousLandTiles: 12,
-      spacingFloorTiles: 6,
-      desiredSpacingTiles: 6,
+    const result = plan(input, (config) => {
+      config.minContiguousLandTiles = 12;
+      config.spacingFloorTiles = 6;
+      config.desiredSpacingTiles = 6;
     });
 
     expect(result.seats.length).toBe(2);
@@ -336,10 +342,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       Array.from({ length: 12 }, (_value, i) => [1 + (i % 3), 1 + Math.floor(i / 3)] as const)
     );
 
-    const result = plan(input, {
-      minContiguousLandTiles: 12,
-      spacingFloorTiles: 6,
-      desiredSpacingTiles: 6,
+    const result = plan(input, (config) => {
+      config.minContiguousLandTiles = 12;
+      config.spacingFloorTiles = 6;
+      config.desiredSpacingTiles = 6;
     });
 
     expect(result.seats.length).toBe(3);
@@ -362,7 +368,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       [5, 1],
     ]);
 
-    const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 3 });
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 2;
+      config.desiredSpacingTiles = 3;
+    });
 
     expect(result.candidateCount).toBe(0);
     expect(result.settleableTileCount).toBe(5);
@@ -385,7 +394,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       [2, 3],
     ]);
 
-    const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 3 });
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 2;
+      config.desiredSpacingTiles = 3;
+    });
 
     expect(result.seats.length).toBe(3);
     expect(result.seats.every((seat) => seat.plotIndex >= 0)).toBe(true);
@@ -410,7 +422,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       [5, 4],
     ]);
 
-    const result = plan(input, { spacingFloorTiles: 1, desiredSpacingTiles: 2 });
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 1;
+      config.desiredSpacingTiles = 2;
+    });
 
     const unseated = result.seats.filter((seat) => seat.plotIndex < 0);
     expect(unseated.length).toBe(1);
@@ -436,8 +451,12 @@ describe("start selection ladder (op-owned, S4)", () => {
       );
       return input;
     };
-    const a = plan(build(), { spacingFloorTiles: 2, desiredSpacingTiles: 4 });
-    const b = plan(build(), { spacingFloorTiles: 2, desiredSpacingTiles: 4 });
+    const configure = (config: (typeof planStarts.defaultConfig)["config"]) => {
+      config.spacingFloorTiles = 2;
+      config.desiredSpacingTiles = 4;
+    };
+    const a = plan(build(), configure);
+    const b = plan(build(), configure);
     expect(JSON.parse(JSON.stringify(a.seats))).toEqual(JSON.parse(JSON.stringify(b.seats)));
     expect(JSON.parse(JSON.stringify(a.fairnessReport))).toEqual(
       JSON.parse(JSON.stringify(b.fairnessReport))
@@ -459,7 +478,10 @@ describe("start selection ladder (op-owned, S4)", () => {
       Array.from({ length: 40 }, (_value, i) => [9 + (i % 5), 1 + Math.floor(i / 5)] as const)
     );
 
-    const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 4 });
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 2;
+      config.desiredSpacingTiles = 4;
+    });
 
     expect(result.fairnessReport.parity.length).toBe(result.seats.length);
     const gap = result.fairnessReport.worstPairGap;
@@ -481,7 +503,10 @@ describe("start selection ladder (op-owned, S4)", () => {
     );
     input.alivePlayerIds = [7];
 
-    const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 4 });
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 2;
+      config.desiredSpacingTiles = 4;
+    });
 
     expect(result.seats[0]!.playerId).toBe(7);
     expect(result.seats[0]!.playerIdSource).toBe("alive-majors");
@@ -498,12 +523,15 @@ describe("start selection ladder (op-owned, S4)", () => {
     input.coastalLand.fill(0);
     for (let y = 1; y < 8; y++) input.coastalLand[idx(input.width, 1, y)] = 1;
 
-    const neutral = plan(input, { spacingFloorTiles: 0, desiredSpacingTiles: 0 });
+    const neutral = plan(input, (config) => {
+      config.spacingFloorTiles = 0;
+      config.desiredSpacingTiles = 0;
+    });
     input.seatBiases = [{ seatIndex: 0, river: 0, lake: 0, adjacentToCoast: 200 }];
-    const biased = plan(input, {
-      spacingFloorTiles: 0,
-      desiredSpacingTiles: 0,
-      startBiasWeight: 4,
+    const biased = plan(input, (config) => {
+      config.spacingFloorTiles = 0;
+      config.desiredSpacingTiles = 0;
+      config.startBiasWeight = 4;
     });
 
     const coastal = (plotIndex: number) => input.coastalLand[plotIndex] === 1;
@@ -552,7 +580,10 @@ describe("start materializer (thin shell)", () => {
       Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
     );
     input.alivePlayerIds = [4, 9];
-    const planned = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 4 });
+    const planned = plan(input, (config) => {
+      config.spacingFloorTiles = 2;
+      config.desiredSpacingTiles = 4;
+    });
     const { adapter, context } = contextFor(input.width, input.height);
 
     const assignment = materializeStartAssignment({ context, plan: planned });
@@ -587,7 +618,10 @@ describe("start materializer (thin shell)", () => {
       [2, 2],
       [5, 4],
     ]);
-    const planned = plan(input, { spacingFloorTiles: 1, desiredSpacingTiles: 2 });
+    const planned = plan(input, (config) => {
+      config.spacingFloorTiles = 1;
+      config.desiredSpacingTiles = 2;
+    });
     const { adapter, context } = contextFor(input.width, input.height);
 
     const assignment = materializeStartAssignment({ context, plan: planned });

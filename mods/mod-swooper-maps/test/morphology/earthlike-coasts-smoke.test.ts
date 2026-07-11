@@ -3,11 +3,11 @@ import { createMockAdapter } from "@civ7/adapter";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { COAST_TERRAIN, createExtendedMapContext, OCEAN_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
+import { standardConfig } from "../support/standard-config.js";
 
 describe("Earthlike coasts (smoke)", () => {
   it("produces a shallow shelf band beyond the shoreline ring while preserving deep ocean", () => {
@@ -44,7 +44,7 @@ describe("Earthlike coasts (smoke)", () => {
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
+    standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
       | { landMask?: Uint8Array; bathymetry?: Int16Array }
@@ -127,7 +127,7 @@ describe("Earthlike coasts (smoke)", () => {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
       },
-      { strategy: "default", config: {} }
+      structuredClone(computeShelfMask.defaultConfig)
     );
 
     let activeBreakSum = 0;

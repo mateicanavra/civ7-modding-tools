@@ -660,18 +660,10 @@ export function buildBlockedFinalSurfaceParityOutput(args: {
   blockedBy: ReadonlyArray<string>;
   dimensions: ReturnType<typeof dimensionsFromExactAuthorshipEvidence>;
 }) {
-  const exactAuthorshipUnresolvedLinks = Array.isArray(args.exact.unresolvedLinks)
-    ? [
-        ...new Set(
-          args.exact.unresolvedLinks.filter((link): link is string => typeof link === "string")
-        ),
-      ].sort((a, b) => a.localeCompare(b))
-    : [];
   return {
     ok: false,
     parityStatus: "blocked" as const,
     blockedBy: [...new Set(args.blockedBy)].sort((a, b) => a.localeCompare(b)),
-    ...(exactAuthorshipUnresolvedLinks.length === 0 ? {} : { exactAuthorshipUnresolvedLinks }),
     exactAuthorshipSummary: {
       requestId: args.exact.requestId,
       status: args.exact.status,

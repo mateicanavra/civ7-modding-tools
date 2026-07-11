@@ -18,11 +18,6 @@ const StartsBaseSchema = Type.Object(
   }
 );
 
-const StartsOverrideSchema = Type.Partial(StartsBaseSchema, {
-  description:
-    "Optional explicit per-hemisphere player-count overrides; absent fields fall back to the run environment's map-size counts.",
-});
-
 const StartCandidateTierSchema = Type.Union([
   Type.Literal("primary"),
   Type.Literal("islandCluster"),
@@ -376,7 +371,6 @@ const PlanStartsContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      overrides: Type.Optional(StartsOverrideSchema),
       minContiguousLandTiles: Type.Integer({
         minimum: 1,
         maximum: 400,

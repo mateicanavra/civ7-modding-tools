@@ -5,10 +5,19 @@ import { defineOp } from "@mapgen/authoring/index.js";
 import { compileRecipeConfig, RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { Type } from "typebox";
 
-describe("compileRecipeConfig", () => {
-  it("applies canonicalization ordering and op defaults", () => {
-    const calls: string[] = [];
+function expectCompileError(run: () => unknown): RecipeCompileError {
+  try {
+    run();
+  } catch (error) {
+    expect(error).toBeInstanceOf(RecipeCompileError);
+    return error as RecipeCompileError;
+  }
+  throw new Error("Expected RecipeCompileError");
+}
 
+describe("compileRecipeConfig", () => {
+  it("materializes stage-produced op defaults before running normalizers", () => {
+    const calls: string[] = [];
     const op = defineOp({
       kind: "plan",
       id: "test/op",
@@ -16,75 +25,58 @@ describe("compileRecipeConfig", () => {
       output: Type.Object({}, { additionalProperties: false }),
       strategies: {
         default: Type.Object(
-          { tag: Type.Optional(Type.String()) },
-          { additionalProperties: false, default: {} }
-        ),
-      },
-    } as const);
-
-    const stepSchema = Type.Object(
-      {
-        value: Type.String({ default: "base" }),
-        trees: Type.Object(
-          {
-            strategy: Type.String(),
-            config: Type.Object(
-              { tag: Type.Optional(Type.String()) },
-              { additionalProperties: false, default: {} }
-            ),
-          },
+          { tag: Type.String({ default: "before-op" }) },
           { additionalProperties: false }
         ),
       },
-      { additionalProperties: false, default: {} }
-    );
-
+    } as const);
     const step = {
       contract: {
         id: "alpha",
-        schema: stepSchema,
-        ops: {
-          trees: op,
-        },
+        schema: Type.Object(
+          { value: Type.String(), trees: op.config },
+          { additionalProperties: false }
+        ),
+        ops: { trees: op },
       },
       normalize: (config: unknown) => {
         calls.push("step.normalize");
         const value = config as {
-          value?: string;
-          trees?: { strategy?: string; config?: Record<string, unknown> };
+          value: string;
+          trees: { strategy: string; config: { tag: string } };
         };
-        expect(value.value).toBe("base");
-        expect(value.trees).toEqual({ strategy: "default", config: {} });
+        expect(value.trees).toEqual({ strategy: "default", config: { tag: "before-op" } });
         return { ...value, value: "step" };
       },
     };
-
+    const knobsSchema = Type.Object({}, { additionalProperties: false });
+    const publicSchema = Type.Object(
+      { publicValue: Type.String() },
+      { additionalProperties: false }
+    );
     const stage = {
       id: "stage",
+      knobsSchema,
+      public: publicSchema,
       surfaceSchema: Type.Object(
         {
-          knobs: Type.Optional(Type.Object({}, { additionalProperties: false, default: {} })),
-          alpha: Type.Optional(Type.Object({}, { additionalProperties: false, default: {} })),
+          knobs: knobsSchema,
+          ...publicSchema.properties,
         },
-        { additionalProperties: false, default: {} }
+        { additionalProperties: false }
       ),
-      toInternal: ({
-        stageConfig,
-      }: {
-        stageConfig: { knobs?: Record<string, unknown>; alpha?: unknown };
-      }) => {
-        const { knobs = {}, ...rest } = stageConfig ?? {};
-        return { knobs, rawSteps: { alpha: rest.alpha ?? {} } };
-      },
+      toInternal: ({ stageConfig }: { stageConfig: { knobs: {}; publicValue: string } }) => ({
+        knobs: stageConfig.knobs,
+        rawSteps: { alpha: { value: stageConfig.publicValue } },
+      }),
       steps: [step],
     };
-
     const compileOpsById: Record<string, DomainOpCompileAny> = {
       [op.id]: {
         id: op.id,
-        normalize: (envelope: { config?: Record<string, unknown> }) => {
+        normalize: (envelope: { strategy: string; config: { tag: string } }) => {
           calls.push("op.normalize");
-          return { ...envelope, config: { ...(envelope.config ?? {}), tag: "op" } };
+          return { ...envelope, config: { ...envelope.config, tag: "op" } };
         },
       } as DomainOpCompileAny,
     };
@@ -92,7 +84,7 @@ describe("compileRecipeConfig", () => {
     const result = compileRecipeConfig({
       env: {},
       recipe: { stages: [stage] },
-      config: { stage: { alpha: {} } },
+      config: { stage: { knobs: {}, publicValue: "base" } },
       compileOpsById,
     });
 
@@ -107,109 +99,203 @@ describe("compileRecipeConfig", () => {
     });
   });
 
-  it("compiles public stage config into internal step op envelopes", () => {
-    const op = defineOp({
-      kind: "plan",
-      id: "test/public-boundary-op",
-      input: Type.Object({}, { additionalProperties: false }),
-      output: Type.Object({}, { additionalProperties: false }),
-      strategies: {
-        default: Type.Object(
-          { internalRate: Type.Number({ default: 1 }) },
-          { additionalProperties: false, default: {} }
-        ),
-      },
-    } as const);
-
+  it("rejects incomplete public config without changing it", () => {
+    const knobsSchema = Type.Object({}, { additionalProperties: false });
+    const publicSchema = Type.Object(
+      { productRate: Type.Number({ default: 2 }) },
+      { additionalProperties: false }
+    );
     const stage = {
       id: "stage",
+      knobsSchema,
+      public: publicSchema,
       surfaceSchema: Type.Object(
         {
-          knobs: Type.Optional(Type.Object({}, { additionalProperties: false, default: {} })),
-          productRate: Type.Optional(Type.Number({ default: 2 })),
+          knobs: knobsSchema,
+          ...publicSchema.properties,
         },
-        { additionalProperties: false, default: {} }
+        { additionalProperties: false }
       ),
-      toInternal: ({ stageConfig }: { stageConfig: { productRate?: number } }) => ({
-        knobs: {},
-        rawSteps: {
-          alpha: {
-            terrain: {
-              strategy: "default",
-              config: { internalRate: stageConfig.productRate ?? 2 },
-            },
-          },
-        },
+      toInternal: () => ({ knobs: {}, rawSteps: {} }),
+      steps: [],
+    };
+    const incomplete = { stage: { knobs: {}, productRate: 2 } };
+    Reflect.deleteProperty(incomplete.stage, "productRate");
+
+    const error = expectCompileError(() =>
+      compileRecipeConfig({
+        env: {},
+        recipe: { stages: [stage] },
+        config: incomplete,
+        compileOpsById: {},
+      })
+    );
+
+    expect(
+      error.errors.some(
+        (item) => item.path === "/config/stage" && item.message.includes("productRate")
+      )
+    ).toBe(true);
+    expect(incomplete).toEqual({ stage: { knobs: {} } });
+  });
+
+  it("rejects a step normalizer that deletes a required field", () => {
+    const knobsSchema = Type.Object({}, { additionalProperties: false });
+    const publicSchema = Type.Object({}, { additionalProperties: false });
+    const stage = {
+      id: "stage",
+      knobsSchema,
+      public: publicSchema,
+      surfaceSchema: Type.Object({ knobs: knobsSchema }, { additionalProperties: false }),
+      toInternal: ({ stageConfig }: { stageConfig: { knobs: {} } }) => ({
+        knobs: stageConfig.knobs,
+        rawSteps: { alpha: { requiredValue: "present" } },
       }),
       steps: [
         {
           contract: {
             id: "alpha",
-            schema: Type.Object(
-              { terrain: op.config },
-              { additionalProperties: false, default: {} }
-            ),
+            schema: Type.Object({ requiredValue: Type.String() }, { additionalProperties: false }),
+          },
+          normalize: () => ({}),
+        },
+      ],
+    };
+
+    const error = expectCompileError(() =>
+      compileRecipeConfig({
+        env: {},
+        recipe: { stages: [stage] },
+        config: { stage: { knobs: {} } },
+        compileOpsById: {},
+      })
+    );
+
+    expect(error.errors.some((item) => item.code === "normalize.not.shape-preserving")).toBe(true);
+    expect(
+      error.errors.some(
+        (item) => item.path === "/config/stage/alpha" && item.message.includes("requiredValue")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects an op normalizer that deletes a required envelope field", () => {
+    const op = defineOp({
+      kind: "plan",
+      id: "test/delete-required",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.Object({}, { additionalProperties: false }),
+      strategies: {
+        default: Type.Object(
+          { amount: Type.Number({ default: 1 }) },
+          { additionalProperties: false }
+        ),
+      },
+    } as const);
+    const knobsSchema = Type.Object({}, { additionalProperties: false });
+    const publicSchema = Type.Object({}, { additionalProperties: false });
+    const stage = {
+      id: "stage",
+      knobsSchema,
+      public: publicSchema,
+      surfaceSchema: Type.Object({ knobs: knobsSchema }, { additionalProperties: false }),
+      toInternal: ({ stageConfig }: { stageConfig: { knobs: {} } }) => ({
+        knobs: stageConfig.knobs,
+        rawSteps: { alpha: {} },
+      }),
+      steps: [
+        {
+          contract: {
+            id: "alpha",
+            schema: Type.Object({ terrain: op.config }, { additionalProperties: false }),
             ops: { terrain: op },
           },
         },
       ],
     };
 
-    const result = compileRecipeConfig({
-      env: {},
-      recipe: { stages: [stage] },
-      config: { stage: { productRate: 4 } },
-      compileOpsById: {
-        [op.id]: {
-          id: op.id,
-          normalize: (envelope: unknown) => envelope,
-        } as DomainOpCompileAny,
-      },
-    });
-
-    expect(result).toEqual({
-      stage: {
-        alpha: {
-          terrain: {
-            strategy: "default",
-            config: { internalRate: 4 },
-          },
+    const error = expectCompileError(() =>
+      compileRecipeConfig({
+        env: {},
+        recipe: { stages: [stage] },
+        config: { stage: { knobs: {} } },
+        compileOpsById: {
+          [op.id]: {
+            id: op.id,
+            normalize: () => ({ config: { amount: 1 } }),
+          } as DomainOpCompileAny,
         },
-      },
-    });
+      })
+    );
+
+    expect(error.errors.some((item) => item.path === "/config/stage/alpha/terrain")).toBe(true);
   });
 
   it("rejects unknown step ids returned by stage compilation", () => {
+    const knobsSchema = Type.Object({}, { additionalProperties: false });
+    const publicSchema = Type.Object({}, { additionalProperties: false });
     const stage = {
       id: "stage",
-      surfaceSchema: Type.Object({}, { additionalProperties: false, default: {} }),
+      knobsSchema,
+      public: publicSchema,
+      surfaceSchema: Type.Object({ knobs: knobsSchema }, { additionalProperties: false }),
       toInternal: () => ({ knobs: {}, rawSteps: { bogus: {} } }),
       steps: [
         {
           contract: {
             id: "alpha",
-            schema: Type.Object({}, { additionalProperties: false, default: {} }),
+            schema: Type.Object({}, { additionalProperties: false }),
           },
         },
       ],
     };
 
-    let error: RecipeCompileError | null = null;
-    try {
+    const error = expectCompileError(() =>
       compileRecipeConfig({
         env: {},
         recipe: { stages: [stage] },
-        config: { stage: {} },
+        config: { stage: { knobs: {} } },
         compileOpsById: {},
-      });
-    } catch (err) {
-      error = err as RecipeCompileError;
-    }
+      })
+    );
 
-    expect(error).toBeInstanceOf(RecipeCompileError);
-    expect(error?.errors[0]?.code).toBe("stage.unknown-step-id");
-    expect(error?.errors[0]?.path).toBe("/config/stage/bogus");
-    expect(error?.errors[0]?.stageId).toBe("stage");
-    expect(error?.errors[0]?.stepId).toBe("bogus");
+    expect(error.errors[0]).toMatchObject({
+      code: "stage.unknown-step-id",
+      path: "/config/stage/bogus",
+      stageId: "stage",
+      stepId: "bogus",
+    });
+  });
+
+  it("reports generic unknown-stage diagnostics", () => {
+    const knobsSchema = Type.Object({}, { additionalProperties: false });
+    const surfaceSchema = Type.Object({ knobs: knobsSchema }, { additionalProperties: false });
+    const stages = ["ecology-pedology", "ecology-biomes"].map((id) => ({
+      id,
+      knobsSchema,
+      surfaceSchema,
+      toInternal: () => ({ knobs: {}, rawSteps: {} }),
+      steps: [],
+    }));
+    const config = {
+      "ecology-pedology": { knobs: {} },
+      "ecology-biomes": { knobs: {} },
+    };
+    Reflect.set(config, "ecology", { knobs: {} });
+
+    const error = expectCompileError(() =>
+      compileRecipeConfig({
+        env: {},
+        recipe: { stages },
+        config,
+        compileOpsById: {},
+      })
+    );
+
+    expect(error.errors).toContainEqual({
+      code: "config.invalid",
+      path: "/config/ecology",
+      message: 'Unknown stage id "ecology"',
+    });
   });
 });

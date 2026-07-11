@@ -9,53 +9,11 @@ const WIDTH = 24;
 const HEIGHT = 14;
 const SIZE = WIDTH * HEIGHT;
 
-type PlanIntent = {
-  plotIndex: number;
-  x: number;
-  y: number;
-  resourceType: string;
-  family: "aquatic" | "cultivated" | "terrestrial" | "geological";
-  laneId: string;
-  laneKind: "land" | "water";
-  phase: "rotation" | "range-floor" | "region-minimum";
-  order: number;
-  regionSlot: number;
-  landmassId: number;
-  inHabitat: boolean;
-};
+type AdjustInput = Parameters<typeof resources.ops.adjustResourceSupport.run>[0];
+type PlanIntent = AdjustInput["plan"]["intents"][number];
+type PlanPerType = AdjustInput["plan"]["perType"][number];
 
-type AdjustResult = {
-  plannedCount: number;
-  moveCount: number;
-  addCount: number;
-  intents: ReadonlyArray<
-    PlanIntent & {
-      phase: PlanIntent["phase"] | "support";
-      support?: {
-        action: "move" | "add";
-        reason: "support-floor" | "support-equity";
-        seatIndex: number;
-        fromPlotIndex?: number;
-      };
-    }
-  >;
-  adjustments: ReadonlyArray<{
-    action: "move" | "add";
-    reason: "support-floor" | "support-equity";
-    resourceType: string;
-    fromPlotIndex?: number;
-    toPlotIndex: number;
-    seatIndex: number;
-  }>;
-  shortfalls: ReadonlyArray<{ seatIndex: number; reason: string; missing: number }>;
-  perStart: ReadonlyArray<{
-    seatIndex: number;
-    plotIndex: number;
-    supportBefore: number;
-    supportAfter: number;
-  }>;
-  equity: { gapBefore: number | null; gapAfter: number | null; tolerance: number };
-};
+type AdjustResult = ReturnType<typeof resources.ops.adjustResourceSupport.run>;
 
 function plotAt(x: number, y: number): number {
   return y * WIDTH + x;
@@ -64,7 +22,7 @@ function plotAt(x: number, y: number): number {
 function intentAt(args: {
   x: number;
   y: number;
-  resourceType: string;
+  resourceType: PlanIntent["resourceType"];
   order: number;
   inHabitat?: boolean;
 }): PlanIntent {
@@ -86,17 +44,17 @@ function intentAt(args: {
 }
 
 function perTypeRow(args: {
-  resourceType: string;
+  resourceType: PlanPerType["resourceType"];
   plannedCount: number;
   minCount: number;
   maxCount: number;
   spacingFloorTiles?: number;
-}) {
+}): PlanPerType {
   return {
     resourceType: args.resourceType,
-    family: "geological" as const,
+    family: "geological",
     laneId: "probe",
-    laneKind: "land" as const,
+    laneKind: "land",
     weight: 10,
     effectiveWeight: 1,
     authoredTargetCount: args.plannedCount,
@@ -116,25 +74,13 @@ function perTypeRow(args: {
 }
 
 function buildInput(args: {
-  intents: PlanIntent[];
-  perType: ReturnType<typeof perTypeRow>[];
-  starts: Array<{ seatIndex: number; playerId: number; plotIndex: number }>;
-  regionMinimums?: Array<{
-    resourceType: string;
-    regionSlot: number;
-    required: number;
-    fromRotation: number;
-    forced: number;
-    shortfall: number;
-  }>;
-  affinityRules?: Array<{
-    resourceA: string;
-    resourceB: string;
-    relation: "affinity" | "exclusion";
-    radiusTiles: number;
-  }>;
-  legalMaskByType?: Record<string, Uint8Array>;
-}) {
+  intents: AdjustInput["plan"]["intents"];
+  perType: AdjustInput["plan"]["perType"];
+  starts: AdjustInput["starts"];
+  regionMinimums?: AdjustInput["plan"]["regionMinimums"];
+  affinityRules?: AdjustInput["plan"]["settings"]["affinityRules"];
+  legalMaskByType?: Partial<Record<PlanIntent["resourceType"], Uint8Array>>;
+}): AdjustInput {
   const allOnes = new Uint8Array(SIZE).fill(1);
   const intensity = new Float32Array(SIZE).fill(1);
   const regionSlotByTile = new Uint8Array(SIZE);
@@ -181,12 +127,11 @@ function buildInput(args: {
 
 function run(
   input: ReturnType<typeof buildInput>,
-  config: Record<string, unknown> = {}
+  configure?: (config: (typeof resources.ops.adjustResourceSupport.defaultConfig)["config"]) => void
 ): AdjustResult {
-  return runOpValidated(resources.ops.adjustResourceSupport, input as never, {
-    strategy: "default",
-    config,
-  }) as unknown as AdjustResult;
+  const selection = structuredClone(resources.ops.adjustResourceSupport.defaultConfig);
+  configure?.(selection.config);
+  return runOpValidated(resources.ops.adjustResourceSupport, input, selection);
 }
 
 function supportCount(intents: AdjustResult["intents"], seatPlot: number, radius: number): number {
@@ -450,7 +395,9 @@ describe("adjust-resource-support operation contract", () => {
 
   it("passes the plan through unchanged when disabled, recording deficits as typed shortfalls", () => {
     const input = clusterScenario();
-    const result = run(input, { enabled: false });
+    const result = run(input, (config) => {
+      config.enabled = false;
+    });
 
     expect(result.moveCount).toBe(0);
     expect(result.addCount).toBe(0);

@@ -5,17 +5,19 @@ import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import { runOpValidated } from "../support/compiler-helpers.js";
 
-type Demand = {
-  resourceType: string;
-  weight: number;
-  targetCount: number;
-  minCount: number;
-  maxCount: number;
-  minimumPerHemisphere?: number;
-  requiredForAge?: boolean;
-};
+type SelectInput = Parameters<typeof resources.ops.selectResourceSites.run>[0];
+type Demand = Pick<
+  SelectInput["demands"][number],
+  "resourceType" | "weight" | "targetCount" | "minCount" | "maxCount"
+> &
+  Partial<Pick<SelectInput["demands"][number], "minimumPerHemisphere" | "requiredForAge">>;
 
-function buildInput(args: { width: number; height: number; demands: Demand[]; seed?: number }) {
+function buildInput(args: {
+  width: number;
+  height: number;
+  demands: Demand[];
+  seed?: number;
+}): SelectInput {
   const { width, height } = args;
   const size = width * height;
   const allLand = new Uint8Array(size).fill(1);
@@ -34,11 +36,11 @@ function buildInput(args: { width: number; height: number; demands: Demand[]; se
     landmassTileCounts: [size],
     regionSlotByTile,
     minimumAmountModifier: 0,
-    demands: args.demands.map((demand) => ({
+    demands: args.demands.map((demand): SelectInput["demands"][number] => ({
       resourceType: demand.resourceType,
-      family: "geological" as const,
+      family: "geological",
       laneId: "probe",
-      laneKind: "land" as const,
+      laneKind: "land",
       weight: demand.weight,
       targetCount: demand.targetCount,
       minCount: demand.minCount,
@@ -52,41 +54,15 @@ function buildInput(args: { width: number; height: number; demands: Demand[]; se
   };
 }
 
-type SelectResult = {
-  plannedCount: number;
-  intents: ReadonlyArray<{
-    plotIndex: number;
-    resourceType: string;
-    phase: string;
-  }>;
-  perType: ReadonlyArray<{
-    resourceType: string;
-    weight: number;
-    plannedCount: number;
-    rotationCount: number;
-    regionMinimumCount: number;
-    minCount: number;
-    maxCount: number;
-    spacingFloorTiles: number;
-    shortfalls: ReadonlyArray<{ reason: string; count: number }>;
-  }>;
-  regionMinimums: ReadonlyArray<{
-    resourceType: string;
-    regionSlot: number;
-    required: number;
-    forced: number;
-    shortfall: number;
-  }>;
-};
+type SelectResult = ReturnType<typeof resources.ops.selectResourceSites.run>;
 
 function run(
   input: ReturnType<typeof buildInput>,
-  config: Record<string, unknown> = {}
+  configure?: (config: (typeof resources.ops.selectResourceSites.defaultConfig)["config"]) => void
 ): SelectResult {
-  return runOpValidated(resources.ops.selectResourceSites, input as never, {
-    strategy: "default",
-    config,
-  }) as unknown as SelectResult;
+  const selection = structuredClone(resources.ops.selectResourceSites.defaultConfig);
+  configure?.(selection.config);
+  return runOpValidated(resources.ops.selectResourceSites, input, selection);
 }
 
 describe("select-resource-sites operation contract", () => {
@@ -106,13 +82,15 @@ describe("select-resource-sites operation contract", () => {
       buildInput({
         width: 20,
         height: 12,
-        demands: [5, 10, 20, 40].map((weight, index) => ({
-          resourceType: `RESOURCE_W${weight}`,
-          weight,
-          targetCount: 60,
-          minCount: 0,
-          maxCount: 60,
-        })),
+        demands: [5, 10, 20, 40].map(
+          (weight): Demand => ({
+            resourceType: `RESOURCE_W${weight}`,
+            weight,
+            targetCount: 60,
+            minCount: 0,
+            maxCount: 60,
+          })
+        ),
       })
     );
     const byWeight = [...result.perType].sort((a, b) => a.weight - b.weight);
@@ -232,11 +210,11 @@ describe("select-resource-sites operation contract", () => {
     ];
     const width = 32;
     const baseline = run(buildInput({ width, height: 20, demands }));
-    const sparse = run(buildInput({ width, height: 20, demands }), {
-      sparsity: 1,
-      affinityRules: [
+    const sparse = run(buildInput({ width, height: 20, demands }), (config) => {
+      config.sparsity = 1;
+      config.affinityRules = [
         { resourceA: "RESOURCE_A", resourceB: "RESOURCE_B", relation: "exclusion", radiusTiles: 4 },
-      ],
+      ];
     });
 
     expect(sparse.plannedCount).toBeLessThan(baseline.plannedCount);

@@ -1,21 +1,25 @@
 ---
 id: ADR-ER1-035
 title: "Config normalization and derived defaults (beyond schema defaults)"
-status: accepted
+status: superseded
 date: 2026-01-02
 project: engine-refactor-v1
-risk: stable
+risk: historical
 system: mapgen
 component: authoring-sdk
 concern: config-normalization
 supersedes: []
-superseded_by: null
+superseded_by: ADR-ER1-037
 sources:
   - "SPEC-architecture-overview"
   - "SPEC-step-domain-operation-modules"
 ---
 
 # ADR-ER1-035: Config normalization and derived defaults (beyond schema defaults)
+
+> Superseded by ADR-ER1-037. This inventory remains useful history, but its
+> public-config defaulting, cleaning, optional-property, and resolver guidance
+> must not drive current implementation.
 
 ## Context
 

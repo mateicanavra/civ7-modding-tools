@@ -57,7 +57,9 @@ describe("resolveImportedPreset", () => {
     const result = resolveImportedPreset({ presetFile, findRecipeArtifacts });
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.config).toEqual(config);
+      expect(result.config).toStrictEqual(config);
+      expect(result.config).not.toBe(config);
+      expect(Object.isFrozen(result.config)).toBe(true);
     }
   });
 
@@ -78,8 +80,6 @@ describe("resolveImportedPreset", () => {
     const result = resolveImportedPreset({ presetFile, findRecipeArtifacts });
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("incomplete imported config was accepted");
-    expect(result.details).toContain(
-      "/config/import: Config must be the complete recipe config JSON produced by the current recipe artifacts."
-    );
+    expect(result.details?.some((detail) => detail.startsWith("/config/import:"))).toBe(true);
   });
 });

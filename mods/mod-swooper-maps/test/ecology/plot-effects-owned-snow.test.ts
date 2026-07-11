@@ -31,25 +31,7 @@ describe("plot effects (owned)", () => {
 
     const scoreSnowSelection = normalizeOpSelectionOrThrow(
       ecology.ops.scorePlotEffectsSnow,
-      {
-        strategy: "default",
-        config: {
-          elevationStrategy: "percentile",
-          elevationPercentileMin: 0,
-          elevationPercentileMax: 1,
-          elevationMin: 0,
-          elevationMax: 3000,
-          moistureMin: 0,
-          moistureMax: 200,
-          maxTemperature: 4,
-          maxAridity: 0.85,
-          freezeWeight: 1,
-          elevationWeight: 1,
-          moistureWeight: 1,
-          scoreNormalization: 2,
-          scoreBias: 0,
-        },
-      },
+      ecology.ops.scorePlotEffectsSnow.defaultConfig,
       { ctx: { env, knobs: {} }, path: "/ops/scorePlotEffectsSnow" }
     );
 
@@ -70,17 +52,17 @@ describe("plot effects (owned)", () => {
     const planSelection = normalizeOpSelectionOrThrow(
       ecology.ops.planPlotEffects,
       {
-        strategy: "default",
+        ...ecology.ops.planPlotEffects.defaultConfig,
         config: {
+          ...ecology.ops.planPlotEffects.defaultConfig.config,
           snow: {
+            ...ecology.ops.planPlotEffects.defaultConfig.config.snow,
             enabled: true,
             coveragePct: 100,
             lightThreshold: 0.1,
             mediumThreshold: 0.2,
             heavyThreshold: 0.3,
           },
-          sand: { enabled: false },
-          burned: { enabled: false },
         },
       },
       { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }

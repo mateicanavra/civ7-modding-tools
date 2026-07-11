@@ -52,15 +52,12 @@ const GeomorphologyConfigSchema = Type.Object(
           minimum: 0,
           maximum: 1,
         }),
-        talus: Type.Optional(
-          Type.Number({
-            description:
-              "Controls optional talus threshold for terrain diffusion in normalized units.",
-            default: 0.5,
-            minimum: 0,
-            maximum: 10,
-          })
-        ),
+        talus: Type.Number({
+          description: "Controls the talus threshold for terrain diffusion in normalized units.",
+          default: 0.5,
+          minimum: 0,
+          maximum: 10,
+        }),
       },
       {
         additionalProperties: false,
@@ -116,7 +113,7 @@ const GeomorphicCycleConfigSchema = Type.Object(
  */
 const knobsSchema = Type.Object(
   {
-    erosion: Type.Optional(MorphologyErosionKnobSchema),
+    erosion: MorphologyErosionKnobSchema,
   },
   {
     additionalProperties: false,
@@ -130,7 +127,7 @@ export default createStage({
   knobsSchema,
   public: Type.Object(
     {
-      geomorphicCycle: Type.Optional(GeomorphicCycleConfigSchema),
+      geomorphicCycle: GeomorphicCycleConfigSchema,
     },
     {
       additionalProperties: false,
@@ -141,7 +138,7 @@ export default createStage({
   steps: orderStandardStageSteps("morphology-erosion", { geomorphology }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     geomorphology: {
-      geomorphology: { strategy: "default", config: config.geomorphicCycle ?? {} },
+      geomorphology: { strategy: "default", config: config.geomorphicCycle },
     },
   }),
 } as const);

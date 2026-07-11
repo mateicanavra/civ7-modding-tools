@@ -48,7 +48,7 @@ const knobsSchema = Type.Object(
      * - Transforms baseline rainfall/moisture and related forcing only.
      * - Must not change canonical drainage routing truth or Hydrology river classification knobs.
      */
-    dryness: Type.Optional(HydrologyDrynessKnobSchema),
+    dryness: HydrologyDrynessKnobSchema,
     /**
      * Global thermal bias.
      *
@@ -56,7 +56,7 @@ const knobsSchema = Type.Object(
      * - Transforms baseline temperature regime and downstream evap/precip coupling inputs.
      * - Must not implement “compat” behavior; use semantic public controls for exact numeric control.
      */
-    temperature: Type.Optional(HydrologyTemperatureKnobSchema),
+    temperature: HydrologyTemperatureKnobSchema,
     /**
      * Seasonal cycle posture.
      *
@@ -64,14 +64,14 @@ const knobsSchema = Type.Object(
      * - Transforms wind texture + precip noise texture.
      * - Transforms the annual amplitude posture (mode count / axial tilt biases).
      */
-    seasonality: Type.Optional(HydrologySeasonalityKnobSchema),
+    seasonality: HydrologySeasonalityKnobSchema,
     /**
      * Ocean coupling posture.
      *
      * Stage scope:
      * - Transforms winds/currents/transport and coastal gradients deterministically.
      */
-    oceanCoupling: Type.Optional(HydrologyOceanCouplingKnobSchema),
+    oceanCoupling: HydrologyOceanCouplingKnobSchema,
   },
   {
     description:
@@ -88,19 +88,19 @@ export default createStage({
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "climate-baseline": {
-      seasonality: config.seasonalCycle ?? {},
-      computeRadiativeForcing: { strategy: "default", config: config.solarForcing ?? {} },
-      computeThermalState: { strategy: "default", config: config.thermalState ?? {} },
+      seasonality: config.seasonalCycle,
+      computeRadiativeForcing: { strategy: "default", config: config.solarForcing },
+      computeThermalState: { strategy: "default", config: config.thermalState },
       computeAtmosphericCirculation: {
         strategy: "default",
-        config: config.atmosphericCirculation ?? {},
+        config: config.atmosphericCirculation,
       },
-      computeOceanSurfaceCurrents: { strategy: "default", config: config.oceanCurrents ?? {} },
-      computeOceanGeometry: { strategy: "default", config: config.oceanGeometry ?? {} },
-      computeOceanThermalState: { strategy: "default", config: config.oceanThermalState ?? {} },
-      computeEvaporationSources: { strategy: "default", config: config.evaporation ?? {} },
-      transportMoisture: { strategy: "default", config: config.moistureTransport ?? {} },
-      computePrecipitation: { strategy: "default", config: config.precipitation ?? {} },
+      computeOceanSurfaceCurrents: { strategy: "default", config: config.oceanCurrents },
+      computeOceanGeometry: { strategy: "default", config: config.oceanGeometry },
+      computeOceanThermalState: { strategy: "default", config: config.oceanThermalState },
+      computeEvaporationSources: { strategy: "default", config: config.evaporation },
+      transportMoisture: { strategy: "default", config: config.moistureTransport },
+      computePrecipitation: { strategy: "default", config: config.precipitation },
     },
   }),
 } as const);

@@ -20,10 +20,10 @@ describe("planVegetation (joint resolver)", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planVegetation,
+      ecology.ops.planVegetation.defaultConfig
+    );
 
     const scoreForest01 = new Float32Array(size);
     const scoreRainforest01 = new Float32Array(size);
@@ -81,10 +81,10 @@ describe("planVegetation (joint resolver)", () => {
     const width = 1;
     const height = 1;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planVegetation,
+      ecology.ops.planVegetation.defaultConfig
+    );
 
     const input = {
       width,
@@ -110,8 +110,9 @@ describe("planVegetation (joint resolver)", () => {
     const height = 3;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
-      strategy: "default",
+      ...ecology.ops.planVegetation.defaultConfig,
       config: {
+        ...ecology.ops.planVegetation.defaultConfig.config,
         forestMinConfidence01: 0.2,
         rainforestMinConfidence01: 0.5,
         taigaMinConfidence01: 0.1,
@@ -170,8 +171,9 @@ describe("planVegetation (joint resolver)", () => {
     const height = 2;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
-      strategy: "default",
+      ...ecology.ops.planVegetation.defaultConfig,
       config: {
+        ...ecology.ops.planVegetation.defaultConfig.config,
         forestMinConfidence01: 0,
         rainforestMinConfidence01: 0,
         taigaMinConfidence01: 0,

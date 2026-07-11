@@ -174,7 +174,8 @@ describe("foundation mesh-first ops (slice 2)", () => {
       meshConfig
     );
 
-    expect(first.mesh.cellCount).toBeGreaterThan(0);
+    expect(meshConfig.config).not.toHaveProperty("cellCount");
+    expect(first.mesh.cellCount).toBe(18);
     expect(first.mesh.siteX.length).toBe(first.mesh.cellCount);
     expect(first.mesh.siteY.length).toBe(first.mesh.cellCount);
     expect(first.mesh.areas.length).toBe(first.mesh.cellCount);
@@ -365,7 +366,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
 
       const plateGraph = computePlateGraph.run(
         { mesh, crust, rngSeed: 3000 + seed },
-        { strategy: "default", config: { plateCount: 16 } }
+        {
+          ...computePlateGraph.defaultConfig,
+          config: { ...computePlateGraph.defaultConfig.config, plateCount: 16 },
+        }
       ).plateGraph;
 
       const plateMotion = derivePlateMotion(mesh, plateGraph, 4000 + seed);
@@ -533,7 +537,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
     ).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
-      { strategy: "default", config: { plateCount: 16 } }
+      {
+        ...computePlateGraph.defaultConfig,
+        config: { ...computePlateGraph.defaultConfig.config, plateCount: 16 },
+      }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
     const segments = computeTectonicSegments.run(
@@ -593,7 +600,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
     ).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 62 },
-      { strategy: "default", config: { plateCount: 10 } }
+      {
+        ...computePlateGraph.defaultConfig,
+        config: { ...computePlateGraph.defaultConfig.config, plateCount: 10 },
+      }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 63);
     const historyResult = runTectonicHistoryChain({

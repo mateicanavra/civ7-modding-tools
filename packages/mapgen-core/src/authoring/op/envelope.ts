@@ -1,5 +1,5 @@
 import { type TSchema, Type } from "typebox";
-import { buildDefaultConfigValue } from "./defaults.js";
+import { Value } from "typebox/value";
 import type { StrategyConfigSchemas } from "./types.js";
 
 export type OpEnvelopeBuildResult = Readonly<{
@@ -13,25 +13,12 @@ export type StrategySelectionDefault = Readonly<{
   config: Record<string, unknown>;
 }>;
 
-export function buildOpEnvelopeSchema(
-  contractId: string,
-  strategySchemas: StrategyConfigSchemas
+function buildEnvelope(
+  strategySchemas: StrategyConfigSchemas,
+  defaultStrategy: string,
+  defaultStrategySchema: TSchema
 ): OpEnvelopeBuildResult {
-  if (!Object.prototype.hasOwnProperty.call(strategySchemas, "default")) {
-    throw new Error(`op(${contractId}) missing required "default" strategy schema`);
-  }
-
   const strategyIds = Object.keys(strategySchemas);
-  if (strategyIds.length === 0) {
-    throw new Error(`op(${contractId}) received empty strategies`);
-  }
-
-  const defaultInnerConfig = buildDefaultConfigValue(strategySchemas.default) as Record<
-    string,
-    unknown
-  >;
-  const defaultConfig = { strategy: "default", config: defaultInnerConfig } as const;
-
   const cases = strategyIds.map((id) =>
     Type.Object(
       {
@@ -41,9 +28,32 @@ export function buildOpEnvelopeSchema(
       { additionalProperties: false }
     )
   );
+  const defaultStrategyConfig = Value.Create(defaultStrategySchema);
+  Value.Assert(defaultStrategySchema, defaultStrategyConfig);
+  const defaultConfig: StrategySelectionDefault = {
+    strategy: defaultStrategy,
+    config: defaultStrategyConfig as Record<string, unknown>,
+  };
 
-  const schema = Type.Union(cases as any, { default: defaultConfig });
-  return { schema, defaultConfig, strategyIds };
+  return {
+    schema: Type.Union(cases, { default: defaultConfig }),
+    defaultConfig,
+    strategyIds,
+  };
+}
+
+export function buildOpEnvelopeSchema(
+  contractId: string,
+  strategySchemas: StrategyConfigSchemas
+): OpEnvelopeBuildResult {
+  const defaultStrategySchema = strategySchemas.default;
+  if (
+    !Object.prototype.hasOwnProperty.call(strategySchemas, "default") ||
+    defaultStrategySchema === undefined
+  ) {
+    throw new Error(`op(${contractId}) missing required "default" strategy schema`);
+  }
+  return buildEnvelope(strategySchemas, "default", defaultStrategySchema);
 }
 
 export function buildOpEnvelopeSchemaWithDefaultStrategy(
@@ -55,30 +65,14 @@ export function buildOpEnvelopeSchemaWithDefaultStrategy(
   defaultConfig: StrategySelectionDefault;
   strategyIds: readonly string[];
 }> {
-  const { strategyIds } = buildOpEnvelopeSchema(contractId, strategySchemas);
-
-  if (!Object.prototype.hasOwnProperty.call(strategySchemas, defaultStrategy)) {
+  const defaultStrategySchema = strategySchemas[defaultStrategy];
+  if (
+    !Object.prototype.hasOwnProperty.call(strategySchemas, defaultStrategy) ||
+    defaultStrategySchema === undefined
+  ) {
     throw new Error(
-      `op(${contractId}) missing strategy "${defaultStrategy}" (available: ${strategyIds.join(", ")})`
+      `op(${contractId}) missing strategy "${defaultStrategy}" (available: ${Object.keys(strategySchemas).join(", ")})`
     );
   }
-
-  const defaultInnerConfig = buildDefaultConfigValue(strategySchemas[defaultStrategy]!) as Record<
-    string,
-    unknown
-  >;
-  const defaultConfig = { strategy: defaultStrategy, config: defaultInnerConfig } as const;
-
-  const cases = strategyIds.map((id) =>
-    Type.Object(
-      {
-        strategy: Type.Literal(id),
-        config: strategySchemas[id]!,
-      },
-      { additionalProperties: false }
-    )
-  );
-
-  const schema = Type.Union(cases as any, { default: defaultConfig });
-  return { schema, defaultConfig, strategyIds };
+  return buildEnvelope(strategySchemas, defaultStrategy, defaultStrategySchema);
 }

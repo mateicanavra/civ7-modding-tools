@@ -4,10 +4,10 @@
 // Studio component bundle contains no runtime code generation. ajv compiles JSON
 // Schema with `new Function`, which a strict CSP without `'unsafe-eval'` blocks
 // (e.g. the claude.ai/design sandbox), throwing an `EvalError` at validate time.
-// TypeBox's value interpreter (`Check`/`Errors` from `typebox/value`) validates
-// plain JSON Schema without generating code and is therefore CSP-safe. The
-// TypeBox *compiler* (`TypeCompiler`) is deliberately NOT used — it also uses
-// `new Function` and would reintroduce the defect.
+// TypeBox's schema interpreter (`Check`/`Errors` from `typebox/schema`) validates
+// plain JSON Schema without generating code and is therefore CSP-safe. TypeBox
+// v1's `Compile` API can fall back to dynamic checking where runtime evaluation
+// is blocked; this adapter simply remains on the direct interpreter in this change.
 //
 // Error shaping — required-relocation, anyOf/oneOf dedup, the `errorSchema`
 // tree, and the `customValidate`/`transformErrors` pipeline — is adapted from
@@ -46,25 +46,7 @@ import {
   type ValidatorType,
   validationDataMerge,
 } from "@rjsf/utils";
-import { Check, Errors } from "typebox/value";
-
-// TypeBox generics expect a `TSchema`; the config pipeline hands us plain JSON
-// Schema (symbols already stripped by `normalizeSchemaForRjsf`). Validate through
-// untyped shims so we don't fight TypeBox's compile-time surface.
-const checkValue = Check as unknown as (schema: object, value: unknown) => boolean;
-const errorsOf = Errors as unknown as (
-  schema: object,
-  value: unknown
-) => Iterable<TypeBoxValueError>;
-
-/** The ajv-compatible fields TypeBox 1.0 exposes on each value error. */
-type TypeBoxValueError = {
-  keyword?: string;
-  schemaPath?: string;
-  instancePath?: string;
-  params?: Record<string, unknown>;
-  message?: string;
-};
+import { Check, Errors, type XSchema } from "typebox/schema";
 
 /** Minimal ajv `ErrorObject` shape consumed by the rjsf error transform. */
 type RawErrorObject = {
@@ -90,14 +72,15 @@ function getByPath(obj: unknown, path: string | string[]): unknown {
 
 /** Validate `formData` against `schema`, mapping TypeBox errors to ajv-shaped
  * `ErrorObject`s (expanding `required` and `additionalProperties` per ajv). */
-function toRawErrorObjects(schema: object, formData: unknown): RawErrorObject[] {
+function toRawErrorObjects(schema: XSchema, formData: unknown): RawErrorObject[] {
   const out: RawErrorObject[] = [];
-  for (const raw of errorsOf(schema, formData)) {
+  const [, errors] = Errors(schema, formData);
+  for (const raw of errors) {
     const base: RawErrorObject = {
-      instancePath: raw.instancePath ?? "",
-      schemaPath: raw.schemaPath ?? "#",
-      keyword: raw.keyword ?? "",
-      params: raw.params ?? {},
+      instancePath: raw.instancePath,
+      schemaPath: raw.schemaPath,
+      keyword: raw.keyword,
+      params: { ...raw.params },
       message: raw.message,
     };
 
@@ -285,7 +268,7 @@ function buildValidationData<T, S extends StrictRJSFSchema, F extends FormContex
   return validationDataMerge<T>({ errors, errorSchema }, userErrorSchema);
 }
 
-/** A CSP-safe rjsf `ValidatorType` backed by TypeBox's value interpreter. */
+/** A CSP-safe rjsf `ValidatorType` backed by TypeBox's JSON Schema interpreter. */
 export class TypeboxValidator<
   T = unknown,
   S extends StrictRJSFSchema = RJSFSchema,
@@ -297,7 +280,7 @@ export class TypeboxValidator<
     // TypeBox serialization (verified), so `_rootSchema` is unused. Matches
     // ajv8's isValid contract of returning `false` on a schema/validate throw.
     try {
-      return checkValue(schema, formData);
+      return Check(schema, formData);
     } catch {
       return false;
     }

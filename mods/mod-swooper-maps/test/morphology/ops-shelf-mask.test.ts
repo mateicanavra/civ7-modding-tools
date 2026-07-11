@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/ops";
-import { normalizeStrictOrThrow, runOpValidated } from "../support/compiler-helpers.js";
+import { runOpValidated, validateSchemaValueOrThrow } from "../support/compiler-helpers.js";
 
 const { computeShelfMask } = morphologyDomain.ops;
 
@@ -82,7 +82,7 @@ describe("morphology/compute-shelf-mask (physical break: gentle-gradient gate + 
       }
     );
 
-    normalizeStrictOrThrow(
+    validateSchemaValueOrThrow(
       computeShelfMask.output,
       result,
       "/ops/morphology/compute-shelf-mask/output"

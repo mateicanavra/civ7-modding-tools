@@ -1,7 +1,5 @@
-import {
-  buildCompleteSchemaDefaults,
-  deriveRecipeConfigSchema,
-} from "@swooper/mapgen-core/authoring";
+import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import { Value } from "typebox/value";
 import { STANDARD_STAGES, type StandardRecipeConfig } from "./recipe.js";
 
 /**
@@ -11,13 +9,14 @@ import { STANDARD_STAGES, type StandardRecipeConfig } from "./recipe.js";
 export const STANDARD_RECIPE_CONFIG_SCHEMA = deriveRecipeConfigSchema(STANDARD_STAGES);
 
 export function buildStandardRecipeDefaultConfig(): StandardRecipeConfig {
-  return buildCompleteSchemaDefaults(STANDARD_RECIPE_CONFIG_SCHEMA) as StandardRecipeConfig;
+  const defaults = Value.Create(STANDARD_RECIPE_CONFIG_SCHEMA);
+  Value.Assert(STANDARD_RECIPE_CONFIG_SCHEMA, defaults);
+  return defaults as StandardRecipeConfig;
 }
 
 export function deriveStandardRecipeArtifacts() {
-  const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
   return {
-    schema,
-    defaults: buildCompleteSchemaDefaults(schema) as StandardRecipeConfig,
+    schema: STANDARD_RECIPE_CONFIG_SCHEMA,
+    defaults: buildStandardRecipeDefaultConfig(),
   } as const;
 }

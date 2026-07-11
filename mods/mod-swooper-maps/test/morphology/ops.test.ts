@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/ops";
-import { normalizeStrictOrThrow, runOpValidated } from "../support/compiler-helpers.js";
+import { runOpValidated, validateSchemaValueOrThrow } from "../support/compiler-helpers.js";
 
 const { computeLandmasses } = morphologyDomain.ops;
 
@@ -17,7 +17,7 @@ describe("morphology operations", () => {
       { strategy: "default", config: {} }
     );
 
-    normalizeStrictOrThrow(
+    validateSchemaValueOrThrow(
       computeLandmasses.output,
       result,
       "/ops/morphology/compute-landmasses/output"

@@ -36,10 +36,12 @@ Do not use this pattern for:
 
 Studio’s working shape (today) is:
 
-1) UI selects `recipeId` + run inputs (seed/dims/lat bounds) and collects `configOverrides`.
+1) UI selects `recipeId`, one complete recipe config, and run inputs
+   (seed/dimensions/latitude bounds).
 2) UI creates a dedicated worker (module worker) and posts a `run.start`.
 3) Worker:
-   - merges + validates overrides against schema,
+   - clones the config through the portable JSON boundary,
+   - validates that clone unchanged against the selected recipe schema,
    - compiles plan,
    - derives `runId` (and `planFingerprint`; current implementation uses the same value),
    - runs the recipe with trace + viz enabled,
@@ -52,6 +54,14 @@ Concrete worker skeleton (excerpt):
 
 ```ts
 // apps/mapgen-studio/src/browser-runner/pipeline.worker.ts
+const configResult = admitPipelineConfig({
+  schema: recipeEntry.configSchema,
+  config: request.pipelineConfig,
+  label: "browser-run",
+});
+if (!configResult.ok) throw new Error(formatConfigErrors(configResult.errors));
+
+const config = configResult.value;
 const plan = recipeEntry.recipe.compile(envBase, config);
 const runId = deriveRunId(plan);
 const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
@@ -77,14 +87,15 @@ Keep the boundary narrow and stable:
 - `BrowserRunEvent` (`run.started`, `run.progress`, `viz.layer.upsert`, `run.finished`, `run.canceled`, `run.error`)
 
 Avoid coupling UI engine code to any specific recipe config type:
-- treat `configOverrides` as `unknown` at the boundary.
+- carry `pipelineConfig` as `unknown` at the recipe-agnostic transport boundary,
+  then admit it with the selected recipe's executable schema.
 
 Concrete protocol shape (excerpt):
 
 ```ts
 // apps/mapgen-studio/src/browser-runner/protocol.ts
 export type BrowserRunRequest =
-  | { type: "run.start"; runToken: string; generation: number; recipeId: string; seed: number; configOverrides?: unknown; /* ... */ }
+  | { type: "run.start"; runToken: string; generation: number; recipeId: string; seed: number; pipelineConfig: unknown; /* ... */ }
   | { type: "run.cancel"; runToken: string; generation: number };
 
 export type BrowserRunEvent =
@@ -95,6 +106,11 @@ export type BrowserRunEvent =
   | { type: "run.canceled"; runToken: string; generation: number }
   | { type: "run.error"; runToken: string; generation: number; message: string; /* ... */ };
 ```
+
+The worker does not default, merge, clean, migrate, or reconstruct config. A
+missing or unknown property is an admission error. Recipe-owned default
+construction happens when the recipe publishes its complete default artifact,
+not when a browser run starts.
 
 ## Wire trace + viz correctly
 

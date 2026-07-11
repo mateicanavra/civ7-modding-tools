@@ -14,10 +14,10 @@ describe("planWetlands (joint resolver)", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planWetlands,
+      ecology.ops.planWetlands.defaultConfig
+    );
 
     const scoreMarsh01 = new Float32Array(size);
     const scoreTundraBog01 = new Float32Array(size);
@@ -63,10 +63,10 @@ describe("planWetlands (joint resolver)", () => {
     const width = 1;
     const height = 1;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planWetlands,
+      ecology.ops.planWetlands.defaultConfig
+    );
 
     const input = {
       width,

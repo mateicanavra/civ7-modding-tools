@@ -645,6 +645,12 @@
           "maxVegetation": 0.4,
           "maxMoisture": 128,
           "allowedBiomes": ["desert", "temperateDry", "tropicalSeasonal"]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": ["tropicalRainforest"]
         }
       },
       "plotEffectCoverage": {
@@ -653,15 +659,22 @@
           "coveragePct": 55,
           "lightThreshold": 0.4,
           "mediumThreshold": 0.65,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 14
+          "coveragePct": 14,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 20
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -717,7 +730,6 @@
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,

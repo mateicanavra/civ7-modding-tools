@@ -20,6 +20,8 @@ const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";
 const GROUP_BELT_DRIVERS = "Morphology / Belt Drivers";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+const TARGET_WATER_PERCENT_CLAMP_MIN = 0;
+const TARGET_WATER_PERCENT_CLAMP_MAX = 100;
 
 function applyBaseTerrainBuffers(
   width: number,
@@ -74,9 +76,9 @@ export default createStep(LandmassPlatesStepContract, {
             config: {
               ...config.seaLevel.config,
               targetWaterPercent: clampFinite(
-                (config.seaLevel.config.targetWaterPercent ?? 0) + delta,
-                0,
-                100
+                config.seaLevel.config.targetWaterPercent + delta,
+                TARGET_WATER_PERCENT_CLAMP_MIN,
+                TARGET_WATER_PERCENT_CLAMP_MAX
               ),
             },
           }

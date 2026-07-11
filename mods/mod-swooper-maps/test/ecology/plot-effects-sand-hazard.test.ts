@@ -14,10 +14,19 @@ const env = {
   latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
 };
 
-const runSandPlan = (config: Record<string, unknown>) => {
+const runSandPlan = (sandConfig: Record<string, unknown>) => {
   const planSelection = normalizeOpSelectionOrThrow(
     ecology.ops.planPlotEffects,
-    { strategy: "default", config },
+    {
+      ...ecology.ops.planPlotEffects.defaultConfig,
+      config: {
+        ...ecology.ops.planPlotEffects.defaultConfig.config,
+        sand: {
+          ...ecology.ops.planPlotEffects.defaultConfig.config.sand,
+          ...sandConfig,
+        },
+      },
+    },
     { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }
   );
 
@@ -46,13 +55,9 @@ const runSandPlan = (config: Record<string, unknown>) => {
 describe("plot effects (sand hazard co-placement)", () => {
   it("co-places desert-heat intent on every sand tile when enabled", () => {
     const result = runSandPlan({
-      snow: { enabled: false },
-      sand: {
-        enabled: true,
-        coveragePct: 100,
-        hazardEnabled: true,
-      },
-      burned: { enabled: false },
+      enabled: true,
+      coveragePct: 100,
+      hazardEnabled: true,
     });
 
     const sand = result.placements.filter((p) => p.plotEffect === "sand");
@@ -66,11 +71,7 @@ describe("plot effects (sand hazard co-placement)", () => {
   });
 
   it("places only cosmetic sand when no hazard is configured", () => {
-    const result = runSandPlan({
-      snow: { enabled: false },
-      sand: { enabled: true, coveragePct: 100 },
-      burned: { enabled: false },
-    });
+    const result = runSandPlan({ enabled: true, coveragePct: 100, hazardEnabled: false });
 
     expect(result.placements.every((p) => p.plotEffect === "sand")).toBe(true);
     expect(result.placements.length).toBe(SIZE);

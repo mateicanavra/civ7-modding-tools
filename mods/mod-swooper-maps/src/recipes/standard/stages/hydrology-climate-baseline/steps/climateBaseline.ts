@@ -38,6 +38,7 @@ const GROUP_WIND = "Hydrology / Wind";
 const GROUP_CURRENT = "Hydrology / Currents";
 const GROUP_OCEAN = "Hydrology / Ocean";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+const QUARTER_YEAR_MODE_COUNT_THRESHOLD = 3;
 
 function clampLatitudeDeg(latitudeDeg: number): number {
   if (!Number.isFinite(latitudeDeg)) return 0;
@@ -84,11 +85,11 @@ export default createStep(ClimateBaselineStepContract, {
     const seasonalityDefaults = HYDROLOGY_SEASONALITY_DEFAULTS[seasonality];
     const normalSeasonalityDefaults = HYDROLOGY_SEASONALITY_DEFAULTS.normal;
     const modeCountCandidate =
-      (config.seasonality?.modeCount ?? normalSeasonalityDefaults.modeCount) +
+      config.seasonality.modeCount +
       (seasonalityDefaults.modeCount - normalSeasonalityDefaults.modeCount);
-    const modeCount: 2 | 4 = modeCountCandidate >= 3 ? 4 : 2;
+    const modeCount: 2 | 4 = modeCountCandidate >= QUARTER_YEAR_MODE_COUNT_THRESHOLD ? 4 : 2;
     const axialTiltDeg =
-      (config.seasonality?.axialTiltDeg ?? normalSeasonalityDefaults.axialTiltDeg) +
+      config.seasonality.axialTiltDeg +
       (seasonalityDefaults.axialTiltDeg - normalSeasonalityDefaults.axialTiltDeg);
 
     const jetStreakDelta =
@@ -414,8 +415,8 @@ export default createStep(ClimateBaselineStepContract, {
     const size = Math.max(0, width * height);
     const zeros = new Uint8Array(size);
 
-    const modeCount = config.seasonality?.modeCount === 4 ? 4 : 2;
-    const axialTiltDeg = config.seasonality?.axialTiltDeg ?? 18;
+    const modeCount = config.seasonality.modeCount;
+    const axialTiltDeg = config.seasonality.axialTiltDeg;
     const phases = getSeasonPhases(modeCount);
 
     const seasonalRainfall: Uint8Array[] = [];
