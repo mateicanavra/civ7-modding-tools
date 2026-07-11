@@ -72,6 +72,19 @@ test("local final-surface replay uses Civ runtime latitude orientation", () => {
   expect(latitudeBounds).toEqual({ topLatitude: 90, bottomLatitude: -90 });
 });
 
+test("local final-surface replay uses supplied frozen envelope bounds without changing live map info", () => {
+  const frozenEnvelope = {
+    id: "opaque-studio-envelope",
+    latitudeBounds: { topLatitude: 63, bottomLatitude: -27 },
+  } as const;
+  const defaultReplay = createFinalSurfaceParityMapInfo(84, 54);
+  const frozenReplay = createFinalSurfaceParityMapInfo(84, 54, frozenEnvelope.latitudeBounds);
+
+  expect(frozenReplay.latitudeBounds).toEqual(frozenEnvelope.latitudeBounds);
+  expect(frozenReplay.latitudeBounds).not.toEqual(defaultReplay.latitudeBounds);
+  expect(frozenReplay.mapInfo).toEqual(defaultReplay.mapInfo);
+});
+
 function exactEvidence(
   overrides: Partial<CompleteExactAuthorshipEvidence> = {}
 ): CompleteExactAuthorshipEvidence {

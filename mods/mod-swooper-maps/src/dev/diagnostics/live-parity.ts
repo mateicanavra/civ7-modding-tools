@@ -12,6 +12,7 @@ import {
   type RunInGameExactAuthorshipEvidence,
   snapshotRunInGameExactAuthorshipEvidence,
 } from "@civ7/studio-contract";
+import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import {
   createExtendedMapContext,
   createLabelRng,
@@ -20,6 +21,7 @@ import {
 } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
+import { admitSwooperCatalogConfig } from "../../maps/catalog/admission.js";
 import {
   admitStandardMapConfig,
   canonicalRecipeConfig,
@@ -464,6 +466,11 @@ export type FinalSurfaceParityReport = Readonly<{
   unresolvedLinks: ReadonlyArray<string>;
 }>;
 
+export type MapEnvelopeBounds = Readonly<{
+  topLatitude: number;
+  bottomLatitude: number;
+}>;
+
 export type RunLocalFinalSurfaceInput = Readonly<{
   width: number;
   height: number;
@@ -471,6 +478,7 @@ export type RunLocalFinalSurfaceInput = Readonly<{
   config: unknown;
   canonicalConfigDigest?: string;
   launchEnvelopeDigest?: string;
+  mapEnvelopeBounds?: MapEnvelopeBounds;
 }>;
 
 export type CompleteExactAuthorshipEvidence = Extract<
@@ -499,7 +507,11 @@ function createMemoryTraceSink(events: TraceEvent[]): TraceSink {
   };
 }
 
-export function createFinalSurfaceParityMapInfo(width: number, height: number) {
+export function createFinalSurfaceParityMapInfo(
+  width: number,
+  height: number,
+  mapEnvelopeBounds?: MapEnvelopeBounds
+) {
   const mapSizePreset = getCiv7StandardMapSizePresetForDimensions(width, height);
   const fallbackLatitudeBounds = mapSizePreset?.latitudeBounds ?? CIV7_STANDARD_ROW_LATITUDE_BOUNDS;
   const fallbackMinLatitude = Math.min(
@@ -522,16 +534,20 @@ export function createFinalSurfaceParityMapInfo(width: number, height: number) {
     StartSectorRows: mapSizePreset?.mapInfo.StartSectorRows ?? 4,
     StartSectorCols: mapSizePreset?.mapInfo.StartSectorCols ?? 4,
   } as const;
-  const latitudeBounds = {
-    topLatitude: mapInfo.MaxLatitude,
-    bottomLatitude: mapInfo.MinLatitude,
-  } as const;
+  const latitudeBounds =
+    mapEnvelopeBounds ??
+    ({
+      topLatitude: mapInfo.MaxLatitude,
+      bottomLatitude: mapInfo.MinLatitude,
+    } as const);
   return { latitudeBounds, mapInfo };
 }
 
 function resolveRecipeConfig(config: unknown): unknown {
   if (config === undefined) {
-    throw new Error("Final-surface parity local run requires an admitted Standard config.");
+    throw new Error(
+      "Final-surface parity local run requires the Standard config admitted from its generation manifest."
+    );
   }
   return isMapConfigEnvelope(config) ? canonicalRecipeConfig(config) : config;
 }
@@ -540,7 +556,11 @@ export function runLocalFinalSurfaceSnapshot(
   input: RunLocalFinalSurfaceInput
 ): FinalSurfaceSnapshot {
   const { width, height, seed } = input;
-  const { latitudeBounds, mapInfo } = createFinalSurfaceParityMapInfo(width, height);
+  const { latitudeBounds, mapInfo } = createFinalSurfaceParityMapInfo(
+    width,
+    height,
+    input.mapEnvelopeBounds
+  );
   const envBase = {
     seed,
     dimensions: { width, height },
@@ -1534,17 +1554,19 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
   );
 }
 
-/** Admits the replay config and binds it to the exact run identity before use. */
-export function configFromExactAuthorshipEvidence(
-  exact: CompleteExactAuthorshipEvidence | undefined,
-  candidate: unknown
+/** The persisted manifest is the only launch-envelope authority for parity replay. */
+export function canonicalConfigFromGenerationManifest(
+  manifest: StudioRunGenerationManifest | undefined
 ): MaterializedCanonicalMapConfig | undefined {
-  if (exact === undefined) return undefined;
+  const source = manifest?.payload.launchEnvelope.source;
+  if (source === undefined) return undefined;
   try {
-    const canonicalConfig = admitStandardMapConfig(candidate);
-    return hashParityValue(canonicalConfig) === exact.sourceSnapshot.canonicalConfigDigest
-      ? canonicalConfig
-      : undefined;
+    return source.kind === "catalog"
+      ? admitSwooperCatalogConfig({
+          sourcePath: source.sourcePath,
+          canonicalConfig: source.canonicalConfig,
+        }).canonicalConfig
+      : admitStandardMapConfig(source.canonicalConfig);
   } catch {
     return undefined;
   }

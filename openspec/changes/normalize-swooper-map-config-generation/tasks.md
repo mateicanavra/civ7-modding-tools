@@ -108,3 +108,7 @@
   `unknown` tunnel, migration, fallback, or equality/digest routing.
 - [ ] 8.4 Bind diagnostics and attribution to request and operation-revision
   identity, retaining envelope digests only as derived evidence.
+- [ ] 8.5 Replace legacy parity/source-snapshot inputs with the exact manifest
+  launch envelope and derived evidence, then collect the required focused and
+  live parity verification. Do not mark this correction complete from source or test
+  evidence alone.
