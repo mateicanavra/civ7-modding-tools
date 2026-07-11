@@ -546,8 +546,6 @@ const file = `/* eslint-disable */
  * Source evidence: Civ7 official resource XML/JS under \`.civ7/outputs/resources\`,
  * plus live/runtime river evidence listed in \`CIV7_RIVER_TYPE_METADATA_SOURCE\`
  * Submodule commit: ${commit}
- * Snapshot dated 2026-01-24 — refreshing requires the game install
- * (\`bun run refresh:data\`); flagged user follow-up (refactor-plan D4).
  *
  * Purpose:
  * - Provide Civ7-derived terrain/biome/feature indices and river metadata for mock generation.
