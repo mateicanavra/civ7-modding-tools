@@ -1,5 +1,10 @@
 # Obligation Corpus Contract
 
+Status: superseded on 2026-07-11. Retained as planning history only. Do not
+implement the schema, validator, collector, fixtures, or corpus described below.
+The active workstream uses existing repository commands and lightweight
+tracking records so engineering effort remains on the product outcome.
+
 Role: exact Stage 0 row contract for `obligation-corpus.jsonl`.
 
 Normative method:

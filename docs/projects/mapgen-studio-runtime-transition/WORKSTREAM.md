@@ -4,6 +4,15 @@ Document role: normative execution contract. Current phase, owners, branch,
 gate, blockers, agent fleet, and next action live only in
 `verification-ledger.md`.
 
+Execution correction (2026-07-11): this workstream exists to close the product
+outcome, not to build a project-management runtime. Existing Markdown and JSONL
+records may track decisions, attempts, and cleanup. Do not create custom schema
+validators, diagnostic collectors, generators, dashboards, or harnesses whose
+only purpose is progress accounting. Use the repository's existing TypeScript,
+Biome, Nx, Habitat, OpenSpec, browser, endpoint, and direct-control commands
+directly. When tracking detail competes with product diagnosis, repair, or live
+verification, the product loop wins.
+
 ## Control Routing
 
 - Record: `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -584,11 +593,8 @@ The project home is `docs/projects/mapgen-studio-runtime-transition/`.
 | --- | --- | --- |
 | `WORKSTREAM.md` | This normative operating frame | opening |
 | `stack-recut-manifest.md` | Opening snapshot, source-to-sink accounting, and sink branch graph | Stage 0 |
-| `obligation-corpus-contract.md` | Exact keys, types, enums, cardinality, uniqueness, and validation/query contract for corpus rows | planning closure |
+| `obligation-corpus-contract.md` | Superseded planning rider retained as history; not an executable Stage 0 requirement | planning history |
 | `semantic-review-paths.txt` | Exact self-including path set for reproducible planning semantic digests | planning closure |
-| `obligation-corpus.jsonl` | One queryable row per config, Effect diagnostic, Habitat rule, packet obligation, and prior control input | Stage 0 |
-| `validate-obligation-corpus.ts` | TypeBox row/cross-reference validator derived exactly from the corpus contract; not a topology assertion | Stage 0 |
-| `collect-effect-diagnostics.ts` | Structured pinned-Biome collector over tracked repository TypeScript targets; constructs Effect corpus input | Stage 0 |
 | `TRANSITION.md` | Accepted decision to merge behavior without canonizing current topology | Stage 1 |
 | `verification-ledger.md` | Aggregate gate status, review findings/dispositions, evidence invalidation, merge state | Stage 0, maintained throughout |
 | `gate-register.jsonl` | One immutable attempt row per planning, stage, packet, cross-cutting-unit, archive, merge, and cleanup gate | planning closure, appended throughout |
@@ -866,13 +872,10 @@ recorded set.
   residual discovered by the census.
 - Mark generated/read-only paths and verify they were produced by normal
   generators rather than hand edits.
-- Materialize the TypeBox discriminated-union schema and validator exactly from
-  `obligation-corpus-contract.md`; close its valid/invalid/cross-reference
-  fixtures before writing the first corpus row.
-- Populate `obligation-corpus.jsonl` with one row per built-in config, Effect
-  diagnostic, touched Habitat rule/check/script, packet obligation, and material
-  coordination/control input. Grouping may reduce execution cost but cannot
-  erase individual rows.
+- Track product-affecting obligations in the existing manifest, verification
+  ledger, packet tasks, and evidence records. Use direct structured command
+  output for all-config, Effect, Habitat, and OpenSpec checks; do not construct a
+  second validation or collection tool around those commands.
 - Ingest phase records, review/downstream ledgers, Next Packets,
   `NOTE-TO-DRA*`, watcher/correction notes, inline correction TODOs, prior
   session records, and scratch. Classify each as authority, coordination,
@@ -917,13 +920,11 @@ are sequential DRA decisions.
 - every changed path maps to at least one primary unit;
 - every packet, cross-cutting unit, task ledger, and touched Habitat rule is
   represented;
-- every built-in config, Effect diagnostic, Habitat rule, and material prior
-  correction/control input has an obligation row and record home;
+- every built-in config, current Effect diagnostic family, touched Habitat rule,
+  and material prior correction has an owner, disposition, and direct rerun;
 - every external trunk input, handoff obligation, inherited red gate, and
   planning branch-retirement decision has an exact row and terminal or
   explicitly unresolved owner state;
-- the corpus validator is green with schema/validator/corpus digests, kind
-  counts, uniqueness, conditional fields, and cross-reference checks recorded;
 - the recovery bundle has passed bundle verification and disposable-restore
   comparison for every in-scope source ref;
 - every declared Stage 0 gate has a terminal gate-register row and every opened

@@ -1,6 +1,6 @@
-# Next Packet: Admit Runtime Closeout Stage 0
+# Next Packet: Close The Studio Product Outcome
 
-Status: planning closure only; Stage 0 remains locked
+Status: prepared at a clean packet boundary; paused for context compaction
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -8,78 +8,135 @@ Normative frame:
 Live state:
 `docs/projects/mapgen-studio-runtime-transition/verification-ledger.md`
 
-## Resume Objective
+## Objective
 
-Admit Stage 0 only after the planning Graphite layer is committed, the current
-Git/Graphite lane is clean, execution is explicitly resumed, and one continuous
-Stage 0 Supervisor/Enforcer DRA accepts the live ledger. Do not implement an
-OpenSpec packet merely because an old packet status says it was ready.
+Make the rendered Studio Run in Game flow complete the requested launch from
+current source to request-correlated in-game content. Use existing repository
+checks and lightweight records. Do not build custom progress-tracking tools.
 
-## Safe Assumptions
+## Current Stack
 
-These assumptions become executable only after the live ledger records the
-planning branch, fresh semantic-review digest, static gates, and clean ending
-census. Historical supervisor results do not satisfy that admission gate.
+```text
+codex/studio-run-live-playability@4f501fabfdc6
+  -> codex/mapgen-studio-runtime-transition-planning@ca6a06d24fff
+  -> codex/mapgen-studio-config-envelope-runtime-cutover@3f5ed12e81a5
+  -> codex/mapgen-studio-manifest-parity-replay@b2367c50d6ae
+  -> codex/mapgen-studio-runtime-stage-0-census (this record commit)
+```
 
-- The workstream method, Stage 0-9 DAG, semantic backflow, Graphite lease,
-  recovery, review, gate, cleanup, runtime-checkpoint, and terminal-record
-  contracts, including the Planning Closure Loop, have passed the semantic
-  supervisor review identified in the live ledger.
-- Refreshed `main` contains the exact five-PR environment, Foundry, Habitat
-  harness, semantic fixture, and token checkpoint recorded in the ledger. That
-  code is trunk substrate rather than Studio recut source.
-- The current Studio runtime is transitional behavioral stabilization, not the
-  future service/API/host topology.
-- Exact stable-row and P19/P20 ownership representations remain proposed Stage
-  1 amendments until controlling packet authority accepts them.
-- Later Habitat blueprint realization, behavior decomposition, target
-  construction, and exclusive cutover are parked initiatives, not Stage 0 work.
+The historical source recovery is verified. The config and parity branches
+passed isolated static and behavior checks, but no current-tree rendered
+browser/Civ7 matrix has closed. Those branches are implementation evidence, not
+the product result. The worktree is clean and Studio is freshly built and
+running from this exact checkout on ports `5173` and `5174`.
 
-## First Commands And Reads
+## Prepared Findings
 
-1. Read `WORKSTREAM.md`, `stack-recut-manifest.md`,
-   `obligation-corpus-contract.md`, and this packet.
-2. Read the live ledger; do not infer current state from this packet.
-3. Run `git status --short --branch`, `git rev-parse HEAD main`, `gt ls`,
-   `git worktree list --porcelain`, and the remote/PR/operation census required
-   by the Graphite mutation-lease contract.
-4. Confirm the planning branch is committed and no pending Graphite mutation or
-   unexplained dirty path exists in this worktree.
-5. Confirm all five final merged prerequisite identities and the environment
-   handoff digest match the ledger, the opening-chain Foundry duplicate remains
-   reference-only, the audited Foundry filesystem residue is absent, and the
-   readiness stack remains untouched at
-   `codex/readiness-final-aggregate-proof-green@92cc1513cc5c43795f7b800fddc2325849869f5e`.
-6. Assign and record the Stage 0 Supervisor/Enforcer DRA before changing a
-   source ref, recovery artifact, corpus, or branch topology.
+- The prior rendered `Resolving source` stall was orphaned browser state served
+  against a daemon that predated the config-envelope branches. After a clean
+  rebuild and restart, the browser, oRPC client, `/rpc` host, and current
+  operation projection all resolve through the same current source tree. Do not
+  add a second endpoint or UI path to repair that stale-process failure.
+- All nine checked-in configs pass current schema admission, exact envelope
+  round-trip, complete 22-stage materialization, four-seed generation,
+  deterministic repeat, and fresh artifact rendering. No all-water output was
+  reproduced. The remaining generic defect is that current admission can accept
+  a partial 16-stage default object because it mistakes normalization no-op for
+  completeness.
+- Studio still owns setup/start orchestration by importing direct-control
+  functions in `Civ7WorkflowControl.ts`. The control oRPC surface has no
+  setup/lifecycle family. That is the next larger ownership defect after config
+  completeness is closed.
+- One read-only investigation accidentally sent request
+  `studio-run-in-game-mrgo592d-a58-2`. It generated and deployed the Studio run
+  mod, then failed during `preparing-civ7` under Tuner backoff. It did not start
+  Civ7 and is not an accepted runtime row; account for the replaced deployment
+  before the next live attempt.
 
-## Stage 0 Entry
+## Packet Sequence
 
-Follow the Stage 0 entry and prework in `WORKSTREAM.md` exactly. Begin with the
-revalidated census and selected recovery bundle. Materialize and close the
-TypeBox obligation-corpus validator and Effect report collector fixtures before
-populating corpus rows. Import each inherited environment-CI Studio/Habitat red
-as its own evidence row. Keep every packet under execution hold until Stage 1
-amends, validates, and explicitly admits its authority.
+### A. Complete Config Admission
 
-## Protected And Excluded State
+Establish one schema-aware complete-normalization operation backed by
+`buildCompleteSchemaDefaults`. Use it at both Studio and Swooper source
+admission while retaining partial `normalizeStrict` for compiler inputs. Replace
+stage-name/key-list assertions with generic complete-materialization and
+normalization-idempotence behavior tests.
 
-- Do not globally restack, undo, clean, stash, or adopt sibling worktrees.
-- The detached DesignSync-noise/restart-runner and other dirty sibling state in
-  the manifest is Stage 0 safety-census input only; it is not owned source
-  material and is not a Planning Closure prerequisite.
-- Keep opening source refs and the recovery bundle until their recorded
-  retirement trigger.
-- Do not restack, fold, reparent, or delete an opening Studio source ref before
-  the recovery bundle and disposable restore comparison are green.
-- Keep the readiness PR stack parked until the Studio baseline and closeout are
-  merged; its target-restack/reconciliation belongs to the post-closeout Habitat
-  return.
-- Runtime mutation remains serialized through the admitted Studio/direct-
-  control owner; no whole-Civ application restart is an ordinary Run in Game
-  path.
-- Treat the private Codex helper, shared developer lifecycle, Studio daemon,
-  Civ7 game soft restart, and whole-Civ application restart as separate owners.
+Primary files:
 
-If any entry fact differs, update only the live ledger and enter the appropriate
-investigation/repair loop. Do not silently reinterpret this packet.
+- `packages/mapgen-core/src/compiler/normalize.ts`
+- `packages/mapgen-core/test/compiler/normalize.test.ts`
+- `mods/mod-swooper-maps/src/maps/configs/canonical.ts`
+- `mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts`
+- `apps/mapgen-studio/src/features/configAuthoring/canonicalConfig.ts`
+- `apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts`
+
+Close only after all nine configs pass through the shared boundary, focused and
+classify-reported gates pass, and fresh TypeScript refactoring, code quality,
+and TypeBox/library-correctness reviewers clear the change. Commit it as one
+Graphite child above the census branch.
+
+### B. Control oRPC Setup And Start Ownership
+
+Design and implement the missing typed setup/lifecycle capability under
+`packages/civ7-control-orpc`, using the daemon-owned Tuner session and in-process
+server client. Move Studio off caller-local direct-control orchestration. The
+operation must exit only an active game when necessary, load and reconcile the
+saved setup and generated map, start the game, and retain request correlation
+without restarting the Civilization VII application.
+
+Close with contract/router/client behavior tests, dedicated TypeScript,
+structure, oRPC, Effect, and direct-control reviews, and one rendered Swooper
+Earthlike run with unchanged Civ7 application PID.
+
+### C. Rendered Acceptance And Matrix
+
+Exercise the actual button and establish exactly one request from browser
+admission through public status, explicit diagnostics, manifest, deployment,
+setup, start, and request-correlated in-game observation. Then run Latest Juicy,
+Swooper Desert Mountains, and every declared freshness, failure, cancellation,
+conflict, recovery, and redaction row. Reconcile packets and records, run the
+full static gate set, submit and merge the accepted stack, and return to Habitat.
+
+## Product Loop
+
+1. Restart Studio from this worktree and confirm frontend, daemon health, and
+   reported repo root all match the current committed tree.
+2. Run the existing all-config admission and generation checks for every one of
+   the nine built-in configs. Repair shared source/default/materialization
+   defects only; no per-config migration, merge, or property special case.
+3. Exercise the rendered Run in Game button and follow one request through the
+   oRPC client, public status/current operation, explicit private diagnostics,
+   generation manifest, generated mod, deployment snapshot, direct-control
+   setup, and game start.
+4. At the first real failure, diagnose the owning boundary, make the smallest
+   architectural repair, run its behavior/static/library reviews, and repeat
+   the rendered flow. Do not substitute a direct endpoint call for the button.
+5. Close the first success row with Swooper Earthlike,
+   `ToT_BasicModsEnabled.Civ7Cfg`, Huge, 10 players, balanced resources, and
+   seed `1538316415`.
+6. Run Latest Juicy and Swooper Desert Mountains plus the declared freshness,
+   recovery, cancellation, conflict, validation, and redaction rows.
+7. Reconcile OpenSpec/task/evidence records, run full static gates, submit and
+   merge the accepted Graphite stack, then return the parked follow-up work to
+   Habitat.
+
+## Runtime Law
+
+- Studio carries one complete admitted JSON config envelope without browser or
+  server migration, deep merge, scrubbing, or property-level rescue.
+- One rendered request owns one source, manifest, generated mod, deployment,
+  setup reconciliation, and launched game.
+- Ordinary Run in Game uses the canonical direct-control oRPC capability to
+  soft-restart the Civ7 game. It does not restart the whole application.
+- Public status stays redacted. Private diagnostics require explicit lookup.
+- Endpoint, unit, browser, setup, and in-game observations are separate gates;
+  none substitutes for another.
+
+## Stop Conditions
+
+Do not mutate unrelated worktrees or the readiness stack. Serialize live Civ7
+mutation. If Civ7/Tuner is externally unavailable, record the exact state and
+continue every non-live repair and check that remains possible; availability is
+not a reason to stop diagnosis or implementation.
