@@ -38,14 +38,15 @@ This seam exists to keep:
 ## Worker protocol
 
 Studio’s worker runner uses a small message protocol:
-- `run.start` (begin a new run with inputs and optional config overrides)
+- `run.start` (begin a new run with inputs and one complete recipe config)
 - `run.cancel` (cooperative cancellation by token/generation)
 - `run.started`, `run.progress`, `viz.layer.upsert`, `run.finished`, `run.canceled`, `run.error`
 
-The protocol is **intentionally loose** at the recipe config boundary:
-- `configOverrides?: unknown`
+The protocol is recipe-agnostic but semantically strict at the config boundary:
+- `pipelineConfig: unknown`
 
-This prevents Studio’s engine code from being coupled to any specific recipe config type.
+The transport does not know a recipe-specific TypeScript type. The selected
+recipe's executable schema still requires one complete config value.
 
 Concrete shapes (excerpt):
 
@@ -59,7 +60,7 @@ export type BrowserRunStartRequest = {
   seed: number;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  configOverrides?: unknown;
+  pipelineConfig: unknown;
 };
 
 export type BrowserVizLayerUpsertEvent = {
@@ -70,13 +71,18 @@ export type BrowserVizLayerUpsertEvent = {
 };
 ```
 
-## Config overrides + validation
+## Complete config admission
 
 The worker treats the protocol boundary as untrusted/unknown input and:
 
-1) merges recipe default config with overrides **deterministically** (and proto-safe),
-2) validates the merged payload using the recipe-provided schema via `normalizeStrict(...)`,
-3) fails the run with a structured `run.error` if validation fails.
+1) clones the supplied value through the portable JSON boundary,
+2) validates the clone unchanged with the selected recipe's executable schema,
+3) fails the run with a structured `run.error` if the value is incomplete,
+   contains unknown properties, or otherwise fails the schema.
+
+The worker never merges defaults, cleans keys, migrates properties, or repairs
+config. Recipe defaults are already complete artifacts, and editing replaces
+values inside a complete editor config before the worker request is created.
 
 ## Plan compile + execution
 
@@ -145,7 +151,7 @@ Cancellation posture:
 
 Studio’s browser runner is designed to be deterministic (given the same inputs), by:
 - deriving a label-based RNG from the seed (stable per label),
-- ensuring config merging is deterministic,
+- admitting the exact complete config carried by the request,
 - deriving run identity from the compiled plan.
 
 This does not mean “bitwise identical” across engines/platforms; it is a **developer-facing determinism posture** suitable for iteration and debugging.
@@ -164,8 +170,8 @@ Recipe selection + artifacts boundary:
 - Recipe artifacts source: `mod-swooper-maps` recipe source is compiled by
   `bun run --cwd mods/mod-swooper-maps build:studio-recipes` into package
   artifact entrypoints (`mod-swooper-maps/recipes/*-artifacts`). Studio imports
-  those first-class package artifacts; generated `dist/` files are build proof,
-  not editable product policy.
+  those first-class package artifacts; generated `dist/` files are build
+  outputs, not editable product policy.
 - Worker creation boundary: `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 
 Core SDK contracts this seam depends on:

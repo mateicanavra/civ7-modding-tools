@@ -17,7 +17,6 @@
 import type { GameMapAdapter } from "@civ7/adapter";
 import { createMockAdapter } from "@civ7/adapter";
 import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
-import { isMapConfigEnvelope } from "@civ7/studio-contract";
 import { createExtendedMapContext, createLabelRng, VOLCANO_FEATURE } from "@swooper/mapgen-core";
 import {
   getHexNeighborIndicesOddQ,
@@ -363,10 +362,7 @@ export function runPlacementMetrics(options: PlacementMetricsRunOptions): Placem
     },
   } as const;
 
-  const loadedConfig = swooperEarthlikeConfigRaw as unknown;
-  const config = isMapConfigEnvelope(loadedConfig)
-    ? canonicalRecipeConfig(loadedConfig)
-    : loadedConfig;
+  const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
 
   const adapter = createMockAdapter({
     width,

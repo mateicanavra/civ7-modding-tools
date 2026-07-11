@@ -59,6 +59,8 @@ type StartCandidate = SelectableTile & {
   coastDistance: number;
 };
 
+const NONE_TIER_BIAS_OFFSET = 0.04;
+
 const ZERO_COMPONENTS: StartComponents = {
   freshwater: 0,
   fertility: 0,
@@ -341,14 +343,8 @@ function percentileRanks(values: readonly number[]): number[] {
 
 export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
   run: (input, config) => {
-    const playersLandmass1 = Math.max(
-      0,
-      (config.overrides?.playersLandmass1 ?? input.baseStarts.playersLandmass1) | 0
-    );
-    const playersLandmass2 = Math.max(
-      0,
-      (config.overrides?.playersLandmass2 ?? input.baseStarts.playersLandmass2) | 0
-    );
+    const playersLandmass1 = Math.max(0, input.baseStarts.playersLandmass1 | 0);
+    const playersLandmass2 = Math.max(0, input.baseStarts.playersLandmass2 | 0);
     const spacingFloorTiles = Math.max(0, config.spacingFloorTiles | 0);
     const desiredSpacingTiles = Math.max(spacingFloorTiles, config.desiredSpacingTiles | 0);
 
@@ -577,10 +573,10 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       weights.coastal +
       weights.river;
     const tierBias = {
-      primary: config.tierBias?.primary ?? 0.08,
-      islandCluster: config.tierBias?.islandCluster ?? 0.02,
-      marginal: config.tierBias?.marginal ?? -0.08,
-      none: (config.tierBias?.marginal ?? -0.08) - 0.04,
+      primary: config.tierBias.primary,
+      islandCluster: config.tierBias.islandCluster,
+      marginal: config.tierBias.marginal,
+      none: config.tierBias.marginal - NONE_TIER_BIAS_OFFSET,
     };
 
     const isRiverAdjacent = (plotIndex: number): boolean => {

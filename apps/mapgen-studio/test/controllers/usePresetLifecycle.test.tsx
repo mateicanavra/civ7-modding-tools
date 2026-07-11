@@ -8,8 +8,8 @@ import {
   usePresetLifecycle,
 } from "../../src/app/hooks/usePresetLifecycle";
 import {
+  admitPipelineConfig,
   createStudioEditorCanonicalConfig,
-  materializePipelineConfig,
 } from "../../src/features/configAuthoring/canonicalConfig";
 import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts } from "../../src/recipes/catalog";
 import { DEFAULT_RECIPE_SETTINGS } from "../../src/ui/constants/defaults";
@@ -71,13 +71,13 @@ describe("usePresetLifecycle catalog/editor ownership", () => {
       },
       authoringConfigSource: { kind: "catalog", sourcePath: catalog.sourcePath },
     });
-    const materialized = materializePipelineConfig({
+    const admitted = admitPipelineConfig({
       schema: recipeArtifacts.configSchema,
       config: catalog.canonicalConfig.config,
       label: "edited-catalog-test",
     });
-    if (!materialized.ok) throw new Error("Expected catalog config to materialize");
-    const edited: PipelineConfig = materialized.value;
+    if (!admitted.ok) throw new Error("Expected catalog config to be admitted");
+    const edited: PipelineConfig = admitted.value;
 
     act(() => result.current.setPipelineConfig(edited));
 
@@ -176,7 +176,7 @@ describe("usePresetLifecycle catalog/editor ownership", () => {
       throw new Error("Expected editor recovery source");
     }
     expect(
-      materializePipelineConfig({
+      admitPipelineConfig({
         schema: recipeArtifacts.configSchema,
         config: recovered.canonicalConfig.config,
         label: "recovered-editor-test",

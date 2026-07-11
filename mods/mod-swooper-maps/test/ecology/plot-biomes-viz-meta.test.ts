@@ -2,8 +2,10 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import { Value } from "typebox/value";
 import { resolveEngineBiomeIds } from "../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/engine-biome-bindings.js";
 import { buildEngineBiomeIdVizCategories } from "../../src/recipes/standard/stages/map-ecology/viz.js";
+import { BiomeEngineBindingsSchema } from "../../src/recipes/standard/stages/map-projection-public-config.js";
 
 describe("plot biomes viz meta (engine biomeId)", () => {
   it("declares explicit stable categories/colors for engine biomeId", () => {
@@ -28,7 +30,7 @@ describe("plot biomes viz meta (engine biomeId)", () => {
       rng: createLabelRng(seed),
     });
 
-    const resolved = resolveEngineBiomeIds(adapter);
+    const resolved = resolveEngineBiomeIds(adapter, Value.Create(BiomeEngineBindingsSchema));
     const categoriesA = buildEngineBiomeIdVizCategories(resolved);
     const categoriesB = buildEngineBiomeIdVizCategories(resolved);
 

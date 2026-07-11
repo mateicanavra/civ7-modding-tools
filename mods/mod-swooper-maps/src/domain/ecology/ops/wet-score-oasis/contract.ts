@@ -19,11 +19,36 @@ const ScoreWetOasisContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      dryMin01: Type.Number({ default: 0.6, minimum: 0, maximum: 1 }),
-      dryMax01: Type.Number({ default: 0.95, minimum: 0, maximum: 1 }),
-      waterMin01: Type.Number({ default: 0.35, minimum: 0, maximum: 1 }),
-      tempWarmStartC: Type.Number({ default: 20 }),
-      tempWarmEndC: Type.Number({ default: 38 }),
+      dryMin01: Type.Number({
+        default: 0.6,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum aridity for oasis suitability.",
+      }),
+      dryMax01: Type.Number({
+        default: 0.95,
+        minimum: 0,
+        maximum: 1,
+        description: "Upper aridity bound for oasis suitability.",
+      }),
+      waterMin01: Type.Number({
+        default: 0.35,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum local water availability for oasis suitability.",
+      }),
+      tempWarmStartC: Type.Number({
+        default: 20,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where oasis suitability begins increasing.",
+      }),
+      tempWarmEndC: Type.Number({
+        default: 38,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where oasis suitability reaches its warm optimum.",
+      }),
     }),
   },
 });

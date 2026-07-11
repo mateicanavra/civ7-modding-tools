@@ -8,7 +8,6 @@ import {
 import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_MINOR } from "@civ7/map-policy";
 import {
   type DeepReadonly,
-  isMapConfigEnvelope,
   type RunInGameExactAuthorshipEvidence,
   snapshotRunInGameExactAuthorshipEvidence,
 } from "@civ7/studio-contract";
@@ -25,10 +24,10 @@ import { admitSwooperCatalogConfig } from "../../maps/catalog/admission.js";
 import {
   admitStandardMapConfig,
   canonicalRecipeConfig,
-  type MaterializedCanonicalMapConfig,
+  type StandardMapConfigEnvelope,
 } from "../../maps/configs/canonical.js";
 import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
-import standardRecipe from "../../recipes/standard/recipe.js";
+import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
@@ -475,7 +474,7 @@ export type RunLocalFinalSurfaceInput = Readonly<{
   width: number;
   height: number;
   seed: number;
-  config: unknown;
+  config: StandardMapConfigEnvelope;
   canonicalConfigDigest?: string;
   launchEnvelopeDigest?: string;
   mapEnvelopeBounds?: MapEnvelopeBounds;
@@ -540,23 +539,23 @@ export function createFinalSurfaceParityMapInfo(
       topLatitude: mapInfo.MaxLatitude,
       bottomLatitude: mapInfo.MinLatitude,
     } as const);
-  return { latitudeBounds, mapInfo };
+  return { latitudeBounds, mapInfo, mapSizeId: mapSizePreset?.id ?? 1 };
 }
 
-function resolveRecipeConfig(config: unknown): unknown {
+function resolveRecipeConfig(config: StandardMapConfigEnvelope): StandardRecipeConfig {
   if (config === undefined) {
     throw new Error(
       "Final-surface parity local run requires the Standard config admitted from its generation manifest."
     );
   }
-  return isMapConfigEnvelope(config) ? canonicalRecipeConfig(config) : config;
+  return canonicalRecipeConfig(config);
 }
 
 export function runLocalFinalSurfaceSnapshot(
   input: RunLocalFinalSurfaceInput
 ): FinalSurfaceSnapshot {
   const { width, height, seed } = input;
-  const { latitudeBounds, mapInfo } = createFinalSurfaceParityMapInfo(
+  const { latitudeBounds, mapInfo, mapSizeId } = createFinalSurfaceParityMapInfo(
     width,
     height,
     input.mapEnvelopeBounds
@@ -576,7 +575,7 @@ export function runLocalFinalSurfaceSnapshot(
     width,
     height,
     mapInfo,
-    mapSizeId: mapInfo.MapSizeType ?? 1,
+    mapSizeId,
     rng: createLabelRng(seed),
   });
   const context = createExtendedMapContext({ width, height }, adapter, env);
@@ -1557,7 +1556,7 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
 /** The persisted manifest is the only launch-envelope authority for parity replay. */
 export function canonicalConfigFromGenerationManifest(
   manifest: StudioRunGenerationManifest | undefined
-): MaterializedCanonicalMapConfig | undefined {
+): StandardMapConfigEnvelope | undefined {
   const source = manifest?.payload.launchEnvelope.source;
   if (source === undefined) return undefined;
   try {

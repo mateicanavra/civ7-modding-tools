@@ -685,6 +685,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -693,15 +701,22 @@ const mapConfig = {
           "coveragePct": 55,
           "lightThreshold": 0.4,
           "mediumThreshold": 0.65,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 14
+          "coveragePct": 14,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 20
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -757,7 +772,6 @@ const mapConfig = {
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,
@@ -816,7 +830,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "8f0e56e071e4832ad101c2b7c84d9d5e3f6145382738fa8656148cbd41c270cd",
-  envelopeHash: "673b09653936c625c91169c9189934f1c3dbaddd1c66533cc03ac0c9e64856cf",
+  configHash: "21242b645220615e3350cbeeded1e4633253123959312c249494c43747bddb4b",
+  envelopeHash: "ab1ad9f45ae9cbacf800bce72ae2492e22fe1b968dcd847cc3f862ffc9ac8821",
   config: mapConfig.config,
 });

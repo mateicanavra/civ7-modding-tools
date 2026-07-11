@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
+import { buildStandardRecipeDefaultConfig } from "../src/recipes/standard/artifacts.js";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
 import { artifacts as hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
@@ -34,10 +34,9 @@ describe("hydrology dryness knob effects (integration)", () => {
     };
 
     const runAndMeans = (dryness: "dry" | "wet") => {
-      const config: StandardRecipeConfig = {
-        "hydrology-climate-baseline": { knobs: { dryness } },
-        "hydrology-climate-refine": { knobs: { dryness } },
-      };
+      const config = structuredClone(buildStandardRecipeDefaultConfig());
+      config["hydrology-climate-baseline"].knobs.dryness = dryness;
+      config["hydrology-climate-refine"].knobs.dryness = dryness;
       const adapter = createMockAdapter({
         width,
         height,

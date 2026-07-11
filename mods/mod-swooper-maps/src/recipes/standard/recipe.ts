@@ -8,7 +8,7 @@ import {
   type CompiledRecipeConfigOf,
   collectCompileOps,
   createRecipe,
-  type RecipeConfigInputOf,
+  type RecipePublicConfigOf,
 } from "@swooper/mapgen-core/authoring";
 import { orderStandardStages } from "./contract-manifest.js";
 import ecologyBiomes from "./stages/ecology-biomes/index.js";
@@ -63,7 +63,7 @@ const stages = orderStandardStages({
 
 export const STANDARD_STAGES = stages;
 
-export type StandardRecipeConfig = RecipeConfigInputOf<typeof stages>;
+export type StandardRecipeConfig = RecipePublicConfigOf<typeof stages>;
 export type StandardRecipeCompiledConfig = CompiledRecipeConfigOf<typeof stages>;
 
 export const compileOpsById = collectCompileOps(

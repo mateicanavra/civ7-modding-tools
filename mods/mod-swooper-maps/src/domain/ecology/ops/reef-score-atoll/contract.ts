@@ -28,12 +28,42 @@ const ScoreAtollContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      tempWarmStartC: Type.Number({ default: 18 }),
-      tempWarmEndC: Type.Number({ default: 30 }),
-      shallowDepthM: Type.Integer({ default: 0 }),
-      deepDepthM: Type.Integer({ default: 100 }),
-      minDistanceToCoast: Type.Integer({ default: 4, minimum: 0 }),
-      maxDistanceToCoast: Type.Integer({ default: 8, minimum: 0 }),
+      tempWarmStartC: Type.Number({
+        default: 18,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where atoll suitability begins increasing.",
+      }),
+      tempWarmEndC: Type.Number({
+        default: 30,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where atoll suitability reaches its warm optimum.",
+      }),
+      shallowDepthM: Type.Integer({
+        default: 0,
+        minimum: 0,
+        maximum: 12_000,
+        description: "Shallow-water depth used for atoll scoring.",
+      }),
+      deepDepthM: Type.Integer({
+        default: 100,
+        minimum: 0,
+        maximum: 12_000,
+        description: "Deep-water limit used for atoll scoring.",
+      }),
+      minDistanceToCoast: Type.Integer({
+        default: 4,
+        minimum: 0,
+        maximum: 512,
+        description: "Minimum tile distance from coast for atoll suitability.",
+      }),
+      maxDistanceToCoast: Type.Integer({
+        default: 8,
+        minimum: 0,
+        maximum: 512,
+        description: "Maximum tile distance from coast for atoll suitability.",
+      }),
     }),
   },
 });

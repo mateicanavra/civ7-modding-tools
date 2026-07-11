@@ -120,10 +120,10 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     const perTypeSpacingFloorScale = config.perTypeSpacingFloorScale;
     const equityMaxDensityRatio = config.equityMaxDensityRatio;
     const familyDensity = {
-      aquatic: config.familyDensity?.aquatic ?? 1,
-      cultivated: config.familyDensity?.cultivated ?? 1,
-      terrestrial: config.familyDensity?.terrestrial ?? 1,
-      geological: config.familyDensity?.geological ?? 1,
+      aquatic: config.familyDensity.aquatic,
+      cultivated: config.familyDensity.cultivated,
+      terrestrial: config.familyDensity.terrestrial,
+      geological: config.familyDensity.geological,
     };
 
     // --- demand state -------------------------------------------------------------------------
@@ -198,7 +198,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
       radius: number;
     };
     const rulesByType = new Map<OfficialResourceType, CompiledRule[]>();
-    for (const rule of config.affinityRules ?? []) {
+    for (const rule of config.affinityRules) {
       const push = (from: OfficialResourceType, partner: OfficialResourceType) => {
         const list = rulesByType.get(from) ?? [];
         list.push({ partner, relation: rule.relation, radius: rule.radiusTiles });
@@ -564,8 +564,8 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         rarityFidelity,
         perTypeSpacingFloorScale,
         equityMaxDensityRatio,
-        affinityRuleCount: (config.affinityRules ?? []).length,
-        affinityRules: (config.affinityRules ?? []).map((rule) => ({
+        affinityRuleCount: config.affinityRules.length,
+        affinityRules: config.affinityRules.map((rule) => ({
           resourceA: rule.resourceA,
           resourceB: rule.resourceB,
           relation: rule.relation,

@@ -14,6 +14,18 @@ type MinHeapItem = Readonly<{ cost: number; plateId: number; cellId: number; seq
 type PlateGraphConfig = Static<(typeof ComputePlateGraphContract)["strategies"]["default"]>;
 type PolarCapsConfig = NonNullable<PlateGraphConfig["polarCaps"]>;
 
+const PLATE_SEED_ATTEMPT_LIMIT = 64;
+const COMPONENT_SIZE_CLAMP_MIN = 1;
+const PLATE_COUNT_CLAMP_MIN = 2;
+const MAJOR_PLATE_COUNT_CLAMP_MIN = 1;
+const MAJOR_PLATE_FRACTION = 0.6;
+const MICROPLATE_AREA_CELLS_CLAMP_MIN = 1;
+const RESERVED_NON_MICROPLATE_COUNT = 4;
+const POLAR_REGION_COUNT = 2;
+const GEOMETRY_SCALE_CLAMP_MIN = 1e-6;
+const PLATE_SEED_SEPARATION_SCALE = 0.55;
+const PARTITION_COST_EPSILON = 1e-9;
+
 class MinHeap {
   private readonly items: MinHeapItem[] = [];
   private seq = 0;
@@ -155,8 +167,7 @@ function pickSeedCell(params: {
   let bestCandidate = -1;
   let bestScore = -Infinity;
 
-  const attemptsPerSeed = 64;
-  for (let attempt = 0; attempt < attemptsPerSeed; attempt++) {
+  for (let attempt = 0; attempt < PLATE_SEED_ATTEMPT_LIMIT; attempt++) {
     const candidate = params.rng(cellCount, "PlateGraphSeedPick") | 0;
     if (!params.allowed[candidate]) continue;
     if (params.used[candidate]) continue;
@@ -268,7 +279,7 @@ function filterByMinComponentSize(params: {
   minSize: number;
 }): Uint8Array {
   const cellCount = params.mesh.cellCount | 0;
-  const minSize = Math.max(1, params.minSize | 0);
+  const minSize = Math.max(COMPONENT_SIZE_CLAMP_MIN, params.minSize | 0);
 
   const out = new Uint8Array(cellCount);
   const visited = new Uint8Array(cellCount);
@@ -319,7 +330,7 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
         deriveFoundationReferenceArea(
           requireEnvDimensions(ctx, "foundation/compute-plate-graph.normalize")
         );
-        const scaledPlateCount = Math.max(2, config.plateCount | 0);
+        const scaledPlateCount = Math.max(PLATE_COUNT_CLAMP_MIN, config.plateCount | 0);
 
         return {
           ...config,
@@ -343,13 +354,19 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           throw new Error("[Foundation] PlateGraph plateCount exceeds mesh cellCount.");
         }
 
-        const majorCount = Math.max(1, Math.floor(platesCount * 0.6));
-        const polarPolicy: Partial<PolarCapsConfig> | undefined = config.polarCaps;
-        const capFraction = clamp01(polarPolicy?.capFraction ?? 0.1);
-        const microBandFraction = clamp01(polarPolicy?.microplateBandFraction ?? 0.2);
-        const requestedMicroPerPole = Math.max(0, polarPolicy?.microplatesPerPole ?? 0);
-        const microplatesMinPlateCount = Math.max(0, polarPolicy?.microplatesMinPlateCount ?? 14);
-        const microplateMinAreaCells = Math.max(1, polarPolicy?.microplateMinAreaCells ?? 8);
+        const majorCount = Math.max(
+          MAJOR_PLATE_COUNT_CLAMP_MIN,
+          Math.floor(platesCount * MAJOR_PLATE_FRACTION)
+        );
+        const polarPolicy: PolarCapsConfig = config.polarCaps;
+        const capFraction = clamp01(polarPolicy.capFraction);
+        const microBandFraction = clamp01(polarPolicy.microplateBandFraction);
+        const requestedMicroPerPole = Math.max(0, polarPolicy.microplatesPerPole);
+        const microplatesMinPlateCount = Math.max(0, polarPolicy.microplatesMinPlateCount);
+        const microplateMinAreaCells = Math.max(
+          MICROPLATE_AREA_CELLS_CLAMP_MIN,
+          polarPolicy.microplateMinAreaCells
+        );
 
         let minSiteY = Number.POSITIVE_INFINITY;
         let maxSiteY = Number.NEGATIVE_INFINITY;
@@ -363,7 +380,7 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           throw new Error("[Foundation] PlateGraph mesh.siteY must be finite.");
         }
 
-        const spanY = Math.max(1e-6, maxSiteY - minSiteY);
+        const spanY = Math.max(GEOMETRY_SCALE_CLAMP_MIN, maxSiteY - minSiteY);
         const northCapMaxY = minSiteY + spanY * capFraction;
         const southCapMinY = maxSiteY - spanY * capFraction;
 
@@ -411,7 +428,10 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
         let northMicroEligibleSized: Uint8Array | null = null;
         let southMicroEligibleSized: Uint8Array | null = null;
         if (platesCount >= microplatesMinPlateCount && requestedMicroPerPole > 0) {
-          const maxPerPoleByBudget = Math.max(0, Math.floor((platesCount - 4) / 2));
+          const maxPerPoleByBudget = Math.max(
+            0,
+            Math.floor((platesCount - RESERVED_NON_MICROPLATE_COUNT) / POLAR_REGION_COUNT)
+          );
           const requested = Math.min(requestedMicroPerPole, maxPerPoleByBudget);
 
           northMicroEligibleSized = filterByMinComponentSize({
@@ -484,8 +504,10 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           if (roleById[id] === "polarMicroplate") kindById[id] = "minor";
         }
 
-        const characteristic = Math.max(1e-6, Math.min(mesh.wrapWidth, spanY));
-        const minSep = (characteristic / Math.sqrt(Math.max(1, platesCount))) * 0.55;
+        const characteristic = Math.max(GEOMETRY_SCALE_CLAMP_MIN, Math.min(mesh.wrapWidth, spanY));
+        const minSep =
+          (characteristic / Math.sqrt(Math.max(MAJOR_PLATE_COUNT_CLAMP_MIN, platesCount))) *
+          PLATE_SEED_SEPARATION_SCALE;
         const minSepSq = minSep * minSep;
 
         const seedCells = new Int32Array(platesCount);
@@ -591,14 +613,12 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           heap.push({ cost: 0, plateId, cellId: seed });
         }
 
-        const eps = 1e-9;
-
         while (heap.size > 0) {
           const item = heap.pop();
           if (!item) break;
           const { cost, plateId, cellId } = item;
 
-          if (cost > bestCost[cellId]! + eps) continue;
+          if (cost > bestCost[cellId]! + PARTITION_COST_EPSILON) continue;
           if ((cellToPlate[cellId] | 0) !== (plateId | 0)) continue;
 
           const start = mesh.neighborsOffsets[cellId] | 0;
@@ -619,8 +639,9 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
             const prevPlate = cellToPlate[n] | 0;
 
             if (
-              nextCost + eps < prevCost ||
-              (Math.abs(nextCost - prevCost) <= eps && (prevPlate < 0 || plateId < prevPlate))
+              nextCost + PARTITION_COST_EPSILON < prevCost ||
+              (Math.abs(nextCost - prevCost) <= PARTITION_COST_EPSILON &&
+                (prevPlate < 0 || plateId < prevPlate))
             ) {
               bestCost[n] = nextCost;
               cellToPlate[n] = plateId;

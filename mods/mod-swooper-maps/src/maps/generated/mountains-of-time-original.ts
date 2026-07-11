@@ -701,6 +701,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -709,15 +717,22 @@ const mapConfig = {
           "coveragePct": 55,
           "lightThreshold": 0.38,
           "mediumThreshold": 0.62,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 24
+          "coveragePct": 24,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 6
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       }
     },
@@ -784,8 +799,7 @@ const mapConfig = {
         "fairnessTolerance": 0.3,
         "coastalPreferenceWeight": 0,
         "riverPreferenceWeight": 0,
-        "startBiasWeight": 1,
-        "overrides": {}
+        "startBiasWeight": 1
       },
       "support": {
         "enabled": true,
@@ -815,7 +829,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-original",
-  configHash: "489b84e94f1bb4204218bc0e3daab99e3880164a4dfd054a026fa0d5f64d6d0c",
-  envelopeHash: "d441c5296eedb3e0fe5c3e117713686e4473fc273d9f0a601cfc7b9b9d4a1921",
+  configHash: "91ecf53110eefa842fd2c53fff50e53d27a7b15fa97dde73f3102ac23654fa37",
+  envelopeHash: "a6a9adb58a461da2bffe6e9efe0a2177eec20c76064f71f5a47f025da74affc4",
   config: mapConfig.config,
 });

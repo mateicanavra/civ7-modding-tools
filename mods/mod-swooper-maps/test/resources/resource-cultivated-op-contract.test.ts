@@ -33,10 +33,10 @@ describe("cultivated resource operation contract", () => {
     const width = 5;
     const height = 5;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(resources.ops.planCultivatedResources, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      resources.ops.planCultivatedResources,
+      structuredClone(resources.ops.planCultivatedResources.defaultConfig)
+    );
 
     const result = resources.ops.planCultivatedResources.run(
       {

@@ -42,10 +42,10 @@ describe("geological resource operation contract", () => {
     const width = 5;
     const height = 5;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(resources.ops.planGeologicalResources, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      resources.ops.planGeologicalResources,
+      structuredClone(resources.ops.planGeologicalResources.defaultConfig)
+    );
 
     const result = resources.ops.planGeologicalResources.run(
       {

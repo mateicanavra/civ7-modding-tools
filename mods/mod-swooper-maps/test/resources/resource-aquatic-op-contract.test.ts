@@ -21,10 +21,10 @@ describe("aquatic resource operation contract", () => {
     const width = 4;
     const height = 4;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(resources.ops.planAquaticResources, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      resources.ops.planAquaticResources,
+      structuredClone(resources.ops.planAquaticResources.defaultConfig)
+    );
 
     const result = resources.ops.planAquaticResources.run(
       {

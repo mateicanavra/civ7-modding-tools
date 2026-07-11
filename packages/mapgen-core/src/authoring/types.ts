@@ -127,27 +127,15 @@ type NonReservedStepIdOf<TSteps extends StepsArray<any>> = Exclude<
 
 type StepSchemaOf<TStep> = TStep extends { contract: { schema: infer Schema } } ? Schema : never;
 
-type DeepPartial<T> = T extends (...args: any[]) => any
-  ? T
-  : T extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepPartial<U>>
-    : T extends object
-      ? { [K in keyof T]?: DeepPartial<T[K]> }
-      : T;
-
 type StepConfigRuntimeOf<TStep> =
   StepSchemaOf<TStep> extends TSchema ? Static<StepSchemaOf<TStep>> : unknown;
 
-// Authoring config should accept partial overrides since compilation applies schema defaults.
-// Runtime step implementations still receive the fully normalized/validated config.
-type StepConfigInputOf<TStep> = DeepPartial<StepConfigRuntimeOf<TStep>>;
-
 type StepIdOfStep<TStep> = TStep extends { contract: { id: infer Id } } ? Id & string : never;
 
-type StepConfigInputsById<TSteps extends readonly unknown[]> = Partial<{
+type StepConfigsById<TSteps extends readonly unknown[]> = Readonly<{
   [S in TSteps[number] as StepIdOfStep<S> extends ReservedStageKey
     ? never
-    : StepIdOfStep<S>]: StepConfigInputOf<S>;
+    : StepIdOfStep<S>]: StepConfigRuntimeOf<S>;
 }>;
 
 export type StageToInternalResult<StepId extends string, Knobs> = Readonly<{
@@ -281,33 +269,29 @@ type StagePublicSchemaOf<S> = S extends { public: infer PS } ? PS : never;
 
 type StageHasPublic<S> = S extends { public: TObject } ? true : false;
 
-export type StageConfigInputOf<S> = S extends {
+type StagePublicConfigOf<S> = S extends {
   knobsSchema: TObject;
   steps: readonly unknown[];
 }
   ? Readonly<{
-      knobs?: Partial<Static<Extract<StageKnobsSchemaOf<S>, TObject>>>;
+      knobs: Static<Extract<StageKnobsSchemaOf<S>, TObject>>;
     }> &
       (StageHasPublic<S> extends true
-        ? DeepPartial<Static<Extract<StagePublicSchemaOf<S>, TObject>>>
-        : StepConfigInputsById<StageStepsOf<S>>)
+        ? Static<Extract<StagePublicSchemaOf<S>, TObject>>
+        : StepConfigsById<StageStepsOf<S>>)
   : never;
 
 type StageUnion<TStages extends readonly unknown[]> = TStages[number];
 
-export type RecipeConfigOf<TStages extends readonly unknown[]> = Readonly<{
+export type RecipePublicConfigOf<TStages extends readonly unknown[]> = Readonly<{
+  [S in StageUnion<TStages> as StageIdOf<S>]: StagePublicConfigOf<S>;
+}>;
+
+export type CompiledRecipeConfigOf<TStages extends readonly unknown[]> = Readonly<{
   [S in StageUnion<TStages> as StageIdOf<S>]: Readonly<{
     [K in StepIdUnionOfStage<S>]: StepConfigRuntimeById<S, K>;
   }>;
 }>;
-
-export type RecipeConfigInputOf<TStages extends readonly unknown[]> = Readonly<
-  Partial<{
-    [S in StageUnion<TStages> as StageIdOf<S>]: StageConfigInputOf<S>;
-  }>
->;
-
-export type CompiledRecipeConfigOf<TStages extends readonly unknown[]> = RecipeConfigOf<TStages>;
 
 type StageListOf<TContext extends ExtendedMapContext> = readonly StageContract<
   any,
@@ -332,19 +316,19 @@ export type RecipeDefinition<
 
 export type RecipeModule<
   TContext extends ExtendedMapContext = ExtendedMapContext,
-  TConfigInput = RecipeConfigInputOf<any>,
+  TPublicConfig = RecipeConfig,
   TConfigCompiled = RecipeConfig,
 > = {
   readonly id: string;
   readonly recipe: RecipeV2;
   instantiate: (config: TConfigCompiled) => RecipeV2;
-  compileConfig: (env: Env, config?: TConfigInput) => TConfigCompiled;
+  compileConfig: (env: Env, config: TPublicConfig) => TConfigCompiled;
   runRequest: (env: Env, config: TConfigCompiled) => RunRequest;
-  compile: (env: Env, config?: TConfigInput) => ExecutionPlan;
+  compile: (env: Env, config: TPublicConfig) => ExecutionPlan;
   run: (
     context: TContext,
     env: Env,
-    config?: TConfigInput,
+    config: TPublicConfig,
     options?: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
@@ -354,7 +338,7 @@ export type RecipeModule<
   runAsync: (
     context: TContext,
     env: Env,
-    config?: TConfigInput,
+    config: TPublicConfig,
     options?: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;

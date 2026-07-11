@@ -4,7 +4,7 @@ import {
   createDefaultCiv7StudioSetupConfig,
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
-import { materializePipelineConfig } from "../configAuthoring/canonicalConfig";
+import { admitPipelineConfig } from "../configAuthoring/canonicalConfig";
 import {
   isMapConfigEnvelope,
   serializeMapConfigEnvelope,
@@ -145,12 +145,12 @@ function parseAuthoringConfigSource(args: {
     }
     const recipeArtifacts = findRecipeArtifacts(args.recipeSettings.recipe);
     if (!recipeArtifacts) return { kind: "blocked", reason: "invalid-persistence" };
-    const materialized = materializePipelineConfig({
+    const admitted = admitPipelineConfig({
       schema: recipeArtifacts.configSchema,
       config: canonicalConfig.config,
       label: "persisted-editor",
     });
-    if (!materialized.ok) return { kind: "blocked", reason: "invalid-persistence" };
+    if (!admitted.ok) return { kind: "blocked", reason: "invalid-persistence" };
     return { kind: "editor", canonicalConfig };
   }
   if (args.value.kind === "blocked") {
@@ -194,7 +194,7 @@ function canPersistAuthoringConfigSource(args: {
   const recipeArtifacts = findRecipeArtifacts(args.recipeSettings.recipe);
   return (
     recipeArtifacts !== null &&
-    materializePipelineConfig({
+    admitPipelineConfig({
       schema: recipeArtifacts.configSchema,
       config: args.source.canonicalConfig.config,
       label: "persisted-editor",

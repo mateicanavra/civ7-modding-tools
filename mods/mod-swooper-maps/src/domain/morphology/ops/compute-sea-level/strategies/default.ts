@@ -21,7 +21,7 @@ export const defaultStrategy = createStrategy(ComputeSeaLevelContract, "default"
       crustType,
       boundaryCloseness,
       boundaryTarget: config.boundaryShareTarget,
-      continentalTarget: config.continentalFraction ?? null,
+      continentalTarget: config.continentalFraction,
     });
 
     return { seaLevel };

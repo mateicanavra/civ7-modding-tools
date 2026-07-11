@@ -3,9 +3,9 @@ import { createMockAdapter } from "@civ7/adapter";
 import type { TraceEvent } from "@swooper/mapgen-core";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { standardConfig } from "../support/standard-config.js";
 
 type KindEvent = { kind: string };
 
@@ -67,7 +67,7 @@ describe("Morphology tracing (observability hardening smoke)", () => {
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
     const events: TraceEvent[] = [];
-    standardRecipe.run(context, env, realismEarthlikeConfig, {
+    standardRecipe.run(context, env, standardConfig, {
       log: () => {},
       traceSink: { emit: (event) => events.push(event) },
     });

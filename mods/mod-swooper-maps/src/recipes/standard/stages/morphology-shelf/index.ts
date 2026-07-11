@@ -52,7 +52,7 @@ const ShelfMaskConfigSchema = Type.Object(
  */
 const knobsSchema = Type.Object(
   {
-    shelfWidth: Type.Optional(MorphologyShelfWidthKnobSchema),
+    shelfWidth: MorphologyShelfWidthKnobSchema,
   },
   {
     additionalProperties: false,
@@ -63,7 +63,7 @@ const knobsSchema = Type.Object(
 
 const publicSchema = Type.Object(
   {
-    shelf: Type.Optional(ShelfMaskConfigSchema),
+    shelf: ShelfMaskConfigSchema,
   },
   {
     additionalProperties: false,
@@ -72,7 +72,7 @@ const publicSchema = Type.Object(
 );
 
 function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
-  return { strategy: "default", config: config ?? {} };
+  return { strategy: "default", config };
 }
 
 export default createStage({

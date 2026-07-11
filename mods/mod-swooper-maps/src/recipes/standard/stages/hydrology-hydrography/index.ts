@@ -30,7 +30,7 @@ const knobsSchema = Type.Object(
      * - Transforms Hydrology river classification thresholds over the defaulted baseline.
      * - Does not change canonical drainage routing or Civ-visible projection ownership.
      */
-    riverDensity: Type.Optional(HydrologyRiverDensityKnobSchema),
+    riverDensity: HydrologyRiverDensityKnobSchema,
     /**
      * Hydrology lake intent density.
      *
@@ -38,7 +38,7 @@ const knobsSchema = Type.Object(
      * - Transforms lake planning over the defaulted lake controls.
      * - Does not call Civ7 lake generation or tune projection frequency.
      */
-    lakeiness: Type.Optional(HydrologyLakeinessKnobSchema),
+    lakeiness: HydrologyLakeinessKnobSchema,
   },
   {
     description:
@@ -53,12 +53,12 @@ export default createStage({
   steps: orderStandardStageSteps("hydrology-hydrography", { rivers, lakes }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     rivers: {
-      drainageRouting: { strategy: "default", config: config.drainageRouting ?? {} },
-      accumulateDischarge: { strategy: "default", config: config.runoff ?? {} },
-      projectRiverNetwork: { strategy: "default", config: config.riverNetwork ?? {} },
+      drainageRouting: { strategy: "default", config: config.drainageRouting },
+      accumulateDischarge: { strategy: "default", config: config.runoff },
+      projectRiverNetwork: { strategy: "default", config: config.riverNetwork },
     },
     lakes: {
-      planLakes: { strategy: "default", config: config.lakes ?? {} },
+      planLakes: { strategy: "default", config: config.lakes },
     },
   }),
 } as const);

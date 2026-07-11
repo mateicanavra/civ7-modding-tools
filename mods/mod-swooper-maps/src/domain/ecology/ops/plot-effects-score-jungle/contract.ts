@@ -9,11 +9,14 @@ import { BiomeSymbolSchema } from "../../model/schemas/index.js";
 const PlotEffectsScoreJungleConfigSchema = Type.Object({
   minTemperature: Type.Number({
     default: 22,
+    minimum: -100,
+    maximum: 100,
     description: "Jungle is eligible when surfaceTemperature >= minTemperature (C).",
   }),
   minMoisture: Type.Number({
     default: 110,
     minimum: 0,
+    maximum: 1_000,
     description: "Jungle is eligible when effectiveMoisture >= minMoisture.",
   }),
   minVegetation: Type.Number({

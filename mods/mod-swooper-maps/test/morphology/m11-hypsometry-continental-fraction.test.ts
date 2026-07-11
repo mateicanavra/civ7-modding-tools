@@ -63,7 +63,10 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     ).crust;
 
     const plateGraphConfig = computePlateGraph.normalize(
-      { strategy: "default", config: { plateCount: 19 } },
+      {
+        ...computePlateGraph.defaultConfig,
+        config: { ...computePlateGraph.defaultConfig.config, plateCount: 19 },
+      },
       ctx as any
     );
     const plateGraph = computePlateGraph.run(

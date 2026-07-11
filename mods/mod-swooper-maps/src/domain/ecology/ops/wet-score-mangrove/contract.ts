@@ -20,11 +20,36 @@ const ScoreWetMangroveContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      waterMin01: Type.Number({ default: 0.45, minimum: 0, maximum: 1 }),
-      fertilityMin01: Type.Number({ default: 0.15, minimum: 0, maximum: 1 }),
-      aridityMax01: Type.Number({ default: 0.7, minimum: 0, maximum: 1 }),
-      tempWarmStartC: Type.Number({ default: 18 }),
-      tempWarmEndC: Type.Number({ default: 30 }),
+      waterMin01: Type.Number({
+        default: 0.45,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum water availability for mangrove suitability.",
+      }),
+      fertilityMin01: Type.Number({
+        default: 0.15,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum soil fertility for mangrove suitability.",
+      }),
+      aridityMax01: Type.Number({
+        default: 0.7,
+        minimum: 0,
+        maximum: 1,
+        description: "Maximum aridity for mangrove suitability.",
+      }),
+      tempWarmStartC: Type.Number({
+        default: 18,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where mangrove suitability begins increasing.",
+      }),
+      tempWarmEndC: Type.Number({
+        default: 30,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where mangrove suitability reaches its warm optimum.",
+      }),
     }),
   },
 });

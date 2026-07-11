@@ -43,12 +43,6 @@ const ComputeMeshContract = defineOp({
           description:
             "Controls how many relaxation passes smooth generated mesh sites before downstream plate logic runs.",
         }),
-        cellCount: Type.Optional(
-          Type.Integer({
-            minimum: 1,
-            description: "Derived in normalization (do not author directly).",
-          })
-        ),
       },
       { additionalProperties: false }
     ),

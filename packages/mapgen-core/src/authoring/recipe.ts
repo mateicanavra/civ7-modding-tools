@@ -25,9 +25,9 @@ import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.j
 import type {
   CompiledRecipeConfigOf,
   RecipeConfig,
-  RecipeConfigInputOf,
   RecipeDefinition,
   RecipeModule,
+  RecipePublicConfigOf,
   StageContract,
   Step,
   StepDeps,
@@ -306,7 +306,7 @@ export function createRecipe<
   const TStages extends readonly AnyStage<TContext>[],
 >(
   input: RecipeDefinition<TContext, TStages>
-): RecipeModule<TContext, RecipeConfigInputOf<TStages>, CompiledRecipeConfigOf<TStages>> {
+): RecipeModule<TContext, RecipePublicConfigOf<TStages>, CompiledRecipeConfigOf<TStages>> {
   assertTagDefinitions(input.tagDefinitions);
 
   const runtimeOpsById =
@@ -373,12 +373,12 @@ export function createRecipe<
 
   function compileConfig(
     env: Env,
-    config?: RecipeConfigInputOf<TStages>
+    config: RecipePublicConfigOf<TStages>
   ): CompiledRecipeConfigOf<TStages> {
     return compileRecipeConfig({
       env,
       recipe: { stages: input.stages },
-      config: config as RecipeConfigInputOf<any> | undefined,
+      config,
       compileOpsById: input.compileOpsById,
     }) as CompiledRecipeConfigOf<TStages>;
   }
@@ -387,7 +387,7 @@ export function createRecipe<
     return { recipe: instantiate(config), env };
   }
 
-  function compile(env: Env, config?: RecipeConfigInputOf<TStages>): ExecutionPlan {
+  function compile(env: Env, config: RecipePublicConfigOf<TStages>): ExecutionPlan {
     const compiled = compileConfig(env, config);
     return compileExecutionPlan(runRequest(env, compiled), registry);
   }
@@ -395,7 +395,7 @@ export function createRecipe<
   function run(
     context: TContext,
     env: Env,
-    config?: RecipeConfigInputOf<TStages>,
+    config: RecipePublicConfigOf<TStages>,
     options: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
@@ -421,7 +421,7 @@ export function createRecipe<
   async function runAsync(
     context: TContext,
     env: Env,
-    config?: RecipeConfigInputOf<TStages>,
+    config: RecipePublicConfigOf<TStages>,
     options: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;

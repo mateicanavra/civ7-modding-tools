@@ -370,6 +370,18 @@ const cases: Case[] = [
 ];
 
 describe("TypeboxValidator vs @rjsf/validator-ajv8 (parity)", () => {
+  it("returns raw-schema validation errors without throwing", () => {
+    const schema: RJSFSchema = {
+      type: "object",
+      additionalProperties: false,
+      required: ["name"],
+      properties: { name: { type: "string" } },
+    };
+
+    expect(() => tb.validateFormData({ unexpected: true }, schema)).not.toThrow();
+    expect(tb.validateFormData({ unexpected: true }, schema).errors.length).toBeGreaterThan(0);
+  });
+
   it.each(cases)("isValid parity — $name", ({ schema, data }) => {
     const s = norm(schema);
     expect(tb.isValid(s, data, s)).toBe(ajv.isValid(s, data, s));

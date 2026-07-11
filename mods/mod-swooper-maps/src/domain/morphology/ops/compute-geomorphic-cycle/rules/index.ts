@@ -50,7 +50,7 @@ export function validateGeomorphicInputs(input: ComputeGeomorphicCycleTypes["inp
 export function resolveWorldAgeScale(
   worldAge: ComputeGeomorphicCycleTypes["config"]["default"]["worldAge"]
 ): number {
-  return WORLD_AGE_SCALE[worldAge] ?? 1.0;
+  return WORLD_AGE_SCALE[worldAge];
 }
 
 /**

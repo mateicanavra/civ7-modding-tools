@@ -41,7 +41,7 @@ describe("ecology defaults regression", () => {
         featureOccupancyMask: new Uint8Array([0]),
         reserved: new Uint8Array([0]),
       },
-      { strategy: "default", config: {} }
+      ecology.ops.planWetlands.defaultConfig
     );
 
     expect(result.placements).toHaveLength(0);
@@ -61,7 +61,7 @@ describe("ecology defaults regression", () => {
         vegetationDensity: new Float32Array([0.6]),
         fertility: new Float32Array([0]),
       },
-      { strategy: "default", config: {} }
+      ecology.ops.computeVegetationSubstrate.defaultConfig
     );
 
     const result = runOpValidated(
@@ -72,7 +72,7 @@ describe("ecology defaults regression", () => {
         landMask: new Uint8Array([1]),
         ...substrate,
       },
-      { strategy: "default", config: {} }
+      ecology.ops.scoreVegetationForest.defaultConfig
     );
 
     const score = result.score01[0];

@@ -5,8 +5,8 @@ import { createCiv7Adapter } from "@civ7/adapter/civ7";
 import { createExtendedMapContext, type Env, type ExtendedMapContext } from "@swooper/mapgen-core";
 import type { RecipeModule } from "@swooper/mapgen-core/authoring";
 
-type RecipeConfigInputOfRecipe<TRecipe extends RecipeModule<any, any, any>> =
-  TRecipe extends RecipeModule<any, infer TConfigInput, any> ? TConfigInput : never;
+type RecipePublicConfigOfRecipe<TRecipe extends RecipeModule<any, any, any>> =
+  TRecipe extends RecipeModule<any, infer TPublicConfig, any> ? TPublicConfig : never;
 
 export type MapLatitudeBounds = Readonly<{
   topLatitude: number;
@@ -27,7 +27,7 @@ type MapDefinitionCore<TRecipe extends RecipeModule<ExtendedMapContext, any, any
   id: string;
   name: string;
   recipe: TRecipe;
-  config: RecipeConfigInputOfRecipe<TRecipe>;
+  config: RecipePublicConfigOfRecipe<TRecipe>;
   description?: string;
   latitudeBounds?: MapLatitudeBounds;
   logPrefix?: string;

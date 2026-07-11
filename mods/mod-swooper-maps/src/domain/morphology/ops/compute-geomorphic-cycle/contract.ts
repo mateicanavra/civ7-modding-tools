@@ -44,15 +44,12 @@ export const GeomorphologyConfigSchema = Type.Object(
           minimum: 0,
           maximum: 1,
         }),
-        talus: Type.Optional(
-          Type.Number({
-            description:
-              "Controls optional talus threshold for terrain diffusion in normalized units.",
-            default: 0.5,
-            minimum: 0,
-            maximum: 10,
-          })
-        ),
+        talus: Type.Number({
+          description: "Controls the talus threshold for terrain diffusion in normalized units.",
+          default: 0.5,
+          minimum: 0,
+          maximum: 10,
+        }),
       },
       {
         additionalProperties: false,

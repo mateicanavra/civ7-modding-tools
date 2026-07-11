@@ -18,6 +18,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
+import type { XSchema } from "typebox/schema";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
 import type { PipelineConfig, RecipeSettings, SelectOption } from "../../types/index.js";
@@ -51,7 +52,7 @@ export interface RecipePanelProps {
   /** Current pipeline configuration */
   config: PipelineConfig | null;
   /** Config schema (recipe artifacts) */
-  configSchema: unknown;
+  configSchema: XSchema;
   /** Path-based patch callback for efficient state updates */
   onConfigChange: (next: PipelineConfig) => void;
   /** Callback to reset config to defaults */

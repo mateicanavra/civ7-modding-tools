@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MINOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import { Value } from "typebox/value";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function broadVegetationHabitatFields(size: number) {
@@ -20,10 +21,10 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyPedology, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.classifyPedology,
+      ecology.ops.classifyPedology.defaultConfig
+    );
     const result = ecology.ops.classifyPedology.run(
       {
         width,
@@ -45,7 +46,7 @@ describe("ecology op contract surfaces", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyPedology, {
       strategy: "coastal-shelf",
-      config: {},
+      config: Value.Create(ecology.ops.classifyPedology.strategies["coastal-shelf"].config),
     });
     const result = ecology.ops.classifyPedology.run(
       {
@@ -67,7 +68,7 @@ describe("ecology op contract surfaces", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyPedology, {
       strategy: "orogeny-boosted",
-      config: {},
+      config: Value.Create(ecology.ops.classifyPedology.strategies["orogeny-boosted"].config),
     });
     const result = ecology.ops.classifyPedology.run(
       {
@@ -88,8 +89,9 @@ describe("ecology op contract surfaces", () => {
     const height = 2;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planResourceBasins, {
-      strategy: "default",
+      ...ecology.ops.planResourceBasins.defaultConfig,
       config: {
+        ...ecology.ops.planResourceBasins.defaultConfig.config,
         resources: [
           { id: "RESOURCE_IRON", target: 2, fertilityBias: 1, moistureBias: 1, spacing: 1 },
         ],
@@ -118,6 +120,7 @@ describe("ecology op contract surfaces", () => {
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planResourceBasins, {
       strategy: "hydro-fluvial",
       config: {
+        ...Value.Create(ecology.ops.planResourceBasins.strategies["hydro-fluvial"].config),
         resources: [
           { id: "RESOURCE_OIL", target: 3, fertilityBias: 0.8, moistureBias: 1.5, spacing: 2 },
         ],
@@ -158,6 +161,14 @@ describe("ecology op contract surfaces", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.refineBiomeEdges, {
+      strategy: "gaussian",
+      config: {
+        ...Value.Create(ecology.ops.refineBiomeEdges.strategies.gaussian.config),
+        radius: 1,
+        iterations: 1,
+      },
+    });
     const result = ecology.ops.refineBiomeEdges.run(
       {
         width,
@@ -165,7 +176,7 @@ describe("ecology op contract surfaces", () => {
         biomeIndex: new Uint8Array(size).fill(1),
         landMask: new Uint8Array(size).fill(1),
       },
-      { strategy: "gaussian", config: { radius: 1, iterations: 1 } }
+      selection
     );
     expect(result.biomeIndex.length).toBe(size);
   });
@@ -175,10 +186,10 @@ describe("ecology op contract surfaces", () => {
     const height = 3;
     const size = width * height;
 
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.computeFeatureSubstrate, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.computeFeatureSubstrate,
+      ecology.ops.computeFeatureSubstrate.defaultConfig
+    );
 
     const result = ecology.ops.computeFeatureSubstrate.run(
       {
@@ -217,10 +228,10 @@ describe("ecology op contract surfaces", () => {
     riverClass[1] = RIVER_CLASS_MINOR;
     navigableRiverMask[4] = 1;
 
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.computeFeatureSubstrate, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.computeFeatureSubstrate,
+      ecology.ops.computeFeatureSubstrate.defaultConfig
+    );
 
     const result = ecology.ops.computeFeatureSubstrate.run(
       {
@@ -274,10 +285,10 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.computeVegetationSubstrate, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.computeVegetationSubstrate,
+      ecology.ops.computeVegetationSubstrate.defaultConfig
+    );
 
     const result = ecology.ops.computeVegetationSubstrate.run(
       {
@@ -307,10 +318,10 @@ describe("ecology op contract surfaces", () => {
     const height = 2;
     const size = width * height;
 
-    const substrateSelection = normalizeOpSelectionOrThrow(ecology.ops.computeVegetationSubstrate, {
-      strategy: "default",
-      config: {},
-    });
+    const substrateSelection = normalizeOpSelectionOrThrow(
+      ecology.ops.computeVegetationSubstrate,
+      ecology.ops.computeVegetationSubstrate.defaultConfig
+    );
 
     const substrate = ecology.ops.computeVegetationSubstrate.run(
       {
@@ -336,7 +347,7 @@ describe("ecology op contract surfaces", () => {
     ] as const;
 
     for (const op of scoreOps) {
-      const selection = normalizeOpSelectionOrThrow(op, { strategy: "default", config: {} });
+      const selection = normalizeOpSelectionOrThrow(op, op.defaultConfig);
       const result = op.run(
         { width, height, landMask: new Uint8Array(size).fill(1), ...substrate },
         selection
@@ -445,7 +456,7 @@ describe("ecology op contract surfaces", () => {
       ] as const;
 
       for (const { op, input } of wetScoreOps) {
-        const selection = normalizeOpSelectionOrThrow(op, { strategy: "default", config: {} });
+        const selection = normalizeOpSelectionOrThrow(op, op.defaultConfig);
         const result = op.run(input, selection);
         expectScore01(result.score01);
       }
@@ -523,7 +534,7 @@ describe("ecology op contract surfaces", () => {
       ] as const;
 
       for (const { op, input } of reefScoreOps) {
-        const selection = normalizeOpSelectionOrThrow(op, { strategy: "default", config: {} });
+        const selection = normalizeOpSelectionOrThrow(op, op.defaultConfig);
         const result = op.run(input, selection);
         expectScore01(result.score01);
       }
@@ -534,10 +545,10 @@ describe("ecology op contract surfaces", () => {
       const surfaceTemperature = new Float32Array(size).fill(-8);
       const elevation = new Int16Array(size).fill(3000);
       const freezeIndex = new Float32Array(size).fill(0.8);
-      const selection = normalizeOpSelectionOrThrow(ecology.ops.scoreIce, {
-        strategy: "default",
-        config: {},
-      });
+      const selection = normalizeOpSelectionOrThrow(
+        ecology.ops.scoreIce,
+        ecology.ops.scoreIce.defaultConfig
+      );
       const result = ecology.ops.scoreIce.run(
         { width, height, landMask, surfaceTemperature, elevation, freezeIndex },
         selection
@@ -550,10 +561,10 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planWetlands,
+      ecology.ops.planWetlands.defaultConfig
+    );
     const result = ecology.ops.planWetlands.run(
       {
         width,
@@ -577,10 +588,10 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planVegetation,
+      ecology.ops.planVegetation.defaultConfig
+    );
     const result = ecology.ops.planVegetation.run(
       {
         width,
@@ -605,10 +616,10 @@ describe("ecology op contract surfaces", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planFloodplains, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planFloodplains,
+      ecology.ops.planFloodplains.defaultConfig
+    );
     const result = ecology.ops.planFloodplains.run(
       {
         width,
@@ -637,10 +648,10 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planReefs, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planReefs,
+      ecology.ops.planReefs.defaultConfig
+    );
     const result = ecology.ops.planReefs.run(
       {
         width,
@@ -665,7 +676,7 @@ describe("ecology op contract surfaces", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planReefs, {
       strategy: "shipping-lanes",
-      config: {},
+      config: Value.Create(ecology.ops.planReefs.strategies["shipping-lanes"].config),
     });
     const result = ecology.ops.planReefs.run(
       {
@@ -689,10 +700,10 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planIce, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      ecology.ops.planIce,
+      ecology.ops.planIce.defaultConfig
+    );
     const result = ecology.ops.planIce.run(
       {
         width,
@@ -713,7 +724,7 @@ describe("ecology op contract surfaces", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planIce, {
       strategy: "continentality",
-      config: {},
+      config: Value.Create(ecology.ops.planIce.strategies.continentality.config),
     });
     const result = ecology.ops.planIce.run(
       {
@@ -748,25 +759,10 @@ describe("ecology op contract surfaces", () => {
     const height = 2;
     const size = width * height;
 
-    const scoreSnowSelection = normalizeOpSelectionOrThrow(ecology.ops.scorePlotEffectsSnow, {
-      strategy: "default",
-      config: {
-        elevationStrategy: "absolute",
-        elevationMin: 0,
-        elevationMax: 3000,
-        elevationPercentileMin: 0,
-        elevationPercentileMax: 1,
-        moistureMin: 0,
-        moistureMax: 200,
-        maxTemperature: 4,
-        maxAridity: 1,
-        freezeWeight: 1,
-        elevationWeight: 1,
-        moistureWeight: 1,
-        scoreNormalization: 2,
-        scoreBias: 0,
-      },
-    });
+    const scoreSnowSelection = normalizeOpSelectionOrThrow(
+      ecology.ops.scorePlotEffectsSnow,
+      ecology.ops.scorePlotEffectsSnow.defaultConfig
+    );
 
     const scoreSnowResult = ecology.ops.scorePlotEffectsSnow.run(
       {
@@ -783,17 +779,17 @@ describe("ecology op contract surfaces", () => {
     );
 
     const planSelection = normalizeOpSelectionOrThrow(ecology.ops.planPlotEffects, {
-      strategy: "default",
+      ...ecology.ops.planPlotEffects.defaultConfig,
       config: {
+        ...ecology.ops.planPlotEffects.defaultConfig.config,
         snow: {
+          ...ecology.ops.planPlotEffects.defaultConfig.config.snow,
           enabled: true,
           coveragePct: 100,
           lightThreshold: 0,
           mediumThreshold: 0,
           heavyThreshold: 0,
         },
-        sand: { enabled: false },
-        burned: { enabled: false },
       },
     });
 

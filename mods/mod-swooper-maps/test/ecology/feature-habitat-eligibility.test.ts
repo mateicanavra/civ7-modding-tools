@@ -30,7 +30,7 @@ describe("ecology feature habitat eligibility", () => {
         coastalWater,
         distanceToCoast,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreReef, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(ecology.ops.scoreReef, ecology.ops.scoreReef.defaultConfig)
     ).score01;
     const atoll = ecology.ops.scoreReefAtoll.run(
       {
@@ -44,7 +44,10 @@ describe("ecology feature habitat eligibility", () => {
         coastalWater,
         distanceToCoast,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreReefAtoll, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreReefAtoll,
+        ecology.ops.scoreReefAtoll.defaultConfig
+      )
     ).score01;
     const lotus = ecology.ops.scoreReefLotus.run(
       {
@@ -58,7 +61,10 @@ describe("ecology feature habitat eligibility", () => {
         coastalWater,
         distanceToCoast,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreReefLotus, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreReefLotus,
+        ecology.ops.scoreReefLotus.defaultConfig
+      )
     ).score01;
     const coldReef = ecology.ops.scoreColdReef.run(
       {
@@ -72,8 +78,13 @@ describe("ecology feature habitat eligibility", () => {
         distanceToCoast,
       },
       normalizeOpSelectionOrThrow(ecology.ops.scoreColdReef, {
-        strategy: "default",
-        config: { minDepthM: 120, peakDepthM: 300, maxDepthM: 520 },
+        ...ecology.ops.scoreColdReef.defaultConfig,
+        config: {
+          ...ecology.ops.scoreColdReef.defaultConfig.config,
+          minDepthM: 120,
+          peakDepthM: 300,
+          maxDepthM: 520,
+        },
       })
     ).score01;
     const abyssalColdReef = ecology.ops.scoreColdReef.run(
@@ -87,7 +98,10 @@ describe("ecology feature habitat eligibility", () => {
         coastalWater,
         distanceToCoast,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreColdReef, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreColdReef,
+        ecology.ops.scoreColdReef.defaultConfig
+      )
     ).score01;
 
     expect(reef[0]).toBeGreaterThan(0.5);
@@ -129,7 +143,10 @@ describe("ecology feature habitat eligibility", () => {
         surfaceTemperature,
         aridityIndex,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreWetMarsh, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreWetMarsh,
+        ecology.ops.scoreWetMarsh.defaultConfig
+      )
     ).score01;
     const bog = ecology.ops.scoreWetTundraBog.run(
       {
@@ -142,10 +159,10 @@ describe("ecology feature habitat eligibility", () => {
         surfaceTemperature: coldTemperature,
         freezeIndex,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreWetTundraBog, {
-        strategy: "default",
-        config: {},
-      })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreWetTundraBog,
+        ecology.ops.scoreWetTundraBog.defaultConfig
+      )
     ).score01;
     const mangrove = ecology.ops.scoreWetMangrove.run(
       {
@@ -158,7 +175,10 @@ describe("ecology feature habitat eligibility", () => {
         surfaceTemperature: mangroveTemperature,
         aridityIndex,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreWetMangrove, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreWetMangrove,
+        ecology.ops.scoreWetMangrove.defaultConfig
+      )
     ).score01;
     const oasis = ecology.ops.scoreWetOasis.run(
       {
@@ -170,7 +190,10 @@ describe("ecology feature habitat eligibility", () => {
         aridityIndex: dryAridityIndex,
         surfaceTemperature: mangroveTemperature,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreWetOasis, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreWetOasis,
+        ecology.ops.scoreWetOasis.defaultConfig
+      )
     ).score01;
 
     expect(marsh[0]).toBe(0);
@@ -202,10 +225,10 @@ describe("ecology feature habitat eligibility", () => {
         biomass01: new Float32Array([0.12, 0.12]),
         fertility01,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationTaiga, {
-        strategy: "default",
-        config: {},
-      })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreVegetationTaiga,
+        ecology.ops.scoreVegetationTaiga.defaultConfig
+      )
     ).score01;
 
     const sagebrush = ecology.ops.scoreVegetationSagebrushSteppe.run(
@@ -220,10 +243,10 @@ describe("ecology feature habitat eligibility", () => {
         biomass01: new Float32Array([0.12, 0.12]),
         fertility01,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationSagebrushSteppe, {
-        strategy: "default",
-        config: {},
-      })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.scoreVegetationSagebrushSteppe,
+        ecology.ops.scoreVegetationSagebrushSteppe.defaultConfig
+      )
     ).score01;
 
     expect(taiga[0]).toBeGreaterThan(0.1);

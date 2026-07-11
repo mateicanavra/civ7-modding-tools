@@ -97,77 +97,70 @@ describe("circulation v2 (pipeline integration)", () => {
     const height = 20;
     const seed = 1337;
 
-    const baseV2: StandardRecipeConfig = {
-      ...standardConfig,
-      "hydrology-climate-baseline": {
-        ...standardConfig["hydrology-climate-baseline"],
-        atmosphericCirculation: {
-          maxSpeed: 110,
-          zonalStrength: 90,
-          meridionalStrength: 30,
-          geostrophicStrength: 70,
-          pressureNoiseScale: 18,
-          pressureNoiseAmp: 55,
-          waveStrength: 45,
-          landHeatStrength: 20,
-          mountainDeflectStrength: 18,
-          smoothIters: 4,
-        },
-        oceanGeometry: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
-        oceanCurrents: {
-          maxSpeed: 80,
-          windStrength: 0.9,
-          ekmanStrength: 0.35,
-          gyreStrength: 26,
-          coastStrength: 32,
-          smoothIters: 3,
-          projectionIters: 8,
-        },
-        oceanThermalState: {
-          equatorTempC: 28,
-          poleTempC: -2,
-          advectIters: 24,
-          diffusion: 0.12,
-          secondaryWeightMin: 0.25,
-          seaIceThresholdC: -1,
-        },
-        moistureTransport: {
-          iterations: 42,
-          advection: 0.7,
-          retention: 0.93,
-          secondaryWeightMin: 0.2,
-        },
-        precipitation: {
-          rainfallScale: 180,
-          humidityExponent: 1,
-          noiseAmplitude: 6,
-          noiseScale: 0.12,
-          waterGradient: {
-            radius: 5,
-            perRingBonus: 4,
-            lowlandBonus: 2,
-            lowlandElevationMax: 150,
-          },
-          upliftStrength: 22,
-          convergenceStrength: 16,
-        },
+    const baseV2 = structuredClone(standardConfig);
+    baseV2["hydrology-climate-baseline"].atmosphericCirculation = {
+      maxSpeed: 110,
+      zonalStrength: 90,
+      meridionalStrength: 30,
+      geostrophicStrength: 70,
+      pressureNoiseScale: 18,
+      pressureNoiseAmp: 55,
+      waveStrength: 45,
+      landHeatStrength: 20,
+      mountainDeflectStrength: 18,
+      smoothIters: 4,
+    };
+    baseV2["hydrology-climate-baseline"].oceanGeometry = {
+      maxCoastDistance: 64,
+      maxCoastVectorDistance: 10,
+    };
+    baseV2["hydrology-climate-baseline"].oceanCurrents = {
+      maxSpeed: 80,
+      windStrength: 0.9,
+      ekmanStrength: 0.35,
+      gyreStrength: 26,
+      coastStrength: 32,
+      smoothIters: 3,
+      projectionIters: 8,
+    };
+    baseV2["hydrology-climate-baseline"].oceanThermalState = {
+      equatorTempC: 28,
+      poleTempC: -2,
+      advectIters: 24,
+      diffusion: 0.12,
+      secondaryWeightMin: 0.25,
+      seaIceThresholdC: -1,
+    };
+    baseV2["hydrology-climate-baseline"].moistureTransport = {
+      iterations: 42,
+      advection: 0.7,
+      retention: 0.93,
+      secondaryWeightMin: 0.2,
+    };
+    baseV2["hydrology-climate-baseline"].precipitation = {
+      rainfallScale: 180,
+      humidityExponent: 1,
+      noiseAmplitude: 6,
+      noiseScale: 0.12,
+      waterGradient: {
+        radius: 5,
+        perRingBonus: 4,
+        lowlandBonus: 2,
+        lowlandElevationMax: 150,
       },
+      upliftStrength: 22,
+      convergenceStrength: 16,
     };
 
-    const weakCurrents: StandardRecipeConfig = {
-      ...baseV2,
-      "hydrology-climate-baseline": {
-        ...baseV2["hydrology-climate-baseline"],
-        oceanCurrents: {
-          maxSpeed: 80,
-          windStrength: 0,
-          ekmanStrength: 0,
-          gyreStrength: 0,
-          coastStrength: 0,
-          smoothIters: 3,
-          projectionIters: 8,
-        },
-      },
+    const weakCurrents = structuredClone(baseV2);
+    weakCurrents["hydrology-climate-baseline"].oceanCurrents = {
+      maxSpeed: 80,
+      windStrength: 0,
+      ekmanStrength: 0,
+      gyreStrength: 0,
+      coastStrength: 0,
+      smoothIters: 3,
+      projectionIters: 8,
     };
 
     const strong = runAndCaptureSst({ seed, width, height, config: baseV2 });
@@ -189,61 +182,59 @@ describe("circulation v2 (pipeline integration)", () => {
     const width = 32;
     const height = 20;
     const seed = 1337;
-    const cfg: StandardRecipeConfig = {
-      ...standardConfig,
-      "hydrology-climate-baseline": {
-        ...standardConfig["hydrology-climate-baseline"],
-        atmosphericCirculation: {
-          maxSpeed: 110,
-          zonalStrength: 90,
-          meridionalStrength: 30,
-          geostrophicStrength: 70,
-          pressureNoiseScale: 18,
-          pressureNoiseAmp: 55,
-          waveStrength: 45,
-          landHeatStrength: 20,
-          mountainDeflectStrength: 18,
-          smoothIters: 4,
-        },
-        oceanGeometry: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
-        oceanCurrents: {
-          maxSpeed: 80,
-          windStrength: 0.55,
-          ekmanStrength: 0.35,
-          gyreStrength: 26,
-          coastStrength: 32,
-          smoothIters: 3,
-          projectionIters: 8,
-        },
-        oceanThermalState: {
-          equatorTempC: 28,
-          poleTempC: -2,
-          advectIters: 28,
-          diffusion: 0.18,
-          secondaryWeightMin: 0.25,
-          seaIceThresholdC: -1,
-        },
-        moistureTransport: {
-          iterations: 22,
-          advection: 0.7,
-          retention: 0.93,
-          secondaryWeightMin: 0.2,
-        },
-        precipitation: {
-          rainfallScale: 180,
-          humidityExponent: 1,
-          noiseAmplitude: 6,
-          noiseScale: 0.12,
-          waterGradient: {
-            radius: 5,
-            perRingBonus: 4,
-            lowlandBonus: 2,
-            lowlandElevationMax: 150,
-          },
-          upliftStrength: 22,
-          convergenceStrength: 16,
-        },
+    const cfg = structuredClone(standardConfig);
+    cfg["hydrology-climate-baseline"].atmosphericCirculation = {
+      maxSpeed: 110,
+      zonalStrength: 90,
+      meridionalStrength: 30,
+      geostrophicStrength: 70,
+      pressureNoiseScale: 18,
+      pressureNoiseAmp: 55,
+      waveStrength: 45,
+      landHeatStrength: 20,
+      mountainDeflectStrength: 18,
+      smoothIters: 4,
+    };
+    cfg["hydrology-climate-baseline"].oceanGeometry = {
+      maxCoastDistance: 64,
+      maxCoastVectorDistance: 10,
+    };
+    cfg["hydrology-climate-baseline"].oceanCurrents = {
+      maxSpeed: 80,
+      windStrength: 0.55,
+      ekmanStrength: 0.35,
+      gyreStrength: 26,
+      coastStrength: 32,
+      smoothIters: 3,
+      projectionIters: 8,
+    };
+    cfg["hydrology-climate-baseline"].oceanThermalState = {
+      equatorTempC: 28,
+      poleTempC: -2,
+      advectIters: 28,
+      diffusion: 0.18,
+      secondaryWeightMin: 0.25,
+      seaIceThresholdC: -1,
+    };
+    cfg["hydrology-climate-baseline"].moistureTransport = {
+      iterations: 22,
+      advection: 0.7,
+      retention: 0.93,
+      secondaryWeightMin: 0.2,
+    };
+    cfg["hydrology-climate-baseline"].precipitation = {
+      rainfallScale: 180,
+      humidityExponent: 1,
+      noiseAmplitude: 6,
+      noiseScale: 0.12,
+      waterGradient: {
+        radius: 5,
+        perRingBonus: 4,
+        lowlandBonus: 2,
+        lowlandElevationMax: 150,
       },
+      upliftStrength: 22,
+      convergenceStrength: 16,
     };
 
     const a = runAndCaptureSst({ seed, width, height, config: cfg });

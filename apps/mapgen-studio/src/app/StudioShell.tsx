@@ -17,7 +17,7 @@ import type { GenerationStatus } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
-import { getMaterializedRecipeDefaultConfig } from "../features/configAuthoring/canonicalConfig";
+import { getRecipeDefaultConfig } from "../features/configAuthoring/canonicalConfig";
 import { orpcClient } from "../lib/orpc";
 import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
 import type { VizEvent } from "../shared/vizEvents";
@@ -565,7 +565,7 @@ export function StudioShell(props: StudioShellProps) {
       configSchema={recipeArtifacts.configSchema}
       onConfigChange={setPipelineConfig}
       onConfigReset={() =>
-        setPipelineConfig(getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
+        setPipelineConfig(getRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
       }
       recipeOptions={recipeOptions}
       presetOptions={presetOptions}

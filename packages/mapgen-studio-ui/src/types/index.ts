@@ -1,3 +1,5 @@
+import type { DeepReadonly, JsonWireObject, JsonWireValue } from "@civ7/studio-contract";
+
 // ============================================================================
 // TYPES INDEX
 // ============================================================================
@@ -132,45 +134,16 @@ export interface RecipeSettings {
 export type ConfigPrimitive = string | number | boolean | null;
 
 /**
- * Recursive config value type - can be primitive, array, or nested object.
+ * Immutable portable JSON retained by Studio after config admission.
  */
-export type ConfigValue = ConfigPrimitive | ConfigValue[] | { [key: string]: ConfigValue };
+export type ConfigValue = DeepReadonly<JsonWireValue>;
 
 /**
- * Configuration for a single pipeline step.
- *
- * Backend: Each step has a strategy (algorithm variant) and config params.
+ * Complete immutable recipe config admitted against the active recipe schema.
+ * The generic Studio boundary knows only that it is a portable JSON object;
+ * each recipe owns the concrete required stage, knob, and step shape.
  */
-export interface StepConfig {
-  /** Algorithm variant to use (e.g., 'default', 'experimental') */
-  strategy?: string;
-  /** Step-specific configuration parameters */
-  config?: Record<string, ConfigValue>;
-  /** Additional properties for extensibility */
-  [key: string]: ConfigValue | undefined;
-}
-
-/**
- * Configuration for a pipeline stage (contains multiple steps).
- *
- * Backend: Stages are executed in order. Each stage can have:
- * - knobs: High-level presets that map to multiple config values
- * - top-level step-id keys: Detailed step-by-step configuration
- */
-export interface StageConfig {
-  /** High-level knobs (semantic scalars or enums). */
-  knobs?: Record<string, ConfigPrimitive>;
-  /** Additional stage-specific step-id keys. */
-  [key: string]: unknown;
-}
-
-/**
- * Complete pipeline configuration.
- * Keys are stage names (e.g., 'foundation', 'morphology-pre').
- *
- * Backend: This is the primary configuration object sent to the generation API.
- */
-export type PipelineConfig = Record<string, StageConfig>;
+export type PipelineConfig = DeepReadonly<JsonWireObject>;
 
 // ============================================================================
 // Config Patch Types
@@ -182,7 +155,7 @@ export type PipelineConfig = Record<string, StageConfig>;
  */
 export interface ConfigPatch {
   /** Path to the value being updated (e.g., ['foundation', 'knobs', 'plateCount']) */
-  path: string[];
+  path: readonly string[];
   /** New value to set at the path */
   value: ConfigValue;
 }

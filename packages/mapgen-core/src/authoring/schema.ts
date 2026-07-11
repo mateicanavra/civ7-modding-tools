@@ -1,10 +1,8 @@
-import { type Static, type TSchema, Type } from "typebox";
-import { Value } from "typebox/value";
+import { type TSchema, Type } from "typebox";
 
 import type { DomainOpSchema } from "./op/schema.js";
 
-type SchemaWithDefaults = TSchema & {
-  default?: unknown;
+type SchemaNode = TSchema & {
   type?: string;
   properties?: Record<string, TSchema>;
   items?: TSchema | TSchema[];
@@ -15,63 +13,10 @@ type SchemaWithDefaults = TSchema & {
   additionalProperties?: boolean | TSchema;
 };
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-}
-
-function cloneDefault(value: unknown): unknown {
-  if (value == null || typeof value !== "object") return value;
-  if (typeof structuredClone === "function") {
-    return structuredClone(value);
-  }
-  return JSON.parse(JSON.stringify(value));
-}
-
-function materializeSchemaDefault(schema: TSchema): unknown {
-  const typed = schema as SchemaWithDefaults;
-  if (typed.default === undefined) return undefined;
-  return Value.Default(schema, undefined);
-}
-
-function schemaProvidesDefaults(schema: TSchema): boolean {
-  const typed = schema as SchemaWithDefaults;
-  if (typed.default !== undefined) return true;
-  if (typed.type === "object") {
-    const props = typed.properties ?? {};
-    return Object.values(props).some(schemaProvidesDefaults);
-  }
-  if (typed.items) {
-    const items = Array.isArray(typed.items) ? typed.items : [typed.items];
-    return items.some(schemaProvidesDefaults);
-  }
-  if (Array.isArray(typed.anyOf)) return typed.anyOf.some(schemaProvidesDefaults);
-  if (Array.isArray(typed.oneOf)) return typed.oneOf.some(schemaProvidesDefaults);
-  if (Array.isArray(typed.allOf)) return typed.allOf.some(schemaProvidesDefaults);
-  if (typed.not) return schemaProvidesDefaults(typed.not);
-  return false;
-}
-
 function enforceSchemaConventions(schema: TSchema, path: string): void {
-  const typed = schema as SchemaWithDefaults;
+  const typed = schema as SchemaNode;
   if (typed.type === "object") {
     const props = typed.properties ?? {};
-    const hasPropertyDefaults = Object.values(props).some(schemaProvidesDefaults);
-    if (typed.default !== undefined && hasPropertyDefaults) {
-      if (isPlainObject(typed.default) && Object.keys(typed.default).length === 0) {
-        // TypeBox sometimes attaches `{}` defaults to objects. That suppresses property defaults when
-        // we later materialize defaults (it short-circuits to the object default).
-        //
-        // We treat empty object defaults as noise and rely on per-property defaults as the true
-        // source of truth.
-        delete typed.default;
-      } else {
-        throw new Error(
-          `schema(${path}) defines an object default while properties already declare defaults`
-        );
-      }
-    }
     if (typed.additionalProperties === undefined) {
       typed.additionalProperties = false;
     }
@@ -101,78 +46,6 @@ function enforceSchemaConventions(schema: TSchema, path: string): void {
 export function applySchemaConventions(schema: TSchema, path: string): TSchema {
   enforceSchemaConventions(schema, path);
   return schema;
-}
-
-export function buildSchemaDefaults(schema: TSchema): unknown {
-  const typed = schema as SchemaWithDefaults;
-  const schemaDefault = materializeSchemaDefault(schema);
-  if (schemaDefault !== undefined) return schemaDefault;
-
-  if (typed.type === "object") {
-    const props = typed.properties ?? {};
-    const out: Record<string, unknown> = {};
-    let hasDefaults = false;
-
-    for (const [key, propSchema] of Object.entries(props)) {
-      const value = buildSchemaDefaults(propSchema);
-      if (value !== undefined) {
-        out[key] = value;
-        hasDefaults = true;
-      }
-    }
-
-    return hasDefaults ? out : undefined;
-  }
-
-  return undefined;
-}
-
-export function buildCompleteSchemaDefaults(schema: TSchema): unknown {
-  const typed = schema as SchemaWithDefaults;
-  const schemaDefault = materializeSchemaDefault(schema);
-  if (schemaDefault !== undefined) return cloneDefault(schemaDefault);
-
-  if (typed.type === "object") {
-    const out: Record<string, unknown> = {};
-    for (const [key, propSchema] of Object.entries(typed.properties ?? {})) {
-      const value = buildCompleteSchemaDefaults(propSchema);
-      if (value !== undefined) out[key] = value;
-    }
-    return out;
-  }
-
-  return undefined;
-}
-
-export function applySchemaDefaults<T extends TSchema>(schema: T, input: unknown): Static<T> {
-  const typed = schema as SchemaWithDefaults;
-  if (input == null) {
-    const defaults = buildSchemaDefaults(typed);
-    return (defaults ?? (typed.type === "object" ? {} : input)) as Static<T>;
-  }
-
-  if (typed.type === "object") {
-    if (!isPlainObject(input)) return input as Static<T>;
-    const props = typed.properties ?? {};
-    const out: Record<string, unknown> = { ...input };
-
-    for (const [key, propSchema] of Object.entries(props)) {
-      if (out[key] === undefined) {
-        const value = buildSchemaDefaults(propSchema);
-        if (value !== undefined) out[key] = value;
-        continue;
-      }
-
-      const next = applySchemaDefaults(propSchema, out[key]);
-      if (next !== out[key]) {
-        out[key] = next;
-      }
-    }
-
-    return out as Static<T>;
-  }
-
-  return input as Static<T>;
 }
 
 /**

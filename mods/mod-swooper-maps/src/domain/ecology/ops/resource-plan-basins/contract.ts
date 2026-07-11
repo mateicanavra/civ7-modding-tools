@@ -1,5 +1,47 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
+const ResourceBasinPlanConfigSchema = Type.Object(
+  {
+    resources: Type.Array(
+      Type.Object(
+        {
+          id: Type.String({ description: "Resource identifier to plan into ecological basins." }),
+          target: Type.Integer({
+            minimum: 1,
+            maximum: 1_000,
+            default: 6,
+            description: "Target number of basins for this resource.",
+          }),
+          fertilityBias: Type.Number({
+            minimum: 0,
+            maximum: 2,
+            default: 1,
+            description: "Scales the influence of soil fertility on basin suitability.",
+          }),
+          moistureBias: Type.Number({
+            minimum: 0,
+            maximum: 2,
+            default: 1,
+            description: "Scales the influence of moisture on basin suitability.",
+          }),
+          spacing: Type.Integer({
+            minimum: 1,
+            maximum: 512,
+            default: 4,
+            description: "Minimum tile spacing between basins for this resource.",
+          }),
+        },
+        { description: "Planning controls for one resource basin family." }
+      ),
+      {
+        default: [],
+        description: "Resource basin families to plan from ecological suitability.",
+      }
+    ),
+  },
+  { description: "Controls resource-basin targets, biases, and spacing." }
+);
+
 const ResourcePlanBasinsContract = defineOp({
   kind: "plan",
   id: "ecology/resources/plan-basins",
@@ -23,42 +65,9 @@ const ResourcePlanBasinsContract = defineOp({
     ),
   }),
   strategies: {
-    default: Type.Object({
-      resources: Type.Array(
-        Type.Object({
-          id: Type.String(),
-          target: Type.Integer({ minimum: 1, default: 6 }),
-          fertilityBias: Type.Number({ minimum: 0, maximum: 2, default: 1 }),
-          moistureBias: Type.Number({ minimum: 0, maximum: 2, default: 1 }),
-          spacing: Type.Integer({ minimum: 1, default: 4 }),
-        }),
-        { default: [] }
-      ),
-    }),
-    "hydro-fluvial": Type.Object({
-      resources: Type.Array(
-        Type.Object({
-          id: Type.String(),
-          target: Type.Integer({ minimum: 1, default: 6 }),
-          fertilityBias: Type.Number({ minimum: 0, maximum: 2, default: 1 }),
-          moistureBias: Type.Number({ minimum: 0, maximum: 2, default: 1 }),
-          spacing: Type.Integer({ minimum: 1, default: 4 }),
-        }),
-        { default: [] }
-      ),
-    }),
-    mixed: Type.Object({
-      resources: Type.Array(
-        Type.Object({
-          id: Type.String(),
-          target: Type.Integer({ minimum: 1, default: 6 }),
-          fertilityBias: Type.Number({ minimum: 0, maximum: 2, default: 1 }),
-          moistureBias: Type.Number({ minimum: 0, maximum: 2, default: 1 }),
-          spacing: Type.Integer({ minimum: 1, default: 4 }),
-        }),
-        { default: [] }
-      ),
-    }),
+    default: ResourceBasinPlanConfigSchema,
+    "hydro-fluvial": ResourceBasinPlanConfigSchema,
+    mixed: ResourceBasinPlanConfigSchema,
   },
 });
 

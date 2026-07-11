@@ -1,105 +1,62 @@
+import foundation from "@mapgen/domain/foundation";
 import { type Static, type TSchema, Type } from "typebox";
-import { crust, plateGraph } from "./foundation-lithosphere/steps/index.js";
-import { mantleForcing, mantlePotential, mesh } from "./foundation-mantle/steps/index.js";
-import { crustEvolution } from "./foundation-orogeny/steps/index.js";
-import { plateMotion, tectonics } from "./foundation-tectonics/steps/index.js";
 
-function defaultStrategyConfigSchema(
-  opConfig: TSchema,
-  description: string,
-  omitKeys: readonly string[] = []
-): TSchema {
-  const variants = (opConfig as { anyOf?: unknown[] }).anyOf ?? [];
-  const variant = variants.find((candidate) => {
-    const strategy = (candidate as { properties?: { strategy?: { const?: unknown } } }).properties
-      ?.strategy;
-    return strategy?.const === "default";
-  }) as { properties?: { config?: TSchema } } | undefined;
-  const config = variant?.properties?.config;
-  if (!config)
-    throw new Error("Foundation public schema expected a default strategy config schema.");
-  const publicConfig = omitKeys.length > 0 ? omitObjectProperties(config, omitKeys) : config;
-  return Type.Unsafe({
-    ...(publicConfig as Record<string, unknown>),
-    description,
-  });
+function publicStrategySchema<T extends TSchema>(schema: T, description: string) {
+  return Type.With(schema, { description });
 }
 
-function opConfigSchema(ops: unknown, opKey: string): TSchema {
-  const config = (ops as Record<string, { config?: TSchema }> | undefined)?.[opKey]?.config;
-  if (!config) throw new Error(`Foundation public schema expected ${opKey} config schema.`);
-  return config;
-}
-
-function omitObjectProperties(schema: TSchema, keys: readonly string[]): TSchema {
-  const raw = schema as Record<string, unknown>;
-  const properties = { ...((raw.properties as Record<string, unknown> | undefined) ?? {}) };
-  for (const key of keys) delete properties[key];
-
-  const required = Array.isArray(raw.required)
-    ? raw.required.filter((key) => typeof key !== "string" || !keys.includes(key))
-    : raw.required;
-
-  return Type.Unsafe({
-    ...raw,
-    properties,
-    required,
-  });
-}
-
-const MeshResolutionSchema = defaultStrategyConfigSchema(
-  opConfigSchema(mesh.contract.ops, "computeMesh"),
-  "Mesh resolution controls. These fields set the generated tectonic mesh density and relaxation behavior; cellCount is derived during compile/runtime normalization and is intentionally not authored.",
-  ["cellCount"]
+const MeshResolutionSchema = publicStrategySchema(
+  foundation.ops.computeMesh.strategies.default,
+  "Mesh resolution controls. These fields set the generated tectonic mesh density and relaxation behavior; cellCount is derived inside mesh execution and is not authored."
 );
 
-const MantleSourcesSchema = defaultStrategyConfigSchema(
-  opConfigSchema(mantlePotential.contract.ops, "computeMantlePotential"),
+const MantleSourcesSchema = publicStrategySchema(
+  foundation.ops.computeMantlePotential.strategies.default,
   "Mantle source controls. These fields shape deterministic upwelling/downwelling sources that drive plate forcing and tectonic activity."
 );
 
-const MantleForcingSchema = defaultStrategyConfigSchema(
-  opConfigSchema(mantleForcing.contract.ops, "computeMantleForcing"),
+const MantleForcingSchema = publicStrategySchema(
+  foundation.ops.computeMantleForcing.strategies.default,
   "Mantle forcing controls. These fields translate mantle potential into velocity, stress, and upwelling/downwelling signals consumed by plate motion and crust."
 );
 
-const LithosphereSchema = defaultStrategyConfigSchema(
-  opConfigSchema(crust.contract.ops, "computeCrust"),
+const LithosphereSchema = publicStrategySchema(
+  foundation.ops.computeCrust.strategies.default,
   "Lithosphere controls. These fields set basaltic lid strength, mantle coupling, and rift weakening for initial crust truth."
 );
 
-const PlatePartitionSchema = defaultStrategyConfigSchema(
-  opConfigSchema(plateGraph.contract.ops, "computePlateGraph"),
+const PlatePartitionSchema = publicStrategySchema(
+  foundation.ops.computePlateGraph.strategies.default,
   "Plate partition controls. These fields determine plate seed count scaling and polar cap/microplate partition behavior."
 );
 
-const PlateMotionSchema = defaultStrategyConfigSchema(
-  opConfigSchema(plateMotion.contract.ops, "computePlateMotion"),
+const PlateMotionSchema = publicStrategySchema(
+  foundation.ops.computePlateMotion.strategies.default,
   "Plate motion controls. These fields tune plate velocity fitting and diagnostics used by both current plate motion and tectonic history."
 );
 
-const TectonicSegmentationSchema = defaultStrategyConfigSchema(
-  opConfigSchema(tectonics.contract.ops, "computeTectonicSegments"),
+const TectonicSegmentationSchema = publicStrategySchema(
+  foundation.ops.computeTectonicSegments.strategies.default,
   "Tectonic segmentation controls. These fields classify plate-boundary intensity into convergent, divergent, transform, and inactive regimes."
 );
 
-const TectonicErasSchema = defaultStrategyConfigSchema(
-  opConfigSchema(tectonics.contract.ops, "computeEraPlateMembership"),
+const TectonicErasSchema = publicStrategySchema(
+  foundation.ops.computeEraPlateMembership.strategies.default,
   "Tectonic era controls. These arrays define old-to-new era weights and drift steps for pseudo-evolution history."
 );
 
-const TectonicFieldsSchema = defaultStrategyConfigSchema(
-  opConfigSchema(tectonics.contract.ops, "computeEraTectonicFields"),
+const TectonicFieldsSchema = publicStrategySchema(
+  foundation.ops.computeEraTectonicFields.strategies.default,
   "Tectonic field controls. These fields set the distance and decay used when spreading boundary influence across mesh cells."
 );
 
-const TectonicRollupsSchema = defaultStrategyConfigSchema(
-  opConfigSchema(tectonics.contract.ops, "computeTectonicHistoryRollups"),
+const TectonicRollupsSchema = publicStrategySchema(
+  foundation.ops.computeTectonicHistoryRollups.strategies.default,
   "Tectonic rollup controls. These fields determine how per-era activity is summarized into current history scalars."
 );
 
-const CrustCharacterSchema = defaultStrategyConfigSchema(
-  opConfigSchema(crustEvolution.contract.ops, "computeCrustEvolution"),
+const CrustCharacterSchema = publicStrategySchema(
+  foundation.ops.computeCrustEvolution.strategies.default,
   "Crust character controls. These semantic fields shape continental abundance, freeboard, fragmentation, shelf depth, and abyssal relief."
 );
 
@@ -125,9 +82,9 @@ function stepOp(opKey: string, config: unknown): Record<string, unknown> | undef
 
 export const FoundationMantlePublicSchema = Type.Object(
   {
-    meshResolution: Type.Optional(MeshResolutionSchema),
-    mantleSources: Type.Optional(MantleSourcesSchema),
-    mantleForcing: Type.Optional(MantleForcingSchema),
+    meshResolution: MeshResolutionSchema,
+    mantleSources: MantleSourcesSchema,
+    mantleForcing: MantleForcingSchema,
   },
   {
     additionalProperties: false,
@@ -138,8 +95,8 @@ export const FoundationMantlePublicSchema = Type.Object(
 
 export const FoundationLithospherePublicSchema = Type.Object(
   {
-    lithosphere: Type.Optional(LithosphereSchema),
-    platePartition: Type.Optional(PlatePartitionSchema),
+    lithosphere: LithosphereSchema,
+    platePartition: PlatePartitionSchema,
   },
   {
     additionalProperties: false,
@@ -150,11 +107,11 @@ export const FoundationLithospherePublicSchema = Type.Object(
 
 export const FoundationTectonicsPublicSchema = Type.Object(
   {
-    plateMotion: Type.Optional(PlateMotionSchema),
-    tectonicSegmentation: Type.Optional(TectonicSegmentationSchema),
-    tectonicEras: Type.Optional(TectonicErasSchema),
-    tectonicFields: Type.Optional(TectonicFieldsSchema),
-    tectonicRollups: Type.Optional(TectonicRollupsSchema),
+    plateMotion: PlateMotionSchema,
+    tectonicSegmentation: TectonicSegmentationSchema,
+    tectonicEras: TectonicErasSchema,
+    tectonicFields: TectonicFieldsSchema,
+    tectonicRollups: TectonicRollupsSchema,
   },
   {
     additionalProperties: false,
@@ -165,7 +122,7 @@ export const FoundationTectonicsPublicSchema = Type.Object(
 
 export const FoundationOrogenyPublicSchema = Type.Object(
   {
-    crustCharacter: Type.Optional(CrustCharacterSchema),
+    crustCharacter: CrustCharacterSchema,
   },
   {
     additionalProperties: false,

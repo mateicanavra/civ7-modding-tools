@@ -5,6 +5,7 @@ import { plotRivers } from "./steps/index.js";
 const NavigableRiverDensityKnobSchema = Type.Union(
   [Type.Literal("sparse"), Type.Literal("normal"), Type.Literal("dense")],
   {
+    default: "normal",
     description:
       "Civ-visible navigable river trunk density (sparse/normal/dense). Applies after Hydrology has authored the physical river network.",
   }
@@ -12,7 +13,7 @@ const NavigableRiverDensityKnobSchema = Type.Union(
 
 const knobsSchema = Type.Object(
   {
-    navigableRiverDensity: Type.Optional(NavigableRiverDensityKnobSchema),
+    navigableRiverDensity: NavigableRiverDensityKnobSchema,
   },
   {
     additionalProperties: false,

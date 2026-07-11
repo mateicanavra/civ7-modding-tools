@@ -114,7 +114,7 @@ const ComputeAtmosphericCirculationDefaultStrategySchema = Type.Object(
       minimum: 1,
       maximum: 400,
       description:
-        "Max speed used for quantization to i8 (higher = weaker output for same internal field).",
+        "Max speed used for quantization to i8 (higher = weaker output for the same computed wind field).",
     }),
     /** Base zonal (east-west) circulation strength. */
     zonalStrength: Type.Number({

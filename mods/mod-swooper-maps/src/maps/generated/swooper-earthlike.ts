@@ -110,13 +110,11 @@ const mapConfig = {
       }
     },
     "foundation-orogeny": {
-      "knobs": {
-        "continentalAbundance": 0.65
-      },
+      "knobs": {},
       "crustCharacter": {
-        "continentalSurvivalMaturity": 0.6,
+        "continentalSurvivalMaturity": 0.54,
         "continentalFreeboard": 0.35,
-        "hyperextensionBreakupBase": 0.1,
+        "hyperextensionBreakupBase": 0.16,
         "thinningThicknessLoss": 0.55,
         "oceanicAbyssalDepth": 0.75
       }
@@ -713,6 +711,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -721,15 +727,22 @@ const mapConfig = {
           "coveragePct": 55,
           "lightThreshold": 0.38,
           "mediumThreshold": 0.62,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 24
+          "coveragePct": 24,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 6
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       }
     },
@@ -796,8 +809,7 @@ const mapConfig = {
         "fairnessTolerance": 0.3,
         "coastalPreferenceWeight": 0,
         "riverPreferenceWeight": 0,
-        "startBiasWeight": 1,
-        "overrides": {}
+        "startBiasWeight": 1
       },
       "support": {
         "enabled": true,
@@ -817,7 +829,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "40ae3e948fa6f6a2730ddd774fc6cd660142c86d868b184df7fc62b450774acf",
-  envelopeHash: "aa54f6662869d3f72c952727e9dc02fc6381146068e07ee0d105012f6402b842",
+  configHash: "ad3c654dec97666ffbbb924c727ad69669fd8230a6a19639d33eff3138472285",
+  envelopeHash: "4e12817e6fae64b89d0fec489fe62844954a4401ac94accdf299c736e06d6067",
   config: mapConfig.config,
 });

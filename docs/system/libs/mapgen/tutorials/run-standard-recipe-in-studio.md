@@ -58,9 +58,11 @@ In the Studio UI:
 - Set seed and map dimensions (or accept defaults).
 - Click the run action (the run executes inside a Web Worker).
 
-### 5) Enable config overrides (for tuning)
+### 5) Edit the selected complete config (for tuning)
 
-In the left panel, open **Config** and ensure it’s switched **On** (overrides enabled).
+In the left panel, open **Config** and enable editing. The selected catalog
+entry supplies one complete recipe config. Form and JSON edits replace values
+inside that complete object; they are not sparse overrides.
 
 Optional:
 - enable Auto-run so edits re-run quickly (when enabled, changing config causes a run to trigger automatically after a short debounce).
@@ -106,8 +108,9 @@ When you need deeper grounding:
 - Studio runtime recipe selection boundary: `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
 - Studio bundled recipe catalog (config schema + UI meta): `apps/mapgen-studio/src/recipes/catalog.ts`
 - Studio mode selector (Browser/Dump): `packages/mapgen-studio-ui/src/components/composites/AppHeader.tsx`
-- Studio config overrides switch + JSON view: `packages/mapgen-studio-ui/src/components/panels/RecipePanel.tsx`
-- Studio config defaulting from schema defaults: `apps/mapgen-studio/src/App.tsx`
+- Studio complete-config form + JSON view: `packages/mapgen-studio-ui/src/components/panels/RecipePanel.tsx`
+- Studio canonical config admission: `apps/mapgen-studio/src/features/configAuthoring/canonicalConfig.ts`
+- Recipe-owned complete default artifact: `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
 - Studio worker client (worker creation): `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 - Studio worker entrypoint (plan compile + run): `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - Standard recipe module: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`

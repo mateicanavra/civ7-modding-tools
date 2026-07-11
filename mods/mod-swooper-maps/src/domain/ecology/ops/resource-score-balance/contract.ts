@@ -80,6 +80,7 @@ const ResourceScoreBalanceContract = defineOp({
         }),
         maxPerResource: Type.Integer({
           minimum: 1,
+          maximum: 1_000,
           default: 12,
           description: "Maximum basins allowed per resource during balancing.",
         }),

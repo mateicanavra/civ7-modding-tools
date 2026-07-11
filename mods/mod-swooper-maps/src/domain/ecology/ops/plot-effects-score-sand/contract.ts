@@ -11,6 +11,8 @@ const PlotEffectsScoreSandConfigSchema = Type.Object({
   }),
   minTemperature: Type.Number({
     default: 18,
+    minimum: -100,
+    maximum: 100,
     description: "Sand is eligible when surfaceTemperature >= minTemperature (C).",
   }),
   maxFreeze: Type.Number({
@@ -28,6 +30,7 @@ const PlotEffectsScoreSandConfigSchema = Type.Object({
   maxMoisture: Type.Number({
     default: 90,
     minimum: 0,
+    maximum: 1_000,
     description: "Sand is eligible when effectiveMoisture <= maxMoisture.",
   }),
   allowedBiomes: Type.Array(BiomeSymbolSchema, {

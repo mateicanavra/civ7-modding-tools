@@ -3,6 +3,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext, sha256Hex } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { buildStandardRecipeDefaultConfig } from "../src/recipes/standard/artifacts.js";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
 import { artifacts as hydrologyClimateBaselineArtifacts } from "../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
@@ -46,19 +47,11 @@ function runWithTilt(axialTiltDeg: number): {
     rng: createLabelRng(env.seed),
   });
   const context = createExtendedMapContext({ width, height }, adapter, env);
+  const config = structuredClone(buildStandardRecipeDefaultConfig());
+  config["hydrology-climate-baseline"].seasonalCycle.axialTiltDeg = axialTiltDeg;
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-  standardRecipe.run(
-    context,
-    env,
-    {
-      "hydrology-climate-baseline": {
-        knobs: { seasonality: "normal" },
-        seasonalCycle: { modeCount: 2, axialTiltDeg },
-      },
-    },
-    { log: () => {} }
-  );
+  standardRecipe.run(context, env, config, { log: () => {} });
 
   const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
     | { elevation?: Int16Array }

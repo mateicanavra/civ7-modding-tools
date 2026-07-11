@@ -53,7 +53,7 @@
       }
     },
     "test:studio-run-in-game": {
-      "command": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",
+      "command": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/standard-complete-config-boundary.test.ts",
       "dependsOn": ["build:studio-recipes"],
       "cache": true,
       "options": {

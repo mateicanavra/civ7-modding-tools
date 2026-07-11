@@ -685,6 +685,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -693,15 +701,22 @@ const mapConfig = {
           "coveragePct": 35,
           "lightThreshold": 0.5,
           "mediumThreshold": 0.7,
-          "heavyThreshold": 0.85
+          "heavyThreshold": 0.85,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 15
+          "coveragePct": 15,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 16
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -757,7 +772,6 @@ const mapConfig = {
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,
@@ -816,7 +830,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "91165343c208b4d96a46aaef6b384e6061da1cdabcaaf2f7c2562368e5a45a30",
-  envelopeHash: "75df5a4b1d3649e5dea5fe34c59c89c087282b378ece27945f27638f17501951",
+  configHash: "c6d711782303230912ce05922e05479f1f3859b61a376b022c2f02cc025d73ca",
+  envelopeHash: "c6c7257042edc6500f466cd4f3539e68c33d652aa6c9b8eaad0d4f60d085a938",
   config: mapConfig.config,
 });

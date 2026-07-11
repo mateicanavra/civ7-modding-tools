@@ -96,6 +96,7 @@ export {
   mapConfigIdSchema,
   serializeMapConfigEnvelope,
   snapshotMapConfigEnvelope,
+  snapshotPortableJsonValue,
 } from "./mapConfigEnvelope.js";
 export type {
   MapConfigSaveDeployKind,

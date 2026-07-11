@@ -4,10 +4,10 @@ import { type MapInfo, MockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { standardConfig } from "../support/standard-config.js";
 
 class RegionSensitiveResourceAdapter extends MockAdapter {
   readonly callOrder: string[] = [];
@@ -72,7 +72,7 @@ function runRecipeWithAdapter(adapter: MockAdapter, width: number, height: numbe
     mapInfo,
     logPrefix: "[test]",
   });
-  standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
+  standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
   return context;
 }

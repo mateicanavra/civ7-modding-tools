@@ -69,7 +69,6 @@ export {
 } from "./preset-schemas.js";
 export { createRecipe } from "./recipe.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
-export { buildCompleteSchemaDefaults, buildSchemaDefaults } from "./schema.js";
 export type {
   BuildRecipeDagInput,
   RecipeDag,
@@ -115,10 +114,9 @@ export {
 export type {
   CompiledRecipeConfigOf,
   RecipeConfig,
-  RecipeConfigInputOf,
-  RecipeConfigOf,
   RecipeDefinition,
   RecipeModule,
+  RecipePublicConfigOf,
   Stage,
   StageAuthoringConfigLayer,
   StageAuthoringModel,

@@ -1,5 +1,5 @@
 import type { DomainOp, Static, StrategySelection, TSchema } from "@swooper/mapgen-core/authoring";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { validateSchemaValue, validateStrict } from "@swooper/mapgen-core/compiler/normalize";
 import type { CompileErrorItem } from "@swooper/mapgen-core/compiler/recipe-compile";
 import type { NormalizeContext } from "@swooper/mapgen-core/engine";
 
@@ -16,14 +16,18 @@ export class TestCompileError extends Error {
   }
 }
 
-export function normalizeStrictOrThrow<TSchemaT extends TSchema>(
+export function validateSchemaValueOrThrow<TSchemaT extends TSchema>(
   schema: TSchemaT,
-  rawValue: unknown,
+  value: unknown,
   path: string
 ): Static<TSchemaT> {
-  const { value, errors } = normalizeStrict<Static<TSchemaT>>(schema, rawValue, path);
-  if (errors.length > 0) throw new TestCompileError(`normalizeStrict failed at ${path}`, errors);
-  return value;
+  const { value: validatedValue, errors } = validateSchemaValue<Static<TSchemaT>>(
+    schema,
+    value,
+    path
+  );
+  if (errors.length > 0) throw new TestCompileError(`validation failed at ${path}`, errors);
+  return validatedValue;
 }
 
 export function normalizeOpSelectionOrThrow<
@@ -32,19 +36,19 @@ export function normalizeOpSelectionOrThrow<
   Strategies extends Record<string, { config: TSchema }>,
 >(
   op: DomainOp<InputSchema, OutputSchema, Strategies>,
-  rawSelection: unknown,
+  selection: StrategySelection<Strategies>,
   options?: Readonly<{ path?: string; ctx?: NormalizeContext }>
 ): StrategySelection<Strategies> {
   const path = options?.path ?? `/ops/${op.id}`;
   const ctx = options?.ctx ?? DEFAULT_NORMALIZE_CTX;
 
-  const first = normalizeStrict<StrategySelection<Strategies>>(op.config, rawSelection, path);
+  const first = validateStrict<StrategySelection<Strategies>>(op.config, selection, path);
   if (first.errors.length > 0) {
-    throw new TestCompileError(`normalizeStrict(op.config) failed at ${path}`, first.errors);
+    throw new TestCompileError(`op config validation failed at ${path}`, first.errors);
   }
 
   const normalizedByStrategy = op.normalize(first.value, ctx);
-  const second = normalizeStrict<StrategySelection<Strategies>>(
+  const second = validateStrict<StrategySelection<Strategies>>(
     op.config,
     normalizedByStrategy,
     path
@@ -63,9 +67,9 @@ export function runOpValidated<
 >(
   op: DomainOp<InputSchema, OutputSchema, Strategies>,
   input: Static<InputSchema>,
-  rawSelection: unknown,
+  selection: StrategySelection<Strategies>,
   options?: Readonly<{ path?: string; ctx?: NormalizeContext }>
 ): Static<OutputSchema> {
-  const selection = normalizeOpSelectionOrThrow(op, rawSelection, options);
-  return op.run(input, selection);
+  const normalizedSelection = normalizeOpSelectionOrThrow(op, selection, options);
+  return op.run(input, normalizedSelection);
 }

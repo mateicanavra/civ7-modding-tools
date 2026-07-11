@@ -1,14 +1,13 @@
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
 import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
-import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 import {
+  admitPipelineConfig,
   applyPresetConfig,
   createStudioEditorCanonicalConfig,
 } from "../../src/features/configAuthoring/canonicalConfig";
@@ -88,7 +87,7 @@ describe("standard recipe generated artifact guardrails", () => {
     }
   });
 
-  it("keeps every generated config materialized through the current recipe schema", () => {
+  it("accepts every complete generated config unchanged through the current recipe schema", () => {
     const standardEntry = getRecipeArtifacts("mod-swooper-maps/standard");
     const presets = standardEntry.studioBuiltInPresets ?? [];
     const configs = [
@@ -108,14 +107,6 @@ describe("standard recipe generated artifact guardrails", () => {
     );
 
     for (const { id, config } of configs) {
-      const normalized = normalizeStrict<Record<string, unknown>>(
-        STANDARD_RECIPE_CONFIG_SCHEMA,
-        config,
-        `/studio/configs/${id}`
-      );
-      expect(normalized.errors).toEqual([]);
-      expect(Value.Equal(normalized.value, config)).toBe(true);
-
       const applied = applyPresetConfig({
         schema: STANDARD_RECIPE_CONFIG_SCHEMA,
         presetConfig: config,
@@ -124,7 +115,9 @@ describe("standard recipe generated artifact guardrails", () => {
       expect(applied.ok, `${id} applied preset`).toBe(true);
       if (!applied.ok)
         throw new Error(`${id} applied preset errors: ${JSON.stringify(applied.errors)}`);
-      expect(Value.Equal(applied.value, config)).toBe(true);
+      expect(applied.value).toStrictEqual(config);
+      expect(applied.value).not.toBe(config);
+      expect(Object.isFrozen(applied.value)).toBe(true);
     }
   });
 
@@ -141,16 +134,11 @@ describe("standard recipe generated artifact guardrails", () => {
 
     expect(applied.ok).toBe(false);
     if (applied.ok) throw new Error("incomplete config was accepted");
-    expect(applied.errors).toEqual([
-      {
-        path: "/config/incomplete",
-        message:
-          "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
-      },
-    ]);
+    expect(applied.errors.length).toBeGreaterThan(0);
+    expect(applied.errors.some((error) => error.path === "/config/incomplete")).toBe(true);
   });
 
-  it("rejects non-object and root-metadata config values without repairing them", () => {
+  it("rejects unknown root keys and invalid JSON without repairing them", () => {
     const rootMetadataConfig = {
       ...(STANDARD_RECIPE_CONFIG as Record<string, unknown>),
       $schema: "sentinel",
@@ -174,16 +162,16 @@ describe("standard recipe generated artifact guardrails", () => {
     }
   });
 
-  it("keeps generated default config on the worker strict compile path", () => {
+  it("admits the generated default config before worker compilation", () => {
     const runtimeEntry = getRuntimeRecipe("mod-swooper-maps/standard");
 
-    const { value, errors } = normalizeStrict<Record<string, unknown>>(
-      runtimeEntry.configSchema,
-      runtimeEntry.defaultConfig,
-      "/config"
-    );
-
-    expect(errors).toEqual([]);
+    const admitted = admitPipelineConfig({
+      schema: runtimeEntry.configSchema,
+      config: runtimeEntry.defaultConfig,
+      label: "worker-default",
+    });
+    expect(admitted.ok).toBe(true);
+    if (!admitted.ok) throw new Error(JSON.stringify(admitted.errors));
 
     const plan = runtimeEntry.recipe.compile(
       {
@@ -191,7 +179,7 @@ describe("standard recipe generated artifact guardrails", () => {
         dimensions: { width: 84, height: 54 },
         latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
       },
-      value
+      admitted.value
     );
     expect(plan.nodes.length).toBeGreaterThan(0);
   });

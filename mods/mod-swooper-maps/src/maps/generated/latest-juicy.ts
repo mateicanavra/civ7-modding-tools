@@ -701,6 +701,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -709,15 +717,22 @@ const mapConfig = {
           "coveragePct": 55,
           "lightThreshold": 0.38,
           "mediumThreshold": 0.62,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 24
+          "coveragePct": 24,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 6
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       }
     },
@@ -797,8 +812,7 @@ const mapConfig = {
         "fairnessTolerance": 0.3,
         "coastalPreferenceWeight": 0,
         "riverPreferenceWeight": 0,
-        "startBiasWeight": 1,
-        "overrides": {}
+        "startBiasWeight": 1
       },
       "support": {
         "enabled": true,
@@ -828,7 +842,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "2c429b18d6c98d2056cc0cb76f49fbd4f3e72ada9c5ef4ae86cc60ee79405d9f",
-  envelopeHash: "ae2b855fd3347a7b5c67bf95e24df6639df65f0f0183f9652aee16a81a116623",
+  configHash: "8e693ba99c49717aa292c7bc32da47166d828e906485b9d77da2096bf469523b",
+  envelopeHash: "41b58892f7194d4b78395bc79c70dfaa2505927cd04232360286e215fcc4cac2",
   config: mapConfig.config,
 });

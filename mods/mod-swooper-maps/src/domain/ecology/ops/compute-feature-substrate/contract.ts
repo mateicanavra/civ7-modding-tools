@@ -6,32 +6,38 @@ const FeatureSubstrateConfigSchema = Type.Object(
       description: "Square-radius used to compute near-river adjacency mask.",
       default: 2,
       minimum: 0,
+      maximum: 64,
     }),
     isolatedRiverRadius: Type.Integer({
       description: "Square-radius used to compute isolated-river adjacency mask.",
       default: 1,
       minimum: 0,
+      maximum: 64,
     }),
     coastalAdjacencyRadius: Type.Integer({
       description: "Square-radius used to compute coastal land adjacency mask.",
       default: 1,
       minimum: 0,
+      maximum: 64,
     }),
     lowlandMaxElevationAboveSeaM: Type.Integer({
       description: "Maximum land elevation above sea level treated as lowland wetland substrate.",
       default: 160,
       minimum: 0,
+      maximum: 12_000,
     }),
     intertidalMaxElevationAboveSeaM: Type.Integer({
       description:
         "Maximum coastal land elevation above sea level treated as intertidal substrate.",
       default: 40,
       minimum: 0,
+      maximum: 12_000,
     }),
     floodplainDischargeMin: Type.Number({
       description: "Minimum nearby discharge treated as meaningful floodplain water exchange.",
       default: 0,
       minimum: 0,
+      maximum: 1_000_000,
     }),
   },
   {
