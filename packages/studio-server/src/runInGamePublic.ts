@@ -30,7 +30,7 @@ export function publicRunInGameFailureCategory(
         (failure.reason === "direct-control-unavailable" && failure.dependency !== "filesystem")
         ? "runtime-control"
         : "dependency-unavailable";
-    case "ProofFailed":
+    case "VerificationFailed":
       return failure.reason === "start-game-failed" ? "runtime-control" : "runtime-observation";
     case "RuntimeDisposed":
       return "dependency-unavailable";

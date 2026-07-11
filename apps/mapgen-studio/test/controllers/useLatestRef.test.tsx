@@ -12,9 +12,7 @@ import "./_setup";
  * synced through `useEffect`/`useLayoutEffect` (or forgot to write at all), the
  * ref would still hold the previous commit's value while the value-changing
  * render is executing — and `seenDuringRender` would lag. A render-phase write
- * is the only implementation that keeps it in lockstep. The companion
- * `useLatestRef.source.test.ts` pins that invariant structurally as a second,
- * independent line of defense.
+ * is the only implementation that keeps it in lockstep.
  */
 describe("useLatestRef (IMPROVE-2)", () => {
   it("exposes the latest value during the render that changes it (not one commit late)", () => {

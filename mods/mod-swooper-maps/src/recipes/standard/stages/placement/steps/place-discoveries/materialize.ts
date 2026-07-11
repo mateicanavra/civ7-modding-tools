@@ -23,7 +23,7 @@ type PlaceOfficialDiscoveriesArgs = {
  * visual ids come from `Database.makeHash(ConstructibleType)` and activation
  * ids from the native `DiscoveryActivationTypes` enum — neither is reproducible
  * from a static map-side catalog. Deferring to the official generator is
- * therefore correct-by-construction and patch-proof; the mod only observes how
+ * therefore correct-by-construction and patch-evidence; the mod only observes how
  * many sites the engine accepted (the official generator also handles the coast
  * and deep-ocean shipwreck populations the prior land-only plan dropped).
  */

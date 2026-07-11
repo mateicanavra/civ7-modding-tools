@@ -20,7 +20,7 @@ export type NaturalWonderPlanRuntimeTelemetry = {
   targetCount: number;
   plannedCount: number;
   planRows: NaturalWonderPlanRuntimeRow[];
-  coordinateProof: {
+  coordinateEvidence: {
     version: 1;
     plannedCount: number;
     plannedHash32: string;
@@ -87,7 +87,7 @@ export function buildNaturalWonderPlanRuntimeTelemetry(
     targetCount: Math.max(0, plan.targetCount | 0),
     plannedCount: Math.max(0, plan.plannedCount | 0),
     planRows,
-    coordinateProof: {
+    coordinateEvidence: {
       version: 1,
       plannedCount: planRows.length,
       plannedHash32: naturalWonderPlanCoordinateHash(planRows),

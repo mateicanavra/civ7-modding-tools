@@ -25,7 +25,7 @@ import { StudioEventHub, StudioEventHubLive } from "./services/StudioEventHub.js
  * live-game watcher consume that package-owned hub as an Effect service;
  * Promise/AsyncIterator adaptation stays at the oRPC edge. `Civ7WorkflowControlLive`
  * and `StudioLiveGameWatcher` depend on package services instead of constructing
- * or self-providing sessions. Live shared-socket proof remains a D12 game-door
+ * or self-providing sessions. Live shared-socket verification remains a D12 game-door
  * closure item.
  * The operation runtime is a scoped package service owning daemon identity,
  * operation admission, registries, TTL/tombstones, background workers, events,

@@ -58,10 +58,8 @@ describe("Studio workflow session graph", () => {
       Layer.provide(Layer.succeed(Civ7TunerSession, fakeSession))
     );
     const prepared: RunInGamePreparedRequest = {
-      correlationDigest: "fingerprint-1",
       request: {
         recipeId: "mod-swooper-maps/standard",
-        fingerprint: "fingerprint-1",
       },
     };
     const deployment: RunInGameDeployment = {};
@@ -101,7 +99,11 @@ describe("Studio workflow session graph", () => {
       if (setupRowsInput) {
         operations.push(setupRowsInput.file ? "setup-map-rows-filtered" : "setup-map-rows-all");
         return setupRowsInput.file
-          ? setupCommandResult({ rows: [], limit: setupRowsInput.limit, matchedFile: setupRowsInput.file })
+          ? setupCommandResult({
+              rows: [],
+              limit: setupRowsInput.limit,
+              matchedFile: setupRowsInput.file,
+            })
           : setupCommandResult({
               rows: [{ source: "setup-domain", file: "{base-standard}/maps/continents.js" }],
               limit: setupRowsInput.limit,
@@ -150,7 +152,7 @@ describe("Studio workflow session graph", () => {
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
         expect(result.left).toMatchObject({
-          tag: "ProofFailed",
+          tag: "VerificationFailed",
           diagnostics: {
             code: "generated-map-mod-not-enabled",
             setupFailureReason: "generated-map-mod-not-enabled",
@@ -161,7 +163,9 @@ describe("Studio workflow session graph", () => {
           '"targetActive":false'
         );
       }
-      expect(operations).toEqual(expect.arrayContaining(["setup-snapshot", "target-mod-reconcile"]));
+      expect(operations).toEqual(
+        expect.arrayContaining(["setup-snapshot", "target-mod-reconcile"])
+      );
       expect(operations).not.toContain("active-target-mods");
       expect(operations).not.toContain("setup-map-rows-filtered");
       expect(operations).not.toContain("restart-game");
@@ -182,10 +186,7 @@ describe("Studio workflow session graph", () => {
         }
         filteredReads += 1;
         return setupCommandResult({
-          rows:
-            filteredReads === 1
-              ? []
-              : [{ source: "setup-domain", file: setupRowsInput.file }],
+          rows: filteredReads === 1 ? [] : [{ source: "setup-domain", file: setupRowsInput.file }],
           limit: setupRowsInput.limit,
           matchedFile: setupRowsInput.file,
         });
@@ -232,7 +233,7 @@ describe("Studio workflow session graph", () => {
     );
 
     expect(setup.softRefreshPerformed).toBe(true);
-    expect(setup.rowProof?.rows).toEqual([
+    expect(setup.rowEvidence?.rows).toEqual([
       { source: "setup-domain", file: "{mod-swooper-studio-run}/maps/studio-run.js" },
     ]);
     expect(filteredReads).toBeGreaterThan(1);
@@ -304,7 +305,7 @@ describe("Studio workflow session graph", () => {
     );
 
     expect(setup.softRefreshPerformed).toBe(true);
-    expect(setup.rowProof?.rows).toEqual([
+    expect(setup.rowEvidence?.rows).toEqual([
       { source: "setup-domain", file: "{mod-swooper-studio-run}/maps/studio-run.js" },
     ]);
     expect(operations).toEqual(
@@ -424,7 +425,9 @@ function setupSnapshot(input: {
       mapScript: input.prepared
         ? { ok: true, value: "{mod-swooper-studio-run}/maps/studio-run.js" }
         : { ok: false, error: "unavailable" },
-      mapSize: input.prepared ? { ok: true, value: "MAPSIZE_HUGE" } : { ok: false, error: "unavailable" },
+      mapSize: input.prepared
+        ? { ok: true, value: "MAPSIZE_HUGE" }
+        : { ok: false, error: "unavailable" },
       mapSeed: input.prepared ? { ok: true, value: 123 } : { ok: false, error: "unavailable" },
       gameSeed: input.prepared ? { ok: true, value: 123 } : { ok: false, error: "unavailable" },
       playerCount: { ok: false, error: "unavailable" },
@@ -439,24 +442,46 @@ function parseSetupRowsInput(command: string): { file?: string; limit: number } 
 }
 
 function preparedRunRequest(): RunInGamePreparedRequest {
+  const source = {
+    kind: "catalog" as const,
+    sourcePath: "mods/mod-swooper-maps/src/maps/configs/test-of-time.config.json",
+    canonicalConfig: {
+      id: "test-of-time",
+      name: "Test of Time",
+      description: "Workflow fixture.",
+      recipe: "standard",
+      sortIndex: 1,
+      latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+      config: {},
+    },
+  };
+  const launchEnvelope = {
+    recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 123 },
+    worldSettings: { mapSize: "MAPSIZE_HUGE" },
+    setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
+    source,
+  };
+  const launchSourceDigest = {
+    canonicalConfigDigest: "canonical-config-digest",
+  };
   return {
-    correlationDigest: "fingerprint-1",
     request: {
       recipeId: "mod-swooper-maps/standard",
-      fingerprint: "fingerprint-1",
       mapSize: "MAPSIZE_HUGE",
       seed: 123,
-      selectedConfigId: "test-of-time",
-      setupConfig: {},
-      materializationMode: "durable",
-      resolvedLaunchSource: { type: "config", id: "test-of-time" },
-      launchEnvelope: {},
-      launchSourceDigest: "source-digest",
+      setupConfig: launchEnvelope.setupConfig,
+      sourceSnapshot: {
+        requestId: "run-workflow-disabled-mod",
+        source: { kind: "catalog", sourcePath: source.sourcePath },
+        canonicalConfigDigest: launchSourceDigest.canonicalConfigDigest,
+        launchEnvelopeDigest: "envelope-digest",
+      },
+      launchEnvelope,
+      launchSourceDigest,
       launchEnvelopeDigest: "envelope-digest",
     },
-    resolvedLaunchSource: { type: "config", id: "test-of-time" },
-    launchEnvelope: {},
-    launchSourceDigest: "source-digest",
+    launchEnvelope,
+    launchSourceDigest,
     launchEnvelopeDigest: "envelope-digest",
   } as RunInGamePreparedRequest;
 }
@@ -484,8 +509,8 @@ function deployedRun(): RunInGameDeployment {
     },
     materialization: {
       mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-      configHash: "config-hash",
-      envelopeHash: "envelope-hash",
+      canonicalConfigDigest: "config-hash",
+      launchEnvelopeDigest: "envelope-hash",
       generationManifestDigest: "manifest-digest",
       runArtifactId: "run-artifact",
       generatedModRoot: "/tmp/mod-swooper-studio-run",

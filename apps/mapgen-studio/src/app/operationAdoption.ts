@@ -21,11 +21,7 @@ export function adoptStudioOperationsCurrent(
     currentSaveDeployOperation?: MapConfigSaveDeployStatus | null;
   }> = {}
 ): void {
-  const runInGame = selectRunInGameOperationForAdoption(
-    current.runInGame.active ?? current.runInGame.recent[0] ?? null,
-    options.currentRunInGameOperation ?? null,
-    current.observedAt
-  );
+  const runInGame = current.runInGame.active ?? current.runInGame.recent[0] ?? null;
   if (runInGame) {
     const currentRunInGameOperation = options.currentRunInGameOperation ?? null;
     const operation = runInGame;
@@ -40,11 +36,7 @@ export function adoptStudioOperationsCurrent(
     targets.setRunInGameOperation(null);
   }
 
-  const saveDeploy = selectOperationForAdoption(
-    current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null,
-    options.currentSaveDeployOperation ?? null,
-    current.observedAt
-  );
+  const saveDeploy = current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null;
   targets.setSaveDeployOperation(saveDeploy);
 }
 
@@ -91,33 +83,6 @@ export async function readAndAdoptStudioOperationsCurrent(
     if (args.isCancelled?.()) return;
     args.onError(err instanceof Error ? err.message : "Unable to read current Studio operations");
   }
-}
-
-function selectOperationForAdoption<Operation extends { status: string; updatedAt: string }>(
-  incoming: Operation | null,
-  local: Operation | null,
-  observedAt: string
-): Operation | null {
-  if (!local || local.status === "running") return incoming;
-  if (incoming?.status === "running") return incoming;
-  if (!incoming) return isLocalNewerThanObserved(local, observedAt) ? local : null;
-  return Date.parse(local.updatedAt) > Date.parse(incoming.updatedAt) ? local : incoming;
-}
-
-function selectRunInGameOperationForAdoption(
-  incoming: RunInGameOperationStatus | null,
-  local: RunInGameOperationStatus | null,
-  observedAt: string
-): RunInGameOperationStatus | null {
-  if (incoming) return incoming;
-  if (!local || local.status === "running") return null;
-  return isLocalNewerThanObserved(local, observedAt) ? local : null;
-}
-
-function isLocalNewerThanObserved(local: { updatedAt: string }, observedAt: string): boolean {
-  const localTime = Date.parse(local.updatedAt);
-  const observedTime = Date.parse(observedAt);
-  return Number.isFinite(localTime) && Number.isFinite(observedTime) && localTime > observedTime;
 }
 
 type TerminalRunInGameOperationStatus = Exclude<RunInGameOperationStatus, { status: "running" }>;

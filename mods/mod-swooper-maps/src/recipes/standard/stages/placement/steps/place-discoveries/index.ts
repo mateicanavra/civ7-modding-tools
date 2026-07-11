@@ -40,7 +40,7 @@ export default createStep(PlaceDiscoveriesStepContract, {
     // Unconditional engine-safe telemetry (`console.log` is the only console
     // method available in the Civ7 MapGeneration context) so the live
     // Scripting.log is no longer silent on discoveries — this line is the
-    // primary in-game proof of the placement count.
+    // primary in-game evidence of the placement count.
     console.log(
       `[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 ${JSON.stringify({
         version: 1,

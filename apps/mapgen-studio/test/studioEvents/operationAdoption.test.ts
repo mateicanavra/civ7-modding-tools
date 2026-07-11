@@ -53,10 +53,9 @@ describe("Studio event operation adoption", () => {
               requestId: "save-1",
               phase: "complete",
               status: "complete",
-              startedAt: "2026-06-13T00:00:00.000Z",
-              updatedAt: "2026-06-13T00:00:01.000Z",
               saved: true,
               deployed: true,
+              recoveryActions: [],
             },
           ],
         },
@@ -260,8 +259,7 @@ describe("Studio event operation adoption", () => {
         requestId: "stale-save",
         phase: "deploying",
         status: "running",
-        startedAt: "2026-06-13T00:00:00.000Z",
-        updatedAt: "2026-06-13T00:00:00.000Z",
+        recoveryActions: ["retry-status"],
       },
     });
 
@@ -271,7 +269,7 @@ describe("Studio event operation adoption", () => {
     expect(state.saveDeploy).toBeNull();
   });
 
-  test("does not erase newer local terminal Run in Game status with older current truth", () => {
+  test("treats an empty registry snapshot as current truth regardless of local timestamps", () => {
     const state = adoptionState({
       runInGame: failedRunStatus({
         requestId: "run-local-failed",
@@ -283,8 +281,7 @@ describe("Studio event operation adoption", () => {
       currentRunInGameOperation: state.runInGame,
     });
 
-    expect(state.runInGame?.requestId).toBe("run-local-failed");
-    expect(state.runInGame?.safeFailureCategory).toBe("runtime-control");
+    expect(state.runInGame).toBeNull();
   });
 
   test("adopts daemon recent terminal Run in Game status over newer local terminal state", () => {
@@ -380,7 +377,7 @@ describe("Studio event operation adoption", () => {
     );
   });
 
-  test("current adoption reads latest local operation at adoption time", async () => {
+  test("current adoption does not let in-flight local status override registry sequencing", async () => {
     const state = adoptionState();
     let localOperation: RunInGameOperationStatus | null = null;
     let resolveCurrent: ((current: StudioOperationsCurrent) => void) | null = null;
@@ -404,7 +401,7 @@ describe("Studio event operation adoption", () => {
     resolveCurrent?.(currentOperations());
     await read;
 
-    expect(state.runInGame?.requestId).toBe("run-local-after-read-start");
+    expect(state.runInGame).toBeNull();
   });
 
   test("classifies stream recovery, daemon identity mismatch, and busy gates", () => {
@@ -511,49 +508,6 @@ describe("Studio event operation adoption", () => {
     expect(offenders).toEqual([]);
   });
 
-  test("classifies retained Run in Game snapshot helpers as session-only proof state", () => {
-    const runStore = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/stores/runStore.ts"),
-      "utf8"
-    );
-    const studioShell = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
-      "utf8"
-    );
-    // `handleRunInGame` (which records the session-only snapshots) moved into
-    // `useRunInGame` (slice 2.11); the snapshot-write assertions are pinned against
-    // that hook's source. The host still owns the store-read declarations + the
-    // "session-only UI state" comment.
-    const runInGameHook = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useRunInGame.ts"),
-      "utf8"
-    );
-    const clientState = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/features/runInGame/clientState.ts"),
-      "utf8"
-    );
-
-    expect(runStore).toContain("runInGameSnapshot");
-    expect(runStore).toContain("lastRunInGameSource");
-    expect(runStore).toContain("setRunInGameSnapshot");
-    expect(runStore).toContain("setLastRunInGameSource");
-    expect(runStore).toMatch(/session-only aids/);
-    expect(runStore).not.toMatch(/localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\(/);
-
-    expect(runInGameHook).toContain("setRunInGameSnapshot(snapshot)");
-    expect(runInGameHook).toContain("setLastRunInGameSource(sourceSnapshot)");
-    expect(studioShell).toMatch(/session-only UI state/);
-    expect(studioShell).not.toMatch(
-      /runInGameSnapshot[\s\S]{0,240}(?:localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\()|lastRunInGameSource[\s\S]{0,240}(?:localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\()/
-    );
-
-    expect(clientState).toContain("parseRunInGameClientSnapshot");
-    expect(clientState).toContain("parseRunInGameSourceSnapshot");
-    expect(clientState).not.toMatch(
-      /localStorage|sessionStorage|persist\s*\(|createJSONStorage\s*\(/
-    );
-  });
-
   test("applies pushed Run in Game operation events without pre-handling terminal toasts", () => {
     const state = adoptionState();
 
@@ -611,10 +565,9 @@ describe("Studio event operation adoption", () => {
           requestId: "save-pushed-1",
           phase: "complete",
           status: "complete",
-          startedAt: "2026-06-13T00:00:00.000Z",
-          updatedAt: "2026-06-13T00:00:01.000Z",
           saved: true,
           deployed: true,
+          recoveryActions: [],
         },
       }),
       state.targets

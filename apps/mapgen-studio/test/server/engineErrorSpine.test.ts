@@ -105,7 +105,12 @@ describe("Studio engine error spine", () => {
       expect(mapped.code).toBe(code);
       expect(mapped.status).toBe(status);
       if (status === 404 && procedure === "saveDeploy.status") {
-        expect(mapped.data).toMatchObject(identity);
+        expect(mapped.data).toMatchObject({
+          namespace: "saveDeploy",
+          requestId: "save-1",
+          safeFailureCategory: "request-validation",
+        });
+        expect(mapped.data).not.toMatchObject(identity);
       }
       if (status === 404 && procedure === "runInGame.status") {
         expect(mapped.data).not.toMatchObject(identity);
@@ -113,7 +118,7 @@ describe("Studio engine error spine", () => {
     }
   });
 
-  it("preserves identity echo and sealed data for status misses", () => {
+  it("preserves the safe request echo without private status diagnostics", () => {
     const mapped = toStudioRuntimeOrpcError({
       err: operationNotFound({
         message: "save missing",
@@ -131,11 +136,14 @@ describe("Studio engine error spine", () => {
       code: "SAVE_DEPLOY_STATUS_NOT_FOUND",
       status: 404,
       data: {
-        ...identity,
+        namespace: "saveDeploy",
         requestId: "save-1",
-        diagnostics: { code: "save-deploy-status-not-found" },
+        safeFailureCategory: "request-validation",
+        recoveryActions: ["copy-diagnostics", "retry-status"],
       },
     });
+    expect(mapped.data).not.toMatchObject(identity);
+    expect(mapped.data).not.toHaveProperty("diagnostics");
   });
 
   it("maps raw Civ7 direct-control exceptions to namespace unavailable errors", () => {

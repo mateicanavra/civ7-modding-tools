@@ -6,20 +6,11 @@
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
+// The file plan only receives an admitted immutable envelope; this assertion
+// projects its serialized data without adding a second runtime admission path.
 const mapConfig = {
   "id": "sundered-archipelago",
   "name": "The Sundered Archipelago",
@@ -818,19 +809,13 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const satisfies GeneratedMapConfig;
+} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
+  ...mapConfig,
   recipe: standardRecipe,
-  latitudeBounds: {
-    "topLatitude": 80,
-    "bottomLatitude": -80
-  },
   sourceConfigId: "sundered-archipelago",
   configHash: "76ba54cac3036ea51287f0c4b238a4ddb2c511dc49074280c8502a29874665a8",
-  envelopeHash: "de2d8ba1b3a7f0206a69b6b5013ffa1678ebb65208b2936635d545b9db9865a7",
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  envelopeHash: "5048099f2510e037f67980ee2f6664f98aafcf333d0db394dcd1ae561bdc3921",
+  config: mapConfig.config,
 });

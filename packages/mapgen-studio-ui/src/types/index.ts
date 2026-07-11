@@ -111,7 +111,7 @@ export type ResourceMode = "balanced" | "strategic";
  * Recipe settings for a generation run.
  *
  * Backend: The recipe determines which pipeline stages to execute.
- * The preset can override default config values.
+ * The preset supplies complete config values.
  */
 export interface RecipeSettings {
   /** Recipe identifier (e.g., 'mod-swooper-maps/standard') */

@@ -2,7 +2,7 @@
  * Engine-safe warn logging for placement steps.
  *
  * The Civ7 live scripting runtime exposes `console.log` but NOT
- * `console.warn` (discovered during the Milestone A live proof:
+ * `console.warn` (discovered during the Milestone A live evidence:
  * `place-resources` failed the whole generation with
  * "console.warn is not a function"). Loud fallback/shortfall reporting must
  * stay visible on live runs, so it routes through `console.warn` where it

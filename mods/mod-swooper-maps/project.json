@@ -30,15 +30,6 @@
         },
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
-        },
-        {
-          "env": "SWOOPER_STUDIO_RUN_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
@@ -113,15 +104,6 @@
         },
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
-        },
-        {
-          "env": "SWOOPER_STUDIO_RUN_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],

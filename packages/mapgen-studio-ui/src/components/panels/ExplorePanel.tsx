@@ -127,11 +127,11 @@ export interface ExplorePanelProps<TRef extends WaterStatsLayerRef = WaterStatsL
   layersExpanded?: boolean;
   /** Callback when layersExpanded changes (optional controlled mode) */
   onLayersExpandedChange?: (expanded: boolean) => void;
-  /** River/Lake/Floodplain inspector summary (Water proof section) */
+  /** River/Lake/Floodplain inspector summary (Water evidence section) */
   riverLakeInspectorSummary?: WaterStatsSummary<TRef> | null;
-  /** Callback when a water-proof evidence layer chip is clicked */
+  /** Callback when a water evidence layer chip is clicked */
   onRiverLakeInspectorLayerSelect?: (ref: TRef) => void;
-  /** Whether the water-proof section is expanded (optional controlled mode) */
+  /** Whether the water evidence section is expanded (optional controlled mode) */
   waterStatsExpanded?: boolean;
   /** Callback when waterStatsExpanded changes (optional controlled mode) */
   onWaterStatsExpandedChange?: (expanded: boolean) => void;
@@ -484,7 +484,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
         </div>
       ) : null}
 
-      {/* WATER PROOF SECTION — River/Lake/Floodplain inspector rows */}
+      {/* WATER EVIDENCE SECTION — River/Lake/Floodplain inspector rows */}
       <WaterStatsSection
         summary={riverLakeInspectorSummary}
         onLayerSelect={onRiverLakeInspectorLayerSelect}

@@ -1,192 +1,46 @@
 import type { SelectOption } from "@swooper/mapgen-studio-ui/types";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { BuiltInPreset } from "../../recipes/catalog";
-import {
-  type LocalPresetV1,
-  loadPresetStore,
-  persistPresetStore,
-  removeLocalPreset,
-  type StudioPresetStoreV1,
-  upsertLocalPreset,
-} from "./storage";
-import { type PresetKey, parsePresetKey, type ResolvedPreset } from "./types";
-
-export type LivePreset = Readonly<{
-  id: string;
-  label: string;
-  description?: string;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
-  config: unknown;
-}>;
-
-export type PresetActions = Readonly<{
-  saveAsNew: (args: { recipeId: string; label: string; description?: string; config: unknown }) => {
-    preset: LocalPresetV1;
-    persistenceError?: string;
-  };
-  saveToCurrent: (args: { recipeId: string; presetId: string; config: unknown }) => {
-    preset?: LocalPresetV1;
-    error?: string;
-    persistenceError?: string;
-  };
-  deleteLocal: (args: { recipeId: string; presetId: string }) => {
-    deleted: boolean;
-    persistenceError?: string;
-  };
-}>;
+import { parsePresetKey, type ResolvedPreset } from "./types";
 
 export type UsePresetsResult = Readonly<{
   options: ReadonlyArray<SelectOption>;
-  resolvePreset: (key: PresetKey) => ResolvedPreset | null;
-  localPresets: ReadonlyArray<LocalPresetV1>;
-  actions: PresetActions;
-  loadWarning?: string;
+  resolvePreset: (key: string) => ResolvedPreset | null;
 }>;
-
-function createLocalPresetId(existing: ReadonlyArray<LocalPresetV1>): string {
-  const used = new Set(existing.map((p) => p.id));
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    let id = crypto.randomUUID();
-    while (used.has(id)) id = crypto.randomUUID();
-    return id;
-  }
-  let id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  while (used.has(id)) {
-    id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  }
-  return id;
-}
 
 export function usePresets(args: {
   recipeId: string;
   builtIns: ReadonlyArray<BuiltInPreset>;
-  livePresets?: ReadonlyArray<LivePreset>;
 }): UsePresetsResult {
-  const { recipeId, builtIns, livePresets = [] } = args;
-  const [{ store, warning }, setStoreState] = useState(() => {
-    const result = loadPresetStore();
-    return { store: result.store, warning: result.warning };
-  });
-
-  const localPresets = useMemo(() => store.presetsByRecipeId[recipeId] ?? [], [store, recipeId]);
-
+  const { builtIns } = args;
   const options = useMemo(() => {
     const base: SelectOption[] = [{ value: "none", label: "None" }];
     const builtInOptions = builtIns.map((preset) => ({
-      value: `builtin:${preset.id}`,
-      label: `Config / ${preset.label}`,
+      value: `builtin:${preset.canonicalConfig.id}`,
+      label: `Config / ${preset.canonicalConfig.name}`,
     }));
-    const localOptions = localPresets.map((preset) => ({
-      value: `local:${preset.id}`,
-      label: `Scratch / ${preset.label}`,
-    }));
-    const liveOptions = livePresets.map((preset) => ({
-      value: `live:${preset.id}`,
-      label: `Live / ${preset.label}`,
-    }));
-    return [...base, ...liveOptions, ...builtInOptions, ...localOptions];
-  }, [builtIns, livePresets, localPresets]);
+    return [...base, ...builtInOptions];
+  }, [builtIns]);
 
   const resolvePreset = useCallback(
-    (key: PresetKey): ResolvedPreset | null => {
+    (key: string): ResolvedPreset | null => {
       const parsed = parsePresetKey(key);
       if (parsed.kind === "builtin") {
-        const preset = builtIns.find((p) => p.id === parsed.id);
+        const preset = builtIns.find((p) => p.canonicalConfig.id === parsed.id);
         return preset
           ? {
               source: "builtin",
-              id: preset.id,
-              label: preset.label,
-              description: preset.description,
-              catalogSourceId: preset.catalogSourceId,
+              id: preset.canonicalConfig.id,
+              label: preset.canonicalConfig.name,
+              description: preset.canonicalConfig.description,
               sourcePath: preset.sourcePath,
-              sortIndex: preset.sortIndex,
-              latitudeBounds: preset.latitudeBounds,
-              config: preset.config,
-            }
-          : null;
-      }
-      if (parsed.kind === "local") {
-        const preset = localPresets.find((p) => p.id === parsed.id);
-        return preset
-          ? {
-              source: "local",
-              id: preset.id,
-              label: preset.label,
-              description: preset.description,
-              config: preset.config,
-            }
-          : null;
-      }
-      if (parsed.kind === "live") {
-        const preset = livePresets.find((p) => p.id === parsed.id);
-        return preset
-          ? {
-              source: "live",
-              id: preset.id,
-              label: preset.label,
-              description: preset.description,
-              latitudeBounds: preset.latitudeBounds,
-              config: preset.config,
+              canonicalConfig: preset.canonicalConfig,
             }
           : null;
       }
       return null;
     },
-    [builtIns, livePresets, localPresets]
+    [builtIns]
   );
-
-  const setStore = useCallback((next: StudioPresetStoreV1): string | undefined => {
-    setStoreState((prev) => ({ store: next, warning: prev.warning }));
-    const result = persistPresetStore(next);
-    if (!result.ok) return result.error;
-    return undefined;
-  }, []);
-
-  const actions: PresetActions = useMemo(
-    () => ({
-      saveAsNew: ({ recipeId: targetRecipeId, label, description, config }) => {
-        const now = new Date().toISOString();
-        const existing = store.presetsByRecipeId[targetRecipeId] ?? [];
-        const preset: LocalPresetV1 = {
-          id: createLocalPresetId(existing),
-          label,
-          description,
-          config,
-          createdAtIso: now,
-          updatedAtIso: now,
-        };
-        const nextStore = upsertLocalPreset({ store, recipeId: targetRecipeId, preset });
-        const persistenceError = setStore(nextStore);
-        return { preset, persistenceError };
-      },
-      saveToCurrent: ({ recipeId: targetRecipeId, presetId, config }) => {
-        const existing = store.presetsByRecipeId[targetRecipeId] ?? [];
-        const current = existing.find((p) => p.id === presetId);
-        if (!current) return { error: "Preset not found" };
-        const preset: LocalPresetV1 = {
-          ...current,
-          config,
-          updatedAtIso: new Date().toISOString(),
-        };
-        const nextStore = upsertLocalPreset({ store, recipeId: targetRecipeId, preset });
-        const persistenceError = setStore(nextStore);
-        return { preset, persistenceError };
-      },
-      deleteLocal: ({ recipeId: targetRecipeId, presetId }) => {
-        const nextStore = removeLocalPreset({ store, recipeId: targetRecipeId, presetId });
-        const persistenceError = setStore(nextStore);
-        const deleted = (store.presetsByRecipeId[targetRecipeId] ?? []).some(
-          (p) => p.id === presetId
-        );
-        return { deleted, persistenceError };
-      },
-    }),
-    [setStore, store]
-  );
-
-  return { options, resolvePreset, localPresets, actions, loadWarning: warning };
+  return { options, resolvePreset };
 }

@@ -1,30 +1,27 @@
-import type {
-  LaunchEnvelope,
-  LaunchEnvelopeDigest,
-  LaunchSourceDigest,
-  ResolvedLaunchSource,
-  RunInGameRecipeSettings,
-  RunInGameSetupConfig,
-  RunInGameWorldSettings,
+import {
+  type ConfigSource,
+  freezeSnapshot,
+  type MapConfigEnvelope,
+  type LaunchEnvelope,
+  type LaunchEnvelopeDigest,
+  type LaunchSourceDigest,
+  type RunInGameRecipeSettings,
+  type RunInGameSetupConfig,
+  type RunInGameStartSource,
+  type RunInGameWorldSettings,
+  snapshotRunInGameStartSource,
+  snapshotLaunchEnvelope,
 } from "@civ7/studio-contract";
-import { STUDIO_CURRENT_CONFIG_ID, STUDIO_CURRENT_MAP_SCRIPT } from "@civ7/studio-contract";
 import { Effect } from "effect";
-import { invalidRequest, type StudioRuntimeFailure } from "../errors/index.js";
-import type { RunInGameCatalogSource, StudioWorkflowPorts } from "../ports/index.js";
-import { hashRunInGameProofValue } from "./sourceSnapshot.js";
 
-const STANDARD_RECIPE_ID = "mod-swooper-maps/standard";
-const STANDARD_MAP_SCRIPT_PREFIX = "{swooper-maps}/maps/";
-const STANDARD_MAP_SCRIPT_SUFFIX = ".js";
+import { invalidRequest, type StudioRuntimeFailure } from "../errors/index.js";
+import type { StudioWorkflowPorts } from "../ports/index.js";
+import { hashRunInGameEvidenceValue } from "./sourceSnapshot.js";
 
 export type RunInGameLaunchResolution = Readonly<{
-  resolvedLaunchSource: ResolvedLaunchSource;
   launchEnvelope: LaunchEnvelope;
   launchSourceDigest: LaunchSourceDigest;
   launchEnvelopeDigest: LaunchEnvelopeDigest;
-  configContentDigest: string;
-  selectedConfigId: string;
-  materializationMode: "durable" | "disposable";
 }>;
 
 export function resolveRunInGameLaunchSource(
@@ -35,241 +32,141 @@ export function resolveRunInGameLaunchSource(
       worldSettings: RunInGameWorldSettings;
       setupConfig: RunInGameSetupConfig;
     };
-    ports: Pick<StudioWorkflowPorts, "readRunInGameCatalogSource">;
+    ports: Pick<StudioWorkflowPorts, "runInGameCanonicalConfigAdmission">;
   }>
 ): Effect.Effect<RunInGameLaunchResolution, StudioRuntimeFailure> {
-  const source = args.input.source;
-  if (!isRecord(source)) {
-    return sourceResolutionInvalid("Run in Game launch source must be an object.", {
+  const source = snapshotRunInGameStartSource(args.input.source);
+  if (source === undefined) {
+    return sourceResolutionInvalid("Run in Game source is invalid.", {
       code: "run-in-game-source-invalid",
     });
   }
-  if (source.kind === "catalog") {
-    return resolveCatalogLaunchSource({ ...args, source });
+  const admission = args.ports.runInGameCanonicalConfigAdmission;
+  if (admission === undefined) {
+    return sourceResolutionInvalid("Run in Game config admission is unavailable.", {
+      code: "run-in-game-config-admission-unavailable",
+    });
   }
-  if (source.kind === "editor") {
-    return resolveEditorLaunchSource({ ...args, source });
-  }
-  return sourceResolutionInvalid("Run in Game launch source kind is unsupported.", {
-    code: "run-in-game-source-kind-invalid",
-  });
+  return resolveCanonicalConfig({ source, admission }).pipe(
+    Effect.map((canonicalConfig) => {
+      const resolvedSource = resolvedConfigSource({ source, canonicalConfig });
+      const launchEnvelope = snapshotLaunchEnvelope({
+        recipeSettings: args.input.recipeSettings,
+        worldSettings: args.input.worldSettings,
+        setupConfig: args.input.setupConfig,
+        source: resolvedSource,
+      });
+      return buildResolution(launchEnvelope);
+    })
+  );
 }
 
-function resolveCatalogLaunchSource(
+function resolveCanonicalConfig(
   args: Readonly<{
-    input: {
-      recipeSettings: RunInGameRecipeSettings;
-      worldSettings: RunInGameWorldSettings;
-      setupConfig: RunInGameSetupConfig;
-    };
-    ports: Pick<StudioWorkflowPorts, "readRunInGameCatalogSource">;
-    source: Record<string, unknown>;
+    source: RunInGameStartSource;
+    admission: NonNullable<StudioWorkflowPorts["runInGameCanonicalConfigAdmission"]>;
   }>
-): Effect.Effect<RunInGameLaunchResolution, StudioRuntimeFailure> {
-  const catalogSourceId = args.source.catalogSourceId;
-  if (typeof catalogSourceId !== "string" || !isKebabId(catalogSourceId)) {
-    return sourceResolutionInvalid("Run in Game catalog source id is invalid.", {
-      code: "run-in-game-catalog-source-id-invalid",
-      ...(diagnosticString(catalogSourceId) === undefined
-        ? {}
-        : { catalogSourceId: diagnosticString(catalogSourceId) }),
-    });
+): Effect.Effect<MapConfigEnvelope, StudioRuntimeFailure> {
+  const source = args.source;
+  if (source.kind === "editor") {
+    const canonicalConfig = source.canonicalConfig;
+    return Effect.tryPromise({
+      try: () => args.admission.admit(canonicalConfig),
+      catch: (cause) =>
+        invalidRequest({
+          message: "Run in Game config could not be admitted.",
+          diagnostics: {
+            code: "run-in-game-config-admission-failed",
+            cause: diagnosticString(cause) ?? "unknown",
+          },
+        }),
+    }).pipe(
+      Effect.flatMap((admittedConfig) =>
+        admittedConfig === canonicalConfig
+          ? Effect.succeed(canonicalConfig)
+          : sourceResolutionInvalid(
+              "Run in Game config admission must preserve the input envelope.",
+              {
+                code: "run-in-game-config-admission-rebuilt",
+              }
+            )
+      )
+    );
   }
-  const readCatalogSource = args.ports.readRunInGameCatalogSource;
-  if (readCatalogSource === undefined) {
-    return sourceResolutionInvalid("Run in Game catalog source reader is unavailable.", {
-      code: "run-in-game-catalog-source-reader-unavailable",
-      catalogSourceId,
-    });
-  }
+  const sourcePath = source.sourcePath;
+
   return Effect.tryPromise({
-    try: () => readCatalogSource({ catalogSourceId }),
-    catch: (err) =>
+    try: () => args.admission.resolveCatalogSource(sourcePath),
+    catch: (cause) =>
       invalidRequest({
         message: "Run in Game catalog source could not be resolved.",
         diagnostics: {
           code: "run-in-game-catalog-source-resolution-failed",
-          catalogSourceId,
-          cause: diagnosticString(err) ?? "unknown",
+          sourcePath,
+          cause: diagnosticString(cause) ?? "unknown",
         },
       }),
   }).pipe(
-    Effect.flatMap((catalogSource) => {
-      if (catalogSource === undefined) {
+    Effect.flatMap((canonicalConfig) => {
+      if (canonicalConfig === undefined) {
         return sourceResolutionInvalid("Run in Game catalog source was not found.", {
           code: "run-in-game-catalog-source-not-found",
-          catalogSourceId,
+          sourcePath,
         });
       }
-      return Effect.succeed(
-        buildResolution({
-          input: args.input,
-          selectedConfigId: catalogSource.catalogSourceId,
-          materializationMode: "durable",
-          sourceSummary: {
-            kind: "catalog",
-            id: catalogSource.catalogSourceId,
-            label: catalogSource.name,
-            description: catalogSource.description,
-            mapScript: mapScriptForConfigId(catalogSource.catalogSourceId),
-            sortIndex: catalogSource.sortIndex,
-            ...(catalogSource.latitudeBounds === undefined
-              ? {}
-              : { latitudeBounds: catalogSource.latitudeBounds }),
-          },
-          resolvedLaunchSource: {
-            kind: "catalog",
-            catalogSourceId: catalogSource.catalogSourceId,
-            catalogSourcePath: catalogSource.configPath,
-            label: catalogSource.name,
-            description: catalogSource.description,
-            sortIndex: catalogSource.sortIndex,
-            ...(catalogSource.latitudeBounds === undefined
-              ? {}
-              : { latitudeBounds: catalogSource.latitudeBounds }),
-            config: catalogSource.config,
-          },
-          config: catalogSource.config,
-        })
-      );
+      return Effect.succeed(canonicalConfig);
     })
   );
 }
 
-function resolveEditorLaunchSource(
+function resolvedConfigSource(
   args: Readonly<{
-    input: {
-      recipeSettings: RunInGameRecipeSettings;
-      worldSettings: RunInGameWorldSettings;
-      setupConfig: RunInGameSetupConfig;
-    };
-    source: Record<string, unknown>;
+    source: RunInGameStartSource;
+    canonicalConfig: MapConfigEnvelope;
   }>
-): Effect.Effect<RunInGameLaunchResolution, StudioRuntimeFailure> {
-  const payload = isRecord(args.source.payload) ? args.source.payload : undefined;
-  if (payload === undefined || !isRecord(payload.pipelineConfig)) {
-    return sourceResolutionInvalid("Run in Game editor source requires a pipeline config.", {
-      code: "run-in-game-editor-source-config-invalid",
-    });
-  }
-  const editorSessionId = stringValue(args.source.editorSessionId);
-  const configId = stringValue(payload.configId);
-  const label = stringValue(payload.label);
-  const mapScript = stringValue(payload.mapScript);
-  if (
-    editorSessionId === undefined ||
-    configId === undefined ||
-    label === undefined ||
-    mapScript === undefined
-  ) {
-    return sourceResolutionInvalid("Run in Game editor source is missing required metadata.", {
-      code: "run-in-game-editor-source-metadata-invalid",
-    });
-  }
-  if (configId !== STUDIO_CURRENT_CONFIG_ID || mapScript !== STUDIO_CURRENT_MAP_SCRIPT) {
-    return sourceResolutionInvalid("Run in Game editor source must target studio-current.", {
-      code: "run-in-game-editor-source-identity-invalid",
-      configId,
-      mapScript,
-    });
-  }
-  if (payload.recipeId !== STANDARD_RECIPE_ID) {
-    return sourceResolutionInvalid("Run in Game editor source recipe is unsupported.", {
-      code: "run-in-game-editor-source-recipe-invalid",
-      ...(diagnosticString(payload.recipeId) === undefined
-        ? {}
-        : { recipeId: diagnosticString(payload.recipeId) }),
-    });
-  }
-  return Effect.succeed(
-    buildResolution({
-      input: args.input,
-      selectedConfigId: "studio-current",
-      materializationMode: "disposable",
-      sourceSummary: {
+): ConfigSource {
+  return args.source.kind === "catalog"
+    ? freezeSnapshot({
+        kind: "catalog",
+        sourcePath: args.source.sourcePath,
+        canonicalConfig: args.canonicalConfig,
+      } satisfies ConfigSource)
+    : freezeSnapshot({
         kind: "editor",
-        id: STUDIO_CURRENT_CONFIG_ID,
-        label,
-        ...(typeof payload.description === "string" ? { description: payload.description } : {}),
-        mapScript: STUDIO_CURRENT_MAP_SCRIPT,
-        sortIndex: typeof payload.sortIndex === "number" ? payload.sortIndex : 9999,
-        ...(payload.latitudeBounds === undefined ? {} : { latitudeBounds: payload.latitudeBounds }),
-      },
-      resolvedLaunchSource: {
-        kind: "editor",
-        editorSessionId,
-        configId: STUDIO_CURRENT_CONFIG_ID,
-        label,
-        ...(typeof payload.description === "string" ? { description: payload.description } : {}),
-        mapScript: STUDIO_CURRENT_MAP_SCRIPT,
-        sortIndex: typeof payload.sortIndex === "number" ? payload.sortIndex : 9999,
-        ...(payload.latitudeBounds === undefined ? {} : { latitudeBounds: payload.latitudeBounds }),
-        config: payload.pipelineConfig,
-      },
-      config: payload.pipelineConfig,
-    })
-  );
+        editorSessionId: args.source.editorSessionId,
+        canonicalConfig: args.canonicalConfig,
+      } satisfies ConfigSource);
 }
 
-function buildResolution(args: {
-  input: {
-    recipeSettings: RunInGameRecipeSettings;
-    worldSettings: RunInGameWorldSettings;
-    setupConfig: RunInGameSetupConfig;
-  };
-  selectedConfigId: string;
-  materializationMode: "durable" | "disposable";
-  sourceSummary: LaunchEnvelope["source"];
-  resolvedLaunchSource: ResolvedLaunchSource;
-  config: Record<string, unknown>;
-}): RunInGameLaunchResolution {
-  const launchEnvelope: LaunchEnvelope = {
-    recipeSettings: args.input.recipeSettings,
-    worldSettings: args.input.worldSettings,
-    setupConfig: args.input.setupConfig,
-    source: args.sourceSummary,
-    config: args.config,
-  };
-  const configContentDigest = hashRunInGameProofValue(args.config);
-  const launchEnvelopeDigest = hashRunInGameProofValue(launchEnvelope);
-  return {
-    resolvedLaunchSource: args.resolvedLaunchSource,
+function buildResolution(launchEnvelope: LaunchEnvelope): RunInGameLaunchResolution {
+  const launchEnvelopeDigest = hashRunInGameEvidenceValue(launchEnvelope);
+  const resolution = {
     launchEnvelope,
-    launchSourceDigest: {
-      configContentDigest,
-      launchEnvelopeDigest,
-    },
+    launchSourceDigest: freezeSnapshot({
+      canonicalConfigDigest: hashRunInGameEvidenceValue(launchEnvelope.source.canonicalConfig),
+    }),
     launchEnvelopeDigest,
-    configContentDigest,
-    selectedConfigId: args.selectedConfigId,
-    materializationMode: args.materializationMode,
   };
+  freezeSnapshot(resolution);
+  return resolution;
 }
 
 export function sourceSnapshotFromLaunchResolution(
   resolution: RunInGameLaunchResolution
-): Record<string, unknown> {
-  return {
-    recipeSettings: resolution.launchEnvelope.recipeSettings,
-    worldSettings: resolution.launchEnvelope.worldSettings,
-    pipelineConfig: resolution.launchEnvelope.config,
-    setupConfig: resolution.launchEnvelope.setupConfig,
-    materializationMode: resolution.materializationMode,
-    selectedConfig: {
-      id: resolution.selectedConfigId,
-      label: resolution.launchEnvelope.source.label,
-      ...(resolution.launchEnvelope.source.description === undefined
-        ? {}
-        : { description: resolution.launchEnvelope.source.description }),
-      ...(resolution.resolvedLaunchSource.kind === "catalog"
-        ? { sourcePath: resolution.resolvedLaunchSource.catalogSourcePath }
-        : {}),
-      sortIndex: resolution.launchEnvelope.source.sortIndex,
-      ...(resolution.launchEnvelope.source.latitudeBounds === undefined
-        ? {}
-        : { latitudeBounds: resolution.launchEnvelope.source.latitudeBounds }),
-    },
-  };
+): Readonly<{
+  source: { kind: "catalog"; sourcePath: string } | { kind: "editor"; editorSessionId: string };
+  canonicalConfigDigest: string;
+  launchEnvelopeDigest: string;
+}> {
+  const source = resolution.launchEnvelope.source;
+  return freezeSnapshot({
+    source:
+      source.kind === "catalog"
+        ? { kind: "catalog", sourcePath: source.sourcePath }
+        : { kind: "editor", editorSessionId: source.editorSessionId },
+    canonicalConfigDigest: resolution.launchSourceDigest.canonicalConfigDigest,
+    launchEnvelopeDigest: resolution.launchEnvelopeDigest,
+  });
 }
 
 function sourceResolutionInvalid(
@@ -277,18 +174,6 @@ function sourceResolutionInvalid(
   diagnostics: Record<string, string | number | boolean | null | string[]>
 ): Effect.Effect<never, StudioRuntimeFailure> {
   return Effect.fail(invalidRequest({ message, diagnostics }));
-}
-
-function mapScriptForConfigId(configId: string): string {
-  return `${STANDARD_MAP_SCRIPT_PREFIX}${configId}${STANDARD_MAP_SCRIPT_SUFFIX}`;
-}
-
-function isKebabId(value: string): boolean {
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
-}
-
-function stringValue(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
 }
 
 function diagnosticString(value: unknown): string | undefined {
@@ -300,8 +185,4 @@ function diagnosticString(value: unknown): string | undefined {
   } catch {
     return String(value);
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
 }

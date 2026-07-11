@@ -1,8 +1,11 @@
 ## 1. Harness Readiness
 
 - [ ] 1.1 Read the browser-originated harness and final target vocabulary.
-- [ ] 1.2 Ensure the harness selects saved config, source, seed, Huge map, 10
-      players, and balanced resources through the rendered UI.
+- [ ] 1.2 Ensure the harness selects saved config, source, seed, Huge map, and
+      10 players through the rendered UI, then captures the rendered Run in
+      Game click's browser-originated `runInGame.start` request with
+      `worldSettings.resources: balanced` and the same request's generation
+      manifest.
 - [ ] 1.3 Ensure follow-up `/rpc` calls capture status/current/events,
       diagnostics, live status, and live snapshot for the admitted request.
 - [ ] 1.4 Ensure evidence rows redact public records and retain private details
@@ -13,11 +16,17 @@
 ## 2. Required Scenario Runs
 
 - [ ] 2.1 Run Swooper Earthlike with `ToT_BasicModsEnabled.Civ7Cfg`, Huge map,
-      10 players, balanced resources, and seed `1538316415`.
+      10 players, seed `1538316415`, and browser-originated
+      `worldSettings.resources: balanced` retained in the same request's
+      generation manifest.
 - [ ] 2.2 Run Latest Juicy with `ToT_BasicModsEnabled.Civ7Cfg`, Huge map, 10
-      players, balanced resources, and seed `1538316415`.
+      players, seed `1538316415`, and browser-originated
+      `worldSettings.resources: balanced` retained in the same request's
+      generation manifest.
 - [ ] 2.3 Run Swooper Desert Mountains with `ToT_BasicModsEnabled.Civ7Cfg`,
-      Huge map, 10 players, balanced resources, and seed `1538316415`.
+      Huge map, 10 players, seed `1538316415`, and browser-originated
+      `worldSettings.resources: balanced` retained in the same request's
+      generation manifest.
 - [ ] 2.4 Run missed terminal event or browser reload recovery row.
 - [ ] 2.5 Run generated-row-missing failure row.
 - [ ] 2.6 Run stale saved-config/generated-mod mismatch row.

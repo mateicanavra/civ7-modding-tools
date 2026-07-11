@@ -5,8 +5,8 @@ import {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   getCiv7PlayableStatus,
   prepareCiv7SinglePlayerSetup,
-  startPreparedCiv7SinglePlayerGame,
   startCiv7Autoplay,
+  startPreparedCiv7SinglePlayerGame,
   stopCiv7Autoplay,
 } from "@civ7/direct-control";
 import { Context, Effect, Layer } from "effect";
@@ -18,11 +18,11 @@ import {
   dependencyUnavailable,
   invalidRequest,
   materializationFailed,
-  proofFailed,
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
   type StudioRecoveryAction,
   type StudioRuntimeFailure,
+  verificationFailed,
 } from "../errors/index.js";
 import { setupFailureReasonFromDirectControlCode } from "../runInGameSetupFailureTaxonomy.js";
 import {
@@ -113,7 +113,6 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
         args: Readonly<{
           launchMapScript: string;
           materialization: unknown;
-          materializationMode: string;
           targetModId: string;
         }>
       ): StudioRuntimeFailure => {
@@ -140,12 +139,11 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
         const classification = classifyMapRowVisibilityFailure({
           launchMapScript: args.launchMapScript,
           visibleMapRows: visibleRows,
-          materializationMode: args.materializationMode,
           targetModId: args.targetModId,
           activeTargetModSet: activeReadback,
           targetModReconciliation,
         });
-        return proofFailed({
+        return verificationFailed({
           message: classification.message,
           reason: "setup-row-unavailable",
           recoveryActions: setupRowRecoveryActions(classification.code),
@@ -159,7 +157,8 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
             visibleMapRowCount: classification.visibleMapRowCount,
             activeTargetModSet: classification.activeTargetModSet,
             targetModReconciliation: classification.targetModReconciliation,
-            activeTargetModSetReadbackLimitation: activeTargetModSetReadbackLimitation(activeReadback),
+            activeTargetModSetReadbackLimitation:
+              activeTargetModSetReadbackLimitation(activeReadback),
             recoveryHint: classification.recoveryHint,
             reloadAttempted: rowVisibility?.refreshed ?? false,
             mapScript: args.launchMapScript,
@@ -190,8 +189,9 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
         prepareSetup: (args) => {
           const materialization = args.deployment.materialization;
           const launchMapScript = materialization?.mapScript;
-          const request = args.prepared.request;
-          if (!launchMapScript) {
+          const runArtifactId = materialization?.runArtifactId;
+          const launchEnvelope = args.prepared.launchEnvelope;
+          if (!launchMapScript || !runArtifactId) {
             return Effect.fail(
               materializationFailed({
                 message: "Run in Game map script is missing before setup preparation",
@@ -203,9 +203,9 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
               })
             );
           }
-          const mapSize = request.mapSize;
-          const seed = request.seed;
-          const launchSetupConfig = { ...request.setupConfig, mapScript: launchMapScript };
+          const mapSize = launchEnvelope.worldSettings.mapSize;
+          const seed = numericLaunchSeed(launchEnvelope.recipeSettings.seed);
+          const launchSetupConfig = { ...launchEnvelope.setupConfig, mapScript: launchMapScript };
           const savedConfig = readSavedConfig(launchSetupConfig);
           if (!mapSize || seed === undefined) {
             return Effect.fail(
@@ -229,7 +229,9 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
                   mapSize,
                   seed,
                   gameSeed: seed,
-                  ...(request.playerCount === undefined ? {} : { playerCount: request.playerCount }),
+                  ...(launchEnvelope.worldSettings.playerCount === undefined
+                    ? {}
+                    : { playerCount: launchEnvelope.worldSettings.playerCount }),
                   requiredActiveTargetModId: args.deployment.runDeployment.deployedModId,
                   ...(savedConfig === undefined ? {} : { savedConfig }),
                   options: readGameOptions(launchSetupConfig),
@@ -245,15 +247,17 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
               return {
                 kind: "run-in-game-prepared-setup",
                 requestId: args.requestId,
-                correlationDigest: args.prepared.correlationDigest,
                 deploymentRequestId: args.deployment.runDeployment.requestId,
+                runArtifactId,
                 deployedModId: args.deployment.runDeployment.deployedModId,
                 targetModId: args.deployment.runDeployment.deployedModId,
                 launchMapScript,
-                seed: request.seed,
+                seed,
                 mapSize,
-                ...(request.playerCount === undefined ? {} : { playerCount: request.playerCount }),
-                rowProof: prepared.rowVisibility.final,
+                ...(launchEnvelope.worldSettings.playerCount === undefined
+                  ? {}
+                  : { playerCount: launchEnvelope.worldSettings.playerCount }),
+                rowEvidence: prepared.rowVisibility.final,
                 rowVisibility: prepared.rowVisibility,
                 targetModReconciliation: prepared.targetModReconciliation,
                 savedConfigLoad: prepared.savedConfigLoad,
@@ -265,7 +269,6 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
               setupPreparationFailure(err, {
                 launchMapScript,
                 materialization,
-                materializationMode: args.prepared.request.materializationMode,
                 targetModId: args.deployment.runDeployment.deployedModId,
               })
           );
@@ -274,10 +277,10 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
         startGame: (args) => {
           const materialization = args.deployment.materialization;
           const launchMapScript = materialization?.mapScript;
-          const request = args.prepared.request;
-          const mapSize = request.mapSize;
-          const seed = request.seed;
-          const launchSetupConfig = { ...request.setupConfig, mapScript: launchMapScript };
+          const launchEnvelope = args.prepared.launchEnvelope;
+          const mapSize = launchEnvelope.worldSettings.mapSize;
+          const seed = numericLaunchSeed(launchEnvelope.recipeSettings.seed);
+          const launchSetupConfig = { ...launchEnvelope.setupConfig, mapScript: launchMapScript };
           if (!launchMapScript || !mapSize || seed === undefined) {
             return Effect.fail(
               invalidRequest({
@@ -300,7 +303,7 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
             launchMapScript,
             seed,
             mapSize,
-            playerCount: request.playerCount,
+            playerCount: launchEnvelope.worldSettings.playerCount,
           });
           if (!setupValidation.ok) {
             return Effect.fail(
@@ -325,9 +328,9 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
                     seed,
                     gameSeed: seed,
                     requiredActiveTargetModId: args.deployment.runDeployment.deployedModId,
-                    ...(request.playerCount === undefined
+                    ...(launchEnvelope.worldSettings.playerCount === undefined
                       ? {}
-                      : { playerCount: request.playerCount }),
+                      : { playerCount: launchEnvelope.worldSettings.playerCount }),
                     ...(readSavedConfig(launchSetupConfig) === undefined
                       ? {}
                       : { savedConfig: readSavedConfig(launchSetupConfig) }),
@@ -492,16 +495,23 @@ function errorCause(value: Error): unknown {
   return (value as Error & { cause?: unknown }).cause;
 }
 
-function validatePreparedSetupToken(args: Readonly<{
-  requestId: string;
-  prepared: RunInGamePreparedRequest;
-  deployment: RunInGameDeployment;
-  setup: RunInGameSetupPrepared;
-  launchMapScript: string;
-  seed: number;
-  mapSize: string;
-  playerCount?: number;
-}>):
+function numericLaunchSeed(value: number | string): number | undefined {
+  const seed = typeof value === "number" ? value : Number(value);
+  return Number.isInteger(seed) && seed >= 0 && seed <= 0x7fff_ffff ? seed : undefined;
+}
+
+function validatePreparedSetupToken(
+  args: Readonly<{
+    requestId: string;
+    prepared: RunInGamePreparedRequest;
+    deployment: RunInGameDeployment;
+    setup: RunInGameSetupPrepared;
+    launchMapScript: string;
+    seed: number;
+    mapSize: string;
+    playerCount?: number;
+  }>
+):
   | Readonly<{ ok: true }>
   | Readonly<{
       ok: false;
@@ -512,8 +522,8 @@ function validatePreparedSetupToken(args: Readonly<{
   const expected = {
     kind: "run-in-game-prepared-setup",
     requestId: args.requestId,
-    correlationDigest: args.prepared.correlationDigest,
     deploymentRequestId: args.deployment.runDeployment.requestId,
+    runArtifactId: args.deployment.materialization?.runArtifactId,
     deployedModId: args.deployment.runDeployment.deployedModId,
     targetModId: args.deployment.runDeployment.deployedModId,
     launchMapScript: args.launchMapScript,
@@ -524,8 +534,8 @@ function validatePreparedSetupToken(args: Readonly<{
   const actual = {
     kind: args.setup.kind,
     requestId: args.setup.requestId,
-    correlationDigest: args.setup.correlationDigest,
     deploymentRequestId: args.setup.deploymentRequestId,
+    runArtifactId: args.setup.runArtifactId,
     deployedModId: args.setup.deployedModId,
     targetModId: args.setup.targetModId,
     launchMapScript: args.setup.launchMapScript,
@@ -614,7 +624,9 @@ function readRowVisibility(details: unknown):
   };
 }
 
-function normalizeMapRowVisibilityRows(rows: unknown): ReadonlyArray<{ readonly file: string }> | undefined {
+function normalizeMapRowVisibilityRows(
+  rows: unknown
+): ReadonlyArray<{ readonly file: string }> | undefined {
   if (!Array.isArray(rows)) return undefined;
   const normalized = rows.flatMap((row) => {
     if (!row || typeof row !== "object" || Array.isArray(row)) return [];
@@ -647,9 +659,11 @@ function targetModReconciliationReadback(value: unknown):
           ...(typeof (result as { enabledModsMetaContainsTarget?: unknown })
             .enabledModsMetaContainsTarget === "boolean"
             ? {
-                enabledModsMetaContainsTarget: (result as {
-                  enabledModsMetaContainsTarget: boolean;
-                }).enabledModsMetaContainsTarget,
+                enabledModsMetaContainsTarget: (
+                  result as {
+                    enabledModsMetaContainsTarget: boolean;
+                  }
+                ).enabledModsMetaContainsTarget,
               }
             : {}),
         }
@@ -667,11 +681,11 @@ function targetModReconciliationReadback(value: unknown):
 function activeTargetModSetReadbackLimitation(
   readback:
     | {
-      readonly available: boolean;
-      readonly identityAvailable: boolean;
-      readonly truncated?: boolean;
-      readonly readbacks?: ReadonlyArray<Readonly<{ truncated?: boolean }>>;
-    }
+        readonly available: boolean;
+        readonly identityAvailable: boolean;
+        readonly truncated?: boolean;
+        readonly readbacks?: ReadonlyArray<Readonly<{ truncated?: boolean }>>;
+      }
     | undefined
 ): string | undefined {
   if (!readback) return undefined;
@@ -762,7 +776,9 @@ function activeTargetModSetReadback(value: unknown):
             ? { identityReadable: record.identityReadable }
             : {}),
           ...(typeof record.count === "number" ? { count: record.count } : {}),
-          ...(typeof record.identityCount === "number" ? { identityCount: record.identityCount } : {}),
+          ...(typeof record.identityCount === "number"
+            ? { identityCount: record.identityCount }
+            : {}),
           ...(typeof record.truncated === "boolean" ? { truncated: record.truncated } : {}),
           ...(typeof record.error === "string" ? { error: record.error } : {}),
         };

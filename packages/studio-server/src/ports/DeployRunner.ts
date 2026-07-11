@@ -1,10 +1,10 @@
-import type { StudioInputs } from "../context.js";
 import type {
   RunInGameDeployment,
   RunInGameGeneratedMod,
   RunInGamePreparedRequest,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,
+  SaveDeployRequest,
   SaveDeploySaved,
 } from "./workflowTypes.js";
 
@@ -20,7 +20,7 @@ export type DeployRunner = Readonly<{
   deploySavedMapConfig(
     args: Readonly<{
       requestId: string;
-      input: StudioInputs["mapConfigs"]["saveDeploy"];
+      input: SaveDeployRequest;
       prepared: SaveDeployPreparedRequest;
       saved: SaveDeploySaved;
     }>

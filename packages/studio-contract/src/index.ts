@@ -1,6 +1,7 @@
 import { oc } from "@orpc/contract";
 import * as civ7 from "./civ7.js";
 import * as live from "./live.js";
+import * as mapConfigEnvelope from "./mapConfigEnvelope.js";
 import * as mapConfigs from "./mapConfigs.js";
 import { RecipeDagGetContract } from "./recipeDag/contract.js";
 import * as runInGame from "./runInGame.js";
@@ -75,6 +76,28 @@ export * from "./lib/typeboxStandardSchema.js";
 export type { Civ7LiveSnapshotOutput, Civ7LiveStatusOutput } from "./live.js";
 export * from "./liveGame/model.js";
 export type {
+  DeepReadonly,
+  JsonWireObject,
+  JsonWireValue,
+  MapConfigEnvelope,
+  MapConfigEnvelopeWire,
+  MapConfigId,
+} from "./mapConfigEnvelope.js";
+export {
+  freezeSnapshot,
+  isMapConfigEnvelope,
+  isMapConfigId,
+  isPortableJsonValue,
+  jsonWireObjectSchema,
+  jsonWireValueSchema,
+  MAP_CONFIG_ID_MAX_LENGTH,
+  MAP_CONFIG_ID_PATTERN,
+  mapConfigEnvelopeSchema,
+  mapConfigIdSchema,
+  serializeMapConfigEnvelope,
+  snapshotMapConfigEnvelope,
+} from "./mapConfigEnvelope.js";
+export type {
   MapConfigSaveDeployKind,
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
@@ -87,21 +110,19 @@ export * from "./recipeDag/contract.js";
 export * from "./recipeDag/errors.js";
 export * from "./recipeDag/schema.js";
 export type {
-  CatalogLaunchSource,
-  EditorLaunchPayload,
-  EditorLaunchSource,
+  ConfigSource,
+  ConfigSourceProvenance,
+  ConfigSourceWire,
   LaunchEnvelope,
   LaunchEnvelopeDigest,
-  LaunchSource,
   LaunchSourceDigest,
   PublicRunStatus,
-  ResolvedLaunchSource,
   RunDiagnosticsLookupResult,
   RunDiagnosticsRecord,
-  RunInGameContentMarkerProof,
-  RunInGameExactAuthorshipProof,
+  RunInGameContentMarkerEvidence,
+  RunInGameExactAuthorshipEvidence,
   RunInGameFailureDetails,
-  RunInGameFileContentProof,
+  RunInGameFileContentEvidence,
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameOperationKind,
@@ -113,17 +134,18 @@ export type {
   RunInGameSavedSetupConfigRef,
   RunInGameSetupConfig,
   RunInGameSetupOptionValue,
-  RunInGameSourceSnapshotProof,
+  RunInGameSourceSnapshotEvidence,
+  RunInGameStartSource,
+  RunInGameStartSourceWire,
   RunInGameWorldSettings,
 } from "./runInGame.js";
 export {
-  catalogLaunchSource,
-  DEFAULT_RUN_IN_GAME_SETUP_CONFIG,
+  configSource,
+  configSourceProvenance,
+  createDefaultRunInGameSetupConfig,
   diagnosticsLookupResultSchema,
-  editorLaunchPayload,
-  editorLaunchSource,
+  exactAuthorshipEvidence,
   launchEnvelope,
-  launchSource,
   launchSourceDigest,
   materializationStatus,
   normalizeRunInGameSetupConfig,
@@ -133,13 +155,20 @@ export {
   RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
   RUN_IN_GAME_PHASES,
   RUN_IN_GAME_PLAYER_OPTION_IDS,
-  resolvedLaunchSource,
   runDiagnosticsRecordSchema,
   runInGameRecipeSettings,
+  runInGameStartPortableInputIssue,
+  runInGameStartSource,
   runInGameWorldSettings,
-  setupConfig,
   STUDIO_CURRENT_CONFIG_ID,
-  STUDIO_CURRENT_MAP_SCRIPT,
+  serializeConfigSource,
+  serializeRunInGameStartSource,
+  setupConfig,
+  snapshotConfigSource,
+  snapshotConfigSourceProvenance,
+  snapshotLaunchEnvelope,
+  snapshotRunInGameExactAuthorshipEvidence,
+  snapshotRunInGameStartSource,
   validateRunInGameSetupConfig,
 } from "./runInGame.js";
 export type { RunInGameSafeFailureCategory } from "./runInGamePublic.js";
@@ -154,4 +183,4 @@ export type {
   StudioOperationEvent,
   StudioOperationsCurrent,
 } from "./studio.js";
-export { civ7, live, mapConfigs, runInGame, studio };
+export { civ7, live, mapConfigEnvelope, mapConfigs, runInGame, studio };

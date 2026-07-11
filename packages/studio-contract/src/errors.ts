@@ -9,8 +9,9 @@ import {
   type RunInGamePublicErrorData,
   runInGamePublicErrorDataSchema,
   runInGameStatusNotFoundErrorDataSchema,
-  type StatusNotFoundErrorData,
-  statusNotFoundErrorDataSchema,
+  type SaveDeployPublicErrorData,
+  saveDeployPublicErrorDataSchema,
+  saveDeployStatusNotFoundErrorDataSchema,
   type UnavailableFailureErrorData,
   unavailableFailureErrorDataSchema,
 } from "./errors/errorData.js";
@@ -57,10 +58,10 @@ const runInGamePublicFailureData: StandardSchemaV1<
   RunInGamePublicErrorData,
   RunInGamePublicErrorData
 > = toStandardSchema(runInGamePublicErrorDataSchema);
-
-// Save/Deploy and non-run-in-game status misses retain the server identity echo.
-const serverIdentityEchoData: StandardSchemaV1<StatusNotFoundErrorData, StatusNotFoundErrorData> =
-  toStandardSchema(statusNotFoundErrorDataSchema);
+const saveDeployPublicFailureData: StandardSchemaV1<
+  SaveDeployPublicErrorData,
+  SaveDeployPublicErrorData
+> = toStandardSchema(saveDeployPublicErrorDataSchema);
 
 // ---------------------------------------------------------------------------
 // civ7.* reads — per-procedure codes (legacy statuses preserved exactly)
@@ -199,26 +200,26 @@ export const mapConfigsErrors = {
   SAVE_DEPLOY_BLOCKED: {
     status: 409,
     message: "Save/Deploy is blocked by an active operation",
-    data: expectedFailureData,
+    data: saveDeployPublicFailureData,
   },
   SAVE_DEPLOY_INVALID: {
     status: 400,
     message: "Invalid Save/Deploy request",
-    data: expectedFailureData,
+    data: saveDeployPublicFailureData,
   },
   SAVE_DEPLOY_UNAVAILABLE: {
     status: 503,
     message: "Save/Deploy dependencies are unavailable",
-    data: unavailableFailureData,
+    data: saveDeployPublicFailureData,
   },
   SAVE_DEPLOY_FAILED: {
     status: 500,
     message: "Save failed",
-    data: failedFailureData,
+    data: saveDeployPublicFailureData,
   },
   SAVE_DEPLOY_STATUS_NOT_FOUND: {
     status: 404,
     message: "Save/Deploy request not found",
-    data: serverIdentityEchoData,
+    data: toStandardSchema(saveDeployStatusNotFoundErrorDataSchema),
   },
 } as const;

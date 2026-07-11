@@ -1,4 +1,5 @@
 import type { TSchema } from "@swooper/mapgen-core/authoring";
+import { type MapConfigEnvelope, snapshotMapConfigEnvelope } from "@civ7/studio-contract";
 
 export type StudioRecipeId = string;
 
@@ -22,17 +23,8 @@ export type StudioRecipeUiMeta = Readonly<{
 }>;
 
 export type BuiltInPreset = Readonly<{
-  id: string;
-  label: string;
-  description?: string;
-  catalogSourceId?: string;
-  sourcePath?: string;
-  sortIndex?: number;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
-  config: unknown;
+  sourcePath: string;
+  canonicalConfig: MapConfigEnvelope;
 }>;
 
 export type RecipeArtifacts<TConfig = unknown> = {
@@ -87,7 +79,13 @@ export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
     configSchema: swooperStandardConfigSchema,
     defaultConfig: swooperStandardDefaultConfig,
     uiMeta: swooperStandardUiMeta,
-    studioBuiltInPresets: swooperStandardMapConfigs,
+    studioBuiltInPresets: swooperStandardMapConfigs.map(({ sourcePath, canonicalConfig }) => {
+      const snapshot = snapshotMapConfigEnvelope(canonicalConfig);
+      if (snapshot === undefined) {
+        throw new TypeError(`Invalid generated Studio catalog config: ${sourcePath}`);
+      }
+      return { sourcePath, canonicalConfig: snapshot };
+    }),
   },
 ] as const;
 
@@ -101,6 +99,18 @@ export const DEFAULT_STUDIO_RECIPE_ID: StudioRecipeId =
 
 export function findRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts | null {
   return STUDIO_RECIPE_ARTIFACTS.find((r) => r.id === recipeId) ?? null;
+}
+
+/** Catalog resolution stays in generated recipe artifacts, never browser storage. */
+export function findBuiltInPresetBySourcePath(
+  recipeId: StudioRecipeId,
+  sourcePath: string
+): BuiltInPreset | null {
+  return (
+    findRecipeArtifacts(recipeId)?.studioBuiltInPresets?.find(
+      (preset) => preset.sourcePath === sourcePath
+    ) ?? null
+  );
 }
 
 export function getRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts {

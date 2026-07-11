@@ -10,8 +10,13 @@ import {
   SAFE_RUN_REQUEST_ID,
 } from "@civ7/studio-run-workspace";
 import { Effect, type Scope } from "effect";
-import { dependencyUnavailable, operationBlocked, type StudioRuntimeFailure } from "../errors/index.js";
+import {
+  dependencyUnavailable,
+  operationBlocked,
+  type StudioRuntimeFailure,
+} from "../errors/index.js";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
+import { removeRunDiagnosticsIndex } from "./diagnostics.js";
 import {
   type RunInGameInternalOperation,
   type SaveDeployInternalOperation,
@@ -37,7 +42,7 @@ const RUN_IN_GAME_RECORD_PHASES = new Set<RunInGameInternalOperation["phase"]>([
   "checking-civ7",
   "preparing-setup",
   "starting-game",
-  "waiting-for-proof",
+  "collecting-evidence",
   "complete",
   "blocked",
   "failed",
@@ -380,6 +385,13 @@ export function cleanupRunInGameRetention(
           continue;
         }
         await rm(jailedRunWorkspacePath(root, record.requestId), { recursive: true, force: true });
+        if (record.diagnosticsId !== undefined) {
+          await removeRunDiagnosticsIndex({
+            root,
+            diagnosticsId: record.diagnosticsId,
+            requestId: record.requestId,
+          });
+        }
       }
     },
     catch: (err) => err,
@@ -449,7 +461,6 @@ export function operationFromAbandonedRecord(
     kind: "run-in-game",
     requestId: record.requestId,
     leaseId: record.leaseId,
-    correlationDigest: `abandoned:${record.requestId}`,
     request: {},
     phase: "failed",
     status: "failed",
@@ -551,7 +562,9 @@ async function readRunOperationRecordState(
   }
 }
 
-async function listTerminalRunOperationRecords(root: string): Promise<TerminalRunOperationRecord[]> {
+async function listTerminalRunOperationRecords(
+  root: string
+): Promise<TerminalRunOperationRecord[]> {
   const entries = await readdir(root, { withFileTypes: true }).catch((err: unknown) => {
     if (isNotFoundError(err)) return [];
     throw err;

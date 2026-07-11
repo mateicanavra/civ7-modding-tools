@@ -11,6 +11,7 @@ import type {
   getCiv7MapSummary,
   getCiv7PlayableStatus,
 } from "@civ7/direct-control";
+import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import {
   createStudioRpcHandler,
   isStudioRuntimeFailure,
@@ -23,7 +24,6 @@ import {
   type StudioRuntimeFailure,
   type StudioServerContext,
 } from "@civ7/studio-server";
-import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { observeRunInGameRuntimeThroughStudioRpc } from "../../src/server/runInGame/runtimeObservation";
@@ -52,16 +52,15 @@ const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
 const RUN_ARTIFACT_ID = "run-test" satisfies RunCorrelation["runArtifactId"];
 
-type RunCorrelationMismatchCase<
-  Field extends keyof RunCorrelation = keyof RunCorrelation,
-> = Field extends keyof RunCorrelation
-  ? Readonly<{
-      label: Field;
-      field: Field;
-      value: RunCorrelation[Field];
-      mismatches: readonly Field[];
-    }>
-  : never;
+type RunCorrelationMismatchCase<Field extends keyof RunCorrelation = keyof RunCorrelation> =
+  Field extends keyof RunCorrelation
+    ? Readonly<{
+        label: Field;
+        field: Field;
+        value: RunCorrelation[Field];
+        mismatches: readonly Field[];
+      }>
+    : never;
 
 type RunCorrelationMismatchCases = {
   readonly [Field in keyof RunCorrelation]: RunCorrelationMismatchCase<Field>;
@@ -96,14 +95,14 @@ const runCorrelationMismatchCases = {
     label: "launchSourceDigest",
     field: "launchSourceDigest",
     value: {
-      configContentDigest: "different-config",
+      canonicalConfigDigest: "different-config",
       launchEnvelopeDigest: "test-envelope-hash",
     },
     mismatches: ["launchSourceDigest"],
   },
 } satisfies RunCorrelationMismatchCases;
 
-type LogProofFixture =
+type LogEvidenceFixture =
   | Readonly<{ kind: "valid"; payloadOverrides?: Record<string, unknown> }>
   | Readonly<{ kind: "shape-only" }>;
 
@@ -136,12 +135,12 @@ describe("Run in Game runtime observation", () => {
         },
       },
       scriptingLog: {
-        matchedMarkers: ["[mapgen-proof]", "run-runtime-observation-test", "[mapgen-complete]"],
+        matchedMarkers: ["[mapgen-evidence]", "run-runtime-observation-test", "[mapgen-complete]"],
       },
       setupRow: {
         state: "matched",
         mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-        rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/studio-run.js" }] },
+        rowEvidence: { rows: [{ file: "{mod-swooper-studio-run}/maps/studio-run.js" }] },
         rowVisibility: { visible: true },
       },
       loadedGame: {
@@ -227,7 +226,11 @@ describe("Run in Game runtime observation", () => {
     const generatedMapScript = "{mod-swooper-studio-run}/maps/studio-run.js";
     const fixture = makeObservationFixture({
       setup: {
-        rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/display-row.js", value: generatedMapScript }] },
+        rowEvidence: {
+          rows: [
+            { file: "{mod-swooper-studio-run}/maps/display-row.js", value: generatedMapScript },
+          ],
+        },
         rowVisibility: { visible: true },
       },
     });
@@ -240,7 +243,7 @@ describe("Run in Game runtime observation", () => {
     expect(observation.setupRow).toMatchObject({
       state: "matched",
       mapScript: generatedMapScript,
-      rowProof: {
+      rowEvidence: {
         rows: [{ file: "{mod-swooper-studio-run}/maps/display-row.js", value: generatedMapScript }],
       },
     });
@@ -253,7 +256,7 @@ describe("Run in Game runtime observation", () => {
     const generatedMapScript = "{mod-swooper-studio-run}/maps/studio-run.js";
     const fixture = makeObservationFixture({
       setup: {
-        rowProof: { rows: [{ mapScript: generatedMapScript }] },
+        rowEvidence: { rows: [{ mapScript: generatedMapScript }] },
         rowVisibility: { visible: true },
       },
     });
@@ -266,48 +269,51 @@ describe("Run in Game runtime observation", () => {
     expect(observation.setupRow).toMatchObject({
       state: "matched",
       mapScript: generatedMapScript,
-      rowProof: { rows: [{ mapScript: generatedMapScript }] },
+      rowEvidence: { rows: [{ mapScript: generatedMapScript }] },
     });
     expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(1);
     expect(directControl.getCiv7MapGrid).toHaveBeenCalledTimes(1);
   });
 
-  it.each(Object.values(runCorrelationMismatchCases))(
-    "rejects runtime markers with $label correlation mismatch before live endpoint readback",
-    async ({ field, value, mismatches }) => {
-      const { origin } = await listenWithStudioServer();
-      const base = makeObservationFixture();
-      const fixture = makeObservationFixture({
-        logProof: {
-          kind: "valid",
-          payloadOverrides: {
-            runCorrelation: { ...base.correlation, [field]: value },
-            dimensions: { width: 84, height: 54 },
-          },
+  it.each(
+    Object.values(runCorrelationMismatchCases)
+  )("rejects runtime markers with $label correlation mismatch before live endpoint readback", async ({
+    field,
+    value,
+    mismatches,
+  }) => {
+    const { origin } = await listenWithStudioServer();
+    const base = makeObservationFixture();
+    const fixture = makeObservationFixture({
+      logEvidence: {
+        kind: "valid",
+        payloadOverrides: {
+          runCorrelation: { ...base.correlation, [field]: value },
+          dimensions: { width: 84, height: 54 },
         },
-      });
+      },
+    });
 
-      const failure = await expectRuntimeObservationFailure(
-        observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
-      );
+    const failure = await expectRuntimeObservationFailure(
+      observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
+    );
 
-      expect(failure).toMatchObject({
-        tag: "ProofFailed",
-        reason: "exact-authorship-mismatch",
-        diagnostics: {
-          code: "run-in-game-runtime-marker-mismatch",
-          mismatches,
-        },
-      });
-      expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
-      expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
-    }
-  );
+    expect(failure).toMatchObject({
+      tag: "VerificationFailed",
+      reason: "exact-authorship-mismatch",
+      diagnostics: {
+        code: "run-in-game-runtime-marker-mismatch",
+        mismatches,
+      },
+    });
+    expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
+    expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
+  });
 
   it("rejects runtime markers without enough compact identity to reconstruct run correlation before live endpoint readback", async () => {
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture({
-      logProof: {
+      logEvidence: {
         kind: "valid",
         payloadOverrides: {
           runCorrelation: undefined,
@@ -322,7 +328,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-runtime-marker-mismatch",
@@ -333,17 +339,17 @@ describe("Run in Game runtime observation", () => {
     expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
   });
 
-  it("rejects shape-only scripting markers without a parsed runtime proof payload", async () => {
+  it("rejects shape-only scripting markers without a parsed runtime evidence payload", async () => {
     const { origin } = await listenWithStudioServer();
-    const fixture = makeObservationFixture({ logProof: { kind: "shape-only" } });
+    const fixture = makeObservationFixture({ logEvidence: { kind: "shape-only" } });
 
     const failure = await expectRuntimeObservationFailure(
       observeRunInGameRuntimeThroughStudioRpc({ ...fixture, selfRpcUrl: origin })
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
-      reason: "log-proof-missing",
+      tag: "VerificationFailed",
+      reason: "log-evidence-missing",
       diagnostics: {
         code: "run-in-game-runtime-marker-missing",
       },
@@ -355,7 +361,7 @@ describe("Run in Game runtime observation", () => {
   it("rejects runtime marker dimensions that do not match the requested map size", async () => {
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture({
-      logProof: {
+      logEvidence: {
         kind: "valid",
         payloadOverrides: { dimensions: { width: 80, height: 52 } },
       },
@@ -366,7 +372,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-runtime-marker-dimensions-mismatch",
@@ -386,13 +392,13 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "setup-map-row-not-visible",
         setupFailureReason: "setup-map-row-not-visible",
         priorCode: "run-in-game-setup-row-readback-missing",
-        missing: "rowProof",
+        missing: "rowEvidence",
       },
     });
     expect(directControl.getCiv7PlayableStatus).not.toHaveBeenCalled();
@@ -402,7 +408,7 @@ describe("Run in Game runtime observation", () => {
   it("rejects missing setup visibility readback before loaded-game observation", async () => {
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture({
-      setup: { rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/studio-run.js" }] } },
+      setup: { rowEvidence: { rows: [{ file: "{mod-swooper-studio-run}/maps/studio-run.js" }] } },
     });
 
     const failure = await expectRuntimeObservationFailure(
@@ -410,7 +416,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "setup-map-row-not-visible",
@@ -427,7 +433,7 @@ describe("Run in Game runtime observation", () => {
     const { origin } = await listenWithStudioServer();
     const fixture = makeObservationFixture({
       setup: {
-        rowProof: { rows: [{ file: "{mod-swooper-studio-run}/maps/other-run.js" }] },
+        rowEvidence: { rows: [{ file: "{mod-swooper-studio-run}/maps/other-run.js" }] },
         rowVisibility: { visible: true },
       },
     });
@@ -437,7 +443,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "setup-map-row-mismatched",
@@ -459,7 +465,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "timeout-uncertain",
       diagnostics: {
         code: "run-in-game-live-endpoint-unavailable",
@@ -488,7 +494,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "timeout-uncertain",
       diagnostics: {
         code: "run-in-game-live-status-unavailable",
@@ -510,7 +516,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
@@ -529,7 +535,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
@@ -548,7 +554,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
@@ -577,7 +583,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "timeout-uncertain",
       diagnostics: {
         code: "run-in-game-live-status-aborted",
@@ -598,7 +604,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
@@ -617,7 +623,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "timeout-uncertain",
       diagnostics: {
         code: "run-in-game-live-snapshot-unavailable",
@@ -655,7 +661,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "timeout-uncertain",
       diagnostics: {
         code: "run-in-game-live-snapshot-unavailable",
@@ -678,7 +684,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
@@ -700,7 +706,7 @@ describe("Run in Game runtime observation", () => {
     );
 
     expect(failure).toMatchObject({
-      tag: "ProofFailed",
+      tag: "VerificationFailed",
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
@@ -758,21 +764,16 @@ function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
       now: () => new Date("2026-06-12T00:00:00.000Z"),
     },
     generateRunInGameMod: async () => ({ materialization: materialization() }),
-    readRunInGameCatalogSource: async ({ catalogSourceId }) => ({
-      catalogSourceId,
-      configPath: `mods/mod-swooper-maps/src/maps/configs/${catalogSourceId}.config.json`,
-      name: catalogSourceId,
-      description: catalogSourceId,
-      sortIndex: 900,
-      config: {},
-    }),
+    runInGameCanonicalConfigAdmission: {
+      admit: async (canonicalConfig) => canonicalConfig,
+    },
     deployRunInGame: async ({ requestId }) =>
       deployment({ requestId, materialization: materialization() }),
-    waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    waitForRunInGameLogEvidence: async () => ({ result: { ok: true } }),
     observeRunInGameRuntime: async () => {
       throw new Error("Unexpected operation runtime observation call");
     },
-    buildRunInGameProof: async () => ({ result: { ok: true } }),
+    buildRunInGameEvidence: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
     deploySavedMapConfig: async () => ({ deployed: true }),
@@ -836,7 +837,7 @@ function makeObservationFixture(
   overrides: Partial<{
     requestId: string;
     setup: RunInGameSetupPrepared;
-    logProof: LogProofFixture;
+    logEvidence: LogEvidenceFixture;
   }> = {}
 ): {
   requestId: string;
@@ -858,7 +859,7 @@ function makeObservationFixture(
     generationManifestDigest: generated.generationManifestDigest,
   };
   const setup = overrides.setup ?? {
-    rowProof: { rows: [{ file: generated.mapScript }] },
+    rowEvidence: { rows: [{ file: generated.mapScript }] },
     rowVisibility: { visible: true },
   };
   return {
@@ -869,24 +870,24 @@ function makeObservationFixture(
     log: {
       result: { ok: true },
       materialization: generated,
-      logMarkerProof: {
+      logMarkerEvidence: {
         logPath: "/tmp/CivilizationVII/Logs/Scripting.log",
         observedAt: "2026-06-12T00:00:03.000Z",
         startOffset: 128,
-        matched: ["[mapgen-proof]", requestId, "[mapgen-complete]"],
+        matched: ["[mapgen-evidence]", requestId, "[mapgen-complete]"],
       },
-      ...(overrides.logProof?.kind === "shape-only"
-        ? { logProof: { staleMarkersOnly: true } }
+      ...(overrides.logEvidence?.kind === "shape-only"
+        ? { logEvidence: { staleMarkersOnly: true } }
         : {
-            logProof: {
-              proofPayload: {
+            logEvidence: {
+              evidencePayload: {
                 requestId,
                 runArtifactId: generated.runArtifactId,
-                configHash: prepared.launchSourceDigest.configContentDigest,
-                envelopeHash: prepared.launchEnvelopeDigest,
+                canonicalConfigDigest: prepared.launchSourceDigest.canonicalConfigDigest,
+                launchEnvelopeDigest: prepared.launchEnvelopeDigest,
                 generationManifestDigest: generated.generationManifestDigest,
                 dimensions: { width: 84, height: 54 },
-                ...overrides.logProof?.payloadOverrides,
+                ...overrides.logEvidence?.payloadOverrides,
               },
             },
           }),
@@ -896,14 +897,19 @@ function makeObservationFixture(
 }
 
 function preparedRequest(): RunInGamePreparedRequest {
+  const canonicalConfig = {
+    id: "studio-current",
+    name: "Studio Current",
+    description: "Current Studio editor configuration.",
+    recipe: "standard",
+    sortIndex: 9999,
+    latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+    config: {},
+  };
   const resolvedLaunchSource = {
     kind: "editor" as const,
     editorSessionId: "test-editor-session",
-    configId: "studio-current",
-    label: "Studio Current",
-    mapScript: "{swooper-maps}/maps/studio-current.js",
-    sortIndex: 9999,
-    config: {},
+    canonicalConfig,
   };
   const launchEnvelope = {
     recipeSettings: {
@@ -917,46 +923,29 @@ function preparedRequest(): RunInGamePreparedRequest {
       gameOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
-    source: {
-      kind: "editor" as const,
-      id: "studio-current",
-      label: "Studio Current",
-      mapScript: "{swooper-maps}/maps/studio-current.js",
-      sortIndex: 9999,
-    },
-    config: {},
+    source: resolvedLaunchSource,
   };
   const launchSourceDigest = {
-    configContentDigest: "test-config-hash",
-    launchEnvelopeDigest: "test-envelope-hash",
+    canonicalConfigDigest: "test-canonical-config-hash",
   };
   return {
-    correlationDigest: "test-correlation-digest",
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 43,
       mapSize: "MAPSIZE_STANDARD",
-      selectedConfigId: "studio-current",
       setupConfig: launchEnvelope.setupConfig,
-      materializationMode: "disposable",
-      resolvedLaunchSource,
-      launchEnvelope,
-      launchSourceDigest,
-      launchEnvelopeDigest: launchSourceDigest.launchEnvelopeDigest,
     },
-    resolvedLaunchSource,
     launchEnvelope,
     launchSourceDigest,
-    launchEnvelopeDigest: launchSourceDigest.launchEnvelopeDigest,
+    launchEnvelopeDigest: "test-envelope-hash",
   };
 }
 
 function materialization() {
   return {
-    mode: "disposable",
     mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-    configHash: "test-config-hash",
-    envelopeHash: "test-envelope-hash",
+    canonicalConfigDigest: "test-canonical-config-hash",
+    launchEnvelopeDigest: "test-envelope-hash",
     generationManifestDigest: "test-generation-manifest-digest",
     runArtifactId: RUN_ARTIFACT_ID,
     generatedModRoot: "/tmp/studio-run-runtime-observation-generated",
@@ -966,10 +955,12 @@ function materialization() {
   } satisfies NonNullable<RunInGameDeployment["materialization"]>;
 }
 
-function deployment(args: Readonly<{
-  requestId: string;
-  materialization: NonNullable<RunInGameDeployment["materialization"]>;
-}>): RunInGameDeployment {
+function deployment(
+  args: Readonly<{
+    requestId: string;
+    materialization: NonNullable<RunInGameDeployment["materialization"]>;
+  }>
+): RunInGameDeployment {
   const files = [{ path: "maps/studio-run.js", sha256: "sha256-map-script", sizeBytes: 512 }];
   return {
     materialization: args.materialization,

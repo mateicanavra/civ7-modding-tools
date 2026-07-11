@@ -2,12 +2,12 @@ import type { RunInGameOperationStatus } from "@civ7/studio-contract";
 // The formatters/predicate moved to the package with the B5 statusLabels
 // split; their pins stay here (this suite covers the whole run-in-game status
 // vocabulary the app consumes) and exercise the package's public surface.
-import {
-  formatRunInGamePhaseLabel,
-  runInGamePrimaryActionLabel,
-} from "@swooper/mapgen-studio-ui";
+import { formatRunInGamePhaseLabel, runInGamePrimaryActionLabel } from "@swooper/mapgen-studio-ui";
 import { describe, expect, it } from "vitest";
-import { isRunInGameTerminalPhase, kindForRunInGamePhase } from "../../src/features/runInGame/status";
+import {
+  isRunInGameTerminalPhase,
+  kindForRunInGamePhase,
+} from "../../src/features/runInGame/status";
 
 describe("Run in Game status helpers", () => {
   it("classifies running and terminal phases", () => {

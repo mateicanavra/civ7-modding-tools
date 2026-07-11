@@ -78,7 +78,7 @@ describe("built map runtime imports", () => {
     }
   });
 
-  test("bundles authored river materialization proof markers into each map script", () => {
+  test("bundles authored river materialization evidence markers into each map script", () => {
     const mapFiles = listedModMapFiles();
 
     expect(mapFiles.length).toBeGreaterThan(0);

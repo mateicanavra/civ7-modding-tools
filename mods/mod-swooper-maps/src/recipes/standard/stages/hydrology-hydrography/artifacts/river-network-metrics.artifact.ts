@@ -49,7 +49,7 @@ const HydrologyRiverNetworkBenchmarkSummarySchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Aggregate Hydrology river/lake benchmark metrics for diagnostics, Studio, and product proof rows.",
+      "Aggregate Hydrology river/lake benchmark metrics for diagnostics, Studio, and product evidence rows.",
   }
 );
 

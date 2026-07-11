@@ -42,7 +42,7 @@ Public error/status payload shape:
 - `status`;
 - `phase`;
 - `safeFailureCategory` when failed or cancelled;
-- `diagnosticsId` when allocated;
+- `diagnosticsId` only after private diagnostics for the current operation revision are persisted;
 - `recoveryActions`;
 - `createdAt`, `updatedAt`, and terminal timestamp when terminal.
 

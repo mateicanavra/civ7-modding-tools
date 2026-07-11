@@ -192,7 +192,7 @@ export default createStep(PlanResourcesStepContract, {
       config.groups
     );
 
-    // --- id proof + policy legality + demand rows --------------------------------------------
+    // --- id evidence + policy legality + demand rows --------------------------------------------
     const legalitySurface = readResourceLegalitySurface(context);
     const plannedRows = groups.groups.flatMap((group) => group.plans);
     // Rivers product requirement: no resources on river tiles (planned or

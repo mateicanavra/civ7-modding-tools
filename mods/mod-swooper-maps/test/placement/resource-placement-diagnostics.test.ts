@@ -108,7 +108,7 @@ describe("resource placement diagnostics", () => {
       mismatchCount: 0,
       byReason: [{ reason: "cannot-have-resource", count: 2 }],
     });
-    expect(outcomes.summary.coordinateProof.placed.hash32).toMatch(/^[0-9a-f]{8}$/);
+    expect(outcomes.summary.coordinateEvidence.placed.hash32).toMatch(/^[0-9a-f]{8}$/);
     // Plan authority: type-at-plot is never re-decided; rejections stay at the
     // planned plot with the planned type.
     expect(outcomes.outcomes.map((row) => [row.plotIndex, row.resourceType, row.status])).toEqual([
@@ -198,7 +198,7 @@ describe("resource placement diagnostics", () => {
         placedCount: 3,
         rejectedCount: 1,
         mismatchCount: 0,
-        coordinateProof: {
+        coordinateEvidence: {
           version: 1,
           placed: { count: 3, hash32: "12345678" },
           rejected: { count: 1, hash32: "abcdef12" },
@@ -259,7 +259,7 @@ describe("resource placement diagnostics", () => {
       minPlacedCountByType: 1,
       maxPlacedCountByType: 2,
       runtimeCatalogCount: 2,
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placedCount: 3,
         placedHash32: "12345678",
@@ -307,7 +307,7 @@ describe("resource placement diagnostics", () => {
         placedCount: 159,
         rejectedCount: 0,
         mismatchCount: 0,
-        coordinateProof: {
+        coordinateEvidence: {
           version: 1,
           placed: { count: 159, hash32: "22222222" },
           rejected: { count: 0, hash32: "811c9dc5" },
@@ -338,7 +338,7 @@ describe("resource placement diagnostics", () => {
       placedCount: 159,
       rejectedCount: 0,
       runtimeCatalogCount: 55,
-      coordinateProof: {
+      coordinateEvidence: {
         version: 1,
         placedCount: 159,
         placedHash32: "22222222",

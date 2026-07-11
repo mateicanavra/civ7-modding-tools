@@ -1,10 +1,13 @@
 {
-  "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "mountain-rivers-patch",
   "name": "Mountain Rivers Patch",
   "description": "Mountain Patch terrain configuration with the current visible-river projection settings applied for Studio comparison.",
   "recipe": "standard",
   "sortIndex": 1901,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {

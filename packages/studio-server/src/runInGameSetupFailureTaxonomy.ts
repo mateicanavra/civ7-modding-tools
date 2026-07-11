@@ -22,9 +22,7 @@ const TUNER_UNAVAILABLE_CODES = new Set<Civ7DirectControlErrorCode>([
 ]);
 const STUDIO_TUNER_UNAVAILABLE_CODES = new Set(["civ7-tuner-backoff"]);
 
-const SETUP_ROW_NOT_VISIBLE_CODES = new Set<Civ7DirectControlErrorCode>([
-  "setup-map-row-missing",
-]);
+const SETUP_ROW_NOT_VISIBLE_CODES = new Set<Civ7DirectControlErrorCode>(["setup-map-row-missing"]);
 const GENERATED_MOD_NOT_ENABLED_CODES = new Set<Civ7DirectControlErrorCode>([
   "setup-mod-reconciliation-failed",
 ]);
@@ -37,17 +35,14 @@ const SETUP_READ_TIMEOUT_CODES = new Set<Civ7DirectControlErrorCode>([
 ]);
 
 const SETUP_MISMATCH_CODES = new Set<Civ7DirectControlErrorCode>([
-  "setup-config-proof-missing",
+  "setup-config-evidence-missing",
   "setup-map-size-mismatch",
   "setup-readback-mismatch",
   "setup-seed-mismatch",
 ]);
 
 export function isSetupFailureReason(value: unknown): value is SetupFailureReason {
-  return (
-    typeof value === "string" &&
-    SETUP_FAILURE_REASONS.includes(value as SetupFailureReason)
-  );
+  return typeof value === "string" && SETUP_FAILURE_REASONS.includes(value as SetupFailureReason);
 }
 
 export function setupFailureReasonFromDirectControlCode(

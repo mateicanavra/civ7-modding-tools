@@ -1,52 +1,40 @@
 import { createHash } from "node:crypto";
-import type { RunInGameSourceSnapshotProof } from "@civ7/studio-contract";
+import {
+  freezeSnapshot,
+  type RunInGameSourceSnapshotEvidence,
+  snapshotConfigSourceProvenance,
+} from "@civ7/studio-contract";
 
-export function buildRunInGameSourceSnapshotProof(
+export function buildRunInGameSourceSnapshotEvidence(
   args: Readonly<{
     requestId: string;
     sourceSnapshot: unknown;
-    configHash?: string;
-    envelopeHash?: string;
+    canonicalConfigDigest: string;
+    launchEnvelopeDigest: string;
   }>
-): RunInGameSourceSnapshotProof | undefined {
+): RunInGameSourceSnapshotEvidence | undefined {
   if (!isRecord(args.sourceSnapshot)) return undefined;
-  const configHash = args.configHash ?? hashProofValue(args.sourceSnapshot.config ?? null);
-  const envelopeHash = args.envelopeHash ?? hashProofValue(args.sourceSnapshot.envelope ?? null);
-  return {
-    identityHash: hashProofValue({
-      sourceSnapshot: args.sourceSnapshot,
-      configHash,
-      envelopeHash,
-    }),
+  const source = snapshotConfigSourceProvenance(args.sourceSnapshot.source);
+  if (source === undefined) return undefined;
+  if (
+    typeof args.sourceSnapshot.canonicalConfigDigest !== "string" ||
+    typeof args.sourceSnapshot.launchEnvelopeDigest !== "string"
+  ) {
+    return undefined;
+  }
+  return freezeSnapshot({
     requestId: args.requestId,
-    ...(args.sourceSnapshot.recipeSettings === undefined
-      ? {}
-      : { recipeSettings: args.sourceSnapshot.recipeSettings }),
-    ...(args.sourceSnapshot.worldSettings === undefined
-      ? {}
-      : { worldSettings: args.sourceSnapshot.worldSettings }),
-    ...(args.sourceSnapshot.pipelineConfig === undefined
-      ? {}
-      : { pipelineConfig: args.sourceSnapshot.pipelineConfig }),
-    ...(args.sourceSnapshot.setupConfig === undefined
-      ? {}
-      : { setupConfig: args.sourceSnapshot.setupConfig }),
-    ...(typeof args.sourceSnapshot.materializationMode === "string"
-      ? { materializationMode: args.sourceSnapshot.materializationMode }
-      : {}),
-    ...(args.sourceSnapshot.selectedConfig === undefined
-      ? {}
-      : { selectedConfig: args.sourceSnapshot.selectedConfig }),
-    configHash,
-    envelopeHash,
-  };
+    source,
+    canonicalConfigDigest: args.canonicalConfigDigest,
+    launchEnvelopeDigest: args.launchEnvelopeDigest,
+  });
 }
 
-export function hashRunInGameProofValue(value: unknown): string {
-  return hashProofValue(value);
+export function hashRunInGameEvidenceValue(value: unknown): string {
+  return hashIdentityValue(value);
 }
 
-function hashProofValue(value: unknown): string {
+function hashIdentityValue(value: unknown): string {
   return createHash("sha256")
     .update(JSON.stringify(canonicalize(value)) ?? "undefined")
     .digest("hex");

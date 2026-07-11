@@ -98,9 +98,6 @@ function terminalStatusWithPrivateSentinels(
   } satisfies PrivateRunStatusLeakSentinel;
   const common = {
     requestId: `studio-run-in-game-${terminalStatus}-public`,
-    createdAt: "2026-06-01T00:00:00.000Z",
-    updatedAt: "2026-06-01T00:00:01.000Z",
-    terminalAt: "2026-06-01T00:00:01.000Z",
     diagnosticsId: `run-diagnostics-${terminalStatus}-public`,
     recoveryActions: ["copy-diagnostics" as const],
     ...privateSentinels,
@@ -141,13 +138,27 @@ describe("GameConsole Run in Game status", () => {
     expect(onRunInGame).toHaveBeenCalledTimes(1);
   });
 
+  it("disables Run in Game while authoring source recovery is required", () => {
+    const onRunInGame = vi.fn();
+    renderConsole({
+      onRunInGame,
+      runInGameDisabled: true,
+      runInGameDisabledReason: "Recover the authoring source before running in game.",
+    });
+
+    const play = screen.getByRole("button", {
+      name: /Recover the authoring source before running in game/i,
+    });
+    expect(play).toHaveProperty("disabled", true);
+    fireEvent.click(play);
+    expect(onRunInGame).not.toHaveBeenCalled();
+  });
+
   it("renders the active Run in Game phase with its diagnostics affordance", () => {
     const html = renderWithStatus({
       requestId: "studio-run-in-game-test",
       phase: "observing-runtime",
       status: "running",
-      createdAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
       diagnosticsId: "run-diagnostics-studio-run-in-game-test",
       recoveryActions: ["copy-diagnostics", "retry-status"],
     });
@@ -163,9 +174,6 @@ describe("GameConsole Run in Game status", () => {
       requestId: "studio-run-in-game-failed",
       phase: "failed",
       status: "failed",
-      createdAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      terminalAt: "2026-06-01T00:00:01.000Z",
       safeFailureCategory: "runtime-observation",
       diagnosticsId: "run-diagnostics-studio-run-in-game-failed",
       recoveryActions: ["copy-diagnostics", "retry-run"],
@@ -223,9 +231,6 @@ describe("GameConsole Run in Game status", () => {
         requestId: "studio-run-in-game-restart-needed",
         phase: "failed",
         status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
         safeFailureCategory: "runtime-control",
         recoveryActions: ["copy-diagnostics", "restart-civ-process-and-retry", "retry-run"],
       },
@@ -242,9 +247,6 @@ describe("GameConsole Run in Game status", () => {
         requestId: "studio-run-in-game-stale-restart-needed",
         phase: "failed",
         status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
         safeFailureCategory: "runtime-control",
         recoveryActions: ["copy-diagnostics", "restart-civ-process-and-retry", "retry-run"],
       },
@@ -261,9 +263,6 @@ describe("GameConsole Run in Game status", () => {
         requestId: "studio-run-in-game-map-script-failed",
         phase: "failed",
         status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
         safeFailureCategory: "runtime-observation",
         recoveryActions: ["copy-diagnostics", "dismiss-civ-notification-and-retry", "retry-run"],
       },
@@ -282,9 +281,6 @@ describe("GameConsole Run in Game status", () => {
         requestId: "studio-run-in-game-complete",
         phase: "completed",
         status: "completed",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
         recoveryActions: ["copy-diagnostics"],
       },
       "stale"
@@ -305,9 +301,7 @@ describe("GameConsole live runtime and save/deploy", () => {
         requestId: "studio-save-deploy-test",
         phase: "deploying",
         status: "running",
-        startedAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        recoveryActions: ["copy-diagnostics", "retry-status"],
       },
     });
 
@@ -401,9 +395,6 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
         requestId: "studio-run-in-game-closed",
         phase: "completed",
         status: "completed",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
         recoveryActions: ["copy-diagnostics"],
       },
       onCopyRunInGameDiagnostics: vi.fn(),
@@ -426,8 +417,6 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
         requestId: "studio-run-in-game-running",
         phase: "deploying",
         status: "running",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
         recoveryActions: ["copy-diagnostics", "retry-status"],
       },
     });
@@ -448,9 +437,6 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
         requestId: "studio-run-in-game-aria",
         phase: "completed",
         status: "completed",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
         recoveryActions: ["copy-diagnostics"],
       },
       onCopyRunInGameDiagnostics: vi.fn(),
@@ -477,9 +463,6 @@ describe("GameConsole combined status chip + hang-off (Z-wave)", () => {
         requestId: "studio-run-in-game-folded",
         phase: "failed",
         status: "failed",
-        createdAt: "2026-06-01T00:00:00.000Z",
-        updatedAt: "2026-06-01T00:00:01.000Z",
-        terminalAt: "2026-06-01T00:00:01.000Z",
         safeFailureCategory: "deployment",
         recoveryActions: ["copy-diagnostics", "retry-run"],
       },

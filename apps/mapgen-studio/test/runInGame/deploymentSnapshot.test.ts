@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -40,11 +40,10 @@ describe("Run in Game deployment snapshot", () => {
       signal: new AbortController().signal,
       generatedMod: {
         materialization: {
-          mode: "disposable",
           path: "generated-mod",
           mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-          configHash: "config-hash-test",
-          envelopeHash: "envelope-hash-test",
+          canonicalConfigDigest: "config-hash-test",
+          launchEnvelopeDigest: "envelope-hash-test",
           generationManifestDigest: "generation-manifest-digest-test",
           runArtifactId: "run-test",
           generatedModRoot,
@@ -121,26 +120,43 @@ async function listFiles(root: string): Promise<string[]> {
 }
 
 function preparedRequest(): DeployRunInGameArgs["prepared"] {
-  const request = {
-    recipeId: "mod-swooper-maps/standard",
-    seed: 12345,
-    mapSize: "Standard",
-    selectedConfigId: "studio-current",
-    setupConfig: {},
-    materializationMode: "disposable",
-    resolvedLaunchSource: { kind: "editor" },
-    launchEnvelope: { id: "studio-current" },
-    launchSourceDigest: { configContentDigest: "config-hash-test" },
-    launchEnvelopeDigest: "envelope-hash-test",
-  } satisfies Partial<DeployRunInGameArgs["prepared"]["request"]>;
+  const setupConfig = {
+    gameOptions: {},
+    playerOptions: [{ playerId: 0, options: {} }],
+  };
+  const launchEnvelope = {
+    recipeSettings: {
+      recipe: "mod-swooper-maps/standard",
+      seed: 12345,
+    },
+    worldSettings: { mapSize: "MAPSIZE_STANDARD" },
+    setupConfig,
+    source: {
+      kind: "editor" as const,
+      editorSessionId: "deployment-snapshot-test",
+      canonicalConfig: {
+        id: "studio-current",
+        name: "Studio Current",
+        description: "Deployment snapshot fixture.",
+        recipe: "standard",
+        sortIndex: 9999,
+        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+        config: {},
+      },
+    },
+  } satisfies DeployRunInGameArgs["prepared"]["launchEnvelope"];
+  const launchSourceDigest = {
+    canonicalConfigDigest: "config-hash-test",
+  } satisfies DeployRunInGameArgs["prepared"]["launchSourceDigest"];
   return {
-    correlationDigest: "correlation-digest-test",
-    request: request as DeployRunInGameArgs["prepared"]["request"],
-    resolvedLaunchSource:
-      request.resolvedLaunchSource as DeployRunInGameArgs["prepared"]["resolvedLaunchSource"],
-    launchEnvelope: request.launchEnvelope as DeployRunInGameArgs["prepared"]["launchEnvelope"],
-    launchSourceDigest:
-      request.launchSourceDigest as DeployRunInGameArgs["prepared"]["launchSourceDigest"],
-    launchEnvelopeDigest: request.launchEnvelopeDigest,
+    request: {
+      recipeId: launchEnvelope.recipeSettings.recipe,
+      seed: launchEnvelope.recipeSettings.seed,
+      mapSize: launchEnvelope.worldSettings.mapSize,
+      setupConfig,
+    },
+    launchEnvelope,
+    launchSourceDigest,
+    launchEnvelopeDigest: "envelope-hash-test",
   };
 }

@@ -1,5 +1,5 @@
 import {
-  DEFAULT_RUN_IN_GAME_SETUP_CONFIG,
+  createDefaultRunInGameSetupConfig,
   normalizeRunInGameSetupConfig,
   RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
   RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
@@ -81,7 +81,9 @@ export type Civ7SavedSetupConfigFile = Readonly<
   }
 >;
 
-export const DEFAULT_CIV7_STUDIO_SETUP_CONFIG = DEFAULT_RUN_IN_GAME_SETUP_CONFIG;
+export function createDefaultCiv7StudioSetupConfig(): Civ7StudioSetupConfig {
+  return createDefaultRunInGameSetupConfig();
+}
 
 export const CIV7_STUDIO_MAIN_GAME_OPTION_IDS = RUN_IN_GAME_MAIN_GAME_OPTION_IDS;
 
@@ -118,7 +120,7 @@ export function studioSetupConfigsEqual(
 }
 
 export function isDefaultStudioSetupConfig(config: Civ7StudioSetupConfig): boolean {
-  return studioSetupConfigsEqual(config, DEFAULT_CIV7_STUDIO_SETUP_CONFIG);
+  return studioSetupConfigsEqual(config, createDefaultCiv7StudioSetupConfig());
 }
 
 function findParameter(
@@ -178,7 +180,7 @@ export function studioSetupConfigFromLiveSnapshot(
 }
 
 export function getLocalPlayerSetup(config: Civ7StudioSetupConfig): Civ7StudioPlayerSetupConfig {
-  return config.playerOptions[0] ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions[0]!;
+  return config.playerOptions[0] ?? createDefaultCiv7StudioSetupConfig().playerOptions[0]!;
 }
 
 export function updateStudioSetupGameOption(
@@ -200,7 +202,7 @@ export function updateStudioSetupPlayerOption(
 ): Civ7StudioSetupConfig {
   const players = config.playerOptions.length
     ? [...config.playerOptions]
-    : [...DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions];
+    : [...createDefaultCiv7StudioSetupConfig().playerOptions];
   const index = players.findIndex((player) => player.playerId === playerId);
   const current = index >= 0 ? players[index]! : { playerId, options: {} };
   const options = { ...current.options };
@@ -244,7 +246,7 @@ export function studioSetupConfigFromSavedConfigFile(
     playerOptions:
       savedConfig.playerOptions.length > 0
         ? savedConfig.playerOptions
-        : DEFAULT_CIV7_STUDIO_SETUP_CONFIG.playerOptions,
+        : createDefaultCiv7StudioSetupConfig().playerOptions,
   });
 }
 

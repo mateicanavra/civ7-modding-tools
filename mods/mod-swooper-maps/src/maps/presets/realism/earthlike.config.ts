@@ -1,4 +1,3 @@
-import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
 import { canonicalRecipeConfig } from "../../configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../configs/swooper-earthlike.config.json";
 
@@ -10,5 +9,4 @@ import swooperEarthlikeConfigRaw from "../../configs/swooper-earthlike.config.js
  * export deliberately reads that canonical map envelope so tuning remains in
  * one JSON-backed Studio/save/deploy path.
  */
-export const realismEarthlikeConfig =
-  canonicalRecipeConfig<StandardRecipeConfig>(swooperEarthlikeConfigRaw);
+export const realismEarthlikeConfig = canonicalRecipeConfig(swooperEarthlikeConfigRaw);

@@ -22,8 +22,10 @@
     "savedSetupConfig": "ToT_BasicModsEnabled",
     "seed": "1538316415",
     "mapSize": "MAPSIZE_HUGE",
-    "playerCount": 10,
-    "resources": "balanced"
+    "playerCount": 10
+  },
+  "requiredRequestMetadata": {
+    "worldSettings.resources": "balanced"
   },
   "browserRpcStart": {
     "count": 1,
@@ -111,7 +113,8 @@
       "selectedSetupConfig": "ToT_BasicModsEnabled",
       "selectedSeed": "1538316415",
       "selectedMapSize": "MAPSIZE_HUGE",
-      "selectedPlayerCount": 10
+      "selectedPlayerCount": 10,
+      "requiredWorldSettingsResources": "balanced"
     }
   },
   "admittedRequestId": "studio-run-in-game-mrcpz748-7as-4",
