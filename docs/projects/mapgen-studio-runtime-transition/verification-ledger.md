@@ -1,37 +1,36 @@
 # Verification Ledger
 
-Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 frame reviewed and ready to commit; no product closure claim
+Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 validator-ownership prerequisite sealed; domain-operation authority next; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-12T08:08:52-04:00 EDT
-- Current phase: `a2-standalone-launch-prep`
-- Last completed gate: `a2-frame-validator-ownership-review-03` closed the sole
-  exact-owner wording finding. All retained A.2 frame and prerequisite findings
-  are dispositioned with zero open P0-P2. The required empty `rules/` slot
-  remains sealed direct initiative authority.
-- Current gate: create the committed validator-ownership child and regular Git
-  worktree, then launch the standalone A.2 Product/Development DRA with the
-  reviewed packet as its authority.
+- Last updated: 2026-07-12T09:07:34-04:00 EDT
+- Current phase: `a2-domain-operation-authority-admission`
+- Last completed gate: the repaired validator-ownership candidate passed its
+  fresh affected re-reviews and every declared uncached closing gate. One
+  initial `habitat:test` attempt observed the existing generated-`dist`
+  ordering flake; the owner build plus focused, full, and fresh uncached reruns
+  passed without an A.2 harness change.
+- Current gate: admit the exact domain-operation authority child; no authority
+  mutation is active yet.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action:
-  1. launch and supervise A.2 domain-operation topology normalization;
-  2. continue A.3 static coverage, A.4 preset removal, Packet B control
-     ownership, and Packet C rendered acceptance in order.
+- Next action: create the exact domain-operation authority child from the
+  sealed prerequisite tip, then continue Ecology, Foundation, Morphology,
+  Hydrology, Resources, and Placement in packet order.
 - Blocked by: no external or product blocker accepted
-- Product/Development DRA: Codex closeout orchestrator through A.2 admission;
-  the standalone A.2 DRA takes this role for packet execution after its launch
-  record is committed
-- A.2 Supervisor/Enforcer DRA: Codex closeout orchestrator in the named
-  worktree; owns semantic deviation adjudication and closure acceptance, not
-  duplicate implementation or required reviews
+- Product/Development DRA: standalone Codex A.2 DRA in
+  `wt-agent-sol-a2-domain-operation`; owns the complete Packet A.2 execution
+  train, teams, findings, gates, Graphite changesets, and closure candidate
+- A.2 Supervisor/Enforcer DRA: initiating Codex task; owns semantic-deviation
+  adjudication and closure acceptance, not duplicate implementation or required
+  reviews
 - Prior Planning Supervisor/Enforcer DRA: Kuhn
   (`019f494a-0ef2-7be2-b0a4-9813c8d040ab`), closed with semantic pass over the
   prior bound corpus; the later alignment handoff reopens affected semantic
@@ -39,22 +38,26 @@ Normative method:
 - Stage 0 Supervisor/Enforcer DRA: Kierkegaard the 4th
   (`019f5237-deac-7102-b271-50a4d61c1297`); source-freeze review closed-passed
 - Last Graphite mutation lease:
-  `operation:a2-frame-commit-20260712-02` closed after the exact six-path frame
-  materialized as `196b07e3d`, with sole parent `e69842a4f680`, unchanged main
-  and readiness refs, and a clean ending tree. The prior lease remains honestly
-  released without mutation; S0-01's older procedural omission remains
-  recorded as `S0-01-LEASE-01`.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
-- Branch/head: `codex/mapgen-domain-operation-topology`; this branch owns the
-  committed A.2 execution contract and launch frame above sole parent
-  `e69842a4f680`.
-- Worktree state: clean after the frame commit receipt. No `.playwright-cli`
-  files or Git operation are present.
-- Current-lane Graphite state: `main == origin/main == 46943c5f1165`; the
-  receipt-bearing census branch is 42 commits ahead and 0 behind, with 30 valid
-  Graphite layers and no restack
-  marker on the current tail. The planning and two implementation branches are
-  local-only, unsubmitted, and have no remote branch or PR.
+  `operation:a2-validator-ownership-seal-20260712-01`, opened
+  2026-07-12T09:06:14-04:00. The standalone A.2 DRA is the sole mutator; its
+  scope is the exact reviewed prerequisite write set and its receipt amendment.
+  Starting refs are current/parent `16745e337902`,
+  `main == origin/main == 46943c5f1165`, and readiness
+  `f325250d0878`. The branch is local-only with no remote or PR, no Git
+  operation is active, and the readiness worktree remains excluded. The exact
+  staged set materialized as `62b8dbcc9`; this receipt amendment closes the
+  lease and the amended branch ref is the sealed tip.
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`
+- Branch/head: sealed `codex/mapgen-generated-validator-ownership`; its sole
+  parent remains
+  `codex/mapgen-domain-operation-topology@16745e337902`. Its immutable recorded
+  `A2_BRANCH_PARENT` is `16745e337902be82b4278f8b57cc5e34c74348f6`.
+- Worktree state: clean after this receipt amendment. No
+  `.playwright-cli` path or Git operation is present; the separate readiness
+  worktree is excluded from mutation.
+- Current-lane Graphite state: `main == origin/main == 46943c5f1165`; Graphite
+  reports the exact frame parent for the sealed child. The branch is local-only,
+  unsubmitted, and has no remote branch or PR.
 - Runtime preservation: the prior Studio process receipt is historical and is
   not used as Packet A acceptance. Runtime checks restart from a committed tree.
 
@@ -108,6 +111,9 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | lifecycle alignment review | TypeScript/service boundary, shell code quality, and Nx/tmux/curl/Bun correctness | closed-with-repairs | all three lanes completed; concrete transaction, timeout, same-target, health-ownership, and concurrent-start findings were repaired and exercised by the closing live scenarios |
 | A.2 execution-frame review | authority/sequence, closed-loop DRA operability, and TypeScript/code/test structure | closed-passed | eleven completed reviewers are closed and recorded in `waves/a2-execution-frame-review-01.md` plus the gate/cleanup registers; terminal authority and exact-state lanes passed |
 | A.2 prerequisite ownership review | Nx/Habitat dependency ownership, package validator placement, generated currentness, and retained behavior | closed-passed | thirteen fresh agents are closed; indirect-loader candidates were invalidated, three wrong-owner command checks retire, package/Nx owners retain behavior, and exact config-key mirrors disappear |
+| A.2 prerequisite investigation and implementation | current validator corpus, operation train census, Graphite/record process, package/Nx behavior, and Habitat retirement | closed-with-candidate | three read-only investigators and two disjoint implementation agents completed naturally; the integrated candidate passed its focused gates |
+| A.2 prerequisite red-gate investigation | isolated Habitat help-test failure | closed-with-independent-flake-disposition | focused investigator proved generated `dist` build ordering, not the A.2 candidate; focused and full reruns passed after owner build, with no harness edit admitted |
+| A.2 prerequisite implementation review | TypeScript refactoring, code quality/structure, and Habitat/library authority | closed-passed-after-repair | three fresh lanes found three record/inventory P2s; bounded repair and two fresh affected re-reviews closed them; uncached closing gates passed |
 
 Stage promotion requires every agent row to be `closed` or explicitly
 transferred to the continuous supervisor.
@@ -189,6 +195,57 @@ Run in Game product matrix.
 | two-worktree isolation | private instances on 16248/16249 and 15888/15889 | both healthy concurrently; stopping the first left the second and standard runtime healthy; stopping the second left standard runtime healthy |
 | artifact hygiene | canonical `gen:map-artifacts` followed by `mod-swooper-maps:build` | removed the ignored stale `studio-current` generated source/output and restored a clean tracked worktree |
 | change hygiene | `git diff --check`, final Git status, and private-state/session inspection | passed; no private state/session remains and the active worktree is clean |
+
+## Packet A.2 Branch Receipts
+
+### Validator-Ownership Admission
+
+| Field | Recorded value |
+| --- | --- |
+| Branch | `codex/mapgen-generated-validator-ownership` |
+| Immutable parent | `16745e337902be82b4278f8b57cc5e34c74348f6` (`codex/mapgen-domain-operation-topology`) |
+| External sentinel | `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`, reference-only and excluded from mutation |
+| Mutation owners | package/Nx agent: `a2_validator_package_impl`; Habitat retirement/records agent: `a2_validator_habitat_impl`; shared packet-record integrator: standalone A.2 DRA |
+| Diagnostic corpus | 11 Nx boundary violations across `validate_generated_map_entrypoint_contracts` (5), `verify_standard_recipe_artifacts_match_source_stages` (4), and `verify_standard_recipe_public_authoring_surface` (2) |
+| Destination owners | `mod-swooper-maps:generated:check` for post-generation tracked-source currentness; `standard-generated-artifacts.test.ts` through `mod-swooper-maps:test` for schema/default/UI projection behavior; existing MapGen Core laws and Studio focus-path consumer tests remain |
+| Expected authority deletion | all nine files for the three wrong-owner command packets; their live cleanup/inventory rows move to historical retired records |
+| Shared-file integrator | standalone A.2 DRA owns `verification-ledger.md`, `gate-register.jsonl`, `cleanup-register.jsonl`, and the branch review record |
+| Forbidden edits | generated source, package exports, indirect loaders, wrappers, copied business logic, `protect_generated_map_entrypoints_from_hand_edits`, host generated-zone policy, workspace boundary authority, TOOL-EFFECT corpus, readiness worktree |
+
+### Validator-Ownership Candidate Gates
+
+| Surface | Command or method | Candidate result |
+| --- | --- | --- |
+| Nx dependency boundary | `nx run habitat:boundaries` | passed; the prior 11 violations are absent after semantic retirement |
+| Habitat TypeScript | `nx run habitat:check` | passed |
+| Habitat behavior | initial and repaired `nx run habitat:test`, plus focused investigator reruns | initial attempt failed one help test while Habitat `dist` was absent/rebuilt; focused test, full 329/329 rerun, and fresh uncached 329/329 rerun passed; no A.2 harness repair admitted |
+| MapGen Core laws | `nx run mapgen-core:test` | passed, 121 tests; cached implementation pass before final uncached closure |
+| generated currentness | `nx run mod-swooper-maps:generated:check` | passed after generating all nine tracked map entrypoints; no drift |
+| Swooper behavior | `nx run mod-swooper-maps:test` | passed, 505 tests with 2 intentional skips; owner Habitat 77/77 |
+| Studio consumer behavior | `nx run mapgen-studio:test` | passed, 308 tests |
+| retained mutation/write authority | `bun habitat check --rule protect_generated_map_entrypoints_from_hand_edits --json` | passed, locked, no diagnostics |
+| OpenSpec | `bun run openspec:validate` | passed, 371/371 |
+| focused formatting/lint | `bunx biome ci` over the changed TypeScript and JSON files | passed, 4 files, no fixes |
+| record/data hygiene | JSON/JSONL parsing, cleanup-ledger reconciliation, canonical source-conversion corpus/mechanical counts, affected lane copies, `git diff --check` | passed; 122 live cleanup rows, 33 retired rows, 76 canonical corpus rows, and exact copies of the three A.2 rows in their lanes; the pre-existing full lane-union drift is not claimed as repaired by this branch |
+
+The three implementation review lanes completed; three accepted P2 record and
+inventory findings were repaired, and two fresh affected re-review lanes
+closed them. Final uncached boundaries, Habitat build/check/test (329/329),
+MapGen Core (121/121), generated currentness, Swooper behavior (505 passed, 2
+intentional skips), Studio behavior (308/308), retained generated-zone
+authority, OpenSpec (371/371), focused Biome, JSON/JSONL parsing, count, diff,
+and generated-drift gates passed. The exact-set Graphite seal closed the
+prerequisite without admitting dependent authority mutation.
+
+### Validator-Ownership Branch Seal
+
+| Field | Receipt |
+| --- | --- |
+| Review disposition | TypeScript lane passed; code-quality and authority lanes raised `A2-VAL-CQ-001`, `A2-VAL-AUTH-001`, and `A2-VAL-AUTH-002`; bounded record repairs plus two fresh affected re-reviews closed all three |
+| Final gates | uncached Habitat boundaries/check/build/test, MapGen Core, generated currentness, Swooper and Studio tests; retained Habitat rule; OpenSpec; focused Biome; JSON/JSONL, counts, diff, and generated-drift hygiene all passed |
+| Graphite seal | exact 24-file changeset initially materialized as `62b8dbcc9`; `919d840d5` passed the sole-parent, protected-ref, clean-tree, remote/PR, Git-operation, and indexed-checkout assertions; final receipt amended on the same branch commit through `gt modify` |
+| Protected refs | `main == origin/main == 46943c5f1165`; readiness `f325250d0878`; unchanged |
+| Closure boundary | prerequisite only; no domain-operation authority or product operation mutation is included |
 
 ## Stage State
 

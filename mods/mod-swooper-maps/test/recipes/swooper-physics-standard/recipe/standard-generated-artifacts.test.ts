@@ -1,0 +1,65 @@
+import { describe, expect, it } from "bun:test";
+import { deriveStageAuthoringModel } from "@swooper/mapgen-core/authoring";
+import {
+  STANDARD_RECIPE_CONFIG as generatedDefaults,
+  STANDARD_RECIPE_CONFIG_SCHEMA as generatedSchema,
+  studioRecipeUiMeta as generatedUiMeta,
+} from "mod-swooper-maps/recipes/standard-artifacts";
+
+import { deriveStandardRecipeArtifacts } from "../../../../src/recipes/standard/artifacts.js";
+import standardRecipe, { STANDARD_STAGES } from "../../../../src/recipes/standard/recipe.js";
+
+function toJsonValue(value: unknown): unknown {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) throw new Error("Expected a JSON-serializable recipe artifact");
+  return JSON.parse(serialized) as unknown;
+}
+
+function projectGeneratedUiStructure() {
+  return generatedUiMeta.stages.map((stage) => ({
+    stageId: stage.stageId,
+    steps: stage.steps.map((step) => ({
+      stepId: step.stepId,
+      fullStepId: step.fullStepId,
+      configFocusPathWithinStage: step.configFocusPathWithinStage,
+    })),
+  }));
+}
+
+function deriveSourceUiStructure() {
+  const runtimeStepIds = standardRecipe.recipe.steps.map((step) => step.id);
+  let runtimeStepIndex = 0;
+  const stages = STANDARD_STAGES.map((stage) => {
+    const authoring = deriveStageAuthoringModel(stage);
+    return {
+      stageId: stage.id,
+      steps: authoring.runtime.steps.map((step) => {
+        const fullStepId = runtimeStepIds[runtimeStepIndex];
+        runtimeStepIndex += 1;
+        if (fullStepId === undefined) {
+          throw new Error("Runtime recipe is missing a source-authored step");
+        }
+        return {
+          stepId: step.stepId,
+          fullStepId,
+          configFocusPathWithinStage: authoring.config.focusPathsByStepId[step.stepId] ?? [],
+        };
+      }),
+    };
+  });
+
+  if (runtimeStepIndex !== runtimeStepIds.length) {
+    throw new Error("Runtime recipe contains a step absent from the source authoring model");
+  }
+  return stages;
+}
+
+describe("standard generated recipe artifacts", () => {
+  it("matches the source recipe artifacts and authoring structure", () => {
+    const sourceArtifacts = deriveStandardRecipeArtifacts();
+
+    expect(generatedSchema).toEqual(toJsonValue(sourceArtifacts.schema));
+    expect(generatedDefaults).toEqual(toJsonValue(sourceArtifacts.defaults));
+    expect(projectGeneratedUiStructure()).toEqual(deriveSourceUiStructure());
+  });
+});

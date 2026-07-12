@@ -47,7 +47,7 @@
     },
     "test": {
       "command": "bun test",
-      "dependsOn": ["^build", "build:studio-recipes", "habitat:check"],
+      "dependsOn": ["^build", "build:studio-recipes", "generated:check", "habitat:check"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -116,6 +116,14 @@
       "dependsOn": ["gen:map-artifacts"],
       "cache": false,
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "generated:check": {
+      "command": "status=$(git status --porcelain -- src/maps/generated); test -z \"$status\" || { printf '%s\\n' \"$status\"; exit 1; }",
+      "dependsOn": ["gen:maps"],
+      "cache": false,
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
