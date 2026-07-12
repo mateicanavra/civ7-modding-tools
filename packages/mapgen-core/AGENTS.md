@@ -25,3 +25,4 @@ Scope: `packages/mapgen-core/**`
 - Engine architecture & contracts: `docs/system/libs/mapgen/MAPGEN.md`
 - Design notes & invariants: `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`, `docs/system/libs/mapgen/policies/POLICIES.md`
 - Testing overview: `docs/system/TESTING.md`
+- Test corpus guide: `test/README.md`

@@ -145,13 +145,13 @@ const GENERATED_ARTIFACT_REFS = [
 ];
 
 const TEST_REFS = [
-  "mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts",
-  "mods/mod-swooper-maps/test/config/presets-schema-valid.test.ts",
-  "mods/mod-swooper-maps/test/config/studio-presets-schema-valid.test.ts",
-  "mods/mod-swooper-maps/test/m11-config-knobs-and-presets.test.ts",
-  "mods/mod-swooper-maps/test/standard-compile-errors.test.ts",
+  "mods/mod-swooper-maps/test/maps/map-config-schema.test.ts",
+  "mods/mod-swooper-maps/test/maps/studio-preset-schema.test.ts",
+  "mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/config-authoring.test.ts",
+  "mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
+  "mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-recipe-artifact-guards.test.ts",
   "apps/mapgen-studio/test/config/defaultConfigSchema.test.ts",
-  "packages/mapgen-core/test/authoring/authoring.test.ts",
+  "packages/mapgen-core/test/authoring/recipe/recipe.test.ts",
   "packages/mapgen-core/test/compiler/recipe-compile.test.ts",
 ];
 
@@ -202,7 +202,7 @@ function schemaVariants(schema?: SchemaLike): SchemaLike[] | undefined {
   return schema?.anyOf ?? schema?.oneOf ?? schema?.allOf;
 }
 
-function enumValues(schema?: SchemaLike): Json[] | undefined {
+function enumValues(schema?: SchemaLike): JsonValue[] | undefined {
   if (!schema) return undefined;
   if (schema.const !== undefined) return [schema.const];
   if (schema.enum) return schema.enum;

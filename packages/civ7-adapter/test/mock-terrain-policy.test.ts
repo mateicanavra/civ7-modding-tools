@@ -55,7 +55,7 @@ describe("mock adapter terrain policy", () => {
     });
 
     adapter.setTerrainType(5, 0, TERRAIN_COAST);
-    adapter.setTerrainType(4, 2, TERRAIN_FLAT);
+    adapter.setTerrainType(4, 1, TERRAIN_FLAT);
     adapter.storeWaterData();
 
     adapter.validateAndFixTerrain();

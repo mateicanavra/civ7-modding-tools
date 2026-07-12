@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@civ7/map-policy": "workspace:*",

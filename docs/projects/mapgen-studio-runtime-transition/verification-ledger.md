@@ -1,36 +1,32 @@
 # Verification Ledger
 
-Status: Packet A closed-passed; A.1 test-topology preparation next; no product closure claim
+Status: Packet A and Packet A.1 closed-passed; A.1a active; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-11T19:52:38-04:00 EDT
-- Current phase: `packet-a-closed-prepare-test-topology`
-- Last completed gate: Packet A was committed as one Graphite layer and its
-  committed code tree was reinstalled and verified from a regular detached Git
-  worktree. The six affected production checks, five affected behavior targets,
-  and Studio production build passed there, and regeneration left that worktree
-  clean. The stale focused Run in Game target was then rebound from the deleted
-  identity-shape test to the generic complete-config boundary test; its full
-  dependency graph and 20 selected tests passed before the final amendment.
-- Current gate: prepare the mechanical A.1 test-topology child without mixing
-  in semantic static-debt repair.
+- Last updated: 2026-07-12T02:54:00-04:00 EDT
+- Current phase: `packet-a1a-studio-contract-freshness`
+- Last completed gate: Packet A.1 was reproduced at its pre-receipt commit
+  `acfc7f3217ed` from a regular detached Git worktree after a fresh frozen
+  install. The only later amendment is this receipt. The three
+  owner checks passed; MapGen Core passed 121 tests, Civ7 Adapter passed 23,
+  Swooper Maps passed 504 with the same two intentional skips, and the focused
+  Studio Run subset passed 29. Generated artifacts produced no tracked drift.
+- Current gate: restore the serve-mode Studio contract freshness boundary on a
+  dedicated Graphite child without changing production artifact resolution.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
 - Next action:
-  1. restore the intended test topology on a mechanical Graphite child;
-  2. normalize MapGen domain operations to the accepted operation blueprint;
-  3. clean and admit test/tool TypeScript coverage on semantic children;
-  4. collapse the redundant preset ontology on a separate Graphite child;
-  5. execute Packet B for typed control-oRPC setup/start ownership;
-  6. execute Packet C and the complete rendered-browser/Civ7 matrix;
-  7. reconcile, submit, merge, drain, and return to Habitat.
+  1. repair and verify the serve-mode Studio contract freshness boundary;
+  2. prepare and execute A.2 domain-operation topology normalization;
+  3. continue A.3 static coverage, A.4 preset removal, Packet B control
+     ownership, and Packet C rendered acceptance in order.
 - Blocked by: no external or product blocker accepted
 - Product/Development DRA: Codex closeout orchestrator in the named worktree
 - Prior Planning Supervisor/Enforcer DRA: Kuhn
@@ -44,14 +40,10 @@ Normative method:
   to this DRA and asserted parent/source/sentinel identities before and after
   `gt create`; the omission is `S0-01-LEASE-01`. No mutation lease is active.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
-- Branch/head: `codex/mapgen-studio-complete-config-admission` at its single
-  committed Packet A HEAD above `codex/mapgen-studio-runtime-stage-0-census@76bfbcaa434d`;
-  the census branch's sole parent is
-  `codex/mapgen-studio-manifest-parity-replay@b2367c50d6ae`, whose parent is
-  `codex/mapgen-studio-config-envelope-runtime-cutover@3f5ed12e81a5`, whose
-  parent is `codex/mapgen-studio-runtime-transition-planning@ca6a06d24fff`
-- Worktree state: clean; no `.playwright-cli` files and no Git operation are
-  present
+- Branch/head: `codex/mapgen-swooper-test-topology`, commit subject
+  `test(mapgen): align tests with semantic owners`.
+- Worktree state: clean after the Packet A.1 commit; no `.playwright-cli` files
+  or Git operation are present.
 - Current-lane Graphite state: `main == origin/main == 46943c5f1165`; the
   receipt-bearing census branch is 42 commits ahead and 0 behind, with 30 valid
   Graphite layers and no restack
@@ -99,7 +91,9 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | all-config investigation | nine-config admission, complete materialization, deterministic generation, output sanity | closed-with-shared-defect | all current configs healthy; generic partial-default admission defect becomes Packet A |
 | direct-control/Civ7 investigation | live shell state, saved setup, generated row, setup/start ownership | closed-with-architectural-defect | missing control-oRPC setup/lifecycle family and caller-local Studio orchestration become Packet B |
 | Packet A implementation | complete-config contracts, TypeBox-native defaults, exact admission, generic schema/config tests, typed operation fixtures | closed-passed | none; A.1 starts on a separate Graphite child |
-| A.1 test-topology preparation | historical move recovery, semantic ownership extension, import/path hazards, discovery and Habitat authority | closed-passed | execute the prepared 106-move mechanical child; no semantic repair belongs in A.1 |
+| A.1 test-topology preparation | historical move recovery, semantic ownership extension, import/path hazards, discovery and Habitat authority | closed-with-scope-correction | the move-only frame was superseded when review found wrong-owner behavior tests, dead source scans, an omitted generic engine law, and an adapter test target gap |
+| A.1 implementation | component-owned test topology, semantic test splits, dead source-scan removal, generic engine-law retention, adapter Nx reachability, Habitat ledger reconciliation | closed | three disjoint implementation agents completed naturally; integrated gates passed |
+| A.1 final review | TypeScript refactoring, code quality/test topology, and library/Habitat correctness | closed-passed | all concrete findings repaired; final bounded rereviews cleared the candidate; all agents closed |
 
 Stage promotion requires every agent row to be `closed` or explicitly
 transferred to the continuous supervisor.
@@ -127,8 +121,30 @@ the write set.
 | source-derived recipe artifacts | `bun habitat check --rule verify_standard_recipe_artifacts_match_source_stages --json` | passed with no diagnostics |
 | classify routing | `bun habitat classify /tmp/packet-a.diff`; every available reported target was run, with the unavailable Studio contract test covered by its direct package suite | passed |
 | test-inclusive TypeScript comparison | base-comparable scan plus correctly typed current scan | 566 base diagnostics to 535 current; the only unmatched file/code pair is the intentionally ambient-incomplete Bun import; 284 independent historical test/dev/script diagnostics remain for A.3, with no changed config-test diagnostic |
-| change hygiene | `git diff --check` plus added-line suppression/cast and nonstandard `proof` scans | passed; no temporary TypeScript scan configs or `.playwright-cli` files remain |
+| change hygiene | `git diff --check` plus added-line suppression/cast and terminology scans | passed; no temporary TypeScript scan configs or `.playwright-cli` files remain |
 | committed-tree isolation | regular detached Git worktree at the initial Packet A commit, fresh `bun install --frozen-lockfile`, affected six-project check, affected five-project test graph, Studio build, and final tracked-status check | all passed; generated artifacts reproduced without tracked drift; temporary worktree removed |
+
+## Packet A.1 Receipts
+
+These rows record the post-repair reruns and committed-tree receipt. Packet A.1
+is closed-passed.
+
+| Surface | Command or method | Result |
+| --- | --- | --- |
+| integrated project graph | `nx run-many -t build,check,test --projects=mapgen-core,civ7-adapter,mod-swooper-maps,mapgen-studio --parallel=4 --skip-nx-cache --outputStyle=static` | post-repair rerun passed all 32 requested and dependent tasks; Nx reported the already-recorded flaky manifest/build tasks only after successful execution |
+| Swooper Maps | two consecutive quiescent runs of `NX_DAEMON=false nx run mod-swooper-maps:test --skip-nx-cache --outputStyle=static` | each run passed 504 tests, intentionally skipped 2, and failed 0; the suite completed in 51.88s and 53.31s respectively; owner Habitat 80/80 |
+| loaded-host timeout investigation | exact Nx gate and isolated failing files while Civilization VII was actively consuming CPU | varying test cases exceeded wall-clock timeouts while all isolated cases passed; reviewer confirmed Bun `--max-concurrency` does not govern this sequential suite, so no harness, retry, parallelism, or timeout change was admitted |
+| MapGen Core | `nx run mapgen-core:test --skip-nx-cache` | 121 passed, 0 failed |
+| Civ7 adapter | `nx run civ7-adapter:test --skip-nx-cache` | 23 passed, 0 failed; target is now Nx-visible |
+| Studio | integrated Nx graph | 308 passed, 0 failed; production build passed |
+| targeted Studio Run selection | `nx run mod-swooper-maps:test:studio-run-in-game --skip-nx-cache` | post-repair target passed; 20 selected tests passed, 0 failed |
+| strict OpenSpec | `bun run openspec:validate` | post-repair rerun passed 371/371 |
+| formatting/lint | `bun run lint` | post-repair rerun passed all 9 project targets |
+| Habitat owners | Swooper owner through its test graph; direct Studio, MapGen Core, and Civ7 adapter owner checks | post-repair reruns passed Swooper 80/80, Studio 17/17, MapGen Core 1/1, and Civ7 adapter 1/1 with no advisory findings |
+| classify routing | `bun habitat classify` for the Swooper test tree, MapGen Core test tree, Civ7 adapter, and changed authority ledger | every available reported check/test/lint target ran; authority ledger has no project-local check/test target |
+| test-inclusive TypeScript observation | in-memory TypeScript project using the production options plus `test/**` and Bun/Node types | 281 diagnostics: 223 tests, 48 dev, 10 scripts; 280 are the independent A.3 corpus and one is the existing unresolved `@swooper/mapgen-core/trace` export; touched A.1 files add no diagnostic or moved-path import failure |
+| hygiene | `git diff --check`, added-line suppression/cast scan, and terminology scan | whitespace clean; no added suppression or `any`/`never` cast; no added nonstandard evidence term |
+| committed-tree isolation | regular detached Git worktree at `acfc7f3217ed`, fresh `bun install --frozen-lockfile`, owner checks/builds, affected project tests, focused Studio Run tests, and final tracked-status check | checks passed for MapGen Core, Civ7 Adapter, and Swooper Maps; tests passed 121/121, 23/23, 504/504 with 2 intentional skips, and 29/29 respectively; generated artifacts reproduced without tracked drift |
 
 ## Stage State
 
