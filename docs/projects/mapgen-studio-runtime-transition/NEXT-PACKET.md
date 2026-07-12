@@ -1,6 +1,6 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: Packets A, A.1, and A.1a closed-passed; lifecycle-helper alignment is the next bounded child
+Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 is next
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -25,6 +25,7 @@ codex/studio-run-live-playability@4f501fabfdc6
   -> codex/mapgen-studio-complete-config-admission@9b082bac2434 (Packet A)
   -> codex/mapgen-swooper-test-topology@ceb6832e329d (Packet A.1)
   -> codex/mapgen-studio-dev-contract-freshness (Packet A.1a)
+  -> codex/mapgen-studio-codex-lifecycle-alignment (lifecycle alignment)
 ```
 
 The historical source recovery is verified. The config and parity branches
@@ -157,6 +158,12 @@ daemon whose reported repository root matched this worktree; real browser
 navigation evaluated the contract source module, retained generated recipe
 artifact imports from `dist`, and mounted a nonempty React root without a
 module-link error.
+
+The bounded Codex worktree lifecycle child is also closed-passed. Its helper
+composes the canonical Nx daemon target, requires frontend and repository-owned
+daemon health, and retains private ports, tmux ownership, and teardown. Two
+regular worktrees ran healthy instances concurrently; stopping either one left
+the other instance and the standard Studio runtime healthy.
 
 ### A.2. Normalize Domain Operation Topology
 

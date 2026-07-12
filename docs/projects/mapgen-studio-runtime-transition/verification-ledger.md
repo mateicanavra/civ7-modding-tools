@@ -1,32 +1,28 @@
 # Verification Ledger
 
-Status: Packets A, A.1, and A.1a closed-passed; no product closure claim
+Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-12T04:16:00-04:00 EDT
-- Current phase: `packet-a1a-closed`
-- Last completed gate: A.1a passed strict TypeScript checking, the full Studio
-  check/test/build graph, Studio Habitat 17/17, repository lint, OpenSpec
-  371/371, three dedicated review lanes, and real browser module evaluation
-  after a clean restart from this worktree. Development serve loaded the Studio
-  contract from source, generated recipe artifacts remained on `dist`, and the
-  mounted React root was nonempty with no module-link error.
-- Current gate: align the Codex worktree helper with the canonical Studio
-  lifecycle while preserving private ownership and two-worktree isolation.
+- Last updated: 2026-07-12T05:19:59-04:00 EDT
+- Current phase: `lifecycle-alignment-closed`
+- Last completed gate: two regular worktrees ran the committed Codex lifecycle
+  helper concurrently on distinct private sockets and port pairs. Both frontend
+  and repository-owned daemon health checks passed; stopping the active
+  worktree's instance left the second instance and standard Studio runtime
+  healthy, and stopping the second left standard Studio healthy.
+- Current gate: prepare and execute A.2 domain-operation topology normalization.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
 - Next action:
-  1. align and verify the already-declared bounded Codex worktree lifecycle
-     helper child;
-  2. prepare and execute A.2 domain-operation topology normalization;
-  3. continue A.3 static coverage, A.4 preset removal, Packet B control
+  1. prepare and execute A.2 domain-operation topology normalization;
+  2. continue A.3 static coverage, A.4 preset removal, Packet B control
      ownership, and Packet C rendered acceptance in order.
 - Blocked by: no external or product blocker accepted
 - Product/Development DRA: Codex closeout orchestrator in the named worktree
@@ -41,10 +37,10 @@ Normative method:
   to this DRA and asserted parent/source/sentinel identities before and after
   `gt create`; the omission is `S0-01-LEASE-01`. No mutation lease is active.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
-- Branch/head: `codex/mapgen-studio-dev-contract-freshness`, closing commit
-  subject `fix(studio): keep dev contract imports fresh`.
-- Worktree state: A.1a closing documents are the only additions to the reviewed
-  three-file candidate; no `.playwright-cli` files or Git operation are present.
+- Branch/head: `codex/mapgen-studio-codex-lifecycle-alignment`, commit subject
+  `fix(studio): isolate worktree lifecycle ownership`.
+- Worktree state: clean after lifecycle verification and canonical Swooper
+  artifact regeneration; no `.playwright-cli` files or Git operation are present.
 - Current-lane Graphite state: `main == origin/main == 46943c5f1165`; the
   receipt-bearing census branch is 42 commits ahead and 0 behind, with 30 valid
   Graphite layers and no restack
@@ -99,6 +95,8 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | A.1a initial review | TypeScript runtime boundary, code quality/Habitat structure, and current Vite behavior | closed-with-findings | environment restoration, runtime narrowing, semantic alias matching, authority-claim precision, and purpose-comment findings repaired |
 | A.1a boundary investigation | app-local Vite ownership and `.habitat` TypeScript resolution | closed-with-decision | retained Vite ownership in the app and treated the loaded runtime as `unknown`; rejected a root dependency, app helper, copied Vite schema, subprocess, and bespoke checker project |
 | A.1a terminal review | TypeScript refactoring, code quality/Habitat authority, and Vite/library correctness | closed-passed | all three fresh lanes cleared the repaired candidate; all agents closed |
+| lifecycle alignment implementation | canonical Nx daemon composition, private Nx coordination, repository-owned health, and ownership-only teardown | closed | helper and existing environment handoff updated; no new target, watcher, supervisor, or listener-wide cleanup path added |
+| lifecycle alignment review | TypeScript/service boundary, shell code quality, and Nx/tmux/curl/Bun correctness | closed-with-repairs | all three lanes completed; concrete transaction, timeout, same-target, health-ownership, and concurrent-start findings were repaired and exercised by the closing live scenarios |
 
 Stage promotion requires every agent row to be `closed` or explicitly
 transferred to the continuous supervisor.
@@ -169,6 +167,17 @@ Run in Game product matrix.
 | browser module graph | real browser navigation after the clean restart, console/request observation, and React-root inspection | Studio contract source entry returned 200; generated Standard recipe artifacts remained on `dist`; `#root` mounted two children; no module-link error occurred; only the existing favicon 404 was observed |
 | dedicated review lanes | fresh TypeScript refactoring, code quality/Habitat authority, and Vite/library correctness reviews after repairs | all lanes clear |
 | change hygiene | `git diff --check`, changed-file Biome check, terminology/suppression review, and Playwright cleanup | passed; no compatibility alias, broad package alias, source-specific export assertion, suppression, or `.playwright-cli` residue remains |
+
+## Lifecycle Alignment Receipts
+
+| Surface | Command or method | Result |
+| --- | --- | --- |
+| shell and build | `bash -n scripts/codex/manage-mapgen-studio.sh`; helper-owned `nx run mapgen-studio:build` | passed in both worktrees after a frozen workspace-link refresh in the second checkout |
+| same-worktree coexistence | standard Studio on 5173/5174 plus the private helper on 16248/16249 | both runtimes healthy; private stop left standard Studio healthy |
+| concurrent start ownership | two simultaneous helper starts in one worktree | exactly one start succeeded; the loser returned nonzero; winner state, status, and stop remained valid |
+| two-worktree isolation | private instances on 16248/16249 and 15888/15889 | both healthy concurrently; stopping the first left the second and standard runtime healthy; stopping the second left standard runtime healthy |
+| artifact hygiene | canonical `gen:map-artifacts` followed by `mod-swooper-maps:build` | removed the ignored stale `studio-current` generated source/output and restored a clean tracked worktree |
+| change hygiene | `git diff --check`, final Git status, and private-state/session inspection | passed; no private state/session remains and the active worktree is clean |
 
 ## Stage State
 
