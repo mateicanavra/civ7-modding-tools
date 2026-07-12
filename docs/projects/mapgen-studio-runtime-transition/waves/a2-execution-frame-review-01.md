@@ -1,0 +1,263 @@
+# A.2 Execution Frame Review 01
+
+Status: closed-passed
+
+Reviewed surface:
+
+- `packet-a2-domain-operation-topology.md`
+- `NEXT-PACKET.md` A.2/A.3 handoff
+- `verification-ledger.md` live admission state
+- named Habitat, engine-refactor, MapGen skill, source, and test authorities
+
+## Initial Review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| authority and sequencing | Bernoulli the 5th (`019f55b2-f396-73a3-93b3-2b75490b1dac`) | changes requested |
+| standalone closed-loop operability | Schrodinger the 5th (`019f55b2-effd-7c92-bf8f-746410746c84`) | changes requested |
+| TypeScript, structure, and testing | Leibniz the 5th (`019f55b2-f69c-71a0-bfcb-6005a933e0b8`) | changes requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-AUTH-01 | P1 | Bernoulli | readiness descent overlaps A.2 | rejected as a restack prerequisite against the live sentinel decision; repaired by making every descent row required evidence and later-integration disposition |
+| A2-AUTH-02 | P1 | Bernoulli | strategy container assigned to child blueprint | accepted; all container topology moved to parent `domain-operation` |
+| A2-AUTH-03 | P1 | Bernoulli | authority branch could not stay green | accepted; all new rules use admitted shrink-only baselines and per-branch integrity |
+| A2-AUTH-04 | P1 | Bernoulli | Structure cannot own entrypoint/barrel source grammar | accepted; generic Grit authority owns those kind-level AST classes |
+| A2-AUTH-05 | P1 | Bernoulli | stale project authority corpus incomplete | accepted; active specs, ADRs, workflow references, skills, guides, and strategy README are named |
+| A2-AUTH-06 | P2 | Bernoulli | cleanup-ledger rows not explicit | accepted; Branch 1 dispositions every relevant row |
+| A2-AUTH-07 | P2 | Bernoulli | private and cross-domain dependency corpus incomplete | accepted; a complete import-owner matrix precedes source edits |
+| A2-AUTH-08 | P2 | Bernoulli | named examples were not complete exemplars | accepted; they are labeled partial separation patterns only |
+| A2-AUTH-09 | P3 | Bernoulli | verification used placeholder rule ids | accepted; stable rule ids are named in the contract |
+| A2-LOOP-01 | P0 | Schrodinger | launch state not admitted | accepted; launch remains locked until reviewed frame commit and role handoff |
+| A2-LOOP-02 | P0 | Schrodinger | intended-red authority conflicts with full branch gates | accepted; baseline ratchet keeps every branch green |
+| A2-LOOP-03 | P1 | Schrodinger | parent and child DRA ownership overlap | accepted; child is A.2 Product/Development DRA and parent is Supervisor/Enforcer |
+| A2-LOOP-04 | P1 | Schrodinger | corpus count internally inconsistent | accepted; 89 root-shape plus six barrel-only rows equals 95 nonconforming roots |
+| A2-LOOP-05 | P1 | Schrodinger | per-branch prework absent from loop | accepted; each branch re-derives row, owner, caller, test, baseline, and agent assignments before editing |
+| A2-LOOP-06 | P1 | Schrodinger | Graphite, records, and Narsil handoff open | accepted; exact branch admission, seal, clean-state, and indexed-checkout handoff are in-loop |
+| A2-LOOP-07 | P1 | Schrodinger | Narsil owner/path unspecified | accepted; primary checkout path and natural-reindex fallback are explicit |
+| A2-LOOP-08 | P1 | Schrodinger | review lanes conflate unlike risks | accepted; standing lanes are risk-specialized per authority/domain branch |
+| A2-LOOP-09 | P1 | Schrodinger | aggregate closure did not bind all claims | accepted; exact rule ids, clean state, count receipt, committed tip, and A.3 handoff are required |
+| A2-LOOP-10 | P2 | Schrodinger | scope and agent termination could broaden or hang | accepted; mapped moves only, natural completion default, and accounted `no-result` recovery |
+| A2-TS-01 | P1 | Leibniz | whole algorithms can remain behind thin strategies | accepted; every executable barrel is classified and whole algorithms move to the strategy |
+| A2-TS-02 | P1 | Leibniz | Placement test type claim lacked a checking project | accepted; that repair is deferred to A.3 rather than claimed in A.2 |
+| A2-TS-03 | P2 | Leibniz | required empty `rules/` adds ceremony | rejected against direct exact-topology authority; the deliberate empty slot removes an optional shape |
+| A2-TS-04 | P2 | Leibniz | private-import rule scans only root entrypoints | accepted; replacement covers every operation file and preserves all old atomicity classes |
+| A2-TS-05 | P2 | Leibniz | snow-rule inventory omitted duplicate diagnostics logic | accepted; both the import and independent computation are pre-edit corpus rows |
+
+## Affected Re-review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| repaired authority and sequencing | Harvey the 5th (`019f55c5-5e01-74f3-856d-c4bb7aacb3e2`) | changes requested |
+| repaired DRA loop | Socrates the 5th (`019f55c5-60db-72f3-b83c-ca7106d3297f`) | changes requested |
+| repaired TypeScript, structure, and testing | Hilbert the 5th (`019f55c5-6342-7093-93a4-a948de47b90b`) | passed |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-RR-AUTH-01 | P1 | Harvey | sentinel decisions and residual rules not individually closed | accepted; D1-D4, A1-A5, Foundation config-bag, and mixed Foundation rows are mapped |
+| A2-RR-AUTH-02 | P1 | Harvey | replacement cross-import rule omitted existing atomicity classes | accepted; old import/export/dynamic-import classes must pass parity before retirement |
+| A2-RR-AUTH-03 | P2 | Harvey | accepted docs and skill corpus incomplete | accepted; every named live source receives update, preserve-link, or normal supersession treatment |
+| A2-RR-AUTH-04 | P1 | Harvey | ledger claimed an uncommitted clean tip | accepted; exact dirty state remains recorded until mutation receipt |
+| A2-RR-LOOP-01 | P1 | Socrates | review attempts and agents absent from registers | accepted; this Wave plus gate and cleanup rows use the existing accounting surfaces |
+
+## Terminal Review Attempt
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| terminal authority | Linnaeus the 5th (`019f55d3-e2a1-7e31-8fc6-33aa60edff06`) | changes requested |
+| terminal closed-loop | Ramanujan the 5th (`019f55d3-e55f-7303-8c55-9e00d8465da9`) | changes requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-TERM-AUTH-01 | P1 | Linnaeus | D3 dropped unsettled schema-metadata authority | accepted; preserve package-owned schema-description pressure and remove only JSDoc/stale-path clauses |
+| A2-TERM-AUTH-02 | P1 | Linnaeus | barrel rule did not cover named-rule shim re-exports | accepted; add positive generic rule-dependency authority before retiring the exact sentry |
+| A2-TERM-AUTH-03 | P1 | Linnaeus | mixed Foundation split lost recipe composition | accepted; rehome it to recipe-owned generic composition/execution coverage without an exact key mirror |
+| A2-TERM-LOOP-01 | P1 | Ramanujan | packet and ledger overclaimed terminal readiness | accepted; execution remains locked and the active gate is the fresh terminal rerun |
+| A2-TERM-LOOP-02 | P1 | Ramanujan | ledger listed three rather than six dirty paths | accepted; all six bounded paths are named exactly |
+| A2-TERM-LOOP-03 | P2 | Ramanujan | gate finding ids had no durable records | accepted; every initial, affected, and terminal finding now retains id, severity, reviewer, disposition, and repair |
+
+## Terminal Re-review 04
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| terminal authority | Banach the 5th (`019f55dd-4b28-7b13-91a8-939e29d5c2dd`) | passed |
+| terminal closed-loop | Dewey the 5th (`019f55dd-4e18-7650-bfa0-7034a8dee84e`) | one change requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-TERM-RR-01 | P1 | Dewey | two of six dirty paths were described rather than named exactly | accepted; the live ledger now lists all six full repository-relative paths |
+
+## Terminal Condition
+
+Curie the 5th (`019f55e1-f09e-7ba1-8ab7-8d6171acd74c`) passed the narrow
+closed-loop re-review of `A2-TERM-RR-01` against candidate digest
+`e21305995898b149eb27fea191d754d43bc3727a9c7a64d785c3d499737588e4`.
+The prior terminal authority pass remains valid because the repair changed only
+the exact live-state path list and its accounting records. The frame is
+reviewed and admitted for a leased Graphite commit and standalone A.2 launch.
+
+## Base-Boundary Affected Review
+
+The classify-reported `habitat:boundaries` gate exposed a pre-existing source
+dependency defect in three Habitat checks. The execution frame now places one
+bounded repair branch before operation authority work.
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| Nx/Habitat dependency ownership | Lovelace the 5th (`019f55e9-7b9f-7120-b05f-b07709c71c30`) | changes requested |
+| closed-loop prerequisite gates | Jason the 5th (`019f55e9-78fe-7331-a80d-d059463633c7`) | changes requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-BASE-REVIEW-01 | P1 | Lovelace | package exports remain invalid `kind:tooling` dependencies and resolve stale artifacts | accepted; all 11 static imports use the established repository-root file-URL seam, selecting exact source paths except for the one intentional generated-artifact comparison |
+| A2-BASE-REVIEW-02 | P1 | Jason | the prerequisite omitted Habitat's own Biome gate | accepted; `nx run habitat:biome:ci` is now a required closing gate |
+
+A fresh narrow affected reviewer must confirm those two repairs before the
+frame can commit or the standalone A.2 DRA can launch.
+
+## Base-Boundary Re-review 02
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| exact dependency and gate closure | Laplace the 5th (`019f55f3-e917-7ef1-a02e-ce7da14e2bb3`) | one change requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-BASE-RR-01 | P1 | Laplace | the sole intentional generated-artifact dependency could be absent or stale on a clean checkout | accepted; name `dist/recipes/standard-artifacts.js` as the only permitted dist load and run `mod-swooper-maps:gen:studio-recipes-types` immediately before its comparison rule |
+
+The prior file-URL and Biome-gate repairs passed. One fresh micro-review must
+now confirm artifact identity and generation order without reopening those
+settled findings.
+
+## Base-Boundary Terminal Condition
+
+Maxwell the 5th (`019f55f8-ae14-7490-b60a-86cf9b050786`) passed the fresh
+micro-review of `A2-BASE-RR-01`. Nx metadata confirmed that
+`mod-swooper-maps:gen:studio-recipes-types` exists and declares the named
+artifact as output. An isolated clean archive began without that ignored
+artifact, generated it successfully, and then passed
+`verify_standard_recipe_artifacts_match_source_stages`. The prerequisite is
+deterministic from a clean checkout, and the A.2 frame is admitted for commit.
+
+## Base-Biome Discovery
+
+The subsequently run `enforce_formatting_and_import_hygiene` owner reached the
+committed Habitat source and exposed a repo-wide lintEffect corpus rather than
+a bounded prerequisite failure.
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| authority placement and executable gate scope | Heisenberg the 5th (`019f5600-da16-7c30-8e95-a204551cc313`) | changes requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-PLACEMENT-01 | P1 | Heisenberg | root `habitat:biome:ci` reports 764 errors beyond the two inspected fixture diagnostics, so a four-file prerequisite cannot close it | accepted; retain the corpus under the existing `TOOL-EFFECT` owner and replace the impossible root gate with exact changed-file Biome checking |
+| A2-PLACEMENT-02 | P1 | Heisenberg | literal path and text fixture values are not established semantic violations and rewriting them would evade an overbroad selector | accepted; remove the fixture from A.2's write set and leave rule refinement plus genuine repairs to `TOOL-EFFECT` |
+
+The three boundary checks remain the prerequisite's exact write set. One fresh
+affected reviewer must confirm that the focused gate is honest and executable
+without treating it as a waiver over the independent root corpus.
+
+## Focused-Habitat Re-review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| focused authority and gate compatibility | Sagan the 5th (`019f560b-802b-7990-ad93-9553760a67e7`) | one change requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-GATE-BOUNDARY-01 | P1 | Sagan | the specified dynamic `import()` seam satisfies Nx but violates lintEffect's active `prevent-dynamic-imports` rule | accepted; run a bounded solution investigation for a Biome-compliant exact-source loader, with no suppression, boundary weakening, subprocess, stale artifact, or harness expansion |
+
+The TOOL-EFFECT ownership boundary and exact changed-file gate otherwise
+passed. The frame remains locked until the loader mechanism is demonstrated and
+freshly reviewed.
+
+## Exact-Source Loader Investigation
+
+Beauvoir the 5th (`019f560e-42a3-7e42-84c3-4e26f93a9b55`) demonstrated Bun's
+`createRequire` implementation in an isolated clone. A computed absolute path
+anchored at the repository package file leaves Nx with only a static
+`node:module` edge and does not trigger lintEffect's dynamic-import rule. The
+same mechanism already exists in a Studio Habitat check and Habitat policy.
+
+The candidate loaded all six source modules, all ten source-load sites, and the
+one generated artifact; passed focused Biome, strict TypeScript, Bun bundling,
+Nx boundaries, the three rule checks, and diff hygiene; and left the repository
+graph without a Habitat-to-product dependency. Static package imports, literal
+relative `require()`, and dynamic `import()` were each falsified.
+
+Two residuals are resolved in the repaired contract:
+
+- run the artifact generator first so its dependency graph supplies transitive
+  workspace package outputs before any source module loads;
+- constrain `NodeRequire`'s untyped return immediately with local read shapes,
+  without product type imports or escaping `any`.
+
+One fresh affected reviewer must confirm those resolutions before frame commit.
+
+## Loader Affected Review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| strict TypeScript closure | Aquinas the 5th (`019f5616-fd47-7592-a6b8-d9db8df78738`) | one change requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-LOADER-TYPE-01 | P1 | Aquinas | the listed gates did not type-check the three `.habitat` check files or bind the proposed local read-shape contract | superseded by the semantic authority disposition below; the three scripts retire rather than gaining an indirect untyped loader |
+
+## Semantic Authority Disposition
+
+Darwin the 5th (`019f561a-725a-7861-bb2d-0a3adde4bd62`) reviewed every
+assertion against Habitat's authority ledgers, package tests, and Nx ownership.
+No assertion requires a Habitat script that loads product code. The prior
+`createRequire` candidate is rejected because passing mechanical gates would
+hide a real dependency and preserve the wrong owner.
+
+The repaired prerequisite retires all three command packets. Generated
+entrypoint and recipe-artifact behavior moves into the existing Swooper test
+target; generic authoring laws remain in MapGen Core; Studio retains its real
+focus-path consumer test; and exact stage/config-property mirrors are deleted.
+Live authority inventories receive current dispositions while the closed
+historical split wave receives a supersession receipt.
+
+Fresh authority and testing/Nx reviewers must now confirm that this smaller
+topology closes the boundary gate without losing a durable behavior.
+
+## Validator Ownership Review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| Habitat retirement completeness | Godel the 5th (`019f5626-93a8-7d52-a9cb-f33e9930b948`) | one change requested |
+| package testing and Nx reachability | Plato the 5th (`019f5626-90bb-7063-91df-654e17d9e95f`) | changes requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-RET-01 | P1 | Godel | retiring artifact parity would lose generated UI metadata completeness | accepted; derive and compare stage/step identity, full IDs, and focus paths dynamically in the package artifact test, while omitting labels and key maps |
+| A2-NX-001 | P1 | Plato | ordinary tests run after generation, so a stale tracked entrypoint can be overwritten before the assertion observes it | accepted; add one non-cacheable post-generation `generated:check` target that fails on dirty `src/maps/generated`, and make test depend on it |
+| A2-COV-002 | P2 | Plato | the Studio consumer iterates only emitted metadata and cannot detect an omitted stage or step | accepted with A2-RET-01's source-derived structural projection |
+
+One fresh terminal reviewer must confirm these exact repairs and the absence of
+a new target cycle or second brittle oracle.
+
+## Validator Ownership Terminal Review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| repaired ownership and coverage | Einstein the 5th (`019f5630-9209-7330-b7d0-d9773a200588`) | one wording change requested |
+
+| ID | Severity | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- |
+| A2-OWN-001 | P2 | Einstein | the plan overclaimed surviving Habitat ownership of generated-entrypoint structure | accepted; Nx `generated:check` owns currentness, while Habitat owns generated-zone mutation/write protection and workspace boundaries |
+
+The task graph, UI structural projection, post-generation observation, retained
+behavior, and mirror deletion otherwise passed. One fresh exact-owner
+micro-review remains.
+
+## Validator Ownership Terminal Condition
+
+Descartes the 5th (`019f5636-d720-7ff3-ac10-85f614972c3d`) passed the exact
+owner micro-review. Nx owns generated-entrypoint currentness through the new
+post-generation target; Habitat owns generated-zone mutation/write protection
+and workspace dependency boundaries. No surviving Habitat rule is claimed to
+own currentness parity, and no P0-P2 finding remains. The prerequisite and full
+A.2 frame are admitted for commit.
