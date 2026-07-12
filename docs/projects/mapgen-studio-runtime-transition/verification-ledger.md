@@ -1,30 +1,38 @@
 # Verification Ledger
 
-Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 validator-ownership prerequisite sealed; domain-operation authority next; no product closure claim
+Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 validator-ownership and Habitat baseline-manifest prerequisites sealed; domain-operation Authority recreation next; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-12T09:07:34-04:00 EDT
-- Current phase: `a2-domain-operation-authority-admission`
-- Last completed gate: the repaired validator-ownership candidate passed its
-  fresh affected re-reviews and every declared uncached closing gate. One
-  initial `habitat:test` attempt observed the existing generated-`dist`
-  ordering flake; the owner build plus focused, full, and fresh uncached reruns
-  passed without an A.2 harness change.
-- Current gate: admit the exact domain-operation authority child; no authority
-  mutation is active yet.
+- Last updated: 2026-07-12T11:16:15-04:00 EDT
+- Current phase: `a2-domain-operation-authority-recreation`
+- Last completed gate: all affected repairs and re-reviews closed. The authority
+  lane passed; the TypeScript lane found and a fresh implementer repaired
+  A2-HAB-TS-001 environment erasure; the final Effect lane verified the emitted
+  generic-`R` signature. The quality/records lane retained A2-HAB-CQ-003 and
+  found one P3 unused harness field; a fresh cleanup plus final quality-code
+  review passed. A fresh terminal records reviewer then retained CQ-003 after
+  finding that the live candidate scope was undercounted as 12 code/test paths
+  plus five record paths instead of the 13 plus five shown by porcelain. Cached
+  Habitat check and boundaries, 44 focused tests, and the two-part focused
+  Biome gate pass.
+- Current gate: the exact 18-path candidate materialized as one Graphite
+  changeset with sole parent `dd38de22e05b`; receipt-only amendments close the
+  same mutation lease. No domain-operation Authority mutation is active yet.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action: create the exact domain-operation authority child from the
-  sealed prerequisite tip, then continue Ecology, Foundation, Morphology,
-  Hydrology, Resources, and Placement in packet order.
-- Blocked by: no external or product blocker accepted
+- Next action: synchronize the clean detached indexed checkout to the amended
+  tooling tip, recreate Authority above that tip,
+  and continue the committed domain train.
+- Blocked by: no unresolved blocker. The parent adjudicated the missing runtime
+  manifest flow as one legitimate upstream dependency and authorized this
+  exact prerequisite insertion; ordinary red gates remain investigation input.
 - Product/Development DRA: standalone Codex A.2 DRA in
   `wt-agent-sol-a2-domain-operation`; owns the complete Packet A.2 execution
   train, teams, findings, gates, Graphite changesets, and closure candidate
@@ -38,26 +46,31 @@ Normative method:
 - Stage 0 Supervisor/Enforcer DRA: Kierkegaard the 4th
   (`019f5237-deac-7102-b271-50a4d61c1297`); source-freeze review closed-passed
 - Last Graphite mutation lease:
-  `operation:a2-validator-ownership-seal-20260712-01`, opened
-  2026-07-12T09:06:14-04:00. The standalone A.2 DRA is the sole mutator; its
-  scope is the exact reviewed prerequisite write set and its receipt amendment.
-  Starting refs are current/parent `16745e337902`,
-  `main == origin/main == 46943c5f1165`, and readiness
-  `f325250d0878`. The branch is local-only with no remote or PR, no Git
-  operation is active, and the readiness worktree remains excluded. The exact
-  staged set materialized as `62b8dbcc9`; this receipt amendment closes the
-  lease and the amended branch ref is the sealed tip.
+  `operation:a2-baseline-manifest-seal-20260712-01`, opened
+  2026-07-12T11:13:32-04:00. The standalone A.2 DRA is the sole mutator; scope
+  was the exact 18-path reviewed tooling candidate and receipt amendment on the
+  same changeset. Starting current/parent/validator was `dd38de22e05b`; the
+  candidate initially materialized as `26c9c7fa2`; a receipt command created a
+  second local commit, and `gt squash --no-edit --no-interactive` immediately
+  restored the required single changeset with the same sole parent. The amended
+  branch ref is the sealed tip. Main and origin/main remain
+  `46943c5f1165`, readiness remains `f325250d0878`, and the readiness worktree
+  remains excluded.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`
-- Branch/head: sealed `codex/mapgen-generated-validator-ownership`; its sole
-  parent remains
-  `codex/mapgen-domain-operation-topology@16745e337902`. Its immutable recorded
-  `A2_BRANCH_PARENT` is `16745e337902be82b4278f8b57cc5e34c74348f6`.
-- Worktree state: clean after this receipt amendment. No
-  `.playwright-cli` path or Git operation is present; the separate readiness
+- Branch/head: sealed `codex/habitat-rule-introduction-baseline-manifests`; its
+  initial materialization was `26c9c7fa2` and its sole parent remains sealed
+  `codex/mapgen-generated-validator-ownership@dd38de22e05b`. The prior empty
+  `codex/mapgen-domain-operation-authority` branch remains absent until indexed
+  checkout synchronization completes.
+- Worktree state: clean after the receipt-only amendment on the same Graphite
+  changeset. All implementation, review, repair, and records agents are closed.
+  No `.playwright-cli` path or Git operation is present; the separate readiness
   worktree is excluded from mutation.
-- Current-lane Graphite state: `main == origin/main == 46943c5f1165`; Graphite
-  reports the exact frame parent for the sealed child. The branch is local-only,
-  unsubmitted, and has no remote branch or PR.
+- Current-lane Graphite state: validator remains sealed at
+  `dd38de22e05b1c014cc720099591a3a0726686a3`; the tooling branch is one sealed
+  local changeset above that parent.
+  `main == origin/main == 46943c5f1165`; the branch is local-only, unsubmitted,
+  and has no remote branch or PR.
 - Runtime preservation: the prior Studio process receipt is historical and is
   not used as Packet A acceptance. Runtime checks restart from a committed tree.
 
@@ -114,6 +127,17 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | A.2 prerequisite investigation and implementation | current validator corpus, operation train census, Graphite/record process, package/Nx behavior, and Habitat retirement | closed-with-candidate | three read-only investigators and two disjoint implementation agents completed naturally; the integrated candidate passed its focused gates |
 | A.2 prerequisite red-gate investigation | isolated Habitat help-test failure | closed-with-independent-flake-disposition | focused investigator proved generated `dist` build ordering, not the A.2 candidate; focused and full reruns passed after owner build, with no harness edit admitted |
 | A.2 prerequisite implementation review | TypeScript refactoring, code quality/structure, and Habitat/library authority | closed-passed-after-repair | three fresh lanes found three record/inventory P2s; bounded repair and two fresh affected re-reviews closed them; uncached closing gates passed |
+| A.2 Authority admission investigation | six generic rule candidates, fresh baseline keys, Grit behavior, and docs/ledger scope | closed-with-upstream-dependency | the rules require nonempty shrink-only baselines, while the CLI supplied no admitted rule-introduction manifests; empty, advisory, and inferred-admission workarounds were rejected |
+| A.2 baseline-manifest dependency audit | existing Habitat/`TOOL-EFFECT` branches, D2-D7 data flow, TypeBox boundary, and service-test surface | closed-with-no-reuse-decision | no existing deterministic changeset owns the whole contract; the minimal registry relation, shared loader, refusal taxonomy, cache input, and boundary matrix transferred to implementation |
+| A.2 Habitat baseline-manifest implementation | D2 registry facts, D5 loader/integrity/expansion, and real service-boundary tests | closed-with-candidate | all three fresh implementers completed naturally; cached Habitat check/boundaries and 42 focused tests passed, then the independent Biome changed-line selector found one candidate-owned fixture occurrence |
+| A.2 Habitat baseline-manifest review | TypeScript/Effect resources, code quality/module ownership/comments, and Habitat/TypeBox/CLI dependency flow | closed-with-three-p2-findings | TypeScript/Effect and Habitat/TypeBox/CLI lanes passed; quality accepted A2-HAB-CQ-001 through A2-HAB-CQ-003 and transferred each to a fresh repair owner |
+| A.2 Habitat baseline-manifest candidate repair | D5 policy extraction, boundary-state coverage, D2 fixture construction, and sole-live-ledger truth | closed-passed | D5, D2, and boundary repairs closed-passed with 29, 8, and 11 focused tests respectively; both JSONL registers parse and scoped record diff hygiene passed |
+| A.2 Habitat baseline-manifest affected re-review | repaired TypeScript/Effect resources, code/record quality, and Habitat/TypeBox/CLI authority/dependency flow | closed-with-one-p2-and-one-p3-repaired | authority passed; A2-HAB-TS-001 environment erasure and one unused harness field transferred to fresh implementers; the quality/records lane retained A2-HAB-CQ-003 for final enumeration |
+| A.2 Habitat baseline-manifest final repair | generic Effect environment and boundary-harness cleanup | closed-passed | fresh disjoint implementers restored the emitted `R` environment and removed only the dead returned harness property |
+| A.2 Habitat baseline-manifest final re-review | Effect inference/resources and code quality/module ownership/comments | closed-passed | both fresh final lanes found no P0-P3; cached Habitat check/boundaries, 44 focused tests, and focused Biome passed; uncached closing gates remain |
+| A.2 Habitat baseline-manifest closing records | sole-live-ledger, review/gate receipts, cleanup enumeration, and packet command truth | closed-with-count-finding | the first records integrator handed off; terminal review retained A2-HAB-CQ-003 because the live candidate scope was undercounted |
+| A.2 Habitat baseline-manifest terminal records review | exact porcelain categories, terminal agent enumeration, and no-seal boundary | closed-with-one-p2 | 13 code/test paths plus five record paths were observed, not 12 plus five; the finding transferred to a fresh records-count repair owner |
+| A.2 Habitat baseline-manifest records-count repair | exact scope correction on the five existing record surfaces | closed-passed | all count claims report 13 plus five for 18 total; a fresh exact-count re-review passed and closed A2-HAB-CQ-003 |
 
 Stage promotion requires every agent row to be `closed` or explicitly
 transferred to the continuous supervisor.
@@ -246,6 +270,22 @@ prerequisite without admitting dependent authority mutation.
 | Graphite seal | exact 24-file changeset initially materialized as `62b8dbcc9`; `919d840d5` passed the sole-parent, protected-ref, clean-tree, remote/PR, Git-operation, and indexed-checkout assertions; final receipt amended on the same branch commit through `gt modify` |
 | Protected refs | `main == origin/main == 46943c5f1165`; readiness `f325250d0878`; unchanged |
 | Closure boundary | prerequisite only; no domain-operation authority or product operation mutation is included |
+
+### Baseline-Manifest Closing-Gate Admission
+
+| Field | Candidate receipt |
+| --- | --- |
+| Branch and immutable parent | active `codex/habitat-rule-introduction-baseline-manifests@dd38de22e05b`; sealed validator parent `dd38de22e05b1c014cc720099591a3a0726686a3` |
+| Exact candidate scope | 13 D2/D5/code-test paths plus the five existing A.2 record surfaces, for 18 live status paths; no Authority, product, generated, readiness-worktree, or new tracking path |
+| Runtime contract | optional D2 support-file relation reaches referenced-file integrity, authority classification, Nx inputs, and D5 TypeBox 1.3 loading; the same admitted manifest governs D7 integrity and expansion with distinct missing, malformed, and mismatch refusals |
+| Initial review repair | A2-HAB-CQ-001 policy extraction and A2-HAB-CQ-002 boundary-state coverage passed fresh authority and final quality review; the D2 fixture has zero candidate-owned selected Biome diagnostic |
+| Affected review repair | A2-HAB-TS-001 replaced emitted `Effect.Effect<RuleIntroductionManifestAdmission, never, any>` with `<R>(ruleId: string, keys: readonly string[], comparisonBase: string, baselinePath: string, context: RuleIntroductionManifestContext<R>) => Effect.Effect<RuleIntroductionManifestAdmission, never, R>`; the unused `ServiceHarness.deps` property was removed; fresh final Effect and quality-code lanes found no P0-P3 |
+| Records disposition | the first closing-records integration attempted to close A2-HAB-CQ-003, but fresh terminal review found its 12-plus-five scope count stale; the corrected count is 13 plus five for 18, and a fresh exact-count re-review passed with no P0-P3 and closed CQ-003 |
+| Cached candidate gates | `nx run habitat:check --outputStyle=static` passed from cache; `nx run habitat:boundaries --outputStyle=static` passed from cache; the five focused files passed 44/44 tests |
+| Focused Biome | nine full-clean changed files passed `bun biome ci --max-diagnostics=none`; four inherited-corpus files passed `bun biome check --linter-enabled=false --max-diagnostics=none`; aggregate parent/candidate fingerprint remains 36 errors plus 5 infos and the D2 capture has 17 unchanged-parent diagnostics with zero added-line diagnostic |
+| Uncached closing gates | `habitat:boundaries`, `habitat:check`, `habitat:build`, and `habitat:test` passed with cache bypass; build preceded test and the full suite passed 38 files and 345 tests; focused Biome, JSONL identity, exact path count, diff, generated/excluded-path, Git-operation, remote/PR, and protected-ref checks passed |
+| Graphite seal | exact 18-path candidate initially materialized as `26c9c7fa2`; a receipt command briefly created a second local commit, then `gt squash --no-edit --no-interactive` restored one changeset with sole parent `dd38de22e05b`; the final receipt amends that single changeset and protected refs remain unchanged |
+| Closure boundary | tooling prerequisite only; indexed-checkout synchronization and Authority recreation follow the sealed tip, with no product operation mutation included |
 
 ## Stage State
 

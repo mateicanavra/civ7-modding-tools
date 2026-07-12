@@ -25,6 +25,7 @@ import {
   type BaselineRuleContractInput,
   baselineFailureDiagnostic,
   isBaselineLocked,
+  type RuleIntroductionBaselineManifest,
 } from "@habitat/cli/service/model/baseline/index";
 import {
   baselineIntegrityFindingsEffect,
@@ -242,6 +243,12 @@ describe("Habitat baseline contract", () => {
         reason: expect.stringContaining("no accepted rule-introduction baseline manifest"),
       }),
     ]);
+    expect(await guardExpansion("new-rule", ["src/example.ts::diagnostic"], "main", ctx)).toEqual(
+      expect.objectContaining({
+        status: "refused",
+        refusal: expect.objectContaining({ reason: "rule-introduction-manifest-missing" }),
+      })
+    );
 
     expect(
       await checkIntegrity("main", {
@@ -287,10 +294,131 @@ describe("Habitat baseline contract", () => {
     });
   });
 
+  test("loads an introduced rule manifest from its registry support relation", async () => {
+    const fixture = {
+      ruleId: "file-backed-new-rule",
+      key: "src/example.ts::diagnostic",
+    };
+    const manifestPath = `.habitat/rules/${fixture.ruleId}/rule-introduction-baseline.json`;
+    const ctx = createBaselineContext({
+      registry: [rule(fixture.ruleId, { ruleIntroductionManifestPath: manifestPath })],
+      rulePackAtBase: ["existing-rule"],
+      baselinesAtBase: new Map(),
+    });
+    writeBaselineFile(ctx.baselinesDir, fixture.ruleId, [fixture.key]);
+    writeRuleIntroductionManifestFile(ctx.repoRoot, manifestPath, {
+      changeId: "fixture-change",
+      ruleId: fixture.ruleId,
+      ownerProject: "habitat",
+      runner: "grit",
+      baselinePath: `.habitat/baselines/${fixture.ruleId}.json`,
+      initialBaselineKeys: [fixture.key],
+      comparisonBase: "main",
+    });
+
+    expect(await checkIntegrity("main", ctx)).toEqual({ status: "accepted", refusals: [] });
+    expect(await guardExpansion(fixture.ruleId, [fixture.key], "main", ctx)).toMatchObject({
+      status: "accepted",
+      ruleId: fixture.ruleId,
+      keys: [fixture.key],
+    });
+  });
+
+  test("refuses unreadable, invalid JSON, and schema-invalid introduction manifests", async () => {
+    const cases = [
+      {
+        suffix: "unreadable",
+        writeManifest: (_repoRoot: string, _manifestPath: string) => undefined,
+      },
+      {
+        suffix: "invalid-json",
+        writeManifest: (repoRoot: string, manifestPath: string) =>
+          writeRawRuleIntroductionManifestFile(repoRoot, manifestPath, "{"),
+      },
+      {
+        suffix: "invalid-schema",
+        writeManifest: (repoRoot: string, manifestPath: string) =>
+          writeRawRuleIntroductionManifestFile(
+            repoRoot,
+            manifestPath,
+            JSON.stringify({ ruleId: "incomplete" })
+          ),
+      },
+    ];
+
+    for (const item of cases) {
+      const ruleId = `new-rule-${item.suffix}`;
+      const key = `src/${item.suffix}.ts::diagnostic`;
+      const manifestPath = `.habitat/rules/${ruleId}/rule-introduction-baseline.json`;
+      const ctx = createBaselineContext({
+        registry: [rule(ruleId, { ruleIntroductionManifestPath: manifestPath })],
+        rulePackAtBase: ["existing-rule"],
+        baselinesAtBase: new Map(),
+      });
+      writeBaselineFile(ctx.baselinesDir, ruleId, [key]);
+      item.writeManifest(ctx.repoRoot, manifestPath);
+
+      expect(await checkIntegrity("main", ctx)).toMatchObject({
+        status: "refused",
+        refusals: [
+          expect.objectContaining({
+            ruleId,
+            path: manifestPath,
+            reason: "rule-introduction-manifest-malformed",
+          }),
+        ],
+      });
+      expect(await guardExpansion(ruleId, [key], "main", ctx)).toMatchObject({
+        status: "refused",
+        refusal: expect.objectContaining({
+          ruleId,
+          path: manifestPath,
+          reason: "rule-introduction-manifest-malformed",
+        }),
+      });
+    }
+  });
+
+  test("refuses a schema-valid introduction manifest with mismatched authority", async () => {
+    const fixture = {
+      ruleId: "mismatched-new-rule",
+      key: "src/example.ts::diagnostic",
+    };
+    const manifestPath = `.habitat/rules/${fixture.ruleId}/rule-introduction-baseline.json`;
+    const ctx = createBaselineContext({
+      registry: [rule(fixture.ruleId, { ruleIntroductionManifestPath: manifestPath })],
+      rulePackAtBase: ["existing-rule"],
+      baselinesAtBase: new Map(),
+    });
+    writeBaselineFile(ctx.baselinesDir, fixture.ruleId, [fixture.key]);
+    writeRuleIntroductionManifestFile(ctx.repoRoot, manifestPath, {
+      changeId: "fixture-change",
+      ruleId: "different-rule",
+      ownerProject: "habitat",
+      runner: "grit",
+      baselinePath: `.habitat/baselines/${fixture.ruleId}.json`,
+      initialBaselineKeys: [fixture.key],
+      comparisonBase: "main",
+    });
+
+    expect(await checkIntegrity("main", ctx)).toMatchObject({
+      status: "refused",
+      refusals: [expect.objectContaining({ reason: "rule-introduction-manifest-mismatch" })],
+    });
+    expect(await guardExpansion(fixture.ruleId, [fixture.key], "main", ctx)).toMatchObject({
+      status: "refused",
+      refusal: expect.objectContaining({ reason: "rule-introduction-manifest-mismatch" }),
+    });
+  });
+
   test("refuses Graphite child growth when an explicit trusted parent contains the rule", async () => {
     const key = "src/downstack.ts::child-added debt";
     const trunkContext = createBaselineContext({
-      registry: [rule("downstack-rule")],
+      registry: [
+        rule("downstack-rule", {
+          ruleIntroductionManifestPath: ".habitat/rules/downstack-rule/missing-manifest.json",
+        }),
+      ],
       rulePackAtBase: ["unrelated-trunk-rule"],
       baselinesAtBase: new Map(),
     });
@@ -314,7 +442,11 @@ describe("Habitat baseline contract", () => {
     ).toEqual({ status: "accepted", refusals: [] });
 
     const trustedParentContext = createBaselineContext({
-      registry: [rule("downstack-rule")],
+      registry: [
+        rule("downstack-rule", {
+          ruleIntroductionManifestPath: ".habitat/rules/downstack-rule/missing-manifest.json",
+        }),
+      ],
       rulePackAtBase: ["downstack-rule"],
       baselinesAtBase: new Map([["downstack-rule", []]]),
       mergeBase: "trusted-parent-sha",
@@ -418,6 +550,7 @@ function rule(
     ownerProject?: string;
     runner?: string;
     baselinePath?: string;
+    ruleIntroductionManifestPath?: string;
   } = {}
 ): BaselineRuleContractInput {
   return {
@@ -426,6 +559,7 @@ function rule(
     ownerProject: options.ownerProject ?? "habitat",
     runner: options.runner ?? "grit",
     baselinePath: options.baselinePath ?? `.habitat/baselines/${id}.json`,
+    ruleIntroductionManifestPath: options.ruleIntroductionManifestPath,
   };
 }
 
@@ -690,6 +824,24 @@ function baseRuleRecord(id: string) {
 function writeBaselineFile(baselinesDir: string, ruleId: string, entries: string[]) {
   mkdirSync(baselinesDir, { recursive: true });
   writeFileSync(path.join(baselinesDir, `${ruleId}.json`), `${JSON.stringify(entries, null, 2)}\n`);
+}
+
+function writeRuleIntroductionManifestFile(
+  repoRoot: string,
+  manifestPath: string,
+  manifest: RuleIntroductionBaselineManifest
+) {
+  writeRawRuleIntroductionManifestFile(repoRoot, manifestPath, JSON.stringify(manifest, null, 2));
+}
+
+function writeRawRuleIntroductionManifestFile(
+  repoRoot: string,
+  manifestPath: string,
+  contents: string
+) {
+  const absolutePath = path.join(repoRoot, manifestPath);
+  mkdirSync(path.dirname(absolutePath), { recursive: true });
+  writeFileSync(absolutePath, `${contents}\n`);
 }
 
 function writeSubjectLocalBaselineFile(repoRoot: string, ruleId: string, entries: string[]) {

@@ -114,6 +114,9 @@ function referencedAuthorityPaths(rule: HabitatAuthorityRulePathInput): string[]
     paths.push(rule.runner.files.script);
   }
   if (rule.supportFiles?.baseline) paths.push(rule.supportFiles.baseline);
+  if (rule.supportFiles?.ruleIntroductionManifest) {
+    paths.push(rule.supportFiles.ruleIntroductionManifest);
+  }
   return paths;
 }
 

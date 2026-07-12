@@ -1,6 +1,6 @@
 # Packet A.2: Domain Operation Topology
 
-Status: reviewed and ready for frame commit
+Status: execution active; validator ownership and Habitat baseline-manifest prerequisites sealed; Authority next
 
 Parent workstream:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -241,6 +241,7 @@ The A.2 stack is linear and must remain linear:
 ```text
 codex/mapgen-domain-operation-topology               # this frame
   -> codex/mapgen-generated-validator-ownership
+  -> codex/habitat-rule-introduction-baseline-manifests
   -> codex/mapgen-domain-operation-authority
   -> codex/mapgen-domain-operation-ecology
   -> codex/mapgen-domain-operation-foundation
@@ -333,6 +334,91 @@ commit. The authority branch
 starts only after these gates pass from the committed prerequisite tip. This is
 an ownership correction, not permission to redesign generation, the Habitat
 harness, Studio authoring behavior, or the independent lintEffect corpus.
+
+## Tooling Prerequisite: Rule-Introduction Baseline Manifests
+
+Authority admission exposed one upstream Habitat capability gap only after the
+six generic rules produced nonempty initial diagnostic sets: D5 can validate a
+rule-introduction manifest, but the CLI supplies no registry-owned manifest to
+either D7 integrity or baseline expansion. This is a real dependency of the
+shrink-only baseline contract, not permission to weaken it. A comparison of
+the existing Habitat and `TOOL-EFFECT` branches found no deterministic
+changeset that owns the complete runtime flow, so one minimal tooling branch is
+inserted between the sealed validator tip and untouched Authority branch.
+
+Owned work:
+
+- add one optional rule-introduction-manifest support-file relation to D2 rule
+  registry facts, referenced-file integrity, authority-path classification,
+  and Nx target inputs;
+- TypeBox-load and validate the referenced JSON in D5, preserving a distinct
+  malformed refusal from missing and semantic mismatch;
+- supply the admitted manifest through the existing registry contract to both
+  D7 integrity and baseline-expansion paths;
+- cover valid admission, missing relation or file, malformed JSON or schema,
+  semantic mismatch, and write/no-write expansion behavior at the real
+  CLI/service boundary.
+
+The relation remains optional for rules that do not introduce nonempty debt.
+Admission is never inferred from current diagnostics. The branch adds no
+advisory mode, empty-baseline workaround, compatibility path, general Habitat
+refactor, or second authority tree. The existing exact semantic match remains
+authoritative for rule id, owner, runner, baseline path, comparison base, and
+sorted unique initial keys.
+
+Closing gates:
+
+```bash
+nx run habitat:boundaries --skip-nx-cache --outputStyle=static
+nx run habitat:check --skip-nx-cache --outputStyle=static
+nx run habitat:build --skip-nx-cache --outputStyle=static
+nx run habitat:test --skip-nx-cache --outputStyle=static
+bun biome ci --max-diagnostics=none \
+  tools/habitat/src/nx-plugin.ts \
+  tools/habitat/src/service/model/baseline/dto/baseline.schema.ts \
+  tools/habitat/src/service/model/baseline/rule-introduction-manifest.policy.ts \
+  tools/habitat/src/service/model/rules/dto/registry.schema.ts \
+  tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts \
+  tools/habitat/src/service/model/rules/policy/facts.policy.ts \
+  tools/habitat/test/lib/nx-plugin.test.ts \
+  tools/habitat/test/rules/registry/facts.test.ts \
+  tools/habitat/test/service/check-baseline-manifest-service.test.ts
+bun biome check --linter-enabled=false --max-diagnostics=none \
+  tools/habitat/src/service/model/baseline/operations.policy.ts \
+  tools/habitat/src/service/model/rules/repositories/registry.repository.ts \
+  tools/habitat/test/lib/baseline.test.ts \
+  tools/habitat/test/rules/registry/manifest-contract.test.ts
+git diff --check
+git status --short
+```
+
+For changed files that inherit the independent `TOOL-EFFECT` lintEffect
+corpus, the focused Biome gate requires formatter/parser success, an exact
+parent-to-candidate diagnostic-fingerprint comparison, and changed-line
+selection. Every candidate-owned selected diagnostic must be repaired; an
+unchanged inherited fingerprint is neither an A.2 failure nor a waiver of the
+independent corpus.
+
+Three fresh adversarial lanes review TypeScript/Effect inference and resource
+correctness; code quality, module ownership, JSDoc, and cornerstone comments;
+and Habitat baseline authority, TypeBox 1.3 validation, CLI behavior, and D2 to
+D7 dependency flow. Accepted findings receive bounded fresh implementation and
+affected reruns. The branch starts at immutable validator tip
+`dd38de22e05b1c014cc720099591a3a0726686a3`; Authority is recreated above its
+sealed Graphite tip and receives no mutation before then.
+
+The three initial code/test lanes and their affected re-reviews are closed after
+bounded repairs. The final candidate preserves the Effect environment in the
+extracted manifest policy, removes the unused service-harness field,
+distinguishes every declared missing/malformed/mismatch boundary state, and has
+zero candidate-owned selected Biome diagnostics. A terminal records review
+retained A2-HAB-CQ-003 after porcelain showed 13 code/test paths plus the five
+existing record surfaces, not the previously recorded 12 plus five. The exact
+count was repaired to 18 status paths, and a fresh exact-count re-review passed
+with no P0-P3 and closed CQ-003.
+Cached Habitat check and boundaries, 44 focused tests, and both parts of the
+focused Biome gate pass. These are candidate receipts only: uncached closing
+gates, Graphite seal, and Authority admission remain outstanding.
 
 ## Branch 1: Authority
 

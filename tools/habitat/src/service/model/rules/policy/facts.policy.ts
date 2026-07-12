@@ -72,6 +72,9 @@ export function ruleBaselineFacts(records: readonly BaselineRecordInput[]): Rule
     id: rule.id,
     ...(rule.exceptionPath ? { exceptionPath: rule.exceptionPath } : {}),
     ...(rule.supportFiles?.baseline ? { baselinePath: rule.supportFiles.baseline } : {}),
+    ...(rule.supportFiles?.ruleIntroductionManifest
+      ? { ruleIntroductionManifestPath: rule.supportFiles.ruleIntroductionManifest }
+      : {}),
   }));
 }
 
