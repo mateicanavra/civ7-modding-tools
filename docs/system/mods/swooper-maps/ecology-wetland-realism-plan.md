@@ -114,7 +114,7 @@ No public gameplay surface change and no new external config knobs are introduce
 ## Tests and Scenarios
 
 ### Unit tests
-Files to add/update under `mods/mod-swooper-maps/test/ecology/`:
+Files to add or update under `mods/mod-swooper-maps/test/domains/ecology/`:
 - New tests for `compute-feature-substrate` rules:
   - floodplain classification from river/discharge/lowland.
   - intertidal coast classification near sea level.
@@ -124,27 +124,29 @@ Files to add/update under `mods/mod-swooper-maps/test/ecology/`:
 
 ### Step tests
 Update:
-- `mods/mod-swooper-maps/test/ecology/wetlands-step.test.ts`
-- `mods/mod-swooper-maps/test/ecology/vegetation-step.test.ts`
+- `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/ecology-features/steps/plan-wetlands.test.ts`
+- `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/ecology-features/steps/plan-vegetation.test.ts`
 
 Add assertions that planners only claim tiles allowed by eligibility masks.
 
 ### Integration/smoke
 Update or add:
-- `mods/mod-swooper-maps/test/ecology/earthlike-balance-smoke.test.ts`
+- `mods/mod-swooper-maps/test/domains/ecology/earthlike-balance-smoke.test.ts`
+- `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/map-ecology/steps/features-apply.earthlike-balance.test.ts`
 - New targeted scenario test for humid highlands:
   - humid, near-river, high-elevation tiles do not become marsh/bog.
   - lowland floodplain tiles still produce wetlands.
   - tropical low coastal tiles still produce mangroves.
 
 ### Static posture guard
-Confirm `bun habitat check --rule ecology-fudging-guardrails` reports no chance/penalty/multiplier style regressions.
+Run the Habitat targets reported for the changed Ecology and recipe surfaces.
+Do not recreate the retired aggregate lexical scan in package tests.
 
 ## Verification Commands (implementation phase)
-- `bun test mods/mod-swooper-maps/test/ecology/wetlands-step.test.ts`
-- `bun test mods/mod-swooper-maps/test/ecology/vegetation-step.test.ts`
-- `bun test mods/mod-swooper-maps/test/ecology/earthlike-balance-smoke.test.ts`
-- `bun habitat check --rule ecology-fudging-guardrails`
+- `bun test mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/ecology-features/steps/plan-wetlands.test.ts`
+- `bun test mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/ecology-features/steps/plan-vegetation.test.ts`
+- `bun test mods/mod-swooper-maps/test/domains/ecology/earthlike-balance-smoke.test.ts mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/map-ecology/steps/features-apply.earthlike-balance.test.ts`
+- `bun habitat classify <changed-ecology-or-recipe-path>` and its reported Habitat targets
 - Repo-standard typecheck/build commands per existing scripts.
 
 ## Assumptions and Defaults

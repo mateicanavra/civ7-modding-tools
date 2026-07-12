@@ -28,3 +28,4 @@ Scope: `mods/mod-swooper-maps/**`
 - Mod architecture & presets: `docs/system/mods/swooper-maps/`
 - MapGen engine architecture/config: `docs/system/libs/mapgen/MAPGEN.md`
 - Testing overview: `docs/system/TESTING.md`
+- Test corpus guide: `test/README.md`

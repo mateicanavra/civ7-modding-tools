@@ -19,7 +19,7 @@ function writeJson(path: string, value: unknown): void {
 function main(): void {
   const baseline = computeEcologyBaselineV1();
 
-  const fixturesRoot = join(process.cwd(), "test", "fixtures");
+  const fixturesRoot = join(process.cwd(), "test", "support", "fixtures");
   const artifactsPath = join(
     fixturesRoot,
     "ecology-parity",

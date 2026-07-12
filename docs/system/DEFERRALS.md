@@ -62,7 +62,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 
 **Deferred:** 2026-06-10
 **Trigger:** A second stage needs emitted-key coverage guarding, or a new placement step is added (the coverage test's step table is manual and a new step would otherwise rely on review to be noticed).
-**Context:** S7's stretch goal — a `packages/mapgen-viz` registry asserting that emitted dataTypeKeys are declared — is cross-package API design beyond a slice; the shipped guard is `mods/mod-swooper-maps/test/placement/viz-coverage.test.ts` (per-step expected key sets). Owner: placement-realignment (S7 decision log).
+**Context:** S7's stretch goal — a `packages/mapgen-viz` registry asserting that emitted dataTypeKeys are declared — is cross-package API design beyond a slice; the shipped guard is `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/placement/viz-coverage.test.ts` (per-step expected key sets). Owner: placement-realignment (S7 decision log).
 **Scope:** Design a declaration surface for dataTypeKeys in `@swooper/mapgen-viz`; wire emit sites + studio overlay suggestions to it; generalize the coverage check across stages.
 **Impact:** Viz coverage for stages other than placement can silently drift; placement itself is pinned by test.
 
@@ -154,6 +154,22 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 - Broad multi-project Nx proofs can produce flaky failures unrelated to the authority being tested.
 - Reviewers cannot treat full-suite `habitat:check` graph failures as clean signal until this is resolved.
 - For now, use focused owner-target proof commands for Habitat migration slices and record broad-run failures separately when they hit known graph debt.
+
+## DEF-018: Placement product-step dependency direction authority
+
+**Deferred:** 2026-07-11
+**Trigger:** Any placement product step adds or changes a dependency edge, or Habitat gains a recipe-step dependency-graph validator that can express edge direction from registered contracts.
+**Context:** Product steps must depend on upstream products and declared inputs; they must not depend backward on the terminal placement/apply step or its private inputs. The previous package test enforced this by scanning source paths, which is too brittle to preserve as structural authority. Owner: Habitat recipe-step dependency authority, projected through standard recipe contract metadata.
+**Scope:** Define a positive dependency-direction invariant over registered placement step contracts and their artifact/effect edges; validate the graph without exact paths, source tokens, or property-key inventories.
+**Impact:** After the package source scan is removed, the invariant remains documented and review-owned but is not yet an independently executable Habitat rule.
+
+## DEF-019: Placement start-selection ownership authority
+
+**Deferred:** 2026-07-11
+**Trigger:** Any change to the Placement `plan-starts` operation, the `assign-starts` recipe step, start-assignment artifacts, or a proposal to add recipe-side start selection.
+**Context:** Placement domain operations own start selection and publish the selected plan; the recipe layer only materializes and publishes that domain result. The previous package test enforced the boundary through a source-token blacklist, which cannot represent the positive ownership model. Owner: Habitat domain-operation and recipe-step authority, grounded in the Placement public operation and step contracts.
+**Scope:** Add kind-level validation that a start-selection operation remains domain-owned and that recipe steps consume its public result only for materialization/publication; avoid naming internal helpers or freezing current property keys.
+**Impact:** After the package source scan is removed, current contracts and behavior tests retain runtime coverage, but Habitat does not yet enforce the ownership split as a positive structural rule.
 
 ## Project-scoped deferrals
 
