@@ -1,29 +1,30 @@
 # Verification Ledger
 
-Status: Packet A and Packet A.1 closed-passed; A.1a active; no product closure claim
+Status: Packets A, A.1, and A.1a closed-passed; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-12T02:54:00-04:00 EDT
-- Current phase: `packet-a1a-studio-contract-freshness`
-- Last completed gate: Packet A.1 was reproduced at its pre-receipt commit
-  `acfc7f3217ed` from a regular detached Git worktree after a fresh frozen
-  install. The only later amendment is this receipt. The three
-  owner checks passed; MapGen Core passed 121 tests, Civ7 Adapter passed 23,
-  Swooper Maps passed 504 with the same two intentional skips, and the focused
-  Studio Run subset passed 29. Generated artifacts produced no tracked drift.
-- Current gate: restore the serve-mode Studio contract freshness boundary on a
-  dedicated Graphite child without changing production artifact resolution.
+- Last updated: 2026-07-12T04:16:00-04:00 EDT
+- Current phase: `packet-a1a-closed`
+- Last completed gate: A.1a passed strict TypeScript checking, the full Studio
+  check/test/build graph, Studio Habitat 17/17, repository lint, OpenSpec
+  371/371, three dedicated review lanes, and real browser module evaluation
+  after a clean restart from this worktree. Development serve loaded the Studio
+  contract from source, generated recipe artifacts remained on `dist`, and the
+  mounted React root was nonempty with no module-link error.
+- Current gate: align the Codex worktree helper with the canonical Studio
+  lifecycle while preserving private ownership and two-worktree isolation.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
 - Next action:
-  1. repair and verify the serve-mode Studio contract freshness boundary;
+  1. align and verify the already-declared bounded Codex worktree lifecycle
+     helper child;
   2. prepare and execute A.2 domain-operation topology normalization;
   3. continue A.3 static coverage, A.4 preset removal, Packet B control
      ownership, and Packet C rendered acceptance in order.
@@ -40,10 +41,10 @@ Normative method:
   to this DRA and asserted parent/source/sentinel identities before and after
   `gt create`; the omission is `S0-01-LEASE-01`. No mutation lease is active.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
-- Branch/head: `codex/mapgen-swooper-test-topology`, commit subject
-  `test(mapgen): align tests with semantic owners`.
-- Worktree state: clean after the Packet A.1 commit; no `.playwright-cli` files
-  or Git operation are present.
+- Branch/head: `codex/mapgen-studio-dev-contract-freshness`, closing commit
+  subject `fix(studio): keep dev contract imports fresh`.
+- Worktree state: A.1a closing documents are the only additions to the reviewed
+  three-file candidate; no `.playwright-cli` files or Git operation are present.
 - Current-lane Graphite state: `main == origin/main == 46943c5f1165`; the
   receipt-bearing census branch is 42 commits ahead and 0 behind, with 30 valid
   Graphite layers and no restack
@@ -94,6 +95,10 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | A.1 test-topology preparation | historical move recovery, semantic ownership extension, import/path hazards, discovery and Habitat authority | closed-with-scope-correction | the move-only frame was superseded when review found wrong-owner behavior tests, dead source scans, an omitted generic engine law, and an adapter test target gap |
 | A.1 implementation | component-owned test topology, semantic test splits, dead source-scan removal, generic engine-law retention, adapter Nx reachability, Habitat ledger reconciliation | closed | three disjoint implementation agents completed naturally; integrated gates passed |
 | A.1 final review | TypeScript refactoring, code quality/test topology, and library/Habitat correctness | closed-passed | all concrete findings repaired; final bounded rereviews cleared the candidate; all agents closed |
+| A.1a implementation | serve-only Studio contract source alias, deterministic loopback binding, and resolved Vite configuration authority | closed | disjoint Vite and Habitat implementation lanes completed naturally; integrated gates passed |
+| A.1a initial review | TypeScript runtime boundary, code quality/Habitat structure, and current Vite behavior | closed-with-findings | environment restoration, runtime narrowing, semantic alias matching, authority-claim precision, and purpose-comment findings repaired |
+| A.1a boundary investigation | app-local Vite ownership and `.habitat` TypeScript resolution | closed-with-decision | retained Vite ownership in the app and treated the loaded runtime as `unknown`; rejected a root dependency, app helper, copied Vite schema, subprocess, and bespoke checker project |
+| A.1a terminal review | TypeScript refactoring, code quality/Habitat authority, and Vite/library correctness | closed-passed | all three fresh lanes cleared the repaired candidate; all agents closed |
 
 Stage promotion requires every agent row to be `closed` or explicitly
 transferred to the continuous supervisor.
@@ -145,6 +150,25 @@ is closed-passed.
 | test-inclusive TypeScript observation | in-memory TypeScript project using the production options plus `test/**` and Bun/Node types | 281 diagnostics: 223 tests, 48 dev, 10 scripts; 280 are the independent A.3 corpus and one is the existing unresolved `@swooper/mapgen-core/trace` export; touched A.1 files add no diagnostic or moved-path import failure |
 | hygiene | `git diff --check`, added-line suppression/cast scan, and terminology scan | whitespace clean; no added suppression or `any`/`never` cast; no added nonstandard evidence term |
 | committed-tree isolation | regular detached Git worktree at `acfc7f3217ed`, fresh `bun install --frozen-lockfile`, owner checks/builds, affected project tests, focused Studio Run tests, and final tracked-status check | checks passed for MapGen Core, Civ7 Adapter, and Swooper Maps; tests passed 121/121, 23/23, 504/504 with 2 intentional skips, and 29/29 respectively; generated artifacts reproduced without tracked drift |
+
+## Packet A.1a Receipts
+
+These rows bind to the reviewed A.1a candidate immediately before its Graphite
+commit. They close development freshness only; they do not close the rendered
+Run in Game product matrix.
+
+| Surface | Command or method | Result |
+| --- | --- | --- |
+| strict TypeScript boundary | standalone strict `tsc --noEmit` over the Habitat checker and Studio Vite config | passed with no diagnostics |
+| Studio project graph | `NX_DAEMON=false nx run-many -t check,test,build -p mapgen-studio --parallel=3 --skip-nx-cache --outputStyle=static` | all 26 requested and dependent tasks passed; Studio passed 308 tests and the production Vite build completed |
+| Studio Habitat owner | `bun habitat check --owner mapgen-studio --json` | 17/17 passed with no diagnostics or advisories |
+| formatting and lint | `bunx biome check` over the three changed implementation/authority files, then `bun run lint` | passed; all 9 repository lint targets passed |
+| OpenSpec | `bun run openspec:validate` | 371/371 passed |
+| classify routing | one `bun habitat classify` invocation per changed Vite or Habitat path | every available reported target was run and passed; the initial invalid multi-path invocation was discarded and not treated as a gate |
+| runtime health | clean `restart:mapgen-studio --no-build`; daemon `/healthz`; listener inspection | frontend reachable at `127.0.0.1:5173`, daemon healthy at `127.0.0.1:5174`, and daemon repository root matched this worktree |
+| browser module graph | real browser navigation after the clean restart, console/request observation, and React-root inspection | Studio contract source entry returned 200; generated Standard recipe artifacts remained on `dist`; `#root` mounted two children; no module-link error occurred; only the existing favicon 404 was observed |
+| dedicated review lanes | fresh TypeScript refactoring, code quality/Habitat authority, and Vite/library correctness reviews after repairs | all lanes clear |
+| change hygiene | `git diff --check`, changed-file Biome check, terminology/suppression review, and Playwright cleanup | passed; no compatibility alias, broad package alias, source-specific export assertion, suppression, or `.playwright-cli` residue remains |
 
 ## Stage State
 

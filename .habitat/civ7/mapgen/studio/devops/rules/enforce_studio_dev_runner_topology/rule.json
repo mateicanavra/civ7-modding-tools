@@ -12,9 +12,9 @@
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "forbids": "root dev aliases, package daemon watcher scripts, dev target topology drift, retired devLive daemon files, generated/deploy outputs triggering Vite reloads, or Bun watch restarting the Studio daemon during runtime writes",
-  "why": "Studio dev execution topology is structural task authority and should not live in package tests.",
-  "remediate": "Keep Studio dev orchestration in Nx project targets, run the dev daemon with the dev-only bun-source condition without Bun watch, and keep generated/deploy outputs ignored by Vite watch.",
+  "forbids": "root dev aliases, package daemon watcher scripts, dev target topology drift, retired devLive daemon files, Bun watch restarting the Studio daemon during runtime writes, a resolved development-serve host other than 127.0.0.1, a missing or non-exact bare @civ7/studio-contract source alias in resolved development-serve alias configuration, any alias matching the bare @civ7/studio-contract import in resolved production-build alias configuration, or required generated/deploy paths absent from Vite watch ignores",
+  "why": "Studio development-serve topology is structural task authority. The exact bare source alias and absence of a bare-matching production-build alias support the design goal that production builds use package artifacts; this check enforces only those resolved alias invariants, not export-map or package resolution.",
+  "remediate": "Keep Studio development-serve orchestration in Nx project targets, run the dev daemon with the dev-only bun-source condition without Bun watch, configure the resolved Vite host as 127.0.0.1, provide the exact bare @civ7/studio-contract source alias in resolved development-serve aliases, remove aliases matching that bare import from resolved production-build aliases, and include every required generated/deploy path in Vite watch ignores.",
   "message": "MapGen Studio dev runner topology drifted.",
   "pathCoverage": [
     {
