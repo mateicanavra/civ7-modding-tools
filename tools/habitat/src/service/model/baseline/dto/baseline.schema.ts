@@ -16,6 +16,7 @@ export const BaselineRefusalReasonSchema = Type.Union([
   Type.Literal("base-baseline-unreadable"),
   Type.Literal("parser-owned-baseline-without-contract"),
   Type.Literal("rule-introduction-manifest-missing"),
+  Type.Literal("rule-introduction-manifest-malformed"),
   Type.Literal("rule-introduction-manifest-mismatch"),
 ]);
 
@@ -70,6 +71,7 @@ export const BaselineRuleContractInputSchema = Type.Object(
     id: Type.String({ minLength: 1 }),
     exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
     baselinePath: Type.Optional(Type.String({ minLength: 1 })),
+    ruleIntroductionManifestPath: Type.Optional(Type.String({ minLength: 1 })),
     ownerProject: Type.Optional(Type.String({ minLength: 1 })),
     runner: Type.Optional(Type.String({ minLength: 1 })),
   },

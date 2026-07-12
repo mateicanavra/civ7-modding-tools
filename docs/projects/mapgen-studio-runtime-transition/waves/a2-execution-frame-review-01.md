@@ -1,6 +1,6 @@
 # A.2 Execution Frame Review 01
 
-Status: closed-passed
+Status: frame review closed-passed; baseline-manifest reviews closed after repair; closing gates pending
 
 Reviewed surface:
 
@@ -303,3 +303,126 @@ of every lane JSONL has unrelated pre-existing drift is not repaired or claimed
 by A.2; the verification receipt now scopes reconciliation to the canonical
 corpus and affected lane copies. No accepted P1/P2 remains from the
 implementation review.
+
+## Baseline-Manifest Prerequisite Implementation Review
+
+The standalone A.2 DRA ran three fresh adversarial lanes after the minimal
+D2-to-D7 candidate passed its initial typecheck, boundary, and focused-test
+HUD. Authority remains with the sealed validator parent; the domain-operation
+Authority branch is absent and untouched.
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| TypeScript/Effect inference and resource correctness | `a2_baseline_review_ts_effect` | passed; no P0-P3 finding |
+| code quality, module ownership, JSDoc, and cornerstone comments | `a2_baseline_review_quality` | three P2 changes requested |
+| Habitat baseline authority, TypeBox 1.3, CLI behavior, and dependency flow | `a2_baseline_review_authority` | passed; no P0-P3 finding |
+
+| ID | Severity | Confidence | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- | --- |
+| A2-HAB-CQ-001 | P2 | high | `a2_baseline_review_quality` | independently meaningful rule-introduction admission remained in the broad baseline operations module | accepted; a fresh D5-only implementer extracted the private policy and passed Habitat check, 29 focused tests, focused Biome, and diff hygiene; final quality re-review passed |
+| A2-HAB-CQ-002 | P2 | high | `a2_baseline_review_quality` | the service-boundary matrix did not distinguish an absent registry relation from a referenced file disappearing, and omitted the corresponding expansion cases | accepted; a fresh tests-only implementer added both distinctions to report and expansion, producing 11 passing focused cases with zero-write assertions; authority and final quality re-reviews passed |
+| A2-HAB-CQ-003 | P2 | high | `a2_baseline_review_quality` | the sole live ledger simultaneously described implementation and review while saying already-closed implementers were still running | accepted; the first records repair restored intermediate truth and the quality/records re-review correctly kept the finding open through the later repair cycle; the first closing-records integration was then invalidated by terminal review because it undercounted the live candidate scope, so CQ-003 remains open pending fresh exact-count re-review |
+
+The initial passing lanes found no Effect environment leak, resource-scope defect,
+TypeBox 1.3 boundary bypass, baseline-authority weakening, inferred admission,
+CLI consumer divergence, JSDoc defect, or misleading cornerstone comment. All
+three findings were retained through their repair HUDs and fresh affected
+reviews; their terminal dispositions are recorded below.
+
+### Focused Biome Adjudication
+
+`a2_baseline_biome_gate_investigation` compared the parent and candidate rather
+than treating the repo-wide lintEffect corpus as an A.2 obligation. Eight clean
+changed files passed full Biome. Four files with inherited diagnostics passed
+formatter/parser checks, and parent and candidate each reported 36 errors plus
+5 infos with identical path, severity, message, and source fingerprints.
+
+That zero fingerprint delta was not sufficient proof: changed-line selection
+found one candidate-owned `no-naked-object-state-update` occurrence in the
+added manifest-contract fixture. The fresh D2 repair lane rewrote only that
+fixture and passed 8 focused tests, Habitat check, formatter/parser, and a
+changed-line rerun with 17 inherited parent-line diagnostics unchanged and zero
+added-line diagnostic. The earlier claim that no added line selected a
+diagnostic remains withdrawn from the initial attempt. The independent
+`TOOL-EFFECT` corpus remains owned and unwaived; this prerequisite cannot seal
+until the affected reviews and closing reruns pass.
+
+## Baseline-Manifest Affected Re-review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| repaired TypeScript/Effect inference and resources | `a2_baseline_rereview_ts_effect` | one P2 change requested |
+| repaired Habitat authority, TypeBox 1.3, CLI behavior, and dependency flow | `a2_baseline_rereview_authority` | passed; no P0-P3 finding |
+| repaired code quality and records | `a2_baseline_rereview_quality_records` | one P3 code cleanup; A2-HAB-CQ-003 retained until final record enumeration |
+
+| ID | Severity | Confidence | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- | --- |
+| A2-HAB-TS-001 | P2 | high | `a2_baseline_rereview_ts_effect` | the extracted policy derived its read port from a non-generic baseline file-system port and emitted `Effect.Effect<RuleIntroductionManifestAdmission, never, any>`, erasing the required environment | accepted; a fresh Effect-only implementer parameterized the read port, source, context, helpers, and exported operation with `R`; the final emitted signature is `<R>(ruleId: string, keys: readonly string[], comparisonBase: string, baselinePath: string, context: RuleIntroductionManifestContext<R>) => Effect.Effect<RuleIntroductionManifestAdmission, never, R>` and a fresh final Effect re-review passed with no P0-P3 |
+| A2-HAB-CQ-004 | P3 | high | `a2_baseline_rereview_quality_records` | `ServiceHarness.deps` was returned but never read | accepted; a fresh tests-only cleanup removed only the unused interface and returned property; the final quality-code re-review passed with no P0-P3 |
+
+The authority re-review independently passed the repaired D2-to-D7 flow,
+TypeBox 1.3 validation, missing/malformed/mismatch refusals, and report/expansion
+behavior. The final quality-code re-review also closed A2-HAB-CQ-001,
+A2-HAB-CQ-002, and A2-HAB-CQ-004. The first records-only integration named
+every original, repair, affected-review, and final code-review lane while
+keeping the tooling branch unsealed and Authority absent, but its CQ-003 closure
+claim did not survive the terminal records review below.
+
+The repaired candidate then passed the cached
+`nx run habitat:check --outputStyle=static` and
+`nx run habitat:boundaries --outputStyle=static` targets and all 44 tests in the
+five focused files. Nine full-clean changed files passed `bun biome ci`; four
+changed files with inherited `TOOL-EFFECT` diagnostics passed formatter/parser
+checking with lint disabled. The aggregate inherited fingerprint remains 36
+errors plus 5 infos, while the D2 full-file capture contains 17 unchanged-parent
+diagnostics and zero added-line diagnostic. Uncached closing gates and Graphite
+seal are not claimed by this review record.
+
+### Terminal Records Review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| exact live porcelain categories, terminal agent state, and no-seal boundary | `a2_baseline_final_records_review` | one P2 retained under A2-HAB-CQ-003 and transferred to a fresh records-count repair owner |
+
+The reviewer found that the first closing-records integration reported 12
+code/test paths plus five record surfaces for 17 total even though live
+porcelain contained 13 code/test paths plus those five records for 18 total.
+This is retained under the existing A2-HAB-CQ-003 record-truth finding rather
+than creating a new finding family. The fresh
+`a2_baseline_records_count_repair` owner corrected every stale count claim and
+recomputed the same 13-plus-five categories from live porcelain. CQ-003 remains
+nonterminal until a fresh exact-count re-review accepts that repair.
+
+### Exact-Count Re-review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| exact porcelain categories, JSONL identity, refs, and no-seal boundary | `a2_baseline_records_count_rereview` | passed; no P0-P3 finding |
+
+The reviewer independently reproduced 13 code/test paths plus the five existing
+record surfaces for 18 total, found no stale live count claim, parsed both JSONL
+registers without duplicate resource or attempt identities, and confirmed the
+Graphite, protected-ref, `TOOL-EFFECT`, and no-Authority boundaries. This pass
+closes A2-HAB-CQ-003. Uncached closing gates, Graphite seal, indexed-checkout
+synchronization, and Authority admission remain unclaimed.
+
+### Baseline-Manifest Closing Gates
+
+The reviewed candidate passed uncached Habitat boundaries, TypeScript check,
+owner build, and the full 38-file, 345-test suite. The owner build preceded the
+test suite to avoid the known generated-`dist` ordering race. Nine clean changed
+files passed full Biome; four inherited-corpus files passed formatter/parser
+checking with zero candidate-owned selected diagnostic. JSONL identity, the
+exact 13-plus-five status scope, diff hygiene, generated/excluded paths,
+Graphite shape, protected refs, and the absence of Authority, remote, PR, and
+active Git-operation state also passed. This admits only the exact-set tooling
+seal; the commit, indexed-checkout synchronization, and Authority recreation
+remain unclaimed.
+
+The exact 18-path candidate then materialized as Graphite commit `26c9c7fa2`
+with sole parent `dd38de22e05b`. A receipt command briefly created a second
+local commit; `gt squash --no-edit --no-interactive` immediately restored the
+required single changeset, and the final receipt amends that one branch commit.
+The amended branch ref is the sealed tooling tip. Main, origin/main, validator,
+and readiness refs remain unchanged. Indexed-checkout synchronization and
+Authority recreation remain the next execution actions.

@@ -261,6 +261,9 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   ]);
   if (rule.manifestFilePath) inputs.add(workspaceInput(rule.manifestFilePath));
   if (rule.supportFiles?.baseline) inputs.add(workspaceInput(rule.supportFiles.baseline));
+  if (rule.supportFiles?.ruleIntroductionManifest) {
+    inputs.add(workspaceInput(rule.supportFiles.ruleIntroductionManifest));
+  }
   if (rule.ownerProject === "habitat") {
     inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }
