@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
+import { join, normalize } from "node:path";
 
 type PackageJson = { scripts?: Record<string, string> };
 type ProjectJson = {
@@ -17,13 +17,15 @@ type ProjectJson = {
     }
   >;
 };
+type StudioViteCommand = "serve" | "build";
 
 const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
 const appRoot = join(repoRoot, "apps/mapgen-studio");
+const viteConfigPath = join(appRoot, "vite.config.ts");
 const failures: string[] = [];
-const { default: viteConfig } = await import(pathToFileURL(join(appRoot, "vite.config.ts")).href);
+const viteRuntime: unknown = createRequire(join(appRoot, "package.json"))("vite");
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
@@ -35,16 +37,45 @@ function target(projectJson: ProjectJson, name: string) {
   return nxTarget;
 }
 
-async function loadServeConfig() {
-  if (typeof viteConfig === "function") {
-    return await viteConfig({
-      command: "serve",
-      mode: "development",
-      isSsrBuild: false,
-      isPreview: false,
-    });
+function field(value: unknown, name: PropertyKey): unknown {
+  if (typeof value !== "object" || value === null) return undefined;
+  return Reflect.get(value, name);
+}
+
+function aliasMatches(alias: unknown, importId: string): boolean {
+  const find = field(alias, "find");
+  if (typeof find === "string") {
+    return importId === find || importId.startsWith(`${find}/`);
   }
-  return viteConfig;
+
+  return find instanceof RegExp && new RegExp(find.source, find.flags).test(importId);
+}
+
+async function resolveStudioViteConfig(command: StudioViteCommand): Promise<unknown> {
+  const mode = command === "serve" ? "development" : "production";
+  const previousEnvironment = { ...process.env };
+  const resolveConfig = field(viteRuntime, "resolveConfig");
+  if (typeof resolveConfig !== "function") {
+    throw new Error("app-local Vite runtime must expose a callable resolveConfig");
+  }
+
+  Object.assign(process.env, {
+    NODE_ENV: mode,
+    STUDIO_DEV_PORT: "43173",
+    STUDIO_DEV_RPC_TARGET: "http://127.0.0.1:43174",
+  });
+  try {
+    const resolvedConfig: unknown = await Reflect.apply(resolveConfig, viteRuntime, [
+      { root: appRoot, configFile: viteConfigPath },
+      command,
+      mode,
+      mode,
+    ]);
+    return resolvedConfig;
+  } finally {
+    for (const name of Object.keys(process.env)) delete process.env[name];
+    Object.assign(process.env, previousEnvironment);
+  }
 }
 
 const rootPackage = readJson<PackageJson>(join(repoRoot, "package.json"));
@@ -95,7 +126,6 @@ if (JSON.stringify(appPackage.scripts).includes("bun --watch"))
   failures.push("app scripts mention bun --watch");
 
 const daemonSource = readFileSync(join(appRoot, "src/server/daemon/daemon.ts"), "utf8");
-const viteSource = readFileSync(join(appRoot, "vite.config.ts"), "utf8");
 if (existsSync(join(appRoot, "src/server/daemon/devLive.ts"))) {
   failures.push("retired src/server/daemon/devLive.ts must not exist");
 }
@@ -108,12 +138,72 @@ for (const token of ["--conditions bun-source", "src/server/daemon/daemon.ts"]) 
 if (daemonSource.includes("--watch")) {
   failures.push("daemon source comment must not preserve the retired Bun watch command");
 }
-for (const token of ["STUDIO_DEV_PORT", "STUDIO_DEV_RPC_TARGET"]) {
-  if (!viteSource.includes(token)) failures.push(`vite config missing ${token}`);
+
+const serveConfig = await resolveStudioViteConfig("serve");
+const buildConfig = await resolveStudioViteConfig("build");
+
+if (field(serveConfig, "isProduction") !== false) {
+  failures.push("vite serve config must not have production semantics");
+}
+if (field(buildConfig, "isProduction") !== true) {
+  failures.push("vite build config must have production semantics");
 }
 
-const config = await loadServeConfig();
-const ignored = config.server?.watch?.ignored;
+const serveServer = field(serveConfig, "server");
+const serveHost = field(serveServer, "host");
+if (serveHost !== "127.0.0.1") {
+  failures.push(`vite serve host must be 127.0.0.1, got ${String(serveHost)}`);
+}
+const servePort = field(serveServer, "port");
+if (servePort !== 43_173) {
+  failures.push(`vite serve port must honor STUDIO_DEV_PORT, got ${String(servePort)}`);
+}
+const rpcProxy = field(field(serveServer, "proxy"), "/rpc");
+const rpcTarget = typeof rpcProxy === "string" ? rpcProxy : field(rpcProxy, "target");
+if (rpcTarget !== "http://127.0.0.1:43174") {
+  failures.push(`vite /rpc proxy must honor STUDIO_DEV_RPC_TARGET, got ${String(rpcTarget)}`);
+}
+
+const contractImportId = "@civ7/studio-contract";
+const contractAliasPattern = /^@civ7\/studio-contract$/;
+const contractSourceEntry = normalize(join(repoRoot, "packages/studio-contract/src/index.ts"));
+const serveAliases = field(field(serveConfig, "resolve"), "alias");
+const serveContractAliases = Array.isArray(serveAliases)
+  ? serveAliases.filter((alias) => aliasMatches(alias, contractImportId))
+  : [];
+if (serveContractAliases.length !== 1) {
+  failures.push(
+    `vite serve must define exactly one alias for ${contractImportId}, got ${serveContractAliases.length}`
+  );
+} else {
+  const [serveContractAlias] = serveContractAliases;
+  const find = field(serveContractAlias, "find");
+  if (
+    !(find instanceof RegExp) ||
+    find.source !== contractAliasPattern.source ||
+    /[gimy]/.test(find.flags)
+  ) {
+    failures.push(
+      `vite serve alias for ${contractImportId} must use the exact anchored RegExp source ${contractAliasPattern.source} without g, i, m, or y flags`
+    );
+  }
+  const replacement = field(serveContractAlias, "replacement");
+  if (typeof replacement !== "string" || normalize(replacement) !== contractSourceEntry) {
+    failures.push(
+      `vite serve alias for ${contractImportId} must resolve to ${contractSourceEntry}, got ${String(replacement)}`
+    );
+  }
+}
+
+const buildAliases = field(field(buildConfig, "resolve"), "alias");
+const buildContractAliases = Array.isArray(buildAliases)
+  ? buildAliases.filter((alias) => aliasMatches(alias, contractImportId))
+  : [];
+if (buildContractAliases.length > 0) {
+  failures.push(`vite build must not define an alias matching ${contractImportId}`);
+}
+
+const ignored = field(field(serveServer, "watch"), "ignored");
 const requiredIgnores = [
   "**/mods/mod-swooper-maps/dist/**",
   "**/mods/mod-swooper-maps/mod/**",
