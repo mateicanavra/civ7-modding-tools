@@ -7,9 +7,9 @@
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 125,
-    "currentRowCount": 125,
-    "retiredHistoricalRowCount": 30,
+    "liveManifestCount": 122,
+    "currentRowCount": 122,
+    "retiredHistoricalRowCount": 33,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -17,15 +17,15 @@
       "boundary inversion": 6,
       "closed structure inversion": 2,
       "consolidation/dedup": 2,
-      "context admission": 27,
-      "no action": 58,
+      "context admission": 25,
+      "no action": 57,
       "positive authority creation": 8,
       "retirement/garbage collection": 4,
       "runtime/source validation": 3,
       "split by owner": 15
     },
     "packetNeeded": {
-      "false": 125
+      "false": 122
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 2,
@@ -35,19 +35,19 @@
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 1,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 85,
+      "none": 82,
       "packet-complete": 17,
       "transition-decision-accepted": 14
     }
   },
   "gateState": {
-    "currentLayer": "Packet A.1 ecology/hydrology/placement token-authority review repair.",
-    "currentGate": "Closed: five split lexical/path proxy packets are retired; accepted deterministic authored-generation and adjacent boundary rows remain the live authority owners.",
-    "mutationAuthorization": "The explicit Packet A.1 repair authorized this bounded deletion slice. Further rule mutation requires a new named remediation or blueprint-authority slice.",
+    "currentLayer": "Packet A.2 generated-validator ownership prerequisite sealed.",
+    "currentGate": "The exact reviewed prerequisite changeset is sealed through Graphite; dependent mutation requires a fresh domain-operation authority admission and lease.",
+    "mutationAuthorization": "None on the sealed prerequisite branch. The next legal mutation is the committed Packet A.2 domain-operation authority slice on its exact child branch under a fresh lease.",
     "nextSliceId": null,
-    "nextLegalAction": "Complete the already-open non-lexical deterministic authored-generation authority implementation before closing prohibit_ambient_rng_in_authored_generation or selecting a separate remediation slice.",
+    "nextLegalAction": "Create and admit the domain-operation authority child from the sealed prerequisite tip; implement only the packet's six-rule authority split and named retirements.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
-    "sourceCommit": null
+    "sourceCommit": "62b8dbcc9 initial materialization; the amended codex/mapgen-generated-validator-ownership branch ref is the sealed tip"
   },
   "rules": [
     {
@@ -1357,15 +1357,6 @@
       "implementationReadiness": "not implementation-ready; schema metadata policy must be source/package-verify owned before mutation"
     },
     {
-      "ruleId": "validate_generated_map_entrypoint_contracts",
-      "lane": "mixed blueprints",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain generated map entrypoint contract validation against the package-owned map artifact file plan.",
-      "evidenceNote": "The Habitat script derives the canonical config envelope, builds the package file plan, and compares the generated entrypoint set and text to that plan. This generated-output currentness belongs to mod-map authority rather than package behavior tests or Nx boundaries.",
-      "currentPath": ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/rule.json"
-    },
-    {
       "ruleId": "validate_habitat_service_module_file_shape",
       "lane": "non-Civ docs/global/toolkit",
       "actionDecision": "context admission",
@@ -1418,24 +1409,6 @@
       "expectedRemediation": "Admit as contextual manifest/source parity.",
       "evidenceNote": "`orderStandardStages` already makes manifest the runtime order constructor.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/rule.json"
-    },
-    {
-      "ruleId": "verify_standard_recipe_artifacts_match_source_stages",
-      "lane": "standard recipe top-level",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay live as contextual generated standard-recipe artifact parity authority.",
-      "evidenceNote": "Domino 65 confirmed this is not package-test residue: it compares generated standard-artifacts output against source stages, schema, UI metadata, defaults, and the explicit raw-envelope exception for one recipe instance.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json"
-    },
-    {
-      "ruleId": "verify_standard_recipe_public_authoring_surface",
-      "lane": "standard recipe top-level",
-      "actionDecision": "context admission",
-      "packetNeeded": false,
-      "expectedRemediation": "Stay live as contextual standard-recipe public authoring-surface authority.",
-      "evidenceNote": "Domino 65 confirmed this is not package-test residue: it owns exact standard stage public keys, strict schemas, focus paths, and raw-envelope constraints until that surface is parameterized into broader authority. Corrective local-proxy review left this settled: it is already positive standard-stage public authoring authority over all stage models, schemas, keys, and focus paths.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json"
     },
     {
       "ruleId": "verify_visualization_runtime_build_artifacts",
@@ -3739,6 +3712,64 @@
       "previousPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_scoped_ecology_runtime_tokens/rule.json",
       "retiredOn": "2026-07-12",
       "retiredReason": "The rule was both topology-stale and lexically overbroad, with no stable behavioral class."
+    },
+    {
+      "ruleId": "validate_generated_map_entrypoint_contracts",
+      "lane": "mixed blueprints",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Habitat packet deleted; `mod-swooper-maps:generated:check` now owns post-generation tracked-entrypoint currentness.",
+      "evidenceNote": "Packet A.2 rejects a second content oracle in Habitat. The non-cacheable Nx target depends on `gen:maps` and fails on any tracked generated-source drift, while the existing generated-zone write guard remains live.",
+      "currentPath": null,
+      "previousPath": ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredBy": "MapGen Packet A.2 generated-validator ownership prerequisite",
+      "retiredReason": "Generated entrypoint currentness is package/Nx behavior, not Habitat structural authority.",
+      "authorityDestination": {
+        "package": "mods/mod-swooper-maps",
+        "nxTarget": "mod-swooper-maps:generated:check",
+        "dependsOn": "gen:maps"
+      },
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-a2-validator-ownership-supersession.md"
+    },
+    {
+      "ruleId": "verify_standard_recipe_artifacts_match_source_stages",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Habitat packet deleted; Swooper Maps package tests now compare generated standard-recipe schema, defaults, and UI metadata with their source derivations.",
+      "evidenceNote": "The semantic behavior remains under `mod-swooper-maps:test`; Habitat no longer imports package runtime and generated artifacts across Nx boundaries to duplicate package validation.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredBy": "MapGen Packet A.2 generated-validator ownership prerequisite",
+      "retiredReason": "Generated recipe-artifact equivalence is package behavior, not Habitat structural authority.",
+      "authorityDestination": {
+        "package": "mods/mod-swooper-maps",
+        "test": "mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-generated-artifacts.test.ts",
+        "nxTarget": "mod-swooper-maps:test"
+      },
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-a2-validator-ownership-supersession.md"
+    },
+    {
+      "ruleId": "verify_standard_recipe_public_authoring_surface",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Habitat packet deleted; meaningful generated authoring-model projection stays package-tested, while hardcoded public-key and raw property-name mirrors are discarded.",
+      "evidenceNote": "The Swooper test derives UI metadata structure from `STANDARD_STAGES` and `deriveStageAuthoringModel`; MapGen Core keeps generic authoring/schema laws and Studio keeps consumer focus-path resolution. No exact config-key mirror survives as authority.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredBy": "MapGen Packet A.2 generated-validator ownership prerequisite",
+      "retiredReason": "Derived authoring behavior belongs to package tests; brittle config-vocabulary mirrors own no durable invariant.",
+      "authorityDestination": {
+        "package": "mods/mod-swooper-maps",
+        "test": "mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-generated-artifacts.test.ts",
+        "nxTarget": "mod-swooper-maps:test",
+        "delegatedNxTargets": ["mapgen-core:test", "mapgen-studio:test"]
+      },
+      "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-a2-validator-ownership-supersession.md"
     }
   ],
   "staleRules": [

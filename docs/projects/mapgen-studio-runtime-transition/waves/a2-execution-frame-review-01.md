@@ -261,3 +261,45 @@ post-generation target; Habitat owns generated-zone mutation/write protection
 and workspace dependency boundaries. No surviving Habitat rule is claimed to
 own currentness parity, and no P0-P2 finding remains. The prerequisite and full
 A.2 frame are admitted for commit.
+
+## Prerequisite Implementation Review
+
+The standalone A.2 DRA reviewed the implemented validator-ownership candidate
+with three fresh, read-only lanes after the focused implementation gates.
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| TypeScript refactoring and inference | `a2_validator_review_ts` | passed |
+| code quality, behavior preservation, structure, and comments | `a2_validator_review_quality` | one P2 change requested |
+| Habitat, library, and authority correctness | `a2_validator_review_authority` | two P2 changes requested |
+
+| ID | Severity | Confidence | Reviewer | Finding | Disposition and repair |
+| --- | --- | --- | --- | --- | --- |
+| A2-VAL-CQ-001 | P2 | high | `a2_validator_review_quality` | cleanup-ledger gate state claimed a committed, closed prerequisite while the candidate was dirty and in review | accepted with A2-VAL-AUTH-001; fresh records implementer restored candidate/review-pending state and denied dependent-branch authority |
+| A2-VAL-AUTH-001 | P2 | high | `a2_validator_review_authority` | canonical cleanup state contradicted the live uncommitted branch and packet ledger | accepted; the same repair left `sourceCommit` null and limited the next legal action to prerequisite repair and reruns |
+| A2-VAL-AUTH-002 | P2 | high | `a2_validator_review_authority` | source-conversion rows invented `retired_to_package_nx` outside the controlling disposition vocabulary and left mechanical counts stale | accepted; all three rows use `package_local_test_or_validator` with explicit retired/package-Nx facts, and canonical corpus, matrix, mechanical counts, and affected lane copies reconcile |
+
+The TypeScript lane found no material issue in inference, JSON-boundary
+normalization, full-step identity derivation, target-shell portability, package
+exports, or comment quality. The quality and authority lanes otherwise approved
+the retirement mechanics, acyclic Nx graph, retained generated-zone and
+boundary authority, package-owned behavior, and absence of loaders, wrappers,
+aliases, copied business logic, config-key mirrors, or JSDoc/cornerstone-comment
+defects.
+
+## Prerequisite Affected Re-review
+
+| Lens | Reviewer | Verdict |
+| --- | --- | --- |
+| candidate/commit record truth | `a2_validator_rereview_records` | passed |
+| source-conversion taxonomy and counts | `a2_validator_rereview_inventory` | passed for the A.2 rows and canonical corpus, with one pre-existing lane-union limitation |
+
+The record-truth reviewer confirmed that the cleanup ledger remains
+nonterminal, grants no next-branch mutation, preserves all three retirement
+rows, and leaves an honest final-seal update. The inventory reviewer confirmed
+the three affected corpus/lane copies, all 76 canonical corpus rows, and the
+matrix/mechanical totals. Its separate observation that the historical union
+of every lane JSONL has unrelated pre-existing drift is not repaired or claimed
+by A.2; the verification receipt now scopes reconciliation to the canonical
+corpus and affected lane copies. No accepted P1/P2 remains from the
+implementation review.

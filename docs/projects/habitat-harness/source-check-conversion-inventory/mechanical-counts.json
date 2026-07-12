@@ -1,19 +1,20 @@
 {
-  "ruleRecords": 74,
+  "ruleRecords": 76,
   "adapters": 0,
   "sourceCheckRules": 0,
   "activeSourceCheckAdapters": 0,
   "staleAdaptersForNonSourceRules": [],
   "dispositions": {
-    "grit_pattern_authority": 44,
     "data_driven_import_path_rule": 11,
+    "grit_pattern_authority": 45,
+    "needs_projection_contract_surface": 1,
     "needs_split": 5,
     "package_local_test_or_validator": 14
   },
   "lanes": {
     "mapgen-domain": 17,
     "platform-resources": 9,
-    "mapgen-other": 19,
+    "mapgen-other": 21,
     "global-docs-toolkit": 12,
     "mapgen-pipeline": 17
   },
@@ -60,10 +61,11 @@
   ],
   "ownerToolCounts": {
     "grit-check": 36,
-    "command-check": 31,
+    "command-check": 30,
     "file-layer": 5,
     "format-check": 1,
-    "nx": 1
+    "nx": 1,
+    "package-nx": 3
   },
   "convertedFinalRuntimeDeletionRules": ["require_explicit_mapgen_sdk_opt_in"],
   "convertedCommandCheckSplitCanaryRules": [
@@ -86,7 +88,6 @@
     "require_owned_domain_config_catalog_surfaces",
     "require_projection_calls_in_projection_steps",
     "require_recipe_dag_contract_metadata",
-    "validate_mapgen_docs_anchors_and_references",
-    "verify_standard_recipe_public_authoring_surface"
+    "validate_mapgen_docs_anchors_and_references"
   ]
 }
