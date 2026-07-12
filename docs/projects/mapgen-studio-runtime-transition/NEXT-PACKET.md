@@ -1,9 +1,12 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 is next
+Status: takeover control reconciliation sealed; generic Grit diagnostic acquisition reconstruction active; no product closure claim
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
+
+Takeover frame:
+`docs/projects/mapgen-studio-runtime-transition/TAKEOVER-FRAME.md`
 
 Live state:
 `docs/projects/mapgen-studio-runtime-transition/verification-ledger.md`
@@ -24,8 +27,13 @@ codex/studio-run-live-playability@4f501fabfdc6
   -> codex/mapgen-studio-runtime-stage-0-census@76bfbcaa434d
   -> codex/mapgen-studio-complete-config-admission@9b082bac2434 (Packet A)
   -> codex/mapgen-swooper-test-topology@ceb6832e329d (Packet A.1)
-  -> codex/mapgen-studio-dev-contract-freshness (Packet A.1a)
-  -> codex/mapgen-studio-codex-lifecycle-alignment (lifecycle alignment)
+  -> codex/mapgen-studio-dev-contract-freshness@3a2630c1085f (Packet A.1a)
+  -> codex/mapgen-studio-codex-lifecycle-alignment@e69842a4f680
+  -> codex/mapgen-domain-operation-topology@16745e337902 (Packet A.2 frame)
+  -> codex/mapgen-generated-validator-ownership@dd38de22e05b
+  -> codex/habitat-rule-introduction-baseline-manifests@9ff0f711e0d7
+  -> codex/mapgen-runtime-closeout-takeover-frame@8ec2a96e3319
+  -> codex/mapgen-runtime-closeout-control-reconciliation (this changeset)
 ```
 
 The historical source recovery is verified. The config and parity branches
@@ -33,6 +41,24 @@ passed isolated static and behavior checks, but no current-tree rendered
 browser/Civ7 matrix has closed. Those branches are implementation evidence, not
 the product result. Packet A is committed and closed-passed; it establishes the
 complete-config boundary but does not claim the Run in Game product outcome.
+
+## Immediate Execution Boundary
+
+The inherited worktree at
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`
+is preserved read-only evidence. It contains 62 tracked changes and 31
+untracked files with nothing staged; generic provider work, A.2 Authority, and
+record edits are interleaved. Do not stage or transplant that tree.
+
+Proceed in this order:
+
+1. control reconciliation is sealed as one clean child of the takeover frame;
+2. reconstruct and repair generic Grit diagnostic acquisition from source
+   evidence, not from a mixed patch;
+3. land authority-derived fix/apply admission as a separate capability;
+4. recreate A.2 Authority on those clean capability tips;
+5. land atomic reroll before the long domain train unless source mapping proves
+   a real dependency.
 
 ## Prepared Findings
 
@@ -165,6 +191,35 @@ daemon health, and retains private ports, tmux ownership, and teardown. Two
 regular worktrees ran healthy instances concurrently; stopping either one left
 the other instance and the standard Studio runtime healthy.
 
+### G.1. Reconstruct Generic Grit Diagnostic Acquisition
+
+Replace identity-specific source-check/docs adapters with one generic
+`check | apply-dry-run` observation boundary driven by each registered rule's
+acquisition policy. Plan immutable per-rule root pairs once, give every selected
+rule an executed, refused, or explicit `not-applicable` result, and never branch
+on the current rule id, file type, or target path.
+
+Both capabilities use a scoped catalog, empty scoped user config, disabled
+downloads and telemetry, and the installed pinned native binary. Decode pinned
+check JSON and compact apply JSONL through closed TypeBox schemas. Only the
+check report's top-level `paths` proves processed coverage. Apply observation
+requires one final `AllDone` event with `reason: "allMatchesFound"` and
+reconciled match counts. Malformed wire data, a valid but incomplete stream,
+tool unavailability, command failure, and a complete observation remain
+distinct states.
+
+Close with clean scoped Biome, Habitat check/type/test gates, real pinned-CLI
+fixtures proving no mutation and no ambient-config influence, and three fresh
+review agents in the stable review roles.
+
+### G.2. Derive Fix/Apply Admission From Authority
+
+After G.1 seals, remove the hardcoded TypeScript rule list and derive admissible
+transformations from registered authority records. Preserve one-or-many rule
+selection and dry-run planning. Refuse unsupported live mutation; this unit does
+not authorize a general `apply` command. It is absent from the inherited dirt
+and must be implemented and reviewed independently.
+
 ### A.2. Normalize Domain Operation Topology
 
 Execution contract:
@@ -217,6 +272,11 @@ authority review. This stage may delete helpers made redundant by honest
 ownership, but it must not redesign algorithms, configuration semantics, or
 runtime behavior.
 
+The validator-ownership and rule-introduction prerequisites are sealed. The
+current Authority candidate remains preserved only as mixed-tree evidence.
+Recreate it after G.1 and G.2 rather than importing its hunks, then execute
+Ecology, Foundation, Morphology, Hydrology, Resources, and Placement in order.
+
 ### A.3. Close Static Test And Tool Coverage
 
 The current production checks exclude Swooper tests, `src/dev`, most scripts,
@@ -260,6 +320,20 @@ diagnostics with casts. Use recipe-produced complete configs, operation
 may inform deletion decisions; new JUnit, coverage, mutation-testing, or Knip
 infrastructure is not a prerequisite for this runtime train.
 
+### A.3a. Make Reroll One Atomic Authoring Command
+
+Repair the confirmed browser regression before changing the config-selection
+ontology. `reroll` must create the next seed and authoring revision, snapshot
+that exact immutable config, and submit it once. The auto-run observer must see
+that revision as already submitted rather than reinterpret the same user
+command as a second change.
+
+Close with hook-level behavior proving exactly one worker start and one terminal
+generation when Auto-run is enabled, and the same single-start result when it
+is disabled. Dispatch-count tests are insufficient because the defect occurs
+after dispatch, between revision capture and terminal-state reconciliation. Do
+not add another pending-run state or compatibility path.
+
 ### A.4. Collapse The Redundant Preset Ontology
 
 After Packet A is committed, inventory Studio and recipe consumers of the
@@ -278,6 +352,20 @@ Close with real config selection, editing, persistence, import/export,
 Save/Deploy, browser execution, and Run in Game behavior checks. Commit this as
 its own Graphite child before Packet B.
 
+### A.5. Adjudicate Payload Loading And Worker Readiness
+
+Two observed performance concerns remain: the browser eagerly receives the
+complete all-config payload, and the first generation also pays worker startup.
+They are evidence, not yet one accepted packet. After A.4 leaves one
+config-selection path, decide whether they share a cohesive owner and change.
+
+If admitted, selected-config payload loading must stay behind the recipe-owned
+complete-config boundary; it may not reintroduce sparse presets, browser
+merging, or delayed defaulting. Worker readiness must expose one small lifecycle
+handshake without adding a second run state machine. Split the concerns when
+their owners, gates, or failure modes differ. Close only with browser module
+observations, first/warm-run behavior, and unchanged generation output.
+
 ### B. Control oRPC Setup And Start Ownership
 
 Design and implement the missing typed setup/lifecycle capability under
@@ -291,14 +379,15 @@ Close with contract/router/client behavior tests, dedicated TypeScript,
 structure, oRPC, Effect, and direct-control reviews, and one rendered Swooper
 Earthlike run with unchanged Civ7 application PID.
 
-### C. Rendered Acceptance And Matrix
+### C. Certification, Matrices, Archive, And Merge
 
-Exercise the actual button and establish exactly one request from browser
-admission through public status, explicit diagnostics, manifest, deployment,
-setup, start, and request-correlated in-game observation. Then run Latest Juicy,
-Swooper Desert Mountains, and every declared freshness, failure, cancellation,
-conflict, recovery, and redaction row. Reconcile packets and records, run the
-full static gate set, submit and merge the accepted stack, and return to Habitat.
+C is the umbrella across Stages 5 through 8, not a standalone matrix packet
+before recut. First certify every recut branch and close P01-P20 against the
+current contracts while making P21 `runtime-ready`. Then run the complete
+preliminary P21 matrix, archive and reconcile records without changing the
+runtime tree, rerun the complete matrix on the exact submission candidate, and
+submit and merge bottom to top. Any semantic surprise returns to Stage 2; C
+never authorizes product design during recut or archive.
 
 ## Product Loop
 

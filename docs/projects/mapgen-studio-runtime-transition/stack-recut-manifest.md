@@ -90,7 +90,8 @@ recovery is rejected by these timestamped artifacts.
 ## Post-Recovery Current Lineage
 
 The historical opening snapshot above remains immutable. The current lineage
-is a restacked continuation plus three workstream-owned additions:
+is a restacked continuation plus the locally sealed workstream train through
+the reviewed takeover frame:
 
 | Order | Branch | Tip | Tree | Role |
 | --- | --- | --- | --- | --- |
@@ -99,16 +100,26 @@ is a restacked continuation plus three workstream-owned additions:
 | 2 | `codex/mapgen-studio-runtime-transition-planning` | `ca6a06d24fff` | `e1fdd42a43c6` | reviewed planning patch, restacked without semantic patch drift |
 | 3 | `codex/mapgen-studio-config-envelope-runtime-cutover` | `3f5ed12e81a5` | `cee65cc2cc97` | post-planning candidate source; canonical config-envelope cutover |
 | 4 | `codex/mapgen-studio-manifest-parity-replay` | `b2367c50d6ae` | `9fec971dd5dd` | post-planning candidate source; manifest-backed final-surface replay |
+| 5 | `codex/mapgen-studio-runtime-stage-0-census` | `76bfbcaa434d` | `b2f9acbb979e` | lightweight source/control census; historical opening recovery remains immutable |
+| 6 | `codex/mapgen-studio-complete-config-admission` | `9b082bac2434` | `09bac909abb3` | Packet A closed-passed local candidate; complete recipe config admission |
+| 7 | `codex/mapgen-swooper-test-topology` | `ceb6832e329d` | `8b36aa726831` | Packet A.1 closed-passed local candidate; semantic test-owner alignment |
+| 8 | `codex/mapgen-studio-dev-contract-freshness` | `3a2630c1085f` | `37d75f0be6ba` | Packet A.1a closed-passed local candidate; serve/build contract freshness split |
+| 9 | `codex/mapgen-studio-codex-lifecycle-alignment` | `e69842a4f680` | `a67cdf232432` | closed-passed local lifecycle candidate; private worktree ownership alignment |
+| 10 | `codex/mapgen-domain-operation-topology` | `16745e337902` | `4d21d984b55b` | reviewed A.2 execution frame |
+| 11 | `codex/mapgen-generated-validator-ownership` | `dd38de22e05b` | `b2db805e9e01` | sealed A.2 prerequisite; generated validation returned to package/Nx owners |
+| 12 | `codex/habitat-rule-introduction-baseline-manifests` | `9ff0f711e0d7` | `cead8dce8406` | sealed A.2 prerequisite; registry-owned rule-introduction manifests reach runtime |
+| 13 | `codex/mapgen-runtime-closeout-takeover-frame` | `8ec2a96e3319` | `94f656ef318d` | reviewed takeover, DRA transfer, scope supplement, and protected continuation boundary |
 
 Range comparison maps the 39 opening commits to 35 exact restacked patches,
 three conflict-adjusted patches, and one dropped future-Foundry duplicate. The
 historical and current identities remain separate accounting inputs until the
 three adjusted patches receive semantic review.
 
-The two post-planning implementation branches remain local, unsubmitted source
-refs with accounting state `needs-adoption`. They are not pre-authorized final
-sinks. Their focused and isolated branch verification does not close P20, P21,
-or the product matrix.
+The current takeover tip is 50 commits and 871 changed paths above
+`main@46943c5f1165`. The inherited source immediately before the takeover frame
+was 49 commits and 870 paths. All continuation branches remain local and
+unsubmitted. Their isolated gates make them source evidence, not pre-authorized
+final sinks, and do not close P20, P21, or the product matrix.
 
 The independently owned readiness stack moved after the Studio restack and
 before this resumed Stage 0 cohort. Its current sentinel is
@@ -162,7 +173,7 @@ Counts are commits introduced relative to each Graphite parent.
 `P01` through `P14` follow the original packet index. `P15` through `P21`
 follow the remediation packet index.
 
-| Unit | Change | Source commits | Opening cut signal |
+| Unit | Change | Source commits or candidate | Accounting / cut signal |
 | --- | --- | --- | --- |
 | FRAME-ORIGINAL | runtime packet framing | `cd891c31da`, `3a3582645e` | one framing/control layer or distribute packet records |
 | P01 | `studio-run-public-status-diagnostics` | `1f73d48865`, `99051d6df0`, `3c9644ea51` | fold packet commits; split broad Habitat/MapGen repairs from `1f73d` |
@@ -194,10 +205,26 @@ follow the remediation packet index.
 | CONFIG-AUTHORITY | all-config single-source JSON behavior | `d5f81b32a0` plus config regeneration slices from `6b6946fe10` | requires explicit change owner before recut |
 | CONFIG-ENVELOPE | complete portable config admission and one-envelope propagation | `3f5ed12e81a5`; contract, generated config, browser, server, manifest, SDK, diagnostics, and affected OpenSpec slices | candidate source only; Stage 1 must reconcile P01-P02, P04-P20, Save/Deploy, generic TypeBox admission, terminology, and removed structural-test ownership before sink design |
 | CONFIG-PARITY | final-surface replay from the retained run manifest | `b2367c50d6ae`; eight paths | depends on CONFIG-ENVELOPE and consumes P01/P07/P13/P14 diagnostics; behavior tests passed, live Civ7 comparison not run |
+| PACKET-A | complete recipe-config admission | `9b082bac2434` | closed-passed local candidate; retain the generic complete-config boundary and re-certify after recut |
+| PACKET-A1 | test topology and semantic-owner alignment | `ceb6832e329d` | closed-passed local candidate; split only if Stage 3 proves a smaller coherent sink |
+| PACKET-A1A | serve-mode contract freshness | `3a2630c1085f` | closed-passed local candidate; retain the serve/build authority split |
 | TOOL-CONTRACT-ADMISSION | generic non-mutating TypeBox admission behavior | shared adapter slice from `3f5ed12e81a5` | Stage 1 decides whether this is retained generic tooling or config-local behavior |
 | TOOL-STUDIO-STRUCTURAL-TEST-DISPOSITION | removed brittle source/topology tests and their valid residual invariants | deleted Studio source-test slices from `3f5ed12e81a5` | map each deleted assertion to TypeScript, behavior verification, Habitat structure/boundary authority, or terminal deletion; do not recreate code-shape tests |
 | EVIDENCE-VOCABULARY | nonstandard runtime marker, coordinate, authorship, diagnostics, and inspector terminology | SDK, generated artifact, direct-control, Studio runtime, and visualization slices from `3f5ed12e81a5` | cross-owner candidate with no final sink until Stage 1 confirms each professional term and updates its controlling contract |
 | MIXED-LATE | late daemon/config/runtime repair | `6b6946fe10` | must be split by P16-P20, lifecycle, and config owner |
+| CONTROL-TAKEOVER | DRA transfer, closeout scope reconciliation, and protected continuation | `8ec2a96e3319` plus the current control reconciliation | retain one control layer; no final sink topology before Stage 3 |
+| A2-FRAME | closed domain-operation ontology and execution train | `16745e337902` | reviewed execution authority; not product closure |
+| A2-VALIDATOR-OWNERSHIP | generated-validator owner correction | `dd38de22e05b` | sealed prerequisite; package/Nx behavior retained and wrong-owner Habitat checks retired |
+| TOOL-RULE-INTRODUCTION | rule-introduction manifest runtime flow | `9ff0f711e0d7` | sealed generic prerequisite; preserve independently of A.2 rule identities |
+| TOOL-GRIT-DIAGNOSTIC-ACQUISITION | generic `check | apply-dry-run` observation | mixed inherited dirt above `9ff0f711e0d7` | `needs-adoption`; reconstruct and repair on a clean child, never stage the mixed dirt |
+| TOOL-GRIT-FIX-ADMISSION | authority-derived safe transformation admission | no current implementation source | separate post-provider unit; one-or-many selection and dry-run planning retained, unsupported live mutation refused |
+| A2-AUTHORITY | six generic domain-operation authority packets, fixtures, baselines, and retirements | preserved mixed candidate above `9ff0f711e0d7` | `needs-adoption`; re-derive only after both generic Grit capabilities seal |
+| A2-DOMAINS | Ecology, Foundation, Morphology, Hydrology, Resources, and Placement normalization | not started | six ordered semantic slices; re-census operation roots before acceptance |
+| A3-STATIC | test/dev/tool TypeScript authority | planned | close static ownership after A.2 destination paths stabilize |
+| A3A-ATOMIC-REROLL | one authoring command produces one worker start | confirmed browser defect; no admitted implementation yet | independently admissible after the two Grit capability prerequisites unless source mapping proves a real dependency |
+| A4-CONFIG-ONTOLOGY | delete redundant Studio preset ontology | planned | retain only if consumer inventory confirms one complete-config concept |
+| A5-PAYLOAD-READINESS | lazy selected-config payload and worker readiness observations | proposed; cohesion not proven | decide and, if needed, split before admission; not one mandatory packet by default |
+| B-CONTROL-ORPC | daemon-owned typed setup/start/soft-restart composition | planned | precedes P19/P20 integration readiness; no caller-local direct-control choreography |
 | AUTH-FOUNDRY | future foundry and semantic-ratchet authority | PR `#2057`, source `0b09b350f85c`, merged main identity `2eea5f7dedec`; opening draft `9f2e715fe1` | merged main-root authority prerequisite; keep the opening-chain draft reference-only until recovery/accounting permits retirement |
 | EXTERNAL-ENVIRONMENT | clean-worktree environment and Habitat bootstrap repair | PR `#2056`, source `36eb7be574`, merged main identity `ada321597b98` | merged trunk prerequisite; only its Studio handoff obligation enters the lifecycle sink |
 | EXTERNAL-HABITAT-HARNESS | authority-correct Habitat execution and formatting/import harness | PR `#2058`, merged main identity `fab37f842728`; supersedes failed attempt `planning-habitat-formatting-01` | external verification substrate; not a Studio recut source |
@@ -267,6 +294,25 @@ Studio packet dependency.
 Stage 1 may add a hard edge only with a cited owner/behavior reason; branch
 linearization for review is not itself a semantic dependency.
 
+The admitted continuation dependency spine is:
+
+```text
+CONTROL-TAKEOVER
+  -> TOOL-GRIT-DIAGNOSTIC-ACQUISITION
+  -> TOOL-GRIT-FIX-ADMISSION
+  -> A2-AUTHORITY
+
+TOOL-GRIT-FIX-ADMISSION -> A3A-ATOMIC-REROLL
+A2-AUTHORITY + A3A-ATOMIC-REROLL -> A2-DOMAINS
+A2-DOMAINS -> A3-STATIC + A4-CONFIG-ONTOLOGY
+A4-CONFIG-ONTOLOGY -> A5-PAYLOAD-READINESS (only after cohesion decision)
+A2-DOMAINS + A3-STATIC + A4-CONFIG-ONTOLOGY + accepted A5 concerns
+  -> B-CONTROL-ORPC -> P19 -> P20 -> P21 semantic readiness
+```
+
+This is semantic sequencing, not the final sink graph. Stage 3 remains the sole
+place that assigns final Graphite parents and sinks.
+
 ## Proposed Stage 1 Authority Amendments
 
 This is an amendment register, not accepted executable authority. Stage 1 must
@@ -320,6 +366,7 @@ define product behavior.
 | Studio UI semantic fixture repair `#2059@3735af2ada6f` | merged semantic object comparison replaces a byte-whitespace assertion exposed by the harness repair | terminal external prerequisite; not a Studio runtime source |
 | detached `wt-MAPGEN-STUDIO-RUNNER@625c1dc630` | committed work patch-equivalent to current runtime commits; dirty restart script superseded by `d4fca4dd2a`; other churn unrelated | `excluded` |
 | `codex/readiness-final-aggregate-proof-green` and PRs `#2036..#2043` | downstream consumer records an older rule/Studio tree and conflicts in Grit provider files | parked/reference-only through Studio closeout; target-restack, reconcile, reverify, review, then merge after Studio closeout |
+| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation` at `codex/mapgen-domain-operation-authority@9ff0f711e0d7` | preserved mixed tree: 62 tracked changes plus 13 untracked porcelain roots containing 31 files; nothing staged; provider, A.2 Authority, and record edits interleave | in-scope read-only source evidence; never broad-stage, stash, reset, or commit; reconstruct provider first and A.2 Authority later on clean descendants |
 | `studio_runner_parked` | already an ancestor of main | `excluded` |
 | `codex/mapgen-breakpoint-explorer@fd53ac11bf92` | unique unaccepted investigation, no descendant/worktree/remote/PR | intentionally retired through Graphite during planning; identity retained only in the planning audit/cleanup record |
 | `codex/earth-physics-mapgen-foundation-investigation@7cce44db15e1` | unique unaccepted investigation, no descendant/worktree/remote/PR | intentionally retired through Graphite during planning; identity retained only in the planning audit/cleanup record |
@@ -420,19 +467,18 @@ Allowed Graphite accounting states:
 These axes are independent. A behavior can be retained while its source branch
 is superseded.
 
-## Obligation Corpus Contract
+## Corpus Accounting Contract
 
-`obligation-corpus.jsonl` is the row-level companion to this sparse source/sink
-manifest. Exact keys, types, cardinality, nullability, enums, uniqueness,
-kind-specific details, and the TypeBox validation/query procedure live in
-`obligation-corpus-contract.md`. This manifest deliberately does not reproduce a
-second field list. Any row-shape question is answered only by that exact
-camelCase contract; a conflicting row is invalid rather than normalized.
+The planned `obligation-corpus.jsonl` was never instantiated and is not an
+execution prerequisite. `obligation-corpus-contract.md` remains planning
+history. Row-level truth stays in the existing packet/task/evidence records,
+this source/sink manifest, authority manifests and ledgers,
+`gate-register.jsonl`, and `cleanup-register.jsonl`.
 
-The corpus retains one row per obligation even when rows share an execution
-group. No config, diagnostic, Habitat rule, packet gate, or material control
-input may disappear into an aggregate count. The Stage 0 gate records the
-contract, validator, corpus, Effect report, and cross-reference digests.
+No config, diagnostic, Habitat rule, packet gate, source hunk, or material
+control input may disappear into an aggregate count. Coverage is demonstrated
+through those owning records and direct queries; do not construct a second
+validator, collector, or progress database around them.
 
 ## Recut Stop And Recovery Rules
 

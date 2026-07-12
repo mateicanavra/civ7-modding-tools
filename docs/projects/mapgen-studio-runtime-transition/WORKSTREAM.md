@@ -23,6 +23,33 @@ verification, the product loop wins.
 project files provide method, snapshots, corpora, decisions, or handoff context;
 they do not independently declare the current gate.
 
+### Current Scope And Authority Amendment
+
+The reviewed
+`docs/projects/mapgen-studio-runtime-transition/TAKEOVER-FRAME.md` is the
+current interpretation and Stage 2 scope supplement for this workstream. It
+records the direct takeover decision, the expanded closeout corpus, the
+protected inherited candidate, and the remaining stage order. This workstream
+retains execution-method authority; where its older role, admission, or scope
+language conflicts with the takeover frame, this amendment is the controlling
+repair.
+
+The accepted transition decision is to merge the proven product behavior
+without canonizing the current Studio topology as target architecture. That
+decision lives in this amendment and the reviewed takeover frame. A separate
+`TRANSITION.md` is not required merely because the opening artifact plan named
+one. Any later change to that transition decision reopens Stage 1 authority and
+every affected downstream stage.
+
+Stage 2 now includes the locally sealed Packet A, A.1, A.1a, and lifecycle
+candidates; the A.2 validator and rule-introduction prerequisites; generic Grit
+diagnostic acquisition and authority-derived fix admission; A.2 Authority and
+the six domain slices; A.3, A.3a, A.4, and the still-proposed A.5 concerns;
+control-oRPC ownership; P19 and P20 behavior readiness; and P21 semantic
+readiness. Admission is unit-scoped: every disposition needed by the unit being
+executed must be final before that unit mutates. Stage 2 as a whole closes only
+when the complete admitted corpus has zero undecided semantic rows.
+
 ## Opening Packet
 
 Typed inputs:
@@ -48,8 +75,8 @@ Typed inputs:
 
 Selected skills:
 
-- `habitat:systematic-workstream`, `habitat:workstream-runner`,
-  `habitat:workstream-review-loops`, and `habitat:dual-role-workstream`;
+- `habitat:systematic-workstream`, `habitat:workstream-runner`, and
+  `habitat:workstream-review-loops`;
 - `civ7-open-spec-workstream`, `civ7-architecture-authority`, and
   `civ7-product-authority`;
 - `dev:graphite`, `dev:effect-ts`, `dev:orpc`, `dev:typebox`,
@@ -60,11 +87,12 @@ Selected skills:
 
 Selected agent roles:
 
-- one Product/Development DRA and one continuously assigned
-  Supervisor/Enforcer DRA;
+- one accountable takeover DRA holding Product/Development and
+  Supervisor/Enforcer obligations without replacing independent review;
 - fresh bounded research/advisor waves for unresolved evidence;
 - fresh implementation workers with isolated/disjoint write scopes;
-- fresh required review lanes that never implement the slice they review.
+- three stable review responsibilities, each filled by a fresh agent per
+  changeset, that never implement the slice they review.
 
 Hooks/watchers:
 
@@ -93,21 +121,24 @@ Scratch policy:
   retention reason;
 - every stage promotion confirms scratch and active-agent disposition.
 
-## Design Lock
+## Historical Design Lock
 
-Implementation may enter Stage 0 only after all planning-review findings are
-dispositioned, affected review lanes pass on the repaired plan, planning
-artifacts are committed on their own Graphite layer, the Product/Development
-and Supervisor/Enforcer owners are recorded, and Git/Graphite state is clean and
-re-recorded in `verification-ledger.md`.
+This lock was satisfied before Stage 0 and is retained as a non-replayable
+planning receipt. Current execution uses the unit-scoped admission and live
+state above; it must not re-enter this historical supervisor transition.
 
-The planning layer is added as a new child of the unchanged opening tip. Its
-creation may not restack, fold, reparent, or otherwise rewrite an opening source
-ref. Stage 0 freezes and verifies the recovery corpus before any later source
-history mutation.
+Implementation entered Stage 0 only after all planning-review findings were
+dispositioned, affected review lanes passed on the repaired plan, planning
+artifacts were committed on their own Graphite layer, the then-current Product/
+Development and Supervisor/Enforcer owners were recorded, and Git/Graphite state
+was clean and re-recorded in `verification-ledger.md`.
 
-Semantic supervisor review binds exactly the newline-delimited paths in
-`semantic-review-paths.txt`. Reproduce its digest from the repository root with:
+The planning layer was added as a new child of the unchanged opening tip without
+restacking, folding, reparenting, or otherwise rewriting an opening source ref.
+Stage 0 then froze and verified the recovery corpus.
+
+Historical semantic-supervisor review bound exactly the newline-delimited paths
+in `semantic-review-paths.txt`. Its recorded digest procedure was:
 
 ```bash
 set -euo pipefail
@@ -321,8 +352,8 @@ The normative and user-facing term is `config`, refined as `catalog config` or
 `authoring config` where needed. Public docs, UI copy, and contracts must not
 present `preset` as a second product kind. Existing internal `preset` symbols
 are either renamed in the bounded config-authority unit when they cross those
-surfaces or listed in `TRANSITION.md` as disposable internal vocabulary. In
-neither case do they carry separate authority.
+surfaces or recorded by the current transition decision as disposable internal
+vocabulary. In neither case do they carry separate authority.
 
 ### Runtime Mutation Has One Owner
 
@@ -461,12 +492,17 @@ pre-runtime reviews are closed while Stage 6 live rows remain open.
 
 ## Operating Model
 
-This is a dual-role systematic workstream:
+This is a single-accountability systematic workstream:
 
 | Role | Accountable owner | Responsibilities | Forbidden substitution |
 | --- | --- | --- | --- |
-| Product/Development DRA | Current orchestrator | corpus synthesis, decisions, implementation sequencing, Graphite state, evidence claims, finding disposition, commits, merge, closure | cannot self-approve required review lanes |
-| Supervisor/Enforcer DRA | One continuously assigned supervisor for every admitted execution interval, recorded in the live control record | authority drift, scope pressure, evidence integrity, stale record detection, correction transfer, closure readiness | does not implement the watched slice unless the role boundary is explicitly reset |
+| Takeover DRA | Current orchestrator | frame and authority, corpus synthesis, semantic decisions, sequencing, Git/Graphite and process state, evidence claims, finding disposition, commits, merge, drain, and closure | cannot self-approve required review lanes or delegate final synthesis and closure |
+
+The three stable review roles are TypeScript/state-space simplification,
+architecture/authority simplification, and product/runtime/library verification.
+The roles and their closure standards persist; the agent instances do not.
+Every frozen changeset receives three fresh reviewers, with additional
+risk-specific lanes when needed.
 
 Agent waves follow these rules:
 
@@ -478,14 +514,9 @@ Agent waves follow these rules:
 - Required reviews are performed by agents, not replaced by the orchestrator's
   own inspection. The orchestrator remains the final arbiter and dispositions
   every finding.
-- Fresh stage and packet reviewers report findings to the continuous supervisor
-  for the admitted interval; they do not replace that role. Pre-admission
-  planning review uses its named Wave Packet and may close with no execution
-  supervisor assigned, but Stage 0 remains locked until one accepts the live
-  ledger. Supervisor turnover requires a tailing frame,
-  current repo/control-record read, open-correction and agent-fleet transfer,
-  explicit role reassignment in the live ledger, and acceptance by the
-  Product/Development DRA before the former supervisor closes.
+- Fresh stage and packet reviewers report findings to the takeover DRA. They
+  supply independent pressure but do not become persistent supervisors,
+  implementers, Graphite mutators, or closure owners.
 - Prompts name the packet context, authority sources, exact write or review
   scope, expected output, and failure modes to hunt.
 - Only the orchestrator mutates Graphite topology. Concurrent implementation
@@ -595,7 +626,7 @@ The project home is `docs/projects/mapgen-studio-runtime-transition/`.
 | `stack-recut-manifest.md` | Opening snapshot, source-to-sink accounting, and sink branch graph | Stage 0 |
 | `obligation-corpus-contract.md` | Superseded planning rider retained as history; not an executable Stage 0 requirement | planning history |
 | `semantic-review-paths.txt` | Exact self-including path set for reproducible planning semantic digests | planning closure |
-| `TRANSITION.md` | Accepted decision to merge behavior without canonizing current topology | Stage 1 |
+| `TAKEOVER-FRAME.md` | Reviewed transition decision, Stage 2 scope supplement, DRA transfer, philosophy, and continuation boundary | takeover reconciliation |
 | `verification-ledger.md` | Aggregate gate status, review findings/dispositions, evidence invalidation, merge state | Stage 0, maintained throughout |
 | `gate-register.jsonl` | One immutable attempt row per planning, stage, packet, cross-cutting-unit, archive, merge, and cleanup gate | planning closure, appended throughout |
 | `cleanup-register.jsonl` | Lifecycle accounting for agents, scratch, processes, listeners, watchers, tmux sessions, temporary worktrees, recovery artifacts, and protected refs | planning closure, maintained throughout |
@@ -626,18 +657,24 @@ is an index over these rows, not a substitute for them.
 
 ## Planning Closure Loop: Trunk Drain And Design Lock
 
-This loop is pre-execution work, not Stage 0 implementation. It exists because
-the accepted prerequisite cohort must become one exact trunk substrate before
-the Studio source range is decomposed.
+This historical loop is closed and non-replayable. It is retained to explain how
+the planning layer and prerequisite substrate were created; its commands, refs,
+roles, locks, and transitions are not current instructions. Current mutation
+authority and unit admission live in the control amendment, Operating Model,
+Universal Closed Loop, Graphite Mutation Lease, and live ledger.
 
-**Entry gate**
+This loop was pre-execution work, not Stage 0 implementation. It existed because
+the accepted prerequisite cohort had to become one exact trunk substrate before
+the Studio source range was decomposed.
+
+**Historical entry gate**
 
 - the branch census and patch-equivalence decisions are reviewed;
 - the two investigation-branch retirements are explicitly authorized;
 - one global Graphite mutation lease serializes each mutation cohort;
 - the opening Studio source refs remain unchanged.
 
-**Closed-loop work**
+**Historical closed-loop work**
 
 1. Retire only the two explicitly excluded investigation branches after exact
    descendant, worktree, remote, and PR revalidation.
@@ -665,8 +702,8 @@ the Studio source range is decomposed.
    reviews, lock a reproducible semantic digest, run planning static gates, and
    create the planning Graphite child without restacking its ancestors.
 
-The planning-child mutation is one exact cohort. Run this complete block under
-`zsh`; any nonzero assertion aborts the cohort before the next command:
+The planning-child mutation was one exact cohort. The block below is a
+historical command receipt; do not execute it against current refs:
 
 ```bash
 set -euo pipefail
@@ -794,7 +831,7 @@ scan; it cannot close the planning gate. If the refreshed-main source cannot
 target the current cwd deterministically, stop and repair the Habitat execution
 contract rather than restacking the opening chain early.
 
-**Exit gate**
+**Historical exit gate (satisfied; non-replayable)**
 
 - the authorized retirement rows are terminal;
 - refreshed `main` contains the complete five-PR prerequisite cohort and every
@@ -803,9 +840,9 @@ contract rather than restacking the opening chain early.
 - the readiness and parked-runner cohorts retain explicit untouched state;
 - all planning review agents and mutation leases are terminal;
 - the new semantic supervisor digest, classify-reported planning checks, full
-  OpenSpec validation, and planning diff checks are green;
-- the planning branch is committed as a clean child of the unchanged opening
-  tip, and Stage 0 remains locked until an execution supervisor accepts it.
+  OpenSpec validation, and planning diff checks were green;
+- the planning branch was committed as a clean child of the unchanged opening
+  tip, and the historical execution supervisor subsequently accepted Stage 0.
 
 **Narrowing result:** ambient sibling-branch uncertainty becomes one exact
 trunk checkpoint plus one immutable opening source chain.
@@ -951,7 +988,9 @@ are sequential DRA decisions.
 
 **Decision work**
 
-Create `TRANSITION.md` with these explicit decisions:
+Maintain the accepted transition decision in this workstream's Current Scope
+And Authority Amendment and the reviewed takeover frame. It contains these
+explicit decisions:
 
 - this stack merges as behavioral stabilization, not as target runtime
   architecture;
@@ -971,16 +1010,16 @@ Create `TRANSITION.md` with these explicit decisions:
 
 Route the decision durably:
 
-- add a short ADR entry pointing to `TRANSITION.md`;
+- add a short ADR entry pointing to the workstream amendment and takeover frame;
 - add a system `DEFERRALS.md` entry for Foundry realization, Studio behavior
   decomposition, target construction, and exclusive cutover, pointing to the
   project deferral ledger;
-- add a reverse link from `.habitat/AUTHORITY.md` identifying the transition
-  document as the time-bound execution/disposition map for the current Studio
-  transition;
-- link `TRANSITION.md` back to current canonical authority, both packet trains,
-  the future foundry reference, the semantic-ratchet addendum, the ADR, and the
-  system/project deferral records;
+- add a reverse link from `.habitat/AUTHORITY.md` identifying the workstream
+  amendment and takeover frame as the time-bound execution/disposition map for
+  the current Studio transition;
+- link the workstream amendment back to current canonical authority, both packet
+  trains, the future foundry reference, the semantic-ratchet addendum, the ADR,
+  and the system/project deferral records;
 - link the single local-environment Studio handoff as the operational
   composition contract consumed by the lifecycle unit; do not copy that
   contract into packet indexes or deferral records;
@@ -990,9 +1029,9 @@ Route the decision durably:
 Do not add temporal stack-state backlinks to the future foundry document. Its
 target direction should remain independent of this migration's current status.
 The durable ownership/off-ramp law is written directly in
-`.habitat/AUTHORITY.md` and the ADR. `TRANSITION.md` remains subordinate,
-project-scoped rationale and mapping even though Habitat links to it for current
-execution context.
+`.habitat/AUTHORITY.md` and the ADR. This project-scoped amendment and takeover
+frame remain subordinate rationale and execution mapping even when Habitat
+links to them for current context.
 
 Repair executable packet authority during Stage 1, before integration-tree
 implementation:
@@ -1134,7 +1173,9 @@ final stack and not target architecture.
 
 **Entry gate**
 
-- all Stage 1 dispositions are final;
+- every Stage 1 disposition required by the semantic unit being admitted is
+  final; unresolved decisions outside that unit remain visible and block only
+  their dependent work until Stage 2 exit;
 - refreshed `main` contains the exact accepted local-environment repair,
   main-root Foundry authority sink, Habitat harness repair, Studio UI semantic
   fixture repair, and token-value change, with their commits/trees and the
@@ -1142,6 +1183,13 @@ final stack and not target architecture.
 - opening source refs and tree hashes are recorded;
 - every incomplete current obligation has a semantic owner and expected
   evidence class.
+
+The admitted Stage 2 order is control reconciliation; generic diagnostic
+acquisition; generic authority-derived fix admission; recreated A.2 Authority;
+A.3a at the first clean capability boundary unless source mapping proves a real
+dependency; the A.2 domain train; A.3/A.4 and any separately admitted A.5
+concern; control-oRPC; P19; P20; and P21 semantic readiness. Dependency evidence
+may refine this order, but numeric labels and inherited branch shape do not.
 
 **Candidate construction**
 
@@ -2013,8 +2061,8 @@ authority descent. It must include:
   eventual merge commit from the PR record;
 - expected pre-merge stack/worktree state and the terminal-record query for
   exact post-merge state;
-- links to `TRANSITION.md`, deferrals, archived packets, and final verification
-  ledger;
+- links to the workstream transition amendment, takeover frame, deferrals,
+  archived packets, and final verification ledger;
 - what is now safe to assume about Studio behavior;
 - what must not be assumed about target architecture;
 - the exact Habitat authority objective to resume;

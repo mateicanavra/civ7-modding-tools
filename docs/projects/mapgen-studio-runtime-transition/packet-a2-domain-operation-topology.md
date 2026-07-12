@@ -1,6 +1,6 @@
 # Packet A.2: Domain Operation Topology
 
-Status: execution active; validator ownership and Habitat baseline-manifest prerequisites sealed; Authority next
+Status: takeover-controlled; validator ownership and rule-introduction prerequisites sealed; two generic Grit capabilities precede clean Authority recreation
 
 Parent workstream:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -87,10 +87,12 @@ required slots, operation-local `policy/` is removed, and strategy dependencies
 use positive generic authority. The remaining contract-quality question is
 dispositioned below. Later stack integration must drop or supersede the
 sentinel's overlapping execution frame rather than running a second
-operation-interior descent. The current Studio-owned Grit provider is an input
-to A.2, not an A.2 write surface. A runner defect found during execution
-receives its own investigation and owning-stack disposition; it is not repaired
-opportunistically inside a domain branch.
+operation-interior descent. Generic Grit diagnostic acquisition and
+authority-derived fix admission are prerequisites of A.2, not A.2 write
+surfaces. Their inherited mixed candidate is evidence only. Each capability is
+reconstructed, reviewed, and sealed on its own clean layer before Authority is
+recreated; no runner defect is repaired opportunistically inside a domain
+branch.
 
 ## Authority Decision
 
@@ -236,13 +238,18 @@ kind shape generically after the corpus is normalized.
 
 ## Stack
 
-The A.2 stack is linear and must remain linear:
+The continuation stack through A.2 is linear and must remain linear. A.3a is an
+independently owned product layer on that same spine, not an A.2 closure branch:
 
 ```text
 codex/mapgen-domain-operation-topology               # this frame
   -> codex/mapgen-generated-validator-ownership
   -> codex/habitat-rule-introduction-baseline-manifests
+  -> codex/mapgen-runtime-closeout-takeover-frame
+  -> codex/habitat-grit-diagnostic-acquisition
+  -> codex/habitat-authority-derived-fix-admission
   -> codex/mapgen-domain-operation-authority
+  -> codex/mapgen-studio-atomic-reroll              # A.3a; independent of A.2 closure
   -> codex/mapgen-domain-operation-ecology
   -> codex/mapgen-domain-operation-foundation
   -> codex/mapgen-domain-operation-morphology
@@ -251,9 +258,13 @@ codex/mapgen-domain-operation-topology               # this frame
   -> codex/mapgen-domain-operation-placement
 ```
 
-Each branch is a complete, reviewable domino. The next branch starts only
-after the current branch's implementation, focused checks, three review lanes,
-repairs, closing checks, and Graphite commit are complete. Final aggregate
+Each branch is a complete, reviewable domino. Ecology starts from the sealed
+A.3a tip; A.3a is not counted among A.2's Authority-plus-six closure branches.
+If source mapping proves a real dependency that changes this placement, amend
+and review the spine before either branch mutates. Otherwise, the next branch
+starts only after the current branch's implementation, focused checks, three
+review lanes, repairs, closing checks, and Graphite commit are complete. Final
+aggregate
 receipts amend the Placement branch; do not create a bookkeeping-only closure
 branch.
 
@@ -407,7 +418,7 @@ affected reruns. The branch starts at immutable validator tip
 `dd38de22e05b1c014cc720099591a3a0726686a3`; Authority is recreated above its
 sealed Graphite tip and receives no mutation before then.
 
-The three initial code/test lanes and their affected re-reviews are closed after
+The three initial code/test lanes and their affected re-reviews closed after
 bounded repairs. The final candidate preserves the Effect environment in the
 extracted manifest policy, removes the unused service-harness field,
 distinguishes every declared missing/malformed/mismatch boundary state, and has
@@ -417,8 +428,27 @@ existing record surfaces, not the previously recorded 12 plus five. The exact
 count was repaired to 18 status paths, and a fresh exact-count re-review passed
 with no P0-P3 and closed CQ-003.
 Cached Habitat check and boundaries, 44 focused tests, and both parts of the
-focused Biome gate pass. These are candidate receipts only: uncached closing
-gates, Graphite seal, and Authority admission remain outstanding.
+focused Biome gate passed. Uncached Habitat boundaries/check/build/test,
+focused Biome, record integrity, protected-ref, and Graphite seal gates then
+passed. The prerequisite is sealed at `9ff0f711e0d7`; those receipts do not
+admit Authority until the two generic Grit capability layers above are sealed.
+
+## Takeover Capability Prerequisites
+
+Provider investigation exposed two generic prerequisites between the sealed
+rule-introduction tip and Authority:
+
+1. reconstruct diagnostic acquisition as a hermetic, pinned-CLI,
+   TypeBox-decoded `check | apply-dry-run` boundary with explicit per-rule root
+   dispositions and no identity-specific adapter;
+2. derive admissible fix/apply planning from authority records instead of a
+   hardcoded rule list, while preserving multi-rule selection and refusing
+   unsupported live mutation.
+
+The inherited worktree mixes both provider evidence and the A.2 Authority
+candidate. It remains read-only and uncommitted. Authority is re-derived from
+current diagnostics on the clean capability tips; no inherited Authority hunk
+crosses either generic changeset.
 
 ## Branch 1: Authority
 
@@ -807,17 +837,20 @@ These independent findings remain assigned to A.3 and must not expand A.2:
 - broader Studio source-token tests;
 - movement of source-local compile-time tests into owner-local test projects.
 
-## Standalone DRA Contract
+## Takeover DRA Contract
 
-The standalone A.2 DRA is the Product/Development DRA for this packet and owns
-it end to end. The current initiative DRA becomes its Supervisor/Enforcer for
-A.2 and remains accountable for accepting or rejecting the closure candidate.
+The initiative takeover DRA owns A.2 end to end, with Product/Development and
+Supervisor/Enforcer obligations collapsed into one accountable orchestrator.
+That collapse does not replace independent review. Fresh agents fill the stable
+TypeScript/state-space, architecture/authority, and product/runtime/library
+review roles for every sealed changeset.
 
-It must:
+The DRA must:
 
 - use this document as its execution contract and update it only for a
   legitimate semantic deviation that affects later branches;
-- manage fresh implementation and review teams with model-optimized prompts;
+- manage fresh bounded research, implementation, and review teams with
+  model-optimized prompts;
 - use Narsil symbol/reference/import tools and Nx for investigation, never
   Narsil hybrid search;
 - keep each team on one kind of work and each agent on disjoint files;
@@ -830,13 +863,11 @@ It must:
   branch dependency graph; ordinary implementation blockers are investigation
   inputs, not stop conditions.
 
-The child owns team prompts, corpus decisions within sealed authority,
-implementation, finding dispositions, Graphite mutations, ledgers, and the
-closure candidate. The parent coaches branch framing, adjudicates ontology,
-dependency-graph, or same-rank authority deviations, audits branch seals and
-stack shape, and does not duplicate implementation or required reviews. The
-child continues through ordinary blockers after investigation; it pauses only
-when one of those semantic deviations remains undecided.
+Peers may own bounded investigation, disjoint implementation, or fresh review.
+They do not own initiative synthesis, supervise the DRA, mutate Graphite, carry
+partial work across changesets, or accept closure. Ordinary blockers enter an
+investigation/repair loop; a same-rank authority conflict or ontology change is
+recorded and adjudicated before dependent mutation continues.
 
 ## Closure
 
@@ -848,8 +879,8 @@ A.2 closes only when:
 - root and nested barrels contain no displaced algorithms or rules;
 - the brittle Foundation contract-key test is deleted;
 - all A.2 rule baselines are empty and locked;
-- all eight execution branches have complete review lanes and green declared
-  gates;
+- the Authority branch and all six domain branches have complete review lanes
+  and green declared gates;
 - the aggregate checks pass from the committed stack tip;
 - generated artifacts leave no tracked drift;
 - the Graphite stack and active worktree are clean.
