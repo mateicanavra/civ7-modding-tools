@@ -167,6 +167,9 @@ the other instance and the standard Studio runtime healthy.
 
 ### A.2. Normalize Domain Operation Topology
 
+Execution contract:
+`docs/projects/mapgen-studio-runtime-transition/packet-a2-domain-operation-topology.md`
+
 Before repairing the static consumer corpus, normalize every MapGen domain
 operation to the operation blueprint so type and import repairs bind to the
 destination structure rather than transitional modules. The target operation
@@ -193,8 +196,9 @@ sit beside those four surfaces merely because the current corpus does so.
 Begin with a semantic corpus and authority pass, not mechanical file shuffling:
 
 1. bind the target to the active domain-operation and strategy blueprint docs,
-   the authority ledger, and the successful `pedology-classify`,
-   `refine-biome-edges`, and `plan-volcanoes` exemplars;
+   the authority ledger, and the useful contract/strategy/rule separation
+   patterns in `pedology-classify`, `refine-biome-edges`, and
+   `plan-volcanoes`; none is yet a complete topology exemplar;
 2. resolve the current generic structure allowance for `types.ts` and `policy/`
    against this stricter destination through Habitat's normal authority
    mechanism before treating either shape as accepted;
@@ -202,9 +206,10 @@ Begin with a semantic corpus and authority pass, not mechanical file shuffling:
    binding, strategy-owned algorithm, or reusable operation-local rule;
 4. normalize operations in bounded domain slices without changing behavior or
    weakening established import rules;
-5. once the corpus conforms, enable or strengthen the positive Habitat
-   structure authority at the owning blueprint instead of adding bespoke
-   scripts or exact-code assertions.
+5. admit the positive Habitat Structure and generic source-shape rules first
+   with shrink-only baselines, then remove baseline rows per domain until the
+   final source corpus locks every baseline empty. Do not add bespoke scripts
+   or exact-code assertions.
 
 Each slice closes with production typecheck, affected behavior tests, domain
 Habitat checks, and TypeScript refactoring, code-structure, and blueprint

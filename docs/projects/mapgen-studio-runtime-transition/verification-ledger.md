@@ -1,31 +1,37 @@
 # Verification Ledger
 
-Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; no product closure claim
+Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 frame reviewed and ready to commit; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
 ## Live Control State
 
-- Last updated: 2026-07-12T05:19:59-04:00 EDT
-- Current phase: `lifecycle-alignment-closed`
-- Last completed gate: two regular worktrees ran the committed Codex lifecycle
-  helper concurrently on distinct private sockets and port pairs. Both frontend
-  and repository-owned daemon health checks passed; stopping the active
-  worktree's instance left the second instance and standard Studio runtime
-  healthy, and stopping the second left standard Studio healthy.
-- Current gate: prepare and execute A.2 domain-operation topology normalization.
+- Last updated: 2026-07-12T08:08:52-04:00 EDT
+- Current phase: `a2-standalone-launch-prep`
+- Last completed gate: `a2-frame-validator-ownership-review-03` closed the sole
+  exact-owner wording finding. All retained A.2 frame and prerequisite findings
+  are dispositioned with zero open P0-P2. The required empty `rules/` slot
+  remains sealed direct initiative authority.
+- Current gate: create the committed validator-ownership child and regular Git
+  worktree, then launch the standalone A.2 Product/Development DRA with the
+  reviewed packet as its authority.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
 - Next action:
-  1. prepare and execute A.2 domain-operation topology normalization;
+  1. launch and supervise A.2 domain-operation topology normalization;
   2. continue A.3 static coverage, A.4 preset removal, Packet B control
      ownership, and Packet C rendered acceptance in order.
 - Blocked by: no external or product blocker accepted
-- Product/Development DRA: Codex closeout orchestrator in the named worktree
+- Product/Development DRA: Codex closeout orchestrator through A.2 admission;
+  the standalone A.2 DRA takes this role for packet execution after its launch
+  record is committed
+- A.2 Supervisor/Enforcer DRA: Codex closeout orchestrator in the named
+  worktree; owns semantic deviation adjudication and closure acceptance, not
+  duplicate implementation or required reviews
 - Prior Planning Supervisor/Enforcer DRA: Kuhn
   (`019f494a-0ef2-7be2-b0a4-9813c8d040ab`), closed with semantic pass over the
   prior bound corpus; the later alignment handoff reopens affected semantic
@@ -33,14 +39,17 @@ Normative method:
 - Stage 0 Supervisor/Enforcer DRA: Kierkegaard the 4th
   (`019f5237-deac-7102-b271-50a4d61c1297`); source-freeze review closed-passed
 - Last Graphite mutation lease:
-  S0-01 used no pre-recorded durable lease row. Its shell cohort was serialized
-  to this DRA and asserted parent/source/sentinel identities before and after
-  `gt create`; the omission is `S0-01-LEASE-01`. No mutation lease is active.
+  `operation:a2-frame-commit-20260712-02` closed after the exact six-path frame
+  materialized as `196b07e3d`, with sole parent `e69842a4f680`, unchanged main
+  and readiness refs, and a clean ending tree. The prior lease remains honestly
+  released without mutation; S0-01's older procedural omission remains
+  recorded as `S0-01-LEASE-01`.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets`
-- Branch/head: `codex/mapgen-studio-codex-lifecycle-alignment`, commit subject
-  `fix(studio): isolate worktree lifecycle ownership`.
-- Worktree state: clean after lifecycle verification and canonical Swooper
-  artifact regeneration; no `.playwright-cli` files or Git operation are present.
+- Branch/head: `codex/mapgen-domain-operation-topology`; this branch owns the
+  committed A.2 execution contract and launch frame above sole parent
+  `e69842a4f680`.
+- Worktree state: clean after the frame commit receipt. No `.playwright-cli`
+  files or Git operation are present.
 - Current-lane Graphite state: `main == origin/main == 46943c5f1165`; the
   receipt-bearing census branch is 42 commits ahead and 0 behind, with 30 valid
   Graphite layers and no restack
@@ -97,6 +106,8 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | A.1a terminal review | TypeScript refactoring, code quality/Habitat authority, and Vite/library correctness | closed-passed | all three fresh lanes cleared the repaired candidate; all agents closed |
 | lifecycle alignment implementation | canonical Nx daemon composition, private Nx coordination, repository-owned health, and ownership-only teardown | closed | helper and existing environment handoff updated; no new target, watcher, supervisor, or listener-wide cleanup path added |
 | lifecycle alignment review | TypeScript/service boundary, shell code quality, and Nx/tmux/curl/Bun correctness | closed-with-repairs | all three lanes completed; concrete transaction, timeout, same-target, health-ownership, and concurrent-start findings were repaired and exercised by the closing live scenarios |
+| A.2 execution-frame review | authority/sequence, closed-loop DRA operability, and TypeScript/code/test structure | closed-passed | eleven completed reviewers are closed and recorded in `waves/a2-execution-frame-review-01.md` plus the gate/cleanup registers; terminal authority and exact-state lanes passed |
+| A.2 prerequisite ownership review | Nx/Habitat dependency ownership, package validator placement, generated currentness, and retained behavior | closed-passed | thirteen fresh agents are closed; indirect-loader candidates were invalidated, three wrong-owner command checks retire, package/Nx owners retain behavior, and exact config-key mirrors disappear |
 
 Stage promotion requires every agent row to be `closed` or explicitly
 transferred to the continuous supervisor.
