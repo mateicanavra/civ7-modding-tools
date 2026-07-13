@@ -63,7 +63,7 @@
       "cache": false
     },
     "clean": {
-      "cache": true
+      "cache": false
     }
   },
   "analytics": false

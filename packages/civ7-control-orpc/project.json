@@ -5,14 +5,14 @@
   "targets": {
     "build": {
       "command": "node scripts/build.mjs",
-      "dependsOn": ["clean", "^build"],
-      "outputs": ["{projectRoot}/dist/**"],
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"],
       "options": {
         "cwd": "packages/civ7-control-orpc"
       }
     },
     "check:types": {
-      "command": "tsc -p tsconfig.json --noEmit",
+      "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
       "dependsOn": [
         {
           "projects": ["control-direct"],

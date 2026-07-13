@@ -21,5 +21,5 @@ export default defineConfig({
   ],
   format: ["esm", "cjs"],
   target: "es2022",
-  clean: true,
+  clean: ["!**/*.d.ts", "!**/*.d.ts.map"],
 });

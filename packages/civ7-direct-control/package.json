@@ -109,9 +109,9 @@
     }
   },
   "scripts": {
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "test": "vitest run --config vitest.config.ts",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist tsconfig.tsbuildinfo"
   },
   "devDependencies": {
     "@civ7/map-policy": "workspace:*"

@@ -15,11 +15,8 @@
     "build": {
       "command": "node -e \"\"",
       "dependsOn": ["build:bundle"],
-      "cache": true,
-      "outputs": [
-        "{projectRoot}/mod/civ7-intelligence-bridge.modinfo",
-        "{projectRoot}/mod/ui/civ7-intelligence-bridge.js"
-      ],
+      "cache": false,
+      "outputs": [],
       "options": {
         "cwd": "mods/mod-civ7-intelligence-bridge"
       }

@@ -28,8 +28,8 @@ function packageJson(options: WriteProjectScaffoldDecision["request"]) {
       },
     },
     scripts: {
-      build: "tsc -p tsconfig.json",
-      check: "tsc -p tsconfig.json --noEmit",
+      build: "tsc -p tsconfig.json --composite false --incremental false",
+      check: "tsc -p tsconfig.json --noEmit --composite false --incremental false",
       test: "bun test",
       clean: "rimraf dist",
     },

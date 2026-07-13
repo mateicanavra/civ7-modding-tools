@@ -61,6 +61,9 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   same root entrypoint. Package scripts may still call non-Nx local tools such
   as `biome` and `grit` through the script PATH, but package scripts must not
   hide dependency ordering that belongs in Nx `dependsOn`.
+- Put all output-materializing targets for one proof in one Nx invocation so
+  Nx owns their ordering and deduplication. Independent output-materializing
+  graphs must not share a worktree; use separate worktrees for concurrency.
 - Use direct Habitat CLI commands as `bun habitat <subcommand>`. Graph-owned
   Habitat execution is `nx run-many -t habitat:check`.
 - Git hooks are Husky delegators into `bun habitat hook <name>`; hooks reduce local friction, while CI remains authoritative. Pre-commit may restage formatter-touched files only. Resource publishing is an explicit command path documented in `docs/process/resources-submodule.md`, not a hidden default hook side effect.

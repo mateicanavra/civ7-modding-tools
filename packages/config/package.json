@@ -20,7 +20,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "test": "vitest run --config ../../vitest.config.ts --project config",
     "lint": "biome check .",
     "clean": "rimraf dist"

@@ -33,7 +33,7 @@
     "build": {
       "command": "node -e \"\"",
       "cache": false,
-      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/oclif.manifest.json"],
+      "outputs": [],
       "dependsOn": ["build:bin-mode"],
       "options": {
         "cwd": "tools/habitat"

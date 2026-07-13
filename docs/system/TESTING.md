@@ -3,6 +3,24 @@
 This repository routes project test suites through Nx. Projects use Vitest or
 Bun according to their runtime and package contract.
 
+## One graph per output namespace
+
+Nx orders and deduplicates tasks inside one invocation. Put related targets in
+one graph whenever they materialize or consume build output in the same
+worktree:
+
+```bash
+nx run-many --targets=check,test --projects=mod-swooper-maps --parallel=3
+```
+
+Do not run independent output-producing Nx graphs concurrently in one
+worktree. Use separate worktrees when concurrent graphs are necessary; each
+worktree is an isolated mutable output namespace.
+
+TypeScript checks are observation-only. When the effective project config is
+composite or incremental, invoke `tsc --noEmit` with `--composite false
+--incremental false` so the check does not read or write shared build state.
+
 ## Running all tests
 
 ```bash

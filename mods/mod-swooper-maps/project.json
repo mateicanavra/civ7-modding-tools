@@ -7,7 +7,7 @@
       "command": "tsup",
       "dependsOn": ["^build", "gen:maps"],
       "inputs": ["default", "^default"],
-      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "outputs": ["{projectRoot}/mod/maps/**"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -15,7 +15,7 @@
     "build:studio-recipes": {
       "command": "node -e \"\"",
       "cache": false,
-      "outputs": ["{projectRoot}/dist/recipes/**"],
+      "outputs": [],
       "dependsOn": ["gen:studio-recipes-types", "gen:studio-map-catalog"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
@@ -32,7 +32,7 @@
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
         }
       ],
-      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "outputs": ["{projectRoot}/mod/maps/**"],
       "dependsOn": ["^build", "gen:studio-deploy-map-artifacts"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
@@ -40,21 +40,21 @@
     },
     "check": {
       "command": "tsc --noEmit",
-      "dependsOn": ["^build", "build"],
+      "dependsOn": ["build"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
     },
     "test": {
       "command": "bun test",
-      "dependsOn": ["^build", "build:studio-recipes", "generated:check", "habitat:check"],
+      "dependsOn": ["build", "build:studio-recipes", "generated:check", "habitat:check"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
     },
     "test:studio-run-in-game": {
       "command": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-imports.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
-      "dependsOn": ["build:studio-recipes"],
+      "dependsOn": ["build", "build:studio-recipes"],
       "cache": true,
       "options": {
         "cwd": "mods/mod-swooper-maps"
@@ -83,7 +83,13 @@
         }
       ],
       "inputs": ["default", "^default"],
-      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "outputs": [
+        "{projectRoot}/src/maps/generated/**",
+        "{projectRoot}/mod/config/config.xml",
+        "{projectRoot}/mod/swooper-maps.modinfo",
+        "{projectRoot}/mod/data/biome-hazards.xml",
+        "{projectRoot}/mod/text/en_us/MapText.xml"
+      ],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -106,7 +112,13 @@
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
         }
       ],
-      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "outputs": [
+        "{projectRoot}/src/maps/generated/**",
+        "{projectRoot}/mod/config/config.xml",
+        "{projectRoot}/mod/swooper-maps.modinfo",
+        "{projectRoot}/mod/data/biome-hazards.xml",
+        "{projectRoot}/mod/text/en_us/MapText.xml"
+      ],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -115,7 +127,7 @@
       "command": "node -e \"\"",
       "dependsOn": ["gen:map-artifacts"],
       "cache": false,
-      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "outputs": [],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }

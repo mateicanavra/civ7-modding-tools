@@ -15,8 +15,8 @@ describe("Habitat project generator", () => {
     expect(packageJson).toMatchObject({
       name: "plugin-rules",
       scripts: {
-        build: "tsc -p tsconfig.json",
-        check: "tsc -p tsconfig.json --noEmit",
+        build: "tsc -p tsconfig.json --composite false --incremental false",
+        check: "tsc -p tsconfig.json --noEmit --composite false --incremental false",
         test: "bun test",
       },
     });
