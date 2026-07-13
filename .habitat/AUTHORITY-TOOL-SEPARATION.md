@@ -68,9 +68,10 @@ complete observation may become clean or findings. Apply dry-run here is
 diagnostic observation only. It grants no live-write, rollback, fix-admission,
 or safe-apply authority.
 
-Fix planning is admitted separately and atomically by
-`runner.fix: { kind: "plan-only", pattern }`. The registered record owns both
-the decision and the normalized pattern asset. Habitat may observe that pattern
+Fix preview is admitted separately and atomically by
+`runner.fix: { kind: "preview-only", pattern, effects }`. The registered record owns
+the decision, normalized pattern asset, and closed file-effect authority.
+Habitat may observe that pattern
 for one or many selected rules, but it never infers admission from diagnostic
 policy, remediation prose, a sibling file, or a rule id. No current fix
 capability writes source files.

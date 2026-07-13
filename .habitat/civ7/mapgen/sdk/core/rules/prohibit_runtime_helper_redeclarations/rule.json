@@ -37,8 +37,9 @@
     },
     "patternName": "prohibit_runtime_helper_redeclarations",
     "fix": {
-      "kind": "plan-only",
-      "pattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
+      "kind": "preview-only",
+      "pattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md",
+      "effects": ["modify"]
     }
   }
 }

@@ -110,7 +110,7 @@ export function ruleFixFacts(records: readonly RuleRegistryRecord[]): RuleFixFac
     pathCoverage: clonePathCoverage(rule.pathCoverage),
     scanRoots: [...rule.scanRoots],
     patternName: rule.runner.patternName,
-    fix: { ...rule.runner.fix },
+    fix: { ...rule.runner.fix, effects: [...rule.runner.fix.effects] },
   }));
 }
 

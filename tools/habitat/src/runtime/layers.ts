@@ -11,7 +11,7 @@ import { HabitatPlatform, makeHabitatPlatformService } from "@habitat/cli/resour
 import { HabitatReporterLive } from "@habitat/cli/resources/reporter/index";
 import {
   makeGritRuleDiagnosticsLayer,
-  makeGritRuleFixPlanningLayer,
+  makeGritRuleFixPreviewLayer,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 import {
   loadRuleRegistryDocumentEffect,
@@ -53,10 +53,10 @@ const HabitatRepoScopedLive = Layer.unwrapEffect(
     const diagnostics = makeGritRuleDiagnosticsLayer(config.repoRoot).pipe(
       Layer.provide(Layer.merge(coreProviders, catalog))
     );
-    const fixPlanning = makeGritRuleFixPlanningLayer(config.repoRoot).pipe(
+    const fixPreview = makeGritRuleFixPreviewLayer(config.repoRoot).pipe(
       Layer.provide(Layer.merge(coreProviders, catalog))
     );
-    return Layer.mergeAll(coreProviders, catalog, diagnostics, fixPlanning);
+    return Layer.mergeAll(coreProviders, catalog, diagnostics, fixPreview);
   })
 );
 

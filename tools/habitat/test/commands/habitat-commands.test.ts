@@ -19,7 +19,7 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
 const mockCheckReport = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
 const mockClassifyTarget = vi.hoisted(() => vi.fn());
-const mockFixPlanPatterns = vi.hoisted(() => vi.fn());
+const mockFixPreviewPatterns = vi.hoisted(() => vi.fn());
 const mockCreateLiveHabitatServiceContext = vi.hoisted(() => vi.fn());
 const mockGraphWorkspaceGraph = vi.hoisted(() => vi.fn());
 const mockHookPreCommit = vi.hoisted(() => vi.fn());
@@ -76,7 +76,7 @@ vi.mock("@orpc/server", () => ({
   createRouterClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, report: mockCheckReport },
     classify: { target: mockClassifyTarget },
-    fix: { planPatterns: mockFixPlanPatterns },
+    fix: { previewPatterns: mockFixPreviewPatterns },
     graph: { workspaceGraph: mockGraphWorkspaceGraph },
     hook: { preCommit: mockHookPreCommit, prePush: mockHookPrePush },
     verify: { changes: mockVerifyChanges },
@@ -144,7 +144,7 @@ describe("Habitat oclif commands", () => {
       unavailableTargets: [],
       recoveryInstructions: [],
     }));
-    mockFixPlanPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
+    mockFixPreviewPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphWorkspaceGraph.mockResolvedValue({
       kind: "completed",
       graph: { nodes: {} },
@@ -312,7 +312,7 @@ describe("Habitat oclif commands", () => {
     await Fix.run(["--dry-run"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixPlanPatterns).toHaveBeenCalledWith({});
+    expect(mockFixPreviewPatterns).toHaveBeenCalledWith({});
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
   });
@@ -320,18 +320,18 @@ describe("Habitat oclif commands", () => {
   test("fix forwards repeatable rule selection in first-seen CLI order", async () => {
     await Fix.run(["--dry-run", "--rule", "second", "--rule", "first", "--rule", "second"]);
 
-    expect(mockFixPlanPatterns).toHaveBeenCalledWith({ rules: ["second", "first", "second"] });
+    expect(mockFixPreviewPatterns).toHaveBeenCalledWith({ rules: ["second", "first", "second"] });
   });
 
   test("fix help describes the no-write diagnostic path and live-mutation refusal", async () => {
     const result = spawnSync(
-      process.execPath,
+      "bun",
       [resolve(dirname(fileURLToPath(import.meta.url)), "../../bin/dev.ts"), "fix", "--help"],
       { encoding: "utf8" }
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("admitted Habitat fix diagnostics without writing");
+    expect(result.stdout).toContain("admitted Habitat rule fixes without writing");
     expect(result.stdout).toMatch(/live mutation is\s+not implemented/);
   });
 
@@ -340,13 +340,13 @@ describe("Habitat oclif commands", () => {
 
     expect(mockCreateLiveHabitatServiceContext).not.toHaveBeenCalled();
     expect(createRouterClient).not.toHaveBeenCalled();
-    expect(mockFixPlanPatterns).not.toHaveBeenCalled();
+    expect(mockFixPreviewPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toBe("");
     expect(stderr.join("")).toContain("unsupported-live-mutation");
   });
 
-  test("fix forwards planning refusal streams and exit code", async () => {
-    mockFixPlanPatterns.mockResolvedValueOnce({
+  test("fix forwards preview refusal streams and exit code", async () => {
+    mockFixPreviewPatterns.mockResolvedValueOnce({
       exitCode: 1,
       stdout: "",
       stderr: "habitat fix refused: invalid-rule-selection\n",
@@ -356,7 +356,7 @@ describe("Habitat oclif commands", () => {
       oclif: { exit: 1 },
     });
 
-    expect(mockFixPlanPatterns).toHaveBeenCalledWith({ rules: ["missing"] });
+    expect(mockFixPreviewPatterns).toHaveBeenCalledWith({ rules: ["missing"] });
     expect(stdout.join("")).toBe("");
     expect(stderr.join("")).toContain("invalid-rule-selection");
   });

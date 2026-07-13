@@ -64,10 +64,10 @@ and fail through Habitat, but they do not apply repairs.
 
 Current implemented state:
 
-- registered `runner.fix` records atomically admit plan-only pattern assets.
+- registered `runner.fix` records atomically admit preview-only pattern assets and effects.
 - `bun habitat fix --dry-run` observes admitted transformations without writing.
 - Diagnostic policy, remediation prose, file presence, and rule identity do not
-  grant planning or live rewrite authority.
+  grant preview or live rewrite authority.
 
 **Gap:** `habitat fix` has no live mutation path. Non-dry invocation refuses
 before service realization. Formatting, post-fix gates, rollback, diff records,
@@ -80,7 +80,7 @@ write-capable command state.
 ## Future / Not Implemented: Apply Safety Acceptance Target
 
 The following is a target acceptance contract for a future live apply path, not
-current planning behavior. Each future apply pattern would need:
+current preview behavior. Each future apply pattern would need:
 
 - exact rewrite inventory;
 - allowed roots;

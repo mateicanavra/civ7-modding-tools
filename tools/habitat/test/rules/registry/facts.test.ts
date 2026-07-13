@@ -36,8 +36,9 @@ describe("rule registry facts", () => {
             ...gritRunner("sample-rule"),
             patternName: "sample_pattern",
             fix: {
-              kind: "plan-only",
+              kind: "preview-only",
               pattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
+              effects: ["modify"],
             },
           },
           scanRoots: ["packages"],
@@ -53,6 +54,7 @@ describe("rule registry facts", () => {
     expect(Object.isFrozen(catalog.grit[0]?.runner.files)).toBe(true);
     expect(Object.isFrozen(catalog.fix)).toBe(true);
     expect(Object.isFrozen(catalog.fix[0]?.fix)).toBe(true);
+    expect(Object.isFrozen(catalog.fix[0]?.fix.effects)).toBe(true);
     expect(() => (catalog.grit[0]?.scanRoots as string[]).push("other")).toThrow(TypeError);
   });
 
@@ -63,8 +65,9 @@ describe("rule registry facts", () => {
         patternName: "sample_pattern",
         diagnosticAcquisition: { kind: "apply-dry-run" },
         fix: {
-          kind: "plan-only",
+          kind: "preview-only",
           pattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
+          effects: ["modify"],
         },
       },
       scanRoots: ["packages"],
@@ -101,8 +104,9 @@ describe("rule registry facts", () => {
         scanRoots: ["packages"],
         patternName: "sample_pattern",
         fix: {
-          kind: "plan-only",
+          kind: "preview-only",
           pattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
+          effects: ["modify"],
         },
       },
     ]);

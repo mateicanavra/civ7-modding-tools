@@ -6,7 +6,7 @@ import type { CommandRunnerService } from "@habitat/cli/resources/command/index"
 import type { HabitatPlatformService } from "@habitat/cli/resources/platform/index";
 import type { HabitatReporterService } from "@habitat/cli/resources/reporter/index";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
-import type { RuleFixPlanningService } from "@habitat/cli/resources/rule-fix-planning/index";
+import type { RuleFixPreviewService } from "@habitat/cli/resources/rule-fix-preview/index";
 import type { HabitatRuntimeLive } from "@habitat/cli/runtime/layers";
 import type { StructuralExecutionContext } from "@habitat/cli/service/model/check/policy/structural/index";
 import type { RuleFactsCatalog } from "@habitat/cli/service/model/rules/policy/catalog.policy";
@@ -32,7 +32,7 @@ export interface HabitatServiceDeps {
   readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
   readonly ruleDiagnostics: RuleDiagnosticsService;
-  readonly ruleFixPlanning: RuleFixPlanningService;
+  readonly ruleFixPreview: RuleFixPreviewService;
   readonly rules: RuleFactsCatalog;
 }
 
