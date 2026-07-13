@@ -1,32 +1,31 @@
 import path from "node:path";
+import type { RuleDiagnosticExecutionResult } from "@habitat/cli/resources/rule-diagnostics/resource";
 import {
-  type DiagnosticFinding,
-  type DiagnosticRunOutcome,
-  diagnosticCatalogEntryFromRuleSourceFacts,
+  diagnosticProviderFailureDiagnostic,
   renderDiagnosticScanRootRefusal,
-  renderUnexpectedObservedGritIdentity,
 } from "@habitat/cli/service/model/diagnostics/index";
-import type { RuleDiagnosticExecutionResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
+import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Clock, Effect, Match, Option } from "effect";
 import { runGritApplyDryRunAcquisitionEffect } from "./apply-dry-run.js";
 import { runGritCheckAcquisitionEffect } from "./check.js";
+import type { GritCommandService } from "./command.js";
 import {
   gritDiagnosticOutcomesFromReport,
   ruleRunResultFromDiagnosticOutcome,
 } from "./diagnostics.js";
+import { renderUnexpectedObservedGritIdentity } from "./identity.js";
+import type { DiagnosticFinding, DiagnosticRunOutcome } from "./outcome.js";
 import { type GritDiagnosticAcquisition, preCommandFailure } from "./output.js";
-import type { GritProviderService } from "./resource.js";
 import { type PlannedGritRule, planGritRuleRoots, sortedUnique } from "./scan-roots/index.js";
 
 interface GritRunOptions {
   readonly repoRoot: string;
-  readonly grit: GritProviderService;
+  readonly grit: GritCommandService;
   readonly scanRoots?: readonly string[];
 }
 
 export const runGritRulesEffect = Effect.fn("grit.rules.run")(function* (
-  selectedRules: readonly RuleSourceFacts[],
+  selectedRules: readonly RuleGritFacts[],
   options: GritRunOptions
 ) {
   const executions = yield* runGritDiagnosticExecutionsEffect(selectedRules, options);
@@ -34,7 +33,7 @@ export const runGritRulesEffect = Effect.fn("grit.rules.run")(function* (
 });
 
 export const runGritDiagnosticOutcomesEffect = Effect.fn("grit.diagnosticOutcomes.run")(function* (
-  selectedRules: readonly RuleSourceFacts[],
+  selectedRules: readonly RuleGritFacts[],
   options: GritRunOptions
 ) {
   const executions = yield* runGritDiagnosticExecutionsEffect(selectedRules, options);
@@ -49,7 +48,7 @@ interface GritDiagnosticExecution {
 }
 
 const runGritDiagnosticExecutionsEffect = Effect.fn("grit.diagnosticExecutions.run")(function* (
-  selectedRules: readonly RuleSourceFacts[],
+  selectedRules: readonly RuleGritFacts[],
   options: GritRunOptions
 ) {
   const plans = yield* planGritRuleRoots(selectedRules, {
@@ -59,7 +58,7 @@ const runGritDiagnosticExecutionsEffect = Effect.fn("grit.diagnosticExecutions.r
   const executions = yield* Effect.forEach(plans, (plan) => executeTimedPlanEffect(plan, options), {
     concurrency: 2,
   });
-  return new Map(executions.map((execution) => [execution.outcome.entry.ruleId, execution]));
+  return new Map(executions.map((execution) => [execution.outcome.ruleId, execution]));
 });
 
 const executeTimedPlanEffect = Effect.fn("grit.plan.executeTimed")(function* (
@@ -105,14 +104,14 @@ const executePlanEffect = Effect.fn("grit.plan.execute")(function* (
     Match.when({ kind: "not-applicable" }, (notApplicable) =>
       Effect.succeed({
         kind: "not-applicable",
-        entry: diagnosticCatalogEntryFromRuleSourceFacts(notApplicable.rule),
+        ruleId: notApplicable.rule.id,
         reason: notApplicable.reason,
       } as const)
     ),
     Match.when({ kind: "refused" }, (refused) =>
       Effect.succeed({
         kind: "scan-root-refused",
-        entry: diagnosticCatalogEntryFromRuleSourceFacts(refused.rule),
+        ruleId: refused.rule.id,
         decision: refused.decision,
         detail: renderDiagnosticScanRootRefusal(refused.decision),
       } as const)
@@ -166,7 +165,7 @@ const executeApplyPolicyEffect = Effect.fn("grit.applyPolicy.execute")(function*
 });
 
 function outcomeFromApplyAcquisitions(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   acquisitions: readonly GritDiagnosticAcquisition[],
   repoRoot: string
 ): DiagnosticRunOutcome {
@@ -178,7 +177,7 @@ function outcomeFromApplyAcquisitions(
 }
 
 function completeApplyOutcome(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   acquisitions: readonly GritDiagnosticAcquisition[],
   repoRoot: string
 ): DiagnosticRunOutcome {
@@ -187,7 +186,7 @@ function completeApplyOutcome(
     Match.when(false, () =>
       providerFailure(
         rule,
-        "GritProviderInternalContractViolation",
+        "DiagnosticProviderContractViolation",
         "Apply dry-run acquisition returned a non-apply complete observation."
       )
     ),
@@ -225,7 +224,7 @@ function applyObservationFromCompleteObservation(
 }
 
 function completeApplyObservationsOutcome(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   observations: readonly Extract<
     Extract<GritDiagnosticAcquisition, { kind: "observed-complete" }>["observation"],
     { kind: "apply-dry-run" }
@@ -237,24 +236,25 @@ function completeApplyObservationsOutcome(
       observation.findingPaths.map((findingPath) => path.relative(repoRoot, findingPath))
     )
   );
-  const entry = diagnosticCatalogEntryFromRuleSourceFacts(rule);
   const diagnostics = paths.map((findingPath) => diagnosticFromApplyPath(rule, findingPath));
   const [first, ...rest] = diagnostics;
   return Match.value(Option.fromNullable(first)).pipe(
     Match.when(
       { _tag: "None" },
-      (): DiagnosticRunOutcome => ({ kind: "clean", entry, diagnostics: [] })
+      (): DiagnosticRunOutcome => ({ kind: "clean", ruleId: rule.id, diagnostics: [] })
     ),
-    Match.orElse(({ value: finding }) => ({
-      kind: "findings" as const,
-      entry,
-      diagnostics: [finding, ...rest],
-    }))
+    Match.orElse(
+      ({ value: finding }): DiagnosticRunOutcome => ({
+        kind: "findings" as const,
+        ruleId: rule.id,
+        diagnostics: [finding, ...rest],
+      })
+    )
   );
 }
 
 function outcomeFromAcquisition(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   acquisition: GritDiagnosticAcquisition,
   repoRoot: string
 ): DiagnosticRunOutcome {
@@ -282,7 +282,7 @@ function outcomeFromAcquisition(
 }
 
 function outcomeFromCompleteObservation(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   observation: Extract<GritDiagnosticAcquisition, { kind: "observed-complete" }>["observation"],
   repoRoot: string
 ): DiagnosticRunOutcome {
@@ -296,7 +296,7 @@ function outcomeFromCompleteObservation(
 }
 
 function observedCheckOutcome(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   report: import("./types.js").GritReport,
   repoRoot: string
 ): DiagnosticRunOutcome {
@@ -304,7 +304,7 @@ function observedCheckOutcome(
   return outcomes.get(rule.id) ?? missingOutcome(rule);
 }
 
-function diagnosticFromApplyPath(rule: RuleSourceFacts, findingPath: string): DiagnosticFinding {
+function diagnosticFromApplyPath(rule: RuleGritFacts, findingPath: string): DiagnosticFinding {
   const severity = Match.value(rule.lane).pipe(
     Match.when("advisory", () => "advisory" as const),
     Match.orElse(() => "error" as const)
@@ -320,69 +320,90 @@ function diagnosticFromApplyPath(rule: RuleSourceFacts, findingPath: string): Di
 }
 
 function providerFailure(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   failure: Extract<DiagnosticRunOutcome, { kind: "provider-failed" }>["failure"],
   detail: string
 ): DiagnosticRunOutcome {
   return {
     kind: "provider-failed",
-    entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
+    ruleId: rule.id,
     failure,
     detail,
   };
 }
 
-function missingOutcome(rule: RuleSourceFacts): DiagnosticRunOutcome {
+function missingOutcome(rule: RuleGritFacts): DiagnosticRunOutcome {
   return providerFailure(
     rule,
-    "GritProviderInternalContractViolation",
+    "DiagnosticProviderContractViolation",
     "Selected Grit rule received no terminal outcome."
   );
 }
 
-function dispositionFromOutcome(
-  outcome: DiagnosticRunOutcome
-): RuleDiagnosticExecutionResult["disposition"] {
-  return Match.value(outcome).pipe(
-    Match.when({ kind: "not-applicable" }, ({ reason }) => ({
-      kind: "not-applicable" as const,
-      reason,
-    })),
-    Match.when({ kind: "scan-root-refused" }, ({ decision, detail }) => ({
-      kind: "refused" as const,
-      decision,
-      detail,
-    })),
-    Match.when({ kind: "provider-failed" }, ({ failure, detail }) => ({
-      kind: "failed" as const,
-      failure,
-      detail,
-    })),
-    Match.when({ kind: "unexpected-diagnostic-identity" }, ({ unexpectedIdentity }) => ({
-      kind: "failed" as const,
-      failure: "GritUnexpectedDiagnosticIdentity" as const,
-      detail: renderUnexpectedObservedGritIdentity(unexpectedIdentity),
-    })),
-    Match.when({ kind: "clean" }, () => ({ kind: "executed" as const })),
-    Match.when({ kind: "findings" }, () => ({ kind: "executed" as const })),
-    Match.exhaustive
-  );
-}
-
 function gritRuleExecutionEntry(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   executions: ReadonlyMap<string, GritDiagnosticExecution>
 ): readonly [string, RuleDiagnosticExecutionResult] {
   const execution = executions.get(rule.id) ?? {
     outcome: missingOutcome(rule),
     durationMs: 0,
   };
-  return [
-    rule.id,
-    {
-      result: ruleRunResultFromDiagnosticOutcome(rule, execution.outcome),
-      durationMs: execution.durationMs,
-      disposition: dispositionFromOutcome(execution.outcome),
-    },
-  ];
+  return [rule.id, ruleDiagnosticExecutionFromOutcome(rule, execution)];
+}
+
+function ruleDiagnosticExecutionFromOutcome(
+  rule: RuleGritFacts,
+  execution: GritDiagnosticExecution
+): RuleDiagnosticExecutionResult {
+  const { outcome, durationMs } = execution;
+  return Match.value(outcome).pipe(
+    Match.when({ kind: "not-applicable" }, ({ reason }) => ({
+      kind: "not-applicable" as const,
+      reason,
+      durationMs,
+    })),
+    Match.when({ kind: "scan-root-refused" }, ({ decision, detail }) => ({
+      kind: "refused" as const,
+      decision,
+      detail,
+      durationMs,
+    })),
+    Match.when({ kind: "provider-failed" }, ({ failure, detail }) =>
+      failedRuleDiagnosticExecution(rule, failure, detail, durationMs)
+    ),
+    Match.when({ kind: "unexpected-diagnostic-identity" }, ({ unexpectedIdentity }) =>
+      failedRuleDiagnosticExecution(
+        rule,
+        "DiagnosticUnexpectedIdentity",
+        renderUnexpectedObservedGritIdentity(unexpectedIdentity),
+        durationMs
+      )
+    ),
+    Match.when({ kind: "clean" }, () => ({
+      kind: "executed" as const,
+      result: ruleRunResultFromDiagnosticOutcome(rule, outcome),
+      durationMs,
+    })),
+    Match.when({ kind: "findings" }, () => ({
+      kind: "executed" as const,
+      result: ruleRunResultFromDiagnosticOutcome(rule, outcome),
+      durationMs,
+    })),
+    Match.exhaustive
+  );
+}
+
+function failedRuleDiagnosticExecution(
+  rule: RuleGritFacts,
+  failure: Extract<RuleDiagnosticExecutionResult, { kind: "failed" }>["failure"],
+  detail: string,
+  durationMs: number
+): Extract<RuleDiagnosticExecutionResult, { kind: "failed" }> {
+  return {
+    kind: "failed",
+    failure,
+    detail,
+    diagnostics: [diagnosticProviderFailureDiagnostic(rule, failure, detail)],
+    durationMs,
+  };
 }

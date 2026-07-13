@@ -1,13 +1,14 @@
 import {
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
+  ruleDiagnosticFacts,
+  ruleFactsCatalog,
   ruleFileLayerFacts,
   ruleGraphFacts,
   ruleGritFacts,
   ruleHookCheckFacts,
   ruleManifestFacts,
   ruleRoutingFacts,
-  ruleSourceFacts,
   ruleStructureFacts,
 } from "@habitat/cli/service/model/rules/index";
 import { workspaceGraphTargetNames } from "@habitat/cli/service/model/workspace/index";
@@ -22,6 +23,27 @@ import {
 } from "./helpers.js";
 
 describe("rule registry facts", () => {
+  test("freezes the complete projected catalog snapshot", () => {
+    const catalog = ruleFactsCatalog({
+      schemaVersion: 2,
+      ownerRoots: { habitat: "tools/habitat" },
+      rules: [
+        baseRule({
+          runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
+          scanRoots: ["packages"],
+        }),
+      ],
+    });
+
+    expect(Object.isFrozen(catalog)).toBe(true);
+    expect(Object.isFrozen(catalog.grit)).toBe(true);
+    expect(Object.isFrozen(catalog.grit[0])).toBe(true);
+    expect(Object.isFrozen(catalog.grit[0]?.scanRoots)).toBe(true);
+    expect(Object.isFrozen(catalog.grit[0]?.runner)).toBe(true);
+    expect(Object.isFrozen(catalog.grit[0]?.runner.files)).toBe(true);
+    expect(() => (catalog.grit[0]?.scanRoots as string[]).push("other")).toThrow(TypeError);
+  });
+
   test("keeps hook check out of Grit execution facts", () => {
     const rule = baseRule({
       runner: {
@@ -33,7 +55,15 @@ describe("rule registry facts", () => {
       hookCheck: true,
     });
 
-    expect(ruleSourceFacts([rule])).toEqual([]);
+    expect(ruleDiagnosticFacts([rule])).toEqual([
+      {
+        id: "sample-rule",
+        lane: "enforced",
+        message: "Fix the structural issue.",
+        pathCoverage: [{ kind: "project-owner" }],
+        scanRoots: ["packages"],
+      },
+    ]);
     expect(ruleGritFacts([rule])).toEqual([
       {
         id: "sample-rule",

@@ -1,20 +1,18 @@
 import path from "node:path";
+import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
+import { infrastructureFailure } from "./failure.js";
 import {
-  type DiagnosticFinding,
-  type DiagnosticRunOutcome,
-  diagnosticCatalogEntryFromRuleSourceFacts,
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
-} from "@habitat/cli/service/model/diagnostics/index";
-import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
-import { infrastructureFailure } from "./failure.js";
+} from "./identity.js";
+import type { DiagnosticFinding, DiagnosticRunOutcome } from "./outcome.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
 import type { GritDiagnosticOptions, GritReport, GritResult } from "./types.js";
 
 export function gritDiagnosticOutcomesFromReport(
-  selectedRules: readonly RuleSourceFacts[],
+  selectedRules: readonly RuleGritFacts[],
   report: GritReport,
   options: GritDiagnosticOptions = {}
 ): Map<string, DiagnosticRunOutcome> {
@@ -30,7 +28,7 @@ export function gritDiagnosticOutcomesFromReport(
           rule.id,
           {
             kind: "unexpected-diagnostic-identity" as const,
-            entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
+            ruleId: rule.id,
             unexpectedIdentity: observed,
           },
         ])
@@ -40,28 +38,24 @@ export function gritDiagnosticOutcomesFromReport(
 
   return new Map(
     selectedRules.map((rule) => {
-      const entry = diagnosticCatalogEntryFromRuleSourceFacts(rule);
       const diagnostics = report.results
         .filter((result) =>
-          observedGritIdentityMatches(
-            observedGritDiagnosticIdentity(result),
-            entry.diagnosticIdentity
-          )
+          observedGritIdentityMatches(observedGritDiagnosticIdentity(result), rule.patternName)
         )
         .map((result) => diagnosticFindingFromGritResult(rule, result, options));
       const [first, ...rest] = diagnostics;
       return [
         rule.id,
         first
-          ? ({ kind: "findings", entry, diagnostics: [first, ...rest] } as const)
-          : ({ kind: "clean", entry, diagnostics: [] } as const),
+          ? ({ kind: "findings", ruleId: rule.id, diagnostics: [first, ...rest] } as const)
+          : ({ kind: "clean", ruleId: rule.id, diagnostics: [] } as const),
       ];
     })
   );
 }
 
 export function ruleRunResultFromDiagnosticOutcome(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   outcome: DiagnosticRunOutcome
 ): RuleRunResult {
   switch (outcome.kind) {
@@ -88,7 +82,7 @@ export function ruleRunResultFromDiagnosticOutcome(
     case "unexpected-diagnostic-identity":
       return infrastructureFailure(
         rule,
-        "GritUnexpectedDiagnosticIdentity",
+        "DiagnosticUnexpectedIdentity",
         renderUnexpectedObservedGritIdentity(outcome.unexpectedIdentity)
       );
     default:
@@ -97,7 +91,7 @@ export function ruleRunResultFromDiagnosticOutcome(
 }
 
 function diagnosticFindingFromGritResult(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   result: GritResult,
   options: GritDiagnosticOptions
 ): DiagnosticFinding {

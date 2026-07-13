@@ -5,17 +5,14 @@ import type {
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
 import type { HabitatFileSystemReadPort } from "@habitat/cli/resources/platform/index";
+import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import type { BaselineFileSystemPort } from "@habitat/cli/service/model/baseline/index";
 import type {
   RuleExecutionDisposition,
   RuleExecutionTiming,
 } from "@habitat/cli/service/model/check/index";
-import type {
-  RuleDiagnosticExecutionResult,
-  RuleRunResult,
-} from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
-import type { RuleFactsCatalog, RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
-import type { SourceRuleFileSystem } from "@habitat/cli/service/model/source-check/index";
+import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import type { RuleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import type { Effect } from "effect";
 
 export interface RuleExecutionRecord {
@@ -31,10 +28,9 @@ export interface StructuralExecutionContext {
   readonly biome: StructuralBiomePort;
   readonly command: StructuralCommandPort;
   readonly git: StructuralGitPort;
-  readonly ruleDiagnostics: StructuralRuleDiagnosticsPort;
+  readonly ruleDiagnostics: RuleDiagnosticsService;
   readonly nx: StructuralNxPort;
   readonly rules: RuleFactsCatalog;
-  readonly sourceFileSystem: SourceRuleFileSystem<FileSystem.FileSystem>;
   readonly structureFileSystem: HabitatFileSystemReadPort<FileSystem.FileSystem>;
 }
 
@@ -73,13 +69,6 @@ export interface StructuralGitPort {
     repoPath: string,
     options?: { readonly cwd?: string }
   ) => Effect.Effect<string | null, never, any>;
-}
-
-export interface StructuralRuleDiagnosticsPort {
-  readonly runRules: (
-    selectedRules: readonly RuleSourceFacts[],
-    options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
-  ) => Effect.Effect<Map<string, RuleDiagnosticExecutionResult>, never, any>;
 }
 
 export interface StructuralNxPort {

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_rule_diagnostics_provider_imports",
+  "title": "Prohibit Rule Diagnostics Provider Imports",
+  "placement": {
+    "niche": "habitat/toolkit",
+    "blueprint": "rule-diagnostics",
+    "category": "boundary"
+  },
+  "operation": { "kind": "check" },
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "forbids": "production modules importing a private RuleDiagnostics provider",
+  "why": "Provider construction belongs to the RuleDiagnostics implementation and its explicit runtime composition roots.",
+  "remediate": null,
+  "message": "Consume RuleDiagnostics instead of importing its concrete provider.",
+  "pathCoverage": [
+    { "kind": "exact-path", "patterns": ["tools/habitat/src/**/*.ts"] },
+    { "kind": "project-owner" }
+  ],
+  "scanRoots": ["tools/habitat/src"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/pattern.md"
+    },
+    "patternName": "prohibit_rule_diagnostics_provider_imports"
+  }
+}

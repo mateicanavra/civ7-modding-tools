@@ -64,26 +64,10 @@ export function makeTestHabitatServiceDeps(
     graphite: {
       parent: () => Effect.succeed(null),
     },
-    grit: {
-      check: (request) =>
-        Effect.succeed(commandResult(gritRequest("grit-check", request.scanRoots))),
-      checkRequest: (request) => gritRequest("grit-check", request.scanRoots),
+    gritApplyDryRun: {
       applyDryRun: (request) =>
         Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
-      runRules: (selectedRules) =>
-        Effect.succeed(
-          new Map(
-            selectedRules.map((rule) => [
-              rule.id,
-              {
-                result: { exitCode: 0, diagnostics: [] },
-                durationMs: 0,
-                disposition: { kind: "executed" as const },
-              },
-            ])
-          )
-        ),
     },
     nx: {
       affected: (request) =>
@@ -151,6 +135,21 @@ export function makeTestHabitatServiceDeps(
       writeText: () => Effect.void,
     },
     reporter: fakeReporter(),
+    ruleDiagnostics: {
+      runRules: (demand) =>
+        Effect.succeed(
+          new Map(
+            demand.ruleIds.map((ruleId) => [
+              ruleId,
+              {
+                kind: "executed" as const,
+                result: { exitCode: 0, diagnostics: [] },
+                durationMs: 0,
+              },
+            ])
+          )
+        ),
+    },
     rules: makeTestRuleFacts(),
     ...overrides,
   };

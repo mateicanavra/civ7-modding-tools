@@ -22,6 +22,7 @@ import type { HabitatCommandResult } from "@habitat/cli/resources/command/types"
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
 import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
+import type { RuleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import type {
   HookPreCommitInput,
   HookPrePushInput,
@@ -60,7 +61,7 @@ const prePushMixedRuleAuthorityTargets =
 const prePushBoundaryTaxonomyTargets = "lint";
 const prePushStructuralTargetDeclarationTargets = "lint";
 const prePushNoChangedSourceCheck =
-  "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
+  "source checks: no changed TypeScript/JavaScript files in hook source-check roots\n";
 
 describe("Habitat hook service", () => {
   beforeEach(() => {
@@ -250,7 +251,10 @@ describe("Habitat hook service", () => {
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
-      { sourceCheckHookEnabled: true },
+      {
+        sourceCheckHookEnabled: true,
+        pathExists: (targetPath) => targetPath.endsWith(changedPath),
+      },
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -279,7 +283,10 @@ describe("Habitat hook service", () => {
     const affectedRequests: NxAffectedRequest[] = [];
     const notApplicableResult = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
-      { sourceCheckHookEnabled: true },
+      {
+        sourceCheckHookEnabled: true,
+        pathExists: (targetPath) => targetPath.endsWith(changedPath),
+      },
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -305,6 +312,46 @@ describe("Habitat hook service", () => {
     expect(notApplicableResult.exitCode).toBe(0);
     expect(notApplicableResult.stdout).toContain("[source-check changed-path hook check]");
     expect(notApplicableResult.stdout).toContain("affected ok");
+    expect(affectedRequests).toHaveLength(1);
+  });
+
+  test("excludes deleted paths from pre-push diagnostics without dropping affected planning", async () => {
+    const checkRequests: CheckOptions[] = [];
+    const affectedRequests: NxAffectedRequest[] = [];
+
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
+      { sourceCheckHookEnabled: true, pathExists: () => false },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD"
+            ? "packages/sdk/src/deleted.ts\0"
+            : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer((request) => {
+        affectedRequests.push(request);
+        return commandResult(
+          affectedArgv(request),
+          repoRootForTestCommand(),
+          "affected ok\n",
+          0,
+          "",
+          "nx"
+        );
+      }),
+      {
+        createReport: (options = {}) =>
+          Effect.sync(() => {
+            checkRequests.push(options);
+            return passingCheckReport(options.command?.serialized ?? "habitat check");
+          }),
+      }
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain(prePushNoChangedSourceCheck.trim());
+    expect(checkRequests).toEqual([]);
     expect(affectedRequests).toHaveLength(1);
   });
 
@@ -800,12 +847,11 @@ function makeSyntheticSourceCheckHookRules() {
   const rules = makeTestRuleFacts();
   return {
     ...rules,
-    source: [
+    diagnostic: [
       {
         id: "hook-source-check-probe",
         lane: "enforced" as const,
         message: "source-check hook check probe",
-        patternName: "hook-source-check-probe",
         pathCoverage: [
           {
             kind: "exact-path" as const,
@@ -816,7 +862,7 @@ function makeSyntheticSourceCheckHookRules() {
       },
     ],
     hookCheck: [{ id: "hook-source-check-probe", hookCheck: true as const }],
-  };
+  } satisfies RuleFactsCatalog;
 }
 
 function commandResult(

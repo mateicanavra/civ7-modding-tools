@@ -1,11 +1,10 @@
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
-import {
-  nativeGritCommandRequestFromProcessRequest,
-  parseDiagnosticSelectedScanRoots,
-} from "@habitat/cli/service/model/diagnostics/index";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
+import { parseDiagnosticSelectedScanRoots } from "@habitat/cli/service/model/diagnostics/index";
+import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Match, Option } from "effect";
+import type { GritCommandService } from "./command.js";
+import { nativeGritCommandRequestFromProcessRequest } from "./command.schema.js";
 import {
   applyAcquisitionEvidence,
   commandFailure,
@@ -18,7 +17,6 @@ import {
   preCommandFailure,
 } from "./output.js";
 import { captureGritCommandEffect } from "./request.js";
-import type { GritProviderService } from "./resource.js";
 import {
   acquireScopedGritWorkspaceEffect,
   GritPatternAssetInvalid,
@@ -26,9 +24,9 @@ import {
 } from "./scoped-config.js";
 
 export const runGritApplyDryRunAcquisitionEffect = Effect.fn("grit.applyDryRun.acquire")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   root: string,
-  options: { readonly repoRoot: string; readonly grit: GritProviderService }
+  options: { readonly repoRoot: string; readonly grit: GritCommandService }
 ) {
   return yield* Effect.gen(function* () {
     const workspace = yield* acquireScopedGritWorkspaceEffect(rule, options.repoRoot);
@@ -65,9 +63,9 @@ export const runGritApplyDryRunAcquisitionEffect = Effect.fn("grit.applyDryRun.a
   }).pipe(
     Effect.catchTags({
       GritPatternAssetInvalid: (error) =>
-        Effect.succeed(preCommandFailure("GritPatternAssetFailed", error.detail)),
+        Effect.succeed(preCommandFailure("DiagnosticRuleMaterializationFailed", error.detail)),
       GritScopedConfigInvalid: (error) =>
-        Effect.succeed(preCommandFailure("GritScopedConfigFailed", error.detail)),
+        Effect.succeed(preCommandFailure("DiagnosticProviderSetupFailed", error.detail)),
     })
   );
 });
@@ -147,7 +145,7 @@ const completeApplyObservationEffect = Effect.fn("grit.applyDryRun.completeObser
       )
     ),
     Match.orElse(({ value: detail }) =>
-      incompleteAcquisitionFailure("GritObservationIncomplete", detail, evidence)
+      incompleteAcquisitionFailure("DiagnosticOutputIncomplete", detail, evidence)
     )
   );
 });

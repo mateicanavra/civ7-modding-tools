@@ -1,11 +1,12 @@
 import type { BiomeProviderService } from "@habitat/cli/providers/biome/index";
 import type { GitProviderService } from "@habitat/cli/providers/git/index";
 import type { GraphiteProviderService } from "@habitat/cli/providers/graphite/index";
-import type { GritProviderService } from "@habitat/cli/providers/grit/index";
 import type { NxProviderService } from "@habitat/cli/providers/nx/index";
 import type { CommandRunnerService } from "@habitat/cli/resources/command/index";
 import type { HabitatPlatformService } from "@habitat/cli/resources/platform/index";
 import type { HabitatReporterService } from "@habitat/cli/resources/reporter/index";
+import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
+import type { GritApplyDryRunService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 import type { HabitatRuntimeLive } from "@habitat/cli/runtime/layers";
 import type { StructuralExecutionContext } from "@habitat/cli/service/model/check/policy/structural/index";
 import type { RuleFactsCatalog } from "@habitat/cli/service/model/rules/policy/catalog.policy";
@@ -27,10 +28,11 @@ export interface HabitatServiceDeps {
   readonly commandRunner: CommandRunnerService;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
-  readonly grit: GritProviderService;
+  readonly gritApplyDryRun: GritApplyDryRunService;
   readonly nx: NxProviderService;
   readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
+  readonly ruleDiagnostics: RuleDiagnosticsService;
   readonly rules: RuleFactsCatalog;
 }
 

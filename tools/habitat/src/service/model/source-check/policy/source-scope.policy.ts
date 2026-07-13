@@ -1,13 +1,13 @@
 import path from "node:path";
 import { habitatCacheRepoPathPrefix } from "../../../../resources/authority-paths.ts";
 import { decideScanRootProtection } from "../../host/index.ts";
-import type { RuleSourceFacts } from "../../rules/index.ts";
+import type { RuleDiagnosticFacts } from "../../rules/index.ts";
 
 export interface SourceScopeContext {
   readonly repoRoot: string;
 }
 
-export const sourceCheckCandidateExtensions = new Set([
+const sourceCheckCandidateExtensions = new Set([
   ".cjs",
   ".cts",
   ".js",
@@ -27,24 +27,11 @@ const protectedSourceRootPrefixes = [
   "tools/habitat/dist/",
 ];
 
-export function approvedSourceScanRootsForRules(rules: readonly RuleSourceFacts[]): string[] {
+export function approvedSourceScanRootsForRules(rules: readonly RuleDiagnosticFacts[]): string[] {
   return sortedUnique(rules.flatMap((rule) => rule.scanRoots));
 }
 
-export function selectedSourceScanRootsForRules(
-  selectedRules: readonly RuleSourceFacts[],
-  scanRoots: readonly string[] | undefined
-): string[] {
-  if (!scanRoots) return approvedSourceScanRootsForRules(selectedRules);
-  const declaredRoots = selectedRules.flatMap((rule) => rule.scanRoots);
-  if (declaredRoots.length === 0) return [...scanRoots];
-  const matchingRoots = scanRoots.filter((scanRoot) =>
-    declaredRoots.some((declaredRoot) => pathsOverlap(scanRoot, declaredRoot))
-  );
-  return matchingRoots.length > 0 ? matchingRoots : [...scanRoots];
-}
-
-export function stagedSourceScanRoots(
+function stagedSourceScanRoots(
   stagedPaths: readonly string[],
   approvedScanRoots: readonly string[] = [],
   context: SourceScopeContext
@@ -67,18 +54,7 @@ export function stagedSourceCheckPaths(
   return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);
 }
 
-export function collapsedSourceScanRoots(scanRoots: readonly string[]): string[] {
-  const sortedRoots = sortedUnique(scanRoots);
-  return sortedRoots.filter(
-    (candidate, index) =>
-      !sortedRoots.some(
-        (possibleParent, parentIndex) =>
-          parentIndex !== index && sourceScanRootContains(possibleParent, candidate)
-      )
-  );
-}
-
-export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
+function pathsOverlap(candidate: string, declaredRoot: string): boolean {
   const normalizedCandidate = normalizeRepoPath(candidate);
   const normalizedRoot = normalizeRepoPath(declaredRoot);
   return (
@@ -88,15 +64,8 @@ export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
   );
 }
 
-export function sortedUnique(values: readonly string[]): string[] {
+function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values.map(normalizeRepoPath))].sort((a, b) => a.localeCompare(b));
-}
-
-function sourceScanRootContains(parent: string, child: string): boolean {
-  const normalizedParent = normalizeRepoPath(parent);
-  const normalizedChild = normalizeRepoPath(child);
-  if (normalizedParent === "") return true;
-  return normalizedParent === normalizedChild || normalizedChild.startsWith(`${normalizedParent}/`);
 }
 
 function isApprovedSourceScanRoot(

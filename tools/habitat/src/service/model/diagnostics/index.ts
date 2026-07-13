@@ -1,68 +1,4 @@
 export type {
-  DiagnosticCatalogEntry,
-  DiagnosticMatchContract,
-  DiagnosticScanContract,
-  GritDiagnosticAcquisitionContract,
-  GritDiagnosticCatalogEntry,
-  GritDiagnosticMatchContract,
-  GritDiagnosticScanContract,
-} from "./dto/diagnostic-catalog.schema.js";
-export {
-  DiagnosticCatalogEntrySchema,
-  DiagnosticMatchContractSchema,
-  DiagnosticScanContractSchema,
-  diagnosticCatalogEntryFromRuleSourceFacts,
-  GritDiagnosticAcquisitionContractSchema,
-  GritDiagnosticCatalogEntrySchema,
-  GritDiagnosticMatchContractSchema,
-  GritDiagnosticScanContractSchema,
-} from "./dto/diagnostic-catalog.schema.js";
-export type {
-  DiagnosticCommandObservation,
-  DiagnosticOutputMetadata,
-  NativeGritCommandFamily,
-  NativeGritCommandRequest,
-  NativeGritOutputContract,
-} from "./dto/diagnostic-command.schema.js";
-export {
-  DiagnosticCommandObservationSchema,
-  DiagnosticOutputMetadataSchema,
-  diagnosticCommandObservationFromResult,
-  diagnosticToolUnavailableObservation,
-  NativeGritCommandFamilySchema,
-  NativeGritCommandRequestSchema,
-  NativeGritOutputContractSchema,
-  nativeGritCommandRequestFromProcessRequest,
-} from "./dto/diagnostic-command.schema.js";
-export type {
-  DiagnosticIdentity,
-  GritDiagnosticIdentity,
-  ObservedDiagnosticIdentity,
-  ObservedGritDiagnosticIdentity,
-} from "./dto/diagnostic-identity.schema.js";
-export {
-  DiagnosticIdentitySchema,
-  GritDiagnosticIdentitySchema,
-  gritDiagnosticIdentity,
-  isObservedGritDiagnosticIdentity,
-  ObservedDiagnosticIdentitySchema,
-  ObservedGritDiagnosticIdentitySchema,
-  observedGritDiagnosticIdentity,
-  observedGritIdentityMatches,
-  renderUnexpectedObservedGritIdentity,
-} from "./dto/diagnostic-identity.schema.js";
-export type {
-  DiagnosticConsumerResult,
-  DiagnosticFinding,
-  DiagnosticRunOutcome,
-} from "./dto/diagnostic-outcome.schema.js";
-export {
-  DiagnosticConsumerResultSchema,
-  DiagnosticFindingSchema,
-  DiagnosticRunOutcomeSchema,
-  diagnosticConsumerResultFromOutcome,
-} from "./dto/diagnostic-outcome.schema.js";
-export type {
   DiagnosticScanRootDecision,
   DiagnosticScanRootRefusal,
   DiagnosticScanRootRefusalReason,
@@ -85,6 +21,7 @@ export {
 export type { DiagnosticProviderFailureKind } from "./errors/diagnostic-provider.errors.js";
 export {
   DiagnosticProviderFailureKindSchema,
+  diagnosticProviderFailureDiagnostic,
   diagnosticProviderFailureKinds,
   isDiagnosticProviderFailureKind,
   renderDiagnosticProviderFailure,

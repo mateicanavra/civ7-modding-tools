@@ -1,7 +1,7 @@
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
 import { acquireTempDirectory } from "@habitat/cli/resources/platform/index";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
+import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Data, Effect, Match, Option } from "effect";
 import { quoteGritYamlScalar } from "./types.js";
 
@@ -14,7 +14,7 @@ export interface ScopedGritWorkspace {
 }
 
 export const acquireScopedGritWorkspaceEffect = Effect.fn("grit.scopedWorkspace.acquire")(
-  function* (rule: RuleSourceFacts, repoRoot: string) {
+  function* (rule: RuleGritFacts, repoRoot: string) {
     const fs = yield* FileSystem.FileSystem;
     const asset = yield* canonicalPatternAssetEffect(rule, repoRoot, fs);
     const source = yield* fs
@@ -46,7 +46,7 @@ export const acquireScopedGritWorkspaceEffect = Effect.fn("grit.scopedWorkspace.
 );
 
 const canonicalPatternAssetEffect = Effect.fn("grit.patternAsset.canonicalize")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   repoRoot: string,
   fs: FileSystem.FileSystem
 ) {
@@ -88,7 +88,7 @@ const canonicalPatternAssetEffect = Effect.fn("grit.patternAsset.canonicalize")(
   return canonicalAsset;
 });
 
-function renderConfig(rule: RuleSourceFacts, body: string): string {
+function renderConfig(rule: RuleGritFacts, body: string): string {
   return [
     "version: 0.0.2",
     "patterns:",

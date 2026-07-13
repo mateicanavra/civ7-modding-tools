@@ -1,4 +1,6 @@
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/index";
+import { type Static, type TSchema, Type } from "typebox";
+import { Value } from "typebox/value";
 import {
   type DiagnosticCompletedCommandObservation,
   DiagnosticCompletedCommandObservationSchema,
@@ -14,9 +16,7 @@ import {
   NativeGritSelectedRuleJsonCheckRequestSchema,
   type NativeGritTargetCommandRequest,
   NativeGritTargetCommandRequestSchema,
-} from "@habitat/cli/service/model/diagnostics/dto/diagnostic-command.schema";
-import { type Static, type TSchema, Type } from "typebox";
-import { Value } from "typebox/value";
+} from "./command.schema.js";
 import {
   type GritCompactEvent,
   GritCompactEventSchema,
@@ -59,29 +59,22 @@ const GritApplyDryRunObservationSchema = Type.Object(
 );
 
 const GritPreCommandFailureSchema = Type.Union([
-  Type.Literal("GritRootCanonicalizationFailed"),
-  Type.Literal("GritPatternAssetFailed"),
-  Type.Literal("GritScopedConfigFailed"),
-]);
-
-const GritCommandFailureSchema = Type.Union([
-  Type.Literal("GritToolUnavailable"),
-  Type.Literal("GritNativeIdentityMismatch"),
-  Type.Literal("GritCommandFailed"),
-  Type.Literal("GritCommandInterrupted"),
+  Type.Literal("DiagnosticScopePlanningFailed"),
+  Type.Literal("DiagnosticRuleMaterializationFailed"),
+  Type.Literal("DiagnosticProviderSetupFailed"),
 ]);
 
 const GritParseFailureSchema = Type.Union([
-  Type.Literal("GritOutputMissing"),
-  Type.Literal("GritWrongOutputStream"),
-  Type.Literal("GritOutputTruncated"),
-  Type.Literal("GritMalformedOutput"),
-  Type.Literal("GritSchemaDrift"),
+  Type.Literal("DiagnosticOutputMissing"),
+  Type.Literal("DiagnosticOutputChannelMismatch"),
+  Type.Literal("DiagnosticOutputTruncated"),
+  Type.Literal("DiagnosticOutputMalformed"),
+  Type.Literal("DiagnosticOutputSchemaDrift"),
 ]);
 
 const GritIncompleteFailureSchema = Type.Union([
-  Type.Literal("GritObservationIncomplete"),
-  Type.Literal("GritUnexpectedDiagnosticIdentity"),
+  Type.Literal("DiagnosticOutputIncomplete"),
+  Type.Literal("DiagnosticUnexpectedIdentity"),
 ]);
 
 export const GritDiagnosticAcquisitionSchema = Type.Union([
@@ -97,7 +90,7 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
     Type.Object(
       {
         kind: Type.Literal("command-failed"),
-        failure: Type.Literal("GritToolUnavailable"),
+        failure: Type.Literal("DiagnosticProviderUnavailable"),
         detail: Type.String({ minLength: 1 }),
         request: NativeGritTargetCommandRequestSchema,
         command: DiagnosticToolUnavailableCommandObservationSchema,
@@ -107,7 +100,7 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
     Type.Object(
       {
         kind: Type.Literal("command-failed"),
-        failure: Type.Literal("GritCommandFailed"),
+        failure: Type.Literal("DiagnosticCommandFailed"),
         detail: Type.String({ minLength: 1 }),
         request: NativeGritTargetCommandRequestSchema,
         command: DiagnosticFailedCommandObservationSchema,
@@ -117,7 +110,7 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
     Type.Object(
       {
         kind: Type.Literal("command-failed"),
-        failure: Type.Literal("GritCommandInterrupted"),
+        failure: Type.Literal("DiagnosticCommandInterrupted"),
         detail: Type.String({ minLength: 1 }),
         request: NativeGritTargetCommandRequestSchema,
         command: DiagnosticInterruptedCommandObservationSchema,
@@ -127,7 +120,7 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
     Type.Object(
       {
         kind: Type.Literal("command-failed"),
-        failure: Type.Literal("GritNativeIdentityMismatch"),
+        failure: Type.Literal("DiagnosticProviderIdentityMismatch"),
         detail: Type.String({ minLength: 1 }),
         request: NativeGritTargetCommandRequestSchema,
         command: Type.Union([
@@ -141,7 +134,7 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("evidence-mismatch"),
-      failure: Type.Literal("GritProviderInternalContractViolation"),
+      failure: Type.Literal("DiagnosticProviderContractViolation"),
       detail: Type.String({ minLength: 1 }),
       request: NativeGritTargetCommandRequestSchema,
       command: DiagnosticCompletedCommandObservationSchema,
@@ -210,7 +203,6 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
 
 export type GritDiagnosticAcquisition = Static<typeof GritDiagnosticAcquisitionSchema>;
 export type GritPreCommandFailure = Static<typeof GritPreCommandFailureSchema>;
-export type GritCommandFailure = Static<typeof GritCommandFailureSchema>;
 export type GritParseFailure = Static<typeof GritParseFailureSchema>;
 export type GritIncompleteFailure = Static<typeof GritIncompleteFailureSchema>;
 
@@ -228,22 +220,22 @@ export type GritAcquisitionEvidence = GritCheckAcquisitionEvidence | GritApplyAc
 
 export type GritCommandFailureCapture =
   | {
-      readonly failure: "GritToolUnavailable";
+      readonly failure: "DiagnosticProviderUnavailable";
       readonly detail: string;
       readonly command: DiagnosticToolUnavailableCommandObservation;
     }
   | {
-      readonly failure: "GritCommandFailed";
+      readonly failure: "DiagnosticCommandFailed";
       readonly detail: string;
       readonly command: DiagnosticFailedCommandObservation;
     }
   | {
-      readonly failure: "GritCommandInterrupted";
+      readonly failure: "DiagnosticCommandInterrupted";
       readonly detail: string;
       readonly command: DiagnosticInterruptedCommandObservation;
     }
   | {
-      readonly failure: "GritNativeIdentityMismatch";
+      readonly failure: "DiagnosticProviderIdentityMismatch";
       readonly detail: string;
       readonly command:
         | DiagnosticCompletedCommandObservation
@@ -305,11 +297,11 @@ export function parseGritCheckCommand(
   try {
     decoded = JSON.parse(streamFailure.value);
   } catch {
-    return parseFailure("GritMalformedOutput", "Grit check emitted malformed JSON.");
+    return parseFailure("DiagnosticOutputMalformed", "Grit check emitted malformed JSON.");
   }
   if (!Value.Check(GritReportSchema, decoded)) {
     return parseFailure(
-      "GritSchemaDrift",
+      "DiagnosticOutputSchemaDrift",
       renderSchemaErrors(GritReportSchema, decoded, "Grit check JSON")
     );
   }
@@ -390,15 +382,15 @@ function pinnedStream(
   detail: string
 ): GritWireParse<string> {
   if (commandResult.stdout.truncated || commandResult.stderr.truncated) {
-    return parseFailure("GritOutputTruncated", `${detail} Captured output was truncated.`);
+    return parseFailure("DiagnosticOutputTruncated", `${detail} Captured output was truncated.`);
   }
   const expectedText = commandResult[expected].text;
   const otherText = commandResult[expected === "stdout" ? "stderr" : "stdout"].text;
   if (expectedText.trim().length === 0 && otherText.trim().length === 0) {
-    return parseFailure("GritOutputMissing", `${detail} Both streams were empty.`);
+    return parseFailure("DiagnosticOutputMissing", `${detail} Both streams were empty.`);
   }
   if (expectedText.trim().length === 0 || otherText.trim().length > 0) {
-    return parseFailure("GritWrongOutputStream", detail);
+    return parseFailure("DiagnosticOutputChannelMismatch", detail);
   }
   return { kind: "parsed", value: expectedText };
 }
@@ -406,13 +398,13 @@ function pinnedStream(
 function parseCompactEvents(text: string): GritWireParse<readonly GritCompactEvent[]> {
   const lines = text.endsWith("\n") ? text.slice(0, -1).split("\n") : text.split("\n");
   if (lines.length === 0 || (lines.length === 1 && lines[0]?.length === 0)) {
-    return parseFailure("GritOutputMissing", "Grit apply dry-run emitted no JSONL records.");
+    return parseFailure("DiagnosticOutputMissing", "Grit apply dry-run emitted no JSONL records.");
   }
   const events: GritCompactEvent[] = [];
   for (const [index, line] of lines.entries()) {
     if (line?.trim().length === 0) {
       return parseFailure(
-        "GritMalformedOutput",
+        "DiagnosticOutputMalformed",
         `Grit apply dry-run emitted a blank JSONL record at line ${index + 1}.`
       );
     }
@@ -421,13 +413,13 @@ function parseCompactEvents(text: string): GritWireParse<readonly GritCompactEve
       decoded = JSON.parse(line);
     } catch {
       return parseFailure(
-        "GritMalformedOutput",
+        "DiagnosticOutputMalformed",
         `Grit apply dry-run emitted malformed JSONL at line ${index + 1}.`
       );
     }
     if (!Value.Check(GritCompactEventSchema, decoded)) {
       return parseFailure(
-        "GritSchemaDrift",
+        "DiagnosticOutputSchemaDrift",
         renderSchemaErrors(GritCompactEventSchema, decoded, `Grit JSONL line ${index + 1}`)
       );
     }
@@ -529,7 +521,7 @@ function parseFailure(failure: GritParseFailure, detail: string): GritWireParse<
 function incomplete(reason: string, detail: string): GritWireParse<never> {
   return {
     kind: "parsed-incomplete",
-    failure: "GritObservationIncomplete",
+    failure: "DiagnosticOutputIncomplete",
     detail: `${reason}: ${detail}`,
   };
 }
@@ -583,7 +575,7 @@ function validateAcquisitionEvidence<Evidence extends GritAcquisitionEvidence>(
     kind: "failed",
     acquisition: {
       kind: "evidence-mismatch",
-      failure: "GritProviderInternalContractViolation",
+      failure: "DiagnosticProviderContractViolation",
       detail: `Completed Grit command evidence did not match its target request: ${mismatches.join(", ")}.`,
       ...evidence,
     },

@@ -14,22 +14,21 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { NodeContext } from "@effect/platform-node";
 import { makeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
-import {
-  type GritApplyDryRunProviderRequest,
-  type GritCheckProviderRequest,
-  GritProvider,
-  type GritProviderService,
-  GritReportSchema,
-  makeGritProviderLayer,
-  pinnedGritNativePath,
-  runGritDiagnosticOutcomesEffect,
-} from "@habitat/cli/providers/grit/index";
-import { parseGritJsonText } from "@habitat/cli/providers/grit/types";
 import { CommandRunnerLive, type HabitatCommandResult } from "@habitat/cli/resources/command/index";
 import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { repoRoot as workspaceRepoRoot } from "@habitat/cli/resources/paths";
-import type { DiagnosticRunOutcome } from "@habitat/cli/service/model/diagnostics/index";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
+import {
+  type GritApplyDryRunProviderRequest,
+  type GritCheckProviderRequest,
+  type GritCommandService,
+  GritReportSchema,
+  makeGritCommandService,
+  pinnedGritNativePath,
+  runGritDiagnosticOutcomesEffect,
+} from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
+import type { DiagnosticRunOutcome } from "@habitat/cli/resources/rule-diagnostics/providers/grit/outcome";
+import { parseGritJsonText } from "@habitat/cli/resources/rule-diagnostics/providers/grit/types";
+import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Layer } from "effect";
 import { Value } from "typebox/value";
 import { afterEach, describe, expect, test } from "vitest";
@@ -42,12 +41,11 @@ afterEach(() => {
   }
 });
 
-const LiveGritBoundaryLayer = Layer.mergeAll(
+const LiveGritPrerequisites = Layer.mergeAll(
   NodeContext.layer,
   CommandRunnerLive,
   makeHabitatConfigLayer(makeHabitatConfig({ repoRoot: workspaceRepoRoot })),
-  makeGitStateProviderLayer(workspaceRepoRoot),
-  makeGritProviderLayer(workspaceRepoRoot)
+  makeGitStateProviderLayer(workspaceRepoRoot)
 );
 
 describe("generic Grit current-tree execution", () => {
@@ -121,7 +119,7 @@ describe("generic Grit current-tree execution", () => {
 
     expect(execution.outcomes.get(fixture.rule.id)).toMatchObject({
       kind: "provider-failed",
-      failure: "GritObservationIncomplete",
+      failure: "DiagnosticOutputIncomplete",
       detail: expect.stringContaining("no-processed-paths"),
     });
   });
@@ -132,7 +130,7 @@ describe("generic Grit current-tree execution", () => {
 
     expect(execution.outcomes.get(fixture.rule.id)).toMatchObject({
       kind: "provider-failed",
-      failure: "GritCommandFailed",
+      failure: "DiagnosticCommandFailed",
     });
   });
 
@@ -220,7 +218,7 @@ describe("generic Grit current-tree execution", () => {
     expect(execution.applyStdout).toContain('"__typename":"CreateFile"');
     expect(execution.outcomes.get(fixture.rule.id)).toMatchObject({
       kind: "provider-failed",
-      failure: "GritObservationIncomplete",
+      failure: "DiagnosticOutputIncomplete",
       detail: expect.stringContaining("create-file-path-base-ambiguous"),
     });
     expect(treeDigest(fixture.repoRoot)).toBe(before);
@@ -241,7 +239,7 @@ describe("generic Grit current-tree execution", () => {
 
 interface Fixture {
   readonly repoRoot: string;
-  readonly rule: RuleSourceFacts;
+  readonly rule: RuleGritFacts;
   readonly scanPath: string;
   readonly subjectPath: string;
 }
@@ -261,12 +259,12 @@ async function executeFixture(fixture: Fixture): Promise<{
   const observation: BoundaryObservation = {};
   const outcomes = await Effect.runPromise(
     Effect.gen(function* () {
-      const liveGrit = yield* GritProvider;
+      const liveGrit = yield* makeGritCommandService(workspaceRepoRoot);
       return yield* runGritDiagnosticOutcomesEffect([fixture.rule], {
         repoRoot: fixture.repoRoot,
         grit: observingGrit(liveGrit, observation),
       });
-    }).pipe(Effect.provide(LiveGritBoundaryLayer))
+    }).pipe(Effect.provide(LiveGritPrerequisites))
   );
   return {
     outcomes,
@@ -276,9 +274,9 @@ async function executeFixture(fixture: Fixture): Promise<{
 }
 
 function observingGrit(
-  live: GritProviderService,
+  live: GritCommandService,
   observation: BoundaryObservation
-): GritProviderService {
+): GritCommandService {
   return {
     ...live,
     check: (request) => {
@@ -389,7 +387,7 @@ function sourceRule(
   pattern: string,
   scanRoots: readonly string[],
   acquisition: "check" | "apply-dry-run"
-): RuleSourceFacts {
+): RuleGritFacts {
   return {
     id,
     patternName,

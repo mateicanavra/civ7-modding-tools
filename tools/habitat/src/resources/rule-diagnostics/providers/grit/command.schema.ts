@@ -3,13 +3,13 @@ import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
-import { type Static, Type } from "typebox";
-import { Value } from "typebox/value";
 import {
   type DiagnosticSelectedScanRoots,
   DiagnosticSelectedScanRootsSchema,
   parseDiagnosticSelectedScanRoots,
-} from "./diagnostic-scan-root.schema.js";
+} from "@habitat/cli/service/model/diagnostics/dto/diagnostic-scan-root.schema";
+import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
 
 const DiagnosticCommandRequestMetadataSchema = Type.Object(
   {
@@ -222,8 +222,6 @@ export type DiagnosticExecutedCommandObservation =
   | DiagnosticCompletedCommandObservation
   | DiagnosticFailedCommandObservation
   | DiagnosticInterruptedCommandObservation;
-export type DiagnosticCommandObservation = Static<typeof DiagnosticCommandObservationSchema>;
-
 const nativeGritOutputContractByFamily = {
   "selected-rule-json-check": "json-report-on-stderr",
   "selected-rule-apply-dry-run-observation": "compact-jsonl-on-stdout",

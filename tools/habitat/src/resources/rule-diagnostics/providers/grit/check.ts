@@ -1,11 +1,10 @@
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
-import {
-  nativeGritCommandRequestFromProcessRequest,
-  observedGritDiagnosticIdentity,
-} from "@habitat/cli/service/model/diagnostics/index";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
+import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Match, Option } from "effect";
+import type { GritCommandService } from "./command.js";
+import { nativeGritCommandRequestFromProcessRequest } from "./command.schema.js";
+import { observedGritDiagnosticIdentity } from "./identity.js";
 import {
   checkAcquisitionEvidence,
   commandFailure,
@@ -18,7 +17,6 @@ import {
   preCommandFailure,
 } from "./output.js";
 import { captureGritCommandEffect } from "./request.js";
-import type { GritProviderService } from "./resource.js";
 import {
   acquireScopedGritWorkspaceEffect,
   GritPatternAssetInvalid,
@@ -27,9 +25,9 @@ import {
 import type { GritReport } from "./types.js";
 
 export const runGritCheckAcquisitionEffect = Effect.fn("grit.check.acquire")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   roots: readonly [string, ...string[]],
-  options: { readonly repoRoot: string; readonly grit: GritProviderService }
+  options: { readonly repoRoot: string; readonly grit: GritCommandService }
 ) {
   return yield* Effect.gen(function* () {
     const workspace = yield* acquireScopedGritWorkspaceEffect(rule, options.repoRoot);
@@ -62,15 +60,15 @@ export const runGritCheckAcquisitionEffect = Effect.fn("grit.check.acquire")(fun
   }).pipe(
     Effect.catchTags({
       GritPatternAssetInvalid: (error) =>
-        Effect.succeed(preCommandFailure("GritPatternAssetFailed", error.detail)),
+        Effect.succeed(preCommandFailure("DiagnosticRuleMaterializationFailed", error.detail)),
       GritScopedConfigInvalid: (error) =>
-        Effect.succeed(preCommandFailure("GritScopedConfigFailed", error.detail)),
+        Effect.succeed(preCommandFailure("DiagnosticProviderSetupFailed", error.detail)),
     })
   );
 });
 
 function continueCompletedCheckEffect(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   roots: readonly [string, ...string[]],
   result: Parameters<typeof parseGritCheckCommand>[0],
   request: Parameters<typeof checkAcquisitionEvidence>[0],
@@ -87,7 +85,7 @@ function continueCompletedCheckEffect(
 }
 
 const completeCapturedCheckEffect = Effect.fn("grit.check.completeCapture")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   roots: readonly [string, ...string[]],
   result: Parameters<typeof parseGritCheckCommand>[0],
   evidence: GritCheckAcquisitionEvidence,
@@ -149,7 +147,7 @@ const canonicalCheckObservationEffect = Effect.fn("grit.check.canonicalize")(fun
 });
 
 function reconcileCheckObservation(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   roots: readonly string[],
   report: GritReport,
   processed: CanonicalPaths,
@@ -164,21 +162,21 @@ function reconcileCheckObservation(
   const validationFailures = [
     ...Match.value(processed).pipe(
       Match.when({ kind: "failed" }, ({ detail }) => [
-        { failure: "GritObservationIncomplete" as const, detail },
+        { failure: "DiagnosticOutputIncomplete" as const, detail },
       ]),
       Match.orElse(() => [])
     ),
     ...processedPaths.flatMap((processedPath) =>
       validationFailure(
         !roots.some((root) => pathIsWithinRoot(processedPath, root)),
-        "GritObservationIncomplete",
+        "DiagnosticOutputIncomplete",
         `path-escape: processed path ${processedPath} is outside every admitted root.`
       )
     ),
     ...roots.flatMap((root) =>
       validationFailure(
         !processedPaths.some((processedPath) => pathIsWithinRoot(processedPath, root)),
-        "GritObservationIncomplete",
+        "DiagnosticOutputIncomplete",
         `unobserved-root: Grit check provided no processed path for ${root}.`
       )
     ),
@@ -217,21 +215,21 @@ function resolveCanonicalPaths(
   const failures = [
     ...validationFailure(
       paths.length === 0,
-      "GritObservationIncomplete",
+      "DiagnosticOutputIncomplete",
       "no-processed-paths: Grit check emitted no top-level processed paths."
     ),
     ...Match.value(relativePath).pipe(
       Match.when(undefined, () => []),
       Match.orElse((candidate) => [
         {
-          failure: "GritObservationIncomplete" as const,
+          failure: "DiagnosticOutputIncomplete" as const,
           detail: `relative-processed-path: ${candidate}.`,
         },
       ])
     ),
     ...validationFailure(
       missingIndex >= 0,
-      "GritObservationIncomplete",
+      "DiagnosticOutputIncomplete",
       `unresolvable-processed-path: ${paths[missingIndex] ?? "unknown"}.`
     ),
   ];
@@ -248,7 +246,7 @@ function resolveCanonicalPaths(
 }
 
 type ValidationFailure = Readonly<{
-  failure: "GritObservationIncomplete" | "GritUnexpectedDiagnosticIdentity";
+  failure: "DiagnosticOutputIncomplete" | "DiagnosticUnexpectedIdentity";
   detail: string;
 }>;
 
@@ -264,7 +262,7 @@ function validationFailure(
 }
 
 function resultValidationFailures(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   result: GritReport["results"][number],
   resultPath: Option.Option<string>,
   processed: ReadonlySet<string>
@@ -273,19 +271,19 @@ function resultValidationFailures(
   return [
     ...validationFailure(
       !path.isAbsolute(result.path),
-      "GritObservationIncomplete",
+      "DiagnosticOutputIncomplete",
       `relative-result-path: ${result.path}.`
     ),
     ...validationFailure(
       Option.isNone(resultPath) ||
         !Option.exists(resultPath, (candidate) => processed.has(candidate)),
-      "GritObservationIncomplete",
+      "DiagnosticOutputIncomplete",
       `result-without-processing-evidence: ${result.path}.`
     ),
     ...validationFailure(
       observed.kind === "observed-identity-mismatch" ||
         observed.observedPatternIdentity !== rule.patternName,
-      "GritUnexpectedDiagnosticIdentity",
+      "DiagnosticUnexpectedIdentity",
       `unexpected-identity: result did not belong to ${rule.patternName}.`
     ),
   ];

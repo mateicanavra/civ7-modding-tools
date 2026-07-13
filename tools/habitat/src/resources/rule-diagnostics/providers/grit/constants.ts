@@ -7,14 +7,3 @@ export const protectedScanRootPrefixes = [
   "node_modules/",
   "tools/habitat/dist/",
 ];
-
-export const gritCandidateExtensions = new Set([
-  ".cjs",
-  ".cts",
-  ".js",
-  ".jsx",
-  ".mjs",
-  ".mts",
-  ".ts",
-  ".tsx",
-]);

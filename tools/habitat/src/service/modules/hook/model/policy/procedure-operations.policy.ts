@@ -12,7 +12,7 @@ import {
 } from "@habitat/cli/service/model/check/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import {
-  approvedScanRootsForRules,
+  approvedSourceScanRootsForRules,
   stagedSourceCheckPaths,
 } from "@habitat/cli/service/model/source-check/index";
 import { Effect } from "effect";
@@ -316,7 +316,10 @@ export function prePushHookSourceCheckPaths(
   changedPaths: readonly string[]
 ): readonly string[] {
   if (!hookSourceCheckEnabled(context)) return [];
-  return stagedSourceCheckPaths(changedPaths, hookSourceCheckApprovedRoots(context), {
+  const existingPaths = changedPaths.filter((candidate) =>
+    context.platform.pathExists(path.resolve(context.platform.repoRoot, candidate))
+  );
+  return stagedSourceCheckPaths(existingPaths, hookSourceCheckApprovedRoots(context), {
     repoRoot: context.platform.repoRoot,
   });
 }
@@ -409,10 +412,12 @@ export function stagedHookCheck(
 ): HookRouterEffect<StagedHookCheckResult> {
   return Effect.gen(function* () {
     const runner = runnerForStagedHookCheckPhase(phase);
-    const argv = ["--staged", "--runner", runner, "--json"];
+    const hookCheck = phase === "source-check";
+    const argv = ["--staged", ...(hookCheck ? ["--hook-check"] : []), "--runner", runner, "--json"];
     const startedAtMs = yield* hookNow();
     const report = yield* context.createCheckReport({
       runner,
+      ...(hookCheck ? { hookCheck: true } : {}),
       staged: true,
       stagedPaths,
       command: checkCommandContext(argv),
@@ -473,7 +478,7 @@ function hashRepoRelativeFile(
 
 function hookSourceCheckApprovedRoots(context: HookProcedureContext): string[] {
   const hookRuleIds = context.rules.hookCheck.map((rule) => rule.id);
-  return approvedScanRootsForRules(factsForRuleIds(context.rules.grit, hookRuleIds));
+  return approvedSourceScanRootsForRules(factsForRuleIds(context.rules.diagnostic, hookRuleIds));
 }
 
 function hookSourceCheckEnabled(context: HookProcedureContext): boolean {

@@ -1,7 +1,7 @@
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { GitStateProvider } from "@habitat/cli/providers/git/index";
+import { CommandExecutor } from "@effect/platform/CommandExecutor";
+import { GitStateProvider } from "@habitat/cli/providers/git/index";
 import {
   CommandFailed,
   CommandInterrupted,
@@ -13,10 +13,9 @@ import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/types";
-import type { HabitatConfig } from "@habitat/cli/resources/config/index";
+import { HabitatConfig } from "@habitat/cli/resources/config/index";
 import type { DiagnosticSelectedScanRoots } from "@habitat/cli/service/model/diagnostics/index";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
-import { Context, Effect, Layer, Match } from "effect";
+import { Duration, Effect, Match } from "effect";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { defaultGritCommandTimeoutMs } from "./constants.js";
@@ -25,20 +24,12 @@ import {
   nativeIdentityMismatchBeforeSpawn,
   nativeIdentityMismatchFromCompleted,
 } from "./request.js";
-import { runGritRulesEffect } from "./runner.js";
 import { parseGritJsonText } from "./types.js";
 
 const pinnedGritIdentity = {
   packageVersion: "0.1.0-alpha.1743007075",
   nativeVersion: "grit 0.1.1",
 } as const;
-
-export type GritProviderRequirements =
-  | CommandExecutor
-  | HabitatConfig
-  | FileSystem.FileSystem
-  | CommandRunner
-  | GitStateProvider;
 
 export interface GritCheckProviderRequest {
   readonly scanRoots: Readonly<DiagnosticSelectedScanRoots>;
@@ -62,51 +53,58 @@ export interface GritApplyDryRunProviderRequest {
   readonly timeoutMs?: number;
 }
 
-export type GritProviderCommandRequest =
+export type GritCommandRequest =
   | ({ readonly kind: "check" } & GritCheckProviderRequest)
   | ({ readonly kind: "apply-dry-run" } & GritApplyDryRunProviderRequest);
 
-export interface GritProviderService {
-  readonly check: (request: GritCheckProviderRequest) => ReturnType<typeof runLiveRequest>;
-  readonly checkRequest: (request: GritCheckProviderRequest) => HabitatProcessRequest;
-  readonly applyDryRun: (
-    request: GritApplyDryRunProviderRequest
-  ) => ReturnType<typeof runLiveRequest>;
-  readonly applyDryRunRequest: (request: GritApplyDryRunProviderRequest) => HabitatProcessRequest;
-  readonly runRules: (
-    selectedRules: readonly RuleSourceFacts[],
-    options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
-  ) => ReturnType<typeof runGritRulesEffect>;
-}
-
-export class GritProvider extends Context.Tag("@habitat/cli/GritProvider")<
-  GritProvider,
-  GritProviderService
->() {}
-
-export function makeGritProviderLayer(repoRoot: string) {
-  return Layer.succeed(GritProvider, makeLiveGritProvider(repoRoot));
-}
-
-export function makeFakeGritProviderLayer(
-  handler: (
-    request: HabitatProcessRequest,
-    providerRequest: GritProviderCommandRequest
-  ) => HabitatCommandResult,
-  options: { readonly repoRoot?: string } = {}
+export const makeGritCommandService = Effect.fn("grit.commandService.make")(function* (
+  repoRoot: string
 ) {
-  return Layer.succeed(GritProvider, makeFakeGritProviderService(handler, options));
-}
+  const runner = yield* CommandRunner;
+  const fs = yield* FileSystem.FileSystem;
+  const commandExecutor = yield* CommandExecutor;
+  const config = yield* HabitatConfig;
+  const gitState = yield* GitStateProvider;
+  const runCommand = (request: HabitatProcessRequest) =>
+    runner
+      .run(request)
+      .pipe(
+        Effect.provideService(CommandExecutor, commandExecutor),
+        Effect.provideService(HabitatConfig, config),
+        Effect.provideService(GitStateProvider, gitState)
+      );
+  /** Successful preflight is lazy and shared only within this command-service realization. */
+  const [cachedPreflight, invalidatePreflight] = yield* Effect.cachedInvalidateWithTTL(
+    preflightPinnedGritEffect(repoRoot, runCommand, defaultGritCommandTimeoutMs, fs),
+    Duration.infinity
+  );
+  const preflight = cachedPreflight.pipe(Effect.tapError(() => invalidatePreflight));
+  const runTarget = Effect.fn("grit.live.run")(function* (request: HabitatProcessRequest) {
+    yield* preflight;
+    return yield* runCommand(request);
+  });
+  return {
+    check: (request: GritCheckProviderRequest) => runTarget(gritCheckRequest(repoRoot, request)),
+    checkRequest: (request: GritCheckProviderRequest) => gritCheckRequest(repoRoot, request),
+    applyDryRun: (request: GritApplyDryRunProviderRequest) =>
+      runTarget(gritApplyDryRunRequest(repoRoot, request)),
+    applyDryRunRequest: (request: GritApplyDryRunProviderRequest) =>
+      gritApplyDryRunRequest(repoRoot, request),
+  };
+});
 
-export function makeFakeGritProviderService(
+export interface GritCommandService
+  extends Effect.Effect.Success<ReturnType<typeof makeGritCommandService>> {}
+
+export function makeFakeGritCommandService(
   handler: (
     request: HabitatProcessRequest,
-    providerRequest: GritProviderCommandRequest
+    providerRequest: GritCommandRequest
   ) => HabitatCommandResult,
   options: { readonly repoRoot?: string } = {}
-): GritProviderService {
+): GritCommandService {
   const repoRoot = options.repoRoot ?? ".";
-  const provider: GritProviderService = {
+  return {
     check: (request) => {
       const command = gritCheckRequest(repoRoot, request);
       return Effect.try({
@@ -123,36 +121,8 @@ export function makeFakeGritProviderService(
       });
     },
     applyDryRunRequest: (request) => gritApplyDryRunRequest(repoRoot, request),
-    runRules: (selectedRules, runOptions) =>
-      runGritRulesEffect(selectedRules, { ...runOptions, grit: provider }),
   };
-  return provider;
 }
-
-function makeLiveGritProvider(repoRoot: string): GritProviderService {
-  const provider: GritProviderService = {
-    check: (request) => runLiveRequest(repoRoot, gritCheckRequest(repoRoot, request)),
-    checkRequest: (request) => gritCheckRequest(repoRoot, request),
-    applyDryRun: (request) => runLiveRequest(repoRoot, gritApplyDryRunRequest(repoRoot, request)),
-    applyDryRunRequest: (request) => gritApplyDryRunRequest(repoRoot, request),
-    runRules: (selectedRules, options) =>
-      runGritRulesEffect(selectedRules, { ...options, grit: provider }),
-  };
-  return provider;
-}
-
-const runLiveRequest = Effect.fn("grit.live.run")(function* (
-  repoRoot: string,
-  request: HabitatProcessRequest
-) {
-  const runner = yield* CommandRunner;
-  yield* preflightPinnedGritEffect(
-    repoRoot,
-    runner.run,
-    effectiveGritCommandTimeoutMs(request.timeoutMs)
-  );
-  return yield* runner.run(request);
-});
 
 export function pinnedGritNativePath(repoRoot: string): string {
   return path.join(
@@ -262,11 +232,9 @@ const GritPackageSchema = Type.Object(
 );
 type GritPackage = Static<typeof GritPackageSchema>;
 
-const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* (
-  repoRoot: string,
-  run: CommandRunnerService["run"],
-  timeoutMs: number
-) {
+const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* <
+  Run extends CommandRunnerService["run"],
+>(repoRoot: string, run: Run, timeoutMs: number, fs: FileSystem.FileSystem) {
   const executable = pinnedGritNativePath(repoRoot);
   const packagePath = path.join(repoRoot, "node_modules", "@getgrit", "cli", "package.json");
   const preflightRequest: HabitatProcessRequest = {
@@ -281,7 +249,6 @@ const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* (
     captureGitState: false,
     cachePolicy: { mode: "disabled", observableStatus: "unknown" },
   };
-  const fs = yield* FileSystem.FileSystem;
   const packageSource = yield* fs
     .readFileString(packagePath)
     .pipe(Effect.mapError((error) => preflightUnavailable(preflightRequest, String(error))));

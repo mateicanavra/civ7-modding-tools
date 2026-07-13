@@ -94,16 +94,16 @@ export function renderDiagnosticScanRootRefusal(
 ): string {
   switch (decision.reason) {
     case "empty":
-      return "Grit scan roots are empty.";
+      return "Diagnostic scan roots are empty.";
     case "outside-repo":
-      return `Grit scan root is outside the repo: ${decision.root}.`;
+      return `Diagnostic scan root is outside the repo: ${decision.root}.`;
     case "missing":
-      return `Grit scan root does not exist: ${decision.root}.`;
+      return `Diagnostic scan root does not exist: ${decision.root}.`;
     case "generated-output":
-      return `Grit scan root is generated output: ${decision.root}.`;
+      return `Diagnostic scan root is generated output: ${decision.root}.`;
     case "protected-root":
-      return `Grit scan root is protected: ${decision.root}.`;
+      return `Diagnostic scan root is protected: ${decision.root}.`;
     case "not-approved":
-      return `Grit scan root is not approved: ${decision.root}.`;
+      return `Diagnostic scan root is not approved: ${decision.root}.`;
   }
 }
