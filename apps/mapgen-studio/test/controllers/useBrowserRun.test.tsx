@@ -1,8 +1,14 @@
 // @vitest-environment jsdom
-import { act, renderHook } from "@testing-library/react";
+
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./_setup";
+
+vi.mock("../../src/features/civ7Setup/seedPolicy", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/features/civ7Setup/seedPolicy")>();
+  return { ...actual, randomCiv7StudioSeed: vi.fn(() => "456") };
+});
 
 import { type UseBrowserRunArgs, useBrowserRun } from "../../src/app/hooks/useBrowserRun";
 import { createStudioEditorCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
@@ -51,7 +57,10 @@ function setup(over: Partial<UseBrowserRunArgs> = {}) {
 }
 
 beforeEach(resetStores);
-afterEach(() => vi.clearAllMocks());
+afterEach(() => {
+  vi.clearAllMocks();
+  vi.useRealTimers();
+});
 
 describe("useBrowserRun revision state", () => {
   it("runs the current pipeline config and records only its local revision", () => {
@@ -108,6 +117,74 @@ describe("useBrowserRun revision state", () => {
     expect(props.toast).toHaveBeenCalledWith(
       "Browser run failed: config is invalid for this recipe.",
       { variant: "error" }
+    );
+  });
+
+  it("rerolls to one persisted seed and revision with Auto-run disabled", () => {
+    const { result, runnerActions } = setup();
+
+    act(() => result.current.reroll());
+
+    const authored = useAuthoringStore.getState();
+    expect(authored.recipeSettings.seed).toBe("456");
+    expect(authored.authoringRevision).toBe(1);
+    expect(useRunStore.getState().lastRunSnapshot).toEqual({ authoringRevision: 1 });
+    expect(runnerActions.start).toHaveBeenCalledTimes(1);
+    expect(runnerActions.start).toHaveBeenCalledWith(expect.objectContaining({ seed: 456 }));
+  });
+
+  it("reconciles an Auto-run reroll through terminal state without starting again", () => {
+    vi.useFakeTimers();
+    const { result, rerender, props, runnerActions } = setup();
+
+    act(() => result.current.triggerRun());
+    runnerActions.start.mockClear();
+    act(() => result.current.setAutoRunEnabled(true));
+
+    act(() => result.current.reroll());
+    expect(runnerActions.start).toHaveBeenCalledTimes(1);
+    expect(useRunStore.getState().lastRunSnapshot).toEqual({
+      authoringRevision: useAuthoringStore.getState().authoringRevision,
+    });
+
+    rerender({ ...props, browserRunning: true });
+    rerender({ ...props, browserRunning: false });
+    act(() => vi.runAllTimers());
+
+    expect(runnerActions.start).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps ordinary authoring edits on the debounced Auto-run path", () => {
+    vi.useFakeTimers();
+    const { result, runnerActions } = setup();
+
+    act(() => result.current.triggerRun());
+    runnerActions.start.mockClear();
+    act(() => result.current.setAutoRunEnabled(true));
+    act(() =>
+      useAuthoringStore
+        .getState()
+        .setRecipeSettings({ recipe: recipeId, preset: "none", seed: "789" })
+    );
+
+    act(() => vi.advanceTimersByTime(299));
+    expect(runnerActions.start).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1));
+    expect(runnerActions.start).toHaveBeenCalledTimes(1);
+    expect(runnerActions.start).toHaveBeenCalledWith(expect.objectContaining({ seed: 789 }));
+  });
+
+  it("refuses reroll while another Studio operation is running", () => {
+    const { result, runnerActions, props } = setup({ runInGameRunning: true });
+
+    act(() => result.current.reroll());
+
+    expect(useAuthoringStore.getState().recipeSettings.seed).toBe("123");
+    expect(useAuthoringStore.getState().authoringRevision).toBe(0);
+    expect(runnerActions.start).not.toHaveBeenCalled();
+    expect(props.toast).toHaveBeenCalledWith(
+      "Finish the current Studio operation before rerolling.",
+      { variant: "info" }
     );
   });
 });

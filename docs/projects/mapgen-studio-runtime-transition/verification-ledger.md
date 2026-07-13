@@ -1,8 +1,7 @@
 # Verification Ledger
 
-Status: G.2 authority-derived fix admission is a sealed local Graphite layer
-above the sealed control, G.1, and RuleDiagnostics local Graphite layers; no
-product closure claim
+Status: A.3a atomic reroll is a sealed local Graphite layer above the sealed G.2,
+RuleDiagnostics, G.1, and control local Graphite layers; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -12,23 +11,25 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-13T14:57:20-04:00 EDT
-- Current phase: `generic-fix-admission-sealed`
-- Last completed gate: exact staging matched pre-create digest
-  `ca3d649796fb`; Graphite created local child
-  `codex/mapgen-runtime-closeout-generic-fix-admission` above `ede4871594fa`
-  with initial identity `c28b04ec0068`, and terminal records alone were amended.
+- Last updated: 2026-07-13T16:11:01-04:00 EDT
+- Current phase: `atomic-reroll-sealed`
+- Last completed gate: exact staging matched digest `eab2ca445659`; Graphite
+  created local child `codex/mapgen-studio-atomic-reroll` above `171ee61ce0c1`
+  with initial identity `d6b5f33aa887`, then four terminal records alone were
+  amended.
 - Current gate: semantic boundary complete. Preserve this ratcheted layer and
-  compact before entering the next product-closeout container.
+  compact before entering the next decision container.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action: request semantic-boundary compaction, then revalidate the sealed
-  stack and begin the next explicitly admitted closeout slice.
-- Blocked by: nothing external. The preceding layers remain ratcheted; no A.2
-  work is admitted into G.2.
+- Next action: compact, then team-review the proposed `RuleFixPreview` authority
+  against sealed G.2 and integrate the accepted decision into the closeout
+  sequence. Before A.2, reconcile and retire the stale authority worktree and
+  load the readiness descent/N=1 planning corpus.
+- Blocked by: nothing external. The preceding layers remain ratcheted; A.2,
+  A.3, A.4, A.5, control-oRPC, P19/P20/P21, recut, and merge are excluded.
 - Takeover DRA: Codex task
   `019f57cc-61ae-7f21-9515-66256fa8da9f`; sole accountable owner for Product/
   Development and Supervisor/Enforcer obligations, authority synthesis,
@@ -38,14 +39,13 @@ Current scope and DRA frame:
   accepted, idle and non-mutating. Its old standalone-A.2 ownership claims are
   historical receipts, not current authority.
 - Active Graphite mutation lease: none. Operation
-  `takeover-generic-fix-admission-seal-20260713-01` closed after exact staging,
-  one local Graphite child, terminal record-only amendment, and clean census.
+  `takeover-atomic-reroll-seal-20260713-01` closed after exact staging, one
+  local child, terminal record-only amendment, and clean census.
 - Control worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
-  branch `codex/mapgen-runtime-closeout-generic-fix-admission`, parent
-  `ede4871594fa`; initial create `c28b04ec0068`, with final identity owned by
-  the amended branch ref. The reviewed G.2 candidate is committed; the worktree
-  and index are clean.
+  branch `codex/mapgen-studio-atomic-reroll`, parent `171ee61ce0c1`; initial
+  create `d6b5f33aa887`, with final identity owned by the amended branch ref.
+  The reviewed A.3a candidate is committed and the index is clean.
 - Preserved evidence worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
   branch `codex/mapgen-domain-operation-authority`, HEAD/base `9ff0f711e0d7`.
@@ -63,12 +63,14 @@ Current scope and DRA frame:
   differential Biome errors fell from 59 to 55; the sole new error-level finding
   is the explicit closed Effect signature on the stable capability, with zero
   formatter/import defects.
-- Current-lane Graphite state: G.2 is the local, unsubmitted child of the sealed
-  RuleDiagnostics layer; G.1 and control reconciliation remain downstack above
-  the takeover frame and sealed baseline manifests.
+- Current-lane Graphite state: A.3a is the local, unsubmitted tip above G.2.
+  RuleDiagnostics, G.1, and control reconciliation remain downstack above the
+  takeover frame and sealed baseline manifests.
   `main == origin/main == 46943c5f1165`; the readiness sentinel and its worktree
   remain excluded.
-- Agent/process state: implementation, four repair owners, design census,
+- Agent/process state: A.3a product and inherited-evidence censuses and the
+  two-path implementation owner are terminal. Prior G.2 implementation, four
+  repair owners, design census,
   three prior exact-review cohorts, pre-freeze audit, and differential-Biome
   sessions are terminal. Terminal TypeScript and architecture review passed;
   product review accepted `G2-TERM-RUNTIME-001`, and the bounded one-file repair
@@ -94,6 +96,7 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 
 | Wave | Purpose | State | Required follow-up |
 | --- | --- | --- | --- |
+| A.3a atomic reroll | one authored seed/revision, one submitted browser run with Auto-run off or on | sealed-local-graphite-layer | ratcheted base; compact before the next decision container |
 | G.2 generic fix admission | atomic registered plan-only authority, one/many no-write planning, duplicate-state deletion | sealed-local-graphite-layer | ratcheted base; compact before the next explicitly admitted closeout slice |
 | RuleDiagnostics resource/provider topology | stable capability demand/output, one immutable catalog, private Grit implementation, dead source-engine deletion | sealed-local-graphite-layer | ratcheted base; reopen only on concrete invalidation |
 | takeover framing and onboarding review | full initiative arc, philosophy, orchestration, mutation safety, and normative frame | closed-passed | three temporary frame reviewers dissolved after exact-digest pass; they are not initiative reviewers or implementers |

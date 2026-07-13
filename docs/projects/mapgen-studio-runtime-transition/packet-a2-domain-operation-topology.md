@@ -246,10 +246,11 @@ codex/mapgen-domain-operation-topology               # this frame
   -> codex/mapgen-generated-validator-ownership
   -> codex/habitat-rule-introduction-baseline-manifests
   -> codex/mapgen-runtime-closeout-takeover-frame
-  -> codex/habitat-grit-diagnostic-acquisition
-  -> codex/habitat-authority-derived-fix-admission
+  -> codex/mapgen-runtime-closeout-grit-diagnostic-acquisition
+  -> codex/mapgen-runtime-closeout-rule-diagnostics-resource
+  -> codex/mapgen-runtime-closeout-generic-fix-admission
+  -> codex/mapgen-studio-atomic-reroll              # A.3a; source-independent of A.2
   -> codex/mapgen-domain-operation-authority
-  -> codex/mapgen-studio-atomic-reroll              # A.3a; independent of A.2 closure
   -> codex/mapgen-domain-operation-ecology
   -> codex/mapgen-domain-operation-foundation
   -> codex/mapgen-domain-operation-morphology
@@ -258,13 +259,12 @@ codex/mapgen-domain-operation-topology               # this frame
   -> codex/mapgen-domain-operation-placement
 ```
 
-Each branch is a complete, reviewable domino. Ecology starts from the sealed
-A.3a tip; A.3a is not counted among A.2's Authority-plus-six closure branches.
-If source mapping proves a real dependency that changes this placement, amend
-and review the spine before either branch mutates. Otherwise, the next branch
-starts only after the current branch's implementation, focused checks, three
-review lanes, repairs, closing checks, and Graphite commit are complete. Final
-aggregate
+Each branch is a complete, reviewable domino. Source mapping proved A.3a has no
+A.2 dependency, so A.2 Authority starts from the sealed A.3a tip and Ecology
+starts from the Authority tip. A.3a is not counted among A.2's Authority-plus-six
+closure branches. The next branch starts only after the current branch's
+implementation, focused checks, three review lanes, repairs, closing checks,
+and Graphite commit are complete. Final aggregate
 receipts amend the Placement branch; do not create a bookkeeping-only closure
 branch.
 
