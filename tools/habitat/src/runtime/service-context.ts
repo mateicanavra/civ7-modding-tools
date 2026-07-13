@@ -6,7 +6,7 @@ import { CommandRunner } from "@habitat/cli/resources/command/index";
 import { HabitatPlatform } from "@habitat/cli/resources/platform/index";
 import { silentHabitatReporter } from "@habitat/cli/resources/reporter/index";
 import { RuleDiagnostics } from "@habitat/cli/resources/rule-diagnostics/index";
-import { RuleFixPlanning } from "@habitat/cli/resources/rule-fix-planning/index";
+import { RuleFixPreview } from "@habitat/cli/resources/rule-fix-preview/index";
 import { habitatServiceManagedRuntime } from "@habitat/cli/runtime/service-runtime";
 import type { HabitatServiceContext, HabitatServiceDeps } from "@habitat/cli/service/base";
 import { RuleFacts } from "@habitat/cli/service/model/rules/index";
@@ -30,7 +30,7 @@ export async function createLiveHabitatServiceContext(
         platform,
         reporter: silentHabitatReporter,
         ruleDiagnostics: yield* RuleDiagnostics,
-        ruleFixPlanning: yield* RuleFixPlanning,
+        ruleFixPreview: yield* RuleFixPreview,
         rules,
       } satisfies HabitatServiceDeps;
     })

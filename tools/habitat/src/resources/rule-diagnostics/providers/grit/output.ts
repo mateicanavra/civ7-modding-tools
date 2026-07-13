@@ -53,7 +53,30 @@ const GritApplyDryRunObservationSchema = Type.Object(
     kind: Type.Literal("apply-dry-run"),
     processed: Type.Integer({ minimum: 1 }),
     found: Type.Integer({ minimum: 0 }),
-    findingPaths: Type.Array(Type.String({ minLength: 1 })),
+    findings: Type.Array(
+      Type.Union([
+        Type.Object(
+          { kind: Type.Literal("match"), path: Type.String({ minLength: 1 }) },
+          { additionalProperties: false }
+        ),
+        Type.Object(
+          {
+            kind: Type.Literal("rewrite"),
+            originalPath: Type.String({ minLength: 1 }),
+            rewrittenPath: Type.String({ minLength: 1 }),
+          },
+          { additionalProperties: false }
+        ),
+        Type.Object(
+          { kind: Type.Literal("create-file"), path: Type.String({ minLength: 1 }) },
+          { additionalProperties: false }
+        ),
+        Type.Object(
+          { kind: Type.Literal("remove-file"), path: Type.String({ minLength: 1 }) },
+          { additionalProperties: false }
+        ),
+      ])
+    ),
   },
   { additionalProperties: false }
 );
@@ -490,17 +513,20 @@ function reconcileCompactEvents(
         break;
       case "Rewrite":
         observedFound += Math.max(1, event.original.ranges.length);
-        findings.push({ kind: "rewrite", path: event.original.sourceFile });
+        findings.push({
+          kind: "rewrite",
+          originalPath: event.original.sourceFile,
+          rewrittenPath: event.rewritten.sourceFile,
+        });
         break;
       case "CreateFile":
         observedFound += 1;
         findings.push({ kind: "create-file", path: event.rewritten.sourceFile });
         break;
       case "RemoveFile":
-        return incomplete(
-          "unproven-remove-file-cardinality",
-          "Grit emitted RemoveFile, whose cardinality is not established for the pinned native."
-        );
+        observedFound += Math.max(1, event.original.ranges.length);
+        findings.push({ kind: "remove-file", path: event.original.sourceFile });
+        break;
       default:
         assertNeverEvent(event);
     }
@@ -517,10 +543,15 @@ function reconcileCompactEvents(
   };
 }
 
-export interface GritApplyFindingEvidence {
-  readonly kind: "match" | "rewrite" | "create-file";
-  readonly path: string;
-}
+export type GritApplyFindingEvidence =
+  | { readonly kind: "match"; readonly path: string }
+  | {
+      readonly kind: "rewrite";
+      readonly originalPath: string;
+      readonly rewrittenPath: string;
+    }
+  | { readonly kind: "create-file"; readonly path: string }
+  | { readonly kind: "remove-file"; readonly path: string };
 
 function parseFailure(failure: GritParseFailure, detail: string): GritWireParse<never> {
   return { kind: "parse-failed", failure, detail };

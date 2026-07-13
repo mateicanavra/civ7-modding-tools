@@ -184,9 +184,9 @@ bun habitat fix            # immediate live-mutation refusal; no service realiza
 nx run-many -t biome:ci # CI-equivalent hygiene gate
 ```
 
-`habitat fix` is not a Biome orchestration path. `--dry-run` derives plan-only
+`habitat fix` is not a Biome orchestration path. `--dry-run` derives preview-only
 admissions from registered `rule.json` records, validates the complete optional
-rule selection, and reports affected paths without writing. A non-dry
+rule selection, and reports file impacts without writing. A non-dry
 invocation refuses before constructing the service client. Formatting, gates,
 rollback, transaction records, and commit readiness are not implemented; Biome
 remains a separate hygiene and hook capability.

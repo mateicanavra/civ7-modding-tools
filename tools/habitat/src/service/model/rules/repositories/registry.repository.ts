@@ -601,6 +601,11 @@ function ruleRunnerSemanticsIssues(
           runnerIssue(path, rule.id, "patternName must match the derived grit runner patternName.")
         );
       }
+      if (rule.runner.fix && rule.pathCoverage.some((coverage) => coverage.kind !== "exact-path")) {
+        issues.push(
+          runnerIssue(path, rule.id, "fix preview admission requires exact-path coverage only.")
+        );
+      }
       issues.push(...gritPatternPathIssues(rule, path));
     } else {
       if (rule.scanRoots) {

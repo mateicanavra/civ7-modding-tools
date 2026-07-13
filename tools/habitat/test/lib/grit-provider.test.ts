@@ -10,6 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
+import * as PlatformError from "@effect/platform/Error";
 import { NodeContext } from "@effect/platform-node";
 import { makeFakeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import {
@@ -36,6 +37,10 @@ import {
   nativeGritCommandRequestFromProcessRequest,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/command.schema";
 import { defaultGritCommandTimeoutMs } from "@habitat/cli/resources/rule-diagnostics/providers/grit/constants";
+import {
+  makeGritRuleFixPreviewRunner,
+  makeGritRuleFixPreviewService,
+} from "@habitat/cli/resources/rule-diagnostics/providers/grit/fix-preview";
 import {
   makeFakeGritCommandService,
   makeGritCommandService,
@@ -71,10 +76,11 @@ import {
   type GritResult,
   GritResultSchema,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/types";
-import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
+import type { RuleFixFacts, RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Layer, Match, Schema } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
+import { makeTestRuleFacts } from "../support/habitat-service-deps";
 
 const gritFixturePaths = {
   providerRoot: "tools/habitat/src/resources/rule-diagnostics/providers/grit",
@@ -367,7 +373,7 @@ describe("Grit closed wire decoders", () => {
           kind: "apply-dry-run",
           processed: 1,
           found: 0,
-          findingPaths: [],
+          findings: [],
         },
       },
       { ...completedObservation, request: applyRequest },
@@ -459,7 +465,7 @@ describe("Grit closed wire decoders", () => {
     const applyComplete = Match.value(applyEvidence).pipe(
       Match.when({ kind: "accepted" }, ({ evidence }) =>
         completeApplyAcquisition(
-          { processed: 1, found: 0, findingPaths: [] },
+          { processed: 1, found: 0, findings: [] },
           evidence satisfies GritApplyAcquisitionEvidence
         )
       ),
@@ -582,7 +588,11 @@ describe("Grit closed wire decoders", () => {
         found: 4,
         findings: [
           { kind: "match", path: path.join(root, "types.ts") },
-          { kind: "rewrite", path: path.join(root, "output.ts") },
+          {
+            kind: "rewrite",
+            originalPath: path.join(root, "output.ts"),
+            rewrittenPath: path.join(root, "output.ts"),
+          },
           { kind: "create-file", path: "generated.ts" },
         ],
       },
@@ -659,7 +669,7 @@ describe("Grit closed wire decoders", () => {
     });
   });
 
-  test("requires one final successful AllDone and blocks RemoveFile cardinality", () => {
+  test("requires one final successful AllDone and counts RemoveFile ranges", () => {
     const file = path.join(repoRoot, providerFile);
     expect(
       parseGritApplyDryRunCommand(commandResult({ stdout: jsonl(matchEvent(file, 1)) }))
@@ -696,14 +706,243 @@ describe("Grit closed wire decoders", () => {
     ).toMatchObject({ kind: "parse-failed", failure: "DiagnosticOutputSchemaDrift" });
     expect(
       parseGritApplyDryRunCommand(
-        commandResult({ stdout: jsonl(removeFileEvent(file), allDone(1, 1)) })
+        commandResult({ stdout: jsonl(removeFileEvent(file, 0), allDone(1, 1)) })
       )
-    ).toMatchObject({
-      kind: "parsed-incomplete",
-      detail: expect.stringContaining("unproven-remove-file-cardinality"),
+    ).toEqual({
+      kind: "parsed",
+      value: {
+        processed: 1,
+        found: 1,
+        findings: [{ kind: "remove-file", path: file }],
+      },
     });
+    expect(
+      parseGritApplyDryRunCommand(
+        commandResult({ stdout: jsonl(removeFileEvent(file, 3), allDone(1, 3)) })
+      )
+    ).toMatchObject({ kind: "parsed", value: { found: 3 } });
   });
 });
+
+describe("Grit fix preview projection", () => {
+  test("projects closed impacts, enforces declared effects, and refuses Match-only evidence", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-preview-"));
+    try {
+      mkdirSync(path.join(fixture, ".habitat"));
+      mkdirSync(path.join(fixture, "scan"));
+      const source = path.join(fixture, "scan/source.ts");
+      const renamed = path.join(fixture, "scan/renamed.ts");
+      const alias = path.join(fixture, "scan/source-alias.ts");
+      const created = path.join(fixture, "scan/created.ts");
+      const probeFailed = path.join(fixture, "scan/probe-failed.ts");
+      writeFileSync(source, "const value = 1;\n");
+      writeFileSync(
+        path.join(fixture, ".habitat/fix.pattern.md"),
+        readFileSync(path.join(repoRoot, providerPattern), "utf8")
+      );
+
+      expect(await previewEvent(fixture, rewriteEvent(source, 1), ["modify"])).toMatchObject({
+        kind: "completed",
+        results: [{ kind: "previewed", impacts: [{ kind: "modify", path: "scan/source.ts" }] }],
+      });
+      const changedRewrite = {
+        ...rewriteEvent(source, 1),
+        rewritten: { sourceFile: renamed },
+      };
+      expect(await previewEvent(fixture, changedRewrite, ["rename"])).toMatchObject({
+        kind: "completed",
+        results: [{ kind: "authority-refused", undeclaredEffects: ["modify"] }],
+      });
+      expect(await previewEvent(fixture, changedRewrite, ["modify", "rename"])).toMatchObject({
+        kind: "completed",
+        results: [
+          {
+            kind: "previewed",
+            impacts: [
+              { kind: "modify", path: "scan/renamed.ts" },
+              { kind: "rename", from: "scan/source.ts", to: "scan/renamed.ts" },
+            ],
+          },
+        ],
+      });
+      symlinkSync(source, alias);
+      expect(
+        await previewEvent(
+          fixture,
+          { ...rewriteEvent(source, 1), rewritten: { sourceFile: alias } },
+          ["modify", "rename"]
+        )
+      ).toMatchObject({
+        kind: "completed",
+        results: [
+          {
+            kind: "provider-failed",
+            failure: "DiagnosticOutputIncomplete",
+            detail: expect.stringContaining("rewrite-destination-collision"),
+          },
+        ],
+      });
+      expect(await previewEvent(fixture, createFileEvent(created), ["create"])).toMatchObject({
+        kind: "completed",
+        results: [{ kind: "previewed", impacts: [{ kind: "create", path: "scan/created.ts" }] }],
+      });
+      writeFileSync(created, "const existing = true;\n");
+      expect(await previewEvent(fixture, createFileEvent(created), ["create"])).toMatchObject({
+        kind: "completed",
+        results: [
+          {
+            kind: "provider-failed",
+            failure: "DiagnosticOutputIncomplete",
+            detail: expect.stringContaining("create-file-collision"),
+          },
+        ],
+      });
+      expect(await previewEvent(fixture, removeFileEvent(source), ["delete"])).toMatchObject({
+        kind: "completed",
+        results: [{ kind: "previewed", impacts: [{ kind: "delete", path: "scan/source.ts" }] }],
+      });
+      expect(await previewEvent(fixture, matchEvent(source, 1), ["modify"])).toMatchObject({
+        kind: "completed",
+        results: [
+          {
+            kind: "provider-failed",
+            failure: "DiagnosticOutputIncomplete",
+            detail: expect.stringContaining("transformation-evidence-missing"),
+          },
+        ],
+      });
+      expect(
+        await previewEvent(fixture, createFileEvent(probeFailed), ["create"], (fs) => ({
+          ...fs,
+          readLink: (target) =>
+            Match.value(target === probeFailed).pipe(
+              Match.when(true, () =>
+                Effect.fail(
+                  new PlatformError.SystemError({
+                    reason: "PermissionDenied",
+                    module: "FileSystem",
+                    method: "readLink",
+                  })
+                )
+              ),
+              Match.orElse(() => fs.readLink(target))
+            ),
+        }))
+      ).toMatchObject({
+        kind: "completed",
+        results: [
+          {
+            kind: "provider-failed",
+            failure: "DiagnosticOutputIncomplete",
+            detail: expect.stringContaining("symlink-probe-failed"),
+          },
+        ],
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("deduplicates deterministic impacts and refuses conflicting transformation endpoints", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-preview-findings-"));
+    try {
+      mkdirSync(path.join(fixture, ".habitat"));
+      mkdirSync(path.join(fixture, "scan"));
+      const alpha = path.join(fixture, "scan/alpha.ts");
+      const zeta = path.join(fixture, "scan/zeta.ts");
+      writeFileSync(alpha, "const alpha = true;\n");
+      writeFileSync(zeta, "const zeta = true;\n");
+      writeFileSync(
+        path.join(fixture, ".habitat/fix.pattern.md"),
+        readFileSync(path.join(repoRoot, providerPattern), "utf8")
+      );
+
+      const findings = [rewriteEvent(zeta, 1), rewriteEvent(alpha, 1), rewriteEvent(zeta, 1)];
+      const forward = await previewEvents(fixture, findings, ["modify"], 3);
+      expect(forward).toMatchObject({
+        kind: "completed",
+        results: [
+          {
+            kind: "previewed",
+            impacts: [
+              { kind: "modify", path: "scan/alpha.ts" },
+              { kind: "modify", path: "scan/zeta.ts" },
+            ],
+          },
+        ],
+      });
+      expect(await previewEvents(fixture, [...findings].reverse(), ["modify"], 3)).toEqual(forward);
+
+      expect(
+        await previewEvents(
+          fixture,
+          [rewriteEvent(alpha, 1), removeFileEvent(alpha)],
+          ["modify", "delete"],
+          2
+        )
+      ).toMatchObject({
+        kind: "completed",
+        results: [
+          {
+            kind: "provider-failed",
+            failure: "DiagnosticOutputIncomplete",
+            detail: expect.stringContaining("conflicting-transformation-endpoint"),
+          },
+        ],
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+});
+
+async function previewEvent(
+  fixture: string,
+  event: object,
+  effects: RuleFixFacts["fix"]["effects"],
+  transformFileSystem: (fs: FileSystem.FileSystem) => FileSystem.FileSystem = (fs) => fs
+) {
+  return previewEvents(fixture, [event], effects, 1, transformFileSystem);
+}
+
+async function previewEvents(
+  fixture: string,
+  events: readonly object[],
+  effects: RuleFixFacts["fix"]["effects"],
+  terminalFound: number,
+  transformFileSystem: (fs: FileSystem.FileSystem) => FileSystem.FileSystem = (fs) => fs
+) {
+  const fix: RuleFixFacts = {
+    id: "preview",
+    lane: "enforced",
+    message: "preview",
+    pathCoverage: [{ kind: "exact-path", patterns: ["scan/**"] }],
+    scanRoots: ["scan"],
+    patternName: "preview_pattern",
+    fix: { kind: "preview-only", pattern: ".habitat/fix.pattern.md", effects: [...effects] },
+  };
+  const base = makeTestRuleFacts();
+  const selector = base.selector[0];
+  if (!selector) throw new Error("expected selector fixture");
+  const facts = { ...base, fix: [fix], selector: [{ ...selector, id: fix.id }] };
+  const grit = makeFakeGritCommandService(
+    (request) =>
+      makeHabitatCommandResult(request, {
+        stdout: captureOutput(jsonl(...events, allDone(1, terminalFound))),
+      }),
+    { repoRoot: fixture }
+  );
+  return Effect.runPromise(
+    Effect.gen(function* () {
+      const fs = transformFileSystem(yield* FileSystem.FileSystem);
+      const service = makeGritRuleFixPreviewService(
+        facts,
+        makeGritRuleFixPreviewRunner({ repoRoot: fixture, grit, fs })
+      );
+      return yield* service.preview({});
+    }).pipe(Effect.provide(NodeContext.layer))
+  );
+}
 
 describe("Grit immutable root planning", () => {
   test("plans each selected rule once and exposes unmatched rules", async () => {
@@ -1581,7 +1820,7 @@ describe("Grit generic acquisition and public disposition", () => {
     expect(outcomes.get(selected.id)).toMatchObject({
       kind: "provider-failed",
       failure: "DiagnosticOutputIncomplete",
-      detail: expect.stringContaining("path-outside-exact-coverage"),
+      detail: expect.stringContaining("outside-exact-coverage"),
     });
   });
 
@@ -1637,11 +1876,11 @@ describe("Grit generic acquisition and public disposition", () => {
       const cases = [
         {
           path: path.join(fixture, "scan/existing.ts"),
-          detail: "path-escape",
+          detail: "symlink-collision",
         },
         {
           path: path.join(fixture, "scan/broken.ts"),
-          detail: "unresolvable-create-file-path",
+          detail: "symlink-collision",
         },
         {
           path: path.join(fixture, "scan/escaped-parent/new.ts"),
@@ -1649,7 +1888,7 @@ describe("Grit generic acquisition and public disposition", () => {
         },
         {
           path: path.join(fixture, "scan/missing-parent/new.ts"),
-          detail: "unresolvable-create-file-path",
+          detail: "parent-unresolvable",
         },
       ];
 
@@ -2049,8 +2288,8 @@ function createFileEvent(sourceFile: string) {
   return { __typename: "CreateFile", rewritten: { sourceFile }, reason: compactMatchReason() };
 }
 
-function removeFileEvent(sourceFile: string) {
-  return { __typename: "RemoveFile", original: compactMatch(sourceFile, 1) };
+function removeFileEvent(sourceFile: string, rangeCount = 1) {
+  return { __typename: "RemoveFile", original: compactMatch(sourceFile, rangeCount) };
 }
 
 function replaceMatchReason(

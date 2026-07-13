@@ -52,7 +52,7 @@ The implemented surface provides a structural substrate:
   rule registry;
 - delegate local Git hooks through Habitat while keeping CI and explicit graph
   verification authoritative;
-- derive plan-only fix admission from registered rules and observe selected
+- derive preview-only fix admission from registered rules and observe selected
   transformations without writing;
 - scaffold supported uniform workspace projects and non-enforcing pattern
   candidates.
@@ -98,7 +98,7 @@ The latest reference docs settle the current posture:
 
 - Habitat is a strong platform substrate for classification, enforcement,
   routing, verification, hooks, pattern diagnostics, baseline integrity,
-  no-write fix planning and early live-write refusal.
+  no-write fix preview and early live-write refusal.
 - Habitat is not yet a product-authoring system for MapGen topology.
 - Docs and ledgers are useful reference, but current code, tests, command
   behavior, and generated diffs are stronger evidence for behavior claims.
@@ -125,7 +125,7 @@ Second, distinct responsibilities are currently adjacent or interleaved:
 - baseline and ratchet contracts in `baseline`;
 - workspace graph/project metadata in graph modules and the graph plugin;
 - pattern diagnostic acquisition in the Grit provider;
-- authority-derived selection and no-write fix planning in the fix module;
+- authority-derived selection and no-write fix preview in the fix module;
 - workstation hook checks in `hooks`;
 - generated/protected file zones in `generated-zones`;
 - verification receipt construction and process execution records in
@@ -156,7 +156,7 @@ each invariant, and what scenarios validate those responsibilities."
   hook behavior, and workspace graph integration.
 - Supported scenarios: classify path/diff, run check, run graph verification, run
   diagnostic verify, scaffold supported project, draft and promote Habitat patterns,
-  run admitted no-write fix plans, observe live-write refusal,
+  preview admitted transformations without writes, observe live-write refusal,
   and run local hooks.
 - Future / not implemented scenarios: apply an approved structural repair, generate
   MapGen recipe/domain/op/stage/step, validate a generated MapGen authoring flow,
@@ -267,7 +267,7 @@ inputs:
 - Code flow traces for each supported Habitat scenario.
 - Test flow traces that show which behavior is currently validated.
 - Rule-pack and baseline inventory.
-- Pattern diagnostic, fix-admission, no-write planning, and live-refusal inventory.
+- Pattern diagnostic, fix-admission, no-write preview, and live-refusal inventory.
 - Generator inventory and refusal contracts.
 - Hook behavior and side-effect inventory.
 - Workspace graph integration and classify target truth.
@@ -315,7 +315,7 @@ The next investigation should produce these artifacts before implementation:
 - Scenario corpus: supported, unsupported, and desired authoring scenarios with
   evidence links.
 - Flow maps: classify, check, verify, graph verification, hook, pattern diagnostics,
-  current fix admission/planning, future live apply (not implemented), project
+  current fix admission/preview, future live apply (not implemented), project
   generation, pattern admission, and future MapGen authoring.
 - Ubiquitous language glossary: terms grouped by scenario and responsibility, with
   ambiguous or overloaded terms called out.
@@ -349,7 +349,7 @@ These are hypotheses to test, not final boundaries:
 - **Future / not implemented mutation capability:** would apply only approved
   mechanical rewrites with path approval, formatter handoff, rollback, and
   change records. The current implementation stops at authority-derived
-  no-write planning.
+  no-write preview.
 - Hook check: runs hooks as bounded pre-commit/pre-push assistance without
   becoming merge control.
 - Scaffolding and admission: generates supported uniform project structure and

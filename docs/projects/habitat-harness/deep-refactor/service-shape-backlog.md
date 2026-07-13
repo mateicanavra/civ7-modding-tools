@@ -16,7 +16,7 @@ Current burn-down categories:
 - Active CLI-shape cleanup: service procedures must expose direct Habitat actions, not command-name envelopes. The CLI owns hook-name parsing/refusal and calls the direct service action.
 - Active contract cleanup: continue simplifying service contracts and schemas after action splits; schemas should describe domain action inputs/outputs directly, not mirror command envelopes or preserve old compatibility names.
 - Active contract cleanup: simplify effect-oRPC contract files categorically. Procedure contracts should not manually repeat input/output generic types when schemas already define them; module contracts should compose procedure definitions directly where the local pattern allows; investigate replacing the custom `toStandardSchema` wrapper with TypeBox's native Standard Schema support if the installed TypeBox version provides it.
-- Active CLI-shape cleanup follow-up: continue replacing command-shaped procedure inputs with direct module actions. `fix` is now split into plan/apply actions; remaining modules should keep flags, command names, formatting, and output mode choices at the CLI edge.
+- Active CLI-shape cleanup follow-up: continue replacing command-shaped procedure inputs with direct module actions. `fix` is the current example: its only service action is `previewPatterns`, while the CLI owns dry-run mode and early live-mutation refusal. Remaining modules should keep flags, command names, formatting, and output mode choices at the CLI edge.
 - Active hook context cleanup: `HookModuleContext` is still a design smell if it becomes a giant menu of low-level operations. If this context belongs to the hook module, it should not need to be declared in this way; if it is external to the hook module, the logic must live outside the hook module.
 - Promise/resource adaptation belongs outside routers. Routers author procedure logic through the module implementer and consume ready Effect-returning operations from handler context.
 - Remove module-local context from `service/base.ts`; service context keeps only provisioned resources and shared service metadata.
@@ -40,7 +40,6 @@ Completed burn-downs:
 - Baseline authority now receives a baseline-owned filesystem port through structural execution context; direct platform helper imports are removed from baseline policy, and the platform resource exposes the write-capable filesystem operations needed for runtime projection.
 - Hook module procedure context now uses hook-owned Biome, Git, Graphite, Nx, platform, and reporter operation ports; the hook module no longer imports concrete provider/platform/reporter service types.
 - Verify module runtime helpers now use verify-owned Git, Graphite, Nx affected, and workspace-graph ports instead of concrete provider service types; the verify model barrel exports its policy ports for module wiring.
-- Fix module worktree observation and pattern-apply execution now depend on fix-owned Git and Grit operation ports; the fix module tree no longer imports concrete Git/Grit provider service or requirement types.
 - Graph module runtime dependencies are now graph-owned operation ports for temp directory acquisition, graph file reads, and Nx graph generation; the graph module no longer imports concrete Nx provider or platform resource service types.
 - Shared structural check policy now depends on structural-owned operation ports for Biome, command execution, Git staged/base reads, Grit rule execution, and Nx target execution; check/hook/verify modules project live providers into those ports, and baseline authority no longer requires a full Git provider service.
 - Hook lifecycle/resource-inspection/runtime/staged-worktree policies now depend on hook-owned operation ports or pure inputs instead of concrete Git provider, platform resource, or reporter resource service types; live provider projection remains at the hook module boundary for the next module-boundary cleanup.
@@ -51,7 +50,6 @@ Completed burn-downs:
 - Boundary taxonomy policy now requires callers to pass the repo root/config path explicitly; the service-model graph policy no longer imports the global repo root.
 - Rule facts now have an explicit `RuleFactsCatalog` derived from a registry document; live service context reads `.habitat/rules` through the platform repo root, and structural check, hook, verify, and source-scope execution consume module-projected rule facts instead of active registry singletons.
 - Classify path/routing policy now consumes module-projected rule facts; classify no longer imports active registry facts for rule count, graph-target refusals, or routing.
-- Fix apply admissions now derive transaction inputs from module-projected selector facts; fix module no longer imports active registry facts for apply planning.
 - Diagnostic rule runtime now only owns command-result diagnostic parsing; it no longer loads or exports active registry rules at module import time.
 - Artifact-path routing now has an explicit rule-fact facet in `RuleFactsCatalog`; pre-push routing receives artifact facts from hook module context instead of loading the active registry from shared policy.
 - Rule selection policy now requires explicit selector facts; shared rule selection can no longer fall back to active checkout facts.
@@ -59,7 +57,6 @@ Completed burn-downs:
 - Rule registry loaders now require an explicit registry path; runtime and tests choose the path at their edges instead of the shared repository importing global repo-root state.
 - Git, Git state, Graphite, Biome, Nx, and Grit live provider layers now receive repo root from runtime realization instead of importing the global repo-root singleton inside provider live constructors.
 - Grit scan-root and text-output path normalization now use explicit provider/local path context; provider code no longer imports global repo path helpers.
-- Fix apply planning now names transaction inputs by admitted pattern policy and explicit rule facts; the old “active apply transaction inputs” language is removed.
 - Deleted the unused service-model Nx project reader bridge; Nx graph acquisition stays behind the Nx provider and module-projected context.
 - Structural check execution now receives the provisioned Grit service through module context; shared structural policy no longer asks Effect to resolve the Grit provider tag.
 - Hook pre-push base recording now asks the Graphite provider for the parent command argv; the hook module no longer hardcodes Graphite command vocabulary.
@@ -72,7 +69,6 @@ Completed burn-downs:
 - Rule registry repository loading now receives explicit async/sync filesystem capabilities; runtime and tests provide platform filesystem at the edge instead of the shared rules model importing platform helpers.
 - Source-rule native execution now receives an explicit source filesystem capability from module-projected platform context; source policy no longer imports platform filesystem helpers directly.
 - Hook staged path filtering now requires explicit path-existence context from the hook module; the staged-worktree policy no longer carries a platform fallback import.
-- Fix worktree observation now runs through module-projected Git provider context; the sync worktree repository wrapper around provider internals is deleted.
 - Structural selector refusal reports now use the Effect clock path only; the sync report builder and direct platform time import were removed.
 - Verify receipt timing now formats timestamps locally in the verify module; verify module code no longer imports platform time helpers.
 - Verify base resolution, Nx affected execution, and post-state policies now depend on narrow verify-owned ports instead of concrete Git, Graphite, and Nx provider service types.
@@ -86,11 +82,9 @@ Completed burn-downs:
 - Hook trace/provenance collection has been deleted from the service runtime path; hook focused tests now validate behavior without repo snapshot bookkeeping.
 - Hook resource policy now enters through the validated `hook.run` action input; `HabitatServiceDeps` no longer contains a generic `hookRuntime` option bag.
 - Verify module wiring now has an explicit effect-oRPC implementer type boundary so package typecheck no longer trips over serialized router inference.
-- Fix transactions require the provisioned Grit provider instead of carrying a provider-missing fallback path; provider runtime requirements are recorded in the module operation type instead of being hidden.
 - Graph router internal error mapping now uses contract-listed effect-oRPC errors; router source carries no TODO notes for this path.
 - Shared `service/model/*` domains now reject loose unmanaged files; policy code must be named and classified by kind.
 - Shared `service/model/*/policy` files now use explicit policy/rule suffixes instead of generic `*.ts` and `*.mjs` names.
-- Fix module pattern/apply internals now use explicit `model/dto`, `model/policy`, and `model/repositories` kinds; the old nested `patterns/` and `transactions/` pseudo-domains are removed.
 - Classify diff target handling now lives in a named policy artifact; the module no longer has a loose `model/helpers` bucket.
 - Check public DTO/request/render/summary policy now lives under `service/model/check`; the check module itself is reduced to contract/module/router ownership.
 - Diagnostic contracts now live under `service/model/diagnostics`, host/protected-surface policy lives under `service/model/host`, and Grit providers no longer import check module internals.
@@ -113,7 +107,7 @@ Completed burn-downs:
 - Structural rule execution now receives repo root through explicit execution context for command cwd and staged git reads instead of importing the global repo-root/path helpers.
 - Source-check native rule execution now receives repo root through `SourceCheckOptions` for module loading, source reads, and scan-root collection instead of importing global repo-root/path helpers.
 - Nx now infers one boundary project per Habitat service module and no separate module-local model projects; module-local `model/` trees stay inside their owning module boundary while shared `src/service/model` remains the only shared service-model project.
-- Habitat service procedures now expose action names instead of generic `run` procedures: `check.report`, `classify.target`, `fix.applyPatterns`, `graph.workspaceGraph`, `hook.execute`, and `verify.changes`; CLI commands compile flags into those actions and no compatibility aliases remain.
+- Habitat service procedures now expose action names instead of generic `run` procedures: `check.report`, `classify.target`, `fix.previewPatterns`, `graph.workspaceGraph`, `hook.execute`, and `verify.changes`; CLI commands compile flags into those actions and no compatibility aliases remain.
 - Graph and hook routers no longer delegate their whole procedure body to `context.runGraph`/`context.runHook` wrappers; graph now owns its workspace graph execution/read/parse/select flow in the router, hook owns hook-name dispatch in the router, and the Grit service-wiring pattern rejects router `context.run*` wrapper delegates.
 - The loose `resources/config/note.md` source-tree instruction file is removed; its Effect Config evaluation request is preserved in the service-shape backlog as a concrete follow-up.
 - Hook output reporting no longer calls `Effect.runSync` from service policy code; hook output accumulates reporter events synchronously and flushes them through Effect at final result boundaries while preserving reporter chunk behavior.
@@ -133,7 +127,10 @@ Completed burn-downs:
 - Graph service procedure shape now returns a graph action result instead of a CLI stdout/stderr JSON envelope; `--json` compact formatting is owned by the CLI command.
 - Redundant `HabitatServiceProcedureContract<...>` annotations were removed from module contracts and the now-unused `service/procedure-contract.ts` helper was deleted. The custom `toStandardSchema` adapter remains for now because the installed TypeBox package does not expose a native Standard Schema converter.
 - Module contract files now compose procedure contracts directly in the exported module contract object; per-procedure contract constants are no longer exported as extra public surface.
-- Fix service procedure shape now exposes direct `fix.planPatterns({})` and `fix.applyPatterns({})` actions. CLI `--dry-run` compiles to the planning action, live fix calls compile to the apply action, and dry-run/live-write transaction intent remains module-internal policy input instead of public procedure input.
+- Fix service procedure shape exposes only `fix.previewPatterns({})`. Its module
+  projects the provisioned `RuleFixPreview` operation; the CLI compiles
+  `--dry-run` to that no-write preview action and refuses live fix before service
+  realization. No apply procedure or transaction state exists.
 - Baseline authority is now its own shared `service/model/baseline` domain with DTO/policy files in named kinds. Check structural reporting and check baseline expansion import baseline explicitly instead of burying baseline authority under `service/model/check`.
 - Source-check scan planning and native source-rule runtime now live under `service/model/source-check`; check no longer re-exports source-check operations, and Nx target inference imports source-check rule module paths from the owning domain.
 - Structural check policy no longer exports source-check helper wrappers; staged source path planning and approved scan-root calculation are owned by `service/model/source-check`.

@@ -215,7 +215,7 @@ promotion.
 - Expressiveness is testable: the sparsity/exclusion expectation (E3.4) gates that max-sparsity and exclusion settings actually produce their declared extremes.
 - Default changes are behavior changes: they must be verified against the expectation gates before shipping (the ledger amends only by recorded evidence).
 
-## ADR-011: Habitat fix planning is authority-derived and plan-only
+## ADR-011: Habitat fix preview is authority-derived and preview-only
 
 **Status:** Accepted
 **Date:** 2026-07-13
@@ -225,11 +225,13 @@ transaction inputs, worktree observations, protected-path decisions, and
 live-write states even though live mutation was unavailable. Diagnostic
 `apply-dry-run` acquisition also could not serve as fix authority because its
 own contract grants observation only.
-**Decision:** A registered Grit rule admits no-write fix planning only through
-one atomic runner field: `fix: { kind: "plan-only", pattern }`. The field binds
-the decision and its validated pattern asset; diagnostic facts omit it and a
+**Decision:** A registered Grit rule admits no-write fix preview only through
+one atomic runner field:
+`fix: { kind: "preview-only", pattern, effects }`. The field binds the decision,
+its validated pattern asset, and the closed file effects it may expose;
+diagnostic facts omit it and a
 separate immutable `RuleFixFacts` projection feeds the stable
-`RuleFixPlanning` capability. The concrete Grit implementation remains private
+`RuleFixPreview` capability. The concrete Grit implementation remains private
 and reuses the pinned, scoped, closed-output provider path. Explicit rule
 selection is all-or-nothing, supports one or many ids, and defaults to every
 admitted record. Non-dry `habitat fix` refuses before service/provider
@@ -242,12 +244,14 @@ realization; no live-write endpoint or internal live-write state is retained.
 - Selector, report, routing, and diagnostic facts cannot observe fix admission;
   only `RuleFixFacts` carries it, while authority-path routing carries the
   pattern path only as navigation evidence.
-- Dry-run findings are successful observations of affected paths, not proof of
-  safe mutation or a complete future write transaction.
+- Preview preserves compact transformation evidence privately and projects only
+  deterministic `modify | create | rename | delete` impacts. A changed-path
+  rewrite requires both rename and destination-modify authority. Undeclared
+  observed effects refuse that rule without exposing its impacts.
 - Current-tree provider proof precedes admission. A diagnostic policy whose
   governed corpus cannot produce a complete observation remains unadmitted.
 - A provider analysis failure outside exact rule path coverage does not make a
-  plan incomplete. Existing paths are canonicalized, exact coverage uses the
+  preview incomplete. Existing paths are canonicalized, exact coverage uses the
   installed Picomatch semantics, and findings must remain inside the canonical
   repository, selected root, and registered coverage. Ambiguous, escaped,
   non-exact, and covered analysis failures continue to fail closed.
@@ -256,10 +260,10 @@ realization; no live-write endpoint or internal live-write state is retained.
 - Candidate generation remains candidate-only. Active admission is authored
   through reviewed `rule.json`; the obsolete active pattern-manifest lifecycle
   is deleted. `operation.kind` remains the separate authority for a packet's
-  mutability class and does not imply plan admission.
+  mutability class and does not imply preview admission.
 - Live mutation, rollback, formatting, gates, and commit readiness require a
   new explicit product and authority decision; they cannot grow out of the
-  plan-only type by fallback.
+  preview-only type by fallback.
 
 ## ADR-008: Hydrology owns canonical drainage routing
 

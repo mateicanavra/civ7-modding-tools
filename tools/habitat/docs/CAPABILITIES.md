@@ -9,7 +9,7 @@ unimplemented surfaces.
 
 Habitat is currently a repo-local structural harness for Civ7 modding work. It
 is strong at classification, enforcement, graph-owned checks, pattern diagnostics,
-baseline integrity, hooks, and authority-derived no-write fix planning.
+baseline integrity, hooks, and authority-derived no-write fix preview.
 It is not yet a broad MapGen authoring toolkit.
 
 Use Habitat in its current state to answer:
@@ -17,7 +17,7 @@ Use Habitat in its current state to answer:
 - Which project and rule surfaces own this path or diff?
 - Which structural checks apply before and after a change?
 - Does the current tree violate locked Habitat rules?
-- Which registered rules explicitly admit fix planning?
+- Which registered rules explicitly admit fix preview?
 - What paths would one or many admitted transformations affect?
 - Can a supported uniform workspace project be scaffolded?
 - Can a non-enforcing Habitat pattern candidate be scaffolded?
@@ -44,7 +44,7 @@ The direct command `bun habitat` dispatches through the root `habitat` script to
 | `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and top-level `--runner` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
 | `verify` | `bun habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
 | `classify` | `bun habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
-| `fix` | `bun habitat fix --dry-run [--rule <id> ...]`; `bun habitat fix` | `--dry-run` plans only transformations explicitly admitted by registered `rule.json` authority. Omission selects all admitted rules; repeated `--rule` selects one or many atomically. The non-dry invocation refuses before service realization. It never writes, formats, gates, rolls back, or establishes commit readiness. |
+| `fix` | `bun habitat fix --dry-run [--rule <id> ...]`; `bun habitat fix` | `--dry-run` previews only transformations explicitly admitted by registered `rule.json` authority and reports their file impacts. Omission selects all admitted rules; repeated `--rule` selects one or many atomically. The non-dry invocation refuses before service realization. It never writes, formats, gates, rolls back, or establishes commit readiness. |
 | `graph` | `bun habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
 | `hook` | `bun habitat hook pre-commit`, `bun habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
 
@@ -224,30 +224,31 @@ The active pattern checks cover families such as:
 - domain ops boundary, root config, engine import, and op-call-op
   rules.
 
-## Fix Admission and No-Write Planning
+## Fix Admission and No-Write Preview
 
 Habitat can observe narrowly admitted transformations without applying them.
 
 Current supported state:
 
-- A Grit rule admits planning only with the closed
-  `runner.fix: { kind: "plan-only", pattern }` record. The decision and asset
+- A Grit rule admits preview only with the closed
+  `runner.fix: { kind: "preview-only", pattern, effects }` record. The decision, asset,
+  and closed effect authority
   are one authority value.
 - Diagnostic acquisition, remediation prose, sibling files, and rule identity
   never imply fix admission.
-- Omitted rule selection plans all admitted records in catalog order. Explicit
+- Omitted rule selection previews all admitted records in catalog order. Explicit
   repeated ids are deduplicated in first-seen order.
 - Unknown, unadmitted, or mixed explicit selections refuse atomically before
   provider execution.
-- Successful observations report affected paths even when the dry-run tool
+- Successful observations report file impacts even when the dry-run tool
   finds rewrites. No worktree mutation occurs.
 
 `bun habitat fix` without `--dry-run` is not a live-write request path. The CLI
 emits `unsupported-live-mutation` before constructing a Habitat service client.
 
 Live writes, formatting, post-fix gates, rollback, changed-file/diff records,
-and commit-readiness are absent. The current surface is planning, not a
-structural repair entrypoint.
+and commit-readiness are absent. The current surface is a preview, not a
+structural repair entrypoint or executable change plan.
 
 ## Generators
 

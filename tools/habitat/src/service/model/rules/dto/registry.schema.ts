@@ -42,6 +42,23 @@ export const GritDiagnosticAcquisitionPolicySchema = Type.Union([
   Type.Object({ kind: Type.Literal("apply-dry-run") }, { additionalProperties: false }),
 ]);
 
+const RuleFixAdmissionSchema = Type.Object(
+  {
+    kind: Type.Literal("preview-only"),
+    pattern: Type.String({ minLength: 1 }),
+    effects: Type.Array(
+      Type.Union([
+        Type.Literal("modify"),
+        Type.Literal("create"),
+        Type.Literal("rename"),
+        Type.Literal("delete"),
+      ]),
+      { minItems: 1, maxItems: 4, uniqueItems: true }
+    ),
+  },
+  { additionalProperties: false }
+);
+
 const GritRuleRunnerSchema = Type.Object(
   {
     name: Type.Literal("grit"),
@@ -53,15 +70,7 @@ const GritRuleRunnerSchema = Type.Object(
     ),
     patternName: Type.String({ minLength: 1 }),
     diagnosticAcquisition: Type.Optional(GritDiagnosticAcquisitionPolicySchema),
-    fix: Type.Optional(
-      Type.Object(
-        {
-          kind: Type.Literal("plan-only"),
-          pattern: Type.String({ minLength: 1 }),
-        },
-        { additionalProperties: false }
-      )
-    ),
+    fix: Type.Optional(RuleFixAdmissionSchema),
   },
   { additionalProperties: false }
 );
@@ -331,13 +340,7 @@ export const RuleFixFactsSchema = Type.Object(
     pathCoverage: RulePathCoverageSchema,
     scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
     patternName: Type.String({ minLength: 1 }),
-    fix: Type.Object(
-      {
-        kind: Type.Literal("plan-only"),
-        pattern: Type.String({ minLength: 1 }),
-      },
-      { additionalProperties: false }
-    ),
+    fix: RuleFixAdmissionSchema,
   },
   { additionalProperties: false }
 );

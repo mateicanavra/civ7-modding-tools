@@ -1,4 +1,4 @@
-import type { RuleFixPlanningDemand } from "@habitat/cli/resources/rule-fix-planning/index";
+import type { RuleFixPreviewDemand } from "@habitat/cli/resources/rule-fix-preview/index";
 import { fixRouter } from "@habitat/cli/service/modules/fix/router";
 import { habitatServiceRouter } from "@habitat/cli/service/router";
 import { createRouterClient } from "@orpc/server";
@@ -8,13 +8,17 @@ import { describe, expect, test, vi } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("Habitat fix service", () => {
-  test("renders ordered no-write observations from the stable planning capability", async () => {
-    const plan = vi.fn((_demand: RuleFixPlanningDemand) =>
+  test("renders ordered no-write observations from the stable preview capability", async () => {
+    const preview = vi.fn((_demand: RuleFixPreviewDemand) =>
       Effect.succeed({
         kind: "completed" as const,
         results: [
-          { kind: "observed" as const, ruleId: "second", affectedPaths: ["b.ts"] },
-          { kind: "observed" as const, ruleId: "first", affectedPaths: [] },
+          {
+            kind: "previewed" as const,
+            ruleId: "second",
+            impacts: [{ kind: "modify" as const, path: "b.ts" }],
+          },
+          { kind: "previewed" as const, ruleId: "first", impacts: [] },
         ],
       })
     );
@@ -23,36 +27,36 @@ describe("Habitat fix service", () => {
         {
           rules: ["second", "first", "second"],
         },
-        plan
+        preview
       )
     );
 
-    expect(plan).toHaveBeenCalledWith({ ruleIds: ["second", "first", "second"] });
+    expect(preview).toHaveBeenCalledWith({ ruleIds: ["second", "first", "second"] });
     expect(result).toEqual({
       exitCode: 0,
-      stdout: "[second] affected paths\n- b.ts\n[first] no affected paths\n",
+      stdout: "[second] file impacts\n- modify b.ts\n[first] no file impacts\n",
       stderr: "",
     });
   });
 
   test("routes omitted selection through the in-process Habitat service router", async () => {
-    const plan = vi.fn((_demand: RuleFixPlanningDemand) =>
+    const preview = vi.fn((_demand: RuleFixPreviewDemand) =>
       Effect.succeed({ kind: "completed" as const, results: [] })
     );
     const client = createRouterClient(habitatServiceRouter, {
       context: {
         deps: makeTestHabitatServiceDeps({
-          ruleFixPlanning: { plan },
+          ruleFixPreview: { preview },
         }),
       },
     });
 
-    const result = await client.fix.planPatterns({});
+    const result = await client.fix.previewPatterns({});
 
-    expect(plan).toHaveBeenCalledWith({});
+    expect(preview).toHaveBeenCalledWith({});
     expect(result).toEqual({
       exitCode: 0,
-      stdout: "No registered rules admit fix planning.\n",
+      stdout: "No registered rules admit fix preview.\n",
       stderr: "",
     });
   });
@@ -62,8 +66,10 @@ describe("Habitat fix service", () => {
       runFixProcedure({ rules: ["known", "missing"] }, () =>
         Effect.succeed({
           kind: "selection-refused" as const,
-          unknownRuleIds: ["missing"],
-          unadmittedRuleIds: ["known"],
+          refusals: [
+            { ruleId: "missing", reason: "unknown" as const },
+            { ruleId: "known", reason: "fix-not-admitted" as const },
+          ],
         })
       )
     );
@@ -77,19 +83,19 @@ describe("Habitat fix service", () => {
   });
 
   test("rejects an explicitly empty rule selection at the service boundary", async () => {
-    const plan = vi.fn(() => Effect.succeed({ kind: "completed" as const, results: [] }));
+    const preview = vi.fn(() => Effect.succeed({ kind: "completed" as const, results: [] }));
 
-    await expect(Effect.runPromise(runFixProcedure({ rules: [] }, plan))).rejects.toThrow();
-    expect(plan).not.toHaveBeenCalled();
+    await expect(Effect.runPromise(runFixProcedure({ rules: [] }, preview))).rejects.toThrow();
+    expect(preview).not.toHaveBeenCalled();
   });
 });
 
 function runFixProcedure(
   input: { readonly rules?: string[] },
-  plan: ReturnType<typeof makeTestHabitatServiceDeps>["ruleFixPlanning"]["plan"]
+  preview: ReturnType<typeof makeTestHabitatServiceDeps>["ruleFixPreview"]["preview"]
 ) {
-  const planPatterns = fixRouter.planPatterns.callable({
-    context: { deps: makeTestHabitatServiceDeps({ ruleFixPlanning: { plan } }) },
+  const previewPatterns = fixRouter.previewPatterns.callable({
+    context: { deps: makeTestHabitatServiceDeps({ ruleFixPreview: { preview } }) },
   });
-  return withFiberContext(() => planPatterns(input));
+  return withFiberContext(() => previewPatterns(input));
 }

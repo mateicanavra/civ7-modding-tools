@@ -3,28 +3,28 @@ import { toStandardSchema } from "@habitat/cli/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
 
-const FixPlanPatternsInputSchema = Type.Object(
+const FixPreviewPatternsInputSchema = Type.Object(
   {
     rules: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
   },
-  { additionalProperties: false, description: "Habitat admitted fix planning request." }
+  { additionalProperties: false, description: "Habitat admitted fix preview request." }
 );
 
-const FixPlanPatternsOutputSchema = Type.Object(
+const FixPreviewPatternsOutputSchema = Type.Object(
   {
     exitCode: Type.Integer(),
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Habitat no-write fix planning result." }
+  { additionalProperties: false, description: "Habitat no-write fix preview result." }
 );
 
-export type FixPlanPatternsInput = Static<typeof FixPlanPatternsInputSchema>;
-export type FixPlanPatternsOutput = Static<typeof FixPlanPatternsOutputSchema>;
+export type FixPreviewPatternsInput = Static<typeof FixPreviewPatternsInputSchema>;
+export type FixPreviewPatternsOutput = Static<typeof FixPreviewPatternsOutputSchema>;
 
 export const fixServiceContract = {
-  planPatterns: eoc
+  previewPatterns: eoc
     .errors(habitatServiceErrorMap)
-    .input(toStandardSchema(FixPlanPatternsInputSchema))
-    .output(toStandardSchema(FixPlanPatternsOutputSchema)),
+    .input(toStandardSchema(FixPreviewPatternsInputSchema))
+    .output(toStandardSchema(FixPreviewPatternsOutputSchema)),
 };

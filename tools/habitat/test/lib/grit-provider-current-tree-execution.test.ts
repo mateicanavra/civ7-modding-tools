@@ -12,11 +12,16 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { FileSystem } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { makeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import { CommandRunnerLive, type HabitatCommandResult } from "@habitat/cli/resources/command/index";
 import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { repoRoot as workspaceRepoRoot } from "@habitat/cli/resources/paths";
+import {
+  makeGritRuleFixPreviewRunner,
+  makeGritRuleFixPreviewService,
+} from "@habitat/cli/resources/rule-diagnostics/providers/grit/fix-preview";
 import {
   type GritApplyDryRunProviderRequest,
   type GritCheckProviderRequest,
@@ -28,10 +33,11 @@ import {
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
 import type { DiagnosticRunOutcome } from "@habitat/cli/resources/rule-diagnostics/providers/grit/outcome";
 import { parseGritJsonText } from "@habitat/cli/resources/rule-diagnostics/providers/grit/types";
-import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
-import { Effect, Layer } from "effect";
+import type { RuleFixFacts, RuleGritFacts } from "@habitat/cli/service/model/rules/index";
+import { Effect, Layer, Match } from "effect";
 import { Value } from "typebox/value";
 import { afterEach, describe, expect, test } from "vitest";
+import { makeTestRuleFacts } from "../support/habitat-service-deps";
 
 const fixtureRoots: string[] = [];
 
@@ -225,6 +231,170 @@ describe("generic Grit current-tree execution", () => {
     expect(existsSync(path.join(fixture.scanPath, "testStuff.test.js"))).toBe(false);
   });
 
+  test("previews a changed-path rewrite as rename plus destination modify without mutation", async () => {
+    const fixture = checkFixture("rename_to(renamed.ts)\n");
+    const destination = path.join(fixture.scanPath, "renamed.ts");
+    writeFileSync(
+      path.join(fixture.repoRoot, ".habitat/patterns/fixture.md"),
+      `\`\`\`grit
+language js
+
+file($name, $body) where {
+  $body <: contains \`rename_to($new_name)\` => \`renamed_to($new_name)\`,
+  $name => \`${destination}\`
+}
+\`\`\`
+`
+    );
+    const applyFixture = {
+      ...fixture,
+      rule: sourceRule(
+        "rename-preview",
+        "rename_preview",
+        ".habitat/patterns/fixture.md",
+        ["scan"],
+        "apply-dry-run"
+      ),
+    };
+    const before = treeDigest(fixture.repoRoot);
+    const execution = await executePreviewFixture(applyFixture, ["modify", "rename"]);
+
+    expect(execution.result).toMatchObject({
+      kind: "completed",
+      results: [
+        {
+          kind: "previewed",
+          impacts: [
+            { kind: "modify", path: "scan/renamed.ts" },
+            { kind: "rename", from: "scan/subject.ts", to: "scan/renamed.ts" },
+          ],
+        },
+      ],
+    });
+    expect(treeDigest(fixture.repoRoot)).toBe(before);
+    expect(existsSync(destination)).toBe(false);
+  });
+
+  test("previews an absolute CreateFile and keeps Match-only preview incomplete", async () => {
+    const fixture = checkFixture("function testStuff() {}\n");
+    const patternPath = path.join(fixture.repoRoot, ".habitat/patterns/fixture.md");
+    writeFileSync(
+      patternPath,
+      `\`\`\`grit
+language js
+
+\`function $functionName($_) {$_}\` as $f where {
+  $functionName <: r"test.*",
+  $new_file_name = \`${fixture.subjectPath}.test.js\`,
+  $new_files += file(name = $new_file_name, body = $f)
+}
+\`\`\`
+`
+    );
+    const createFixture = {
+      ...fixture,
+      rule: sourceRule(
+        "absolute-create-preview",
+        "absolute_create_preview",
+        ".habitat/patterns/fixture.md",
+        ["scan"],
+        "apply-dry-run"
+      ),
+    };
+    const before = treeDigest(fixture.repoRoot);
+    const created = await executePreviewFixture(createFixture, ["create"]);
+    expect(created.result).toMatchObject({
+      kind: "completed",
+      results: [
+        {
+          kind: "previewed",
+          impacts: [{ kind: "create", path: "scan/subject.ts.test.js" }],
+        },
+      ],
+    });
+    expect(treeDigest(fixture.repoRoot)).toBe(before);
+
+    writeFileSync(fixture.subjectPath, "const marker = forbidden_fixture_marker;\n");
+    writeFileSync(patternPath, checkPattern);
+    const matchOnly = await executePreviewFixture(
+      {
+        ...fixture,
+        rule: sourceRule(
+          "match-only-preview",
+          "fixture_marker",
+          ".habitat/patterns/fixture.md",
+          ["scan"],
+          "apply-dry-run"
+        ),
+      },
+      ["modify"]
+    );
+    expect(matchOnly.result).toMatchObject({
+      kind: "completed",
+      results: [
+        {
+          kind: "provider-failed",
+          failure: "DiagnosticOutputIncomplete",
+          detail: expect.stringContaining("transformation-evidence-missing"),
+        },
+      ],
+    });
+  });
+
+  test("invokes pinned Grit once with the complete two-root tuple", async () => {
+    const fixtureRoot = createFixtureRoot("habitat-grit-cross-root-");
+    const rootA = path.join(fixtureRoot, "root-a");
+    const rootB = path.join(fixtureRoot, "root-b");
+    const patternPath = path.join(fixtureRoot, ".habitat/patterns/fixture.md");
+    mkdirSync(rootA, { recursive: true });
+    mkdirSync(rootB, { recursive: true });
+    mkdirSync(path.dirname(patternPath), { recursive: true });
+    writeFileSync(path.join(rootA, "a.js"), "foo(1)\n");
+    writeFileSync(path.join(rootB, "b.js"), "bar(1)\nbar(3)\n");
+    writeFileSync(
+      patternPath,
+      `\`\`\`grit
+engine marzano(0.1)
+language js
+
+multifile {
+  bubble($x) file($name, $body) where $body <: contains \`foo($x)\`,
+  bubble($x) file($name, $body) where $body <: contains \`bar($x)\` => \`baz($x)\`
+}
+\`\`\`
+`
+    );
+    const fixture: Fixture = {
+      repoRoot: fixtureRoot,
+      scanPath: rootA,
+      subjectPath: path.join(rootA, "a.js"),
+      rule: sourceRule(
+        "cross-root-preview",
+        "cross_root_preview",
+        ".habitat/patterns/fixture.md",
+        ["root-a", "root-b"],
+        "apply-dry-run"
+      ),
+    };
+    const before = treeDigest(fixtureRoot);
+    const execution = await executePreviewFixture(fixture, ["modify"]);
+    expect(execution.observation.applyRequest?.scanRoots).toEqual([
+      realpathSync(rootA),
+      realpathSync(rootB),
+    ]);
+    expect(execution.observation.applyCallCount).toBe(1);
+    expect(execution.result).toMatchObject({
+      kind: "completed",
+      results: [
+        {
+          kind: "previewed",
+          impacts: [{ kind: "modify", path: "root-b/b.js" }],
+        },
+      ],
+    });
+    expect(treeDigest(fixtureRoot)).toBe(before);
+  });
+
   test.runIf(process.platform === "darwin" && process.arch === "arm64")(
     "pins the installed Darwin/arm64 executable digest used by this proof",
     () => {
@@ -249,6 +419,7 @@ interface BoundaryObservation {
   checkCommand?: HabitatCommandResult;
   applyRequest?: GritApplyDryRunProviderRequest;
   applyCommand?: HabitatCommandResult;
+  applyCallCount?: number;
 }
 
 async function executeFixture(fixture: Fixture): Promise<{
@@ -273,6 +444,48 @@ async function executeFixture(fixture: Fixture): Promise<{
   };
 }
 
+async function executePreviewFixture(fixture: Fixture, effects: RuleFixFacts["fix"]["effects"]) {
+  const observation: BoundaryObservation = {};
+  return Effect.runPromise(
+    Effect.gen(function* () {
+      const liveGrit = yield* makeGritCommandService(workspaceRepoRoot);
+      const fs = yield* FileSystem.FileSystem;
+      const fix: RuleFixFacts = {
+        id: fixture.rule.id,
+        lane: fixture.rule.lane,
+        message: fixture.rule.message,
+        pathCoverage: fixture.rule.pathCoverage.map((coverage) =>
+          Match.value(coverage).pipe(
+            Match.when({ kind: "exact-path" }, ({ kind, patterns }) => ({
+              kind,
+              patterns: [...patterns],
+            })),
+            Match.orElse((other) => ({ ...other }))
+          )
+        ),
+        scanRoots: [...fixture.rule.scanRoots],
+        patternName: fixture.rule.patternName,
+        fix: {
+          kind: "preview-only",
+          pattern: fixture.rule.runner.files.pattern,
+          effects: [...effects],
+        },
+      };
+      const base = makeTestRuleFacts();
+      const selector = required(base.selector[0], "selector fixture");
+      const service = makeGritRuleFixPreviewService(
+        { ...base, fix: [fix], selector: [{ ...selector, id: fix.id }] },
+        makeGritRuleFixPreviewRunner({
+          repoRoot: fixture.repoRoot,
+          grit: observingGrit(liveGrit, observation),
+          fs,
+        })
+      );
+      return { result: yield* service.preview({}), observation };
+    }).pipe(Effect.provide(LiveGritPrerequisites))
+  );
+}
+
 function observingGrit(
   live: GritCommandService,
   observation: BoundaryObservation
@@ -290,6 +503,7 @@ function observingGrit(
       );
     },
     applyDryRun: (request) => {
+      observation.applyCallCount = (observation.applyCallCount ?? 0) + 1;
       observation.applyRequest = request;
       return live.applyDryRun(request).pipe(
         Effect.tap((command) =>

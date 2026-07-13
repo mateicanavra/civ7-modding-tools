@@ -1,6 +1,6 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: takeover control reconciliation sealed; generic Grit diagnostic acquisition reconstruction active; no product closure claim
+Status: A.3a is sealed; G.2.1 RuleFixPreview implementation is active; no product closure claim
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -33,7 +33,12 @@ codex/studio-run-live-playability@4f501fabfdc6
   -> codex/mapgen-generated-validator-ownership@dd38de22e05b
   -> codex/habitat-rule-introduction-baseline-manifests@9ff0f711e0d7
   -> codex/mapgen-runtime-closeout-takeover-frame@8ec2a96e3319
-  -> codex/mapgen-runtime-closeout-control-reconciliation (this changeset)
+  -> codex/mapgen-runtime-closeout-control-reconciliation@d82b64450e18
+  -> codex/mapgen-runtime-closeout-grit-diagnostic-acquisition@e32c4749df0f
+  -> codex/mapgen-runtime-closeout-rule-diagnostics-resource@ede4871594fa
+  -> codex/mapgen-runtime-closeout-generic-fix-admission@171ee61ce0c1
+  -> codex/mapgen-studio-atomic-reroll@93b1153ca217
+  -> G.2.1 RuleFixPreview candidate (active, uncommitted)
 ```
 
 The historical source recovery is verified. The config and parity branches
@@ -52,13 +57,18 @@ record edits are interleaved. Do not stage or transplant that tree.
 
 Proceed in this order:
 
-1. control reconciliation is sealed as one clean child of the takeover frame;
-2. reconstruct and repair generic Grit diagnostic acquisition from source
-   evidence, not from a mixed patch;
-3. land authority-derived fix/apply admission as a separate capability;
-4. land atomic reroll now that source mapping has proved it independent of A.2;
-5. recreate A.2 Authority on the sealed A.3a tip, then run the six domain
-   slices.
+1. preserve the sealed control, G.1, RuleDiagnostics, G.2, and A.3a layers;
+2. seal `RuleFixPreview`: closed admitted impacts, one complete-root Grit
+   observation, and categorical refusal of live mutation;
+3. account the stale `codex/mapgen-domain-operation-authority` worktree hunk by
+   hunk, retain only unique settled decisions/docs needed by the launch
+   contract, and then remove its worktree and ref. Do not transplant dirty
+   rules, fixtures, manifests, baselines, or source changes;
+4. import the selected readiness descent/N=1 planning corpus, settle the A.2
+   semantics and protected surfaces, and freeze an immutable handoff commit;
+5. hand A.2 Authority, advisory census, deterministic row classification, and
+   the six domain slices to the user's team. This DRA continues only on the
+   independent closeout track and later integrates the returned A.2 stack.
 
 ## Prepared Findings
 
@@ -274,8 +284,9 @@ runtime behavior.
 
 The validator-ownership and rule-introduction prerequisites are sealed. The
 current Authority candidate remains preserved only as mixed-tree evidence.
-Recreate it after G.1 and G.2 rather than importing its hunks, then execute
-Ecology, Foundation, Morphology, Hydrology, Resources, and Placement in order.
+After the immutable handoff, the user's A.2 team recreates Authority rather
+than importing its hunks, then executes Ecology, Foundation, Morphology,
+Hydrology, Resources, and Placement under the frozen descent contract.
 
 ### A.3. Close Static Test And Tool Coverage
 

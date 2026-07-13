@@ -15,7 +15,7 @@ working in this Civ7 codebase:
 - project-plane boundary enforcement;
 - formatter hygiene routing;
 - Habitat pattern source-shape checks;
-- registered-authority fix admission and no-write planning;
+- registered-authority fix admission and no-write preview;
 - staged file-layer protection for generated/protected zones;
 - classification of paths and diffs into owning projects, rules, and targets;
 - kind-scoped workspace generator support for uniform projects and candidate
@@ -108,19 +108,19 @@ Implemented diagnostic/check state:
 - cache/failure handling tests;
 - Effect-backed process boundary for the Grit provider.
 
-Implemented fix-admission and no-write planning state:
+Implemented fix-admission and no-write preview state:
 
-- registered Grit rules may atomically admit one plan-only pattern through
+- registered Grit rules may atomically admit one preview-only pattern and closed effect set through
   `runner.fix`;
-- `habitat fix --dry-run` plans all admitted rules or an explicit repeatable
+- `habitat fix --dry-run` previews all admitted rules or an explicit repeatable
   `--rule` selection without writing;
 - unknown and unadmitted explicit selections refuse as a whole before provider
   execution;
-- observed rewrites are successful affected-path evidence, not live fixes;
+- observed transformations project closed file impacts, not live fixes;
 - non-dry `habitat fix` refuses before service or provider realization.
 
 Live writes, formatting, post-fix gates, rollback, changed-file/diff records,
-and commit-readiness are not implemented. The current fix surface is planning
+and commit-readiness are not implemented. The current fix surface is preview
 only.
 
 ## Generators
@@ -161,7 +161,7 @@ Current tests cover:
 - baselines and baseline integrity;
 - classification;
 - Grit provider behavior;
-- authority-derived fix admission, multi-rule planning, and early live-write refusal;
+- authority-derived fix admission, atomic multi-rule preview, and early live-write refusal;
 - generated/protected zones;
 - hooks;
 - project generator behavior;

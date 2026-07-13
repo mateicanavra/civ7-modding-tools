@@ -288,10 +288,21 @@ describe("rule registry contract", () => {
   test("requires fix admission and its asset to be one closed Grit runner field", () => {
     const runner = gritRunner("apply-authority");
     for (const fix of [
-      { kind: "plan-only" },
+      { kind: "preview-only" },
       { pattern: ".habitat/fixtures/fix.pattern.md" },
       { kind: "write", pattern: ".habitat/fixtures/fix.pattern.md" },
-      { kind: "plan-only", pattern: "../outside.pattern.md" },
+      { kind: "preview-only", pattern: "../outside.pattern.md" },
+      { kind: "preview-only", pattern: ".habitat/fixtures/fix.pattern.md", effects: [] },
+      {
+        kind: "preview-only",
+        pattern: ".habitat/fixtures/fix.pattern.md",
+        effects: ["modify", "modify"],
+      },
+      {
+        kind: "preview-only",
+        pattern: ".habitat/fixtures/fix.pattern.md",
+        effects: ["unknown"],
+      },
     ]) {
       expectInvalid(
         parseRuleRegistryDocument(

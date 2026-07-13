@@ -224,7 +224,7 @@ The closeout retains verified behavior and pure kernels. It does not canonize
 the present Studio runtime, app-hosted orchestration, browser derivation, or
 exact Habitat topology as the future realization.
 
-### Work Containers And State
+### Work Containers At Initial Takeover
 
 | Container | State at takeover | Meaning |
 | --- | --- | --- |
@@ -300,7 +300,7 @@ Earthlike, Latest Juicy, and Swooper Desert Mountains. P21 also requires its
 declared editor, failure, recovery, and redaction families. These are acceptance
 inputs, not suggestions to encode current values as generic test mirrors.
 
-## Current Resume Boundary
+## Initial Takeover Boundary (Historical)
 
 ### Observed Snapshot
 
@@ -408,46 +408,62 @@ comments, and a redundant wrapper. Typecheck and 39 focused tests pass;
 37/33 on the equivalent committed base, but no clean-worktree or live CLI gate
 exists. These are integration facts, not closure receipts.
 
+## Current Resume Amendment (2026-07-13)
+
+G.1 diagnostic acquisition, the `RuleDiagnostics` resource boundary, G.2
+generic fix admission, and A.3a atomic reroll are sealed Graphite layers.
+`RuleFixPreview` is the active prerequisite. This current amendment supersedes
+the historical provider/A.3a state and order above.
+
+After `RuleFixPreview` seals, the takeover DRA reconciles and retires the stale
+Authority branch/worktree, adapts only the useful descent and N=1 planning
+corpus, settles protected path ownership, and freezes one immutable A.2 launch
+commit and tree. Dirty rules, fixtures, manifests, baselines, or source hunks
+do not cross that boundary.
+
+From the accepted launch tree, the user's A.2 orchestrator owns Authority, the
+advisory file/clause/predicate census, deterministic destination/action
+classification, six domain migrations, their Graphite layers, and aggregate
+review receipts. The takeover DRA does not reproduce that work or mutate its
+protected surfaces. It continues the disjoint product-closeout track and later
+integrates the returned A.2 stack through inspected native Graphite operations.
+The takeover DRA retains final product integration, P21, submission, merge,
+drain, and initiative-closure authority.
+
 ## Remaining Order
 
 The initiative proceeds by dependency, not by numeric label alone.
 
-1. **Restore control truth and reconcile authority.** Revalidate and record the
-   completed old-DRA transfer and sole-mutation boundary, preserve the inherited
-   candidate, reconcile Stage 1/2 scope and live records, and establish clean
-   semantic write sets.
-2. **Finish the Stage 2 capability prerequisites.** Repair, isolate, and seal
-   generic diagnostic acquisition first. Then admit the separate authority-
-   derived fix/apply deletion. Preserve the A.2 Authority candidate through both
-   without committing it. Each capability receives current TypeScript, Habitat,
-   pinned Grit, Biome, review, and clean Graphite receipts.
-3. **Recreate and seal A.2 Authority and domains.** Re-derive six rules, fixtures,
-   introduction manifests, shrink-only baselines, imports, and retirements;
-   normalize Ecology -> Foundation -> Morphology -> Hydrology -> Resources ->
-   Placement. Close every admitted operation root, 101 at the current census;
-   re-census before acceptance rather than making that number authority.
-4. **Finish the remaining Stage 2 semantic lock.** Adjudicate A.3a at the first
-   clean boundary; close A.3 static authority, A.4 preset deletion, and A.5 only
-   after its cohesion decision; move setup/start into control oRPC (B); complete
-   P19 then P20 accepted behavior/integration readiness and make P21 semantically
-   ready. Stage 2 ends with zero undecided semantic rows, not branch closure.
-5. **Stage 3 sink design.** Map every retained/deleted/moved/split row to a
+1. **Seal the A.2 launch prerequisites.** Finish and review `RuleFixPreview`,
+   reconcile every stale Authority hunk as adopted evidence, superseded, or
+   excluded, retire the stale branch/worktree, adapt the selected descent/N=1
+   corpus, and freeze the exact A.2 launch commit, tree, gates, protected paths,
+   and return contract.
+2. **Run two protected tracks.** The user's team implements and seals A.2
+   Authority, freezes the zero-unknown advisory corpus, and executes Ecology ->
+   Foundation -> Morphology -> Hydrology -> Resources -> Placement. The takeover
+   DRA closes only source-independent A.3 surfaces, A.4, separately admitted A.5
+   concerns, control-oRPC, P19, and P20.
+3. **Integrate and finish semantic lock.** Inspect and integrate the returned
+   A.2 commits, finish A.2-sensitive A.3 scopes, and reach P21 semantic readiness
+   with zero undecided semantic rows.
+4. **Stage 3 sink design.** Map every retained/deleted/moved/split row to a
    deterministic owner and target Graphite slice. Recutting must not perform
    product design.
-6. **Stage 4 recut.** Reconstruct the reviewed integrated candidate from current
+5. **Stage 4 recut.** Reconstruct the reviewed integrated candidate from current
    main in semantic layers, keeping original refs immutable and comparing the
    resulting tree/range to the approved source.
-7. **Stage 5 branch certification.** Re-review and gate every recut layer, close
+6. **Stage 5 branch certification.** Re-review and gate every recut layer, close
    P01-P20 against current contracts, and make P21 genuinely ready. This is the
    first bounded portion of umbrella C.
-8. **Stage 6 preliminary P21 matrix.** Run the complete rendered/endpoint/Civ7
+7. **Stage 6 preliminary P21 matrix.** Run the complete rendered/endpoint/Civ7
    matrix on the certified candidate. Any semantic surprise returns to Stage 2;
    an implementation defect returns to its owning slice and reopens reviews.
-9. **Stages 7-8 archive, final matrix, and merge.** Archive/reconcile the active
+8. **Stages 7-8 archive, final matrix, and merge.** Archive/reconcile the active
    packet corpus through its owners, then run the final full matrix on the exact
    submission candidate and merge bottom-to-top with post-merge tree checks.
    C closes only here; it never precedes sink design or recut.
-10. **Stage 9 handoff.** Drain worktrees/processes, write the zero-context
+9. **Stage 9 handoff.** Drain worktrees/processes, write the zero-context
     continuation, and return to the parked Habitat authority initiative.
 
 ## Development Philosophy
@@ -904,7 +920,6 @@ Assumptions committed:
 
 Open decisions to make at clean boundaries:
 
-- exact ordering of A.3a relative to the A.2 domain train;
 - whether A.5 is one coherent unit or two independent changes;
 - exact current P19/P20 ownership representation after Packet B design;
 - final sink/recut graph after the semantic integration tree is complete;
