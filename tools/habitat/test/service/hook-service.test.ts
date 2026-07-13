@@ -276,6 +276,36 @@ describe("Habitat hook service", () => {
         stagedPaths: [changedPath],
       }),
     ]);
+    const affectedRequests: NxAffectedRequest[] = [];
+    const notApplicableResult = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
+      { sourceCheckHookEnabled: true },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer((request) => {
+        affectedRequests.push(request);
+        return commandResult(
+          affectedArgv(request),
+          repoRootForTestCommand(),
+          "affected ok\n",
+          0,
+          "",
+          "nx"
+        );
+      }),
+      {
+        createReport: (options = {}) =>
+          Effect.succeed(notApplicableCheckReport(options.command?.serialized ?? "habitat check")),
+      }
+    );
+
+    expect(notApplicableResult.exitCode).toBe(0);
+    expect(notApplicableResult.stdout).toContain("[source-check changed-path hook check]");
+    expect(notApplicableResult.stdout).toContain("affected ok");
+    expect(affectedRequests).toHaveLength(1);
   });
 
   test("uses the owning Grit rule target for migrated source rule authority-file pre-push changes", async () => {
@@ -967,7 +997,7 @@ function renderReported(events: HabitatReportEvent[], kind: HabitatReportEvent["
 
 function passingCheckReport(command: string): CheckReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command,
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,
@@ -977,7 +1007,7 @@ function passingCheckReport(command: string): CheckReport {
 
 function fileLayerPassingCheckReport(command: string): CheckReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command,
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,
@@ -989,8 +1019,32 @@ function fileLayerPassingCheckReport(command: string): CheckReport {
         status: "pass",
         locked: true,
         durationMs: 1,
+        disposition: { kind: "executed" },
         diagnostics: [],
         message: "File-layer pnpm files are controlled by package manager commands.",
+        remediate: null,
+      },
+    ],
+  };
+}
+
+function notApplicableCheckReport(command: string): CheckReport {
+  return {
+    schemaVersion: 2,
+    command,
+    startedAt: "2026-06-21T00:00:00.000Z",
+    ok: true,
+    rules: [
+      {
+        ruleId: "not-applicable-rule",
+        runner: "grit",
+        lane: "enforced",
+        status: "pass",
+        locked: true,
+        durationMs: 1,
+        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        diagnostics: [],
+        message: "not applicable",
         remediate: null,
       },
     ],

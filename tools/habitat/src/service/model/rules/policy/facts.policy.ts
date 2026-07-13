@@ -1,4 +1,5 @@
 import type {
+  GritDiagnosticAcquisitionPolicy,
   RuleBaselineFacts,
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
@@ -87,11 +88,18 @@ export function ruleGritFacts(records: readonly RuleRegistryRecord[]): RuleGritF
     id: rule.id,
     lane: rule.lane,
     message: rule.message,
-    runner: cloneRunner(rule.runner),
+    runner: projectedGritRunner(rule.runner),
     patternName: rule.runner.patternName,
+    diagnosticAcquisition: gritDiagnosticAcquisitionForRule(rule),
     pathCoverage: clonePathCoverage(rule.pathCoverage),
     scanRoots: [...rule.scanRoots],
   }));
+}
+
+export function gritDiagnosticAcquisitionForRule(rule: {
+  readonly runner: GritRunner;
+}): GritDiagnosticAcquisitionPolicy {
+  return rule.runner.diagnosticAcquisition ?? { kind: "check" };
 }
 
 export function ruleStructureFacts(records: readonly RuleRegistryRecord[]): RuleStructureFacts[] {
@@ -173,6 +181,11 @@ function isHookCheckRecord(rule: RuleRegistryRecord): rule is HookCheckRecordInp
 
 function cloneRunner<T extends RuleRegistryRecord["runner"]>(runner: T): T {
   return { ...runner } as T;
+}
+
+function projectedGritRunner(runner: GritRunner): RuleSourceFacts["runner"] {
+  const { diagnosticAcquisition: _diagnosticAcquisition, ...projected } = runner;
+  return { ...projected, files: { ...projected.files } };
 }
 
 function clonePathCoverage<T extends RuleRegistryRecord["pathCoverage"]>(pathCoverage: T): T {

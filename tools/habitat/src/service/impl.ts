@@ -38,7 +38,7 @@ export const service: EffectImplementerInternal<
       biome: context.deps.biome,
       command: context.deps.commandRunner,
       git: context.deps.git,
-      grit: {
+      ruleDiagnostics: {
         runRules: context.deps.grit.runRules,
       },
       nx: context.deps.nx,

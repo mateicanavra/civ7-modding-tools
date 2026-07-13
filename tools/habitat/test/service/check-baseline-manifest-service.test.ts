@@ -222,8 +222,9 @@ function createHarness(options: HarnessOptions): ServiceHarness {
           selectedRules.map((rule) => [
             rule.id,
             {
-              exitCode: 1,
-              diagnostics: diagnostics(),
+              result: { exitCode: 1, diagnostics: diagnostics() },
+              durationMs: 0,
+              disposition: { kind: "executed" as const },
             },
           ])
         )

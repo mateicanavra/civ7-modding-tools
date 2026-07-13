@@ -75,8 +75,9 @@ Notes:
   namespace, and valid selectors whose intersection contains no rules exit
   non-zero. `--rule` may be repeated to run a curated rule group; repeated rules
   are unioned, then intersected with any owner/runner selector. JSON mode renders a
-  schemaVersion 1 `CheckReport` with the single failing `rule-selection-integrity`
-  report; `--expand-baseline` exits before any baseline file is written.
+  schemaVersion 2 `CheckReport` with the single failing `rule-selection-integrity`
+  report and a required typed disposition; schemaVersion 1 reports are rejected.
+  `--expand-baseline` exits before any baseline file is written.
 - H2 wrapped existing mechanisms verbatim (zero new rules, zero semantic
   change). H3 added Nx boundaries; H4 makes Biome the hygiene owner. H4.5
   moved the command shell to oclif. H5 added the GritQL/file-layer catalog.

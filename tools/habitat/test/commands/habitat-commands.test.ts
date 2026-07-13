@@ -5,7 +5,7 @@ import { Value } from "typebox/value";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const mockReport = vi.hoisted(() => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   command: "habitat check --json --rule block_unapproved_base_standard_boundary_leaks",
   startedAt: "2026-06-13T00:00:00.000Z",
   ok: true,
@@ -48,7 +48,7 @@ vi.mock("../../src/service/model/check/index.js", async (importOriginal) => {
     renderCheckReport: vi.fn(() => '{"ok":true}'),
     stringifyCheckReport: vi.fn(() => '{"ok":true}'),
     verifyCheckSummary: vi.fn(() => ({
-      reportSchemaVersion: 1,
+      reportSchemaVersion: 2,
       requestedSelectors: {},
       selectedRuleIds: [],
       selectedRealRuleIds: [],
@@ -377,10 +377,10 @@ describe("Habitat oclif commands", () => {
     });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
     expect(verifyReceipt.stringifyVerifyReceipt).toHaveBeenCalledWith(
-      expect.objectContaining({ schemaVersion: 1 })
+      expect.objectContaining({ schemaVersion: 2 })
     );
     const payload = JSON.parse(capturedOutput()) as { schemaVersion: number };
-    expect(payload.schemaVersion).toBe(1);
+    expect(payload.schemaVersion).toBe(2);
   });
 
   test("graph forwards compact JSON output", async () => {
@@ -437,7 +437,7 @@ describe("Habitat oclif commands", () => {
 function verifyReceiptPayload(base: string, input: { base?: string; affectedExecution?: string }) {
   const planned = input.affectedExecution === "plan-only";
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     outcome: planned ? "planned" : "succeeded",
     command: {
       argv: ["habitat", "verify"],
@@ -453,7 +453,7 @@ function verifyReceiptPayload(base: string, input: { base?: string; affectedExec
       source: input.base ? "flag" : "merge-base",
     },
     habitatCheck: {
-      reportSchemaVersion: 1,
+      reportSchemaVersion: 2,
       selectedRuleIds: [],
       selectedRealRuleIds: ["block_unapproved_base_standard_boundary_leaks"],
       builtInRuleIds: [],

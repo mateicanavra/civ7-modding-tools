@@ -303,7 +303,9 @@ function walkFiles(root: string): string[] {
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     const absolute = path.join(root, entry.name);
     if (entry.isDirectory()) {
-      if (!ignoredDirectoryNames.has(entry.name)) out.push(...walkFiles(absolute));
+      if (!ignoredDirectoryNames.has(entry.name) && !fs.existsSync(path.join(absolute, ".git"))) {
+        out.push(...walkFiles(absolute));
+      }
       continue;
     }
     if (entry.isFile()) out.push(absolute);

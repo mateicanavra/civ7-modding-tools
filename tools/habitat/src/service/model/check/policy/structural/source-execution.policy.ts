@@ -1,11 +1,15 @@
-import { type CheckOptions, notApplicableDiagnostic } from "@habitat/cli/service/model/check/index";
+import {
+  type CheckOptions,
+  dependencyRefusalDiagnostic,
+} from "@habitat/cli/service/model/check/index";
+import type { RuleDiagnosticExecutionResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
 import {
   approvedSourceScanRootsForRules,
   runSourceRulesEffect,
   stagedSourceScanRoots,
 } from "@habitat/cli/service/model/source-check/index";
-import { Clock, Effect } from "effect";
+import { Clock, Effect, Match } from "effect";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
 
 export function stagedSourceCheckNotApplicableRecords(
@@ -18,8 +22,8 @@ export function stagedSourceCheckNotApplicableRecords(
       rule.id,
       {
         result: {
-          exitCode: 1,
-          diagnostics: [notApplicableDiagnostic(rule, "staged-scope-no-approved-roots")],
+          exitCode: 0,
+          diagnostics: [],
         },
         durationMs: 0,
         disposition: { kind: "not-applicable", reason: "staged-scope-no-approved-roots" },
@@ -99,24 +103,63 @@ export function executeGritSourceRulesEffect(
       return;
     }
 
-    const started = yield* Clock.currentTimeMillis;
-    const gritResults = yield* context.grit.runRules(gritRules, {
+    const gritResults = yield* context.ruleDiagnostics.runRules(gritRules, {
       repoRoot: context.repoRoot,
       ...(scanRoots ? { scanRoots } : {}),
     });
-    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
     for (const rule of gritRules) {
-      const result = gritResults.get(rule.id);
-      if (result) {
-        results.set(rule.id, {
-          result,
-          durationMs,
-          timing: sharedExecutionTiming("grit:rules", durationMs, gritRules),
-          disposition: { kind: "executed", durationMs },
-        });
+      const execution = gritResults.get(rule.id);
+      if (execution) {
+        results.set(rule.id, ruleDiagnosticExecutionRecord(rule, execution));
       }
     }
   });
+}
+
+export function ruleDiagnosticExecutionRecord(
+  rule: RuleSourceFacts,
+  execution: RuleDiagnosticExecutionResult
+): RuleExecutionRecord {
+  const result = Match.value(execution.disposition).pipe(
+    Match.when({ kind: "refused" }, ({ detail }) => ({
+      exitCode: 1,
+      diagnostics: [dependencyRefusalDiagnostic(rule, detail)],
+    })),
+    Match.orElse(() => execution.result)
+  );
+  return {
+    result,
+    durationMs: execution.durationMs,
+    disposition: ruleDiagnosticDisposition(execution),
+  };
+}
+
+function ruleDiagnosticDisposition(
+  execution: RuleDiagnosticExecutionResult
+): RuleExecutionRecord["disposition"] {
+  return Match.value(execution.disposition).pipe(
+    Match.when({ kind: "executed" }, () => ({
+      kind: "executed" as const,
+      durationMs: execution.durationMs,
+    })),
+    Match.when({ kind: "not-applicable" }, ({ reason }) => ({
+      kind: "not-applicable" as const,
+      reason,
+    })),
+    Match.when({ kind: "refused" }, ({ decision, detail }) => ({
+      kind: "dependency-refused" as const,
+      source: "diagnostic-scan-root" as const,
+      decision,
+      detail,
+    })),
+    Match.when({ kind: "failed" }, ({ failure, detail }) => ({
+      kind: "execution-failed" as const,
+      source: "diagnostic-provider" as const,
+      failure,
+      detail,
+    })),
+    Match.exhaustive
+  );
 }
 
 function sourceScopeContext(context: StructuralExecutionContext): {

@@ -2,86 +2,140 @@ import path from "node:path";
 import { FileSystem } from "@effect/platform";
 import { acquireTempDirectory } from "@habitat/cli/resources/platform/index";
 import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
-import { Data, Effect } from "effect";
-import { gritCheckProgram } from "./request.js";
-import type { GritProviderService } from "./resource.js";
-import { ruleHasDocsScanRoot } from "./scan-roots/index.js";
-import type { GritCheckCacheMode, GritCheckOutputFormat } from "./types.js";
+import { Data, Effect, Match, Option } from "effect";
+import { quoteGritYamlScalar } from "./types.js";
 
-export function runGritCheckWithScopedConfigEffect(
-  selectedRules: readonly RuleSourceFacts[],
-  scanRoots: readonly string[],
-  options: {
-    repoRoot: string;
-    grit: GritProviderService;
-    cacheMode?: GritCheckCacheMode;
-    requireObservableCacheStatus?: boolean;
-    outputFormat: GritCheckOutputFormat;
-  }
-) {
-  return Effect.scoped(
-    Effect.gen(function* () {
-      const gritDir = yield* acquireTempDirectory("habitat-grit-config-");
-      // GRIT_USER_CONFIG is the user-level .grit directory, not its patterns child.
-      const gritUserConfigDir = yield* acquireTempDirectory("habitat-grit-user-config-");
-      const fs = yield* FileSystem.FileSystem;
-      const config = yield* renderSelectedGritConfig(selectedRules, options.repoRoot, fs);
-      yield* fs.writeFileString(path.join(gritDir, "grit.yaml"), config);
-      return yield* gritCheckProgram(scanRoots, {
-        repoRoot: options.repoRoot,
-        grit: options.grit,
-        cacheMode: options.cacheMode,
-        requireObservableCacheStatus: options.requireObservableCacheStatus,
-        allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
-        outputFormat: options.outputFormat,
-        cwd: options.repoRoot,
-        gritDir,
-        gritUserConfigDir,
-      });
-    })
-  );
+export interface ScopedGritWorkspace {
+  readonly cwd: string;
+  readonly gritDir: string;
+  readonly userConfigDir: string;
+  readonly cacheDir: string;
+  readonly patternPath: string;
 }
 
-function renderSelectedGritConfig(
-  selectedRules: readonly RuleSourceFacts[],
+export const acquireScopedGritWorkspaceEffect = Effect.fn("grit.scopedWorkspace.acquire")(
+  function* (rule: RuleSourceFacts, repoRoot: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const asset = yield* canonicalPatternAssetEffect(rule, repoRoot, fs);
+    const source = yield* fs
+      .readFileString(asset)
+      .pipe(Effect.mapError((error) => patternAssetFailure(asset, error)));
+    const body = yield* extractGritBody(source, asset);
+
+    const cwd = yield* acquireTempDirectory("habitat-grit-diagnostic-").pipe(
+      Effect.mapError((error) => scopedConfigFailure("allocate temporary workspace", error))
+    );
+    const gritDir = path.join(cwd, ".grit");
+    const userConfigDir = path.join(cwd, "user-config");
+    const cacheDir = path.join(cwd, "cache");
+    yield* Effect.all(
+      [gritDir, userConfigDir, cacheDir].map((directory) => fs.makeDirectory(directory)),
+      { concurrency: 1 }
+    ).pipe(Effect.mapError((error) => scopedConfigFailure("create isolated directories", error)));
+    yield* fs
+      .writeFileString(path.join(gritDir, "grit.yaml"), renderConfig(rule, body))
+      .pipe(Effect.mapError((error) => scopedConfigFailure("write scoped catalog", error)));
+    return {
+      cwd,
+      gritDir,
+      userConfigDir,
+      cacheDir,
+      patternPath: asset,
+    } satisfies ScopedGritWorkspace;
+  }
+);
+
+const canonicalPatternAssetEffect = Effect.fn("grit.patternAsset.canonicalize")(function* (
+  rule: RuleSourceFacts,
   repoRoot: string,
   fs: FileSystem.FileSystem
 ) {
-  return Effect.forEach(selectedRules, (rule) => {
-    const source = path.join(repoRoot, rule.runner.files.pattern);
-    return fs.readFileString(source).pipe(
-      Effect.flatMap((contents) => extractGritBody(contents, source)),
-      Effect.map((body) => {
-        return [
-          `  - name: ${JSON.stringify(rule.patternName)}`,
-          `    title: ${JSON.stringify(rule.id)}`,
-          "    level: error",
-          "    body: |",
-          indentYamlBlock(body),
-        ].join("\n");
-      })
-    );
-  }).pipe(
-    Effect.map((patternEntries) =>
-      ["version: 0.0.2", "patterns:", ...patternEntries, ""].join("\n")
+  const canonicalRepo = yield* fs
+    .realPath(repoRoot)
+    .pipe(Effect.mapError((error) => patternAssetFailure(repoRoot, error)));
+  const habitatLexical = path.join(canonicalRepo, ".habitat");
+  const assetLexical = yield* Effect.succeed(
+    path.resolve(canonicalRepo, rule.runner.files.pattern)
+  ).pipe(
+    Effect.filterOrFail(
+      (candidate) => pathIsWithinRoot(candidate, habitatLexical),
+      () =>
+        new GritPatternAssetInvalid({
+          detail: `Grit pattern asset is outside lexical .habitat authority: ${rule.runner.files.pattern}.`,
+        })
+    )
+  );
+  const canonicalHabitat = yield* fs.realPath(habitatLexical).pipe(
+    Effect.mapError((error) => patternAssetFailure(habitatLexical, error)),
+    Effect.filterOrFail(
+      (candidate) => pathIsWithinRoot(candidate, canonicalRepo),
+      (candidate) =>
+        new GritPatternAssetInvalid({
+          detail: `Canonical .habitat authority escapes the repository: ${candidate}.`,
+        })
+    )
+  );
+  const canonicalAsset = yield* fs.realPath(assetLexical).pipe(
+    Effect.mapError((error) => patternAssetFailure(assetLexical, error)),
+    Effect.filterOrFail(
+      (candidate) => pathIsWithinRoot(candidate, canonicalHabitat),
+      (candidate) =>
+        new GritPatternAssetInvalid({
+          detail: `Canonical Grit pattern asset escapes .habitat authority: ${candidate}.`,
+        })
+    )
+  );
+  return canonicalAsset;
+});
+
+function renderConfig(rule: RuleSourceFacts, body: string): string {
+  return [
+    "version: 0.0.2",
+    "patterns:",
+    `  - name: ${quoteGritYamlScalar(rule.patternName)}`,
+    `    title: ${quoteGritYamlScalar(rule.id)}`,
+    "    level: error",
+    "    body: |",
+    ...body.split("\n").map((line) => `      ${line}`),
+    "",
+  ].join("\n");
+}
+
+function extractGritBody(contents: string, source: string) {
+  const match = /```grit\n([\s\S]*?)\n```/.exec(contents);
+  return Match.value(Option.fromNullable(match?.[1])).pipe(
+    Match.when({ _tag: "Some" }, ({ value }) => Effect.succeed(value)),
+    Match.orElse(() =>
+      Effect.fail(
+        new GritPatternAssetInvalid({
+          detail: `Grit pattern asset has no closed grit fence: ${source}.`,
+        })
+      )
     )
   );
 }
 
-function extractGritBody(contents: string, source: string) {
-  const match = contents.match(/```grit\n([\s\S]*?)\n```/);
-  return match
-    ? Effect.succeed(match[1] ?? "")
-    : Effect.fail(new GritScopedConfigInvalid({ path: source }));
+function pathIsWithinRoot(candidate: string, root: string): boolean {
+  const relative = path.relative(root, candidate);
+  return relative === "" || (relative !== ".." && !relative.startsWith(`..${path.sep}`));
 }
 
-function indentYamlBlock(body: string) {
-  return body
-    .split("\n")
-    .map((line) => `      ${line}`)
-    .join("\n");
+function patternAssetFailure(asset: string, error: unknown): GritPatternAssetInvalid {
+  return new GritPatternAssetInvalid({
+    detail: `Grit pattern asset failed at ${asset}: ${String(error)}.`,
+  });
 }
 
-class GritScopedConfigInvalid extends Data.TaggedError("GritScopedConfigInvalid")<{
-  readonly path: string;
+function scopedConfigFailure(operation: string, error: unknown): GritScopedConfigInvalid {
+  return new GritScopedConfigInvalid({
+    detail: `Failed to ${operation}: ${String(error)}.`,
+  });
+}
+
+export class GritPatternAssetInvalid extends Data.TaggedError("GritPatternAssetInvalid")<{
+  readonly detail: string;
+}> {}
+
+export class GritScopedConfigInvalid extends Data.TaggedError("GritScopedConfigInvalid")<{
+  readonly detail: string;
 }> {}

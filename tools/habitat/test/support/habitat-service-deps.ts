@@ -77,8 +77,9 @@ export function makeTestHabitatServiceDeps(
             selectedRules.map((rule) => [
               rule.id,
               {
-                exitCode: 0,
-                diagnostics: [],
+                result: { exitCode: 0, diagnostics: [] },
+                durationMs: 0,
+                disposition: { kind: "executed" as const },
               },
             ])
           )
@@ -194,7 +195,7 @@ function gritRequest(commandId: string, scanRoots: readonly string[] = []): Habi
 
 function passingCheckReport(command: string): CheckReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command,
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,

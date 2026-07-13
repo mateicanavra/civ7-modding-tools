@@ -24,7 +24,11 @@ import {
 describe("rule registry facts", () => {
   test("keeps hook check out of Grit execution facts", () => {
     const rule = baseRule({
-      runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
+      runner: {
+        ...gritRunner("sample-rule"),
+        patternName: "sample_pattern",
+        diagnosticAcquisition: { kind: "apply-dry-run" },
+      },
       scanRoots: ["packages"],
       hookCheck: true,
     });
@@ -37,6 +41,7 @@ describe("rule registry facts", () => {
         message: "Fix the structural issue.",
         runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
         patternName: "sample_pattern",
+        diagnosticAcquisition: { kind: "apply-dry-run" },
         pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
       },
@@ -84,6 +89,7 @@ describe("rule registry facts", () => {
         message: "Fix the structural issue.",
         runner: { ...gritRunner("rule"), patternName: "sample_pattern" },
         patternName: "sample_pattern",
+        diagnosticAcquisition: { kind: "check" },
         pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
       },

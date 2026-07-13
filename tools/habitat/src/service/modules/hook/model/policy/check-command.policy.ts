@@ -22,6 +22,12 @@ export type HookCheckCommandResult =
       kind: "malformed-json";
       exitCode: number;
       errors: string[];
+    }
+  | {
+      kind: "status-mismatch";
+      actualExitCode: number;
+      expectedExitCode: 0 | 1;
+      report: CheckReport;
     };
 
 export function hookCheckCommandResult(result: SpawnResult): HookCheckCommandResult {
@@ -30,11 +36,18 @@ export function hookCheckCommandResult(result: SpawnResult): HookCheckCommandRes
   if (parsed.kind === "invalid") {
     return { kind: "malformed-json", exitCode: result.exitCode, errors: parsed.errors };
   }
-  return {
-    kind: "parsed",
-    report: parsed.report,
-    summary: hookCheckSummary(parsed.report),
-  };
+  return correlateHookCheckReport(result.exitCode, parsed.report);
+}
+
+export function correlateHookCheckReport(
+  actualExitCode: number,
+  report: CheckReport
+): HookCheckCommandResult {
+  const expectedExitCode = report.ok ? 0 : 1;
+  if (actualExitCode !== expectedExitCode) {
+    return { kind: "status-mismatch", actualExitCode, expectedExitCode, report };
+  }
+  return { kind: "parsed", report, summary: hookCheckSummary(report) };
 }
 
 function parseCheckReportJson(

@@ -16,7 +16,7 @@ import {
   stagedSourceCheckPaths,
 } from "@habitat/cli/service/model/source-check/index";
 import { Effect } from "effect";
-import type { HookCheckCommandResult } from "./check-command.policy.js";
+import { correlateHookCheckReport, type HookCheckCommandResult } from "./check-command.policy.js";
 import { finalizePreCommitEffect } from "./lifecycle.policy.js";
 import type {
   HookBiomeCommandRequest,
@@ -342,7 +342,7 @@ export function prePushHookSourceCheck(
       report,
       summary,
     };
-    const exitCode = checkSummaryAllowsNextStage(result) ? 0 : 1;
+    const exitCode = report.ok ? 0 : 1;
     yield* recordInProcessHookCheck(context, "source-check", argv, startedAtMs, exitCode);
     return { ...result, exitCode };
   });
@@ -489,11 +489,7 @@ function spawnResultFromCheckReport(report: CheckReport): SpawnResult {
 }
 
 function stagedHookCheckCommandResult(result: StagedHookCheckResult): HookCheckCommandResult {
-  return {
-    kind: "parsed",
-    report: result.check.report,
-    summary: result.check.summary,
-  };
+  return correlateHookCheckReport(result.exitCode, result.check.report);
 }
 
 function recordInProcessHookCheck(

@@ -166,7 +166,7 @@ describe("check and baseline provider boundaries", () => {
           biome: deps.biome,
           command: deps.commandRunner,
           git: deps.git,
-          grit: deps.grit,
+          ruleDiagnostics: { runRules: deps.grit.runRules },
           nx: deps.nx,
           repoRoot: "/repo",
           rules: deps.rules,

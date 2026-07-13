@@ -1,4 +1,3 @@
-export const gritBin = "grit";
 export const defaultGritCommandTimeoutMs = 600_000;
 
 export const protectedScanRootPrefixes = [

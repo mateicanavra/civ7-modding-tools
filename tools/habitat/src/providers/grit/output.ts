@@ -1,308 +1,600 @@
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/index";
 import {
-  type DiagnosticCacheRequirement,
-  DiagnosticCommandObservationSchema,
+  type DiagnosticCompletedCommandObservation,
   DiagnosticCompletedCommandObservationSchema,
-  type DiagnosticProviderFailureKind,
-  DiagnosticProviderFailureKindSchema,
-  DiagnosticScanRootRefusalSchema,
-  diagnosticCacheRequirementForGritCheck,
-  diagnosticCommandObservationFromResult,
-  diagnosticCompletedCommandObservationFromResult,
-  type NativeGritCheckRequest,
-  NativeGritCheckRequestSchema,
-  nativeGritCheckRequestFromCommandResult,
-} from "@habitat/cli/service/model/diagnostics/index";
-import { type Static, Type } from "typebox";
+  type DiagnosticFailedCommandObservation,
+  DiagnosticFailedCommandObservationSchema,
+  type DiagnosticInterruptedCommandObservation,
+  DiagnosticInterruptedCommandObservationSchema,
+  type DiagnosticToolUnavailableCommandObservation,
+  DiagnosticToolUnavailableCommandObservationSchema,
+  type NativeGritSelectedRuleApplyDryRunObservationRequest,
+  NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
+  type NativeGritSelectedRuleJsonCheckRequest,
+  NativeGritSelectedRuleJsonCheckRequestSchema,
+  type NativeGritTargetCommandRequest,
+  NativeGritTargetCommandRequestSchema,
+} from "@habitat/cli/service/model/diagnostics/dto/diagnostic-command.schema";
+import { type Static, type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
 import {
-  type GritParseFailureStatus,
-  GritParseFailureStatusSchema,
+  type GritCompactEvent,
+  GritCompactEventSchema,
+  type GritReport,
   GritReportSchema,
-  type GritResult,
-  type GritWireReport,
-  GritWireReportSchema,
 } from "./types.js";
+
+const GritCheckAcquisitionEvidenceSchema = Type.Object(
+  {
+    request: NativeGritSelectedRuleJsonCheckRequestSchema,
+    command: DiagnosticCompletedCommandObservationSchema,
+  },
+  { additionalProperties: false }
+);
+
+const GritApplyAcquisitionEvidenceSchema = Type.Object(
+  {
+    request: NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
+    command: DiagnosticCompletedCommandObservationSchema,
+  },
+  { additionalProperties: false }
+);
+
+const GritCheckObservationSchema = Type.Object(
+  {
+    kind: Type.Literal("check"),
+    report: GritReportSchema,
+  },
+  { additionalProperties: false }
+);
+
+const GritApplyDryRunObservationSchema = Type.Object(
+  {
+    kind: Type.Literal("apply-dry-run"),
+    processed: Type.Integer({ minimum: 1 }),
+    found: Type.Integer({ minimum: 0 }),
+    findingPaths: Type.Array(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
+const GritPreCommandFailureSchema = Type.Union([
+  Type.Literal("GritRootCanonicalizationFailed"),
+  Type.Literal("GritPatternAssetFailed"),
+  Type.Literal("GritScopedConfigFailed"),
+]);
+
+const GritCommandFailureSchema = Type.Union([
+  Type.Literal("GritToolUnavailable"),
+  Type.Literal("GritNativeIdentityMismatch"),
+  Type.Literal("GritCommandFailed"),
+  Type.Literal("GritCommandInterrupted"),
+]);
+
+const GritParseFailureSchema = Type.Union([
+  Type.Literal("GritOutputMissing"),
+  Type.Literal("GritWrongOutputStream"),
+  Type.Literal("GritOutputTruncated"),
+  Type.Literal("GritMalformedOutput"),
+  Type.Literal("GritSchemaDrift"),
+]);
+
+const GritIncompleteFailureSchema = Type.Union([
+  Type.Literal("GritObservationIncomplete"),
+  Type.Literal("GritUnexpectedDiagnosticIdentity"),
+]);
 
 export const GritDiagnosticAcquisitionSchema = Type.Union([
   Type.Object(
     {
-      kind: Type.Literal("parsed"),
-      request: NativeGritCheckRequestSchema,
-      report: GritReportSchema,
-      parseStatus: Type.Literal("parsed"),
+      kind: Type.Literal("pre-command-failed"),
+      failure: GritPreCommandFailureSchema,
+      detail: Type.String({ minLength: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Union([
+    Type.Object(
+      {
+        kind: Type.Literal("command-failed"),
+        failure: Type.Literal("GritToolUnavailable"),
+        detail: Type.String({ minLength: 1 }),
+        request: NativeGritTargetCommandRequestSchema,
+        command: DiagnosticToolUnavailableCommandObservationSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        kind: Type.Literal("command-failed"),
+        failure: Type.Literal("GritCommandFailed"),
+        detail: Type.String({ minLength: 1 }),
+        request: NativeGritTargetCommandRequestSchema,
+        command: DiagnosticFailedCommandObservationSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        kind: Type.Literal("command-failed"),
+        failure: Type.Literal("GritCommandInterrupted"),
+        detail: Type.String({ minLength: 1 }),
+        request: NativeGritTargetCommandRequestSchema,
+        command: DiagnosticInterruptedCommandObservationSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        kind: Type.Literal("command-failed"),
+        failure: Type.Literal("GritNativeIdentityMismatch"),
+        detail: Type.String({ minLength: 1 }),
+        request: NativeGritTargetCommandRequestSchema,
+        command: Type.Union([
+          DiagnosticCompletedCommandObservationSchema,
+          DiagnosticToolUnavailableCommandObservationSchema,
+        ]),
+      },
+      { additionalProperties: false }
+    ),
+  ]),
+  Type.Object(
+    {
+      kind: Type.Literal("evidence-mismatch"),
+      failure: Type.Literal("GritProviderInternalContractViolation"),
+      detail: Type.String({ minLength: 1 }),
+      request: NativeGritTargetCommandRequestSchema,
       command: DiagnosticCompletedCommandObservationSchema,
     },
     { additionalProperties: false }
   ),
-  Type.Object(
-    {
-      kind: Type.Literal("provider-failed"),
-      request: NativeGritCheckRequestSchema,
-      failure: DiagnosticProviderFailureKindSchema,
-      parseStatus: GritParseFailureStatusSchema,
-      message: Type.String(),
-      command: DiagnosticCommandObservationSchema,
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("scan-root-refused"),
-      decision: DiagnosticScanRootRefusalSchema,
-      message: Type.String(),
-      command: Type.Object(
-        {
-          kind: Type.Literal("not-run"),
-          reason: Type.Literal("scan-root-refused"),
-        },
-        { additionalProperties: false }
-      ),
-    },
-    { additionalProperties: false }
-  ),
+  Type.Union([
+    Type.Object(
+      {
+        ...GritCheckAcquisitionEvidenceSchema.properties,
+        kind: Type.Literal("parse-failed"),
+        failure: GritParseFailureSchema,
+        detail: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        ...GritApplyAcquisitionEvidenceSchema.properties,
+        kind: Type.Literal("parse-failed"),
+        failure: GritParseFailureSchema,
+        detail: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+  ]),
+  Type.Union([
+    Type.Object(
+      {
+        ...GritCheckAcquisitionEvidenceSchema.properties,
+        kind: Type.Literal("parsed-incomplete"),
+        failure: GritIncompleteFailureSchema,
+        detail: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        ...GritApplyAcquisitionEvidenceSchema.properties,
+        kind: Type.Literal("parsed-incomplete"),
+        failure: GritIncompleteFailureSchema,
+        detail: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+  ]),
+  Type.Union([
+    Type.Object(
+      {
+        ...GritCheckAcquisitionEvidenceSchema.properties,
+        kind: Type.Literal("observed-complete"),
+        observation: GritCheckObservationSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        ...GritApplyAcquisitionEvidenceSchema.properties,
+        kind: Type.Literal("observed-complete"),
+        observation: GritApplyDryRunObservationSchema,
+      },
+      { additionalProperties: false }
+    ),
+  ]),
 ]);
 
 export type GritDiagnosticAcquisition = Static<typeof GritDiagnosticAcquisitionSchema>;
+export type GritPreCommandFailure = Static<typeof GritPreCommandFailureSchema>;
+export type GritCommandFailure = Static<typeof GritCommandFailureSchema>;
+export type GritParseFailure = Static<typeof GritParseFailureSchema>;
+export type GritIncompleteFailure = Static<typeof GritIncompleteFailureSchema>;
 
-const defaultCacheRequirement = diagnosticCacheRequirementForGritCheck({});
-
-export function parseGritCheckTextOutput(
-  commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement,
-  request: NativeGritCheckRequest = nativeGritCheckRequestFromCommandResult(
-    commandResult,
-    cacheRequirement
-  )
-): GritDiagnosticAcquisition {
-  if (commandResult.exit.interrupted) {
-    return parseFailure(
-      commandResult,
-      cacheRequirement,
-      request,
-      "GritCommandFailed",
-      "unparsed",
-      "Grit command was interrupted."
-    );
-  }
-
-  const text = `${commandResult.stdout.text}\n${commandResult.stderr.text}`;
-  const results = parseGritTextResults(text);
-  if (commandResult.exit.code !== 0 && results.length === 0) {
-    return parseFailure(
-      commandResult,
-      cacheRequirement,
-      request,
-      "GritCommandFailed",
-      "unparsed",
-      `Grit command exited ${commandResult.exit.code}.`
-    );
-  }
-
-  return parsedAcquisition(
-    commandResult,
-    cacheRequirement,
-    request,
-    [...new Set(results.map((result) => result.path).filter(isString))],
-    results
-  );
+export interface GritCheckAcquisitionEvidence {
+  readonly request: NativeGritSelectedRuleJsonCheckRequest;
+  readonly command: DiagnosticCompletedCommandObservation;
 }
 
-export function parseGritCheckOutput(
-  commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement,
-  request: NativeGritCheckRequest = nativeGritCheckRequestFromCommandResult(
+export interface GritApplyAcquisitionEvidence {
+  readonly request: NativeGritSelectedRuleApplyDryRunObservationRequest;
+  readonly command: DiagnosticCompletedCommandObservation;
+}
+
+export type GritAcquisitionEvidence = GritCheckAcquisitionEvidence | GritApplyAcquisitionEvidence;
+
+export type GritCommandFailureCapture =
+  | {
+      readonly failure: "GritToolUnavailable";
+      readonly detail: string;
+      readonly command: DiagnosticToolUnavailableCommandObservation;
+    }
+  | {
+      readonly failure: "GritCommandFailed";
+      readonly detail: string;
+      readonly command: DiagnosticFailedCommandObservation;
+    }
+  | {
+      readonly failure: "GritCommandInterrupted";
+      readonly detail: string;
+      readonly command: DiagnosticInterruptedCommandObservation;
+    }
+  | {
+      readonly failure: "GritNativeIdentityMismatch";
+      readonly detail: string;
+      readonly command:
+        | DiagnosticCompletedCommandObservation
+        | DiagnosticToolUnavailableCommandObservation;
+    };
+
+type GritPreCommandFailureAcquisition = Extract<
+  GritDiagnosticAcquisition,
+  { kind: "pre-command-failed" }
+>;
+type GritCommandFailureAcquisition = Extract<GritDiagnosticAcquisition, { kind: "command-failed" }>;
+type GritEvidenceMismatchAcquisition = Extract<
+  GritDiagnosticAcquisition,
+  { kind: "evidence-mismatch" }
+>;
+type GritParseFailureAcquisition = Extract<GritDiagnosticAcquisition, { kind: "parse-failed" }>;
+type GritIncompleteFailureAcquisition = Extract<
+  GritDiagnosticAcquisition,
+  { kind: "parsed-incomplete" }
+>;
+type GritObservedCheckAcquisition = Extract<
+  GritDiagnosticAcquisition,
+  { kind: "observed-complete"; observation: { kind: "check" } }
+>;
+type GritObservedApplyAcquisition = Extract<
+  GritDiagnosticAcquisition,
+  { kind: "observed-complete"; observation: { kind: "apply-dry-run" } }
+>;
+type GritApplyDryRunObservation = Static<typeof GritApplyDryRunObservationSchema>;
+
+export type GritAcquisitionEvidenceResult<Evidence extends GritAcquisitionEvidence> =
+  | { readonly kind: "accepted"; readonly evidence: Evidence }
+  | { readonly kind: "failed"; readonly acquisition: GritEvidenceMismatchAcquisition };
+
+export type GritWireParse<T> =
+  | { readonly kind: "parsed"; readonly value: T }
+  | {
+      readonly kind: "parse-failed";
+      readonly failure: GritParseFailure;
+      readonly detail: string;
+    }
+  | {
+      readonly kind: "parsed-incomplete";
+      readonly failure: GritIncompleteFailure;
+      readonly detail: string;
+    };
+
+export function parseGritCheckCommand(
+  commandResult: HabitatCommandResult
+): GritWireParse<GritReport> {
+  const streamFailure = pinnedStream(
     commandResult,
-    cacheRequirement
-  )
-): GritDiagnosticAcquisition {
-  if (commandResult.exit.code !== 0 || commandResult.exit.interrupted) {
-    return parseFailure(
-      commandResult,
-      cacheRequirement,
-      request,
-      "GritCommandFailed",
-      "unparsed",
-      `Grit command exited ${commandResult.exit.code}.`
-    );
-  }
+    "stderr",
+    "Grit check must emit exactly one JSON document on stderr."
+  );
+  if (streamFailure.kind !== "parsed") return streamFailure;
 
-  const candidates = [
-    {
-      stream: "stdout",
-      text: commandResult.stdout.text,
-      truncated: commandResult.stdout.truncated,
-    },
-    {
-      stream: "stderr",
-      text: commandResult.stderr.text,
-      truncated: commandResult.stderr.truncated,
-    },
-  ];
-  const nonEmpty = candidates.filter((candidate) => candidate.text.trim().length > 0);
-  if (nonEmpty.length === 0) {
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(streamFailure.value);
+  } catch {
+    return parseFailure("GritMalformedOutput", "Grit check emitted malformed JSON.");
+  }
+  if (!Value.Check(GritReportSchema, decoded)) {
     return parseFailure(
-      commandResult,
-      cacheRequirement,
-      request,
-      "GritNoJson",
-      "no-json",
-      "Grit emitted no JSON output."
+      "GritSchemaDrift",
+      renderSchemaErrors(GritReportSchema, decoded, "Grit check JSON")
     );
   }
-  const truncated = nonEmpty.find((candidate) => candidate.truncated);
-  if (truncated) {
-    return parseFailure(
-      commandResult,
-      cacheRequirement,
-      request,
-      "GritProviderInternalContractViolation",
-      "unsupported-mode",
-      `Grit ${truncated.stream} output exceeded the parser capture limit.`
-    );
-  }
+  return { kind: "parsed", value: Value.Parse(GritReportSchema, decoded) };
+}
 
-  for (const candidate of nonEmpty) {
-    const trimmed = candidate.text.trim();
-    if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) continue;
-    try {
-      const parsed: unknown = JSON.parse(trimmed);
-      return validateGritReport(commandResult, cacheRequirement, request, parsed);
-    } catch {
+export function parseGritApplyDryRunCommand(commandResult: HabitatCommandResult): GritWireParse<{
+  readonly processed: number;
+  readonly found: number;
+  readonly findings: readonly GritApplyFindingEvidence[];
+}> {
+  const streamFailure = pinnedStream(
+    commandResult,
+    "stdout",
+    "Grit apply dry-run must emit compact JSONL on stdout only."
+  );
+  if (streamFailure.kind !== "parsed") return streamFailure;
+  const eventParse = parseCompactEvents(streamFailure.value);
+  if (eventParse.kind !== "parsed") return eventParse;
+  return reconcileCompactEvents(eventParse.value);
+}
+
+export function preCommandFailure(
+  failure: GritPreCommandFailure,
+  detail: string
+): GritPreCommandFailureAcquisition {
+  return { kind: "pre-command-failed", failure, detail };
+}
+
+export function commandFailure(
+  request: NativeGritTargetCommandRequest,
+  capture: GritCommandFailureCapture
+): GritCommandFailureAcquisition {
+  return { kind: "command-failed", request, ...capture };
+}
+
+export function parseAcquisitionFailure(
+  failure: GritParseFailure,
+  detail: string,
+  evidence: GritAcquisitionEvidence
+): GritParseFailureAcquisition {
+  return { kind: "parse-failed", failure, detail, ...evidence };
+}
+
+export function incompleteAcquisitionFailure(
+  failure: GritIncompleteFailure,
+  detail: string,
+  evidence: GritAcquisitionEvidence
+): GritIncompleteFailureAcquisition {
+  return { kind: "parsed-incomplete", failure, detail, ...evidence };
+}
+
+export function completeCheckAcquisition(
+  report: GritReport,
+  evidence: GritCheckAcquisitionEvidence
+): GritObservedCheckAcquisition {
+  return {
+    kind: "observed-complete",
+    observation: { kind: "check", report },
+    ...evidence,
+  };
+}
+
+export function completeApplyAcquisition(
+  observation: Omit<GritApplyDryRunObservation, "kind">,
+  evidence: GritApplyAcquisitionEvidence
+): GritObservedApplyAcquisition {
+  return {
+    kind: "observed-complete",
+    observation: { kind: "apply-dry-run", ...observation },
+    ...evidence,
+  };
+}
+
+function pinnedStream(
+  commandResult: HabitatCommandResult,
+  expected: "stdout" | "stderr",
+  detail: string
+): GritWireParse<string> {
+  if (commandResult.stdout.truncated || commandResult.stderr.truncated) {
+    return parseFailure("GritOutputTruncated", `${detail} Captured output was truncated.`);
+  }
+  const expectedText = commandResult[expected].text;
+  const otherText = commandResult[expected === "stdout" ? "stderr" : "stdout"].text;
+  if (expectedText.trim().length === 0 && otherText.trim().length === 0) {
+    return parseFailure("GritOutputMissing", `${detail} Both streams were empty.`);
+  }
+  if (expectedText.trim().length === 0 || otherText.trim().length > 0) {
+    return parseFailure("GritWrongOutputStream", detail);
+  }
+  return { kind: "parsed", value: expectedText };
+}
+
+function parseCompactEvents(text: string): GritWireParse<readonly GritCompactEvent[]> {
+  const lines = text.endsWith("\n") ? text.slice(0, -1).split("\n") : text.split("\n");
+  if (lines.length === 0 || (lines.length === 1 && lines[0]?.length === 0)) {
+    return parseFailure("GritOutputMissing", "Grit apply dry-run emitted no JSONL records.");
+  }
+  const events: GritCompactEvent[] = [];
+  for (const [index, line] of lines.entries()) {
+    if (line?.trim().length === 0) {
       return parseFailure(
-        commandResult,
-        cacheRequirement,
-        request,
-        "GritMalformedJson",
-        "malformed",
-        `Grit ${candidate.stream} is not valid JSON.`
+        "GritMalformedOutput",
+        `Grit apply dry-run emitted a blank JSONL record at line ${index + 1}.`
       );
     }
+    let decoded: unknown;
+    try {
+      decoded = JSON.parse(line);
+    } catch {
+      return parseFailure(
+        "GritMalformedOutput",
+        `Grit apply dry-run emitted malformed JSONL at line ${index + 1}.`
+      );
+    }
+    if (!Value.Check(GritCompactEventSchema, decoded)) {
+      return parseFailure(
+        "GritSchemaDrift",
+        renderSchemaErrors(GritCompactEventSchema, decoded, `Grit JSONL line ${index + 1}`)
+      );
+    }
+    events.push(Value.Parse(GritCompactEventSchema, decoded));
   }
-
-  const containsJsonLikeText = nonEmpty.some(
-    (candidate) => candidate.text.includes("{") || candidate.text.includes("}")
-  );
-  return parseFailure(
-    commandResult,
-    cacheRequirement,
-    request,
-    containsJsonLikeText ? "GritMalformedJson" : "GritNoJson",
-    containsJsonLikeText ? "malformed" : "no-json",
-    containsJsonLikeText
-      ? "Grit output contains wrapper text around JSON; Habitat requires exact JSON."
-      : "Grit output did not contain a JSON object."
-  );
+  return { kind: "parsed", value: events };
 }
 
-function validateGritReport(
-  commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement,
-  request: NativeGritCheckRequest,
-  value: unknown
-): GritDiagnosticAcquisition {
-  const issues = [...Value.Errors(GritWireReportSchema, value)];
-  if (issues.length > 0) {
-    const first = issues[0];
-    const failure =
-      first?.instancePath === "" || first?.instancePath === "/results"
-        ? "GritSchemaDrift"
-        : "GritUnexpectedResultShape";
-    return parseFailure(
-      commandResult,
-      cacheRequirement,
-      request,
-      failure,
-      "schema-drift",
-      first?.message ?? "Grit JSON does not match the expected report schema."
+function reconcileCompactEvents(events: readonly GritCompactEvent[]): GritWireParse<{
+  readonly processed: number;
+  readonly found: number;
+  readonly findings: readonly GritApplyFindingEvidence[];
+}> {
+  const terminalIndexes = events.flatMap((event, index) =>
+    event.__typename === "AllDone" ? [index] : []
+  );
+  if (terminalIndexes.length !== 1 || terminalIndexes[0] !== events.length - 1) {
+    return incomplete(
+      "terminal-shape",
+      "Grit apply dry-run requires exactly one final AllDone event."
     );
   }
-  const report: GritWireReport = Value.Parse(GritWireReportSchema, value);
-  return parsedAcquisition(
-    commandResult,
-    cacheRequirement,
-    request,
-    report.paths ?? [],
-    report.results
-  );
-}
-
-function parsedAcquisition(
-  commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement,
-  request: NativeGritCheckRequest,
-  paths: readonly string[],
-  results: readonly GritResult[]
-): GritDiagnosticAcquisition {
-  return {
-    kind: "parsed",
-    request,
-    report: {
-      paths: [...paths],
-      results: [...results],
-    },
-    parseStatus: "parsed",
-    command: diagnosticCompletedCommandObservationFromResult(commandResult, cacheRequirement),
-  };
-}
-
-function parseGritTextResults(text: string): GritResult[] {
-  const results: GritResult[] = [];
-  let currentPath = ".";
-  let currentLine: number | undefined;
-  let currentColumn: number | undefined;
-
-  for (const line of text.split("\n")) {
-    if (!line.trim()) continue;
-    if (line.includes(" files with ") || line.startsWith("Run grit check ")) continue;
-    if (!line.startsWith(" ") && !line.includes(" files with ")) {
-      currentPath = normalizeGritPath(line.trim());
-      currentLine = undefined;
-      currentColumn = undefined;
-      continue;
-    }
-
-    const positionMatch = line.match(/^\s+(\d+):(\d+)\s+/);
-    if (positionMatch) {
-      currentLine = Number(positionMatch[1]);
-      currentColumn = Number(positionMatch[2]);
-    }
-
-    const patternMatch = line.match(/\b([a-z][a-z0-9_]+)\s*$/);
-    if (!patternMatch) continue;
-    results.push({
-      local_name: patternMatch[1],
-      path: currentPath,
-      start: currentLine ? { line: currentLine, col: currentColumn } : undefined,
-    });
+  const terminal = events.at(-1);
+  if (!terminal || terminal.__typename !== "AllDone") {
+    return incomplete("terminal-shape", "Grit apply dry-run has no terminal AllDone event.");
+  }
+  if (terminal.reason !== "allMatchesFound") {
+    return incomplete("terminal-reason", `Grit apply dry-run terminated with ${terminal.reason}.`);
+  }
+  if (terminal.processed === 0) {
+    return incomplete("processed-zero", "Grit apply dry-run reported zero processed files.");
   }
 
-  return results;
-}
-
-function normalizeGritPath(gritPath: string | undefined): string {
-  if (!gritPath) return ".";
-  return gritPath.replace(/\\/g, "/").replace(/^\.\//, "");
-}
-
-function parseFailure(
-  commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement,
-  request: NativeGritCheckRequest,
-  failure: DiagnosticProviderFailureKind,
-  parseStatus: GritParseFailureStatus,
-  message: string
-): GritDiagnosticAcquisition {
+  let observedFound = 0;
+  const findings: GritApplyFindingEvidence[] = [];
+  for (const event of events) {
+    switch (event.__typename) {
+      case "PatternInfo":
+        if (!event.valid) {
+          return incomplete(
+            "invalid-pattern-info",
+            "Grit reported PatternInfo.valid=false for the selected pattern."
+          );
+        }
+        break;
+      case "InputFile":
+      case "AllDone":
+        break;
+      case "AnalysisLog":
+        if (event.level < 400) {
+          return incomplete(
+            "analysis-failure",
+            `Grit analysis failed at level ${event.level}: ${event.message}`
+          );
+        }
+        break;
+      case "Match":
+        observedFound += Math.max(1, event.ranges.length);
+        findings.push({ kind: "match", path: event.sourceFile });
+        break;
+      case "Rewrite":
+        observedFound += Math.max(1, event.original.ranges.length);
+        findings.push({ kind: "rewrite", path: event.original.sourceFile });
+        break;
+      case "CreateFile":
+        observedFound += 1;
+        findings.push({ kind: "create-file", path: event.rewritten.sourceFile });
+        break;
+      case "RemoveFile":
+        return incomplete(
+          "unproven-remove-file-cardinality",
+          "Grit emitted RemoveFile, whose cardinality is not established for the pinned native."
+        );
+      default:
+        assertNeverEvent(event);
+    }
+  }
+  if (terminal.found !== observedFound) {
+    return incomplete(
+      "count-mismatch",
+      `Grit AllDone found ${terminal.found}, but events establish ${observedFound}.`
+    );
+  }
   return {
-    kind: "provider-failed",
-    request,
-    failure,
-    parseStatus,
-    message,
-    command: diagnosticCommandObservationFromResult(commandResult, cacheRequirement),
+    kind: "parsed",
+    value: { processed: terminal.processed, found: terminal.found, findings },
   };
 }
 
-function isString(value: unknown): value is string {
-  return typeof value === "string";
+export interface GritApplyFindingEvidence {
+  readonly kind: "match" | "rewrite" | "create-file";
+  readonly path: string;
+}
+
+function parseFailure(failure: GritParseFailure, detail: string): GritWireParse<never> {
+  return { kind: "parse-failed", failure, detail };
+}
+
+function incomplete(reason: string, detail: string): GritWireParse<never> {
+  return {
+    kind: "parsed-incomplete",
+    failure: "GritObservationIncomplete",
+    detail: `${reason}: ${detail}`,
+  };
+}
+
+function renderSchemaErrors(schema: TSchema, value: unknown, label: string) {
+  const errors = [...Value.Errors(schema, value)]
+    .slice(0, 3)
+    .map((error) => `${error.instancePath || "/"}: ${error.message}`)
+    .join("; ");
+  return `${label} did not match the pinned schema${errors ? `: ${errors}` : "."}`;
+}
+
+function assertNeverEvent(event: never): never {
+  throw new Error(`Unhandled compact Grit event: ${JSON.stringify(event)}`);
+}
+
+export function checkAcquisitionEvidence(
+  request: NativeGritSelectedRuleJsonCheckRequest,
+  command: DiagnosticCompletedCommandObservation
+): GritAcquisitionEvidenceResult<GritCheckAcquisitionEvidence> {
+  return validateAcquisitionEvidence(GritCheckAcquisitionEvidenceSchema, { request, command });
+}
+
+export function applyAcquisitionEvidence(
+  request: NativeGritSelectedRuleApplyDryRunObservationRequest,
+  command: DiagnosticCompletedCommandObservation
+): GritAcquisitionEvidenceResult<GritApplyAcquisitionEvidence> {
+  return validateAcquisitionEvidence(GritApplyAcquisitionEvidenceSchema, { request, command });
+}
+
+function validateAcquisitionEvidence<Evidence extends GritAcquisitionEvidence>(
+  schema: TSchema,
+  evidence: Evidence
+): GritAcquisitionEvidenceResult<Evidence> {
+  const mismatches = [
+    ...mismatch(
+      evidence.request.commandInvocationId !== evidence.command.commandId,
+      "commandInvocationId"
+    ),
+    ...mismatch(evidence.request.executable !== evidence.command.executable, "executable"),
+    ...mismatch(!arraysEqual(evidence.request.argv, evidence.command.argv), "argv"),
+    ...mismatch(evidence.request.cwd !== evidence.command.cwd, "cwd"),
+    ...mismatch(!arraysEqual(evidence.request.scanRoots, evidence.command.scanRoots), "scanRoots"),
+    ...mismatch(!Value.Check(schema, evidence), "schema"),
+  ];
+  if (mismatches.length === 0) {
+    Value.Parse(schema, evidence);
+    return { kind: "accepted", evidence };
+  }
+  return {
+    kind: "failed",
+    acquisition: {
+      kind: "evidence-mismatch",
+      failure: "GritProviderInternalContractViolation",
+      detail: `Completed Grit command evidence did not match its target request: ${mismatches.join(", ")}.`,
+      ...evidence,
+    },
+  };
+}
+
+function mismatch(condition: boolean, field: string): readonly string[] {
+  if (condition) return [field];
+  return [];
+}
+
+function arraysEqual(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }

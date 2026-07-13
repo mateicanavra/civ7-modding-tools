@@ -3,15 +3,19 @@ import { Value } from "typebox/value";
 
 const DiagnosticProviderFailureKindLiteralSchemas = [
   Type.Literal("GritToolUnavailable"),
+  Type.Literal("GritNativeIdentityMismatch"),
+  Type.Literal("GritRootCanonicalizationFailed"),
+  Type.Literal("GritPatternAssetFailed"),
+  Type.Literal("GritScopedConfigFailed"),
   Type.Literal("GritCommandFailed"),
-  Type.Literal("GritNoJson"),
-  Type.Literal("GritMalformedJson"),
+  Type.Literal("GritCommandInterrupted"),
+  Type.Literal("GritOutputMissing"),
+  Type.Literal("GritWrongOutputStream"),
+  Type.Literal("GritOutputTruncated"),
+  Type.Literal("GritMalformedOutput"),
   Type.Literal("GritSchemaDrift"),
-  Type.Literal("GritUnexpectedResultShape"),
-  Type.Literal("GritEmptyScanRoots"),
-  Type.Literal("GritPatternMatchMissing"),
+  Type.Literal("GritObservationIncomplete"),
   Type.Literal("GritUnexpectedDiagnosticIdentity"),
-  Type.Literal("GritCacheProvenanceMissing"),
   Type.Literal("GritProviderInternalContractViolation"),
 ] as const;
 
@@ -22,9 +26,7 @@ export const DiagnosticProviderFailureKindSchema = Type.Union([
 export type DiagnosticProviderFailureKind = Static<typeof DiagnosticProviderFailureKindSchema>;
 
 export const diagnosticProviderFailureKinds: readonly DiagnosticProviderFailureKind[] =
-  DiagnosticProviderFailureKindLiteralSchemas.map(
-    (schema) => schema.const as DiagnosticProviderFailureKind
-  );
+  DiagnosticProviderFailureKindLiteralSchemas.map((schema) => schema.const);
 
 export function isDiagnosticProviderFailureKind(
   value: string

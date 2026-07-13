@@ -3,7 +3,6 @@ import {
   type DiagnosticFinding,
   type DiagnosticRunOutcome,
   diagnosticCatalogEntryFromRuleSourceFacts,
-  type ObservedGritDiagnosticIdentity,
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
@@ -19,58 +18,43 @@ export function gritDiagnosticOutcomesFromReport(
   report: GritReport,
   options: GritDiagnosticOptions = {}
 ): Map<string, DiagnosticRunOutcome> {
-  const entries = new Map(
-    selectedRules.map((rule) => [rule.id, diagnosticCatalogEntryFromRuleSourceFacts(rule)])
-  );
-  const selectedPatterns = new Set(
-    [...entries.values()].map((entry) => entry.diagnosticIdentity.patternIdentity)
-  );
-  const unexpected = report.results
-    .map(observedGritDiagnosticIdentity)
-    .find(
-      (observed) =>
-        observed?.kind === "observed-identity-mismatch" ||
-        (options.rejectUnexpectedPatternIdentity &&
-          observed?.kind === "observed-pattern" &&
-          !selectedPatterns.has(observed.observedPatternIdentity))
-    );
-  if (unexpected) {
-    return new Map(
-      selectedRules.map((rule) => [rule.id, unexpectedIdentityOutcome(rule, unexpected)])
-    );
+  const expectedPatterns = new Set(selectedRules.map((rule) => rule.patternName));
+  for (const result of report.results) {
+    const observed = observedGritDiagnosticIdentity(result);
+    if (
+      observed.kind === "observed-identity-mismatch" ||
+      !expectedPatterns.has(observed.observedPatternIdentity)
+    ) {
+      return new Map(
+        selectedRules.map((rule) => [
+          rule.id,
+          {
+            kind: "unexpected-diagnostic-identity" as const,
+            entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
+            unexpectedIdentity: observed,
+          },
+        ])
+      );
+    }
   }
 
   return new Map(
     selectedRules.map((rule) => {
-      const outcome = gritRuleOutcomeFromReport(rule, report, options);
-      return [rule.id, outcome];
-    })
-  );
-}
-
-export function gritRuleResultsFromReport(
-  selectedRules: readonly RuleSourceFacts[],
-  report: GritReport,
-  options: GritDiagnosticOptions = {}
-): Map<string, RuleRunResult> {
-  return ruleRunResultsFromDiagnosticOutcomes(
-    selectedRules,
-    gritDiagnosticOutcomesFromReport(selectedRules, report, options)
-  );
-}
-
-export function ruleRunResultsFromDiagnosticOutcomes(
-  selectedRules: readonly RuleSourceFacts[],
-  outcomes: ReadonlyMap<string, DiagnosticRunOutcome>
-): Map<string, RuleRunResult> {
-  return new Map(
-    selectedRules.map((rule) => {
-      const outcome = outcomes.get(rule.id);
+      const entry = diagnosticCatalogEntryFromRuleSourceFacts(rule);
+      const diagnostics = report.results
+        .filter((result) =>
+          observedGritIdentityMatches(
+            observedGritDiagnosticIdentity(result),
+            entry.diagnosticIdentity
+          )
+        )
+        .map((result) => diagnosticFindingFromGritResult(rule, result, options));
+      const [first, ...rest] = diagnostics;
       return [
         rule.id,
-        outcome
-          ? ruleRunResultFromDiagnosticOutcome(rule, outcome)
-          : infrastructureFailure(rule, "GritPatternMatchMissing"),
+        first
+          ? ({ kind: "findings", entry, diagnostics: [first, ...rest] } as const)
+          : ({ kind: "clean", entry, diagnostics: [] } as const),
       ];
     })
   );
@@ -95,94 +79,47 @@ export function ruleRunResultFromDiagnosticOutcome(
           baselined: diagnostic.baselineState !== "unbaselined",
         })),
       };
-    case "identity-missing":
-      return infrastructureFailure(
-        rule,
-        "GritPatternMatchMissing",
-        `Expected diagnostic identity was not observed: ${renderExpectedIdentity(outcome.expectedIdentity)}.`
-      );
+    case "provider-failed":
+      return infrastructureFailure(rule, outcome.failure, outcome.detail);
+    case "scan-root-refused":
+      return { exitCode: 1, diagnostics: [] };
+    case "not-applicable":
+      return { exitCode: 0, diagnostics: [] };
     case "unexpected-diagnostic-identity":
-      if (outcome.unexpectedIdentity.kind === "observed-native-rule") {
-        return infrastructureFailure(
-          rule,
-          "GritUnexpectedDiagnosticIdentity",
-          `Unexpected native diagnostic identity: ${outcome.unexpectedIdentity.observedNativeDiagnosticIdentity}.`
-        );
-      }
       return infrastructureFailure(
         rule,
         "GritUnexpectedDiagnosticIdentity",
         renderUnexpectedObservedGritIdentity(outcome.unexpectedIdentity)
       );
-    case "scan-root-refused":
-      return infrastructureFailure(rule, "GritEmptyScanRoots", outcome.detail);
-    case "cache-observation-missing":
-      return infrastructureFailure(rule, outcome.failure, outcome.detail);
-    case "provider-failed":
-      return infrastructureFailure(rule, outcome.failure, outcome.detail);
+    default:
+      return assertNeverOutcome(outcome);
   }
-}
-
-function renderExpectedIdentity(
-  identity: DiagnosticRunOutcome["entry"]["diagnosticIdentity"]
-): string {
-  if (identity.kind === "pattern") return identity.patternIdentity;
-  return identity.nativeDiagnosticIdentity;
-}
-
-function gritRuleOutcomeFromReport(
-  rule: RuleSourceFacts,
-  report: GritReport,
-  options: GritDiagnosticOptions
-): DiagnosticRunOutcome {
-  const entry = diagnosticCatalogEntryFromRuleSourceFacts(rule);
-  const diagnostics = report.results
-    .filter((result) =>
-      observedGritIdentityMatches(observedGritDiagnosticIdentity(result), entry.diagnosticIdentity)
-    )
-    .map((result) => diagnosticFindingFromGritResult(rule, entry, result, options));
-  if (diagnostics.length > 0) {
-    return {
-      kind: "findings",
-      entry,
-      diagnostics: diagnostics as [DiagnosticFinding, ...DiagnosticFinding[]],
-    };
-  }
-  if (options.requirePatternFinding) {
-    return { kind: "identity-missing", entry, expectedIdentity: entry.diagnosticIdentity };
-  }
-  return { kind: "clean", entry, diagnostics: [] };
 }
 
 function diagnosticFindingFromGritResult(
   rule: RuleSourceFacts,
-  entry: ReturnType<typeof diagnosticCatalogEntryFromRuleSourceFacts>,
   result: GritResult,
-  options: GritDiagnosticOptions = {}
+  options: GritDiagnosticOptions
 ): DiagnosticFinding {
   return {
     kind: "diagnostic-finding",
     ruleId: rule.id,
     path: normalizeDiagnosticPath(result.path, options.repoRoot),
-    line: result.start?.line,
-    message: result.extra?.message ?? rule.message,
+    line: result.start.line,
+    message:
+      result.extra.message === null || result.extra.message.trim().length === 0
+        ? rule.message
+        : result.extra.message,
     severity: rule.lane === "advisory" ? "advisory" : "error",
     baselineState: "unbaselined",
   };
 }
 
-function normalizeDiagnosticPath(gritPath: string | undefined, repoRoot: string | undefined) {
-  if (!repoRoot || !gritPath || !path.isAbsolute(gritPath)) return normalizeGritPath(gritPath);
+function normalizeDiagnosticPath(gritPath: string, repoRoot: string | undefined): string {
+  if (!repoRoot || !path.isAbsolute(gritPath)) return normalizeGritPath(gritPath);
   return normalizeGritPath(path.relative(repoRoot, gritPath));
 }
 
-function unexpectedIdentityOutcome(
-  rule: RuleSourceFacts,
-  unexpectedIdentity: ObservedGritDiagnosticIdentity
-): DiagnosticRunOutcome {
-  return {
-    kind: "unexpected-diagnostic-identity",
-    entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
-    unexpectedIdentity,
-  };
+function assertNeverOutcome(outcome: never): never {
+  throw new Error(`Unhandled Grit diagnostic outcome: ${JSON.stringify(outcome)}`);
 }

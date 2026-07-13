@@ -10,7 +10,10 @@ import type {
   RuleExecutionDisposition,
   RuleExecutionTiming,
 } from "@habitat/cli/service/model/check/index";
-import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import type {
+  RuleDiagnosticExecutionResult,
+  RuleRunResult,
+} from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleFactsCatalog, RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
 import type { SourceRuleFileSystem } from "@habitat/cli/service/model/source-check/index";
 import type { Effect } from "effect";
@@ -28,7 +31,7 @@ export interface StructuralExecutionContext {
   readonly biome: StructuralBiomePort;
   readonly command: StructuralCommandPort;
   readonly git: StructuralGitPort;
-  readonly grit: StructuralGritPort;
+  readonly ruleDiagnostics: StructuralRuleDiagnosticsPort;
   readonly nx: StructuralNxPort;
   readonly rules: RuleFactsCatalog;
   readonly sourceFileSystem: SourceRuleFileSystem<FileSystem.FileSystem>;
@@ -72,11 +75,11 @@ export interface StructuralGitPort {
   ) => Effect.Effect<string | null, never, any>;
 }
 
-export interface StructuralGritPort {
+export interface StructuralRuleDiagnosticsPort {
   readonly runRules: (
     selectedRules: readonly RuleSourceFacts[],
     options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
-  ) => Effect.Effect<Map<string, RuleRunResult>, never, any>;
+  ) => Effect.Effect<Map<string, RuleDiagnosticExecutionResult>, never, any>;
 }
 
 export interface StructuralNxPort {

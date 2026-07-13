@@ -1,3 +1,5 @@
+import path from "node:path";
+import { NodeContext } from "@effect/platform-node";
 import {
   BiomeProvider,
   biomeArgv,
@@ -8,7 +10,11 @@ import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
 } from "@habitat/cli/providers/graphite/index";
-import { GritProvider, makeFakeGritProviderLayer } from "@habitat/cli/providers/grit/index";
+import {
+  GritProvider,
+  makeFakeGritProviderLayer,
+  makeGritProviderLayer,
+} from "@habitat/cli/providers/grit/index";
 import {
   affectedArgv,
   graphArgv,
@@ -18,12 +24,14 @@ import {
   runTargetArgv,
 } from "@habitat/cli/providers/nx/index";
 import {
+  CommandRunner,
   captureOutput,
+  type HabitatProcessRequest,
   makeHabitatCommandResult,
   materializeDefaultHabitatCommand,
 } from "@habitat/cli/resources/command/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("vendor providers", () => {
@@ -262,33 +270,35 @@ describe("vendor providers", () => {
     });
   });
 
-  test("GritProvider owns check request construction and cache policy", async () => {
+  test("GritProvider owns the direct-native hermetic check request", async () => {
+    const providerRequest = {
+      scanRoots: ["/tmp/habitat-grit-target"],
+      cwd: "/tmp/habitat-grit-catalog-parent",
+      gritDir: "/tmp/habitat-grit-catalog-parent/.grit",
+      cacheDir: "/tmp/habitat-grit-provider-test-cache",
+      gritUserConfigDir: "/tmp/habitat-grit-catalog-parent/user-config",
+      timeoutMs: 1234,
+    } as const;
     const result = await Effect.runPromise(
       Effect.gen(function* () {
         const grit = yield* GritProvider;
-        const request = grit.checkRequest({
-          scanRoots: ["tools/habitat/src"],
-          outputFormat: "json",
-          cacheDir: "/tmp/habitat-grit-provider-test-cache",
-          timeoutMs: 1234,
-        });
+        const request = grit.checkRequest(providerRequest);
         return {
           request,
-          checked: yield* grit.check({
-            scanRoots: ["tools/habitat/src"],
-            outputFormat: "json",
-          }),
+          checked: yield* grit.check(providerRequest),
         };
       }).pipe(
         Effect.provide(
-          makeFakeGritProviderLayer((request) =>
-            commandResult(
-              "pattern-check",
-              "grit",
-              ["--json", "check", "--level", "error", ...request.scanRoots],
-              repoRoot,
-              ""
-            )
+          makeFakeGritProviderLayer(
+            (request) =>
+              commandResult(
+                "pattern-check",
+                "grit",
+                ["--json", "check", "--level", "error", ...request.scanRoots],
+                repoRoot,
+                ""
+              ),
+            { repoRoot }
           )
         )
       )
@@ -299,14 +309,80 @@ describe("vendor providers", () => {
       "check",
       "--level",
       "error",
-      "tools/habitat/src",
+      "--no-cache",
+      "--grit-dir",
+      "/tmp/habitat-grit-catalog-parent/.grit",
+      "/tmp/habitat-grit-target",
     ]);
+    expect(result.request.executable).toBe(
+      `${repoRoot}/node_modules/@getgrit/cli/node_modules/.bin_real/grit`
+    );
+    expect(result.request.cwd).toBe("/tmp/habitat-grit-catalog-parent");
+    expect(result.request.env).toMatchObject({
+      GRIT_DOWNLOADS_DISABLED: "true",
+      GRIT_USER_CONFIG: "/tmp/habitat-grit-catalog-parent/user-config",
+      GRIT_MAX_FILE_SIZE_BYTES: "0",
+    });
     expect(result.request.cachePolicy).toMatchObject({
       mode: "isolated",
       cacheDir: "/tmp/habitat-grit-provider-test-cache",
     });
     expect(result.request.timeoutMs).toBe(1234);
     expect(result.checked.kind).toBe("pattern-check");
+  });
+
+  test("Grit preflight rejects nonzero exit even with the exact native version", async () => {
+    const providerRequest = {
+      scanRoots: [repoRoot],
+      cwd: repoRoot,
+      gritDir: path.join(repoRoot, ".grit"),
+      cacheDir: "/tmp/habitat-grit-preflight-cache",
+      gritUserConfigDir: "/tmp/habitat-grit-preflight-user",
+      timeoutMs: 2468,
+    };
+    const observed: HabitatProcessRequest[] = [];
+    const runner = {
+      run: (request: HabitatProcessRequest) => {
+        observed.push(request);
+        return Effect.succeed(
+          makeHabitatCommandResult(request, {
+            exit: { code: 2, signal: null, interrupted: false },
+            stdout: captureOutput("grit 0.1.1\n"),
+          })
+        );
+      },
+      runSync: (request: Parameters<typeof makeHabitatCommandResult>[0]) =>
+        makeHabitatCommandResult(request),
+    };
+    const result = await Effect.runPromise(
+      Effect.gen(function* () {
+        const grit = yield* GritProvider;
+        return yield* Effect.either(grit.check(providerRequest));
+      }).pipe(
+        Effect.provide(
+          Layer.mergeAll(
+            NodeContext.layer,
+            makeGritProviderLayer(repoRoot),
+            Layer.succeed(CommandRunner, runner)
+          )
+        )
+      )
+    );
+
+    expect(result).toMatchObject({
+      _tag: "Left",
+      left: {
+        _tag: "CommandFailed",
+        commandId: "grit-pinned-native-preflight",
+        exitCode: 2,
+      },
+    });
+    expect(observed).toHaveLength(1);
+    expect(observed[0]).toMatchObject({
+      commandId: "grit-pinned-native-preflight",
+      scanRoots: [],
+      timeoutMs: 2468,
+    });
   });
 });
 

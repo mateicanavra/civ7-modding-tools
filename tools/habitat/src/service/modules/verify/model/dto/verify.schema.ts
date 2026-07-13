@@ -312,7 +312,7 @@ export const VerifyReceiptOutcomeSchema = Type.Union(
 /** Versioned `habitat verify --json` receipt. */
 export const VerifyReceiptSchema = Type.Object(
   {
-    schemaVersion: Type.Literal(1, { description: "Verify receipt schema version." }),
+    schemaVersion: Type.Literal(2, { description: "Verify receipt schema version." }),
     outcome: VerifyReceiptOutcomeSchema,
     command: VerifyCommandRecordSchema,
     base: VerifyBaseSchema,

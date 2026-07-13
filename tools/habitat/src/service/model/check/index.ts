@@ -9,6 +9,7 @@ export type {
   RuleExecutionTiming,
   RuleLane,
   RuleReport,
+  RuleReportDisposition,
   RuleStatus,
   SelectorRefusal,
   SelectorRequest,
@@ -19,11 +20,13 @@ export {
   CheckCommandContextSchema,
   CheckOutcomeSchema,
   CheckReportSchema,
+  deriveRuleReportStatus,
   HabitatDiagnosticSchema,
   HookCheckSummarySchema,
   RuleExecutionDispositionSchema,
   RuleExecutionTimingSchema,
   RuleLaneSchema,
+  RuleReportDispositionSchema,
   RuleReportSchema,
   SelectorRefusalSchema,
   SelectorRequestSchema,
@@ -33,10 +36,6 @@ export {
 export {
   dependencyRefusalDiagnostic,
   dependencyRefusalMessagePrefix,
-  isDependencyRefusalDiagnostic,
-  isNotApplicableDiagnostic,
-  notApplicableDiagnostic,
-  notApplicableDiagnosticMessages,
 } from "./policy/disposition-diagnostics.policy.js";
 export { renderCheckReport, stringifyCheckReport } from "./policy/render.policy.js";
 export {

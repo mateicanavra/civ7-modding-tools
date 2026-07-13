@@ -1,6 +1,9 @@
 # Verification Ledger
 
-Status: takeover control reconciliation sealed; generic Grit diagnostic acquisition reconstruction active; Packet A/A.1/A.1a/lifecycle and both original A.2 prerequisites remain locally sealed candidates; no product closure claim
+Status: takeover control reconciliation and generic Grit diagnostic acquisition
+sealed as consecutive local Graphite layers; Packet A/A.1/A.1a/lifecycle
+and both original A.2 prerequisites remain locally sealed candidates; no
+product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -10,29 +13,26 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-12T17:14:00-04:00 EDT
-- Current phase: `generic-grit-diagnostic-acquisition-reconstruction`
+- Last updated: 2026-07-13T06:01:00-04:00 EDT
+- Current phase: `generic-grit-diagnostic-acquisition-sealed`
 - Last completed gate: all four accepted control P2 findings were repaired;
   three fresh affected-review roles passed exact digest `78877c67f7b5`; the
   closing and Graphite mutation gates passed; and the exact eight-path control
   layer was sealed as branch
   `codex/mapgen-runtime-closeout-control-reconciliation`, one direct local child
   of takeover frame `8ec2a96e3319`. No remote or PR mutation ran.
-- Current gate: reconstruct generic Grit diagnostic acquisition from the
-  bounded source corpus on this clean tip. The inherited mixed worktree is
-  evidence only; no provider candidate is admitted until the six accepted
-  correctness blockers close on a clean frozen changeset.
+- Current gate: the exact 73-path candidate was staged by path and blob, then
+  sealed as Graphite child `codex/mapgen-runtime-closeout-grit-diagnostic-acquisition`
+  above control reconciliation. No remote or PR mutation ran.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action: establish the clean provider write set and reconstruct hermetic
-  acquisition, closed wire decoding, truthful path evidence, one-pass root
-  planning, exhaustive states, and parse-versus-incomplete failures before
-  freezing the generic diagnostic capability for review.
-- Blocked by: nothing external. The six provider correctness blockers define
-  the current implementation and proof loop; they are not a reason to stop.
+- Next action: compact at this closed semantic boundary, then open the explicit
+  capability-demand/resource-provider topology slice before G.2.
+- Blocked by: nothing external. G.1 and its six provider correctness blockers
+  are closed; the next slice begins from the committed capability seam.
 - Takeover DRA: Codex task
   `019f57cc-61ae-7f21-9515-66256fa8da9f`; sole accountable owner for Product/
   Development and Supervisor/Enforcer obligations, authority synthesis,
@@ -41,15 +41,13 @@ Current scope and DRA frame:
 - Prior source DRA: task `019f3913-4c80-78f1-bdd8-236713d527da`; transfer
   accepted, idle and non-mutating. Its old standalone-A.2 ownership claims are
   historical receipts, not current authority.
-- Active Graphite mutation lease: none. The terminal control lease
-  `operation:takeover-control-reconciliation-seal-20260712-01` closed-passed.
-  A new exact-scope lease is required before provider staging or Graphite
-  mutation.
+- Active Graphite mutation lease: none. The G.1 lease
+  `operation:takeover-grit-diagnostic-acquisition-seal-20260713-01` closed-passed.
 - Control worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
-  branch `codex/mapgen-runtime-closeout-control-reconciliation`, one direct
-  child of `8ec2a96e3319`. It ended the control seal clean with no staged path or
-  Git operation; provider work has not started.
+  branch `codex/mapgen-runtime-closeout-grit-diagnostic-acquisition`, one direct
+  child of control reconciliation `d82b64450e18`. It is clean with no staged
+  path or Git operation after the receipt-only amendment.
 - Preserved evidence worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
   branch `codex/mapgen-domain-operation-authority`, HEAD/base `9ff0f711e0d7`.
@@ -57,23 +55,25 @@ Current scope and DRA frame:
   files, 75 porcelain entries total, and zero staged paths. Generic provider,
   A.2 Authority, and record changes interleave. It remains read-only: no broad
   stage, commit, stash, reset, checkout cleanup, or transplant is permitted.
-- Provider evidence: the generic `check | apply-dry-run` capability boundary is
-  accepted, but hermetic acquisition, closed TypeBox wire decoding, truthful
-  processed-path evidence, one-pass root planning, exhaustive state naming, and
-  parse-versus-incomplete distinction remain open. Typecheck and 39 focused
-  tests passed in the inherited candidate; scoped Biome remained red at 33
-  errors/28 infos, and no clean-worktree or live pinned-CLI gate ran. The
-  candidate is not commit-ready.
-- Current-lane Graphite state: the control reconciliation is one local,
-  unsubmitted child of takeover frame `8ec2a96e3319`, which remains above sealed
-  `codex/habitat-rule-introduction-baseline-manifests@9ff0f711e0d7`.
+- Provider evidence: repair 11 passed Habitat check, boundaries, build, all 417
+  tests, 141 focused tests, strict validation of 371 OpenSpec items, root lint,
+  scoped differential hygiene, and real staged/provider/docs/all-Grit execution.
+  Empty staged selection is 79/79 clean typed not-applicable; the live matrix
+  remains 74 passes, four enforced red rows, and one advisory red row. The final
+  dead-API deletion then passed provider Vitest 39/39 and Habitat check. Ubuntu
+  execution remains an explicit residual; host gating and CI topology are tested.
+- Current-lane Graphite state: G.1 is one local, unsubmitted child of control
+  reconciliation `d82b64450e18`; control is above the takeover frame, which is
+  above sealed `codex/habitat-rule-introduction-baseline-manifests@9ff0f711e0d7`.
   `main == origin/main == 46943c5f1165`; the readiness sentinel and its worktree
   remain excluded.
-- Agent/process state: the three read-only takeover execution audits, first
-  review wave, and three fresh affected reviewers are closed; no implementation
-  or review agent is active. The pinned standing compaction
-  attendant `019f580b-76b2-7201-8fe6-8f91b7caf0f4` is idle, non-mutating, and
-  may act only on an explicit semantic-boundary request. Editor language servers
+- Agent/process state: implementation owner
+  `/root/provider_repair_11_state_collapse` and all three fresh review-11
+  sessions are terminal. No forbidden path, index, Git, Graphite, worktree, A.2,
+  topology, or persistent-process ownership changed. The
+  pinned standing compaction attendant
+  `019f580b-76b2-7201-8fe6-8f91b7caf0f4` is idle and non-mutating. No provider
+  command or review-owned persistent process remains. Editor language servers
   and the unrelated `mapgen-studio-runner` tmux session on ports 5173/5174 remain
   under their original owner and were not touched.
 - Scratch: takeover transcript mining remains under
@@ -93,6 +93,37 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | takeover control/source investigation | live control truth, provider hunk attribution, and pinned Grit wire/hermeticity contract | closed-passed | results integrated into `waves/takeover-control-reconciliation-01.md`; no agent wrote repository files |
 | takeover control initial review | exact seven-path TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-four-p2 | `CTRL-AUTH-001` and `CTRL-TS-001..003` accepted; all three roles reopen after repair |
 | takeover control affected re-review | complete repaired eight-path TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-passed | all three fresh roles passed digest `78877c67f7b5`; terminal receipts, closing gates, and the one-layer Graphite seal passed |
+| generic Grit acquisition design census | clean call graph/state model, inherited hunk attribution, and pinned native wire/hermeticity oracle | closed-passed | three read-only agents changed no repository state; integrated target and exact write set are frozen in `waves/takeover-grit-diagnostic-acquisition-01.md` |
+| generic Grit acquisition implementation | one primary owner for the tightly coupled provider/model/test set | closed-handoff | implementation reports Habitat typecheck, 55 focused tests, provider and candidate-test Biome, and diff hygiene green; nine inherited changed-file Biome errors retained for DRA adjudication; no staging or Graphite mutation |
+| generic Grit pre-freeze runtime audit | all-Grit latency, preflight lifecycle, acquisition concurrency, and per-rule timing truth | closed-passed-with-one-p2 | bounded concurrency two integrated before freeze; lazy once-per-realized-provider preflight deferred to the immediate resource/provider topology slice; no P0/P1 |
+| generic Grit DRA integration | consumer seam, per-rule timing, integration fixtures, full proof, and differential lint adjudication | initial-review-complete | 342 full and 60 focused tests passed before review; 24 full changed-path Biome errors remain committed-line residue; review findings now control the repair loop |
+| generic Grit initial exact-tree review | fresh TypeScript/state-space, architecture/authority, and product/runtime/library roles on digest `1f6b7c0539eb` | closed-with-ten-distinct-findings | three P1 and seven P2 defects accepted; all three roles reopen with fresh agents after integrated repair |
+| generic Grit repair design | closed public/acquisition state, canonical root/pattern authority, and source-derived MatchReason | closed-passed | three disjoint read-only reports integrated into one exact write set and proof matrix; one primary repair owner follows |
+| generic Grit integrated repair | ten accepted review defects plus four pre-freeze DRA integration corrections across authority, private state/evidence, wire decoding, command truth, and public failure truth | closed-passed | sole code/test owner `/root/provider_primary_repair_01`; 90/90 focused and Habitat check passed at handoff; root-owned full proof and 79-rule runtime matrix passed before freeze |
+| generic Grit affected re-review | complete repaired 49-path TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-four-p2 | digest `138646fa1a90` reproduced by all three; `G1-AUTH-004` and `G1-RR-TS-001..003` accepted; MatchReason capitalization concern source-rejected from pinned serde authority; all roles reopen fresh after repair |
+| generic Grit correlated repair 02 | repository-root authority plus closed native request, command observation, acquisition, and preflight evidence products | closed-passed | sole owner `/root/provider_primary_repair_01`; 93/93 focused, 367/367 full, owner graphs, provider hygiene, validation, and 79-rule runtime proof passed; new exact review required |
+| generic Grit affected re-review 02 | second fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-two-p2 | digest `4036f6a10d0b` reproduced by all; authority and product passed; `G1-RR2-TS-001..002` accepted; all roles reopen fresh after narrow shared-evidence repair |
+| generic Grit target-evidence repair 03 | narrow target requests, correlated request/observation/command evidence, honest interruption exit, and explicit evidence-mismatch state | closed-passed | same sole owner `/root/provider_primary_repair_01`; 94/94 focused, 368/368 full, owner graphs, hygiene, validation, and stable 79-rule proof passed; third exact review required |
+| generic Grit affected re-review 03 | third fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-superseded-by-final-binding | state-space passed and authority returned two P2s on the first exact freeze; the first product session failed at model capacity before review, so a fresh replacement was registered and all role receipts rebound below |
+| generic Grit affected re-review 03 final | effective three-role review on replacement digest `d20f74912b810d` | closed-with-two-p2 | state-space passed; authority and replacement product/runtime/library independently accepted unbound completed cwd and mislabeled scan-root refusal; all three roles reopen fresh after bounded repair |
+| generic Grit cwd/refusal repair 04 | normalized cwd evidence plus truthful scan-root authority-refusal projection | closed-passed | same sole implementation owner `/root/provider_primary_repair_01`; 120/120 focused, 371/371 full, owner graphs, hygiene, validation, and stable 79-rule proof passed; fourth exact review required |
+| generic Grit affected re-review 04 | fourth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-two-p2-one-p3 | digest `e5f5824ecc6c` reproduced by all; typed report state, exhaustive refusal ownership, and complete cwd proof accepted; all roles reopen fresh after fifth repair |
+| generic Grit report-boundary design 05 | CheckReport wire/version census plus compiler-closed typed disposition/authority model | closed-passed | three disjoint read-only agents proved the clean v2 cutover, exact state authority, producer/consumer set, collision laws, direct parser gap, cwd matrix, and closing gates |
+| generic Grit report-boundary repair 05 | required RuleReport state, CheckReport/VerifyReceipt v2, typed refusal/provider payload, prose-protocol deletion, and cwd proof | closed-passed | sole owner `/root/provider_primary_repair_05`; 146/146 focused, 396/396 full, owner graphs, validation, differential hygiene, and stable 79-rule runtime proof passed; fresh exact review required |
+| generic Grit affected re-review 05 | fifth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-seven-p2 | 61-row digest `62d840626a67` bound by all roles; aggregate state, refusal evidence, hook correlation, output-claim, packet-status, and active v1-record repairs accepted; all roles reopen fresh after bounded repair |
+| generic Grit aggregate-state repair 06 | all seven review-05 findings across report aggregation, refusal evidence, hook correlation, selector exclusivity, and current v2 authority | closed-passed | sole owner `/root/provider_primary_repair_06`; 59/59 focused, 405/405 full, owner graphs, validation, differential hygiene, active-doc truth, and stable 79-rule runtime proof passed; fresh exact review required |
+| generic Grit affected re-review 06 | sixth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-one-p1-ten-p2-one-p3 | all roles bound successor digest `32f568cd8fb6`; twelve findings cover Linux proof portability, semantic report validation, preflight bounds, hook correlation, command/root state, acquisition authority, and current record truth; all roles reopen fresh after repair |
+| generic Grit repair design 07 | separate state-space, product/runtime, and authority synthesis of all review-06 findings | closed-passed | one 28-path implementation/current-authority set is frozen; no compiler-API verifier, new Grit rule, global matrix reconstruction, or other proof apparatus is admitted; one implementation owner follows |
+| generic Grit integrated repair 07 | all twelve review-06 findings across cross-platform proof, command/root topology, report semantics, bounded preflight, acquisition authority, and current records | closed-passed | sole owner `/root/provider_primary_repair_07` changed 25 authorized paths; root check/boundaries/build, 407 full tests, 137 focused tests, validation, differential hygiene, current authority, and the stable 79-rule matrix passed; exact review 07 follows |
+| generic Grit affected re-review 07 | seventh fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-three-p2-one-p3 | all roles reproduced digest `712fed3cfc4a` before/after and remained read-only; shared status authority, enforced diagnostic fail-closure, current generated execution authority, and dead executable alias repairs are accepted; all materially affected roles reopen fresh |
+| generic Grit correlated repair 08 | four accepted review-07 findings across status production/validation, current generated authority, and executable alias deletion | closed-passed | sole owner `/root/provider_primary_repair_07` changed exactly eight authorized paths; root proof passed 139 focused and 408 full tests, deterministic regeneration, differential hygiene, owner graphs, validation, lint, and stable live runtime proof |
+| generic Grit affected re-review 08 | eighth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-three-p2-two-distinct-defects | all roles reproduced digest `025d8b54b139` before/after; state and product independently found baseline-integrity diagnostic fail-open, while authority found active retired-selector prose; all materially affected roles reopen fresh after repair |
+| generic Grit admission-authority repair 09 | general enforced-diagnostic guard, direct/hook regressions, stable-law JSDoc, and two current selector-word corrections | closed-passed | sole owner `/root/provider_primary_repair_07` changed exactly five authorized paths; root proof passed 139 focused and 410 full tests, validation, differential hygiene, generated currentness, and the stable live matrix |
+| generic Grit affected re-review 09 | ninth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-five-p2-four-distinct-defects | all roles reproduced digest `7abbdfa463f3` before/after and remained read-only; failing not-applicable aggregation, advisory baseline-integrity, false live-write authority, and nested-Git execution surfaces are accepted |
+| generic Grit categorical repair 10 | fail-closed summary aggregation, enforced baseline integrity, current dry-run authority, and nested-Git generator exclusion | closed-passed | sole owner `/root/provider_primary_repair_07` changed the initial nine paths; root corrected one stale service fixture; 145 focused and 415 full tests, owner graphs, validation, differential hygiene, deterministic generation, and the stable live matrix passed |
+| generic Grit affected re-review 10 | tenth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-four-p2-one-p3 | all roles reproduced digest `70d6e704c6b8`; four distinct defects accepted; tasks terminal and archived |
+| generic Grit state-collapse repair 11 | delete synthetic not-applicability failure state, close separator-only identity decoding, and correct current dry-run/live authority | closed-passed | exact nine paths; root corrected one regex edge; 141 focused and 417 full tests plus live staged/runtime proof passed |
+| generic Grit affected re-review 11 | eleventh fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-passed-after-one-p3-repair | state passed after a record-only count correction; authority found and cleared one dead compatibility API; final product/runtime passed; zero P0-P3 remains |
 | standing compaction attendant | semantic-boundary `/compact` delivery and exact continuation relay | active-idle, non-mutating | thread `019f580b-76b2-7201-8fe6-8f91b7caf0f4`; act only on explicit `COMPACT NOW` request with closed boundary, next container, and continuation snippet |
 | opening research | stack corpus, systematic geometry, authority/docs boundary | closed | packet/resources: `waves/planning-research-01.md`; terminal rows in cleanup register |
 | planning review 1 | information shape, sequencing, closed-loop operability | closed-with-findings | all P1/P2 findings were repaired and cleared by the named later planning waves |

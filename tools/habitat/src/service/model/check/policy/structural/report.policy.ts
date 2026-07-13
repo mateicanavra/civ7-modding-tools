@@ -14,12 +14,17 @@ import type {
   CheckReport,
   RuleExecutionDisposition,
   RuleReport,
+  RuleReportDisposition,
 } from "@habitat/cli/service/model/check/index";
-import { type CheckOptions, structuralCheckRequest } from "@habitat/cli/service/model/check/index";
+import {
+  type CheckOptions,
+  deriveRuleReportStatus,
+  structuralCheckRequest,
+} from "@habitat/cli/service/model/check/index";
 import type { RuleReportFacts } from "@habitat/cli/service/model/rules/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import { selectRules } from "@habitat/cli/service/model/rules/policy/selection.policy";
-import { Clock, Effect } from "effect";
+import { Clock, Effect, Match } from "effect";
 import { Value } from "typebox/value";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
 import { executeSelectedRulesEffect, rulesForExecution } from "./execution.policy.js";
@@ -96,6 +101,7 @@ export function createCheckReportEffect(
         durationMs: execution.durationMs,
         timing: execution.timing,
         diagnostics,
+        disposition: execution.disposition,
       });
       structuralRuleOutcome(report, execution.disposition);
       reports.push(report);
@@ -170,18 +176,14 @@ function ruleReportFromDiagnostics(input: {
   durationMs: number;
   timing?: RuleReport["timing"];
   diagnostics: RuleReport["diagnostics"];
+  disposition: RuleExecutionDisposition;
 }): RuleReport {
-  const newViolations = input.diagnostics.filter(
-    (diagnostic) => !diagnostic.baselined && diagnostic.severity === "error"
-  );
-  const status: RuleReport["status"] =
-    input.reportFacts.lane === "advisory"
-      ? input.diagnostics.length > 0
-        ? "advisory-findings"
-        : "pass"
-      : newViolations.length > 0
-        ? "fail"
-        : "pass";
+  const disposition = ruleReportDisposition(input.disposition);
+  const status = deriveRuleReportStatus({
+    lane: input.reportFacts.lane,
+    disposition,
+    diagnostics: input.diagnostics,
+  });
   return {
     ruleId: input.ruleId,
     runner: input.reportFacts.runner.name,
@@ -190,6 +192,7 @@ function ruleReportFromDiagnostics(input: {
     locked: input.locked,
     durationMs: input.durationMs,
     timing: input.timing,
+    disposition,
     diagnostics: input.diagnostics,
     message: input.reportFacts.message,
     remediate: input.reportFacts.remediate,
@@ -207,25 +210,54 @@ function baselineIntegrityReportEffect(
       registry: baselineContractInputs(context.rules),
     });
     const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
+    const disposition: RuleReportDisposition = {
+      kind: "baseline-integrity",
+      state: integrity.status === "refused" ? "refused" : "passed",
+    };
+    const diagnostics = integrityFindings.map((finding) => ({
+      ruleId: "baseline-integrity",
+      path: finding.file,
+      message: finding.reason,
+      severity: "error" as const,
+      baselined: false,
+    }));
     return {
       ruleId: "baseline-integrity",
       runner: "habitat",
       lane: "enforced",
-      status: integrity.status === "refused" ? "fail" : "pass",
+      status: deriveRuleReportStatus({ lane: "enforced", disposition, diagnostics }),
       locked: true,
       durationMs: Math.max(0, (yield* Clock.currentTimeMillis) - integrityStarted),
-      diagnostics: integrityFindings.map((finding) => ({
-        ruleId: "baseline-integrity",
-        path: finding.file,
-        message: finding.reason,
-        severity: "error" as const,
-        baselined: false,
-      })),
+      disposition,
+      diagnostics,
       message:
         "Baselines are shrink-only; additions are valid only in the change that introduces the rule itself.",
       remediate: null,
     };
   });
+}
+
+function ruleReportDisposition(disposition: RuleExecutionDisposition): RuleReportDisposition {
+  return Match.value(disposition).pipe(
+    Match.when({ kind: "executed" }, () => ({ kind: "executed" as const })),
+    Match.when({ kind: "not-applicable" }, ({ reason }) => ({
+      kind: "not-applicable" as const,
+      reason,
+    })),
+    Match.when({ kind: "dependency-refused" }, ({ source, decision, detail }) => ({
+      kind: "dependency-refused" as const,
+      source,
+      decision,
+      detail,
+    })),
+    Match.when({ kind: "execution-failed" }, ({ source, failure, detail }) => ({
+      kind: "execution-failed" as const,
+      source,
+      failure,
+      detail,
+    })),
+    Match.exhaustive
+  );
 }
 
 function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
