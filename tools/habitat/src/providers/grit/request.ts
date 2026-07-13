@@ -1,195 +1,228 @@
+import path from "node:path";
 import {
-  CommandFailed,
-  CommandInterrupted,
   CommandUnavailable,
-  captureOutput,
+  type HabitatCommandResult,
   type HabitatProcessRequest,
-  makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
-import { FileWriteFailed } from "@habitat/cli/resources/errors/index";
 import {
-  diagnosticCacheObservationFromCommand,
-  diagnosticCacheRequirementForGritCheck,
-  diagnosticCacheRequirementSatisfied,
+  type DiagnosticCompletedCommandObservation,
   diagnosticCommandObservationFromResult,
-  diagnosticProviderFailureForCacheObservation,
+  diagnosticCompletedCommandObservationFromResult,
+  diagnosticFailedCommandObservation,
+  diagnosticInterruptedCommandObservation,
   diagnosticToolUnavailableObservation,
-  nativeGritCheckRequestFromProcessRequest,
-  renderDiagnosticScanRootRefusal,
-} from "@habitat/cli/service/model/diagnostics/index";
-import { Effect } from "effect";
-import { GritToolUnavailable } from "./failures.js";
-import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";
+} from "@habitat/cli/service/model/diagnostics/dto/diagnostic-command.schema";
+import { Effect, Match } from "effect";
+import type { GritCommandFailureCapture } from "./output.js";
 import type { GritProviderService } from "./resource.js";
-import { decidePatternScanRoots } from "./scan-roots/index.js";
-import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
-export function gritCheckProgram(
-  scanRoots: readonly string[],
-  options: GritCheckOptions & { readonly grit: GritProviderService }
+type GritNativeIdentityObservation =
+  | {
+      readonly kind: "pre-spawn";
+      readonly commandId: string;
+      readonly executable: string;
+      readonly argv: readonly string[];
+      readonly cwd: string;
+      readonly cause: string;
+    }
+  | {
+      readonly kind: "completed";
+      readonly result: HabitatCommandResult;
+    };
+
+export class GritNativeIdentityMismatch extends CommandUnavailable {
+  readonly mismatchKind = "native-identity-mismatch" as const;
+  readonly detail: string;
+  readonly observation: GritNativeIdentityObservation;
+
+  constructor(
+    input: ConstructorParameters<typeof CommandUnavailable>[0] & {
+      readonly detail: string;
+      readonly observation: GritNativeIdentityObservation;
+    }
+  ) {
+    super(input);
+    this.detail = input.detail;
+    this.observation = input.observation;
+  }
+}
+
+export function nativeIdentityMismatchBeforeSpawn(
+  request: HabitatProcessRequest,
+  detail: string
+): GritNativeIdentityMismatch {
+  return new GritNativeIdentityMismatch({
+    commandId: request.commandId,
+    executable: request.executable,
+    argv: request.argv,
+    cwd: request.cwd,
+    cause: detail,
+    detail,
+    observation: {
+      kind: "pre-spawn",
+      commandId: request.commandId,
+      executable: request.executable,
+      argv: [...request.argv],
+      cwd: path.resolve(request.cwd),
+      cause: detail,
+    },
+  });
+}
+
+export function nativeIdentityMismatchFromCompleted(
+  result: HabitatCommandResult,
+  detail: string
+): GritNativeIdentityMismatch {
+  return new GritNativeIdentityMismatch({
+    commandId: result.commandId,
+    executable: result.executable,
+    argv: result.argv,
+    cwd: result.cwd,
+    cause: detail,
+    detail,
+    observation: { kind: "completed", result },
+  });
+}
+
+export type GritCommandCapture =
+  | {
+      readonly kind: "completed";
+      readonly result: HabitatCommandResult;
+      readonly command: DiagnosticCompletedCommandObservation;
+    }
+  | ({ readonly kind: "command-failed" } & GritCommandFailureCapture);
+
+export const captureGritCommandEffect = Effect.fn("grit.command.capture")(function* (
+  request: HabitatProcessRequest,
+  effect: ReturnType<GritProviderService["check"]>
 ) {
-  return Effect.scoped(
-    Effect.gen(function* () {
-      const scanRootDecision = decidePatternScanRoots(scanRoots, {
-        repoRoot: options.repoRoot,
-        allowDocsRoot: options.allowDocsRoot,
-      });
-      if (scanRootDecision.kind === "refused") {
-        return {
-          kind: "scan-root-refused" as const,
-          decision: scanRootDecision,
-          message: renderDiagnosticScanRootRefusal(scanRootDecision),
-          command: { kind: "not-run" as const, reason: "scan-root-refused" as const },
-        };
-      }
-      const cacheRequirement = diagnosticCacheRequirementForGritCheck({
-        cacheMode: options.cacheMode,
-        requireObservableCacheStatus: options.requireObservableCacheStatus,
-      });
-      const requestOptions =
-        options.cacheMode === "fresh"
-          ? {
-              cacheMode: "fresh" as const,
-              observableCacheStatus: "fresh" as const,
-              outputFormat: options.outputFormat,
-            }
-          : { outputFormat: options.outputFormat };
-      const processRequest = options.grit.checkRequest({
-        scanRoots,
-        cwd: options.cwd,
-        cacheMode: requestOptions.cacheMode,
-        gritDir: options.gritDir,
-        gritUserConfigDir: options.gritUserConfigDir,
-        observableCacheStatus: requestOptions.observableCacheStatus,
-        outputFormat: requestOptions.outputFormat,
-      });
-      const nativeRequest = nativeGritCheckRequestFromProcessRequest({
-        request: processRequest,
-        commandFamily: nativeCommandFamilyForGritCheck(options),
-        outputContract: nativeOutputContractForGritCheck(options),
-        cacheRequirement,
-      });
-      const result = yield* options.grit
-        .check({
-          scanRoots,
-          cwd: options.cwd,
-          cacheMode: requestOptions.cacheMode,
-          gritDir: options.gritDir,
-          gritUserConfigDir: options.gritUserConfigDir,
-          observableCacheStatus: requestOptions.observableCacheStatus,
-          outputFormat: requestOptions.outputFormat,
-        })
-        .pipe(
-          Effect.catchTag("CommandInterrupted", (error) =>
-            Effect.succeed(interruptedGritResult(processRequest, error))
-          ),
-          Effect.mapError((error) => gritToolUnavailable(processRequest, error))
-        );
-      if (
-        options.requireObservableCacheStatus &&
-        !diagnosticCacheRequirementSatisfied(
-          cacheRequirement,
-          diagnosticCacheObservationFromCommand(result, cacheRequirement)
-        )
-      ) {
-        const cacheObservation = diagnosticCacheObservationFromCommand(result, cacheRequirement);
-        const cacheFailure = diagnosticProviderFailureForCacheObservation(cacheObservation);
-        return {
-          kind: "provider-failed" as const,
-          failure: cacheFailure ?? "GritCacheProvenanceMissing",
-          parseStatus: "unsupported-mode" as const,
-          message: "Grit cache/fresh status is not observable for this command result.",
-          request: nativeRequest,
-          command: diagnosticCommandObservationFromResult(result, cacheRequirement),
-        };
-      }
-      return options.outputFormat === "text"
-        ? parseGritCheckTextOutput(result, cacheRequirement, nativeRequest)
-        : parseGritCheckOutput(result, cacheRequirement, nativeRequest);
-    }).pipe(
-      Effect.catchTag("GritToolUnavailable", (error) =>
+  const captured = yield* effect.pipe(
+    Effect.map((result) => ({ kind: "result" as const, result })),
+    Effect.catchTags({
+      CommandUnavailable: (error) => Effect.succeed(commandUnavailableCapture(request, error)),
+      CommandFailed: (error) =>
         Effect.succeed({
-          kind: "provider-failed" as const,
-          failure: "GritToolUnavailable" as const,
-          parseStatus: "unparsed" as const,
-          message: `Grit executable unavailable: ${error.executable}.`,
-          request: nativeGritCheckRequestFromProcessRequest({
-            request: {
-              commandId: error.commandId,
-              kind: "pattern-check",
-              executable: error.executable,
-              argv: error.argv,
-              cwd: error.cwd,
-              scanRoots,
-            },
-            commandFamily: nativeCommandFamilyForGritCheck(options),
-            outputContract: nativeOutputContractForGritCheck(options),
-            cacheRequirement: diagnosticCacheRequirementForGritCheck({
-              cacheMode: options.cacheMode,
-              requireObservableCacheStatus: options.requireObservableCacheStatus,
-            }),
+          kind: "command-failed" as const,
+          failure: "GritCommandFailed" as const,
+          detail: `Grit command ${error.commandId} exited ${error.exitCode}.`,
+          command: diagnosticFailedCommandObservation({
+            ...commandErrorMetadata(error, request),
+            exitCode: error.exitCode,
           }),
-          command: diagnosticToolUnavailableObservation({
-            commandId: error.commandId,
-            executable: error.executable,
-            argv: error.argv,
-            scanRoots,
-            cause: error.cause,
+        }),
+      CommandInterrupted: (error) =>
+        Effect.succeed({
+          kind: "command-failed" as const,
+          failure: "GritCommandInterrupted" as const,
+          detail: `Grit command ${error.commandId} was interrupted: ${error.cause}.`,
+          command: diagnosticInterruptedCommandObservation({
+            ...commandErrorMetadata(error, request),
+            exitCode: null,
+            signal: error.signal,
+            timeoutMs: error.timeoutMs,
           }),
-        })
-      )
-    )
+        }),
+    })
+  );
+  return Match.value(captured).pipe(
+    Match.when({ kind: "command-failed" }, (failure) => failure),
+    Match.when({ kind: "result" }, ({ result }) => commandResultCapture(result)),
+    Match.exhaustive
+  );
+});
+
+function commandUnavailableCapture(
+  request: HabitatProcessRequest,
+  error: CommandUnavailable
+): Extract<GritCommandCapture, { kind: "command-failed" }> {
+  return Match.value(error).pipe(
+    Match.when(
+      (candidate): candidate is GritNativeIdentityMismatch =>
+        candidate instanceof GritNativeIdentityMismatch,
+      (identity) => nativeIdentityMismatchCapture(request, identity)
+    ),
+    Match.orElse((unavailable) => ({
+      kind: "command-failed" as const,
+      failure: "GritToolUnavailable" as const,
+      detail: unavailable.cause,
+      command: diagnosticToolUnavailableObservation({
+        ...commandErrorMetadata(unavailable, request),
+        cause: unavailable.cause,
+      }),
+    }))
   );
 }
 
-function interruptedGritResult(request: HabitatProcessRequest, error: CommandInterrupted) {
-  return makeHabitatCommandResult(request, {
-    requestedExecutable: request.executable,
-    exit: { code: 130, signal: error.signal, interrupted: true },
-    stderr: captureOutput(`${error.cause}\n`),
-  });
-}
-
-function gritToolUnavailable(
+function nativeIdentityMismatchCapture(
   request: HabitatProcessRequest,
-  error: CommandUnavailable | CommandFailed | FileWriteFailed
+  error: GritNativeIdentityMismatch
+): Extract<GritCommandCapture, { kind: "command-failed" }> {
+  const command = Match.value(error.observation).pipe(
+    Match.when({ kind: "pre-spawn" }, (observation) =>
+      diagnosticToolUnavailableObservation({
+        ...commandErrorMetadata(observation, request),
+        cause: observation.cause,
+      })
+    ),
+    Match.when({ kind: "completed" }, ({ result }) =>
+      diagnosticCompletedCommandObservationFromResult(result)
+    ),
+    Match.exhaustive
+  );
+  return {
+    kind: "command-failed",
+    failure: "GritNativeIdentityMismatch",
+    detail: error.detail,
+    command,
+  };
+}
+
+function commandResultCapture(result: HabitatCommandResult): GritCommandCapture {
+  const command = diagnosticCommandObservationFromResult(result);
+  return Match.value(command).pipe(
+    Match.when({ kind: "interrupted" }, (interrupted) => ({
+      kind: "command-failed" as const,
+      failure: "GritCommandInterrupted" as const,
+      detail: `Grit command ${result.commandId} was interrupted.`,
+      command: interrupted,
+    })),
+    Match.when({ kind: "failed" }, (failed) => ({
+      kind: "command-failed" as const,
+      failure: "GritCommandFailed" as const,
+      detail: `Grit command ${result.commandId} exited ${result.exit.code}.`,
+      command: failed,
+    })),
+    Match.when({ kind: "completed" }, (completed) => ({
+      kind: "completed" as const,
+      result,
+      command: completed,
+    })),
+    Match.exhaustive
+  );
+}
+
+function commandErrorMetadata(
+  error: Pick<HabitatProcessRequest, "commandId" | "executable" | "argv" | "cwd">,
+  requestedTarget: HabitatProcessRequest
 ) {
-  if (error._tag === "FileWriteFailed") {
-    return new GritToolUnavailable({
-      commandId: request.commandId,
-      executable: request.executable,
-      argv: request.argv,
-      cwd: request.cwd,
-      cause: `cache resource unavailable at ${error.path}: ${error.cause}`,
-    });
-  }
-  if (error._tag === "CommandFailed") {
-    return new GritToolUnavailable({
-      commandId: error.commandId,
-      executable: error.executable,
-      argv: error.argv,
-      cwd: error.cwd,
-      cause: `command exited ${error.exitCode}: ${error.stderr}`,
-    });
-  }
-  return new GritToolUnavailable({
+  const isRequestedTarget =
+    error.commandId === requestedTarget.commandId &&
+    error.executable === requestedTarget.executable &&
+    arraysEqual(error.argv, requestedTarget.argv) &&
+    path.resolve(error.cwd) === path.resolve(requestedTarget.cwd);
+  const scanRoots = Match.value(isRequestedTarget).pipe(
+    Match.when(true, () => [...(requestedTarget.scanRoots ?? [])]),
+    Match.orElse(() => [])
+  );
+  return {
     commandId: error.commandId,
-    executable: error.executable || request.executable,
-    argv: error.argv.length > 0 ? error.argv : request.argv,
-    cwd: error.cwd || request.cwd,
-    cause: error.cause,
-  });
+    executable: error.executable,
+    argv: [...error.argv],
+    cwd: path.resolve(error.cwd),
+    scanRoots,
+  };
 }
 
-function nativeCommandFamilyForGritCheck(
-  options: GritCheckOptions
-): "current-tree-json-check" | "docs-text-check" {
-  if (options.outputFormat === "text") return "docs-text-check";
-  return "current-tree-json-check";
-}
-
-function nativeOutputContractForGritCheck(
-  options: GritCheckOptions
-): "json-report" | "standard-text-report" {
-  return options.outputFormat === "text" ? "standard-text-report" : "json-report";
+function arraysEqual(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }

@@ -34,6 +34,8 @@ describe("verify receipt", () => {
     });
 
     expect(receipt.outcome).toBe("succeeded");
+    expect(receipt.schemaVersion).toBe(2);
+    expect(receipt.habitatCheck.reportSchemaVersion).toBe(2);
     expect(receipt.base).toEqual({ requested: "HEAD", resolved: "HEAD", source: "flag" });
     expect(receipt.habitatCheck.consumption).toBe("allows-affected-execution");
     expect(receipt.habitatCheck.selectorState).toEqual({ kind: "none" });
@@ -265,6 +267,7 @@ describe("verify receipt", () => {
     };
 
     expect(validateVerifyReceipt(invalid)).not.toEqual([]);
+    expect(validateVerifyReceipt({ ...receipt, schemaVersion: 1 })).not.toEqual([]);
   });
 });
 
@@ -303,7 +306,7 @@ function gitStatusFixture(options: { stdout?: string; stderr?: string; exitCode?
 function checkReport(options: { ok?: boolean } = {}): CheckReport {
   const ok = options.ok ?? true;
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command: "habitat check",
     startedAt: "2026-06-15T00:00:00.000Z",
     ok,
@@ -315,6 +318,7 @@ function checkReport(options: { ok?: boolean } = {}): CheckReport {
         status: ok ? "pass" : "fail",
         locked: true,
         durationMs: 1,
+        disposition: { kind: "executed" },
         diagnostics: ok
           ? []
           : [
@@ -336,6 +340,7 @@ function checkReport(options: { ok?: boolean } = {}): CheckReport {
         status: "pass",
         locked: true,
         durationMs: 1,
+        disposition: { kind: "baseline-integrity", state: "passed" },
         diagnostics: [],
         message: "ok",
         remediate: null,

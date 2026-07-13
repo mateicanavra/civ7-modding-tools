@@ -1,7 +1,6 @@
 import { type Static, Type } from "typebox";
 import { DiagnosticProviderFailureKindSchema } from "../errors/diagnostic-provider.errors.js";
 import { DiagnosticCatalogEntrySchema } from "./diagnostic-catalog.schema.js";
-import { DiagnosticCacheObservationSchema } from "./diagnostic-command.schema.js";
 import {
   DiagnosticIdentitySchema,
   ObservedDiagnosticIdentitySchema,
@@ -65,19 +64,9 @@ export const DiagnosticRunOutcomeSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("cache-observation-missing"),
+      kind: Type.Literal("not-applicable"),
       entry: DiagnosticCatalogEntrySchema,
-      cache: DiagnosticCacheObservationSchema,
-      failure: Type.Literal("GritCacheProvenanceMissing"),
-      detail: Type.String({ minLength: 1 }),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("identity-missing"),
-      entry: DiagnosticCatalogEntrySchema,
-      expectedIdentity: DiagnosticIdentitySchema,
+      reason: Type.Literal("no-matched-scan-roots"),
     },
     { additionalProperties: false }
   ),
@@ -136,23 +125,11 @@ export const DiagnosticConsumerResultSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("cache-observation-missing"),
+      kind: Type.Literal("not-applicable"),
       ruleId: Type.String({ minLength: 1 }),
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
-      cache: DiagnosticCacheObservationSchema,
-      failure: Type.Literal("GritCacheProvenanceMissing"),
-      detail: Type.String({ minLength: 1 }),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("identity-missing"),
-      ruleId: Type.String({ minLength: 1 }),
-      diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
-      diagnosticIdentity: DiagnosticIdentitySchema,
-      expectedIdentity: DiagnosticIdentitySchema,
+      reason: Type.Literal("no-matched-scan-roots"),
     },
     { additionalProperties: false }
   ),
@@ -205,20 +182,8 @@ export function diagnosticConsumerResultFromOutcome(
         decision: outcome.decision,
         detail: outcome.detail,
       };
-    case "cache-observation-missing":
-      return {
-        kind: "cache-observation-missing",
-        ...base,
-        cache: outcome.cache,
-        failure: outcome.failure,
-        detail: outcome.detail,
-      };
-    case "identity-missing":
-      return {
-        kind: "identity-missing",
-        ...base,
-        expectedIdentity: outcome.expectedIdentity,
-      };
+    case "not-applicable":
+      return { kind: "not-applicable", ...base, reason: outcome.reason };
     case "unexpected-diagnostic-identity":
       return {
         kind: "unexpected-diagnostic-identity",

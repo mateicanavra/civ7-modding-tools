@@ -6,6 +6,10 @@ import {
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
 import type { FileWriteFailed } from "@habitat/cli/resources/errors/index";
+import {
+  type DiagnosticSelectedScanRoots,
+  parseDiagnosticSelectedScanRoots,
+} from "@habitat/cli/service/model/diagnostics/index";
 import { Effect } from "effect";
 import {
   type GritDryRunCommandInput,
@@ -22,7 +26,7 @@ import { resolveTransactionInput } from "./transaction-input.policy.js";
 interface PatternApplyGritDryRunRequest {
   commandId: string;
   patternPath: string;
-  scanRoots: readonly string[];
+  scanRoots: Readonly<DiagnosticSelectedScanRoots>;
   output: "compact" | "standard";
   cacheMode?: "disabled" | "isolated";
 }
@@ -246,13 +250,13 @@ function runDryRunCommands(
 
 function runDryRunCommand(input: GritDryRunCommandInput, grit: PatternApplyGritPort) {
   return Effect.gen(function* () {
-    const providerRequest = {
+    const providerRequest: PatternApplyGritDryRunRequest = {
       commandId: input.commandId,
       patternPath: input.patternPath,
-      scanRoots: input.roots,
+      scanRoots: parseDiagnosticSelectedScanRoots(input.roots),
       output: input.output,
       cacheMode: "disabled",
-    } as const;
+    };
     const commandRequest = grit.applyDryRunRequest(providerRequest);
     return yield* grit.applyDryRun(providerRequest).pipe(
       Effect.catchTag("CommandUnavailable", (error) =>

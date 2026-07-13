@@ -43,7 +43,7 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
 });
 
 const mockReport = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   command: "habitat check --json",
   startedAt: "2026-06-20T00:00:00.000Z",
   ok: true,

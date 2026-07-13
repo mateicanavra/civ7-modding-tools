@@ -42,12 +42,34 @@ itself.
 ## Source Pattern Execution Rule
 
 Habitat Grit rules are packet-local source-pattern authority. A rule's
-`runner.files.pattern` is the canonical pattern body. Habitat remains the sole
-checked-in authority tree: for Grit checks, it materializes only an
-Effect-scoped temporary `grit.yaml`, runs the pinned Grit CLI from the real
-repository root with `--grit-dir`, then releases that config resource. Do not
-convert source-pattern rules to Habitat scripts only because native Grit needs
-execution plumbing.
+`runner.files.pattern` is the canonical pattern body and its normalized
+`diagnosticAcquisition` declares either `check` or `apply-dry-run`. Acquisition
+is a generic runner policy, not a rule-id, path, extension, or domain special
+case. Habitat remains the sole checked-in authority tree.
+
+For every selected rule, Habitat plans the admitted roots once. A rule is then
+executed, refused, or explicitly not applicable because no requested root
+belongs to it. The provider must not fall back to broader roots, silently drop
+an unmatched rule, or manufacture clean from an empty merge.
+
+Each execution materializes one Effect-scoped parent that owns the selected
+`.grit/grit.yaml`, empty user configuration, and isolated cache. It runs the
+installed pinned native directly, never the downloading package shim, with
+downloads, telemetry, colors, and the default file-size limit disabled. The
+command runs from that scoped parent against absolute admitted targets and the
+scope is released on success or failure.
+
+Habitat decodes only the pinned machine contracts. Check JSON must arrive on
+stderr, and only its top-level absolute `paths` prove processed coverage.
+Compact apply dry-run JSONL must arrive on stdout with a closed event union and
+one successful final `AllDone`. Malformed output, valid but incomplete output,
+acquisition failure, and complete observation remain distinct states; only a
+complete observation may become clean or findings. Apply dry-run here is
+diagnostic observation only. It grants no live-write, rollback, fix-admission,
+or safe-apply authority.
+
+Do not convert source-pattern rules to Habitat scripts only because native Grit
+needs execution plumbing.
 
 Package tests are not a junk drawer for retired source tokens, stale schema
 keys, or static import/source-shape assertions. Product/package tests should

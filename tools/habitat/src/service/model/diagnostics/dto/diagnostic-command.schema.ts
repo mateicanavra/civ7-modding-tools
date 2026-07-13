@@ -5,13 +5,18 @@ import type {
 } from "@habitat/cli/resources/command/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import type { DiagnosticProviderFailureKind } from "../errors/diagnostic-provider.errors.js";
+import {
+  type DiagnosticSelectedScanRoots,
+  DiagnosticSelectedScanRootsSchema,
+  parseDiagnosticSelectedScanRoots,
+} from "./diagnostic-scan-root.schema.js";
 
 const DiagnosticCommandRequestMetadataSchema = Type.Object(
   {
     commandId: Type.String({ minLength: 1 }),
     executable: Type.String({ minLength: 1 }),
     argv: Type.Array(Type.String()),
+    cwd: Type.String({ minLength: 1 }),
     scanRoots: Type.Array(Type.String()),
   },
   { additionalProperties: false }
@@ -27,77 +32,66 @@ export const DiagnosticOutputMetadataSchema = Type.Object(
 );
 
 export const NativeGritCommandFamilySchema = Type.Union([
-  Type.Literal("current-tree-json-check"),
   Type.Literal("selected-rule-json-check"),
-  Type.Literal("docs-text-check"),
-  Type.Literal("docs-apply-dry-run-observation"),
+  Type.Literal("selected-rule-apply-dry-run-observation"),
+  Type.Literal("pinned-native-preflight"),
 ]);
 
 export const NativeGritOutputContractSchema = Type.Union([
-  Type.Literal("json-report"),
-  Type.Literal("standard-text-report"),
-  Type.Literal("standard-apply-dry-run"),
+  Type.Literal("json-report-on-stderr"),
+  Type.Literal("compact-jsonl-on-stdout"),
+  Type.Literal("version-on-stdout"),
 ]);
 
-export const DiagnosticCacheRequirementSchema = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("workspace-cache-allowed"),
-      observable: Type.Literal(false),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("fresh-required"),
-      observable: Type.Literal(true),
-    },
-    { additionalProperties: false }
-  ),
-]);
-
-export const NativeGritCheckRequestSchema = Type.Interface(
-  [Type.Pick(DiagnosticCommandRequestMetadataSchema, ["argv", "scanRoots"])],
+const NativeGritCommandRequestMetadataSchema = Type.Interface(
+  [Type.Pick(DiagnosticCommandRequestMetadataSchema, ["argv"])],
   {
-    commandFamily: NativeGritCommandFamilySchema,
     commandInvocationId: Type.String({ minLength: 1 }),
-    executable: Type.Literal("grit"),
+    executable: Type.String({ minLength: 1 }),
     cwd: Type.String({ minLength: 1 }),
-    outputContract: NativeGritOutputContractSchema,
-    cacheRequirement: DiagnosticCacheRequirementSchema,
   },
   { additionalProperties: false }
 );
 
-export const DiagnosticCacheObservationSchema = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("observed"),
-      status: Type.Union([
-        Type.Literal("fresh"),
-        Type.Literal("cache-hit"),
-        Type.Literal("replay"),
-      ]),
-      cacheDir: Type.Optional(Type.String({ minLength: 1 })),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("workspace-unobserved"),
-      allowedBy: Type.Literal("ordinary-current-tree-diagnostic"),
-      cacheDir: Type.Optional(Type.String({ minLength: 1 })),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("missing-required-observation"),
-      failure: Type.Literal("GritCacheProvenanceMissing"),
-      cacheDir: Type.Optional(Type.String({ minLength: 1 })),
-    },
-    { additionalProperties: false }
-  ),
+export const NativeGritSelectedRuleJsonCheckRequestSchema = Type.Interface(
+  [NativeGritCommandRequestMetadataSchema],
+  {
+    commandFamily: Type.Literal("selected-rule-json-check"),
+    outputContract: Type.Literal("json-report-on-stderr"),
+    scanRoots: DiagnosticSelectedScanRootsSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const NativeGritSelectedRuleApplyDryRunObservationRequestSchema = Type.Interface(
+  [NativeGritCommandRequestMetadataSchema],
+  {
+    commandFamily: Type.Literal("selected-rule-apply-dry-run-observation"),
+    outputContract: Type.Literal("compact-jsonl-on-stdout"),
+    scanRoots: DiagnosticSelectedScanRootsSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const NativeGritPinnedNativePreflightRequestSchema = Type.Interface(
+  [NativeGritCommandRequestMetadataSchema],
+  {
+    commandFamily: Type.Literal("pinned-native-preflight"),
+    outputContract: Type.Literal("version-on-stdout"),
+    scanRoots: Type.Tuple([]),
+  },
+  { additionalProperties: false }
+);
+
+export const NativeGritTargetCommandRequestSchema = Type.Union([
+  NativeGritSelectedRuleJsonCheckRequestSchema,
+  NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
+]);
+
+export const NativeGritCommandRequestSchema = Type.Union([
+  NativeGritSelectedRuleJsonCheckRequestSchema,
+  NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
+  NativeGritPinnedNativePreflightRequestSchema,
 ]);
 
 export const DiagnosticCompletedCommandObservationSchema = Type.Interface(
@@ -105,10 +99,7 @@ export const DiagnosticCompletedCommandObservationSchema = Type.Interface(
   {
     kind: Type.Literal("completed"),
     exit: Type.Object(
-      {
-        code: Type.Number(),
-        interrupted: Type.Literal(false),
-      },
+      { code: Type.Literal(0), interrupted: Type.Literal(false) },
       { additionalProperties: false }
     ),
     output: Type.Object(
@@ -118,7 +109,31 @@ export const DiagnosticCompletedCommandObservationSchema = Type.Interface(
       },
       { additionalProperties: false }
     ),
-    cache: DiagnosticCacheObservationSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const DiagnosticFailedCommandObservationSchema = Type.Interface(
+  [DiagnosticCommandRequestMetadataSchema],
+  {
+    kind: Type.Literal("failed"),
+    exit: Type.Object(
+      {
+        code: Type.Union([Type.Integer({ maximum: -1 }), Type.Integer({ minimum: 1 })]),
+        interrupted: Type.Literal(false),
+      },
+      { additionalProperties: false }
+    ),
+    output: Type.Union([
+      Type.Object(
+        {
+          stdout: DiagnosticOutputMetadataSchema,
+          stderr: DiagnosticOutputMetadataSchema,
+        },
+        { additionalProperties: false }
+      ),
+      Type.Null(),
+    ]),
   },
   { additionalProperties: false }
 );
@@ -127,36 +142,43 @@ export const DiagnosticInterruptedCommandObservationSchema = Type.Interface(
   [DiagnosticCommandRequestMetadataSchema],
   {
     kind: Type.Literal("interrupted"),
+    timeoutMs: Type.Optional(Type.Number({ exclusiveMinimum: 0 })),
     exit: Type.Object(
       {
-        code: Type.Number(),
+        code: Type.Union([Type.Integer(), Type.Null()]),
+        signal: Type.Union([Type.String(), Type.Null()]),
         interrupted: Type.Literal(true),
       },
       { additionalProperties: false }
     ),
-    output: Type.Object(
-      {
-        stdout: DiagnosticOutputMetadataSchema,
-        stderr: DiagnosticOutputMetadataSchema,
-      },
-      { additionalProperties: false }
-    ),
-    cache: DiagnosticCacheObservationSchema,
+    output: Type.Union([
+      Type.Object(
+        {
+          stdout: DiagnosticOutputMetadataSchema,
+          stderr: DiagnosticOutputMetadataSchema,
+        },
+        { additionalProperties: false }
+      ),
+      Type.Null(),
+    ]),
+  },
+  { additionalProperties: false }
+);
+
+export const DiagnosticToolUnavailableCommandObservationSchema = Type.Interface(
+  [DiagnosticCommandRequestMetadataSchema],
+  {
+    kind: Type.Literal("tool-unavailable"),
+    cause: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
 );
 
 export const DiagnosticCommandObservationSchema = Type.Union([
   DiagnosticCompletedCommandObservationSchema,
+  DiagnosticFailedCommandObservationSchema,
   DiagnosticInterruptedCommandObservationSchema,
-  Type.Interface(
-    [DiagnosticCommandRequestMetadataSchema],
-    {
-      kind: Type.Literal("tool-unavailable"),
-      cause: Type.String(),
-    },
-    { additionalProperties: false }
-  ),
+  DiagnosticToolUnavailableCommandObservationSchema,
   Type.Object(
     {
       kind: Type.Literal("not-run"),
@@ -169,154 +191,189 @@ export const DiagnosticCommandObservationSchema = Type.Union([
 export type DiagnosticOutputMetadata = Static<typeof DiagnosticOutputMetadataSchema>;
 export type NativeGritCommandFamily = Static<typeof NativeGritCommandFamilySchema>;
 export type NativeGritOutputContract = Static<typeof NativeGritOutputContractSchema>;
-export type DiagnosticCacheRequirement = Static<typeof DiagnosticCacheRequirementSchema>;
-export type NativeGritCheckRequest = Static<typeof NativeGritCheckRequestSchema>;
-export type DiagnosticCacheObservation = Static<typeof DiagnosticCacheObservationSchema>;
+export type NativeGritSelectedRuleJsonCheckRequest = Static<
+  typeof NativeGritSelectedRuleJsonCheckRequestSchema
+> & { readonly scanRoots: DiagnosticSelectedScanRoots };
+export type NativeGritSelectedRuleApplyDryRunObservationRequest = Static<
+  typeof NativeGritSelectedRuleApplyDryRunObservationRequestSchema
+> & { readonly scanRoots: DiagnosticSelectedScanRoots };
+export type NativeGritPinnedNativePreflightRequest = Static<
+  typeof NativeGritPinnedNativePreflightRequestSchema
+>;
+export type NativeGritTargetCommandRequest =
+  | NativeGritSelectedRuleJsonCheckRequest
+  | NativeGritSelectedRuleApplyDryRunObservationRequest;
+export type NativeGritCommandRequest =
+  | NativeGritTargetCommandRequest
+  | NativeGritPinnedNativePreflightRequest;
 export type DiagnosticCompletedCommandObservation = Static<
   typeof DiagnosticCompletedCommandObservationSchema
+>;
+export type DiagnosticFailedCommandObservation = Static<
+  typeof DiagnosticFailedCommandObservationSchema
 >;
 export type DiagnosticInterruptedCommandObservation = Static<
   typeof DiagnosticInterruptedCommandObservationSchema
 >;
+export type DiagnosticToolUnavailableCommandObservation = Static<
+  typeof DiagnosticToolUnavailableCommandObservationSchema
+>;
+export type DiagnosticExecutedCommandObservation =
+  | DiagnosticCompletedCommandObservation
+  | DiagnosticFailedCommandObservation
+  | DiagnosticInterruptedCommandObservation;
 export type DiagnosticCommandObservation = Static<typeof DiagnosticCommandObservationSchema>;
 
-export function diagnosticCacheRequirementForGritCheck(options: {
-  cacheMode?: "workspace" | "fresh";
-  requireObservableCacheStatus?: boolean;
-}): DiagnosticCacheRequirement {
-  if (options.cacheMode === "fresh" || options.requireObservableCacheStatus) {
-    return { kind: "fresh-required", observable: true };
-  }
-  return { kind: "workspace-cache-allowed", observable: false };
-}
+const nativeGritOutputContractByFamily = {
+  "selected-rule-json-check": "json-report-on-stderr",
+  "selected-rule-apply-dry-run-observation": "compact-jsonl-on-stdout",
+  "pinned-native-preflight": "version-on-stdout",
+} as const satisfies Record<NativeGritCommandFamily, NativeGritOutputContract>;
 
-export function nativeGritCheckRequestFromProcessRequest(input: {
-  request: HabitatProcessRequest;
-  commandFamily: NativeGritCommandFamily;
-  outputContract: NativeGritOutputContract;
-  cacheRequirement: DiagnosticCacheRequirement;
-}): NativeGritCheckRequest {
-  return Value.Parse(NativeGritCheckRequestSchema, {
+export function nativeGritCommandRequestFromProcessRequest(input: {
+  readonly request: HabitatProcessRequest;
+  readonly commandFamily: "selected-rule-json-check";
+}): NativeGritSelectedRuleJsonCheckRequest;
+export function nativeGritCommandRequestFromProcessRequest(input: {
+  readonly request: HabitatProcessRequest;
+  readonly commandFamily: "selected-rule-apply-dry-run-observation";
+}): NativeGritSelectedRuleApplyDryRunObservationRequest;
+export function nativeGritCommandRequestFromProcessRequest(input: {
+  readonly request: HabitatProcessRequest;
+  readonly commandFamily: "pinned-native-preflight";
+}): NativeGritPinnedNativePreflightRequest;
+export function nativeGritCommandRequestFromProcessRequest(input: {
+  readonly request: HabitatProcessRequest;
+  readonly commandFamily: NativeGritCommandFamily;
+}): NativeGritCommandRequest {
+  const metadata = {
     commandFamily: input.commandFamily,
     commandInvocationId: input.request.commandId,
-    executable: nativeGritExecutableName(input.request.executable),
+    executable: input.request.executable,
     argv: [...input.request.argv],
-    cwd: input.request.cwd,
-    scanRoots: [...(input.request.scanRoots ?? [])],
-    outputContract: input.outputContract,
-    cacheRequirement: input.cacheRequirement,
-  });
-}
-
-export function nativeGritCheckRequestFromCommandResult(
-  commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement
-): NativeGritCheckRequest {
-  const outputContract = commandResult.argv.includes("--json")
-    ? "json-report"
-    : "standard-text-report";
-  return Value.Parse(NativeGritCheckRequestSchema, {
-    commandFamily: outputContract === "json-report" ? "current-tree-json-check" : "docs-text-check",
-    commandInvocationId: commandResult.commandId,
-    executable: nativeGritExecutableName(commandResult.executable),
-    argv: [...commandResult.argv],
-    cwd: commandResult.cwd,
-    scanRoots: [...commandResult.scanRoots],
-    outputContract,
-    cacheRequirement,
-  });
-}
-
-function nativeGritExecutableName(executable: string): "grit" {
-  if (path.basename(executable) === "grit") return "grit";
-  return executable as "grit";
-}
-
-export function diagnosticCacheObservationFromCommand(
-  commandResult: HabitatCommandResult,
-  requirement: DiagnosticCacheRequirement
-): DiagnosticCacheObservation {
-  const cacheDir = commandResult.cachePolicy.cacheDir;
-  switch (commandResult.cachePolicy.observableStatus) {
-    case "fresh":
-    case "cache-hit":
-    case "replay":
-      return { kind: "observed", status: commandResult.cachePolicy.observableStatus, cacheDir };
-    case "unknown":
-    case undefined:
-      return requirement.kind === "fresh-required"
-        ? { kind: "missing-required-observation", failure: "GritCacheProvenanceMissing", cacheDir }
-        : { kind: "workspace-unobserved", allowedBy: "ordinary-current-tree-diagnostic", cacheDir };
+    cwd: path.resolve(input.request.cwd),
+    outputContract: nativeGritOutputContractByFamily[input.commandFamily],
+  };
+  if (input.commandFamily === "pinned-native-preflight") {
+    return Value.Parse(NativeGritPinnedNativePreflightRequestSchema, {
+      ...metadata,
+      scanRoots: [],
+    });
   }
-}
-
-export function diagnosticCacheRequirementSatisfied(
-  requirement: DiagnosticCacheRequirement,
-  observation: DiagnosticCacheObservation
-): boolean {
-  if (requirement.kind === "workspace-cache-allowed") return true;
-  return observation.kind === "observed" && observation.status === "fresh";
+  const scanRoots = parseDiagnosticSelectedScanRoots(input.request.scanRoots ?? []);
+  const parsed = Value.Parse(NativeGritTargetCommandRequestSchema, { ...metadata, scanRoots });
+  return { ...parsed, scanRoots };
 }
 
 export function diagnosticCommandObservationFromResult(
-  commandResult: HabitatCommandResult,
-  requirement: DiagnosticCacheRequirement
-): DiagnosticCommandObservation {
+  commandResult: HabitatCommandResult
+): DiagnosticExecutedCommandObservation {
+  const metadata = commandMetadata(commandResult);
+  const output = {
+    stdout: outputMetadata(commandResult.stdout),
+    stderr: outputMetadata(commandResult.stderr),
+  };
   if (commandResult.exit.interrupted) {
     return {
-      ...commandMetadata(commandResult),
+      ...metadata,
       kind: "interrupted",
       exit: {
         code: commandResult.exit.code,
+        signal: commandResult.exit.signal,
         interrupted: true,
       },
-      output: outputMetadataPair(commandResult),
-      cache: diagnosticCacheObservationFromCommand(commandResult, requirement),
+      output,
     };
   }
-  return diagnosticCompletedCommandObservationFromResult(commandResult, requirement);
+  if (commandResult.exit.code !== 0) {
+    return {
+      ...metadata,
+      kind: "failed",
+      exit: { code: commandResult.exit.code, interrupted: false },
+      output,
+    };
+  }
+  return {
+    ...metadata,
+    kind: "completed",
+    exit: { code: 0, interrupted: false },
+    output,
+  };
 }
 
 export function diagnosticCompletedCommandObservationFromResult(
-  commandResult: HabitatCommandResult,
-  requirement: DiagnosticCacheRequirement
+  commandResult: HabitatCommandResult
 ): DiagnosticCompletedCommandObservation {
-  if (commandResult.exit.interrupted) {
-    throw new Error("Completed diagnostic command observation requires a non-interrupted command.");
-  }
-  return {
-    ...commandMetadata(commandResult),
-    kind: "completed",
-    exit: {
-      code: commandResult.exit.code,
-      interrupted: false,
-    },
-    output: outputMetadataPair(commandResult),
-    cache: diagnosticCacheObservationFromCommand(commandResult, requirement),
-  };
+  return Value.Parse(
+    DiagnosticCompletedCommandObservationSchema,
+    diagnosticCommandObservationFromResult(commandResult)
+  );
+}
+
+export function diagnosticFailedCommandObservation(input: {
+  readonly commandId: string;
+  readonly executable: string;
+  readonly argv: readonly string[];
+  readonly cwd: string;
+  readonly scanRoots: readonly string[];
+  readonly exitCode: number;
+}): DiagnosticFailedCommandObservation {
+  return Value.Parse(DiagnosticFailedCommandObservationSchema, {
+    ...diagnosticCommandMetadata(input),
+    kind: "failed",
+    exit: { code: input.exitCode, interrupted: false },
+    output: null,
+  });
+}
+
+export function diagnosticInterruptedCommandObservation(input: {
+  readonly commandId: string;
+  readonly executable: string;
+  readonly argv: readonly string[];
+  readonly cwd: string;
+  readonly scanRoots: readonly string[];
+  readonly exitCode: number | null;
+  readonly signal: string | null;
+  readonly timeoutMs?: number;
+}): DiagnosticInterruptedCommandObservation {
+  return Value.Parse(DiagnosticInterruptedCommandObservationSchema, {
+    ...diagnosticCommandMetadata(input),
+    kind: "interrupted",
+    ...optionalTimeoutMetadata(input.timeoutMs),
+    exit: { code: input.exitCode, signal: input.signal, interrupted: true },
+    output: null,
+  });
 }
 
 export function diagnosticToolUnavailableObservation(input: {
-  commandId: string;
-  executable: string;
-  argv: readonly string[];
-  scanRoots: readonly string[];
-  cause: string;
-}): DiagnosticCommandObservation {
-  return {
+  readonly commandId: string;
+  readonly executable: string;
+  readonly argv: readonly string[];
+  readonly cwd: string;
+  readonly scanRoots: readonly string[];
+  readonly cause: string;
+}): DiagnosticToolUnavailableCommandObservation {
+  return Value.Parse(DiagnosticToolUnavailableCommandObservationSchema, {
     kind: "tool-unavailable",
+    ...diagnosticCommandMetadata(input),
+    cause: input.cause.slice(0, 1000),
+  });
+}
+
+function diagnosticCommandMetadata(input: {
+  readonly commandId: string;
+  readonly executable: string;
+  readonly argv: readonly string[];
+  readonly cwd: string;
+  readonly scanRoots: readonly string[];
+}): Static<typeof DiagnosticCommandRequestMetadataSchema> {
+  return {
     commandId: input.commandId,
     executable: input.executable,
     argv: [...input.argv],
+    cwd: path.resolve(input.cwd),
     scanRoots: [...input.scanRoots],
-    cause: input.cause.slice(0, 1000),
   };
-}
-
-export function diagnosticProviderFailureForCacheObservation(
-  observation: DiagnosticCacheObservation
-): DiagnosticProviderFailureKind | null {
-  return observation.kind === "missing-required-observation" ? observation.failure : null;
 }
 
 function outputMetadata(output: HabitatCommandResult["stdout"]): DiagnosticOutputMetadata {
@@ -327,13 +384,9 @@ function outputMetadata(output: HabitatCommandResult["stdout"]): DiagnosticOutpu
   };
 }
 
-function outputMetadataPair(
-  commandResult: HabitatCommandResult
-): DiagnosticCompletedCommandObservation["output"] {
-  return {
-    stdout: outputMetadata(commandResult.stdout),
-    stderr: outputMetadata(commandResult.stderr),
-  };
+function optionalTimeoutMetadata(timeoutMs: number | undefined): {} | { timeoutMs: number } {
+  if (timeoutMs === undefined) return {};
+  return { timeoutMs };
 }
 
 function commandMetadata(
@@ -343,6 +396,7 @@ function commandMetadata(
     commandId: commandResult.commandId,
     executable: commandResult.executable,
     argv: [...commandResult.argv],
+    cwd: path.resolve(commandResult.cwd),
     scanRoots: [...commandResult.scanRoots],
   };
 }

@@ -1,10 +1,16 @@
+import path from "node:path";
+import { NodeContext } from "@effect/platform-node";
+import { makeFakeGritProviderService, runGritRulesEffect } from "@habitat/cli/providers/grit/index";
 import { makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import {
+  CheckReportSchema,
   checkCommandContext,
+  hookCheckSummary,
   renderCheckReport,
   structuralCheckRequest,
   validateCheckReport,
+  verifyCheckSummary,
 } from "@habitat/cli/service/model/check/index";
 import { executeCommandRulesEffect } from "@habitat/cli/service/model/check/policy/structural/command-execution.policy";
 import {
@@ -12,11 +18,14 @@ import {
   selectorRefusalReportEffect,
   stagedSourceCheckNotApplicableRecords,
 } from "@habitat/cli/service/model/check/policy/structural/index";
+import { createCheckReportEffect } from "@habitat/cli/service/model/check/policy/structural/report.policy";
+import { ruleDiagnosticExecutionRecord } from "@habitat/cli/service/model/check/policy/structural/source-execution.policy";
 import type {
   RuleCommandExecutionFacts,
   RuleRegistryRecord,
   RuleSourceFacts,
 } from "@habitat/cli/service/model/rules/index";
+import { ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import {
   type RuleSelection,
   selectRules,
@@ -25,7 +34,8 @@ import {
   approvedScanRootsForRules,
   stagedSourceCheckPaths,
 } from "@habitat/cli/service/model/source-check/index";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
+import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 const fakeRules: RuleRegistryRecord[] = [
@@ -142,7 +152,7 @@ describe("rule selector boundary", () => {
     });
   });
 
-  test("renders invalid selectors as schemaVersion 1 failing CheckReports with top-level runner remediation", () => {
+  test("renders invalid selectors as schemaVersion 2 failing CheckReports with typed refusal", () => {
     const report = Effect.runSync(
       selectorRefusalReportEffect(
         selectionFailure({ runner: "definitely-not-a-runner" }),
@@ -160,19 +170,20 @@ describe("rule selector boundary", () => {
       ruleId: "rule-selection-integrity",
       runner: "habitat",
       status: "fail",
+      disposition: {
+        kind: "selector-refused",
+        refusal: { reason: "unknown-selector" },
+      },
     });
     expect(report.rules[0].diagnostics[0].message).toContain("Unknown Habitat runner id");
     expect(report.rules[0].remediate).toBe(
       "Use --owner for owner project ids, --rule for rule ids, --runner for top-level runner names: grit, habitat, or nx; or omit selectors to run all rules."
     );
-
-    const json = renderCheckReport(report, { json: true });
-    expect(JSON.parse(json)).toMatchObject({ schemaVersion: 1, ok: false });
   });
 
   test("rejects check reports whose ok flag contradicts failed rules", () => {
     const invalid = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       command: "habitat check --json",
       startedAt: "2026-06-13T00:00:00.000Z",
       ok: true,
@@ -184,6 +195,7 @@ describe("rule selector boundary", () => {
           status: "fail",
           locked: true,
           durationMs: 1,
+          disposition: { kind: "executed" },
           diagnostics: [
             {
               ruleId: "demo-rule",
@@ -205,7 +217,7 @@ describe("rule selector boundary", () => {
 
   test("renders shared check work once instead of per-rule fake durations", () => {
     const report = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       command: "habitat check --runner grit",
       startedAt: "2026-06-21T00:00:00.000Z",
       ok: true,
@@ -350,7 +362,7 @@ describe("rule selector boundary", () => {
     ).toEqual(["hook"]);
   });
 
-  test("source-check staged checks with no approved roots report not-applicable instead of baseline-only pass", () => {
+  test("source-check staged checks with no approved roots record clean not-applicability", () => {
     const gritRule = fakeSourceRuleFact("hook", ["packages"]);
     const scanRoots = stagedSourceCheckPaths(["README.md"], approvedScanRootsForRules([gritRule]), {
       repoRoot,
@@ -361,15 +373,8 @@ describe("rule selector boundary", () => {
     expect(scanRoots).toEqual([]);
     expect(record).toMatchObject({
       result: {
-        exitCode: 1,
-        diagnostics: [
-          {
-            ruleId: "hook",
-            message: "Rule not applicable: staged scope contains no approved roots for this rule.",
-            severity: "error",
-            baselined: false,
-          },
-        ],
+        exitCode: 0,
+        diagnostics: [],
       },
       durationMs: 0,
       disposition: {
@@ -377,11 +382,6 @@ describe("rule selector boundary", () => {
         reason: "staged-scope-no-approved-roots",
       },
     });
-    expect(
-      record?.result.diagnostics.every((diagnostic) =>
-        diagnostic.message.startsWith("Rule not applicable: staged scope")
-      )
-    ).toBe(true);
   });
 
   test("source-check staged scan roots preserve exact approved file paths", () => {
@@ -396,6 +396,368 @@ describe("rule selector boundary", () => {
         { repoRoot }
       )
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);
+  });
+
+  test("Grit unmatched roots remain publicly not-applicable", () => {
+    const rule = fakeSourceRuleFact("unmatched", ["packages"]);
+    const result = { exitCode: 0, diagnostics: [] };
+    const record = ruleDiagnosticExecutionRecord(rule, {
+      result,
+      durationMs: 0,
+      disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+    });
+
+    expect(record.result).toBe(result);
+    expect(record).toMatchObject({
+      result: {
+        exitCode: 0,
+        diagnostics: [],
+      },
+      disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+    });
+  });
+
+  test("Grit authority refusals become dependency refusals at the structural boundary", () => {
+    const rule = fakeSourceRuleFact("refused", ["packages"]);
+    const protectedOwner = {
+      ownerId: "generated-output-owner",
+      displayName: "Generated output owner",
+      recoveryContact: "generated-output-owner",
+    };
+    const protectedRecovery = {
+      ownerId: "generated-output-owner",
+      actionKind: "select-approved-scan-root" as const,
+      instruction: "Select an approved source root.",
+    };
+    const cases = [
+      {
+        decision: { kind: "refused" as const, reason: "empty" as const },
+        detail: "Grit scan roots are empty.",
+      },
+      {
+        decision: {
+          kind: "refused" as const,
+          reason: "outside-repo" as const,
+          root: "../outside",
+        },
+        detail: "Grit scan root is outside the repo: ../outside.",
+      },
+      {
+        decision: { kind: "refused" as const, reason: "missing" as const, root: "missing" },
+        detail: "Grit scan root does not exist: missing.",
+      },
+      {
+        decision: {
+          kind: "refused" as const,
+          reason: "generated-output" as const,
+          root: "dist",
+          owner: protectedOwner,
+          recovery: protectedRecovery,
+        },
+        detail: "Grit scan root is generated output: dist.",
+      },
+      {
+        decision: {
+          kind: "refused" as const,
+          reason: "protected-root" as const,
+          root: "node_modules",
+          owner: protectedOwner,
+          recovery: protectedRecovery,
+        },
+        detail: "Grit scan root is protected: node_modules.",
+      },
+      {
+        decision: {
+          kind: "refused" as const,
+          reason: "not-approved" as const,
+          root: "other",
+        },
+        detail: "Grit scan root is not approved: other.",
+      },
+    ] as const;
+
+    for (const fixture of cases) {
+      const record = ruleDiagnosticExecutionRecord(rule, {
+        result: { exitCode: 1, diagnostics: [] },
+        durationMs: 0,
+        disposition: {
+          kind: "refused",
+          decision: fixture.decision,
+          detail: fixture.detail,
+        },
+      });
+      expect(record).toMatchObject({
+        result: {
+          exitCode: 1,
+          diagnostics: [
+            {
+              ruleId: "refused",
+              message: `Dependency refused: ${fixture.detail}`,
+              severity: "error",
+              baselined: false,
+            },
+          ],
+        },
+        disposition: {
+          kind: "dependency-refused",
+          source: "diagnostic-scan-root",
+          decision: fixture.decision,
+          detail: fixture.detail,
+        },
+      });
+    }
+  });
+
+  test("rule diagnostics preserve per-rule duration without false shared timing", () => {
+    const rule = fakeSourceRuleFact("timed", ["packages"]);
+    const record = ruleDiagnosticExecutionRecord(rule, {
+      result: { exitCode: 0, diagnostics: [] },
+      durationMs: 7,
+      disposition: { kind: "executed" },
+    });
+
+    expect(record).toEqual({
+      result: { exitCode: 0, diagnostics: [] },
+      durationMs: 7,
+      disposition: { kind: "executed", durationMs: 7 },
+    });
+  });
+
+  test("roundtrips typed diagnostic dispositions through the real report producer", async () => {
+    const baselineAuthority = {
+      relative: ".habitat/fixtures/rules/advisory-provider/baseline.json",
+      absolute: path.join(repoRoot, ".habitat/fixtures/rules/advisory-provider/baseline.json"),
+      source: "[]",
+    };
+    const rules = ruleFactsCatalog({
+      schemaVersion: 2,
+      ownerRoots: { habitat: "tools/habitat" },
+      rules: [
+        {
+          ...fakeRule("advisory-provider", "grit", "habitat"),
+          lane: "advisory",
+          runner: {
+            name: "grit",
+            files: {
+              pattern:
+                ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md",
+            },
+            patternName: "advisory_provider",
+          },
+          scanRoots: ["tools/habitat"],
+          supportFiles: { baseline: baselineAuthority.relative },
+        },
+      ],
+    });
+    const baselineFileSystem = {
+      isDirectory: () => Effect.succeed(false),
+      isFile: (candidate: string) => Effect.succeed(candidate === baselineAuthority.absolute),
+      makeDirectory: () => Effect.void,
+      readDirectory: () => Effect.succeed([]),
+      readText: (candidate: string) =>
+        Match.value(candidate).pipe(
+          Match.when(baselineAuthority.absolute, () => Effect.succeed(baselineAuthority.source)),
+          Match.orElse((unexpected) => Effect.fail(new Error(`Unexpected read: ${unexpected}`)))
+        ),
+      writeText: () => Effect.void,
+    };
+    const protectedOwner = {
+      ownerId: "generated-output-owner",
+      displayName: "Generated output owner",
+      recoveryContact: "generated-output-owner",
+    };
+    const protectedRecovery = {
+      ownerId: "generated-output-owner",
+      actionKind: "select-approved-scan-root" as const,
+      instruction: "Select an approved source root.",
+    };
+    const dispositions = [
+      {
+        kind: "not-applicable" as const,
+        reason: "no-matched-scan-roots" as const,
+      },
+      {
+        kind: "refused" as const,
+        decision: { kind: "refused" as const, reason: "empty" as const },
+      },
+      {
+        kind: "refused" as const,
+        decision: { kind: "refused" as const, reason: "outside-repo" as const, root: "../outside" },
+      },
+      {
+        kind: "refused" as const,
+        decision: { kind: "refused" as const, reason: "missing" as const, root: "missing" },
+      },
+      {
+        kind: "refused" as const,
+        decision: {
+          kind: "refused" as const,
+          reason: "generated-output" as const,
+          root: "dist",
+          owner: protectedOwner,
+          recovery: protectedRecovery,
+        },
+      },
+      {
+        kind: "refused" as const,
+        decision: {
+          kind: "refused" as const,
+          reason: "protected-root" as const,
+          root: "node_modules",
+          owner: protectedOwner,
+          recovery: protectedRecovery,
+        },
+      },
+      {
+        kind: "refused" as const,
+        decision: { kind: "refused" as const, reason: "not-approved" as const, root: "other" },
+      },
+      {
+        kind: "failed" as const,
+        failure: "GritCommandFailed" as const,
+      },
+    ];
+    const unrelatedFailure = Effect.die(new Error("unrelated provider should not run"));
+    const providerFailureGrit = makeFakeGritProviderService(
+      (request) =>
+        makeHabitatCommandResult(request, {
+          exit: { code: 9, signal: null, interrupted: false },
+        }),
+      { repoRoot }
+    );
+    for (const disposition of dispositions) {
+      const detail = Match.value(disposition).pipe(
+        Match.when({ kind: "not-applicable" }, () => "not applicable"),
+        Match.when({ kind: "failed" }, () => "provider unavailable"),
+        Match.orElse(({ decision }) => `scan root refused: ${decision.reason}`)
+      );
+      const report = await Effect.runPromise(
+        createCheckReportEffect(
+          { rule: "advisory-provider" },
+          {
+            baselineFileSystem,
+            repoRoot,
+            biome: { run: () => unrelatedFailure },
+            command: { run: () => unrelatedFailure },
+            git: {
+              diffNameOnly: () => unrelatedFailure,
+              diffNameStatus: () => unrelatedFailure,
+              lsTreeNameOnly: () => Effect.succeed(null),
+              mergeBase: () => Effect.succeed(null),
+              show: () => Effect.succeed(null),
+            },
+            ruleDiagnostics: {
+              runRules: (selectedRules, options) =>
+                Match.value(disposition).pipe(
+                  Match.when({ kind: "failed" }, () =>
+                    Effect.provide(
+                      runGritRulesEffect(selectedRules, {
+                        ...options,
+                        grit: providerFailureGrit,
+                      }),
+                      NodeContext.layer
+                    )
+                  ),
+                  Match.when({ kind: "not-applicable" }, (notApplicable) =>
+                    Effect.succeed(
+                      new Map([
+                        [
+                          "advisory-provider",
+                          {
+                            result: { exitCode: 0, diagnostics: [] },
+                            durationMs: 1,
+                            disposition: notApplicable,
+                          },
+                        ],
+                      ])
+                    )
+                  ),
+                  Match.when({ kind: "refused" }, (refused) =>
+                    Effect.succeed(
+                      new Map([
+                        [
+                          "advisory-provider",
+                          {
+                            result: { exitCode: 1, diagnostics: [] },
+                            durationMs: 1,
+                            disposition: {
+                              kind: "refused" as const,
+                              decision: refused.decision,
+                              detail,
+                            },
+                          },
+                        ],
+                      ])
+                    )
+                  ),
+                  Match.exhaustive
+                ),
+            },
+            nx: { runMany: () => unrelatedFailure, runTarget: () => unrelatedFailure },
+            rules,
+            sourceFileSystem: baselineFileSystem,
+            structureFileSystem: baselineFileSystem,
+          }
+        )
+      );
+      const parsed = Value.Parse(
+        CheckReportSchema,
+        JSON.parse(renderCheckReport(report, { json: true }))
+      );
+      const producedDisposition = parsed.rules[0]?.disposition;
+
+      Match.value(disposition).pipe(
+        Match.when({ kind: "not-applicable" }, (notApplicable) => {
+          expect(report.ok).toBe(true);
+          expect(report.rules[0]).toMatchObject({
+            ruleId: "advisory-provider",
+            lane: "advisory",
+            status: "pass",
+            disposition: notApplicable,
+            diagnostics: [],
+          });
+          expect(producedDisposition).toEqual(notApplicable);
+          expect(hookCheckSummary(parsed).kind).toBe("not-applicable");
+          expect(verifyCheckSummary(parsed)).toMatchObject({
+            refusedCount: 0,
+            notApplicableCount: 1,
+          });
+        }),
+        Match.when({ kind: "failed" }, (failed) => {
+          expect(report.ok).toBe(false);
+          expect(report.rules[0]).toMatchObject({
+            ruleId: "advisory-provider",
+            lane: "advisory",
+            status: "fail",
+          });
+          expect(producedDisposition).toEqual({
+            kind: "execution-failed",
+            source: "diagnostic-provider",
+            failure: failed.failure,
+            detail: expect.any(String),
+          });
+          expect(hookCheckSummary(parsed).kind).toBe("diagnostic-unavailable");
+          expect(verifyCheckSummary(parsed).refusedCount).toBe(1);
+        }),
+        Match.when({ kind: "refused" }, (refused) => {
+          expect(report.ok).toBe(false);
+          expect(report.rules[0]).toMatchObject({
+            ruleId: "advisory-provider",
+            lane: "advisory",
+            status: "fail",
+          });
+          expect(producedDisposition).toEqual({
+            kind: "dependency-refused",
+            source: "diagnostic-scan-root",
+            decision: refused.decision,
+            detail,
+          });
+          expect(hookCheckSummary(parsed).kind).toBe("dependency-refused");
+          expect(verifyCheckSummary(parsed).refusedCount).toBe(1);
+        }),
+        Match.exhaustive
+      );
+    }
   });
 });
 
@@ -442,6 +804,7 @@ function passingRule(id: string, overrides: Record<string, unknown> = {}) {
     status: "pass",
     locked: true,
     durationMs: 1,
+    disposition: { kind: "executed" },
     diagnostics: [],
     message: "demo",
     remediate: null,
@@ -460,6 +823,7 @@ function fakeSourceRuleFact(id: string, scanRoots: readonly string[]): RuleSourc
       files: { pattern: `.habitat/fixtures/rules/${id}/pattern.md` },
       patternName: "fixture_pattern",
     },
+    diagnosticAcquisition: { kind: "check" },
     pathCoverage: [{ kind: "project-owner" }],
     scanRoots: [...scanRoots],
   };

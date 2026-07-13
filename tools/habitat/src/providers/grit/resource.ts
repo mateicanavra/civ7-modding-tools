@@ -1,24 +1,37 @@
 import path from "node:path";
-import type { FileSystem } from "@effect/platform";
+import { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { GitStateProvider } from "@habitat/cli/providers/git/index";
-import { type CommandProviderError, CommandRunner } from "@habitat/cli/resources/command/index";
+import {
+  CommandFailed,
+  CommandInterrupted,
+  CommandRunner,
+  type CommandRunnerService,
+  CommandUnavailable,
+} from "@habitat/cli/resources/command/index";
 import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/types";
 import type { HabitatConfig } from "@habitat/cli/resources/config/index";
-import { FileWriteFailed } from "@habitat/cli/resources/errors/index";
-import {
-  acquireTempDirectory,
-  ensurePatternCacheRoot,
-} from "@habitat/cli/resources/platform/index";
-import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import type { DiagnosticSelectedScanRoots } from "@habitat/cli/service/model/diagnostics/index";
 import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
-import { Context, Effect, Layer } from "effect";
-import { defaultGritCommandTimeoutMs, gritBin } from "./constants.js";
-import { gritMachineOutputEnv } from "./env.js";
+import { Context, Effect, Layer, Match } from "effect";
+import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
+import { defaultGritCommandTimeoutMs } from "./constants.js";
+import { gritHermeticEnv } from "./env.js";
+import {
+  nativeIdentityMismatchBeforeSpawn,
+  nativeIdentityMismatchFromCompleted,
+} from "./request.js";
 import { runGritRulesEffect } from "./runner.js";
+import { parseGritJsonText } from "./types.js";
+
+const pinnedGritIdentity = {
+  packageVersion: "0.1.0-alpha.1743007075",
+  nativeVersion: "grit 0.1.1",
+} as const;
 
 export type GritProviderRequirements =
   | CommandExecutor
@@ -28,26 +41,25 @@ export type GritProviderRequirements =
   | GitStateProvider;
 
 export interface GritCheckProviderRequest {
-  scanRoots: readonly string[];
-  outputFormat?: "json" | "text";
-  cacheMode?: "fresh" | "isolated";
-  cwd?: string;
-  cacheDir?: string;
-  gritDir?: string;
-  gritUserConfigDir?: string;
-  timeoutMs?: number;
-  observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
+  readonly scanRoots: Readonly<DiagnosticSelectedScanRoots>;
+  readonly cwd: string;
+  readonly gritDir: string;
+  readonly cacheDir: string;
+  readonly gritUserConfigDir: string;
+  readonly timeoutMs?: number;
 }
 
 export interface GritApplyDryRunProviderRequest {
-  commandId: string;
-  patternPath: string;
-  scanRoots: readonly string[];
-  output: "compact" | "standard";
-  cacheMode?: "disabled" | "isolated";
-  cacheDir?: string;
-  timeoutMs?: number;
-  observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
+  readonly commandId: string;
+  readonly patternPath: string;
+  readonly scanRoots: Readonly<DiagnosticSelectedScanRoots>;
+  readonly output: "compact" | "standard";
+  readonly serialization?: "standard" | "jsonl";
+  readonly cacheMode?: "disabled" | "isolated";
+  readonly cwd?: string;
+  readonly cacheDir?: string;
+  readonly gritUserConfigDir?: string;
+  readonly timeoutMs?: number;
 }
 
 export type GritProviderCommandRequest =
@@ -55,26 +67,16 @@ export type GritProviderCommandRequest =
   | ({ readonly kind: "apply-dry-run" } & GritApplyDryRunProviderRequest);
 
 export interface GritProviderService {
-  readonly check: (
-    request: GritCheckProviderRequest
-  ) => Effect.Effect<
-    HabitatCommandResult,
-    CommandProviderError | FileWriteFailed,
-    GritProviderRequirements
-  >;
+  readonly check: (request: GritCheckProviderRequest) => ReturnType<typeof runLiveRequest>;
   readonly checkRequest: (request: GritCheckProviderRequest) => HabitatProcessRequest;
   readonly applyDryRun: (
     request: GritApplyDryRunProviderRequest
-  ) => Effect.Effect<
-    HabitatCommandResult,
-    CommandProviderError | FileWriteFailed,
-    GritProviderRequirements
-  >;
+  ) => ReturnType<typeof runLiveRequest>;
   readonly applyDryRunRequest: (request: GritApplyDryRunProviderRequest) => HabitatProcessRequest;
   readonly runRules: (
     selectedRules: readonly RuleSourceFacts[],
     options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
-  ) => Effect.Effect<Map<string, RuleRunResult>, never, GritProviderRequirements>;
+  ) => ReturnType<typeof runGritRulesEffect>;
 }
 
 export class GritProvider extends Context.Tag("@habitat/cli/GritProvider")<
@@ -82,7 +84,7 @@ export class GritProvider extends Context.Tag("@habitat/cli/GritProvider")<
   GritProviderService
 >() {}
 
-export function makeGritProviderLayer(repoRoot: string): Layer.Layer<GritProvider> {
+export function makeGritProviderLayer(repoRoot: string) {
   return Layer.succeed(GritProvider, makeLiveGritProvider(repoRoot));
 }
 
@@ -105,134 +107,98 @@ export function makeFakeGritProviderService(
 ): GritProviderService {
   const repoRoot = options.repoRoot ?? ".";
   const provider: GritProviderService = {
-    check: (request) =>
-      Effect.sync(() => {
-        const prepared = fakePreparedCacheRequest(request, repoRoot);
-        return handler(gritProviderCheckRequest(repoRoot, prepared), {
-          kind: "check",
-          ...prepared,
-        });
-      }),
-    checkRequest: (request) => gritProviderCheckRequest(repoRoot, request),
-    applyDryRun: (request) =>
-      Effect.sync(() => {
-        const prepared = fakePreparedCacheRequest(request, repoRoot);
-        return handler(gritProviderApplyDryRunRequest(repoRoot, prepared), {
-          kind: "apply-dry-run",
-          ...prepared,
-        });
-      }),
-    applyDryRunRequest: (request) => gritProviderApplyDryRunRequest(repoRoot, request),
+    check: (request) => {
+      const command = gritCheckRequest(repoRoot, request);
+      return Effect.try({
+        try: () => handler(command, { kind: "check", ...request }),
+        catch: (error) => preflightUnavailable(command, String(error)),
+      });
+    },
+    checkRequest: (request) => gritCheckRequest(repoRoot, request),
+    applyDryRun: (request) => {
+      const command = gritApplyDryRunRequest(repoRoot, request);
+      return Effect.try({
+        try: () => handler(command, { kind: "apply-dry-run", ...request }),
+        catch: (error) => preflightUnavailable(command, String(error)),
+      });
+    },
+    applyDryRunRequest: (request) => gritApplyDryRunRequest(repoRoot, request),
     runRules: (selectedRules, runOptions) =>
       runGritRulesEffect(selectedRules, { ...runOptions, grit: provider }),
   };
   return provider;
 }
 
-function fakePreparedCacheRequest<T extends { cacheMode?: string; cacheDir?: string }>(
-  request: T,
-  repoRoot: string
-): T {
-  if (request.cacheMode !== "fresh" || request.cacheDir) return request;
-  return {
-    ...request,
-    cacheDir: path.join(repoRoot, ".habitat", "cache", "habitat-pattern-check-fake"),
-  } as T;
-}
-
 function makeLiveGritProvider(repoRoot: string): GritProviderService {
   const provider: GritProviderService = {
-    check: (request) =>
-      Effect.scoped(
-        Effect.gen(function* () {
-          const prepared = yield* prepareCacheRequest(request);
-          const runner = yield* CommandRunner;
-          return yield* runner.run(gritProviderCheckRequest(repoRoot, prepared));
-        })
-      ),
-    checkRequest: (request) => gritProviderCheckRequest(repoRoot, request),
-    applyDryRun: (request) =>
-      Effect.scoped(
-        Effect.gen(function* () {
-          const prepared = yield* prepareCacheRequest(request);
-          const runner = yield* CommandRunner;
-          return yield* runner.run(gritProviderApplyDryRunRequest(repoRoot, prepared));
-        })
-      ),
-    applyDryRunRequest: (request) => gritProviderApplyDryRunRequest(repoRoot, request),
+    check: (request) => runLiveRequest(repoRoot, gritCheckRequest(repoRoot, request)),
+    checkRequest: (request) => gritCheckRequest(repoRoot, request),
+    applyDryRun: (request) => runLiveRequest(repoRoot, gritApplyDryRunRequest(repoRoot, request)),
+    applyDryRunRequest: (request) => gritApplyDryRunRequest(repoRoot, request),
     runRules: (selectedRules, options) =>
       runGritRulesEffect(selectedRules, { ...options, grit: provider }),
   };
   return provider;
 }
 
-export function gritCheckRequest(
-  scanRoots: readonly string[],
-  options: {
-    repoRoot: string;
-    cwd?: string;
-    cacheDir?: string;
-    gritDir?: string;
-    gritUserConfigDir?: string;
-    outputFormat?: "json" | "text";
-    timeoutMs?: number;
-    observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
-  }
-): HabitatProcessRequest {
-  const { repoRoot } = options;
-  const cacheDir = options.cacheDir ?? path.join(repoRoot, ".habitat", "cache", "patterns");
-  return {
-    commandId: "pattern-check-current-tree",
-    kind: "pattern-check",
-    executable: path.join(repoRoot, "node_modules", ".bin", gritBin),
-    argv:
-      options.outputFormat === "text"
-        ? [
-            "check",
-            "--level",
-            "error",
-            ...(options.gritDir ? ["--grit-dir", options.gritDir] : []),
-            ...scanRoots,
-          ]
-        : [
-            "--json",
-            "check",
-            "--level",
-            "error",
-            ...(options.gritDir ? ["--grit-dir", options.gritDir] : []),
-            ...scanRoots,
-          ],
-    cwd: options.cwd ?? repoRoot,
-    env: {
-      ...gritMachineOutputEnv,
-      GRIT_CACHE_DIR: cacheDir,
-      GRIT_TELEMETRY_DISABLED: "true",
-      ...(options.gritUserConfigDir ? { GRIT_USER_CONFIG: options.gritUserConfigDir } : {}),
-    },
-    scanRoots,
-    timeoutMs: options.timeoutMs ?? defaultGritCommandTimeoutMs,
-    cachePolicy: {
-      mode: "isolated",
-      cacheDir,
-      observableStatus: options.observableCacheStatus ?? "unknown",
-    },
-  };
+const runLiveRequest = Effect.fn("grit.live.run")(function* (
+  repoRoot: string,
+  request: HabitatProcessRequest
+) {
+  const runner = yield* CommandRunner;
+  yield* preflightPinnedGritEffect(
+    repoRoot,
+    runner.run,
+    effectiveGritCommandTimeoutMs(request.timeoutMs)
+  );
+  return yield* runner.run(request);
+});
+
+export function pinnedGritNativePath(repoRoot: string): string {
+  return path.join(
+    repoRoot,
+    "node_modules",
+    "@getgrit",
+    "cli",
+    "node_modules",
+    ".bin_real",
+    "grit"
+  );
 }
 
-function gritProviderCheckRequest(
+export function gritCheckRequest(
   repoRoot: string,
   request: GritCheckProviderRequest
 ): HabitatProcessRequest {
-  return gritCheckRequest(request.scanRoots, {
-    repoRoot,
+  return {
+    commandId: "grit-selected-rule-json-check",
+    kind: "pattern-check",
+    executable: pinnedGritNativePath(repoRoot),
+    argv: [
+      "--json",
+      "check",
+      "--level",
+      "error",
+      "--no-cache",
+      "--grit-dir",
+      request.gritDir,
+      ...request.scanRoots,
+    ],
     cwd: request.cwd,
-    cacheDir: request.cacheDir,
-    gritDir: request.gritDir,
-    gritUserConfigDir: request.gritUserConfigDir,
-    observableCacheStatus: request.observableCacheStatus,
-    outputFormat: request.outputFormat,
-    timeoutMs: request.timeoutMs,
-  });
+    env: {
+      ...gritHermeticEnv,
+      GRIT_CACHE_DIR: request.cacheDir,
+      GRIT_USER_CONFIG: request.gritUserConfigDir,
+    },
+    scanRoots: request.scanRoots,
+    timeoutMs: effectiveGritCommandTimeoutMs(request.timeoutMs),
+    captureGitState: false,
+    cachePolicy: {
+      mode: "isolated",
+      cacheDir: request.cacheDir,
+      observableStatus: "fresh",
+    },
+  };
 }
 
 export function gritApplyDryRunRequest(
@@ -240,15 +206,31 @@ export function gritApplyDryRunRequest(
   request: GritApplyDryRunProviderRequest
 ): HabitatProcessRequest {
   const cacheMode = request.cacheMode ?? "disabled";
-  const cacheDir =
-    cacheMode === "isolated"
-      ? (request.cacheDir ?? path.join(repoRoot, ".habitat", "cache", "patterns"))
-      : request.cacheDir;
+  const cacheEnv = Match.value(request.cacheDir).pipe(
+    Match.when(undefined, () => ({})),
+    Match.orElse((cacheDir) => ({ GRIT_CACHE_DIR: cacheDir }))
+  );
+  const userConfigEnv = Match.value(request.gritUserConfigDir).pipe(
+    Match.when(undefined, () => ({})),
+    Match.orElse((userConfigDir) => ({ GRIT_USER_CONFIG: userConfigDir }))
+  );
+  const capturePolicy = Match.value(request.serialization).pipe(
+    Match.when("jsonl", () => ({ captureGitState: false as const })),
+    Match.orElse(() => ({}))
+  );
+  const observableStatus = Match.value(request.cacheDir).pipe(
+    Match.when(undefined, () => "unknown" as const),
+    Match.orElse(() => "fresh" as const)
+  );
   return {
     commandId: request.commandId,
     kind: "pattern-apply",
-    executable: path.join(repoRoot, "node_modules", ".bin", gritBin),
+    executable: pinnedGritNativePath(repoRoot),
     argv: [
+      ...Match.value(request.serialization).pipe(
+        Match.when("jsonl", () => ["--jsonl"]),
+        Match.orElse(() => [])
+      ),
       "apply",
       request.patternPath,
       ...request.scanRoots,
@@ -257,57 +239,143 @@ export function gritApplyDryRunRequest(
       "--output",
       request.output,
     ],
-    cwd: repoRoot,
-    timeoutMs: request.timeoutMs ?? defaultGritCommandTimeoutMs,
+    cwd: request.cwd ?? repoRoot,
     env: {
-      ...gritMachineOutputEnv,
-      ...(cacheDir
-        ? {
-            GRIT_CACHE_DIR: cacheDir,
-            GRIT_TELEMETRY_DISABLED: "true",
-          }
-        : {}),
+      ...gritHermeticEnv,
+      ...cacheEnv,
+      ...userConfigEnv,
     },
     scanRoots: request.scanRoots,
+    timeoutMs: effectiveGritCommandTimeoutMs(request.timeoutMs),
+    ...capturePolicy,
     cachePolicy: {
       mode: cacheMode,
-      cacheDir,
-      observableStatus: request.observableCacheStatus ?? "unknown",
+      cacheDir: request.cacheDir,
+      observableStatus,
     },
   };
 }
 
-function gritProviderApplyDryRunRequest(
+const GritPackageSchema = Type.Object(
+  { version: Type.Literal(pinnedGritIdentity.packageVersion) },
+  { additionalProperties: true }
+);
+type GritPackage = Static<typeof GritPackageSchema>;
+
+const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* (
   repoRoot: string,
-  request: GritApplyDryRunProviderRequest
-): HabitatProcessRequest {
-  return gritApplyDryRunRequest(repoRoot, request);
+  run: CommandRunnerService["run"],
+  timeoutMs: number
+) {
+  const executable = pinnedGritNativePath(repoRoot);
+  const packagePath = path.join(repoRoot, "node_modules", "@getgrit", "cli", "package.json");
+  const preflightRequest: HabitatProcessRequest = {
+    commandId: "grit-pinned-native-preflight",
+    kind: "pattern-check",
+    executable,
+    argv: ["--version"],
+    cwd: repoRoot,
+    env: gritHermeticEnv,
+    scanRoots: [],
+    timeoutMs,
+    captureGitState: false,
+    cachePolicy: { mode: "disabled", observableStatus: "unknown" },
+  };
+  const fs = yield* FileSystem.FileSystem;
+  const packageSource = yield* fs
+    .readFileString(packagePath)
+    .pipe(Effect.mapError((error) => preflightUnavailable(preflightRequest, String(error))));
+  const packageJson = yield* parsePinnedPackage(packageSource, preflightRequest);
+  yield* Effect.succeed(packageJson satisfies GritPackage);
+  const result = yield* run(preflightRequest);
+  const completed = yield* classifyPreflightExecution(result);
+  const validIdentity = !(
+    result.stdout.truncated ||
+    result.stderr.truncated ||
+    result.stderr.text.trim().length > 0 ||
+    result.stdout.text.trim() !== pinnedGritIdentity.nativeVersion
+  );
+  const observedVersion = Match.value(result.stdout.text.trim()).pipe(
+    Match.when("", () => "no version"),
+    Match.orElse((version) => version)
+  );
+  return yield* Effect.succeed(completed).pipe(
+    Effect.filterOrFail(
+      () => validIdentity,
+      () =>
+        nativeIdentityMismatchFromCompleted(
+          completed,
+          `Pinned Grit preflight expected completed exit 0 with ${pinnedGritIdentity.nativeVersion}, observed exit ${result.exit.code} with ${observedVersion}.`
+        )
+    )
+  );
+});
+
+const classifyPreflightExecution = Effect.fn("grit.native.preflight.classify")(function* (
+  result: HabitatCommandResult
+) {
+  return yield* Match.value({
+    interrupted: result.exit.interrupted,
+    nonzero: result.exit.code !== 0,
+  }).pipe(
+    Match.when({ interrupted: true }, () =>
+      Effect.fail(
+        new CommandInterrupted({
+          commandId: result.commandId,
+          executable: result.executable,
+          argv: result.argv,
+          cwd: result.cwd,
+          signal: result.exit.signal ?? "unknown",
+          cause: "Pinned Grit preflight was interrupted.",
+        })
+      )
+    ),
+    Match.when({ nonzero: true }, () =>
+      Effect.fail(
+        new CommandFailed({
+          commandId: result.commandId,
+          executable: result.executable,
+          argv: result.argv,
+          cwd: result.cwd,
+          exitCode: result.exit.code,
+          stderr: result.stderr.text,
+        })
+      )
+    ),
+    Match.orElse(() => Effect.succeed(result))
+  );
+});
+
+const parsePinnedPackage = Effect.fn("grit.package.decode")(function* (
+  source: string,
+  request: HabitatProcessRequest
+) {
+  return yield* Effect.try({
+    try: () => Value.Parse(GritPackageSchema, parseGritJsonText(source)),
+    catch: (error) =>
+      nativeIdentityMismatchBeforeSpawn(
+        request,
+        `Grit package identity mismatch: ${String(error)}.`
+      ),
+  });
+});
+
+function preflightUnavailable(request: HabitatProcessRequest, cause: string): CommandUnavailable {
+  return new CommandUnavailable({
+    commandId: request.commandId,
+    executable: request.executable,
+    argv: request.argv,
+    cwd: request.cwd,
+    cause,
+  });
 }
 
-function prepareCacheRequest<
-  T extends { cacheMode?: "disabled" | "fresh" | "isolated"; cacheDir?: string },
->(request: T) {
-  if (request.cacheMode === "disabled") return Effect.succeed(request);
-  if (request.cacheDir) return Effect.succeed(request);
-  if (request.cacheMode === "fresh") {
-    return acquireTempDirectory("habitat-pattern-check-").pipe(
-      Effect.map((cacheDir) => ({
-        ...request,
-        cacheDir,
-      })),
-      Effect.mapError(
-        (cause) =>
-          new FileWriteFailed({
-            path: "habitat-pattern-check-*",
-            cause: cause instanceof Error ? cause.message : String(cause),
-          })
-      )
-    );
-  }
-  return ensurePatternCacheRoot().pipe(
-    Effect.map((cacheDir) => ({
-      ...request,
-      cacheDir,
-    }))
+function effectiveGritCommandTimeoutMs(timeoutMs: number | undefined): number {
+  return Match.value(timeoutMs).pipe(
+    Match.when(
+      (candidate): candidate is number => candidate !== undefined && candidate > 0,
+      (candidate) => candidate
+    ),
+    Match.orElse(() => defaultGritCommandTimeoutMs)
   );
 }

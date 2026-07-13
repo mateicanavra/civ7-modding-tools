@@ -10,43 +10,14 @@ export const GritDiagnosticIdentitySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const NativeDiagnosticIdentityValueSchema = Type.Literal(
-  "ensure_docs_checkout_paths_are_portable"
-);
-
-export const NativeDiagnosticIdentitySchema = Type.Object(
-  {
-    kind: Type.Literal("native-rule"),
-    nativeDiagnosticIdentity: NativeDiagnosticIdentityValueSchema,
-    source: Type.Literal("native-habitat-rule"),
-  },
-  { additionalProperties: false }
-);
-
-export const DiagnosticIdentitySchema = Type.Union([
-  GritDiagnosticIdentitySchema,
-  NativeDiagnosticIdentitySchema,
-]);
-
-export const ObservedNativeDiagnosticIdentitySchema = Type.Object(
-  {
-    kind: Type.Literal("observed-native-rule"),
-    observedNativeDiagnosticIdentity: NativeDiagnosticIdentityValueSchema,
-    source: Type.Literal("native-habitat-rule"),
-  },
-  { additionalProperties: false }
-);
+export const DiagnosticIdentitySchema = GritDiagnosticIdentitySchema;
 
 export const ObservedGritDiagnosticIdentitySchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("observed-pattern"),
       observedPatternIdentity: Type.String({ minLength: 1 }),
-      source: Type.Union([
-        Type.Literal("local_name"),
-        Type.Literal("parsed-check-id"),
-        Type.Literal("local-name-and-check-id"),
-      ]),
+      source: Type.Literal("local-name-and-check-id"),
     },
     { additionalProperties: false }
   ),
@@ -60,20 +31,12 @@ export const ObservedGritDiagnosticIdentitySchema = Type.Union([
   ),
 ]);
 
-export const ObservedDiagnosticIdentitySchema = Type.Union([
-  ObservedGritDiagnosticIdentitySchema,
-  ObservedNativeDiagnosticIdentitySchema,
-]);
+export const ObservedDiagnosticIdentitySchema = ObservedGritDiagnosticIdentitySchema;
 
 export type GritDiagnosticIdentity = Static<typeof GritDiagnosticIdentitySchema>;
-export type NativeDiagnosticIdentityValue = Static<typeof NativeDiagnosticIdentityValueSchema>;
-export type NativeDiagnosticIdentity = Static<typeof NativeDiagnosticIdentitySchema>;
-export type DiagnosticIdentity = Static<typeof DiagnosticIdentitySchema>;
+export type DiagnosticIdentity = GritDiagnosticIdentity;
 export type ObservedGritDiagnosticIdentity = Static<typeof ObservedGritDiagnosticIdentitySchema>;
-export type ObservedNativeDiagnosticIdentity = Static<
-  typeof ObservedNativeDiagnosticIdentitySchema
->;
-export type ObservedDiagnosticIdentity = Static<typeof ObservedDiagnosticIdentitySchema>;
+export type ObservedDiagnosticIdentity = ObservedGritDiagnosticIdentity;
 
 export function isObservedGritDiagnosticIdentity(
   value: unknown
@@ -82,72 +45,34 @@ export function isObservedGritDiagnosticIdentity(
 }
 
 export function gritDiagnosticIdentity(patternIdentity: string): GritDiagnosticIdentity {
-  return {
-    kind: "pattern",
-    patternIdentity,
-    source: "rule-registry-facts",
-  };
-}
-
-export function nativeDiagnosticIdentity(
-  nativeDiagnostic: NativeDiagnosticIdentityValue
-): NativeDiagnosticIdentity {
-  return {
-    kind: "native-rule",
-    nativeDiagnosticIdentity: nativeDiagnostic,
-    source: "native-habitat-rule",
-  };
-}
-
-export function observedNativeDiagnosticIdentity(
-  nativeDiagnostic: NativeDiagnosticIdentityValue
-): ObservedDiagnosticIdentity {
-  return {
-    kind: "observed-native-rule",
-    observedNativeDiagnosticIdentity: nativeDiagnostic,
-    source: "native-habitat-rule",
-  };
+  return { kind: "pattern", patternIdentity, source: "rule-registry-facts" };
 }
 
 export function observedGritDiagnosticIdentity(input: {
-  local_name?: string;
-  check_id?: string;
-}): ObservedGritDiagnosticIdentity | null {
-  const localName = input.local_name;
+  readonly local_name: string;
+  readonly check_id: string;
+}): ObservedGritDiagnosticIdentity {
   const parsedCheckId = parsePatternIdentityFromCheckId(input.check_id);
-  if (localName && parsedCheckId && localName !== parsedCheckId) {
-    return { kind: "observed-identity-mismatch", localName, parsedCheckId };
+  if (parsedCheckId !== input.local_name) {
+    return Value.Parse(ObservedGritDiagnosticIdentitySchema, {
+      kind: "observed-identity-mismatch",
+      localName: input.local_name,
+      parsedCheckId,
+    });
   }
-  if (localName && parsedCheckId) {
-    return {
-      kind: "observed-pattern",
-      observedPatternIdentity: localName,
-      source: "local-name-and-check-id",
-    };
-  }
-  if (localName) {
-    return {
-      kind: "observed-pattern",
-      observedPatternIdentity: localName,
-      source: "local_name",
-    };
-  }
-  if (parsedCheckId) {
-    return {
-      kind: "observed-pattern",
-      observedPatternIdentity: parsedCheckId,
-      source: "parsed-check-id",
-    };
-  }
-  return null;
+  return Value.Parse(ObservedGritDiagnosticIdentitySchema, {
+    kind: "observed-pattern",
+    observedPatternIdentity: input.local_name,
+    source: "local-name-and-check-id",
+  });
 }
 
 export function observedGritIdentityMatches(
-  observed: ObservedGritDiagnosticIdentity | null,
+  observed: ObservedGritDiagnosticIdentity,
   identity: GritDiagnosticIdentity
 ): boolean {
   return (
-    observed?.kind === "observed-pattern" &&
+    observed.kind === "observed-pattern" &&
     observed.observedPatternIdentity === identity.patternIdentity
   );
 }
@@ -155,13 +80,13 @@ export function observedGritIdentityMatches(
 export function renderUnexpectedObservedGritIdentity(
   observed: ObservedGritDiagnosticIdentity
 ): string {
-  if (observed.kind === "observed-identity-mismatch") {
-    return `Grit output identity mismatch: local_name=${observed.localName}, check_id=${observed.parsedCheckId}.`;
-  }
-  return `Grit output included unexpected pattern identity: ${observed.observedPatternIdentity}.`;
+  return observed.kind === "observed-identity-mismatch"
+    ? `Grit local_name ${observed.localName} conflicts with check_id identity ${observed.parsedCheckId}.`
+    : `Unexpected Grit pattern identity: ${observed.observedPatternIdentity}.`;
 }
 
-function parsePatternIdentityFromCheckId(checkId: string | undefined): string | null {
-  const match = checkId?.match(/#([^/]+)\//);
-  return match?.[1] ?? null;
+function parsePatternIdentityFromCheckId(checkId: string): string {
+  const separator = checkId.lastIndexOf("#");
+  const qualifiedIdentity = separator >= 0 ? checkId.slice(separator + 1) : checkId;
+  return qualifiedIdentity.split("/", 1)[0] ?? qualifiedIdentity;
 }
