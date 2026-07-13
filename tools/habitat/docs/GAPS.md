@@ -27,8 +27,8 @@ Habitat does not yet generate these MapGen authoring structures:
 - a Studio recipe artifact update.
 
 The existing `project` generator is a workspace package scaffold for uniform
-project kinds. The existing `pattern` generator is a Habitat pattern lifecycle
-scaffold. Neither is a MapGen authoring generator.
+project kinds. The existing `pattern` generator creates candidate drafts only.
+Neither is a MapGen authoring generator.
 
 ## Missing Product Acceptance Loop
 
@@ -64,26 +64,23 @@ and fail through Habitat, but they do not apply repairs.
 
 Current implemented state:
 
-- `apply.pattern.md` role files and default apply-admission definitions resolve
-  against the live Grit registry.
-- `bun habitat fix --dry-run` runs admitted Grit diagnostics without writing.
-- A role file, a Grit check, or an admission definition does not grant a live
-  rewrite.
+- registered `runner.fix` records atomically admit plan-only pattern assets.
+- `bun habitat fix --dry-run` observes admitted transformations without writing.
+- Diagnostic policy, remediation prose, file presence, and rule identity do not
+  grant planning or live rewrite authority.
 
-**Gap:** `habitat fix` has no live mutation path. The router supplies no
-protected-zone decision and the transaction policy explicitly refuses live
-execution. Formatting, post-fix gates, rollback, transaction diff records, and
-commit-readiness are consequently not implemented.
+**Gap:** `habitat fix` has no live mutation path. Non-dry invocation refuses
+before service realization. Formatting, post-fix gates, rollback, diff records,
+and commit-readiness are consequently not implemented.
 
-**Re-entry condition:** a future live-fix design must first establish an
-approved protected-zone decision at the router and implement execution in the
-transaction policy. It must then supply the per-pattern evidence below before
-it is presented as runnable.
+**Re-entry condition:** a future live-fix design must establish one mutation
+authority and then supply the per-pattern evidence below before adding a
+write-capable command state.
 
 ## Future / Not Implemented: Apply Safety Acceptance Target
 
 The following is a target acceptance contract for a future live apply path, not
-current transaction behavior. Each future apply pattern would need:
+current planning behavior. Each future apply pattern would need:
 
 - exact rewrite inventory;
 - allowed roots;
@@ -97,12 +94,12 @@ current transaction behavior. Each future apply pattern would need:
 Even after an execution substrate exists, it cannot establish the semantic
 correctness of a pattern by itself.
 
-## pattern manifest Can Overpower Product Focus
+## Rule Governance Can Overpower Product Focus
 
-The pattern manifest machinery is useful for preventing weak Habitat rules from
-quietly becoming enforcement law. Its risk is that it can become the center of
-gravity. The next phase should not confuse "well-governed rule admission" with
-"the toolkit helps agents author useful MapGen structures."
+Reviewed `rule.json` authority prevents weak Habitat rules from quietly becoming
+enforcement law. Its process can still become the center of gravity. The next
+phase should not confuse "well-governed rule admission" with "the toolkit helps
+agents author useful MapGen structures."
 
 Pattern work should be judged by whether it protects or repairs real authoring
 flows.

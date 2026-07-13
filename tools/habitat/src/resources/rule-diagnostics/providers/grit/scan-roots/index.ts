@@ -8,6 +8,7 @@ import { decideScanRootProtection } from "@habitat/cli/service/model/host/index"
 import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Either, Match, Option } from "effect";
 import { protectedScanRootPrefixes } from "../constants.js";
+import { pathIsWithinRoot } from "../path.js";
 
 interface CanonicalScanRootDecisionOptions {
   readonly repoRoot: string;
@@ -118,9 +119,8 @@ function lexicalRootObservation(
   canonicalRepo: string,
   root: { readonly candidate: string; readonly absolute: string }
 ) {
-  const relative = toRepoRelative(canonicalRepo, root.absolute);
-  return Match.value(pathIsOutsideRepo(relative)).pipe(
-    Match.when(true, () => ({
+  return Match.value(pathIsWithinRoot(root.absolute, canonicalRepo)).pipe(
+    Match.when(false, () => ({
       kind: "terminal" as const,
       plan: {
         kind: "refused" as const,
@@ -327,7 +327,7 @@ function canonicalScanRootRefusal(
     )
   );
   return Match.value({
-    outside: pathIsOutsideRepo(relative),
+    outside: !pathIsWithinRoot(absolute, options.repoRoot),
     protection,
     approved: isApprovedScanRoot(relative, options.approvedScanRoots),
   }).pipe(
@@ -404,8 +404,4 @@ function normalizeRepoRelativeAuthority(candidate: string): string {
 
 function toRepoRelative(repoRoot: string, candidate: string): string {
   return path.relative(repoRoot, path.resolve(repoRoot, candidate)).split(path.sep).join("/");
-}
-
-function pathIsOutsideRepo(relative: string): boolean {
-  return relative === ".." || relative.startsWith("../");
 }

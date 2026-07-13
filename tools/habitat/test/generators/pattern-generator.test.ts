@@ -2,11 +2,6 @@ import {
   candidateAuthorityPaths,
   patternGenerator,
 } from "@habitat/cli/generators/scaffold/pattern/support/generator";
-import type { RegisteredPatternManifest } from "@habitat/cli/service/modules/fix/model/dto/index";
-import {
-  patternManifestPath,
-  validatePatternManifest,
-} from "@habitat/cli/service/modules/fix/model/policy/index";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
@@ -38,60 +33,63 @@ describe("Habitat pattern generator", () => {
       ruleId: "dra-metadata-probe",
       patternName: "dra_metadata_probe",
       lifecycle: "candidate",
-      openspecChangeId: "habitat-pattern-generator-metadata-repair",
       patternRole: "diagnostic",
       registration: { accepted: false },
     });
-    expect(
-      validatePatternManifest(manifest, {
-        manifestPath: candidatePaths.manifestPath,
-      })
-    ).toMatchObject({
-      ok: true,
-      state: "candidate",
-      registrationAccepted: false,
-    });
+    expect(manifest).not.toHaveProperty("openspecChangeId");
     expect(tree.read(candidatePaths.patternPath, "utf8")).toContain("level: info");
   });
 
-  test("refuses registered advisory generation without a manifest before any writes", async () => {
+  test("preserves an explicitly supplied OpenSpec owner in the candidate manifest", async () => {
     const tree = createPatternTree();
-    const beforeIndex = tree.read(indexPath, "utf8");
 
-    await expect(
-      patternGenerator(tree, {
-        ruleId: "advisory-probe",
-        lifecycle: "registered-advisory",
-      })
-    ).rejects.toMatchObject({
-      refusal: expect.objectContaining({
-        requestClass: "active-pattern-registration",
-        reason: "registered-manifest-missing",
-        writeSet: [],
-      }),
+    await patternGenerator(tree, {
+      ruleId: "owned-candidate-probe",
+      openspecChangeId: "explicit-candidate-owner",
     });
 
-    assertNoGeneratedArtifacts(tree, "advisory-probe", "advisory_probe", beforeIndex);
+    const candidatePaths = candidateAuthorityPaths({
+      ruleId: "owned-candidate-probe",
+      patternName: "owned_candidate_probe",
+    });
+    expect(readJson(tree, candidatePaths.manifestPath)).toMatchObject({
+      ruleId: "owned-candidate-probe",
+      lifecycle: "candidate",
+      openspecChangeId: "explicit-candidate-owner",
+      registration: { accepted: false },
+    });
   });
 
-  test("refuses registered enforced generation without a manifest before any writes", async () => {
+  test.each([
+    {
+      label: "registered-advisory lifecycle",
+      options: { ruleId: "advisory-probe", lifecycle: "registered-advisory" },
+      patternName: "advisory_probe",
+    },
+    {
+      label: "registered-enforced lifecycle",
+      options: { ruleId: "enforced-probe", lifecycle: "registered-enforced" },
+      patternName: "enforced_probe",
+    },
+    {
+      label: "empty OpenSpec owner",
+      options: { ruleId: "empty-owner-probe", openspecChangeId: "" },
+      patternName: "empty_owner_probe",
+    },
+    {
+      label: "null OpenSpec owner",
+      options: { ruleId: "null-owner-probe", openspecChangeId: null },
+      patternName: "null_owner_probe",
+    },
+  ])("rejects $label at the public generator boundary before any writes", async (testCase) => {
     const tree = createPatternTree();
     const beforeIndex = tree.read(indexPath, "utf8");
+    const beforeTree = tree.listChanges();
 
-    await expect(
-      patternGenerator(tree, {
-        ruleId: "enforced-probe",
-        lifecycle: "registered-enforced",
-      })
-    ).rejects.toMatchObject({
-      refusal: expect.objectContaining({
-        requestClass: "active-pattern-registration",
-        reason: "registered-manifest-missing",
-        writeSet: [],
-      }),
-    });
+    await expect(patternGenerator(tree, testCase.options as never)).rejects.toThrow();
 
-    assertNoGeneratedArtifacts(tree, "enforced-probe", "enforced_probe", beforeIndex);
+    expect(tree.listChanges()).toEqual(beforeTree);
+    assertNoGeneratedArtifacts(tree, testCase.options.ruleId, testCase.patternName, beforeIndex);
   });
 
   test.each([
@@ -119,120 +117,6 @@ describe("Habitat pattern generator", () => {
       "product_authoring_probe",
       beforeIndex
     );
-  });
-
-  test("refuses registered generation when the manifest keeps placeholder manifest", async () => {
-    const tree = createPatternTree();
-    const beforeIndex = tree.read(indexPath, "utf8");
-    const manifest = registeredManifest({
-      normativeSources: [
-        {
-          kind: "accepted-spec",
-          pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
-          summary: "Accepted registration source for the fixture manifest.",
-        },
-      ],
-    });
-    const manifestPath = writeRegisteredManifest(tree, manifest);
-    const beforeManifest = tree.read(manifestPath, "utf8");
-
-    await expect(
-      patternGenerator(tree, {
-        ruleId: manifest.ruleId,
-        patternName: manifest.patternName,
-        lifecycle: "registered-advisory",
-        manifestPath,
-      })
-    ).rejects.toMatchObject({
-      refusal: expect.objectContaining({
-        requestClass: "active-pattern-registration",
-        reason: "registered-manifest-rejected",
-        writeSet: [],
-      }),
-    });
-
-    assertNoPromotionWrites(tree, manifest, beforeIndex, manifestPath, beforeManifest);
-  });
-
-  test("refuses registered advisory output through pattern management", async () => {
-    const tree = createPatternTree({
-      ...emptyRuleRegistryDocument(),
-    });
-    const beforeIndex = tree.read(indexPath, "utf8");
-    const manifest = registeredManifest();
-    const manifestPath = writeRegisteredManifest(tree, manifest);
-    const beforeManifest = tree.read(manifestPath, "utf8");
-
-    await expect(
-      patternGenerator(tree, {
-        ruleId: manifest.ruleId,
-        patternName: manifest.patternName,
-        lifecycle: "registered-advisory",
-        manifestPath,
-      })
-    ).rejects.toMatchObject({
-      refusal: expect.objectContaining({
-        requestClass: "active-pattern-registration",
-        reason: "registered-manifest-rejected",
-        writeSet: [],
-      }),
-    });
-
-    assertNoPromotionWrites(tree, manifest, beforeIndex, manifestPath, beforeManifest);
-  });
-
-  test("refuses registered enforced output through pattern management", async () => {
-    const tree = createPatternTree({
-      ...emptyRuleRegistryDocument(),
-    });
-    const beforeIndex = tree.read(indexPath, "utf8");
-    const manifest = registeredManifest({
-      lifecycle: "registered-enforced",
-    });
-    const manifestPath = writeRegisteredManifest(tree, manifest);
-    const beforeManifest = tree.read(manifestPath, "utf8");
-
-    await expect(
-      patternGenerator(tree, {
-        ruleId: manifest.ruleId,
-        patternName: manifest.patternName,
-        lifecycle: "registered-enforced",
-        manifestPath,
-      })
-    ).rejects.toMatchObject({
-      refusal: expect.objectContaining({
-        requestClass: "active-pattern-registration",
-        reason: "registered-manifest-rejected",
-        writeSet: [],
-      }),
-    });
-
-    assertNoPromotionWrites(tree, manifest, beforeIndex, manifestPath, beforeManifest);
-  });
-
-  test("refuses registered advisory output when the explicit baseline file is missing", async () => {
-    const tree = createPatternTree();
-    const beforeIndex = tree.read(indexPath, "utf8");
-    const manifest = registeredManifest();
-    const manifestPath = writeRegisteredManifest(tree, manifest);
-    const beforeManifest = tree.read(manifestPath, "utf8");
-
-    await expect(
-      patternGenerator(tree, {
-        ruleId: manifest.ruleId,
-        patternName: manifest.patternName,
-        lifecycle: "registered-advisory",
-        manifestPath,
-      })
-    ).rejects.toMatchObject({
-      refusal: expect.objectContaining({
-        requestClass: "active-pattern-registration",
-        reason: "registered-manifest-rejected",
-        writeSet: [],
-      }),
-    });
-
-    assertNoPromotionWrites(tree, manifest, beforeIndex, manifestPath, beforeManifest);
   });
 
   test("refuses candidate generation when the rule already exists", async () => {
@@ -382,90 +266,4 @@ function assertNoGeneratedArtifacts(
   expect(tree.exists(`.habitat/patterns/manifests/${ruleId}.json`)).toBe(false);
   expect(tree.exists(`.habitat/patterns/checks/${patternName}.md`)).toBe(false);
   expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
-}
-
-function assertNoPromotionWrites(
-  tree: ReturnType<typeof createPatternTree>,
-  manifest: RegisteredPatternManifest,
-  beforeIndex: string | null,
-  manifestPath: string,
-  beforeManifest: string | null
-) {
-  const candidatePaths = candidateAuthorityPaths({
-    ruleId: manifest.ruleId,
-    patternName: manifest.patternName,
-  });
-  expect(tree.exists(candidatePaths.patternPath)).toBe(false);
-  expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
-  expect(tree.read(manifestPath, "utf8")).toBe(beforeManifest);
-  expect(tree.exists(`.habitat/patterns/checks/${manifest.patternName}.md`)).toBe(false);
-  expect(tree.exists(`.habitat/docs/rules/${manifest.ruleId}/rule.json`)).toBe(false);
-  expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
-}
-
-function writeRegisteredManifest(
-  tree: ReturnType<typeof createPatternTree>,
-  manifest: RegisteredPatternManifest
-) {
-  const manifestPath = patternManifestPath(manifest.ruleId);
-  tree.write(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-  return manifestPath;
-}
-
-function registeredManifest(
-  overrides: Partial<RegisteredPatternManifest> = {}
-): RegisteredPatternManifest {
-  return {
-    schemaVersion: 2,
-    ruleId: "registration-probe",
-    patternName: "registration_probe",
-    lifecycle: "registered-advisory",
-    openspecChangeId: "habitat-pattern-generator-metadata-repair",
-    ownerProject: "habitat",
-    patternRole: "diagnostic",
-    normativeSources: [
-      {
-        kind: "accepted-spec",
-        pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
-        summary:
-          "Generated Grit-backed rules require structured Habitat pattern metadata before registration.",
-      },
-    ],
-    language: {
-      gritLanguage: "js(typescript)",
-      parserVariant: "typescript",
-      officialDocsSource: "docs/projects/habitat-harness/research/official-docs-gritql.md",
-    },
-    scanRoots: {
-      include: ["tools/habitat/src"],
-      exclude: ["tools/habitat/dist"],
-      gritignorePolicy: "Use committed .gritignore plus explicit manifest exclusions.",
-    },
-    fixtureStrategy: {
-      positive: ["tools/habitat/test/fixtures/positive.ts"],
-      negative: ["tools/habitat/test/fixtures/negative.ts"],
-      parserEdge: ["tools/habitat/test/fixtures/parser-edge.ts"],
-      falsePositive: ["tools/habitat/test/fixtures/allowed.ts"],
-    },
-    falsePositiveModel: {
-      risk: ["Overmatching structurally similar imports outside the owning source root."],
-      controls: ["Constrain scanRoots.include and verify negative fixtures."],
-      suppressionPolicy: "No inline suppression accepted for generated registered rules.",
-    },
-    currentTreeScan: {
-      command: "bun habitat check --json --rule registration-probe",
-      resultClass: "zero-findings",
-    },
-    baselineContract: {
-      baselinePath: ".habitat/baselines/registration-probe.json",
-      ruleIntroductionManifest:
-        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/rule-introduction-baseline.json",
-      baselineAction: "committed-empty",
-    },
-    applySafety: {
-      kind: "not-apply",
-      rationale: "This manifest describes a check-only Grit pattern.",
-    },
-    ...overrides,
-  };
 }

@@ -7,6 +7,7 @@ import {
   ruleCommandExecutionFacts,
   ruleDiagnosticFacts,
   ruleFileLayerFacts,
+  ruleFixFacts,
   ruleGritFacts,
   ruleHookCheckFacts,
   ruleReportFacts,
@@ -26,6 +27,7 @@ export interface RuleFactsCatalog {
   readonly grit: Readonly<ReturnType<typeof ruleGritFacts>>;
   readonly structure: Readonly<ReturnType<typeof ruleStructureFacts>>;
   readonly fileLayer: Readonly<ReturnType<typeof ruleFileLayerFacts>>;
+  readonly fix: Readonly<ReturnType<typeof ruleFixFacts>>;
   readonly hookCheck: Readonly<ReturnType<typeof ruleHookCheckFacts>>;
   readonly routing: Readonly<ReturnType<typeof ruleRoutingFacts>>;
   readonly graph: Readonly<ReturnType<typeof ruleGraphFacts>>;
@@ -49,6 +51,7 @@ export function ruleFactsCatalog(document: RuleRegistryDocument): RuleFactsCatal
     grit: ruleGritFacts(records),
     structure: ruleStructureFacts(records),
     fileLayer: ruleFileLayerFacts(records),
+    fix: ruleFixFacts(records),
     hookCheck: ruleHookCheckFacts(records),
     routing: ruleRoutingFacts(records),
     graph: ruleGraphFacts(

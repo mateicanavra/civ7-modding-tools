@@ -15,11 +15,11 @@ working in this Civ7 codebase:
 - project-plane boundary enforcement;
 - formatter hygiene routing;
 - Habitat pattern source-shape checks;
-- Habitat apply-admission discovery and Grit dry-run diagnostics;
+- registered-authority fix admission and no-write planning;
 - staged file-layer protection for generated/protected zones;
 - classification of paths and diffs into owning projects, rules, and targets;
 - kind-scoped workspace generator support for uniform projects and candidate
-  pattern lifecycle scaffolding.
+  pattern drafting.
 
 This is meaningful platform-substrate work. It makes many architecture and
 tooling failures visible, routable, and graph-owned.
@@ -108,26 +108,20 @@ Implemented diagnostic/check state:
 - cache/failure handling tests;
 - Effect-backed process boundary for the Grit provider.
 
-Implemented apply-admission and dry-run state:
+Implemented fix-admission and no-write planning state:
 
-- apply pattern files and default admission definitions exist;
-- at invocation, `habitat fix --dry-run` resolves approved apply-admission
-  definitions against the live Grit registry; a rule is admitted only when its
-  definition finds the required manifest role file (including
-  `runner.files.applyPattern` where that definition requires it);
-- an admitted dry-run invokes Grit without writing and returns diagnostic
-  command output;
-- a Grit check manifest or an unadmitted apply role does not grant automatic
-  fixes;
-- non-dry `habitat fix` requests live-write intent, but the
-  [fix router](../src/service/modules/fix/router.ts) supplies no protected-zone
-  decision, and the
-  [transaction policy](../src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts)
-  explicitly refuses live write execution as not implemented.
+- registered Grit rules may atomically admit one plan-only pattern through
+  `runner.fix`;
+- `habitat fix --dry-run` plans all admitted rules or an explicit repeatable
+  `--rule` selection without writing;
+- unknown and unadmitted explicit selections refuse as a whole before provider
+  execution;
+- observed rewrites are successful affected-path evidence, not live fixes;
+- non-dry `habitat fix` refuses before service or provider realization.
 
-Live writes, formatting, post-fix gates, rollback, changed-file/diff
-transaction records, and commit-readiness are not implemented. The current
-apply surface is admission/discovery and dry-run diagnostics only.
+Live writes, formatting, post-fix gates, rollback, changed-file/diff records,
+and commit-readiness are not implemented. The current fix surface is planning
+only.
 
 ## Generators
 
@@ -140,10 +134,8 @@ Implemented `project` generator:
 
 Implemented `pattern` generator:
 
-- candidate-only generation by default;
-- active registration requires accepted pattern manifest state;
-- registered promotion is intentionally refused until pattern management owns
-  the accepted manifest, baseline, and rule-introduction contract;
+- candidate-only generation; its schema accepts no registered lifecycle state;
+- active rules are authored and reviewed separately as `rule.json` authority;
 
 ## Hooks and Hook Check
 
@@ -169,12 +161,11 @@ Current tests cover:
 - baselines and baseline integrity;
 - classification;
 - Grit provider behavior;
-- Habitat apply admission, dry-run diagnostics, and live-write refusal behavior;
+- authority-derived fix admission, multi-rule planning, and early live-write refusal;
 - generated/protected zones;
 - hooks;
 - project generator behavior;
 - pattern generator behavior;
-- pattern manifest Manifest validation;
 - workspace-owned tool command materialization without executing native vendor
   binaries for availability checks;
 - public-surface guard model coverage through injected in-memory fixture files;

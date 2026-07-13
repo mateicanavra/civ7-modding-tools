@@ -1,14 +1,17 @@
 import {
+  ruleAuthorityPathFacts,
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
   ruleDiagnosticFacts,
   ruleFactsCatalog,
   ruleFileLayerFacts,
+  ruleFixFacts,
   ruleGraphFacts,
   ruleGritFacts,
   ruleHookCheckFacts,
-  ruleManifestFacts,
+  ruleReportFacts,
   ruleRoutingFacts,
+  ruleSelectorFacts,
   ruleStructureFacts,
 } from "@habitat/cli/service/model/rules/index";
 import { workspaceGraphTargetNames } from "@habitat/cli/service/model/workspace/index";
@@ -29,7 +32,14 @@ describe("rule registry facts", () => {
       ownerRoots: { habitat: "tools/habitat" },
       rules: [
         baseRule({
-          runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
+          runner: {
+            ...gritRunner("sample-rule"),
+            patternName: "sample_pattern",
+            fix: {
+              kind: "plan-only",
+              pattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
+            },
+          },
           scanRoots: ["packages"],
         }),
       ],
@@ -41,15 +51,21 @@ describe("rule registry facts", () => {
     expect(Object.isFrozen(catalog.grit[0]?.scanRoots)).toBe(true);
     expect(Object.isFrozen(catalog.grit[0]?.runner)).toBe(true);
     expect(Object.isFrozen(catalog.grit[0]?.runner.files)).toBe(true);
+    expect(Object.isFrozen(catalog.fix)).toBe(true);
+    expect(Object.isFrozen(catalog.fix[0]?.fix)).toBe(true);
     expect(() => (catalog.grit[0]?.scanRoots as string[]).push("other")).toThrow(TypeError);
   });
 
-  test("keeps hook check out of Grit execution facts", () => {
+  test("separates diagnostic execution and fix admission facts", () => {
     const rule = baseRule({
       runner: {
         ...gritRunner("sample-rule"),
         patternName: "sample_pattern",
         diagnosticAcquisition: { kind: "apply-dry-run" },
+        fix: {
+          kind: "plan-only",
+          pattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
+        },
       },
       scanRoots: ["packages"],
       hookCheck: true,
@@ -76,11 +92,44 @@ describe("rule registry facts", () => {
         scanRoots: ["packages"],
       },
     ]);
+    expect(ruleFixFacts([rule])).toEqual([
+      {
+        id: "sample-rule",
+        lane: "enforced",
+        message: "Fix the structural issue.",
+        pathCoverage: [{ kind: "project-owner" }],
+        scanRoots: ["packages"],
+        patternName: "sample_pattern",
+        fix: {
+          kind: "plan-only",
+          pattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
+        },
+      },
+    ]);
     expect(ruleHookCheckFacts([rule])).toEqual([
       {
         id: "sample-rule",
         hookCheck: true,
       },
+    ]);
+    const projectedRunner = { ...gritRunner("sample-rule"), patternName: "sample_pattern" };
+    expect(ruleSelectorFacts([rule])[0]?.runner).toEqual(projectedRunner);
+    expect(ruleReportFacts([rule])[0]?.runner).toEqual(projectedRunner);
+    expect(ruleRoutingFacts([rule])[0]?.runner).toEqual(projectedRunner);
+    for (const facts of [
+      ruleSelectorFacts([rule]),
+      ruleReportFacts([rule]),
+      ruleRoutingFacts([rule]),
+    ]) {
+      expect(facts[0]?.runner).not.toHaveProperty("diagnosticAcquisition");
+      expect(facts[0]?.runner).not.toHaveProperty("fix");
+    }
+    expect(ruleAuthorityPathFacts([rule])).toEqual([
+      expect.objectContaining({
+        id: "sample-rule",
+        runner: projectedRunner,
+        fixPattern: ".habitat/fixtures/rules/sample-rule/fix.pattern.md",
+      }),
     ]);
   });
 
@@ -172,7 +221,6 @@ describe("rule registry facts", () => {
           runner: { ...gritRunner("sample-rule"), patternName: "sample_pattern" },
           scanRoots: ["packages"],
           hookCheck: true,
-          manifestPath: ".habitat/patterns/manifests/sample-rule.json",
           supportFiles: {
             baseline: ".habitat/fixtures/rules/sample-rule/baseline.json",
             ruleIntroductionManifest:
@@ -188,35 +236,6 @@ describe("rule registry facts", () => {
           ".habitat/fixtures/rules/sample-rule/rule-introduction-manifest.json",
         exceptionPath:
           ".habitat/civ7/platform/_blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
-      },
-    ]);
-  });
-
-  test("projects governance facts only for registered manifest references", () => {
-    expect(
-      ruleManifestFacts([
-        baseRule({
-          id: "registered-rule",
-          runner: { ...gritRunner("registered-rule"), patternName: "registered_grit_rule" },
-          scanRoots: ["packages"],
-          manifestPath: ".habitat/patterns/manifests/registered-rule.json",
-        }),
-        baseRule({
-          id: "metadata-only-rule",
-          runner: { ...gritRunner("metadata-only-rule"), patternName: "metadata_only_grit_rule" },
-          scanRoots: ["packages"],
-        }),
-        baseRule({
-          id: "command-rule",
-          runner: habitatScriptRunner("command-rule"),
-        }),
-      ])
-    ).toEqual([
-      {
-        id: "registered-rule",
-        lane: "enforced",
-        patternName: "registered_grit_rule",
-        manifestPath: ".habitat/patterns/manifests/registered-rule.json",
       },
     ]);
   });

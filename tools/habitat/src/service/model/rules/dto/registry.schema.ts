@@ -48,17 +48,28 @@ const GritRuleRunnerSchema = Type.Object(
     files: Type.Object(
       {
         pattern: Type.String({ minLength: 1 }),
-        applyPattern: Type.Optional(Type.String({ minLength: 1 })),
       },
       { additionalProperties: false }
     ),
     patternName: Type.String({ minLength: 1 }),
     diagnosticAcquisition: Type.Optional(GritDiagnosticAcquisitionPolicySchema),
+    fix: Type.Optional(
+      Type.Object(
+        {
+          kind: Type.Literal("plan-only"),
+          pattern: Type.String({ minLength: 1 }),
+        },
+        { additionalProperties: false }
+      )
+    ),
   },
   { additionalProperties: false }
 );
 
-const GritProjectedRuleRunnerSchema = Type.Omit(GritRuleRunnerSchema, ["diagnosticAcquisition"]);
+const GritProjectedRuleRunnerSchema = Type.Omit(GritRuleRunnerSchema, [
+  "diagnosticAcquisition",
+  "fix",
+]);
 
 const HabitatStructureRuleRunnerSchema = Type.Object(
   {
@@ -118,6 +129,14 @@ const RuleRunnerSchema = Type.Union([
   NxRuleRunnerSchema,
 ]);
 
+const RuleProjectedRunnerSchema = Type.Union([
+  GritProjectedRuleRunnerSchema,
+  HabitatStructureRuleRunnerSchema,
+  HabitatScriptRuleRunnerSchema,
+  HabitatFileLayerRuleRunnerSchema,
+  NxRuleRunnerSchema,
+]);
+
 const RulePathCoverageSchema = Type.Array(
   Type.Union([
     Type.Object(
@@ -164,7 +183,6 @@ const RuleManifestShape = {
   pathCoverage: RulePathCoverageSchema,
   scanRoots: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
   hookCheck: Type.Optional(Type.Literal(true)),
-  manifestPath: Type.Optional(Type.String({ minLength: 1 })),
   patternName: Type.Optional(Type.String({ minLength: 1 })),
   graphTarget: Type.Optional(GraphTargetSchema),
   generatedZone: Type.Optional(Type.String({ minLength: 1 })),
@@ -213,7 +231,7 @@ export const RuleSelectorFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
     ownerProject: Type.String({ minLength: 1 }),
-    runner: RuleRunnerSchema,
+    runner: RuleProjectedRunnerSchema,
   },
   { additionalProperties: false }
 );
@@ -221,7 +239,7 @@ export const RuleSelectorFactsSchema = Type.Object(
 export const RuleReportFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
-    runner: RuleRunnerSchema,
+    runner: RuleProjectedRunnerSchema,
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
     remediate: Type.Union([Type.String(), Type.Null()]),
@@ -242,7 +260,7 @@ export const RuleBaselineFactsSchema = Type.Object(
 export const RuleRoutingFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
-    runner: RuleRunnerSchema,
+    runner: RuleProjectedRunnerSchema,
     ownerProject: Type.String({ minLength: 1 }),
     pathCoverage: RulePathCoverageSchema,
   },
@@ -305,12 +323,21 @@ export const RuleGritFactsSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const RuleManifestFactsSchema = Type.Object(
+export const RuleFixFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
+    pathCoverage: RulePathCoverageSchema,
+    scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
     patternName: Type.String({ minLength: 1 }),
-    manifestPath: Type.String({ minLength: 1 }),
+    fix: Type.Object(
+      {
+        kind: Type.Literal("plan-only"),
+        pattern: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
   },
   { additionalProperties: false }
 );
@@ -348,6 +375,7 @@ export const RuleHookCheckFactsSchema = Type.Object(
 );
 
 export type RuleRunner = Static<typeof RuleRunnerSchema>;
+export type RuleProjectedRunner = Static<typeof RuleProjectedRunnerSchema>;
 export type GritDiagnosticAcquisitionPolicy = Static<typeof GritDiagnosticAcquisitionPolicySchema>;
 export type RuleRunnerName = RuleRunner["name"];
 export type RulePlacement = Static<typeof RulePlacementSchema>;
@@ -364,7 +392,7 @@ export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
 export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
 export type RuleDiagnosticFacts = Static<typeof RuleDiagnosticFactsSchema>;
 export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
-export type RuleManifestFacts = Static<typeof RuleManifestFactsSchema>;
+export type RuleFixFacts = Static<typeof RuleFixFactsSchema>;
 export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
 export type RuleStructureFacts = Static<typeof RuleStructureFactsSchema>;
 export type RuleHookCheckFacts = Static<typeof RuleHookCheckFactsSchema>;

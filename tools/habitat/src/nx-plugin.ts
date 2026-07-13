@@ -269,9 +269,8 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   }
   if (isPatternBackedRule(rule)) {
     inputs.add(workspaceInput(rule.runner.files.pattern));
-    if (rule.runner.files.applyPattern) inputs.add(workspaceInput(rule.runner.files.applyPattern));
+    if (rule.runner.fix) inputs.add(workspaceInput(rule.runner.fix.pattern));
     for (const scopeInput of gritRuleScopeInputs(rule)) inputs.add(scopeInput);
-    if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.runner.name === "habitat" && rule.runner.mode === "structure") {
     inputs.add(workspaceInput(rule.runner.files.structure));
@@ -302,9 +301,8 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
   for (const rule of rules) {
     if (!isPatternBackedRule(rule)) continue;
     inputs.add(workspaceInput(rule.runner.files.pattern));
-    if (rule.runner.files.applyPattern) inputs.add(workspaceInput(rule.runner.files.applyPattern));
+    if (rule.runner.fix) inputs.add(workspaceInput(rule.runner.fix.pattern));
     for (const scopeInput of gritRuleScopeInputs(rule)) inputs.add(scopeInput);
-    if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   return [...inputs];
 }

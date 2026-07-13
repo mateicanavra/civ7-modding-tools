@@ -9,7 +9,7 @@ unimplemented surfaces.
 
 Habitat is currently a repo-local structural harness for Civ7 modding work. It
 is strong at classification, enforcement, graph-owned checks, pattern diagnostics,
-baseline integrity, hooks, and apply-admission discovery with dry-run diagnostics.
+baseline integrity, hooks, and authority-derived no-write fix planning.
 It is not yet a broad MapGen authoring toolkit.
 
 Use Habitat in its current state to answer:
@@ -17,11 +17,10 @@ Use Habitat in its current state to answer:
 - Which project and rule surfaces own this path or diff?
 - Which structural checks apply before and after a change?
 - Does the current tree violate locked Habitat rules?
-- Which apply-admission definitions resolve against the live Grit registry?
-- What does an admitted Grit dry-run diagnostic report?
+- Which registered rules explicitly admit fix planning?
+- What paths would one or many admitted transformations affect?
 - Can a supported uniform workspace project be scaffolded?
-- Can a Habitat pattern candidate or registered rule promotion be scaffolded under the
-  pattern manifest contract?
+- Can a non-enforcing Habitat pattern candidate be scaffolded?
 
 Do not assume Habitat can yet answer:
 
@@ -45,7 +44,7 @@ The direct command `bun habitat` dispatches through the root `habitat` script to
 | `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and top-level `--runner` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
 | `verify` | `bun habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
 | `classify` | `bun habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
-| `fix` | `bun habitat fix --dry-run`; `bun habitat fix` | `--dry-run` resolves the default apply-admission definitions against live Grit registry facts and runs the resolved Grit dry-run diagnostics without writing. The non-dry invocation requests live-write intent, but current routing supplies no protected-zone decision and the transaction policy explicitly refuses live execution as not implemented. It does not write, format, gate, roll back, or establish commit readiness. |
+| `fix` | `bun habitat fix --dry-run [--rule <id> ...]`; `bun habitat fix` | `--dry-run` plans only transformations explicitly admitted by registered `rule.json` authority. Omission selects all admitted rules; repeated `--rule` selects one or many atomically. The non-dry invocation refuses before service realization. It never writes, formats, gates, rolls back, or establishes commit readiness. |
 | `graph` | `bun habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
 | `hook` | `bun habitat hook pre-commit`, `bun habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
 
@@ -225,46 +224,30 @@ The active pattern checks cover families such as:
 - domain ops boundary, root config, engine import, and op-call-op
   rules.
 
-## Pattern Admission and Dry-Run Diagnostics
+## Fix Admission and No-Write Planning
 
-Habitat can discover narrowly defined apply admissions and run their Grit
-dry-run diagnostics. It does not currently apply a transform.
+Habitat can observe narrowly admitted transformations without applying them.
 
 Current supported state:
 
-- The registry can name an `apply.pattern.md` role file alongside `pattern.md`,
-  but neither role-file presence nor an ordinary Grit check admits automatic
-  fixing by itself.
-- At invocation, `habitat fix` resolves approved apply-admission definitions
-  against live Grit registry facts.
-- A definition is admitted only when its rule ID resolves to a live Grit
-  registry fact and its required manifest role file resolves. Definitions that
-  require `runner.files.applyPattern` require that role specifically.
-- An admitted `bun habitat fix --dry-run` runs the declared Grit dry-run
-  commands and returns their diagnostic output. It does not mutate the
-  worktree.
-- Unadmitted ordinary checks, including checks with an apply role, do not
-  receive automatic fixes.
+- A Grit rule admits planning only with the closed
+  `runner.fix: { kind: "plan-only", pattern }` record. The decision and asset
+  are one authority value.
+- Diagnostic acquisition, remediation prose, sibling files, and rule identity
+  never imply fix admission.
+- Omitted rule selection plans all admitted records in catalog order. Explicit
+  repeated ids are deduplicated in first-seen order.
+- Unknown, unadmitted, or mixed explicit selections refuse atomically before
+  provider execution.
+- Successful observations report affected paths even when the dry-run tool
+  finds rewrites. No worktree mutation occurs.
 
-`bun habitat fix` without `--dry-run` is a live-write request, not an
-implemented live-write capability. The router does not provide a protected-zone
-decision to the transaction request, so a clean worktree refuses with
-`missing-protected-zone-decision`; a dirty worktree refuses first with
-`dirty-worktree`. Even a hypothetical allowed decision reaches the explicit
-`live write execution is not implemented` refusal in the
-[transaction policy](../src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts).
+`bun habitat fix` without `--dry-run` is not a live-write request path. The CLI
+emits `unsupported-live-mutation` before constructing a Habitat service client.
 
-Live writes, formatting, post-fix gates, rollback, changed-file/diff transaction
-records, and commit-readiness are not implemented capabilities. They must not
-be inferred from the admission model, dry-run output, or transaction-policy
-types.
-
-**Future / not implemented:** a live write path would need the
-[fix router](../src/service/modules/fix/router.ts) to obtain and pass an
-approved protected-zone decision, followed by an execution implementation in
-the [transaction policy](../src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts).
-Until then, `habitat fix` is an admission/discovery and dry-run diagnostic
-surface, not a structural repair entrypoint.
+Live writes, formatting, post-fix gates, rollback, changed-file/diff records,
+and commit-readiness are absent. The current surface is planning, not a
+structural repair entrypoint.
 
 ## Generators
 
@@ -303,15 +286,12 @@ Candidate lifecycle:
 - does not write a rule registry entry;
 - does not write a baseline;
 
-Registered advisory/enforced lifecycle:
+Active rule authoring:
 
-- requires `--manifestPath`;
-- validates an accepted pattern manifest;
-- validates an explicit baseline contract and rule-introduction manifest;
-- refuses collisions;
-- refuses live registration writes; accepted active rules must be authored as
-  location-independent `rule.json` manifests with explicit runner and artifact
-  references through pattern management, not the candidate generator;
+- registered lifecycle inputs are invalid at the candidate-generator schema;
+- accepted active rules must be authored and reviewed separately as
+  location-independent `rule.json` manifests with explicit runner, artifact,
+  and baseline references;
 
 ## Hooks
 

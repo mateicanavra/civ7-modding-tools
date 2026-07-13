@@ -23,33 +23,15 @@
       "description": "Optional Habitat pattern name; defaults to the rule id."
     },
     "lifecycle": {
-      "anyOf": [
-        {
-          "type": "string",
-          "const": "candidate"
-        },
-        {
-          "type": "string",
-          "const": "registered-advisory"
-        },
-        {
-          "type": "string",
-          "const": "registered-enforced"
-        }
-      ],
-      "description": "Pattern lifecycle to generate. Registered lifecycles are fail-closed until the pattern manifest Manifest is accepted.",
+      "type": "string",
+      "const": "candidate",
+      "description": "Candidate lifecycle; active rules are authored separately as rule.json authority.",
       "default": "candidate"
     },
     "openspecChangeId": {
       "type": "string",
       "minLength": 1,
-      "description": "OpenSpec change id that owns the candidate draft, when known.",
-      "default": "habitat-pattern-generator-metadata-repair"
-    },
-    "manifestPath": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Canonical pattern manifest Manifest path required for registered lifecycles."
+      "description": "OpenSpec change id that owns the candidate draft, when known."
     }
   },
   "$schema": "https://json-schema.org/schema",

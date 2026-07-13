@@ -105,6 +105,22 @@ describe("rule registry contract", () => {
     );
   });
 
+  test("rejects the retired active-registry manifestPath field", () => {
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          {
+            ...baseRule({ runner: gritRunner("manifest-path") }),
+            scanRoots: ["tools/habitat"],
+            manifestPath: ".habitat/patterns/manifests/manifest-path.json",
+          },
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+  });
+
   test("rejects unsupported lanes", () => {
     expectInvalid(
       parseRuleRegistryDocument(
@@ -269,16 +285,37 @@ describe("rule registry contract", () => {
     );
   });
 
-  test("applies the same path law to applyPattern", () => {
+  test("requires fix admission and its asset to be one closed Grit runner field", () => {
     const runner = gritRunner("apply-authority");
+    for (const fix of [
+      { kind: "plan-only" },
+      { pattern: ".habitat/fixtures/fix.pattern.md" },
+      { kind: "write", pattern: ".habitat/fixtures/fix.pattern.md" },
+      { kind: "plan-only", pattern: "../outside.pattern.md" },
+    ]) {
+      expectInvalid(
+        parseRuleRegistryDocument(
+          registryDocument([
+            {
+              ...baseRule({ id: "apply-authority", runner }),
+              runner: { ...runner, fix },
+              scanRoots: ["tools/habitat"],
+            },
+          ]),
+          "inline-registry.json"
+        ),
+        "registry-schema-invalid"
+      );
+    }
+
     expectInvalid(
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ id: "apply-authority", runner }),
+            ...baseRule({ id: "legacy-apply-asset", runner }),
             runner: {
               ...runner,
-              files: { ...runner.files, applyPattern: "../outside.pattern.md" },
+              files: { ...runner.files, applyPattern: ".habitat/fixtures/fix.pattern.md" },
             },
             scanRoots: ["tools/habitat"],
           },

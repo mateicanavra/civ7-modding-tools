@@ -20,7 +20,7 @@ const mockCheckReport = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
 const mockClassifyTarget = vi.hoisted(() => vi.fn());
 const mockFixPlanPatterns = vi.hoisted(() => vi.fn());
-const mockFixApplyPatterns = vi.hoisted(() => vi.fn());
+const mockCreateLiveHabitatServiceContext = vi.hoisted(() => vi.fn());
 const mockGraphWorkspaceGraph = vi.hoisted(() => vi.fn());
 const mockHookPreCommit = vi.hoisted(() => vi.fn());
 const mockHookPrePush = vi.hoisted(() => vi.fn());
@@ -76,7 +76,7 @@ vi.mock("@orpc/server", () => ({
   createRouterClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, report: mockCheckReport },
     classify: { target: mockClassifyTarget },
-    fix: { planPatterns: mockFixPlanPatterns, applyPatterns: mockFixApplyPatterns },
+    fix: { planPatterns: mockFixPlanPatterns },
     graph: { workspaceGraph: mockGraphWorkspaceGraph },
     hook: { preCommit: mockHookPreCommit, prePush: mockHookPrePush },
     verify: { changes: mockVerifyChanges },
@@ -86,11 +86,10 @@ vi.mock("@orpc/server", () => ({
 vi.mock("../../src/runtime/service-context.js", async () => {
   const { makeTestHabitatServiceDeps } = await import("../support/habitat-service-deps.js");
 
-  return {
-    createLiveHabitatServiceContext: vi.fn(async () => ({
-      deps: makeTestHabitatServiceDeps(),
-    })),
-  };
+  mockCreateLiveHabitatServiceContext.mockImplementation(async () => ({
+    deps: makeTestHabitatServiceDeps(),
+  }));
+  return { createLiveHabitatServiceContext: mockCreateLiveHabitatServiceContext };
 });
 
 import Check from "@habitat/cli/cli/commands/check";
@@ -146,7 +145,6 @@ describe("Habitat oclif commands", () => {
       recoveryInstructions: [],
     }));
     mockFixPlanPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
-    mockFixApplyPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphWorkspaceGraph.mockResolvedValue({
       kind: "completed",
       graph: { nodes: {} },
@@ -315,9 +313,14 @@ describe("Habitat oclif commands", () => {
 
     expect(createRouterClient).toHaveBeenCalled();
     expect(mockFixPlanPatterns).toHaveBeenCalledWith({});
-    expect(mockFixApplyPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
+  });
+
+  test("fix forwards repeatable rule selection in first-seen CLI order", async () => {
+    await Fix.run(["--dry-run", "--rule", "second", "--rule", "first", "--rule", "second"]);
+
+    expect(mockFixPlanPatterns).toHaveBeenCalledWith({ rules: ["second", "first", "second"] });
   });
 
   test("fix help describes the no-write diagnostic path and live-mutation refusal", async () => {
@@ -328,31 +331,34 @@ describe("Habitat oclif commands", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("admitted Grit diagnostics without writing");
-    expect(result.stdout).toContain("live mutation is not implemented");
+    expect(result.stdout).toContain("admitted Habitat fix diagnostics without writing");
+    expect(result.stdout).toMatch(/live mutation is\s+not implemented/);
   });
 
-  test("fix forwards live-write intent by default", async () => {
-    await Fix.run([]);
-
-    expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({});
-    expect(mockFixPlanPatterns).not.toHaveBeenCalled();
-    expect(stdout.join("")).toContain("biome ok");
-  });
-
-  test("fix forwards refusal streams and exit code", async () => {
-    mockFixApplyPatterns.mockResolvedValueOnce({
-      exitCode: 1,
-      stdout: "",
-      stderr: "habitat fix refused: missing-apply-admission\n",
-    });
-
+  test("fix refuses live mutation before constructing a service client", async () => {
     await expect(Fix.run([])).rejects.toMatchObject({ oclif: { exit: 1 } });
 
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({});
+    expect(mockCreateLiveHabitatServiceContext).not.toHaveBeenCalled();
+    expect(createRouterClient).not.toHaveBeenCalled();
+    expect(mockFixPlanPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toBe("");
-    expect(stderr.join("")).toContain("missing-apply-admission");
+    expect(stderr.join("")).toContain("unsupported-live-mutation");
+  });
+
+  test("fix forwards planning refusal streams and exit code", async () => {
+    mockFixPlanPatterns.mockResolvedValueOnce({
+      exitCode: 1,
+      stdout: "",
+      stderr: "habitat fix refused: invalid-rule-selection\n",
+    });
+
+    await expect(Fix.run(["--dry-run", "--rule", "missing"])).rejects.toMatchObject({
+      oclif: { exit: 1 },
+    });
+
+    expect(mockFixPlanPatterns).toHaveBeenCalledWith({ rules: ["missing"] });
+    expect(stdout.join("")).toBe("");
+    expect(stderr.join("")).toContain("invalid-rule-selection");
   });
 
   test("verify awaits check and affected target execution", async () => {

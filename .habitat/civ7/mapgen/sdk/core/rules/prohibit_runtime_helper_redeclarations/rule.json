@@ -33,9 +33,12 @@
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md",
-      "applyPattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
+      "pattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md"
     },
-    "patternName": "prohibit_runtime_helper_redeclarations"
+    "patternName": "prohibit_runtime_helper_redeclarations",
+    "fix": {
+      "kind": "plan-only",
+      "pattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
+    }
   }
 }

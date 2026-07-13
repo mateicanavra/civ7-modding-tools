@@ -6,7 +6,7 @@ import { CommandRunner } from "@habitat/cli/resources/command/index";
 import { HabitatPlatform } from "@habitat/cli/resources/platform/index";
 import { silentHabitatReporter } from "@habitat/cli/resources/reporter/index";
 import { RuleDiagnostics } from "@habitat/cli/resources/rule-diagnostics/index";
-import { makeGritApplyDryRunService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import { RuleFixPlanning } from "@habitat/cli/resources/rule-fix-planning/index";
 import { habitatServiceManagedRuntime } from "@habitat/cli/runtime/service-runtime";
 import type { HabitatServiceContext, HabitatServiceDeps } from "@habitat/cli/service/base";
 import { RuleFacts } from "@habitat/cli/service/model/rules/index";
@@ -26,11 +26,11 @@ export async function createLiveHabitatServiceContext(
         commandRunner: yield* CommandRunner,
         git: yield* GitProvider,
         graphite: yield* GraphiteProvider,
-        gritApplyDryRun: yield* makeGritApplyDryRunService(platform.repoRoot),
         nx: yield* NxProvider,
         platform,
         reporter: silentHabitatReporter,
         ruleDiagnostics: yield* RuleDiagnostics,
+        ruleFixPlanning: yield* RuleFixPlanning,
         rules,
       } satisfies HabitatServiceDeps;
     })
