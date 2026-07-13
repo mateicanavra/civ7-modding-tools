@@ -3,9 +3,9 @@ level: error
 ---
 # Prohibit Rule Diagnostics Provider Imports
 
-Production consumers use the stable RuleDiagnostics capability. Concrete Grit
-construction stays inside the provider tree and the explicit runtime wiring;
-the type-only service dependency remains visible until G.2 removes raw apply.
+Production consumers use the stable RuleDiagnostics and RuleFixPlanning
+capabilities. Concrete Grit construction stays inside the provider tree and
+the explicit runtime composition root.
 
 ```grit
 language js(typescript)
@@ -15,7 +15,7 @@ or {
     $filename <: r".*tools/habitat/src/.*\.ts$",
     not { $filename <: r".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\.ts$" },
     not {
-      $filename <: r".*tools/habitat/src/(?:runtime/(?:layers|service-context)|service/base)\.ts$",
+      $filename <: r".*tools/habitat/src/runtime/layers\.ts$",
       $source <: r"^[\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\"']$"
     },
     $source <: r"^[\"'](?:.*/)?providers/grit(?:/.*)?[\"']$"
@@ -71,20 +71,23 @@ export type ProviderModule = typeof import("../resources/rule-diagnostics/provid
 import { makeRuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/service";
 
 // @filename: tools/habitat/src/runtime/service-context.ts
-export { makeGritApplyDryRunService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import { makeGritRuleFixPlanningLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 ```
 
 ## Ignores fixture
 
 ```typescript
 // @filename: tools/habitat/src/runtime/layers.ts
-import { makeGritRuleDiagnosticsLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import {
+  makeGritRuleDiagnosticsLayer,
+  makeGritRuleFixPlanningLayer,
+} from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 
 // @filename: tools/habitat/src/runtime/service-context.ts
-import { makeGritApplyDryRunService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import { RuleFixPlanning } from "@habitat/cli/resources/rule-fix-planning/index";
 
 // @filename: tools/habitat/src/service/base.ts
-import type { GritApplyDryRunService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import type { RuleFixPlanningService } from "@habitat/cli/resources/rule-fix-planning/index";
 
 // @filename: tools/habitat/test/provider.test.ts
 import { makeGritCommandService } from "../src/resources/rule-diagnostics/providers/grit/index.js";

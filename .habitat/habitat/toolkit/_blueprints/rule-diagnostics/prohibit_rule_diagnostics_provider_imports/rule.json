@@ -10,10 +10,10 @@
   "operation": { "kind": "check" },
   "ownerProject": "habitat",
   "lane": "enforced",
-  "forbids": "production modules importing a private RuleDiagnostics provider",
-  "why": "Provider construction belongs to the RuleDiagnostics implementation and its explicit runtime composition roots.",
+  "forbids": "production modules importing a private rule diagnostics or fix planning provider",
+  "why": "Provider construction belongs below the stable RuleDiagnostics and RuleFixPlanning capabilities and their explicit runtime composition root.",
   "remediate": null,
-  "message": "Consume RuleDiagnostics instead of importing its concrete provider.",
+  "message": "Consume RuleDiagnostics or RuleFixPlanning instead of importing their concrete provider.",
   "pathCoverage": [
     { "kind": "exact-path", "patterns": ["tools/habitat/src/**/*.ts"] },
     { "kind": "project-owner" }

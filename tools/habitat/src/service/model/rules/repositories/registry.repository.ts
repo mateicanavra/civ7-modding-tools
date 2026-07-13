@@ -491,7 +491,7 @@ function referencedFilePaths(rule: RuleRegistryRecord): string[] {
   switch (rule.runner.name) {
     case "grit":
       paths.push(rule.runner.files.pattern);
-      if (rule.runner.files.applyPattern) paths.push(rule.runner.files.applyPattern);
+      if (rule.runner.fix) paths.push(rule.runner.fix.pattern);
       break;
     case "habitat":
       if (rule.runner.mode === "structure") paths.push(rule.runner.files.structure);
@@ -613,11 +613,6 @@ function ruleRunnerSemanticsIssues(
           runnerIssue(path, rule.id, "patternName is only valid for grit runner records.")
         );
       }
-      if (rule.manifestPath) {
-        issues.push(
-          runnerIssue(path, rule.id, "manifestPath is only valid for grit runner records.")
-        );
-      }
       if (rule.hookCheck) {
         issues.push(runnerIssue(path, rule.id, "hookCheck is only valid for grit runner records."));
       }
@@ -666,11 +661,11 @@ function ruleRunnerSemanticsIssues(
 function gritPatternPathIssues(rule: RuleRegistryRecord, sourcePath: string): RuleRegistryIssue[] {
   if (rule.runner.name !== "grit") return [];
   return [
-    ["pattern", rule.runner.files.pattern] as const,
-    ...(rule.runner.files.applyPattern
-      ? ([["applyPattern", rule.runner.files.applyPattern]] as const)
+    ["pattern", "files/pattern", rule.runner.files.pattern] as const,
+    ...(rule.runner.fix
+      ? ([["fix.pattern", "fix/pattern", rule.runner.fix.pattern]] as const)
       : []),
-  ].flatMap(([field, patternPath]) => {
+  ].flatMap(([field, fieldPath, patternPath]) => {
     const segments = patternPath.split("/");
     const invalid =
       patternPath.includes("\\") ||
@@ -682,7 +677,7 @@ function gritPatternPathIssues(rule: RuleRegistryRecord, sourcePath: string): Ru
     return invalid
       ? [
           runnerIssue(
-            `${sourcePath}/runner/files/${field}`,
+            `${sourcePath}/runner/${fieldPath}`,
             rule.id,
             `${field} must be a normalized relative .habitat/... file path.`
           ),

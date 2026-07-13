@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 610,
+    "totalSurfaces": 592,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
@@ -18,7 +18,7 @@
       "nx-target": 60,
       "nx-plugin": 1,
       "nx-target-default": 9,
-      "habitat-cli-source": 129
+      "habitat-cli-source": 111
     },
     "surfacesByRole": {
       "command_check_executor": 29,
@@ -27,23 +27,23 @@
       "structure_authority": 8,
       "operation_surface": 6,
       "workspace_entrypoint": 232,
-      "toolkit_runner": 129
+      "toolkit_runner": 111
     },
     "entrypointsByInvoker": {
       "unknown": 247,
       "package": 164,
       "nx": 70,
       "direct-script": 3,
-      "habitat": 129
+      "habitat": 111
     },
     "surfacesByBucket": {
       "package_boundary_tie": 96,
       "unknown_invocation": 247,
-      "mutation_surface": 129,
-      "nx_ordering_tie": 114,
+      "mutation_surface": 126,
+      "nx_ordering_tie": 113,
       "package_invoked": 234,
       "direct_script_invoked": 3,
-      "habitat_invoked": 129
+      "habitat_invoked": 111
     },
     "sanityAssertions": []
   },
@@ -52,9 +52,9 @@
       "fixture-support": 9,
       "adapter": 123,
       "policy-predicate": 91,
-      "transient-dependency": 107,
+      "transient-dependency": 106,
       "entrypoint": 234,
-      "runner-runtime": 129
+      "runner-runtime": 111
     }
   },
   "topCrossBoundaryTiesByFanout": [
@@ -79,8 +79,8 @@
     {
       "target": "@habitat/cli/resources/command/index",
       "targetClass": "habitat-toolkit",
-      "references": 23,
-      "sourceCount": 23,
+      "references": 21,
+      "sourceCount": 21,
       "sampleSources": [
         "tools/habitat/src/providers/biome/index.ts",
         "tools/habitat/src/providers/git/index.ts",
@@ -158,12 +158,12 @@
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/diagnostics.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/failure.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/scoped-config.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/service.ts",
-        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts"
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/service.ts"
       ]
     },
     {
@@ -203,42 +203,6 @@
       ]
     },
     {
-      "target": "@habitat/cli/service/model/diagnostics/index",
-      "targetClass": "habitat-toolkit",
-      "references": 11,
-      "sourceCount": 11,
-      "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/failure.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/outcome.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/service.ts",
-        "tools/habitat/src/resources/rule-diagnostics/resource.ts",
-        "tools/habitat/src/service/model/check/dto/check.schema.ts",
-        "tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts"
-      ]
-    },
-    {
-      "target": "grit",
-      "targetClass": "workspace-tool",
-      "references": 11,
-      "sourceCount": 11,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts",
-        "tools/habitat/src/service/model/check/policy/structural/execution.policy.ts",
-        "tools/habitat/src/service/model/rules/dto/registry.schema.ts",
-        "tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts",
-        "tools/habitat/src/service/model/rules/policy/facts.policy.ts",
-        "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
-        "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-rule-reference.policy.ts"
-      ]
-    },
-    {
       "target": "./",
       "targetClass": "relative",
       "references": 10,
@@ -254,6 +218,24 @@
         ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md",
         ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md",
         ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md"
+      ]
+    },
+    {
+      "target": "@habitat/cli/service/model/diagnostics/index",
+      "targetClass": "habitat-toolkit",
+      "references": 10,
+      "sourceCount": 10,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/failure.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/outcome.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/service.ts",
+        "tools/habitat/src/resources/rule-diagnostics/resource.ts",
+        "tools/habitat/src/service/model/check/dto/check.schema.ts",
+        "tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts"
       ]
     },
     {
@@ -293,20 +275,21 @@
       ]
     },
     {
-      "target": "../dto/pattern-management.schema.js",
-      "targetClass": "relative",
-      "references": 18,
-      "sourceCount": 9,
+      "target": "grit",
+      "targetClass": "workspace-tool",
+      "references": 10,
+      "sourceCount": 10,
       "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-admission.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-refusal.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-rule-reference.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-state.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-validation.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-view.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/transaction-input.policy.ts"
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+        "tools/habitat/src/service/model/check/policy/structural/execution.policy.ts",
+        "tools/habitat/src/service/model/rules/dto/registry.schema.ts",
+        "tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts",
+        "tools/habitat/src/service/model/rules/policy/facts.policy.ts",
+        "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
+        "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
+        "tools/habitat/src/service/modules/hook/model/policy/procedure-operations.policy.ts"
       ]
     },
     {
@@ -493,20 +476,6 @@
         "tools/habitat/src/service/model/check/policy/structural/file-layer-execution.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/index.ts",
         "tools/habitat/src/service/model/check/policy/structural/report.policy.ts"
-      ]
-    },
-    {
-      "target": "./shared.schema.js",
-      "targetClass": "relative",
-      "references": 12,
-      "sourceCount": 6,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/index.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-record.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-request.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/transaction-input.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/transaction-refusal.schema.ts"
       ]
     },
     {
@@ -795,18 +764,6 @@
       ]
     },
     {
-      "target": "./pattern-management.schema.js",
-      "targetClass": "relative",
-      "references": 8,
-      "sourceCount": 4,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/index.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-record.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-request.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/transaction-input.schema.ts"
-      ]
-    },
-    {
       "target": "./runner.js",
       "targetClass": "relative",
       "references": 8,
@@ -876,6 +833,18 @@
         "tools/habitat/src/resources/command/result.ts",
         "tools/habitat/src/resources/command/runner.ts",
         "tools/habitat/src/resources/command/service.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/resources/rule-fix-planning/index",
+      "targetClass": "habitat-toolkit",
+      "references": 4,
+      "sourceCount": 4,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
+        "tools/habitat/src/service/modules/fix/module.ts",
+        "tools/habitat/src/service/modules/fix/router.ts"
       ]
     },
     {
@@ -1033,6 +1002,17 @@
       ]
     },
     {
+      "target": "./path.js",
+      "targetClass": "relative",
+      "references": 6,
+      "sourceCount": 3,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scoped-config.ts"
+      ]
+    },
+    {
       "target": "./result.js",
       "targetClass": "relative",
       "references": 6,
@@ -1088,17 +1068,6 @@
       ]
     },
     {
-      "target": "../",
-      "targetClass": "relative",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts",
-        "tools/habitat/src/service/model/source-check/policy/source-scope.policy.ts",
-        "tools/habitat/src/service/modules/hook/model/policy/resource-inspection.policy.ts"
-      ]
-    },
-    {
       "target": "./compute-mesh/index.js",
       "targetClass": "relative",
       "references": 3,
@@ -1107,28 +1076,6 @@
         ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md",
         ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/pattern.md",
         ".habitat/blueprints/domain/require_domain_ops_binding_surface/pattern.md"
-      ]
-    },
-    {
-      "target": ".habitat/",
-      "targetClass": "habitat-authority",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        "tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts",
-        "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-management.schema.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/resources/errors/index",
-      "targetClass": "habitat-toolkit",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
-        "tools/habitat/src/service/model/check/policy/structural/file-layer-execution.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts"
       ]
     },
     {
@@ -1143,6 +1090,17 @@
       ]
     },
     {
+      "target": "@habitat/cli/resources/rule-diagnostics/index",
+      "targetClass": "habitat-toolkit",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+        "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
+        "tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts"
+      ]
+    },
+    {
       "target": "@habitat/cli/service/model/baseline/index",
       "targetClass": "habitat-toolkit",
       "references": 3,
@@ -1151,17 +1109,6 @@
         "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/report.policy.ts",
         "tools/habitat/src/service/modules/check/model/policy/baseline-expansion.policy.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/service/model/host/index",
-      "targetClass": "habitat-toolkit",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts",
-        "tools/habitat/src/service/model/check/policy/structural/file-layer-execution.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-request.schema.ts"
       ]
     },
     {
@@ -1350,16 +1297,6 @@
       ]
     },
     {
-      "target": "../dto/pattern-apply.schema.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-render.policy.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts"
-      ]
-    },
-    {
       "target": "./check-command.policy.js",
       "targetClass": "relative",
       "references": 4,
@@ -1410,6 +1347,16 @@
       ]
     },
     {
+      "target": "./fix-planning.js",
+      "targetClass": "relative",
+      "references": 4,
+      "sourceCount": 2,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/index.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts"
+      ]
+    },
+    {
       "target": "./lifecycle.policy.js",
       "targetClass": "relative",
       "references": 4,
@@ -1427,56 +1374,6 @@
       "sampleSources": [
         "tools/habitat/src/resources/command/index.ts",
         "tools/habitat/src/resources/command/runner.ts"
-      ]
-    },
-    {
-      "target": "./pattern-admission.policy.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts"
-      ]
-    },
-    {
-      "target": "./pattern-apply-request.schema.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-record.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply.schema.ts"
-      ]
-    },
-    {
-      "target": "./pattern-authority-paths.policy.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-validation.policy.ts"
-      ]
-    },
-    {
-      "target": "./pattern-validation.policy.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-rule-reference.policy.ts"
-      ]
-    },
-    {
-      "target": "./pattern-view.policy.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts"
       ]
     },
     {
@@ -1530,33 +1427,13 @@
       ]
     },
     {
-      "target": "./transaction-input.policy.js",
+      "target": "../",
       "targetClass": "relative",
-      "references": 4,
+      "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts"
-      ]
-    },
-    {
-      "target": "./transaction-input.schema.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/index.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply.schema.ts"
-      ]
-    },
-    {
-      "target": "./transaction-refusal.schema.js",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-record.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply.schema.ts"
+        "tools/habitat/src/service/model/source-check/policy/source-scope.policy.ts",
+        "tools/habitat/src/service/modules/hook/model/policy/resource-inspection.policy.ts"
       ]
     },
     {
@@ -1660,6 +1537,16 @@
       ]
     },
     {
+      "target": ".habitat/",
+      "targetClass": "habitat-authority",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts",
+        "tools/habitat/src/service/model/rules/repositories/registry.repository.ts"
+      ]
+    },
+    {
       "target": ".habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/scaffold-pattern.schema.json",
       "targetClass": "habitat-authority",
       "references": 2,
@@ -1680,13 +1567,23 @@
       ]
     },
     {
-      "target": "@habitat/cli/resources/rule-diagnostics/index",
+      "target": "@habitat/cli/resources/errors/index",
       "targetClass": "habitat-toolkit",
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
-        "tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts"
+        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
+        "tools/habitat/src/service/model/check/policy/structural/file-layer-execution.policy.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/service/model/host/index",
+      "targetClass": "habitat-toolkit",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts",
+        "tools/habitat/src/service/model/check/policy/structural/file-layer-execution.policy.ts"
       ]
     },
     {
@@ -2130,16 +2027,6 @@
       ]
     },
     {
-      "target": "nx-options-only",
-      "targetClass": "workspace-tool",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-management.schema.ts",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-validation.policy.ts"
-      ]
-    },
-    {
       "target": "nx-read-failure",
       "targetClass": "workspace-tool",
       "references": 2,
@@ -2344,12 +2231,12 @@
       ]
     },
     {
-      "target": "../dto/transaction-input.schema.js",
+      "target": "../path.js",
       "targetClass": "relative",
       "references": 2,
       "sourceCount": 1,
       "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/transaction-input.policy.ts"
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts"
       ]
     },
     {
@@ -2461,6 +2348,15 @@
       ]
     },
     {
+      "target": "./facts.policy.ts",
+      "targetClass": "relative",
+      "references": 2,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts"
+      ]
+    },
+    {
       "target": "./failure.js",
       "targetClass": "relative",
       "references": 2,
@@ -2497,15 +2393,6 @@
       ]
     },
     {
-      "target": "./model/dto/index.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/module.ts"
-      ]
-    },
-    {
       "target": "./model/index.js",
       "targetClass": "relative",
       "references": 2,
@@ -2521,15 +2408,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/service/modules/check/module.ts"
-      ]
-    },
-    {
-      "target": "./model/policy/index.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/module.ts"
       ]
     },
     {
@@ -2575,78 +2453,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/service/modules/verify/model/policy/receipt.policy.ts"
-      ]
-    },
-    {
-      "target": "./pattern-apply-admissions.policy.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts"
-      ]
-    },
-    {
-      "target": "./pattern-apply-record.schema.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-apply.schema.ts"
-      ]
-    },
-    {
-      "target": "./pattern-apply-render.policy.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts"
-      ]
-    },
-    {
-      "target": "./pattern-apply-transaction.policy.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts"
-      ]
-    },
-    {
-      "target": "./pattern-apply.schema.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/index.ts"
-      ]
-    },
-    {
-      "target": "./pattern-refusal.policy.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts"
-      ]
-    },
-    {
-      "target": "./pattern-rule-reference.policy.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts"
-      ]
-    },
-    {
-      "target": "./pattern-state.policy.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/index.ts"
       ]
     },
     {
@@ -4180,15 +3986,6 @@
       ]
     },
     {
-      "target": "@habitat/cli/resources/authority-paths",
-      "targetClass": "habitat-toolkit",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-authority-paths.policy.ts"
-      ]
-    },
-    {
       "target": "@habitat/cli/resources/command/sync",
       "targetClass": "habitat-toolkit",
       "references": 1,
@@ -5116,15 +4913,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
-      ]
-    },
-    {
       "target": "grit\nlanguage js(typescript)\n\ncontains r\"(?:landmassApplied|coastlinesApplied|effect:engine\\.landmassApplied|effect:engine\\.coastlinesApplied)\" where {\n  $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:morphology-coasts|morphology-routing|morphology-erosion|morphology-features)/.*\\.ts$\"\n}",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -5359,7 +5147,7 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/(?:runtime/(?:layers|service-context)|service/base)\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"[\\\"'](?:.*resources/rule-diagnostics/)?providers/grit(?:/.*)?[\\\"']\"\n  },",
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/runtime/layers\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"^[\\\"'](?:.*/)?providers/grit(?:/.*)?[\\\"']$\"\n  },",
       "targetClass": "habitat-toolkit",
       "references": 1,
       "sourceCount": 1,
@@ -5374,6 +5162,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_decomposed_ops_legacy_internal_imports/pattern.md"
+      ]
+    },
+    {
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
       ]
     },
     {
@@ -9607,15 +9404,6 @@
       ]
     },
     {
-      "target": "tools/habitat/src/",
-      "targetClass": "habitat-toolkit",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/pattern.md"
-      ]
-    },
-    {
       "target": "tools/habitat/src/.",
       "targetClass": "habitat-toolkit",
       "references": 1,
@@ -9640,6 +9428,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md"
+      ]
+    },
+    {
+      "target": "tools/habitat/src/runtime/layers",
+      "targetClass": "habitat-toolkit",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/pattern.md"
       ]
     },
     {
@@ -19531,7 +19328,7 @@
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:"
+          "grit\nlanguage js(typescript)\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -19566,7 +19363,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:",
             "targetClass": "workspace-tool"
           }
         ]
@@ -25574,7 +25371,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/(?:runtime/(?:layers|service-context)|service/base)\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"[\\\"'](?:.*resources/rule-diagnostics/)?providers/grit(?:/.*)?[\\\"']\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/runtime/layers\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"^[\\\"'](?:.*/)?providers/grit(?:/.*)?[\\\"']$\"\n  },"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -25602,11 +25399,6 @@
           },
           {
             "kind": "path-reference",
-            "value": "tools/habitat/src/",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "path-reference",
             "value": "tools/habitat/src/.",
             "targetClass": "habitat-toolkit"
           },
@@ -25618,6 +25410,11 @@
           {
             "kind": "path-reference",
             "value": "tools/habitat/src/resources/rule-diagnostics/providers/grit/.",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/runtime/layers",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -25677,7 +25474,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/(?:runtime/(?:layers|service-context)|service/base)\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"[\\\"'](?:.*resources/rule-diagnostics/)?providers/grit(?:/.*)?[\\\"']\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/runtime/layers\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"^[\\\"'](?:.*/)?providers/grit(?:/.*)?[\\\"']$\"\n  },",
             "targetClass": "habitat-toolkit"
           }
         ]
@@ -35037,7 +34834,7 @@
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:"
+          "grit\nlanguage js(typescript)\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -35072,7 +34869,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:",
             "targetClass": "workspace-tool"
           }
         ]
@@ -41301,7 +41098,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/(?:runtime/(?:layers|service-context)|service/base)\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"[\\\"'](?:.*resources/rule-diagnostics/)?providers/grit(?:/.*)?[\\\"']\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/runtime/layers\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"^[\\\"'](?:.*/)?providers/grit(?:/.*)?[\\\"']$\"\n  },"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -41329,11 +41126,6 @@
           },
           {
             "kind": "path-reference",
-            "value": "tools/habitat/src/",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "path-reference",
             "value": "tools/habitat/src/.",
             "targetClass": "habitat-toolkit"
           },
@@ -41345,6 +41137,11 @@
           {
             "kind": "path-reference",
             "value": "tools/habitat/src/resources/rule-diagnostics/providers/grit/.",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "path-reference",
+            "value": "tools/habitat/src/runtime/layers",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -41404,7 +41201,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/(?:runtime/(?:layers|service-context)|service/base)\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"[\\\"'](?:.*resources/rule-diagnostics/)?providers/grit(?:/.*)?[\\\"']\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*tools/habitat/src/.*\\.ts$\",\n    not { $filename <: r\".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\\.ts$\" },\n    not {\n      $filename <: r\".*tools/habitat/src/runtime/layers\\.ts$\",\n      $source <: r\"^[\\\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\\\"']$\"\n    },\n    $source <: r\"^[\\\"'](?:.*/)?providers/grit(?:/.*)?[\\\"']$\"\n  },",
             "targetClass": "habitat-toolkit"
           }
         ]
@@ -53814,7 +53611,8 @@
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [
-          ">"
+          ">",
+          "rm"
         ],
         "all": [
           {
@@ -53831,6 +53629,11 @@
             "kind": "mutation-verb",
             "value": ">",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
           }
         ]
       },
@@ -55831,12 +55634,14 @@
           "./command.js",
           "./command.schema.js",
           "./output.js",
+          "./path.js",
           "./request.js",
           "./scoped-config.js",
           "@effect/platform",
           "@habitat/cli/service/model/diagnostics/index",
           "@habitat/cli/service/model/rules/index",
           "effect",
+          "node:fs",
           "node:path"
         ],
         "relativeHabitatImports": [],
@@ -55847,6 +55652,7 @@
           "grit.applyDryRun.completeCapture",
           "grit.applyDryRun.completeObservation",
           "grit.applyDryRun.validateFindingPath",
+          "node:fs",
           "node:path"
         ],
         "directHabitatPathCalls": [],
@@ -55868,6 +55674,11 @@
           {
             "kind": "import",
             "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./path.js",
             "targetClass": "relative"
           },
           {
@@ -55902,6 +55713,11 @@
           },
           {
             "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
             "value": "node:path",
             "targetClass": "node-builtin"
           },
@@ -55923,6 +55739,11 @@
           {
             "kind": "path-reference",
             "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./path.js",
             "targetClass": "relative"
           },
           {
@@ -55954,6 +55775,11 @@
             "kind": "shell-command",
             "value": "grit.applyDryRun.validateFindingPath",
             "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
           },
           {
             "kind": "shell-command",
@@ -55990,6 +55816,7 @@
           "./command.schema.js",
           "./identity.js",
           "./output.js",
+          "./path.js",
           "./request.js",
           "./scoped-config.js",
           "./types.js",
@@ -56032,6 +55859,11 @@
           {
             "kind": "import",
             "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./path.js",
             "targetClass": "relative"
           },
           {
@@ -56092,6 +55924,11 @@
           {
             "kind": "path-reference",
             "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./path.js",
             "targetClass": "relative"
           },
           {
@@ -56700,6 +56537,71 @@
       ]
     },
     {
+      "id": "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+      "path": "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+      "surfaceKind": "habitat-cli-source",
+      "surfaceRole": "toolkit_runner",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "@habitat/cli/resources/rule-diagnostics/index",
+          "@habitat/cli/resources/rule-fix-planning/index",
+          "@habitat/cli/service/model/rules/index",
+          "effect"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "import",
+            "value": "@habitat/cli/resources/rule-diagnostics/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/resources/rule-fix-planning/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/service/model/rules/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "effect",
+            "targetClass": "external"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "runner-runtime"
+        ],
+        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
       "id": "tools/habitat/src/resources/rule-diagnostics/providers/grit/identity.ts",
       "path": "tools/habitat/src/resources/rule-diagnostics/providers/grit/identity.ts",
       "surfaceKind": "habitat-cli-source",
@@ -56759,6 +56661,7 @@
           "./command.js",
           "./command.schema.js",
           "./diagnostics.js",
+          "./fix-planning.js",
           "./identity.js",
           "./outcome.js",
           "./output.js",
@@ -56788,6 +56691,11 @@
           {
             "kind": "import",
             "value": "./diagnostics.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./fix-planning.js",
             "targetClass": "relative"
           },
           {
@@ -56838,6 +56746,11 @@
           {
             "kind": "path-reference",
             "value": "./diagnostics.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./fix-planning.js",
             "targetClass": "relative"
           },
           {
@@ -57023,6 +56936,53 @@
       ]
     },
     {
+      "id": "tools/habitat/src/resources/rule-diagnostics/providers/grit/path.ts",
+      "path": "tools/habitat/src/resources/rule-diagnostics/providers/grit/path.ts",
+      "surfaceKind": "habitat-cli-source",
+      "surfaceRole": "toolkit_runner",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "node:path"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "node:path"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "runner-runtime"
+        ],
+        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
       "id": "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
       "path": "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
       "surfaceKind": "habitat-cli-source",
@@ -57035,9 +56995,11 @@
         "imports": [
           "../../resource.js",
           "./command.js",
+          "./fix-planning.js",
           "./runner.js",
           "./service.js",
           "@effect/platform",
+          "@habitat/cli/resources/rule-fix-planning/index",
           "@habitat/cli/service/model/rules/index",
           "effect"
         ],
@@ -57063,6 +57025,11 @@
           },
           {
             "kind": "import",
+            "value": "./fix-planning.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
             "value": "./runner.js",
             "targetClass": "relative"
           },
@@ -57075,6 +57042,11 @@
             "kind": "import",
             "value": "@effect/platform",
             "targetClass": "external"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/resources/rule-fix-planning/index",
+            "targetClass": "habitat-toolkit"
           },
           {
             "kind": "import",
@@ -57099,6 +57071,11 @@
           {
             "kind": "path-reference",
             "value": "./command.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./fix-planning.js",
             "targetClass": "relative"
           },
           {
@@ -57462,6 +57439,7 @@
       "staticTies": {
         "imports": [
           "../constants.js",
+          "../path.js",
           "@effect/platform",
           "@habitat/cli/service/model/diagnostics/index",
           "@habitat/cli/service/model/host/index",
@@ -57497,6 +57475,11 @@
           {
             "kind": "import",
             "value": "../constants.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "../path.js",
             "targetClass": "relative"
           },
           {
@@ -57576,12 +57559,12 @@
           },
           {
             "kind": "path-reference",
-            "value": "../",
+            "value": "../constants.js",
             "targetClass": "relative"
           },
           {
             "kind": "path-reference",
-            "value": "../constants.js",
+            "value": "../path.js",
             "targetClass": "relative"
           },
           {
@@ -57649,6 +57632,7 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
+          "./path.js",
           "./types.js",
           "@effect/platform",
           "@habitat/cli/resources/platform/index",
@@ -57679,6 +57663,11 @@
             "kind": "child-process",
             "value": "contents",
             "targetClass": "external"
+          },
+          {
+            "kind": "import",
+            "value": "./path.js",
+            "targetClass": "relative"
           },
           {
             "kind": "import",
@@ -57724,6 +57713,11 @@
             "kind": "mutation-verb",
             "value": "rm",
             "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./path.js",
+            "targetClass": "relative"
           },
           {
             "kind": "path-reference",
@@ -59361,7 +59355,8 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "../dto/registry.schema.js"
+          "../dto/registry.schema.js",
+          "./facts.policy.ts"
         ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
@@ -59386,6 +59381,11 @@
             "targetClass": "relative"
           },
           {
+            "kind": "import",
+            "value": "./facts.policy.ts",
+            "targetClass": "relative"
+          },
+          {
             "kind": "mutation-verb",
             "value": "changedPaths.map(normalizeRepoPath).filter",
             "targetClass": "unknown"
@@ -59398,6 +59398,11 @@
           {
             "kind": "path-reference",
             "value": "../dto/registry.schema.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./facts.policy.ts",
             "targetClass": "relative"
           },
           {
@@ -59687,27 +59692,41 @@
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [],
+        "imports": [
+          "node:module",
+          "picomatch"
+        ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "node:module"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [
-          "globToRegExp(normalized).test",
-          "normalized.includes"
+          "picomatch(normalized, { contains: false, dot: true })"
         ],
         "all": [
           {
-            "kind": "mutation-verb",
-            "value": "globToRegExp(normalized).test",
-            "targetClass": "unknown"
+            "kind": "import",
+            "value": "node:module",
+            "targetClass": "node-builtin"
           },
           {
             "kind": "mutation-verb",
-            "value": "normalized.includes",
+            "value": "picomatch(normalized, { contains: false, dot: true })",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "require",
+            "value": "picomatch",
+            "targetClass": "external"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:module",
+            "targetClass": "node-builtin"
           }
         ]
       },
@@ -60432,1410 +60451,6 @@
       ]
     },
     {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/index.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/index.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "./pattern-apply.schema.js",
-          "./pattern-management.schema.js",
-          "./shared.schema.js",
-          "./transaction-input.schema.js"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "./pattern-apply.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./transaction-input.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-apply.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./transaction-input.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-record.schema.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-record.schema.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "./pattern-apply-request.schema.js",
-          "./pattern-management.schema.js",
-          "./shared.schema.js",
-          "./transaction-refusal.schema.js",
-          "typebox",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "./pattern-apply-request.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./transaction-refusal.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-apply-request.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./transaction-refusal.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-request.schema.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/pattern-apply-request.schema.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "./pattern-management.schema.js",
-          "./shared.schema.js",
-          "@habitat/cli/service/model/host/index",
-          "typebox",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/service/model/host/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "typebox",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/pattern-apply.schema.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/pattern-apply.schema.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "./pattern-apply-record.schema.js",
-          "./pattern-apply-request.schema.js",
-          "./shared.schema.js",
-          "./transaction-input.schema.js",
-          "./transaction-refusal.schema.js"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "./pattern-apply-record.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-apply-request.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./transaction-input.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./transaction-refusal.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-apply-record.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-apply-request.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./transaction-input.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./transaction-refusal.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/pattern-management.schema.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/pattern-management.schema.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "typebox"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "nx-options-only"
-        ],
-        "directHabitatPathCalls": [
-          ".habitat/"
-        ],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
-        "all": [
-          {
-            "kind": "import",
-            "value": "typebox",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": ".habitat/",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "shell-command",
-            "value": "nx-options-only",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/shared.schema.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/shared.schema.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "typebox"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "typebox",
-            "targetClass": "external"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/transaction-input.schema.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/transaction-input.schema.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "./pattern-management.schema.js",
-          "./shared.schema.js",
-          "typebox"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/dto/transaction-refusal.schema.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/dto/transaction-refusal.schema.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "./shared.schema.js",
-          "typebox"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
-        "all": [
-          {
-            "kind": "import",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./shared.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/index.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/index.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "./pattern-admission.policy.js",
-          "./pattern-apply-admissions.policy.js",
-          "./pattern-apply-render.policy.js",
-          "./pattern-apply-transaction.policy.js",
-          "./pattern-authority-paths.policy.js",
-          "./pattern-refusal.policy.js",
-          "./pattern-rule-reference.policy.js",
-          "./pattern-state.policy.js",
-          "./pattern-validation.policy.js",
-          "./pattern-view.policy.js",
-          "./transaction-input.policy.js"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "./pattern-admission.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-apply-admissions.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-apply-render.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-apply-transaction.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-authority-paths.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-refusal.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-rule-reference.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-state.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-validation.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-view.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./transaction-input.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-admission.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-apply-admissions.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-apply-render.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-apply-transaction.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-authority-paths.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-refusal.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-rule-reference.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-state.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-validation.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-view.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./transaction-input.policy.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-admission.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-admission.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "./pattern-admission.policy.js",
-          "./pattern-view.policy.js",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-admission.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-view.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-admission.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-view.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-render.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-render.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-apply.schema.js",
-          "@habitat/cli/resources/command/index"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-apply.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/command/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-apply.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-apply.schema.js",
-          "../dto/pattern-management.schema.js",
-          "./transaction-input.policy.js",
-          "@habitat/cli/resources/command/index",
-          "@habitat/cli/resources/errors/index",
-          "@habitat/cli/service/model/diagnostics/index",
-          "effect"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-apply.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./transaction-input.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/command/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/errors/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/service/model/diagnostics/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "effect",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-apply.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./transaction-input.policy.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-authority-paths.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-authority-paths.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "@habitat/cli/resources/authority-paths"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/authority-paths",
-            "targetClass": "habitat-toolkit"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-refusal.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-refusal.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-rule-reference.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-rule-reference.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "./pattern-validation.policy.js"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-validation.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-validation.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-state.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-state.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-validation.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-validation.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "./pattern-authority-paths.policy.js",
-          "@habitat/cli/service/model/rules/index",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "nx-options-only"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">",
-          "generate",
-          "rm"
-        ],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./pattern-authority-paths.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/service/model/rules/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "generate",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./pattern-authority-paths.policy.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "generated",
-            "targetClass": "external"
-          },
-          {
-            "kind": "shell-command",
-            "value": "nx-options-only",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime",
-          "transient-dependency"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "habitat_invoked",
-        "mutation_surface",
-        "nx_ordering_tie"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/pattern-view.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/pattern-view.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": "tools/habitat/src/service/modules/fix/model/policy/transaction-input.policy.ts",
-      "path": "tools/habitat/src/service/modules/fix/model/policy/transaction-input.policy.ts",
-      "surfaceKind": "habitat-cli-source",
-      "surfaceRole": "toolkit_runner",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../dto/pattern-management.schema.js",
-          "../dto/transaction-input.schema.js",
-          "typebox/value"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "../dto/transaction-input.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "typebox/value",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/pattern-management.schema.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../dto/transaction-input.schema.js",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "runner-runtime"
-        ],
-        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
       "id": "tools/habitat/src/service/modules/fix/module.ts",
       "path": "tools/habitat/src/service/modules/fix/module.ts",
       "surfaceKind": "habitat-cli-source",
@@ -61846,67 +60461,26 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "./model/dto/index.js",
-          "./model/policy/index.js",
-          "@habitat/cli/resources/command/index",
-          "@habitat/cli/service/impl",
-          "effect",
-          "node:crypto"
+          "@habitat/cli/resources/rule-fix-planning/index",
+          "@habitat/cli/service/impl"
         ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node:crypto"
-        ],
+        "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
             "kind": "import",
-            "value": "./model/dto/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./model/policy/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/command/index",
+            "value": "@habitat/cli/resources/rule-fix-planning/index",
             "targetClass": "habitat-toolkit"
           },
           {
             "kind": "import",
             "value": "@habitat/cli/service/impl",
             "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "effect",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "node:crypto",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./model/dto/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./model/policy/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:crypto",
-            "targetClass": "node-builtin"
           }
         ]
       },
@@ -61933,7 +60507,10 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "./module.js"
+          "./module.js",
+          "@habitat/cli/resources/command/index",
+          "@habitat/cli/resources/rule-fix-planning/index",
+          "effect"
         ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
@@ -61947,6 +60524,21 @@
             "kind": "import",
             "value": "./module.js",
             "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/resources/command/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/resources/rule-fix-planning/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "effect",
+            "targetClass": "external"
           },
           {
             "kind": "path-reference",

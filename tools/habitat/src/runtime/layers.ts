@@ -9,7 +9,10 @@ import { CommandRunnerLive } from "@habitat/cli/resources/command/index";
 import { HabitatConfig, HabitatConfigLive } from "@habitat/cli/resources/config/index";
 import { HabitatPlatform, makeHabitatPlatformService } from "@habitat/cli/resources/platform/index";
 import { HabitatReporterLive } from "@habitat/cli/resources/reporter/index";
-import { makeGritRuleDiagnosticsLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import {
+  makeGritRuleDiagnosticsLayer,
+  makeGritRuleFixPlanningLayer,
+} from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 import {
   loadRuleRegistryDocumentEffect,
   RuleFacts,
@@ -50,7 +53,10 @@ const HabitatRepoScopedLive = Layer.unwrapEffect(
     const diagnostics = makeGritRuleDiagnosticsLayer(config.repoRoot).pipe(
       Layer.provide(Layer.merge(coreProviders, catalog))
     );
-    return Layer.mergeAll(coreProviders, catalog, diagnostics);
+    const fixPlanning = makeGritRuleFixPlanningLayer(config.repoRoot).pipe(
+      Layer.provide(Layer.merge(coreProviders, catalog))
+    );
+    return Layer.mergeAll(coreProviders, catalog, diagnostics, fixPlanning);
   })
 );
 

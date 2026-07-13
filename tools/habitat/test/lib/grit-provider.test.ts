@@ -60,6 +60,7 @@ import {
   parseGritCheckCommand,
   preCommandFailure,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/output";
+import { pathIsWithinRoot } from "@habitat/cli/resources/rule-diagnostics/providers/grit/path";
 import {
   captureGritCommandEffect,
   nativeIdentityMismatchBeforeSpawn,
@@ -631,6 +632,15 @@ describe("Grit closed wire decoders", () => {
     });
     expect(
       parseGritApplyDryRunCommand(
+        commandResult({ stdout: jsonl(analysisLog(299), allDone(1, 0)) }),
+        { analysisPathIsRelevant: () => false }
+      )
+    ).toEqual({
+      kind: "parsed",
+      value: { processed: 1, found: 0, findings: [] },
+    });
+    expect(
+      parseGritApplyDryRunCommand(
         commandResult({
           stdout: jsonl(matchEvent(path.join(repoRoot, providerFile), 1), allDone(1, 2)),
         })
@@ -866,6 +876,37 @@ describe("Grit immutable root planning", () => {
     });
     expect(observedCommands).toEqual([]);
   });
+
+  test.runIf(process.platform === "win32")(
+    "refuses cross-volume authority roots before probing the candidate",
+    async () => {
+      const alternateDrive = Match.value(
+        path.parse(repoRoot).root.toLowerCase().startsWith("c:")
+      ).pipe(
+        Match.when(true, () => "D:"),
+        Match.orElse(() => "C:")
+      );
+      const crossVolumeRoot = path.join(alternateDrive, "outside");
+      const selected = rule("outside", "outside_pattern", providerPattern, [crossVolumeRoot]);
+      const fileSystemEvents: string[] = [];
+      const fileSystem = FileSystem.layerNoop({
+        realPath: (target) =>
+          Effect.succeed(recordAndReturn(fileSystemEvents, `realPath:${target}`, target)),
+        exists: (target) =>
+          Effect.succeed(recordAndReturn(fileSystemEvents, `exists:${target}`, true)),
+      });
+
+      const plans = await Effect.runPromise(
+        planGritRuleRoots([selected], { repoRoot }).pipe(Effect.provide(fileSystem))
+      );
+
+      expect(plans[0]).toMatchObject({
+        kind: "refused",
+        decision: { reason: "outside-repo", root: crossVolumeRoot },
+      });
+      expect(fileSystemEvents).toEqual([`realPath:${repoRoot}`]);
+    }
+  );
 
   test("reapplies authority to canonical symlink roots", async () => {
     const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-roots-"));
@@ -1439,6 +1480,118 @@ describe("Grit generic acquisition and public disposition", () => {
     });
   });
 
+  test("blocks only analysis failures inside exact rule coverage", async () => {
+    const selected = rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const outside = await Effect.runPromise(
+      runGritDiagnosticOutcomesEffect([selected], {
+        repoRoot,
+        grit: fakeApplyProviderWithAnalysisLog(path.join(repoRoot, providerFile)),
+      }).pipe(Effect.provide(NodeContext.layer))
+    );
+    expect(outside.get(selected.id)).toMatchObject({ kind: "clean" });
+
+    const inside = await Effect.runPromise(
+      runGritDiagnosticOutcomesEffect([selected], {
+        repoRoot,
+        grit: fakeApplyProviderWithAnalysisLog(path.join(repoRoot, "docs/PRODUCT.md")),
+      }).pipe(Effect.provide(NodeContext.layer))
+    );
+    expect(inside.get(selected.id)).toMatchObject({
+      kind: "provider-failed",
+      failure: "DiagnosticOutputIncomplete",
+      detail: expect.stringContaining("analysis-failure"),
+    });
+  });
+
+  test("canonicalizes analysis paths before applying the exact-coverage exception", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-analysis-path-"));
+    try {
+      mkdirSync(path.join(fixture, ".habitat"));
+      mkdirSync(path.join(fixture, "docs"));
+      mkdirSync(path.join(fixture, "outside-coverage"));
+      writeFileSync(
+        path.join(fixture, ".habitat/pattern.md"),
+        readFileSync(path.join(repoRoot, providerPattern), "utf8")
+      );
+      writeFileSync(path.join(fixture, "docs/covered.ts"), "export const covered = true;\n");
+      writeFileSync(
+        path.join(fixture, "outside-coverage/uncovered.ts"),
+        "export const uncovered = true;\n"
+      );
+      symlinkSync(
+        path.join(fixture, "docs/covered.ts"),
+        path.join(fixture, "outside-coverage/covered-alias.ts")
+      );
+      const selected = rule(
+        "analysis-path",
+        "analysis_path",
+        ".habitat/pattern.md",
+        ["docs"],
+        "apply-dry-run"
+      );
+
+      const aliasedCovered = await Effect.runPromise(
+        runGritDiagnosticOutcomesEffect([selected], {
+          repoRoot: fixture,
+          grit: fakeApplyProviderWithAnalysisLog(
+            path.join(fixture, "outside-coverage/covered-alias.ts"),
+            fixture
+          ),
+        }).pipe(Effect.provide(NodeContext.layer))
+      );
+      expect(aliasedCovered.get(selected.id)).toMatchObject({
+        kind: "provider-failed",
+        detail: expect.stringContaining("analysis-failure"),
+      });
+
+      const canonicalOutside = await Effect.runPromise(
+        runGritDiagnosticOutcomesEffect([selected], {
+          repoRoot: fixture,
+          grit: fakeApplyProviderWithAnalysisLog(
+            path.join(fixture, "outside-coverage/uncovered.ts"),
+            fixture
+          ),
+        }).pipe(Effect.provide(NodeContext.layer))
+      );
+      expect(canonicalOutside.get(selected.id)).toMatchObject({ kind: "clean" });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects canonical findings outside registered exact coverage", async () => {
+    const selected = {
+      ...rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run"),
+      pathCoverage: [{ kind: "exact-path" as const, patterns: ["docs/PRODUCT.md"] }],
+    };
+    const finding = path.join(repoRoot, "docs/SYSTEM.md");
+    const grit = makeFakeGritCommandService(
+      (request) =>
+        makeHabitatCommandResult(request, {
+          stdout: captureOutput(jsonl(rewriteEvent(finding, 1), allDone(1, 1))),
+        }),
+      { repoRoot }
+    );
+
+    const outcomes = await Effect.runPromise(
+      runGritDiagnosticOutcomesEffect([selected], { repoRoot, grit }).pipe(
+        Effect.provide(NodeContext.layer)
+      )
+    );
+    expect(outcomes.get(selected.id)).toMatchObject({
+      kind: "provider-failed",
+      failure: "DiagnosticOutputIncomplete",
+      detail: expect.stringContaining("path-outside-exact-coverage"),
+    });
+  });
+
+  test.runIf(process.platform === "win32")(
+    "rejects cross-volume paths at the shared provider containment boundary",
+    () => {
+      expect(pathIsWithinRoot("D:\\outside\\file.ts", "C:\\repo")).toBe(false);
+    }
+  );
+
   test("blocks ambiguous relative CreateFile paths after establishing their count", async () => {
     const selected = rule("create", "create_pattern", docsPattern, ["docs"], "apply-dry-run");
     const grit = makeFakeGritCommandService(
@@ -1460,7 +1613,7 @@ describe("Grit generic acquisition and public disposition", () => {
     });
   });
 
-  test("canonicalizes CreateFile parents and blocks escaped or unresolved parents", async () => {
+  test("canonicalizes CreateFile leaves and parents before admitting their paths", async () => {
     const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-create-parent-"));
     const outside = mkdtempSync(path.join(tmpdir(), "habitat-grit-create-parent-outside-"));
     try {
@@ -1470,7 +1623,10 @@ describe("Grit generic acquisition and public disposition", () => {
         path.join(fixture, ".habitat/pattern.md"),
         readFileSync(path.join(repoRoot, providerPattern), "utf8")
       );
+      writeFileSync(path.join(outside, "existing.ts"), "export const outside = true;\n");
       symlinkSync(outside, path.join(fixture, "scan/escaped-parent"));
+      symlinkSync(path.join(outside, "existing.ts"), path.join(fixture, "scan/existing.ts"));
+      symlinkSync(path.join(outside, "missing.ts"), path.join(fixture, "scan/broken.ts"));
       const selected = rule(
         "create",
         "create_pattern",
@@ -1479,6 +1635,14 @@ describe("Grit generic acquisition and public disposition", () => {
         "apply-dry-run"
       );
       const cases = [
+        {
+          path: path.join(fixture, "scan/existing.ts"),
+          detail: "path-escape",
+        },
+        {
+          path: path.join(fixture, "scan/broken.ts"),
+          detail: "unresolvable-create-file-path",
+        },
         {
           path: path.join(fixture, "scan/escaped-parent/new.ts"),
           detail: "path-escape",
@@ -1916,18 +2080,28 @@ function allDone(processed: number, found: number) {
   return { __typename: "AllDone", processed, found, reason: "allMatchesFound" };
 }
 
-function analysisLog(level: number) {
+function analysisLog(level: number, file = "PlaygroundPattern") {
   return {
     __typename: "AnalysisLog",
     level,
     message: "fixture analysis",
     position: { line: 1, column: 1 },
-    file: "PlaygroundPattern",
+    file,
     engineId: "marzano",
     range: null,
     syntaxTree: null,
     source: null,
   };
+}
+
+function fakeApplyProviderWithAnalysisLog(analysisPath: string, fakeRepoRoot = repoRoot) {
+  return makeFakeGritCommandService(
+    (request) =>
+      makeHabitatCommandResult(request, {
+        stdout: captureOutput(jsonl(analysisLog(299, analysisPath), allDone(1, 0))),
+      }),
+    { repoRoot: fakeRepoRoot }
+  );
 }
 
 function patternInfoEvent() {

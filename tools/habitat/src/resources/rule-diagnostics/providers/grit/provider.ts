@@ -1,12 +1,12 @@
 import { FileSystem } from "@effect/platform";
+import { RuleFixPlanning } from "@habitat/cli/resources/rule-fix-planning/index";
 import { RuleFacts, type RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Layer } from "effect";
 import { RuleDiagnostics } from "../../resource.js";
-import { type GritCommandService, makeGritCommandService } from "./command.js";
+import { makeGritCommandService } from "./command.js";
+import { makeGritRuleFixPlanningService } from "./fix-planning.js";
 import { runGritRulesEffect } from "./runner.js";
 import { makeRuleDiagnosticsService } from "./service.js";
-
-export type GritApplyDryRunService = Pick<GritCommandService, "applyDryRun" | "applyDryRunRequest">;
 
 export function makeGritRuleDiagnosticsLayer(repoRoot: string) {
   return Layer.effect(
@@ -30,13 +30,18 @@ export function makeGritRuleDiagnosticsLayer(repoRoot: string) {
   );
 }
 
-export function makeGritApplyDryRunService(repoRoot: string) {
-  return makeGritCommandService(repoRoot).pipe(
-    Effect.map(
-      (grit): GritApplyDryRunService => ({
-        applyDryRun: grit.applyDryRun,
-        applyDryRunRequest: grit.applyDryRunRequest,
-      })
-    )
+export function makeGritRuleFixPlanningLayer(repoRoot: string) {
+  return Layer.effect(
+    RuleFixPlanning,
+    Effect.gen(function* () {
+      const facts = yield* RuleFacts;
+      const grit = yield* makeGritCommandService(repoRoot);
+      const fs = yield* FileSystem.FileSystem;
+      const runGritRules = (selectedRules: readonly RuleGritFacts[]) =>
+        runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs)
+        );
+      return makeGritRuleFixPlanningService(facts, runGritRules);
+    })
   );
 }

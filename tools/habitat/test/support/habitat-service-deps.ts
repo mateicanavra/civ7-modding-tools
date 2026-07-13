@@ -64,11 +64,6 @@ export function makeTestHabitatServiceDeps(
     graphite: {
       parent: () => Effect.succeed(null),
     },
-    gritApplyDryRun: {
-      applyDryRun: (request) =>
-        Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
-      applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
-    },
     nx: {
       affected: (request) =>
         Effect.succeed(
@@ -150,6 +145,9 @@ export function makeTestHabitatServiceDeps(
           )
         ),
     },
+    ruleFixPlanning: {
+      plan: () => Effect.succeed({ kind: "completed", results: [] }),
+    },
     rules: makeTestRuleFacts(),
     ...overrides,
   };
@@ -178,18 +176,6 @@ function commandResult(
     },
     { stdout: captureOutput("") }
   );
-}
-
-function gritRequest(commandId: string, scanRoots: readonly string[] = []): HabitatProcessRequest {
-  return {
-    commandId,
-    kind: "pattern-check",
-    executable: "grit",
-    argv: [],
-    cwd: repoRoot,
-    scanRoots,
-    captureGitState: false,
-  };
 }
 
 function passingCheckReport(command: string): CheckReport {

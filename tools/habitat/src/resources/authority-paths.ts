@@ -8,11 +8,9 @@ export const ruleRegistryIndexRepoPath = `${habitatAuthorityRoot}/index.json`;
 export const baselinesRepoPath = `${habitatAuthorityRoot}/baselines`;
 
 export const patternRoot = `${habitatAuthorityRoot}/patterns`;
-export const patternManifestRoot = `${patternRoot}/manifests`;
 export const patternCandidateRoot = `${patternRoot}/candidates`;
 
 export const checkPatternRoot = `${patternRoot}/checks`;
-export const applyPatternRoot = `${patternRoot}/apply`;
 
 export function baselineRepoPath(ruleId: string): string {
   return `${baselinesRepoPath}/${ruleId}.json`;

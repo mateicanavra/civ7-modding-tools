@@ -3,6 +3,7 @@ import { FileSystem } from "@effect/platform";
 import { acquireTempDirectory } from "@habitat/cli/resources/platform/index";
 import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Data, Effect, Match, Option } from "effect";
+import { pathIsWithinRoot } from "./path.js";
 import { quoteGritYamlScalar } from "./types.js";
 
 export interface ScopedGritWorkspace {
@@ -113,11 +114,6 @@ function extractGritBody(contents: string, source: string) {
       )
     )
   );
-}
-
-function pathIsWithinRoot(candidate: string, root: string): boolean {
-  const relative = path.relative(root, candidate);
-  return relative === "" || (relative !== ".." && !relative.startsWith(`..${path.sep}`));
 }
 
 function patternAssetFailure(asset: string, error: unknown): GritPatternAssetInvalid {

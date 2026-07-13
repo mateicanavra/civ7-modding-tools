@@ -308,7 +308,12 @@ export function parseGritCheckCommand(
   return { kind: "parsed", value: Value.Parse(GritReportSchema, decoded) };
 }
 
-export function parseGritApplyDryRunCommand(commandResult: HabitatCommandResult): GritWireParse<{
+export function parseGritApplyDryRunCommand(
+  commandResult: HabitatCommandResult,
+  options: {
+    readonly analysisPathIsRelevant?: (path: string) => boolean;
+  } = {}
+): GritWireParse<{
   readonly processed: number;
   readonly found: number;
   readonly findings: readonly GritApplyFindingEvidence[];
@@ -321,7 +326,7 @@ export function parseGritApplyDryRunCommand(commandResult: HabitatCommandResult)
   if (streamFailure.kind !== "parsed") return streamFailure;
   const eventParse = parseCompactEvents(streamFailure.value);
   if (eventParse.kind !== "parsed") return eventParse;
-  return reconcileCompactEvents(eventParse.value);
+  return reconcileCompactEvents(eventParse.value, options.analysisPathIsRelevant ?? (() => true));
 }
 
 export function preCommandFailure(
@@ -428,7 +433,10 @@ function parseCompactEvents(text: string): GritWireParse<readonly GritCompactEve
   return { kind: "parsed", value: events };
 }
 
-function reconcileCompactEvents(events: readonly GritCompactEvent[]): GritWireParse<{
+function reconcileCompactEvents(
+  events: readonly GritCompactEvent[],
+  analysisPathIsRelevant: (path: string) => boolean
+): GritWireParse<{
   readonly processed: number;
   readonly found: number;
   readonly findings: readonly GritApplyFindingEvidence[];
@@ -469,7 +477,7 @@ function reconcileCompactEvents(events: readonly GritCompactEvent[]): GritWirePa
       case "AllDone":
         break;
       case "AnalysisLog":
-        if (event.level < 400) {
+        if (event.level < 400 && analysisPathIsRelevant(event.file)) {
           return incomplete(
             "analysis-failure",
             `Grit analysis failed at level ${event.level}: ${event.message}`

@@ -16,6 +16,7 @@ import {
   parseGritCheckCommand,
   preCommandFailure,
 } from "./output.js";
+import { pathIsWithinRoot } from "./path.js";
 import { captureGritCommandEffect } from "./request.js";
 import {
   acquireScopedGritWorkspaceEffect,
@@ -287,9 +288,4 @@ function resultValidationFailures(
       `unexpected-identity: result did not belong to ${rule.patternName}.`
     ),
   ];
-}
-
-function pathIsWithinRoot(candidate: string, root: string): boolean {
-  const relative = path.relative(root, candidate);
-  return relative === "" || (relative !== ".." && !relative.startsWith(`..${path.sep}`));
 }
