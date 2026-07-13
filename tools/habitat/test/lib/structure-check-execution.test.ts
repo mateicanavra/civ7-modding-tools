@@ -81,7 +81,6 @@ required = ["src"]
           },
           repoRoot,
           rules,
-          sourceFileSystem: fileSystemPort(fixture),
           structureFileSystem: fileSystemPort(fixture),
         }
       )

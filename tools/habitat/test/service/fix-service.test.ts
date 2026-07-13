@@ -1,8 +1,11 @@
-import { GritProvider, makeFakeGritProviderLayer } from "@habitat/cli/providers/grit/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
+import {
+  type GritCommandService,
+  makeFakeGritCommandService,
+} from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
 import { fixRouter } from "@habitat/cli/service/modules/fix/router";
 import { habitatServiceRouter } from "@habitat/cli/service/router";
 import { createRouterClient } from "@orpc/server";
@@ -14,7 +17,7 @@ import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 describe("Habitat fix service", () => {
   test("runs dry-run intent through admitted pattern transactions", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const layer = makeFakeGritProviderLayer((request) => {
+    const grit = makeFakeGritCommandService((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -26,7 +29,7 @@ describe("Habitat fix service", () => {
       });
     });
 
-    const result = await Effect.runPromise(runFixProcedure().pipe(Effect.provide(layer)));
+    const result = await Effect.runPromise(runFixProcedure(grit));
 
     expect(result).toEqual({ exitCode: 0, stdout: "dry run ok\n", stderr: "" });
     expect(requests).toHaveLength(1);
@@ -39,21 +42,15 @@ describe("Habitat fix service", () => {
 
   test("routes through the in-process Habitat service router", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const layer = makeFakeGritProviderLayer((request) => {
+    const grit = makeFakeGritCommandService((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request);
     });
 
-    const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const grit = yield* GritProvider;
-        return yield* Effect.promise(() =>
-          createRouterClient(habitatServiceRouter, {
-            context: { deps: makeTestHabitatServiceDeps({ grit }) },
-          }).fix.planPatterns({})
-        );
-      }).pipe(Effect.provide(layer))
-    );
+    const client = createRouterClient(habitatServiceRouter, {
+      context: { deps: makeTestHabitatServiceDeps({ gritApplyDryRun: grit }) },
+    });
+    const result = await client.fix.planPatterns({});
 
     expect(result).toMatchObject({
       exitCode: 0,
@@ -63,12 +60,9 @@ describe("Habitat fix service", () => {
   });
 });
 
-function runFixProcedure() {
-  return Effect.gen(function* () {
-    const grit = yield* GritProvider;
-    const planPatterns = fixRouter.planPatterns.callable({
-      context: { deps: makeTestHabitatServiceDeps({ grit }) },
-    });
-    return yield* withFiberContext(() => planPatterns({}));
+function runFixProcedure(grit: GritCommandService) {
+  const planPatterns = fixRouter.planPatterns.callable({
+    context: { deps: makeTestHabitatServiceDeps({ gritApplyDryRun: grit }) },
   });
+  return withFiberContext(() => planPatterns({}));
 }

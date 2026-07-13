@@ -2,6 +2,7 @@ import type {
   GritDiagnosticAcquisitionPolicy,
   RuleBaselineFacts,
   RuleCommandExecutionFacts,
+  RuleDiagnosticFacts,
   RuleFileLayerFacts,
   RuleGritFacts,
   RuleHookCheckFacts,
@@ -10,7 +11,6 @@ import type {
   RuleReportFacts,
   RuleRoutingFacts,
   RuleSelectorFacts,
-  RuleSourceFacts,
   RuleStructureFacts,
 } from "../dto/registry.schema.js";
 
@@ -79,8 +79,14 @@ export function ruleBaselineFacts(records: readonly BaselineRecordInput[]): Rule
   }));
 }
 
-export function ruleSourceFacts(_records: readonly RuleRegistryRecord[]): RuleSourceFacts[] {
-  return [];
+export function ruleDiagnosticFacts(records: readonly RuleRegistryRecord[]): RuleDiagnosticFacts[] {
+  return records.filter(isGritRecord).map((rule) => ({
+    id: rule.id,
+    lane: rule.lane,
+    message: rule.message,
+    pathCoverage: clonePathCoverage(rule.pathCoverage),
+    scanRoots: [...rule.scanRoots],
+  }));
 }
 
 export function ruleGritFacts(records: readonly RuleRegistryRecord[]): RuleGritFacts[] {
@@ -183,7 +189,7 @@ function cloneRunner<T extends RuleRegistryRecord["runner"]>(runner: T): T {
   return { ...runner } as T;
 }
 
-function projectedGritRunner(runner: GritRunner): RuleSourceFacts["runner"] {
+function projectedGritRunner(runner: GritRunner): RuleGritFacts["runner"] {
   const { diagnosticAcquisition: _diagnosticAcquisition, ...projected } = runner;
   return { ...projected, files: { ...projected.files } };
 }

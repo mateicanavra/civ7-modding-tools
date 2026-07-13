@@ -280,21 +280,30 @@ export const RuleCommandExecutionFactsSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const RuleSourceFactsSchema = Type.Object(
+export const RuleDiagnosticFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
-    runner: GritProjectedRuleRunnerSchema,
-    patternName: Type.String({ minLength: 1 }),
-    diagnosticAcquisition: GritDiagnosticAcquisitionPolicySchema,
     pathCoverage: RulePathCoverageSchema,
     scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
   },
   { additionalProperties: false }
 );
 
-export const RuleGritFactsSchema = RuleSourceFactsSchema;
+export const RuleGritFactsSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
+    message: Type.String({ minLength: 1 }),
+    pathCoverage: RulePathCoverageSchema,
+    scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+    runner: GritProjectedRuleRunnerSchema,
+    patternName: Type.String({ minLength: 1 }),
+    diagnosticAcquisition: GritDiagnosticAcquisitionPolicySchema,
+  },
+  { additionalProperties: false }
+);
 
 export const RuleManifestFactsSchema = Type.Object(
   {
@@ -353,7 +362,7 @@ export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;
 export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
 export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
 export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
-export type RuleSourceFacts = Static<typeof RuleSourceFactsSchema>;
+export type RuleDiagnosticFacts = Static<typeof RuleDiagnosticFactsSchema>;
 export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
 export type RuleManifestFacts = Static<typeof RuleManifestFactsSchema>;
 export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;

@@ -38,18 +38,10 @@ export const service: EffectImplementerInternal<
       biome: context.deps.biome,
       command: context.deps.commandRunner,
       git: context.deps.git,
-      ruleDiagnostics: {
-        runRules: context.deps.grit.runRules,
-      },
+      ruleDiagnostics: context.deps.ruleDiagnostics,
       nx: context.deps.nx,
       repoRoot: context.deps.platform.repoRoot,
       rules: context.deps.rules,
-      sourceFileSystem: {
-        isDirectory: context.deps.platform.isDirectory,
-        isFile: context.deps.platform.isFileEffect,
-        readDirectory: context.deps.platform.readDirectory,
-        readText: context.deps.platform.readText,
-      },
       structureFileSystem: {
         isDirectory: context.deps.platform.isDirectory,
         isFile: context.deps.platform.isFileEffect,

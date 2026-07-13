@@ -166,12 +166,11 @@ describe("check and baseline provider boundaries", () => {
           biome: deps.biome,
           command: deps.commandRunner,
           git: deps.git,
-          ruleDiagnostics: { runRules: deps.grit.runRules },
+          ruleDiagnostics: deps.ruleDiagnostics,
           nx: deps.nx,
           repoRoot: "/repo",
           rules: deps.rules,
-          sourceFileSystem: sourceFileSystemPort(),
-          structureFileSystem: sourceFileSystemPort(),
+          structureFileSystem: structureFileSystemPort(),
         }
       )
     );
@@ -203,7 +202,7 @@ function baselineFileSystemPort() {
   };
 }
 
-function sourceFileSystemPort() {
+function structureFileSystemPort() {
   return {
     isDirectory,
     isFile,

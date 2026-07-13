@@ -1,9 +1,5 @@
 import type { SpawnResult } from "@habitat/cli/resources/command/index";
-import type {
-  DiagnosticProviderFailureKind,
-  DiagnosticScanRootRefusal,
-  HabitatDiagnostic,
-} from "@habitat/cli/service/model/diagnostics/index";
+import type { HabitatDiagnostic } from "@habitat/cli/service/model/diagnostics/index";
 import type {
   RuleCommandExecutionFacts,
   RuleGraphFacts,
@@ -36,24 +32,6 @@ function coarse(rule: CommandResultRuleFacts, res: SpawnResult): HabitatDiagnost
 export interface RuleRunResult {
   exitCode: number;
   diagnostics: HabitatDiagnostic[];
-}
-
-export interface RuleDiagnosticExecutionResult {
-  readonly result: RuleRunResult;
-  readonly durationMs: number;
-  readonly disposition:
-    | { readonly kind: "executed" }
-    | { readonly kind: "not-applicable"; readonly reason: "no-matched-scan-roots" }
-    | {
-        readonly kind: "failed";
-        readonly failure: DiagnosticProviderFailureKind;
-        readonly detail: string;
-      }
-    | {
-        readonly kind: "refused";
-        readonly decision: DiagnosticScanRootRefusal;
-        readonly detail: string;
-      };
 }
 
 export function ruleDiagnosticsFromCommandResult(

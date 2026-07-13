@@ -1,8 +1,7 @@
 # Verification Ledger
 
-Status: takeover control reconciliation and generic Grit diagnostic acquisition
-sealed as consecutive local Graphite layers; Packet A/A.1/A.1a/lifecycle
-and both original A.2 prerequisites remain locally sealed candidates; no
+Status: control reconciliation, G.1, and the post-G.1 RuleDiagnostics
+capability/resource-provider correction are sealed local Graphite layers; no
 product closure claim
 
 Normative method:
@@ -13,26 +12,22 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-13T06:01:00-04:00 EDT
-- Current phase: `generic-grit-diagnostic-acquisition-sealed`
-- Last completed gate: all four accepted control P2 findings were repaired;
-  three fresh affected-review roles passed exact digest `78877c67f7b5`; the
-  closing and Graphite mutation gates passed; and the exact eight-path control
-  layer was sealed as branch
-  `codex/mapgen-runtime-closeout-control-reconciliation`, one direct local child
-  of takeover frame `8ec2a96e3319`. No remote or PR mutation ran.
-- Current gate: the exact 73-path candidate was staged by path and blob, then
-  sealed as Graphite child `codex/mapgen-runtime-closeout-grit-diagnostic-acquisition`
-  above control reconciliation. No remote or PR mutation ran.
+- Last updated: 2026-07-13T10:58:00-04:00 EDT
+- Current phase: `rule-diagnostics-resource-sealed`
+- Last completed gate: one exact 99-path Graphite child was created above G.1
+  after zero P0-P3; the bounded lease is closed and only terminal receipts were
+  amended after the initial create.
+- Current gate: semantic-boundary compaction, then G.2 generic fix admission
+  from the sealed RuleDiagnostics resource tip.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action: compact at this closed semantic boundary, then open the explicit
-  capability-demand/resource-provider topology slice before G.2.
-- Blocked by: nothing external. G.1 and its six provider correctness blockers
-  are closed; the next slice begins from the committed capability seam.
+- Next action: compact at this closed boundary, revalidate the sealed tip, and
+  begin the bounded G.2 fix-admission design census.
+- Blocked by: nothing external. G.1 remains ratcheted; G.2 is deliberately out
+  of scope until this capability boundary is committed.
 - Takeover DRA: Codex task
   `019f57cc-61ae-7f21-9515-66256fa8da9f`; sole accountable owner for Product/
   Development and Supervisor/Enforcer obligations, authority synthesis,
@@ -41,13 +36,12 @@ Current scope and DRA frame:
 - Prior source DRA: task `019f3913-4c80-78f1-bdd8-236713d527da`; transfer
   accepted, idle and non-mutating. Its old standalone-A.2 ownership claims are
   historical receipts, not current authority.
-- Active Graphite mutation lease: none. The G.1 lease
-  `operation:takeover-grit-diagnostic-acquisition-seal-20260713-01` closed-passed.
+- Active Graphite mutation lease: none.
 - Control worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
-  branch `codex/mapgen-runtime-closeout-grit-diagnostic-acquisition`, one direct
-  child of control reconciliation `d82b64450e18`. It is clean with no staged
-  path or Git operation after the receipt-only amendment.
+  branch `codex/mapgen-runtime-closeout-rule-diagnostics-resource`, parent
+  `e32c4749df0f`; initial create `9b6bde9c2921`, with final identity owned by
+  the amended branch ref. The tree is clean with zero staged paths.
 - Preserved evidence worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
   branch `codex/mapgen-domain-operation-authority`, HEAD/base `9ff0f711e0d7`.
@@ -55,22 +49,24 @@ Current scope and DRA frame:
   files, 75 porcelain entries total, and zero staged paths. Generic provider,
   A.2 Authority, and record changes interleave. It remains read-only: no broad
   stage, commit, stash, reset, checkout cleanup, or transplant is permitted.
-- Provider evidence: repair 11 passed Habitat check, boundaries, build, all 417
-  tests, 141 focused tests, strict validation of 371 OpenSpec items, root lint,
-  scoped differential hygiene, and real staged/provider/docs/all-Grit execution.
-  Empty staged selection is 79/79 clean typed not-applicable; the live matrix
-  remains 74 passes, four enforced red rows, and one advisory red row. The final
-  dead-API deletion then passed provider Vitest 39/39 and Habitat check. Ubuntu
-  execution remains an explicit residual; host gating and CI topology are tested.
+- Current slice evidence: one stable `RuleDiagnostics` tag, zero `GritProvider`
+  tags, no provider selector, one immutable `RuleFacts` snapshot, and one plain
+  temporary raw-apply collaborator. Terminal execution state is one closed
+  union; demand is snapshotted once; every missing row fails with typed
+  evidence. Binding authority precedes provider output, demanded ids are
+  first-seen unique, and provider-import authority governs dynamic, inline-type,
+  deep-private, and re-export forms without whole-file exemptions. Same-file
+  differential Biome errors fell from 59 to 55; the sole new error-level finding
+  is the explicit closed Effect signature on the stable capability, with zero
+  formatter/import defects.
 - Current-lane Graphite state: G.1 is one local, unsubmitted child of control
   reconciliation `d82b64450e18`; control is above the takeover frame, which is
   above sealed `codex/habitat-rule-introduction-baseline-manifests@9ff0f711e0d7`.
   `main == origin/main == 46943c5f1165`; the readiness sentinel and its worktree
   remain excluded.
-- Agent/process state: implementation owner
-  `/root/provider_repair_11_state_collapse` and all three fresh review-11
-  sessions are terminal. No forbidden path, index, Git, Graphite, worktree, A.2,
-  topology, or persistent-process ownership changed. The
+- Agent/process state: all implementation, review, repair, and seal sessions
+  are terminal. No mutation lease, worktree, G.2, A.2, remote, or
+  persistent-process ownership remains. The
   pinned standing compaction attendant
   `019f580b-76b2-7201-8fe6-8f91b7caf0f4` is idle and non-mutating. No provider
   command or review-owned persistent process remains. Editor language servers
@@ -89,6 +85,7 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 
 | Wave | Purpose | State | Required follow-up |
 | --- | --- | --- | --- |
+| RuleDiagnostics resource/provider topology | stable capability demand/output, one immutable catalog, private Grit implementation, dead source-engine deletion | sealed-local-graphite-layer | compact at the semantic boundary, then begin G.2 generic fix admission from the sealed tip |
 | takeover framing and onboarding review | full initiative arc, philosophy, orchestration, mutation safety, and normative frame | closed-passed | three temporary frame reviewers dissolved after exact-digest pass; they are not initiative reviewers or implementers |
 | takeover control/source investigation | live control truth, provider hunk attribution, and pinned Grit wire/hermeticity contract | closed-passed | results integrated into `waves/takeover-control-reconciliation-01.md`; no agent wrote repository files |
 | takeover control initial review | exact seven-path TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-four-p2 | `CTRL-AUTH-001` and `CTRL-TS-001..003` accepted; all three roles reopen after repair |

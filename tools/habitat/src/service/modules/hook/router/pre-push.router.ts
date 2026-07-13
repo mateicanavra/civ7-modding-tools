@@ -44,7 +44,7 @@ export const prePushRouter = module.prePush.effect(function* ({ context, input =
     }
   } else {
     output.writeStdout(
-      "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n"
+      "source checks: no changed TypeScript/JavaScript files in hook source-check roots\n"
     );
   }
   const targetPlan = context.prePush.targetPlanForChangedPaths(changedPaths.paths);

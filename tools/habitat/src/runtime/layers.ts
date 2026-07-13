@@ -1,13 +1,20 @@
+import path from "node:path";
 import { NodeContext } from "@effect/platform-node";
 import { makeBiomeProviderLayer } from "@habitat/cli/providers/biome/index";
 import { makeGitProviderLayer, makeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import { makeGraphiteProviderLayer } from "@habitat/cli/providers/graphite/index";
-import { makeGritProviderLayer } from "@habitat/cli/providers/grit/index";
 import { makeNxProviderLayer } from "@habitat/cli/providers/nx/index";
+import { ruleRegistryRepoPath } from "@habitat/cli/resources/authority-paths";
 import { CommandRunnerLive } from "@habitat/cli/resources/command/index";
 import { HabitatConfig, HabitatConfigLive } from "@habitat/cli/resources/config/index";
-import { makeHabitatPlatformLayer } from "@habitat/cli/resources/platform/index";
+import { HabitatPlatform, makeHabitatPlatformService } from "@habitat/cli/resources/platform/index";
 import { HabitatReporterLive } from "@habitat/cli/resources/reporter/index";
+import { makeGritRuleDiagnosticsLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import {
+  loadRuleRegistryDocumentEffect,
+  RuleFacts,
+  ruleFactsCatalog,
+} from "@habitat/cli/service/model/rules/index";
 import { Effect, Layer } from "effect";
 
 const HabitatRuntimeBaseLive = Layer.mergeAll(
@@ -21,15 +28,29 @@ const HabitatRepoScopedLive = Layer.unwrapEffect(
   Effect.gen(function* () {
     const configResource = yield* HabitatConfig;
     const config = yield* configResource.get;
-    return Layer.mergeAll(
+    const platformService = makeHabitatPlatformService({ repoRoot: config.repoRoot });
+    const facts = yield* loadRuleRegistryDocumentEffect(
+      path.join(platformService.repoRoot, ruleRegistryRepoPath),
+      {
+        isDirectory: platformService.isDirectory,
+        readDirectory: platformService.readDirectory,
+        readText: platformService.readText,
+      }
+    ).pipe(Effect.map(ruleFactsCatalog));
+    const platform = Layer.succeed(HabitatPlatform, platformService);
+    const coreProviders = Layer.mergeAll(
       makeGitStateProviderLayer(config.repoRoot),
       makeGitProviderLayer(config.repoRoot),
       makeGraphiteProviderLayer(config.repoRoot),
       makeBiomeProviderLayer(config.repoRoot),
       makeNxProviderLayer(config.repoRoot),
-      makeHabitatPlatformLayer({ repoRoot: config.repoRoot }),
-      makeGritProviderLayer(config.repoRoot)
+      platform
     );
+    const catalog = Layer.succeed(RuleFacts, facts);
+    const diagnostics = makeGritRuleDiagnosticsLayer(config.repoRoot).pipe(
+      Layer.provide(Layer.merge(coreProviders, catalog))
+    );
+    return Layer.mergeAll(coreProviders, catalog, diagnostics);
   })
 );
 

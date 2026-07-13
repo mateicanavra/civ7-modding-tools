@@ -5,7 +5,7 @@ import {
   parseDiagnosticSelectedScanRoots,
 } from "@habitat/cli/service/model/diagnostics/index";
 import { decideScanRootProtection } from "@habitat/cli/service/model/host/index";
-import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
+import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Either, Match, Option } from "effect";
 import { protectedScanRootPrefixes } from "../constants.js";
 
@@ -17,29 +17,29 @@ interface CanonicalScanRootDecisionOptions {
 export type PlannedGritRule =
   | {
       readonly kind: "execute";
-      readonly rule: RuleSourceFacts;
+      readonly rule: RuleGritFacts;
       readonly repoRoot: string;
       readonly roots: readonly [string, ...string[]];
     }
   | {
       readonly kind: "not-applicable";
-      readonly rule: RuleSourceFacts;
+      readonly rule: RuleGritFacts;
       readonly reason: "no-matched-scan-roots";
     }
   | {
       readonly kind: "refused";
-      readonly rule: RuleSourceFacts;
+      readonly rule: RuleGritFacts;
       readonly decision: DiagnosticScanRootRefusal;
     }
   | {
       readonly kind: "failed";
-      readonly rule: RuleSourceFacts;
-      readonly failure: "GritRootCanonicalizationFailed";
+      readonly rule: RuleGritFacts;
+      readonly failure: "DiagnosticScopePlanningFailed";
       readonly detail: string;
     };
 
 export const planGritRuleRoots = Effect.fn("grit.scanRoots.plan")(function* (
-  selectedRules: readonly RuleSourceFacts[],
+  selectedRules: readonly RuleGritFacts[],
   options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
 ) {
   const fs = yield* FileSystem.FileSystem;
@@ -67,7 +67,7 @@ export const planGritRuleRoots = Effect.fn("grit.scanRoots.plan")(function* (
 });
 
 const planGritRuleRootEffect = Effect.fn("grit.scanRoot.planRule")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   canonicalRepo: string,
   requestedRoots: readonly string[] | undefined,
   fs: FileSystem.FileSystem
@@ -75,9 +75,13 @@ const planGritRuleRootEffect = Effect.fn("grit.scanRoot.planRule")(function* (
   const candidates = Match.value(requestedRoots).pipe(
     Match.when(undefined, () => rule.scanRoots),
     Match.orElse((roots) =>
-      roots.filter((candidate) =>
-        rule.scanRoots.some((declaredRoot) => scanRootIsWithinDeclaredRoot(candidate, declaredRoot))
-      )
+      roots
+        .map((candidate) => toRepoRelative(canonicalRepo, candidate))
+        .filter((candidate) =>
+          rule.scanRoots.some((declaredRoot) =>
+            scanRootIsWithinDeclaredRoot(candidate, declaredRoot)
+          )
+        )
     )
   );
   const lexicalRoots = sortedUnique(candidates).map((candidate) => ({
@@ -97,7 +101,7 @@ type CanonicalRootObservation =
   | { readonly kind: "terminal"; readonly plan: PlannedGritRule };
 
 const canonicalizeRootEffect = Effect.fn("grit.scanRoot.canonicalize")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   canonicalRepo: string,
   root: { readonly candidate: string; readonly absolute: string },
   fs: FileSystem.FileSystem
@@ -110,7 +114,7 @@ const canonicalizeRootEffect = Effect.fn("grit.scanRoot.canonicalize")(function*
 });
 
 function lexicalRootObservation(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   canonicalRepo: string,
   root: { readonly candidate: string; readonly absolute: string }
 ) {
@@ -133,7 +137,7 @@ function lexicalRootObservation(
 }
 
 const probeRootEffect = Effect.fn("grit.scanRoot.probe")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   root: { readonly candidate: string; readonly absolute: string },
   fs: FileSystem.FileSystem
 ) {
@@ -146,7 +150,7 @@ const probeRootEffect = Effect.fn("grit.scanRoot.probe")(function* (
 });
 
 function rootProbeObservation<E>(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   root: { readonly candidate: string; readonly absolute: string },
   existence: Either.Either<boolean, E>
 ) {
@@ -162,7 +166,7 @@ function rootProbeObservation<E>(
   });
 }
 
-function rootExistenceObservation(rule: RuleSourceFacts, candidate: string, exists: boolean) {
+function rootExistenceObservation(rule: RuleGritFacts, candidate: string, exists: boolean) {
   return Match.value(exists).pipe(
     Match.when(false, () => ({
       kind: "terminal" as const,
@@ -177,7 +181,7 @@ function rootExistenceObservation(rule: RuleSourceFacts, candidate: string, exis
 }
 
 const canonicalizeExistingRootEffect = Effect.fn("grit.scanRoot.realPath")(function* (
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   root: { readonly candidate: string; readonly absolute: string },
   fs: FileSystem.FileSystem
 ) {
@@ -186,7 +190,7 @@ const canonicalizeExistingRootEffect = Effect.fn("grit.scanRoot.realPath")(funct
 });
 
 function canonicalRootObservation<E>(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   root: { readonly candidate: string },
   canonical: Either.Either<string, E>
 ): CanonicalRootObservation {
@@ -206,7 +210,7 @@ function canonicalRootObservation<E>(
 }
 
 function completeRootPlan(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   canonicalRepo: string,
   observations: readonly CanonicalRootObservation[]
 ): PlannedGritRule {
@@ -244,7 +248,7 @@ function isCanonicalRootObservation(
 }
 
 function admittedRootPlan(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   canonicalRepo: string,
   canonicalRoots: readonly string[]
 ): PlannedGritRule {
@@ -268,7 +272,7 @@ function admittedRootPlan(
 }
 
 function executeRootPlan(
-  rule: RuleSourceFacts,
+  rule: RuleGritFacts,
   canonicalRepo: string,
   first: string | undefined,
   rest: readonly string[]
@@ -286,8 +290,8 @@ function executeRootPlan(
   );
 }
 
-function rootCanonicalizationFailure(rule: RuleSourceFacts, detail: string): PlannedGritRule {
-  return { kind: "failed", rule, failure: "GritRootCanonicalizationFailed", detail };
+function rootCanonicalizationFailure(rule: RuleGritFacts, detail: string): PlannedGritRule {
+  return { kind: "failed", rule, failure: "DiagnosticScopePlanningFailed", detail };
 }
 
 function decideCanonicalScanRoots(

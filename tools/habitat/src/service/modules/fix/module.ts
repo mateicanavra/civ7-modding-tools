@@ -49,7 +49,7 @@ export const module: HabitatModule<"fix", FixModuleContext> = service.fix.use(
     );
     const defaultApplyAdmissions = makeDefaultApplyAdmissions(context.deps.rules.grit);
     const runPatternApplyTransactions = makeRunPatternApplyTransactions(
-      context.deps.grit,
+      context.deps.gritApplyDryRun,
       context.deps.git,
       context.deps.platform.repoRoot
     );

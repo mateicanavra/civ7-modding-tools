@@ -4,6 +4,8 @@ import {
   type HabitatCommandResult,
   type HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
+import { Effect, Match } from "effect";
+import type { GritCommandService } from "./command.js";
 import {
   type DiagnosticCompletedCommandObservation,
   diagnosticCommandObservationFromResult,
@@ -11,10 +13,8 @@ import {
   diagnosticFailedCommandObservation,
   diagnosticInterruptedCommandObservation,
   diagnosticToolUnavailableObservation,
-} from "@habitat/cli/service/model/diagnostics/dto/diagnostic-command.schema";
-import { Effect, Match } from "effect";
+} from "./command.schema.js";
 import type { GritCommandFailureCapture } from "./output.js";
-import type { GritProviderService } from "./resource.js";
 
 type GritNativeIdentityObservation =
   | {
@@ -30,7 +30,7 @@ type GritNativeIdentityObservation =
       readonly result: HabitatCommandResult;
     };
 
-export class GritNativeIdentityMismatch extends CommandUnavailable {
+export class DiagnosticProviderIdentityMismatch extends CommandUnavailable {
   readonly mismatchKind = "native-identity-mismatch" as const;
   readonly detail: string;
   readonly observation: GritNativeIdentityObservation;
@@ -50,8 +50,8 @@ export class GritNativeIdentityMismatch extends CommandUnavailable {
 export function nativeIdentityMismatchBeforeSpawn(
   request: HabitatProcessRequest,
   detail: string
-): GritNativeIdentityMismatch {
-  return new GritNativeIdentityMismatch({
+): DiagnosticProviderIdentityMismatch {
+  return new DiagnosticProviderIdentityMismatch({
     commandId: request.commandId,
     executable: request.executable,
     argv: request.argv,
@@ -72,8 +72,8 @@ export function nativeIdentityMismatchBeforeSpawn(
 export function nativeIdentityMismatchFromCompleted(
   result: HabitatCommandResult,
   detail: string
-): GritNativeIdentityMismatch {
-  return new GritNativeIdentityMismatch({
+): DiagnosticProviderIdentityMismatch {
+  return new DiagnosticProviderIdentityMismatch({
     commandId: result.commandId,
     executable: result.executable,
     argv: result.argv,
@@ -94,7 +94,7 @@ export type GritCommandCapture =
 
 export const captureGritCommandEffect = Effect.fn("grit.command.capture")(function* (
   request: HabitatProcessRequest,
-  effect: ReturnType<GritProviderService["check"]>
+  effect: ReturnType<GritCommandService["check"]>
 ) {
   const captured = yield* effect.pipe(
     Effect.map((result) => ({ kind: "result" as const, result })),
@@ -103,7 +103,7 @@ export const captureGritCommandEffect = Effect.fn("grit.command.capture")(functi
       CommandFailed: (error) =>
         Effect.succeed({
           kind: "command-failed" as const,
-          failure: "GritCommandFailed" as const,
+          failure: "DiagnosticCommandFailed" as const,
           detail: `Grit command ${error.commandId} exited ${error.exitCode}.`,
           command: diagnosticFailedCommandObservation({
             ...commandErrorMetadata(error, request),
@@ -113,7 +113,7 @@ export const captureGritCommandEffect = Effect.fn("grit.command.capture")(functi
       CommandInterrupted: (error) =>
         Effect.succeed({
           kind: "command-failed" as const,
-          failure: "GritCommandInterrupted" as const,
+          failure: "DiagnosticCommandInterrupted" as const,
           detail: `Grit command ${error.commandId} was interrupted: ${error.cause}.`,
           command: diagnosticInterruptedCommandObservation({
             ...commandErrorMetadata(error, request),
@@ -137,13 +137,13 @@ function commandUnavailableCapture(
 ): Extract<GritCommandCapture, { kind: "command-failed" }> {
   return Match.value(error).pipe(
     Match.when(
-      (candidate): candidate is GritNativeIdentityMismatch =>
-        candidate instanceof GritNativeIdentityMismatch,
+      (candidate): candidate is DiagnosticProviderIdentityMismatch =>
+        candidate instanceof DiagnosticProviderIdentityMismatch,
       (identity) => nativeIdentityMismatchCapture(request, identity)
     ),
     Match.orElse((unavailable) => ({
       kind: "command-failed" as const,
-      failure: "GritToolUnavailable" as const,
+      failure: "DiagnosticProviderUnavailable" as const,
       detail: unavailable.cause,
       command: diagnosticToolUnavailableObservation({
         ...commandErrorMetadata(unavailable, request),
@@ -155,7 +155,7 @@ function commandUnavailableCapture(
 
 function nativeIdentityMismatchCapture(
   request: HabitatProcessRequest,
-  error: GritNativeIdentityMismatch
+  error: DiagnosticProviderIdentityMismatch
 ): Extract<GritCommandCapture, { kind: "command-failed" }> {
   const command = Match.value(error.observation).pipe(
     Match.when({ kind: "pre-spawn" }, (observation) =>
@@ -171,7 +171,7 @@ function nativeIdentityMismatchCapture(
   );
   return {
     kind: "command-failed",
-    failure: "GritNativeIdentityMismatch",
+    failure: "DiagnosticProviderIdentityMismatch",
     detail: error.detail,
     command,
   };
@@ -182,13 +182,13 @@ function commandResultCapture(result: HabitatCommandResult): GritCommandCapture 
   return Match.value(command).pipe(
     Match.when({ kind: "interrupted" }, (interrupted) => ({
       kind: "command-failed" as const,
-      failure: "GritCommandInterrupted" as const,
+      failure: "DiagnosticCommandInterrupted" as const,
       detail: `Grit command ${result.commandId} was interrupted.`,
       command: interrupted,
     })),
     Match.when({ kind: "failed" }, (failed) => ({
       kind: "command-failed" as const,
-      failure: "GritCommandFailed" as const,
+      failure: "DiagnosticCommandFailed" as const,
       detail: `Grit command ${result.commandId} exited ${result.exit.code}.`,
       command: failed,
     })),

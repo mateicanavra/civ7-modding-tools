@@ -57,7 +57,6 @@ export const SelectorRefusalSchema = Type.Object(
 export type SelectorRefusal = Static<typeof SelectorRefusalSchema>;
 
 const RuleNotApplicableReasonSchema = Type.Union([
-  Type.Literal("staged-scope-no-approved-roots"),
   Type.Literal("rule-not-in-requested-scope"),
   Type.Literal("no-matched-scan-roots"),
 ]);

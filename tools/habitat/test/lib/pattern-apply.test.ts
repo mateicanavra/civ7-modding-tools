@@ -1,8 +1,9 @@
-import { GritProvider, makeFakeGritProviderLayer } from "@habitat/cli/providers/grit/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
+import { makeFakeGritCommandService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
+import type { GritApplyDryRunService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
@@ -14,7 +15,7 @@ import {
   runPatternApplyTransaction,
 } from "@habitat/cli/service/modules/fix/model/policy/index";
 import { fixRouter } from "@habitat/cli/service/modules/fix/router";
-import { Effect, type Layer } from "effect";
+import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
@@ -35,20 +36,15 @@ describe("pattern apply", () => {
 
   test("fix command boundary consumes service-owned apply admissions", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const layer = makeFakeGritProviderLayer((request) => {
+    const grit = makeFakeGritCommandService((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request);
     });
 
-    const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const grit = yield* GritProvider;
-        const planPatterns = fixRouter.planPatterns.callable({
-          context: { deps: makeTestHabitatServiceDeps({ grit }) },
-        });
-        return yield* withFiberContext(() => planPatterns({}));
-      }).pipe(Effect.provide(layer))
-    );
+    const planPatterns = fixRouter.planPatterns.callable({
+      context: { deps: makeTestHabitatServiceDeps({ gritApplyDryRun: grit }) },
+    });
+    const result = await Effect.runPromise(withFiberContext(() => planPatterns({})));
 
     expect(result).toMatchObject({
       exitCode: 0,
@@ -68,9 +64,9 @@ describe("pattern apply", () => {
     ).toBe(false);
   });
 
-  test("runs admitted dry-run commands through GritProvider", async () => {
+  test("runs admitted dry-run commands through the Grit command service", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const layer = makeFakeGritProviderLayer((request) => {
+    const grit = makeFakeGritCommandService((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -89,7 +85,7 @@ describe("pattern apply", () => {
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
       { transactionInputs: [transactionInput()] },
-      layer
+      grit
     );
 
     expect(record.outcome).toMatchObject({
@@ -111,7 +107,7 @@ describe("pattern apply", () => {
   });
 
   test("refuses failed dry-run commands without writing", async () => {
-    const layer = makeFakeGritProviderLayer((request) =>
+    const grit = makeFakeGritCommandService((request) =>
       makeHabitatCommandResult(request, {
         exit: { code: 2, signal: null, interrupted: false },
         stderr: { text: "grit failed\n", truncated: false, sha256: "", bytes: 12 },
@@ -125,7 +121,7 @@ describe("pattern apply", () => {
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
       { transactionInputs: [transactionInput()] },
-      layer
+      grit
     );
 
     expect(record.outcome).toMatchObject({
@@ -156,9 +152,9 @@ describe("pattern apply", () => {
     });
   });
 
-  test("invalid transaction input paths refuse before GritProvider", async () => {
+  test("invalid transaction input paths refuse before the Grit command service", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const layer = makeFakeGritProviderLayer((request) => {
+    const grit = makeFakeGritCommandService((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request);
     });
@@ -181,7 +177,7 @@ describe("pattern apply", () => {
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
       { transactionInputs: [unsafeInput] },
-      layer
+      grit
     );
 
     expect(record.outcome).toMatchObject({
@@ -300,16 +296,14 @@ describe("pattern apply", () => {
 function applyTransaction(
   input: PatternApplyRequest,
   options?: { readonly transactionInputs?: readonly ApplyTransactionInput[] },
-  layer?: Layer.Layer<never>
+  grit: GritApplyDryRunService = makeTestHabitatServiceDeps().gritApplyDryRun
 ) {
-  const program = Effect.gen(function* () {
-    const grit = layer ? yield* GritProvider : makeTestHabitatServiceDeps().grit;
-    return yield* runPatternApplyTransaction(input, {
+  return Effect.runPromise(
+    runPatternApplyTransaction(input, {
       ...options,
       grit,
-    });
-  });
-  return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);
+    })
+  );
 }
 
 function cleanWorktree() {

@@ -71,7 +71,7 @@ describe("Habitat hook check report parser", () => {
         disposition: {
           kind: "execution-failed",
           source: "diagnostic-provider",
-          failure: "GritMalformedOutput",
+          failure: "DiagnosticOutputMalformed",
           detail: "bad wire",
         },
       }),
@@ -85,7 +85,7 @@ describe("Habitat hook check report parser", () => {
           {
             disposition: {
               kind: "execution-failed",
-              failure: "GritMalformedOutput",
+              failure: "DiagnosticOutputMalformed",
             },
           },
         ],
@@ -125,7 +125,7 @@ describe("Habitat hook check report parser", () => {
       runner: "habitat",
       message: "ordinary",
       diagnosticMessage:
-        "Dependency refused: prose\n--- grit provider failure (GritMalformedOutput) ---\nprose",
+        "Dependency refused: prose\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nprose",
     };
     expect(
       hookCheckCommandResult({ exitCode: 1, stdout: checkReport(base), stderr: "" })
@@ -257,7 +257,7 @@ describe("Habitat hook check report parser", () => {
         ok: true,
         status: "pass",
         disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
-        command: "habitat check --staged --runner grit --json",
+        command: "habitat check --staged --hook-check --runner grit --json",
         ruleId: "not-applicable-rule",
         runner: "grit",
         message: "not applicable",
@@ -277,7 +277,7 @@ describe("Habitat hook check report parser", () => {
         status: "fail",
         diagnosticMessage: "ordinary enforced diagnostic",
         disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
-        command: "habitat check --staged --runner grit --json",
+        command: "habitat check --staged --hook-check --runner grit --json",
         ruleId: "not-applicable-rule",
         runner: "grit",
         message: "not applicable",
@@ -299,7 +299,7 @@ describe("Habitat hook check report parser", () => {
         diagnosticMessage: "ordinary advisory diagnostic",
         diagnosticSeverity: "advisory",
         disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
-        command: "habitat check --staged --runner grit --json",
+        command: "habitat check --staged --hook-check --runner grit --json",
         ruleId: "not-applicable-rule",
         runner: "grit",
         message: "not applicable",
@@ -541,7 +541,14 @@ describe("Habitat pre-commit staged mutation policy", () => {
         paths: ["packages/example/src/index.ts", "packages/example/src/unchanged.ts"],
       }),
     ]);
-    expect(fake.checkRequests.map((request) => request.runner)).toContain("grit");
+    expect(fake.checkRequests).toContainEqual(
+      expect.objectContaining({
+        hookCheck: true,
+        runner: "grit",
+        staged: true,
+        stagedPaths: ["packages/example/src/index.ts", "packages/example/src/unchanged.ts"],
+      })
+    );
   });
 
   test("fails closed when source checks report diagnostic-unavailable", async () => {
@@ -554,11 +561,11 @@ describe("Habitat pre-commit staged mutation policy", () => {
         disposition: {
           kind: "execution-failed",
           source: "diagnostic-provider",
-          failure: "GritMalformedOutput",
+          failure: "DiagnosticOutputMalformed",
           detail: "Grit output contains wrapper text around JSON.",
         },
         diagnosticMessage:
-          "Grit rule failed.\n--- grit provider failure (GritMalformedOutput) ---\nGrit output contains wrapper text around JSON.",
+          "Grit rule failed.\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nGrit output contains wrapper text around JSON.",
       }),
     });
 
@@ -579,9 +586,10 @@ describe("Habitat pre-commit staged mutation policy", () => {
           kind: "dependency-refused",
           source: "diagnostic-scan-root",
           decision: { kind: "refused", reason: "outside-repo", root: "../outside" },
-          detail: "Grit scan root is outside the repo: ../outside.",
+          detail: "Diagnostic scan root is outside the repo: ../outside.",
         },
-        diagnosticMessage: "Dependency refused: Grit scan root is outside the repo: ../outside.",
+        diagnosticMessage:
+          "Dependency refused: Diagnostic scan root is outside the repo: ../outside.",
       }),
     });
 
@@ -610,24 +618,27 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(result.stdout).toContain("[source check]");
   });
 
-  test("does not run staged source checks for JavaScript files outside approved source-check roots", async () => {
+  test("lets the provider report staged source paths outside a selected rule's roots as not applicable", async () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["tools/habitat/src/service/modules/hook/router.ts"],
+      sourceCheckStdout: sourceCheckReport({
+        ok: true,
+        status: "pass",
+        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+      }),
     });
 
     const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain(
-      "source checks: no staged TypeScript/JavaScript files in approved source-check roots"
-    );
+    expect(result.stdout).toContain("no-matched-scan-roots");
     expect(fake.biomeRequests).toContainEqual(
       expect.objectContaining({
         kind: "check",
         paths: ["tools/habitat/src/service/modules/hook/router.ts"],
       })
     );
-    expect(fake.checkRequests.map((request) => request.runner)).not.toContain("grit");
+    expect(fake.checkRequests.map((request) => request.runner)).toContain("grit");
   });
 
   test("reports pre-commit output through an injected reporter service", async () => {
@@ -641,11 +652,11 @@ describe("Habitat pre-commit staged mutation policy", () => {
         disposition: {
           kind: "execution-failed",
           source: "diagnostic-provider",
-          failure: "GritMalformedOutput",
+          failure: "DiagnosticOutputMalformed",
           detail: "Grit output contains wrapper text around JSON.",
         },
         diagnosticMessage:
-          "Grit rule failed.\n--- grit provider failure (GritMalformedOutput) ---\nGrit output contains wrapper text around JSON.",
+          "Grit rule failed.\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nGrit output contains wrapper text around JSON.",
       }),
     });
 
@@ -799,6 +810,15 @@ function makeSyntheticSourceCheckHookRules() {
   const rules = makeTestRuleFacts();
   return {
     ...rules,
+    diagnostic: [
+      {
+        id: "hook-source-check-probe",
+        lane: "enforced" as const,
+        message: "source-check hook check probe",
+        pathCoverage: [{ kind: "exact-path" as const, patterns: ["packages/example/src/**"] }],
+        scanRoots: ["packages/example/src"],
+      },
+    ],
     grit: [
       {
         id: "hook-source-check-probe",
@@ -966,7 +986,7 @@ function sourceCheckReport(options: {
 }): string {
   return checkReport({
     ...options,
-    command: "habitat check --staged --runner grit --json",
+    command: "habitat check --staged --hook-check --runner grit --json",
     ruleId: "hook-source-check-probe",
     runner: "grit",
     message: "source-check hook check probe",

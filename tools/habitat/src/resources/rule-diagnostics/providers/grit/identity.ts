@@ -1,17 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 
-export const GritDiagnosticIdentitySchema = Type.Object(
-  {
-    kind: Type.Literal("pattern"),
-    patternIdentity: Type.String({ minLength: 1 }),
-    source: Type.Literal("rule-registry-facts"),
-  },
-  { additionalProperties: false }
-);
-
-export const DiagnosticIdentitySchema = GritDiagnosticIdentitySchema;
-
 export const ObservedGritDiagnosticIdentitySchema = Type.Union([
   Type.Object(
     {
@@ -31,22 +20,7 @@ export const ObservedGritDiagnosticIdentitySchema = Type.Union([
   ),
 ]);
 
-export const ObservedDiagnosticIdentitySchema = ObservedGritDiagnosticIdentitySchema;
-
-export type GritDiagnosticIdentity = Static<typeof GritDiagnosticIdentitySchema>;
-export type DiagnosticIdentity = GritDiagnosticIdentity;
 export type ObservedGritDiagnosticIdentity = Static<typeof ObservedGritDiagnosticIdentitySchema>;
-export type ObservedDiagnosticIdentity = ObservedGritDiagnosticIdentity;
-
-export function isObservedGritDiagnosticIdentity(
-  value: unknown
-): value is ObservedGritDiagnosticIdentity {
-  return Value.Check(ObservedGritDiagnosticIdentitySchema, value);
-}
-
-export function gritDiagnosticIdentity(patternIdentity: string): GritDiagnosticIdentity {
-  return { kind: "pattern", patternIdentity, source: "rule-registry-facts" };
-}
 
 export function observedGritDiagnosticIdentity(input: {
   readonly local_name: string;
@@ -69,11 +43,10 @@ export function observedGritDiagnosticIdentity(input: {
 
 export function observedGritIdentityMatches(
   observed: ObservedGritDiagnosticIdentity,
-  identity: GritDiagnosticIdentity
+  patternIdentity: string
 ): boolean {
   return (
-    observed.kind === "observed-pattern" &&
-    observed.observedPatternIdentity === identity.patternIdentity
+    observed.kind === "observed-pattern" && observed.observedPatternIdentity === patternIdentity
   );
 }
 

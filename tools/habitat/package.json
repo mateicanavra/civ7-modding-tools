@@ -51,6 +51,13 @@
       "import": "./dist/providers/*.js",
       "default": "./dist/providers/*.js"
     },
+    "./resources/rule-diagnostics/providers/grit/provider": {
+      "bun": "./src/resources/rule-diagnostics/providers/grit/provider.ts",
+      "types": "./src/resources/rule-diagnostics/providers/grit/provider.ts",
+      "import": "./dist/resources/rule-diagnostics/providers/grit/provider.js",
+      "default": "./dist/resources/rule-diagnostics/providers/grit/provider.js"
+    },
+    "./resources/rule-diagnostics/providers/*": null,
     "./resources/*": {
       "bun": "./src/resources/*.ts",
       "types": "./src/resources/*.ts",

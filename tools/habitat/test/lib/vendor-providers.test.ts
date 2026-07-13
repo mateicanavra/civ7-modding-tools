@@ -5,16 +5,15 @@ import {
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "@habitat/cli/providers/biome/index";
-import { GitProvider, makeFakeGitProviderLayer } from "@habitat/cli/providers/git/index";
+import {
+  GitProvider,
+  makeFakeGitProviderLayer,
+  makeGitStateProviderLayer,
+} from "@habitat/cli/providers/git/index";
 import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
 } from "@habitat/cli/providers/graphite/index";
-import {
-  GritProvider,
-  makeFakeGritProviderLayer,
-  makeGritProviderLayer,
-} from "@habitat/cli/providers/grit/index";
 import {
   affectedArgv,
   graphArgv,
@@ -30,7 +29,13 @@ import {
   makeHabitatCommandResult,
   materializeDefaultHabitatCommand,
 } from "@habitat/cli/resources/command/index";
+import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
+import { defaultGritCommandTimeoutMs } from "@habitat/cli/resources/rule-diagnostics/providers/grit/constants";
+import {
+  makeFakeGritCommandService,
+  makeGritCommandService,
+} from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 
@@ -270,7 +275,7 @@ describe("vendor providers", () => {
     });
   });
 
-  test("GritProvider owns the direct-native hermetic check request", async () => {
+  test("the Grit command service owns the direct-native hermetic check request", async () => {
     const providerRequest = {
       scanRoots: ["/tmp/habitat-grit-target"],
       cwd: "/tmp/habitat-grit-catalog-parent",
@@ -279,30 +284,20 @@ describe("vendor providers", () => {
       gritUserConfigDir: "/tmp/habitat-grit-catalog-parent/user-config",
       timeoutMs: 1234,
     } as const;
-    const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const grit = yield* GritProvider;
-        const request = grit.checkRequest(providerRequest);
-        return {
-          request,
-          checked: yield* grit.check(providerRequest),
-        };
-      }).pipe(
-        Effect.provide(
-          makeFakeGritProviderLayer(
-            (request) =>
-              commandResult(
-                "pattern-check",
-                "grit",
-                ["--json", "check", "--level", "error", ...request.scanRoots],
-                repoRoot,
-                ""
-              ),
-            { repoRoot }
-          )
-        )
-      )
+    const grit = makeFakeGritCommandService(
+      (request) =>
+        commandResult(
+          "pattern-check",
+          "grit",
+          ["--json", "check", "--level", "error", ...request.scanRoots],
+          repoRoot,
+          ""
+        ),
+      { repoRoot }
     );
+    const request = grit.checkRequest(providerRequest);
+    const checked = await Effect.runPromise(grit.check(providerRequest));
+    const result = { request, checked };
 
     expect(result.request.argv).toEqual([
       "--json",
@@ -354,18 +349,16 @@ describe("vendor providers", () => {
       runSync: (request: Parameters<typeof makeHabitatCommandResult>[0]) =>
         makeHabitatCommandResult(request),
     };
+    const prerequisites = Layer.mergeAll(
+      NodeContext.layer,
+      Layer.succeed(CommandRunner, runner),
+      makeHabitatConfigLayer(makeHabitatConfig({ repoRoot })),
+      makeGitStateProviderLayer(repoRoot)
+    );
     const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const grit = yield* GritProvider;
-        return yield* Effect.either(grit.check(providerRequest));
-      }).pipe(
-        Effect.provide(
-          Layer.mergeAll(
-            NodeContext.layer,
-            makeGritProviderLayer(repoRoot),
-            Layer.succeed(CommandRunner, runner)
-          )
-        )
+      makeGritCommandService(repoRoot).pipe(
+        Effect.flatMap((grit) => Effect.either(grit.check(providerRequest))),
+        Effect.provide(prerequisites)
       )
     );
 
@@ -381,7 +374,7 @@ describe("vendor providers", () => {
     expect(observed[0]).toMatchObject({
       commandId: "grit-pinned-native-preflight",
       scanRoots: [],
-      timeoutMs: 2468,
+      timeoutMs: defaultGritCommandTimeoutMs,
     });
   });
 });

@@ -28,10 +28,10 @@ describe("check summaries", () => {
           disposition: {
             kind: "execution-failed",
             source: "diagnostic-provider",
-            failure: "GritMalformedOutput",
+            failure: "DiagnosticOutputMalformed",
             detail: "wrapped JSON",
           },
-          diagnostics: [diagnostic(renderDiagnosticProviderFailure("GritMalformedOutput"))],
+          diagnostics: [diagnostic(renderDiagnosticProviderFailure("DiagnosticOutputMalformed"))],
         }),
       ],
     });
@@ -120,7 +120,7 @@ describe("check summaries", () => {
             status: "pass",
             disposition: {
               kind: "not-applicable",
-              reason: "staged-scope-no-approved-roots",
+              reason: "no-matched-scan-roots",
             },
           }),
         ],
@@ -216,7 +216,7 @@ describe("check summaries", () => {
               disposition: {
                 kind: "execution-failed",
                 source: "diagnostic-provider",
-                failure: "GritMalformedOutput",
+                failure: "DiagnosticOutputMalformed",
                 detail: "bad wire",
               },
             }),
@@ -404,7 +404,7 @@ describe("check summaries", () => {
               disposition: {
                 kind: "execution-failed",
                 source: "diagnostic-provider",
-                failure: "GritMalformedOutput",
+                failure: "DiagnosticOutputMalformed",
                 detail: "bad wire",
               },
             }),
