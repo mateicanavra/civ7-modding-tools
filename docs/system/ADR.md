@@ -265,6 +265,38 @@ realization; no live-write endpoint or internal live-write state is retained.
   new explicit product and authority decision; they cannot grow out of the
   preview-only type by fallback.
 
+## ADR-012: One Nx graph owns a worktree output namespace
+
+**Status:** Accepted
+**Date:** 2026-07-13
+**Context:** Independent Nx invocations in one worktree rebuilt the same
+dependency outputs concurrently. One graph cleaned `mapgen-core/dist` while a
+second graph's SDK build was consuming it, producing a false missing-module
+failure. Nx task ordering, deduplication, and `parallelism` apply inside one
+graph; cache restoration can also replace declared outputs, so changing a
+bundler's clean flag alone cannot make independent graphs safe.
+**Decision:** A worktree is one mutable build-output namespace. All
+output-materializing targets needed for one proof run in one Nx invocation,
+where Nx owns their dependency order and deduplication. Independent graphs use
+separate worktrees when they must materialize outputs concurrently. Each cached
+writer declares only the artifacts it writes, aggregate targets declare no
+outputs, destructive clean targets are uncached, and consumers depend on every
+generated artifact they read. Validation-only TypeScript checks disable
+composite and incremental state and own no build artifacts.
+**Consequences:**
+- Swooper checks and tests compose their bundle, generated artifacts, recipe
+  artifacts, and dependency builds in one task graph. Its default and Studio
+  deployment pipelines remain intentionally exclusive modes over the generated
+  map artifacts and `mod/maps`.
+- Habitat, CLI, Studio, direct-control, and intelligence-bridge aggregate
+  targets no longer duplicate their phase targets' output ownership.
+- Direct-control bundle and declaration phases have disjoint cached outputs;
+  each phase cleans only its own files.
+- Separate output-materializing shell invocations are not a concurrency
+  mechanism for one worktree. Global locks, blanket serialization, retries,
+  disabled cleaning, and source aliases are rejected because they either
+  duplicate Nx authority, hide missing task edges, or permit stale artifacts.
+
 ## ADR-008: Hydrology owns canonical drainage routing
 
 **Status:** Accepted

@@ -4,8 +4,8 @@
   "scripts": {
     "start": "mintlify dev -p 6660 --no-open",
     "normalize": "bun run scripts/update-code-blocks.ts",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "check:ts": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "check:ts": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "test": "vitest run --config ../../vitest.config.ts --project docs",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",

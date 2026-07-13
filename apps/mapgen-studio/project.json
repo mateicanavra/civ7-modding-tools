@@ -30,7 +30,7 @@
     "build": {
       "command": "node -e \"\"",
       "cache": false,
-      "outputs": ["{projectRoot}/dist/**"],
+      "outputs": [],
       "dependsOn": ["build:vite"],
       "options": {
         "cwd": "apps/mapgen-studio"

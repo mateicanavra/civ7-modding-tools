@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "dev": "bun run bin/dev.ts",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "lint": "biome check .",
     "test": "vitest run --project cli",
     "prepublishOnly": "node -e \"\"",
@@ -24,7 +24,7 @@
     "pack": "bun pm pack",
     "postpack": "rimraf oclif.manifest.json",
     "version": "node -e \"\"",
-    "clean:dist": "rimraf dist"
+    "clean:dist": "rimraf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "@civ7/config": "workspace:*",

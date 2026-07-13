@@ -7,7 +7,7 @@
       "command": "tsc -b --force",
       "dependsOn": ["clean:dist", "^build"],
       "cache": true,
-      "outputs": ["{projectRoot}/dist/**"],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"],
       "options": {
         "cwd": "packages/cli"
       }
@@ -33,7 +33,7 @@
     "build": {
       "command": "node -e \"\"",
       "cache": false,
-      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/oclif.manifest.json"],
+      "outputs": [],
       "dependsOn": ["build:bin-mode"],
       "options": {
         "cwd": "packages/cli"
