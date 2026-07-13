@@ -57,13 +57,17 @@ export type UseBrowserRunArgs = {
 };
 
 export type UseBrowserRun = {
-  startBrowserRun: (overrides?: { seed?: string }) => void;
   reroll: () => void;
   triggerRun: () => void;
   isDirty: boolean;
   autoRunEnabled: boolean;
   setAutoRunEnabled: Dispatch<SetStateAction<boolean>>;
 };
+
+type BrowserRunTarget = Readonly<{
+  seed: string;
+  authoringRevision: number;
+}>;
 
 /**
  * `useBrowserRun` — the browser-run command + auto-run orchestration surface.
@@ -116,10 +120,10 @@ export function useBrowserRun({
   const autoRunPendingRef = useRef(false);
 
   const startBrowserRun = useCallback(
-    (overrides?: { seed?: string }) => {
+    (target?: BrowserRunTarget) => {
       setLocalError(null);
 
-      const seedStr = overrides?.seed ?? recipeSettings.seed;
+      const seedStr = target?.seed ?? recipeSettings.seed;
       const seedPolicy = parseCiv7StudioSeed(seedStr);
       if (!seedPolicy.ok) {
         const message = formatCiv7StudioSeedError(seedPolicy);
@@ -172,7 +176,7 @@ export function useBrowserRun({
 
       runnerActions.clearError();
 
-      setLastRunSnapshot(buildBrowserRunSnapshot(authoringRevision));
+      setLastRunSnapshot(buildBrowserRunSnapshot(target?.authoringRevision ?? authoringRevision));
 
       runnerActions.start({
         recipeId: recipeSettings.recipe,
@@ -267,7 +271,8 @@ export function useBrowserRun({
     }
     const next = randomCiv7StudioSeed();
     setRecipeSettings((prev) => ({ ...prev, seed: next }));
-    startBrowserRun({ seed: next });
+    const targetRevision = useAuthoringStore.getState().authoringRevision;
+    startBrowserRun({ seed: next, authoringRevision: targetRevision });
   }, [runInGameRunning, saveDeployRunning, setRecipeSettings, startBrowserRun, toast]);
 
   const triggerRun = useCallback(() => {
@@ -282,7 +287,6 @@ export function useBrowserRun({
     lastRunSnapshot?.authoringRevision !== currentBrowserRunSnapshot.authoringRevision;
 
   return {
-    startBrowserRun,
     reroll,
     triggerRun,
     isDirty,
