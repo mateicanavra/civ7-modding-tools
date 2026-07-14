@@ -1,8 +1,11 @@
 import {
   type Civ7AppUiSnapshotResult,
+  type Civ7MapSummaryResult,
   type Civ7RuntimeProbe,
+  type Civ7SetupApplicationResult,
   type Civ7SetupMapRowsResult,
   type Civ7SinglePlayerSetupValues,
+  type Civ7TargetModReconciliationResult,
 } from "@civ7/direct-control";
 import { CIV7_UI_LOADING_STATES } from "@civ7/direct-control/game-ui/loading-states";
 import { Clock, Effect, Either, Match, Option, Predicate } from "effect";
@@ -295,12 +298,16 @@ export const lifecycleSinglePlayerStartProcedure =
     );
 
     const setupValues = singlePlayerSetupValues(input);
-    yield* mutationResultCall(
+    const appliedSetup = yield* mutationResultCall(
       "apply-setup",
       () => directLifecycle.applySinglePlayerSetup(setupValues, context.endpointDefaults),
       isAppliedSetupResult,
       true
     );
+    const setupEvidence = yield* Effect.try({
+      try: () => projectSetupEvidence(input, appliedSetup, targetMod, mapRows),
+      catch: () => verificationFailure("verify-setup-evidence", "setup-evidence-invalid"),
+    });
 
     yield* mutationResultCall(
       "host-game",
@@ -355,7 +362,7 @@ export const lifecycleSinglePlayerStartProcedure =
       () => verificationFailure("wait-for-tuner", "tuner-readiness-not-observed")
     );
 
-    yield* requireMatched(
+    const mapSummary = yield* requireMatched(
       pollUntil({
         read: () => directLifecycle.getMapSummary(context.endpointDefaults),
         matches: (result) => hasExactMapIdentity(result, input.seed, input.mapSize),
@@ -364,10 +371,15 @@ export const lifecycleSinglePlayerStartProcedure =
       }),
       () => verificationFailure("verify-map", "runtime-map-identity-mismatch")
     );
+    const runtimeEvidence = yield* Effect.try({
+      try: () => projectRuntimeEvidence(input, mapSummary),
+      catch: () => verificationFailure("verify-runtime-evidence", "runtime-evidence-invalid"),
+    });
 
     return {
       ...civ7ControlOrpcErrorCorrelationData(context),
       status: "started",
+      evidence: { setup: setupEvidence, runtime: runtimeEvidence },
       transition,
     } satisfies Civ7LifecycleSinglePlayerStartResult;
   });
@@ -395,6 +407,143 @@ function singlePlayerSetupValues(
 
 function hasExactMapRow(result: Civ7SetupMapRowsResult, mapScript: string): boolean {
   return result.rows.some((row) => row.file === mapScript);
+}
+
+function projectSetupEvidence(
+  input: Civ7LifecycleSinglePlayerStartInput,
+  appliedSetup: Civ7SetupApplicationResult,
+  targetMod: Civ7TargetModReconciliationResult,
+  mapRows: Civ7SetupMapRowsResult
+): Civ7LifecycleSinglePlayerStartResult["evidence"]["setup"] {
+  const config = appliedSetup.after.snapshot.config;
+  const mapScript = requiredStringProbe(config.mapScript);
+  const mapSize = requiredStringProbe(config.mapSizeType);
+  const mapSeed = requiredSeedProbe(config.mapSeed);
+  const gameSeed = requiredSeedProbe(config.gameSeed);
+  const playerCount = finiteNumberProbeValue(config.playerCount);
+  const mapRowFiles = [...new Set(mapRows.rows.map((row) => canonicalMapScript(row.file)))].sort();
+
+  const evidence = {
+    mapScript,
+    mapSize,
+    mapSeed,
+    gameSeed,
+    ...Option.fromNullable(playerCount).pipe(
+      Option.match({
+        onNone: () => ({}),
+        onSome: (playerCount) => ({ playerCount }),
+      })
+    ),
+    targetModId: targetMod.targetModId,
+    mapRowFiles,
+  };
+  return Option.liftPredicate(
+    evidence,
+    () =>
+      mapScript === input.mapScript &&
+      mapSize === input.mapSize &&
+      mapSeed === input.seed &&
+      gameSeed === input.seed &&
+      targetMod.targetModId === input.targetModId &&
+      mapRowFiles.includes(mapScript) &&
+      (playerCount === undefined || isPlayerCount(playerCount)) &&
+      (input.playerCount === undefined || playerCount === input.playerCount)
+  ).pipe(Option.getOrThrowWith(() => new InvalidDependencyObservationError()));
+}
+
+function projectRuntimeEvidence(
+  input: Civ7LifecycleSinglePlayerStartInput,
+  summary: Civ7MapSummaryResult
+): Civ7LifecycleSinglePlayerStartResult["evidence"]["runtime"] {
+  const seed = requiredSeedProbe(summary.map.randomSeed);
+  const mapSize = requiredStringProbe(summary.map.mapSizeType);
+  const width = finiteNumberProbeValue(summary.map.width);
+  const height = finiteNumberProbeValue(summary.map.height);
+  const plotCount = finiteNumberProbeValue(summary.map.plotCount);
+  const turn = finiteNumberProbeValue(summary.game.turn);
+  const gameHash = finiteNumberProbeValue(summary.game.hash);
+  const evidence = {
+    seed,
+    mapSize,
+    ...Option.fromNullable(width).pipe(
+      Option.match({ onNone: () => ({}), onSome: (width) => ({ width }) })
+    ),
+    ...Option.fromNullable(height).pipe(
+      Option.match({ onNone: () => ({}), onSome: (height) => ({ height }) })
+    ),
+    ...Option.fromNullable(plotCount).pipe(
+      Option.match({ onNone: () => ({}), onSome: (plotCount) => ({ plotCount }) })
+    ),
+    ...Option.fromNullable(turn).pipe(
+      Option.match({ onNone: () => ({}), onSome: (turn) => ({ turn }) })
+    ),
+    ...Option.fromNullable(gameHash).pipe(
+      Option.match({ onNone: () => ({}), onSome: (gameHash) => ({ gameHash }) })
+    ),
+  };
+  return Option.liftPredicate(
+    evidence,
+    () =>
+      seed === input.seed &&
+      mapSize === input.mapSize &&
+      (width === undefined || isMapDimension(width)) &&
+      (height === undefined || isMapDimension(height)) &&
+      (plotCount === undefined || isPlotCount(plotCount)) &&
+      (turn === undefined || isTurn(turn))
+  ).pipe(Option.getOrThrowWith(() => new InvalidDependencyObservationError()));
+}
+
+function requiredStringProbe(probe: unknown): string {
+  return Option.fromNullable(stringProbeValue(probe)).pipe(
+    Option.getOrThrowWith(() => new InvalidDependencyObservationError())
+  );
+}
+
+function requiredSeedProbe(probe: unknown): number {
+  return Option.liftPredicate(finiteNumberProbeValue(probe), isSeed).pipe(
+    Option.getOrThrowWith(() => new InvalidDependencyObservationError())
+  );
+}
+
+function canonicalMapScript(value: unknown): string {
+  return Option.liftPredicate(value, isCanonicalMapScript).pipe(
+    Option.getOrThrowWith(() => new InvalidDependencyObservationError())
+  );
+}
+
+function isCanonicalMapScript(value: unknown): value is string {
+  return (
+    Predicate.isString(value) &&
+    value.length > 0 &&
+    value.length <= 512 &&
+    /\S/.test(value) &&
+    !/[\r\n\0]/.test(value)
+  );
+}
+
+function isSeed(value: unknown): value is number {
+  return (
+    Predicate.isNumber(value) &&
+    Number.isInteger(value) &&
+    value >= -2_147_483_648 &&
+    value <= 2_147_483_647
+  );
+}
+
+function isPlayerCount(value: unknown): value is number {
+  return Predicate.isNumber(value) && Number.isInteger(value) && value >= 1 && value <= 64;
+}
+
+function isMapDimension(value: number): boolean {
+  return Number.isInteger(value) && value >= 1 && value <= 10_000;
+}
+
+function isPlotCount(value: number): boolean {
+  return Number.isInteger(value) && value >= 1 && value <= 100_000_000;
+}
+
+function isTurn(value: number): boolean {
+  return Number.isInteger(value) && value >= 0;
 }
 
 function hasStructurallyValidMapRows(result: Civ7SetupMapRowsResult): boolean {
@@ -610,9 +759,7 @@ function refusedSetupPhase(cause: unknown): "loading" | "begin-ready" | "unavail
   );
 }
 
-function hasSetupPhaseRefusalDetails(
-  value: unknown
-): value is object & {
+function hasSetupPhaseRefusalDetails(value: unknown): value is object & {
   code: string;
   details: Record<string, unknown> & { snapshot: Record<string, unknown> };
 } {
@@ -712,8 +859,7 @@ function pollIteration<A>(
 ) {
   const polling = Option.liftPredicate(
     current,
-    (state): state is Readonly<{ kind: "polling"; attempts: number }> =>
-      state.kind === "polling"
+    (state): state is Readonly<{ kind: "polling"; attempts: number }> => state.kind === "polling"
   );
   return Option.match(polling, {
     onNone: () => Effect.succeed(current),
@@ -805,9 +951,7 @@ function matchedPollState<A>(
 ): PollState<A> {
   return Match.value(didMatch).pipe(
     Match.when(true, () => ({ kind: "matched", value }) satisfies PollState<A>),
-    Match.orElse(
-      () => ({ kind: "polling", attempts: current.attempts + 1 }) satisfies PollState<A>
-    )
+    Match.orElse(() => ({ kind: "polling", attempts: current.attempts + 1 }) satisfies PollState<A>)
   );
 }
 
@@ -819,9 +963,7 @@ function unmatchedPollState<A>(
 ): PollState<A> {
   return Match.value(completedAt >= deadline || Option.isNone(observed)).pipe(
     Match.when(true, () => ({ kind: "exhausted" }) satisfies PollState<A>),
-    Match.orElse(
-      () => ({ kind: "polling", attempts: current.attempts + 1 }) satisfies PollState<A>
-    )
+    Match.orElse(() => ({ kind: "polling", attempts: current.attempts + 1 }) satisfies PollState<A>)
   );
 }
 

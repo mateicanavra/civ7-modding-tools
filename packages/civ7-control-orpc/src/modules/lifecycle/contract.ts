@@ -25,11 +25,40 @@ const Civ7MapScriptSchema = Civ7SingleLineSchema;
 const Civ7MapSizeTypeSchema = Type.String({ pattern: "^MAPSIZE_[A-Z0-9_]+$" });
 const Civ7SeedSchema = Type.Integer({ minimum: -2_147_483_648, maximum: 2_147_483_647 });
 const Civ7PlayerCountSchema = Type.Integer({ minimum: 1, maximum: 64 });
+const Civ7MapDimensionSchema = Type.Integer({ minimum: 1, maximum: 10_000 });
+const Civ7PlotCountSchema = Type.Integer({ minimum: 1, maximum: 100_000_000 });
+const Civ7TurnSchema = Type.Integer({ minimum: 0 });
 const Civ7TargetModIdSchema = Type.String({
   minLength: 1,
   maxLength: 512,
   pattern: "^(?=.*[A-Za-z0-9])(?!.*[\\r\\n\\0{}])\\S(?:.*\\S)?$",
 });
+
+const Civ7LifecycleSetupEvidenceSchema = Type.Object(
+  {
+    mapScript: Civ7MapScriptSchema,
+    mapSize: Civ7MapSizeTypeSchema,
+    mapSeed: Civ7SeedSchema,
+    gameSeed: Civ7SeedSchema,
+    playerCount: Type.Optional(Civ7PlayerCountSchema),
+    targetModId: Civ7TargetModIdSchema,
+    mapRowFiles: Type.Array(Civ7MapScriptSchema, { minItems: 1, uniqueItems: true }),
+  },
+  { additionalProperties: false }
+);
+
+const Civ7LifecycleRuntimeEvidenceSchema = Type.Object(
+  {
+    seed: Civ7SeedSchema,
+    mapSize: Civ7MapSizeTypeSchema,
+    width: Type.Optional(Civ7MapDimensionSchema),
+    height: Type.Optional(Civ7MapDimensionSchema),
+    plotCount: Type.Optional(Civ7PlotCountSchema),
+    turn: Type.Optional(Civ7TurnSchema),
+    gameHash: Type.Optional(Type.Number()),
+  },
+  { additionalProperties: false }
+);
 
 const Civ7SavedConfigIdentitySchema = Type.Object(
   {
@@ -69,6 +98,13 @@ const Civ7LifecycleSinglePlayerStartResultSchema = Type.Object(
   {
     correlationId: Type.Optional(Civ7ControlOrpcCorrelationIdSchema),
     status: Type.Literal("started"),
+    evidence: Type.Object(
+      {
+        setup: Civ7LifecycleSetupEvidenceSchema,
+        runtime: Civ7LifecycleRuntimeEvidenceSchema,
+      },
+      { additionalProperties: false }
+    ),
     transition: Type.Union([
       Type.Object(
         { initialPhase: Type.Literal("shell"), activeGameExit: Type.Literal("not-needed") },
