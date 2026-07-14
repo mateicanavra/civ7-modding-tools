@@ -7,6 +7,7 @@
     "rootDir": "src",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "types": ["node"],
     "noEmit": false
   },
   "include": ["src"]

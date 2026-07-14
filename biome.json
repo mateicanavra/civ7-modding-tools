@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -28,6 +28,7 @@
       "!.repos/effect/**",
       "!packages/mapgen-studio-ui/.ds-sync/**",
       "!packages/mapgen-studio-ui/.design-sync/light-canary-tokens.json",
+      "!apps/docs/public/**/*.svg",
       "!docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json"
     ]
   },

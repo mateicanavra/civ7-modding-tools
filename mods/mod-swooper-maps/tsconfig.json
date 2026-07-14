@@ -1,13 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@civ7/adapter": ["../../packages/civ7-adapter/src/index.ts"],
       "@civ7/map-policy": ["../../packages/civ7-map-policy/src/index.ts"],
-      "@mapgen/domain/config": ["src/domain/config.ts"],
-      "@mapgen/domain": ["src/domain/index.ts"],
-      "@mapgen/domain/*": ["src/domain/*"]
+      "@mapgen/domain/config": ["./src/domain/config.ts"],
+      "@mapgen/domain": ["./src/domain/index.ts"],
+      "@mapgen/domain/*": ["./src/domain/*"]
     },
     "outDir": "./mod/maps",
     "rootDir": "../..",

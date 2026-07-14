@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "composite": true
+    "composite": true,
+    "types": ["node"]
   },
   "include": ["scripts/**/*.ts"],
   "ts-node": {

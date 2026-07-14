@@ -46,7 +46,7 @@
     "@mateicanavra/civ7-sdk": "workspace:*",
     "@swooper/mapgen-core": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
-    "typebox": "^1.0.80"
+    "typebox": "catalog:"
   },
   "devDependencies": {
     "@civ7/direct-control": "workspace:*",

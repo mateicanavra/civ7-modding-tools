@@ -114,7 +114,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {
-    "typebox": "^1.0.80"
+    "typebox": "catalog:"
   },
   "devDependencies": {
     "@civ7/map-policy": "workspace:*"

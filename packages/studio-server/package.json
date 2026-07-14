@@ -40,8 +40,8 @@
     "@orpc/tanstack-query": "1.14.5",
     "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
-    "effect-orpc": "0.3.0",
-    "typebox": "^1.0.80"
+    "effect-orpc": "catalog:",
+    "typebox": "catalog:"
   },
   "engines": {
     "node": "22.22.0"

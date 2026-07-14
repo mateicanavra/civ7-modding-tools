@@ -2,7 +2,7 @@ diff --git a/package.json b/package.json
 index 090229169f12cccdbf38c135b8242317bdde99a4..9cbd7356210acbccde8b64c9765bdfad9a0ec5a9 100644
 --- a/package.json
 +++ b/package.json
-@@ -20,8 +20,14 @@
+@@ -20,6 +20,12 @@
    ],
    "type": "module",
    "exports": {
@@ -17,5 +17,23 @@ index 090229169f12cccdbf38c135b8242317bdde99a4..9cbd7356210acbccde8b64c9765bdfad
 +      "default": "./dist/node.js"
 +    }
    },
-   "publishConfig": {
-     "exports": {
+@@ -62,5 +68,5 @@
+     "@orpc/shared": ">=1.13.0",
+     "effect": ">=3.18.0",
+-    "typescript": "^5"
++    "typescript": "^5 || ^6"
+   }
+ }
+diff --git a/src/index.ts b/src/index.ts
+index b88da826e50c67bb0a617b530c4a659b3b24376e..e7f35771f350ca3bd4cb0879eb67eaed8028c0c2 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -19,7 +19,7 @@ export {
+   eos,
+   makeEffectORPC,
+ } from "./effect-builder";
+-export { EffectDecoratedProcedure } from "./effect-procedure";
++export { EffectDecoratedProcedure, type EffectProcedure } from "./effect-procedure";
+ export {
+   createEffectErrorConstructorMap,
+   effectErrorMapToErrorMap,
