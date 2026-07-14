@@ -669,6 +669,54 @@ describe("Grit closed wire decoders", () => {
     });
   });
 
+  test("selects one deterministic relevant analysis failure", () => {
+    const canonical = {
+      ...analysisLog(299, "a.ts"),
+      message: "canonical analysis",
+      position: { line: 1, column: 2 },
+    };
+    const laterPosition = {
+      ...analysisLog(100, "a.ts"),
+      message: "later position",
+      position: { line: 2, column: 1 },
+    };
+    const laterFile = {
+      ...analysisLog(100, "b.ts"),
+      message: "later file",
+      position: { line: 1, column: 1 },
+    };
+    const irrelevant = {
+      ...analysisLog(1, "0-irrelevant.ts"),
+      message: "irrelevant analysis",
+      position: { line: 1, column: 1 },
+    };
+    const parse = (analysisEvents: readonly object[]) =>
+      parseGritApplyDryRunCommand(
+        commandResult({ stdout: jsonl(...analysisEvents, allDone(1, 0)) }),
+        { analysisPathIsRelevant: (file) => file !== irrelevant.file }
+      );
+
+    const forward = parse([canonical, laterPosition, laterFile]);
+    const reverse = parse([laterFile, laterPosition, canonical]);
+    expect(forward).toEqual(reverse);
+    expect(forward).toEqual({
+      kind: "parsed-incomplete",
+      failure: "DiagnosticOutputIncomplete",
+      detail: "analysis-failure: Grit analysis failed at level 299: canonical analysis",
+    });
+    expect(parse([irrelevant, laterFile, canonical, laterPosition])).toEqual(forward);
+    expect(
+      parseGritApplyDryRunCommand(
+        commandResult({
+          stdout: jsonl(canonical, { ...patternInfoEvent(), valid: false }, allDone(1, 0)),
+        })
+      )
+    ).toMatchObject({
+      kind: "parsed-incomplete",
+      detail: expect.stringContaining("invalid-pattern-info"),
+    });
+  });
+
   test("requires one final successful AllDone and counts RemoveFile ranges", () => {
     const file = path.join(repoRoot, providerFile);
     expect(
