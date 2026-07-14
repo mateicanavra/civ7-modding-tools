@@ -1,8 +1,7 @@
 # Verification Ledger
 
-Status: G.2.1 RuleFixPreview sealed as a local Graphite layer above A.3a, G.2,
-RuleDiagnostics, G.1, and control; A.2 handoff reconciliation is next; no
-product closure claim
+Status: A.2 split base sealed; sibling creation next; A.2 implementation not
+begun; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -12,92 +11,42 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-13T18:02:59-04:00 EDT
-- Current phase: `a2-handoff-reconciliation`
-- Last completed gate: uncached Habitat check/build/test/boundaries, direct
-  Habitat check, strict OpenSpec, 119 focused tests, live current-tree/pinned
-  provider fixtures, generated execution-surface refresh, provider-import
-  authority, no-write CLI digest, JSON/JSONL validity, and diff hygiene passed.
-  Changed-path Biome errors fell from 29 at the A.3a base to 28 in the candidate;
-  all new provider/resource files pass directly.
-- Current gate: G.2.1 exact review, authority currentness, exact staging, and
-  local Graphite creation passed. Reconcile the stale A.2 evidence worktree and
-  selected readiness descent corpus from this clean committed boundary.
-- Current readiness sentinel:
-  `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
-  This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
-  outside this workstream's mutation cohort. It is rebound as the external
-  sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action: reconcile and retire the stale authority worktree, import the
-  adapted readiness descent/N=1 corpus, and seal the immutable A.2 handoff.
-  The user's team then owns A.2; this DRA continues the protected independent
-  closeout track and later integrates the returned stack.
-- Blocked by: nothing external. The preceding layers remain ratcheted; A.2,
-  A.3, A.4, A.5, control-oRPC, P19/P20/P21, recut, and merge are excluded.
-- Takeover DRA: Codex task
-  `019f57cc-61ae-7f21-9515-66256fa8da9f`; sole accountable owner for Product/
-  Development and Supervisor/Enforcer obligations, authority synthesis,
-  sequencing, Git/Graphite, evidence claims, finding disposition, merge, drain,
-  and closure. Independent review remains mandatory.
-- Prior source DRA: task `019f3913-4c80-78f1-bdd8-236713d527da`; transfer
-  accepted, idle and non-mutating. Its old standalone-A.2 ownership claims are
-  historical receipts, not current authority.
-- Active Graphite mutation lease: none. Operation
-  `takeover-rule-fix-preview-seal-20260713-01` closed after exact staging, one
-  local child, terminal record-only amendment, and clean ending census.
-- Control worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
-  branch `codex/mapgen-runtime-closeout-rule-fix-preview`, parent
-  `93b1153ca217`; initial create `db29d01013d4`, with final identity owned by the
-  amended branch ref. The worktree and index are clean.
-- Preserved evidence worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
-  branch `codex/mapgen-domain-operation-authority`, HEAD/base `9ff0f711e0d7`.
-  It has 62 tracked changes plus 13 untracked porcelain roots containing 31
-  files, 75 porcelain entries total, and zero staged paths. Generic provider,
-  A.2 Authority, and record changes interleave. It remains read-only: no broad
-  stage, commit, stash, reset, checkout cleanup, or transplant is permitted.
-- Ratcheted-base evidence: one stable `RuleDiagnostics` tag, zero `GritProvider`
-  tags, no provider selector, and one immutable `RuleFacts` snapshot. G.2
-  deletes the sole raw-apply collaborator. Terminal execution state is one closed
-  union; demand is snapshotted once; every missing row fails with typed
-  evidence. Binding authority precedes provider output, demanded ids are
-  first-seen unique, and provider-import authority governs dynamic, inline-type,
-  deep-private, and re-export forms without whole-file exemptions. Same-file
-  differential Biome errors fell from 59 to 55; the sole new error-level finding
-  is the explicit closed Effect signature on the stable capability, with zero
-  formatter/import defects.
-- Current-lane Graphite state: G.2.1 is the local, unsubmitted tip above A.3a
-  and G.2. RuleDiagnostics, G.1, and control reconciliation remain downstack
-  above the takeover frame and sealed baseline manifests.
-  `main == origin/main == 46943c5f1165`; the readiness sentinel and its worktree
-  remain excluded.
-- Agent/process state: the G.2.1 design, implementation, pre-freeze audit,
-  structural repair, exact review, one accepted documentation/proof repair, and
-  fresh affected re-review cohorts are terminal. TypeScript/state-space,
-  architecture/authority, and product/runtime/library all passed successor
-  digest `afbe13337a2d`; no G.2.1 implementation or review agent is active. A.3a product and inherited-
-  evidence censuses and its two-path implementation owner are terminal. Prior G.2 implementation, four
-  repair owners, design census,
-  three prior exact-review cohorts, pre-freeze audit, and differential-Biome
-  sessions are terminal. Terminal TypeScript and architecture review passed;
-  product review accepted `G2-TERM-RUNTIME-001`, and the bounded one-file repair
-  passed a fresh product/runtime/library successor review. Fresh architecture/
-  authority closeout also passed. No new worktree, A.2, remote, staging,
-  Graphite, or persistent-process ownership exists. The
-  pinned standing compaction attendant
-  `019f580b-76b2-7201-8fe6-8f91b7caf0f4` is idle and non-mutating. No provider
-  command or review-owned persistent process remains. Editor language servers
-  and the unrelated `mapgen-studio-runner` tmux session on ports 5173/5174 remain
-  under their original owner and were not touched.
-- Scratch: takeover transcript mining remains under
-  `/tmp/takeover-session/019f3913-4c80-78f1-bdd8-236713d527da/`; current read-only
-  investigators created no repository scratch.
-- Runtime preservation: the prior Studio process receipt is historical and is
-  not used as Packet A acceptance. Runtime checks restart from a committed tree.
+- Last updated: 2026-07-14 EDT
+- Current phase: `a2-sibling-split`
+- Ratcheted foundation: current code, Habitat capabilities, RuleFixPreview, Nx
+  output ownership, R2/R4 authority, deterministic Grit failure selection, the
+  native Nx workspace graph, toolchain bedrock, lintEffect warning normalization,
+  and SA-14 graph ownership are sealed Graphite layers.
+- Current gate: final review passed and the exact split base is sealed.
+  One native Nx graph covered all 121 active
+  authorities: 119 local-runner rules in ten owner batches plus the exact
+  hygiene and boundaries leaves. Three executed enforced rules remain red with
+  five product diagnostics: Studio launch-source ownership, Studio operation
+  identity, and the Swooper run-manifest generator boundary. The docs portability
+  rule has one advisory finding; every other local rule and both graph leaves
+  passed. No selector, dependency, execution, or provider refusal occurred.
+  A.2 Authority, a live violation JSONL corpus, and domain source migration are
+  out of scope.
+- Cache integrity: every source-executed Habitat target now hashes the single Nx
+  `habitatRuntime` named input regardless of product owner. A current artifact
+  rule run populated and then replayed the same passing result from cache; the
+  prior 64 ms artifact result was stale cache evidence, not a Grit race.
+- Next action: create ordinary sibling Graphite children for A.2 and the
+  independent continuation.
+  Keep them parallel unless a real dependency requires moving the continuation's
+  first unique branch above the completed A.2 tip.
+- Graphite law: preserve coherent layers. No returned-stack protocol,
+  replacement stack, full replay, or wholesale recut. Native Graphite operations
+  handle only concrete branch dependencies.
+- A.2 owner after the split: the user's A.2 orchestrator owns Authority, the
+  advisory census and deterministic classification, and six domain migrations.
+  This DRA owns the independent closeout track and final product closure.
+- Blocked by: nothing external.
+- Product state: the complete rendered browser/endpoint/Civ7 matrix remains
+  open, so no product closure is claimed.
 
-This section is the sole live resume state. Update it at every phase change,
-DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
+This section is the sole live resume state. Detailed rows below preserve
+historical evidence and do not override it.
 
 ## Agent Fleet State
 
@@ -355,14 +304,14 @@ prerequisite without admitting dependent authority mutation.
 | --- | --- | --- |
 | 0 Opening census | complete; historical recovery is verified and the current continuation lineage is reconciled through takeover | recovery artifact remains readable and every later source addition stays explicit |
 | 1 Semantic disposition | open only for unresolved legacy rows or a unit whose authority is not final | every disposition required by the unit being admitted is final; complete corpus has zero unresolved rows before Stage 2 exit |
-| 2 Integration tree | active; control reconciliation precedes provider reconstruction | no known accepted product defect or undecided semantic row at the recorded integration tree |
-| 3 Sink stack design | not started | deterministic acyclic sink graph |
-| 4 Mechanical recut | not started | approved sink stacks with source/sink integrity |
+| 2 Semantic product tree | active; A.2 split base sealed and product semantic closure continues | no known accepted product defect or undecided semantic row at the product tree |
+| 3 Current-stack inspection | not started | coherent layers preserved; real dependencies identified |
+| 4 Targeted Graphite normalization | not started; may be unnecessary | only concretely required moves, splits, folds, or restacks complete |
 | 5 Change-unit closure | not started | P01-P20/tooling branches closed and P21 `runtime-ready` |
 | 6 Preliminary runtime | not started | P21 pre-archive full browser/Civ7 matrix green, reviewed, and closed |
 | 7 Record/archive | not started | packet/spec/archive state reconciled |
-| 8 Final runtime/merge | not started | post-archive full matrix green; accepted sinks merged; source accounting terminal |
-| 9 Habitat return | not started | final docs-only handoff branch merged and zero-context return accepted |
+| 8 Final runtime/merge | not started | post-archive full matrix green; accepted branches merged; current stack terminal |
+| 9 Habitat return | not started | closeout records current and zero-context continuation usable |
 
 ## Opening Verification Facts
 
@@ -468,7 +417,7 @@ workstream contract.
 | Scope | Expected gate set | Current state | Row home |
 | --- | --- | --- | --- |
 | Planning document | classify-reported docs checks, OpenSpec validation, review lanes, clean Graphite commit | passed at the historical planning tree; topology receipt superseded by the recorded restack | `gate-register.jsonl` plus planning wave packets |
-| Stages 0-4 | each stage entry, source/recovery, authority, integration, simulation, and recut gate | Stage 0 historical recovery closed; Stage 2 control reconciliation active; Stages 3-4 not started | `gate-register.jsonl` |
+| Stages 0-4 | historical recovery, semantic closure, and any concrete Graphite normalization | Stage 0 recovery closed; Stage 2 continues from the sealed split base; Stages 3-4 remain unnecessary unless a dependency earns them | existing records and native Graphite state |
 | Stage 5 packets | every packet-declared and classify-reported gate | not-run | packet evidence plus typed `gate-register.jsonl` cross-links |
 | Stage 5 cross-cutting units | Effect, config authority, lifecycle, daemon, transition/records | not-run | `gate-register.jsonl` |
 | Stages 6 and 8 | static, endpoint, browser, setup, in-game, review, and cleanup gates per checkpoint | not-run | `gate-register.jsonl` plus immutable runtime evidence |
@@ -485,22 +434,23 @@ Detailed resource rows live in `cleanup-register.jsonl`.
 | Resource class | Opening state | Terminal requirement |
 | --- | --- | --- |
 | review/worker agents | current takeover audits closed; compaction attendant explicitly retained idle | closed, or retained with a bounded non-mutating role and trigger before gate promotion |
-| scratch and retained diagnostics | takeover transcript corpus retained under `/tmp`; inherited dirty source preserved in its worktree | removed, or retained with owner/reason/trigger |
+| scratch and retained diagnostics | takeover transcript corpus retained under `/tmp`; stale dirty Authority worktree retired after evidence disposition | removed, or retained with owner/reason/trigger |
 | Studio/Civ7 watchers, listeners, processes, tmux | unrelated original-owner tmux and editor processes observed, not adopted | down unless an explicit owner handoff row exists |
-| dedicated/temporary worktrees | clean control worktree plus one preserved dirty evidence worktree | clean and removed after their owning loop; evidence worktree remains read-only until every accepted hunk is re-derived or rejected |
-| recovery bundle/protected refs | verified bundle plus readiness sentinel `f325250d0878` | retained through recut, then retired only at the recorded trigger |
+| dedicated/temporary worktrees | current control worktree plus separately owned readiness reference | new worktrees exist only for real parallel ownership or output isolation; ordinary verification runs in its owning worktree; readiness worktree remains untouched |
+| recovery bundle/protected refs | verified bundle plus readiness sentinel `f325250d0878` | historical evidence retained through final merge/accounting; readiness ref remains untouched |
 | generated/runtime artifacts | no current control-layer artifact mutation | reproduced, attributed, then retained/removed by owner policy |
 
-The Agent Fleet State above is a live index. Every concrete agent or resource
-also receives its own cleanup row with identity, owner, purpose, state,
-evidence, and preservation/retirement reason.
+The Agent Fleet State above is historical detail. Current agent or resource
+ownership belongs in the concise Live Control State only when it affects the
+next action.
 
 ## Semantic Corpus Accounting
 
 The earlier `obligation-corpus.jsonl` plan was never instantiated and is not a
 live prerequisite. `obligation-corpus-contract.md` remains planning history.
-Use existing source/sink, packet, gate, cleanup, and authority records directly;
-do not build a second progress database.
+Use current packet and authority records directly; historical source/sink,
+gate, and cleanup records remain reference only. Do not build a second progress
+database.
 
 | Corpus | Current owner/home | Current state | Closure rule |
 | --- | --- | --- | --- |
@@ -508,7 +458,7 @@ do not build a second progress database.
 | Effect diagnostics | `TOOL-EFFECT` source accounting and native Biome output | independent corpus open | every in-scope diagnostic dispositioned without hiding or elaborating disposable topology |
 | touched Habitat rules | authority manifests, cleanup rows, rule fixtures, and native Habitat output | per-unit; provider and A.2 rows open | every retained/retired rule has one authority owner and complete lifecycle evidence |
 | packet obligations | P01-P21 task/evidence records plus this ledger | P01-P18 historically checked with reopenings; P19-P21 open | every declared gate has current evidence at the required proof class |
-| control inputs | `stack-recut-manifest.md`, `gate-register.jsonl`, `cleanup-register.jsonl`, Wave Packets, and takeover frame | takeover reconciliation active | zero unmatched material source, finding, process, or candidate hunk before the dependent stage closes |
+| control inputs | current frame/workstream plus historical opening-stack, gate, cleanup, and wave records | current through the sealed split base | current semantic claims agree before the dependent slice closes |
 
 ## Runtime Matrix Register
 

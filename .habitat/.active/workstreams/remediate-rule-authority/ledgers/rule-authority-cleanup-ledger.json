@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-13",
+  "updatedOn": "2026-07-14",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
@@ -14,39 +14,36 @@
   },
   "counts": {
     "actionDecision": {
-      "boundary inversion": 6,
+      "boundary inversion": 7,
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
       "context admission": 26,
-      "no action": 57,
-      "positive authority creation": 8,
+      "no action": 55,
+      "positive authority creation": 7,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
-      "split by owner": 15
+      "split by owner": 17
     },
     "packetNeeded": {
       "false": 121
     },
     "layer2Status": {
-      "blocked-prior-source-owner-design": 2,
-      "complete-no-generic-domain-operation-slice": 2,
-      "decision-packet-accepted; blocked-prior-source-owner-design": 1,
+      "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
-      "decision-packet-accepted; split-generalization-needed": 1,
+      "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 83,
+      "none": 81,
       "packet-complete": 16,
-      "transition-decision-accepted": 14
+      "transition-decision-accepted": 18
     }
   },
   "gateState": {
-    "currentLayer": "Packet A.2 generated-validator ownership prerequisite sealed.",
-    "currentGate": "The exact reviewed prerequisite changeset is sealed through Graphite; dependent mutation requires a fresh domain-operation authority admission and lease.",
-    "mutationAuthorization": "None on the sealed prerequisite branch. The next legal mutation is the committed Packet A.2 domain-operation authority slice on its exact child branch under a fresh lease.",
+    "currentLayer": "A.2 split-ready baseline.",
+    "currentGate": "Split base reviewed and ready for ordinary sibling creation.",
+    "mutationAuthorization": "None on the split base; A.2 and the independent continuation use ordinary sibling Graphite children.",
     "nextSliceId": null,
-    "nextLegalAction": "Create and admit the domain-operation authority child from the sealed prerequisite tip; implement only the packet's six-rule authority split and named retirements.",
-    "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
-    "sourceCommit": "62b8dbcc9 initial materialization; the amended codex/mapgen-generated-validator-ownership branch ref is the sealed tip"
+    "nextLegalAction": "Create ordinary sibling Graphite children for A.2 and the independent continuation.",
+    "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
   },
   "rules": [
     {
@@ -180,7 +177,7 @@
       "actionDecision": "no action",
       "packetNeeded": false,
       "expectedRemediation": "Stay as docs hygiene rule.",
-      "evidenceNote": "Grit docs-only rewrite pattern over `docs/**/*.md`; empty baseline.",
+      "evidenceNote": "Habitat raw-text docs hygiene over `docs/**/*.md`; exact suffix matcher, advisory lane, and empty baseline.",
       "currentPath": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/rule.json"
     },
     {
@@ -376,11 +373,12 @@
     {
       "ruleId": "preserve_decomposed_foundation_contract_surfaces",
       "lane": "domains/foundation",
-      "actionDecision": "no action",
+      "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "Retain foundation decomposed contract-surface validator; it checks required operation names, artifact tags, strategy rule imports, and projection plate-motion/provenance currentness across exact foundation files.",
-      "evidenceNote": "Focused Habitat proof passes. The rule mixes required positive presence, import-source proof, and currentness assertions, so it is correctly expressed as a Habitat-native validator rather than a single Grit pattern. Corrective local-proxy review left this settled: it is positive Foundation currentness over documented decomposed contracts, not mainly a local negative proxy.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/rule.json"
+      "expectedRemediation": "Remove the mandatory strategy ../rules/ clause after generic strategy authority lands. Rehome exact operation inventory to recipe-owned generic composition and execution authority; leave artifact and projection concerns with their existing owners.",
+      "evidenceNote": "A.2 review found mixed owners: operation topology and dependency clauses belong to generic domain-operation authority, while artifact and projection currentness remain exterior concerns.",
+      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/preserve_decomposed_foundation_contract_surfaces/rule.json",
+      "layer2Status": "decision-packet-accepted; split-generalization-needed"
     },
     {
       "ruleId": "preserve_evidence_provenance_labels",
@@ -478,11 +476,12 @@
     {
       "ruleId": "prohibit_cross_op_runtime_calls",
       "lane": "blueprints/domain-operation",
-      "actionDecision": "no action",
+      "actionDecision": "boundary inversion",
       "packetNeeded": false,
-      "expectedRemediation": "Stay live as op atomicity guard.",
-      "evidenceNote": "Op entrypoints create one op from local contract/strategy; no sibling/barrel imports.",
-      "currentPath": ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/rule.json"
+      "expectedRemediation": "Replace the runtime-call proxy with generic private cross-import authority after fixture and injected parity preserve every legitimate boundary class.",
+      "evidenceNote": "The current guard is under-scoped to runtime calls and does not own private sibling rules, strategies, or cross-domain imports.",
+      "currentPath": ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/rule.json",
+      "layer2Status": "decision-packet-accepted; split-generalization-needed"
     },
     {
       "ruleId": "prohibit_domain_artifacts_modules",
@@ -496,9 +495,9 @@
       "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
       "wholeRuleFit": "partial absorption; keep until positive nested topology exists",
       "ruleIdPlan": "preserve id now; later split absorbed root clause or replace with expanded positive topology",
-      "semanticDecision": "The direct-root artifacts.ts clause is absorbed, but nested artifacts.ts risk remains outside current source topology.",
-      "residualFollowUp": "Design whether nested rules/, strategies/, policy/, model/schemas, and model/policy should be closed by generic topology.",
-      "implementationReadiness": "not implementation-ready for deletion"
+      "semanticDecision": "D4 settles the operation-interior topology and absorbs operation-local artifacts.ts through positive closed structure. Other domain-interior scopes remain outside A.2.",
+      "residualFollowUp": "Delete only after the positive A.2 survivor rejects the representative nested artifacts.ts probe; preserve any distinct exterior clause.",
+      "implementationReadiness": "deletion-gated by positive survivor proof"
     },
     {
       "ruleId": "prohibit_domain_entrypoint_self_reexports",
@@ -588,16 +587,16 @@
       "lane": "domains/foundation",
       "actionDecision": "retirement/garbage collection",
       "packetNeeded": false,
-      "expectedRemediation": "Treat as contextual cleanup or deletion candidate; do not promote exact Foundation lib/tectonics blacklist into generic domain-operation authority.",
-      "evidenceNote": "Corrective audit: current Foundation rules import lib/tectonics but do not re-export it; generic Habitat-only rules shim rail is rejected.",
+      "expectedRemediation": "Retire after D4's generic export-only local-entrypoint survivor rejects the representative shim re-export.",
+      "evidenceNote": "D4 settles export-only, local-source nested entrypoints. Current Foundation rules do not re-export lib/tectonics; survivor proof, not absence alone, gates retirement.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/rule.json",
-      "layer2Status": "complete-no-generic-domain-operation-slice",
+      "layer2Status": "transition-decision-accepted",
       "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "contextual cleanup / possible retire",
-      "ruleIdPlan": "do not move id; later either replace with source-owned rules-entrypoint policy or delete exact blacklist after absence proof",
-      "semanticDecision": "Rules entrypoints should own local rule surfaces, but the exact Foundation lib/tectonics re-export ban is not reusable authority by itself.",
-      "residualFollowUp": "If recurrence risk matters, implement package/source verification for rules entrypoint exports; otherwise delete stale exact blacklist.",
-      "implementationReadiness": "not implementation-ready for generic Layer 3; contextual cleanup or deletion after recurrence review"
+      "wholeRuleFit": "absorbed by generic D4 entrypoint authority",
+      "ruleIdPlan": "retire the Foundation-local id after generic survivor proof",
+      "semanticDecision": "D4 owns operation rules and strategies indices as export-only local entrypoints; the exact Foundation blacklist is not a separate authority.",
+      "residualFollowUp": "Prove the generic survivor against the shim shape before retirement.",
+      "implementationReadiness": "ready for A.2 classification after positive authority exists"
     },
     {
       "ruleId": "prohibit_foundation_stage_cast_merge_hacks",
@@ -652,16 +651,16 @@
       "lane": "domains/foundation",
       "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "Keep contextual until source-backed strategy dependency classes exist; do not promote Foundation allowlist to generic strategy authority.",
-      "evidenceNote": "Corrective audit: Foundation allowlist is underbroad; other strategies legitimately import support dirs, policy, local types, core libs, same-op strategies, and domain constants.",
+      "expectedRemediation": "Replace the Foundation path allowlist with D2's generic capability- and owner-based dependency authority.",
+      "evidenceNote": "D2 settles legal dependency classes without a current-path inventory. The Foundation allowlist is underbroad and cannot survive as generic authority.",
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/rule.json",
-      "layer2Status": "complete-no-generic-domain-operation-slice",
+      "layer2Status": "transition-decision-accepted",
       "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "contextual foundation rule",
-      "ruleIdPlan": "preserve id in Foundation context for now; do not create generic strategy rail from this predicate",
-      "semanticDecision": "Foundation tectonics strategy locality is narrower than valid strategy-kind imports repo-wide. A generic domain-operation-strategy move would be false.",
-      "residualFollowUp": "Design source-backed domain-operation-strategy dependency classes before replacing or deleting this local guard.",
-      "implementationReadiness": "not implementation-ready for generic Layer 3; keep contextual until positive strategy import policy exists"
+      "wholeRuleFit": "replaced by generic dependency authority",
+      "ruleIdPlan": "retire the Foundation-local id after generic bad and clean proof",
+      "semanticDecision": "D2 forbids private cross-domain and sibling-operation reaches while admitting public capability classes; it does not preserve the Foundation allowlist.",
+      "residualFollowUp": "Classify live violations only after the finalized generic rule runs advisory.",
+      "implementationReadiness": "ready for A.2 classification after positive authority exists"
     },
     {
       "ruleId": "prohibit_hydrology_climate_intervention_tokens",
@@ -1040,16 +1039,16 @@
       "lane": "domains/nonfoundation",
       "actionDecision": "closed structure inversion",
       "packetNeeded": false,
-      "expectedRemediation": "replace later with generic domain-operation module topology authority after source-owned topology design",
-      "evidenceNote": "Post-ratchet revalidation found the actual Ecology rule is an exemplar proxy. require_domain_source_topology partially absorbs contract.ts/index.ts, but strategies and support-directory index clauses still require source-owned design.",
+      "expectedRemediation": "Replace the Ecology proxy with D1/D4 generic positive operation topology, then retire it after survivor proof.",
+      "evidenceNote": "D1 and D4 settle the exact operation root and nested-container shape across every domain. The Ecology-only rule is an instance proxy.",
       "currentPath": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
-      "layer2Status": "decision-packet-accepted; blocked-prior-source-owner-design",
+      "layer2Status": "transition-decision-accepted",
       "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
-      "wholeRuleFit": "replace by positive authority, but not implementation-ready",
-      "ruleIdPlan": "do not move Ecology id as-is; replace by generic positive authority, then delete Ecology rule after replacement proof",
-      "semanticDecision": "The rule is admitted as an actual Ecology proxy for all-domain op-module topology; current source topology is not a full absorber.",
-      "residualFollowUp": "Design support-directory exception model and generic contract.ts/index.ts/optional rules index/strategies index topology across domains.",
-      "implementationReadiness": "not implementation-ready; requires source-owned topology design"
+      "wholeRuleFit": "absorbed by generic D1/D4 topology authority",
+      "ruleIdPlan": "retire the Ecology id after generic survivor proof",
+      "semanticDecision": "Every operation requires contract.ts, assembly-only index.ts, rules/index.ts plus named rules as needed, and strategies/index.ts plus at least one named strategy; no types.ts, policy, or helper buckets remain.",
+      "residualFollowUp": "Implement the generic positive law, run it advisory, and classify every resulting row before source movement.",
+      "implementationReadiness": "ready for A.2 Authority implementation"
     },
     {
       "ruleId": "require_explicit_mapgen_sdk_opt_in",
@@ -1335,18 +1334,18 @@
     {
       "ruleId": "validate_ecology_op_contract_quality",
       "lane": "domains/nonfoundation",
-      "actionDecision": "positive authority creation",
+      "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "Split schema-description quality from JSDoc/stale-path checks; source-own schema metadata policy before mutation.",
-      "evidenceNote": "Corrective audit: check.sh delegates to an Ecology-specific script that mixes Type.Object description checks, JSDoc checks, and stale stage path coverage.",
+      "expectedRemediation": "Route schema-description quality to package verification; retire blanket JSDoc and stale recipe-path clauses.",
+      "evidenceNote": "D3 makes contract metadata package-owned and exterior to A.2. The Ecology script mixes that concern with clauses that have no durable operation-topology authority.",
       "currentPath": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
-      "layer2Status": "blocked-prior-source-owner-design",
+      "layer2Status": "transition-decision-accepted",
       "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split required",
-      "ruleIdPlan": "do not promote current script whole; schema-description clause may become source-owned contract-quality, while JSDoc and stale-path clauses should delete unless separately justified",
-      "semanticDecision": "Op contract metadata belongs in op contract/schema tooling. Exported-function JSDoc and stale recipes/standard/stages/ecology/steps coverage are not domain-operation invariants.",
-      "residualFollowUp": "Define exact schema metadata policy in source/package verify, remove stale ecology stage path, and avoid carrying JSDoc as operation authority.",
-      "implementationReadiness": "not implementation-ready; schema metadata policy must be source/package-verify owned before mutation"
+      "wholeRuleFit": "split by package and deletion owners",
+      "ruleIdPlan": "retire the mixed Ecology id after the package-owned concern has honest proof",
+      "semanticDecision": "D3 places schema-description quality at the package registry/verification surface. Blanket exported-function JSDoc and the stale recipe path retire categorically.",
+      "residualFollowUp": "Complete the six metadata gaps outside A.2 under package verification; do not add a compiler-API or Grit proxy.",
+      "implementationReadiness": "D3 settled; exterior package work remains independently owned"
     },
     {
       "ruleId": "validate_habitat_service_module_file_shape",
@@ -2374,8 +2373,8 @@
     },
     {
       "sliceId": "domain-operation-generic-surfaces",
-      "status": "corrected-reopened",
-      "actionClass": "closed structure inversion / split by owner / native source-owner design",
+      "status": "superseded",
+      "actionClass": "replaced by sealed descent decisions",
       "rules": [
         "require_ecology_canonical_op_module_topology",
         "validate_ecology_op_contract_quality",
@@ -2383,110 +2382,16 @@
         "prohibit_foundation_rules_tectonics_shim_reexports",
         "prohibit_foundation_op_contract_config_bags"
       ],
-      "reason": "Corrective audit rejected promoting Ecology/Foundation instance rules into a generic Habitat domain-operation rail. Only the config-facade clause is close to implementation-ready through an existing source-backed domain-operation import rail.",
+      "reason": "D1-D4 settle topology, dependency classes, package-owned contract metadata, and export-only local entrypoints. R2 already consolidated the config-facade rule. Live A.2 rows must be re-derived from finalized advisory authority.",
       "queueOrder": 4,
       "completedOn": "2026-07-01T22:45:00.000Z",
       "sourceCommit": "88cd1a344",
-      "selectedRules": [
-        "require_ecology_canonical_op_module_topology",
-        "validate_ecology_op_contract_quality",
-        "prohibit_foundation_strategy_nonlocal_imports",
-        "prohibit_foundation_rules_tectonics_shim_reexports",
-        "prohibit_foundation_op_contract_config_bags"
-      ],
-      "packetSummary": "Domain-operation authority is real, but these rows cannot be solved by copying local Habitat predicates into a generic rail. Topology, contract quality, strategy locality, and rules entrypoint need source-owned verifier/generator/API designs or deletion-by-absence. Foundation op contract config-facade imports can consolidate into the existing domain-operation config-facade rule.",
-      "authorityConclusion": {
-        "domainOperation": "accepted as a product/source concept, but not implemented by Habitat sidecar generalization of local rules",
-        "implementationGate": "only prohibit_foundation_op_contract_config_bags has a clear near-term Layer 3 consolidation path; the rest are blocked or contextual"
-      },
-      "perRuleDecisions": {
-        "require_ecology_canonical_op_module_topology": {
-          "ruleId": "require_ecology_canonical_op_module_topology",
-          "actionDecision": "closed structure inversion",
-          "packetNeeded": false,
-          "layer2Status": "blocked-prior-source-owner-design",
-          "implementationReadiness": "not implementation-ready; source-owned operation-module authority is settled in the selected descent decisions",
-          "wholeRuleFit": "split/consolidate into source-owned topology authority",
-          "ruleIdPlan": "do not move Ecology rule as-is; later replace by source-owned op-module topology proof and delete Ecology rule after replacement proof",
-          "semanticDecision": "Contract/index/strategy binding is live domain-operation authority, but must be enforced through TS registry, generator, or package verify, not Ecology sidecar topology.",
-          "residualFollowUp": "Use the selected descent frame and sealed decisions for operation-module topology before Layer 3.",
-          "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries. R4 recheck found zero operation children without contract.ts, so the earlier support-directory exception blocker was stale."
-        },
-        "validate_ecology_op_contract_quality": {
-          "ruleId": "validate_ecology_op_contract_quality",
-          "actionDecision": "positive authority creation",
-          "packetNeeded": false,
-          "layer2Status": "blocked-prior-source-owner-design",
-          "implementationReadiness": "not implementation-ready; schema metadata policy must be source/package-verify owned before mutation",
-          "wholeRuleFit": "split required",
-          "ruleIdPlan": "do not promote current script whole; schema-description clause may become source-owned contract-quality, while JSDoc and stale-path clauses should delete unless separately justified",
-          "semanticDecision": "Op contract metadata belongs in op contract/schema tooling. Exported-function JSDoc and stale recipes/standard/stages/ecology/steps coverage are not domain-operation invariants.",
-          "residualFollowUp": "Define exact schema metadata policy in source/package verify, remove stale ecology stage path, and avoid carrying JSDoc as operation authority.",
-          "evidenceNote": "Corrective audit: check.sh delegates to an Ecology-specific script that mixes Type.Object description checks, JSDoc checks, and stale stage path coverage."
-        },
-        "prohibit_foundation_strategy_nonlocal_imports": {
-          "ruleId": "prohibit_foundation_strategy_nonlocal_imports",
-          "actionDecision": "split by owner",
-          "packetNeeded": false,
-          "layer2Status": "complete-no-generic-domain-operation-slice",
-          "implementationReadiness": "not implementation-ready for generic Layer 3; keep contextual until positive strategy import policy exists",
-          "wholeRuleFit": "contextual foundation rule",
-          "ruleIdPlan": "preserve id in Foundation context for now; do not create generic strategy rail from this predicate",
-          "semanticDecision": "Foundation tectonics strategy locality is narrower than valid strategy-kind imports repo-wide. A generic domain-operation-strategy move would be false.",
-          "residualFollowUp": "Design source-backed domain-operation-strategy dependency classes before replacing or deleting this local guard.",
-          "evidenceNote": "Corrective audit: Foundation allowlist is underbroad; other strategies legitimately import support dirs, policy, local types, core libs, same-op strategies, and domain constants."
-        },
-        "prohibit_foundation_rules_tectonics_shim_reexports": {
-          "ruleId": "prohibit_foundation_rules_tectonics_shim_reexports",
-          "actionDecision": "retirement/garbage collection",
-          "packetNeeded": false,
-          "layer2Status": "complete-no-generic-domain-operation-slice",
-          "implementationReadiness": "not implementation-ready for generic Layer 3; contextual cleanup or deletion after recurrence review",
-          "wholeRuleFit": "contextual cleanup / possible retire",
-          "ruleIdPlan": "do not move id; later either replace with source-owned rules-entrypoint policy or delete exact blacklist after absence proof",
-          "semanticDecision": "Rules entrypoints should own local rule surfaces, but the exact Foundation lib/tectonics re-export ban is not reusable authority by itself.",
-          "residualFollowUp": "If recurrence risk matters, implement package/source verification for rules entrypoint exports; otherwise delete stale exact blacklist.",
-          "evidenceNote": "Corrective audit: current Foundation rules import lib/tectonics but do not re-export it; generic Habitat-only rules shim rail is rejected."
-        },
-        "prohibit_foundation_op_contract_config_bags": {
-          "ruleId": "prohibit_foundation_op_contract_config_bags",
-          "actionDecision": "split by owner",
-          "packetNeeded": false,
-          "layer2Status": "implementation-ready",
-          "implementationReadiness": "implementation-ready as config-facade consolidation plus retired-token deletion",
-          "wholeRuleFit": "split/consolidate",
-          "ruleIdPlan": "replace by widening existing domain-operation config-facade import rule, then delete local Foundation id after proof; do not preserve FoundationConfigSchema blacklist",
-          "semanticDecision": "Operation contracts should expose local typed schemas and may use op-local/named-family config, but must not import recipe-facing root/domain config facades.",
-          "residualFollowUp": "Layer 3 should extend prohibit_root_config_facade_imports_in_domain_ops to alias imports, preserve allowed op-local config imports, prove absence, then retire this Foundation row.",
-          "evidenceNote": "Corrective audit: existing owner is .habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops; FoundationConfigSchema is retired literal residue unless concrete recurrence risk is proven."
-        }
-      },
-      "implementationCandidate": {
-        "materialGate": false,
-        "candidateSlices": [
-          "consolidate prohibit_foundation_op_contract_config_bags into prohibit_root_config_facade_imports_in_domain_ops and delete FoundationConfigSchema token residue",
-          "design source-owned operation-module topology verifier/generator before touching require_ecology_canonical_op_module_topology",
-          "design op contract schema metadata policy before touching validate_ecology_op_contract_quality",
-          "keep prohibit_foundation_strategy_nonlocal_imports contextual until strategy dependency classes exist",
-          "delete or source-own rules-entrypoint verification before changing prohibit_foundation_rules_tectonics_shim_reexports"
-        ],
-        "blockedBy": [
-          "selected descent decisions for operation-module source-owner authority",
-          "schema metadata source/package-verify policy",
-          "source-backed strategy dependency classes",
-          "source-owned rules-entrypoint export policy or deletion proof"
-        ]
-      },
-      "reviewDisposition": {
-        "accepted": [
-          "Rejected generic Habitat promotion",
-          "Accepted config-facade consolidation as the only near-ready row"
-        ],
-        "rejected": [
-          "Copying Ecology topology structure.toml globally",
-          "Moving Foundation strategy allowlist into domain-operation-strategy as-is"
-        ]
-      }
+      "supersededBy": [
+        ".habitat/.active/workstreams/descend-002-domain-operation-interior/decisions/001-strategy-container-law.md",
+        ".habitat/.active/workstreams/descend-002-domain-operation-interior/decisions/002-strategy-dependency-classes.md",
+        ".habitat/.active/workstreams/descend-002-domain-operation-interior/decisions/003-contract-quality-owner.md",
+        ".habitat/.active/workstreams/descend-002-domain-operation-interior/decisions/004-rules-entrypoint-export-policy.md"
+      ]
     },
     {
       "sliceId": "standard-stage-public-config-and-contract-surface",
@@ -3114,16 +3019,6 @@
       "kind": "projection artifact namespace native-owner blocker",
       "rules": ["prohibit_map_projection_dependencies_in_physics_contracts"],
       "reason": "Broad truth/projection enforcement cannot use a stage-kind sidecar or blanket artifact:map ban while source-owned map artifacts remain valid. Decide source-native projection artifact subnamespace/contract verification before broad mutation."
-    },
-    {
-      "kind": "domain-operation source-owner design blocker",
-      "rules": [
-        "require_ecology_canonical_op_module_topology",
-        "validate_ecology_op_contract_quality",
-        "prohibit_foundation_strategy_nonlocal_imports",
-        "prohibit_foundation_rules_tectonics_shim_reexports"
-      ],
-      "reason": "These rows need source-owned verifier/generator/API decisions or deletion proof before Layer 3. Do not generalize Ecology/Foundation Habitat predicates into generic domain-operation rails."
     },
     {
       "kind": "retired story publisher native-boundary blocker",

@@ -15,6 +15,7 @@ This index routes active workstreams only and cannot reorder that authority.
 | --- | --- | --- |
 | `define-domain-blueprint-structure/` | active | Define the domain blueprint scope tree, qualify prework decisions, and prepare closed-structure enforcement. |
 | `remediate-rule-authority/` | operational / mostly closed | Maintain the machine-readable rule-authority ledger and closed receipts for rule remediation state. |
+| `descend-002-domain-operation-interior/` | split-ready frame only | Preserve the operation-interior frame, shared ledger seam, and separate decisions. A.2 Authority, live violation classification, and source migration have not begun. |
 | `establish-mapgen-product-authority/` | supporting / mostly complete | Provide MapGen product and architecture authority evidence for Habitat decisions. |
 | `orient-layer3-authority-consolidation/` | supporting orientation | Preserve the Layer 3 takeover scratchpad and initiative frame. |
 
@@ -22,6 +23,11 @@ This index routes active workstreams only and cannot reorder that authority.
 
 - `current-scope-scan.md`: current in-frame, outer-edge, and historical
   material map for the prework dominoes and domain blueprint enforcement path.
+- `blueprint-descent-roadmap.md`: ordered descent intent and state transitions.
+- `descent-workspace-shape.md`: shared frame, ledger, decision, execution,
+  receipt, and ascent document roles.
+- `remediate-rule-authority/pre-descent-readiness-plan.md`: finite readiness
+  disposition and split-base gate for the domain-operation descent.
 
 ## Operating Rule
 
