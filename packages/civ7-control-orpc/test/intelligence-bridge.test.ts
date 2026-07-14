@@ -4,55 +4,47 @@ import {
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcPlayableStatusResult,
   type Civ7IntelligenceBridge,
-  type Civ7IntelligenceBridgeGlobalTarget,
   createCiv7IntelligenceBridge,
-  installCiv7IntelligenceBridge,
 } from "../src/index";
+import {
+  type Civ7IntelligenceBridgeGlobalTarget,
+  installCiv7IntelligenceBridge,
+} from "../src/bridge/intelligence-bridge";
 
 describe("Civ7IntelligenceBridge global adapter", () => {
-  test("installs a serialized global bridge over the existing controller ingress", async () => {
+  test("installs the native nested router client with fresh correlated context per call", async () => {
     const fake = fakeContext(playableStatusResult());
     const target: Civ7IntelligenceBridgeGlobalTarget = {};
 
     const bridge = installCiv7IntelligenceBridge({
       target,
-      createContext: (request) => {
-        fake.contextRequests.push(request);
+      createContext: () => {
+        fake.contextRequests += 1;
         return fake.context;
       },
     });
 
     expect(target.Civ7IntelligenceBridge).toBe(bridge);
 
-    const response = await target.Civ7IntelligenceBridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "global-readiness-1",
-    });
+    const first = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "global-readiness-1" } }
+    );
+    const second = await bridge.readiness.current({});
 
-    expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "readiness.current",
-      correlationId: "global-readiness-1",
-      output: {
-        playable: true,
-        readiness: "tuner-ready",
-        capability: {
-          canObserve: true,
-          canMutate: true,
-        },
+    expect(first).toMatchObject({
+      playable: true,
+      readiness: "tuner-ready",
+      capability: {
+        canObserve: true,
+        canMutate: true,
       },
     });
-    expect(fake.calls).toEqual([{ timeoutMs: 1_000 }]);
-    expect(fake.contextRequests).toEqual([
-      {
-        procedureKey: "readiness.current",
-        input: {},
-        correlationId: "global-readiness-1",
-      },
-    ]);
+    expect(second).toMatchObject({ playable: true });
+    expect(fake.calls).toEqual([{ timeoutMs: 1_000 }, { timeoutMs: 1_000 }]);
+    expect(fake.contextRequests).toBe(2);
 
-    const serialized = JSON.stringify(response);
+    const serialized = JSON.stringify(first);
     expect(serialized).not.toContain('"host"');
     expect(serialized).not.toContain('"port"');
     expect(serialized).not.toContain('"session"');
@@ -61,41 +53,83 @@ describe("Civ7IntelligenceBridge global adapter", () => {
     expect(serialized).not.toContain("Tuner");
   });
 
-  test("keeps raw bridge envelope fields rejected after global installation", async () => {
+  test("lets the contract boundary reject raw fields", async () => {
     const fake = fakeContext(playableStatusResult());
     const bridge = createCiv7IntelligenceBridge({
       createContext: () => fake.context,
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      session: { state: "Tuner" },
-      rawCommand: "Game.turn",
+    await expect(
+      bridge.readiness.current({ session: { state: "Tuner" }, rawCommand: "Game.turn" })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(fake.calls).toEqual([]);
+  });
+
+  test.each([
+    ["synchronous", () => {
+      throw new Error("secret synchronous context detail");
+    }],
+    ["rejected", async () => {
+      throw new Error("secret rejected context detail");
+    }],
+  ])("sanitizes %s controller context acquisition failures", async (_label, createContext) => {
+    const bridge = createCiv7IntelligenceBridge({ createContext: createContext as never });
+
+    await expect(bridge.readiness.current({})).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Civ7 controller context is unavailable.",
+    });
+    await expect(bridge.readiness.current({})).rejects.not.toThrow(/secret/);
+  });
+
+  test("fails closed when the controller does not admit a selected capability", async () => {
+    const bridge = createCiv7IntelligenceBridge({
+      createContext: () => fakeContext(playableStatusResult()).context,
     });
 
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_BAD_REQUEST",
-        message: "Civ7 controller bridge request envelope is invalid.",
-        reason: "invalid-envelope",
+    await expect(bridge.world.current({})).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "world.current",
+        risk: "read-only",
+        source: "controller-context",
+        reason: "procedure-not-supported",
+      },
+    });
+  });
+
+  test("requires controller proof for an admitted mutation", async () => {
+    const fake = fakeContext(playableStatusResult());
+    const bridge = createCiv7IntelligenceBridge({
+      createContext: () => ({
+        ...fake.context,
+        controller: {
+          supportedReadProcedures: [],
+          supportedMutationProcedures: ["notifications.dismiss.request"],
+        },
+      }),
+    });
+
+    await expect(
+      bridge.notifications.dismiss.request({
+        notificationId: { owner: 0, id: 113, type: 20 },
+      })
+    ).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "notifications.dismiss.request",
+        risk: "mutation",
+        source: "controller-context",
+        reason: "proof-required",
       },
     });
     expect(fake.calls).toEqual([]);
   });
 
-  test("does not overwrite an existing global bridge unless explicitly replaced", async () => {
-    const existing: Civ7IntelligenceBridge = {
-      invoke: async () => ({
-        ok: false,
-        error: {
-          code: "EXISTING",
-          message: "Existing bridge.",
-          reason: "procedure-failed",
-        },
-      }),
-    };
+  test("does not overwrite an existing global bridge unless explicitly replaced", () => {
+    const existing = createCiv7IntelligenceBridge({
+      createContext: () => fakeContext(playableStatusResult()).context,
+    });
     const target: Civ7IntelligenceBridgeGlobalTarget = {
       Civ7IntelligenceBridge: existing,
     };
@@ -108,7 +142,7 @@ describe("Civ7IntelligenceBridge global adapter", () => {
     ).toThrow("Civ7IntelligenceBridge is already installed.");
     expect(target.Civ7IntelligenceBridge).toBe(existing);
 
-    const replacement = installCiv7IntelligenceBridge({
+    const replacement: Civ7IntelligenceBridge = installCiv7IntelligenceBridge({
       target,
       replaceExisting: true,
       createContext: () => fakeContext(playableStatusResult()).context,
@@ -119,23 +153,27 @@ describe("Civ7IntelligenceBridge global adapter", () => {
   });
 });
 
-function fakeContext(result: Civ7ControlOrpcPlayableStatusResult): {
-  calls: Array<Civ7ControlOrpcContext["endpointDefaults"]>;
-  contextRequests: unknown[];
+function fakeContext(status: Civ7ControlOrpcPlayableStatusResult): {
   context: Civ7ControlOrpcContext;
+  calls: Array<unknown>;
+  contextRequests: number;
 } {
-  const calls: Array<Civ7ControlOrpcContext["endpointDefaults"]> = [];
+  const calls: Array<unknown> = [];
   return {
     calls,
-    contextRequests: [],
+    contextRequests: 0,
     context: {
-      endpointDefaults: { timeoutMs: 1_000 },
       directControl: {
         getCiv7PlayableStatus: async (options) => {
           calls.push(options);
-          return result;
+          return status;
         },
       } as Civ7ControlOrpcContext["directControl"],
+      endpointDefaults: { timeoutMs: 1_000 },
+      controller: {
+        supportedReadProcedures: [],
+        supportedMutationProcedures: [],
+      },
     },
   };
 }
@@ -169,6 +207,6 @@ function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
         latencyMs: 1,
       },
     },
-    errors: ["raw Tuner detail"],
-  };
+    errors: [],
+  } as Civ7ControlOrpcPlayableStatusResult;
 }

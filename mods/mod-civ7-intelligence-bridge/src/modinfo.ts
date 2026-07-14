@@ -6,7 +6,7 @@ export function renderCiv7IntelligenceBridgeModinfo(): string {
 <Mod id="${CIV7_INTELLIGENCE_BRIDGE_MOD_ID}" version="1" xmlns="ModInfo">
 \t<Properties>
 \t\t<Name>Civ7 Intelligence Bridge</Name>
-\t\t<Description>Installs the game-scoped Civ7IntelligenceBridge serialized ingress for native control-oRPC.</Description>
+\t\t<Description>Installs the game-scoped Civ7IntelligenceBridge native control-oRPC client.</Description>
 \t\t<Authors>Matei Canavra</Authors>
 \t\t<Package>Mod</Package>
 \t</Properties>

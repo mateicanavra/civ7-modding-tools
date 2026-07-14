@@ -2,7 +2,7 @@
 <Mod id="civ7-intelligence-bridge" version="1" xmlns="ModInfo">
 	<Properties>
 		<Name>Civ7 Intelligence Bridge</Name>
-		<Description>Installs the game-scoped Civ7IntelligenceBridge serialized ingress for native control-oRPC.</Description>
+		<Description>Installs the game-scoped Civ7IntelligenceBridge native control-oRPC client.</Description>
 		<Authors>Matei Canavra</Authors>
 		<Package>Mod</Package>
 	</Properties>

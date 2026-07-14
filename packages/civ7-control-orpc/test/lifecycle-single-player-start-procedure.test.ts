@@ -814,6 +814,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       },
     });
     expect(Object.keys(contract.errorMap).sort()).toEqual([
+      "CONTROLLER_CAPABILITY_UNAVAILABLE",
       "CORRELATION_ID_INVALID",
       "LIFECYCLE_DEPENDENCY_UNAVAILABLE",
       "LIFECYCLE_MUTATION_UNCERTAIN",

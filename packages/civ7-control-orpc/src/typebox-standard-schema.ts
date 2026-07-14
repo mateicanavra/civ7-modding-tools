@@ -2,15 +2,6 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { Static, TSchema } from "typebox";
 import { Compile } from "typebox/compile";
 
-const TYPEBOX_SCHEMA = Symbol.for("@civ7/control-orpc/typebox-schema");
-
-type OrpcContractProcedureWithSchemas = Readonly<{
-  "~orpc": Readonly<{
-    inputSchema?: unknown;
-    outputSchema?: unknown;
-  }>;
-}>;
-
 export function toStandardSchema<TypeSchema extends TSchema>(
   schema: TypeSchema
 ): StandardSchemaV1<Static<TypeSchema>, Static<TypeSchema>> {
@@ -34,30 +25,7 @@ export function toStandardSchema<TypeSchema extends TSchema>(
       },
     },
   };
-  Object.defineProperty(standardSchema, TYPEBOX_SCHEMA, {
-    value: schema,
-  });
   return standardSchema;
-}
-
-export function typeboxInputSchemaFromContractProcedure<
-  const Procedure extends OrpcContractProcedureWithSchemas,
->(procedure: Procedure): TSchema {
-  return typeboxSchemaFromStandard(procedure["~orpc"].inputSchema, "input");
-}
-
-export function typeboxOutputSchemaFromContractProcedure<
-  const Procedure extends OrpcContractProcedureWithSchemas,
->(procedure: Procedure): TSchema {
-  return typeboxSchemaFromStandard(procedure["~orpc"].outputSchema, "output");
-}
-
-function typeboxSchemaFromStandard(value: unknown, label: string): TSchema {
-  const schema = (value as { [TYPEBOX_SCHEMA]?: TSchema } | null)?.[TYPEBOX_SCHEMA];
-  if (schema == null) {
-    throw new Error(`Civ7 control-oRPC contract ${label} schema is not TypeBox-backed.`);
-  }
-  return schema;
 }
 
 function pathSegments(path: string): StandardSchemaV1.PathSegment[] {

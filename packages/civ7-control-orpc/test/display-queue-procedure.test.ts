@@ -1,5 +1,4 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import type {
   Civ7ControlOrpcCloseDisplaysResult,
@@ -12,14 +11,10 @@ import {
   Civ7DisplayQueueUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
-const QueueCurrentInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.display.queue.current
-);
-const QueueCloseInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.display.queue.close
-);
+const QueueCurrentInputSchema = Civ7ControlOrpcContract.display.queue.current["~orpc"].inputSchema;
+const QueueCloseInputSchema = Civ7ControlOrpcContract.display.queue.close["~orpc"].inputSchema;
 
 describe("display.queue control-oRPC procedures", () => {
   test("reads the display queue through the facade and strips endpoint facts", async () => {
@@ -107,10 +102,10 @@ describe("display.queue control-oRPC procedures", () => {
       expect(fake.calls.closes).toEqual([]);
     }
 
-    expect(Value.Check(QueueCurrentInputSchema, {})).toBe(true);
-    expect(Value.Check(QueueCurrentInputSchema, { rawCommand: "x" })).toBe(false);
-    expect(Value.Check(QueueCloseInputSchema, { categories: ["Cinematic"] })).toBe(true);
-    expect(Value.Check(QueueCloseInputSchema, { host: "127.0.0.1" })).toBe(false);
+    expect(standardSchemaAccepts(QueueCurrentInputSchema, {})).toBe(true);
+    expect(standardSchemaAccepts(QueueCurrentInputSchema, { rawCommand: "x" })).toBe(false);
+    expect(standardSchemaAccepts(QueueCloseInputSchema, { categories: ["Cinematic"] })).toBe(true);
+    expect(standardSchemaAccepts(QueueCloseInputSchema, { host: "127.0.0.1" })).toBe(false);
   });
 
   test("maps facade failures to tagged errors without raw command details", async () => {

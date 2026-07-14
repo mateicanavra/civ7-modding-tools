@@ -1,36 +1,66 @@
-import {
-  type Civ7ControllerBridgeContextFactory,
-  type Civ7ControllerBridgeResponse,
-  createCiv7ControllerBridgeIngress,
-} from "./controller-ingress";
+import { createRouterClient, ORPCError } from "@orpc/server";
 
-export const CIV7_INTELLIGENCE_BRIDGE_GLOBAL_KEY = "Civ7IntelligenceBridge";
+import type { Civ7ControlOrpcContext } from "../context";
+import { Civ7ControllerOrpcRouter } from "../controller-router";
+import type { Civ7ControlOrpcCorrelationContext } from "../model/correlation";
 
-export type Civ7IntelligenceBridge = Readonly<{
-  invoke(request: unknown): Promise<Civ7ControllerBridgeResponse>;
-}>;
+export type Civ7ControllerContext = Civ7ControlOrpcContext &
+  Readonly<{
+    controller: NonNullable<Civ7ControlOrpcContext["controller"]>;
+  }>;
+
+export type Civ7ControllerContextFactory = () =>
+  | Promise<Civ7ControllerContext>
+  | Civ7ControllerContext;
+
+export type Civ7IntelligenceBridge = ReturnType<typeof createCiv7IntelligenceBridge>;
 
 export type Civ7IntelligenceBridgeGlobalTarget = {
   Civ7IntelligenceBridge?: Civ7IntelligenceBridge;
 };
 
 export type Civ7IntelligenceBridgeInstallOptions = Readonly<{
-  createContext: Civ7ControllerBridgeContextFactory;
+  createContext: Civ7ControllerContextFactory;
   target: Civ7IntelligenceBridgeGlobalTarget;
   replaceExisting?: boolean;
 }>;
 
+/** Creates a native nested oRPC client with fresh game-controller context per call. */
 export function createCiv7IntelligenceBridge(
   options: Readonly<{
-    createContext: Civ7ControllerBridgeContextFactory;
+    createContext: Civ7ControllerContextFactory;
   }>
-): Civ7IntelligenceBridge {
-  const ingress = createCiv7ControllerBridgeIngress({
-    createContext: options.createContext,
-  });
-  return {
-    invoke: (request) => ingress.invoke(request),
-  };
+) {
+  return createRouterClient<typeof Civ7ControllerOrpcRouter, Civ7ControlOrpcCorrelationContext>(
+    Civ7ControllerOrpcRouter,
+    {
+      context: async (clientContext) => {
+        const context = await Promise.resolve()
+          .then(() => options.createContext())
+          .catch(() =>
+            Promise.reject(
+              new ORPCError("INTERNAL_SERVER_ERROR", {
+                message: "Civ7 controller context is unavailable.",
+              })
+            )
+          );
+        return {
+          ...context,
+          controller: context.controller ?? {
+            supportedReadProcedures: [],
+            supportedMutationProcedures: [],
+          },
+          correlation:
+            clientContext.correlationId == null
+              ? context.correlation
+              : {
+                  ...context.correlation,
+                  correlationId: clientContext.correlationId,
+                },
+        };
+      },
+    }
+  );
 }
 
 export function installCiv7IntelligenceBridge(

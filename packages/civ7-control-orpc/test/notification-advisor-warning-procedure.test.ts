@@ -1,5 +1,4 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import type { Civ7ControlOrpcAdvisorWarningViewedResult } from "../src/dependencies/direct-control";
 import {
@@ -9,12 +8,11 @@ import {
   Civ7NotificationAdvisorWarningUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 const target = { owner: 0, id: 12345, type: 99 };
-const AdvisorWarningInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request
-);
+const AdvisorWarningInputSchema =
+  Civ7ControlOrpcContract.notifications.advisorWarning.viewed.request["~orpc"].inputSchema;
 
 describe("notifications.advisorWarning.viewed.request control-oRPC procedure", () => {
   test("derives acted player from local-player evidence and omits raw operation fields", async () => {
@@ -132,8 +130,8 @@ describe("notifications.advisorWarning.viewed.request control-oRPC procedure", (
       expect(fake.calls.requests).toEqual([]);
     }
 
-    expect(Value.Check(AdvisorWarningInputSchema, { target })).toBe(true);
-    expect(Value.Check(AdvisorWarningInputSchema, { target, playerId: 0 })).toBe(false);
+    expect(standardSchemaAccepts(AdvisorWarningInputSchema, { target })).toBe(true);
+    expect(standardSchemaAccepts(AdvisorWarningInputSchema, { target, playerId: 0 })).toBe(false);
   });
 
   test("maps source failures to tagged errors without raw command details", async () => {
