@@ -51,6 +51,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     expect(result).toEqual({
       correlationId: "run-42",
       status: "started",
+      evidence: expectedEvidence(),
       transition: { initialPhase: "shell", activeGameExit: "not-needed" },
     });
     expect(harness.operations()).toEqual([
@@ -103,6 +104,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     expect(result).toEqual({
       correlationId: "run-42",
       status: "started",
+      evidence: expectedEvidence(),
       transition: { initialPhase: "running-game", activeGameExit: "exited" },
     });
     expect(harness.operations()).toEqual([
@@ -155,6 +157,131 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
         ],
       })
     );
+  });
+
+  test("projects deterministic unique map-row evidence from observed provider rows", async () => {
+    const otherMapScript = "{another-mod}/maps/other.js";
+    const harness = makeHarness({
+      getSetupMapRows: async () => ({
+        ...mapRows(true),
+        rows: [
+          { source: "setup-domain", file: input.mapScript },
+          { source: "setup-domain", file: otherMapScript },
+          { source: "setup-domain", file: input.mapScript },
+        ],
+      }),
+    });
+
+    const result = await createCiv7ControlOrpcServerClient(
+      harness.context
+    ).lifecycle.singlePlayer.start(input);
+
+    expect(result.evidence.setup.mapRowFiles).toEqual([otherMapScript, input.mapScript]);
+  });
+
+  test("fails closed when required setup readback evidence is unavailable", async () => {
+    const application = setupApplication();
+    const harness = makeHarness({
+      applySinglePlayerSetup: async () => ({
+        ...application,
+        after: {
+          ...application.after,
+          snapshot: {
+            ...application.after.snapshot,
+            config: {
+              ...application.after.snapshot.config,
+              mapScript: { ok: false, error: "unavailable" },
+            },
+          },
+        },
+      }),
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+        context: harness.context,
+      })
+    ).rejects.toMatchObject({
+      code: "LIFECYCLE_VERIFICATION_FAILED",
+      data: { step: "verify-setup-evidence", noRepeat: true },
+    });
+    expect(harness.count("applySinglePlayerSetup")).toBe(1);
+    expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
+  });
+
+  test("omits unavailable optional runtime evidence", async () => {
+    const summary = mapSummary();
+    const unavailable = { ok: false, error: "unavailable" } as const;
+    const harness = makeHarness({
+      getMapSummary: async () => ({
+        ...summary,
+        map: {
+          ...summary.map,
+          width: unavailable,
+          height: unavailable,
+          plotCount: unavailable,
+        },
+        game: { ...summary.game, turn: unavailable, hash: unavailable },
+      }),
+    });
+
+    const result = await createCiv7ControlOrpcServerClient(
+      harness.context
+    ).lifecycle.singlePlayer.start(input);
+
+    expect(result.evidence.runtime).toEqual({ seed: input.seed, mapSize: input.mapSize });
+  });
+
+  test.each([
+    [
+      "non-finite width",
+      (summary: Civ7MapSummaryResult) => ({
+        ...summary,
+        map: { ...summary.map, width: { ok: true, value: Number.POSITIVE_INFINITY } },
+      }),
+    ],
+    [
+      "fractional width",
+      (summary: Civ7MapSummaryResult) => ({
+        ...summary,
+        map: { ...summary.map, width: { ok: true, value: 1.5 } },
+      }),
+    ],
+    [
+      "negative height",
+      (summary: Civ7MapSummaryResult) => ({
+        ...summary,
+        map: { ...summary.map, height: { ok: true, value: -1 } },
+      }),
+    ],
+    [
+      "zero plot count",
+      (summary: Civ7MapSummaryResult) => ({
+        ...summary,
+        map: { ...summary.map, plotCount: { ok: true, value: 0 } },
+      }),
+    ],
+    [
+      "negative turn",
+      (summary: Civ7MapSummaryResult) => ({
+        ...summary,
+        game: { ...summary.game, turn: { ok: true, value: -1 } },
+      }),
+    ],
+  ] as const)("fails closed on malformed optional runtime evidence: %s", async (_label, alter) => {
+    const summary = mapSummary();
+    const harness = makeHarness({
+      getMapSummary: async () => alter(summary),
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+        context: harness.context,
+      })
+    ).rejects.toMatchObject({
+      code: "LIFECYCLE_VERIFICATION_FAILED",
+      data: { step: "verify-runtime-evidence", noRepeat: true },
+    });
   });
 
   test("uses the saved-load command's revision as the polling baseline", async () => {
@@ -1026,6 +1153,29 @@ function mapSummary(
       maxTurns: probe(500),
       turnDate: probe("4000 BCE"),
       hash: probe(1),
+    },
+  };
+}
+
+function expectedEvidence() {
+  return {
+    setup: {
+      mapScript: input.mapScript,
+      mapSize: input.mapSize,
+      mapSeed: input.seed,
+      gameSeed: input.seed,
+      playerCount: 8,
+      targetModId: input.targetModId,
+      mapRowFiles: [input.mapScript],
+    },
+    runtime: {
+      seed: input.seed,
+      mapSize: input.mapSize,
+      width: 64,
+      height: 40,
+      plotCount: 2_560,
+      turn: 1,
+      gameHash: 1,
     },
   };
 }
