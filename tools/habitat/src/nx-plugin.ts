@@ -146,6 +146,7 @@ function buildInferredProjects(input: {
         localTarget,
         ownerLocalCheckTarget({
           owner,
+          repoRoot,
           ruleIds: [firstLocalRuleId, ...remainingLocalRuleIds],
           inputs: inputsForOwner(localRecords, root),
           graphDependencies: ownerFacts.flatMap((rule) =>
@@ -254,6 +255,7 @@ function addRuleTarget(input: {
       directRuleTarget(
         input.rule.id,
         input.rule.ownerProject,
+        repoRoot,
         inputsForRuleTarget(input.record, input.rule.ownerRoot),
         input.rule.graphDependencies.map((target) => ({
           projects: [target.project],
@@ -279,19 +281,11 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   const covered = pathCoverageInputs(rule, ownerRoot);
   if (covered.kind === "workspace-gate") return habitatInputs();
 
-  const inputs = new Set<string>([
-    "{workspaceRoot}/.habitat/**",
-    "{workspaceRoot}/package.json",
-    "{workspaceRoot}/bun.lock",
-    ...covered.inputs,
-  ]);
+  const inputs = new Set<string>(["{workspaceRoot}/.habitat/**", ...covered.inputs]);
   if (rule.manifestFilePath) inputs.add(workspaceInput(rule.manifestFilePath));
   if (rule.supportFiles?.baseline) inputs.add(workspaceInput(rule.supportFiles.baseline));
   if (rule.supportFiles?.ruleIntroductionManifest) {
     inputs.add(workspaceInput(rule.supportFiles.ruleIntroductionManifest));
-  }
-  if (rule.ownerProject === "habitat") {
-    inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }
   if (isPatternBackedRule(rule)) {
     inputs.add(workspaceInput(rule.runner.files.pattern));

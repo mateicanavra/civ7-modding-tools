@@ -6,9 +6,9 @@
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "check-script": 27,
+      "check-script": 28,
       "rule-json": 121,
-      "pattern": 81,
+      "pattern": 80,
       "structure-spec": 8,
       "apply-pattern": 1,
       "generate-script": 2,
@@ -21,9 +21,9 @@
       "habitat-cli-source": 112
     },
     "surfacesByRole": {
-      "command_check_executor": 27,
+      "command_check_executor": 28,
       "runner_metadata": 121,
-      "policy_pattern": 82,
+      "policy_pattern": 81,
       "structure_authority": 8,
       "operation_surface": 6,
       "workspace_entrypoint": 240,
@@ -39,7 +39,7 @@
     "surfacesByBucket": {
       "package_boundary_tie": 94,
       "unknown_invocation": 242,
-      "mutation_surface": 128,
+      "mutation_surface": 127,
       "nx_ordering_tie": 117,
       "direct_script_invoked": 4,
       "package_invoked": 241,
@@ -51,7 +51,7 @@
     "roleCounts": {
       "fixture-support": 9,
       "adapter": 121,
-      "policy-predicate": 90,
+      "policy-predicate": 89,
       "transient-dependency": 110,
       "entrypoint": 242,
       "runner-runtime": 112
@@ -5257,15 +5257,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/pattern.md"
-      ]
-    },
-    {
-      "target": "grit\nlanguage markdown\n\nfunction docs_local_checkout_rewrite_path($body) js {\n  return $body.text.replace(/\\/(?:Users|home|Volumes)\\/[^",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md"
       ]
     },
     {
@@ -24134,50 +24125,71 @@
       ]
     },
     {
-      "id": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
-      "path": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
+      "id": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/check.mjs",
+      "path": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/check.mjs",
+      "surfaceKind": "check-script",
+      "surfaceRole": "command_check_executor",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [],
+        "imports": [
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage markdown\n\nfunction docs_local_checkout_rewrite_path($body) js {\n  return $body.text.replace(/\\/(?:Users|home|Volumes)\\/[^"
+          "node:fs",
+          "node:path",
+          "node:url"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">"
-        ],
+        "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
+            "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:url",
+            "targetClass": "node-builtin"
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage markdown\n\nfunction docs_local_checkout_rewrite_path($body) js {\n  return $body.text.replace(/\\/(?:Users|home|Volumes)\\/[^",
-            "targetClass": "workspace-tool"
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:url",
+            "targetClass": "node-builtin"
           }
         ]
       },
       "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "roles": [],
+        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
         "supportSignals": [],
         "transientSignals": []
       },
       "buckets": [
-        "mutation_surface",
         "unknown_invocation"
       ]
     },
@@ -39390,50 +39402,71 @@
       ]
     },
     {
-      "id": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
-      "path": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
+      "id": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/check.mjs",
+      "path": ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/check.mjs",
+      "surfaceKind": "check-script",
+      "surfaceRole": "command_check_executor",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [],
+        "imports": [
+          "node:fs",
+          "node:path",
+          "node:url"
+        ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage markdown\n\nfunction docs_local_checkout_rewrite_path($body) js {\n  return $body.text.replace(/\\/(?:Users|home|Volumes)\\/[^"
+          "node:fs",
+          "node:path",
+          "node:url"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">"
-        ],
+        "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
+            "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:url",
+            "targetClass": "node-builtin"
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage markdown\n\nfunction docs_local_checkout_rewrite_path($body) js {\n  return $body.text.replace(/\\/(?:Users|home|Volumes)\\/[^",
-            "targetClass": "workspace-tool"
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:url",
+            "targetClass": "node-builtin"
           }
         ]
       },
       "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "roles": [],
+        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
         "supportSignals": [],
         "transientSignals": []
       },
       "buckets": [
-        "mutation_surface",
         "unknown_invocation"
       ]
     },

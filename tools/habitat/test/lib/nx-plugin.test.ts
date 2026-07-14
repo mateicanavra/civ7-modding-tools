@@ -1,4 +1,5 @@
 import { createNodesV2 } from "@habitat/cli/nx-plugin";
+import { repoRoot } from "@habitat/cli/resources/paths";
 import { NxTargetDefinitionSchema } from "@habitat/cli/service/model/graph/dto/target-definition.schema";
 import { Value } from "typebox/value";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -25,8 +26,13 @@ describe("Habitat Nx plugin inputs", () => {
     const manifestInput = `{workspaceRoot}/${ruleIntroductionManifestPath}`;
 
     expect(habitatTargets["habitat:rule:sample-rule"]?.inputs).toContain(manifestInput);
+    expect(habitatTargets["habitat:rule:sample-rule"]?.inputs).toContain("habitatRuntime");
     expect(habitatTargets["habitat:rule:sample-rule"]).toMatchObject({
       command: "bun tools/habitat/bin/dev.ts check --rule sample-rule",
+      options: {
+        cwd: "{workspaceRoot}",
+        env: { HABITAT_REPO_ROOT: repoRoot },
+      },
       dependsOn: [{ projects: ["mapgen-core"], target: "build" }],
     });
     expect(habitatTargets["check:policy:local"]).toMatchObject({
@@ -52,8 +58,14 @@ describe("Habitat Nx plugin inputs", () => {
     expect(appTargets["check:policy:local"]).toEqual(
       expect.objectContaining({
         command: "bun tools/habitat/bin/dev.ts check --rule sample-app-local",
+        inputs: expect.arrayContaining(["habitatRuntime"]),
+        options: {
+          cwd: "{workspaceRoot}",
+          env: { HABITAT_REPO_ROOT: repoRoot },
+        },
       })
     );
+    expect(appTargets["habitat:rule:sample-app-local"]?.inputs).toContain("habitatRuntime");
     expect(appTargets["check:policy"]).toEqual(
       expect.objectContaining({
         executor: "nx:noop",

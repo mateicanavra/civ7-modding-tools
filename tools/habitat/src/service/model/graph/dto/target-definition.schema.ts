@@ -18,7 +18,17 @@ export const NxTargetDefinitionSchema = Type.Union([
   Type.Object(
     {
       command: Type.String({ minLength: 1 }),
-      options: Type.Object({ cwd: Type.String({ minLength: 1 }) }, { additionalProperties: false }),
+      options: Type.Object(
+        {
+          cwd: Type.String({ minLength: 1 }),
+          env: Type.Optional(
+            Type.Record(Type.String({ minLength: 1 }), Type.String(), {
+              minProperties: 1,
+            })
+          ),
+        },
+        { additionalProperties: false }
+      ),
       cache: Type.Boolean(),
       inputs: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
       outputs: Type.Optional(Type.Array(Type.String())),

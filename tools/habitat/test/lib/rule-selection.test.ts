@@ -302,6 +302,18 @@ describe("rule selector boundary", () => {
     ).toEqual(["graph-proof"]);
   });
 
+  test("repeated explicit rule selectors preserve local and graph-backed rules", () => {
+    const local = fakeRule("local-proof", "habitat", "@habitat/cli");
+    const graph = fakeRule("graph-proof", "nx", "@habitat/cli");
+    const unselected = fakeRule("unselected", "grit", "@habitat/cli");
+
+    expect(
+      rulesForExecution([local, graph, unselected], {
+        selection: { rules: ["local-proof", "graph-proof"] },
+      }).map((rule) => rule.id)
+    ).toEqual(["local-proof", "graph-proof"]);
+  });
+
   test("Habitat script execution runs adjacent executable role files", async () => {
     const requests: Array<{ executable: string; argv: readonly string[] }> = [];
     const results = new Map();

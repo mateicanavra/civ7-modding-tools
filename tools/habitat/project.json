@@ -1,6 +1,7 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "habitat",
+  "implicitDependencies": ["habitat-authority"],
   "tags": ["kind:tooling"],
   "targets": {
     "serve:project-docs": {

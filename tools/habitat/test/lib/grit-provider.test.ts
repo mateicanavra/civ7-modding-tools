@@ -42,6 +42,7 @@ import {
   makeGritRuleFixPreviewService,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/fix-preview";
 import {
+  gritDiagnosticOutcomesFromReport,
   makeFakeGritCommandService,
   makeGritCommandService,
   ObservedGritDiagnosticIdentitySchema,
@@ -87,9 +88,10 @@ const gritFixturePaths = {
   providerFile: "tools/habitat/src/resources/rule-diagnostics/providers/grit/types.ts",
   providerPattern:
     ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md",
-  docsPattern: ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
+  applyPattern:
+    ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md",
 };
-const { providerRoot, providerFile, providerPattern, docsPattern } = gritFixturePaths;
+const { providerRoot, providerFile, providerPattern, applyPattern } = gritFixturePaths;
 const stringifyJsonDocument = Schema.encodeSync(Schema.parseJson());
 const withNodeContext = Effect.provide(NodeContext.layer);
 
@@ -995,7 +997,7 @@ async function previewEvents(
 describe("Grit immutable root planning", () => {
   test("plans each selected rule once and exposes unmatched rules", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
-    const docs = rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const docs = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const plans = await Effect.runPromise(
       planGritRuleRoots([alpha, docs], { repoRoot, scanRoots: [providerFile] }).pipe(
         withNodeContext
@@ -1239,6 +1241,41 @@ describe("Grit immutable root planning", () => {
 });
 
 describe("Grit generic acquisition and public disposition", () => {
+  test("sorts public findings independently of native result order", () => {
+    const selected = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
+    const zetaPath = path.join(repoRoot, providerRoot, "zeta.ts");
+    const alphaPath = path.join(repoRoot, providerRoot, "alpha.ts");
+    const fixture = Value.Parse(GritReportSchema, {
+      paths: [zetaPath, alphaPath],
+      results: [
+        gritFinding(zetaPath, "alpha_pattern", 4, "zeta finding"),
+        gritFinding(alphaPath, "alpha_pattern", 7, "later finding"),
+        gritFinding(alphaPath, "alpha_pattern", 2, "first finding"),
+      ],
+    });
+    const reversed = Value.Parse(GritReportSchema, {
+      ...fixture,
+      results: [...fixture.results].reverse(),
+    });
+
+    const forwardOutcome = gritDiagnosticOutcomesFromReport([selected], fixture, {
+      repoRoot,
+    }).get(selected.id);
+    const reverseOutcome = gritDiagnosticOutcomesFromReport([selected], reversed, {
+      repoRoot,
+    }).get(selected.id);
+
+    expect(reverseOutcome).toEqual(forwardOutcome);
+    expect(forwardOutcome).toMatchObject({
+      kind: "findings",
+      diagnostics: [
+        { path: `${providerRoot}/alpha.ts`, line: 2, message: "first finding" },
+        { path: `${providerRoot}/alpha.ts`, line: 7, message: "later finding" },
+        { path: `${providerRoot}/zeta.ts`, line: 4, message: "zeta finding" },
+      ],
+    });
+  });
+
   test("builds a direct-native hermetic check request and cleans scoped state", async () => {
     const selected = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     let observedRequest: HabitatProcessRequest | undefined;
@@ -1646,7 +1683,7 @@ describe("Grit generic acquisition and public disposition", () => {
 
   test("carries no-matched-scan-roots as a required provider disposition", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
-    const docs = rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const docs = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const grit = fakeCheckProvider(checkReport(path.join(repoRoot, providerFile), "alpha_pattern"));
     const executions = await Effect.runPromise(
       runGritRulesEffect([alpha, docs], {
@@ -1740,7 +1777,7 @@ describe("Grit generic acquisition and public disposition", () => {
     const selected = rule(
       "ordinary-docs-rule",
       "ordinary_docs_pattern",
-      docsPattern,
+      applyPattern,
       ["docs"],
       "apply-dry-run"
     );
@@ -1768,7 +1805,7 @@ describe("Grit generic acquisition and public disposition", () => {
   });
 
   test("blocks only analysis failures inside exact rule coverage", async () => {
-    const selected = rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const selected = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const outside = await Effect.runPromise(
       runGritDiagnosticOutcomesEffect([selected], {
         repoRoot,
@@ -1848,7 +1885,7 @@ describe("Grit generic acquisition and public disposition", () => {
 
   test("rejects canonical findings outside registered exact coverage", async () => {
     const selected = {
-      ...rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run"),
+      ...rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run"),
       pathCoverage: [{ kind: "exact-path" as const, patterns: ["docs/PRODUCT.md"] }],
     };
     const finding = path.join(repoRoot, "docs/SYSTEM.md");
@@ -1880,7 +1917,7 @@ describe("Grit generic acquisition and public disposition", () => {
   );
 
   test("blocks ambiguous relative CreateFile paths after establishing their count", async () => {
-    const selected = rule("create", "create_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const selected = rule("create", "create_pattern", applyPattern, ["docs"], "apply-dry-run");
     const grit = makeFakeGritCommandService(
       (request) =>
         makeHabitatCommandResult(request, {
@@ -2268,6 +2305,17 @@ function gritResultWithCheckId(fixture: GritResult, checkId: string) {
     start: fixture.start,
     end: fixture.end,
     extra: fixture.extra,
+  };
+}
+
+function gritFinding(pathname: string, patternName: string, line: number, message: string) {
+  return {
+    check_id: `#${patternName}/js`,
+    local_name: patternName,
+    path: pathname,
+    start: { line, col: 1, offset: 0 },
+    end: { line, col: 2, offset: 1 },
+    extra: { message, severity: "error" },
   };
 }
 

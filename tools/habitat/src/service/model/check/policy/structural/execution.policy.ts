@@ -39,7 +39,9 @@ const defaultLocalRunners = new Set(["grit", "habitat"]);
 function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?: boolean }) {
   if (options.staged) return false;
   const selection = options.selection ?? {};
-  return !selection.owner && !selection.rule && !selection.runner;
+  return (
+    !selection.owner && !selection.rule && (selection.rules?.length ?? 0) === 0 && !selection.runner
+  );
 }
 
 function applyExecutionSelection(

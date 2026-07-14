@@ -10,9 +10,9 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | kind | count |
 | --- | --- |
-| check-script | 27 |
+| check-script | 28 |
 | rule-json | 121 |
-| pattern | 81 |
+| pattern | 80 |
 | structure-spec | 8 |
 | apply-pattern | 1 |
 | generate-script | 2 |
@@ -28,9 +28,9 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | role | count |
 | --- | --- |
-| command_check_executor | 27 |
+| command_check_executor | 28 |
 | runner_metadata | 121 |
-| policy_pattern | 82 |
+| policy_pattern | 81 |
 | structure_authority | 8 |
 | operation_surface | 6 |
 | workspace_entrypoint | 240 |
@@ -42,7 +42,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | --- | --- |
 | fixture-support | 9 |
 | adapter | 121 |
-| policy-predicate | 90 |
+| policy-predicate | 89 |
 | transient-dependency | 110 |
 | entrypoint | 242 |
 | runner-runtime | 112 |
@@ -70,7 +70,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | --- | --- |
 | package_boundary_tie | 94 |
 | unknown_invocation | 242 |
-| mutation_surface | 128 |
+| mutation_surface | 127 |
 | nx_ordering_tie | 117 |
 | direct_script_invoked | 4 |
 | package_invoked | 241 |
@@ -344,7 +344,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | .habitat/docs/_blueprints/mapgen-canonical-docs/require_mapgen_doc_mini_toc_shape/rule.json | rule-json |  |
 | .habitat/docs/_blueprints/mapgen-canonical-docs/validate_mapgen_docs_anchors_and_references/check.sh | check-script | python3 docs/system/libs/mapgen/tools/validate-anchors-and-references.py |
 | .habitat/docs/_blueprints/mapgen-canonical-docs/validate_mapgen_docs_anchors_and_references/rule.json | rule-json |  |
-| .habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md | pattern | >; grit<br>language markdown<br><br>function docs_local_checkout_rewrite_path($body) js {<br>  return $body.text.replace(/\/(?:Users\|home\|Volumes)\/[^ |
+| .habitat/docs/rules/ensure_docs_checkout_paths_are_portable/check.mjs | check-script | node:fs; node:path; node:url |
 | .habitat/docs/rules/ensure_docs_checkout_paths_are_portable/rule.json | rule-json |  |
 | .habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/fix.mjs | fix-script | node:fs/promises; node:path; --write |
 | .habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/operation.md | operation-note | --write; > |
