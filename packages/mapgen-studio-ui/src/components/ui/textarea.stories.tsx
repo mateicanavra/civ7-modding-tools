@@ -43,7 +43,7 @@ export const Default: Story = {
   render: () => (
     <Demo>
       <div style={{ width: 320 }}>
-        <Textarea placeholder="Notes for this preset…" />
+        <Textarea placeholder="Notes for this config…" />
       </div>
     </Demo>
   ),

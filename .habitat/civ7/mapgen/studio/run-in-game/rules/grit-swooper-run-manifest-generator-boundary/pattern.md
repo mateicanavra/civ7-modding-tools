@@ -28,7 +28,7 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/scripts/run-manifest-generator\.ts$",
-    ! $body <: contains `const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, manifest)`
+    ! $body <: contains `const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, $manifest)`
   },
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/scripts/run-manifest-generator\.ts$",
@@ -153,7 +153,8 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   manifestPath: string
 ) {
   const manifest = await readStudioRunGenerationManifest(manifestPath);
-  const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, manifest);
+  const verifiedManifest = verifySwooperStandardRunManifest(manifest).manifest;
+  const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, verifiedManifest);
   const plan = buildSwooperRunGeneratedModFilePlan({ manifest });
   await writeSwooperMapArtifactFilePlan(plan, { outputRoot: generatedModRoot });
 }

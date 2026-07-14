@@ -2,13 +2,7 @@ import { Bolt, Dices, Globe, History, Play } from "lucide-react";
 import React from "react";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
-import type {
-  GenerationStatus,
-  MapSize,
-  RecipeSettings,
-  SelectOption,
-  WorldSettings,
-} from "../../types/index.js";
+import type { GenerationStatus, MapSize, SelectOption, WorldSettings } from "../../types/index.js";
 import { Button } from "../ui/button.js";
 import { Input } from "../ui/input.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
@@ -33,18 +27,16 @@ import { OptionSelect } from "./OptionSelect.js";
 export interface AppFooterProps {
   /** Current generation status */
   status: GenerationStatus;
-  /** Settings from the last completed run */
-  lastRunSettings: RecipeSettings;
-  /** World settings from the last completed run */
-  lastGlobalSettings: WorldSettings;
+  /** Browser-generation values observed at the last accepted run. */
+  lastRun?: Readonly<{ seed: string; worldSettings: Readonly<WorldSettings> }> | null;
   /** Current world settings (size, players) */
   globalSettings: WorldSettings;
   /** Callback when world settings change */
   onGlobalSettingsChange: (settings: WorldSettings) => void;
-  /** Current recipe settings (for seed input) */
-  currentSettings: RecipeSettings;
-  /** Callback when recipe settings change */
-  onSettingsChange: (settings: RecipeSettings) => void;
+  /** Current generation seed */
+  seed: string;
+  /** Callback when the generation seed changes */
+  onSeedChange: (seed: string) => void;
   /** Callback to start a generation run */
   onRun: () => void;
   /** Callback to reroll (new seed + run) */
@@ -91,12 +83,11 @@ export interface AppFooterProps {
 const FOOTER_HEIGHT = LAYOUT.FOOTER_HEIGHT;
 export const AppFooter: React.FC<AppFooterProps> = ({
   status,
-  lastRunSettings,
-  lastGlobalSettings,
+  lastRun,
   globalSettings,
   onGlobalSettingsChange,
-  currentSettings,
-  onSettingsChange,
+  seed,
+  onSeedChange,
   onRun,
   onReroll,
   isRunning,
@@ -141,16 +132,12 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         : isDirty
           ? "Modified"
           : "Ready";
-  const displaySize = mapSizeShortLabels[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
+  const lastRunDisplaySize = lastRun
+    ? mapSizeShortLabels[lastRun.worldSettings.mapSize] || lastRun.worldSettings.mapSize
+    : undefined;
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
   const busyTitle =
     operationControlsDisabled && operationBusyLabel ? operationBusyLabel : undefined;
-  const updateSetting = <K extends keyof RecipeSettings>(key: K, value: RecipeSettings[K]) => {
-    onSettingsChange({
-      ...currentSettings,
-      [key]: value,
-    });
-  };
   const updateWorldSetting = <K extends keyof WorldSettings>(key: K, value: WorldSettings[K]) => {
     onGlobalSettingsChange({
       ...globalSettings,
@@ -161,10 +148,13 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   // tooltip presents the run, the accessible name mirrors it (a11y + static
   // markup parity), and the click keeps the copy-seed behavior the inline
   // seed button used to carry.
-  const historyLabel = `Run history — last run: seed ${lastRunSettings.seed}, ${displaySize}, ${lastGlobalSettings.playerCount} players. Click to copy seed.`;
+  const historyLabel = lastRun
+    ? `Run history — last run: seed ${lastRun.seed}, ${lastRunDisplaySize}, ${lastRun.worldSettings.playerCount} players. Click to copy seed.`
+    : undefined;
   const handleCopySeed = async () => {
+    if (!lastRun) return;
     try {
-      await navigator.clipboard.writeText(lastRunSettings.seed);
+      await navigator.clipboard.writeText(lastRun.seed);
       onToast?.("Seed copied to clipboard");
     } catch (err) {
       console.error("Failed to copy seed:", err);
@@ -217,31 +207,33 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         </div>
 
         {/* Run history — the collapsed last-run cluster. */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleCopySeed}
-              aria-label={historyLabel}
-              title={historyLabel}
-            >
-              <History className="w-3.5 h-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-label font-medium uppercase tracking-wider opacity-70">
-                Last run
-              </span>
-              <span className="font-mono">{lastRunSettings.seed}</span>
-              <span>
-                {displaySize} · {lastGlobalSettings.playerCount}p
-              </span>
-              <span className="opacity-70">Click to copy seed</span>
-            </div>
-          </TooltipContent>
-        </Tooltip>
+        {lastRun ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleCopySeed}
+                aria-label={historyLabel}
+                title={historyLabel}
+              >
+                <History className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-label font-medium uppercase tracking-wider opacity-70">
+                  Last run
+                </span>
+                <span className="font-mono">{lastRun.seed}</span>
+                <span>
+                  {lastRunDisplaySize} · {lastRun.worldSettings.playerCount}p
+                </span>
+                <span className="opacity-70">Click to copy seed</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        ) : null}
 
         <div className={`w-px h-5 ${dividerColor}`} />
 
@@ -290,8 +282,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <TooltipTrigger asChild>
             <Input
               type="text"
-              value={currentSettings.seed}
-              onChange={(e) => updateSetting("seed", e.target.value)}
+              value={seed}
+              onChange={(e) => onSeedChange(e.target.value)}
               placeholder="Seed"
               inputMode="numeric"
               pattern="[0-9]*"

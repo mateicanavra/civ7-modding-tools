@@ -37,7 +37,7 @@ export type VizSelection = {
 };
 
 export type UseVizSelectionArgs = {
-  /** `recipeSettings.recipe` — drives the overlay-suggestion catalog (recipe-only). */
+  /** Canonical recipe id; drives the overlay-suggestion catalog. */
   recipe: StudioRecipeId;
   /** Host-owned recipe artifacts (shared with the config-form surface), threaded in. */
   recipeArtifacts: RecipeArtifacts;
@@ -174,12 +174,12 @@ export function useVizSelection({
   useEffect(() => {
     if (stages.length === 0) return;
     setSelectedStageId((prev) => (stages.some((s) => s.value === prev) ? prev : stages[0]!.value));
-  }, [stages]);
+  }, [stages, setSelectedStageId]);
 
   useEffect(() => {
     if (steps.length === 0) return;
     setSelectedStepId((prev) => (steps.some((s) => s.value === prev) ? prev : steps[0]!.value));
-  }, [steps]);
+  }, [steps, setSelectedStepId]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional one-directional resync (external selectedStepId -> viz). Depending on viz.selectedStepId would re-run the effect on viz changes and defeat the equality guard below.
   useEffect(() => {
@@ -310,7 +310,7 @@ export function useVizSelection({
   useEffect(() => {
     if (!eraRange) return;
     setManualEra((prev) => clampNumber(prev, eraRange.min, eraRange.max));
-  }, [eraRange]);
+  }, [eraRange, setManualEra]);
 
   const overlayCandidates: OverlayOption[] = useMemo(() => {
     if (!dataTypeModel || !selection) return [];
@@ -339,7 +339,7 @@ export function useVizSelection({
     if (overlaySelectionId && !overlayCandidates.some((opt) => opt.value === overlaySelectionId)) {
       setOverlaySelectionId("");
     }
-  }, [overlayCandidates, overlaySelectionId]);
+  }, [overlayCandidates, overlaySelectionId, setOverlaySelectionId]);
 
   useEffect(() => {
     if (eraMode !== "fixed" || !overlaySelection || !dataTypeModel || !selection) {
@@ -378,7 +378,14 @@ export function useVizSelection({
     setOverlayVariantKeyPreference((prev) =>
       prev === resolvedVariantKey ? prev : resolvedVariantKey
     );
-  }, [dataTypeModel, eraMode, manualEra, overlaySelection, selection]);
+  }, [
+    dataTypeModel,
+    eraMode,
+    manualEra,
+    overlaySelection,
+    selection,
+    setOverlayVariantKeyPreference,
+  ]);
 
   const selectLayerFor = useCallback(
     (
@@ -427,7 +434,7 @@ export function useVizSelection({
       const stageMeta = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === stageId);
       setSelectedStepId(stageMeta?.steps[0]?.fullStepId ?? "");
     },
-    [recipeArtifacts.uiMeta.stages]
+    [recipeArtifacts.uiMeta.stages, setSelectedStageId, setSelectedStepId]
   );
 
   const handleStageChange = useCallback(
@@ -440,10 +447,13 @@ export function useVizSelection({
       }
       navigateTo(stageId);
     },
-    [navigateTo, stages]
+    [navigateTo, stages, setSelectedStageId]
   );
 
-  const handleStepChange = useCallback((stepId: string) => setSelectedStepId(stepId), []);
+  const handleStepChange = useCallback(
+    (stepId: string) => setSelectedStepId(stepId),
+    [setSelectedStepId]
+  );
 
   const handleRiverLakeInspectorLayerSelect = useCallback(
     (ref: RiverLakeInspectorLayerRef) => {
@@ -456,7 +466,7 @@ export function useVizSelection({
         setVizSelectedLayerKey: viz.setSelectedLayerKey,
       });
     },
-    [recipeArtifacts.uiMeta.stages, viz]
+    [recipeArtifacts.uiMeta.stages, viz, setSelectedStepId, setSelectedStageId]
   );
 
   const handleDataTypeChange = useCallback(
@@ -516,7 +526,7 @@ export function useVizSelection({
         variantId: next,
       });
     },
-    [eraMode, selectLayerFor, selection, selectedVariants]
+    [eraMode, selectLayerFor, selection, selectedVariants, setManualEra, setEraMode]
   );
 
   const handleEraModeChange = useCallback(
@@ -537,7 +547,7 @@ export function useVizSelection({
         era: clampedEra,
       });
     },
-    [autoEra, eraRange, manualEra, selectLayerFor, selection]
+    [autoEra, eraRange, manualEra, selectLayerFor, selection, setEraMode, setManualEra]
   );
 
   const handleEraValueChange = useCallback(
@@ -550,7 +560,7 @@ export function useVizSelection({
         era: clampedEra,
       });
     },
-    [eraMode, eraRange, selectLayerFor, selection]
+    [eraMode, eraRange, selectLayerFor, selection, setManualEra, setEraMode]
   );
 
   return {

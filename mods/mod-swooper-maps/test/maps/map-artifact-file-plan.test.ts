@@ -275,9 +275,7 @@ describe("Swooper map artifact file plan", () => {
       correlation: {
         requestId: "studio-run-in-game-action-groups",
         runArtifactId: "run-action-groups",
-        launchSourceDigest: {
-          canonicalConfigDigest: canonicalMapConfigDigest(fixtureConfig.canonicalConfig),
-        },
+        canonicalConfigDigest: canonicalMapConfigDigest(fixtureConfig.canonicalConfig),
         launchEnvelopeDigest: "launch-envelope-digest",
         generationManifestDigest: "generation-manifest-digest",
       },

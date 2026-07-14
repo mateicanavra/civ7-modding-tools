@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 /**
  * Adapted from `.design-sync/previews/ScrollArea.tsx`: Radix's custom scroller
- * with a quiet hairline thumb. A fixed 160px viewport + a tall preset list forces
+ * with a quiet hairline thumb. A fixed 160px viewport + a tall config list forces
  * overflow so the thumb shows.
  */
 const meta = {
@@ -28,7 +28,7 @@ function Demo({ children }: { children: ReactNode }) {
 }
 
 // Module-scope fixture (hoisted so the render stays referentially stable).
-const presets = [
+const configs = [
   "continents",
   "pangaea",
   "archipelago",
@@ -46,7 +46,7 @@ const presets = [
   "great-steppe",
 ];
 
-export const PresetList: Story = {
+export const ConfigList: Story = {
   render: () => (
     <Demo>
       <div
@@ -62,11 +62,11 @@ export const PresetList: Story = {
             textTransform: "uppercase",
           }}
         >
-          Presets · 15
+          Configs · 15
         </div>
         <ScrollArea style={{ height: 160 }}>
           <div style={{ padding: 4, display: "flex", flexDirection: "column" }}>
-            {presets.map((name, i) => (
+            {configs.map((name, i) => (
               <div
                 key={name}
                 className="text-foreground"

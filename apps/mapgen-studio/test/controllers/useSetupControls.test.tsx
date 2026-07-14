@@ -76,7 +76,7 @@ function makeArgs(over: Partial<UseSetupControlsArgs> = {}): UseSetupControlsArg
   return {
     setupConfig: studioSetupConfigFromSavedConfigFile(SAVED_CONFIG),
     setSetupConfig: vi.fn(),
-    setRecipeSettings: vi.fn(),
+    setSeed: vi.fn(),
     savedSetupConfigs: { status: "ok", configurations: [SAVED_CONFIG] },
     setupCatalog: { status: "idle" },
     liveSetup: { status: "idle" },

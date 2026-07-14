@@ -40,7 +40,7 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
       type: "run.start",
       runToken: `standard-layer-visibility-${Date.now()}`,
       generation: 1,
-      recipeId: "mod-swooper-maps/standard",
+      recipeId: "standard",
       seed: 1780185340,
       mapSizeId: "MAPSIZE_TINY",
       dimensions: { width: 8, height: 6 },

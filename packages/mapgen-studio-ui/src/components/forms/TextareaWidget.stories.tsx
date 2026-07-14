@@ -49,7 +49,7 @@ export const Empty: Story = {
     id: "cfg_notes",
     name: "notes",
     value: "",
-    placeholder: "Describe this preset…",
+    placeholder: "Describe this config…",
   }),
   render: (args) => (
     <Demo>

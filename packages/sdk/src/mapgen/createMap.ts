@@ -16,9 +16,7 @@ export type MapLatitudeBounds = Readonly<{
 export type MapRunCorrelation = Readonly<{
   requestId: string;
   runArtifactId: string;
-  launchSourceDigest: Readonly<{
-    canonicalConfigDigest: string;
-  }>;
+  canonicalConfigDigest: string;
   launchEnvelopeDigest: string;
   generationManifestDigest: string;
 }>;
@@ -38,7 +36,7 @@ type MapDefinitionCore<TRecipe extends RecipeModule<ExtendedMapContext, any, any
 type MapDefinitionCatalogEvidence = Readonly<{
   requestId?: never;
   runArtifactId?: never;
-  launchSourceDigest?: never;
+  canonicalConfigDigest?: never;
   configHash?: string;
   envelopeHash?: string;
   launchEnvelopeDigest?: never;
@@ -50,7 +48,7 @@ type MapDefinitionRunSource = Readonly<{
   runCorrelation: MapRunCorrelation;
   requestId?: never;
   runArtifactId?: never;
-  launchSourceDigest?: never;
+  canonicalConfigDigest?: never;
   launchEnvelopeDigest?: never;
   generationManifestDigest?: never;
   configHash?: never;
@@ -92,7 +90,7 @@ function mapEvidencePayloadIdentityFor(def: MapDefinition<any>): MapEvidencePayl
     return {
       requestId: def.runCorrelation.requestId,
       runArtifactId: def.runCorrelation.runArtifactId,
-      canonicalConfigDigest: def.runCorrelation.launchSourceDigest.canonicalConfigDigest,
+      canonicalConfigDigest: def.runCorrelation.canonicalConfigDigest,
       launchEnvelopeDigest: def.runCorrelation.launchEnvelopeDigest,
       generationManifestDigest: def.runCorrelation.generationManifestDigest,
     };
@@ -111,11 +109,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isMapRunCorrelation(value: unknown): value is MapRunCorrelation {
-  if (!isRecord(value) || !isRecord(value.launchSourceDigest)) return false;
+  if (!isRecord(value)) return false;
   return (
     typeof value.requestId === "string" &&
     typeof value.runArtifactId === "string" &&
-    typeof value.launchSourceDigest.canonicalConfigDigest === "string" &&
+    typeof value.canonicalConfigDigest === "string" &&
     typeof value.launchEnvelopeDigest === "string" &&
     typeof value.generationManifestDigest === "string"
   );
@@ -125,7 +123,7 @@ function assertCompleteRunCorrelation(def: MapDefinition<any>): void {
   const hasDirectRunIdentity =
     "requestId" in def ||
     "runArtifactId" in def ||
-    "launchSourceDigest" in def ||
+    "canonicalConfigDigest" in def ||
     "launchEnvelopeDigest" in def ||
     "generationManifestDigest" in def;
   if (

@@ -21,7 +21,3 @@ export {
   StudioOperationRuntime,
   type StudioOperationRuntimeApi,
 } from "./StudioOperationRuntime.js";
-export {
-  buildRunInGameSourceSnapshotEvidence,
-  hashRunInGameEvidenceValue,
-} from "./sourceSnapshot.js";

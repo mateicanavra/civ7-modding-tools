@@ -17,6 +17,10 @@
       "types": "./src/maps/configs/canonical.ts",
       "import": "./src/maps/configs/canonical.ts"
     },
+    "./maps/configs/standard-admission": {
+      "types": "./src/maps/configs/standard-admission.ts",
+      "import": "./src/maps/configs/standard-admission.ts"
+    },
     "./recipes/standard": {
       "types": "./dist/recipes/standard.d.ts",
       "import": "./dist/recipes/standard.js"

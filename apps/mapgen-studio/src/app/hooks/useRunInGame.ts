@@ -1,9 +1,5 @@
-import {
-  type ConfigSource,
-  isMapConfigEnvelope,
-  type RunDiagnosticsLookupResult,
-} from "@civ7/studio-contract";
-import type { RecipeSettings, WorldSettings } from "@swooper/mapgen-studio-ui/types";
+import { type MapConfigEnvelope, type RunDiagnosticsLookupResult } from "@civ7/studio-contract";
+import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { type MutableRefObject, useCallback, useEffect, useMemo } from "react";
 import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
 import {
@@ -14,8 +10,10 @@ import {
   type Civ7StudioSetupConfig,
   normalizeStudioSetupConfig,
 } from "../../features/civ7Setup/setupConfig";
-import { applyPresetConfig, isPlainObject } from "../../features/configAuthoring/canonicalConfig";
-import type { AuthoringConfigSource } from "../../features/presets/types";
+import {
+  admitCanonicalConfig,
+  isPlainObject,
+} from "../../features/configAuthoring/canonicalConfig";
 import { runCurrentConfigInGame } from "../../features/runInGame/api";
 import {
   buildRunInGameClientSnapshot,
@@ -23,7 +21,6 @@ import {
   relationForRunInGameOperation,
 } from "../../features/runInGame/clientState";
 import { orpcClient } from "../../lib/orpc";
-import { findBuiltInPresetBySourcePath, findRecipeArtifacts } from "../../recipes/catalog";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
 import type { UseLiveRuntimeResult } from "./useLiveRuntime";
@@ -32,17 +29,17 @@ import type { StudioOperations } from "./useStudioOperations";
 import type { ToastFn } from "./useToast";
 
 export type UseRunInGameArgs = {
-  /** Current recipe, preset, and seed. */
-  recipeSettings: RecipeSettings;
+  /** Current generation seed. */
+  seed: string;
   /** Authoring world settings (map size / player count / resources). */
   worldSettings: WorldSettings;
-  /** The sole authoring owner of source provenance and configuration bytes. */
-  authoringConfigSource: AuthoringConfigSource;
+  /** The sole complete config authoring value. */
+  canonicalConfig: MapConfigEnvelope;
   /** Monotonic local revision used only to mark an admitted run as edited since launch. */
   authoringRevision: number;
   /** Current authoring setup config. */
   setupConfig: Civ7StudioSetupConfig;
-  setRecipeSettings: AuthoringState["setRecipeSettings"];
+  setSeed: AuthoringState["setSeed"];
   setSetupConfig: AuthoringState["setSetupConfig"];
   /** Live runtime status (from `useLiveRuntime`) — sync-back gating + suggestions. */
   liveRuntime: UseLiveRuntimeResult["liveRuntime"];
@@ -75,27 +72,20 @@ export type UseRunInGameArgs = {
 export type UseRunInGameResult = {
   /** Current run-in-game relation (current/stale/unknown) consumed by the Game console. */
   runInGameCurrentRelation: RunInGameCurrentRelation;
-  /** Launch handler for the current admitted authoring source. */
+  /** Launch handler for the current admitted config. */
   handleRunInGame: () => Promise<void>;
   /** Sync-back handler — applies only live seed/setup suggestions. */
   syncStudioFromLiveGame: () => void;
   /** Copies run-in-game diagnostics to the clipboard. */
   copyRunInGameDiagnostics: () => Promise<void>;
-  /** Whether the current authoring source prevents a Run in Game request. */
+  /** Whether the current config prevents a Run in Game request. */
   isRunInGameBlocked: boolean;
 };
 
 const RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS = 1_500;
 
 type RunInGameLaunchDecision = Readonly<
-  | {
-      kind: "catalog";
-      source: ConfigSource;
-    }
-  | {
-      kind: "editor";
-      source: ConfigSource;
-    }
+  | { kind: "ready"; canonicalConfig: MapConfigEnvelope }
   | {
       kind: "blocked";
       message: string;
@@ -105,12 +95,12 @@ type RunInGameLaunchDecision = Readonly<
 /** Coordinates Run in Game admission, operation state, and live-game sync-back. */
 export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
   const {
-    recipeSettings,
+    seed,
     worldSettings,
-    authoringConfigSource,
+    canonicalConfig,
     authoringRevision,
     setupConfig,
-    setRecipeSettings,
+    setSeed,
     setSetupConfig,
     liveRuntime,
     liveRuntimeSuggestions,
@@ -127,52 +117,11 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
   } = args;
 
   const runInGameLaunchDecision = useMemo<RunInGameLaunchDecision>(() => {
-    if (authoringConfigSource.kind === "blocked") {
-      return {
-        kind: "blocked",
-        message:
-          "Run in Game is unavailable until you select an existing catalog config or create a new editor config.",
-      };
-    }
-    if (authoringConfigSource.kind === "catalog") {
-      const catalogPreset = findBuiltInPresetBySourcePath(
-        recipeSettings.recipe,
-        authoringConfigSource.sourcePath
-      );
-      if (!catalogPreset) {
-        return {
-          kind: "blocked",
-          message:
-            "Run in Game is unavailable until you select an existing catalog config or create a new editor config.",
-        };
-      }
-      return {
-        kind: "catalog",
-        source: {
-          kind: "catalog",
-          sourcePath: authoringConfigSource.sourcePath,
-          canonicalConfig: catalogPreset.canonicalConfig,
-        },
-      };
-    }
-    const canonicalConfig = authoringConfigSource.canonicalConfig;
-    const recipeArtifacts = findRecipeArtifacts(recipeSettings.recipe);
-    if (
-      !recipeArtifacts ||
-      !isMapConfigEnvelope(canonicalConfig) ||
-      !applyPresetConfig({
-        schema: recipeArtifacts.configSchema,
-        presetConfig: canonicalConfig.config,
-        label: "run-in-game-editor",
-      }).ok
-    ) {
+    if (admitCanonicalConfig(canonicalConfig) === undefined) {
       return { kind: "blocked", message: "Run in Game failed: config is invalid for this recipe." };
     }
-    return {
-      kind: "editor",
-      source: { kind: "editor", editorSessionId: "studio-current", canonicalConfig },
-    };
-  }, [authoringConfigSource, recipeSettings.recipe]);
+    return { kind: "ready", canonicalConfig };
+  }, [canonicalConfig]);
 
   const runInGameCurrentRelation = useMemo<RunInGameCurrentRelation>(
     () =>
@@ -235,7 +184,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       return;
     }
     setLocalError(null);
-    const seedPolicy = parseCiv7StudioSeed(recipeSettings.seed);
+    const seedPolicy = parseCiv7StudioSeed(seed);
     if (!seedPolicy.ok) {
       const message = formatCiv7StudioSeedError(seedPolicy);
       setLocalError(message);
@@ -250,12 +199,8 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     }
     const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
     const result = await runCurrentConfigInGame({
-      source: runInGameLaunchDecision.source,
-      recipeSettings: {
-        preset: recipeSettings.preset,
-        recipe: "mod-swooper-maps/standard",
-        seed: recipeSettings.seed,
-      },
+      canonicalConfig: runInGameLaunchDecision.canonicalConfig,
+      seed,
       worldSettings: {
         mapSize: mapSize.id,
         playerCount: worldSettings.playerCount,
@@ -273,10 +218,10 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     const snapshot = buildRunInGameClientSnapshot({
       requestId: result.requestId,
       authoringRevision,
-      recipeSettings,
+      seed,
       worldSettings,
       setupConfig,
-      source: runInGameLaunchDecision.source,
+      canonicalConfig: runInGameLaunchDecision.canonicalConfig,
     });
     setRunInGameSnapshot(snapshot);
     toast(`Run in Game started: ${result.requestId}`, {
@@ -284,9 +229,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     });
   }, [
     runInGameLaunchDecision,
-    recipeSettings.preset,
-    recipeSettings,
-    recipeSettings.seed,
+    seed,
     runInGameRunning,
     saveDeployRunning,
     authoringRevision,
@@ -324,7 +267,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         });
         return false;
       }
-      setRecipeSettings((prev) => ({ ...prev, seed: String(parsedSeed.value) }));
+      setSeed(String(parsedSeed.value));
       return true;
     };
     const applySuggestedSetup = (value: unknown): boolean => {
@@ -334,7 +277,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     };
 
     const provedSeedSuggestion = currentSnapshotSuggestions.find(
-      (record) => record.affectedConfigPath === "recipeSettings.seed"
+      (record) => record.affectedConfigPath === "seed"
     );
     const provedSetupSuggestion = currentSnapshotSuggestions.find(
       (record) => record.affectedConfigPath === "setupConfig"
@@ -359,14 +302,13 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     );
   }, [
     browserRunning,
-    liveRuntime.seed,
     liveRuntime.snapshotId,
     liveRuntime.status,
     liveRuntimeSuggestions,
     runInGameRunning,
     saveDeployRunning,
     toast,
-    setRecipeSettings,
+    setSeed,
     setSetupConfig,
   ]);
 

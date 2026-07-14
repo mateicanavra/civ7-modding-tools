@@ -5,7 +5,7 @@
  * lib foundation (`cn`, `useResolvedTheme`/`resolveThemeFromDom`, `LAYOUT`).
  * B3 surface: the composites (12: AppBrand, AppFooter, StageViewTabs,
  * ViewControls, WaterStatsSection, OptionSelect, DisclosureHeader, EmptyState,
- * ErrorBanner, the 3 preset dialogs) + layout (LeftDock, RightDock).
+ * ErrorBanner, MapConfigSaveDialog) + layout (LeftDock, RightDock).
  * B4 surface: the forms group (11: the 7 config widgets + the 3 BrowserConfig
  * templates + SchemaConfigForm) with `configWidgets` and the public
  * `useConfigCollapse` collapse engine (SchemaConfigForm's documented
@@ -55,15 +55,11 @@ export {
 } from "./components/composites/DisclosureHeader.js";
 export { EmptyState, type EmptyStateProps } from "./components/composites/EmptyState.js";
 export { ErrorBanner, type ErrorBannerProps } from "./components/composites/ErrorBanner.js";
-export { OptionSelect, type OptionSelectProps } from "./components/composites/OptionSelect.js";
 export {
-  PresetConfirmDialog,
-  type PresetConfirmDialogProps,
-  PresetErrorDialog,
-  type PresetErrorDialogProps,
-  PresetSaveDialog,
-  type PresetSaveDialogProps,
-} from "./components/composites/PresetDialogs.js";
+  MapConfigSaveDialog,
+  type MapConfigSaveDialogProps,
+} from "./components/composites/MapConfigSaveDialog.js";
+export { OptionSelect, type OptionSelectProps } from "./components/composites/OptionSelect.js";
 export {
   type StageView,
   StageViewTabs,

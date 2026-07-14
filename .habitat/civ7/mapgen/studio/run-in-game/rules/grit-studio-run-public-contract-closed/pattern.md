@@ -75,10 +75,6 @@ or {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
     $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
-  `sourceSnapshot: $value` as $match where {
-    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
-  },
   `materialization: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
     $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
@@ -92,10 +88,6 @@ or {
     $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
   `launchEnvelope: $value` as $match where {
-    $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
-    $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
-  },
-  `resolvedLaunchSource: $value` as $match where {
     $filename <: r".*packages/studio-contract/src/runInGame\.ts$",
     $match <: within `export const publicRunStatusTypeSchema = Type.Union($variants)`
   },
@@ -131,10 +123,6 @@ or {
     $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
     $match <: within `export function projectRunInGame($args) { $body }`
   },
-  `sourceSnapshot: $value` as $match where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
-    $match <: within `export function projectRunInGame($args) { $body }`
-  },
   `materialization: $value` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
     $match <: within `export function projectRunInGame($args) { $body }`
@@ -148,10 +136,6 @@ or {
     $match <: within `export function projectRunInGame($args) { $body }`
   },
   `launchEnvelope: $value` as $match where {
-    $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
-    $match <: within `export function projectRunInGame($args) { $body }`
-  },
-  `resolvedLaunchSource: $value` as $match where {
     $filename <: r".*packages/studio-server/src/operationRuntime/projection\.ts$",
     $match <: within `export function projectRunInGame($args) { $body }`
   },

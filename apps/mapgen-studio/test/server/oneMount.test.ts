@@ -331,7 +331,7 @@ function runInGameRuntimeObservation(
   const correlation = {
     requestId: args.requestId,
     runArtifactId: materialization?.runArtifactId ?? "run-test",
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest:
       materialization?.generationManifestDigest ?? "test-generation-manifest-digest",

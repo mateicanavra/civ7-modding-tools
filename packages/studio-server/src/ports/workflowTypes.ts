@@ -11,12 +11,10 @@ import type {
   Civ7LiveStatusOutput,
   LaunchEnvelope,
   LaunchEnvelopeDigest,
-  LaunchSourceDigest,
   MapConfigEnvelope,
   RunInGameExactAuthorshipEvidence,
   RunInGameMaterializationStatus,
   RunInGameSetupConfig,
-  RunInGameSourceSnapshotEvidence,
 } from "@civ7/studio-contract";
 import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import type { StudioInputs, StudioOutputs } from "../context.js";
@@ -38,24 +36,18 @@ export type CanonicalRunInGameRequest = Readonly<{
   playerCount?: number;
   resources?: string;
   setupConfig: RunInGameSetupConfig;
-  sourceSnapshot?: RunInGameSourceSnapshotEvidence;
 }>;
 
 export type RunInGamePreparedRequest = Readonly<{
   request: CanonicalRunInGameRequest;
   launchEnvelope: LaunchEnvelope;
-  launchSourceDigest: LaunchSourceDigest;
+  canonicalConfigDigest: string;
   launchEnvelopeDigest: LaunchEnvelopeDigest;
 }>;
 
 export type RunInGameCanonicalConfigAdmission = Readonly<{
   /**
-   * Resolves and admits a catalog path only when it belongs to Swooper's indexed
-   * catalog. The returned envelope already owns its immutable boundary snapshot.
-   */
-  resolveCatalogSource(sourcePath: string): Promise<MapConfigEnvelope | undefined>;
-  /**
-   * Swooper performs Standard semantic admission on Studio's frozen snapshot.
+   * The host performs recipe semantic admission on Studio's frozen snapshot.
    * It must return that same object and must not default, migrate, or rebuild it.
    */
   admit(canonicalConfig: MapConfigEnvelope): Promise<MapConfigEnvelope>;

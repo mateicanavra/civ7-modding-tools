@@ -1,6 +1,6 @@
 import { parseArtifactPresentation } from "@swooper/mapgen-studio-ui";
 import { describe, expect, it } from "vitest";
-
+import { getRecipeDagId } from "../../src/recipes/catalog";
 import { createRecipeDagService } from "../../src/server/recipeDag/service";
 
 // APP-SIDE half of the recipe DAG artifact-presentation coverage (B5 split):
@@ -12,7 +12,9 @@ import { createRecipeDagService } from "../../src/server/recipeDag/service";
 
 describe("recipe DAG artifact domain coverage", () => {
   it("classifies every bundled standard recipe artifact into a semantic icon domain", async () => {
-    const dag = await createRecipeDagService().getRecipeDag("mod-swooper-maps/standard");
+    const recipeDagId = getRecipeDagId("standard");
+    expect(recipeDagId).toBe("mod-swooper-maps/standard");
+    const dag = await createRecipeDagService().getRecipeDag(recipeDagId);
     const artifactIds = new Set<string>();
     for (const stage of dag.stages) {
       for (const artifact of stage.artifactRequires) artifactIds.add(artifact.id);

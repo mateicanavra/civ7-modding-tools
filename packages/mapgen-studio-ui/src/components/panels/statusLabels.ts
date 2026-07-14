@@ -30,8 +30,8 @@ export function formatMapConfigSaveDeployPhaseLabel(phase: MapConfigSaveDeployPh
 
 export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   switch (phase) {
-    case "resolving-source":
-      return "Resolving Source";
+    case "admitting-config":
+      return "Admitting Config";
     case "generating-artifacts":
       return "Generating";
     case "deploying":

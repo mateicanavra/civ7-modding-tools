@@ -35,8 +35,8 @@ export type UseSetupControlsArgs = {
   setupConfig: AuthoringState["setupConfig"];
   /** Setter for the authoring setup config (from `useAuthoringStore`). */
   setSetupConfig: AuthoringState["setSetupConfig"];
-  /** Setter for the authoring recipe settings — saved-config seed adoption. */
-  setRecipeSettings: AuthoringState["setRecipeSettings"];
+  /** Setter for the generation seed — saved-config seed adoption. */
+  setSeed: AuthoringState["setSeed"];
   /** Saved-config READ view (from `useSetupDataQueries`). */
   savedSetupConfigs: SavedSetupConfigsView;
   /** Setup-catalog READ view (from `useSetupDataQueries`). */
@@ -161,7 +161,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
   const {
     setupConfig,
     setSetupConfig,
-    setRecipeSettings,
+    setSeed,
     savedSetupConfigs,
     setupCatalog,
     liveSetup,
@@ -275,7 +275,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
       if (nextSeed !== undefined) {
         const seedPolicy = parseCiv7StudioSeed(nextSeed);
         if (seedPolicy.ok) {
-          setRecipeSettings((current) => ({ ...current, seed: String(seedPolicy.value) }));
+          setSeed(String(seedPolicy.value));
         } else {
           toast(`Saved config seed ignored: ${formatCiv7StudioSeedError(seedPolicy)}`, {
             variant: "info",
@@ -283,7 +283,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
         }
       }
     },
-    [savedSetupConfigs.configurations, toast]
+    [savedSetupConfigs.configurations, setSeed, setSetupConfig, toast]
   );
 
   // The E4a header intents (structure-rewire §4.7/§5): the update composition
@@ -380,6 +380,7 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     runInGameRunning,
     saveDeployRunning,
     toast,
+    setLiveRuntime,
   ]);
 
   /**

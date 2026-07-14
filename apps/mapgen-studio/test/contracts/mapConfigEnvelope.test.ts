@@ -3,13 +3,8 @@ import {
   isMapConfigEnvelope,
   mapConfigs,
   normalizeRunInGameSetupConfig,
-  runInGame,
-  serializeConfigSource,
   serializeMapConfigEnvelope,
-  serializeRunInGameStartSource,
-  snapshotConfigSource,
   snapshotMapConfigEnvelope,
-  snapshotRunInGameStartSource,
 } from "@civ7/studio-contract";
 import { describe, expect, it } from "vitest";
 
@@ -132,19 +127,6 @@ describe("map config envelope portability", () => {
     expect(envelopeWire.config).not.toBe(snapshot.config);
     expect(Object.isFrozen(snapshot)).toBe(true);
     expect(Object.isFrozen(envelopeWire)).toBe(false);
-
-    const source = snapshotConfigSource({
-      kind: "editor",
-      editorSessionId: "test-session",
-      canonicalConfig: raw,
-    });
-    expect(source).toBeDefined();
-    if (source === undefined) return;
-
-    const sourceWire = serializeConfigSource(source);
-    expect(sourceWire).toEqual(source);
-    expect(sourceWire).not.toBe(source);
-    expect(sourceWire.canonicalConfig).not.toBe(source.canonicalConfig);
   });
 
   it("isolates and freezes map-envelope snapshots", () => {
@@ -167,55 +149,6 @@ describe("map config envelope portability", () => {
     expect(Object.isFrozen(snapshot)).toBe(true);
     expect(Object.isFrozen(snapshot.config)).toBe(true);
     expect(Object.isFrozen(snapshot.config.nested)).toBe(true);
-  });
-
-  it("does not accept catalog config bytes on the external Run in Game source", () => {
-    const catalogSource = {
-      kind: "catalog",
-      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-      canonicalConfig: {
-        id: "swooper-earthlike",
-        name: "Swooper Earthlike",
-        description: "Must stay server-resolved.",
-        recipe: "standard",
-        sortIndex: 1,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-        config: {},
-      },
-    };
-    const inputSchema = runInGame.start["~orpc"].inputSchema;
-    if (inputSchema === undefined) throw new Error("runInGame.start must expose an input schema");
-
-    expect(snapshotRunInGameStartSource(catalogSource)).toBeUndefined();
-    const result = inputSchema["~standard"].validate({
-      source: catalogSource,
-      recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 43 },
-      worldSettings: { mapSize: "MAPSIZE_STANDARD" },
-    });
-    expect("issues" in result).toBe(true);
-  });
-
-  it("serializes an internal catalog source as a path-only external request", () => {
-    const source = snapshotConfigSource({
-      kind: "catalog",
-      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-      canonicalConfig: {
-        id: "swooper-earthlike",
-        name: "Swooper Earthlike",
-        description: "Resolved catalog fixture.",
-        recipe: "standard",
-        sortIndex: 1,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-        config: {},
-      },
-    });
-    expect(source).toBeDefined();
-    if (source === undefined) return;
-
-    expect(serializeRunInGameStartSource(source)).toEqual({
-      kind: "catalog",
-      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-    });
   });
 
   it("returns fresh frozen setup defaults and normalized snapshots", () => {

@@ -204,7 +204,7 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
             );
           }
           const mapSize = launchEnvelope.worldSettings.mapSize;
-          const seed = numericLaunchSeed(launchEnvelope.recipeSettings.seed);
+          const seed = numericLaunchSeed(launchEnvelope.seed);
           const launchSetupConfig = { ...launchEnvelope.setupConfig, mapScript: launchMapScript };
           const savedConfig = readSavedConfig(launchSetupConfig);
           if (!mapSize || seed === undefined) {
@@ -279,7 +279,7 @@ export const Civ7WorkflowControlLive: Layer.Layer<Civ7WorkflowControl, never, Ci
           const launchMapScript = materialization?.mapScript;
           const launchEnvelope = args.prepared.launchEnvelope;
           const mapSize = launchEnvelope.worldSettings.mapSize;
-          const seed = numericLaunchSeed(launchEnvelope.recipeSettings.seed);
+          const seed = numericLaunchSeed(launchEnvelope.seed);
           const launchSetupConfig = { ...launchEnvelope.setupConfig, mapScript: launchMapScript };
           if (!launchMapScript || !mapSize || seed === undefined) {
             return Effect.fail(

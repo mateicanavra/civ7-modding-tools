@@ -8,6 +8,7 @@ import { type TObject, type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
 import { STANDARD_RECIPE_CONFIG_SCHEMA } from "../../recipes/standard/artifacts.js";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import { validateStandardMapConfigSnapshotForSchema } from "./standard-admission.js";
 
 type JsonObject = MapConfigEnvelope["config"];
 
@@ -31,21 +32,6 @@ export const DEFAULT_CANONICAL_MAP_LATITUDE_BOUNDS = {
   topLatitude: 80,
   bottomLatitude: -80,
 } as const;
-
-function escapeJsonPointerSegment(value: string): string {
-  return value.replaceAll("~", "~0").replaceAll("/", "~1");
-}
-
-function formatStandardRecipeConfigErrors(value: unknown, recipeSchema: TSchema): string[] {
-  return Value.Errors(recipeSchema, value).flatMap((error) => {
-    if (error.keyword === "additionalProperties") {
-      return error.params.additionalProperties.map(
-        (key) => `/config${error.instancePath}/${escapeJsonPointerSegment(key)}: Unknown key`
-      );
-    }
-    return [`/config${error.instancePath}: ${error.message}`];
-  });
-}
 
 function isStandardMapConfigEnvelopeForSchema(
   value: CanonicalMapConfigEnvelope,
@@ -166,21 +152,8 @@ export function validateStandardMapConfigSnapshot(
   envelope: CanonicalMapConfigEnvelope,
   recipeSchema: TSchema = STANDARD_RECIPE_CONFIG_SCHEMA
 ): StandardMapConfigEnvelope {
-  if (envelope.recipe !== "standard") {
-    throw new Error(
-      `Map config must use the Standard recipe, got ${JSON.stringify(envelope.recipe)}.`
-    );
-  }
-  if (!isStandardMapConfigEnvelopeForSchema(envelope, recipeSchema)) {
-    const errors = formatStandardRecipeConfigErrors(envelope.config, recipeSchema);
-    throw new Error(
-      `Map config must carry a complete recipe config JSON:\n${errors
-        .map((error) => `- ${error}`)
-        .join("\n")}`
-    );
-  }
-  if (envelope.latitudeBounds.topLatitude <= envelope.latitudeBounds.bottomLatitude) {
-    throw new Error("Map config latitudeBounds.topLatitude must exceed bottomLatitude.");
-  }
-  return envelope;
+  return validateStandardMapConfigSnapshotForSchema(
+    envelope,
+    recipeSchema
+  ) as StandardMapConfigEnvelope;
 }

@@ -484,7 +484,6 @@ describe("Studio event operation adoption", () => {
     const srcRoot = join(repoRoot, "apps/mapgen-studio/src");
     const storageOwnerAllowlist = new Set([
       "apps/mapgen-studio/src/features/studioState/persistence.ts",
-      "apps/mapgen-studio/src/features/presets/storage.ts",
       "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
       "apps/mapgen-studio/src/stores/authoringStore.ts",
     ]);

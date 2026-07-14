@@ -339,15 +339,11 @@ describe("studio-server RPC handler", () => {
       const { error } = await safe(
         client.runInGame.start({
           ...runInGameStartInput(),
-          source: {
-            kind: "editor",
-            editorSessionId: "studio-current",
-            canonicalConfig: testCanonicalConfig({
-              id: "studio-current",
-              name: "Studio Current",
-              config: { rawJs: "UI.notifyUIReady()" },
-            }).canonicalConfig,
-          },
+          canonicalConfig: testCanonicalConfig({
+            id: "studio-current",
+            name: "Studio Current",
+            config: { rawJs: "UI.notifyUIReady()" },
+          }).canonicalConfig,
         } as StudioInputs["runInGame"]["start"])
       );
 
@@ -1154,7 +1150,6 @@ function makeOperationRuntimePorts(
     runInGameWorkspaceRoot,
     generateRunInGameMod: async () => generatedRunInGameMod(),
     runInGameCanonicalConfigAdmission: {
-      resolveCatalogSource: async () => undefined,
       admit: async (canonicalConfig) => canonicalConfig,
     },
     deployRunInGame: async ({ requestId, generatedMod }) =>
@@ -1241,7 +1236,7 @@ function runInGameRuntimeObservation(
   const correlation = {
     requestId: args.requestId,
     runArtifactId: materialization?.runArtifactId ?? "run-test",
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest:
       materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
@@ -1300,18 +1295,11 @@ function runInGameRuntimeObservation(
 
 function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
   return {
-    source: {
-      kind: "editor",
-      editorSessionId: "handler-test-editor",
-      canonicalConfig: testCanonicalConfig({
-        id: "studio-current",
-        name: "Studio Current",
-      }).canonicalConfig,
-    },
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: 43,
-    },
+    canonicalConfig: testCanonicalConfig({
+      id: "studio-current",
+      name: "Studio Current",
+    }).canonicalConfig,
+    seed: 43,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },

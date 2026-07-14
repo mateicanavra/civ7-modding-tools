@@ -107,6 +107,19 @@ describe("studio-server error spine", () => {
     }
   });
 
+  test("projects every invalid request through the single request-validation category", () => {
+    const projected = mapStudioFailureToDefinedError({
+      failure: invalidRequest({
+        message: "legacy source-shaped refusal",
+        diagnostics: { code: "run-in-game-catalog-source-not-found" },
+      }),
+      procedure: "runInGame.start",
+      identity,
+    });
+
+    expect(projected.data).toMatchObject({ safeFailureCategory: "request-validation" });
+  });
+
   test("maps lifecycle misses by procedure surface instead of namespace only", () => {
     const expired = operationExpired({ message: "expired", requestId: "run-1" });
     const mismatch = daemonIdentityMismatch({ message: "wrong daemon", requestId: "save-1" });

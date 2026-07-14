@@ -31,8 +31,8 @@ import {
   materializationFailed,
   verificationFailed,
 } from "@civ7/studio-server";
-import { admitSwooperCatalogConfig, readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
-import { validateStandardMapConfigSnapshot } from "mod-swooper-maps/maps/configs/canonical";
+import { validateStandardMapConfigSnapshotForSchema } from "mod-swooper-maps/maps/configs/standard-admission";
+import { STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema } from "mod-swooper-maps/recipes/standard-artifacts";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import {
@@ -342,50 +342,20 @@ function isNodeNotFound(err: unknown): boolean {
   );
 }
 
-/**
- * The app-side Swooper port owns catalog membership, immutable snapshotting, and
- * Standard semantics. Studio-server snapshots editor input and orchestrates both.
- */
-export function createSwooperRunInGameCanonicalConfigAdmission(
-  repoRoot: string
-): NonNullable<StudioOperationRuntimePorts["runInGameCanonicalConfigAdmission"]> {
-  const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
-
+/** Swooper owns Standard semantic admission and preserves Studio's frozen snapshot. */
+export function createSwooperRunInGameCanonicalConfigAdmission(): NonNullable<
+  StudioOperationRuntimePorts["runInGameCanonicalConfigAdmission"]
+> {
   return {
-    resolveCatalogSource: async (sourcePath: string) => {
-      const entries = await readdir(configRoot, { withFileTypes: true });
-      const knownConfigPaths = new Set(
-        entries
-          .filter((entry) => entry.isFile() && entry.name.endsWith(".config.json"))
-          .map((entry) => relative(repoRoot, resolve(configRoot, entry.name)).replaceAll("\\", "/"))
-      );
-      const indexedSourcePaths = readCatalogSourceIndex({ knownConfigPaths });
-      if (!indexedSourcePaths.includes(sourcePath)) return undefined;
-
-      const sourceText = await readFile(resolve(repoRoot, sourcePath), "utf8");
-      const sourceValue: unknown = JSON.parse(sourceText);
-      try {
-        return admitSwooperCatalogConfig({
-          sourcePath,
-          canonicalConfig: sourceValue,
-        }).canonicalConfig;
-      } catch (err) {
-        throw invalidEngineRequest(
-          err instanceof Error ? err.message : "Catalog config could not be admitted",
-          "map-config-catalog-source-invalid",
-          { sourcePath }
-        );
-      }
-    },
     admit: async (canonicalConfig) => validateRepoMapConfigSnapshot(canonicalConfig),
   };
 }
 
 function validateRepoMapConfigSnapshot(
-  canonicalConfig: Parameters<typeof validateStandardMapConfigSnapshot>[0]
+  canonicalConfig: Parameters<typeof validateStandardMapConfigSnapshotForSchema>[0]
 ) {
   try {
-    return validateStandardMapConfigSnapshot(canonicalConfig);
+    return validateStandardMapConfigSnapshotForSchema(canonicalConfig, swooperStandardConfigSchema);
   } catch (err) {
     throw invalidEngineRequest(
       err instanceof Error ? err.message : "Map config could not be admitted",
@@ -467,7 +437,6 @@ type RunInGameLeafContext = Readonly<{
   seed: number;
   canonicalConfigDigest: string;
   launchEnvelopeDigest: string;
-  sourceSnapshotEvidence?: RunInGameRequestStatus["sourceSnapshot"];
   requestStatus: RunInGameRequestStatus;
 }> & {
   materialization?: RunInGameGeneratedMod["materialization"];
@@ -496,7 +465,7 @@ export function createStudioOperationRuntimePorts(
 
   return {
     runInGameWorkspaceRoot: resolve(repoRoot, ".mapgen-studio/run-in-game"),
-    runInGameCanonicalConfigAdmission: createSwooperRunInGameCanonicalConfigAdmission(repoRoot),
+    runInGameCanonicalConfigAdmission: createSwooperRunInGameCanonicalConfigAdmission(),
     generateRunInGameMod: async ({ generationManifest, signal }) => {
       const manifest = await readStudioRunGenerationManifest(generationManifest.path);
       const generated = await generateSwooperRunMod({
@@ -507,7 +476,7 @@ export function createStudioOperationRuntimePorts(
       const materialization = {
         path: relative(repoRoot, generated.generatedModRoot),
         mapScript: `{${STUDIO_RUN_MOD_ID}}/${generated.mapScriptPath}`,
-        canonicalConfigDigest: manifest.payload.launchSourceDigest.canonicalConfigDigest,
+        canonicalConfigDigest: manifest.payload.canonicalConfigDigest,
         launchEnvelopeDigest: manifest.payload.launchEnvelopeDigest,
         generationManifestDigest: generationManifest.generationManifestDigest,
         runArtifactId: generated.runArtifactId,
@@ -799,7 +768,6 @@ export function createStudioOperationRuntimePorts(
       const exactAuthorshipEvidence = buildRunInGameExactAuthorshipEvidence({
         requestId,
         request: context.requestStatus,
-        sourceSnapshot: context.sourceSnapshotEvidence,
         materialization,
         sourceConfig: materialization.sourceConfig,
         generatedSourceScript: materialization.generatedSourceScript,
@@ -913,28 +881,25 @@ export function createStudioOperationRuntimePorts(
     }>
   ): RunInGameLeafContext {
     const launchEnvelope = args.prepared.launchEnvelope;
-    const seed = Number(launchEnvelope.recipeSettings.seed);
+    const seed = launchEnvelope.seed;
     const mapSize = launchEnvelope.worldSettings.mapSize;
     const playerCount = launchEnvelope.worldSettings.playerCount;
     const setupConfig = launchEnvelope.setupConfig;
-    const canonicalConfigDigest = args.prepared.launchSourceDigest.canonicalConfigDigest;
+    const canonicalConfigDigest = args.prepared.canonicalConfigDigest;
     const launchEnvelopeDigest = args.prepared.launchEnvelopeDigest;
-    const sourceSnapshotEvidence = args.prepared.request.sourceSnapshot;
     const requestStatus: RunInGameRequestStatus = {
-      recipeId: launchEnvelope.recipeSettings.recipe,
+      recipeId: launchEnvelope.canonicalConfig.recipe,
       seed,
       mapSize,
       ...(playerCount === undefined ? {} : { playerCount }),
       setupConfig,
-      ...(sourceSnapshotEvidence ? { sourceSnapshot: sourceSnapshotEvidence } : {}),
-      launchSourceDigest: args.prepared.launchSourceDigest,
+      canonicalConfigDigest,
       launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     };
     return {
       seed,
       canonicalConfigDigest,
       launchEnvelopeDigest,
-      ...(sourceSnapshotEvidence ? { sourceSnapshotEvidence } : {}),
       requestStatus,
     };
   }

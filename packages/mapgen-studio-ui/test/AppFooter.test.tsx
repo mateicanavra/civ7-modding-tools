@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { AppFooter } from "../src/components/composites/AppFooter.js";
 import { TooltipProvider } from "../src/components/ui/tooltip.js";
-import type { RecipeSettings, WorldSettings } from "../src/types/index.js";
+import type { WorldSettings } from "../src/types/index.js";
 
 // The footer is the WORLD/MAP console (Pass-5 toolbar-architecture-v2 spec,
 // narrowed by world-console-map-params): map authoring (size · players ·
@@ -13,11 +13,7 @@ import type { RecipeSettings, WorldSettings } from "../src/types/index.js";
 // is covered by GameConsole.test.tsx; the footer keeps the shared operation
 // gate: game-side operations disable the authoring/run controls.
 
-const recipeSettings: RecipeSettings = {
-  recipe: "standard",
-  preset: "none",
-  seed: "123",
-};
+const seed = "123";
 
 const worldSettings: WorldSettings = {
   mapSize: "MAPSIZE_STANDARD",
@@ -30,12 +26,11 @@ function renderFooter(overrides: Partial<Parameters<typeof AppFooter>[0]> = {}) 
     <TooltipProvider>
       <AppFooter
         status="ready"
-        lastRunSettings={recipeSettings}
-        lastGlobalSettings={worldSettings}
+        lastRun={{ seed, worldSettings }}
         globalSettings={worldSettings}
         onGlobalSettingsChange={vi.fn()}
-        currentSettings={recipeSettings}
-        onSettingsChange={vi.fn()}
+        seed={seed}
+        onSeedChange={vi.fn()}
         onRun={vi.fn()}
         onReroll={vi.fn()}
         isRunning={false}
@@ -88,6 +83,13 @@ describe("AppFooter world/map console", () => {
     expect(html).toContain("seed 123");
     expect(html).toContain("8 players");
     expect(html).toContain("Click to copy seed");
+  });
+
+  it("does not invent run history before the first browser generation", () => {
+    const html = renderFooter({ lastRun: null });
+
+    expect(html).not.toContain("Run history");
+    expect(html).not.toContain("Last run");
   });
 
   it("disables map settings and run controls while Run in Game is running (shared operation gate)", () => {

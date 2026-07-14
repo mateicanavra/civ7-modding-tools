@@ -1,4 +1,8 @@
-import type { DeepReadonly, JsonWireObject, JsonWireValue } from "@civ7/studio-contract";
+import type {
+  DeepReadonly,
+  JsonWireObject,
+  JsonWireValue,
+} from "@civ7/studio-contract";
 
 // ============================================================================
 // TYPES INDEX
@@ -106,25 +110,6 @@ export type MapSize =
 export type ResourceMode = "balanced" | "strategic";
 
 // ============================================================================
-// Recipe & Preset Types
-// ============================================================================
-
-/**
- * Recipe settings for a generation run.
- *
- * Backend: The recipe determines which pipeline stages to execute.
- * The preset supplies complete config values.
- */
-export interface RecipeSettings {
-  /** Recipe identifier (e.g., 'mod-swooper-maps/standard') */
-  recipe: string;
-  /** Preset identifier (e.g., 'none', 'archipelago') */
-  preset: string;
-  /** Random seed for reproducible generation */
-  seed: string;
-}
-
-// ============================================================================
 // Pipeline Configuration Types
 // ============================================================================
 
@@ -167,38 +152,6 @@ export interface ConfigPatch {
 /** Current status of the generation process */
 export type GenerationStatus = "ready" | "running" | "error";
 
-/**
- * Complete state for a generation run.
- *
- * Backend: This represents the full context needed to execute a generation.
- */
-export interface GenerationState {
-  status: GenerationStatus;
-  worldSettings: WorldSettings;
-  recipeSettings: RecipeSettings;
-  pipelineConfig: PipelineConfig;
-}
-
-/**
- * Result of a completed generation run.
- *
- * Backend: Return this structure from the generation API.
- */
-export interface GenerationResult {
-  /** Unique identifier for this generation */
-  id: string;
-  /** Seed used (may differ from input if auto-generated) */
-  seed: string;
-  /** Timestamp of completion */
-  completedAt: string;
-  /** Settings used for this run */
-  worldSettings: WorldSettings;
-  /** Any warnings or info messages */
-  messages?: string[];
-  /** Error message if status is 'error' */
-  error?: string;
-}
-
 // ============================================================================
 // View State Types
 // ============================================================================
@@ -220,64 +173,6 @@ export interface ViewState {
   /** Render mode (`kind[:role]`) */
   selectedRenderMode: string;
 }
-
-// ============================================================================
-// API Types
-// ============================================================================
-
-/**
- * Request payload for starting a generation.
- *
- * Backend: POST /api/generate
- */
-export interface GenerateRequest {
-  worldSettings: WorldSettings;
-  recipeSettings: RecipeSettings;
-  pipelineConfig: PipelineConfig;
-}
-
-/**
- * Response from generation API.
- *
- * Backend: Returns immediately with job ID, or waits for completion.
- */
-export interface GenerateResponse {
-  /** Job ID for async tracking */
-  jobId: string;
-  /** Status of the generation */
-  status: GenerationStatus;
-  /** Result if completed synchronously */
-  result?: GenerationResult;
-}
-
-/**
- * Request to save a preset.
- *
- * Backend: POST /api/presets
- */
-export interface SavePresetRequest {
-  name: string;
-  description?: string;
-  pipelineConfig: PipelineConfig;
-  worldSettings?: Partial<WorldSettings>;
-}
-
-/**
- * Preset definition.
- *
- * Backend: GET /api/presets returns array of these.
- */
-export interface Preset {
-  id: string;
-  name: string;
-  description?: string;
-  pipelineConfig: PipelineConfig;
-  worldSettings?: Partial<WorldSettings>;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// (No retired aliases: Studio is the only consumer and uses the v1 vocabulary.)
 
 // ============================================================================
 // Component-owned re-homed types (structure-rewire §3.4)

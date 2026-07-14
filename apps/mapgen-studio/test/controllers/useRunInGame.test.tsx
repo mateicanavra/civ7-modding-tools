@@ -14,15 +14,11 @@ vi.mock("../../src/lib/orpc", () => ({
 }));
 
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
-import { createStudioEditorCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
+import { getRecipeDefaultCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
 import { runCurrentConfigInGame } from "../../src/features/runInGame/api";
-import { getRecipeArtifacts } from "../../src/recipes/catalog";
-import { DEFAULT_RECIPE_SETTINGS, DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
+import { DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
 
-const recipeId = DEFAULT_RECIPE_SETTINGS.recipe;
-const catalog = getRecipeArtifacts(recipeId).studioBuiltInPresets?.[0];
-if (!catalog) throw new Error("Expected a generated catalog config for Run in Game tests");
-const editor = createStudioEditorCanonicalConfig();
+const canonicalConfig = getRecipeDefaultCanonicalConfig("standard");
 const runRpc = vi.mocked(runCurrentConfigInGame);
 const setupConfig = { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] };
 
@@ -39,12 +35,12 @@ function runningStatus(requestId = "run-request"): RunInGameOperationStatus {
 
 function makeArgs(over: Partial<UseRunInGameArgs> = {}): UseRunInGameArgs {
   return {
-    recipeSettings: { ...DEFAULT_RECIPE_SETTINGS },
+    seed: "123",
     worldSettings: { ...DEFAULT_WORLD_SETTINGS },
-    authoringConfigSource: { kind: "editor", canonicalConfig: editor },
+    canonicalConfig,
     authoringRevision: 3,
     setupConfig,
-    setRecipeSettings: vi.fn(),
+    setSeed: vi.fn(),
     setSetupConfig: vi.fn(),
     liveRuntime: { status: "unknown" },
     liveRuntimeSuggestions: [],
@@ -72,64 +68,33 @@ function setup(over: Partial<UseRunInGameArgs> = {}) {
 
 afterEach(() => vi.clearAllMocks());
 
-describe("useRunInGame source handoff", () => {
-  it("sends the editor envelope and retains the exact submitted source snapshot", async () => {
-    const admitted = runningStatus("editor-run");
-    runRpc.mockResolvedValue(admitted);
+describe("useRunInGame config handoff", () => {
+  it("sends the complete config and retains an immutable submitted snapshot", async () => {
+    runRpc.mockResolvedValue(runningStatus("config-run"));
     const { result, props } = setup();
 
     await act(async () => result.current.handleRunInGame());
 
     expect(runRpc).toHaveBeenCalledWith(
       expect.objectContaining({
-        source: { kind: "editor", editorSessionId: "studio-current", canonicalConfig: editor },
+        canonicalConfig,
+        seed: "123",
       })
     );
-    expect(runRpc.mock.calls[0]?.[0].source.canonicalConfig).toBe(editor);
+    expect(runRpc.mock.calls[0]?.[0].canonicalConfig).toBe(canonicalConfig);
     const snapshot = vi.mocked(props.setRunInGameSnapshot).mock.calls[0]?.[0];
     expect(snapshot).toMatchObject({
-      requestId: "editor-run",
+      requestId: "config-run",
       authoringRevision: 3,
-      launchEnvelope: {
-        source: { kind: "editor", editorSessionId: "studio-current" },
-      },
+      launchEnvelope: { seed: "123", canonicalConfig },
     });
-    expect(snapshot?.launchEnvelope.source.canonicalConfig).toEqual(editor);
-    expect(snapshot?.launchEnvelope.source.canonicalConfig).not.toBe(editor);
+    expect(snapshot?.launchEnvelope.canonicalConfig).not.toBe(canonicalConfig);
+    expect(Object.isFrozen(snapshot?.launchEnvelope.canonicalConfig)).toBe(true);
   });
 
-  it("hands the catalog authority to the RPC boundary and snapshots only its sourcePath", async () => {
-    runRpc.mockResolvedValue(runningStatus("catalog-run"));
+  it("rejects invalid configs before invoking Run in Game RPC", async () => {
     const { result, props } = setup({
-      recipeSettings: {
-        ...DEFAULT_RECIPE_SETTINGS,
-        preset: `builtin:${catalog.canonicalConfig.id}`,
-      },
-      authoringConfigSource: { kind: "catalog", sourcePath: catalog.sourcePath },
-    });
-
-    await act(async () => result.current.handleRunInGame());
-
-    const source = runRpc.mock.calls[0]?.[0].source;
-    expect(source).toEqual({
-      kind: "catalog",
-      sourcePath: catalog.sourcePath,
-      canonicalConfig: catalog.canonicalConfig,
-    });
-    const snapshot = vi.mocked(props.setRunInGameSnapshot).mock.calls[0]?.[0];
-    expect(snapshot?.launchEnvelope.source).toEqual({
-      kind: "catalog",
-      sourcePath: catalog.sourcePath,
-    });
-    expect(snapshot?.launchEnvelope.source).not.toHaveProperty("canonicalConfig");
-  });
-
-  it("rejects invalid editor drafts before invoking Run in Game RPC", async () => {
-    const { result, props } = setup({
-      authoringConfigSource: {
-        kind: "editor",
-        canonicalConfig: { ...editor, config: {} },
-      },
+      canonicalConfig: { ...canonicalConfig, config: {} },
     });
 
     await act(async () => result.current.handleRunInGame());
@@ -152,20 +117,5 @@ describe("useRunInGame source handoff", () => {
 
     expect(props.setRunInGameOperation).not.toHaveBeenCalled();
     expect(props.setRunInGameSnapshot).not.toHaveBeenCalled();
-  });
-
-  it("blocks a missing persisted catalog source without sending a request", async () => {
-    const { result, props } = setup({
-      authoringConfigSource: {
-        kind: "blocked",
-        reason: "missing-catalog-source",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/removed.config.json",
-      },
-    });
-
-    await act(async () => result.current.handleRunInGame());
-
-    expect(runRpc).not.toHaveBeenCalled();
-    expect(props.setRunInGameOperation).not.toHaveBeenCalled();
   });
 });

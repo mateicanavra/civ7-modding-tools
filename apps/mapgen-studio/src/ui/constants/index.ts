@@ -5,18 +5,11 @@
 // ============================================================================
 
 // Default values
-export {
-  DEFAULT_RECIPE_SETTINGS,
-  DEFAULT_VIEW_STATE,
-  DEFAULT_WORLD_SETTINGS,
-} from "./defaults";
+export { DEFAULT_VIEW_STATE, DEFAULT_WORLD_SETTINGS } from "./defaults";
 // Options for dropdowns and selectors
 export {
   DEFAULT_DATA_TYPE_OPTIONS,
   DEFAULT_KNOB_OPTIONS,
-  DEFAULT_PRESET_OPTIONS,
-  // Default options (can be overridden via props)
-  DEFAULT_RECIPE_OPTIONS,
   DEFAULT_RENDER_MODE_OPTIONS,
   MAP_SIZE_OPTIONS,
   // Types

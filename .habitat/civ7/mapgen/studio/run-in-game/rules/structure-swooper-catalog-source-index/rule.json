@@ -13,7 +13,7 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "Swooper catalog source index source data or reader drifting away from the maps source owner",
-  "why": "Packet 4 makes Swooper Maps catalog membership explicit source data before Studio launch-source resolution consumes catalog source ids.",
+  "why": "The Swooper Maps source index owns build-time catalog membership used to produce complete config artifacts; Studio selection installs the complete envelope, and no catalog source identity crosses Run in Game.",
   "remediate": "Keep the tracked catalog source index and reader in mods/mod-swooper-maps/src/maps.",
   "message": "Swooper catalog source index topology drifted.",
   "pathCoverage": [

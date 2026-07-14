@@ -31,16 +31,11 @@ const canonicalConfig = {
   latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
   config: STANDARD_RECIPE_CONFIG,
 };
-const source = {
-  kind: "catalog" as const,
-  sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-  canonicalConfig,
-};
 const launchEnvelope = {
-  recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 1234 },
+  seed: 1234,
   worldSettings: { mapSize: "MAPSIZE_TINY" },
   setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
-  source,
+  canonicalConfig,
 };
 const canonicalConfigDigest = digest(canonicalConfig);
 const launchEnvelopeDigest = digest(launchEnvelope);
@@ -79,12 +74,8 @@ function exactAuthorshipEvidence(overrides: Record<string, unknown> = {}) {
     requestId,
     createdAt: "2026-07-10T00:00:00.000Z",
     unresolvedLinks: [],
-    sourceSnapshot: {
-      requestId,
-      source: { kind: "catalog", sourcePath: source.sourcePath },
-      canonicalConfigDigest,
-      launchEnvelopeDigest,
-    },
+    canonicalConfigDigest,
+    launchEnvelopeDigest,
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 1234,
@@ -248,16 +239,16 @@ describe("final-surface parity verifier", () => {
     }
   });
 
-  test("blocks catalog replay when the manifest path disagrees with its config id", () => {
+  test("blocks replay when the canonical config is not semantically admissible", () => {
     const mismatchedManifest = {
       ...manifest,
       payload: {
         ...manifest.payload,
         launchEnvelope: {
           ...manifest.payload.launchEnvelope,
-          source: {
-            ...manifest.payload.launchEnvelope.source,
-            sourcePath: "mods/mod-swooper-maps/src/maps/configs/shattered-ring.config.json",
+          canonicalConfig: {
+            ...manifest.payload.launchEnvelope.canonicalConfig,
+            latitudeBounds: { topLatitude: -80, bottomLatitude: 80 },
           },
         },
       },

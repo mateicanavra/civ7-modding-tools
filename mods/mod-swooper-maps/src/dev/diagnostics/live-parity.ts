@@ -20,7 +20,6 @@ import {
 } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
-import { admitSwooperCatalogConfig } from "../../maps/catalog/admission.js";
 import {
   admitStandardMapConfig,
   canonicalRecipeConfig,
@@ -1219,12 +1218,12 @@ export function buildFinalSurfaceParityReport(args: {
     exactAuthorshipSummary: {
       ...(exact?.requestId === undefined ? {} : { requestId: exact.requestId }),
       ...(exact?.status === undefined ? {} : { status: exact.status }),
-      ...(exact?.sourceSnapshot?.canonicalConfigDigest === undefined
+      ...(exact?.canonicalConfigDigest === undefined
         ? {}
-        : { canonicalConfigDigest: exact.sourceSnapshot.canonicalConfigDigest }),
-      ...(exact?.sourceSnapshot?.launchEnvelopeDigest === undefined
+        : { canonicalConfigDigest: exact.canonicalConfigDigest }),
+      ...(exact?.launchEnvelopeDigest === undefined
         ? {}
-        : { launchEnvelopeDigest: exact.sourceSnapshot.launchEnvelopeDigest }),
+        : { launchEnvelopeDigest: exact.launchEnvelopeDigest }),
       ...(exact?.request?.seed === undefined ? {} : { seed: exact.request.seed }),
       ...(exact?.request?.mapSize === undefined ? {} : { mapSize: exact.request.mapSize }),
       dimensions: {
@@ -1557,15 +1556,10 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
 export function canonicalConfigFromGenerationManifest(
   manifest: StudioRunGenerationManifest | undefined
 ): StandardMapConfigEnvelope | undefined {
-  const source = manifest?.payload.launchEnvelope.source;
-  if (source === undefined) return undefined;
+  const canonicalConfig = manifest?.payload.launchEnvelope.canonicalConfig;
+  if (canonicalConfig === undefined) return undefined;
   try {
-    return source.kind === "catalog"
-      ? admitSwooperCatalogConfig({
-          sourcePath: source.sourcePath,
-          canonicalConfig: source.canonicalConfig,
-        }).canonicalConfig
-      : admitStandardMapConfig(source.canonicalConfig);
+    return admitStandardMapConfig(canonicalConfig);
   } catch {
     return undefined;
   }

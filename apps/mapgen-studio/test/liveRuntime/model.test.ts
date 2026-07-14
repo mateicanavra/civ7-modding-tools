@@ -217,10 +217,7 @@ describe("live runtime model", () => {
     });
 
     expect(records).toHaveLength(2);
-    expect(records.map((record) => record.affectedConfigPath)).toEqual([
-      "recipeSettings.seed",
-      "setupConfig",
-    ]);
+    expect(records.map((record) => record.affectedConfigPath)).toEqual(["seed", "setupConfig"]);
     expect(records.every((record) => record.applyPath === "visible-studio-control")).toBe(true);
   });
 });
