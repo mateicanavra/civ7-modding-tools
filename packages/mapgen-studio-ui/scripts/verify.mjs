@@ -3,7 +3,7 @@
 // Asserts the built package still honors its published contract:
 //   1. dist/index.js exists and carries at least EXPECTED_MIN_EXPORTS named
 //      exports (the floor RISES as each extraction branch lands components —
-//      currently: 47 components + TooltipProvider + lib exports).
+//      currently: 45 components + TooltipProvider + lib exports).
 //   2. No `@civ7/studio-server` specifier anywhere in dist JS (unconditional),
 //      and no RUNTIME `@civ7/studio-contract` specifier either — contract
 //      usage is type-position only, so it must compile away entirely.

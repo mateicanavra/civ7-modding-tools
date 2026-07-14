@@ -1,6 +1,6 @@
 # @swooper/mapgen-studio-ui
 
-MapGen Studio's UI component library: the 47 design-synced components as a real
+MapGen Studio's UI component library: the 45 design-synced components as a real
 package — compiled `dist/index.js`, a strict generated `.d.ts` tree
 (`dist/types/`), a compiled stylesheet (`dist/styles.css`), and the theme/fonts
 seams the app and the Claude Design sync both consume. Single source of truth;
@@ -86,16 +86,21 @@ consuming project.
 
 Two deliberate non-features: there is **no standing `before/` snapshot
 structure** (the component cards ARE the always-current "before" for every
-component; maintained snapshots would only rot), and there is **no
-`templates/` directory of loose HTML** — an assembly that earns reuse
-graduates INTO the package as a real slot-based component with a story,
-surfaced in the `templates` picker group. `StudioShellLayout`
+component; maintained snapshots would only rot), and there is **no loose
+un-indexed HTML** — an assembly that earns reuse graduates INTO the package
+as a real slot-based component with a story. `StudioShellLayout`
 (`src/components/templates/`) is the first graduation: the studio shell as a
-slot-based template, with `references/studio-shell.html` composing it in the
-project. Loose HTML would be unindexed dead weight the design agent never
-reads. (Free-form prototyping is *not* limited by this — you compose any new
-assembly you want as a cloud exploration on the live bundle; graduation only
-codifies the ones that earn reuse.)
+slot-based component, with `explorations/references/studio-shell.html`
+composing it in the project. Note "templates" names two different surfaces:
+graduation puts the component's *card* in the `templates` card group (its
+Storybook title prefix), while the **Templates picker** is the project's
+hand-authored `templates/<slug>/` Design Component starting points (see the
+project's `templates/README.md`), which survive every sync. A graduated
+component becomes a picker starting point only when a template wraps it —
+`templates/studio-shell/` mounts `StudioShellLayout` with its slots filled
+from the canonical story fixtures. (Free-form prototyping is *not* limited by
+this — you compose any new assembly you want as a cloud exploration on the
+live bundle; graduation only codifies the ones that earn reuse.)
 
 **Where new work starts.** Product-shaped ideas start in a consuming project —
 hacky is fine there. When a direction is worth locking, restate it as a DS
@@ -153,18 +158,37 @@ the shadcn CLI in a scratch app and relativize its imports on the way in.
 
 `bun run build` = tsup (`dist/index.js`, ESM, browser) → strict
 `tsc -p tsconfig.dts.json` (`dist/types/`, FAILS on any type error) →
-`tailwindcss -i src/styles/index.css -o dist/styles.css` → `copy-fonts.mjs`
-(`dist/fonts.css` + `dist/fonts/`, fails on missing files). Zero post-build
-transforms. `bun run verify` asserts the artifact contract; the committed
-token fixture (`test/fixtures/token-contract.json`) pins theme parity with the
-last `_ds-compiled.css` the retired pipeline shipped.
+`tailwindcss -i src/styles/index.css -o dist/styles.css` →
+`curate-token-surface.mjs` → `copy-fonts.mjs` (`dist/fonts.css` +
+`dist/fonts/`, fails on missing files). `bun run verify` asserts the artifact
+contract; the committed token fixture (`test/fixtures/token-contract.json`)
+pins theme parity with the last `_ds-compiled.css` the retired pipeline
+shipped.
+
+## Storybook
+
+Nx owns the package Storybook lifecycle while the project-local `.storybook/`
+directory remains the fidelity-oracle configuration:
+
+- `nx run mapgen-studio-ui:storybook` serves the live workbench on its stable
+  local port.
+- `nx run mapgen-studio-ui:build-storybook` builds the cacheable static site.
+- `nx run mapgen-studio-ui:test-storybook` starts the required Storybook
+  process, waits for readiness, runs the browser suite with console failures
+  enabled, and lets Nx stop the continuous dependency afterward.
+- `nx run mapgen-studio-ui:static-storybook` builds and serves the static site.
+
+The custom source alias, Tailwind Vite plugin, fonts, providers, theme toolbar,
+and autodocs setup are product-specific and intentionally remain in
+`.storybook/main.ts` and `.storybook/preview.tsx`; Nx owns task inference,
+dependency inputs, outputs, and caching rather than replacing those files.
 
 ## Design sync (claude.ai/design)
 
 This package IS the synced artifact: `.design-sync/` (config, notes,
 conventions) and `.ds-sync/` (the vendored converter) live here, and the
 config consumes the real build (`entry: dist/index.js`, `cssEntry:
-dist/styles.css`, `buildCmd: bunx nx run mapgen-studio-ui:build`). The 47
+dist/styles.css`, `buildCmd: bunx nx run mapgen-studio-ui:build`). The 45
 co-located stories are the fidelity oracle; story titles are the sync's
 grouping authority (byte-frozen).
 

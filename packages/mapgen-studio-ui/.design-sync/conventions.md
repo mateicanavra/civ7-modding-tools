@@ -77,10 +77,16 @@ design-system project is a regenerated build artifact of it, except
   `explorations/fixtures/` holds shared data the explorations load. Every
   exploration states its intent, status, and pull-down path in a manifest
   header. Filenames are kebab-case, no spaces.
-- **Assemblies that earn reuse graduate into the package.** They become real
-  slot-based components in the `templates` picker group — `StudioShellLayout`
-  is the studio shell. Start a whole-app composition from a template card and
-  fill its slots; don't hand-assemble the chrome.
+- **Assemblies that earn reuse graduate into the package.** Graduation yields
+  a real slot-based component with a story and a card — `StudioShellLayout` is
+  the studio shell; its card files under the `templates` *card group* (the
+  Storybook title prefix). The **Templates picker** is a different surface:
+  hand-authored `templates/<slug>/` Design Component starting points (see
+  `templates/README.md`), which survive every sync. A graduated component
+  becomes a picker starting point only when a template wraps it —
+  `templates/studio-shell/` mounts `StudioShellLayout` with its slots filled
+  from the canonical story fixtures. Start whole-app work from that template;
+  don't hand-assemble the chrome.
 - **Exploration data can live in the cloud.** `explorations/fixtures/*.js`
   assign onto `window.__dsFixtures` and are loaded via `<script src>`; edit
   them here to reshape a legend/inspector across every proposal that reads

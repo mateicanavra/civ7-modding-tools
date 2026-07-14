@@ -25,6 +25,17 @@ const config: StorybookConfig = {
   core: { disableTelemetry: true },
   viteFinal: (viteConfig) => {
     viteConfig.resolve ??= {};
+    // Bun's isolated linker can install additional React copies for workspace
+    // tooling (for example, Mintlify's MDX pipeline). Storybook's autodocs
+    // must share the preview renderer's React instance or MDX hooks fail. Keep
+    // MDX out of Vite's dependency prebundle so dedupe also applies within it.
+    viteConfig.resolve.dedupe = [
+      ...new Set([...(viteConfig.resolve.dedupe ?? []), "@mdx-js/react", "react", "react-dom"]),
+    ];
+    viteConfig.optimizeDeps ??= {};
+    viteConfig.optimizeDeps.exclude = [
+      ...new Set([...(viteConfig.optimizeDeps.exclude ?? []), "@mdx-js/react"]),
+    ];
     const selfAlias = {
       // Exact match only — subpath imports (`./types` is types-only and never
       // resolved at runtime) must not be rewritten under src/index.ts.

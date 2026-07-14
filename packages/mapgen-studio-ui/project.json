@@ -13,7 +13,22 @@
     },
     "storybook": {
       "cache": false,
-      "continuous": true
+      "continuous": true,
+      "dependsOn": ["^build"],
+      "options": {
+        "cwd": "packages/mapgen-studio-ui",
+        "command": "storybook dev --port 6006 --host 127.0.0.1 --ci --exact-port"
+      }
+    },
+    "build-storybook": {
+      "dependsOn": ["^build"]
+    },
+    "test-storybook": {
+      "dependsOn": ["storybook"],
+      "options": {
+        "cwd": "packages/mapgen-studio-ui",
+        "command": "wait-on tcp:127.0.0.1:6006 --timeout 30000 && test-storybook --url http://127.0.0.1:6006 --failOnConsole"
+      }
     },
     "design-sync:check": {
       "dependsOn": ["build", "^build"],

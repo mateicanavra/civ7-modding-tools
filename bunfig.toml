@@ -2,4 +2,5 @@ env = false
 
 [install]
 linker = "isolated"
+hoistPattern = ["typescript"]
 minimumReleaseAgeExcludes = ["@orpc/client", "@orpc/contract", "@orpc/server", "effect-orpc"]
