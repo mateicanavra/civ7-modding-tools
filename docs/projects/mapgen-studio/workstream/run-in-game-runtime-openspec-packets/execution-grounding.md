@@ -96,9 +96,11 @@ failure belongs.
 13. `studio-run-attribution-report` assembles the private report from earlier
     records instead of scattering attribution through public status.
 14. `studio-run-diagnostics-retention-guards` sets retention, closes temporary
-    patterns, verifies SA-01 through SA-13, and runs the final live matrix. This
-    packet is closure only when behavior, structural authority, endpoint calls,
-    reviewer lanes, and in-game evidence are all green.
+    patterns, verifies the SA-01 through SA-13 authority-set topology, and runs
+    the final live matrix. One Nx workspace policy graph, not SA-14, executes
+    the MapGen Studio and Swooper Maps owner-local Habitat targets and proves
+    status. This packet is closure only when behavior, structural
+    authority, endpoint calls, reviewer lanes, and in-game evidence are all green.
 
 The order matters because each domino removes ambiguity needed by the next one.
 Public status is safe before private records grow. Operation identity is request
@@ -212,8 +214,10 @@ Each packet closes only after:
   `openspec/changes/<change-id>/workstream/verification-evidence.md`.
 
 The train closes only after `studio-run-diagnostics-retention-guards` runs
-`bun run openspec:validate`, SA-14 verifies structural authority closure, actual
-Studio `/rpc` endpoint calls exercise the full target vocabulary matrix, and
+`bun run openspec:validate`, one Nx workspace policy graph executes both
+owner-local Habitat targets, SA-14 verifies authority-set topology, actual
+Studio `/rpc` endpoint calls
+exercise the full target vocabulary matrix, and
 Civilization 7 produces post-start evidence that the running game is using the
 generated Studio-run content. If Civ7, Studio endpoint runtime, live variants,
 or reviewer lanes are unavailable, the workstream is open and blocked, not
