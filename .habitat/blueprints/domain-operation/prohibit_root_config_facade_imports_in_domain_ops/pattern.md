@@ -3,7 +3,8 @@ level: error
 ---
 # Prohibit Root Config Facade Imports In Domain Ops
 
-Domain ops do not import domain-root config facades through parent traversal.
+Domain ops do not import domain-root config facades through parent traversal
+or package aliases.
 
 ```grit
 language js(typescript)
@@ -11,19 +12,19 @@ language js(typescript)
 or {
   import_statement(source=$source) where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
-    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+    $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   },
   `export { $exports } from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
-    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+    $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   },
   `export * from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
-    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+    $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   },
   `import($source)` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
-    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+    $source <: r"^[\"']?(?:(?:\.\./){2,}config\.js|@mapgen/domain(?:/[^/]+)?/config\.js)[\"']?$"
   }
 }
 ```
@@ -89,6 +90,29 @@ export * from "../../config.js";
 export async function loadConfig() {
   return import("../../config.js");
 }
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+import { config } from "@mapgen/domain/config.js";
+
+export const value = config;
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+import type { FoundationConfig } from "@mapgen/domain/foundation/config.js";
+
+export type Value = FoundationConfig;
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+import * as foundationConfig from "@mapgen/domain/foundation/config.js";
+
+export const value = foundationConfig;
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+export * from "@mapgen/domain/foundation/config.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+export async function loadConfig() {
+  return import("@mapgen/domain/config.js");
+}
 ```
 
 ## Ignores fixture
@@ -145,4 +169,14 @@ await import("../../config.json");
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
 const source = "../../config.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+import config from "@mapgen/domain/foundation/ops/demo/config.js";
+
+export const value = config;
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+import { createOp } from "@mapgen/domain/foundation/ops";
+
+export const value = createOp;
 ```

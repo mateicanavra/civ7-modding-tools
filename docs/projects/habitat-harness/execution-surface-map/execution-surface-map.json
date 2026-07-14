@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 593,
+    "totalSurfaces": 591,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "check-script": 29,
-      "rule-json": 123,
-      "pattern": 82,
+      "rule-json": 122,
+      "pattern": 81,
       "structure-spec": 8,
       "apply-pattern": 1,
       "generate-script": 2,
@@ -22,25 +22,25 @@
     },
     "surfacesByRole": {
       "command_check_executor": 29,
-      "runner_metadata": 123,
-      "policy_pattern": 83,
+      "runner_metadata": 122,
+      "policy_pattern": 82,
       "structure_authority": 8,
       "operation_surface": 6,
       "workspace_entrypoint": 232,
       "toolkit_runner": 112
     },
     "entrypointsByInvoker": {
-      "unknown": 247,
+      "unknown": 245,
       "package": 164,
       "nx": 70,
       "direct-script": 3,
       "habitat": 112
     },
     "surfacesByBucket": {
-      "package_boundary_tie": 96,
-      "unknown_invocation": 247,
-      "mutation_surface": 129,
-      "nx_ordering_tie": 113,
+      "package_boundary_tie": 95,
+      "unknown_invocation": 245,
+      "mutation_surface": 132,
+      "nx_ordering_tie": 115,
       "package_invoked": 234,
       "direct_script_invoked": 3,
       "habitat_invoked": 112
@@ -50,9 +50,9 @@
   "executionAnatomy": {
     "roleCounts": {
       "fixture-support": 9,
-      "adapter": 123,
-      "policy-predicate": 91,
-      "transient-dependency": 106,
+      "adapter": 122,
+      "policy-predicate": 90,
+      "transient-dependency": 108,
       "entrypoint": 234,
       "runner-runtime": 112
     }
@@ -61,8 +61,8 @@
     {
       "target": "grit\nlanguage js(typescript)\n\nor {",
       "targetClass": "workspace-tool",
-      "references": 28,
-      "sourceCount": 28,
+      "references": 27,
+      "sourceCount": 27,
       "sampleSources": [
         ".habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md",
         ".habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md",
@@ -72,8 +72,8 @@
         ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
         ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md",
         ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md"
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md"
       ]
     },
     {
@@ -110,24 +110,6 @@
         "tools/habitat/src/service/model/check/policy/structural/report.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/selection.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/state.policy.ts"
-      ]
-    },
-    {
-      "target": "tsc -p tsconfig.json --noEmit",
-      "targetClass": "workspace-tool",
-      "references": 20,
-      "sourceCount": 20,
-      "sampleSources": [
-        "apps/docs/package.json#scripts.check",
-        "apps/docs/package.json#scripts.check:ts",
-        "apps/playground/package.json#scripts.check",
-        "mods/mod-swooper-civ-dacia/package.json#scripts.check",
-        "packages/civ7-control-orpc/project.json#targets.check:types",
-        "packages/civ7-direct-control/package.json#scripts.check",
-        "packages/cli/package.json#scripts.check",
-        "packages/config/package.json#scripts.check",
-        "packages/mapgen-viz/package.json#scripts.check",
-        "packages/plugins/plugin-files/package.json#scripts.check"
       ]
     },
     {
@@ -290,6 +272,42 @@
         "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
         "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
         "tools/habitat/src/service/modules/hook/model/policy/procedure-operations.policy.ts"
+      ]
+    },
+    {
+      "target": "tsc -p tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 10,
+      "sourceCount": 10,
+      "sampleSources": [
+        "mods/mod-swooper-civ-dacia/package.json#scripts.check",
+        "packages/mapgen-viz/package.json#scripts.check",
+        "packages/plugins/plugin-graph/package.json#scripts.check",
+        "packages/sdk/package.json#scripts.check",
+        "packages/studio-contract/package.json#scripts.check",
+        "packages/studio-contract/package.json#scripts.typecheck",
+        "packages/studio-run-workspace/package.json#scripts.check",
+        "packages/studio-server/package.json#scripts.check",
+        "packages/studio-server/package.json#scripts.typecheck",
+        "tools/habitat/package.json#scripts.check"
+      ]
+    },
+    {
+      "target": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "targetClass": "workspace-tool",
+      "references": 10,
+      "sourceCount": 10,
+      "sampleSources": [
+        "apps/docs/package.json#scripts.check",
+        "apps/docs/package.json#scripts.check:ts",
+        "apps/playground/package.json#scripts.check",
+        "packages/civ7-control-orpc/project.json#targets.check:types",
+        "packages/civ7-direct-control/package.json#scripts.check",
+        "packages/cli/package.json#scripts.check",
+        "packages/config/package.json#scripts.check",
+        "packages/plugins/plugin-files/package.json#scripts.check",
+        "packages/plugins/plugin-git/package.json#scripts.check",
+        "packages/plugins/plugin-mods/package.json#scripts.check"
       ]
     },
     {
@@ -1149,17 +1167,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/ops/",
-      "targetClass": "mod",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-",
       "targetClass": "mod",
       "references": 3,
@@ -1820,6 +1827,16 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/domain/foundation/ops/",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md",
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts",
       "targetClass": "mod",
       "references": 2,
@@ -1837,6 +1854,16 @@
       "sampleSources": [
         ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md",
         ".habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md"
       ]
     },
     {
@@ -5115,7 +5142,7 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){2,}config\\.js[\\\"']?$\"\n  },",
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:(?:\\.\\./){2,}config\\.js|@mapgen/domain(?:/[^/]+)?/config\\.js)[\\\"']?$\"\n  },",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -6475,15 +6502,6 @@
     },
     {
       "target": "mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.test.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
@@ -9786,15 +9804,6 @@
       ]
     },
     {
-      "target": "tsc -b tsconfig.json --force --emitDeclarationOnly",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/civ7-direct-control/project.json#targets.build-types"
-      ]
-    },
-    {
       "target": "tsc -p tsconfig.json",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -11624,12 +11633,13 @@
           "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
           "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
           "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.tsx",
+          "mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts",
           "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
           "mods/other-mod/src/domain/ecology/ops/demo/index.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){2,}config\\.js[\\\"']?$\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:(?:\\.\\./){2,}config\\.js|@mapgen/domain(?:/[^/]+)?/config\\.js)[\\\"']?$\"\n  },"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -11707,6 +11717,11 @@
           },
           {
             "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
             "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
             "targetClass": "mod"
           },
@@ -11717,7 +11732,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){2,}config\\.js[\\\"']?$\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:(?:\\.\\./){2,}config\\.js|@mapgen/domain(?:/[^/]+)?/config\\.js)[\\\"']?$\"\n  },",
             "targetClass": "workspace-tool"
           }
         ]
@@ -15231,88 +15246,6 @@
     {
       "id": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json",
       "path": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md",
-      "path": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/domain/foundation/ops/"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/ops/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
-      "path": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -27130,12 +27063,13 @@
           "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
           "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
           "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.tsx",
+          "mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts",
           "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
           "mods/other-mod/src/domain/ecology/ops/demo/index.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){2,}config\\.js[\\\"']?$\"\n  },"
+          "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:(?:\\.\\./){2,}config\\.js|@mapgen/domain(?:/[^/]+)?/config\\.js)[\\\"']?$\"\n  },"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -27213,6 +27147,11 @@
           },
           {
             "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
             "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts",
             "targetClass": "mod"
           },
@@ -27223,7 +27162,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:\\.\\./){2,}config\\.js[\\\"']?$\"\n  },",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/.*/ops/.*\\.ts$\",\n    $source <: r\"^[\\\"']?(?:(?:\\.\\./){2,}config\\.js|@mapgen/domain(?:/[^/]+)?/config\\.js)[\\\"']?$\"\n  },",
             "targetClass": "workspace-tool"
           }
         ]
@@ -30737,88 +30676,6 @@
     {
       "id": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json",
       "path": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md",
-      "path": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/domain/foundation/ops/"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/ops/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
-      "path": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -41693,7 +41550,7 @@
         "packagePath": "apps/docs/package.json",
         "packageName": "@civ7/docs",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -41702,7 +41559,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -41710,7 +41567,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -41739,7 +41596,7 @@
         "packagePath": "apps/docs/package.json",
         "packageName": "@civ7/docs",
         "name": "check:ts",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -41748,7 +41605,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -41756,7 +41613,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -42923,7 +42780,7 @@
         "packagePath": "apps/playground/package.json",
         "packageName": "@civ7/playground",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -42932,7 +42789,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -42940,7 +42797,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -44342,7 +44199,6 @@
         "name": "check",
         "command": "tsc --noEmit",
         "dependsOn": [
-          "\"^build\"",
           "\"build\""
         ]
       },
@@ -44359,11 +44215,6 @@
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "\"^build\"",
-            "targetClass": "unknown"
-          },
           {
             "kind": "nx-depends-on",
             "value": "\"build\"",
@@ -45084,7 +44935,7 @@
         "name": "test",
         "command": "bun test",
         "dependsOn": [
-          "\"^build\"",
+          "\"build\"",
           "\"build:studio-recipes\"",
           "\"generated:check\"",
           "\"habitat:check\""
@@ -45105,12 +44956,12 @@
         "all": [
           {
             "kind": "nx-depends-on",
-            "value": "\"^build\"",
+            "value": "\"build:studio-recipes\"",
             "targetClass": "unknown"
           },
           {
             "kind": "nx-depends-on",
-            "value": "\"build:studio-recipes\"",
+            "value": "\"build\"",
             "targetClass": "unknown"
           },
           {
@@ -45160,6 +45011,7 @@
         "name": "test:studio-run-in-game",
         "command": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-imports.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
         "dependsOn": [
+          "\"build\"",
           "\"build:studio-recipes\""
         ]
       },
@@ -45186,6 +45038,11 @@
           {
             "kind": "nx-depends-on",
             "value": "\"build:studio-recipes\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build\"",
             "targetClass": "unknown"
           },
           {
@@ -47505,7 +47362,6 @@
         "name": "build",
         "command": "node scripts/build.mjs",
         "dependsOn": [
-          "\"clean\"",
           "\"^build\""
         ]
       },
@@ -47532,11 +47388,6 @@
           {
             "kind": "nx-depends-on",
             "value": "\"^build\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "\"clean\"",
             "targetClass": "unknown"
           },
           {
@@ -47639,7 +47490,7 @@
         "projectPath": "packages/civ7-control-orpc/project.json",
         "projectName": "control-orpc",
         "name": "check:types",
-        "command": "tsc -p tsconfig.json --noEmit",
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
         "dependsOn": [
           "{\"projects\":[\"control-direct\"],\"target\":\"build\"}"
         ]
@@ -47651,7 +47502,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -47664,7 +47515,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -47697,7 +47548,7 @@
         "packagePath": "packages/civ7-direct-control/package.json",
         "packageName": "@civ7/direct-control",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -47706,7 +47557,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -47714,7 +47565,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -47743,7 +47594,7 @@
         "packagePath": "packages/civ7-direct-control/package.json",
         "packageName": "@civ7/direct-control",
         "name": "clean",
-        "command": "rimraf dist"
+        "command": "rimraf dist tsconfig.tsbuildinfo"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -47754,8 +47605,15 @@
         "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "build"
+        ],
         "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
           {
             "kind": "path-reference",
             "value": "dist",
@@ -47765,13 +47623,18 @@
       },
       "anatomy": {
         "roles": [
-          "entrypoint"
+          "entrypoint",
+          "transient-dependency"
         ],
         "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
         "supportSignals": [],
-        "transientSignals": []
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
       },
       "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
         "package_invoked"
       ]
     },
@@ -47930,7 +47793,7 @@
         "projectPath": "packages/civ7-direct-control/project.json",
         "projectName": "control-direct",
         "name": "build-types",
-        "command": "tsc -b tsconfig.json --force --emitDeclarationOnly",
+        "command": "rimraf --glob \"dist/**/*.d.ts\" \"dist/**/*.d.ts.map\" tsconfig.tsbuildinfo && tsc -b tsconfig.json --force --emitDeclarationOnly",
         "dependsOn": [
           "\"build-bundle\"",
           "{\"projects\":[\"civ7-map-policy\"],\"target\":\"build\"}"
@@ -47942,13 +47805,18 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [
-          "tsc -b tsconfig.json --force --emitDeclarationOnly"
-        ],
+        "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "build"
+        ],
         "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
           {
             "kind": "nx-depends-on",
             "value": "\"build-bundle\"",
@@ -47960,9 +47828,9 @@
             "targetClass": "unknown"
           },
           {
-            "kind": "shell-command",
-            "value": "tsc -b tsconfig.json --force --emitDeclarationOnly",
-            "targetClass": "workspace-tool"
+            "kind": "path-reference",
+            "value": "dist/",
+            "targetClass": "external"
           }
         ]
       },
@@ -47978,6 +47846,7 @@
         ]
       },
       "buckets": [
+        "mutation_surface",
         "nx_ordering_tie",
         "package_invoked"
       ]
@@ -48221,7 +48090,7 @@
         "packagePath": "packages/cli/package.json",
         "packageName": "@mateicanavra/civ7-cli",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -48230,7 +48099,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -48238,7 +48107,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -48267,7 +48136,7 @@
         "packagePath": "packages/cli/package.json",
         "packageName": "@mateicanavra/civ7-cli",
         "name": "clean:dist",
-        "command": "rimraf dist"
+        "command": "rimraf dist tsconfig.tsbuildinfo"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -48278,8 +48147,15 @@
         "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "build"
+        ],
         "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
           {
             "kind": "path-reference",
             "value": "dist",
@@ -48289,13 +48165,18 @@
       },
       "anatomy": {
         "roles": [
-          "entrypoint"
+          "entrypoint",
+          "transient-dependency"
         ],
         "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
         "supportSignals": [],
-        "transientSignals": []
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
       },
       "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
         "package_invoked"
       ]
     },
@@ -49590,7 +49471,7 @@
         "packagePath": "packages/config/package.json",
         "packageName": "@civ7/config",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -49599,7 +49480,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -49607,7 +49488,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -50805,7 +50686,7 @@
         "packagePath": "packages/plugins/plugin-files/package.json",
         "packageName": "@civ7/plugin-files",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -50814,7 +50695,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -50822,7 +50703,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -51081,7 +50962,7 @@
         "packagePath": "packages/plugins/plugin-git/package.json",
         "packageName": "@civ7/plugin-git",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -51090,7 +50971,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -51098,7 +50979,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -51633,7 +51514,7 @@
         "packagePath": "packages/plugins/plugin-mods/package.json",
         "packageName": "@civ7/plugin-mods",
         "name": "check",
-        "command": "tsc -p tsconfig.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -51642,7 +51523,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -51650,7 +51531,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -53087,7 +52968,7 @@
         "packagePath": "tools/habitat/package.json",
         "packageName": "@habitat/cli",
         "name": "clean:dist",
-        "command": "rimraf dist oclif.manifest.json"
+        "command": "rimraf dist"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
