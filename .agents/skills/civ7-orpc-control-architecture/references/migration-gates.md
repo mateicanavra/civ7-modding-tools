@@ -18,7 +18,7 @@
 
 For any direct-control package change:
 
-- `bun run --cwd packages/civ7-direct-control check`
+- `nx run control-direct:check`
 - package tests if present or touched
 - build/export verification when CLI imports changed symbols
 
@@ -26,14 +26,14 @@ For any CLI game/play command change:
 
 - focused CLI tests for the changed command and adjacent scheduler/priority
   behavior
-- `bun run --cwd packages/cli check`
+- `nx run civ7-cli:check`
 - broader `game.play.test.ts` gate when shared output, notification scheduling,
   postconditions, or relationship labels are affected
 
 For any `@civ7/control-orpc` contract/router/procedure change:
 
-- `bun run --cwd packages/civ7-control-orpc check` (includes the contract
-  ownership guard), `build`, and `test`
+- `nx run control-orpc:check` (includes the contract ownership guard),
+  `nx run control-orpc:build`, and `nx run control-orpc:test`
 - no-network procedure tests with a fake direct-control facade (see
   `test/display-explore-procedure.test.ts` for the lifecycle-ordering
   pattern: assert the facade call sequence, the failure paths, and that

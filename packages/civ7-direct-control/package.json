@@ -4,12 +4,6 @@
   "private": true,
   "description": "Direct Civ7 tuner-socket control API for developer tooling.",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -108,18 +102,24 @@
       "require": "./dist/proof/unit-target-proof-policy.cjs"
     }
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "check": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
     "test": "vitest run --config vitest.config.ts",
-    "clean": "rimraf dist tsconfig.tsbuildinfo"
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "dependencies": {
+    "typebox": "^1.0.80"
   },
   "devDependencies": {
     "@civ7/map-policy": "workspace:*"
   },
   "engines": {
     "node": "22.22.0"
-  },
-  "dependencies": {
-    "typebox": "^1.0.80"
   }
 }

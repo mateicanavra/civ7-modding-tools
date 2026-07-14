@@ -391,16 +391,13 @@ vocabulary. In neither case do they carry separate authority.
   supported direct-control soft game/setup lifecycle and must not relaunch the
   whole Civilization VII application as the ordinary path.
 
-Studio process lifecycle, private Codex worktree lifecycle, shared developer
-lifecycle, Civ7 game soft restart, and whole-Civ application restart are five
-separate ownership axes:
+Studio process lifecycle, Civ7 game soft restart, and whole-Civ application
+restart are separate ownership axes:
 
-- `mapgen-studio:serve-daemon` is the canonical Studio daemon execution target;
-- `scripts/codex/manage-mapgen-studio.sh` is a worktree-owned composition
-  consumer with a private tmux socket, worktree-derived ports/state, and
-  ownership-only teardown;
-- shared developer restart/down commands retain their own explicitly bounded
-  process scope and may not be substituted for the private Codex helper;
+- `mapgen-studio:dev` is the sole development composition target;
+- its continuous `mapgen-studio:serve-daemon` dependency owns daemon startup,
+  while Nx owns the composed foreground process lifecycle and prerequisite
+  graph;
 - Run in Game asks direct control for the supported Civ7 game/setup transition;
 - no ordinary path turns a game soft restart into a whole-application restart.
 
@@ -1568,25 +1565,13 @@ risks require them. Required lanes are never replaced by DRA self-review.
 
 **Studio lifecycle and daemon stability**
 
-- Keep shared `bun run dev:mapgen-studio:down` and restart behavior
-  deterministic within their declared developer-owned scope.
+- Keep one Nx-owned `mapgen-studio:dev` graph with Vite depending on the
+  continuous daemon target.
 - Ensure the runtime host does not use source watch in a way that restarts during
   generated/runtime writes.
-- Ensure restart scripts start Studio from the active worktree and report the
-  daemon repo root and server identity.
-- Close `CODEX-WORKTREE-LIFECYCLE` as a distinct composition unit. Its helper
-  uses the Habitat-owned Nx daemon target rather than raw Bun/watch, retains the
-  canonical Vite launch and `STUDIO_DAEMON_PORT`, `STUDIO_DEV_PORT`, and
-  `STUDIO_DEV_RPC_TARGET`, and requires both frontend reachability and daemon
-  `/healthz` success from `start` and `status`.
-- Verify the private helper keeps a worktree-derived tmux socket/session,
-  disjoint ports, private ignored state, unchanged standard defaults, and
-  ownership-only stop/cleanup. It may not call shared down/restart or use a
-  listener scan as kill authority.
-- Keep `.codex/environments/environment.toml`, the helper path, the Nx target,
-  the local-environment handoff, and operator docs aligned. Run `bash -n`, build,
-  start, status, explicit frontend/health probes, and stop before closing the
-  unit.
+- Keep `.codex/environments/environment.toml`, the Nx targets, and operator docs
+  aligned on that graph. Prove the task graph, frontend reachability, daemon
+  `/healthz`, and that one interrupt releases both listeners.
 - Ensure Run in Game invokes direct-control soft restart/start semantics and has
   no whole-Civ process restart path.
 

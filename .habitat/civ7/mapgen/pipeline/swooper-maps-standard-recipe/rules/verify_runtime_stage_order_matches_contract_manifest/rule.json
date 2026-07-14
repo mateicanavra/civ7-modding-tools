@@ -31,6 +31,12 @@
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/baseline.json"
   },
+  "graphDependencies": [
+    {
+      "project": "mapgen-core",
+      "target": "build"
+    }
+  ],
   "runner": {
     "name": "habitat",
     "mode": "script",

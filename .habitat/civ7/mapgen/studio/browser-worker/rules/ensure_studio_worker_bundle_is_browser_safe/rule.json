@@ -28,6 +28,12 @@
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/baseline.json"
   },
+  "graphDependencies": [
+    {
+      "project": "mapgen-studio",
+      "target": "build:vite"
+    }
+  ],
   "runner": {
     "name": "habitat",
     "mode": "script",

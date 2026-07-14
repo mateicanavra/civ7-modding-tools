@@ -3,11 +3,11 @@ import { type AddressInfo, createServer, type Socket } from "node:net";
 import { runInNewContext } from "node:vm";
 import { describe, expect, test } from "vitest";
 import {
+  assertPreparedSetupMatches,
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   CIV7_RELOAD_UI_COMMAND,
   CIV7_SIGNED_INT_SEED_MAX,
-  assertPreparedSetupMatches,
   type Civ7SetupMapRow,
   type Civ7SetupSnapshot,
   type Civ7SinglePlayerSetupInput,
@@ -554,9 +554,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       expect(loadIndex).toBeGreaterThan(-1);
       expect(reconcileIndex).toBeGreaterThan(loadIndex);
       expect(operations).not.toContain("active-target-mods");
-      expect(operations.indexOf("setup-map-rows")).toBeGreaterThan(
-        reconcileIndex
-      );
+      expect(operations.indexOf("setup-map-rows")).toBeGreaterThan(reconcileIndex);
       expect(operations.indexOf("prepare-setup")).toBeGreaterThan(
         operations.indexOf("setup-map-rows")
       );
@@ -1229,7 +1227,7 @@ function createReconcileConfiguration(input: {
       refreshEnabledMods: () => null,
     }),
     getGame: () => {
-      const parsed = JSON.parse(gameMeta() ?? "{\"mods\":[]}") as {
+      const parsed = JSON.parse(gameMeta() ?? '{"mods":[]}') as {
         mods?: ReadonlyArray<Record<string, unknown>>;
       };
       const mods = parsed.mods ?? [];

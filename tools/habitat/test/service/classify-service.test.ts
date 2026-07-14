@@ -5,18 +5,18 @@ import type {
 import { habitatServiceRouter } from "@habitat/cli/service/router";
 import { createRouterClient } from "@orpc/server";
 import { Effect } from "effect";
-import { describe, expect, test } from "vitest";
+import { assert, describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 const workspaceGraph = graphReady([
   project("habitat", "tools/habitat", "kind:tooling", [
-    "biome:ci",
-    "boundaries",
     "check",
-    "generated:check",
-    "source:check",
-    "test",
+    "check:boundaries",
+    "check:hygiene",
+    "check:policy",
     "lint",
+    "typecheck",
+    "test",
   ]),
   project("civ7-adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
   project("civ7-config", "packages/config", "kind:foundation", ["build", "check", "test"]),
@@ -30,7 +30,7 @@ const workspaceGraph = graphReady([
   ]),
   project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
     "check",
-    "habitat:check",
+    "check:policy",
     "test",
   ]),
 ]);
@@ -39,12 +39,11 @@ describe("Habitat classify service", () => {
   test("classifies targets through the in-process Habitat service router", async () => {
     const result = await createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeClassifyDeps(workspaceGraph),
+        deps: makeClassifyDeps(() => workspaceGraph),
       },
     }).classify.target({ target: "tools/habitat/src/cli/commands/classify.ts" });
 
-    expect(result.state).toBe("project-path");
-    if (result.state !== "project-path") throw new Error("expected project-path");
+    assert(result.state === "project-path");
     expect(result.owner.project).toBe("habitat");
     expect(result.runnableTargets.map((target) => target.command)).toContain(
       "nx run habitat:check"
@@ -54,7 +53,7 @@ describe("Habitat classify service", () => {
   test("routes classify through the in-process Habitat service router", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeClassifyDeps(workspaceGraph),
+        deps: makeClassifyDeps(() => workspaceGraph),
       },
     });
 
@@ -62,15 +61,14 @@ describe("Habitat classify service", () => {
       target: "tools/habitat/src/cli/commands/classify.ts",
     });
 
-    expect(result.state).toBe("project-path");
-    if (result.state !== "project-path") throw new Error("expected project-path");
+    assert(result.state === "project-path");
     expect(result.owner.tags).toEqual(["kind:tooling"]);
   });
 
   test("preserves diff classification through the service contract boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeClassifyDeps(workspaceGraph),
+        deps: makeClassifyDeps(() => workspaceGraph),
       },
     });
 
@@ -92,8 +90,7 @@ index 3333333..4444444 100644
 `,
     });
 
-    expect(result.state).toBe("diff");
-    if (result.state !== "diff") throw new Error("expected diff");
+    assert(result.state === "diff");
     expect(result.paths.map((classification) => classification.path)).toEqual([
       "apps/mapgen-studio/src/main.tsx",
       "packages/plugins/plugin-graph/src/index.ts",
@@ -111,34 +108,32 @@ index 3333333..4444444 100644
 
     const result = await client.classify.target({ target: "not a diff\njust text" });
 
-    expect(result.state).toBe("malformed-or-pathless-diff");
-    if (result.state !== "malformed-or-pathless-diff") {
-      throw new Error("expected malformed-or-pathless-diff");
-    }
-    expect(result.reason).toBe("no-classifiable-diff-paths");
+    expect(result).toMatchObject({
+      state: "malformed-or-pathless-diff",
+      reason: "no-classifiable-diff-paths",
+    });
   });
 
   test("preserves unresolved-owner path states through the service boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeClassifyDeps(workspaceGraph),
+        deps: makeClassifyDeps(() => workspaceGraph),
       },
     });
 
     const result = await client.classify.target({ target: "notes/not-yet-created.md" });
 
-    expect(result.state).toBe("unresolved-owner");
-    if (result.state !== "unresolved-owner") throw new Error("expected unresolved-owner");
+    assert(result.state === "unresolved-owner");
     expect(result.reason).toBe("no-project-or-workspace-owner");
   });
 
   test("preserves graph-refusal states through the service boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeClassifyDeps({
+        deps: makeClassifyDeps(() => ({
           kind: "malformed-graph-json",
           message: "workspace graph fixture is malformed",
-        }),
+        })),
       },
     });
 
@@ -146,8 +141,7 @@ index 3333333..4444444 100644
       target: "tools/habitat/src/cli/commands/classify.ts",
     });
 
-    expect(result.state).toBe("graph-refusal");
-    if (result.state !== "graph-refusal") throw new Error("expected graph-refusal");
+    assert(result.state === "graph-refusal");
     expect(result.refusal.reason).toBe("malformed-graph-json");
   });
 });
@@ -168,14 +162,14 @@ function project(
 }
 
 function makeClassifyDeps(
-  graph: WorkspaceGraphReadState | (() => WorkspaceGraphReadState)
+  readGraph: () => WorkspaceGraphReadState
 ): ReturnType<typeof makeTestHabitatServiceDeps> {
   const deps = makeTestHabitatServiceDeps();
   return {
     ...deps,
     nx: {
       ...deps.nx,
-      workspaceGraph: () => Effect.sync(() => (typeof graph === "function" ? graph() : graph)),
+      workspaceGraph: () => Effect.sync(readGraph),
     },
   };
 }

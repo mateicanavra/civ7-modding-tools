@@ -40,9 +40,7 @@ export function toStandardSchema<TypeSchema extends TSchema>(
 
           // TypeBox 1.3 Clean mutates its argument. Clone first so Standard
           // Schema validation never edits caller-owned input.
-          const checked = cleanUnknownProperties
-            ? Value.Clean(schema, Value.Clone(value))
-            : value;
+          const checked = cleanUnknownProperties ? Value.Clean(schema, Value.Clone(value)) : value;
           if (!cleanUnknownProperties && !validator.Check(checked)) {
             return {
               issues: [...validator.Errors(checked)].map((error) => ({

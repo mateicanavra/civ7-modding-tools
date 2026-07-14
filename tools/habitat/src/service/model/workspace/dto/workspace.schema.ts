@@ -24,15 +24,7 @@ export const WorkspaceGraphSnapshotSchema = Type.Object(
 
 export const WorkspaceGraphTargetNamesSchema = Type.Object(
   {
-    aggregateCheck: TargetNameSchema,
-    biomeCheck: TargetNameSchema,
-    biomeCi: TargetNameSchema,
-    biomeFormat: TargetNameSchema,
-    boundaries: TargetNameSchema,
     check: TargetNameSchema,
-    generatedCheck: TargetNameSchema,
-    sourceCheck: TargetNameSchema,
-    lint: TargetNameSchema,
     rulePrefix: TargetNameSchema,
   },
   { additionalProperties: false }
@@ -41,27 +33,12 @@ export const WorkspaceGraphTargetNamesSchema = Type.Object(
 export const WorkspaceGraphTargetNameOptionsSchema = Type.Partial(
   Type.Object(
     {
-      aggregateCheckTargetName: TargetNameSchema,
-      biomeCheckTargetName: TargetNameSchema,
-      biomeCiTargetName: TargetNameSchema,
-      biomeFormatTargetName: TargetNameSchema,
-      boundariesTargetName: TargetNameSchema,
       checkTargetName: TargetNameSchema,
-      generatedCheckTargetName: TargetNameSchema,
-      sourceCheckTargetName: TargetNameSchema,
-      lintTargetName: TargetNameSchema,
       ruleTargetPrefix: TargetNameSchema,
     },
     { additionalProperties: false }
   )
 );
-
-export const RuleGraphTargetNamesSchema = Type.Pick(WorkspaceGraphTargetNamesSchema, [
-  "boundaries",
-  "biomeCi",
-  "generatedCheck",
-  "sourceCheck",
-]);
 
 export const TargetDependencyDeclarationSchema = Type.Cyclic(
   {
@@ -254,7 +231,6 @@ export type WorkspaceProject = Static<typeof WorkspaceProjectSchema>;
 export type WorkspaceGraphSnapshot = Static<typeof WorkspaceGraphSnapshotSchema>;
 export type WorkspaceGraphTargetNames = Static<typeof WorkspaceGraphTargetNamesSchema>;
 export type WorkspaceGraphTargetNameOptions = Static<typeof WorkspaceGraphTargetNameOptionsSchema>;
-export type RuleGraphTargetNames = Static<typeof RuleGraphTargetNamesSchema>;
 export type TargetDependencyDeclaration = Static<typeof TargetDependencyDeclarationSchema>;
 export type ResolvedTargetDependency = Static<typeof ResolvedTargetDependencySchema>;
 export type UnresolvedTargetDependency = Static<typeof UnresolvedTargetDependencySchema>;

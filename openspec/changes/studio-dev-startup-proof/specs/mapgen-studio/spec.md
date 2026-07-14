@@ -6,7 +6,8 @@ MapGen Studio SHALL prove dev startup with isolated ports without treating proce
 
 #### Scenario: Isolated dev startup is observed
 
-- **WHEN** Studio starts through the root `bun run dev:mapgen-studio` entrypoint with isolated daemon, frontend, and RPC target ports
+- **WHEN** Studio starts through `nx run mapgen-studio:dev` with isolated daemon,
+  frontend, and RPC target ports
 - **THEN** proof records daemon URL, Vite URL, RPC reachability, server identity, and cleanup
 - **AND** direct-control or Civ7 unavailability is recorded as separate runtime readiness state
 

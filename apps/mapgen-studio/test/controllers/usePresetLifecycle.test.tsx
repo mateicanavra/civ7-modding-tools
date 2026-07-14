@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
-import { act, renderHook } from "@testing-library/react";
+
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./_setup";
 import {

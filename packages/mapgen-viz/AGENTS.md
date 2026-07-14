@@ -12,7 +12,7 @@ Scope: `packages/mapgen-viz/**`
 
 ## Tooling Rules
 
-- Use `bun` package scripts (`bun --cwd packages/mapgen-viz run <script>`).
+- Use `nx run mapgen-viz:build` and `nx run mapgen-viz:check`.
 - When changing exported contracts, run workspace-wide checks from repo root.
 
 ## Canonical Docs

@@ -1,16 +1,16 @@
+import {
+  isMapConfigEnvelope,
+  serializeMapConfigEnvelope,
+  snapshotMapConfigEnvelope,
+} from "@civ7/studio-contract";
 import type { RecipeSettings, WorldSettings } from "@swooper/mapgen-studio-ui/types";
+import { findBuiltInPresetBySourcePath, findRecipeArtifacts } from "../../recipes/catalog";
 import {
   type Civ7StudioSetupConfig,
   createDefaultCiv7StudioSetupConfig,
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
 import { admitPipelineConfig } from "../configAuthoring/canonicalConfig";
-import {
-  isMapConfigEnvelope,
-  serializeMapConfigEnvelope,
-  snapshotMapConfigEnvelope,
-} from "@civ7/studio-contract";
-import { findBuiltInPresetBySourcePath, findRecipeArtifacts } from "../../recipes/catalog";
 import { type AuthoringConfigSource, parsePresetKey } from "../presets/types";
 
 export const STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v2";

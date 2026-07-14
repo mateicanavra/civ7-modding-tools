@@ -4,14 +4,14 @@
     {
       "plugin": "./tools/habitat/src/nx-plugin.ts",
       "options": {
-        "checkTargetName": "habitat:check",
-        "boundariesTargetName": "boundaries",
-        "biomeFormatTargetName": "biome:format",
-        "biomeCheckTargetName": "biome:check",
-        "biomeCiTargetName": "biome:ci"
+        "checkTargetName": "check:policy"
       }
     }
   ],
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": ["{workspaceRoot}/tsconfig*.json"]
+  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
@@ -33,30 +33,28 @@
       ],
       "cache": false
     },
-    "habitat:check": {
-      "dependsOn": [
-        "build",
-        {
-          "projects": ["habitat"],
-          "target": "build"
-        }
-      ],
-      "cache": true
-    },
     "dev": {
       "cache": false,
       "continuous": true
     },
     "check": {
-      "dependsOn": ["^build", "^check"],
-      "cache": true
+      "dependsOn": ["typecheck", "check:policy", "^check"],
+      "cache": false,
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "outputs": []
     },
     "lint": {
       "cache": true
     },
     "test": {
       "dependsOn": ["^build"],
-      "cache": true
+      "cache": true,
+      "inputs": ["default", "^default", "{workspaceRoot}/vitest.config.ts"]
     },
     "verify": {
       "dependsOn": ["build", "^build"],

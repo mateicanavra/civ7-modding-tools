@@ -11,14 +11,9 @@
         "cwd": "packages/civ7-control-orpc"
       }
     },
-    "check:types": {
+    "typecheck": {
       "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-      "dependsOn": [
-        {
-          "projects": ["control-direct"],
-          "target": "build"
-        }
-      ],
+      "dependsOn": ["^build"],
       "cache": true,
       "outputs": [],
       "options": {
@@ -26,13 +21,9 @@
       }
     },
     "check": {
-      "command": "node -e \"\"",
+      "executor": "nx:noop",
       "cache": false,
-      "outputs": [],
-      "dependsOn": ["check:types", "habitat:check"],
-      "options": {
-        "cwd": "packages/civ7-control-orpc"
-      }
+      "outputs": []
     }
   }
 }

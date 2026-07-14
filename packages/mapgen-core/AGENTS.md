@@ -10,7 +10,8 @@ Scope: `packages/mapgen-core/**`
 
 ## Tooling Rules
 
-- Use package scripts via `bun` for build, type‑checks, and tests (`bun --cwd packages/mapgen-core run <script>`).
+- Use `nx run mapgen-core:build`, `nx run mapgen-core:check`, and
+  `nx run mapgen-core:test`; Nx owns workspace dependency ordering.
 - Run workspace‑wide validation from repo root when changing cross‑package contracts.
 
 ## Domain Rules

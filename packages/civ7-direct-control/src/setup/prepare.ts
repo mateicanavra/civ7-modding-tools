@@ -12,9 +12,6 @@ import type {
 import { validateIdentifier } from "../validation.js";
 import {
   buildSetupSnapshotCommand,
-  ensureCiv7SetupMapRowVisible,
-  getCiv7SetupMapRows,
-  waitForCiv7SetupPhase,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsResult,
   type Civ7SetupMapRowVisibilityResult,
@@ -23,9 +20,12 @@ import {
   type Civ7SetupSnapshot,
   type Civ7SetupSnapshotResult,
   defaultSetupReadDependencies,
+  ensureCiv7SetupMapRowVisible,
+  getCiv7SetupMapRows,
   type SetupReadDependencies,
   setupSnapshotScriptSource,
   validateMapScript,
+  waitForCiv7SetupPhase,
 } from "./reads.js";
 
 export type Civ7SetupOptionValue = string | number | boolean;
@@ -189,7 +189,11 @@ export async function prepareCiv7SinglePlayerSetup(
     );
   }
   const targetModReconciliation = normalized.requiredActiveTargetModId
-    ? await reconcileCiv7RequiredTargetMod(normalized.requiredActiveTargetModId, options, dependencies)
+    ? await reconcileCiv7RequiredTargetMod(
+        normalized.requiredActiveTargetModId,
+        options,
+        dependencies
+      )
     : undefined;
   if (targetModReconciliation && !targetModReconciliation.verified) {
     throw new Civ7DirectControlError(
@@ -805,7 +809,9 @@ export function assertPreparedSetupMatches(
   const mapSize = setupParameterValue(snapshot, "MapSize");
   const mapSeed = setupParameterValue(snapshot, "MapRandomSeed");
   const gameSeed = setupParameterValue(snapshot, "GameRandomSeed");
-  const playerCount = snapshot.config.playerCount.ok ? snapshot.config.playerCount.value : undefined;
+  const playerCount = snapshot.config.playerCount.ok
+    ? snapshot.config.playerCount.value
+    : undefined;
   if (script !== input.mapScript) {
     throw new Civ7DirectControlError(
       "setup-readback-mismatch",

@@ -15,6 +15,6 @@ Scope: `mods/mod-civ7-intelligence-bridge/**`
 
 Validate with:
 
-- `bun run --cwd mods/mod-civ7-intelligence-bridge test`
-- `bun run --cwd mods/mod-civ7-intelligence-bridge check`
-- `bun run --cwd mods/mod-civ7-intelligence-bridge build`
+- `nx run mod-intelligence-bridge:test`
+- `nx run mod-intelligence-bridge:check`
+- `nx run mod-intelligence-bridge:build`

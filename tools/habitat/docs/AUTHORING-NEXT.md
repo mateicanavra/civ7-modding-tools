@@ -48,9 +48,9 @@ Preferred slice:
    that is the clean current convention.
 5. Run generated code through:
    - `bun habitat classify <generated diff>`;
-   - owning package `check`;
+   - owning project `check`;
    - owning package `test` where relevant;
-   - `nx run-many -t habitat:check`;
+   - `nx run-many -t check:policy`;
    - recipe compilation or the closest current recipe validation.
 
 If current conventions make this slice wrong, choose the smallest complete

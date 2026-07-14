@@ -2,56 +2,6 @@
   "name": "civ7-modding-tools",
   "version": "1.3.0",
   "description": "CLI tools and utilities for Civilization VII modding, including resource extraction, graph visualization, and XML analysis",
-  "type": "module",
-  "packageManager": "bun@1.3.14",
-  "scripts": {
-    "prepare": "husky",
-    "build": "nx run-many --targets=build",
-    "check": "nx run-many --targets=check",
-    "docs:project": "./.habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh && bunx docsify-cli serve ./docs --port 7979",
-    "restart:mapgen-studio": "bash ./scripts/restart-mapgen-studio.sh",
-    "dev:mapgen-studio:restart": "bun run restart:mapgen-studio",
-    "dev:mapgen-studio:down": "bash ./scripts/down-mapgen-studio.sh",
-    "lint": "nx run-many --targets=lint",
-    "test": "nx run-many --targets=test",
-    "clean": "nx run-many --targets=clean",
-    "resources:init": "bash ./packages/cli/scripts/resources-submodule/init-submodule.sh",
-    "resources:publish": "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh",
-    "resources:status": "bash ./packages/cli/scripts/resources-submodule/status.sh",
-    "resources:unlock": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py",
-    "effect:init": "bash ./scripts/effect-submodule/init-submodule.sh",
-    "effect:status": "bash ./scripts/effect-submodule/status.sh",
-    "refresh:data": "bun run resources:init && nx run civ7-cli:data:zip:default && nx run civ7-cli:data:unzip:default",
-    "ci:architecture-strict-core": "bun habitat check --runner grit && bun habitat check --runner habitat",
-    "deploy:mods": "nx run-many --targets=deploy",
-    "gt:import-worktree": "bash ./scripts/graphite-import-worktree.sh",
-    "gt:import-pr": "bash ./scripts/graphite-import-pr.sh",
-    "openspec": "openspec",
-    "openspec:validate": "openspec validate --all --strict",
-    "biome:format": "biome format --write .",
-    "biome:check": "biome check .",
-    "biome:ci": "biome ci .",
-    "habitat": "bun tools/habitat/bin/dev.ts",
-    "ci": "nx run-many --targets=build,check,lint,test,habitat:check",
-    "verify": "nx run-many --targets=verify"
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "packages/plugins/*",
-    "mods/*",
-    "tools/*"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mateicanavra/civ7-modding-tools-fork.git"
-  },
-  "homepage": "https://github.com/mateicanavra/civ7-modding-tools-fork#readme",
-  "bugs": {
-    "url": "https://github.com/mateicanavra/civ7-modding-tools-fork/issues"
-  },
-  "author": "Matei <tools@matei.work>",
-  "license": "MIT",
   "keywords": [
     "civilization-vii",
     "civ7",
@@ -64,8 +14,55 @@
     "game-modding",
     "resource-extraction"
   ],
-  "engines": {
-    "node": "22.22.0"
+  "homepage": "https://github.com/mateicanavra/civ7-modding-tools-fork#readme",
+  "bugs": {
+    "url": "https://github.com/mateicanavra/civ7-modding-tools-fork/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mateicanavra/civ7-modding-tools-fork.git"
+  },
+  "license": "MIT",
+  "author": "Matei <tools@matei.work>",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/plugins/*",
+    "mods/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "build": "nx run-many -t build",
+    "check": "nx run-many -t check",
+    "ci": "nx run-many -t build,check,test",
+    "clean": "nx run-many -t clean",
+    "deploy:mods": "nx run-many -t deploy",
+    "docs:project": "nx run habitat:serve:project-docs",
+    "effect:init": "bash ./scripts/effect-submodule/init-submodule.sh",
+    "effect:status": "bash ./scripts/effect-submodule/status.sh",
+    "format": "nx run habitat:format",
+    "gt:import-pr": "bash ./scripts/graphite-import-pr.sh",
+    "gt:import-worktree": "bash ./scripts/graphite-import-worktree.sh",
+    "habitat": "bun tools/habitat/bin/dev.ts",
+    "lint": "nx run habitat:lint",
+    "openspec": "openspec",
+    "openspec:validate": "openspec validate --all --strict",
+    "prepare": "husky",
+    "refresh:data": "bun run resources:init && nx run civ7-cli:data:zip:default && nx run civ7-cli:data:unzip:default",
+    "resources:init": "bash ./packages/cli/scripts/resources-submodule/init-submodule.sh",
+    "resources:publish": "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh",
+    "resources:status": "bash ./packages/cli/scripts/resources-submodule/status.sh",
+    "resources:unlock": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py",
+    "test": "nx run-many -t test",
+    "typecheck": "nx run-many -t typecheck",
+    "verify": "nx run-many -t verify"
+  },
+  "overrides": {
+    "@types/node": "^22.19.21",
+    "axios": "^1.17.0",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.16",
@@ -84,17 +81,16 @@
     "nx": "22.7.5",
     "oclif": "4.23.14",
     "rimraf": "^6.1.2",
+    "sort-package-json": "4.0.0",
     "string-width": "4.2.3",
     "tsup": "^8.5.1",
     "type-fest": "^5.7.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
-  "overrides": {
-    "axios": "^1.17.0",
-    "typescript": "^5.9.3",
-    "@types/node": "^22.19.21",
-    "rimraf": "^6.1.2"
+  "packageManager": "bun@1.3.14",
+  "engines": {
+    "node": "22.22.0"
   },
   "patchedDependencies": {
     "effect-orpc@0.5.0": "patches/effect-orpc@0.5.0.patch"

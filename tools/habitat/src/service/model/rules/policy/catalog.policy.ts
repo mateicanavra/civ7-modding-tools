@@ -1,4 +1,3 @@
-import { workspaceGraphTargetNames } from "@habitat/cli/service/model/workspace/index";
 import { Context, Option } from "effect";
 import type { RuleRegistryDocument } from "../dto/registry.schema.js";
 import { ruleAuthorityPathFacts } from "./authority-paths.policy.js";
@@ -54,11 +53,7 @@ export function ruleFactsCatalog(document: RuleRegistryDocument): RuleFactsCatal
     fix: ruleFixFacts(records),
     hookCheck: ruleHookCheckFacts(records),
     routing: ruleRoutingFacts(records),
-    graph: ruleGraphFacts(
-      records,
-      new Map(Object.entries(document.ownerRoots)),
-      workspaceGraphTargetNames()
-    ),
+    graph: ruleGraphFacts(records, new Map(Object.entries(document.ownerRoots))),
   });
 }
 

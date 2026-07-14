@@ -1,14 +1,10 @@
-import type { SpawnResult } from "@habitat/cli/resources/command/index";
+import type {
+  HabitatReportEvent,
+  HabitatReporterService,
+} from "@habitat/cli/resources/reporter/index";
 import { Clock, Effect } from "effect";
 
-type HookReportEvent =
-  | { readonly kind: "stdout"; readonly text: string }
-  | { readonly kind: "stderr"; readonly text: string }
-  | { readonly kind: "trace"; readonly message: string };
-
-interface HookReporterPort {
-  readonly emit: (event: HookReportEvent) => Effect.Effect<void>;
-}
+export type HookReporterPort = HabitatReporterService;
 
 export interface ResourceRecoveryCommands {
   publish: string;
@@ -22,19 +18,14 @@ export interface HookResourcePolicy {
   commands: ResourceRecoveryCommands;
 }
 
-export function hookNow(): Effect.Effect<number> {
+export function hookNow() {
   return Clock.currentTimeMillis;
 }
 
-export function createHookOutput(reporter?: HookReporterPort): {
-  flush: () => Effect.Effect<void>;
-  writeStdout: (text: string) => void;
-  writeStderr: (text: string) => void;
-  result: () => Pick<SpawnResult, "stdout" | "stderr">;
-} {
+export function createHookOutput(reporter?: HookReporterPort) {
   let stdout = "";
   let stderr = "";
-  const events: HookReportEvent[] = [];
+  const events: HabitatReportEvent[] = [];
   return {
     flush() {
       if (!reporter || events.length === 0) return Effect.void;
@@ -42,12 +33,12 @@ export function createHookOutput(reporter?: HookReporterPort): {
         discard: true,
       });
     },
-    writeStdout(text) {
+    writeStdout(text: string) {
       if (!text) return;
       stdout += text;
       events.push({ kind: "stdout", text });
     },
-    writeStderr(text) {
+    writeStderr(text: string) {
       if (!text) return;
       stderr += text;
       events.push({ kind: "stderr", text });
@@ -59,5 +50,6 @@ export function createHookOutput(reporter?: HookReporterPort): {
 }
 
 export function section(label: string, output: string): string {
-  return output ? `\n[${label}]\n${output}` : "";
+  if (!output) return "";
+  return `\n[${label}]\n${output}`;
 }

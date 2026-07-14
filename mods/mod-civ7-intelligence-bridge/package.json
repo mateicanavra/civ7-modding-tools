@@ -5,9 +5,9 @@
   "description": "Game-scoped Civ7 controller bridge bootstrap for native control-oRPC.",
   "type": "module",
   "scripts": {
-    "check": "tsc --noEmit",
+    "clean:generated-artifacts": "bun ./scripts/clean-generated-artifacts.ts",
     "test": "bun test",
-    "clean:generated-artifacts": "bun ./scripts/clean-generated-artifacts.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@civ7/control-orpc": "workspace:*"

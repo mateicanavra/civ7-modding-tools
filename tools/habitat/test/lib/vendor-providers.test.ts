@@ -55,11 +55,10 @@ describe("vendor providers", () => {
           makeFakeGitProviderLayer((argv, options) => {
             observed.push([...argv]);
             const stdout =
-              argv[0] === "symbolic-ref"
-                ? "origin/main\n"
-                : argv[0] === "merge-base"
-                  ? "abc123\n"
-                  : "## agent-DRA-effect-vendor-providers\n";
+              new Map([
+                ["symbolic-ref", "origin/main\n"],
+                ["merge-base", "abc123\n"],
+              ]).get(argv[0] ?? "") ?? "## agent-DRA-effect-vendor-providers\n";
             return commandResult("git-state", "git", argv, options.cwd, stdout);
           })
         )
@@ -120,15 +119,16 @@ describe("vendor providers", () => {
         return yield* nx.affected(request);
       }).pipe(
         Effect.provide(
-          makeFakeNxProviderLayer((affectedRequest) =>
-            commandResult(
-              "workspace-tool",
-              "nx",
-              affectedArgv(affectedRequest).slice(1),
-              repoRoot,
-              "ok\n"
-            )
-          )
+          makeFakeNxProviderLayer({
+            affected: (affectedRequest) =>
+              commandResult(
+                "workspace-tool",
+                "nx",
+                affectedArgv(affectedRequest).slice(1),
+                repoRoot,
+                "ok\n"
+              ),
+          })
         )
       )
     );
@@ -149,14 +149,14 @@ describe("vendor providers", () => {
   test("NxProvider batches graph-owned targets through run-many", async () => {
     const request = {
       projects: ["mod-swooper-maps", "mapgen-core"],
-      targets: ["habitat:check", "test"],
+      targets: ["check:policy", "test"],
     };
 
     expect(runManyArgv(request)).toEqual([
       "nx",
       "run-many",
       "--targets",
-      "habitat:check,test",
+      "check:policy,test",
       "--projects",
       "mod-swooper-maps,mapgen-core",
       "--outputStyle=static",
@@ -185,16 +185,26 @@ describe("vendor providers", () => {
     expect(result.stdout.text).toBe("batched ok\n");
   });
 
+  test("NxProvider lets target-only run-many select every exposing project", () => {
+    expect(runManyArgv({ targets: ["check:policy"] })).toEqual([
+      "nx",
+      "run-many",
+      "--targets",
+      "check:policy",
+      "--outputStyle=static",
+    ]);
+  });
+
   test("NxProvider owns single target execution without run-many", async () => {
     const request = {
       project: "habitat",
-      target: "boundaries",
+      target: "check:boundaries",
     };
 
     expect(runTargetArgv(request)).toEqual([
       "nx",
       "run",
-      "habitat:boundaries",
+      "habitat:check:boundaries",
       "--outputStyle=static",
     ]);
 

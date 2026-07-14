@@ -27,11 +27,7 @@ export type Civ7ActiveTargetModSetLike = Readonly<{
 export function isAuthoritativeActiveTargetModSetReadback(
   readback: Civ7ActiveTargetModSetLike | undefined
 ): readback is Civ7ActiveTargetModSetLike {
-  if (
-    !readback ||
-    readback.available !== true ||
-    readback.identityAvailable !== true
-  ) {
+  if (!readback || readback.available !== true || readback.identityAvailable !== true) {
     return false;
   }
   const configurationReadback = readback.readbacks?.find(
@@ -71,5 +67,8 @@ export function activeTargetModSetContainsAuthoritativeTarget(
 }
 
 function normalizeModToken(value: string): string {
-  return value.trim().replace(/^\{|\}$/g, "").toLowerCase();
+  return value
+    .trim()
+    .replace(/^\{|\}$/g, "")
+    .toLowerCase();
 }

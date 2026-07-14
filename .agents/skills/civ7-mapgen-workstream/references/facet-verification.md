@@ -39,7 +39,11 @@ If local-vs-local and local-vs-live both agree and only the Studio canvas is wro
 
 ### Producing the binaries to diff
 
-`bun mods/mod-swooper-maps/src/dev/viz/standard-run.ts` (or `bun run viz:standard`, default 48×30 / seed 1337 / swooper-earthlike) writes a dump under `mods/mod-swooper-maps/dist/visualization/<runId>/{manifest.json,data/*.bin}`. Inspect with `diag:diff`. (Full diagnostics inventory: `references/pipeline-map.md`.)
+`nx run mod-swooper-maps:viz:standard` (default 48×30 / seed 1337 /
+swooper-earthlike) writes a dump under
+`mods/mod-swooper-maps/dist/visualization/<runId>/{manifest.json,data/*.bin}`.
+Inspect with `nx run mod-swooper-maps:diag:diff -- <args>`. (Full diagnostics
+inventory: `references/pipeline-map.md`.)
 
 ### The Studio edit surface (where a display bug actually lives)
 
@@ -65,7 +69,7 @@ Studio launch / daemon contract (port 5174, oRPC `/rpc`, `runtimeMode: "studio-d
 
 ### The composed chain
 
-1. `bun run diag:dump` (`src/dev/diagnostics/run-standard-dump.ts`) — run the full standard recipe through MockAdapter; writes the trace + viz dump; prints `{"runId","outputDir"}`. (Prereq: `viz:runtime-deps`.)
+1. `nx run mod-swooper-maps:diag:dump -- <args>` (`src/dev/diagnostics/run-standard-dump.ts`) — run the full standard recipe through MockAdapter; writes the trace + viz dump; prints `{"runId","outputDir"}`. (Prereq: `viz:runtime-deps`.)
 2. `computeEarthMetrics(landMask, lakeMask?, riverClass?, riverNetworkBenchmarkSummary?, biomeIndex?)` (`src/dev/diagnostics/extract-earth-metrics.ts`) → `{ landShare, lakeShare, riverClassShare, biomeDiversity, dominantBiome, hydrology.riverNetworkSummary }`. This is the metric primitive. Also `diag:analyze` (`analyze-dump.ts`) for land-coherence (landmass summary, mountain/hill counts, landmask Hamming evolution); `placement-metrics.ts` for E1–E4 placement expectations (`verify --mode placement-metrics`).
 3. **Compare to Earth targets** in `docs/projects/pipeline-realism/`. Targets are **regime-family based** (wet / arid / mountain / closed / archipelago), **not** single scalars — never collapse a regime distribution to one number. Earth anchors the docs cite: HydroLAKES ~1.8% of land, non-perennial river share 51–60%, endorheic ~1/5 of land, passive-vs-active margin shelf-width contrast. `riverClass` is `0/1/≥2`; only `≥2` projects to `TERRAIN_NAVIGABLE_RIVER`.
 
@@ -99,7 +103,7 @@ A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal di
 
 Full 9-mode table + aliases + invocations: `assets/live-verification-runbook.md` §5.
 
-Build before any live verify: `nx run mod-swooper-maps:build` → `mods/mod-swooper-maps/mod/`. Deploy: `bun run --cwd mods/mod-swooper-maps deploy` (or `nx run mod-swooper-maps:deploy`).
+Build before any live verify: `nx run mod-swooper-maps:build` → `mods/mod-swooper-maps/mod/`. Deploy with `nx run mod-swooper-maps:deploy`.
 
 ---
 

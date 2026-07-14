@@ -86,13 +86,12 @@ Builder -> Nodes -> XML Files -> Mod Output
 
 ### Type Checking
 ```bash
-cd packages/sdk
-bun run check
+nx run civ7-sdk:check
 ```
 
 ### Building
 ```bash
-bun run build  # Builds with tsup
+nx run civ7-sdk:build
 ```
 
 ### Example Usage

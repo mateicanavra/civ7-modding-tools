@@ -9,8 +9,8 @@
 | Mod package scripts | `mods/<mod-slug>/package.json` |
 | Generated mod output | `mods/<mod-slug>/mod/` |
 | Root deploy command | `bun run deploy:mods` |
-| Package build command | `bun run --cwd mods/<mod-slug> build` |
-| Package deploy command | `bun run --cwd mods/<mod-slug> deploy` |
+| Project build command | `nx run <mod-project>:build` |
+| Project deploy command | `nx run <mod-project>:deploy` |
 
 `mods/<mod-slug>/mod/` is generated output. Inspect it to confirm generation,
 but change source files and regenerate instead of editing it directly.

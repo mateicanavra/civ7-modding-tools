@@ -66,15 +66,25 @@ describe("tag registry", () => {
     });
 
     expect(
-      isDependencyTagSatisfied(artifactTag, context, { satisfied: new Set([artifactTag]) }, registry)
+      isDependencyTagSatisfied(
+        artifactTag,
+        context,
+        { satisfied: new Set([artifactTag]) },
+        registry
+      )
     ).toBe(false);
 
     context.artifacts.set(artifactTag, {});
+    expect(isDependencyTagSatisfied(artifactTag, context, { satisfied: new Set() }, registry)).toBe(
+      false
+    );
     expect(
-      isDependencyTagSatisfied(artifactTag, context, { satisfied: new Set() }, registry)
-    ).toBe(false);
-    expect(
-      isDependencyTagSatisfied(artifactTag, context, { satisfied: new Set([artifactTag]) }, registry)
+      isDependencyTagSatisfied(
+        artifactTag,
+        context,
+        { satisfied: new Set([artifactTag]) },
+        registry
+      )
     ).toBe(true);
   });
 

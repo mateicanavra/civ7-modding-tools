@@ -22,8 +22,8 @@
 
 ## 3. Delete App-Local Supervision
 
-- [x] 3.1 Keep root `dev:mapgen-studio` as the user-facing entrypoint and
-      route the package script through repo-local `nx run mapgen-studio:dev`.
+- [x] 3.1 Use `nx run mapgen-studio:dev` as the single user-facing and graph
+      entrypoint.
 - [x] 3.2 Remove app `dev` routing through `src/server/daemon/devLive.ts`.
 - [x] 3.3 Delete `devLive.ts` and delete or rewrite `devLivePlan` tests around
       Nx target/process proof.
@@ -38,7 +38,7 @@
 - [x] 4.3 Baseline build/check gates on the accepted Nx/Habitat worktree.
 - [x] 4.4 Nx project/target graph proof for backend continuous serve and
       frontend dependency.
-- [x] 4.5 Process proof while `bun run dev:mapgen-studio` / `nx run mapgen-studio:dev` is active:
+- [x] 4.5 Process proof while `nx run mapgen-studio:dev` is active:
       one backend, one frontend, no `devLive.ts`, no daemon `bun --watch`.
 - [x] 4.6 Negative search for active Turbo dev routes, app-local supervisor
       routes, and daemon Bun watcher routes.

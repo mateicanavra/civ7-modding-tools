@@ -1,5 +1,12 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "mapgen-core",
-  "tags": ["kind:engine"]
+  "tags": ["kind:engine"],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    }
+  }
 }

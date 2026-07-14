@@ -1,26 +1,26 @@
 {
   "name": "civ-mod-dacia",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
   "description": "This mod adds the Dacia civilization to Civilization VII, including Decebalus as a leader, along with unique abilities, units, and buildings.",
-  "main": "index.js",
-  "scripts": {
-    "build": "tsx build.ts",
-    "docs": "docsify serve docs",
-    "lint": "biome check .",
-    "check": "tsc -p tsconfig.json --noEmit"
+  "keywords": [],
+  "homepage": "https://github.com/mateicanavra/civ-mod-dacia#readme",
+  "bugs": {
+    "url": "https://github.com/mateicanavra/civ-mod-dacia/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mateicanavra/civ-mod-dacia.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mateicanavra/civ-mod-dacia/issues"
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsx build.ts",
+    "docs": "docsify serve docs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-  "homepage": "https://github.com/mateicanavra/civ-mod-dacia#readme",
   "dependencies": {
     "@mateicanavra/civ7-sdk": "workspace:*"
   },
@@ -31,6 +31,5 @@
   },
   "engines": {
     "node": "22.22.0"
-  },
-  "type": "module"
+  }
 }

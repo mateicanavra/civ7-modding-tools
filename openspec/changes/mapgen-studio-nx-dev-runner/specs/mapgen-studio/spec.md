@@ -37,7 +37,7 @@ path.
 #### Scenario: DevLive supervisor is absent from active dev path
 
 - **WHEN** D11 implementation is complete
-- **THEN** root `dev:mapgen-studio` routes through repo-local Nx
+- **THEN** `nx run mapgen-studio:dev` starts the repo-local Nx graph
 - **AND** app `dev` scripts do not call `bun src/server/daemon/devLive.ts`
 - **AND** no active dev command starts both daemon and Vite through an app-local
   child-process supervisor

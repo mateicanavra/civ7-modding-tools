@@ -4,7 +4,7 @@
 
 D1 made deploy writes safe for the daemon import graph. D10 moves live-game
 freshness into daemon runtime ownership. The remaining dev-process shape is now
-the outlier: `bun run dev:mapgen-studio` reaches a package script that starts an
+the outlier: Studio development reached a package script that started an
 app-local supervisor, which starts a Bun watcher for the daemon, waits for
 readiness, and starts Vite. That nests process management inside the app and
 makes the Studio dev topology look like tmux plus shell plus package script plus
@@ -54,9 +54,8 @@ watcher and the app no longer carries a child-process supervisor.
   need for a single-process helper, it must create a newly named entrypoint
   outside the dev-supervisor surface and record that owner; `devLive.ts` cannot
   remain as an active file.
-- Keep the root user-facing command as `bun run dev:mapgen-studio`, with the
-  package script resolving repo-local `nx run mapgen-studio:dev` through the
-  root dev dependency and package-script PATH on the accepted baseline.
+- Make `nx run mapgen-studio:dev` the single user-facing and implementation
+  entrypoint.
 - Preserve D1 watcher/import-graph isolation and D10 daemon runtime ownership:
   dev orchestration cannot rely on daemon restarts, browser watchdogs, or
   hidden supervisor recovery.

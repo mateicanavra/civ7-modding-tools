@@ -3,6 +3,11 @@
   "name": "civ7-docs",
   "tags": ["kind:app"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "dev": {
       "command": "bun run scripts/dev-staged.ts",
       "dependsOn": ["^build", "sync"],

@@ -1017,13 +1017,6 @@ function fanout(surfaces: SurfaceRecord[]) {
 
 function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
   const errors: string[] = [];
-  const rootDocsProject = surfaces.some(
-    (surface) =>
-      surface.surfaceKind === "package-script" &&
-      surface.packageScript?.packagePath === "package.json" &&
-      surface.packageScript.name === "docs:project" &&
-      surface.packageScript.command.includes(".habitat/")
-  );
   const toolkitGenerateSchemas = surfaces.some(
     (surface) =>
       surface.surfaceKind === "package-script" &&
@@ -1032,7 +1025,6 @@ function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
       surface.packageScript.command.includes(".habitat/")
   );
 
-  if (!rootDocsProject) errors.push("Did not detect root docs:project direct .habitat call.");
   if (!toolkitGenerateSchemas)
     errors.push("Did not detect tools/habitat generate:schemas direct .habitat call.");
   return errors;
@@ -1166,7 +1158,7 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Sanity Assertions",
     "",
     report.summary.sanityAssertions.length === 0
-      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`structure.toml\`, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
+      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`structure.toml\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
       : report.summary.sanityAssertions.map((issue) => `- ${issue}`).join("\n"),
     "",
     "## Surfaces By Kind",

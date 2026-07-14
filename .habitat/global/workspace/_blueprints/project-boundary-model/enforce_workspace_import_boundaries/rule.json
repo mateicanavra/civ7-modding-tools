@@ -26,7 +26,7 @@
   ],
   "graphTarget": {
     "project": "habitat",
-    "target": "boundaries"
+    "target": "check:boundaries"
   },
   "supportFiles": {
     "baseline": ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/baseline.json"
@@ -35,7 +35,7 @@
     "name": "nx",
     "target": {
       "project": "habitat",
-      "target": "boundaries"
+      "target": "check:boundaries"
     }
   }
 }

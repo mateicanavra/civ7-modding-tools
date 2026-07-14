@@ -12,11 +12,10 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
+    "clean": "rimraf dist",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
-    "check": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-    "lint": "biome check .",
     "test": "vitest run --project plugin-git",
-    "clean": "rimraf dist"
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {},
   "engines": {

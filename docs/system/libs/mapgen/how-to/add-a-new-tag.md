@@ -103,7 +103,7 @@ export function registerStandardTags(registry: {
   - if missing, you should see `MissingDependencyError` naming your tag id (good)
   - once satisfied, the pipeline should proceed without missing dependency failures
 - Run:
-  - `bun run --cwd mods/mod-swooper-maps test`
+  - `nx run mod-swooper-maps:test`
 
 ## Footguns
 

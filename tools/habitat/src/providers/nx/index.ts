@@ -1,24 +1,17 @@
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { GitStateProvider } from "@habitat/cli/providers/git/index";
 import { readWorkspaceGraph } from "@habitat/cli/providers/nx/graph";
 import {
-  type CommandProviderError,
   CommandRunner,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
-import type { HabitatConfig } from "@habitat/cli/resources/config/index";
 import type { WorkspaceGraphReadState } from "@habitat/cli/service/model/workspace/index";
-import { Context, Effect, Layer } from "effect";
-
-type NxProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
+import { Context, Effect, Layer, Option } from "effect";
 
 export interface NxAffectedRequest {
   base: string;
   targets: readonly string[];
   head?: string;
-  excludeTaskDependencies?: boolean;
 }
 
 export interface NxGraphRequest {
@@ -26,7 +19,7 @@ export interface NxGraphRequest {
 }
 
 export interface NxRunManyRequest {
-  projects: readonly string[];
+  projects?: readonly string[];
   targets: readonly string[];
 }
 
@@ -35,32 +28,14 @@ export interface NxRunTargetRequest {
   target: string;
 }
 
-export interface NxProviderService {
-  readonly affected: (
-    request: NxAffectedRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
-  readonly affectedArgv: (request: NxAffectedRequest) => string[];
-  readonly graph: (
-    request: NxGraphRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
-  readonly graphArgv: (request: NxGraphRequest) => string[];
-  readonly runMany: (
-    request: NxRunManyRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
-  readonly runManyArgv: (request: NxRunManyRequest) => string[];
-  readonly runTarget: (
-    request: NxRunTargetRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
-  readonly runTargetArgv: (request: NxRunTargetRequest) => string[];
-  readonly workspaceGraph: () => Effect.Effect<WorkspaceGraphReadState>;
-}
+export type NxProviderService = ReturnType<typeof makeLiveNxProvider>;
 
 export class NxProvider extends Context.Tag("@habitat/cli/NxProvider")<
   NxProvider,
   NxProviderService
 >() {}
 
-export function makeNxProviderLayer(repoRoot: string): Layer.Layer<NxProvider> {
+export function makeNxProviderLayer(repoRoot: string) {
   return Layer.succeed(NxProvider, makeLiveNxProvider(repoRoot));
 }
 
@@ -72,30 +47,32 @@ export interface FakeNxProviderHandlers {
   readonly workspaceGraph?: () => WorkspaceGraphReadState;
 }
 
-export function makeFakeNxProviderLayer(
-  handlerOrHandlers: ((request: NxAffectedRequest) => HabitatCommandResult) | FakeNxProviderHandlers
-) {
-  const handlers =
-    typeof handlerOrHandlers === "function" ? { affected: handlerOrHandlers } : handlerOrHandlers;
+export function makeFakeNxProviderLayer(handlers: FakeNxProviderHandlers = {}) {
   return Layer.succeed(NxProvider, {
-    affected: (request) =>
-      Effect.sync(() => requireFakeResult("affected", handlers.affected, request)),
+    affected: (request: NxAffectedRequest) =>
+      Effect.suspend(() =>
+        Effect.succeed(requireFakeResult("affected", handlers.affected, request))
+      ),
     affectedArgv,
-    graph: (request) => Effect.sync(() => requireFakeResult("graph", handlers.graph, request)),
+    graph: (request: NxGraphRequest) =>
+      Effect.suspend(() => Effect.succeed(requireFakeResult("graph", handlers.graph, request))),
     graphArgv,
-    runMany: (request) =>
-      Effect.sync(() => requireFakeResult("runMany", handlers.runMany, request)),
+    runMany: (request: NxRunManyRequest) =>
+      Effect.suspend(() => Effect.succeed(requireFakeResult("runMany", handlers.runMany, request))),
     runManyArgv,
-    runTarget: (request) =>
-      Effect.sync(() => requireFakeResult("runTarget", handlers.runTarget, request)),
+    runTarget: (request: NxRunTargetRequest) =>
+      Effect.suspend(() =>
+        Effect.succeed(requireFakeResult("runTarget", handlers.runTarget, request))
+      ),
     runTargetArgv,
-    workspaceGraph: () => Effect.sync(() => requireFakeWorkspaceGraph(handlers.workspaceGraph)),
+    workspaceGraph: () =>
+      Effect.suspend(() => Effect.succeed(requireFakeWorkspaceGraph(handlers.workspaceGraph))),
   });
 }
 
-function makeLiveNxProvider(repoRoot: string): NxProviderService {
+function makeLiveNxProvider(repoRoot: string) {
   return {
-    affected: (request) =>
+    affected: (request: NxAffectedRequest) =>
       CommandRunner.pipe(
         Effect.flatMap((runner) =>
           runner.run({
@@ -109,7 +86,7 @@ function makeLiveNxProvider(repoRoot: string): NxProviderService {
         )
       ),
     affectedArgv,
-    graph: (request) =>
+    graph: (request: NxGraphRequest) =>
       CommandRunner.pipe(
         Effect.flatMap((runner) =>
           runner.run({
@@ -123,7 +100,7 @@ function makeLiveNxProvider(repoRoot: string): NxProviderService {
         )
       ),
     graphArgv,
-    runMany: (request) =>
+    runMany: (request: NxRunManyRequest) =>
       CommandRunner.pipe(
         Effect.flatMap((runner) =>
           runner.run({
@@ -137,7 +114,7 @@ function makeLiveNxProvider(repoRoot: string): NxProviderService {
         )
       ),
     runManyArgv,
-    runTarget: (request) =>
+    runTarget: (request: NxRunTargetRequest) =>
       CommandRunner.pipe(
         Effect.flatMap((runner) =>
           runner.run({
@@ -166,7 +143,6 @@ export function affectedArgv(request: NxAffectedRequest): string[] {
     "--head",
     request.head ?? "HEAD",
     "--outputStyle=static",
-    ...(request.excludeTaskDependencies ? ["--excludeTaskDependencies"] : []),
   ];
 }
 
@@ -175,13 +151,19 @@ export function graphArgv(request: NxGraphRequest): string[] {
 }
 
 export function runManyArgv(request: NxRunManyRequest): string[] {
+  const projects = Option.fromNullable(request.projects).pipe(
+    Option.filter((selected) => selected.length > 0),
+    Option.match({
+      onNone: () => [],
+      onSome: (selected) => ["--projects", selected.join(",")],
+    })
+  );
   return [
     "nx",
     "run-many",
     "--targets",
     request.targets.join(","),
-    "--projects",
-    request.projects.join(","),
+    ...projects,
     "--outputStyle=static",
   ];
 }

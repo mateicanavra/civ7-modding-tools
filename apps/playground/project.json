@@ -1,5 +1,12 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "civ7-playground",
-  "tags": ["kind:app"]
+  "tags": ["kind:app"],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    }
+  }
 }
