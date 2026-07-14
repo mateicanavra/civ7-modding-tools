@@ -2,22 +2,22 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-12",
+  "updatedOn": "2026-07-13",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
     "liveManifestCount": 122,
     "currentRowCount": 122,
-    "retiredHistoricalRowCount": 33,
+    "retiredHistoricalRowCount": 34,
     "duplicateLiveRows": []
   },
   "counts": {
     "actionDecision": {
       "boundary inversion": 6,
       "closed structure inversion": 2,
-      "consolidation/dedup": 2,
-      "context admission": 25,
+      "consolidation/dedup": 1,
+      "context admission": 26,
       "no action": 57,
       "positive authority creation": 8,
       "retirement/garbage collection": 4,
@@ -30,12 +30,11 @@
     "layer2Status": {
       "blocked-prior-source-owner-design": 2,
       "complete-no-generic-domain-operation-slice": 2,
-      "decision-packet-accepted; absorber-proof-needed": 1,
       "decision-packet-accepted; blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 1,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 82,
+      "none": 83,
       "packet-complete": 17,
       "transition-decision-accepted": 14
     }
@@ -576,22 +575,6 @@
       "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_plate_kinematics/rule.json"
     },
     {
-      "ruleId": "prohibit_foundation_op_contract_config_bags",
-      "lane": "domains/foundation",
-      "actionDecision": "consolidation/dedup",
-      "packetNeeded": false,
-      "expectedRemediation": "consolidate op-contract import clauses into require_domain_operation_contract_file_shape only after injected absorber proof for exact import forms",
-      "evidenceNote": "Post-ratchet revalidation found likely absorption by positive operation contract shape, but did not run injected absolute config-facade import probes; retired FoundationConfigSchema token remains deletion residue after proof.",
-      "currentPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
-      "layer2Status": "decision-packet-accepted; absorber-proof-needed",
-      "packetSliceId": "domain-root-topology-post-ratchet-revalidation",
-      "wholeRuleFit": "consolidate plus retired-literal deletion, pending proof",
-      "ruleIdPlan": "replace by positive operation contract authority, then delete id after absorber proof and review acceptance",
-      "semanticDecision": "Operation contracts should own local schema envelopes and only import allowed contract primitives; Foundation config-schema token is obsolete.",
-      "residualFollowUp": "Deletion proof should include injected import forms for absolute config facade imports.",
-      "implementationReadiness": "not deletion-ready until injected absorber proof and review acceptance"
-    },
-    {
       "ruleId": "prohibit_foundation_projection_legacy_motion_source",
       "lane": "standard recipe stage foundation/hydrology/map/placement",
       "actionDecision": "no action",
@@ -859,9 +842,18 @@
       "lane": "blueprints/domain-operation",
       "actionDecision": "no action",
       "packetNeeded": false,
-      "expectedRemediation": "Stay live as config-boundary guard.",
-      "evidenceNote": "Root config facade is recipe-facing; no governed op matches.",
+      "expectedRemediation": "Stay live as config-boundary guard for parent-traversal and package-alias root/domain config facades.",
+      "evidenceNote": "R2 widened this domain-operation rail to absorb absolute config-facade import forms from the retired Foundation-local rule while preserving op-local config imports.",
       "currentPath": ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/rule.json"
+    },
+    {
+      "ruleId": "prohibit_rule_diagnostics_provider_imports",
+      "lane": "habitat/toolkit/rule-diagnostics",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain as the provider-boundary guard for the stable RuleDiagnostics and RuleFixPreview capabilities.",
+      "evidenceNote": "The current resource/provider topology admits concrete Grit construction only inside its private provider tree and the explicit runtime composition root.",
+      "currentPath": ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/rule.json"
     },
     {
       "ruleId": "prohibit_runtime_calls_to_runvalidated",
@@ -2429,12 +2421,12 @@
           "actionDecision": "closed structure inversion",
           "packetNeeded": false,
           "layer2Status": "blocked-prior-source-owner-design",
-          "implementationReadiness": "not implementation-ready; needs source-owned operation-module verifier/generator and support-directory exception model",
+          "implementationReadiness": "not implementation-ready; source-owned operation-module authority is settled in the selected descent decisions",
           "wholeRuleFit": "split/consolidate into source-owned topology authority",
           "ruleIdPlan": "do not move Ecology rule as-is; later replace by source-owned op-module topology proof and delete Ecology rule after replacement proof",
           "semanticDecision": "Contract/index/strategy binding is live domain-operation authority, but must be enforced through TS registry, generator, or package verify, not Ecology sidecar topology.",
-          "residualFollowUp": "Design operation-module verifier/generator and support-directory exception model for score-shared/shared/mountains-shared before Layer 3.",
-          "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries."
+          "residualFollowUp": "Use the selected descent frame and sealed decisions for operation-module topology before Layer 3.",
+          "evidenceNote": "Corrective audit: Ecology structure.toml checks one domain instance; source authority lives in SPEC-step-domain-operation-modules, createOp, and domain op registries. R4 recheck found zero operation children without contract.ts, so the earlier support-directory exception blocker was stale."
         },
         "validate_ecology_op_contract_quality": {
           "ruleId": "validate_ecology_op_contract_quality",
@@ -2495,7 +2487,7 @@
           "delete or source-own rules-entrypoint verification before changing prohibit_foundation_rules_tectonics_shim_reexports"
         ],
         "blockedBy": [
-          "operation-module verifier/generator and support-directory exception model",
+          "selected descent decisions for operation-module source-owner authority",
           "schema metadata source/package-verify policy",
           "source-backed strategy dependency classes",
           "source-owned rules-entrypoint export policy or deletion proof"
@@ -3110,6 +3102,22 @@
         "reconciled corpus: 125 unique live manifest ids exactly equal 125 unique current ledger rule ids after admitting the 14 previously omitted Studio Run in Game rows",
         "git diff --check"
       ]
+    },
+    {
+      "sliceId": "readiness-r2-config-facade-consolidation",
+      "status": "complete",
+      "actionClass": "consolidation/dedup",
+      "rules": ["prohibit_foundation_op_contract_config_bags"],
+      "survivorRows": ["prohibit_root_config_facade_imports_in_domain_ops"],
+      "deletedRows": ["prohibit_foundation_op_contract_config_bags"],
+      "outcome": "Absorbed root/domain package-alias config-facade imports into the generic domain-operation survivor and retired the Foundation-local packet without preserving its obsolete FoundationConfigSchema token blacklist.",
+      "completedOn": "2026-07-13",
+      "verification": [
+        "focused current-tree and injected R2 checks",
+        "source absence for FoundationConfigSchema",
+        "exact live manifest/active ledger id parity",
+        "generated execution-surface freshness"
+      ]
     }
   ],
   "blockers": [
@@ -3355,6 +3363,18 @@
     }
   ],
   "retiredRules": [
+    {
+      "ruleId": "prohibit_foundation_op_contract_config_bags",
+      "lane": "domains/foundation",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired after its config-facade import clauses were absorbed by prohibit_root_config_facade_imports_in_domain_ops; FoundationConfigSchema was obsolete residue and has no replacement blacklist.",
+      "evidenceNote": "The widened survivor rejects parent-traversal and package-alias root/domain config facades while preserving operation-local config imports.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_op_contract_config_bags/rule.json",
+      "retiredBy": "prohibit_root_config_facade_imports_in_domain_ops",
+      "retiredOn": "2026-07-13"
+    },
     {
       "ruleId": "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
       "lane": "pipeline config/contracts/runtime",
