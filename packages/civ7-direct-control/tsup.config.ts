@@ -3,6 +3,7 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: [
     "src/index.ts",
+    "src/game-ui/loading-states.ts",
     "src/play/notifications/postconditions.ts",
     "src/play/operations/production-choice-proof.ts",
     "src/play/progression/choice-postconditions.ts",

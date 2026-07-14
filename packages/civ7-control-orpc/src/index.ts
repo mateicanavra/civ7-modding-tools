@@ -144,6 +144,7 @@ export { createCiv7ControlOrpcServerClient } from "./client";
 export type { Civ7ControlOrpcContext } from "./context";
 export { Civ7ControlOrpcContract } from "./contract";
 export { civ7ControlOrpcContractBase } from "./contract-base";
+export type { Civ7ControlOrpcDirectLifecycleFacade } from "./dependencies/lifecycle";
 export {
   Civ7AppshotCaptureFailedError,
   Civ7AppshotCleanFrameUnverifiedError,
@@ -182,6 +183,18 @@ export {
   Civ7GovernmentChoiceUnavailableError,
   type Civ7GovernmentChoiceUnavailableErrorData,
   Civ7GovernmentChoiceUnavailableErrorDataSchema,
+  Civ7LifecycleDependencyUnavailableError,
+  type Civ7LifecycleDependencyUnavailableErrorData,
+  Civ7LifecycleDependencyUnavailableErrorDataSchema,
+  Civ7LifecycleMutationUncertainError,
+  type Civ7LifecycleMutationUncertainErrorData,
+  Civ7LifecycleMutationUncertainErrorDataSchema,
+  Civ7LifecycleStateRefusedError,
+  type Civ7LifecycleStateRefusedErrorData,
+  Civ7LifecycleStateRefusedErrorDataSchema,
+  Civ7LifecycleVerificationFailedError,
+  type Civ7LifecycleVerificationFailedErrorData,
+  Civ7LifecycleVerificationFailedErrorDataSchema,
   Civ7MutationProofBoundaryInvalidError,
   type Civ7MutationProofBoundaryInvalidErrorData,
   Civ7MutationProofBoundaryInvalidErrorDataSchema,
@@ -277,6 +290,10 @@ export {
   Civ7ControlOrpcComponentIdSchema,
   Civ7ControlOrpcMapLocationSchema,
 } from "./model/primitives";
+export type {
+  Civ7LifecycleSinglePlayerStartInput,
+  Civ7LifecycleSinglePlayerStartResult,
+} from "./modules/lifecycle/contract";
 export {
   type Civ7ControlOrpcImplementer,
   civ7ControlOrpcEffectRuntime,

@@ -279,19 +279,6 @@ export async function loadCiv7OfficialResourceCapabilities(options: {
 
 const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> = [
   {
-    id: "wrapper.restart-begin",
-    name: "Restart and Begin",
-    role: "app-ui",
-    kind: "action-wrapper",
-    owner: "@civ7/direct-control",
-    risk: "medium",
-    provenance: ["restartCiv7GameAndBegin", "live-owner-proof"],
-    wrapper: "restartCiv7GameAndBegin",
-    confidence: "recorded-live-proof",
-    description:
-      "Runs Network.restartGame, follows native Begin Game readiness, and waits for Tuner readiness.",
-  },
-  {
     id: "wrapper.playable-status",
     name: "Playable Status",
     role: "shared",
@@ -317,17 +304,24 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
   },
   {
     id: "wrapper.setup-start",
-    name: "Single-player Setup and Start",
+    name: "Single-player Lifecycle Start",
     role: "app-ui",
     kind: "action-wrapper",
-    owner: "@civ7/direct-control",
+    owner: "@civ7/control-orpc",
     risk: "high",
-    provenance: ["Configuration.editMap", "Network.hostGame", "studio-run-in-game"],
-    wrapper:
-      "prepareCiv7SinglePlayerSetup|startPreparedCiv7SinglePlayerGame|runCiv7SinglePlayerFromSetup",
+    provenance: [
+      "admitCiv7SetupShell",
+      "requestCiv7SavedGameConfigurationLoad",
+      "reconcileCiv7RequiredTargetMod",
+      "reloadCiv7SetupUiInShell",
+      "applyCiv7SinglePlayerSetup",
+      "hostPreparedCiv7SinglePlayerGame",
+      "beginCiv7Game",
+    ],
+    wrapper: "lifecycle.singlePlayer.start",
     confidence: "source",
     description:
-      "Applies map script, map size, and map seed through App UI setup APIs, then starts a prepared single-player game.",
+      "Composes one-exec direct-control atoms into the Effect-owned single-player setup and start lifecycle.",
   },
   {
     id: "wrapper.map-summary",
@@ -336,9 +330,9 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     kind: "read-wrapper",
     owner: "@civ7/direct-control",
     risk: "read",
-    provenance: ["GameplayMap", "Game"],
+    provenance: ["GameplayMap", "GameInfo.Maps", "Game"],
     wrapper: "getCiv7MapSummary",
-    confidence: "recorded-live-proof",
+    confidence: "source",
   },
   {
     id: "wrapper.plot-grid",

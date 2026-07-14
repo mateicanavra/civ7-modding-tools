@@ -127,6 +127,10 @@ describe("Civ7 map-summary procedure descriptor", () => {
       state: { role: "tuner" },
     });
     expect(executeCalls[0]?.command).toContain("GameplayMap.getGridWidth");
+    expect(executeCalls[0]?.command).toContain("GameInfo.Maps.lookup");
+    expect(executeCalls[0]?.command).toContain("const rawMapSize = Configuration.getMap().mapSize");
+    expect(executeCalls[0]?.command).not.toContain("const rawMapSize = GameplayMap.getMapSize()");
+    expect(executeCalls[0]?.command).toContain("Number(rawMapSize)");
     expect(executeCalls[0]?.command).toContain("MapAreas.getAreaIds");
     expect(executeCalls[0]?.command).toContain("const cap = 64");
     expect(executeCalls[0]?.command).not.toContain("sendRequest");
@@ -194,6 +198,7 @@ function mapSummaryResult() {
       height: { ok: true as const, value: 54 },
       plotCount: { ok: true as const, value: 4536 },
       mapSize: { ok: true as const, value: "MAP_STANDARD" },
+      mapSizeType: { ok: true as const, value: "MAPSIZE_STANDARD" },
       randomSeed: { ok: true as const, value: 111 },
     },
     game: {

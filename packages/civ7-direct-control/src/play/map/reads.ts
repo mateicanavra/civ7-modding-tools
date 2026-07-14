@@ -1,5 +1,6 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { jsLiteral } from "../../runtime/command-serialization.js";
+import { canonicalMapSizeTypeScriptSource } from "../../runtime/map-size-type-source.js";
 import { probeHelperSource } from "../../runtime/probe.js";
 import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7Command, executeCiv7TunerCommand } from "../../session/execute.js";
@@ -170,12 +171,14 @@ function buildMapSummaryCommand(
 ): string {
   return `(() => {
     ${dependencies.probeHelperSource()}
+    ${canonicalMapSizeTypeScriptSource()}
     const cap = ${dependencies.jsLiteral(options.maxIds)};
     const map = {
       width: probe(() => GameplayMap.getGridWidth()),
       height: probe(() => GameplayMap.getGridHeight()),
       plotCount: probe(() => GameplayMap.getPlotCount()),
       mapSize: probe(() => GameplayMap.getMapSize()),
+      mapSizeType: probe(() => readCanonicalMapSizeType()),
       randomSeed: probe(() => GameplayMap.getRandomSeed()),
     };
     const game = {

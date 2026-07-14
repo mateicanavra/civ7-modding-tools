@@ -41,5 +41,5 @@ export function probeHelperSource(): string {
 }
 
 export function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
+  return probe.ok === true ? probe.value : undefined;
 }
