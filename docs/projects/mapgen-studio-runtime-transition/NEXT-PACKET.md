@@ -1,6 +1,6 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: A.3a is sealed; G.2.1 RuleFixPreview implementation is active; no product closure claim
+Status: A.2 split base sealed; sibling creation next; A.2 implementation not begun; no product closure claim
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -19,56 +19,31 @@ checks and lightweight records. Do not build custom progress-tracking tools.
 
 ## Current Stack
 
-```text
-codex/studio-run-live-playability@4f501fabfdc6
-  -> codex/mapgen-studio-runtime-transition-planning@ca6a06d24fff
-  -> codex/mapgen-studio-config-envelope-runtime-cutover@3f5ed12e81a5
-  -> codex/mapgen-studio-manifest-parity-replay@b2367c50d6ae
-  -> codex/mapgen-studio-runtime-stage-0-census@76bfbcaa434d
-  -> codex/mapgen-studio-complete-config-admission@9b082bac2434 (Packet A)
-  -> codex/mapgen-swooper-test-topology@ceb6832e329d (Packet A.1)
-  -> codex/mapgen-studio-dev-contract-freshness@3a2630c1085f (Packet A.1a)
-  -> codex/mapgen-studio-codex-lifecycle-alignment@e69842a4f680
-  -> codex/mapgen-domain-operation-topology@16745e337902 (Packet A.2 frame)
-  -> codex/mapgen-generated-validator-ownership@dd38de22e05b
-  -> codex/habitat-rule-introduction-baseline-manifests@9ff0f711e0d7
-  -> codex/mapgen-runtime-closeout-takeover-frame@8ec2a96e3319
-  -> codex/mapgen-runtime-closeout-control-reconciliation@d82b64450e18
-  -> codex/mapgen-runtime-closeout-grit-diagnostic-acquisition@e32c4749df0f
-  -> codex/mapgen-runtime-closeout-rule-diagnostics-resource@ede4871594fa
-  -> codex/mapgen-runtime-closeout-generic-fix-admission@171ee61ce0c1
-  -> codex/mapgen-studio-atomic-reroll@93b1153ca217
-  -> G.2.1 RuleFixPreview candidate (active, uncommitted)
-```
+The coherent local Graphite stack is sealed through A.3a, RuleFixPreview, Nx
+output ownership, current R2/R4 authority, deterministic Grit failure selection,
+the native Nx workspace graph, toolchain bedrock, the lintEffect warning
+contract, and SA-14 authority-closure graph ownership. The sealed split-base
+layer restores and intentionally adapts the nine-document descent container. No
+A.2 Authority rule, live violation corpus, or domain migration is present.
 
-The historical source recovery is verified. The config and parity branches
-passed isolated static and behavior checks, but no current-tree rendered
-browser/Civ7 matrix has closed. Those branches are implementation evidence, not
-the product result. Packet A is committed and closed-passed; it establishes the
-complete-config boundary but does not claim the Run in Game product outcome.
+The historical source recovery remains reference evidence. No current-tree
+rendered browser/Civ7 matrix has closed, so none of these layers claims the
+product result.
 
 ## Immediate Execution Boundary
 
-The inherited worktree at
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`
-is preserved read-only evidence. It contains 62 tracked changes and 31
-untracked files with nothing staged; generic provider work, A.2 Authority, and
-record edits are interleaved. Do not stage or transplant that tree.
-
 Proceed in this order:
 
-1. preserve the sealed control, G.1, RuleDiagnostics, G.2, and A.3a layers;
-2. seal `RuleFixPreview`: closed admitted impacts, one complete-root Grit
-   observation, and categorical refusal of live mutation;
-3. account the stale `codex/mapgen-domain-operation-authority` worktree hunk by
-   hunk, retain only unique settled decisions/docs needed by the launch
-   contract, and then remove its worktree and ref. Do not transplant dirty
-   rules, fixtures, manifests, baselines, or source changes;
-4. import the selected readiness descent/N=1 planning corpus, settle the A.2
-   semantics and protected surfaces, and freeze an immutable handoff commit;
-5. hand A.2 Authority, advisory census, deterministic row classification, and
-   the six domain slices to the user's team. This DRA continues only on the
-   independent closeout track and later integrates the returned A.2 stack.
+1. preserve all coherent sealed layers;
+2. preserve the completed descent-container adaptation and native aggregate proof;
+3. preserve the reviewed and sealed split base;
+4. create ordinary sibling Graphite children from the reviewed tip: one for A.2
+   and one for the independent closeout continuation.
+
+Keep those siblings parallel while independent. If a real dependency later
+appears, move the continuation's first unique branch above the completed A.2 tip
+with native Graphite. Do not replay the repository, reconstruct a replacement
+stack, or invent a return/integration protocol.
 
 ## Prepared Findings
 
@@ -280,11 +255,11 @@ authority review. This stage may delete helpers made redundant by honest
 ownership, but it must not redesign algorithms, configuration semantics, or
 runtime behavior.
 
-The validator-ownership and rule-introduction prerequisites are sealed. The
-current Authority candidate remains preserved only as mixed-tree evidence.
-After the immutable handoff, the user's A.2 team recreates Authority rather
-than importing its hunks, then executes Ecology, Foundation, Morphology,
-Hydrology, Resources, and Placement under the frozen descent contract.
+The validator-ownership and rule-introduction prerequisites are sealed. The old
+mixed Authority candidate was excluded after its unique settled evidence was
+reconciled. From the reviewed split-base sibling, the user's A.2 team creates
+Authority from current evidence, then executes Ecology, Foundation, Morphology,
+Hydrology, Resources, and Placement under the settled descent contract.
 
 ### A.3. Close Static Test And Tool Coverage
 
@@ -390,13 +365,13 @@ Earthlike run with unchanged Civ7 application PID.
 
 ### C. Certification, Matrices, Archive, And Merge
 
-C is the umbrella across Stages 5 through 8, not a standalone matrix packet
-before recut. First certify every recut branch and close P01-P20 against the
-current contracts while making P21 `runtime-ready`. Then run the complete
+C is the umbrella across Stages 5 through 8, not a standalone matrix packet.
+First certify every accepted branch and close P01-P20 against the current
+contracts while making P21 `runtime-ready`. Then run the complete
 preliminary P21 matrix, archive and reconcile records without changing the
 runtime tree, rerun the complete matrix on the exact submission candidate, and
 submit and merge bottom to top. Any semantic surprise returns to Stage 2; C
-never authorizes product design during recut or archive.
+never authorizes product design during Graphite normalization or archive.
 
 ## Product Loop
 

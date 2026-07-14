@@ -1,15 +1,18 @@
-# Stack Recut Manifest
+# Historical Stack Recut Manifest
 
 Snapshot: opening branch/commit inventory observed on 2026-07-09. This file is
-not live status; current coverage, recovery, and gate state live in
-`verification-ledger.md`.
+reference-only history. It is not live status and does not authorize a
+replacement stack, wholesale replay, or recut. Current coverage and gate state
+live in `verification-ledger.md`; current Graphite authority lives under
+`WORKSTREAM.md`'s Current Graphite Law.
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
-This manifest keeps source history, semantic units, Graphite accounting, and
-verification validity separate. It is not authority for product behavior or
-target architecture.
+The tables below preserve the opening source inventory and historical planning
+model. They are not executable instructions. Coherent current layers stay in
+place and ordinary native Graphite operations handle only concrete dependency
+or review needs.
 
 ## Opening Anchors
 

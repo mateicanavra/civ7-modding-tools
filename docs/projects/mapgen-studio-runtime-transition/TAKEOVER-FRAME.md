@@ -1,7 +1,7 @@
 # MapGen Studio Runtime Closeout Takeover Frame
 
-Status: reviewed normative baseline; activation gated by the Ready-To-Proceed
-conditions below
+Status: reviewed normative frame; current resume state lives in
+`verification-ledger.md`
 
 Built by: Codex takeover DRA
 
@@ -87,7 +87,7 @@ reorganized carefully.
 
 In:
 
-- the full local Graphite source range and its semantic sink accounting;
+- the coherent local Graphite stack and each layer's semantic ownership;
 - retained Run in Game behavior, config generation, direct-control, public
   status, diagnostics, and rendered/in-game verification;
 - removal of redundant concepts, compatibility paths, brittle mirrors, wrong
@@ -185,10 +185,10 @@ claim that every historical task is still valid.
 8. **Domain-operation normalization.** A.2 framed the closed operation topology,
    moved generated validation to package/Nx owners, admitted Habitat rule
    introduction manifests, and then exposed a Grit execution capability defect.
-9. **Remaining closeout.** Finish A.2 and queued A-series units, move setup/start
-   ownership to control oRPC, lock semantic behavior, design the sink, recut and
-   certify the stack, run preliminary and final rendered/Civ7 matrices, archive,
-   merge/drain, and return to Habitat.
+9. **Remaining closeout.** Finish A.2 and queued A-series units on ordinary
+   sibling Graphite tracks, move setup/start ownership to control oRPC, certify
+   coherent existing layers, run preliminary and final rendered/Civ7 matrices,
+   archive, merge/drain, and return to Habitat.
 
 ```mermaid
 flowchart LR
@@ -198,9 +198,8 @@ flowchart LR
   D --> E["A.2 domain operation topology"]
   E --> F["A.3 / A.3a / A.4 / A.5 state-space cleanup"]
   F --> G["B control-oRPC + P19/P20: Stage 2 lock"]
-  G --> H["Stage 3 sink design"]
-  H --> I["Stage 4 semantic recut"]
-  I --> J["Stage 5 branch certification"]
+  G --> H["Native Graphite normalization only if needed"]
+  H --> J["Stage 5 branch certification"]
   J --> K["Stage 6 preliminary P21 matrix"]
   K --> L["Stage 7 archive"]
   L --> M["Stage 8 final matrix + merge"]
@@ -245,22 +244,23 @@ exact Habitat topology as the future realization.
 | A.1 test topology | Closed-passed candidate | Tests aligned to semantic owners; brittle mirrors removed; A.3 debt retained. |
 | A.1a dev freshness | Closed-passed candidate | Serve resolves Studio contract source; build remains artifact-owned. |
 | Lifecycle alignment child | Closed-passed candidate | Private worktree lifecycle composes canonical Nx daemon ownership. |
-| A.2 frame | Committed | Authority plus Ecology, Foundation, Morphology, Hydrology, Resources, Placement sequence is defined. |
+| A.2 frame | Restored and adapted in the sealed split base | The target topology, separate D1-D4 decisions, and descent state model are preserved without beginning Authority implementation. |
 | A.2 generated-validator ownership prerequisite | Sealed at `dd38de22e` | Package/Nx owners retain behavior; three wrong-owner Habitat checks retired. |
 | A.2 rule-introduction-manifest prerequisite | Sealed at `9ff0f711e` | Habitat can admit explicit nonempty shrink-only baselines. |
-| Generic Grit diagnostic acquisition | Review-complete with accepted blockers; dirty, unsealed | The generic `check | apply-dry-run` boundary is accepted. Package typecheck and 39 focused tests pass, but six review blockers, scoped Biome red, and absent clean/live gates prevent a commit. |
-| Generic fix/apply admission | Open separate landing; absent from current dirt | Derive admissible transformations from authority records, not a hardcoded TypeScript rule list. This is the next semantic unit, not part of the current provider diff. |
-| A.2 Authority candidate | Preserved dirty candidate | Six generic rules, fixtures/baselines, retirements, and authority docs must be separated from provider work and re-derived. |
+| Generic Grit capabilities | Sealed | Pinned acquisition, `RuleDiagnostics`, generic fix admission, and `RuleFixPreview` are ratcheted prerequisites. |
+| Nx output ownership | Sealed at `d40cd82a8` | One Nx graph owns output-materializing proof order; parallel output graphs use separate worktrees. |
+| A.2 split-base reconciliation | Sealed | Current readiness semantics and the nine-document descent container are preserved above the sealed prerequisites. A.2 implementation has not begun. |
+| A.2 Authority | Not started | The sibling A.2 track begins only from the reviewed split base. |
 | A.2 domain slices | Not started | 34 Ecology, 18 Foundation, 19 Morphology, 19 Hydrology, 8 Resources, 3 Placement operations. |
 | A.3 static coverage | Planned | Close test/dev/tool TypeScript authority and move five source-local type-test families. |
-| A.3a atomic reroll | Planned from confirmed defect | One user command must produce one worker start with Auto-run on or off. |
+| A.3a atomic reroll | Sealed at `93b1153ca` | One user command produces one worker start with Auto-run on or off. |
 | A.4 preset ontology removal | Planned | Delete the second full-config concept and its state/lifecycle/UI/persistence paths. |
 | A.5 browser payload/worker readiness | Proposed; cohesion unproven | Lazy selected config loading and worker warmup may need separate units. |
 | B control-oRPC ownership | Planned | Daemon-owned typed setup/start/soft-restart capability; no caller-local direct-control choreography. |
-| C rendered acceptance | Planned umbrella | Expands across Stages 5-8: branch certification, preliminary matrix, archive, final exact-tree matrix, and merge. It is not a standalone pre-recut packet. |
-| Workstream Stage 1 control/corpus | Rolling and inconsistent | Opening recovery exists, but `TRANSITION.md` is absent and live control records disagree about finality. Reconcile before admitting more execution. |
-| Workstream Stage 2 semantic lock | Active, scope supplement not yet reconciled | A/A.1/A.1a/lifecycle and the A.2 prerequisite train enlarged the original admitted surface. The frame and governing records must agree on the expanded corpus. |
-| Workstream Stages 3-9 | Not started | Sink design, recut, branch certification, two matrix passes, archive, submit/merge, Habitat handoff. |
+| C rendered acceptance | Planned umbrella | Expands across Stages 5-8: branch certification, preliminary matrix, archive, final exact-tree matrix, and merge. |
+| Workstream Stage 1 control/corpus | Closed for the split boundary | Current control records agree; the absent historical `TRANSITION.md` filename is not a reason to invent another artifact. |
+| Workstream Stage 2 semantic lock | Active product closeout | The admitted scope includes A/A.1/A.1a/lifecycle and the ratcheted Habitat prerequisites; the split base opens the two remaining semantic tracks. |
+| Workstream Stages 3-9 | Not started | Targeted Graphite normalization only if concrete inspection requires it, then branch certification, two matrix passes, archive, submit/merge, and Habitat handoff. |
 
 Historical `checked` means task state, not current product acceptance. The config
 and runtime changes after P01-P18 invalidate any evidence whose observed tree or
@@ -269,7 +269,7 @@ contract no longer matches.
 ### Cross-Cutting Semantic Corpus
 
 These units are not safely represented by a single packet number. Each must
-receive an explicit final disposition rather than disappear during recutting.
+receive an explicit final disposition rather than disappear during closeout.
 
 | Unit | Integration state | Remaining disposition | Closure stage |
 | --- | --- | --- | --- |
@@ -277,10 +277,10 @@ receive an explicit final disposition rather than disappear during recutting.
 | `CONFIG-AUTHORITY` | Implemented across late config work | Prove one recipe-owned authority and delete survivors | 2 |
 | `CONFIG-ENVELOPE` | Packet A candidate complete | Reconcile packet tasks and final contract tree | 2, then 5 |
 | `CONFIG-PARITY` | Implemented candidate | Bind exact source/manifest/runtime evidence | 2, then 5-8 |
-| `TOOL-CONTRACT-ADMISSION` | Partly implemented | Preserve owner-correct contract admission through recut | 2, then 4-5 |
+| `TOOL-CONTRACT-ADMISSION` | Partly implemented | Preserve owner-correct contract admission through final verification | 2, then 5 |
 | `TOOL-STUDIO-STRUCTURAL-TEST-DISPOSITION` | A.1 removed/moved a large corpus | Re-census deferred static checks and owner destinations | 2 |
 | `EVIDENCE-VOCABULARY` | Code terminology normalized | Reconcile packet/docs records and exact public names | 2, then 5 |
-| `MIXED-LATE` | Spread across late commits | Split every row by semantic owner before sink design | 2-3 |
+| `MIXED-LATE` | Spread across late commits | Split every row by semantic owner before certification | 2-5 |
 | Shared Studio lifecycle | Lifecycle child is a closed-passed candidate | Preserve one per-worktree owner and re-certify | 2, then 5 |
 | Daemon stability | Improved but only partially live-proven | Re-run exact lifecycle and endpoint lanes | 5-8 |
 | Codex lifecycle final certification | Planned | Certify helper/start/stop behavior at final tree | 5 |
@@ -337,17 +337,18 @@ inputs, not suggestions to encode current values as generic test mirrors.
 
 ### Governing Correction
 
-The latest user direction supersedes the committed A.2 standalone-DRA role
-split. **The takeover DRA is the single accountable owner with Product/
-Development and Supervisor/Enforcer obligations explicitly collapsed into one
-role.** Peers may own bounded investigation, disjoint implementation, or fresh
-review lanes. They do not supervise the DRA, own Graphite mutation, or accept
-initiative closure.
+The takeover DRA remains the single accountable owner for product direction,
+cross-track judgment, and initiative closure. The current sibling-track ruling
+delegates one bounded ownership surface: the user's A.2 orchestrator owns A.2
+Authority, its deterministic census, the six domain migrations, and ordinary
+Graphite mutation on that sibling. It does not supervise the takeover DRA or
+own final product acceptance. Fresh peers continue to fill bounded research,
+implementation, and review roles; roles are stable while sessions are fresh per
+changeset.
 
-The A.2 packet, `WORKSTREAM.md`, `verification-ledger.md`, `NEXT-PACKET.md`,
-gate/cleanup records, and agent accounting are stale where they claim the
-standalone child still owns the product DRA role or where they describe only the
-earlier Authority investigation dirt.
+The A.2 packet, `WORKSTREAM.md`, `verification-ledger.md`, and `NEXT-PACKET.md`
+must express that bounded sibling ownership without resurrecting the earlier
+standalone product-DRA split or a returned-stack integration protocol.
 
 ### Scope-Authority Reconciliation
 
@@ -357,13 +358,8 @@ Grit capability landings that now occupy Stage 2. The current direct user reques
 authorizes this reviewed takeover frame as a **Stage 2 scope supplement**, not as
 permission to leave the governing corpus contradictory.
 
-Before inherited implementation resumes, either:
-
-- amend and re-review `WORKSTREAM.md` plus its source/sink accounting to admit
-  the current corpus; or
-- record an explicit authority amendment stating which Stage 2 clauses this
-  frame temporarily supersedes, with a trigger to fold them into the canonical
-  workstream before sink design.
+That reconciliation is now closed by the Current Graphite Law in
+`WORKSTREAM.md`; older replacement-stack language is historical only.
 
 `TRANSITION.md` is currently absent even though Stage 1 references transition
 closure. The ledger also treats some decisions as rolling while the Stage 2
@@ -415,62 +411,55 @@ comments, and a redundant wrapper. Typecheck and 39 focused tests pass;
 37/33 on the equivalent committed base, but no clean-worktree or live CLI gate
 exists. These are integration facts, not closure receipts.
 
-## Current Resume Amendment (2026-07-13)
+## Current Resume Amendment (2026-07-14)
 
-G.1 diagnostic acquisition, the `RuleDiagnostics` resource boundary, G.2
-generic fix admission, and A.3a atomic reroll are sealed Graphite layers.
-`RuleFixPreview` is the active prerequisite. This current amendment supersedes
-the historical provider/A.3a state and order above.
+The current stack preserves the sealed product, Habitat, Nx, TypeScript, and
+lint authority layers. The bounded descent container and active-ledger
+reconciliation are sealed in the split base. A.2 Authority, its live violation
+corpus, and domain migration have not begun.
 
-After `RuleFixPreview` seals, the takeover DRA reconciles and retires the stale
-Authority branch/worktree, adapts only the useful descent and N=1 planning
-corpus, settles protected path ownership, and freezes one immutable A.2 launch
-commit and tree. Dirty rules, fixtures, manifests, baselines, or source hunks
-do not cross that boundary.
+The reviewed semantic tip is the split base. Create ordinary sibling Graphite
+children from it: one for the user's A.2 track and one for this DRA's independent
+product-closeout continuation. Keep them parallel while independent. If a real
+dependency later appears, use native Graphite to move the continuation's first
+unique branch above the completed A.2 tip. There is no returned stack, wholesale
+replay, replacement stack, or mandatory recut.
 
-From the accepted launch tree, the user's A.2 orchestrator owns Authority, the
-advisory file/clause/predicate census, deterministic destination/action
-classification, six domain migrations, their Graphite layers, and aggregate
-review receipts. The takeover DRA does not reproduce that work or mutate its
-protected surfaces. It continues the disjoint product-closeout track and later
-integrates the returned A.2 stack through inspected native Graphite operations.
-The takeover DRA retains final product integration, P21, submission, merge,
-drain, and initiative-closure authority.
+The user's A.2 orchestrator owns Authority, the advisory file/clause/predicate
+census, deterministic destination/action classification, and the six domain
+migrations on its sibling. The takeover DRA protects those surfaces, continues
+the independent product track, and retains final P21, submission, merge, drain,
+and initiative-closure authority.
 
 ## Remaining Order
 
 The initiative proceeds by dependency, not by numeric label alone.
 
-1. **Seal the A.2 launch prerequisites.** Finish and review `RuleFixPreview`,
-   reconcile every stale Authority hunk as adopted evidence, superseded, or
-   excluded, retire the stale branch/worktree, adapt the selected descent/N=1
-   corpus, and freeze the exact A.2 launch commit, tree, gates, protected paths,
-   and return contract.
-2. **Run two protected tracks.** The user's team implements and seals A.2
+1. **Create the sibling branches.** Preserve the sealed split base and open
+   ordinary A.2 and independent-continuation children. Do not add A.2
+   implementation or live-corpus machinery to the common parent.
+2. **Run two protected sibling tracks.** The user's team implements and seals A.2
    Authority, freezes the zero-unknown advisory corpus, and executes Ecology ->
    Foundation -> Morphology -> Hydrology -> Resources -> Placement. The takeover
    DRA closes only source-independent A.3 surfaces, A.4, separately admitted A.5
    concerns, control-oRPC, P19, and P20.
-3. **Integrate and finish semantic lock.** Inspect and integrate the returned
-   A.2 commits, finish A.2-sensitive A.3 scopes, and reach P21 semantic readiness
-   with zero undecided semantic rows.
-4. **Stage 3 sink design.** Map every retained/deleted/moved/split row to a
-   deterministic owner and target Graphite slice. Recutting must not perform
-   product design.
-5. **Stage 4 recut.** Reconstruct the reviewed integrated candidate from current
-   main in semantic layers, keeping original refs immutable and comparing the
-   resulting tree/range to the approved source.
-6. **Stage 5 branch certification.** Re-review and gate every recut layer, close
+3. **Finish semantic lock.** Keep the tracks parallel unless source dependencies
+   require native Graphite movement, finish A.2-sensitive A.3 scopes, and reach
+   P21 semantic readiness with zero undecided semantic rows.
+4. **Inspect the current stack.** Preserve coherent layers. Use targeted native
+   Graphite restack, move, split, or fold only when concrete inspection requires
+   it; do not replay the repository or rebuild a replacement stack.
+5. **Stage 5 branch certification.** Re-review and gate every accepted layer, close
    P01-P20 against current contracts, and make P21 genuinely ready. This is the
    first bounded portion of umbrella C.
-7. **Stage 6 preliminary P21 matrix.** Run the complete rendered/endpoint/Civ7
+6. **Stage 6 preliminary P21 matrix.** Run the complete rendered/endpoint/Civ7
    matrix on the certified candidate. Any semantic surprise returns to Stage 2;
    an implementation defect returns to its owning slice and reopens reviews.
-8. **Stages 7-8 archive, final matrix, and merge.** Archive/reconcile the active
+7. **Stages 7-8 archive, final matrix, and merge.** Archive/reconcile the active
    packet corpus through its owners, then run the final full matrix on the exact
    submission candidate and merge bottom-to-top with post-merge tree checks.
-   C closes only here; it never precedes sink design or recut.
-9. **Stage 9 handoff.** Drain worktrees/processes, write the zero-context
+   C closes only here.
+8. **Stage 9 handoff.** Drain worktrees/processes, write the zero-context
     continuation, and return to the parked Habitat authority initiative.
 
 ## Development Philosophy
@@ -534,6 +523,12 @@ Red is input. A blocker triggers classification and focused investigation. A
 unit closes only after its declared static, behavior, review, and live gates run
 at the relevant tree. Narrow green, worker self-report, generated output, or an
 endpoint response cannot impersonate integrated product acceptance.
+
+Run ordinary verification from the owning worktree through the repository's
+normal commands. A separate worktree is justified by real parallel ownership or
+output isolation, not by a need to hand-assemble another dependency environment
+for the same command. If normal execution is unsafe or impractical, repair that
+workflow at its owner instead of routing around it.
 
 ### Test Law
 
@@ -729,10 +724,10 @@ context. It contains only behavior-changing context:
 - instruction not to revert unrelated changes;
 - the decision or integration point returned to the DRA.
 
-Unless a DRA lease says otherwise, peers may not stage, commit, stash, reset,
-checkout, mutate Graphite/worktrees, touch sibling worktrees, or start persistent
-Studio/Civ7/daemon processes. A mutation or live-process lease names owner,
-scope, branch/tree, start condition, stop condition, and return census.
+Only the accountable track owner stages, commits, or mutates Graphite. Peers do
+not stash, reset, rewrite worktrees, touch sibling tracks, or start persistent
+Studio/Civ7 processes unless their bounded assignment explicitly owns that
+operation.
 
 Configure model, effort, tools, MCP access, filesystem/write scope, and process
 permissions in spawn/runtime controls when supported, not only in prose. When a
@@ -800,20 +795,19 @@ roles, each filled by a fresh reviewer for that changeset.
 
 ### Context Preservation And Compaction
 
-Before compaction, packet handoff, or mutation-role transfer, write a bounded
+Before compaction or ownership transfer, write a bounded
 continuation census containing:
 
 - worktree, branch, base, HEAD/tree, staged/unstaged/untracked dirt;
 - active agent identifiers, one-kind assignments, status, and explicit
   do-not-redirect/do-not-interrupt state;
-- running commands/processes, mutation leases, and scratch/evidence locations;
+- running commands/processes, operation owners, and scratch/evidence locations;
 - open findings, dispositions, and gates bound to the exact reviewed tree;
 - next action, stop condition, and explicit non-goals.
 
-On resume, revalidate disk, agents, and processes before acting. Do not compact
-during a Graphite or live-runtime mutation lease unless the continuation record
-explicitly transfers it. A summary is not permission to assume a process died or
-a worktree stayed unchanged.
+On resume, revalidate disk, agents, and processes before acting. Compact only at
+a closed semantic boundary; a summary is not permission to assume a process
+died or a worktree stayed unchanged.
 
 ## Skill Stack
 
@@ -898,8 +892,8 @@ Read these first on every cold resume:
 
 Keep nearby for the initiative:
 
-- `stack-recut-manifest.md`, `cleanup-register.jsonl`, `gate-register.jsonl`,
-  and the A.2 wave review record;
+- the nine active descent documents and the shared rule-authority cleanup
+  ledger;
 - original and remediation packet indexes, authoring contract, target
   vocabulary, structural authority matrix, and packet-local OpenSpec changes;
 - `docs/projects/engine-refactor-v1/architecture-normalization-packet.md` and
@@ -910,16 +904,18 @@ Keep nearby for the initiative:
   decisions at their declared draft status.
 
 Historical logs, old screenshots, agent summaries, generated artifacts, and
-stale chat are discovery material. Promote nothing from them without current
-authority and evidence classification.
+stale chat are discovery material. `stack-recut-manifest.md`, old gate/cleanup
+registers, and wave records are historical reference only. Promote nothing
+from them without current authority and evidence classification.
 
 ## Assumptions And Open Decisions
 
 Assumptions committed:
 
 - the latest user correction is the current orchestration authority;
-- the original session's uncommitted work belongs to this initiative and must
-  be preserved, not cleaned away;
+- unique settled evidence from the retired dirty Authority worktree has been
+  preserved or superseded explicitly; its mixed implementation dirt is not a
+  source branch;
 - the two sealed prerequisite commits are legitimate current parents;
 - current Studio topology is transitional unless later accepted authority says
   otherwise;
@@ -929,10 +925,13 @@ Open decisions to make at clean boundaries:
 
 - whether A.5 is one coherent unit or two independent changes;
 - exact current P19/P20 ownership representation after Packet B design;
-- final sink/recut graph after the semantic integration tree is complete;
+- whether current dependency inspection earns any targeted Graphite movement;
 - which old packet evidence remains valid at the final exact tree.
 
-## Ready-To-Proceed Condition
+## Historical Ready-To-Proceed Condition
+
+This takeover-admission gate is satisfied. It remains here as framing history,
+not a current execution gate.
 
 Takeover is operationally ready when:
 
@@ -962,10 +961,10 @@ Graphite mutation in the inherited execution worktree do not.
 - Primary project frame: `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`.
 - Live/continuation records: `verification-ledger.md`, `NEXT-PACKET.md`,
   `packet-a2-domain-operation-topology.md`.
-- Stack/accounting: `stack-recut-manifest.md`, `cleanup-register.jsonl`,
-  `gate-register.jsonl`.
-- Current evidence worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`.
+- Historical opening-stack/accounting evidence: `stack-recut-manifest.md`,
+  `cleanup-register.jsonl`, and `gate-register.jsonl`.
+- Readiness reference worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-domain-operation-blueprint-descent`.
 
 Scratchpad is retained until this frame is reviewed, committed, and all
 essential findings are synthesized.

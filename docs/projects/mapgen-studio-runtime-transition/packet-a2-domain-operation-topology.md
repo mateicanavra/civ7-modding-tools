@@ -1,8 +1,8 @@
 # Packet A.2: Domain Operation Topology
 
-Status: takeover-controlled; validator ownership, rule introduction, G.1,
-RuleDiagnostics, G.2, and A.3a are sealed; G.2.1 and an immutable handoff
-boundary precede user-team Authority and descent execution
+Status: split base sealed; current prerequisites, readiness functionality, and
+the adapted nine-document descent container are preserved; A.2 implementation
+has not begun
 
 Parent workstream:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -73,28 +73,33 @@ binding, strategy, and reusable local rule has one obvious owner.
 10. Structure authority describes classes of operation modules. It must not
     enumerate the 101 current operation names or reproduce their source code.
 
-## External Sentinel
+## Readiness Reference
 
 `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`
-is a separately owned, reference-only Habitat sentinel, not A.2's execution
-base and not part of this packet's mutation cohort. Its
-`descend-002-domain-operation-interior` frame, decisions, and row ledger are
-required evidence for Branch 1. A.2 consumes their settled semantic work and
-records which rows it satisfies, supersedes, or preserves; it does not mutate
-or restack that worktree.
+is separately owned, reference-only Habitat evidence, not A.2's execution
+base. The split base adopts and intentionally adapts exactly these
+nine semantic documents without importing the readiness ancestry:
 
-The direct initiative decision in this packet closes the sentinel's container,
+- `blueprint-descent-roadmap.md`;
+- `descent-workspace-shape.md`;
+- `remediate-rule-authority/pre-descent-readiness-plan.md`;
+- `descend-002-domain-operation-interior/frame.md`;
+- `descend-002-domain-operation-interior/ledger.md`;
+- separate decisions `001` through `004` under that descent.
+
+The frame, shared ledger seam, separate decision provenance, and first-use
+execution/receipts/ascent model remain intact. Readiness receipts and old
+implementation are historical evidence only. The readiness ref and worktree
+remain untouched.
+
+The direct initiative decision in this packet closes the reference's container,
 dependency, and aggregation questions: both `strategies/` and `rules/` are
 required slots, operation-local `policy/` is removed, and strategy dependencies
 use positive generic authority. The remaining contract-quality question is
-dispositioned below. Later stack integration must drop or supersede the
-sentinel's overlapping execution frame rather than running a second
-operation-interior descent. Generic Grit diagnostic acquisition,
-authority-derived fix admission, and the corrective RuleFixPreview boundary
-are prerequisites of A.2, not A.2 write surfaces. Their inherited mixed
-candidate is evidence only. Each capability is reconstructed, reviewed, and
-sealed on its own clean layer before Authority is recreated; no runner defect
-is repaired opportunistically inside a domain branch.
+dispositioned below. Generic Grit diagnostic acquisition, authority-derived fix
+admission, RuleFixPreview, and Nx output ownership are sealed prerequisites, not
+A.2 write surfaces. No provider or build defect is repaired opportunistically
+inside a domain branch.
 
 ## Authority Decision
 
@@ -184,7 +189,7 @@ capability records and current official GritQL documentation before authoring
 those patterns. Do not replace Structure authority with a script or copy source
 logic into a meta-layer.
 
-### Sentinel And Residual Rule Disposition
+### Reference And Residual Rule Disposition
 
 Branch 1 re-derives these rows on the current Studio tip and closes them as
 follows. A stale row is still recorded as stale; it is not silently omitted.
@@ -192,8 +197,8 @@ follows. A stale row is still recorded as stale; it is not silently omitted.
 | Row | Disposition |
 | --- | --- |
 | D1 strategy container | satisfied by required `strategies/` in `require_domain_operation_source_topology` |
-| D2 strategy dependencies | satisfied by `require_domain_operation_strategy_dependency_shape`; source anomalies B1-B4 enter the import-owner matrix |
-| D3 contract quality | preserve the package-owned schema-description clause until its owner is separately adjudicated; remove only the blanket exported-function JSDoc and stale recipe-path clauses. A.2 does not silently delete or generalize contract-metadata authority |
+| D2 strategy dependencies | satisfied by positive generic strategy-dependency authority; source anomalies B1-B3 enter advisory classification |
+| D3 contract quality | package-owned and exterior to A.2; the blanket exported-function JSDoc and stale recipe-path clauses retire rather than move into topology authority |
 | D4 support aggregation | satisfied by required nested indices, export-only/local-source barrel authority, and removal of operation-local `policy/` |
 | A1 Ecology topology proxy | retire after generic Structure and source-shape fixtures cover its valid classes |
 | A2 artifacts-module sentry | absorb only when an injected nested `artifacts.ts` probe fails the new closed Structure grammar; otherwise preserve it |
@@ -211,91 +216,65 @@ supersession or archive treatment is the honest disposition.
 
 ## Baseline
 
-The current corpus has 101 operation roots:
-
-| Domain | Operations | Fully conforming |
-| --- | ---: | ---: |
-| Ecology | 34 | 6 |
-| Foundation | 18 | 0 |
-| Morphology | 19 | 0 |
-| Hydrology | 19 | 0 |
-| Resources | 8 | 0 |
-| Placement | 3 | 0 |
-| Total | 101 | 6 |
-
-Cross-cutting deltas:
-
-- 60 roots contain `types.ts`;
-- 7 roots contain `policy/`;
-- 48 roots lack `rules/index.ts`;
-- 9 Foundation roots lack `strategies/index.ts` and keep strategy logic in
-  root `index.ts`;
-- 35 rules barrels still contain executable rule implementations;
-- 89 roots violate the direct-child topology and six additional roots violate
-  only the assembly/barrel laws, for 95 roots violating at least one
-  destination invariant.
-
-The census is execution input, not permanent authority. Habitat enforces the
-kind shape generically after the corpus is normalized.
+The current seed is
+`.habitat/.active/workstreams/descend-002-domain-operation-interior/ledger.md`.
+It records 101 operation roots and the bounded current terrain, but it is not an
+execution corpus. After positive authority exists, advisory execution re-derives
+every file/clause/predicate row before any destination is assigned or source is
+moved.
 
 ## Stack
 
-The shared prerequisite spine is linear through one immutable A.2 launch
-commit. From that tree, A.2 and the disjoint product-closeout work advance on
-protected temporary tracks and are integrated later through inspected native
-Graphite operations:
+The reviewed reconciliation tip is the split base. From that tip, A.2 and the
+independent product-closeout continuation advance as ordinary sibling Graphite
+children:
 
 ```text
-codex/mapgen-domain-operation-topology               # this frame
-  -> codex/mapgen-generated-validator-ownership
-  -> codex/habitat-rule-introduction-baseline-manifests
-  -> codex/mapgen-runtime-closeout-takeover-frame
-  -> codex/mapgen-runtime-closeout-grit-diagnostic-acquisition
-  -> codex/mapgen-runtime-closeout-rule-diagnostics-resource
-  -> codex/mapgen-runtime-closeout-generic-fix-admission
-  -> codex/mapgen-studio-atomic-reroll              # A.3a; source-independent of A.2
-  -> codex/mapgen-runtime-closeout-rule-fix-preview # truthful no-write effect preview
-  -> immutable A.2 launch boundary
+current code + RuleFixPreview + Nx output ownership
+  -> current R2/R4 readiness authority
+  -> deterministic Grit failure selection
+  -> native Nx workspace graph and toolchain bedrock
+  -> lintEffect warning contract
+  -> SA-14 authority-closure graph ownership
+  -> reviewed A.2 split base
        |-> user A.2: Authority -> census -> Ecology -> Foundation ->
        |             Morphology -> Hydrology -> Resources -> Placement
        |-> main: independent A.3 -> A.4 -> admitted A.5 -> control-oRPC ->
                    P19 -> P20
-  -> inspected A.2 integration -> sensitive A.3 -> P21
 ```
 
 Each branch is a complete, reviewable domino. Source mapping proved A.3a has no
-A.2 dependency. G.2.1 closes the false planning surface before the launch
-boundary; Ecology starts from the user team's sealed Authority tip. Neither
+A.2 dependency. G.2.1 closes the false planning surface before the split
+base; Ecology starts from the user team's sealed Authority tip. Neither
 prerequisite is counted among A.2's Authority-plus-six closure branches.
 
 The stale `codex/mapgen-domain-operation-authority` ref and its dirty worktree
-are historical evidence, not the future Authority branch. Before handoff,
-account every dirty hunk as adopted evidence, superseded, or excluded; retain
-only unique settled decisions/docs needed by the launch contract; then remove
-that worktree and branch ref. Dirty rules, fixtures, manifests, baselines, and
-source changes remain excluded from the handoff tree.
+were retired after unique settled evidence was adopted or superseded. Dirty
+rules, fixtures, manifests, baselines, and source changes remain excluded from
+the split base.
 
-Before the fork, the next branch starts only after the current branch's
+Before the split, the next branch starts only after the current branch's
 implementation, focused checks, three review lanes, repairs, closing checks,
-and Graphite commit are complete. After the fork, each track preserves those
+and Graphite commit are complete. After the split, each track preserves those
 same branch gates within its protected surface. Final A.2 aggregate receipts
 amend the Placement branch; do not create a bookkeeping-only closure branch.
 
 ### Temporary Ownership Split
 
-The takeover DRA owns every prerequisite through one clean immutable A.2
-handoff commit, the independent non-A.2 closeout track, later integration, and
-final product/stack closure. The user's A.2 team owns Authority implementation,
+The takeover DRA owns every prerequisite through the reviewed split base, the
+independent non-A.2 closeout track, and final product/stack closure. The user's
+A.2 team owns Authority implementation,
 the advisory census and deterministic row classification, and all six domain
-migrations from that handoff tree. The takeover DRA must consume the returned
-commits, not reproduce them.
+migrations from its sibling child. Neither track reproduces the other's work.
 
-After handoff the main track does not mutate domain-operation source roots,
+After the split the main track does not mutate domain-operation source roots,
 A.2 blueprints/scopes/patterns/baselines/authority records, A.2-specific docs or
 tests, or the frozen generic Habitat rule/fix contracts. The A.2 track does not
 mutate Studio config/browser/control surfaces, control-oRPC, P19/P20, or
-unrelated static-coverage owners. Temporary parallel ancestry is permitted;
-final linearization uses native Graphite operations after concrete inspection.
+unrelated static-coverage owners. Keep the siblings parallel while independent.
+If a real dependency appears, move the continuation's first unique branch above
+the completed A.2 tip with native Graphite. Do not build a replacement stack or
+replay the repository.
 
 ## Prerequisite Branch: Check Boundaries
 
@@ -355,7 +334,7 @@ Closing gates:
 
 ```bash
 nx run habitat:boundaries
-nx run habitat:check
+nx run habitat:typecheck
 nx run habitat:test
 nx run mapgen-core:test
 nx run mod-swooper-maps:generated:check
@@ -409,10 +388,10 @@ sorted unique initial keys.
 Closing gates:
 
 ```bash
-nx run habitat:boundaries --skip-nx-cache --outputStyle=static
-nx run habitat:check --skip-nx-cache --outputStyle=static
-nx run habitat:build --skip-nx-cache --outputStyle=static
-nx run habitat:test --skip-nx-cache --outputStyle=static
+nx run habitat:check:boundaries --outputStyle=static
+nx run habitat:typecheck --outputStyle=static
+nx run habitat:build --outputStyle=static
+nx run habitat:test --outputStyle=static
 bun biome ci --max-diagnostics=none \
   tools/habitat/src/nx-plugin.ts \
   tools/habitat/src/service/model/baseline/dto/baseline.schema.ts \
@@ -477,10 +456,9 @@ rule-introduction tip and Authority:
    impacts, explicit per-rule effect authority, one complete-root Grit
    observation, and categorical no-write semantics.
 
-The inherited worktree mixes both provider evidence and the A.2 Authority
-candidate. It remains read-only and uncommitted. The user's team re-derives
-Authority from current diagnostics after the clean handoff; no inherited
-Authority hunk crosses a prerequisite changeset or the launch boundary.
+The retired inherited worktree mixed provider evidence with an A.2 Authority
+candidate. Its implementation hunks were excluded. The user's team creates
+Authority from current diagnostics on its split-base sibling.
 
 ## Depth Cascade Admission
 
@@ -489,15 +467,13 @@ because the destination shape is described; it is complete when every observed
 red row has exactly one enforceable action and one exact destination and no
 implementer must make an ownership or semantic decision.
 
-Before handoff, the takeover DRA reconciles and retires the stale Authority
-worktree/ref, imports the adapted readiness roadmap/workspace shape/pre-descent/
-`descend-002` documents without stale execution state, settles the target
-semantics and protected path surfaces, and freezes the launch SHA/tree plus
-return contract. It does not implement Authority or classify the live red
-corpus.
+The split-base reconciliation retires the stale Authority worktree/ref, adopts
+the readiness roadmap/workspace shape/pre-descent/`descend-002` documents
+without stale execution state, and settles the target semantics. It does not
+implement Authority or classify the live red corpus.
 
-Starting from that immutable handoff, the user's A.2 team owns the following
-gates before domain source mutation:
+Starting from its sibling child of the reviewed split base, the user's A.2 team
+owns the following gates before domain source mutation:
 
 1. Use the existing N=1 frames as the analysis grammar:
    `BLUEPRINT-AUTHORITY-RATCHET-DESCENT-FRAME.md`,
@@ -505,45 +481,35 @@ gates before domain source mutation:
    `RULE-ACTION-CLASSIFICATION-FRAME.md`,
    `SINGLE-RED-INVENTORY-ITEM-INVESTIGATION-FRAME.md`, and
    `DESTINATION-SIMPLIFICATION-FRAME.md` under `.habitat/.active/frames/`.
-   This packet's direct decisions supersede conflicts in those imported frames.
+   D1-D4 supersede conflicts in those frames.
 2. Finalize the generic Structure and Grit laws, fixtures, ownership, and
    diagnostic identity. Register their advisory form and run them against the
    complete current corpus. Do not classify violations against a provisional
    pattern.
-3. Store the bounded red corpus as JSONL beside the imported `descend-002`
-   workstream. Each row contains discriminants plus at most one explanatory
-   field:
-
-   ```json
-   {"id":"D2-0001","ruleId":"require_domain_operation_strategy_dependency_shape","file":"mods/.../default.ts","clause":"import-source","predicate":"cross-domain-private","action":"rewrite-import","destination":"mods/.../contract.ts","frameRefs":["RULE-ACTION-CLASSIFICATION-FRAME.md"],"state":"mechanical","detail":"consume the already-admitted contract field"}
-   ```
-
-   `file`, `clause`, and `predicate` identify the violation. `action` comes from
-   a finite vocabulary such as move, extract, inline, split, delete, add-slot,
-   rewrite-import, retire-rule, replace-rule, preserve, or close-stale.
-   `destination` is an exact owner path or an explicit no-change terminal, not
-   a broad category.
-4. Send disjoint row groups to fresh analysis agents with the relevant N=1
-   frame, rule law, source neighborhood, allowed action/destination vocabulary,
-   and proof oracle. They classify; they do not edit. The A.2 orchestrator
-   integrates duplicate or conflicting classifications and preserves one row per
-   file/clause/predicate.
-5. If any row needs an action outside the finite vocabulary, lacks an exact
-   destination, reveals a missing destination class, or cannot be asserted by
-   the finalized authority, stop the descent and ask the user for the contextual
-   decision. Do not hide that decision inside an implementation prompt.
-6. Freeze the complete zero-unknown JSONL corpus, source-symbol preservation
-   census, per-row focused proof, and disjoint write assignments. Only then
-   launch fresh implementation agents in broad parallel. Their prompts contain
-   predetermined rows and guardrails; implementation is relocation and repair,
-   not design.
+3. Record one concise JSONL row per observed file/clause/predicate. Fresh
+   analysis agents determine the exact behavior-preserving action and
+   destination from current source and the N=1 frames; this split base does not
+   predeclare either vocabulary.
+4. Stop on any row whose action, destination, or governing law is not already
+   deterministic. Escalate the missing decision rather than hiding it in an
+   implementation prompt.
+5. Freeze the zero-unknown corpus and disjoint write assignments. Only then
+   launch fresh implementation agents; implementation is mechanical rather than
+   design.
 
 The JSONL ledger and imported frames are planning evidence, not a new runtime or
 tracking system. Habitat diagnostics remain the authority and are rerun after
 every slice. Any new red row invalidates mechanical readiness for the affected
 slice and returns it to classification.
 
-## Branch 1: Authority
+## Historical Candidate Inventory (Reference Only)
+
+The opening branch inventories below preserve source-census evidence. They do
+not authorize a rule, action, destination, branch cut, or implementation order.
+The live advisory corpus and current Graphite topology decide those after the
+A.2 sibling opens.
+
+### Historical Branch 1: Authority
 
 Close the authority conflict before moving production files.
 
@@ -568,7 +534,7 @@ fresh corpus, and baseline integrity passes against the branch parent. It must
 not weaken a rule, grow a baseline after admission, or modify the Grit runner
 merely to keep the old corpus green.
 
-## Branch 2: Ecology
+### Historical Branch 2: Ecology
 
 Normalize all 34 Ecology operations. This branch establishes the repeatable
 patterns for thin type removal, policy-to-rule movement, empty rule slots, and
@@ -628,7 +594,7 @@ model-policy owner, or retain two deliberately distinct computations with
 different names and owners. Do not duplicate the production rule or preserve
 the private import.
 
-## Branch 3: Foundation
+### Historical Branch 3: Foundation
 
 Normalize all 18 Foundation operations.
 
@@ -672,7 +638,7 @@ Local numeric clamps, limits, and algorithm constants remain implementation
 constants with descriptive all-caps names near the top of their owning rule or
 strategy module. Do not expose algorithm containment values as config.
 
-## Branch 4: Morphology
+### Historical Branch 4: Morphology
 
 Normalize all 19 Morphology operations.
 
@@ -701,7 +667,7 @@ Add the required intentional rule slot without inventing algorithm logic:
 - `compute-shelf-mask`
 - `reconcile-heightfield-from-coast`
 
-## Branch 5: Hydrology
+### Historical Branch 5: Hydrology
 
 Normalize all 19 Hydrology operations.
 
@@ -730,7 +696,7 @@ Add required rule slots while preserving existing strategies:
 - `plan-lakes`
 - `select-navigable-river-terrain`
 
-## Branch 6: Resources
+### Historical Branch 6: Resources
 
 Normalize all eight Resources operations:
 
@@ -747,7 +713,7 @@ Move `select-resource-sites/policy/*` into named operation rules. Do not use
 this structural packet to consolidate similar resource algorithms or invent a
 shared resource-family helper.
 
-## Branch 7: Placement
+### Historical Branch 7: Placement
 
 Normalize all three Placement operations:
 
@@ -772,18 +738,14 @@ helpers to satisfy file-count aesthetics.
 
 ## Slice Loop
 
-Every branch executes the same closed loop. This packet is the A.2 Wave Packet;
-agent prompts are the Agent Packets, and the existing verification ledger holds
-the per-branch corpus and assignment rows. Do not create another tracking
-system.
+Every semantic branch executes one closed loop. Do not create a packet or
+tracking system around it.
 
 1. Re-run the finalized advisory rules and admit only a zero-unknown JSONL
    slice whose rows still reproduce. A new or changed row returns to the depth
    cascade; it never becomes an implementation surprise.
-2. Admit the exact branch parent, clean worktree, mutation owner, current
-   sentinel SHA, row ids, disjoint allowed write sets, shared-file integrator,
-   and forbidden edits. Create the named Graphite branch through `gt` only
-   after that admission is frozen.
+2. Confirm a clean branch, one accountable Graphite owner, row ids, disjoint
+   write sets, shared-file owner, and forbidden edits.
 3. Assign a fresh implementation team. Parallel agents receive disjoint
    operation roots, one work kind, and only predetermined action/destination
    rows. They run TypeScript checking and focused tests while editing, not only
@@ -808,15 +770,9 @@ system.
    review of the deleted contract mirror.
 7. Repair concrete findings with a fresh implementation team. Do not redirect
    reviewers into implementation work.
-8. Rerun affected checks and the branch closing gates. Update the existing
-   verification ledger, commit the branch-seal receipt, rerun gates affected by
-   that receipt, and assert Graphite parentage plus an empty worktree.
-9. Detach the clean Narsil checkout at
-   `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` to the
-   final branch tip and let its watcher reindex naturally. If Narsil lags, use
-   `rg`, TypeScript, and Nx rather than restarting or rebuilding its service.
-10. Send the parent supervisor a branch-seal summary and proceed unless a
-    correction or semantic-deviation decision is outstanding.
+8. Rerun affected checks, commit the complete semantic branch through Graphite,
+   and leave the worktree clean. Record only material findings, residuals, and
+   gate results in the owning records.
 
 Agents finish naturally. Close them after collecting their result. Do not stop
 an agent for speed, reuse a reviewer as an implementer, or keep stale agents
@@ -826,14 +782,14 @@ rather than reusing it.
 
 ## Verification
 
-Use Nx cache during implementation. Bypass it only for the final execution of
-a closing gate whose receipt must establish current-tree execution.
+Use the normal Nx daemon, cache, task graph, and parallelism. One graph owns all
+output-materializing targets for a proof.
 
 Authority branch:
 
 ```bash
 bun habitat classify .habitat/blueprints/domain-operation
-nx run habitat:check
+nx run habitat:typecheck
 nx run habitat:test
 bun habitat check --rule require_domain_operation_source_topology --baseline-integrity --base "$A2_BRANCH_PARENT" --json
 bun habitat check --rule require_domain_operation_entrypoint_shape --baseline-integrity --base "$A2_BRANCH_PARENT" --json
@@ -848,7 +804,7 @@ Per domain branch:
 
 ```bash
 bun habitat classify mods/mod-swooper-maps/src/domain/<domain>/ops
-nx run mod-swooper-maps:check
+nx run mod-swooper-maps:typecheck
 bun test mods/mod-swooper-maps/test/domains/<domain>
 bun habitat check --rule require_domain_operation_source_topology --baseline-integrity --base "$A2_BRANCH_PARENT" --json
 bun habitat check --rule require_domain_operation_entrypoint_shape --baseline-integrity --base "$A2_BRANCH_PARENT" --json
@@ -870,15 +826,15 @@ from the current tree.
 Closing each branch:
 
 ```bash
-NX_DAEMON=false nx run mod-swooper-maps:check --skip-nx-cache --outputStyle=static
-NX_DAEMON=false nx run mod-swooper-maps:test --skip-nx-cache --outputStyle=static
+nx run mod-swooper-maps:typecheck --outputStyle=static
+nx run mod-swooper-maps:test --outputStyle=static
 ```
 
 Aggregate A.2 closure after Placement:
 
 ```bash
 bun run openspec:validate
-bun run lint
+nx run-many -t lint
 bun habitat check --rule require_domain_source_topology --json
 bun habitat check --rule require_domain_operation_source_topology --json
 bun habitat check --rule require_domain_operation_entrypoint_shape --json
@@ -888,10 +844,10 @@ bun habitat check --rule require_domain_operation_rule_dependency_shape --json
 bun habitat check --rule prohibit_domain_operation_private_cross_imports --json
 bun habitat check --rule require_domain_operation_contract_file_shape --json
 bun habitat check --rule require_domain_ops_registry_surface --json
-nx run-many -t habitat:check
-NX_DAEMON=false nx run mod-swooper-maps:check --skip-nx-cache --outputStyle=static
-NX_DAEMON=false nx run mod-swooper-maps:test --skip-nx-cache --outputStyle=static
-NX_DAEMON=false nx run mod-swooper-maps:build --skip-nx-cache --outputStyle=static
+nx run-many -t check:policy
+nx run mod-swooper-maps:typecheck --outputStyle=static
+nx run mod-swooper-maps:test --outputStyle=static
+nx run mod-swooper-maps:build --outputStyle=static
 git diff --check
 test -z "$(git status --porcelain)"
 ```
@@ -932,19 +888,18 @@ These independent findings remain assigned to A.3 and must not expand A.2:
 - broader Studio source-token tests;
 - movement of source-local compile-time tests into owner-local test projects.
 
-## Handoff And Return Contract
+## Sibling Track Contract
 
-The initiative takeover DRA owns prerequisite closure, the immutable A.2 launch
-commit, protected-surface accounting, the independent product track, returned-
-stack integration, and final initiative closure. The user's A.2 orchestrator
-owns this packet's Authority and domain execution from the launch tree through
-the aggregate A.2 receipt. Neither side reproduces the other's changes.
+The initiative takeover DRA owns split-base prerequisite closure, the
+independent product track, and final initiative closure. The user's A.2
+orchestrator owns this packet's Authority and domain execution on its sibling
+track through aggregate A.2 closure. Neither side reproduces the other's changes
+or mutates the shared split-base ancestors without explicit coordination.
 
-The handoff records the exact launch commit and tree, Graphite ancestry,
-prerequisite gates, protected path sets, curated frames, settled semantic laws,
-known residuals, and return requirements. After handoff the takeover DRA does
-not amend, squash, reorder, or redesign those ancestors without explicit
-coordination.
+Both sibling tracks use the same reviewed split-base tree, curated frames, and
+settled semantic laws. They remain parallel while independent. If a real source
+dependency later exists, native Graphite moves the continuation's first unique
+branch above the A.2 tip. No returned-stack integration or replay is required.
 
 The A.2 orchestrator:
 
@@ -962,11 +917,9 @@ The A.2 orchestrator:
 
 Permanent review roles remain TypeScript/state-space, architecture/authority,
 and product/runtime/library; fresh sessions fill them for every frozen
-changeset and every materially affected repair. The returned stack must descend
-from the launch commit, remain inside A.2-owned surfaces, be clean and reviewed,
-carry the frozen JSONL/aggregate closure receipts, and report every intentional
-deviation. The takeover DRA then inspects and integrates those commits with
-native Graphite operations rather than recreating their tree.
+changeset and every materially affected repair. The A.2 sibling remains inside
+A.2-owned surfaces and closes clean and reviewed. Ordinary Graphite ancestry is
+the integration model.
 
 ## Closure
 
@@ -985,9 +938,9 @@ A.2 closes only when:
 - the Graphite stack and active worktree are clean.
 
 Closure also records the A.2 disposition of every overlapping
-`descend-002-domain-operation-interior` row so later stack integration has one
+`descend-002-domain-operation-interior` row so later closeout has one
 surviving implementation authority rather than two.
 
 This packet does not claim Studio Run in Game product closure. Its completion
-unblocks A.3 static coverage and A.4 config-ontology reduction on a transparent
-domain-operation substrate.
+unblocks operation-sensitive A.3 closure. Source-independent A.3 and A.4 proceed
+on the independent sibling when their own prerequisites hold.
