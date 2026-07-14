@@ -42,7 +42,8 @@ export function gritDiagnosticOutcomesFromReport(
         .filter((result) =>
           observedGritIdentityMatches(observedGritDiagnosticIdentity(result), rule.patternName)
         )
-        .map((result) => diagnosticFindingFromGritResult(rule, result, options));
+        .map((result) => diagnosticFindingFromGritResult(rule, result, options))
+        .sort(compareDiagnosticFindings);
       const [first, ...rest] = diagnostics;
       return [
         rule.id,
@@ -112,6 +113,21 @@ function diagnosticFindingFromGritResult(
 function normalizeDiagnosticPath(gritPath: string, repoRoot: string | undefined): string {
   if (!repoRoot || !path.isAbsolute(gritPath)) return normalizeGritPath(gritPath);
   return normalizeGritPath(path.relative(repoRoot, gritPath));
+}
+
+function compareDiagnosticFindings(left: DiagnosticFinding, right: DiagnosticFinding): number {
+  return (
+    compareText(left.path, right.path) ||
+    (left.line ?? 0) - (right.line ?? 0) ||
+    compareText(left.message, right.message) ||
+    compareText(left.severity, right.severity) ||
+    compareText(left.baselineState, right.baselineState) ||
+    compareText(left.ruleId, right.ruleId)
+  );
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function assertNeverOutcome(outcome: never): never {

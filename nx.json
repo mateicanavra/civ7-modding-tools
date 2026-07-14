@@ -10,7 +10,22 @@
   ],
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "sharedGlobals": ["{workspaceRoot}/tsconfig*.json"]
+    "sharedGlobals": ["{workspaceRoot}/tsconfig*.json"],
+    "habitatRuntime": [
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/bun.lock",
+      "{workspaceRoot}/bunfig.toml",
+      "{workspaceRoot}/tsconfig*.json",
+      "{workspaceRoot}/tools/habitat/bin/**",
+      "{workspaceRoot}/tools/habitat/src/**",
+      "{workspaceRoot}/tools/habitat/package.json",
+      "{workspaceRoot}/tools/habitat/tsconfig*.json",
+      { "env": "HABITAT_HARNESS_ROOT" },
+      { "env": "HABITAT_CACHE_ROOT" },
+      { "env": "HABITAT_PATTERN_CACHE_ROOT" },
+      { "env": "HABITAT_TELEMETRY_DISABLED" },
+      { "env": "HABITAT_COMMAND_TIMEOUT_MS" }
+    ]
   },
   "targetDefaults": {
     "build": {

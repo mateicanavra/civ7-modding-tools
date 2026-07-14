@@ -1,13 +1,11 @@
 import type { NxTargetDefinition, NxTargetDependency } from "../dto/target-definition.schema.js";
 
-const workspaceCwd = { cwd: "{workspaceRoot}" };
+const habitatRuntimeInput = "habitatRuntime";
 
 export function habitatInputs(): string[] {
   return [
+    habitatRuntimeInput,
     "{workspaceRoot}/.habitat/**",
-    "{workspaceRoot}/tools/habitat/src/**",
-    "{workspaceRoot}/package.json",
-    "{workspaceRoot}/bun.lock",
     "{workspaceRoot}/packages/**",
     "{workspaceRoot}/apps/**",
     "{workspaceRoot}/mods/**",
@@ -25,14 +23,15 @@ export function aliasRuleTarget(
 export function directRuleTarget(
   ruleId: string,
   ownerProject: string,
+  repoRoot: string,
   inputs = habitatInputs(),
   graphDependencies: readonly NxTargetDependency[] = []
 ): NxTargetDefinition {
   return {
     command: `bun tools/habitat/bin/dev.ts check --rule ${ruleId}`,
-    options: workspaceCwd,
+    options: habitatCommandOptions(repoRoot),
     cache: true,
-    inputs,
+    inputs: withHabitatRuntime(inputs),
     outputs: [],
     ...(graphDependencies.length > 0
       ? { dependsOn: uniqueTargetDependencies(graphDependencies) }
@@ -61,6 +60,7 @@ export function ownerCheckTarget(input: {
 
 export function ownerLocalCheckTarget(input: {
   owner: string;
+  repoRoot: string;
   ruleIds: readonly [string, ...string[]];
   inputs: string[];
   graphDependencies?: readonly NxTargetDependency[];
@@ -68,9 +68,9 @@ export function ownerLocalCheckTarget(input: {
   const selectors = input.ruleIds.map((ruleId) => `--rule ${ruleId}`).join(" ");
   return {
     command: `bun tools/habitat/bin/dev.ts check ${selectors}`,
-    options: workspaceCwd,
+    options: habitatCommandOptions(input.repoRoot),
     cache: true,
-    inputs: input.inputs,
+    inputs: withHabitatRuntime(input.inputs),
     outputs: [],
     ...(input.graphDependencies && input.graphDependencies.length > 0
       ? { dependsOn: uniqueTargetDependencies(input.graphDependencies) }
@@ -78,6 +78,20 @@ export function ownerLocalCheckTarget(input: {
     metadata: {
       description: `local Habitat rules owned by ${input.owner}`,
     },
+  };
+}
+
+function withHabitatRuntime(inputs: readonly string[]): string[] {
+  return [...new Set([habitatRuntimeInput, ...inputs])];
+}
+
+function habitatCommandOptions(repoRoot: string): {
+  cwd: string;
+  env: { HABITAT_REPO_ROOT: string };
+} {
+  return {
+    cwd: "{workspaceRoot}",
+    env: { HABITAT_REPO_ROOT: repoRoot },
   };
 }
 
