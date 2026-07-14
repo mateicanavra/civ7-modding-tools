@@ -41,7 +41,7 @@ This workflow produces a replayable folder containing:
 From the repo root:
 
 ```bash
-bun run --cwd mods/mod-swooper-maps viz:standard
+nx run mod-swooper-maps:viz:standard
 ```
 
 Notes:

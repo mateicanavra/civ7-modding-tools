@@ -182,9 +182,8 @@ Repair this on one dedicated child before A.2:
   frontend reachability and daemon `/healthz`.
 
 Do not add a watcher, supervisor, broad package alias, export-specific test, or
-second lifecycle path. Align the Codex worktree helper with its existing
-environment handoff on a separate bounded child after this freshness repair;
-retain its private tmux socket, per-worktree ports, and ownership-only teardown.
+second lifecycle path. Studio development runs only through the foreground
+`nx run mapgen-studio:dev` graph.
 
 A.1a is closed-passed. Development serve resolves the exact bare Studio
 contract import from source, production build has no matching alias, Vite binds
@@ -195,11 +194,10 @@ navigation evaluated the contract source module, retained generated recipe
 artifact imports from `dist`, and mounted a nonempty React root without a
 module-link error.
 
-The bounded Codex worktree lifecycle child is also closed-passed. Its helper
-composes the canonical Nx daemon target, requires frontend and repository-owned
-daemon health, and retains private ports, tmux ownership, and teardown. Two
-regular worktrees ran healthy instances concurrently; stopping either one left
-the other instance and the standard Studio runtime healthy.
+The native lifecycle graph is closed-passed. Vite depends on the continuous
+daemon target, frontend and repository-owned daemon health were observed, and
+one interrupt released both listeners. There is no helper, private tmux/state,
+cleanup hook, or second start/stop surface to preserve.
 
 ### G.1. Reconstruct Generic Grit Diagnostic Acquisition
 

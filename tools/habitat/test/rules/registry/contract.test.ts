@@ -145,6 +145,18 @@ describe("rule registry contract", () => {
     }
   });
 
+  test("rejects rule ids that cannot be passed as exact command selectors", () => {
+    for (const id of ["uppercase-Rule", "quoted'--runner", "semi;colon", "space separated"]) {
+      expectInvalid(
+        parseRuleRegistryDocument(
+          registryDocument([{ ...baseRule(), id }]),
+          "inline-registry.json"
+        ),
+        "registry-schema-invalid"
+      );
+    }
+  });
+
   test("rejects malformed routing facts", () => {
     for (const pathCoverage of [
       [{ kind: "exact-path" }],
@@ -258,6 +270,30 @@ describe("rule registry contract", () => {
     );
 
     expect(result).toMatchObject({ ok: true });
+  });
+
+  test("keeps graph prerequisites closed and unique", () => {
+    const dependency = { project: "mapgen-core", target: "build" };
+    expect(
+      parseRuleRegistryDocument(
+        registryDocument([baseRule({ graphDependencies: [dependency] })]),
+        "inline-registry.json"
+      )
+    ).toMatchObject({ ok: true });
+
+    for (const graphDependencies of [
+      [],
+      [dependency, dependency],
+      [{ ...dependency, command: "bun check.ts" }],
+    ]) {
+      expectInvalid(
+        parseRuleRegistryDocument(
+          registryDocument([baseRule({ graphDependencies })]),
+          "inline-registry.json"
+        ),
+        "registry-schema-invalid"
+      );
+    }
   });
 
   test.each([

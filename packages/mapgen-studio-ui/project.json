@@ -3,8 +3,17 @@
   "name": "mapgen-studio-ui",
   "tags": ["kind:foundation"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "test": {
       "dependsOn": ["build", "^build"]
+    },
+    "storybook": {
+      "cache": false,
+      "continuous": true
     },
     "design-sync:check": {
       "dependsOn": ["build", "^build"],

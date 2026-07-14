@@ -1,7 +1,6 @@
-import type { NxTargetDefinition } from "../dto/target-definition.schema.js";
+import type { NxTargetDefinition, NxTargetDependency } from "../dto/target-definition.schema.js";
 
 const workspaceCwd = { cwd: "{workspaceRoot}" };
-const habitatCliBuildDependency = { projects: ["habitat"], target: "build" };
 
 export function habitatInputs(): string[] {
   return [
@@ -16,186 +15,95 @@ export function habitatInputs(): string[] {
   ];
 }
 
-export function boundaryInputs(): string[] {
-  const sourceInputs = [
-    "{workspaceRoot}/apps/**/*.cjs",
-    "{workspaceRoot}/apps/**/*.cts",
-    "{workspaceRoot}/apps/**/*.js",
-    "{workspaceRoot}/apps/**/*.jsx",
-    "{workspaceRoot}/apps/**/*.mjs",
-    "{workspaceRoot}/apps/**/*.mts",
-    "{workspaceRoot}/apps/**/*.ts",
-    "{workspaceRoot}/apps/**/*.tsx",
-    "{workspaceRoot}/mods/**/*.cjs",
-    "{workspaceRoot}/mods/**/*.cts",
-    "{workspaceRoot}/mods/**/*.js",
-    "{workspaceRoot}/mods/**/*.jsx",
-    "{workspaceRoot}/mods/**/*.mjs",
-    "{workspaceRoot}/mods/**/*.mts",
-    "{workspaceRoot}/mods/**/*.ts",
-    "{workspaceRoot}/mods/**/*.tsx",
-    "{workspaceRoot}/packages/**/*.cjs",
-    "{workspaceRoot}/packages/**/*.cts",
-    "{workspaceRoot}/packages/**/*.js",
-    "{workspaceRoot}/packages/**/*.jsx",
-    "{workspaceRoot}/packages/**/*.mjs",
-    "{workspaceRoot}/packages/**/*.mts",
-    "{workspaceRoot}/packages/**/*.ts",
-    "{workspaceRoot}/packages/**/*.tsx",
-    "{workspaceRoot}/scripts/**/*.cjs",
-    "{workspaceRoot}/scripts/**/*.cts",
-    "{workspaceRoot}/scripts/**/*.js",
-    "{workspaceRoot}/scripts/**/*.jsx",
-    "{workspaceRoot}/scripts/**/*.mjs",
-    "{workspaceRoot}/scripts/**/*.mts",
-    "{workspaceRoot}/scripts/**/*.ts",
-    "{workspaceRoot}/scripts/**/*.tsx",
-    "{workspaceRoot}/tools/**/*.cjs",
-    "{workspaceRoot}/tools/**/*.cts",
-    "{workspaceRoot}/tools/**/*.js",
-    "{workspaceRoot}/tools/**/*.jsx",
-    "{workspaceRoot}/tools/**/*.mjs",
-    "{workspaceRoot}/tools/**/*.mts",
-    "{workspaceRoot}/tools/**/*.ts",
-    "{workspaceRoot}/tools/**/*.tsx",
-    "!{workspaceRoot}/**/dist/**",
-    "!{workspaceRoot}/**/types/**",
-    "!{workspaceRoot}/**/mod/**",
-    "!{workspaceRoot}/**/example-generated-mod/**",
-  ];
-  return [
-    "{workspaceRoot}/eslint.boundaries.config.mjs",
-    "{workspaceRoot}/nx.json",
-    "{workspaceRoot}/package.json",
-    "{workspaceRoot}/bun.lock",
-    "{workspaceRoot}/docs/projects/habitat-harness/taxonomy.md",
-    "{workspaceRoot}/apps/**/package.json",
-    "{workspaceRoot}/mods/**/package.json",
-    "{workspaceRoot}/packages/**/package.json",
-    "{workspaceRoot}/tools/**/package.json",
-    ...sourceInputs,
-  ];
-}
-
-export function biomeTargets(): {
-  format: NxTargetDefinition;
-  check: NxTargetDefinition;
-  ci: NxTargetDefinition;
-} {
-  const inputs = [
-    "{workspaceRoot}/biome.json",
-    "{workspaceRoot}/.habitat/**",
-    "{workspaceRoot}/**/*",
-  ];
-  return {
-    format: {
-      command: "biome format --write .",
-      options: workspaceCwd,
-      cache: false,
-      inputs,
-      metadata: { description: "Biome formatter write pass for the repo hygiene layer (H4)" },
-    },
-    check: {
-      command: "biome check .",
-      options: workspaceCwd,
-      cache: true,
-      inputs,
-      metadata: { description: "Biome formatter, lint hygiene, and safe-assist check (H4)" },
-    },
-    ci: {
-      command: "biome ci .",
-      options: workspaceCwd,
-      cache: true,
-      inputs,
-      metadata: { description: "Biome CI gate for hygiene-layer enforcement (H4)" },
-    },
-  };
-}
-
-export function boundariesTarget(): NxTargetDefinition {
-  return {
-    command:
-      "FORCE_COLOR=0 eslint . --quiet --cache --cache-strategy content --cache-location .nx/cache/eslint-boundaries --config eslint.boundaries.config.mjs --no-config-lookup",
-    options: workspaceCwd,
-    cache: true,
-    inputs: boundaryInputs(),
-    metadata: {
-      description:
-        "project-plane module boundaries via @nx/enforce-module-boundaries (habitat-boundary-tags/H3)",
-    },
-  };
-}
-
-export function sourceCheckTarget(inputs = habitatInputs()): NxTargetDefinition {
-  return {
-    command: "bun tools/habitat/bin/dev.ts check --runner grit",
-    options: workspaceCwd,
-    cache: true,
-    inputs,
-    metadata: {
-      description: "Habitat-owned GritQL source-shape catalog (habitat-catalog/H5)",
-    },
-  };
-}
-
-export function generatedCheckTarget(): NxTargetDefinition {
-  return {
-    command: "bun tools/habitat/bin/dev.ts check --runner habitat",
-    options: workspaceCwd,
-    cache: false,
-    inputs: habitatInputs(),
-    metadata: { description: "Habitat file-layer structural gate" },
-  };
-}
-
-export function aggregateCheckTarget(inputs = habitatInputs()): NxTargetDefinition {
-  return {
-    command: "bun tools/habitat/bin/dev.ts check",
-    options: workspaceCwd,
-    cache: true,
-    inputs,
-    dependsOn: [habitatCliBuildDependency],
-    metadata: { description: "aggregate Habitat rule check; runs broad native-tool checks once" },
-  };
-}
-
 export function aliasRuleTarget(
-  dependsOn: NxTargetDefinition["dependsOn"],
+  dependsOn: readonly NxTargetDependency[],
   description: string
 ): NxTargetDefinition {
-  return {
-    command: 'node -e ""',
-    options: workspaceCwd,
-    cache: false,
-    outputs: [],
-    dependsOn: [habitatCliBuildDependency, ...(dependsOn ?? [])],
-    metadata: { description },
-  };
+  return noopTarget(dependsOn, description);
 }
 
 export function directRuleTarget(
   ruleId: string,
   ownerProject: string,
-  inputs = habitatInputs()
+  inputs = habitatInputs(),
+  graphDependencies: readonly NxTargetDependency[] = []
 ): NxTargetDefinition {
   return {
     command: `bun tools/habitat/bin/dev.ts check --rule ${ruleId}`,
     options: workspaceCwd,
     cache: true,
     inputs,
-    dependsOn: [habitatCliBuildDependency],
+    outputs: [],
+    ...(graphDependencies.length > 0
+      ? { dependsOn: uniqueTargetDependencies(graphDependencies) }
+      : {}),
     metadata: { description: `Habitat rule ${ruleId} owned by ${ownerProject}` },
   };
 }
 
-export function ownerCheckTarget(owner: string, inputs = habitatInputs()): NxTargetDefinition {
+/**
+ * Nx-owned owner checks project local execution and graph-backed work as sibling dependencies;
+ * neither leaf starts another Nx scheduler.
+ */
+export function ownerCheckTarget(input: {
+  owner: string;
+  localTarget?: string;
+  graphDependencies: readonly NxTargetDependency[];
+}): NxTargetDefinition {
+  const localDependency = input.localTarget
+    ? [{ projects: [input.owner], target: input.localTarget }]
+    : [];
+  return noopTarget(
+    [...localDependency, ...input.graphDependencies],
+    `Habitat rule checks owned by ${input.owner}`
+  );
+}
+
+export function ownerLocalCheckTarget(input: {
+  owner: string;
+  ruleIds: readonly [string, ...string[]];
+  inputs: string[];
+  graphDependencies?: readonly NxTargetDependency[];
+}): NxTargetDefinition {
+  const selectors = input.ruleIds.map((ruleId) => `--rule ${ruleId}`).join(" ");
   return {
-    command: `bun tools/habitat/bin/dev.ts check --owner ${owner}`,
+    command: `bun tools/habitat/bin/dev.ts check ${selectors}`,
     options: workspaceCwd,
     cache: true,
-    inputs,
+    inputs: input.inputs,
+    outputs: [],
+    ...(input.graphDependencies && input.graphDependencies.length > 0
+      ? { dependsOn: uniqueTargetDependencies(input.graphDependencies) }
+      : {}),
     metadata: {
-      description: `habitat rules owned by ${owner} (wrapped enforcement; see docs/projects/habitat-harness/)`,
+      description: `local Habitat rules owned by ${input.owner}`,
     },
   };
+}
+
+function noopTarget(
+  dependsOn: readonly NxTargetDependency[],
+  description: string
+): NxTargetDefinition {
+  return {
+    executor: "nx:noop",
+    cache: false,
+    outputs: [],
+    dependsOn: uniqueTargetDependencies(dependsOn),
+    metadata: { description },
+  };
+}
+
+function uniqueTargetDependencies(
+  dependencies: readonly NxTargetDependency[]
+): NxTargetDependency[] {
+  const unique = new Map<string, NxTargetDependency>();
+  for (const dependency of dependencies) {
+    const projects = [...dependency.projects].sort();
+    unique.set(`${projects.join("\u0000")}\u0000${dependency.target}`, {
+      projects,
+      target: dependency.target,
+    });
+  }
+  return [...unique.values()];
 }

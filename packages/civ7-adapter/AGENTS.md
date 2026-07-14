@@ -6,7 +6,7 @@ Scope: `packages/civ7-adapter/**`
 - Exposes stable `EngineAdapter` implementations consumed by MapGen and mods.
 - Keep this package thin: translate engine calls to adapter methods; no MapGen algorithms or mod logic.
 
-Tooling: use this package’s `bun` scripts for build/check (`bun run --cwd packages/civ7-adapter build`, `bun run --cwd packages/civ7-adapter check`).
+Tooling: use `nx run civ7-adapter:build` and `nx run civ7-adapter:check`.
 
 Docs:
 - `docs/projects/engine-refactor-v1/architecture-normalization-packet.md` for MapGen / Swooper Maps truth/projection normalization.

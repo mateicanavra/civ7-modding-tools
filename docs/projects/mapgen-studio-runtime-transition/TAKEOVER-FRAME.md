@@ -15,6 +15,13 @@ live status after it is repaired to current truth; this frame owns the durable
 interpretation of what the work is, why it is sequenced this way, and how the
 DRA exercises judgment.
 
+Lifecycle authority amendment (2026-07-13): Studio development has one
+foreground owner, `nx run mapgen-studio:dev`. Nx composes Vite, its continuous
+daemon dependency, and prerequisite tasks; one interrupt stops the graph. Every
+later reference in this frame to a per-worktree helper, private tmux/state,
+start/stop certification, or a separate Codex lifecycle is superseded and is
+not executable authority.
+
 Durable home:
 `docs/projects/mapgen-studio-runtime-transition/TAKEOVER-FRAME.md`. It lands as
 one clean Graphite documentation layer directly above

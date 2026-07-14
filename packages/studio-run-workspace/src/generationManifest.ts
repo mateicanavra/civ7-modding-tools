@@ -141,9 +141,7 @@ export function parseStudioRunGenerationManifest(value: unknown): StudioRunGener
   if (parsed.payload.runArtifactId !== createRunArtifactId(parsed.payload.requestId)) {
     throw new Error("StudioRunGenerationManifest runArtifactId does not match requestId.");
   }
-  if (
-    parsed.payload.workspace.requestRoot !== logicalRunRequestRoot(parsed.payload.requestId)
-  ) {
+  if (parsed.payload.workspace.requestRoot !== logicalRunRequestRoot(parsed.payload.requestId)) {
     throw new Error("StudioRunGenerationManifest requestRoot does not match requestId.");
   }
   const snapshot = snapshotManifestLaunchEnvelope(parsed.payload.launchEnvelope);

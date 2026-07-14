@@ -2,7 +2,6 @@ export type {
   AggregateWorkspaceTargetDeclaration,
   GraphRefusalState,
   ResolvedTargetDependency,
-  RuleGraphTargetNames,
   TargetDependencyDeclaration,
   TargetDependencyResolution,
   VerifyTargetPlan,
@@ -16,7 +15,6 @@ export type {
 export {
   GraphRefusalReasonSchema,
   GraphRefusalStateSchema,
-  RuleGraphTargetNamesSchema,
   TargetDependencyDeclarationSchema,
   TargetDependencyResolutionSchema,
   VerifyTargetPlanSchema,

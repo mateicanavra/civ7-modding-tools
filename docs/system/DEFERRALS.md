@@ -169,12 +169,12 @@ Some deferrals are intentionally scoped to a specific project/milestone (e.g., E
 ## DEF-016: Nx parallel task race around shared build outputs
 
 **Deferred:** 2026-06-25
-**Trigger:** Before relying on broad `nx run-many -t habitat:check` or other multi-project Habitat/Nx proof commands as authoritative CI gates; also before expanding Habitat owner targets that share build dependencies.
+**Trigger:** Before relying on broad multi-project Habitat/Nx proof commands as authoritative CI gates; also before expanding Habitat owner targets that share build dependencies.
 **Context:** During the embedded authority migration proof, broad and parallel Nx runs repeatedly surfaced flaky behavior around shared build/output-producing tasks, including `control-direct:build-bundle` being reported as flaky and earlier Habitat CLI build/output races. The slice-specific owner graph passed when run as one focused target set, but the broader graph still showed concurrency-sensitive behavior. This is not the primary embedded-authority concern, but it is a real task-graph correctness issue.
 **Scope:** Audit shared mutable outputs, generated manifests, clean steps, and bundle outputs; establish single-writer output ownership and explicit Nx dependency edges; prove the composed graph without incidental serial execution.
 **Impact:** Broad multi-project proofs produced failures unrelated to the authority under test, so focused owner-target proof remained the trustworthy interim signal.
 **Resolved:** 2026-07-13
-**Resolution:** ADR-012 establishes one output-materializing Nx graph per worktree, exact phase-owned outputs, uncached destructive cleanup, and explicit generated-artifact dependencies. The composed 30-task Swooper graph reached SDK consumption and typecheck without the prior race; focused Swooper tests and cold/cached Direct Control and Habitat ownership proofs passed. Concurrent output materializers remain isolated in separate worktrees.
+**Resolution:** ADR-012 establishes one output-materializing Nx graph per proof, exact phase-owned outputs, uncached destructive cleanup, and explicit generated-artifact dependencies. Public project `check` targets compose `typecheck`, Habitat `check:policy`, and upstream checks; the root `check` graph also selects the Habitat-owned workspace hygiene and boundary gates. Registered Habitat output consumers declare exact scheduling-only graph dependencies and still execute through Habitat. Routine proof no longer creates competing graphs or temporary worktrees.
 
 ## DEF-002: Runtime-loadable recipes in the browser (no rebuild required)
 

@@ -76,7 +76,7 @@ export const morphologyArtifacts = {
 
 - Run:
   - `nx run mapgen-core:test`
-  - `bun run --cwd mods/mod-swooper-maps test`
+  - `nx run mod-swooper-maps:test`
 - Run a traced execution and confirm:
   - the artifact id appears in the satisfied tag set after the publishing step,
   - downstream steps can read the artifact without shape mismatch.

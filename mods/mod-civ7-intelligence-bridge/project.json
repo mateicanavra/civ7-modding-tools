@@ -3,6 +3,11 @@
   "name": "mod-intelligence-bridge",
   "tags": ["kind:mod", "kind:control"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "build:bundle": {
       "command": "tsup",
       "dependsOn": ["^build", "gen:modinfo"],

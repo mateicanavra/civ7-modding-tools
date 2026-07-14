@@ -18,20 +18,20 @@ function packageJson(options: WriteProjectScaffoldDecision["request"]) {
     version: "0.1.0",
     private: true,
     type: "module",
-    main: "./dist/index.js",
-    types: "./dist/index.d.ts",
-    files: ["dist"],
     exports: {
       ".": {
         types: "./dist/index.d.ts",
         import: "./dist/index.js",
       },
     },
+    main: "./dist/index.js",
+    types: "./dist/index.d.ts",
+    files: ["dist"],
     scripts: {
       build: "tsc -p tsconfig.json --composite false --incremental false",
-      check: "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-      test: "bun test",
       clean: "rimraf dist",
+      test: "bun test",
+      typecheck: "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     },
     engines: {
       node: "22.22.0",
@@ -44,6 +44,13 @@ function projectJson(options: WriteProjectScaffoldDecision["request"]) {
     $schema: `${relativePrefix(options.root)}node_modules/nx/schemas/project-schema.json`,
     name: options.packageName,
     tags: [options.tag],
+    targets: {
+      check: {
+        executor: "nx:noop",
+        cache: false,
+        outputs: [],
+      },
+    },
   };
 }
 

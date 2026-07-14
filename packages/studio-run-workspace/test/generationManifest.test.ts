@@ -220,7 +220,10 @@ describe("Studio Run generation manifest", () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-manifest-snapshot-"));
     try {
       const mutableConfig = { nested: { label: "before" } };
-      const input = manifestInput({ config: mutableConfig, requestId: "studio-run-manifest-snapshot" });
+      const input = manifestInput({
+        config: mutableConfig,
+        requestId: "studio-run-manifest-snapshot",
+      });
       const writing = writeStudioRunGenerationManifest({
         manifestInput: input,
         workspaceRoot,

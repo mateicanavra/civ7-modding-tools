@@ -10,10 +10,11 @@ Scope: `mods/mod-swooper-maps/**`
 
 ## Tooling Rules
 
-- Use `bun` scripts for build and type‑checks in this package (see `mods/mod-swooper-maps/package.json`).
-- Prefer regenerating `mod/` via `bun --cwd mods/mod-swooper-maps run build` over editing build artifacts.
-- Build `@swooper/mapgen-core` first (`bun --cwd packages/mapgen-core run build`) before running this package’s type checks so dist exports resolve.
-- Run broader tests from the repo root (`bun run test`) or the MapGen core package when needed.
+- Run `nx run mod-swooper-maps:build`, `nx run mod-swooper-maps:check`, and
+  `nx run mod-swooper-maps:test`. Nx owns upstream build ordering; do not build
+  workspace dependencies manually.
+- Prefer regenerating `mod/` through the Nx build target over editing build
+  artifacts.
 - Placement domain follows the op-per-concern pattern (plan wonders, floodplains, starts); placement step orchestrates multiple ops rather than a single monolith.
 
 ## Ecology domain

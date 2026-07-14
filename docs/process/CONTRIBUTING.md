@@ -16,7 +16,7 @@ bun run test
 ### Developing the CLI (@mateicanavra/civ7-cli)
 - Local dev:
   ```bash
-  nx run civ7-cli:dev
+  nx run civ7-cli:run -- --help
   ```
 - Global link (optional):
   ```bash
@@ -41,28 +41,26 @@ bun run test
   ```
 - Playground:
   ```bash
-  nx run civ7-playground:dev
+  nx run civ7-playground:build
   ```
 - MapGen Studio:
   ```bash
   nx run mapgen-studio:dev
-  bun run restart:mapgen-studio
   nx run mapgen-studio:build
   ```
 
 ### Project task commands
 - Dev per package:
   ```bash
-  nx run civ7-cli:dev
+  nx run civ7-cli:run -- --help
   nx run civ7-sdk:dev
   nx run civ7-docs:dev
-  nx run civ7-playground:dev
   ```
 - Run CLI from root:
   ```bash
-  nx run civ7-cli:dev -- <civ7-command-and-args>
+  nx run civ7-cli:run -- <civ7-command-and-args>
   # example
-  nx run civ7-cli:dev -- data unzip default
+  nx run civ7-cli:run -- data unzip default
   ```
 
 ## Outputs policy

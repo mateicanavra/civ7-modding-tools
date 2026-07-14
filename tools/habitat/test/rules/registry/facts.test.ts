@@ -14,7 +14,6 @@ import {
   ruleSelectorFacts,
   ruleStructureFacts,
 } from "@habitat/cli/service/model/rules/index";
-import { workspaceGraphTargetNames } from "@habitat/cli/service/model/workspace/index";
 import { describe, expect, test } from "vitest";
 import {
   baseRule,
@@ -253,20 +252,26 @@ describe("rule registry facts", () => {
     expect(
       ruleGraphFacts(
         [
-          baseRule({ id: "enforce_formatting_and_import_hygiene" }),
+          baseRule({
+            id: "enforce_formatting_and_import_hygiene",
+            runner: nxRunner("habitat", "check:hygiene"),
+            graphTarget: { project: "habitat", target: "check:hygiene" },
+          }),
           baseRule({
             id: "nx-rule",
             ownerProject: "mod-swooper-maps",
-            runner: nxRunner("mod-swooper-maps", "habitat:check"),
+            runner: nxRunner("mod-swooper-maps", "build"),
             graphTarget: {
               project: "mod-swooper-maps",
-              target: "habitat:check",
+              target: "build",
             },
           }),
-          baseRule({ id: "direct-rule" }),
+          baseRule({
+            id: "direct-rule",
+            graphDependencies: [{ project: "mapgen-core", target: "build" }],
+          }),
         ],
-        ownerRoots,
-        workspaceGraphTargetNames()
+        ownerRoots
       )
     ).toEqual([
       {
@@ -275,9 +280,10 @@ describe("rule registry facts", () => {
         ownerRoot: "tools/habitat",
         lane: "enforced",
         message: "Fix the structural issue.",
+        graphDependencies: [],
         alias: {
           kind: "depends-on",
-          target: { project: "habitat", target: "biome:ci" },
+          target: { project: "habitat", target: "check:hygiene" },
         },
       },
       {
@@ -286,9 +292,10 @@ describe("rule registry facts", () => {
         ownerRoot: "mods/mod-swooper-maps",
         lane: "enforced",
         message: "Fix the structural issue.",
+        graphDependencies: [],
         alias: {
           kind: "depends-on",
-          target: { project: "mod-swooper-maps", target: "habitat:check" },
+          target: { project: "mod-swooper-maps", target: "build" },
         },
       },
       {
@@ -297,16 +304,13 @@ describe("rule registry facts", () => {
         ownerRoot: "tools/habitat",
         lane: "enforced",
         message: "Fix the structural issue.",
+        graphDependencies: [{ project: "mapgen-core", target: "build" }],
         alias: { kind: "direct-rule-check" },
       },
     ]);
 
-    expect(() =>
-      ruleGraphFacts(
-        [baseRule({ ownerProject: "unknown-owner" })],
-        ownerRoots,
-        workspaceGraphTargetNames()
-      )
-    ).toThrow("unknown ownerProject");
+    expect(() => ruleGraphFacts([baseRule({ ownerProject: "unknown-owner" })], ownerRoots)).toThrow(
+      "unknown ownerProject"
+    );
   });
 });

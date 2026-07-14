@@ -116,7 +116,6 @@ export {
   operationBlocked,
   operationExpired,
   operationNotFound,
-  verificationFailed,
   runtimeDisposed,
   STUDIO_FAILURE_REASON_CODES,
   STUDIO_FAILURE_TAGS,
@@ -129,6 +128,7 @@ export {
   toStudioDefinedOrpcError,
   unavailableFailureErrorDataSchema,
   unsupportedOperationType,
+  verificationFailed,
 } from "./errors/index.js";
 export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
 export {

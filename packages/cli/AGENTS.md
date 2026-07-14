@@ -118,7 +118,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
   not active turn execution.
 - Dev run:
   - Via bin: `node packages/cli/bin/run.js <command>`
-  - Via Nx: `nx run civ7-cli:dev -- data:crawl --help`
+  - Via Nx: `nx run civ7-cli:run -- data:crawl --help`
 
 ### Code structure (key paths)
 

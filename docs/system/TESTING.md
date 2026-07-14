@@ -10,12 +10,27 @@ one graph whenever they materialize or consume build output in the same
 worktree:
 
 ```bash
-nx run-many --targets=check,test --projects=mod-swooper-maps --parallel=3
+nx run-many -t check,test --projects=mod-swooper-maps
 ```
 
 Do not run independent output-producing Nx graphs concurrently in one
-worktree. Use separate worktrees when concurrent graphs are necessary; each
-worktree is an isolated mutable output namespace.
+worktree, and do not create temporary worktrees for routine proof. Express the
+dependency edges and let one native Nx graph schedule, deduplicate, cache, and
+parallelize the work.
+
+Nx-owned Habitat targets never invoke Nx recursively. Owner-local Habitat work
+and concrete graph-backed rules are sibling leaves under dependency-only
+`check:policy` owner targets. Public `check` targets compose `typecheck`,
+`check:policy`, and upstream `check` targets; Nx chooses concurrency and restores
+cached outputs once per graph.
+
+Root `format` and `lint` are stable workspace operations backed by the Habitat
+project's `format`, `lint`, and `check:hygiene` targets. Their private
+implementations enforce canonical package-manifest ordering and source hygiene
+without exposing vendor names as root task contracts. `habitat:check:hygiene`
+owns the fast repository-wide native proof; `habitat:lint` retains the stricter
+Effect audit over JavaScript and TypeScript sources while its inherited findings
+are reduced monotonically.
 
 TypeScript checks are observation-only. When the effective project config is
 composite or incremental, invoke `tsc --noEmit` with `--composite false

@@ -29,6 +29,12 @@
       "kind": "project-owner"
     }
   ],
+  "graphDependencies": [
+    {
+      "project": "mod-swooper-maps",
+      "target": "gen:map-artifacts"
+    }
+  ],
   "supportFiles": {
     "baseline": ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/baseline.json"
   },

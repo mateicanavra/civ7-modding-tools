@@ -34,14 +34,14 @@ import { StudioEventHub, studioEventSubscriptionIterator } from "../services/Stu
  *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
  *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
  *     only an outer defect yields a transport error. PARITY INVARIANT.
-   *   - Stateful surfaces (autoplay #8, runInGame #13/#14 plus cancel,
-   *     mapConfigs #15/#16, operations.current) route through the package
-   *     operation runtime, which owns admission, lifecycle, diagnostics,
-   *     worker supervision, events, and lease release. Expected outcomes are
-   *     typed `StudioRuntimeFailure`s mapped here to declared oRPC errors.
-   *     Run in Game failures use safe public category data; other stateful
-   *     defects are contained as namespace `*_FAILED` with package-projected
-   *     `UnexpectedDefectData`.
+ *   - Stateful surfaces (autoplay #8, runInGame #13/#14 plus cancel,
+ *     mapConfigs #15/#16, operations.current) route through the package
+ *     operation runtime, which owns admission, lifecycle, diagnostics,
+ *     worker supervision, events, and lease release. Expected outcomes are
+ *     typed `StudioRuntimeFailure`s mapped here to declared oRPC errors.
+ *     Run in Game failures use safe public category data; other stateful
+ *     defects are contained as namespace `*_FAILED` with package-projected
+ *     `UnexpectedDefectData`.
  *
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
@@ -478,10 +478,14 @@ function statefulFailure(
   }
   const defect = statefulDefect(failure, procedure, fallbackMessage);
   return (
-    studioDefinedErrorConstructor(errors, defect.code)?.({
+    studioDefinedErrorConstructor(
+      errors,
+      defect.code
+    )?.({
       message: defect.message,
       data: defect.data,
-    }) ?? new ORPCError(defect.code, {
+    }) ??
+    new ORPCError(defect.code, {
       status: defect.status,
       message: defect.message,
       ...(defect.data === undefined ? {} : { data: defect.data }),

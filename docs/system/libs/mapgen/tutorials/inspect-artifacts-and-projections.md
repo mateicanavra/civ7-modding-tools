@@ -38,11 +38,11 @@ This harness runs a minimal recipe and writes a dump under `dist/visualization/<
 Preferred (package script):
 
 ```bash
-bun run --cwd mods/mod-swooper-maps viz:standard
+nx run mod-swooper-maps:viz:standard
 ```
 
 Optional args:
-- `bun run --cwd mods/mod-swooper-maps viz:standard <width> <height> <seed>`
+- `nx run mod-swooper-maps:viz:standard -- <width> <height> <seed>`
 
 The script prints the final dump directory.
 

@@ -12,6 +12,6 @@ Scope: `packages/civ7-direct-control/**`
 
 Validate with:
 
-- `bun run --cwd packages/civ7-direct-control test`
-- `bun run --cwd packages/civ7-direct-control check`
+- `nx run control-direct:test`
+- `nx run control-direct:check`
 - `nx run control-direct:build`

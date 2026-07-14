@@ -3,12 +3,6 @@
   "version": "0.0.0",
   "private": false,
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -21,14 +15,19 @@
       "require": "./dist/mapgen/index.cjs"
     }
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts",
-    "dev": "tsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts --watch",
-    "test": "vitest run --project sdk",
-    "lint": "biome check .",
-    "check": "tsc -p tsconfig.json --noEmit",
     "clean": "rimraf dist",
-    "prepublishOnly": "node -e \"\""
+    "dev": "tsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts --watch",
+    "prepublishOnly": "node -e \"\"",
+    "test": "vitest run --project sdk",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",
@@ -37,15 +36,15 @@
     "lodash-es": "^4.17.23"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.23",
+    "@civ7/types": "workspace:*",
     "@types/jstoxml": "^5.0.0",
-    "@civ7/types": "workspace:*"
+    "@types/lodash": "^4.17.23"
   },
   "engines": {
     "node": "22.22.0"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/",
-    "access": "public"
+    "access": "public",
+    "registry": "https://npm.pkg.github.com/"
   }
 }

@@ -39,6 +39,7 @@ import {
   buildRunInGameExactAuthorshipEvidence,
   runInGameMaterializationScriptUnresolvedLinks,
 } from "../runInGame/authorshipEvidence";
+import type { RunInGameDetailedEvidenceLog } from "../runInGame/evidenceTypes";
 import {
   fileContentMarkerEvidence,
   fileIdentity,
@@ -46,7 +47,6 @@ import {
   runInGameRequiredMaterializationMarkers,
 } from "../runInGame/fileEvidence";
 import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
-import type { RunInGameDetailedEvidenceLog } from "../runInGame/evidenceTypes";
 import {
   liveRuntimeStatusFromObservation,
   observeRunInGameRuntimeThroughStudioRpc,

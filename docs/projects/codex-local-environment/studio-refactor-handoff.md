@@ -2,59 +2,40 @@
 
 ## Intent
 
-The Codex local-environment workstream adds an operator control surface around
-MapGen Studio. It does not change the Studio product, runtime protocol, default
-ports, or the existing shared restart helper. The isolated lifecycle helper is
-deliberately separate so deleting a Codex-managed worktree cannot terminate a
-developer's normal Studio process.
+The Codex local environment exposes MapGen Studio through its canonical Nx
+development graph. It does not own a second process manager, lifecycle protocol,
+or set of Studio defaults.
 
-## What The Studio Stack Must Preserve Or Repoint
+## Composition Contract
 
-- `.codex/environments/environment.toml` invokes `scripts/codex/manage-mapgen-studio.sh`
-  for explicit start/stop and cleanup. Keep that contract as the one
-  worktree-owned lifecycle entrypoint.
-- The helper first runs `nx run mapgen-studio:build`. During Studio lifecycle
-  composition, repoint its daemon pane to the canonical
-  `nx run mapgen-studio:serve-daemon` target rather than preserving a duplicate
-  raw Bun watch command. Keep the frontend launch aligned with the canonical
-  Vite owner and retain `STUDIO_DAEMON_PORT`, `STUDIO_DEV_PORT`, and
-  `STUDIO_DEV_RPC_TARGET`.
-- Readiness and status must require the frontend and the daemon's `/healthz`
-  endpoint. A nonzero HTTP response from an arbitrary daemon route is not a
-  health proof.
-- The helper owns a private tmux socket and derives a unique session and port
-  pair from the Git worktree root. Its state is under the already ignored
-  `.mapgen-studio/codex-environment/`. Preserve its private
-  `NX_WORKSPACE_DATA_DIRECTORY` under that state directory; this Nx coordination
-  isolation is required for coexistence with a standard Studio session in the
-  same worktree. Do not replace this with the shared
-  `scripts/restart-mapgen-studio.sh` or with listener-wide port kills.
-- The standard Studio defaults and ports remain untouched. Codex-specific
-  ports exist only while this helper's private session is running.
+- `.codex/environments/environment.toml` starts Studio with
+  `nx run mapgen-studio:dev` in a foreground terminal.
+- `mapgen-studio:dev` is the continuous Vite target. Its continuous
+  `mapgen-studio:serve-daemon` dependency owns the Bun daemon, and the daemon's
+  one-shot producer dependencies complete before it starts.
+- `continuous` tells Nx not to wait for the daemon to exit before starting Vite.
+  It is scheduling metadata, not application-readiness evidence.
+- `STUDIO_DEV_PORT`, `STUDIO_DAEMON_PORT`, and `STUDIO_DEV_RPC_TARGET` remain the
+  supported port and routing overrides. Defaults remain product-owned.
+- The action terminal owns the process graph. Interrupting the foreground Nx
+  command must stop both the frontend and daemon; no tmux server, private Nx
+  workspace directory, state file, cleanup hook, or listener-wide kill exists.
 
-## Environment Bootstrap Coupling
+## Bootstrap Contract
 
 Managed-worktree setup uses the normal clean-checkout sequence: initialize the
 resources submodule and pinned Effect reference source, install the frozen Bun
 graph, build, and check. It does not prebuild Habitat or copy generated output
 from another checkout. The Habitat Nx plugin must load directly from source
-before ignored `tools/habitat/dist` exists. If that bootstrap contract changes,
-update `CODEX-LOCAL-ENVIRONMENT-REFERENCE.md` and
-`OPERATIONAL-FIELD-GUIDE.md` together.
+before ignored `tools/habitat/dist` exists.
 
-## Composition Check
+## Composition Proof
 
-After a Studio reorganization, run:
+1. Inspect `nx run mapgen-studio:dev --graph=stdout` and confirm the daemon is
+   the sole continuous dependency while all producers are one-shot tasks.
+2. Start the graph on bounded frontend and daemon ports.
+3. Verify the frontend and the daemon's `/healthz` endpoint.
+4. Interrupt the parent Nx process once and verify both listeners are released.
 
-```bash
-bash -n scripts/codex/manage-mapgen-studio.sh
-nx run mapgen-studio:build
-bash scripts/codex/manage-mapgen-studio.sh start
-bash scripts/codex/manage-mapgen-studio.sh status
-curl --fail http://127.0.0.1:<daemon-port>/healthz
-bash scripts/codex/manage-mapgen-studio.sh stop
-```
-
-Use two worktrees for the final lifecycle proof: stopping one instance must
-leave the other frontend and daemon reachable. This is operational isolation,
-not a Studio behavior test.
+This proves development lifecycle composition. Product behavior still requires
+its own rendered Studio and runtime verification.

@@ -6,4 +6,4 @@ Scope: `packages/civ7-map-policy/**`
 - Does not own MapGen physics, morphology, ecology, placement strategy, recipe order, generated output, or direct Civ7 runtime calls.
 - Keep this package small: add policies only when at least one operation or verifier needs the same Civ policy outside a single local helper.
 
-Tooling: use this package's `bun` scripts for build/check (`bun run --cwd packages/civ7-map-policy build`, `bun run --cwd packages/civ7-map-policy check`).
+Tooling: use `nx run civ7-map-policy:build` and `nx run civ7-map-policy:check`.

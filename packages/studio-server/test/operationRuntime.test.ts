@@ -1165,10 +1165,7 @@ describe("StudioOperationRuntime", () => {
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const failure = await expectFailure(
-      runtime,
-      service.runInGameStart(runInGameInput())
-    );
+    const failure = await expectFailure(runtime, service.runInGameStart(runInGameInput()));
 
     expect(failure).toMatchObject({
       tag: "InvalidRequest",

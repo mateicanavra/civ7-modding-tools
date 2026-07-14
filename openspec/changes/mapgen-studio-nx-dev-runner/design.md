@@ -39,10 +39,10 @@ dependencies or workspace watching rather than a bespoke child-process loop.
 
 ## D3. Script And Entrypoint Shape
 
-Root `dev:mapgen-studio` routes to repo-local Nx:
+The public command routes directly to repo-local Nx:
 
 ```bash
-bun run nx run mapgen-studio:dev
+nx run mapgen-studio:dev
 ```
 
 App package scripts may remain as target executors when Nx invokes them, but

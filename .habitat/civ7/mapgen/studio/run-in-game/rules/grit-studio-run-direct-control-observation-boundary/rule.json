@@ -31,10 +31,7 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": [
-    "packages/studio-server/src",
-    "apps/mapgen-studio/src/server"
-  ],
+  "scanRoots": ["packages/studio-server/src", "apps/mapgen-studio/src/server"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/baseline.json"
   },

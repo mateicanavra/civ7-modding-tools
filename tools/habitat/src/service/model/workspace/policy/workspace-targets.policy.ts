@@ -27,15 +27,7 @@ export function workspaceGraphTargetNames(
   options: WorkspaceGraphTargetNameOptions = {}
 ): WorkspaceGraphTargetNames {
   return Value.Parse(WorkspaceGraphTargetNamesSchema, {
-    aggregateCheck: options.aggregateCheckTargetName ?? "habitat:check:all",
-    biomeCheck: options.biomeCheckTargetName ?? "biome:check",
-    biomeCi: options.biomeCiTargetName ?? "biome:ci",
-    biomeFormat: options.biomeFormatTargetName ?? "biome:format",
-    boundaries: options.boundariesTargetName ?? "boundaries",
-    check: options.checkTargetName ?? "habitat:check",
-    generatedCheck: options.generatedCheckTargetName ?? "generated:check",
-    sourceCheck: options.sourceCheckTargetName ?? "source:check",
-    lint: options.lintTargetName ?? "lint",
+    check: options.checkTargetName ?? "check:policy",
     rulePrefix: options.ruleTargetPrefix ?? "habitat:rule:",
   });
 }
@@ -86,7 +78,7 @@ export function workspaceTargetStates(
   return [
     parseTargetState({
       kind: "aggregate-workspace-target",
-      target: targetNames.lint,
+      target: "lint",
       command: "bun run lint",
       dependencies: [],
     }),
@@ -191,12 +183,6 @@ function verifyProjectTargetStates(
   projects: readonly WorkspaceProject[],
   targetNames: WorkspaceGraphTargetNames
 ): WorkspaceTargetState[] {
-  const requiredGraphTargets = new Set([
-    targetNames.boundaries,
-    targetNames.biomeCi,
-    targetNames.generatedCheck,
-    targetNames.sourceCheck,
-  ]);
   return verifyAffectedTargetNames(targetNames).flatMap((target) => {
     const owners = projects.filter((project) => workspaceProjectHasTarget(project, target));
     if (owners.length > 0) {
@@ -210,15 +196,7 @@ function verifyProjectTargetStates(
         })
       );
     }
-    if (!requiredGraphTargets.has(target)) return [];
-    return [
-      parseTargetState({
-        kind: "graph-refusal",
-        reason: "missing-target",
-        target,
-        message: `Workspace graph refusal: no project exposes target '${target}'.`,
-      }),
-    ];
+    return [];
   });
 }
 

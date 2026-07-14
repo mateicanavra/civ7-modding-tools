@@ -277,12 +277,18 @@ graph; cache restoration can also replace declared outputs, so changing a
 bundler's clean flag alone cannot make independent graphs safe.
 **Decision:** A worktree is one mutable build-output namespace. All
 output-materializing targets needed for one proof run in one Nx invocation,
-where Nx owns their dependency order and deduplication. Independent graphs use
-separate worktrees when they must materialize outputs concurrently. Each cached
-writer declares only the artifacts it writes, aggregate targets declare no
-outputs, destructive clean targets are uncached, and consumers depend on every
-generated artifact they read. Validation-only TypeScript checks disable
-composite and incremental state and own no build artifacts.
+where Nx owns dependency order, deduplication, caching, and parallelism. Do not
+start competing output-materializing graphs for routine proof; compose the
+required targets and edges into one graph. Each cached writer declares only the
+artifacts it writes, aggregate targets declare no outputs, destructive clean
+targets are uncached, and consumers depend on every generated artifact they
+read. Validation-only TypeScript checks disable composite and incremental state
+and own no build artifacts.
+
+Nx-owned Habitat targets are one-way graph leaves or dependency-only nodes.
+Local Habitat rules execute in one owner-local leaf; registered `runner:nx`
+rules become concrete sibling dependencies. Public owner and aggregate targets
+use `nx:noop` and never launch Habitat or another Nx scheduler.
 **Consequences:**
 - Swooper checks and tests compose their bundle, generated artifacts, recipe
   artifacts, and dependency builds in one task graph. Its default and Studio
@@ -292,10 +298,12 @@ composite and incremental state and own no build artifacts.
   targets no longer duplicate their phase targets' output ownership.
 - Direct-control bundle and declaration phases have disjoint cached outputs;
   each phase cleans only its own files.
-- Separate output-materializing shell invocations are not a concurrency
+- Separate output-materializing shell invocations or proof worktrees are not a concurrency
   mechanism for one worktree. Global locks, blanket serialization, retries,
   disabled cleaning, and source aliases are rejected because they either
   duplicate Nx authority, hide missing task edges, or permit stale artifacts.
+- Routine proof does not require a temporary worktree. One native Nx graph owns
+  scheduling, cache restoration, failure propagation, and parallel execution.
 
 ## ADR-008: Hydrology owns canonical drainage routing
 

@@ -9,17 +9,16 @@
   "files": [
     "dist"
   ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "clean": "rimraf dist",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "test": "vitest run --project plugin-graph",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
   "dependencies": {
     "@hpcc-js/wasm": "^2.34.0",
     "fast-xml-parser": "^5.3.3"
-  },
-  "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "lint": "biome check .",
-    "test": "vitest run --project plugin-graph",
-    "clean": "rimraf dist"
   },
   "engines": {
     "node": "22.22.0"

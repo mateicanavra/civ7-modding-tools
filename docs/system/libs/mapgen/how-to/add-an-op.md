@@ -101,7 +101,7 @@ const implementations = {
 
 - Run:
   - `nx run mapgen-core:test`
-  - `bun run --cwd mods/mod-swooper-maps test`
+  - `nx run mod-swooper-maps:test`
 - Confirm the domain still type-checks (implementations match contracts).
 - If wired into a step, run a traced execution and confirm the op call returns correctly shaped outputs.
 

@@ -51,31 +51,33 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 
 - Use root `bun` workspace scripts only for durable repo-wide workflows:
   `build`, `check`, `lint`, `test`, `clean`, `ci`, `verify`, and operational
-  root commands such as `resources:*`, `refresh:data`, `biome:*`, and
-  `openspec*`.
+  root commands such as `resources:*`, `refresh:data`, and `openspec*`.
 - Use Nx directly for project tasks and graph execution:
   `nx run <project>:<target>` or `nx run-many -t <target>`. Root package
   scripts are not aliases for package-specific targets. For ad hoc terminal Nx
   commands, use `nx <args>` so the repo-local pinned Nx package is used through
-  standard Nx local override behavior. Habitat-spawned Nx commands must use the
-  same root entrypoint. Package scripts may still call non-Nx local tools such
-  as `biome` and `grit` through the script PATH, but package scripts must not
-  hide dependency ordering that belongs in Nx `dependsOn`.
+  standard Nx local override behavior. An Nx-owned Habitat target must not start
+  another Nx scheduler; project graph-backed work belongs in `dependsOn`.
+  Direct diagnostic Habitat commands may delegate an explicitly selected
+  `runner:nx` rule through the same root entrypoint. Package scripts may still
+  call non-Nx local tools such as `biome` and `grit` through the script PATH.
 - Put all output-materializing targets for one proof in one Nx invocation so
-  Nx owns their ordering and deduplication. Independent output-materializing
-  graphs must not share a worktree; use separate worktrees for concurrency.
+  Nx owns ordering, deduplication, caching, and parallelism. Do not manufacture
+  parallel graphs or temporary worktrees for routine proof; compose the task
+  graph instead.
 - Use direct Habitat CLI commands as `bun habitat <subcommand>`. Graph-owned
-  Habitat execution is `nx run-many -t habitat:check`.
+  Habitat execution is `nx run-many -t check:policy`.
 - Git hooks are Husky delegators into `bun habitat hook <name>`; hooks reduce local friction, while CI remains authoritative. Pre-commit may restage formatter-touched files only. Resource publishing is an explicit command path documented in `docs/process/resources-submodule.md`, not a hidden default hook side effect.
-- Project-plane import boundaries are enforced by the Habitat `boundaries`
-  target and `nx-boundaries` rule. See
+- Project-plane import boundaries are enforced by
+  `nx run habitat:check:boundaries` through the registered
+  `enforce_workspace_import_boundaries` rule. See
   `docs/projects/habitat-harness/taxonomy.md` before changing `kind:*` tags or
   boundary constraints.
 - For unfamiliar structure, start with `bun habitat classify <path-or-diff>`
   before editing. Treat emitted project targets as runnable only when classify
   reports them from resolved Nx metadata; unavailable targets are routing facts,
   not commands to run. For supported new uniform projects, scaffold with
-  `nx g @habitat/cli:project <name> --kind=<plugin|foundation|app>`;
+  `nx g @habitat/cli:project <name> --kind=plugin`;
   for new Grit-backed rules, use
   `nx g @habitat/cli:pattern <rule-id>` only to create a
   non-enforcing candidate draft. Candidate output is not a registered Habitat

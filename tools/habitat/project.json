@@ -3,6 +3,60 @@
   "name": "habitat",
   "tags": ["kind:tooling"],
   "targets": {
+    "serve:project-docs": {
+      "command": "./.habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh && bunx docsify-cli serve ./docs --port 7979",
+      "cache": false,
+      "continuous": true,
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format": {
+      "command": "sort-package-json package.json apps/*/package.json mods/*/package.json packages/*/package.json packages/plugins/*/package.json tools/*/package.json && biome check --write .",
+      "cache": false,
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "lint": {
+      "command": "biome lint --config-path=biome.effect.json .",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/**/*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}",
+        "{workspaceRoot}/biome.json",
+        "{workspaceRoot}/biome.effect.json",
+        "{workspaceRoot}/package.json",
+        "{workspaceRoot}/bun.lock",
+        "{workspaceRoot}/.gitignore"
+      ],
+      "outputs": [],
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "check:hygiene": {
+      "command": "sort-package-json --check --quiet package.json apps/*/package.json mods/*/package.json packages/*/package.json packages/plugins/*/package.json tools/*/package.json && biome ci --diagnostic-level=error .",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/**/*"],
+      "outputs": [],
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "check:boundaries": {
+      "command": "FORCE_COLOR=0 eslint . --quiet --config eslint.boundaries.config.mjs --no-config-lookup",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/**/*"],
+      "outputs": [],
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "build:tsc": {
       "command": "tsc -p tsconfig.json",
       "dependsOn": ["clean:dist"],

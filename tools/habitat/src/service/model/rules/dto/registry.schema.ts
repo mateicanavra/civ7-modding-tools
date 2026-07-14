@@ -176,9 +176,14 @@ const RuleSupportFilesSchema = Type.Object(
   { additionalProperties: false }
 );
 
+const RuleIdSchema = Type.String({
+  minLength: 1,
+  pattern: "^[a-z0-9][a-z0-9_-]*$",
+});
+
 const RuleManifestShape = {
   schemaVersion: Type.Literal(2),
-  id: Type.String({ minLength: 1 }),
+  id: RuleIdSchema,
   title: Type.String({ minLength: 1 }),
   placement: RulePlacementSchema,
   operation: RuleOperationSchema,
@@ -194,6 +199,9 @@ const RuleManifestShape = {
   hookCheck: Type.Optional(Type.Literal(true)),
   patternName: Type.Optional(Type.String({ minLength: 1 })),
   graphTarget: Type.Optional(GraphTargetSchema),
+  graphDependencies: Type.Optional(
+    Type.Array(GraphTargetSchema, { minItems: 1, uniqueItems: true })
+  ),
   generatedZone: Type.Optional(Type.String({ minLength: 1 })),
   forbiddenFileNames: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
   hostSurfaceGuard: Type.Optional(Type.Literal(true)),
@@ -283,6 +291,7 @@ export const RuleGraphFactsSchema = Type.Object(
     ownerRoot: Type.String({ minLength: 1 }),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
+    graphDependencies: Type.Array(GraphTargetSchema),
     alias: Type.Union([
       Type.Object({ kind: Type.Literal("direct-rule-check") }, { additionalProperties: false }),
       Type.Object(

@@ -75,9 +75,8 @@ codex/effect-biome-lint-rules-audit
   -> six remaining remediation packet branches
 ```
 
-Two unrelated local files are known and protected from staging:
+One unrelated local file is known and protected from staging:
 
-- `scripts/restart-mapgen-studio.sh`;
 - `mods/mod-swooper-maps/src/maps/configs/earthlike-wowza.config.json`.
 
 ## Remaining Packet Train

@@ -31,10 +31,7 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": [
-    "packages/studio-contract/src",
-    "packages/studio-server/src"
-  ],
+  "scanRoots": ["packages/studio-contract/src", "packages/studio-server/src"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/baseline.json"
   },

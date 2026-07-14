@@ -3,9 +3,22 @@
   "name": "civ7-sdk",
   "tags": ["kind:sdk"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "publish:npm": {
       "command": "bun publish --access public",
-      "dependsOn": ["build", "lint", "test", "check"],
+      "dependsOn": [
+        "build",
+        "test",
+        "check",
+        {
+          "projects": ["habitat"],
+          "target": "check:hygiene"
+        }
+      ],
       "cache": false,
       "outputs": [],
       "options": {

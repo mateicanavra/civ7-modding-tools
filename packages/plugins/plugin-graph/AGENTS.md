@@ -10,7 +10,7 @@ This package hosts the XML crawler and graph utilities used by the CLI and other
 - When modifying code here, run:
   ```bash
   nx run plugin-graph:build
-  nx run plugin-graph:lint
+  nx run plugin-graph:check
   nx run plugin-graph:test
   ```
   (tests are currently minimal; add coverage for new logic—see `TESTING.md`.)

@@ -88,6 +88,7 @@ treatment without adding a concrete tag or constraint row.
 | control-orpc | `packages/civ7-control-orpc` | `kind:control` |
 | control-studio-server | `packages/studio-server` | `kind:control` |
 | studio-contract | `packages/studio-contract` | `kind:foundation` |
+| studio-run-workspace | `packages/studio-run-workspace` | `kind:foundation` |
 | mapgen-studio-ui | `packages/mapgen-studio-ui` | `kind:foundation` |
 | civ7-types | `packages/civ7-types` | `kind:foundation` |
 | civ7-config | `packages/config` | `kind:foundation` |

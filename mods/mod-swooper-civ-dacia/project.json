@@ -3,6 +3,15 @@
   "name": "mod-dacia",
   "tags": ["kind:mod"],
   "targets": {
+    "docs": {
+      "cache": false,
+      "continuous": true
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "deploy": {
       "command": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
       "dependsOn": [

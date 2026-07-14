@@ -17,7 +17,10 @@ export function kindForMapConfigSaveDeployPhase(
 
 type NonTerminalPhase = Exclude<MapConfigSaveDeployPhase, "complete" | "failed">;
 
-type NonTerminalStatus = Extract<MapConfigSaveDeployStatus, { ok: true; status: "idle" | "running" }>;
+type NonTerminalStatus = Extract<
+  MapConfigSaveDeployStatus,
+  { ok: true; status: "idle" | "running" }
+>;
 type CompleteStatus = Extract<MapConfigSaveDeployStatus, { status: "complete" }>;
 type FailedStatus = Extract<MapConfigSaveDeployStatus, { ok: false }>;
 

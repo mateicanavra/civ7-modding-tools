@@ -26,7 +26,7 @@ describe("verify receipt", () => {
       affectedResult: {
         exitCode: 0,
         stdout:
-          "> nx run habitat:boundaries  [existing outputs match the cache, left as is]\n" +
+          "> nx run habitat:check:boundaries  [existing outputs match the cache, left as is]\n" +
           "> nx run habitat:check\n" +
           "Nx read the output from the cache instead of running the command for 1 out of 2 tasks.\n",
         stderr: "warning stream\n",
@@ -47,14 +47,14 @@ describe("verify receipt", () => {
     if (receipt.nxAffected.kind !== "executed") throw new Error("expected executed receipt");
     expect(receipt.nxAffected.stdoutLength).toBeGreaterThan(0);
     expect(receipt.nxAffected.stderrLength).toBe("warning stream\n".length);
-    expect(receipt.nxAffected.stdoutPreview).toContain("habitat:boundaries");
+    expect(receipt.nxAffected.stdoutPreview).toContain("habitat:check:boundaries");
     expect(receipt.nxAffected.stderrPreview).toBe("warning stream\n");
     expect(receipt.nxAffected.stdoutTruncated).toBe(false);
     expect(receipt.nxAffected.cacheStateByTask).toEqual([
       {
-        taskId: "habitat:boundaries",
+        taskId: "habitat:check:boundaries",
         project: "habitat",
-        target: "boundaries",
+        target: "check:boundaries",
         cacheState: "cache-hit",
       },
       {
@@ -115,14 +115,14 @@ describe("verify receipt", () => {
         "nx",
         "affected",
         "-t",
-        "build,check,test,lint",
+        "build,typecheck,test,lint",
         "--base",
         "HEAD",
         "--head",
         "HEAD",
         "--outputStyle=static",
       ],
-      targets: ["build", "check", "test", "lint"],
+      targets: ["build", "typecheck", "test", "lint"],
       projects: [],
       cacheStateByTask: [],
       exitCode: null,
@@ -154,7 +154,7 @@ describe("verify receipt", () => {
     expect(receipt.nxAffected).toMatchObject({
       kind: "skipped",
       skipReason: "receipt-only",
-      targets: ["build", "check", "test", "lint"],
+      targets: ["build", "typecheck", "test", "lint"],
       projects: [],
       cacheStateByTask: [],
       exitCode: null,
@@ -278,7 +278,7 @@ function verifyTargetPlanFixture() {
       root: "tools/habitat",
       sourceRoot: null,
       tags: ["kind:tooling"],
-      targets: [{ name: "build" }, { name: "check" }, { name: "test" }, { name: "lint" }],
+      targets: [{ name: "build" }, { name: "typecheck" }, { name: "test" }, { name: "lint" }],
     },
   ]);
 }

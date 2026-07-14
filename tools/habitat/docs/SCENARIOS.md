@@ -48,7 +48,7 @@ or mod boundaries.
 Use:
 
 ```bash
-nx run-many -t habitat:check
+nx run-many -t check:policy
 ```
 
 Supported outcome:
@@ -66,26 +66,25 @@ Use:
 
 ```bash
 bun run check
-nx run-many -t habitat:check
 bun run verify
 ```
 
 Supported outcome:
 
-- `check` runs graph-discovered package check targets;
-- `nx run-many -t habitat:check` runs graph-owned Habitat structural targets;
+- `check` composes compiler, Habitat policy, workspace hygiene, boundary, and
+  upstream checks in one native Nx graph;
 - `verify` runs heavier package build/check/test verification targets;
-- Habitat checks participate through generated owner-level `habitat:check`
+- Habitat checks participate through generated owner-level `check:policy`
   targets.
 
-Use `bun run check` for package health, `nx run-many -t habitat:check` for
-Habitat structural ownership checks, and `bun run verify` when the change needs
-the heavier build/check/test aggregate. CI runs the full graph without
-re-entering `verify`.
+Use `bun run check` for complete non-mutating correctness,
+`nx run-many -t check:policy` for Habitat-only structural proof, and
+`bun run verify` for package-owned verification targets. CI runs one composed
+graph without re-entering `verify`.
 
 Pre-push is a local feedback path, not a synonym for `check:graph`: it checks
-changed hook source paths in process, then runs affected package `check` and
-explicit validation targets.
+changed hook source paths in process, then runs one affected public `check`
+graph. Authority-file changes select generated policy targets in one run-many.
 
 ### Run Diagnostic Habitat Verify
 

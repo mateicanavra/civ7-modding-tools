@@ -3,6 +3,11 @@
   "name": "control-direct",
   "tags": ["kind:control"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "build-bundle": {
       "command": "tsup --config tsup.config.ts",
       "options": {

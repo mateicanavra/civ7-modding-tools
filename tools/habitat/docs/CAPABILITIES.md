@@ -41,8 +41,8 @@ The direct command `bun habitat` dispatches through the root `habitat` script to
 
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
-| `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and top-level `--runner` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
-| `verify` | `bun habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
+| `check` | `bun habitat check`; graph entrypoint: `nx run-many -t check:policy` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and top-level `--runner` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
+| `verify` | `bun habitat verify [--base <ref>]` | Runs Habitat check first, then affected `build`, `typecheck`, `test`, and `lint` targets without re-running Habitat policy. JSON mode emits a structured verification receipt. |
 | `classify` | `bun habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun habitat fix --dry-run [--rule <id> ...]`; `bun habitat fix` | `--dry-run` previews only transformations explicitly admitted by registered `rule.json` authority and reports their file impacts. Omission selects all admitted rules; repeated `--rule` selects one or many atomically. The non-dry invocation refuses before service realization. It never writes, formats, gates, rolls back, or establishes commit readiness. |
 | `graph` | `bun habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
@@ -50,13 +50,13 @@ The direct command `bun habitat` dispatches through the root `habitat` script to
 
 Root scripts also expose graph-owned entrypoints:
 
-- `bun run lint` runs graph-discovered package lint targets. Biome remains
-  available as `bun run biome:ci`.
+- `bun run lint` runs the advisory Effect source audit; `bun run format`
+  performs workspace formatting and `habitat:check:hygiene` is the native gate.
 - Habitat structural verification lives behind generated owner and rule targets:
-  `nx run-many -t habitat:check`, `nx run <project>:habitat:check`, and
-  `habitat:habitat:check:all`. Curated direct `habitat check --rule`
+  `nx run-many -t check:policy`, `nx run <project>:check:policy`, and
+  `<project>:habitat:rule:<id>`. Curated direct `habitat check --rule`
   invocations are for diagnostics and focused proof, not package script policy.
-- `habitat:habitat:check` runs the Toolkit-owned Habitat rules for CLI
+- `habitat:check:policy` runs the Toolkit-owned Habitat rules for CLI
   smoke, boundary taxonomy, service-module shape, and other registered
   `habitat` owner rules.
 - Registered Grit rules run through `bun habitat check --rule <rule-id>` for
@@ -65,13 +65,13 @@ Root scripts also expose graph-owned entrypoints:
   `pattern.md`; there is no separate native `grit patterns test` fixture corpus
   wired today. A future fixture corpus would be a distinct validation layer,
   not another rule authority.
-- `bun run check` runs graph-discovered package check targets.
+- `bun run check` runs every public project correctness aggregate in one graph.
 - `bun habitat hook pre-push` runs changed-path hook Grit checks in
   process. Ordinary source changes then run affected package checks plus
   explicit validation targets; Habitat artifact-only changes run Habitat
   structural or owning-rule targets instead of generic product `check`.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
-- `bun run ci` runs the full repo-wide build, check, lint, and test aggregate
+- `bun run ci` runs the full repo-wide build, check, and test aggregate
   without re-entering `verify`.
 
 Important distinction: root `bun run verify` is a workspace aggregate. It is not
@@ -80,23 +80,24 @@ the same command as diagnostic `bun habitat verify`.
 ## Workspace Graph Integration
 
 The workspace graph loads the Habitat inference plugin from
-`tools/habitat/src/nx-plugin.ts` and package-declared Nx targets from
-project manifests. Together they expose these Habitat-owned targets:
+`tools/habitat/src/nx-plugin.ts` and explicit project targets from manifests.
+Together they expose:
 
-- Repo-wide `boundary`
-- Repo-wide formatter targets
-- Repo-wide pattern checks
-- Repo-wide `generated:check`
-- Package-owned `lint` for Toolkit CLI smoke, current workspace taxonomy,
-  manifest, Nx metadata, boundary config, graph-edge validation, and service
-  module shape
-- Aggregate `habitat:check:all` for one-pass full Habitat graph checks
-  (known rebuild target until full-suite discovery/admission is repaired)
-- Per-rule `habitat:rule:<rule-id>` aliases
-- Per-owner `habitat:check` targets for projects that own Habitat rules
+- Habitat-owned workspace `format`, `lint`, `check:hygiene`, and
+  `check:boundaries` targets;
+- compiler-only project `typecheck` targets;
+- dependency-only public project `check` targets;
+- per-rule `habitat:rule:<rule-id>` targets;
+- one owner-local Habitat batch plus concrete graph-backed sibling work under
+  each dependency-only `check:policy` owner target.
+
+Habitat-executed rules may declare closed scheduling-only `graphDependencies`
+for exact generated outputs. Their generated targets still invoke Habitat; only
+registered `runner:nx` rules delegate execution to concrete external leaves.
 
 The graph is the intended orchestration layer. Package scripts should not hide
-cross-project dependency ordering that belongs in graph target dependencies.
+cross-project dependency ordering that belongs in graph target dependencies,
+and Nx-owned Habitat tasks never launch a second Nx scheduler.
 Current workspace topology audits belong in this layer; unit tests cover the
 pure parser and audit model with fixtures.
 

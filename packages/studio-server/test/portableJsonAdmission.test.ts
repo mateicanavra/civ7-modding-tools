@@ -1,4 +1,4 @@
-import { runInGame, type MapConfigEnvelope } from "@civ7/studio-contract";
+import { type MapConfigEnvelope, runInGame } from "@civ7/studio-contract";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 

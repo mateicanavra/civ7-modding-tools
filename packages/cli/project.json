@@ -3,6 +3,11 @@
   "name": "civ7-cli",
   "tags": ["kind:app"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "build:tsc": {
       "command": "tsc -b --force",
       "dependsOn": ["clean:dist", "^build"],
@@ -121,7 +126,15 @@
     },
     "publish:npm": {
       "command": "bun publish --access public",
-      "dependsOn": ["build", "lint", "test", "check"],
+      "dependsOn": [
+        "build",
+        "test",
+        "check",
+        {
+          "projects": ["habitat"],
+          "target": "check:hygiene"
+        }
+      ],
       "cache": false,
       "outputs": [],
       "options": {

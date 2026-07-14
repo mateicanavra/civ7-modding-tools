@@ -17,13 +17,13 @@ import { makeTestRuleFacts } from "../support/habitat-service-deps.js";
 
 const fixtureProjects = [
   project("habitat", "tools/habitat", "kind:tooling", [
-    "biome:ci",
-    "boundaries",
     "check",
-    "generated:check",
-    "source:check",
-    "test",
+    "check:boundaries",
+    "check:hygiene",
+    "check:policy",
     "lint",
+    "typecheck",
+    "test",
   ]),
   project("civ7-adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
   project("civ7-config", "packages/config", "kind:foundation", ["build", "check", "test"]),
@@ -37,7 +37,7 @@ const fixtureProjects = [
   ]),
   project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
     "check",
-    "habitat:check",
+    "check:policy",
     "test",
   ]),
 ];
