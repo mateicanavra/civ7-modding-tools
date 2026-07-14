@@ -27,6 +27,7 @@
         "{workspaceRoot}/biome.effect.json",
         "{workspaceRoot}/package.json",
         "{workspaceRoot}/bun.lock",
+        "{workspaceRoot}/patches/@catenarycloud%2Flinteffect@0.0.6.patch",
         "{workspaceRoot}/.gitignore"
       ],
       "outputs": [],
