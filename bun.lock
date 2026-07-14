@@ -391,6 +391,7 @@
   "patchedDependencies": {
     "effect-orpc@0.5.0": "patches/effect-orpc@0.5.0.patch",
     "tsup@8.5.1": "patches/tsup@8.5.1.patch",
+    "@catenarycloud/linteffect@0.0.6": "patches/@catenarycloud%2Flinteffect@0.0.6.patch",
   },
   "overrides": {
     "@biomejs/biome": "2.5.3",
