@@ -123,6 +123,29 @@ describe("Civ7 playable-status procedure descriptor", () => {
     });
   });
 
+  test("does not admit malformed truthy probe evidence as playable App UI state", async () => {
+    const ready = playableStatusResult();
+    const dependencies: PlayableStatusDependencies = {
+      getAppUiSnapshot: async () => ({
+        ...ready.appUi,
+        snapshot: {
+          ...ready.appUi.snapshot,
+          ui: {
+            ...ready.appUi.snapshot.ui,
+            inGame: { ok: "true", value: true } as never,
+          },
+        },
+      }),
+      checkTunerHealth: async () => ({ ...ready.tuner, ready: false }),
+      errorMessage: (err) => (err instanceof Error ? err.message : String(err)),
+    };
+
+    await expect(getCiv7PlayableStatus({}, dependencies)).resolves.toMatchObject({
+      playable: false,
+      readiness: "unavailable",
+    });
+  });
+
   test("rejects context-owned procedure input before playable-status dependencies run", async () => {
     let touchedRuntime = false;
     const dependencies: PlayableStatusDependencies = {

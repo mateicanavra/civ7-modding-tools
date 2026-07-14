@@ -21,3 +21,15 @@ export function jsonPayloadFromCommandResult<T extends object>(
     );
   }
 }
+
+export function throwUnexpectedCommandPayloadStatus(
+  result: Civ7CommandResult,
+  label: string,
+  status: never
+): never {
+  throw new Civ7DirectControlError(
+    "command-failed",
+    `${label} returned unexpected status: ${String(status)}`,
+    { details: result }
+  );
+}

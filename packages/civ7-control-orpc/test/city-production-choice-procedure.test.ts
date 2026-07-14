@@ -145,6 +145,27 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     expect(fake.calls).toEqual([]);
   });
 
+  test("does not admit malformed truthy playable evidence before mutation", async () => {
+    const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
+      playableStatus: {
+        playable: "true" as never,
+        readiness: "tuner-ready",
+      },
+    });
+
+    await expect(
+      call(
+        Civ7ControlOrpcRouter.city.production.choice.request,
+        { cityId, args },
+        { context: fake.context }
+      )
+    ).rejects.toMatchObject({
+      code: "MUTATION_READINESS_REQUIRED",
+      data: { playable: false },
+    });
+    expect(fake.calls).toEqual([]);
+  });
+
   test("does not let a controller mutation allowlist bypass readiness without proof", async () => {
     const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
       playableStatus: {

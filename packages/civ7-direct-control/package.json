@@ -11,6 +11,12 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./game-ui/loading-states": {
+      "types": "./dist/game-ui/loading-states.d.ts",
+      "bun-source": "./src/game-ui/loading-states.ts",
+      "import": "./dist/game-ui/loading-states.js",
+      "require": "./dist/game-ui/loading-states.cjs"
+    },
     "./play/operations/production-choice-proof": {
       "types": "./dist/play/operations/production-choice-proof.d.ts",
       "bun-source": "./src/play/operations/production-choice-proof.ts",

@@ -1,5 +1,9 @@
+import type { MiddlewareOptions, MiddlewareResult, ORPCErrorConstructorMap } from "@orpc/server";
+
+import type { Civ7ControlOrpcContext } from "../context";
+import type { Civ7ControlOrpcErrorMap } from "../errors";
+import type { Civ7ControlOrpcProcedureMeta } from "../metadata";
 import { civ7ControlOrpcErrorCorrelationData } from "../model/correlation";
-import { civ7ControlOrpcImplementer } from "../procedure";
 
 import { civ7MutationProcedureKey } from "./mutation-procedure-key";
 
@@ -10,23 +14,40 @@ export type Civ7MutationProofBoundaryViolation =
   | "sent-unverified-without-do-not-repeat"
   | "sent-guarded-without-do-not-repeat";
 
-export const civ7MutationProofBoundaryMiddleware = civ7ControlOrpcImplementer.middleware(
-  async ({ context, errors, next, path, procedure }) => {
-    const result = await next();
-    const violation = civ7MutationProofBoundaryViolation(result.output);
-    if (violation == null) return result;
+type Civ7MutationProofBoundaryErrorConstructors = ORPCErrorConstructorMap<
+  Pick<Civ7ControlOrpcErrorMap, "MUTATION_PROOF_BOUNDARY_INVALID">
+>;
 
-    throw errors.MUTATION_PROOF_BOUNDARY_INVALID({
-      data: {
-        procedureKey: civ7MutationProcedureKey(procedure["~orpc"].meta, path),
-        source: "mutation-proof-boundary",
-        risk: "mutation",
-        reason: violation,
-        ...civ7ControlOrpcErrorCorrelationData(context),
-      },
-    });
-  }
-);
+type Civ7MutationProofBoundaryMiddleware = <TOutput>(
+  options: MiddlewareOptions<
+    Civ7ControlOrpcContext,
+    TOutput,
+    Civ7MutationProofBoundaryErrorConstructors,
+    Civ7ControlOrpcProcedureMeta
+  >
+) => Promise<MiddlewareResult<Record<never, never>, TOutput>>;
+
+export const civ7MutationProofBoundaryMiddleware: Civ7MutationProofBoundaryMiddleware = async ({
+  context,
+  errors,
+  next,
+  path,
+  procedure,
+}) => {
+  const result = await next();
+  const violation = civ7MutationProofBoundaryViolation(result.output);
+  if (violation == null) return result;
+
+  throw errors.MUTATION_PROOF_BOUNDARY_INVALID({
+    data: {
+      procedureKey: civ7MutationProcedureKey(procedure["~orpc"].meta, path),
+      source: "mutation-proof-boundary",
+      risk: "mutation",
+      reason: violation,
+      ...civ7ControlOrpcErrorCorrelationData(context),
+    },
+  });
+};
 
 export function civ7MutationProofBoundaryViolation(
   output: unknown

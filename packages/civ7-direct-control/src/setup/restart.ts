@@ -5,9 +5,13 @@ import {
   type Civ7AppUiSnapshot,
   type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
-import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import { probeValue } from "../runtime/probe.js";
 import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
 import { waitForCiv7TunerReadyWithSession } from "../runtime/tuner-health.js";
+import {
+  jsonPayloadFromCommandResult,
+  throwUnexpectedCommandPayloadStatus,
+} from "../session/command-result.js";
 import { executeCiv7AppUiCommand, executeCiv7Command } from "../session/execute.js";
 import { executeSessionCommandWithReconnect } from "../session/reconnect.js";
 import type { Civ7DirectControlSession } from "../session/session.js";
@@ -30,6 +34,27 @@ export type Civ7RestartAndBeginResult = Readonly<{
   tunerHealth?: Civ7TunerHealthResult;
   observations: ReadonlyArray<Civ7AppUiSnapshot>;
 }>;
+
+export type Civ7BeginGameResult =
+  | Readonly<{
+      command: Civ7CommandResult;
+      accepted: true;
+      loadingState: number;
+    }>
+  | Readonly<{
+      command: Civ7CommandResult;
+      accepted: false;
+      loadingState?: number;
+      reason: "loading-state" | "notify-unavailable";
+    }>;
+
+type Civ7BeginGamePayload =
+  | Readonly<{ status: "performed"; loadingState: number }>
+  | Readonly<{
+      status: "refused";
+      loadingState?: number;
+      reason: "loading-state" | "notify-unavailable";
+    }>;
 
 type RestartBeginDependencies = Readonly<{
   appUiState: Civ7TunerStateSelection;
@@ -76,13 +101,14 @@ export async function beginCiv7Game(
   options: Civ7DirectControlOptions = {},
   dependencies: Pick<
     RestartBeginDependencies,
-    "beginGameCommand" | "executeAppUiCommand"
+    "beginGameCommand" | "executeAppUiCommand" | "uiLoadingStates"
   > = defaultRestartBeginDependencies
-): Promise<Civ7CommandResult> {
-  return await dependencies.executeAppUiCommand({
+): Promise<Civ7BeginGameResult> {
+  const command = await dependencies.executeAppUiCommand({
     ...options,
-    command: dependencies.beginGameCommand,
+    command: buildBeginGameCommand(dependencies),
   });
+  return beginGameResultFromCommand(command);
 }
 
 export async function restartCiv7Game(
@@ -103,6 +129,10 @@ export async function restartCiv7Game(
   return result;
 }
 
+/**
+ * @deprecated Multi-step lifecycle orchestration belongs in `@civ7/control-orpc`; this is a
+ * compatibility helper for callers awaiting migration.
+ */
 export async function restartCiv7GameAndBegin(
   options: Civ7DirectControlOptions & {
     waitForTuner?: boolean;
@@ -152,11 +182,19 @@ export async function restartCiv7GameAndBegin(
               session,
               {
                 state: dependencies.appUiState,
-                command: dependencies.beginGameCommand,
+                command: buildBeginGameCommand(dependencies),
                 timeoutMs: options.timeoutMs,
               },
               1
             );
+            const beginResult = beginGameResultFromCommand(begin);
+            if (!beginResult.accepted) {
+              throw new Civ7DirectControlError(
+                "setup-phase-refused",
+                `Civ7 Begin refused: ${beginResult.reason}`,
+                { details: beginResult }
+              );
+            }
           } catch (err) {
             beginError = errorMessage(err);
             throw err;
@@ -164,8 +202,7 @@ export async function restartCiv7GameAndBegin(
         }
         if (
           loadingState === dependencies.uiLoadingStates.GameStarted &&
-          snapshotResult.snapshot.ui.inGame.ok &&
-          snapshotResult.snapshot.ui.inGame.value
+          probeValue(snapshotResult.snapshot.ui.inGame) === true
         ) {
           finalAppUi = snapshotResult;
           break;
@@ -203,6 +240,42 @@ export async function restartCiv7GameAndBegin(
   });
 }
 
+export function buildBeginGameCommand(
+  dependencies: Pick<RestartBeginDependencies, "beginGameCommand" | "uiLoadingStates">
+): string {
+  return `(() => {
+    const loadingState = typeof UI !== "undefined" && UI && typeof UI.getGameLoadingState === "function"
+      ? UI.getGameLoadingState()
+      : undefined;
+    if (typeof UI === "undefined" || !UI || typeof UI.notifyUIReady !== "function") {
+      return JSON.stringify({ status: "refused", loadingState, reason: "notify-unavailable" });
+    }
+    if (loadingState !== ${dependencies.uiLoadingStates.WaitingForUIReady} && loadingState !== ${dependencies.uiLoadingStates.WaitingToStart}) {
+      return JSON.stringify({ status: "refused", loadingState, reason: "loading-state" });
+    }
+    ${dependencies.beginGameCommand};
+    return JSON.stringify({ status: "performed", loadingState });
+  })()`;
+}
+
+export function beginGameResultFromCommand(command: Civ7CommandResult): Civ7BeginGameResult {
+  const payload = jsonPayloadFromCommandResult<Civ7BeginGamePayload>(command, "Civ7 Begin");
+  const status = payload.status;
+  switch (status) {
+    case "performed":
+      return { command, accepted: true, loadingState: payload.loadingState };
+    case "refused":
+      return {
+        command,
+        accepted: false,
+        ...(payload.loadingState === undefined ? {} : { loadingState: payload.loadingState }),
+        reason: payload.reason,
+      };
+    default:
+      return throwUnexpectedCommandPayloadStatus(command, "Civ7 Begin", status);
+  }
+}
+
 function assertRestartConfirmed(result: Civ7CommandResult): void {
   if (result.output[0] !== "true") {
     throw new Civ7DirectControlError(
@@ -221,10 +294,6 @@ function isCiv7BeginReadyLoadingState(
   >
 ): boolean {
   return state === loadingStates.WaitingForUIReady || state === loadingStates.WaitingToStart;
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
 }
 
 function errorMessage(err: unknown): string {

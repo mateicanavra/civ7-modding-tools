@@ -76,6 +76,7 @@ export const Civ7MapSummaryResultSchema = Type.Object(
         height: Civ7RuntimeProbeSchema(Type.Number()),
         plotCount: Civ7RuntimeProbeSchema(Type.Number()),
         mapSize: Civ7RuntimeProbeSchema(Type.Union([Type.Number(), Type.String()])),
+        mapSizeType: Civ7RuntimeProbeSchema(Type.String({ pattern: "^MAPSIZE_[A-Z0-9_]+$" })),
         randomSeed: Civ7RuntimeProbeSchema(Type.Number()),
       },
       { additionalProperties: false }
@@ -113,6 +114,7 @@ export type Civ7MapSummaryResult = Readonly<{
     height: Civ7RuntimeProbe<number>;
     plotCount: Civ7RuntimeProbe<number>;
     mapSize: Civ7RuntimeProbe<number | string>;
+    mapSizeType: Civ7RuntimeProbe<string>;
     randomSeed: Civ7RuntimeProbe<number>;
   }>;
   game: Readonly<{

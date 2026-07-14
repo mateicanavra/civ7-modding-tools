@@ -1,4 +1,4 @@
-import { civ7ControlOrpcContractBase } from "./contract-base";
+import { civ7ControlOrpcRouterContractBase } from "./contract-base";
 import {
   Civ7AttentionContract,
   type Civ7AttentionContract as Civ7AttentionContractType,
@@ -19,6 +19,10 @@ import {
   Civ7GovernmentContract,
   type Civ7GovernmentContract as Civ7GovernmentContractType,
 } from "./modules/government/contract";
+import {
+  Civ7LifecycleContract,
+  type Civ7LifecycleContract as Civ7LifecycleContractType,
+} from "./modules/lifecycle/contract";
 import {
   Civ7NarrativeContract,
   type Civ7NarrativeContract as Civ7NarrativeContractType,
@@ -62,6 +66,7 @@ export type Civ7ControlOrpcContract = Readonly<{
   diplomacy: Civ7DiplomacyContractType;
   display: Civ7DisplayContractType;
   government: Civ7GovernmentContractType;
+  lifecycle: Civ7LifecycleContractType;
   narrative: Civ7NarrativeContractType;
   notifications: Civ7NotificationsContractType;
   progression: Civ7ProgressionContractType;
@@ -73,19 +78,21 @@ export type Civ7ControlOrpcContract = Readonly<{
   world: Civ7WorldContractType;
 }>;
 
-export const Civ7ControlOrpcContract: Civ7ControlOrpcContract = civ7ControlOrpcContractBase.router({
-  attention: Civ7AttentionContract,
-  city: Civ7CityContract,
-  diplomacy: Civ7DiplomacyContract,
-  display: Civ7DisplayContract,
-  government: Civ7GovernmentContract,
-  narrative: Civ7NarrativeContract,
-  notifications: Civ7NotificationsContract,
-  progression: Civ7ProgressionContract,
-  readiness: Civ7ReadinessContract,
-  strategy: Civ7StrategyContract,
-  turn: Civ7TurnContract,
-  unit: Civ7UnitContract,
-  view: Civ7ViewContract,
-  world: Civ7WorldContract,
-});
+export const Civ7ControlOrpcContract: Civ7ControlOrpcContract =
+  civ7ControlOrpcRouterContractBase.router({
+    attention: Civ7AttentionContract,
+    city: Civ7CityContract,
+    diplomacy: Civ7DiplomacyContract,
+    display: Civ7DisplayContract,
+    government: Civ7GovernmentContract,
+    lifecycle: Civ7LifecycleContract,
+    narrative: Civ7NarrativeContract,
+    notifications: Civ7NotificationsContract,
+    progression: Civ7ProgressionContract,
+    readiness: Civ7ReadinessContract,
+    strategy: Civ7StrategyContract,
+    turn: Civ7TurnContract,
+    unit: Civ7UnitContract,
+    view: Civ7ViewContract,
+    world: Civ7WorldContract,
+  });

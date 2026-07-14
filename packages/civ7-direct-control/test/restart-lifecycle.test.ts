@@ -2,6 +2,7 @@ import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
 import {
+  beginCiv7Game,
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
@@ -25,12 +26,39 @@ describe("Civ7 restart lifecycle", () => {
       });
 
       expect(result.restart.output).toEqual(["true"]);
-      expect(result.begin?.output).toEqual(["null"]);
+      expect(result.begin?.output).toEqual([
+        JSON.stringify({ status: "performed", loadingState: 6 }),
+      ]);
       expect(result.finalAppUi.snapshot.ui.loadingState).toEqual({ ok: true, value: 8 });
       expect(result.tunerHealth?.ready).toBe(true);
       expect(server.received).toContain(`CMD:65535:${CIV7_RESTART_COMMAND}`);
-      expect(server.received).toContain(`CMD:65535:${CIV7_BEGIN_GAME_COMMAND}`);
+      expect(
+        server.received.some(
+          (message) =>
+            message.startsWith("CMD:65535:(() =>") && message.includes(CIV7_BEGIN_GAME_COMMAND)
+        )
+      ).toBe(true);
+      expect(server.notifyCount()).toBe(1);
       expect(server.received.some((message) => message.startsWith("CMD:1:(() =>"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not admit malformed truthy in-game probe evidence", async () => {
+    const server = await startRestartLifecycleServer({ malformedInGameProbe: true });
+    try {
+      const { port } = server.address();
+      await expect(
+        restartCiv7GameAndBegin({
+          host: "127.0.0.1",
+          port,
+          timeoutMs: 100,
+          waitTimeoutMs: 100,
+          pollIntervalMs: 10,
+        })
+      ).rejects.toMatchObject({ code: "connection-timeout" });
+      expect(server.notifyCount()).toBe(1);
     } finally {
       await server.close();
     }
@@ -71,14 +99,54 @@ describe("Civ7 restart lifecycle", () => {
       await server.close();
     }
   });
+
+  test.each([
+    6, 7,
+  ] as const)("begins exactly once from admitted loading state %s", async (state) => {
+    const server = await startRestartLifecycleServer({ initialLoadingState: state });
+    try {
+      const { port } = server.address();
+      await expect(
+        beginCiv7Game({ host: "127.0.0.1", port, timeoutMs: 1_000 })
+      ).resolves.toMatchObject({ accepted: true, loadingState: state });
+      expect(server.notifyCount()).toBe(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test.each([
+    0, 8,
+  ] as const)("refuses non-begin loading state %s without notifying", async (state) => {
+    const server = await startRestartLifecycleServer({ initialLoadingState: state });
+    try {
+      const { port } = server.address();
+      await expect(
+        beginCiv7Game({ host: "127.0.0.1", port, timeoutMs: 1_000 })
+      ).resolves.toMatchObject({
+        accepted: false,
+        loadingState: state,
+        reason: "loading-state",
+      });
+      expect(server.notifyCount()).toBe(0);
+    } finally {
+      await server.close();
+    }
+  });
 });
 
 async function startRestartLifecycleServer(
-  options: { restartOutput?: string; tunerReady?: boolean } = {}
+  options: {
+    initialLoadingState?: number;
+    malformedInGameProbe?: boolean;
+    restartOutput?: string;
+    tunerReady?: boolean;
+  } = {}
 ) {
   const received: string[] = [];
-  let loadingState = 6;
+  let loadingState = options.initialLoadingState ?? 6;
   let inShell = true;
+  let notifyCount = 0;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -94,14 +162,37 @@ async function startRestartLifecycleServer(
           loadingState = 6;
           inShell = false;
           socket.write(encodeResponse(frame.listenerId, [options.restartOutput ?? "true"]));
-        } else if (frame.message === `CMD:65535:${CIV7_BEGIN_GAME_COMMAND}`) {
-          loadingState = 8;
-          inShell = false;
-          socket.write(encodeResponse(frame.listenerId, ["null"]));
+        } else if (
+          frame.message.startsWith("CMD:65535:(() =>") &&
+          frame.message.includes(CIV7_BEGIN_GAME_COMMAND)
+        ) {
+          if (loadingState === 6 || loadingState === 7) {
+            const before = loadingState;
+            notifyCount += 1;
+            loadingState = 8;
+            inShell = false;
+            socket.write(
+              encodeResponse(frame.listenerId, [
+                JSON.stringify({ status: "performed", loadingState: before }),
+              ])
+            );
+          } else {
+            socket.write(
+              encodeResponse(frame.listenerId, [
+                JSON.stringify({ status: "refused", loadingState, reason: "loading-state" }),
+              ])
+            );
+          }
         } else if (frame.message.includes("Network.isInSession")) {
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify(appUiSnapshot({ inShell, loadingState })),
+              JSON.stringify(
+                appUiSnapshot({
+                  inShell,
+                  loadingState,
+                  malformedInGameProbe: options.malformedInGameProbe === true,
+                })
+              ),
             ])
           );
         } else if (frame.message.includes("evalOk: 1 + 1")) {
@@ -119,6 +210,7 @@ async function startRestartLifecycleServer(
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   return {
     received,
+    notifyCount: () => notifyCount,
     address: () => server.address() as AddressInfo,
     close: async () => {
       server.close();
@@ -127,7 +219,15 @@ async function startRestartLifecycleServer(
   };
 }
 
-function appUiSnapshot({ inShell, loadingState }: { inShell: boolean; loadingState: number }) {
+function appUiSnapshot({
+  inShell,
+  loadingState,
+  malformedInGameProbe,
+}: {
+  inShell: boolean;
+  loadingState: number;
+  malformedInGameProbe: boolean;
+}) {
   return {
     network: {
       isInSession: { ok: true, value: !inShell },
@@ -153,7 +253,9 @@ function appUiSnapshot({ inShell, loadingState }: { inShell: boolean; loadingSta
       hash: { ok: true, value: 0 },
     },
     ui: {
-      inGame: { ok: true, value: !inShell },
+      inGame: malformedInGameProbe
+        ? { ok: "true", value: !inShell }
+        : { ok: true, value: !inShell },
       inShell: { ok: true, value: inShell },
       inLoading: { ok: true, value: loadingState !== 8 && !inShell },
       loadingState: { ok: true, value: loadingState },

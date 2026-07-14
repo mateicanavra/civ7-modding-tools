@@ -236,20 +236,26 @@ import {
   CIV7_UI_LOADING_STATES,
 } from "./setup/constants.js";
 import {
+  applyCiv7SinglePlayerSetup,
   assertPreparedSetupMatches,
   type Civ7PreparedSetupResult,
   type Civ7SavedGameConfigurationListInput,
   type Civ7SavedGameConfigurationListResult,
+  type Civ7SavedGameConfigurationLoadRequestResult,
   type Civ7SavedGameConfigurationLoadResult,
   type Civ7SavedGameConfigurationRef,
+  type Civ7SetupApplicationResult,
   type Civ7SetupOptionValue,
   type Civ7SinglePlayerSetupInput,
+  type Civ7SinglePlayerSetupValues,
   listCiv7SavedGameConfigurations as listCiv7SavedGameConfigurationsFromModule,
-  normalizeSavedGameConfigurationRef,
   normalizeSinglePlayerSetupInput as normalizeSinglePlayerSetupInputFromModule,
   prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
+  reconcileCiv7RequiredTargetMod,
+  requestCiv7SavedGameConfigurationLoad,
 } from "./setup/prepare.js";
 import {
+  admitCiv7SetupShell,
   type Civ7ActiveTargetMod,
   type Civ7ActiveTargetModsInput,
   type Civ7ActiveTargetModsResult,
@@ -263,20 +269,19 @@ import {
   type Civ7SetupParameterValue,
   type Civ7SetupSnapshot,
   type Civ7SetupSnapshotResult,
+  type Civ7SetupUiReloadResult,
   defaultSetupReadDependencies,
   getCiv7ActiveTargetMods,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
+  reloadCiv7SetupUiInShell,
   waitForCiv7SetupPhase,
 } from "./setup/reads.js";
 import {
-  type Civ7SinglePlayerRunInput,
-  type Civ7SinglePlayerRunResult,
-  runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule,
-} from "./setup/run.js";
-import {
   type Civ7PreparedStartInput,
+  type Civ7SinglePlayerHostResult,
   type Civ7SinglePlayerStartResult,
+  hostPreparedCiv7SinglePlayerGame,
   startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule,
 } from "./setup/start.js";
 
@@ -1293,16 +1298,22 @@ export type {
   Civ7SavedGameConfiguration,
   Civ7SavedGameConfigurationListInput,
   Civ7SavedGameConfigurationListResult,
+  Civ7SavedGameConfigurationLoadRequestResult,
   Civ7SavedGameConfigurationLoadResult,
   Civ7SavedGameConfigurationRef,
   Civ7SavedGameConfigurationSummary,
+  Civ7SetupApplicationResult,
   Civ7SetupOptionValue,
   Civ7SinglePlayerSetupInput,
+  Civ7SinglePlayerSetupValues,
   Civ7TargetModReconciliationResult,
 } from "./setup/prepare.js";
 export {
+  applyCiv7SinglePlayerSetup,
   assertPreparedSetupMatches,
   DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR,
+  reconcileCiv7RequiredTargetMod,
+  requestCiv7SavedGameConfigurationLoad,
 } from "./setup/prepare.js";
 export type {
   Civ7ActiveTargetMod,
@@ -1317,25 +1328,32 @@ export type {
   Civ7SetupParameterSnapshot,
   Civ7SetupParameterValue,
   Civ7SetupPhase,
+  Civ7SetupShellAdmissionPolicy,
+  Civ7SetupShellAdmissionResult,
   Civ7SetupSnapshot,
   Civ7SetupSnapshotResult,
+  Civ7SetupUiReloadResult,
 } from "./setup/reads.js";
-export { ensureCiv7SetupMapRowVisible } from "./setup/reads.js";
-export type { Civ7RestartAndBeginResult } from "./setup/restart.js";
+export {
+  admitCiv7SetupShell,
+  ensureCiv7SetupMapRowVisible,
+  reloadCiv7SetupUiInShell,
+} from "./setup/reads.js";
+export type { Civ7BeginGameResult, Civ7RestartAndBeginResult } from "./setup/restart.js";
 export {
   beginCiv7Game,
   restartCiv7Game,
   restartCiv7GameAndBegin,
 } from "./setup/restart.js";
 export type {
-  Civ7SinglePlayerRunInput,
-  Civ7SinglePlayerRunResult,
-} from "./setup/run.js";
-export type {
   Civ7PreparedStartInput,
+  Civ7SinglePlayerHostResult,
   Civ7SinglePlayerStartResult,
 } from "./setup/start.js";
-export { startPreparedCiv7SinglePlayerGame } from "./setup/start.js";
+export {
+  hostPreparedCiv7SinglePlayerGame,
+  startPreparedCiv7SinglePlayerGame,
+} from "./setup/start.js";
 export {
   getCiv7ActiveTargetMods,
   getCiv7CitySummary,
@@ -1675,16 +1693,45 @@ function setupReadDependencies() {
   return {
     ...defaultSetupReadDependencies,
     loadSavedGameConfiguration: loadCiv7SavedGameConfiguration,
+    parseSavedConfigLoadRequest: (result: Civ7CommandResult, label: string) =>
+      jsonPayloadFromCommandResult<
+        | {
+            status: "performed";
+            before: Civ7SetupSnapshot;
+            accepted: boolean;
+          }
+        | {
+            status: "refused";
+            before: Civ7SetupSnapshot;
+            reason: "phase" | "revision-unavailable";
+          }
+      >(result, label),
     parseSetupPreparation: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<{
-        before: Civ7SetupSnapshot;
-        after: Civ7SetupSnapshot;
-        applied: Record<string, Civ7SetupOptionValue>;
-      }>(result, label),
+      jsonPayloadFromCommandResult<
+        | {
+            status: "performed";
+            before: Civ7SetupSnapshot;
+            after: Civ7SetupSnapshot;
+            applied: Record<string, Civ7SetupOptionValue>;
+          }
+        | {
+            status: "refused";
+            before: Civ7SetupSnapshot;
+            reason: "phase" | "map-row";
+          }
+        | {
+            status: "unverified";
+            before: Civ7SetupSnapshot;
+            after: Civ7SetupSnapshot;
+            applied: Record<string, Civ7SetupOptionValue>;
+            mismatch: string;
+          }
+      >(result, label),
     validateIdentifier,
   } as const;
 }
 
+/** @deprecated Use `lifecycle.singlePlayer.start` from `@civ7/control-orpc`. */
 export async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
   options: Civ7DirectControlOptions = {}
@@ -1698,20 +1745,23 @@ export async function listCiv7SavedGameConfigurations(
   return await listCiv7SavedGameConfigurationsFromModule(input, { boundedInteger });
 }
 
+/**
+ * @deprecated Multi-step saved-configuration observation belongs in `@civ7/control-orpc`; this is
+ * a compatibility helper over the direct-control load-request and setup-snapshot atoms.
+ */
 export async function loadCiv7SavedGameConfiguration(
   input: Civ7SavedGameConfigurationRef,
   options: Civ7DirectControlOptions = {},
   wait: { waitTimeoutMs?: number; pollIntervalMs?: number } = {}
 ): Promise<Civ7SavedGameConfigurationLoadResult> {
-  const savedConfig = normalizeSavedGameConfigurationRef(input);
-  const before = await getCiv7SetupSnapshot(options);
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildLoadSavedGameConfigurationCommand(savedConfig),
-  });
+  const request = await requestCiv7SavedGameConfigurationLoad(
+    input,
+    options,
+    setupReadDependencies()
+  );
   const waitTimeoutMs = wait.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
   const pollIntervalMs = wait.pollIntervalMs ?? 1_000;
-  const after = await waitForCiv7SetupRevisionAfter(before, options, {
+  const after = await waitForCiv7SetupRevisionAfter(request.before, options, {
     waitTimeoutMs,
     pollIntervalMs,
   }).catch(async () => {
@@ -1719,31 +1769,15 @@ export async function loadCiv7SavedGameConfiguration(
     return getCiv7SetupSnapshot(options);
   });
   return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    savedConfig,
-    before,
+    host: request.command.host,
+    port: request.command.port,
+    state: request.command.state,
+    savedConfig: request.savedConfig,
+    before: request.before,
     after,
-    command,
-    loaded: command.output.some((line) => line.includes('"ok":true')),
+    command: request.command,
+    loaded: request.accepted,
   };
-}
-
-export async function runCiv7SinglePlayerFromSetup(
-  input: Civ7SinglePlayerRunInput,
-  options: Civ7DirectControlOptions = {}
-): Promise<Civ7SinglePlayerRunResult> {
-  return await runCiv7SinglePlayerFromSetupFromModule(input, options, {
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-    getSetupSnapshot: getCiv7SetupSnapshot,
-    prepareSetup: prepareCiv7SinglePlayerSetup,
-    startPreparedGame: startPreparedCiv7SinglePlayerGameFromModule,
-    validateIdentifier,
-    waitForSetupPhase: waitForCiv7SetupPhase,
-  });
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {
@@ -1954,27 +1988,6 @@ function buildResourceBuilderDiagnosticsCommand(input: {
   })()`;
 }
 
-function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfigurationRef): string {
-  return `(() => {
-    const input = ${jsLiteral(input)};
-    const serverType = typeof ServerType !== "undefined" && ServerType && ServerType.SERVER_TYPE_NONE !== undefined
-      ? ServerType.SERVER_TYPE_NONE
-      : 0;
-    const params = {
-      Location: SaveLocations.LOCAL_STORAGE,
-      LocationCategories: SaveLocationCategories.NORMAL,
-      Type: SaveTypes.SINGLE_PLAYER,
-      ContentType: SaveFileTypes.GAME_CONFIGURATION,
-      FileName: input.fileName,
-      DisplayName: input.displayName,
-    };
-    return JSON.stringify({
-      ok: Network.loadGame(params, serverType),
-      serverType,
-      params,
-    });
-  })()`;
-}
 function normalizePlotFields(
   fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined
 ): ReadonlyArray<Civ7PlotSnapshotField> {
