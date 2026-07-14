@@ -442,46 +442,30 @@ function parseSetupRowsInput(command: string): { file?: string; limit: number } 
 }
 
 function preparedRunRequest(): RunInGamePreparedRequest {
-  const source = {
-    kind: "catalog" as const,
-    sourcePath: "mods/mod-swooper-maps/src/maps/configs/test-of-time.config.json",
-    canonicalConfig: {
-      id: "test-of-time",
-      name: "Test of Time",
-      description: "Workflow fixture.",
-      recipe: "standard",
-      sortIndex: 1,
-      latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
-      config: {},
-    },
+  const canonicalConfig = {
+    id: "test-of-time",
+    name: "Test of Time",
+    description: "Workflow fixture.",
+    recipe: "standard" as const,
+    sortIndex: 1,
+    latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+    config: {},
   };
   const launchEnvelope = {
-    recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 123 },
+    seed: 123,
     worldSettings: { mapSize: "MAPSIZE_HUGE" },
     setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
-    source,
-  };
-  const launchSourceDigest = {
-    canonicalConfigDigest: "canonical-config-digest",
+    canonicalConfig,
   };
   return {
     request: {
-      recipeId: "mod-swooper-maps/standard",
+      recipeId: "standard",
       mapSize: "MAPSIZE_HUGE",
       seed: 123,
       setupConfig: launchEnvelope.setupConfig,
-      sourceSnapshot: {
-        requestId: "run-workflow-disabled-mod",
-        source: { kind: "catalog", sourcePath: source.sourcePath },
-        canonicalConfigDigest: launchSourceDigest.canonicalConfigDigest,
-        launchEnvelopeDigest: "envelope-digest",
-      },
-      launchEnvelope,
-      launchSourceDigest,
-      launchEnvelopeDigest: "envelope-digest",
     },
     launchEnvelope,
-    launchSourceDigest,
+    canonicalConfigDigest: "canonical-config-digest",
     launchEnvelopeDigest: "envelope-digest",
   } as RunInGamePreparedRequest;
 }

@@ -20,7 +20,7 @@ import { RightDock } from "../layout/RightDock.js";
 // verified renders, instead of living as loose HTML in the design project.
 //
 // Deliberately NOT here (app-side runtime, not chrome geometry): the skip
-// link + sr-only live region, preset dialogs, the hidden import input, the
+// link + sr-only live region, config dialogs, the hidden import input, the
 // measured header height (the app's ResizeObserver refines `panelTop`; the
 // defaults below use the LAYOUT seed values), and the map/pipeline stage swap
 // (pass the active stage as `canvas` and swap `rightPanel` out in pipeline

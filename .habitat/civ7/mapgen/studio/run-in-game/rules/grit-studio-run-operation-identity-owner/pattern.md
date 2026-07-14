@@ -30,7 +30,6 @@ or {
   $...
   requestId: string;
   leaseId: string;
-  correlationDigest: string;
   $...
 }>`
   },
@@ -238,7 +237,6 @@ export type RuntimeActiveSlot = Readonly<{ requestId: string; leaseId: string }>
 export type RunInGameInternalOperation = Readonly<{
   requestId: string;
   leaseId: string;
-  correlationDigest: string;
 }>;
 
 // @filename: packages/studio-server/src/operationRuntime/operationRecords.ts

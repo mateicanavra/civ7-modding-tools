@@ -5,7 +5,7 @@
 // Backend engineers: These can be overridden by server-provided defaults.
 // ============================================================================
 
-import type { RecipeSettings, ViewState, WorldSettings } from "@swooper/mapgen-studio-ui/types";
+import type { ViewState, WorldSettings } from "@swooper/mapgen-studio-ui/types";
 
 // ============================================================================
 // Default World Settings
@@ -15,16 +15,6 @@ export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
   mapSize: "MAPSIZE_STANDARD",
   playerCount: 6,
   resources: "balanced",
-};
-
-// ============================================================================
-// Default Recipe Settings
-// ============================================================================
-
-export const DEFAULT_RECIPE_SETTINGS: RecipeSettings = {
-  recipe: "mod-swooper-maps/standard",
-  preset: "none",
-  seed: "123",
 };
 
 // ============================================================================

@@ -54,7 +54,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
   const correlation = {
     requestId: args.requestId,
     runArtifactId,
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest: materialization?.generationManifestDigest ?? "",
   };
@@ -420,8 +420,8 @@ function runCorrelationMismatches(
   if (observed.generationManifestDigest !== expected.generationManifestDigest) {
     mismatches.push("generationManifestDigest");
   }
-  if (stableJson(observed.launchSourceDigest) !== stableJson(expected.launchSourceDigest)) {
-    mismatches.push("launchSourceDigest");
+  if (observed.canonicalConfigDigest !== expected.canonicalConfigDigest) {
+    mismatches.push("canonicalConfigDigest");
   }
   return mismatches;
 }
@@ -449,9 +449,7 @@ function compactRunCorrelationFromPayload(
   return {
     requestId: value.requestId,
     runArtifactId,
-    launchSourceDigest: {
-      canonicalConfigDigest: value.canonicalConfigDigest,
-    },
+    canonicalConfigDigest: value.canonicalConfigDigest,
     launchEnvelopeDigest: value.launchEnvelopeDigest,
     generationManifestDigest: value.generationManifestDigest,
   };
@@ -461,10 +459,9 @@ function runCorrelationFromValue(
   value: Record<string, unknown> | undefined
 ): RunCorrelation | undefined {
   if (!value) return undefined;
-  const launchSourceDigest = recordValue(value, "launchSourceDigest");
   const requestId = stringValue(value.requestId);
   const runArtifactId = runArtifactIdFromMarker(stringValue(value.runArtifactId));
-  const canonicalConfigDigest = stringValue(launchSourceDigest?.canonicalConfigDigest);
+  const canonicalConfigDigest = stringValue(value.canonicalConfigDigest);
   const launchEnvelopeDigest = stringValue(value.launchEnvelopeDigest);
   const generationManifestDigest = stringValue(value.generationManifestDigest);
   if (
@@ -479,9 +476,7 @@ function runCorrelationFromValue(
   return {
     requestId,
     runArtifactId,
-    launchSourceDigest: {
-      canonicalConfigDigest,
-    },
+    canonicalConfigDigest,
     launchEnvelopeDigest,
     generationManifestDigest,
   };
@@ -736,22 +731,6 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined;
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(canonicalJson(value));
-}
-
-function canonicalJson(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalJson);
-  const record = asRecord(value);
-  if (!record) return value;
-  const out: Record<string, unknown> = {};
-  for (const key of Object.keys(record).sort()) {
-    const entry = record[key];
-    if (entry !== undefined) out[key] = canonicalJson(entry);
-  }
-  return out;
 }
 
 function diagnosticString(value: unknown): string | undefined {

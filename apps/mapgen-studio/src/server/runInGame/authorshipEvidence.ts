@@ -4,7 +4,6 @@ import type {
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
-  RunInGameSourceSnapshotEvidence,
 } from "@civ7/studio-server";
 import type { RunInGameDetailedExactAuthorshipEvidence } from "./evidenceTypes";
 import {
@@ -15,7 +14,6 @@ import {
 export function buildRunInGameExactAuthorshipEvidence(args: {
   requestId: string;
   request?: RunInGameRequestStatus;
-  sourceSnapshot?: RunInGameSourceSnapshotEvidence;
   materialization: RunInGameMaterializationStatus;
   sourceConfig?: RunInGameFileIdentity;
   generatedSourceScript?: RunInGameFileIdentity;
@@ -59,21 +57,9 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
     requiredMarkers: requiredMaterializationMarkers,
   });
 
-  addMissing(unresolvedLinks, args.sourceSnapshot !== undefined, "source-snapshot");
-  addMissing(unresolvedLinks, args.sourceSnapshot?.source !== undefined, "source-snapshot.source");
   addMissing(
     unresolvedLinks,
-    Boolean(args.sourceSnapshot?.canonicalConfigDigest),
-    "source-snapshot.canonical-config-digest"
-  );
-  addMissing(
-    unresolvedLinks,
-    Boolean(args.sourceSnapshot?.launchEnvelopeDigest),
-    "source-snapshot.launch-envelope-digest"
-  );
-  addMissing(
-    unresolvedLinks,
-    Boolean(args.request?.launchSourceDigest?.canonicalConfigDigest),
+    Boolean(args.request?.canonicalConfigDigest),
     "request.canonical-config-digest"
   );
   addMissing(
@@ -179,25 +165,7 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
 
   addStringMismatch(
     unresolvedLinks,
-    args.sourceSnapshot?.requestId,
-    args.requestId,
-    "source-snapshot.request-id-mismatch"
-  );
-  addStringMismatch(
-    unresolvedLinks,
-    args.sourceSnapshot?.canonicalConfigDigest,
-    args.request?.launchSourceDigest?.canonicalConfigDigest,
-    "source-snapshot.canonical-config-digest-mismatch"
-  );
-  addStringMismatch(
-    unresolvedLinks,
-    args.sourceSnapshot?.launchEnvelopeDigest,
-    args.request?.launchEnvelopeDigest,
-    "source-snapshot.launch-envelope-digest-mismatch"
-  );
-  addStringMismatch(
-    unresolvedLinks,
-    args.request?.launchSourceDigest?.canonicalConfigDigest,
+    args.request?.canonicalConfigDigest,
     args.materialization.canonicalConfigDigest,
     "request.canonical-config-digest-mismatch"
   );
@@ -285,7 +253,12 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
     status: unresolvedLinks.length === 0 ? "complete" : "unresolved",
     requestId: args.requestId,
     createdAt: args.createdAt ?? new Date().toISOString(),
-    ...(args.sourceSnapshot ? { sourceSnapshot: args.sourceSnapshot } : {}),
+    ...(args.request?.canonicalConfigDigest === undefined
+      ? {}
+      : { canonicalConfigDigest: args.request.canonicalConfigDigest }),
+    ...(args.request?.launchEnvelopeDigest === undefined
+      ? {}
+      : { launchEnvelopeDigest: args.request.launchEnvelopeDigest }),
     request: {
       ...(args.request?.recipeId === undefined ? {} : { recipeId: args.request.recipeId }),
       ...(args.request?.seed === undefined ? {} : { seed: args.request.seed }),

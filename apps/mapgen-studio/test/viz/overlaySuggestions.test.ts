@@ -3,7 +3,7 @@ import { getOverlaySuggestions } from "../../src/recipes/overlaySuggestions";
 
 describe("getOverlaySuggestions", () => {
   it("returns configured suggestions for known recipes", () => {
-    const suggestions = getOverlaySuggestions("mod-swooper-maps/standard");
+    const suggestions = getOverlaySuggestions("standard");
     expect(suggestions.length).toBeGreaterThan(0);
     expect(
       suggestions.some(

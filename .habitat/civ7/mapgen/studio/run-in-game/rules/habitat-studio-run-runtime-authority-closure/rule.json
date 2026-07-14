@@ -12,9 +12,9 @@
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "forbids": "Run in Game runtime packet closure while structural authority rows SA-01 through SA-13 are missing or obscured by unresolved packet-local temporary rules",
+  "forbids": "Run in Game runtime packet closure while any currently listed structural authority row is missing or obscured by unresolved packet-local temporary rules",
   "why": "Packet 14 closes the authority-set topology by verifying the registered matrix, owners, manifests, empty baselines, and removal of temporary rules. One Nx workspace policy graph executes the two owner-local Habitat targets; this leaf does not orchestrate sibling checks.",
-  "remediate": "Register the owning SA-01 through SA-13 Habitat rules, restore their matrix and empty baseline contracts, remove or promote packet-local temporary rules, then rerun the workspace policy graph.",
+  "remediate": "Register every currently listed owning Habitat rule, restore its matrix and empty baseline contract, remove or promote packet-local temporary rules, then rerun the workspace policy graph.",
   "message": "Studio Run in Game runtime authority closure is incomplete.",
   "pathCoverage": [
     {

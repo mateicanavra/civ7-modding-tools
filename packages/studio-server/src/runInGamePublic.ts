@@ -15,7 +15,7 @@ export function publicRunInGameFailureCategory(
     case "OperationBlocked":
       return "ownership";
     case "InvalidRequest":
-      return sourceResolutionInvalidRequest(failure) ? "source-resolution" : "request-validation";
+      return "request-validation";
     case "OperationExpired":
     case "OperationNotFound":
     case "DaemonIdentityMismatch":
@@ -40,16 +40,6 @@ export function publicRunInGameFailureCategory(
   }
 }
 
-function sourceResolutionInvalidRequest(failure: StudioRuntimeFailure): boolean {
-  const code = failure.diagnostics?.code;
-  return (
-    typeof code === "string" &&
-    (code === "run-in-game-catalog-source-not-found" ||
-      code === "run-in-game-catalog-source-reader-unavailable" ||
-      code === "run-in-game-catalog-source-resolution-failed")
-  );
-}
-
 export function publicRunInGameFailureMessage(category: RunInGameSafeFailureCategory): string {
   switch (category) {
     case "request-validation":
@@ -66,8 +56,6 @@ export function publicRunInGameFailureMessage(category: RunInGameSafeFailureCate
       return "Run in Game runtime control failed.";
     case "runtime-observation":
       return "Run in Game runtime observation failed.";
-    case "source-resolution":
-      return "Run in Game source resolution failed.";
     case "attribution":
       return "Run in Game attribution failed.";
     case "cleanup":

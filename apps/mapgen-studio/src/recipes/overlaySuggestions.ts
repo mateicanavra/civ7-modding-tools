@@ -8,7 +8,7 @@ export type OverlaySuggestion = Readonly<{
 }>;
 
 const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[]>> = {
-  "mod-swooper-maps/standard": [
+  standard: [
     {
       id: "foundation.history.boundaryType::foundation.tectonics.boundaryType",
       primaryDataTypeKey: "foundation.history.boundaryType",

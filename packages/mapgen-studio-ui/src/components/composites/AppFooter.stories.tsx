@@ -1,10 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type {
-  MapSize,
-  RecipeSettings,
-  SelectOption,
-  WorldSettings,
-} from "@swooper/mapgen-studio-ui";
+import type { MapSize, SelectOption, WorldSettings } from "@swooper/mapgen-studio-ui";
 import { AppFooter } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
 
@@ -30,11 +25,7 @@ const world: WorldSettings = {
   playerCount: 6,
   resources: "balanced",
 };
-const recipe: RecipeSettings = {
-  recipe: "mod-swooper-maps/standard",
-  preset: "continents",
-  seed: "1474829",
-};
+const seed = "1474829";
 
 // Options + seed-range fixture args — today's exact app values (E2-A
 // options-via-props + the seedPolicy inject-props; fixture values, not policy).
@@ -72,12 +63,11 @@ function Dock({ children }: { children: ReactNode }) {
 export const Ready: Story = {
   args: {
     status: "ready",
-    lastRunSettings: recipe,
-    lastGlobalSettings: world,
+    lastRun: { seed, worldSettings: world },
     globalSettings: world,
-    currentSettings: recipe,
+    seed,
     onGlobalSettingsChange: noop,
-    onSettingsChange: noop,
+    onSeedChange: noop,
     onRun: noop,
     onReroll: noop,
     isRunning: false,
@@ -101,12 +91,11 @@ export const Ready: Story = {
 export const RunningDirty: Story = {
   args: {
     status: "running",
-    lastRunSettings: recipe,
-    lastGlobalSettings: world,
+    lastRun: { seed, worldSettings: world },
     globalSettings: world,
-    currentSettings: { ...recipe, seed: "1474830" },
+    seed: "1474830",
     onGlobalSettingsChange: noop,
-    onSettingsChange: noop,
+    onSeedChange: noop,
     onRun: noop,
     onReroll: noop,
     isRunning: true,

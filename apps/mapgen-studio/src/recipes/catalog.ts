@@ -1,4 +1,5 @@
 import { type MapConfigEnvelope, snapshotMapConfigEnvelope } from "@civ7/studio-contract";
+import { validateStandardMapConfigSnapshotForSchema } from "mod-swooper-maps/maps/configs/standard-admission";
 import type { XSchema } from "typebox/schema";
 
 export type StudioRecipeId = string;
@@ -22,45 +23,23 @@ export type StudioRecipeUiMeta = Readonly<{
   >;
 }>;
 
-export type BuiltInPreset = Readonly<{
-  sourcePath: string;
-  canonicalConfig: MapConfigEnvelope;
-}>;
-
-export type RecipeArtifacts<TConfig = unknown> = {
+export type RecipeArtifacts = Readonly<{
   id: StudioRecipeId;
   label: string;
   /** Raw JSON Schema used for interpreted config validation and the authoring UI. */
   configSchema: XSchema;
-  /**
-   * Complete default recipe config object produced by recipe artifacts.
-   *
-   * Treated as unknown by Studio so each recipe controls its config shape.
-   */
-  defaultConfig: TConfig;
-  /**
-   * UI-facing meta derived from the authored recipe/stage source at build time.
-   *
-   * - stages/steps are for view/navigation (no pipeline semantics changes)
-   * - config focus paths are for pre-generation editing focus
-   */
+  /** Complete default installed atomically when the recipe is selected. */
+  defaultCanonicalConfig: MapConfigEnvelope;
+  /** Complete named configs available in the bundled catalog. */
+  catalogConfigs: ReadonlyArray<MapConfigEnvelope>;
+  /** UI-facing stage metadata derived from the authored recipe source. */
   uiMeta: StudioRecipeUiMeta;
-  /**
-   * Built-in presets authored in the recipe package and emitted via artifacts.
-   */
-  studioBuiltInPresets?: ReadonlyArray<BuiltInPreset>;
-};
+  /** Applies recipe-owned semantic admission without rebuilding the envelope. */
+  admitCanonicalConfig: (config: MapConfigEnvelope) => MapConfigEnvelope;
+}>;
 
-export type RecipeOption = { id: StudioRecipeId; label: string };
+export type RecipeOption = Readonly<{ id: StudioRecipeId; label: string }>;
 
-function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
-  return `${namespace}/${recipeId}`;
-}
-
-// This is a bundled catalog for the current Studio build. Recipe schema/default
-// contracts are generated from recipe package source by `build:studio-recipes`
-// and exported as first-class package artifacts; Studio does not treat `dist/`
-// or generated output as editable policy.
 import {
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
   STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
@@ -68,20 +47,39 @@ import {
 } from "mod-swooper-maps/recipes/standard-artifacts";
 import { standardMapConfigs as swooperStandardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
 
+function requireCanonicalConfig(value: unknown, label: string): MapConfigEnvelope {
+  const snapshot = snapshotMapConfigEnvelope(value);
+  if (snapshot === undefined) throw new TypeError(`Invalid Studio config: ${label}`);
+  return snapshot;
+}
+
+const standardCatalogConfigs = swooperStandardMapConfigs.map(({ canonicalConfig }) =>
+  requireCanonicalConfig(canonicalConfig, canonicalConfig.id)
+);
+
+const standardDefaultCanonicalConfig = requireCanonicalConfig(
+  {
+    id: "studio-current",
+    name: "Studio Current",
+    description: "Current Studio configuration.",
+    recipe: "standard",
+    sortIndex: 9999,
+    latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+    config: swooperStandardDefaultConfig,
+  },
+  "standard default"
+);
+
 export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
   {
-    id: makeRecipeId("mod-swooper-maps", "standard"),
+    id: "standard",
     label: "Swooper Maps / Standard",
     configSchema: swooperStandardConfigSchema,
-    defaultConfig: swooperStandardDefaultConfig,
+    defaultCanonicalConfig: standardDefaultCanonicalConfig,
+    catalogConfigs: standardCatalogConfigs,
     uiMeta: swooperStandardUiMeta,
-    studioBuiltInPresets: swooperStandardMapConfigs.map(({ sourcePath, canonicalConfig }) => {
-      const snapshot = snapshotMapConfigEnvelope(canonicalConfig);
-      if (snapshot === undefined) {
-        throw new TypeError(`Invalid generated Studio catalog config: ${sourcePath}`);
-      }
-      return { sourcePath, canonicalConfig: snapshot };
-    }),
+    admitCanonicalConfig: (config) =>
+      validateStandardMapConfigSnapshotForSchema(config, swooperStandardConfigSchema),
   },
 ] as const;
 
@@ -91,26 +89,29 @@ export const STUDIO_RECIPE_OPTIONS: readonly RecipeOption[] = STUDIO_RECIPE_ARTI
 }));
 
 export const DEFAULT_STUDIO_RECIPE_ID: StudioRecipeId =
-  STUDIO_RECIPE_ARTIFACTS[0]?.id ?? "unknown/unknown";
+  STUDIO_RECIPE_ARTIFACTS[0]?.id ?? "standard";
 
 export function findRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts | null {
-  return STUDIO_RECIPE_ARTIFACTS.find((r) => r.id === recipeId) ?? null;
-}
-
-/** Catalog resolution stays in generated recipe artifacts, never browser storage. */
-export function findBuiltInPresetBySourcePath(
-  recipeId: StudioRecipeId,
-  sourcePath: string
-): BuiltInPreset | null {
-  return (
-    findRecipeArtifacts(recipeId)?.studioBuiltInPresets?.find(
-      (preset) => preset.sourcePath === sourcePath
-    ) ?? null
-  );
+  return STUDIO_RECIPE_ARTIFACTS.find((recipe) => recipe.id === recipeId) ?? null;
 }
 
 export function getRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts {
-  const recipe = STUDIO_RECIPE_ARTIFACTS.find((r) => r.id === recipeId);
-  if (!recipe) throw new Error(`Unknown recipeId: ${recipeId}`);
+  const recipe = findRecipeArtifacts(recipeId);
+  if (recipe === null) throw new Error(`Unknown recipeId: ${recipeId}`);
   return recipe;
+}
+
+/** Returns the namespaced identity used only by the presentation DAG service. */
+export function getRecipeDagId(recipeId: StudioRecipeId): string {
+  const { namespace, recipeId: authoredRecipeId } = getRecipeArtifacts(recipeId).uiMeta;
+  return `${namespace}/${authoredRecipeId}`;
+}
+
+export function findCatalogConfig(
+  recipeId: StudioRecipeId,
+  configId: string
+): MapConfigEnvelope | null {
+  return (
+    findRecipeArtifacts(recipeId)?.catalogConfigs.find((config) => config.id === configId) ?? null
+  );
 }

@@ -60,13 +60,6 @@ export type {
   StrategySelection,
 } from "./op/index.js";
 export { createOp, createStrategy, defineOp, opRef } from "./op/index.js";
-export type { RecipePresetDefinitionV1, StudioPresetExportFileV1 } from "./preset-schemas.js";
-export {
-  derivePresetLabel,
-  isPresetWrapper,
-  RecipePresetDefinitionV1Schema,
-  StudioPresetExportFileV1Schema,
-} from "./preset-schemas.js";
 export { createRecipe } from "./recipe.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export type {

@@ -7,7 +7,6 @@ import {
   STUDIO_RUN_MAP_SCRIPT_PATH,
 } from "@civ7/studio-run-workspace";
 import { build } from "esbuild";
-import { admitSwooperCatalogConfig } from "../src/maps/catalog/admission.js";
 import { admitStandardMapConfig } from "../src/maps/configs/canonical.js";
 import {
   buildSwooperRunGeneratedModFilePlan,
@@ -25,7 +24,7 @@ const typeboxGuardEmitShim = resolve(
   pkgRoot,
   "../../packages/mapgen-core/src/shims/typebox-guard-emit.ts"
 );
-const SWOOPER_STANDARD_RECIPE_ID = "mod-swooper-maps/standard";
+const SWOOPER_STANDARD_RECIPE_ID = "standard";
 
 const civ7TextEncoderBootstrap = `
 if (typeof globalThis.TextEncoder === "undefined") {
@@ -128,25 +127,18 @@ export function resolveSwooperRunGeneratedModRoot(
 export function verifySwooperStandardRunManifest(
   manifest: StudioRunGenerationManifest
 ): VerifiedSwooperStandardRun {
-  if (manifest.payload.launchEnvelope.recipeSettings.recipe !== SWOOPER_STANDARD_RECIPE_ID) {
+  if (manifest.payload.launchEnvelope.canonicalConfig.recipe !== SWOOPER_STANDARD_RECIPE_ID) {
     throw new Error(
-      `Swooper run manifest recipe envelope must be ${SWOOPER_STANDARD_RECIPE_ID}; got ${manifest.payload.launchEnvelope.recipeSettings.recipe}.`
+      `Swooper run manifest recipe envelope must be ${SWOOPER_STANDARD_RECIPE_ID}; got ${manifest.payload.launchEnvelope.canonicalConfig.recipe}.`
     );
   }
-  const source = manifest.payload.launchEnvelope.source;
-  const config =
-    source.kind === "catalog"
-      ? admitSwooperCatalogConfig({
-          sourcePath: source.sourcePath,
-          canonicalConfig: source.canonicalConfig,
-        }).canonicalConfig
-      : admitStandardMapConfig(source.canonicalConfig);
+  const config = admitStandardMapConfig(manifest.payload.launchEnvelope.canonicalConfig);
   return {
     manifest,
     renderInput: {
       correlation: runCorrelationForManifest(manifest),
       config,
-      seed: numericLaunchSeed(manifest.payload.launchEnvelope.recipeSettings.seed),
+      seed: numericLaunchSeed(manifest.payload.launchEnvelope.seed),
     },
   };
 }

@@ -1,9 +1,8 @@
 import { type MapConfigEnvelope, runInGame } from "@civ7/studio-contract";
+import { canonicalValueDigest } from "@civ7/studio-run-workspace";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
-
-import { resolveRunInGameLaunchSource } from "../src/operationRuntime/launchSource.js";
-import { hashRunInGameEvidenceValue } from "../src/operationRuntime/sourceSnapshot.js";
+import { admitRunInGameLaunchEnvelope } from "../src/operationRuntime/launchEnvelope.js";
 
 describe("Run in Game portable JSON admission", () => {
   test("uses the TypeBox Standard Schema adapter to reject non-portable canonical config", () => {
@@ -52,16 +51,15 @@ describe("Run in Game portable JSON admission", () => {
       let admissionCalls = 0;
       const result = await Effect.runPromise(
         Effect.either(
-          resolveRunInGameLaunchSource({
+          admitRunInGameLaunchEnvelope({
             input: {
-              source: runInGameStartInput({ nested: value }).source,
-              recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 43 },
+              canonicalConfig: runInGameStartInput({ nested: value }).canonicalConfig,
+              seed: 43,
               worldSettings: { mapSize: "MAPSIZE_STANDARD" },
               setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
             },
             ports: {
               runInGameCanonicalConfigAdmission: {
-                resolveCatalogSource: async () => undefined,
                 admit: async (canonicalConfig) => {
                   admissionCalls += 1;
                   return canonicalConfig;
@@ -79,20 +77,19 @@ describe("Run in Game portable JSON admission", () => {
 
   test("clones and freezes the launch snapshot before asynchronous Swooper admission", async () => {
     const mutableConfig = { nested: { label: "before" } };
-    const source = runInGameStartInput(mutableConfig).source;
+    const canonicalConfigInput = runInGameStartInput(mutableConfig).canonicalConfig;
     const admitted = deferred<MapConfigEnvelope>();
     const releaseAdmission = deferred<void>();
     const resolutionPromise = Effect.runPromise(
-      resolveRunInGameLaunchSource({
+      admitRunInGameLaunchEnvelope({
         input: {
-          source,
-          recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 43 },
+          canonicalConfig: canonicalConfigInput,
+          seed: 43,
           worldSettings: { mapSize: "MAPSIZE_STANDARD" },
           setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
         },
         ports: {
           runInGameCanonicalConfigAdmission: {
-            resolveCatalogSource: async () => undefined,
             admit: async (canonicalConfig) => {
               admitted.resolve(canonicalConfig);
               await releaseAdmission.promise;
@@ -113,83 +110,26 @@ describe("Run in Game portable JSON admission", () => {
     expect(Object.isFrozen(canonicalConfig.config)).toBe(true);
     expect(Object.isFrozen(Object.values(canonicalConfig.config)[0])).toBe(true);
     expect(Object.isFrozen(resolution.launchEnvelope)).toBe(true);
-    expect(resolution.launchEnvelope.source.canonicalConfig).toEqual(canonicalConfig);
-    expect(resolution.launchEnvelope.source.canonicalConfig).not.toBe(canonicalConfig);
-    expect(resolution.launchSourceDigest.canonicalConfigDigest).toBe(
-      hashRunInGameEvidenceValue(canonicalConfig)
-    );
-    expect(resolution.launchEnvelopeDigest).toBe(
-      hashRunInGameEvidenceValue(resolution.launchEnvelope)
-    );
-  });
-
-  test("uses the catalog envelope already admitted by the Swooper resolver", async () => {
-    const calls: string[] = [];
-    const resolution = await Effect.runPromise(
-      resolveRunInGameLaunchSource({
-        input: {
-          source: {
-            kind: "catalog",
-            sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-          },
-          recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 43 },
-          worldSettings: { mapSize: "MAPSIZE_STANDARD" },
-          setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
-        },
-        ports: {
-          runInGameCanonicalConfigAdmission: {
-            resolveCatalogSource: async (sourcePath) => {
-              calls.push(`catalog:${sourcePath}`);
-              return canonicalConfigFixture({ id: "swooper-earthlike", name: "Swooper Earthlike" });
-            },
-            admit: async () => {
-              throw new Error("catalog envelopes must not be admitted twice");
-            },
-          },
-        },
-      })
-    );
-
-    expect(calls).toEqual([
-      "catalog:mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-    ]);
-    expect(resolution.launchEnvelope.source).toMatchObject({
-      kind: "catalog",
-      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-      canonicalConfig: { id: "swooper-earthlike" },
-    });
+    expect(resolution.launchEnvelope.canonicalConfig).toEqual(canonicalConfig);
+    expect(resolution.launchEnvelope.canonicalConfig).not.toBe(canonicalConfig);
+    expect(resolution.canonicalConfigDigest).toBe(canonicalValueDigest(canonicalConfig));
+    expect(resolution.launchEnvelopeDigest).toBe(canonicalValueDigest(resolution.launchEnvelope));
   });
 });
 
 function runInGameStartInput(config: Record<string, unknown>) {
   return {
-    source: {
-      kind: "editor" as const,
-      editorSessionId: "portable-json-test",
-      canonicalConfig: {
-        id: "studio-current",
-        name: "Studio Current",
-        description: "Portable JSON fixture.",
-        recipe: "standard",
-        sortIndex: 9999,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-        config,
-      },
+    canonicalConfig: {
+      id: "studio-current",
+      name: "Studio Current",
+      description: "Portable JSON fixture.",
+      recipe: "standard",
+      sortIndex: 9999,
+      latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+      config,
     },
-    recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 43 },
+    seed: 43,
     worldSettings: { mapSize: "MAPSIZE_STANDARD" },
-  };
-}
-
-function canonicalConfigFixture(args: Readonly<{ id: string; name: string }>) {
-  return {
-    id: args.id,
-    name: args.name,
-    description: "Catalog fixture.",
-    recipe: "standard",
-    sortIndex: 1,
-    latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-    config: {},
   };
 }
 

@@ -23,11 +23,8 @@
 // chunk (values silently vanish from dist; see src/contract/index.ts). Any
 // new contract re-export must be added by name.
 export type {
-  ConfigSource,
-  ConfigSourceProvenance,
   LaunchEnvelope,
   LaunchEnvelopeDigest,
-  LaunchSourceDigest,
   MapConfigSaveDeployKind,
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
@@ -42,7 +39,6 @@ export type {
   RunInGameOperationStatus,
   RunInGamePhase,
   RunInGameRequestStatus,
-  RunInGameSourceSnapshotEvidence,
   StudioEffectContract,
   StudioEvent,
   StudioHelloEvent,
@@ -147,10 +143,6 @@ export type {
   RunInGameRuntimeObservation,
   RunInGameSetupPrepared,
   StudioOperationRuntimePorts,
-} from "./operationRuntime/index.js";
-export {
-  buildRunInGameSourceSnapshotEvidence,
-  hashRunInGameEvidenceValue,
 } from "./operationRuntime/index.js";
 export type { RecipeDagService } from "./recipeDag/service.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";

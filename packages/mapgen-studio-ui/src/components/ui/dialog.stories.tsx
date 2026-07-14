@@ -23,14 +23,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const SavePreset: Story = {
+export const SaveConfig: Story = {
   render: () => (
     <Dialog defaultOpen>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Save preset</DialogTitle>
+          <DialogTitle>Save config</DialogTitle>
           <DialogDescription>
-            Capture the current recipe and complete config as a reusable preset. A preset with the
+            Save the complete active map config under a durable name. An existing config with the
             same name will be overwritten.
           </DialogDescription>
         </DialogHeader>
@@ -38,7 +38,7 @@ export const SavePreset: Story = {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button>Save preset</Button>
+          <Button>Save config</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

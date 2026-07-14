@@ -45,13 +45,9 @@ function defineRuntimeRecipeEntry<TConfig extends PipelineConfig>(
   };
 }
 
-function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
-  return `${namespace}/${recipeId}`;
-}
-
 const RUNTIME_RECIPES: readonly RuntimeRecipeEntry[] = [
   defineRuntimeRecipeEntry({
-    id: makeRecipeId("mod-swooper-maps", "standard"),
+    id: "standard",
     label: "Swooper Maps / Standard",
     recipe: standardRecipe,
     defaultConfig: swooperStandardDefaultConfig,

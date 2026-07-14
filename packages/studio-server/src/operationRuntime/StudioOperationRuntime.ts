@@ -5,7 +5,6 @@ import {
   type MapConfigSaveDeployStatus,
   type RunInGameRequestStatus,
   snapshotMapConfigEnvelope,
-  snapshotRunInGameStartSource,
   validateRunInGameSetupConfig,
 } from "@civ7/studio-contract";
 import { Context, Effect, Fiber, FiberSet, Layer, type Scope } from "effect";
@@ -31,10 +30,7 @@ import {
 import { lookupRunDiagnostics, writeRunDiagnostics } from "./diagnostics.js";
 import { makeRequestDiagnosticsWriteGateRegistry } from "./diagnosticsWriteGates.js";
 import { createStudioOperationId } from "./ids.js";
-import {
-  resolveRunInGameLaunchSource,
-  sourceSnapshotFromLaunchResolution,
-} from "./launchSource.js";
+import { admitRunInGameLaunchEnvelope } from "./launchEnvelope.js";
 import type { RunInGameInternalOperation, SaveDeployInternalOperation } from "./model.js";
 import {
   acquireRuntimeDaemonHeartbeat,
@@ -81,7 +77,6 @@ import {
   transitionRunInGameMutation,
   transitionSaveDeploy,
 } from "./registry.js";
-import { buildRunInGameSourceSnapshotEvidence } from "./sourceSnapshot.js";
 
 export interface StudioOperationRuntimeApi {
   readonly identity: StudioDaemonIdentity;
@@ -782,23 +777,23 @@ function prepareRunInGameRequest(
     ports: StudioOperationRuntimePorts;
   }>
 ): Effect.Effect<RunInGamePreparedRequest, StudioRuntimeFailure> {
-  const { input, requestId, ports } = args;
+  const { input, ports } = args;
   // Freeze the external request before inspecting it. Direct callers bypass
   // the TypeBox/oRPC adapter, so this matches the wire admission boundary.
-  const source = snapshotRunInGameStartSource(input.source);
-  if (source === undefined) {
+  const canonicalConfig = snapshotMapConfigEnvelope(input.canonicalConfig);
+  if (canonicalConfig === undefined) {
     return Effect.fail(
       invalidRequest({
-        message: "Run in Game source is invalid.",
-        diagnostics: { code: "run-in-game-source-invalid" },
+        message: "Run in Game canonical config is invalid.",
+        diagnostics: { code: "run-in-game-canonical-config-invalid" },
       })
     );
   }
   const rawControlField = findRawControlField({
-    recipeSettings: input.recipeSettings,
+    seed: input.seed,
     worldSettings: input.worldSettings,
     setupConfig: input.setupConfig,
-    source,
+    canonicalConfig,
   });
   if (rawControlField !== undefined) {
     return Effect.fail(
@@ -811,7 +806,7 @@ function prepareRunInGameRequest(
       })
     );
   }
-  const seed = parseSeed(input.recipeSettings.seed);
+  const seed = parseSeed(input.seed);
   if (!seed.ok) {
     return Effect.fail(
       invalidRequest({
@@ -847,14 +842,6 @@ function prepareRunInGameRequest(
       })
     );
   }
-  if (input.recipeSettings.recipe !== "mod-swooper-maps/standard") {
-    return Effect.fail(
-      invalidRequest({
-        message: "Run in Game currently supports only mod-swooper-maps/standard",
-        diagnostics: { code: "run-in-game-recipe-invalid" },
-      })
-    );
-  }
   const setupConfig = validateRunInGameSetupConfig(input.setupConfig);
   if (!setupConfig.ok) {
     return Effect.fail(
@@ -864,13 +851,10 @@ function prepareRunInGameRequest(
       })
     );
   }
-  return resolveRunInGameLaunchSource({
+  return admitRunInGameLaunchEnvelope({
     input: {
-      source,
-      recipeSettings: {
-        ...input.recipeSettings,
-        seed: seed.value,
-      },
+      canonicalConfig,
+      seed: seed.value,
       worldSettings: {
         mapSize,
         ...(playerCount === undefined ? {} : { playerCount }),
@@ -884,19 +868,9 @@ function prepareRunInGameRequest(
   }).pipe(
     Effect.map((resolution) => {
       const envelope = resolution.launchEnvelope;
-      const envelopeSeed = parseSeed(envelope.recipeSettings.seed);
-      if (!envelopeSeed.ok) {
-        throw new Error("Accepted Run in Game launch envelope has an invalid seed.");
-      }
-      const sourceSnapshot = buildRunInGameSourceSnapshotEvidence({
-        requestId,
-        sourceSnapshot: sourceSnapshotFromLaunchResolution(resolution),
-        canonicalConfigDigest: resolution.launchSourceDigest.canonicalConfigDigest,
-        launchEnvelopeDigest: resolution.launchEnvelopeDigest,
-      });
       const request: CanonicalRunInGameRequest = {
-        recipeId: envelope.recipeSettings.recipe,
-        seed: envelopeSeed.value,
+        recipeId: envelope.canonicalConfig.recipe,
+        seed: envelope.seed,
         mapSize: envelope.worldSettings.mapSize,
         ...(envelope.worldSettings.playerCount === undefined
           ? {}
@@ -905,12 +879,11 @@ function prepareRunInGameRequest(
           ? {}
           : { resources: envelope.worldSettings.resources }),
         setupConfig: envelope.setupConfig,
-        ...(sourceSnapshot === undefined ? {} : { sourceSnapshot }),
       };
       return {
         request,
         launchEnvelope: envelope,
-        launchSourceDigest: resolution.launchSourceDigest,
+        canonicalConfigDigest: resolution.canonicalConfigDigest,
         launchEnvelopeDigest: resolution.launchEnvelopeDigest,
       };
     })

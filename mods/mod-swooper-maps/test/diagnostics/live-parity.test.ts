@@ -28,14 +28,10 @@ const canonicalConfig = {
 };
 const canonicalConfigDigest = hashParityValue(canonicalConfig);
 const launchEnvelope = {
-  recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 1234 },
+  seed: 1234,
   worldSettings: { mapSize: "MAPSIZE_TINY" },
   setupConfig: { gameOptions: {}, playerOptions: [] },
-  source: {
-    kind: "catalog" as const,
-    sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-    canonicalConfig,
-  },
+  canonicalConfig,
 };
 const launchEnvelopeDigest = hashParityValue(launchEnvelope);
 const nativeRiverMetadataReadbackReason =
@@ -93,15 +89,8 @@ function exactEvidence(
     requestId: "run-1",
     createdAt: "2026-06-06T00:00:00.000Z",
     unresolvedLinks: [],
-    sourceSnapshot: {
-      requestId: "run-1",
-      source: {
-        kind: "catalog",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-      },
-      canonicalConfigDigest: hashParityValue(canonicalConfig),
-      launchEnvelopeDigest: launchEnvelopeDigest,
-    },
+    canonicalConfigDigest,
+    launchEnvelopeDigest,
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 1234,
@@ -1284,11 +1273,10 @@ describe("final-surface parity evidence", () => {
     expect(evidence.unresolvedLinks).toContain("resource-placement-coordinate-evidence.rejected");
   });
 
-  test("rejects a source snapshot without provenance and derived envelope digests", () => {
+  test("rejects exact authorship without its derived envelope digests", () => {
     const exact = exactEvidence({
-      sourceSnapshot: {
-        requestId: "run-1",
-      },
+      canonicalConfigDigest: undefined,
+      launchEnvelopeDigest: undefined,
     });
 
     const validation = parseCompleteExactAuthorshipEvidencePacket(exact);

@@ -64,7 +64,7 @@ describe("Map config save request validation", () => {
   it("rejects Run in Game identity fields while retaining the operation request id", () => {
     for (const [field, value] of Object.entries({
       launchEnvelopeDigest: "launch-envelope-digest",
-      launchSourceDigest: { canonicalConfigDigest: "config-digest" },
+      canonicalConfigDigest: "config-digest",
       runArtifactId: "run-artifact",
       runCorrelation: { requestId: "run-request" },
       generationManifestDigest: "manifest-digest",

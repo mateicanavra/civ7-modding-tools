@@ -11,23 +11,24 @@ vi.mock("../../src/features/civ7Setup/seedPolicy", async (importOriginal) => {
 });
 
 import { type UseBrowserRunArgs, useBrowserRun } from "../../src/app/hooks/useBrowserRun";
-import { createStudioEditorCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
 import { getRecipeArtifacts } from "../../src/recipes/catalog";
 import { useAuthoringStore } from "../../src/stores/authoringStore";
 import { useRunStore } from "../../src/stores/runStore";
+import { useViewStore } from "../../src/stores/viewStore";
 
-const recipeId = "mod-swooper-maps/standard";
-const config = getRecipeArtifacts(recipeId).defaultConfig as PipelineConfig;
-const editor = createStudioEditorCanonicalConfig();
+const recipeId = "standard";
+const canonicalConfig = getRecipeArtifacts(recipeId).defaultCanonicalConfig;
+const config = canonicalConfig.config as PipelineConfig;
 
 function resetStores() {
   useAuthoringStore.setState({
     worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
-    recipeSettings: { recipe: recipeId, preset: "none", seed: "123" },
-    authoringConfigSource: { kind: "editor", canonicalConfig: editor },
+    seed: "123",
+    setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
+    canonicalConfig,
     authoringRevision: 0,
-    configEditingEnabled: true,
   });
+  useViewStore.setState({ configEditingEnabled: true });
   useRunStore.setState({ lastRunSnapshot: null });
 }
 
@@ -45,7 +46,6 @@ function setup(over: Partial<UseBrowserRunArgs> = {}) {
     },
     runInGameRunning: false,
     saveDeployRunning: false,
-    pipelineConfig: config,
     toast: vi.fn(),
     setLocalError: vi.fn(),
     ...over,
@@ -63,7 +63,7 @@ afterEach(() => {
 });
 
 describe("useBrowserRun revision state", () => {
-  it("runs the current pipeline config and records only its local revision", () => {
+  it("runs the current pipeline config and records the observed authoring values", () => {
     const { result, runnerActions } = setup();
 
     act(() => result.current.triggerRun());
@@ -72,10 +72,33 @@ describe("useBrowserRun revision state", () => {
       expect.objectContaining({ recipeId, pipelineConfig: config })
     );
     const snapshot = useRunStore.getState().lastRunSnapshot;
-    expect(snapshot).toEqual({ authoringRevision: 0 });
+    expect(snapshot).toEqual({
+      authoringRevision: 0,
+      seed: "123",
+      worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
+    });
     expect(snapshot).not.toHaveProperty("pipelineConfig");
     expect(snapshot).not.toHaveProperty("recipeSettings");
-    expect(snapshot).not.toHaveProperty("worldSettings");
+  });
+
+  it("keeps browser-run history stable after later authoring edits", () => {
+    const { result } = setup();
+    act(() => result.current.triggerRun());
+
+    act(() => {
+      useAuthoringStore.getState().setSeed("789");
+      useAuthoringStore.getState().setWorldSettings({
+        mapSize: "MAPSIZE_HUGE",
+        playerCount: 10,
+        resources: "abundant",
+      });
+    });
+
+    expect(useRunStore.getState().lastRunSnapshot).toEqual({
+      authoringRevision: 0,
+      seed: "123",
+      worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
+    });
   });
 
   it("marks authoring dirty after a store-owned authoring edit", () => {
@@ -85,18 +108,14 @@ describe("useBrowserRun revision state", () => {
     act(() => result.current.triggerRun());
     expect(result.current.isDirty).toBe(false);
 
-    act(() =>
-      useAuthoringStore
-        .getState()
-        .setRecipeSettings({ recipe: recipeId, preset: "none", seed: "456" })
-    );
+    act(() => useAuthoringStore.getState().setSeed("456"));
     expect(result.current.isDirty).toBe(true);
   });
 
   it("treats the config editing lock as UI state, not config or run authority", () => {
     const { result, runnerActions } = setup();
 
-    act(() => useAuthoringStore.getState().setConfigEditingEnabled(false));
+    act(() => useViewStore.getState().setConfigEditingEnabled(false));
     expect(useAuthoringStore.getState().authoringRevision).toBe(0);
 
     act(() => result.current.triggerRun());
@@ -106,9 +125,10 @@ describe("useBrowserRun revision state", () => {
   });
 
   it("rejects an invalid pipeline config before starting the worker", () => {
-    const { result, runnerActions, props } = setup({
-      pipelineConfig: { invalid: true } as unknown as PipelineConfig,
+    useAuthoringStore.setState({
+      canonicalConfig: { ...canonicalConfig, config: { invalid: true } as PipelineConfig },
     });
+    const { result, runnerActions, props } = setup();
 
     act(() => result.current.triggerRun());
 
@@ -126,9 +146,13 @@ describe("useBrowserRun revision state", () => {
     act(() => result.current.reroll());
 
     const authored = useAuthoringStore.getState();
-    expect(authored.recipeSettings.seed).toBe("456");
+    expect(authored.seed).toBe("456");
     expect(authored.authoringRevision).toBe(1);
-    expect(useRunStore.getState().lastRunSnapshot).toEqual({ authoringRevision: 1 });
+    expect(useRunStore.getState().lastRunSnapshot).toEqual({
+      authoringRevision: 1,
+      seed: "456",
+      worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
+    });
     expect(runnerActions.start).toHaveBeenCalledTimes(1);
     expect(runnerActions.start).toHaveBeenCalledWith(expect.objectContaining({ seed: 456 }));
   });
@@ -145,6 +169,8 @@ describe("useBrowserRun revision state", () => {
     expect(runnerActions.start).toHaveBeenCalledTimes(1);
     expect(useRunStore.getState().lastRunSnapshot).toEqual({
       authoringRevision: useAuthoringStore.getState().authoringRevision,
+      seed: "456",
+      worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
     });
 
     rerender({ ...props, browserRunning: true });
@@ -161,11 +187,7 @@ describe("useBrowserRun revision state", () => {
     act(() => result.current.triggerRun());
     runnerActions.start.mockClear();
     act(() => result.current.setAutoRunEnabled(true));
-    act(() =>
-      useAuthoringStore
-        .getState()
-        .setRecipeSettings({ recipe: recipeId, preset: "none", seed: "789" })
-    );
+    act(() => useAuthoringStore.getState().setSeed("789"));
 
     act(() => vi.advanceTimersByTime(299));
     expect(runnerActions.start).not.toHaveBeenCalled();
@@ -179,7 +201,7 @@ describe("useBrowserRun revision state", () => {
 
     act(() => result.current.reroll());
 
-    expect(useAuthoringStore.getState().recipeSettings.seed).toBe("123");
+    expect(useAuthoringStore.getState().seed).toBe("123");
     expect(useAuthoringStore.getState().authoringRevision).toBe(0);
     expect(runnerActions.start).not.toHaveBeenCalled();
     expect(props.toast).toHaveBeenCalledWith(

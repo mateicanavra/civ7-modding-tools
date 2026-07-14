@@ -127,11 +127,11 @@ function sourceSection(
   operation: RunInGameInternalOperation
 ): Pick<PartialRunAttributionSections, "source"> {
   const source =
-    operation.request.launchSourceDigest === undefined ||
+    operation.request.canonicalConfigDigest === undefined ||
     operation.request.launchEnvelopeDigest === undefined
       ? undefined
       : {
-          launchSourceDigest: operation.request.launchSourceDigest,
+          canonicalConfigDigest: operation.request.canonicalConfigDigest,
           launchEnvelopeDigest: operation.request.launchEnvelopeDigest,
         };
   return source === undefined ? {} : { source };

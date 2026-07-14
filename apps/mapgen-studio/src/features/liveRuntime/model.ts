@@ -209,7 +209,7 @@ export function buildLiveRuntimeSuggestionRecords(args: {
       sourceSnapshotId: args.sourceSnapshotId,
       createdAt,
       confidence,
-      affectedConfigPath: "recipeSettings.seed",
+      affectedConfigPath: "seed",
       value: String(args.seed),
       applyPath: "visible-studio-control",
     });

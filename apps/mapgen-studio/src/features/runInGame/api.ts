@@ -1,14 +1,13 @@
 // This is the browser's typed oRPC admission boundary for Run in Game.
 
 import {
-  type ConfigSource,
+  type MapConfigEnvelope,
   operationStatusTypeSchema,
   RUN_IN_GAME_SAFE_FAILURE_CATEGORIES,
   type RunInGameOperationStatus,
-  type RunInGameRecipeSettings,
   type RunInGameSafeFailureCategory,
   type RunInGameWorldSettings,
-  serializeRunInGameStartSource,
+  serializeMapConfigEnvelope,
 } from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
 import { Value } from "typebox/value";
@@ -17,8 +16,8 @@ import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7S
 import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
 
 export type RunCurrentConfigInGameArgs = {
-  source: ConfigSource;
-  recipeSettings: RunInGameRecipeSettings;
+  canonicalConfig: MapConfigEnvelope;
+  seed: number | string;
   worldSettings: RunInGameWorldSettings;
   setupConfig: Civ7StudioSetupConfig;
 };
@@ -29,8 +28,8 @@ export function buildRunInGameStartRequest(
   args: RunCurrentConfigInGameArgs
 ): RunInGameStartRequest {
   return {
-    source: serializeRunInGameStartSource(args.source),
-    recipeSettings: args.recipeSettings,
+    canonicalConfig: serializeMapConfigEnvelope(args.canonicalConfig),
+    seed: args.seed,
     worldSettings: args.worldSettings,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
   };

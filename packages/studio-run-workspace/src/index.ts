@@ -3,6 +3,7 @@ export {
   buildStudioRunGenerationManifest,
   buildStudioRunGenerationManifestPayload,
   canonicalSortedJson,
+  canonicalValueDigest,
   generationManifestDigest,
   parseStudioRunGenerationManifest,
   readStudioRunGenerationManifest,

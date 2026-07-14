@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 596,
+    "totalSurfaces": 594,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "check-script": 28,
-      "rule-json": 121,
-      "pattern": 80,
+      "rule-json": 120,
+      "pattern": 79,
       "structure-spec": 8,
       "apply-pattern": 1,
       "generate-script": 2,
@@ -22,23 +22,23 @@
     },
     "surfacesByRole": {
       "command_check_executor": 28,
-      "runner_metadata": 121,
-      "policy_pattern": 81,
+      "runner_metadata": 120,
+      "policy_pattern": 80,
       "structure_authority": 8,
       "operation_surface": 6,
       "workspace_entrypoint": 240,
       "toolkit_runner": 112
     },
     "entrypointsByInvoker": {
-      "unknown": 242,
+      "unknown": 240,
       "direct-script": 4,
       "package": 140,
       "nx": 101,
       "habitat": 112
     },
     "surfacesByBucket": {
-      "package_boundary_tie": 94,
-      "unknown_invocation": 242,
+      "package_boundary_tie": 93,
+      "unknown_invocation": 240,
       "mutation_surface": 127,
       "nx_ordering_tie": 117,
       "direct_script_invoked": 4,
@@ -50,8 +50,8 @@
   "executionAnatomy": {
     "roleCounts": {
       "fixture-support": 9,
-      "adapter": 121,
-      "policy-predicate": 89,
+      "adapter": 120,
+      "policy-predicate": 88,
       "transient-dependency": 110,
       "entrypoint": 242,
       "runner-runtime": 112
@@ -1161,17 +1161,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*packages/studio-contract/src/runInGame\\.ts$\",\n    ! $body <: contains",
-      "targetClass": "workspace-tool",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md",
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md",
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-",
       "targetClass": "mod",
       "references": 3,
@@ -1213,28 +1202,6 @@
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md",
         ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md"
-      ]
-    },
-    {
-      "target": "packages/studio-contract/src/runInGame",
-      "targetClass": "package",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md",
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md",
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
-      ]
-    },
-    {
-      "target": "packages/studio-contract/src/runInGame.ts",
-      "targetClass": "package",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md",
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md",
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
       ]
     },
     {
@@ -1742,6 +1709,16 @@
       ]
     },
     {
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*packages/studio-contract/src/runInGame\\.ts$\",\n    ! $body <: contains",
+      "targetClass": "workspace-tool",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md",
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/.",
       "targetClass": "mod",
       "references": 2,
@@ -2069,6 +2046,26 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts",
         ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-contract/src/runInGame",
+      "targetClass": "package",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md",
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-contract/src/runInGame.ts",
+      "targetClass": "package",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md",
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md"
       ]
     },
     {
@@ -4135,24 +4132,6 @@
       ]
     },
     {
-      "target": "apps/mapgen-studio/src/app/hooks/useRunInGame",
-      "targetClass": "app",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md"
-      ]
-    },
-    {
-      "target": "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
-      "targetClass": "app",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md"
-      ]
-    },
-    {
       "target": "apps/mapgen-studio/src/browser-runner/",
       "targetClass": "app",
       "references": 1,
@@ -5351,15 +5330,6 @@
     },
     {
       "target": "grit-studio-run-generator-port-boundary",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs"
-      ]
-    },
-    {
-      "target": "grit-studio-run-launch-source-boundary",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -9244,24 +9214,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-attribution-report-boundary/pattern.md"
-      ]
-    },
-    {
-      "target": "packages/studio-server/src/operationRuntime/launchSource",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md"
-      ]
-    },
-    {
-      "target": "packages/studio-server/src/operationRuntime/launchSource.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md"
       ]
     },
     {
@@ -20989,118 +20941,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md",
-      "path": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "apps/mapgen-studio/src/app/hooks/useRunInGame",
-          "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
-          "packages/studio-contract/src/runInGame",
-          "packages/studio-contract/src/runInGame.ts",
-          "packages/studio-server/src/operationRuntime/launchSource",
-          "packages/studio-server/src/operationRuntime/launchSource.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*packages/studio-contract/src/runInGame\\.ts$\",\n    ! $body <: contains"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "apps/mapgen-studio/src/app/hooks/useRunInGame",
-            "targetClass": "app"
-          },
-          {
-            "kind": "path-reference",
-            "value": "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
-            "targetClass": "app"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-contract/src/runInGame",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-contract/src/runInGame.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-server/src/operationRuntime/launchSource",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-server/src/operationRuntime/launchSource.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*packages/studio-contract/src/runInGame\\.ts$\",\n    ! $body <: contains",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json",
-      "path": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md",
       "path": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md",
       "surfaceKind": "pattern",
@@ -21731,7 +21571,6 @@
           "grit-studio-run-copy-deploy-boundary",
           "grit-studio-run-direct-control-observation-boundary",
           "grit-studio-run-generator-port-boundary",
-          "grit-studio-run-launch-source-boundary",
           "grit-studio-run-operation-identity-owner",
           "grit-studio-run-public-contract-closed",
           "grit-swooper-map-render-file-plan-boundary",
@@ -21788,11 +21627,6 @@
           {
             "kind": "shell-command",
             "value": "grit-studio-run-generator-port-boundary",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit-studio-run-launch-source-boundary",
             "targetClass": "workspace-tool"
           },
           {
@@ -36209,118 +36043,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md",
-      "path": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "apps/mapgen-studio/src/app/hooks/useRunInGame",
-          "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
-          "packages/studio-contract/src/runInGame",
-          "packages/studio-contract/src/runInGame.ts",
-          "packages/studio-server/src/operationRuntime/launchSource",
-          "packages/studio-server/src/operationRuntime/launchSource.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*packages/studio-contract/src/runInGame\\.ts$\",\n    ! $body <: contains"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "apps/mapgen-studio/src/app/hooks/useRunInGame",
-            "targetClass": "app"
-          },
-          {
-            "kind": "path-reference",
-            "value": "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
-            "targetClass": "app"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-contract/src/runInGame",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-contract/src/runInGame.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-server/src/operationRuntime/launchSource",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/studio-server/src/operationRuntime/launchSource.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*packages/studio-contract/src/runInGame\\.ts$\",\n    ! $body <: contains",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json",
-      "path": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md",
       "path": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md",
       "surfaceKind": "pattern",
@@ -36951,7 +36673,6 @@
           "grit-studio-run-copy-deploy-boundary",
           "grit-studio-run-direct-control-observation-boundary",
           "grit-studio-run-generator-port-boundary",
-          "grit-studio-run-launch-source-boundary",
           "grit-studio-run-operation-identity-owner",
           "grit-studio-run-public-contract-closed",
           "grit-swooper-map-render-file-plan-boundary",
@@ -37008,11 +36729,6 @@
           {
             "kind": "shell-command",
             "value": "grit-studio-run-generator-port-boundary",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit-studio-run-launch-source-boundary",
             "targetClass": "workspace-tool"
           },
           {

@@ -8,8 +8,7 @@ import { describe, expect, it } from "vitest";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 import {
   admitPipelineConfig,
-  applyPresetConfig,
-  createStudioEditorCanonicalConfig,
+  getRecipeDefaultCanonicalConfig,
 } from "../../src/features/configAuthoring/canonicalConfig";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
@@ -50,21 +49,21 @@ function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
 
 describe("standard recipe generated artifact guardrails", () => {
   it("keeps Studio catalog and runtime entries on the same standard artifacts", () => {
-    expect(DEFAULT_STUDIO_RECIPE_ID).toBe("mod-swooper-maps/standard");
+    expect(DEFAULT_STUDIO_RECIPE_ID).toBe("standard");
 
-    const catalogEntry = getRecipeArtifacts("mod-swooper-maps/standard");
-    const runtimeEntry = getRuntimeRecipe("mod-swooper-maps/standard");
+    const catalogEntry = getRecipeArtifacts("standard");
+    const runtimeEntry = getRuntimeRecipe("standard");
 
     expect(catalogEntry.configSchema).toBe(STANDARD_RECIPE_CONFIG_SCHEMA);
-    expect(catalogEntry.defaultConfig).toBe(STANDARD_RECIPE_CONFIG);
+    expect(catalogEntry.defaultCanonicalConfig.config).toEqual(STANDARD_RECIPE_CONFIG);
     expect(catalogEntry.uiMeta).toBe(STANDARD_RECIPE_UI_META);
     expect(runtimeEntry.configSchema).toBe(STANDARD_RECIPE_CONFIG_SCHEMA);
     expect(runtimeEntry.defaultConfig).toBe(STANDARD_RECIPE_CONFIG);
-    expect(STUDIO_RECIPE_ARTIFACTS.map((entry) => entry.id)).toContain("mod-swooper-maps/standard");
+    expect(STUDIO_RECIPE_ARTIFACTS.map((entry) => entry.id)).toContain("standard");
   });
 
-  it("constructs editor defaults from the generated standard recipe config", () => {
-    expect(createStudioEditorCanonicalConfig().config).toEqual(STANDARD_RECIPE_CONFIG);
+  it("constructs the complete default envelope from the generated standard config", () => {
+    expect(getRecipeDefaultCanonicalConfig("standard").config).toEqual(STANDARD_RECIPE_CONFIG);
   });
 
   it("keeps generated Studio focus paths on public schema/default paths", () => {
@@ -88,33 +87,33 @@ describe("standard recipe generated artifact guardrails", () => {
   });
 
   it("accepts every complete generated config unchanged through the current recipe schema", () => {
-    const standardEntry = getRecipeArtifacts("mod-swooper-maps/standard");
-    const presets = standardEntry.studioBuiltInPresets ?? [];
+    const standardEntry = getRecipeArtifacts("standard");
+    const catalogConfigs = standardEntry.catalogConfigs;
     const configs = [
       { id: "default", config: STANDARD_RECIPE_CONFIG },
-      ...presets.map((preset) => ({
-        id: preset.canonicalConfig.id,
-        config: preset.canonicalConfig.config,
+      ...catalogConfigs.map((canonicalConfig) => ({
+        id: canonicalConfig.id,
+        config: canonicalConfig.config,
       })),
     ];
 
-    expect(presets.length).toBeGreaterThan(0);
-    expect(presets.map((preset) => preset.canonicalConfig.id)).toEqual(
+    expect(catalogConfigs.length).toBeGreaterThan(0);
+    expect(catalogConfigs.map((canonicalConfig) => canonicalConfig.id)).toEqual(
       standardMapConfigs.map((config) => config.canonicalConfig.id)
     );
-    expect(presets.map((preset) => preset.canonicalConfig.config)).toEqual(
+    expect(catalogConfigs.map((canonicalConfig) => canonicalConfig.config)).toEqual(
       standardMapConfigs.map((config) => config.canonicalConfig.config)
     );
 
     for (const { id, config } of configs) {
-      const applied = applyPresetConfig({
+      const applied = admitPipelineConfig({
         schema: STANDARD_RECIPE_CONFIG_SCHEMA,
-        presetConfig: config,
+        config,
         label: id,
       });
-      expect(applied.ok, `${id} applied preset`).toBe(true);
+      expect(applied.ok, `${id} admitted config`).toBe(true);
       if (!applied.ok)
-        throw new Error(`${id} applied preset errors: ${JSON.stringify(applied.errors)}`);
+        throw new Error(`${id} config admission errors: ${JSON.stringify(applied.errors)}`);
       expect(applied.value).toStrictEqual(config);
       expect(applied.value).not.toBe(config);
       expect(Object.isFrozen(applied.value)).toBe(true);
@@ -126,9 +125,9 @@ describe("standard recipe generated artifact guardrails", () => {
     const incompleteConfig = { ...(STANDARD_RECIPE_CONFIG as Record<string, unknown>) };
     delete incompleteConfig[firstStage!];
 
-    const applied = applyPresetConfig({
+    const applied = admitPipelineConfig({
       schema: STANDARD_RECIPE_CONFIG_SCHEMA,
-      presetConfig: incompleteConfig,
+      config: incompleteConfig,
       label: "incomplete",
     });
 
@@ -150,9 +149,9 @@ describe("standard recipe generated artifact guardrails", () => {
       ["non-finite", Number.POSITIVE_INFINITY],
       ["class-instance", new (class CustomConfig {})()],
     ] as const) {
-      const applied = applyPresetConfig({
+      const applied = admitPipelineConfig({
         schema: STANDARD_RECIPE_CONFIG_SCHEMA,
-        presetConfig: config,
+        config,
         label,
       });
 
@@ -163,7 +162,7 @@ describe("standard recipe generated artifact guardrails", () => {
   });
 
   it("admits the generated default config before worker compilation", () => {
-    const runtimeEntry = getRuntimeRecipe("mod-swooper-maps/standard");
+    const runtimeEntry = getRuntimeRecipe("standard");
 
     const admitted = admitPipelineConfig({
       schema: runtimeEntry.configSchema,

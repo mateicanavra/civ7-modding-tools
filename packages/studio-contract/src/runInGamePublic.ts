@@ -2,7 +2,6 @@ import { type Static, Type } from "typebox";
 
 export const RUN_IN_GAME_SAFE_FAILURE_CATEGORIES = [
   "request-validation",
-  "source-resolution",
   "artifact-generation",
   "deployment",
   "runtime-control",
@@ -19,7 +18,6 @@ export type RunInGameSafeFailureCategory = (typeof RUN_IN_GAME_SAFE_FAILURE_CATE
 
 export const runInGameSafeFailureCategory = Type.Union([
   Type.Literal("request-validation"),
-  Type.Literal("source-resolution"),
   Type.Literal("artifact-generation"),
   Type.Literal("deployment"),
   Type.Literal("runtime-control"),

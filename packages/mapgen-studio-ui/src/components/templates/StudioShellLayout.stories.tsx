@@ -6,7 +6,6 @@ import type {
   MapSize,
   PipelineConfig,
   RecipePanelProps,
-  RecipeSettings,
   SelectOption,
   StudioShellLayoutProps,
   WorldSettings,
@@ -85,21 +84,11 @@ const gameConsoleProps = {
 } satisfies GameConsoleProps;
 
 // ── RecipePanel fixtures (panels/RecipePanel `RecipeAndConfig`) ──────────────
-const recipeOptions: SelectOption[] = [
-  { value: "mod-swooper-maps/standard", label: "Standard" },
-  { value: "mod-swooper-maps/continents", label: "Continents" },
-  { value: "mod-swooper-maps/archipelago", label: "Archipelago" },
+const recipeOptions: SelectOption[] = [{ value: "standard", label: "Standard" }];
+const configOptions: SelectOption[] = [
+  { value: "studio-current", label: "Studio Current" },
+  { value: "swooper-earthlike", label: "Swooper Earthlike" },
 ];
-const presetOptions: SelectOption[] = [
-  { value: "none", label: "None" },
-  { value: "continents", label: "Continents" },
-  { value: "archipelago", label: "Archipelago" },
-];
-const recipeSettings = {
-  recipe: "mod-swooper-maps/standard",
-  preset: "continents",
-  seed: "1474829",
-};
 const configSchema = {
   type: "object",
   properties: {
@@ -135,14 +124,16 @@ const recipePanelProps = {
   onConfigChange: noop,
   onConfigReset: noop,
   recipeOptions,
-  presetOptions,
+  configOptions,
   selectedStep: "",
-  settings: recipeSettings,
-  onSettingsChange: noop,
+  recipeId: "standard",
+  onRecipeChange: noop,
+  configId: "studio-current",
+  onConfigSelect: noop,
   onSaveToCurrent: noop,
   onSaveAsNew: noop,
-  onImportPreset: noop,
-  onExportPreset: noop,
+  onImportConfig: noop,
+  onExportConfig: noop,
   isSaveDeployRunning: false,
   saveDeployStatus: null,
   isSaveDisabled: false,
@@ -216,11 +207,7 @@ const world: WorldSettings = {
   playerCount: 6,
   resources: "balanced",
 };
-const footerRecipe: RecipeSettings = {
-  recipe: "mod-swooper-maps/standard",
-  preset: "continents",
-  seed: "1474829",
-};
+const footerSeed = "1474829";
 const mapSizeOptions: ReadonlyArray<SelectOption<MapSize>> = [
   { value: "MAPSIZE_TINY", label: "Tiny" },
   { value: "MAPSIZE_SMALL", label: "Small" },
@@ -298,12 +285,11 @@ export const FullShell: Story = {
         footer={
           <AppFooter
             status="ready"
-            lastRunSettings={footerRecipe}
-            lastGlobalSettings={world}
+            lastRun={{ seed: footerSeed, worldSettings: world }}
             globalSettings={world}
-            currentSettings={footerRecipe}
+            seed={footerSeed}
             onGlobalSettingsChange={noop}
-            onSettingsChange={noop}
+            onSeedChange={noop}
             onRun={noop}
             onReroll={noop}
             isRunning={false}

@@ -11,7 +11,6 @@ const authorityRows = [
   ["SA-02", "grit-studio-run-operation-identity-owner", "mapgen-studio", "Grit"],
   ["SA-03", "grit-studio-run-cancel-command-owner", "mapgen-studio", "Grit"],
   ["SA-04", "structure-swooper-catalog-source-index", "mod-swooper-maps", "structure-check"],
-  ["SA-05", "grit-studio-run-launch-source-boundary", "mapgen-studio", "Grit"],
   ["SA-06", "grit-swooper-map-render-file-plan-boundary", "mod-swooper-maps", "Grit"],
   ["SA-07", "structure-studio-run-workspace-topology", "mapgen-studio", "structure-check"],
   ["SA-08", "grit-swooper-run-manifest-generator-boundary", "mod-swooper-maps", "Grit"],
@@ -179,7 +178,7 @@ function assertNoTemporaryRunInGameRules() {
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     if (!expectedRuleIds.has(entry.name)) {
-      failures.push(`${entry.name}: rule directory is not listed in SA-01 through SA-14.`);
+      failures.push(`${entry.name}: rule directory is not listed in the current authority rows.`);
     }
     if (entry.name.includes("temporary")) {
       failures.push(`${entry.name}: unresolved packet-local temporary rule remains registered.`);
@@ -198,7 +197,7 @@ function assertNoTemporaryRunInGameRules() {
       failures.push(`${entry.name}: manifest id ${manifest.id} does not match rule directory.`);
     }
     if (!expectedRuleIds.has(manifest.id)) {
-      failures.push(`${entry.name}: rule manifest is not listed in SA-01 through SA-14.`);
+      failures.push(`${entry.name}: rule manifest is not listed in the current authority rows.`);
     }
     if (manifest.runner?.name === "grit" && manifest.lane === "advisory") {
       failures.push(`${entry.name}: advisory Grit rule remains in the Run in Game authority set.`);

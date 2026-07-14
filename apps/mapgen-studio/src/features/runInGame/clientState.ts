@@ -1,52 +1,47 @@
 import {
-  type ConfigSource,
   freezeSnapshot,
+  type MapConfigEnvelope,
   type RunInGameOperationStatus,
-  type RunInGameStartSource,
-  serializeRunInGameStartSource,
-  snapshotRunInGameStartSource,
+  snapshotMapConfigEnvelope,
 } from "@civ7/studio-contract";
 import type { RunInGameRelation } from "@swooper/mapgen-studio-ui";
-import type { RecipeSettings, WorldSettings } from "@swooper/mapgen-studio-ui/types";
+import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import type { Civ7StudioSetupConfig } from "../civ7Setup/setupConfig";
 
 export type RunInGameClientSnapshot = Readonly<{
   requestId: string;
   authoringRevision: number;
   launchEnvelope: Readonly<{
-    recipeSettings: Readonly<RecipeSettings>;
+    seed: string;
     worldSettings: Readonly<WorldSettings>;
     setupConfig: Civ7StudioSetupConfig;
-    source: RunInGameStartSource;
+    canonicalConfig: MapConfigEnvelope;
   }>;
 }>;
 
 export type RunInGameCurrentRelation = RunInGameRelation;
 
-/**
- * Retains exactly what the browser submitted. Catalog bytes are absent because
- * only the server can resolve and admit them; editor envelopes remain complete.
- */
+/** Retains exactly the complete value the browser submitted. */
 export function buildRunInGameClientSnapshot(args: {
   requestId: string;
   authoringRevision: number;
-  recipeSettings: RecipeSettings;
+  seed: string;
   worldSettings: WorldSettings;
   setupConfig: Civ7StudioSetupConfig;
-  source: ConfigSource;
+  canonicalConfig: MapConfigEnvelope;
 }): RunInGameClientSnapshot {
-  const source = snapshotRunInGameStartSource(serializeRunInGameStartSource(args.source));
-  if (source === undefined) throw new TypeError("Run in Game source must be portable JSON.");
-  const launchEnvelope = freezeSnapshot({
-    recipeSettings: structuredClone(args.recipeSettings),
-    worldSettings: structuredClone(args.worldSettings),
-    setupConfig: structuredClone(args.setupConfig),
-    source,
-  });
-  return Object.freeze({
+  const canonicalConfig = snapshotMapConfigEnvelope(args.canonicalConfig);
+  if (canonicalConfig === undefined)
+    throw new TypeError("Run in Game config must be portable JSON.");
+  return freezeSnapshot({
     requestId: args.requestId,
     authoringRevision: args.authoringRevision,
-    launchEnvelope,
+    launchEnvelope: {
+      seed: args.seed,
+      worldSettings: structuredClone(args.worldSettings),
+      setupConfig: structuredClone(args.setupConfig),
+      canonicalConfig,
+    },
   });
 }
 

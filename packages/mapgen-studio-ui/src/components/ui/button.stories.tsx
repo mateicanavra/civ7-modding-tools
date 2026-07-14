@@ -46,7 +46,7 @@ export const Variants: Story = {
       <Button variant="secondary">Secondary</Button>
       <Button variant="outline">Outline</Button>
       <Button variant="ghost">Ghost</Button>
-      <Button variant="destructive">Delete preset</Button>
+      <Button variant="destructive">Delete config</Button>
       <Button variant="link">View docs</Button>
     </Demo>
   ),

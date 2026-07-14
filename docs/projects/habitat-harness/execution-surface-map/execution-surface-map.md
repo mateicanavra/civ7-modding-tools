@@ -4,15 +4,15 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 121 `rule.json`, 8 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 120 `rule.json`, 8 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
 | check-script | 28 |
-| rule-json | 121 |
-| pattern | 80 |
+| rule-json | 120 |
+| pattern | 79 |
 | structure-spec | 8 |
 | apply-pattern | 1 |
 | generate-script | 2 |
@@ -29,8 +29,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | role | count |
 | --- | --- |
 | command_check_executor | 28 |
-| runner_metadata | 121 |
-| policy_pattern | 81 |
+| runner_metadata | 120 |
+| policy_pattern | 80 |
 | structure_authority | 8 |
 | operation_surface | 6 |
 | workspace_entrypoint | 240 |
@@ -41,8 +41,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | anatomy role | surface count |
 | --- | --- |
 | fixture-support | 9 |
-| adapter | 121 |
-| policy-predicate | 89 |
+| adapter | 120 |
+| policy-predicate | 88 |
 | transient-dependency | 110 |
 | entrypoint | 242 |
 | runner-runtime | 112 |
@@ -58,7 +58,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | invoker | count |
 | --- | --- |
-| unknown | 242 |
+| unknown | 240 |
 | direct-script | 4 |
 | package | 140 |
 | nx | 101 |
@@ -68,8 +68,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 | bucket | count |
 | --- | --- |
-| package_boundary_tie | 94 |
-| unknown_invocation | 242 |
+| package_boundary_tie | 93 |
+| unknown_invocation | 240 |
 | mutation_surface | 127 |
 | nx_ordering_tie | 117 |
 | direct_script_invoked | 4 |
@@ -291,8 +291,6 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/pattern.md | pattern | >; generate; apps/mapgen-studio/src/server/. |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md | pattern | apps/mapgen-studio/src/app/hooks/useRunInGame; apps/mapgen-studio/src/app/hooks/useRunInGame.ts; packages/studio-contract/src/runInGame |
-| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md | pattern | >; rename; rm |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md | pattern | >; packages/studio-contract/src/runInGame; packages/studio-contract/src/runInGame.ts |

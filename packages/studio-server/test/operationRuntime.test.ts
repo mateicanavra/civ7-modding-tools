@@ -13,14 +13,13 @@ import {
   typeboxOutputSchemaFromContractProcedure,
   verificationFailed,
 } from "@civ7/studio-contract";
-import { readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
+import { canonicalValueDigest, readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 import { afterEach, describe, expect, test } from "vitest";
 import type { StudioInputs } from "../src/context";
 import {
-  hashRunInGameEvidenceValue,
   makeStudioOperationRuntimeLayer,
   StudioOperationRuntime,
   type StudioOperationRuntimeApi,
@@ -225,7 +224,7 @@ describe("StudioOperationRuntime", () => {
       updatedAt: "2026-06-10T00:00:01.000Z",
       diagnosticsId: "run-diagnostics-private-projection",
       diagnosticsPersistedRevision: 3,
-      completedPhases: ["resolving-source"],
+      completedPhases: ["admitting-config"],
       result: {
         rawOutput: "Traceback: setup cannot see /tmp/private-deploy/Swooper.lua",
       },
@@ -532,13 +531,17 @@ describe("StudioOperationRuntime", () => {
   test("cancellation during in-flight generation waits for late cleanup before publishing", async () => {
     const events: StudioEvent[] = [];
     const generationBlocker = deferred<void>();
+    const generationInterrupted = deferred<void>();
     const cleanupStarted = deferred<void>();
     const cleanupBlocker = deferred<void>();
     let cleanupCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        generateRunInGameMod: async () => {
+        generateRunInGameMod: async ({ signal }) => {
+          if (signal.aborted) generationInterrupted.resolve();
+          else
+            signal.addEventListener("abort", () => generationInterrupted.resolve(), { once: true });
           await generationBlocker.promise;
           return {
             ...generatedRunInGameMod({
@@ -567,7 +570,7 @@ describe("StudioOperationRuntime", () => {
     const cancellation = runtime.runPromise(
       service.runInGameCancel({ requestId: accepted.requestId })
     );
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await generationInterrupted.promise;
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
 
     generationBlocker.resolve();
@@ -1088,13 +1091,11 @@ describe("StudioOperationRuntime", () => {
     expect(current.saveDeploy.recent[0]).toEqual(saveStatus);
   });
 
-  test("preserves source snapshot evidence in the runtime-owned request projection", async () => {
-    let observedSourceSnapshot: Record<string, unknown> | undefined;
+  test("preserves config digest evidence in the runtime-owned request projection", async () => {
     let observedPrepared: RunInGamePreparedRequest | undefined;
     const { runtime } = makeRuntime({
       ports: {
         deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
-          observedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
           observedPrepared = prepared;
           return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
@@ -1117,36 +1118,24 @@ describe("StudioOperationRuntime", () => {
       )
     );
 
-    await expect.poll(() => observedSourceSnapshot).toBeDefined();
-    expect(observedPrepared?.launchEnvelope.source).toEqual({
-      kind: "editor",
-      editorSessionId: "test-editor-session",
-      canonicalConfig: {
-        id: "studio-current",
-        name: "Current Editor Config",
-        description: "Current Studio editor configuration.",
-        recipe: "standard",
-        sortIndex: 9999,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-        config: { example: true },
-      },
+    await expect.poll(() => observedPrepared).toBeDefined();
+    expect(observedPrepared?.launchEnvelope.canonicalConfig).toEqual({
+      id: "studio-current",
+      name: "Current Editor Config",
+      description: "Current Studio editor configuration.",
+      recipe: "standard",
+      sortIndex: 9999,
+      latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+      config: { example: true },
     });
-    expect(observedSourceSnapshot).toMatchObject({
-      requestId: accepted.requestId,
-      source: { kind: "editor", editorSessionId: "test-editor-session" },
-      canonicalConfigDigest: expect.any(String),
-      launchEnvelopeDigest: expect.any(String),
-    });
-    expect(observedSourceSnapshot).not.toHaveProperty("canonicalConfig");
-    expect(observedPrepared?.launchSourceDigest.canonicalConfigDigest).toBe(
-      hashRunInGameEvidenceValue(observedPrepared?.launchEnvelope.source.canonicalConfig)
+    expect(observedPrepared?.canonicalConfigDigest).toBe(
+      canonicalValueDigest(observedPrepared?.launchEnvelope.canonicalConfig)
     );
-    expect(observedSourceSnapshot?.launchEnvelopeDigest).toBe(
-      observedPrepared?.launchEnvelopeDigest
-    );
+    expect(observedPrepared?.launchEnvelopeDigest).toEqual(expect.any(String));
+    expect(accepted.requestId).toMatch(/^studio-run-in-game-/);
   });
 
-  test("wraps editor canonical-config admission failures at the Effect boundary", async () => {
+  test("wraps canonical-config admission failures at the Effect boundary", async () => {
     const admissionFailure = invalidRequest({
       message: "Standard envelope admission denied.",
       diagnostics: { code: "standard-admission-denied" },
@@ -1154,9 +1143,6 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       ports: {
         runInGameCanonicalConfigAdmission: {
-          resolveCatalogSource: async () =>
-            testCanonicalConfig({ id: "swooper-earthlike", name: "Swooper Earthlike" })
-              .canonicalConfig,
           admit: async () => {
             throw admissionFailure;
           },
@@ -1183,7 +1169,6 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       ports: {
         runInGameCanonicalConfigAdmission: {
-          resolveCatalogSource: async () => undefined,
           admit: async (canonicalConfig) => {
             admissionCalls += 1;
             return canonicalConfig;
@@ -1195,7 +1180,7 @@ describe("StudioOperationRuntime", () => {
 
     for (const [label, value] of nonPortableJsonValues()) {
       const input = runInGameInput();
-      Object.defineProperty(input.source.canonicalConfig.config, "nested", {
+      Object.defineProperty(input.canonicalConfig.config, "nested", {
         configurable: true,
         enumerable: true,
         value,
@@ -1207,7 +1192,7 @@ describe("StudioOperationRuntime", () => {
     }
   });
 
-  test("keeps an admitted editor launch restart-free by default", async () => {
+  test("keeps an admitted launch restart-free by default", async () => {
     let observedRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
@@ -1222,13 +1207,6 @@ describe("StudioOperationRuntime", () => {
     const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
 
     await expect.poll(() => observedRequest).toBeDefined();
-    expect(observedRequest).toMatchObject({
-      sourceSnapshot: {
-        source: { kind: "editor", editorSessionId: "test-editor-session" },
-        canonicalConfigDigest: expect.any(String),
-        launchEnvelopeDigest: expect.any(String),
-      },
-    });
     expect(observedRequest?.restartCivProcess).toBeUndefined();
   });
 
@@ -1280,78 +1258,16 @@ describe("StudioOperationRuntime", () => {
     expect(operationPhases(events, accepted.requestId)).not.toContain("completed");
   });
 
-  test("keeps catalog-backed Run in Game first attempt restart-free", async () => {
-    let observedCatalogRequest: Record<string, unknown> | undefined;
-    const { runtime } = makeRuntime({
-      ports: {
-        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
-          observedCatalogRequest = prepared.request as Record<string, unknown>;
-          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
-        },
-      },
-    });
-    const service = await runtime.runPromise(StudioOperationRuntime);
-
-    const catalogLaunch = await runtime.runPromise(
-      service.runInGameStart(
-        runInGameInput({
-          source: catalogSource("latest-juicy"),
-        })
-      )
-    );
-    await expect.poll(() => observedCatalogRequest).toBeDefined();
-    expect(observedCatalogRequest?.sourceSnapshot).toMatchObject({
-      source: {
-        kind: "catalog",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
-      },
-    });
-    expect(observedCatalogRequest?.restartCivProcess).toBeUndefined();
-    expect(catalogLaunch.status).toBe("running");
-  });
-
-  test("does not process-restart catalog setup after generated row remains unavailable", async () => {
-    const { runtime } = makeRuntime({
-      civ7: {
-        prepareSetup: () =>
-          Effect.fail(
-            verificationFailed({
-              message: "Civ7 setup cannot see {mod-swooper-studio-run}/maps/studio-run.js",
-              reason: "setup-row-unavailable",
-              recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
-              diagnostics: {
-                code: "setup-map-row-not-visible",
-                reloadAttempted: true,
-              },
-            })
-          ),
-      },
-    });
-    const service = await runtime.runPromise(StudioOperationRuntime);
-
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(
-        runInGameInput({
-          source: catalogSource("swooper-earthlike"),
-        })
-      )
-    );
-
-    await expect
-      .poll(async () => {
-        const status = await runtime.runPromise(
-          service.runInGameStatus({ requestId: accepted.requestId })
-        );
-        return status.phase;
-      })
-      .toBe("failed");
-  });
-
-  test("keeps one source snapshot evidence identity across runtime projections and final evidence", async () => {
+  test("keeps one digest identity across runtime projections and final evidence", async () => {
     const events: StudioEvent[] = [];
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-source-evidence-"));
     runtimeWorkspaceRoots.push(workspaceRoot);
-    let acceptedSourceSnapshot: Record<string, unknown> | undefined;
+    let acceptedDigests:
+      | Readonly<{
+          canonicalConfigDigest: string;
+          launchEnvelopeDigest: string;
+        }>
+      | undefined;
     let observedRuntimeObservation:
       | Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>>
       | undefined;
@@ -1361,7 +1277,10 @@ describe("StudioOperationRuntime", () => {
         ports: makePorts({
           runInGameWorkspaceRoot: workspaceRoot,
           buildRunInGameEvidence: async ({ requestId, prepared, deployment, observation }) => {
-            acceptedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
+            acceptedDigests = {
+              canonicalConfigDigest: prepared.canonicalConfigDigest,
+              launchEnvelopeDigest: prepared.launchEnvelopeDigest,
+            };
             observedRuntimeObservation = observation;
             return {
               result: { ok: true },
@@ -1369,9 +1288,8 @@ describe("StudioOperationRuntime", () => {
                 status: "unresolved",
                 requestId,
                 createdAt: "2026-06-10T00:00:00.000Z",
-                ...(prepared.request.sourceSnapshot === undefined
-                  ? {}
-                  : { sourceSnapshot: prepared.request.sourceSnapshot }),
+                canonicalConfigDigest: prepared.canonicalConfigDigest,
+                launchEnvelopeDigest: prepared.launchEnvelopeDigest,
                 request: {
                   recipeId: prepared.request.recipeId,
                 },
@@ -1408,7 +1326,7 @@ describe("StudioOperationRuntime", () => {
         return status.phase;
       })
       .toBe("completed");
-    expect(acceptedSourceSnapshot).toBeDefined();
+    expect(acceptedDigests).toBeDefined();
 
     const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
     const operationEvents = events.filter(
@@ -1435,10 +1353,8 @@ describe("StudioOperationRuntime", () => {
       service,
       accepted.diagnosticsId
     );
-    expect(finalPrivateOperation.request?.sourceSnapshot).toEqual(acceptedSourceSnapshot);
-    expect(finalPrivateOperation.exactAuthorshipEvidence?.sourceSnapshot).toEqual(
-      acceptedSourceSnapshot
-    );
+    expect(finalPrivateOperation.request).toMatchObject(acceptedDigests!);
+    expect(finalPrivateOperation.exactAuthorshipEvidence).toMatchObject(acceptedDigests!);
     expect(observedRuntimeObservation).toMatchObject({
       requestId: accepted.requestId,
       deploymentEvidence: {
@@ -1694,20 +1610,13 @@ describe("StudioOperationRuntime", () => {
         generatedModRoot: "generated-mod",
       },
       launchEnvelope: {
-        recipeSettings: {
-          recipe: "mod-swooper-maps/standard",
-          seed: 43,
-        },
+        seed: 43,
         worldSettings: { mapSize: "MAPSIZE_STANDARD" },
-        source: {
-          kind: "editor",
-          editorSessionId: "test-editor-session",
-          canonicalConfig: {
-            id: "studio-current",
-            name: "Studio Current",
-            config: {
-              alpha: { a: 2, z: 1 },
-            },
+        canonicalConfig: {
+          id: "studio-current",
+          name: "Studio Current",
+          config: {
+            alpha: { a: 2, z: 1 },
           },
         },
       },
@@ -1725,7 +1634,7 @@ describe("StudioOperationRuntime", () => {
     );
     for (const publicValue of [accepted, status, current, ...publicEvents]) {
       expect(JSON.stringify(publicValue)).not.toMatch(
-        /generationManifest|runArtifactId|RunCorrelation|launchEnvelope|sourceSnapshot/
+        /generationManifest|runArtifactId|RunCorrelation|launchEnvelope|canonicalConfigDigest/
       );
     }
 
@@ -1950,7 +1859,7 @@ describe("StudioOperationRuntime", () => {
     expect(current.runInGame.recent).toEqual([]);
   });
 
-  test("rejects missing Run in Game config before admission", async () => {
+  test("rejects missing Run in Game canonical config before admission", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
     const { runtime } = makeRuntime({
@@ -1969,18 +1878,14 @@ describe("StudioOperationRuntime", () => {
         runtime,
         service.runInGameStart(
           runInGameInput({
-            source: {
-              kind: "editor",
-              editorSessionId: "missing-config-editor",
-              canonicalConfig: {},
-            } as StudioInputs["runInGame"]["start"]["source"],
+            invalidCanonicalConfig: {},
           })
         )
       )
     ).resolves.toMatchObject({
       tag: "InvalidRequest",
       reason: "invalid-request",
-      diagnostics: { code: "run-in-game-source-invalid" },
+      diagnostics: { code: "run-in-game-canonical-config-invalid" },
     });
 
     const current = await runtime.runPromise(service.operationsCurrent);
@@ -1990,7 +1895,7 @@ describe("StudioOperationRuntime", () => {
     expect(current.runInGame.recent).toEqual([]);
   });
 
-  test("rejects an editor envelope without admitted latitude bounds", async () => {
+  test("rejects a complete config envelope without admitted latitude bounds", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
     const { runtime } = makeRuntime({
@@ -2009,30 +1914,26 @@ describe("StudioOperationRuntime", () => {
         runtime,
         service.runInGameStart(
           runInGameInput({
-            source: {
-              kind: "editor",
-              editorSessionId: "missing-latitude-bounds-editor",
-              canonicalConfig: {
-                id: "studio-current",
-                name: "Studio Current",
-                description: "Incomplete editor envelope.",
-                recipe: "standard",
-                sortIndex: 9999,
-                config: {},
-              },
-            } as StudioInputs["runInGame"]["start"]["source"],
+            invalidCanonicalConfig: {
+              id: "studio-current",
+              name: "Studio Current",
+              description: "Incomplete config envelope.",
+              recipe: "standard",
+              sortIndex: 9999,
+              config: {},
+            },
           })
         )
       )
     ).resolves.toMatchObject({
       tag: "InvalidRequest",
-      diagnostics: { code: "run-in-game-source-invalid" },
+      diagnostics: { code: "run-in-game-canonical-config-invalid" },
     });
     expect(generationCalls).toBe(0);
     expect(events).toEqual([]);
   });
 
-  test("rejects unknown keys in a complete editor envelope", async () => {
+  test("rejects unknown keys in a complete config envelope", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
     const { runtime } = makeRuntime({
@@ -2051,24 +1952,20 @@ describe("StudioOperationRuntime", () => {
         runtime,
         service.runInGameStart(
           runInGameInput({
-            source: {
-              kind: "editor",
-              editorSessionId: "split-identity-editor",
-              canonicalConfig: {
-                ...testCanonicalConfig({
-                  id: "studio-current",
-                  name: "Studio Current",
-                }).canonicalConfig,
-                unexpected: "unknown-envelope-key",
-              },
-            } as StudioInputs["runInGame"]["start"]["source"],
+            invalidCanonicalConfig: {
+              ...testCanonicalConfig({
+                id: "studio-current",
+                name: "Studio Current",
+              }).canonicalConfig,
+              unexpected: "unknown-envelope-key",
+            },
           })
         )
       )
     ).resolves.toMatchObject({
       tag: "InvalidRequest",
       reason: "invalid-request",
-      diagnostics: { code: "run-in-game-source-invalid" },
+      diagnostics: { code: "run-in-game-canonical-config-invalid" },
     });
 
     const current = await runtime.runPromise(service.operationsCurrent);
@@ -4093,7 +3990,7 @@ describe("StudioOperationRuntime", () => {
       kind: "run-in-game",
       status: {
         requestId: accepted.requestId,
-        phase: "resolving-source",
+        phase: "admitting-config",
         status: "running",
       },
     });
@@ -4225,8 +4122,6 @@ function makePorts(
     runInGameWorkspaceRoot,
     generateRunInGameMod: async () => generatedRunInGameMod(),
     runInGameCanonicalConfigAdmission: {
-      resolveCatalogSource: async () =>
-        testCanonicalConfig({ id: "catalog-source", name: "Catalog Source" }).canonicalConfig,
       admit: async (canonicalConfig) => canonicalConfig,
     },
     deployRunInGame: async ({ requestId, generatedMod }) =>
@@ -4330,7 +4225,7 @@ function runInGameRuntimeObservation(
   const correlation = {
     requestId: args.requestId,
     runArtifactId: materialization?.runArtifactId ?? "run-test",
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest:
       materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
@@ -4396,16 +4291,10 @@ function runInGameInput(
   overrides: RunInGameInputOverrides = {}
 ): StudioInputs["runInGame"]["start"] {
   const canonicalConfigOverrides = overrides.canonicalConfig;
-  const config =
-    overrides.source?.kind === "editor" && isRecord(overrides.source.canonicalConfig)
-      ? overrides.source.canonicalConfig.config
-      : isRecord(overrides.config)
-        ? overrides.config
-        : {};
-  const source = overrides.source ?? {
-    kind: "editor" as const,
-    editorSessionId: "test-editor-session",
-    canonicalConfig: testCanonicalConfig({
+  const config = isRecord(overrides.config) ? overrides.config : {};
+  const canonicalConfig =
+    overrides.invalidCanonicalConfig ??
+    testCanonicalConfig({
       id: canonicalConfigOverrides?.id ?? "studio-current",
       name: canonicalConfigOverrides?.name ?? "Studio Current",
       ...(canonicalConfigOverrides?.description === undefined
@@ -4415,16 +4304,11 @@ function runInGameInput(
       ...(canonicalConfigOverrides?.latitudeBounds === undefined
         ? {}
         : { latitudeBounds: canonicalConfigOverrides.latitudeBounds }),
-      config: isRecord(config) ? config : {},
-    }).canonicalConfig,
-  };
+      config,
+    }).canonicalConfig;
   return {
-    source,
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: overrides.seed ?? 43,
-      ...overrides.recipeSettings,
-    },
+    canonicalConfig: canonicalConfig as StudioInputs["runInGame"]["start"]["canonicalConfig"],
+    seed: overrides.seed ?? 43,
     worldSettings: {
       mapSize: overrides.mapSize ?? "MAPSIZE_STANDARD",
       ...(overrides.playerCount === undefined ? {} : { playerCount: overrides.playerCount }),
@@ -4449,13 +4333,17 @@ function saveDeployInput(requestId: string): StudioInputs["mapConfigs"]["saveDep
   return { requestId, canonicalConfig: testSaveDeployCanonicalConfig() };
 }
 
-type RunInGameInputOverrides = Partial<StudioInputs["runInGame"]["start"]> &
+type RunInGameInputOverrides = Omit<
+  Partial<StudioInputs["runInGame"]["start"]>,
+  "canonicalConfig"
+> &
   Readonly<{
     seed?: string | number;
     mapSize?: string;
     resources?: string;
     playerCount?: number;
     config?: unknown;
+    invalidCanonicalConfig?: unknown;
     canonicalConfig?: Readonly<{
       id?: string;
       name?: string;
@@ -4493,13 +4381,6 @@ function testCanonicalConfig(
   };
   return {
     canonicalConfig,
-  };
-}
-
-function catalogSource(id: string): StudioInputs["runInGame"]["start"]["source"] {
-  return {
-    kind: "catalog",
-    sourcePath: `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
   };
 }
 

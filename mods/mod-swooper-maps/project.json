@@ -170,7 +170,6 @@
       "outputs": [
         "{projectRoot}/dist/recipes/standard.schema.json",
         "{projectRoot}/dist/recipes/standard.defaults.json",
-        "{projectRoot}/dist/recipes/standard.presets.json",
         "{projectRoot}/dist/recipes/standard.d.ts",
         "{projectRoot}/dist/recipes/standard-artifacts.js",
         "{projectRoot}/dist/recipes/standard-artifacts.d.ts"

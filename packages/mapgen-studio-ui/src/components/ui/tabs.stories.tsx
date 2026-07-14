@@ -41,7 +41,7 @@ export const RecipePanel: Story = {
         <TabsList>
           <TabsTrigger value="recipe">Recipe</TabsTrigger>
           <TabsTrigger value="config">Config</TabsTrigger>
-          <TabsTrigger value="presets">Presets</TabsTrigger>
+          <TabsTrigger value="catalog">Catalog</TabsTrigger>
         </TabsList>
         <TabsContent value="recipe">
           <p className="text-muted-foreground" style={{ fontSize: 12, lineHeight: 1.5, margin: 0 }}>
@@ -57,9 +57,9 @@ export const RecipePanel: Story = {
             Per-domain config values for plate count, water %, and climate bands defaults.
           </p>
         </TabsContent>
-        <TabsContent value="presets">
+        <TabsContent value="catalog">
           <p className="text-muted-foreground" style={{ fontSize: 12, lineHeight: 1.5, margin: 0 }}>
-            Saved recipe and complete config bundles. Load a preset to seed a new map.
+            Complete named map configs. Select one to install its exact recipe configuration.
           </p>
         </TabsContent>
       </Tabs>

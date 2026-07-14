@@ -4,17 +4,12 @@ import {
   serializeMapConfigEnvelope,
 } from "@civ7/studio-contract";
 import { describe, expect, it } from "vitest";
-import { createStudioEditorCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
+import { getRecipeDefaultCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
 import {
   buildRunInGameClientSnapshot,
   relationForRunInGameOperation,
 } from "../../src/features/runInGame/clientState";
 
-const recipeSettings = {
-  recipe: "mod-swooper-maps/standard",
-  preset: "none",
-  seed: "123",
-};
 const worldSettings = {
   mapSize: "MAPSIZE_STANDARD" as const,
   playerCount: 8,
@@ -33,14 +28,14 @@ const status: RunInGameOperationStatus = {
 
 describe("Run in Game client state", () => {
   it("correlates only a server request id and local authoring revision", () => {
-    const canonicalConfig = serializeMapConfigEnvelope(createStudioEditorCanonicalConfig());
+    const canonicalConfig = serializeMapConfigEnvelope(getRecipeDefaultCanonicalConfig("standard"));
     const snapshot = buildRunInGameClientSnapshot({
       requestId: status.requestId,
       authoringRevision: 4,
-      recipeSettings,
+      seed: "123",
       worldSettings,
       setupConfig,
-      source: { kind: "editor", editorSessionId: "studio-current", canonicalConfig },
+      canonicalConfig,
     });
 
     expect(relationForRunInGameOperation({ status, snapshot, authoringRevision: 4 })).toBe(
@@ -61,46 +56,24 @@ describe("Run in Game client state", () => {
 
   it("retains an immutable snapshot of the complete configuration that was admitted", () => {
     const canonicalConfig = serializeMapConfigEnvelope(
-      createStudioEditorCanonicalConfig()
+      getRecipeDefaultCanonicalConfig("standard")
     ) as unknown as MapConfigEnvelope;
     const launchedName = canonicalConfig.name;
     const snapshot = buildRunInGameClientSnapshot({
       requestId: status.requestId,
       authoringRevision: 1,
-      recipeSettings,
+      seed: "123",
       worldSettings,
       setupConfig,
-      source: { kind: "editor", editorSessionId: "studio-current", canonicalConfig },
+      canonicalConfig,
     });
 
     (canonicalConfig as { name: string }).name = "Edited after submission";
 
-    expect(snapshot.launchEnvelope.source.canonicalConfig.name).toBe(launchedName);
-    expect(snapshot.launchEnvelope.source.canonicalConfig).not.toBe(canonicalConfig);
-    expect(Object.isFrozen(snapshot.launchEnvelope.source.canonicalConfig)).toBe(true);
-    expect(snapshot.launchEnvelope.recipeSettings).toEqual(recipeSettings);
+    expect(snapshot.launchEnvelope.canonicalConfig.name).toBe(launchedName);
+    expect(snapshot.launchEnvelope.canonicalConfig).not.toBe(canonicalConfig);
+    expect(Object.isFrozen(snapshot.launchEnvelope.canonicalConfig)).toBe(true);
+    expect(snapshot.launchEnvelope.seed).toBe("123");
     expect(snapshot.launchEnvelope.worldSettings).toEqual(worldSettings);
-  });
-
-  it("retains only sourcePath for a catalog request", () => {
-    const snapshot = buildRunInGameClientSnapshot({
-      requestId: "catalog-request-id",
-      authoringRevision: 1,
-      recipeSettings,
-      worldSettings,
-      setupConfig,
-      source: {
-        kind: "catalog",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-        canonicalConfig: createStudioEditorCanonicalConfig(),
-      },
-    });
-
-    expect(snapshot.requestId).toBe("catalog-request-id");
-    expect(snapshot.launchEnvelope.source).toEqual({
-      kind: "catalog",
-      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-    });
-    expect(snapshot.launchEnvelope.source).not.toHaveProperty("canonicalConfig");
   });
 });

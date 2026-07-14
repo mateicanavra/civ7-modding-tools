@@ -91,14 +91,11 @@ const runCorrelationMismatchCases = {
     value: "different-manifest",
     mismatches: ["generationManifestDigest"],
   },
-  launchSourceDigest: {
-    label: "launchSourceDigest",
-    field: "launchSourceDigest",
-    value: {
-      canonicalConfigDigest: "different-config",
-      launchEnvelopeDigest: "test-envelope-hash",
-    },
-    mismatches: ["launchSourceDigest"],
+  canonicalConfigDigest: {
+    label: "canonicalConfigDigest",
+    field: "canonicalConfigDigest",
+    value: "different-config",
+    mismatches: ["canonicalConfigDigest"],
   },
 } satisfies RunCorrelationMismatchCases;
 
@@ -854,7 +851,7 @@ function makeObservationFixture(
   const correlation = {
     requestId,
     runArtifactId: generated.runArtifactId,
-    launchSourceDigest: prepared.launchSourceDigest,
+    canonicalConfigDigest: prepared.canonicalConfigDigest,
     launchEnvelopeDigest: prepared.launchEnvelopeDigest,
     generationManifestDigest: generated.generationManifestDigest,
   };
@@ -883,7 +880,7 @@ function makeObservationFixture(
               evidencePayload: {
                 requestId,
                 runArtifactId: generated.runArtifactId,
-                canonicalConfigDigest: prepared.launchSourceDigest.canonicalConfigDigest,
+                canonicalConfigDigest: prepared.canonicalConfigDigest,
                 launchEnvelopeDigest: prepared.launchEnvelopeDigest,
                 generationManifestDigest: generated.generationManifestDigest,
                 dimensions: { width: 84, height: 54 },
@@ -906,16 +903,8 @@ function preparedRequest(): RunInGamePreparedRequest {
     latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
     config: {},
   };
-  const resolvedLaunchSource = {
-    kind: "editor" as const,
-    editorSessionId: "test-editor-session",
-    canonicalConfig,
-  };
   const launchEnvelope = {
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: 43,
-    },
+    seed: 43,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
@@ -923,20 +912,17 @@ function preparedRequest(): RunInGamePreparedRequest {
       gameOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
-    source: resolvedLaunchSource,
-  };
-  const launchSourceDigest = {
-    canonicalConfigDigest: "test-canonical-config-hash",
+    canonicalConfig,
   };
   return {
     request: {
-      recipeId: "mod-swooper-maps/standard",
+      recipeId: "standard",
       seed: 43,
       mapSize: "MAPSIZE_STANDARD",
       setupConfig: launchEnvelope.setupConfig,
     },
     launchEnvelope,
-    launchSourceDigest,
+    canonicalConfigDigest: "test-canonical-config-hash",
     launchEnvelopeDigest: "test-envelope-hash",
   };
 }

@@ -216,7 +216,7 @@ export function admitRunInGame(
       leaseId: args.leaseId,
       request: {
         ...args.prepared.request,
-        launchSourceDigest: args.prepared.launchSourceDigest,
+        canonicalConfigDigest: args.prepared.canonicalConfigDigest,
         launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
       },
       phase: "accepted",
