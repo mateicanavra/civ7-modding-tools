@@ -5,5 +5,4 @@ export default defineConfig({
   format: ["esm", "cjs"],
   target: "esnext",
   clean: true,
-  noExternal: ["effect-orpc"],
 });

@@ -45,16 +45,21 @@ describe("rule registry facts", () => {
       ],
     });
 
+    const firstGritRule = catalog.grit[0];
+    if (firstGritRule === undefined) {
+      throw new Error("expected Grit rule facts");
+    }
+
     expect(Object.isFrozen(catalog)).toBe(true);
     expect(Object.isFrozen(catalog.grit)).toBe(true);
-    expect(Object.isFrozen(catalog.grit[0])).toBe(true);
-    expect(Object.isFrozen(catalog.grit[0]?.scanRoots)).toBe(true);
-    expect(Object.isFrozen(catalog.grit[0]?.runner)).toBe(true);
-    expect(Object.isFrozen(catalog.grit[0]?.runner.files)).toBe(true);
+    expect(Object.isFrozen(firstGritRule)).toBe(true);
+    expect(Object.isFrozen(firstGritRule.scanRoots)).toBe(true);
+    expect(Object.isFrozen(firstGritRule.runner)).toBe(true);
+    expect(Object.isFrozen(firstGritRule.runner.files)).toBe(true);
     expect(Object.isFrozen(catalog.fix)).toBe(true);
     expect(Object.isFrozen(catalog.fix[0]?.fix)).toBe(true);
     expect(Object.isFrozen(catalog.fix[0]?.fix.effects)).toBe(true);
-    expect(() => (catalog.grit[0]?.scanRoots as string[]).push("other")).toThrow(TypeError);
+    expect(() => (firstGritRule.scanRoots as string[]).push("other")).toThrow(TypeError);
   });
 
   test("separates diagnostic execution and fix admission facts", () => {

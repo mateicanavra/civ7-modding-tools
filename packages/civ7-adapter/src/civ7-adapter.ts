@@ -53,6 +53,7 @@ const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
+// @ts-ignore - resolved only at Civ7 runtime
 import "/base-standard/maps/map-globals.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { assignAdvancedStartRegions as civ7AssignAdvancedStartRegions } from "/base-standard/maps/assign-advanced-start-region.js";
