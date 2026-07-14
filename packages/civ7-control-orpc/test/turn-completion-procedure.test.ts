@@ -1,5 +1,4 @@
 import { call, ORPCError } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import type { Civ7ControlOrpcTurnCompletionRequestResult } from "../src/dependencies/direct-control";
 import {
@@ -9,19 +8,18 @@ import {
   Civ7TurnCompletionUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 type TurnCompletionServiceResult = Awaited<
   ReturnType<ReturnType<typeof createCiv7ControlOrpcServerClient>["turn"]["complete"]["request"]>
 >;
 
-const Civ7TurnCompletionInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.turn.complete.request
-);
+const Civ7TurnCompletionInputSchema =
+  Civ7ControlOrpcContract.turn.complete.request["~orpc"].inputSchema;
 
 describe("turn.complete.request control-oRPC procedure", () => {
   test("owns the caller-facing turn completion input without runtime controls", () => {
-    expect(Value.Check(Civ7TurnCompletionInputSchema, {})).toBe(true);
+    expect(standardSchemaAccepts(Civ7TurnCompletionInputSchema, {})).toBe(true);
     for (const input of [
       { host: "127.0.0.1" },
       { port: 4318 },
@@ -30,7 +28,7 @@ describe("turn.complete.request control-oRPC procedure", () => {
       { command: "GameContext.sendTurnComplete()" },
       { rawCommand: "GameContext.sendTurnComplete()" },
     ]) {
-      expect(Value.Check(Civ7TurnCompletionInputSchema, input)).toBe(false);
+      expect(standardSchemaAccepts(Civ7TurnCompletionInputSchema, input)).toBe(false);
     }
   });
 

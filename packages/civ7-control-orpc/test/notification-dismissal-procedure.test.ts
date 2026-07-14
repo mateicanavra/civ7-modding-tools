@@ -1,5 +1,4 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -10,22 +9,21 @@ import {
   Civ7NotificationDismissalUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 const notificationId = { owner: 0, id: 113, type: 20 };
-const Civ7NotificationDismissInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.dismiss.request
-);
+const Civ7NotificationDismissInputSchema =
+  Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"].inputSchema;
 
 describe("notifications.dismiss.request control-oRPC procedure", () => {
   test("owns the caller-facing notification dismiss contract without raw fields", () => {
     expect(
-      Value.Check(Civ7NotificationDismissInputSchema, {
+      standardSchemaAccepts(Civ7NotificationDismissInputSchema, {
         notificationId,
       })
     ).toBe(true);
     expect(
-      Value.Check(Civ7NotificationDismissInputSchema, {
+      standardSchemaAccepts(Civ7NotificationDismissInputSchema, {
         notificationId,
         rawCommand: "Game.turn",
       })

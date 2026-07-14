@@ -34,45 +34,39 @@ describe("Civ7 game UI controller bootstrap", () => {
 
     expect(target.Civ7IntelligenceBridge).toBe(bridge);
 
-    const response = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-readiness-1",
-    });
+    const response = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-readiness-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "readiness.current",
-      correlationId: "game-ui-readiness-1",
-      output: {
-        playable: false,
-        readiness: "app-ui-game",
-        capability: {
-          canObserve: true,
-          canMutate: false,
-        },
-        controller: {
-          supportedProcedures: [
-            {
-              procedureKey: "world.current",
-              risk: "read-only",
-            },
-          ],
-        },
-        sources: {
-          gameUi: {
-            inGame: true,
-            inShell: false,
-            inLoading: false,
-            canBeginGame: false,
+      playable: false,
+      readiness: "app-ui-game",
+      capability: {
+        canObserve: true,
+        canMutate: false,
+      },
+      controller: {
+        supportedProcedures: [
+          {
+            procedureKey: "world.current",
+            risk: "read-only",
           },
-          runtimeControl: {
-            ready: null,
-          },
+        ],
+      },
+      sources: {
+        gameUi: {
+          inGame: true,
+          inShell: false,
+          inLoading: false,
+          canBeginGame: false,
+        },
+        runtimeControl: {
+          ready: null,
         },
       },
     });
-    expect(response.ok && response.output.nextSteps).toEqual([
+    expect(response.nextSteps).toEqual([
       {
         kind: "read-world",
         source: "readiness.current",
@@ -84,49 +78,43 @@ describe("Civ7 game UI controller bootstrap", () => {
   test("reads current world through game UI service dependency", async () => {
     const bridge = installCiv7GameUiIntelligenceBridge({ target: gameUiTarget() });
 
-    const response = await bridge.invoke({
-      procedureKey: "world.current",
-      input: {},
-      correlationId: "game-ui-world-1",
-    });
+    const response = await bridge.world.current(
+      {},
+      { context: { correlationId: "game-ui-world-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "world.current",
-      correlationId: "game-ui-world-1",
-      output: {
-        playable: false,
-        readiness: "app-ui-game",
-        sourceStatus: {
-          playableStatus: "read",
-          game: "read",
-          map: "read",
-          players: "read",
-        },
-        turn: {
-          current: 42,
-          date: "Ancient Era",
-          age: 1,
-          maxTurns: 500,
-          hash: 123,
-        },
-        localPlayer: {
-          playerId: 0,
-          observerId: 0,
-        },
-        map: {
-          width: 74,
-          height: 46,
-          plotCount: 3404,
-          mapSize: 1,
-          randomSeed: 99,
-        },
-        players: {
-          maxPlayers: 8,
-          alivePlayerIds: [0],
-          aliveHumanIds: [0],
-          aliveHumanCount: 1,
-        },
+      playable: false,
+      readiness: "app-ui-game",
+      sourceStatus: {
+        playableStatus: "read",
+        game: "read",
+        map: "read",
+        players: "read",
+      },
+      turn: {
+        current: 42,
+        date: "Ancient Era",
+        age: 1,
+        maxTurns: 500,
+        hash: 123,
+      },
+      localPlayer: {
+        playerId: 0,
+        observerId: 0,
+      },
+      map: {
+        width: 74,
+        height: 46,
+        plotCount: 3404,
+        mapSize: 1,
+        randomSeed: 99,
+      },
+      players: {
+        maxPlayers: 8,
+        alivePlayerIds: [0],
+        aliveHumanIds: [0],
+        aliveHumanCount: 1,
       },
     });
 
@@ -151,79 +139,61 @@ describe("Civ7 game UI controller bootstrap", () => {
       target: gameUiMapReadTarget(),
     });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-    });
+    const readiness = await bridge.readiness.current({});
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            { procedureKey: "world.current", risk: "read-only" },
-            { procedureKey: "world.plot.read", risk: "read-only" },
-            { procedureKey: "world.grid.read", risk: "read-only" },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          { procedureKey: "world.current", risk: "read-only" },
+          { procedureKey: "world.plot.read", risk: "read-only" },
+          { procedureKey: "world.grid.read", risk: "read-only" },
+        ]),
       },
     });
 
-    const plot = await bridge.invoke({
-      procedureKey: "world.plot.read",
-      input: {
+    const plot = await bridge.world.plot(
+      {
         location: { x: 3, y: 4 },
         fields: ["terrain", "owner", "visibility"],
         playerId: 0,
       },
-      correlationId: "game-ui-world-plot-1",
-    });
+      { context: { correlationId: "game-ui-world-plot-1" } }
+    );
     expect(plot).toMatchObject({
-      ok: true,
-      procedureKey: "world.plot.read",
-      correlationId: "game-ui-world-plot-1",
-      output: {
-        sourceStatus: { plot: "read" },
-        plot: {
-          location: { x: 3, y: 4, index: 3_004 },
-          hiddenInfoPolicy: "visibility-filtered",
-          facts: {
-            terrain: { ok: true, value: 7 },
-            owner: { ok: true, value: 0 },
-            visible: { ok: true, value: true },
-          },
+      sourceStatus: { plot: "read" },
+      plot: {
+        location: { x: 3, y: 4, index: 3_004 },
+        hiddenInfoPolicy: "visibility-filtered",
+        facts: {
+          terrain: { ok: true, value: 7 },
+          owner: { ok: true, value: 0 },
+          visible: { ok: true, value: true },
         },
       },
     });
 
-    const grid = await bridge.invoke({
-      procedureKey: "world.grid.read",
-      input: {
+    const grid = await bridge.world.grid(
+      {
         bounds: { x: 3, y: 4, width: 2, height: 1 },
         fields: ["terrain"],
         maxPlots: 1,
       },
-      correlationId: "game-ui-world-grid-1",
-    });
+      { context: { correlationId: "game-ui-world-grid-1" } }
+    );
     expect(grid).toMatchObject({
-      ok: true,
-      procedureKey: "world.grid.read",
-      correlationId: "game-ui-world-grid-1",
-      output: {
-        sourceStatus: {
-          grid: "read-with-omissions",
-          map: "read",
-        },
-        bounds: { x: 3, y: 4, width: 2, height: 1 },
-        fields: ["terrain"],
-        plotCount: 2,
-        omitted: 1,
-        plots: [
-          {
-            location: { x: 3, y: 4, index: 3_004 },
-            facts: { terrain: { ok: true, value: 7 } },
-          },
-        ],
+      sourceStatus: {
+        grid: "read-with-omissions",
+        map: "read",
       },
+      bounds: { x: 3, y: 4, width: 2, height: 1 },
+      fields: ["terrain"],
+      plotCount: 2,
+      omitted: 1,
+      plots: [
+        {
+          location: { x: 3, y: 4, index: 3_004 },
+          facts: { terrain: { ok: true, value: 7 } },
+        },
+      ],
     });
 
     const serialized = JSON.stringify({ plot, grid });
@@ -246,31 +216,22 @@ describe("Civ7 game UI controller bootstrap", () => {
   test("does not advertise world plot/grid without plot-level map APIs", async () => {
     const bridge = installCiv7GameUiIntelligenceBridge({ target: gameUiTarget() });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-    });
+    const readiness = await bridge.readiness.current({});
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: [{ procedureKey: "world.current", risk: "read-only" }],
-        },
+      controller: {
+        supportedProcedures: [{ procedureKey: "world.current", risk: "read-only" }],
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "world.plot.read",
-      input: {
+    await expect(
+      bridge.world.plot({
         location: { x: 3, y: 4 },
         fields: ["terrain"],
-      },
-    });
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+      })
+    ).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "world.plot.read",
         reason: "procedure-not-supported",
       },
     });
@@ -281,34 +242,22 @@ describe("Civ7 game UI controller bootstrap", () => {
       target: gameUiTarget({ Players: undefined }),
     });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-    });
+    const readiness = await bridge.readiness.current({});
 
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        capability: {
-          canObserve: false,
-          canMutate: false,
-        },
-        controller: {
-          supportedProcedures: [],
-        },
+      capability: {
+        canObserve: false,
+        canMutate: false,
+      },
+      controller: {
+        supportedProcedures: [],
       },
     });
 
-    const world = await bridge.invoke({
-      procedureKey: "world.current",
-      input: {},
-    });
-
-    expect(world).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+    await expect(bridge.world.current({})).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "world.current",
         reason: "procedure-not-supported",
       },
     });
@@ -318,44 +267,38 @@ describe("Civ7 game UI controller bootstrap", () => {
     const target = gameUiNotificationTarget(notificationId);
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-readiness-supported-1",
-    });
+    const response = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-readiness-supported-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "readiness.current",
-      correlationId: "game-ui-readiness-supported-1",
-      output: {
-        playable: false,
-        readiness: "app-ui-game",
-        capability: {
-          canObserve: true,
-          canMutate: false,
-          reason:
-            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
-        },
-        controller: {
-          supportedProcedures: [
-            {
-              procedureKey: "attention.current",
-              risk: "read-only",
-            },
-            {
-              procedureKey: "world.current",
-              risk: "read-only",
-            },
-            {
-              procedureKey: "notifications.dismiss.request",
-              risk: "mutation",
-            },
-          ],
-        },
+      playable: false,
+      readiness: "app-ui-game",
+      capability: {
+        canObserve: true,
+        canMutate: false,
+        reason:
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+      },
+      controller: {
+        supportedProcedures: [
+          {
+            procedureKey: "attention.current",
+            risk: "read-only",
+          },
+          {
+            procedureKey: "world.current",
+            risk: "read-only",
+          },
+          {
+            procedureKey: "notifications.dismiss.request",
+            risk: "mutation",
+          },
+        ],
       },
     });
-    expect(response.ok && response.output.nextSteps).toEqual([
+    expect(response.nextSteps).toEqual([
       {
         kind: "read-attention",
         source: "readiness.current",
@@ -368,30 +311,24 @@ describe("Civ7 game UI controller bootstrap", () => {
     const target = gameUiNotificationTarget(notificationId);
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "notifications.dismiss.request",
-      input: { notificationId },
-      correlationId: "game-ui-notification-dismiss-1",
-    });
+    const response = await bridge.notifications.dismiss.request(
+      { notificationId },
+      { context: { correlationId: "game-ui-notification-dismiss-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "notifications.dismiss.request",
-      correlationId: "game-ui-notification-dismiss-1",
-      output: {
-        notificationId,
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          beforeExists: true,
-          canDismiss: true,
-          afterExists: false,
-        },
-        postcondition: {
-          classification: "notification-disappeared",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        },
+      notificationId,
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        beforeExists: true,
+        canDismiss: true,
+        afterExists: false,
+      },
+      postcondition: {
+        classification: "notification-disappeared",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
       },
     });
     const serialized = JSON.stringify(response);
@@ -407,42 +344,30 @@ describe("Civ7 game UI controller bootstrap", () => {
     const target = gameUiTarget();
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "notifications.dismiss.request",
-      input: { notificationId: { owner: 0, id: 113, type: 20 } },
+    const request = bridge.notifications.dismiss.request({
+      notificationId: { owner: 0, id: 113, type: 20 },
     });
 
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+    await expect(request).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "notifications.dismiss.request",
         reason: "procedure-not-supported",
       },
     });
-    expect(JSON.stringify(response)).not.toContain("NotificationModel");
-    expect(JSON.stringify(response)).not.toContain("Game.Notifications");
   });
 
   test("keeps unsupported game UI mutations bounded when notification dismissal is available", async () => {
     const target = gameUiNotificationTarget(notificationId);
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "turn.complete.request",
-      input: {},
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+    await expect(bridge.turn.complete.request({})).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "turn.complete.request",
         reason: "procedure-not-supported",
       },
     });
-
-    expect(JSON.stringify(response)).not.toContain("Civ7 game UI controller dependency");
   });
 
   test("executes turn completion through game UI service dependency", async () => {
@@ -458,43 +383,37 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "turn.complete.request",
-      input: {},
-      correlationId: "game-ui-turn-complete-1",
-    });
+    const response = await bridge.turn.complete.request(
+      {},
+      { context: { correlationId: "game-ui-turn-complete-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "turn.complete.request",
-      correlationId: "game-ui-turn-complete-1",
-      output: {
-        sent: true,
-        status: "sent-guarded",
-        before: {
-          turn: 42,
-          hasSentTurnComplete: false,
-          canEndTurn: true,
-          blocker: 0,
-        },
-        after: {
-          turn: 42,
-          hasSentTurnComplete: true,
-          canEndTurn: true,
-          blocker: 0,
-        },
-        postcondition: {
-          classification: "turn-complete-sent",
-          confirmed: true,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "turn.complete.request",
-          },
-        ],
+      sent: true,
+      status: "sent-guarded",
+      before: {
+        turn: 42,
+        hasSentTurnComplete: false,
+        canEndTurn: true,
+        blocker: 0,
       },
+      after: {
+        turn: 42,
+        hasSentTurnComplete: true,
+        canEndTurn: true,
+        blocker: 0,
+      },
+      postcondition: {
+        classification: "turn-complete-sent",
+        confirmed: true,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "turn.complete.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual(["send"]);
     expect(deselectCalls).toEqual(["deselect"]);
@@ -521,63 +440,53 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-production-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-production-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        capability: {
-          canObserve: true,
-          canMutate: false,
-          reason:
-            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
-        },
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "city.production.choice.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      capability: {
+        canObserve: true,
+        canMutate: false,
+        reason:
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+      },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "city.production.choice.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.production.choice.request",
-      input: { cityId, args: productionArgs },
-      correlationId: "game-ui-production-choice-1",
-    });
+    const response = await bridge.city.production.choice.request(
+      { cityId, args: productionArgs },
+      { context: { correlationId: "game-ui-production-choice-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "city.production.choice.request",
-      correlationId: "game-ui-production-choice-1",
-      output: {
-        cityId,
-        args: productionArgs,
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "production-choice-cleared",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-          blockerStillLive: false,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "city.production.choice.request",
-          },
-        ],
+      cityId,
+      args: productionArgs,
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "production-choice-cleared",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        blockerStillLive: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "city.production.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([productionArgs]);
     const serialized = JSON.stringify(response);
@@ -602,33 +511,29 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.production.choice.request",
-      input: { cityId, args: productionArgs },
-      correlationId: "game-ui-production-blocked-1",
-    });
+    const response = await bridge.city.production.choice.request(
+      { cityId, args: productionArgs },
+      { context: { correlationId: "game-ui-production-blocked-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-production",
-            source: "city.production.choice.request",
-          },
-        ],
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
       },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-production",
+          source: "city.production.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -644,29 +549,23 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.production.choice.request",
-      input: { cityId, args: productionArgs },
-    });
+    const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "production-state-changed-blocker-still-live",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-          blockerStillLive: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "city.production.choice.request",
-          },
-        ],
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "production-state-changed-blocker-still-live",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+        blockerStillLive: true,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "city.production.choice.request",
+        },
+      ],
     });
   });
 
@@ -682,22 +581,16 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.production.choice.request",
-      input: { cityId, args: productionArgs },
-    });
+    const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "production-state-changed-blocker-still-live",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-          blockerStillLive: true,
-        },
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "production-state-changed-blocker-still-live",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+        blockerStillLive: true,
       },
     });
   });
@@ -713,22 +606,16 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.production.choice.request",
-      input: { cityId, args: productionArgs },
-    });
+    const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "production-state-changed-blocker-still-live",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-          blockerStillLive: true,
-        },
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "production-state-changed-blocker-still-live",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+        blockerStillLive: true,
       },
     });
   });
@@ -746,23 +633,17 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.production.choice.request",
-      input: { cityId, args: productionArgs },
-    });
+    const response = await bridge.city.production.choice.request({ cityId, args: productionArgs });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "no-state-change",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-          productionStateChanged: false,
-          blockerStillLive: true,
-        },
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "no-state-change",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+        productionStateChanged: false,
+        blockerStillLive: true,
       },
     });
   });
@@ -779,67 +660,57 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-population-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-population-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        capability: {
-          canObserve: true,
-          canMutate: false,
-          reason:
-            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
-        },
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "city.population.place.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      capability: {
+        canObserve: true,
+        canMutate: false,
+        reason:
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+      },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "city.population.place.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", location: 2543 },
-      correlationId: "game-ui-population-assign-worker-1",
-    });
+    const response = await bridge.city.population.place.request(
+      { mode: "assign-worker", location: 2543 },
+      { context: { correlationId: "game-ui-population-assign-worker-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "city.population.place.request",
-      correlationId: "game-ui-population-assign-worker-1",
-      output: {
-        placement: {
-          mode: "assign-worker",
-          playerId: 0,
-          location: 2543,
-        },
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "population-ready-cleared",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-          readyCleared: true,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "city.population.place.request",
-          },
-        ],
+      placement: {
+        mode: "assign-worker",
+        playerId: 0,
+        location: 2543,
       },
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
+      },
+      postcondition: {
+        classification: "population-ready-cleared",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        readyCleared: true,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "city.population.place.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([{ Location: 2543, Amount: 1 }]);
     const serialized = JSON.stringify(response);
@@ -864,31 +735,25 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.population.place.request",
-      input: {
+    const response = await bridge.city.population.place.request({
+      mode: "expand-city",
+      cityId,
+      destination: populationDestination,
+    });
+
+    expect(response).toMatchObject({
+      placement: {
         mode: "expand-city",
         cityId,
         destination: populationDestination,
       },
-    });
-
-    expect(response).toMatchObject({
-      ok: true,
-      output: {
-        placement: {
-          mode: "expand-city",
-          cityId,
-          destination: populationDestination,
-        },
-        sent: true,
-        status: "sent-confirmed",
-        postcondition: {
-          classification: "population-ready-cleared",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-          readyCleared: true,
-        },
+      sent: true,
+      status: "sent-confirmed",
+      postcondition: {
+        classification: "population-ready-cleared",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        readyCleared: true,
       },
     });
     expect(sendCalls).toEqual([{ X: populationDestination.x, Y: populationDestination.y }]);
@@ -906,32 +771,29 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", location: 2543 },
+    const response = await bridge.city.population.place.request({
+      mode: "assign-worker",
+      location: 2543,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-population-placement",
-            source: "city.population.place.request",
-          },
-        ],
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
       },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-population-placement",
+          source: "city.population.place.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -948,19 +810,13 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", playerId: 2, location: 2543 },
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_BAD_REQUEST",
-        message: "Civ7 controller bridge request envelope is invalid.",
-        reason: "invalid-envelope",
-      },
-    });
+    await expect(
+      bridge.city.population.place.request({
+        mode: "assign-worker",
+        playerId: 2,
+        location: 2543,
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(sendCalls).toEqual([]);
   });
 
@@ -975,31 +831,28 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", location: 2543 },
+    const response = await bridge.city.population.place.request({
+      mode: "assign-worker",
+      location: 2543,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "no-state-change",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-          readyCleared: false,
-          placementStateChanged: false,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "city.population.place.request",
-          },
-        ],
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "no-state-change",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+        readyCleared: false,
+        placementStateChanged: false,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "city.population.place.request",
+        },
+      ],
     });
   });
 
@@ -1014,28 +867,25 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", location: 2543 },
+    const response = await bridge.city.population.place.request({
+      mode: "assign-worker",
+      location: 2543,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-guarded",
-        postcondition: {
-          classification: "placement-state-changed",
-          confidence: "confirmed",
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "city.population.place.request",
-          },
-        ],
+      sent: true,
+      status: "sent-guarded",
+      postcondition: {
+        classification: "placement-state-changed",
+        confidence: "confirmed",
+        noRepeatAfterUnverified: true,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "city.population.place.request",
+        },
+      ],
     });
   });
 
@@ -1049,29 +899,26 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.population.place.request",
-      input: { mode: "assign-worker", location: 2543 },
+    const response = await bridge.city.population.place.request({
+      mode: "assign-worker",
+      location: 2543,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "missing-postcondition",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "city.population.place.request",
-          },
-        ],
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "missing-postcondition",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "city.population.place.request",
+        },
+      ],
     });
   });
 
@@ -1085,67 +932,57 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-town-focus-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-town-focus-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "city.townFocus.change.request",
-              risk: "mutation",
-            },
-            {
-              procedureKey: "city.townFocus.review.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "city.townFocus.change.request",
+            risk: "mutation",
+          },
+          {
+            procedureKey: "city.townFocus.review.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.townFocus.change.request",
-      input: {
+    const response = await bridge.city.townFocus.change.request(
+      {
         cityId,
         growthType: townFocusGrowthType,
         projectType: townFocusProjectType,
       },
-      correlationId: "game-ui-town-focus-change-1",
-    });
+      { context: { correlationId: "game-ui-town-focus-change-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "city.townFocus.change.request",
-      correlationId: "game-ui-town-focus-change-1",
-      output: {
-        cityId,
-        growthType: townFocusGrowthType,
-        projectType: townFocusProjectType,
-        city: cityId.id,
-        sent: true,
-        status: "sent-unverified",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "pending-runtime-proof",
-          confidence: "pending-runtime-proof",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "city.townFocus.change.request",
-          },
-        ],
+      cityId,
+      growthType: townFocusGrowthType,
+      projectType: townFocusProjectType,
+      city: cityId.id,
+      sent: true,
+      status: "sent-unverified",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "pending-runtime-proof",
+        confidence: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "city.townFocus.change.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -1175,25 +1012,19 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.townFocus.review.request",
-      input: { cityId },
-      correlationId: "game-ui-town-focus-review-1",
-    });
+    const response = await bridge.city.townFocus.review.request(
+      { cityId },
+      { context: { correlationId: "game-ui-town-focus-review-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "city.townFocus.review.request",
-      correlationId: "game-ui-town-focus-review-1",
-      output: {
-        cityId,
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "pending-runtime-proof",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      cityId,
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(sendCalls).toEqual([{}]);
@@ -1214,29 +1045,23 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.townFocus.change.request",
-      input: {
-        cityId,
-        growthType: townFocusGrowthType,
-        projectType: townFocusProjectType,
-      },
+    const response = await bridge.city.townFocus.change.request({
+      cityId,
+      growthType: townFocusGrowthType,
+      projectType: townFocusProjectType,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
+      },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(sendCalls).toEqual([]);
@@ -1253,30 +1078,24 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "city.townFocus.change.request",
-      input: {
-        cityId: otherCityId,
-        growthType: townFocusGrowthType,
-        projectType: townFocusProjectType,
-      },
+    const response = await bridge.city.townFocus.change.request({
+      cityId: otherCityId,
+      growthType: townFocusGrowthType,
+      projectType: townFocusProjectType,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        cityId: otherCityId,
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      cityId: otherCityId,
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
+      },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(sendCalls).toEqual([]);
@@ -1322,72 +1141,62 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-progression-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-progression-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        capability: {
-          canObserve: true,
-          canMutate: false,
-          reason:
-            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
-        },
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "progression.technology.choice.request",
-              risk: "mutation",
-            },
-            {
-              procedureKey: "progression.culture.choice.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      capability: {
+        canObserve: true,
+        canMutate: false,
+        reason:
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
+      },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "progression.technology.choice.request",
+            risk: "mutation",
+          },
+          {
+            procedureKey: "progression.culture.choice.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "progression.technology.choice.request",
-      input: {
+    const response = await bridge.progression.technology.choice.request(
+      {
         node: 18_001,
         notificationId,
       },
-      correlationId: "game-ui-progression-tech-1",
-    });
+      { context: { correlationId: "game-ui-progression-tech-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "progression.technology.choice.request",
-      correlationId: "game-ui-progression-tech-1",
-      output: {
-        playerId: 0,
-        node: 18_001,
-        notificationId,
-        sent: true,
-        status: "sent-confirmed",
-        evidence: {
-          beforeBlockerPresent: true,
-          afterReadStatus: "read",
-          afterBlockerPresent: false,
-        },
-        postcondition: {
-          classification: "technology-choice-cleared",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "progression.technology.choice.request",
-          },
-        ],
+      playerId: 0,
+      node: 18_001,
+      notificationId,
+      sent: true,
+      status: "sent-confirmed",
+      evidence: {
+        beforeBlockerPresent: true,
+        afterReadStatus: "read",
+        afterBlockerPresent: false,
       },
+      postcondition: {
+        classification: "technology-choice-cleared",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "progression.technology.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -1420,38 +1229,32 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "progression.culture.choice.request",
-      input: {
-        node: 27_001,
-        notificationId,
-      },
+    const response = await bridge.progression.culture.choice.request({
+      node: 27_001,
+      notificationId,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        playerId: 0,
-        sent: true,
-        status: "sent-unverified",
-        evidence: {
-          beforeBlockerPresent: true,
-          afterReadStatus: "read",
-          afterBlockerPresent: true,
-        },
-        postcondition: {
-          classification: "culture-choice-sticky-blocker",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "progression.culture.choice.request",
-          },
-        ],
+      playerId: 0,
+      sent: true,
+      status: "sent-unverified",
+      evidence: {
+        beforeBlockerPresent: true,
+        afterReadStatus: "read",
+        afterBlockerPresent: true,
       },
+      postcondition: {
+        classification: "culture-choice-sticky-blocker",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "progression.culture.choice.request",
+        },
+      ],
     });
   });
 
@@ -1467,35 +1270,29 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "progression.technology.choice.request",
-      input: {
-        node: 18_001,
-        notificationId,
-      },
+    const response = await bridge.progression.technology.choice.request({
+      node: 18_001,
+      notificationId,
     });
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        evidence: {
-          beforeBlockerPresent: true,
-          afterReadStatus: "skipped-not-sent",
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-progression-choice",
-            source: "progression.technology.choice.request",
-          },
-        ],
+      sent: false,
+      status: "not-sent",
+      evidence: {
+        beforeBlockerPresent: true,
+        afterReadStatus: "skipped-not-sent",
       },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-progression-choice",
+          source: "progression.technology.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -1509,62 +1306,50 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-    });
+    const readiness = await bridge.readiness.current({});
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "progression.technology.target.request",
-              risk: "mutation",
-            },
-            {
-              procedureKey: "progression.culture.target.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "progression.technology.target.request",
+            risk: "mutation",
+          },
+          {
+            procedureKey: "progression.culture.target.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "progression.technology.target.request",
-      input: {
+    const response = await bridge.progression.technology.target.request(
+      {
         node: 18_001,
       },
-      correlationId: "game-ui-progression-target-1",
-    });
+      { context: { correlationId: "game-ui-progression-target-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "progression.technology.target.request",
-      correlationId: "game-ui-progression-target-1",
-      output: {
-        playerId: 0,
-        node: 18_001,
-        sent: true,
-        status: "sent-unverified",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "pending-runtime-proof",
-          confidence: "pending-runtime-proof",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "progression.technology.target.request",
-          },
-        ],
+      playerId: 0,
+      node: 18_001,
+      sent: true,
+      status: "sent-unverified",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "pending-runtime-proof",
+        confidence: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "progression.technology.target.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -1591,24 +1376,18 @@ describe("Civ7 game UI controller bootstrap", () => {
     }
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-    });
+    const readiness = await bridge.readiness.current({});
 
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.not.arrayContaining([
-            expect.objectContaining({
-              procedureKey: "progression.technology.target.request",
-            }),
-            expect.objectContaining({
-              procedureKey: "progression.attribute.purchase.request",
-            }),
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.not.arrayContaining([
+          expect.objectContaining({
+            procedureKey: "progression.technology.target.request",
+          }),
+          expect.objectContaining({
+            procedureKey: "progression.attribute.purchase.request",
+          }),
+        ]),
       },
     });
   });
@@ -1622,49 +1401,39 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const attribute = await bridge.invoke({
-      procedureKey: "progression.attribute.purchase.request",
-      input: { node: attributeNode },
-      correlationId: "game-ui-attribute-purchase-1",
-    });
-    const tradition = await bridge.invoke({
-      procedureKey: "progression.tradition.change.request",
-      input: {
+    const attribute = await bridge.progression.attribute.purchase.request(
+      { node: attributeNode },
+      { context: { correlationId: "game-ui-attribute-purchase-1" } }
+    );
+    const tradition = await bridge.progression.tradition.change.request(
+      {
         traditionType,
         action: traditionAction,
       },
-      correlationId: "game-ui-tradition-change-1",
-    });
+      { context: { correlationId: "game-ui-tradition-change-1" } }
+    );
 
     expect(attribute).toMatchObject({
-      ok: true,
-      procedureKey: "progression.attribute.purchase.request",
-      output: {
-        playerId: 0,
-        node: attributeNode,
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "pending-runtime-proof",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      playerId: 0,
+      node: attributeNode,
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(tradition).toMatchObject({
-      ok: true,
-      procedureKey: "progression.tradition.change.request",
-      output: {
-        playerId: 0,
-        traditionType,
-        action: traditionAction,
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "pending-runtime-proof",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      playerId: 0,
+      traditionType,
+      action: traditionAction,
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(sendCalls).toEqual([
@@ -1699,33 +1468,27 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "progression.attribute.review.request",
-      input: {},
-    });
+    const response = await bridge.progression.attribute.review.request({});
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        playerId: 0,
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-progression-attribute",
-            source: "progression.attribute.review.request",
-          },
-        ],
+      playerId: 0,
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
       },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-progression-attribute",
+          source: "progression.attribute.review.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -1803,63 +1566,53 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-narrative-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-narrative-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "narrative.choice.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "narrative.choice.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "narrative.choice.request",
-      input: {
+    const response = await bridge.narrative.choice.request(
+      {
         targetType: "DISCOVERY_STORY",
         target: notificationId,
         action: 1,
       },
-      correlationId: "game-ui-narrative-1",
-    });
+      { context: { correlationId: "game-ui-narrative-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "narrative.choice.request",
-      correlationId: "game-ui-narrative-1",
-      output: {
-        playerId: 0,
-        targetType: "DISCOVERY_STORY",
-        target: notificationId,
-        action: 1,
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "narrative-blocker-cleared",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "narrative.choice.request",
-          },
-        ],
+      playerId: 0,
+      targetType: "DISCOVERY_STORY",
+      target: notificationId,
+      action: 1,
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "narrative-blocker-cleared",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "narrative.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -1898,35 +1651,31 @@ describe("Civ7 game UI controller bootstrap", () => {
     };
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "narrative.choice.request",
-      input: {
+    const response = await bridge.narrative.choice.request(
+      {
         targetType: "DISCOVERY_STORY",
         target: notificationId,
         action: 1,
       },
-      correlationId: "game-ui-narrative-sticky-1",
-    });
+      { context: { correlationId: "game-ui-narrative-sticky-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        playerId: 0,
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "no-state-change",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "narrative.choice.request",
-          },
-        ],
+      playerId: 0,
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "no-state-change",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "narrative.choice.request",
+        },
+      ],
     });
   });
 
@@ -1941,37 +1690,33 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "narrative.choice.request",
-      input: {
+    const response = await bridge.narrative.choice.request(
+      {
         targetType: "DISCOVERY_STORY",
         target: notificationId,
         action: 1,
       },
-      correlationId: "game-ui-narrative-blocked-1",
-    });
+      { context: { correlationId: "game-ui-narrative-blocked-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-narrative-choice",
-            source: "narrative.choice.request",
-          },
-        ],
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
       },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-narrative-choice",
+          source: "narrative.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -1988,63 +1733,53 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-diplomacy-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-diplomacy-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "diplomacy.response.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "diplomacy.response.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "diplomacy.response.request",
-      input: {
+    const response = await bridge.diplomacy.response.request(
+      {
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
         notificationId,
       },
-      correlationId: "game-ui-diplomacy-1",
-    });
+      { context: { correlationId: "game-ui-diplomacy-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "diplomacy.response.request",
-      correlationId: "game-ui-diplomacy-1",
-      output: {
-        playerId: 0,
-        actionId: diplomacyActionId,
-        responseType: diplomacyResponseType,
-        notificationId,
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "diplomacy-blocker-cleared",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "diplomacy.response.request",
-          },
-        ],
+      playerId: 0,
+      actionId: diplomacyActionId,
+      responseType: diplomacyResponseType,
+      notificationId,
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "diplomacy-blocker-cleared",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "diplomacy.response.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -2078,35 +1813,31 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "diplomacy.response.request",
-      input: {
+    const response = await bridge.diplomacy.response.request(
+      {
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
         notificationId,
       },
-      correlationId: "game-ui-diplomacy-sticky-1",
-    });
+      { context: { correlationId: "game-ui-diplomacy-sticky-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        playerId: 0,
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "no-state-change",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "diplomacy.response.request",
-          },
-        ],
+      playerId: 0,
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "no-state-change",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "diplomacy.response.request",
+        },
+      ],
     });
   });
 
@@ -2122,37 +1853,33 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "diplomacy.response.request",
-      input: {
+    const response = await bridge.diplomacy.response.request(
+      {
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
         notificationId,
       },
-      correlationId: "game-ui-diplomacy-blocked-1",
-    });
+      { context: { correlationId: "game-ui-diplomacy-blocked-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-diplomacy-response",
-            source: "diplomacy.response.request",
-          },
-        ],
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
       },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-diplomacy-response",
+          source: "diplomacy.response.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -2169,19 +1896,15 @@ describe("Civ7 game UI controller bootstrap", () => {
     }
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "diplomacy.response.request",
-      input: {
+    await expect(
+      bridge.diplomacy.response.request({
         actionId: diplomacyActionId,
         responseType: diplomacyResponseType,
-      },
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+      })
+    ).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "diplomacy.response.request",
         reason: "procedure-not-supported",
       },
     });
@@ -2191,99 +1914,87 @@ describe("Civ7 game UI controller bootstrap", () => {
     const target = gameUiStrategyFrontTarget();
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-strategy-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-strategy-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        capability: {
-          canObserve: true,
-          canMutate: false,
-          reason:
-            "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
-        },
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "strategy.frontSummary",
-              risk: "read-only",
-            },
-          ]),
-        },
-        nextSteps: [
-          {
-            kind: "read-strategy-front",
-            source: "readiness.current",
-            label: "Read strategy front summary before choosing tactical support actions.",
-          },
-        ],
+      capability: {
+        canObserve: true,
+        canMutate: false,
+        reason:
+          "The game UI controller can read supported procedure evidence; broad runtime mutation remains unavailable.",
       },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "strategy.frontSummary",
+            risk: "read-only",
+          },
+        ]),
+      },
+      nextSteps: [
+        {
+          kind: "read-strategy-front",
+          source: "readiness.current",
+          label: "Read strategy front summary before choosing tactical support actions.",
+        },
+      ],
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "strategy.frontSummary",
-      input: {
+    const response = await bridge.strategy.frontSummary(
+      {
         playerId: 0,
         origins: [{ x: 10, y: 20 }],
         candidateLimit: 3,
         scanRadius: 6,
       },
-      correlationId: "game-ui-strategy-front-1",
-    });
+      { context: { correlationId: "game-ui-strategy-front-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "strategy.frontSummary",
-      correlationId: "game-ui-strategy-front-1",
-      output: {
-        playerId: 0,
-        localPlayerId: 0,
-        origins: [{ x: 10, y: 20 }],
-        sourceStatus: {
-          targetCandidates: "read",
-          battlefieldScan: "read",
-        },
-        relationshipLabelPolicy: {
-          relationshipSource: "not-classified",
-          relationshipProof: "none",
-          unprovenLabel: "relationship-unproven",
-        },
-        summary: {
-          targetCandidateCount: 1,
-          pointOfInterestCount: expect.any(Number),
-          observedOwnerCount: 2,
-        },
-        targetCandidates: [
-          {
-            owner: 1,
-            relationship: "relationship-unproven",
-            relationshipProof: "none",
-            nearestDistance: 5,
-            cityCount: 1,
-            unitCount: 1,
-            routeKind: "land",
-          },
-        ],
-        observedOwners: expect.arrayContaining([
-          expect.objectContaining({
-            owner: 0,
-            relationship: "self",
-            relationshipProof: "self",
-          }),
-          expect.objectContaining({
-            owner: 1,
-            relationship: "relationship-unproven",
-            relationshipProof: "none",
-          }),
-        ]),
+      playerId: 0,
+      localPlayerId: 0,
+      origins: [{ x: 10, y: 20 }],
+      sourceStatus: {
+        targetCandidates: "read",
+        battlefieldScan: "read",
       },
+      relationshipLabelPolicy: {
+        relationshipSource: "not-classified",
+        relationshipProof: "none",
+        unprovenLabel: "relationship-unproven",
+      },
+      summary: {
+        targetCandidateCount: 1,
+        pointOfInterestCount: expect.any(Number),
+        observedOwnerCount: 2,
+      },
+      targetCandidates: [
+        {
+          owner: 1,
+          relationship: "relationship-unproven",
+          relationshipProof: "none",
+          nearestDistance: 5,
+          cityCount: 1,
+          unitCount: 1,
+          routeKind: "land",
+        },
+      ],
+      observedOwners: expect.arrayContaining([
+        expect.objectContaining({
+          owner: 0,
+          relationship: "self",
+          relationshipProof: "self",
+        }),
+        expect.objectContaining({
+          owner: 1,
+          relationship: "relationship-unproven",
+          relationshipProof: "none",
+        }),
+      ]),
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).toContain(
-      "inspect-target-candidate"
-    );
+    expect(response.nextSteps.map((step) => step.kind)).toContain("inspect-target-candidate");
 
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain('"host"');
@@ -2311,35 +2022,25 @@ describe("Civ7 game UI controller bootstrap", () => {
     }
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-    });
+    const readiness = await bridge.readiness.current({});
 
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: [
-            {
-              procedureKey: "world.current",
-              risk: "read-only",
-            },
-          ],
-        },
+      controller: {
+        supportedProcedures: [
+          {
+            procedureKey: "world.current",
+            risk: "read-only",
+          },
+        ],
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "strategy.frontSummary",
-      input: { origins: [{ x: 10, y: 20 }] },
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+    await expect(
+      bridge.strategy.frontSummary({ origins: [{ x: 10, y: 20 }] })
+    ).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "strategy.frontSummary",
         reason: "procedure-not-supported",
       },
     });
@@ -2358,61 +2059,51 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-first-meet-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-first-meet-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "diplomacy.firstMeet.response.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "diplomacy.firstMeet.response.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "diplomacy.firstMeet.response.request",
-      input: {
+    const response = await bridge.diplomacy.firstMeet.response.request(
+      {
         metPlayerId: 2,
         responseType: firstMeetResponseType,
       },
-      correlationId: "game-ui-first-meet-1",
-    });
+      { context: { correlationId: "game-ui-first-meet-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "diplomacy.firstMeet.response.request",
-      correlationId: "game-ui-first-meet-1",
-      output: {
-        playerId: 0,
-        metPlayerId: 2,
-        responseType: firstMeetResponseType,
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "first-meet-cleared",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "diplomacy.firstMeet.response.request",
-          },
-        ],
+      playerId: 0,
+      metPlayerId: 2,
+      responseType: firstMeetResponseType,
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "first-meet-cleared",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "diplomacy.firstMeet.response.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -2448,38 +2139,34 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "diplomacy.firstMeet.response.request",
-      input: {
+    const response = await bridge.diplomacy.firstMeet.response.request(
+      {
         metPlayerId: 2,
         responseType: firstMeetResponseType,
       },
-      correlationId: "game-ui-first-meet-blocked-1",
-    });
+      { context: { correlationId: "game-ui-first-meet-blocked-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        playerId: 0,
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-first-meet-response",
-            source: "diplomacy.firstMeet.response.request",
-          },
-        ],
+      playerId: 0,
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
       },
+      postcondition: {
+        classification: "not-sent",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-first-meet-response",
+          source: "diplomacy.firstMeet.response.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -2495,33 +2182,29 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "diplomacy.firstMeet.response.request",
-      input: {
+    const response = await bridge.diplomacy.firstMeet.response.request(
+      {
         metPlayerId: 2,
         responseType: firstMeetResponseType,
       },
-      correlationId: "game-ui-first-meet-unmatched-1",
-    });
+      { context: { correlationId: "game-ui-first-meet-unmatched-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "first-meet-blocker-unmatched",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "diplomacy.firstMeet.response.request",
-          },
-        ],
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "first-meet-blocker-unmatched",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "diplomacy.firstMeet.response.request",
+        },
+      ],
     });
   });
 
@@ -2536,65 +2219,55 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-government-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-government-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "government.choice.request",
-              risk: "mutation",
-            },
-            {
-              procedureKey: "government.celebration.choice.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "government.choice.request",
+            risk: "mutation",
+          },
+          {
+            procedureKey: "government.celebration.choice.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "government.choice.request",
-      input: {
+    const response = await bridge.government.choice.request(
+      {
         governmentType,
         action: governmentAction,
       },
-      correlationId: "game-ui-government-choice-1",
-    });
+      { context: { correlationId: "game-ui-government-choice-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "government.choice.request",
-      correlationId: "game-ui-government-choice-1",
-      output: {
-        playerId: 0,
-        governmentType,
-        action: governmentAction,
-        sent: true,
-        status: "sent-unverified",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "pending-runtime-proof",
-          confidence: "pending-runtime-proof",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "government.choice.request",
-          },
-        ],
+      playerId: 0,
+      governmentType,
+      action: governmentAction,
+      sent: true,
+      status: "sent-unverified",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "pending-runtime-proof",
+        confidence: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "government.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -2626,38 +2299,34 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "government.choice.request",
-      input: {
+    const response = await bridge.government.choice.request(
+      {
         governmentType,
         action: governmentAction,
       },
-      correlationId: "game-ui-government-blocked-1",
-    });
+      { context: { correlationId: "game-ui-government-blocked-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        playerId: 0,
-        sent: false,
-        status: "not-sent",
-        validation: {
-          beforeValid: false,
-          afterValid: false,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "inspect-government-choice",
-            source: "government.choice.request",
-          },
-        ],
+      playerId: 0,
+      sent: false,
+      status: "not-sent",
+      validation: {
+        beforeValid: false,
+        afterValid: false,
       },
+      postcondition: {
+        classification: "not-sent",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "inspect-government-choice",
+          source: "government.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -2673,40 +2342,34 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "government.celebration.choice.request",
-      input: {
+    const response = await bridge.government.celebration.choice.request(
+      {
         goldenAgeType,
       },
-      correlationId: "game-ui-celebration-choice-1",
-    });
+      { context: { correlationId: "game-ui-celebration-choice-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "government.celebration.choice.request",
-      correlationId: "game-ui-celebration-choice-1",
-      output: {
-        playerId: 0,
-        goldenAgeType,
-        sent: true,
-        status: "sent-unverified",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "pending-runtime-proof",
-          confidence: "pending-runtime-proof",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "government.celebration.choice.request",
-          },
-        ],
+      playerId: 0,
+      goldenAgeType,
+      sent: true,
+      status: "sent-unverified",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
       },
+      postcondition: {
+        classification: "pending-runtime-proof",
+        confidence: "pending-runtime-proof",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "government.celebration.choice.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -2728,65 +2391,55 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-unit-target-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-unit-target-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "unit.target.action.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "unit.target.action.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.target.action.request",
-      input: {
+    const response = await bridge.unit.target.action.request(
+      {
         unitId,
         ...unitTarget,
       },
-      correlationId: "game-ui-unit-target-1",
-    });
+      { context: { correlationId: "game-ui-unit-target-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "unit.target.action.request",
-      correlationId: "game-ui-unit-target-1",
-      output: {
-        unitId,
-        target: unitTarget,
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          selected: {
-            family: "unit-operation",
-            operationType: "MOVE_TO",
-            valid: true,
-            targetInReturnedPlots: true,
-          },
+      unitId,
+      target: unitTarget,
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        selected: {
+          family: "unit-operation",
+          operationType: "MOVE_TO",
+          valid: true,
+          targetInReturnedPlots: true,
         },
-        postcondition: {
-          classification: "target-reached",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-          destinationReached: true,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "unit.target.action.request",
-          },
-        ],
       },
+      postcondition: {
+        classification: "target-reached",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+        destinationReached: true,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "unit.target.action.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -2819,30 +2472,26 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.target.action.request",
-      input: {
+    const response = await bridge.unit.target.action.request(
+      {
         unitId: foreignUnitId,
         ...unitTarget,
       },
-      correlationId: "game-ui-unit-target-foreign-1",
-    });
+      { context: { correlationId: "game-ui-unit-target-foreign-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        validation: {
-          candidateCount: 0,
-          acceptedCandidateCount: 0,
-          selected: null,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      sent: false,
+      status: "not-sent",
+      validation: {
+        candidateCount: 0,
+        acceptedCandidateCount: 0,
+        selected: null,
+      },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(sendCalls).toEqual([]);
@@ -2858,35 +2507,31 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.target.action.request",
-      input: {
+    const response = await bridge.unit.target.action.request(
+      {
         unitId,
         ...unitTarget,
       },
-      correlationId: "game-ui-unit-target-shortfall-1",
-    });
+      { context: { correlationId: "game-ui-unit-target-shortfall-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-guarded",
-        postcondition: {
-          classification: "path-shortfall",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: true,
-          destinationReached: false,
-          landedLocation: { x: 21, y: 31 },
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "unit.target.action.request",
-          },
-        ],
+      sent: true,
+      status: "sent-guarded",
+      postcondition: {
+        classification: "path-shortfall",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: true,
+        destinationReached: false,
+        landedLocation: { x: 21, y: 31 },
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "unit.target.action.request",
+        },
+      ],
     });
   });
 
@@ -2902,29 +2547,25 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.target.action.request",
-      input: {
+    const response = await bridge.unit.target.action.request(
+      {
         unitId,
         ...unitTarget,
       },
-      correlationId: "game-ui-unit-target-blocked-1",
-    });
+      { context: { correlationId: "game-ui-unit-target-blocked-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        validation: {
-          acceptedCandidateCount: 0,
-          selected: null,
-        },
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      sent: false,
+      status: "not-sent",
+      validation: {
+        acceptedCandidateCount: 0,
+        selected: null,
+      },
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(sendCalls).toEqual([]);
@@ -2942,19 +2583,15 @@ describe("Civ7 game UI controller bootstrap", () => {
     }
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.target.action.request",
-      input: {
+    await expect(
+      bridge.unit.target.action.request({
         unitId,
         ...unitTarget,
-      },
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_PROCEDURE_NOT_SUPPORTED",
-        message: "Civ7 controller bridge procedure is not supported by this controller context.",
+      })
+    ).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "unit.target.action.request",
         reason: "procedure-not-supported",
       },
     });
@@ -2973,62 +2610,53 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const readiness = await bridge.invoke({
-      procedureKey: "readiness.current",
-      input: {},
-      correlationId: "game-ui-unit-command-readiness-1",
-    });
+    const readiness = await bridge.readiness.current(
+      {},
+      { context: { correlationId: "game-ui-unit-command-readiness-1" } }
+    );
     expect(readiness).toMatchObject({
-      ok: true,
-      output: {
-        controller: {
-          supportedProcedures: expect.arrayContaining([
-            {
-              procedureKey: "unit.upgrade.request",
-              risk: "mutation",
-            },
-            {
-              procedureKey: "unit.resettle.request",
-              risk: "mutation",
-            },
-          ]),
-        },
+      controller: {
+        supportedProcedures: expect.arrayContaining([
+          {
+            procedureKey: "unit.upgrade.request",
+            risk: "mutation",
+          },
+          {
+            procedureKey: "unit.resettle.request",
+            risk: "mutation",
+          },
+        ]),
       },
     });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.upgrade.request",
-      input: { unitId },
-      correlationId: "game-ui-unit-upgrade-1",
-    });
+    const response = await bridge.unit.upgrade.request(
+      { unitId },
+      { context: { correlationId: "game-ui-unit-upgrade-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "unit.upgrade.request",
-      output: {
-        action: {
-          kind: "upgrade",
-          unitId,
-        },
-        sent: true,
-        status: "sent-confirmed",
-        validation: {
-          beforeValid: true,
-          afterValid: true,
-        },
-        postcondition: {
-          classification: "queue-advanced",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        },
-        nextSteps: [
-          {
-            kind: "refresh-attention",
-            source: "unit.upgrade.request",
-          },
-        ],
+      action: {
+        kind: "upgrade",
+        unitId,
       },
+      sent: true,
+      status: "sent-confirmed",
+      validation: {
+        beforeValid: true,
+        afterValid: true,
+      },
+      postcondition: {
+        classification: "queue-advanced",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
+      },
+      nextSteps: [
+        {
+          kind: "refresh-attention",
+          source: "unit.upgrade.request",
+        },
+      ],
     });
     expect(sendCalls).toEqual([
       {
@@ -3050,32 +2678,27 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.resettle.request",
-      input: {
+    const response = await bridge.unit.resettle.request(
+      {
         unitId,
         destination: resettleTarget,
       },
-      correlationId: "game-ui-unit-resettle-1",
-    });
+      { context: { correlationId: "game-ui-unit-resettle-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "unit.resettle.request",
-      output: {
-        action: {
-          kind: "resettle",
-          unitId,
-          destination: resettleTarget,
-        },
-        sent: true,
-        status: "sent-confirmed",
-        postcondition: {
-          classification: "unit-state-changed",
-          confidence: "confirmed",
-          confirmed: true,
-          noRepeatAfterUnverified: false,
-        },
+      action: {
+        kind: "resettle",
+        unitId,
+        destination: resettleTarget,
+      },
+      sent: true,
+      status: "sent-confirmed",
+      postcondition: {
+        classification: "unit-state-changed",
+        confidence: "confirmed",
+        confirmed: true,
+        noRepeatAfterUnverified: false,
       },
     });
     expect(sendCalls).toEqual([
@@ -3098,26 +2721,22 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.upgrade.request",
-      input: { unitId: foreignUnitId },
-      correlationId: "game-ui-unit-upgrade-foreign-1",
-    });
+    const response = await bridge.unit.upgrade.request(
+      { unitId: foreignUnitId },
+      { context: { correlationId: "game-ui-unit-upgrade-foreign-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        action: {
-          kind: "upgrade",
-          unitId: foreignUnitId,
-        },
-        sent: false,
-        status: "not-sent",
-        postcondition: {
-          classification: "not-sent",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
+      action: {
+        kind: "upgrade",
+        unitId: foreignUnitId,
+      },
+      sent: false,
+      status: "not-sent",
+      postcondition: {
+        classification: "not-sent",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
     });
     expect(sendCalls).toEqual([]);
@@ -3134,30 +2753,26 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "unit.upgrade.request",
-      input: { unitId },
-      correlationId: "game-ui-unit-upgrade-no-state-change-1",
-    });
+    const response = await bridge.unit.upgrade.request(
+      { unitId },
+      { context: { correlationId: "game-ui-unit-upgrade-no-state-change-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: true,
-        status: "sent-unverified",
-        postcondition: {
-          classification: "no-state-change",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [
-          {
-            kind: "do-not-repeat",
-            source: "unit.upgrade.request",
-          },
-        ],
+      sent: true,
+      status: "sent-unverified",
+      postcondition: {
+        classification: "no-state-change",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
       },
+      nextSteps: [
+        {
+          kind: "do-not-repeat",
+          source: "unit.upgrade.request",
+        },
+      ],
     });
     expectSemanticOutputOmitsRawUnitCommand(response);
   });
@@ -3173,34 +2788,29 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "turn.complete.request",
-      input: {},
-      correlationId: "game-ui-turn-blocked-1",
-    });
+    const response = await bridge.turn.complete.request(
+      {},
+      { context: { correlationId: "game-ui-turn-blocked-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "turn.complete.request",
-      output: {
-        sent: false,
-        status: "not-sent",
-        before: {
-          turn: 42,
-          hasSentTurnComplete: false,
-          canEndTurn: false,
-          blocker: notificationId.type,
-        },
-        after: null,
-        postcondition: {
-          classification: "turn-completion-blocked",
-          outcome: "not-sent",
-          confidence: "unverified",
-          confirmed: false,
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
+      sent: false,
+      status: "not-sent",
+      before: {
+        turn: 42,
+        hasSentTurnComplete: false,
+        canEndTurn: false,
+        blocker: notificationId.type,
       },
+      after: null,
+      postcondition: {
+        classification: "turn-completion-blocked",
+        outcome: "not-sent",
+        confidence: "unverified",
+        confirmed: false,
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
     });
     expect(sendCalls).toEqual([]);
 
@@ -3219,27 +2829,23 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "turn.complete.request",
-      input: {},
-      correlationId: "game-ui-turn-already-sent-1",
-    });
+    const response = await bridge.turn.complete.request(
+      {},
+      { context: { correlationId: "game-ui-turn-already-sent-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sent: false,
-        status: "not-sent",
-        before: {
-          hasSentTurnComplete: true,
-          canEndTurn: true,
-        },
-        postcondition: {
-          classification: "turn-completion-blocked",
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
+      sent: false,
+      status: "not-sent",
+      before: {
+        hasSentTurnComplete: true,
+        canEndTurn: true,
       },
+      postcondition: {
+        classification: "turn-completion-blocked",
+        noRepeatAfterUnverified: true,
+      },
+      nextSteps: [{ kind: "inspect-turn-completion" }, { kind: "do-not-repeat" }],
     });
     expect(sendCalls).toEqual([]);
   });
@@ -3248,62 +2854,54 @@ describe("Civ7 game UI controller bootstrap", () => {
     const target = gameUiNotificationTarget(notificationId);
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "attention.current",
-      input: {},
-      correlationId: "game-ui-attention-supported-1",
-    });
+    const response = await bridge.attention.current(
+      {},
+      { context: { correlationId: "game-ui-attention-supported-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "attention.current",
-      correlationId: "game-ui-attention-supported-1",
-      output: {
-        playable: false,
-        readiness: "app-ui-game",
-        summary: {
-          blockerCount: 1,
-          decisionCount: 1,
-          readyActorCount: 0,
-        },
-        blockers: [
-          {
-            source: "notification",
-            kind: "blocking-notification",
-            label: "Wonder Completed",
-            componentId: notificationId,
-            evidence: ["end-turn-blocking-notification"],
-          },
-        ],
-        decisions: [
-          {
-            source: "notification",
-            category: "blocking-notification",
-            summary: "Wonder Completed",
-            isEndTurnBlocking: true,
-            requiredInputs: [],
-          },
-        ],
-        readyActors: [],
-        sourceStatus: {
-          playableStatus: "read",
-          notifications: "read",
-          turnCompletion: "read",
-          readyUnit: "read",
-          readyCity: "skipped-unsupported",
-        },
-        nextSteps: [
-          {
-            kind: "resolve-blocker",
-            source: "notification",
-            label: "Resolve Wonder Completed.",
-          },
-        ],
+      playable: false,
+      readiness: "app-ui-game",
+      summary: {
+        blockerCount: 1,
+        decisionCount: 1,
+        readyActorCount: 0,
       },
+      blockers: [
+        {
+          source: "notification",
+          kind: "blocking-notification",
+          label: "Wonder Completed",
+          componentId: notificationId,
+          evidence: ["end-turn-blocking-notification"],
+        },
+      ],
+      decisions: [
+        {
+          source: "notification",
+          category: "blocking-notification",
+          summary: "Wonder Completed",
+          isEndTurnBlocking: true,
+          requiredInputs: [],
+        },
+      ],
+      readyActors: [],
+      sourceStatus: {
+        playableStatus: "read",
+        notifications: "read",
+        turnCompletion: "read",
+        readyUnit: "read",
+        readyCity: "skipped-unsupported",
+      },
+      nextSteps: [
+        {
+          kind: "resolve-blocker",
+          source: "notification",
+          label: "Resolve Wonder Completed.",
+        },
+      ],
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
-      "end-turn"
-    );
+    expect(response.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
     const serialized = JSON.stringify(response);
     expect(serialized).not.toContain("Civ7 game UI controller dependency");
     expect(serialized).not.toContain("Game.Notifications.dismiss");
@@ -3319,39 +2917,33 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "attention.current",
-      input: {},
-      correlationId: "game-ui-attention-selected-unit-1",
-    });
+    const response = await bridge.attention.current(
+      {},
+      { context: { correlationId: "game-ui-attention-selected-unit-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sourceStatus: {
-          readyUnit: "read",
-          readyCity: "skipped-unsupported",
-        },
-        summary: {
-          blockerCount: 0,
-          readyActorCount: 0,
-          nextStepCount: 1,
-        },
-        readyActors: [],
-        nextSteps: [
-          {
-            kind: "observe",
-            source: "attention",
-            label:
-              "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
-          },
-        ],
+      sourceStatus: {
+        readyUnit: "read",
+        readyCity: "skipped-unsupported",
       },
+      summary: {
+        blockerCount: 0,
+        readyActorCount: 0,
+        nextStepCount: 1,
+      },
+      readyActors: [],
+      nextSteps: [
+        {
+          kind: "observe",
+          source: "attention",
+          label:
+            "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
+        },
+      ],
     });
     expect(JSON.stringify(response)).not.toContain("act-ready-unit");
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
-      "end-turn"
-    );
+    expect(response.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
   test("uses first-ready-unit evidence without implying full ready actor coverage", async () => {
@@ -3363,51 +2955,45 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "attention.current",
-      input: {},
-      correlationId: "game-ui-attention-first-ready-unit-1",
-    });
+    const response = await bridge.attention.current(
+      {},
+      { context: { correlationId: "game-ui-attention-first-ready-unit-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        canEndTurn: true,
-        sourceStatus: {
-          readyUnit: "read",
-          readyCity: "skipped-unsupported",
-        },
-        summary: {
-          blockerCount: 1,
-          readyActorCount: 1,
-          nextStepCount: 1,
-        },
-        blockers: [
-          {
-            source: "ready-unit",
-            componentId: readyUnitId,
-            evidence: ["game-ui-ready-unit-source"],
-          },
-        ],
-        readyActors: [
-          {
-            kind: "unit",
-            componentId: readyUnitId,
-            operationCount: 0,
-            evidence: ["game-ui-ready-unit-source"],
-          },
-        ],
-        nextSteps: [
-          {
-            kind: "act-ready-unit",
-            source: "ready-unit",
-          },
-        ],
+      canEndTurn: true,
+      sourceStatus: {
+        readyUnit: "read",
+        readyCity: "skipped-unsupported",
       },
+      summary: {
+        blockerCount: 1,
+        readyActorCount: 1,
+        nextStepCount: 1,
+      },
+      blockers: [
+        {
+          source: "ready-unit",
+          componentId: readyUnitId,
+          evidence: ["game-ui-ready-unit-source"],
+        },
+      ],
+      readyActors: [
+        {
+          kind: "unit",
+          componentId: readyUnitId,
+          operationCount: 0,
+          evidence: ["game-ui-ready-unit-source"],
+        },
+      ],
+      nextSteps: [
+        {
+          kind: "act-ready-unit",
+          source: "ready-unit",
+        },
+      ],
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
-      "end-turn"
-    );
+    expect(response.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
   test("does not treat selected or notification-target city hints as ready city evidence", async () => {
@@ -3420,39 +3006,33 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "attention.current",
-      input: {},
-      correlationId: "game-ui-attention-selected-city-1",
-    });
+    const response = await bridge.attention.current(
+      {},
+      { context: { correlationId: "game-ui-attention-selected-city-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sourceStatus: {
-          readyUnit: "read",
-          readyCity: "skipped-unsupported",
-        },
-        summary: {
-          blockerCount: 0,
-          readyActorCount: 0,
-          nextStepCount: 1,
-        },
-        readyActors: [],
-        nextSteps: [
-          {
-            kind: "observe",
-            source: "attention",
-            label:
-              "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
-          },
-        ],
+      sourceStatus: {
+        readyUnit: "read",
+        readyCity: "skipped-unsupported",
       },
+      summary: {
+        blockerCount: 0,
+        readyActorCount: 0,
+        nextStepCount: 1,
+      },
+      readyActors: [],
+      nextSteps: [
+        {
+          kind: "observe",
+          source: "attention",
+          label:
+            "Ready actor coverage is incomplete; inspect ready unit and city evidence before concluding there are no blockers.",
+        },
+      ],
     });
     expect(JSON.stringify(response)).not.toContain("act-ready-city");
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
-      "end-turn"
-    );
+    expect(response.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
   test("uses blocking notification target city evidence as ready city source", async () => {
@@ -3465,49 +3045,43 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "attention.current",
-      input: {},
-      correlationId: "game-ui-attention-blocking-city-1",
-    });
+    const response = await bridge.attention.current(
+      {},
+      { context: { correlationId: "game-ui-attention-blocking-city-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sourceStatus: {
-          readyUnit: "read",
-          readyCity: "read",
-        },
-        summary: {
-          blockerCount: 2,
-          readyActorCount: 1,
-        },
-        blockers: expect.arrayContaining([
-          expect.objectContaining({
-            source: "ready-city",
-            componentId: cityId,
-            evidence: ["game-ui-ready-city-source"],
-          }),
-        ]),
-        readyActors: [
-          {
-            kind: "city",
-            componentId: cityId,
-            operationCount: 0,
-            evidence: ["game-ui-ready-city-source"],
-          },
-        ],
-        nextSteps: expect.arrayContaining([
-          expect.objectContaining({
-            kind: "act-ready-city",
-            source: "ready-city",
-          }),
-        ]),
+      sourceStatus: {
+        readyUnit: "read",
+        readyCity: "read",
       },
+      summary: {
+        blockerCount: 2,
+        readyActorCount: 1,
+      },
+      blockers: expect.arrayContaining([
+        expect.objectContaining({
+          source: "ready-city",
+          componentId: cityId,
+          evidence: ["game-ui-ready-city-source"],
+        }),
+      ]),
+      readyActors: [
+        {
+          kind: "city",
+          componentId: cityId,
+          operationCount: 0,
+          evidence: ["game-ui-ready-city-source"],
+        },
+      ],
+      nextSteps: expect.arrayContaining([
+        expect.objectContaining({
+          kind: "act-ready-city",
+          source: "ready-city",
+        }),
+      ]),
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
-      "end-turn"
-    );
+    expect(response.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
   test("uses population-ready city evidence as ready city source", async () => {
@@ -3519,49 +3093,43 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "attention.current",
-      input: {},
-      correlationId: "game-ui-attention-population-city-1",
-    });
+    const response = await bridge.attention.current(
+      {},
+      { context: { correlationId: "game-ui-attention-population-city-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      output: {
-        sourceStatus: {
-          readyUnit: "read",
-          readyCity: "read",
-        },
-        summary: {
-          blockerCount: 1,
-          readyActorCount: 1,
-        },
-        blockers: [
-          {
-            source: "ready-city",
-            componentId: cityId,
-            evidence: ["game-ui-ready-city-source"],
-          },
-        ],
-        readyActors: [
-          {
-            kind: "city",
-            componentId: cityId,
-            operationCount: 0,
-            evidence: ["game-ui-ready-city-source"],
-          },
-        ],
-        nextSteps: [
-          {
-            kind: "act-ready-city",
-            source: "ready-city",
-          },
-        ],
+      sourceStatus: {
+        readyUnit: "read",
+        readyCity: "read",
       },
+      summary: {
+        blockerCount: 1,
+        readyActorCount: 1,
+      },
+      blockers: [
+        {
+          source: "ready-city",
+          componentId: cityId,
+          evidence: ["game-ui-ready-city-source"],
+        },
+      ],
+      readyActors: [
+        {
+          kind: "city",
+          componentId: cityId,
+          operationCount: 0,
+          evidence: ["game-ui-ready-city-source"],
+        },
+      ],
+      nextSteps: [
+        {
+          kind: "act-ready-city",
+          source: "ready-city",
+        },
+      ],
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
-      "end-turn"
-    );
+    expect(response.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
   });
 
   test("treats truncated game UI notification coverage as incomplete attention evidence", async () => {
@@ -3571,63 +3139,54 @@ describe("Civ7 game UI controller bootstrap", () => {
     });
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "attention.current",
-      input: { maxNotifications: 1 },
-      correlationId: "game-ui-attention-truncated-1",
-    });
+    const response = await bridge.attention.current(
+      { maxNotifications: 1 },
+      { context: { correlationId: "game-ui-attention-truncated-1" } }
+    );
 
     expect(response).toMatchObject({
-      ok: true,
-      procedureKey: "attention.current",
-      correlationId: "game-ui-attention-truncated-1",
-      output: {
-        summary: {
-          blockerCount: 0,
-          decisionCount: 1,
-          readyActorCount: 0,
-          nextStepCount: 1,
-        },
-        nextSteps: [
-          {
-            kind: "observe",
-            source: "attention",
-            label:
-              "Notification coverage is truncated; inspect more attention evidence before concluding there are no blockers.",
-          },
-        ],
+      summary: {
+        blockerCount: 0,
+        decisionCount: 1,
+        readyActorCount: 0,
+        nextStepCount: 1,
       },
+      nextSteps: [
+        {
+          kind: "observe",
+          source: "attention",
+          label:
+            "Notification coverage is truncated; inspect more attention evidence before concluding there are no blockers.",
+        },
+      ],
     });
-    expect(response.ok && response.output.nextSteps.map((step) => step.kind)).not.toContain(
-      "end-turn"
-    );
-    expect(response.ok && response.output.nextSteps.map((step) => step.label)).not.toContain(
+    expect(response.nextSteps.map((step) => step.kind)).not.toContain("end-turn");
+    expect(response.nextSteps.map((step) => step.label)).not.toContain(
       "No current blockers found."
     );
   });
 
-  test("requires game-owned mutation proof before bridge dispatch", async () => {
-    const target = gameUiTarget({
-      Players: {
-        maxPlayers: 8,
-        getAliveIds: () => [0, 1],
-        getAliveHumanIds: () => [0, 1],
-        getNumAliveHumans: () => 2,
-      },
+  test("does not advertise game UI mutations without game-owned proof", async () => {
+    const target = gameUiNotificationTarget(notificationId, {
+      notificationExistsAfterDismiss: true,
     });
+    target.Players = {
+      maxPlayers: 8,
+      getAliveIds: () => [0, 1],
+      getAliveHumanIds: () => [0, 1],
+      getNumAliveHumans: () => 2,
+    };
     const bridge = installCiv7GameUiIntelligenceBridge({ target });
 
-    const response = await bridge.invoke({
-      procedureKey: "notifications.dismiss.request",
-      input: { notificationId: { owner: 0, id: 113, type: 20 } },
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      error: {
-        code: "BRIDGE_CONTROLLER_PROOF_REQUIRED",
-        message: "Civ7 controller bridge mutation proof is required before dispatch.",
-        reason: "invalid-envelope",
+    await expect(
+      bridge.notifications.dismiss.request({
+        notificationId: { owner: 0, id: 113, type: 20 },
+      })
+    ).rejects.toMatchObject({
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      data: {
+        procedureKey: "notifications.dismiss.request",
+        reason: "procedure-not-supported",
       },
     });
   });
@@ -3638,10 +3197,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       timeoutMs: 250,
     });
 
-    const context = await createContext({
-      procedureKey: "readiness.current",
-      input: {},
-    });
+    const context = await createContext();
 
     expect(context.endpointDefaults).toEqual({ timeoutMs: 250 });
     expect(context.controller).toEqual({
@@ -3679,10 +3235,7 @@ describe("Civ7 game UI controller bootstrap", () => {
       timeoutMs: 250,
     });
 
-    const context = await createContext({
-      procedureKey: "notifications.dismiss.request",
-      input: { notificationId },
-    });
+    const context = await createContext();
 
     expect(context.controller).toEqual({
       supportedReadProcedures: ["attention.current", "world.current"],

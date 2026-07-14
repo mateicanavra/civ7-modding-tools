@@ -2,9 +2,9 @@
 
 Scope: `mods/mod-civ7-intelligence-bridge/**`
 
-- This package is the game-scoped Civ7 UI mod that bootstraps
-  `globalThis.Civ7IntelligenceBridge.invoke(...)` into the native
-  `@civ7/control-orpc` in-process router.
+- This package is the game-scoped Civ7 UI adapter that installs the native
+  nested `@civ7/control-orpc` controller client at
+  `globalThis.Civ7IntelligenceBridge`.
 - `src/` and `scripts/` are source of truth. `mod/` is generated deployable
   Civ7 output; regenerate it with package scripts instead of hand-editing.
 - Keep this mod as a thin game-runtime adapter. Do not add procedure logic,

@@ -1,5 +1,4 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -13,38 +12,37 @@ import {
   Civ7ProductionChoiceUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 const cityId = { owner: 0, id: 65_536, type: 1 };
 const args = { ConstructibleType: 713_967_338, X: 22, Y: 31 };
-const Civ7CityProductionChoiceInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.city.production.choice.request
-);
+const Civ7CityProductionChoiceInputSchema =
+  Civ7ControlOrpcContract.city.production.choice.request["~orpc"].inputSchema;
 
 describe("city.production.choice.request control-oRPC procedure", () => {
   test("owns the caller-facing production choice contract without raw fields", () => {
     expect(
-      Value.Check(Civ7CityProductionChoiceInputSchema, {
+      standardSchemaAccepts(Civ7CityProductionChoiceInputSchema, {
         cityId,
         args,
       })
     ).toBe(true);
     expect(
-      Value.Check(Civ7CityProductionChoiceInputSchema, {
+      standardSchemaAccepts(Civ7CityProductionChoiceInputSchema, {
         cityId,
         args,
         rawCommand: "Game.CityOperations.sendRequest(...)",
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7CityProductionChoiceInputSchema, {
+      standardSchemaAccepts(Civ7CityProductionChoiceInputSchema, {
         cityId,
         args,
         session: { state: "App UI" },
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7CityProductionChoiceInputSchema, {
+      standardSchemaAccepts(Civ7CityProductionChoiceInputSchema, {
         cityId,
         args: { UnitType: 102, ConstructibleType: 713_967_338 },
       })
@@ -166,7 +164,7 @@ describe("city.production.choice.request control-oRPC procedure", () => {
     expect(fake.calls).toEqual([]);
   });
 
-  test("does not let a controller mutation allowlist bypass readiness without proof", async () => {
+  test("requires controller proof before a controller-admitted mutation", async () => {
     const fake = fakeContext(productionChoiceResult("production-choice-cleared"), {
       playableStatus: {
         playable: false,
@@ -187,14 +185,13 @@ describe("city.production.choice.request control-oRPC procedure", () => {
         { context: fake.context }
       )
     ).rejects.toMatchObject({
-      code: "MUTATION_READINESS_REQUIRED",
-      status: 409,
+      code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      status: 403,
       data: {
         procedureKey: "city.production.choice.request",
-        source: "readiness.current",
+        source: "controller-context",
         risk: "mutation",
-        playable: false,
-        readiness: "app-ui-game",
+        reason: "proof-required",
       },
     });
     expect(fake.calls).toEqual([]);

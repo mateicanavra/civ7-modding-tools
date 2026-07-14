@@ -1,5 +1,4 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import type { Civ7ControlOrpcPlayNotificationViewResult } from "../src/dependencies/direct-control";
 import {
@@ -10,18 +9,16 @@ import {
   Civ7NotificationQueueUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 const informationalId = { owner: 0, id: 113, type: 20 };
 const unitLostId = { owner: 0, id: 114, type: 20 };
 const productionId = { owner: 0, id: 115, type: 20 };
 
-const QueueCurrentInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.queue.current
-);
-const QueueDismissInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.queue.dismiss.request
-);
+const QueueCurrentInputSchema =
+  Civ7ControlOrpcContract.notifications.queue.current["~orpc"].inputSchema;
+const QueueDismissInputSchema =
+  Civ7ControlOrpcContract.notifications.queue.dismiss.request["~orpc"].inputSchema;
 
 describe("notifications.queue control-oRPC procedures", () => {
   test("schedules notification queue with semantic next steps and no CLI command strings", async () => {
@@ -213,10 +210,12 @@ describe("notifications.queue control-oRPC procedures", () => {
       expect(fake.calls.dismissals).toEqual([]);
     }
 
-    expect(Value.Check(QueueCurrentInputSchema, { maxNotifications: 50 })).toBe(true);
-    expect(Value.Check(QueueCurrentInputSchema, { rawCommand: "Game.turn" })).toBe(false);
-    expect(Value.Check(QueueDismissInputSchema, { send: true, maxDismissals: 2 })).toBe(true);
-    expect(Value.Check(QueueDismissInputSchema, { approvalReason: "go" })).toBe(false);
+    expect(standardSchemaAccepts(QueueCurrentInputSchema, { maxNotifications: 50 })).toBe(true);
+    expect(standardSchemaAccepts(QueueCurrentInputSchema, { rawCommand: "Game.turn" })).toBe(false);
+    expect(standardSchemaAccepts(QueueDismissInputSchema, { send: true, maxDismissals: 2 })).toBe(
+      true
+    );
+    expect(standardSchemaAccepts(QueueDismissInputSchema, { approvalReason: "go" })).toBe(false);
   });
 
   test("maps queue source failures to tagged errors without raw command details", async () => {

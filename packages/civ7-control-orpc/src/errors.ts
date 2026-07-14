@@ -745,6 +745,34 @@ export class Civ7TurnCompletionUnavailableError extends ORPCTaggedError(
   }
 ) {}
 
+export const Civ7ControllerCapabilityUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String(),
+    source: Type.Literal("controller-context"),
+    risk: Type.Union([
+      Type.Literal("read-only"),
+      Type.Literal("runtime-support"),
+      Type.Literal("mutation"),
+    ]),
+    reason: Type.Union([Type.Literal("procedure-not-supported"), Type.Literal("proof-required")]),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false }
+);
+export type Civ7ControllerCapabilityUnavailableErrorData = Static<
+  typeof Civ7ControllerCapabilityUnavailableErrorDataSchema
+>;
+
+export class Civ7ControllerCapabilityUnavailableError extends ORPCTaggedError(
+  "Civ7ControllerCapabilityUnavailableError",
+  {
+    code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+    message: "The game controller cannot provide this capability.",
+    schema: toStandardSchema(Civ7ControllerCapabilityUnavailableErrorDataSchema),
+    status: 403,
+  }
+) {}
+
 export const Civ7MutationReadinessRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -1015,6 +1043,7 @@ export class Civ7LifecycleVerificationFailedError extends ORPCTaggedError(
 
 export const civ7LifecycleSinglePlayerStartErrorMap = {
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
   LIFECYCLE_DEPENDENCY_UNAVAILABLE: Civ7LifecycleDependencyUnavailableError,
   LIFECYCLE_MUTATION_UNCERTAIN: Civ7LifecycleMutationUncertainError,
   LIFECYCLE_STATE_REFUSED: Civ7LifecycleStateRefusedError,
@@ -1036,6 +1065,7 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   DISPLAY_QUEUE_UNAVAILABLE: Civ7DisplayQueueUnavailableError,
   EXPLORE_FAILED: Civ7ExploreFailedError,

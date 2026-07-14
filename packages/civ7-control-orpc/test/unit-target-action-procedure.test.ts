@@ -1,5 +1,4 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -10,52 +9,51 @@ import {
   Civ7UnitTargetActionUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 const unitId = { owner: 0, id: 42, type: 1 };
 const target = { x: 22, y: 31 };
-const Civ7UnitTargetActionInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.unit.target.action.request
-);
+const Civ7UnitTargetActionInputSchema =
+  Civ7ControlOrpcContract.unit.target.action.request["~orpc"].inputSchema;
 
 describe("unit.target.action.request control-oRPC procedure", () => {
   test("owns the caller-facing unit target action contract without raw fields", () => {
     expect(
-      Value.Check(Civ7UnitTargetActionInputSchema, {
+      standardSchemaAccepts(Civ7UnitTargetActionInputSchema, {
         unitId,
         ...target,
       })
     ).toBe(true);
     expect(
-      Value.Check(Civ7UnitTargetActionInputSchema, {
+      standardSchemaAccepts(Civ7UnitTargetActionInputSchema, {
         unitId,
         ...target,
         rawCommand: "Game.UnitOperations.sendRequest(...)",
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7UnitTargetActionInputSchema, {
+      standardSchemaAccepts(Civ7UnitTargetActionInputSchema, {
         unitId,
         ...target,
         session: { state: "App UI" },
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7UnitTargetActionInputSchema, {
+      standardSchemaAccepts(Civ7UnitTargetActionInputSchema, {
         unitId,
         x: 22.5,
         y: 31,
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7UnitTargetActionInputSchema, {
+      standardSchemaAccepts(Civ7UnitTargetActionInputSchema, {
         unitId,
         x: -1,
         y: 31,
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7UnitTargetActionInputSchema, {
+      standardSchemaAccepts(Civ7UnitTargetActionInputSchema, {
         unitId,
         x: 22,
         y: 1_000_001,

@@ -148,26 +148,23 @@ unsafe ways to describe live AI influence: raw `game exec` as an agent API,
 companion UI scripts as a third control plane, Tuner-loaded mod claims, and a
 generic "bridge" architecture. Later live probes materially changed the
 implementation target: App UI game context exposed the same major gameplay roots
-checked in Tuner, plus App UI-only lifecycle/UI/storage roots. Direct-control
-already owns runtime transport, state selection, approval, validation, and
-wrapper promotion. Generated static profiles already own the native AI policy
-lane.
+checked in Tuner, plus App UI-only lifecycle/UI/storage roots. Generated static
+profiles already own the native AI policy lane.
 **Decision:** Civ7 intelligence uses a two-sided authority architecture:
 live external play through `@civ7/direct-control`, and native policy shaping
 through generated static AI profiles. A game-scoped App UI controller loaded
 through native `scope="game"` `UIScripts` is the baseline implementation
 candidate for replacing raw per-wrapper direct-control JavaScript with a stable
-in-game API. It remains subordinate to direct-control authority: direct-control
-owns socket transport, state discovery, approval, no-replay behavior, and proof
-promotion.
+in-game API. `@civ7/control-orpc` owns the public service contract, router,
+admission, and composed behavior. The game-scoped controller is a provider
+adapter for that service. Direct-control retains the currently mixed low-level
+tuner and Civ7-side JavaScript responsibilities until those nodes are extracted.
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.
-- oRPC/Effect is the shared control substrate for the external direct-control
-  API, the game-scoped controller mod API, and future internal AI intelligence
-  services. The App UI `globalThis.Civ7IntelligenceBridge.invoke(...)` surface is
-  a serialized transport adapter into an in-process callable router, not an ad
-  hoc product API.
+- oRPC/Effect is the shared control substrate. The App UI installs the selected
+  native nested router client at `globalThis.Civ7IntelligenceBridge`; it does
+  not reconstruct schemas or dispatch serialized procedure keys.
 - `UIScripts` proof is App UI game-context proof unless shell or Tuner
   availability is separately demonstrated. Shell requires its own entrypoint;
   Tuner is not a modinfo deployment target in the baseline.
