@@ -1,43 +1,45 @@
 # Design
 
-## Generated Mod Contract
+## Stable Generated Mod
 
-The request-local generated mod is a first-class Civ7 map mod. Its rendered
-files must include:
+Every request renders the same admitted file topology:
 
-- stable mod id `mod-swooper-studio-run`;
-- `.modinfo` and config rows that reference the request run artifact;
-- localized text for the generated map row;
-- runtime script at `maps/${runArtifactId}.js`;
-- correlation markers embedded in generated runtime assets;
-- dependency/action metadata needed for Civ7 shell/setup discovery.
+- `mod-swooper-studio-run.modinfo`
+- `config/config.xml`
+- `text/en_us/MapText.xml`
+- `maps/studio-run.js`
 
-Seeing the original catalog source row is not enough. The setup row must point
-at `{mod-swooper-studio-run}/maps/${runArtifactId}.js`.
+The script and manifest embed the request id, run artifact id, canonical-config
+digest, launch-envelope digest, and generation-manifest digest. A new request
+replaces the stable deployment only after its complete generated tree is ready.
+Source and deployed tree digests must match.
 
-## Visibility Boundary
+The modinfo uses module-specific criteria and action-group ids. It must not
+reuse the source mod's generic ids or publish duplicate row/action identity.
 
-This packet validates generated mod visibility before saved-config composition.
-After deployment changes `.modinfo`, config XML, or map-row metadata,
-direct-control must reach an explicit Civ7 mod-catalog refresh boundary: Civ7 is
-closed, relaunched, brought to shell/main-menu setup control, and then setup
-rows are read. A process restart cannot be an unstated live path; it is either
-the declared catalog-refresh step for this packet or the packet remains open.
+## Visibility Flow
 
-## File Topology
+`lifecycle.singlePlayer.start` owns the only multi-step composition:
 
-Likely source write set:
+1. Admit shell state, exiting an active game only when required.
+2. Load and read back an optional saved configuration.
+3. Reconcile the exact generated mod id through the direct-control atom.
+4. Read the exact stable setup row.
+5. Reload setup UI and poll observations only when the row is not yet visible.
+6. Apply and read back setup, host once, begin once, and attest the loaded map.
 
-- `mods/mod-swooper-maps/scripts/map-artifacts/file-plan.ts`
-- `mods/mod-swooper-maps/scripts/run-manifest-generator.ts`
-- `mods/mod-swooper-maps/test/config/run-manifest-generator.test.ts`
-- `apps/mapgen-studio/src/server/studio/engines.ts`
-- `apps/mapgen-studio/src/server/runInGame/**`
+Mutation is never retried. Polling observes only. The lifecycle returns typed
+target-mod and row evidence to Studio; Studio does not reconstruct it.
 
-Runtime Civ7 control remains in `@civ7/direct-control`.
+## Ownership
 
-## Comments
+Direct-control owns Civ7 wire commands and observations. Control-oRPC owns the
+stateful sequence and its typed failure states. Studio owns the correlated
+product operation and its public/private projections. No layer restarts Civ7
+for catalog visibility.
 
-Anchor comments belong at renderer/deployment boundaries where they explain
-that Civ7 setup must discover a request-local generated row, not just load the
-source catalog mod.
+## Non-Goals
+
+This change does not introduce provider selection, inventory every enabled mod,
+revive a direct-control aggregate helper, or change saved-config semantics.
+Saved-config composition is P20 and consumes this same lifecycle path.
