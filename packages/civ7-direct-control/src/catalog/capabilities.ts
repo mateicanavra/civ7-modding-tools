@@ -330,7 +330,7 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     kind: "read-wrapper",
     owner: "@civ7/direct-control",
     risk: "read",
-    provenance: ["GameplayMap", "GameInfo.Maps", "Game"],
+    provenance: ["GameplayMap", "Configuration.getMap", "GameInfo.Maps", "Game"],
     wrapper: "getCiv7MapSummary",
     confidence: "source",
   },

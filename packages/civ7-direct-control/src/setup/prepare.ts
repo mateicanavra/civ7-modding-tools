@@ -458,8 +458,7 @@ export function buildPrepareSinglePlayerSetupCommand(
     if (typeof GameSetup === "undefined" || !GameSetup) throw new Error("GameSetup API unavailable");
     requireFunction(Configuration, "getMap", "Configuration.getMap");
     requireFunction(Configuration, "getGame", "Configuration.getGame");
-    if (typeof GameInfo === "undefined" || !GameInfo?.Maps) throw new Error("GameInfo.Maps unavailable");
-    requireFunction(GameInfo.Maps, "lookup", "GameInfo.Maps.lookup");
+    readCanonicalMapSizeType();
     requireFunction(GameSetup, "findGameParameter", "GameSetup.findGameParameter");
     const editMapFactory = requireFunction(Configuration, "editMap", "Configuration.editMap");
     const editGameFactory = requireFunction(Configuration, "editGame", "Configuration.editGame");
