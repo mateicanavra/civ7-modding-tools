@@ -1,132 +1,44 @@
-# Studio Run Saved Config Modset Reconciliation
+# Studio Run Saved Config Reconciliation
 
 ## Why
 
-Run in Game currently generates and deploys the request-local Studio-run mod,
-but Civ7 setup readback can still fail to see the generated map row after the
-saved Test of Time config is loaded. Deployment is not the launch boundary.
-The launch boundary is a generated map row visible in the active Civ7 setup
-state after saved-config load and targeted generated-mod reconciliation.
+A saved configuration selected in Studio must remain the configuration that
+Run in Game loads. The discovery record contains file metadata and parsed setup
+values in addition to its identity; passing that enriched record into the
+closed launch identity silently normalized the selection away.
 
-This packet repairs the saved-config/generated-mod/setup/start sequence so a
-browser-originated request can start the generated content the user selected.
+## Product Contract
 
-## Authority
+- A selected saved configuration crosses the launch boundary as exactly
+  `id`, `displayName`, `fileName`, and `path`.
+- Parsed setup and player values remain sibling authored state. They never
+  widen the saved-config identity.
+- The package-owned control-oRPC lifecycle loads the selected file once, then
+  reconciles the stable generated mod, reads the stable map row, applies and
+  reads back setup, starts once, and attests the loaded game.
+- Freshness belongs to generated/deployed bytes, digests, and request
+  correlation. The map row remains
+  `{mod-swooper-studio-run}/maps/studio-run.js`.
+- Mutation is never retried and Civilization VII is never restarted to make
+  the saved configuration visible.
 
-- Direct user guidance requiring realistic Test of Time basic-mods path.
-- `real-user-path-remediation-proposal.md` Unit B.
-- `target-vocabulary.md` live verification and loaded-game readback rules.
-- Completed packets: `studio-run-generated-map-mod-visibility` and
-  `studio-run-setup-failure-taxonomy`.
-- Root `AGENTS.md` runtime control ownership in `@civ7/direct-control`.
+## Ownership
 
-## Requires
+Studio owns saved-config selection and the correlated product operation.
+Control-oRPC owns the exact-once stateful lifecycle. Direct-control owns only
+the one-wire commands and observations used by that lifecycle.
 
-- Generated Studio-run mod visibility established for request-local rows.
-- Specific setup failure taxonomy.
-- Browser-originated request contract for live checks.
+## Boundaries
 
-## Enables Parallel Work
+Do not add another setup strategy, direct-control aggregate, oRPC procedure,
+Studio-local control sequence, saved-file patcher, broad mod inventory, retry,
+or process restart. Enrichment fields must not enter the closed saved-config
+identity or cause a selected config to become no selection.
 
-- Final matrix closure can run once this packet provides the live setup/start
-  launch boundary.
+## Verification
 
-## Affected Owners
-
-- Studio Run in Game server workflow
-- saved setup config application for `ToT_BasicModsEnabled.Civ7Cfg`
-- generated `mod-swooper-studio-run` metadata, stable setup row, and deployment
-  snapshot
-- `@civ7/direct-control` setup preparation/start APIs where needed
-- setup row readback and pre-Begin setup value readback
-- Run in Game workflow evidence types
-
-## Forbidden Owners
-
-- Repeating saved-config loads after row readback in a way that invalidates the
-  checked setup state.
-- Process restarts as unstated live behavior.
-- Raw Civ7 control scripts outside `@civ7/direct-control`.
-- Multiple live setup strategies kept as conditional paths.
-
-## Write Set
-
-Likely write set:
-
-- `packages/civ7-direct-control/src/setup/**`
-- `packages/civ7-direct-control/test/**`
-- `packages/studio-server/src/workflows/RunInGameWorkflow.ts`
-- `packages/studio-server/src/ports/workflowTypes.ts`
-- `packages/studio-server/test/**`
-- `apps/mapgen-studio/src/server/runInGame/**`
-- Studio Run in Game workflow tests
-- this OpenSpec packet and workstream evidence
-
-## Consumer Impact
-
-Run in Game uses the user's saved Test of Time setup while ensuring the
-generated Studio-run mod remains active and selected. If reconciliation cannot
-produce the stable generated setup row, the operation terminalizes safely with
-specific diagnostics.
-
-## Stop Conditions
-
-- Row readback happens before saved-config load and targeted generated-mod
-  reconciliation.
-- Start reloads a different setup state than the checked one.
-- Test of Time config cannot be composed with `mod-swooper-studio-run` and no
-  specific failure is recorded.
-- Huge map, seed, player count, or generated row readback cannot be observed
-  before Begin.
-
-## Before And After
-
-Before:
-
-- generated mod deployment can complete while setup catalog readback cannot see
-  the generated row;
-- saved setup config load can change active target mod state after an earlier
-  row check;
-- start preparation may reload a different setup state than the one checked.
-
-After:
-
-- the workflow loads the saved setup config and reconciles the request-local
-  generated mod before row readback;
-- the stable generated map row is read after config/reconciliation and
-  before Begin;
-- seed, Huge map size, 10 players, active generated mod, and generated map
-  identity are read back from setup before start;
-- the rendered Run in Game click produces a browser-originated
-  `runInGame.start` request with `worldSettings.resources: balanced`, and the
-  same request's generation manifest retains that value; this metadata chain
-  does not verify Civ7 resource distribution through setup/readback;
-- start does not repeat a setup load that invalidates the checked row.
-
-## Behavior Verification
-
-Behavior tests cover setup sequencing with fake direct-control readers and
-saved-config fixtures. Live checks reproduce the Test of Time basic-mods path
-and show generated row visibility before Begin.
-
-## Structural Enforcement
-
-Permanent positive assertions:
-
-- setup/start consumes a single reconciled setup snapshot for a request;
-- targeted generated-mod reconciliation completes before row readback;
-- setup row readback is after saved-config load, not before it.
-
-Use TypeScript state modeling and direct-control contracts first. Use Habitat
-structure/rules only for recurring topology, imports, or ownership boundaries.
-
-## Verification Gates
-
-- `bun run openspec -- validate studio-run-saved-config-modset-reconciliation --strict`.
-- `bun habitat classify` for the packet write set and every reported command.
-- Focused setup sequencing and saved-config composition tests.
-- Live Studio endpoint check using `ToT_BasicModsEnabled.Civ7Cfg`, Huge map,
-  10 players, and at least one generated map source through the rendered button
-  path.
-- TypeScript refactoring, code quality/structure, library correctness,
-  testing-design, and Habitat/authority review lanes.
+Static tests prove exact projection, preserved file-derived options, strict
+normalization, selection/drift behavior, lifecycle ordering, and no replay. A
+rendered request selects one currently enumerated `.Civ7Cfg`, retains that
+identity through the request, and completes against the stable generated row
+in the same Civ7 process.

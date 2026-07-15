@@ -1,83 +1,59 @@
 # Design
 
-## Setup Snapshot
+## Closed Identity Boundary
 
-The runtime creates one request setup snapshot after saved-config load and
-targeted generated-mod reconciliation. Row visibility and pre-Begin value readback are
-performed against that snapshot. Start consumes that same reconciled setup
-state and must not re-run a saved-config load that can remove the generated
-mod.
+The saved-config query returns a `Civ7SavedSetupConfigFile`: a four-field file
+identity enriched with filesystem metadata, summary values, and parsed game and
+player options. The launch contract accepts only the identity:
 
-The selected strategy is a direct-control-owned reconciled setup session.
-Studio passes the saved setup config name, generated mod id, stable generated
-map row, seed, map size, and player count to a direct-control preparation
-operation. Direct-control loads the saved config, reconciles the generated mod
-with the active setup target, applies the generated row and setup values, reads
-back the targeted reconciliation result, generated row, seed, map size, and
-player count, and returns a prepared setup session.
-
-`worldSettings.resources: balanced` is required browser-originated request and
-generation-manifest metadata. It has no pipeline consumer, so it is neither a
-rendered selector nor a direct-control setup/readback value. Civ7
-setup/readback does not establish a resulting resource distribution.
-Start consumes that prepared session and does not run another saved-config load.
-
-Broad active-mod inventory is diagnostic-only. It is not a success-path launch
-invariant because enumerating the full installed/active mod set has live tuner
-risk and is unnecessary when the launch question is whether the generated
-Studio-run target was reconciled and the stable generated map row is visible.
-
-Rejected live paths:
-
-- patching the user's persisted saved config in place;
-- generating a request-specific saved setup config file as the primary path;
-- keeping a conditional strategy switch between saved-config patching,
-  generated config files, and active setup mutation.
-
-## Row Visibility
-
-The row oracle is the stable generated Studio-run map file:
-
-```text
-{mod-swooper-studio-run}/maps/studio-run.js
+```ts
+{
+  id: savedConfig.id,
+  displayName: savedConfig.displayName,
+  fileName: savedConfig.fileName,
+  path: savedConfig.path,
+}
 ```
 
-The row must be visible after saved-config load and targeted generated-mod
-reconciliation. Request
-identity remains in `runArtifactId`, generation manifest digests, deployment
-snapshot digests, and embedded runtime markers; it does not require Civ7 to
-discover a brand-new setup row for every Play in Game click. Seeing
-`{swooper-maps}/maps/latest-juicy.js` is not sufficient because that is the
-source catalog row, not the generated Studio-run launch slot.
+The explicit projection is the boundary. The enriched record is not cast,
+passed through, or admitted by a wider schema. `setupOptions` and
+`playerOptions` populate their own closed fields.
 
-## File Topology
+## Lifecycle Flow
 
-Likely source write set:
+One `lifecycle.singlePlayer.start` demand owns the sequence:
 
-- `packages/civ7-direct-control/src/setup/**`
-- `packages/civ7-direct-control/test/**`
-- `packages/studio-server/src/workflows/RunInGameWorkflow.ts`
-- `packages/studio-server/src/ports/workflowTypes.ts`
-- `packages/studio-server/test/**`
-- `apps/mapgen-studio/src/server/runInGame/**`
-- `apps/mapgen-studio/test/runInGame/**`
-- generated mod rendering code when implementation evidence assigns ownership
-  to generated mod metadata
+1. Reach shell state without replaying uncertain mutation.
+2. Load the selected saved configuration once and observe its revision.
+3. Reconcile the exact generated target mod.
+4. Read the exact stable generated row.
+5. Apply and read back the admitted setup values.
+6. Host once, begin once, and attest the loaded runtime identity.
 
-Runtime Civ7 control remains in `@civ7/direct-control`.
+This is one lifecycle demand, not one physical setup snapshot. Direct-control
+provides the individual wire operations; it does not own an aggregate prepared
+session.
 
-## Evidence Shape
+## State Invariants
 
-Private diagnostics and workstream evidence record:
+- Strict normalization retains a valid selected identity and rejects unknown
+  fields at the launch boundary.
+- Selecting a file replaces prior authored setup values with that file's
+  parsed values; later user edits truthfully make the selector custom.
+- Target-mod and row observations occur after saved-config load.
+- Polling observes only. No mutation is retried.
+- Start does not load the saved configuration a second time.
+- The stable generated row and exact request/deployment correlation remain the
+  launch evidence.
 
-- saved setup config name;
-- generated mod id;
-- run artifact id;
-- setup row readback after reconciliation;
-- targeted generated-mod reconciliation after saved-config load;
-- seed, map size, and player count readback before Begin;
-- the rendered Run in Game click, its browser-originated `runInGame.start`
-  request with `worldSettings.resources: balanced`, and the same request's
-  generation manifest retaining that value; this does not verify Civ7 resource
-  distribution;
-- start result.
+## Evidence
+
+Private evidence retains the selected four-field identity, request and run
+artifact ids, correlation digests, target mod, stable row, setup readback,
+runtime attestation, and Civ7 process identity. Public status remains redacted.
+
+## Non-Goals
+
+No saved-file generation or mutation, alternate setup strategy, full mod
+inventory, request-specific map filename, resource-distribution claim, process
+restart, retry framework, or new provider/capability is part of this change.

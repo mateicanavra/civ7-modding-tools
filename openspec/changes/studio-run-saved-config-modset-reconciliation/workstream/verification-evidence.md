@@ -1,10 +1,20 @@
 # Verification Evidence
 
-| Gate | Required | Command Or Protocol | Preconditions | Result | Artifact | Oracle | Verdict |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| openspec-strict | required | `bun run openspec -- validate studio-run-saved-config-modset-reconciliation --strict` | packet files written | not run | n/a | change validates strictly | open |
-| habitat-classify | required | `bun habitat classify <write-set>` | implementation diff exists | not run | n/a | reported authority checks are known | open |
-| classify-reported-commands | required | append one row per Habitat-reported Nx/Biome/Grit/Habitat command | `habitat-classify` completed | not run | n/a | every classify-reported command has its own closed verification row | open |
-| setup-tests | required | focused setup sequencing tests | implementation diff exists | not run | n/a | generated row visible after setup reconciliation | open |
-| live-row-readback | required | rendered button plus live setup row readback | Civ7 and Studio available | not run | n/a | Test of Time path sees generated row before Begin | open |
-| review-lanes | required | reviewer prompts | implementation diff exists | not run | n/a | material findings dispositioned | open |
+```json
+{
+  "change": "studio-run-saved-config-modset-reconciliation",
+  "base_head": "628bf4d8fced804b4c5c72045fa7138836e7dfac",
+  "state": "static-green-live-pending"
+}
+```
+
+| Gate | Command Or Oracle | Result |
+| --- | --- | --- |
+| OpenSpec | `bun run openspec -- validate studio-run-saved-config-modset-reconciliation --strict` | passed strictly |
+| Classification | `bun habitat classify <candidate path>` for all active paths | passed; native project, boundaries, and scoped lint gates executed |
+| Saved-config projection | focused Nx Studio setup/config tests | passed; 28 tests |
+| Unified Studio mount | focused `oneMount` test | passed; stale pre-B2 live-status expectation corrected, 3 tests |
+| Project graph | `nx run-many -t check,test --projects=mapgen-studio,control-studio-server,control-orpc,control-direct --outputStyle=static` | passed as one native graph; Studio 289 tests and all four project checks/tests green |
+| Boundaries and lint | Habitat boundaries plus scoped Effect/Biome lint | passed; 4 changed TypeScript files have zero diagnostics |
+| Rendered saved-config path | one current enumerated `.Civ7Cfg` through Run in Game | pending |
+| Review roles | TypeScript/state-space, architecture/authority, product/runtime/library | pending final candidate |

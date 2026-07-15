@@ -112,7 +112,7 @@ describe("Civ7 Studio setup config", () => {
       ],
     };
 
-    expect(studioSetupConfigFromSavedConfigFile(savedConfig)).toMatchObject({
+    expect(studioSetupConfigFromSavedConfigFile(savedConfig)).toEqual({
       savedConfig: {
         id: "tot-config",
         displayName: "ToT Config",
@@ -123,7 +123,16 @@ describe("Civ7 Studio setup config", () => {
         Difficulty: "DIFFICULTY_CUSTOM",
         GameSpeeds: "GAMESPEED_STANDARD",
       },
-      playerOptions: savedConfig.playerOptions,
+      playerOptions: [
+        {
+          playerId: 0,
+          options: {
+            PlayerLeader: "LEADER_ALEXANDER",
+            PlayerCivilization: "CIVILIZATION_GREECE",
+            PlayerDifficulty: "DIFFICULTY_CUSTOM",
+          },
+        },
+      ],
     });
   });
 

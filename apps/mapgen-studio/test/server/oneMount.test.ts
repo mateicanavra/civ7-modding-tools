@@ -102,7 +102,10 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const readiness = await client.civ7.readiness.current({});
     await client.civ7.readiness.current({});
     expect(readiness).toMatchObject({ playable: true, readiness: "tuner-ready" });
-    await expect(live.status({})).resolves.toMatchObject({ playable: false });
+    await expect(live.status({})).resolves.toMatchObject({
+      playable: true,
+      status: { playable: true, readiness: "tuner-ready" },
+    });
 
     // Structural session sharing: the facade received the host timeout AND the
     // runtime's shared session — the SAME instance across calls.
