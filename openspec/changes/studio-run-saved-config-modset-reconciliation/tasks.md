@@ -23,8 +23,8 @@
 
 - [x] 4.1 Validate the OpenSpec change strictly and run Habitat classification.
 - [x] 4.2 Run focused and native Nx project proof.
-- [ ] 4.3 Run one rendered request with a currently enumerated `.Civ7Cfg` and
+- [x] 4.3 Run one rendered request with a currently enumerated `.Civ7Cfg` and
       record exact request, setup, runtime, and process evidence.
-- [ ] 4.4 Complete TypeScript/state-space, architecture/authority, and
+- [x] 4.4 Complete TypeScript/state-space, architecture/authority, and
       product/runtime/library review roles.
-- [ ] 4.5 Record the final gates in `workstream/verification-evidence.md`.
+- [x] 4.5 Record the final gates in `workstream/verification-evidence.md`.
