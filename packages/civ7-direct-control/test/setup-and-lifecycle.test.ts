@@ -100,8 +100,6 @@ describe("Civ7 setup and lifecycle orchestration", () => {
   test("resolves a decimal Configuration map-size id canonically and retries only its changed raw form", () => {
     const lookupCalls: Array<string | number> = [];
     const command = buildSetupSnapshotCommand(defaultSetupReadDependencies);
-    expect(command).toContain("const rawMapSize = Configuration.getMap().mapSize");
-    expect(command).not.toContain("const rawMapSize = GameplayMap.getMapSize()");
     const result = JSON.parse(
       runInNewContext(command, {
         Configuration: {
@@ -126,6 +124,11 @@ describe("Civ7 setup and lifecycle orchestration", () => {
           findGameParameter: () => undefined,
           findPlayerParameter: () => undefined,
         },
+        GameplayMap: {
+          getMapSize: () => {
+            throw new Error("App UI must not read the active runtime map size");
+          },
+        },
         UI: {
           getGameLoadingState: () => 0,
           isInGame: () => false,
@@ -143,10 +146,50 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     expect(lookupCalls).toEqual([370405108, "370405108"]);
   });
 
-  test("injects custom setup selections into atomic apply and host readback", () => {
+  test("prefers the shell-owned Configuration map-size type without requiring GameInfo", () => {
+    const command = buildSetupSnapshotCommand(defaultSetupReadDependencies);
+    const result = JSON.parse(
+      runInNewContext(command, {
+        Configuration: {
+          getMap: () => ({
+            script: MAP_SCRIPT,
+            mapSize: -1837222328,
+            mapSizeTypeName: "MAPSIZE_SMALL",
+            mapSeed: 111,
+            maxMajorPlayers: 6,
+          }),
+          getGame: () => ({ gameSeed: 112 }),
+        },
+        GameSetup: {
+          currentRevision: 19,
+          findGameParameter: () => undefined,
+          findPlayerParameter: () => undefined,
+        },
+        GameplayMap: {
+          getMapSize: () => {
+            throw new Error("App UI must not read the active runtime map size");
+          },
+        },
+        UI: {
+          getGameLoadingState: () => 0,
+          isInGame: () => false,
+          isInLoading: () => false,
+          isInShell: () => true,
+        },
+      }) as string
+    ) as { snapshot: Civ7SetupSnapshot };
+
+    expect(result.snapshot.config.mapSizeType).toEqual({
+      ok: true,
+      value: "MAPSIZE_SMALL",
+    });
+  });
+
+  test("applies and verifies custom setup selections in the shell without GameInfo", () => {
     const mapConfig = {
       script: MAP_SCRIPT,
       mapSize: "MAPSIZE_SMALL",
+      mapSizeTypeName: "MAPSIZE_SMALL",
       mapSeed: 111,
       maxMajorPlayers: 0,
     };
@@ -179,6 +222,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
           },
           setMapSize: (value: string) => {
             mapConfig.mapSize = value;
+            mapConfig.mapSizeTypeName = value;
           },
           setMapSeed: (value: number) => {
             mapConfig.mapSeed = value;
@@ -191,12 +235,6 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         }),
       },
       GameContext: { localPlayerID: 0 },
-      GameInfo: {
-        Maps: {
-          lookup: (id: string | number) =>
-            id === "MAPSIZE_SMALL" ? { MapSizeType: "MAPSIZE_SMALL" } : undefined,
-        },
-      },
       GameSetup: {
         currentRevision: 19,
         findGameParameter: (id: string) => gameParameters.get(id),
