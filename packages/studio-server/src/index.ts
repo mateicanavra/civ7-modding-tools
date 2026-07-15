@@ -150,7 +150,13 @@ export type {
 } from "./operationRuntime/index.js";
 export type { RecipeDagService } from "./recipeDag/service.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";
-export { makeStudioRuntime, type StudioRuntime, type StudioRuntimeOptions } from "./runtime.js";
+export {
+  makeStudioRuntime,
+  type StudioRouterRuntime,
+  type StudioRouterServices,
+  type StudioRuntime,
+  type StudioRuntimeOptions,
+} from "./runtime.js";
 export { Civ7TunerClient } from "./services/Civ7TunerClient.js";
 export {
   CIV7_TUNER_GATE_COOLDOWN_MS,

@@ -1,4 +1,4 @@
-import { createServer as createHttpServer, type Server } from "node:http";
+import { createServer as createHttpServer, type RequestListener, type Server } from "node:http";
 import { createServer as createViteServer, type ViteDevServer } from "vite";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -71,7 +71,7 @@ describe("Vite /rpc dev proxy streaming", () => {
 });
 
 async function listenHttpServer(
-  handler: Parameters<typeof createHttpServer>[0]
+  handler: RequestListener
 ): Promise<{ server: Server; origin: string }> {
   const server = createHttpServer(handler);
   openHttpServers.push(server);

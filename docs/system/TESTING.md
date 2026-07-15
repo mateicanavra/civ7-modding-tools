@@ -36,6 +36,13 @@ TypeScript checks are observation-only. When the effective project config is
 composite or incremental, invoke `tsc --noEmit` with `--composite false
 --incremental false` so the check does not read or write shared build state.
 
+Project `typecheck` targets own every authored TypeScript environment. Keep the
+production compiler program source-only, and add owner-local `check:test` or
+`check:tools` programs when tests or build tooling need different ambient types.
+Nx composes those programs into `typecheck`, then `check`; the pre-push hook's
+single affected `check` graph is the development ratchet. A transpile-only test
+runner is never a substitute for compiler ownership.
+
 ## Running all tests
 
 ```bash

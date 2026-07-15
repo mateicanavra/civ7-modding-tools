@@ -1,4 +1,4 @@
-import { Layer, ManagedRuntime } from "effect";
+import { Layer, ManagedRuntime, Match } from "effect";
 
 import type { StudioServerContext } from "./context.js";
 import {
@@ -36,15 +36,19 @@ import { StudioEventHub, StudioEventHubLive } from "./services/StudioEventHub.js
  * (graceful FIN to the game). `createStudioRpcHandler` exposes this as
  * `handle.dispose()`.
  */
-type StudioRuntimeEnv =
+export type StudioRouterServices =
   | Civ7TunerClient
-  | Civ7TunerSession
   | StudioConfig
   | StudioEventHub
-  | StudioLiveGameWatcher
   | StudioOperationRuntime;
 
-export type StudioRuntime = ManagedRuntime.ManagedRuntime<unknown, never>;
+/** Services every effect-oRPC procedure may consume from the host runtime. */
+export type StudioRouterRuntime = ManagedRuntime.ManagedRuntime<StudioRouterServices, never>;
+
+type StudioRuntimeEnv = StudioRouterServices | Civ7TunerSession;
+
+/** Full scoped environment owned by one Studio server host. */
+export type StudioRuntime = ManagedRuntime.ManagedRuntime<StudioRuntimeEnv, never>;
 
 export interface StudioRuntimeOptions {
   liveGameWatch?: LiveGameWatcherOptions;
@@ -60,15 +64,18 @@ export function makeStudioRuntime(
   const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
     ports: context.operationRuntime,
   }).pipe(Layer.provide(Layer.succeed(StudioConfig, context)));
-  const liveGameWatcherLayer =
-    options.liveGameWatch === undefined
-      ? Layer.empty
-      : Layer.provideMerge(
+  const liveGameWatcherLayer = Match.value(options.liveGameWatch).pipe(
+    Match.when(undefined, () => Layer.empty),
+    Match.orElse((liveGameWatch) =>
+      Layer.provide(
+        Layer.provide(
           Layer.effectDiscard(StudioLiveGameWatcher),
-          makeStudioLiveGameWatcherLayer({
-            options: options.liveGameWatch,
-          })
-        ).pipe(Layer.provide(civ7TunerClientLayer));
+          makeStudioLiveGameWatcherLayer({ options: liveGameWatch })
+        ),
+        civ7TunerClientLayer
+      )
+    )
+  );
   const eventHubOwnedLayer = Layer.provideMerge(
     Layer.mergeAll(liveGameWatcherLayer, operationRuntimeLayer),
     eventHubLayer
@@ -77,5 +84,5 @@ export function makeStudioRuntime(
     Layer.mergeAll(civ7TunerClientLayer, Layer.succeed(StudioConfig, context), eventHubOwnedLayer),
     civ7TunerSessionLayer
   );
-  return ManagedRuntime.make(layer) as unknown as StudioRuntime;
+  return ManagedRuntime.make(layer);
 }

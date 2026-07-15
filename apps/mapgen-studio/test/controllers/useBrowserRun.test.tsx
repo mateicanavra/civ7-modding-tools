@@ -90,7 +90,7 @@ describe("useBrowserRun revision state", () => {
       useAuthoringStore.getState().setWorldSettings({
         mapSize: "MAPSIZE_HUGE",
         playerCount: 10,
-        resources: "abundant",
+        resources: "strategic",
       });
     });
 

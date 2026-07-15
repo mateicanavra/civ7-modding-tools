@@ -9,6 +9,7 @@ import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sin
 import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
 import type { VizLayerEntryV1 } from "../../src/features/viz/model";
 import { buildRiverLakeFloodplainInspectorSummary } from "../../src/features/viz/riverLakeInspector";
+import { studioStandardRecipeConfig } from "./standardRecipeConfig";
 
 function gridLayer(args: {
   stepId: string;
@@ -33,7 +34,11 @@ function gridLayer(args: {
       data: buffer ? { kind: "inline", buffer } : { kind: "path", path: `${dataTypeKey}.u8` },
     },
     bounds: [0, 0, 4, 3],
-    meta: { label: dataTypeKey, role, visibility } as any,
+    meta: {
+      label: dataTypeKey,
+      visibility,
+      ...(role === undefined ? {} : { role }),
+    },
   };
 }
 
@@ -288,7 +293,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     );
     if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
-    const standardConfig = earthlikeArtifact.canonicalConfig.config;
+    const standardConfig = studioStandardRecipeConfig(earthlikeArtifact.canonicalConfig);
     const plan = standardRecipe.compile(envBase, standardConfig);
     const verboseSteps = Object.fromEntries(
       plan.nodes.map((node) => [node.stepId, "verbose"] as const)

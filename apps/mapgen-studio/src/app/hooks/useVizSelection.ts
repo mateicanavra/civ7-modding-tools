@@ -26,7 +26,6 @@ import { getOverlaySuggestions } from "../../recipes/overlaySuggestions";
 import { formatErrorForUi } from "../../shared/errorFormat";
 import { clampNumber } from "../../shared/number";
 import { useViewStore } from "../../stores/viewStore";
-import { formatStageName } from "../../ui/utils/formatting";
 
 /** The resolved (dataType, space, renderMode, variant) tuple driving the canvas. */
 export type VizSelection = {
@@ -147,7 +146,7 @@ export function useVizSelection({
   const stages: StageOption[] = useMemo(() => {
     return recipeArtifacts.uiMeta.stages.map((stage, index) => ({
       value: stage.stageId,
-      label: stage.stageLabel ?? formatStageName(stage.stageId),
+      label: stage.stageLabel,
       index: index + 1,
     }));
   }, [recipeArtifacts.uiMeta.stages]);
