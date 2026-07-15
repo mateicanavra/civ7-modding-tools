@@ -13,6 +13,13 @@ support. The frame is: oRPC is a typed procedure/router/context layer over
 repo-owned control capabilities; it is not the authority for Civ7 runtime
 behavior and it is not a replacement transport for `@civ7/direct-control`.
 
+General oRPC semantics and current vendor guidance are owned by the global
+`dev:orpc` skill. When an Effect computation crosses the procedure boundary,
+the provider bridge is owned by global `dev:effect-orpc` together with the
+matching `dev:effect-ts` lane. This skill is the Civ7 overlay: package
+ownership, control topology, caller boundaries, live-play safety, and proof
+classification. Do not duplicate generic vendor guidance here.
+
 This layer is IMPLEMENTED: `@civ7/control-orpc`
 (`packages/civ7-control-orpc`) is the native oRPC+Effect procedure
 composition over direct-control atoms — contract-first TypeBox schemas
@@ -45,8 +52,10 @@ plain async.
 
 ## Default Workflow
 
-1. **Ground authority.** Read root `AGENTS.md`, the closest package router, and
-   the Civ7 architecture/product authority skills.
+1. **Ground authority.** Read root `AGENTS.md`, the closest package router,
+   global `dev:orpc`, and the Civ7 architecture/product authority skills. For
+   an Effect-backed procedure, also load global `dev:effect-orpc` and the
+   matching `dev:effect-ts` lane after identifying the installed package tuple.
 2. **Name the capability.** Identify the repo-owned behavior: runtime read,
    mutating operation, live-play decision view, Studio endpoint, or CLI command
    orchestration.
@@ -80,7 +89,9 @@ plain async.
 
 | Reference | Path | Open When |
 |---|---|---|
-| ORPC server shape | `references/orpc-server-shape.md` | You need the exact official oRPC concepts to apply: procedure, router, middleware, context, server-side calls, tests. |
+| Global oRPC authority | `dev:orpc` | Always, before interpreting or changing native oRPC contracts, routers, middleware, context, transports, clients, or tests. |
+| Global Effect-oRPC authority | `dev:effect-orpc` + `dev:effect-ts` | An Effect computation crosses an oRPC procedure boundary; select the exact installed provider and Effect lane. |
+| Civ7 oRPC integration boundary | `references/orpc-server-shape.md` | You need the repo-specific package wiring and caller boundary after loading the applicable global authority. |
 | Civ7 procedure map | `references/civ7-procedure-map.md` | You are mapping direct-control/CLI/Studio behavior into procedure/router/context/middleware atoms. |
 | Migration gates | `references/migration-gates.md` | You are planning an incremental slice or deciding what tests/proof must pass before handoff. |
 | Failure patterns | `references/failure-patterns.md` | A proposed oRPC refactor smells like a wrapper, broad transport, unsafe mutation, or relationship-authority leak. |
@@ -106,9 +117,11 @@ plain async.
 
 ## Quick Start
 
-1. Open `references/orpc-server-shape.md`.
-2. Open `references/civ7-procedure-map.md` for the affected surface.
-3. Copy `assets/procedure-slice-preflight.md` into the project note if the slice
+1. Load global `dev:orpc`; for an Effect-backed procedure, also load
+   `dev:effect-orpc` and the matching `dev:effect-ts` lane.
+2. Open `references/orpc-server-shape.md` for Civ7-specific integration facts.
+3. Open `references/civ7-procedure-map.md` for the affected surface.
+4. Copy `assets/procedure-slice-preflight.md` into the project note if the slice
    will be implemented.
-4. Run `references/migration-gates.md` before handoff.
-5. Check `references/failure-patterns.md` during review.
+5. Run `references/migration-gates.md` before handoff.
+6. Check `references/failure-patterns.md` during review.
