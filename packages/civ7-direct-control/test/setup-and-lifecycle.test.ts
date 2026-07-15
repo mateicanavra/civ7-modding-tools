@@ -11,6 +11,7 @@ import {
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   CIV7_RELOAD_UI_COMMAND,
   CIV7_SIGNED_INT_SEED_MAX,
+  Civ7DirectControlSession,
   type Civ7SetupMapRow,
   type Civ7SetupSnapshot,
   type Civ7SinglePlayerSetupValues,
@@ -846,9 +847,14 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       hiddenMapScript: HIDDEN_MAP_SCRIPT,
       revealHiddenMapRowOnShellExit: true,
     });
+    const session = new Civ7DirectControlSession({
+      host: HOST,
+      port: rowServer.address().port,
+      timeoutMs: 1_000,
+    });
     try {
       const { port } = rowServer.address();
-      const options = { host: HOST, port, timeoutMs: 1_000 };
+      const options = { host: HOST, port, session, timeoutMs: 1_000 };
 
       const admission = await admitCiv7SetupShell("exit-active-game", options);
       expect(admission).toMatchObject({
@@ -871,8 +877,33 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       expect(rowServer.operationsFor("reload-ui")).toEqual([
         { stateId: "65535", operation: "reload-ui" },
       ]);
+      expect(rowServer.connections()).toBe(2);
     } finally {
+      await session.close();
       await rowServer.close();
+    }
+  });
+
+  test("keeps an already-shell admission on the current physical connection", async () => {
+    const server = await startSetupLifecycleServer();
+    const session = new Civ7DirectControlSession({
+      host: HOST,
+      port: server.address().port,
+      timeoutMs: 1_000,
+    });
+    try {
+      const options = { host: HOST, port: server.address().port, session, timeoutMs: 1_000 };
+
+      await expect(admitCiv7SetupShell("exit-active-game", options)).resolves.toMatchObject({
+        transition: "shell",
+      });
+      await reloadCiv7SetupUiInShell(options);
+
+      expect(server.connections()).toBe(1);
+      expect(server.operationsFor("exit-to-main-menu")).toHaveLength(0);
+    } finally {
+      await session.close();
+      await server.close();
     }
   });
 
@@ -946,6 +977,7 @@ type ObservedOperation = Readonly<{
 type SetupLifecycleServer = Readonly<{
   address: () => AddressInfo;
   close: () => Promise<void>;
+  connections: () => number;
   operations: () => ReadonlyArray<ObservedOperation>;
   operationsFor: (operation: SetupLifecycleOperation) => ReadonlyArray<ObservedOperation>;
 }>;
@@ -966,6 +998,7 @@ async function startSetupLifecycleServer(
 ): Promise<SetupLifecycleServer> {
   const observed: ObservedOperation[] = [];
   const sockets = new Set<Socket>();
+  let connections = 0;
   const fixedRefusedPhase =
     options.initialPhase === "loading" || options.initialPhase === "unavailable"
       ? options.initialPhase
@@ -1098,6 +1131,7 @@ async function startSetupLifecycleServer(
     },
   });
   const server = createServer((socket) => {
+    connections += 1;
     sockets.add(socket);
     socket.on("close", () => sockets.delete(socket));
     let buffer = Buffer.alloc(0);
@@ -1469,6 +1503,7 @@ async function startSetupLifecycleServer(
   await new Promise<void>((resolve) => server.listen(0, HOST, resolve));
   return {
     address: () => server.address() as AddressInfo,
+    connections: () => connections,
     operations: () => observed,
     operationsFor: (operation) => observed.filter((entry) => entry.operation === operation),
     close: async () => {
