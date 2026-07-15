@@ -247,6 +247,57 @@ describe("rule selector boundary", () => {
     expect(rendered).toContain("shared work:\n  grit:source-rules: 2500ms across 2 rules");
   });
 
+  test("preserves multiline diagnostic detail in human output without changing JSON", () => {
+    const diagnosticMessage =
+      "Grit rule failed.\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nGrit output contains wrapper text around JSON.";
+    const report = Value.Parse(CheckReportSchema, {
+      schemaVersion: 2,
+      command: "habitat check --rule provider-rendering",
+      startedAt: "2026-07-15T00:00:00.000Z",
+      ok: false,
+      rules: [
+        {
+          ruleId: "provider-rendering",
+          runner: "grit",
+          lane: "enforced",
+          status: "fail",
+          locked: true,
+          durationMs: 1,
+          disposition: {
+            kind: "execution-failed",
+            source: "diagnostic-provider",
+            failure: "DiagnosticOutputMalformed",
+            detail: "Grit output contains wrapper text around JSON.",
+          },
+          diagnostics: [
+            {
+              ruleId: "provider-rendering",
+              path: ".",
+              message: diagnosticMessage,
+              severity: "error",
+              baselined: false,
+            },
+          ],
+          message: "Grit rule failed.",
+          remediate: null,
+        },
+      ],
+    });
+
+    expect(renderCheckReport(report)).toContain(
+      [
+        "  .: Grit rule failed.",
+        "    --- diagnostic provider failure (DiagnosticOutputMalformed) ---",
+        "    Grit output contains wrapper text around JSON.",
+      ].join("\n")
+    );
+    const parsed = Value.Parse(
+      CheckReportSchema,
+      JSON.parse(renderCheckReport(report, { json: true }))
+    );
+    expect(parsed.rules[0]?.diagnostics[0]?.message).toBe(diagnosticMessage);
+  });
+
   test("staged execution preserves selected rules for explicit not-applicable disposition", () => {
     const stagedEligible = fakeRule("hook", "grit", "@habitat/cli", {
       hookCheck: true,

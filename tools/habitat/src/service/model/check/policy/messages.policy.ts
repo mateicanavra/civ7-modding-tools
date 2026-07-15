@@ -11,7 +11,7 @@ export function renderRule(r: RuleReport): string {
   for (const d of r.diagnostics) {
     const mark = d.baselined ? "  [baselined] " : "  ";
     const loc = d.line ? `${d.path}:${d.line}` : d.path;
-    lines.push(`${mark}${loc}: ${d.message.split("\n")[0]}`);
+    lines.push(`${mark}${loc}: ${d.message.replaceAll("\n", "\n    ")}`);
   }
   if (r.status === "fail") {
     lines.push(`  why: ${r.message}`);
