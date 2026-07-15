@@ -180,8 +180,10 @@ export async function admitCiv7SetupShell(
   switch (payload.transition) {
     case "shell":
       return { initial, transition: "shell" };
-    case "exit-sent":
+    case "exit-sent": {
+      await options.session?.resetConnection();
       return { initial, transition: "exit-sent", shellExit: command };
+    }
     case "refused":
       throw new Civ7DirectControlError(
         "setup-phase-refused",
