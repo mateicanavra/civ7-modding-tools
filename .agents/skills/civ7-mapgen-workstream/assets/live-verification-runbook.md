@@ -26,10 +26,10 @@ This is a runnable checklist, not a concept doc. The display-vs-generation branc
 Direct-control has **no** cold-boot automation — it assumes Civ7 is already at the shell. The standard sequence (memory: `civ7-live-map-launch-and-capture`):
 
 1. **Cold-boot Steam**: `open "steam://rungameid/1295660"`. Poll the tuner socket until open, then `game status` until `readiness: shell`. A "tuner unreachable" failure is almost always just Civ7 not running yet.
-2. **Launch from setup**: `runCiv7SinglePlayerFromSetup` (from `@civ7/direct-control`). It does shell-check → `prepareCiv7SinglePlayerSetup` (tuner prepare) → `startPreparedCiv7SinglePlayerGame` (Begin Game) → polls to `inGame`. **Always pass `waitForTuner: true`** — the `Tuner` scripting state is command-ready only *after* Begin Game and is the canary for gameplay globals (`Game`, `GameplayMap`, `Players`).
-3. **SIGSEGV guard (do not skip).** Maps that pass local headless `MockAdapter` validation can still SIGSEGV the live engine (null-deref at 0x20) when standard `write`/`prep` ops are skipped. `runCiv7SinglePlayerFromSetup` replicates the standard recipe write order — never hand-roll a minimal bypass launch. A clean MockAdapter run does **not** prove live-engine safety.
+2. **Launch from setup**: use the `@civ7/control-orpc` `lifecycle.singlePlayer.start` capability through `verify-studio-run-in-game-live.ts`. It owns shell admission, setup application, Begin Game, and post-start tuner/readback evidence as one correlated lifecycle. The `Tuner` scripting state is command-ready only *after* Begin Game and remains the canary for gameplay globals (`Game`, `GameplayMap`, `Players`).
+3. **SIGSEGV guard (do not skip).** Maps that pass local headless `MockAdapter` validation can still SIGSEGV the live engine (null-deref at 0x20) when the deployed map recipe skips standard `write`/`prep` operations. Never hand-roll a minimal recipe or launch bypass. A clean MockAdapter run does **not** prove live-engine safety.
 
-The mutating `studio-run-in-game-live` verify mode wraps this launch (with `--from-running-game exit-to-shell` it will drop a running game back to the shell first), so for the gate you usually invoke the verify script rather than calling the launch primitive by hand.
+The mutating `studio-run-in-game-live` verify mode owns this launch, so invoke the verifier rather than calling lifecycle atoms by hand.
 
 ---
 
@@ -45,7 +45,7 @@ This is the primary in-game gate. Ordered internals (from `scripts/live/verify-s
 | 4. Map-row visibility | `getCiv7SetupMapRows` confirms the script is in the setup UI | exit 2 |
 | 5. Deployed-script identity | SHA-256 + marker presence (swooper scripts only) | exit 2 |
 | 6. Scripting.log snapshot | `snapshotFile` captures pre-launch log boundary (size + mtime + 4096-byte prefix) | — |
-| 7. Launch | `runCiv7SinglePlayerFromSetup` (prepare + Begin Game, `waitForTuner: true`) | exit 2 |
+| 7. Launch | `lifecycle.singlePlayer.start` through the live verifier | exit 2 |
 | 8. **waitForFreshLogMarkers** | the success gate — see §3 | reject ⇒ exit 2/3 |
 | 9. Proof output | `proofId` + report as JSON to stdout | — |
 
@@ -57,9 +57,7 @@ nx run mod-swooper-maps:verify -- --mode studio-run-in-game-live \
   --map-script "{swooper-maps}/maps/swooper-earthlike.js" \
   --map-size MAPSIZE_HUGE \
   --seed 1337 \
-  --game-seed 1337 \
   --player-count 10 \
-  --from-running-game exit-to-shell \
   --wait-timeout-ms 120000
 ```
 
@@ -156,6 +154,6 @@ Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstr
 - `mods/mod-swooper-maps/scripts/live/verify-studio-run-in-game-live.ts` — the gate; `waitForFreshLogMarkers` call + `REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS`.
 - `mods/mod-swooper-maps/scripts/live/verify-final-surface-parity.ts` — parity proof / `exactAuthorshipProof`.
 - `packages/civ7-direct-control/src/proof/log-markers.ts` — `waitForFreshLogMarkers` + `snapshotFile`.
-- `packages/civ7-direct-control/src/setup/run.ts` — `runCiv7SinglePlayerFromSetup`.
+- `packages/civ7-control-orpc/src/modules/lifecycle/procedures/single-player-start.ts` — the correlated setup/start lifecycle.
 - `packages/civ7-direct-control/src/session/{constants,request-id}.ts` — tuner port/host, `createCiv7ControlRequestId`.
 - `docs/projects/placement-realignment/evidence/milestone-{a,b}-2026-06-11.md` — recorded attempt-1 failure (console.warn), attempt-2/3 success, age-intro overlay dismissal.

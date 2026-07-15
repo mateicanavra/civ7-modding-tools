@@ -3,6 +3,7 @@ import { type AddressInfo, createServer, type Socket } from "node:net";
 import { runInNewContext } from "node:vm";
 import { describe, expect, test } from "vitest";
 import {
+  admitCiv7SetupShell,
   applyCiv7SinglePlayerSetup,
   assertPreparedSetupMatches,
   beginCiv7Game,
@@ -12,28 +13,20 @@ import {
   CIV7_SIGNED_INT_SEED_MAX,
   type Civ7SetupMapRow,
   type Civ7SetupSnapshot,
-  type Civ7SinglePlayerSetupInput,
-  ensureCiv7SetupMapRowVisible,
-  getCiv7ActiveTargetMods,
+  type Civ7SinglePlayerSetupValues,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   hostPreparedCiv7SinglePlayerGame,
-  prepareCiv7SinglePlayerSetup,
   reconcileCiv7RequiredTargetMod,
+  reloadCiv7SetupUiInShell,
   requestCiv7SavedGameConfigurationLoad,
-  startPreparedCiv7SinglePlayerGame,
 } from "../src/index";
 import {
   buildPrepareSinglePlayerSetupCommand,
   buildReconcileTargetModCommand,
   normalizeSinglePlayerSetupInput,
 } from "../src/setup/prepare";
-import {
-  buildActiveTargetModsCommand,
-  buildSetupSnapshotCommand,
-  type Civ7ActiveTargetModsResult,
-  defaultSetupReadDependencies,
-} from "../src/setup/reads";
+import { buildSetupSnapshotCommand, defaultSetupReadDependencies } from "../src/setup/reads";
 import { buildStartPreparedSinglePlayerCommand } from "../src/setup/start";
 
 const HOST = "127.0.0.1";
@@ -46,14 +39,13 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     try {
       const { port } = server.address();
       await expect(
-        prepareCiv7SinglePlayerSetup(
+        applyCiv7SinglePlayerSetup(
           {
             mapScript: MAP_SCRIPT,
             mapSize: "MAPSIZE_SMALL",
             seed: CIV7_SIGNED_INT_SEED_MAX + 1,
           },
-          { host: HOST, port, timeoutMs: 1_000 },
-          { approved: true, reason: "test seed range policy" }
+          { host: HOST, port, timeoutMs: 1_000 }
         )
       ).rejects.toMatchObject({ code: "setup-parameter-invalid" });
       expect(server.operations()).toHaveLength(0);
@@ -386,179 +378,6 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     expect(mutations).toEqual([]);
   });
 
-  test("reads bounded active target mod-set evidence through App UI", async () => {
-    const enabledServer = await startSetupLifecycleServer({
-      activeTargetMods: [
-        { id: "mod-swooper-studio-run", name: "Studio Run", enabled: true },
-        { id: "mod-other", name: "Other Mod", enabled: true },
-      ],
-    });
-    try {
-      const { port } = enabledServer.address();
-      const result = await getCiv7ActiveTargetMods(
-        { limit: 1 },
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
-
-      expect(result).toMatchObject({
-        state: { id: "65535", name: "App UI" },
-        available: true,
-        identityAvailable: true,
-        mods: [{ id: "mod-swooper-studio-run", name: "Studio Run", enabled: true }],
-        limit: 1,
-        truncated: true,
-        readbacks: [
-          {
-            source: "Configuration.getGame",
-            available: true,
-            identityReadable: true,
-            count: 2,
-            identityCount: 2,
-          },
-        ],
-      });
-      expect(enabledServer.operationsFor("active-target-mods")).toEqual([
-        { stateId: "65535", operation: "active-target-mods" },
-      ]);
-    } finally {
-      await enabledServer.close();
-    }
-
-    const unavailableServer = await startSetupLifecycleServer({ activeTargetModsAvailable: false });
-    try {
-      const { port } = unavailableServer.address();
-      const result = await getCiv7ActiveTargetMods({}, { host: HOST, port, timeoutMs: 1_000 });
-
-      expect(result).toMatchObject({
-        available: false,
-        identityAvailable: false,
-        mods: [],
-        readbacks: [
-          {
-            source: "Configuration.getGame",
-            available: false,
-            identityReadable: false,
-            count: 0,
-            identityCount: 0,
-          },
-        ],
-      });
-    } finally {
-      await unavailableServer.close();
-    }
-  });
-
-  test("active target mod-set command preserves per-reader truncation and empty identity readbacks", () => {
-    const truncated = evaluateActiveTargetModsCommand(100, {
-      Configuration: {
-        getGame: () => ({
-          enabledModCount: 101,
-          getEnabledModId: (index: number) => `mod-${index}`,
-        }),
-      },
-    });
-    expect(truncated).toMatchObject({
-      available: true,
-      identityAvailable: false,
-      limit: 100,
-      truncated: true,
-      readbacks: expect.arrayContaining([
-        {
-          source: "Configuration.getGame",
-          available: true,
-          identityReadable: true,
-          count: 100,
-          identityCount: 100,
-          truncated: true,
-        },
-      ]),
-    });
-
-    const empty = evaluateActiveTargetModsCommand(100, {
-      Configuration: {
-        getGame: () => ({
-          enabledModCount: 0,
-          getEnabledModId: () => undefined,
-        }),
-      },
-    });
-    expect(empty).toMatchObject({
-      available: true,
-      identityAvailable: true,
-      mods: [],
-      truncated: false,
-      readbacks: expect.arrayContaining([
-        {
-          source: "Configuration.getGame",
-          available: true,
-          identityReadable: true,
-          count: 0,
-          identityCount: 0,
-          truncated: false,
-        },
-      ]),
-    });
-  });
-
-  test("active target mod-set command keeps labels diagnostic-only", () => {
-    const result = evaluateActiveTargetModsCommand(100, {
-      Modding: {
-        getActiveMods: () => [42],
-        getModInfo: () => ({ Name: "Studio Run" }),
-      },
-    });
-
-    expect(result).toMatchObject({
-      available: true,
-      identityAvailable: false,
-      mods: [{ name: "Studio Run", handle: 42 }],
-      readbacks: expect.arrayContaining([
-        expect.objectContaining({
-          source: "Modding.getActiveMods",
-          available: true,
-          identityReadable: true,
-          count: 1,
-          identityCount: 0,
-        }),
-      ]),
-    });
-  });
-
-  test("active target mod-set command dedupes comparable identities across readers", () => {
-    const result = evaluateActiveTargetModsCommand(2, {
-      Configuration: {
-        getGame: () => ({
-          enabledModCount: 1,
-          getEnabledModId: () => "mod-swooper-studio-run",
-        }),
-      },
-      Modding: {
-        getActiveMods: () => [10],
-        getModInfo: () => ({ id: "mod-swooper-studio-run", name: "Studio Run" }),
-        getInstalledMods: () => [{ Id: "mod-swooper-studio-run", Enabled: true }],
-      },
-    });
-
-    expect(result).toMatchObject({
-      available: true,
-      identityAvailable: true,
-      truncated: false,
-      mods: [{ id: "mod-swooper-studio-run" }],
-    });
-    expect(result.mods).toHaveLength(1);
-    expect(result.readbacks).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: "Modding.getInstalledMods.enabled",
-          available: true,
-          identityReadable: false,
-          count: 1,
-          identityCount: 1,
-        }),
-      ])
-    );
-  });
-
   test("target mod reconciliation appends to editable saved-config metadata without dropping existing mods", () => {
     const result = evaluateReconcileTargetModCommand({
       Modding: {
@@ -814,29 +633,16 @@ describe("Civ7 setup and lifecycle orchestration", () => {
   });
 
   test("required target reconciliation uses the narrow editable setup metadata path", async () => {
-    const server = await startSetupLifecycleServer({
-      activeTargetMods: [
-        {
-          id: "mod-swooper-studio-run",
-          name: "Studio Run",
-          enabled: true,
-          source: "Modding.getInstalledMods.enabled",
-        },
-      ],
-    });
+    const server = await startSetupLifecycleServer();
     try {
       const { port } = server.address();
-      const prepare = await prepareCiv7SinglePlayerSetup(
-        {
-          mapScript: MAP_SCRIPT,
-          mapSize: "MAPSIZE_SMALL",
-          seed: 222,
-          requiredActiveTargetModId: "mod-swooper-studio-run",
-        },
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
+      const reconciliation = await reconcileCiv7RequiredTargetMod("mod-swooper-studio-run", {
+        host: HOST,
+        port,
+        timeoutMs: 1_000,
+      });
 
-      expect(prepare.targetModReconciliation).toMatchObject({
+      expect(reconciliation).toMatchObject({
         refreshed: true,
         verified: true,
         result: {
@@ -845,117 +651,6 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         },
       });
       expect(server.operationsFor("target-mod-reconcile")).toHaveLength(1);
-      expect(server.operationsFor("active-target-mods")).toHaveLength(0);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("prepares, starts, begins, and verifies a configured single-player setup", async () => {
-    const server = await startSetupLifecycleServer();
-    try {
-      const { port } = server.address();
-      const expected = {
-        mapScript: MAP_SCRIPT,
-        mapSize: "MAPSIZE_SMALL",
-        seed: 222,
-        gameSeed: 223,
-      };
-
-      const prepare = await prepareCiv7SinglePlayerSetup(expected, {
-        host: HOST,
-        port,
-        timeoutMs: 1_000,
-      });
-      const start = await startPreparedCiv7SinglePlayerGame(
-        { expected, waitForTuner: true, waitTimeoutMs: 2_000, pollIntervalMs: 10 },
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
-
-      expect(prepare).toMatchObject({
-        state: { id: "65535", name: "App UI" },
-        applied: {
-          Map: MAP_SCRIPT,
-          MapSize: "MAPSIZE_SMALL",
-          MapRandomSeed: 222,
-          GameRandomSeed: 223,
-        },
-        verified: true,
-      });
-      expect(start).toMatchObject({
-        command: { state: { id: "65535", name: "App UI" } },
-        begin: {
-          state: { id: "65535", name: "App UI" },
-          output: [JSON.stringify({ status: "performed", loadingState: 6 })],
-        },
-        beginAttempted: true,
-        tunerHealth: { state: { id: "1", name: "Tuner" }, ready: true },
-        mapSummary: {
-          state: { id: "1", name: "Tuner" },
-          map: { randomSeed: { ok: true, value: 222 } },
-        },
-        verified: true,
-      });
-      expect(server.operations()).toEqual(
-        expect.arrayContaining([
-          { stateId: "65535", operation: "prepare-setup" },
-          { stateId: "65535", operation: "host-game" },
-          { stateId: "65535", operation: "begin-game" },
-          { stateId: "1", operation: "tuner-health" },
-          { stateId: "1", operation: "map-summary" },
-        ])
-      );
-      expect(server.operationsFor("prepare-setup")).toHaveLength(1);
-      expect(server.operationsFor("host-game")).toHaveLength(1);
-      expect(server.operationsFor("begin-game")).toHaveLength(1);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("loads saved config before generated mod reconciliation, row visibility, and setup mutation", async () => {
-    const server = await startSetupLifecycleServer();
-    try {
-      const { port } = server.address();
-      const prepare = await prepareCiv7SinglePlayerSetup(
-        {
-          mapScript: MAP_SCRIPT,
-          mapSize: "MAPSIZE_SMALL",
-          seed: 222,
-          gameSeed: 223,
-          requiredActiveTargetModId: "mod-swooper-studio-run",
-          savedConfig: {
-            id: "tot-basic-mods",
-            displayName: "Test of Time Basic Mods",
-            fileName: "ToT_BasicModsEnabled.Civ7Cfg",
-            path: "/tmp/ToT_BasicModsEnabled.Civ7Cfg",
-          },
-        },
-        { host: HOST, port, timeoutMs: 1_000 }
-      );
-
-      expect(prepare).toMatchObject({
-        targetModReconciliation: {
-          refreshed: true,
-          verified: true,
-          result: {
-            enabledModsMetaContainsTarget: true,
-            targetActive: true,
-          },
-        },
-        rowVisibility: { verified: true },
-        verified: true,
-      });
-      const operations = server.operations().map((entry) => entry.operation);
-      const loadIndex = operations.indexOf("load-saved-config");
-      const reconcileIndex = operations.indexOf("target-mod-reconcile");
-      expect(loadIndex).toBeGreaterThan(-1);
-      expect(reconcileIndex).toBeGreaterThan(loadIndex);
-      expect(operations).not.toContain("active-target-mods");
-      expect(operations.indexOf("setup-map-rows")).toBeGreaterThan(reconcileIndex);
-      expect(operations.indexOf("prepare-setup")).toBeGreaterThan(
-        operations.indexOf("setup-map-rows")
-      );
     } finally {
       await server.close();
     }
@@ -1107,7 +802,7 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     }
   });
 
-  test("refreshes missing map rows from an active game without caller raw JS", async () => {
+  test("keeps setup admission and shell reload as independent one-wire atoms", async () => {
     const rowServer = await startSetupLifecycleServer({
       initialPhase: "running-game",
       hiddenMapScript: HIDDEN_MAP_SCRIPT,
@@ -1117,26 +812,20 @@ describe("Civ7 setup and lifecycle orchestration", () => {
       const { port } = rowServer.address();
       const options = { host: HOST, port, timeoutMs: 1_000 };
 
-      const visibility = await ensureCiv7SetupMapRowVisible(
-        {
-          file: HIDDEN_MAP_SCRIPT,
-          reloadIfMissing: "exit-to-shell",
-          waitTimeoutMs: 1_000,
-          pollIntervalMs: 10,
-        },
-        options
-      );
-
-      expect(visibility).toMatchObject({
-        initial: { rows: [] },
-        final: {
-          rows: [
-            { source: "setup-domain", file: HIDDEN_MAP_SCRIPT },
-            { source: "config-db", file: HIDDEN_MAP_SCRIPT },
-          ],
-        },
-        refreshed: true,
-        verified: true,
+      const admission = await admitCiv7SetupShell("exit-active-game", options);
+      expect(admission).toMatchObject({
+        transition: "exit-sent",
+        initial: { snapshot: { phase: "running-game" } },
+      });
+      const reload = await reloadCiv7SetupUiInShell(options);
+      expect(reload).toMatchObject({ reloaded: true, snapshot: { phase: "shell" } });
+      await expect(
+        getCiv7SetupMapRows({ file: HIDDEN_MAP_SCRIPT }, options)
+      ).resolves.toMatchObject({
+        rows: [
+          { source: "setup-domain", file: HIDDEN_MAP_SCRIPT },
+          { source: "config-db", file: HIDDEN_MAP_SCRIPT },
+        ],
       });
       expect(rowServer.operationsFor("exit-to-main-menu")).toEqual([
         { stateId: "65535", operation: "exit-to-main-menu" },
@@ -1161,101 +850,13 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     try {
       const { port } = server.address();
       const options = { host: HOST, port, timeoutMs: 1_000 };
-      const input = {
-        mapScript: MAP_SCRIPT,
-        mapSize: "MAPSIZE_SMALL",
-        seed: 333,
-        fromRunningGame: "exit-to-shell" as const,
-      };
-
-      await expect(prepareCiv7SinglePlayerSetup(input, options)).rejects.toMatchObject({
+      await expect(admitCiv7SetupShell("exit-active-game", options)).rejects.toMatchObject({
         code: "setup-phase-refused",
       });
-      await expect(
-        ensureCiv7SetupMapRowVisible(
-          { file: HIDDEN_MAP_SCRIPT, reloadIfMissing: "exit-to-shell" },
-          options
-        )
-      ).rejects.toMatchObject({ code: "setup-phase-refused" });
 
       expect(server.operationsFor("exit-to-main-menu")).toHaveLength(0);
       expect(server.operationsFor("prepare-setup")).toHaveLength(0);
       expect(server.operationsFor("reload-ui")).toHaveLength(0);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("does not replay setup or begin mutations after socket close failures", async () => {
-    const setupFailure = await startSetupLifecycleServer({ closeOnSetupMutation: true });
-    try {
-      const { port } = setupFailure.address();
-      await expect(
-        prepareCiv7SinglePlayerSetup(
-          { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 444 },
-          { host: HOST, port, timeoutMs: 1_000 }
-        )
-      ).rejects.toMatchObject({ code: "socket-closed" });
-
-      expect(setupFailure.operationsFor("prepare-setup")).toHaveLength(1);
-    } finally {
-      await setupFailure.close();
-    }
-
-    const beginFailure = await startSetupLifecycleServer({ closeOnBegin: true });
-    try {
-      const { port } = beginFailure.address();
-      const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
-      await prepareCiv7SinglePlayerSetup(expected, { host: HOST, port, timeoutMs: 1_000 });
-      await expect(
-        startPreparedCiv7SinglePlayerGame(
-          { expected, waitForTuner: true, waitTimeoutMs: 500, pollIntervalMs: 10 },
-          { host: HOST, port, timeoutMs: 500 }
-        )
-      ).rejects.toMatchObject({ code: "socket-closed" });
-
-      expect(beginFailure.operationsFor("host-game")).toHaveLength(1);
-      expect(beginFailure.operationsFor("begin-game")).toHaveLength(1);
-    } finally {
-      await beginFailure.close();
-    }
-  });
-
-  test("rejects a prepared start when the runtime seed differs from setup readback", async () => {
-    const server = await startSetupLifecycleServer({ postStartSeedOverride: 999 });
-    try {
-      const { port } = server.address();
-      const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
-      await prepareCiv7SinglePlayerSetup(expected, { host: HOST, port, timeoutMs: 1_000 });
-
-      await expect(
-        startPreparedCiv7SinglePlayerGame(
-          { expected, waitForTuner: true, waitTimeoutMs: 2_000, pollIntervalMs: 10 },
-          { host: HOST, port, timeoutMs: 1_000 }
-        )
-      ).rejects.toMatchObject({ code: "setup-seed-mismatch" });
-      expect(server.operationsFor("map-summary")).toEqual([
-        { stateId: "1", operation: "map-summary" },
-      ]);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("does not admit malformed truthy in-game evidence on the compatibility start path", async () => {
-    const server = await startSetupLifecycleServer({ malformedPostStartInGameProbe: true });
-    try {
-      const { port } = server.address();
-      const expected = { mapScript: MAP_SCRIPT, mapSize: "MAPSIZE_SMALL", seed: 222 };
-      await prepareCiv7SinglePlayerSetup(expected, { host: HOST, port, timeoutMs: 1_000 });
-
-      await expect(
-        startPreparedCiv7SinglePlayerGame(
-          { expected, waitTimeoutMs: 100, pollIntervalMs: 10 },
-          { host: HOST, port, timeoutMs: 100 }
-        )
-      ).rejects.toMatchObject({ code: "setup-start-timeout" });
-      expect(server.operationsFor("begin-game")).toHaveLength(1);
     } finally {
       await server.close();
     }
@@ -1268,12 +869,8 @@ describe("Civ7 setup and lifecycle orchestration", () => {
     });
     try {
       const { port } = server.address();
-      await expect(
-        ensureCiv7SetupMapRowVisible(
-          { file: HIDDEN_MAP_SCRIPT, reloadIfMissing: "reload-in-shell" },
-          { host: HOST, port, timeoutMs: 1_000 }
-        )
-      ).rejects.toMatchObject({ code: "setup-phase-refused" });
+      const reload = await reloadCiv7SetupUiInShell({ host: HOST, port, timeoutMs: 1_000 });
+      expect(reload).toMatchObject({ reloaded: false, snapshot: { phase: "running-game" } });
 
       expect(server.operationsFor("exit-to-main-menu")).toHaveLength(0);
       expect(server.operationsFor("reload-ui")).toHaveLength(0);
@@ -1285,7 +882,6 @@ describe("Civ7 setup and lifecycle orchestration", () => {
 
 type SetupLifecycleOperation =
   | "begin-game"
-  | "active-target-mods"
   | "exit-to-main-menu"
   | "host-game"
   | "load-saved-config"
@@ -1317,18 +913,6 @@ type SetupLifecycleServer = Readonly<{
 }>;
 
 type SetupLifecycleServerOptions = Readonly<{
-  activeTargetMods?: ReadonlyArray<
-    Readonly<{
-      id?: string;
-      packageId?: string;
-      name?: string;
-      title?: string;
-      handle?: number | string;
-      enabled?: boolean;
-      source?: string;
-    }>
-  >;
-  activeTargetModsAvailable?: boolean;
   closeOnBegin?: boolean;
   closeOnSetupMutation?: boolean;
   hiddenMapScript?: string;
@@ -1356,8 +940,6 @@ async function startSetupLifecycleServer(
   let setupMapSeed = 111;
   let setupGameSeed = 112;
   let hiddenMapRowVisible = false;
-  let activeTargetMods = [...(options.activeTargetMods ?? [])];
-
   const visibleMapRows = (): Civ7SetupMapRow[] => [
     {
       source: "setup-domain",
@@ -1592,21 +1174,6 @@ async function startSetupLifecycleServer(
             continue;
           }
           observed.push({ stateId: command.stateId, operation: "target-mod-reconcile" });
-          if (
-            !activeTargetMods.some(
-              (mod) => mod.id === "mod-swooper-studio-run" && mod.source === "Configuration.getGame"
-            )
-          ) {
-            activeTargetMods = [
-              ...activeTargetMods,
-              {
-                id: "mod-swooper-studio-run",
-                name: "Studio Run",
-                enabled: true,
-                source: "Configuration.getGame",
-              },
-            ];
-          }
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
@@ -1742,31 +1309,6 @@ async function startSetupLifecycleServer(
           socket.write(
             encodeResponse(frame.listenerId, [JSON.stringify({ snapshot: setupSnapshot() })])
           );
-        } else if (operation === "active-target-mods") {
-          const limit = parseRequestedActiveTargetModsLimit(command.script) ?? 100;
-          const activeTargetModsAvailable = options.activeTargetModsAvailable !== false;
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                available: activeTargetModsAvailable,
-                identityAvailable: activeTargetModsAvailable,
-                mods: activeTargetModsAvailable ? activeTargetMods.slice(0, limit) : [],
-                limit,
-                truncated: activeTargetModsAvailable && activeTargetMods.length > limit,
-                readbacks: [
-                  {
-                    source: "Configuration.getGame",
-                    available: activeTargetModsAvailable,
-                    identityReadable: activeTargetModsAvailable,
-                    count: activeTargetModsAvailable ? activeTargetMods.length : 0,
-                    identityCount: activeTargetModsAvailable ? activeTargetMods.length : 0,
-                    truncated: false,
-                    ...(!activeTargetModsAvailable ? { error: "root-unavailable" } : {}),
-                  },
-                ],
-              }),
-            ])
-          );
         } else if (operation === "tuner-health") {
           socket.write(
             encodeResponse(frame.listenerId, [
@@ -1897,14 +1439,6 @@ async function startSetupLifecycleServer(
       await once(server, "close");
     },
   };
-}
-
-function evaluateActiveTargetModsCommand(
-  limit: number,
-  globals: Record<string, unknown>
-): Civ7ActiveTargetModsResult {
-  const command = buildActiveTargetModsCommand({ limit }, defaultSetupReadDependencies);
-  return JSON.parse(runInNewContext(command, globals) as string) as Civ7ActiveTargetModsResult;
 }
 
 function evaluateReconcileTargetModCommand(globals: Record<string, unknown>) {
@@ -2044,7 +1578,6 @@ function classifyCommand(script: string): SetupLifecycleOperation | undefined {
     return "reload-ui-in-shell";
   }
   if (script.includes("readSetupSnapshot")) return "setup-snapshot";
-  if (script.includes("Modding.getActiveMods")) return "active-target-mods";
   if (script.includes("evalOk: 1 + 1")) return "tuner-health";
   if (script.includes("MapRegions") && script.includes("randomSeed")) return "map-summary";
   return undefined;
@@ -2060,18 +1593,18 @@ function parseShellAdmissionPolicy(script: string): "reject" | "exit-active-game
   return policy;
 }
 
-function parseSetupInput(script: string): Civ7SinglePlayerSetupInput {
+function parseSetupInput(script: string): Civ7SinglePlayerSetupValues {
   const match = /const input = (\{.*?\});\n\s+const before = readSetupSnapshot\(\);/s.exec(script);
   if (!match) throw new Error("Could not parse setup input from command");
-  return JSON.parse(match[1]) as Civ7SinglePlayerSetupInput;
+  return JSON.parse(match[1]) as Civ7SinglePlayerSetupValues;
 }
 
-function parseHostExpected(script: string): Civ7SinglePlayerSetupInput {
+function parseHostExpected(script: string): Civ7SinglePlayerSetupValues {
   const match = /const expected = (\{.*?\});\n\s+const before = readSetupSnapshot\(\);/s.exec(
     script
   );
   if (!match) throw new Error("Could not parse expected setup from host command");
-  return JSON.parse(match[1]) as Civ7SinglePlayerSetupInput;
+  return JSON.parse(match[1]) as Civ7SinglePlayerSetupValues;
 }
 
 function parseRequestedMapFile(script: string): string | undefined {
@@ -2079,13 +1612,6 @@ function parseRequestedMapFile(script: string): string | undefined {
   if (!match) return undefined;
   const input = JSON.parse(match[1]) as { file?: string };
   return input.file;
-}
-
-function parseRequestedActiveTargetModsLimit(script: string): number | undefined {
-  const match = /const input = (\{.*?\});\n\s+const limit = input\.limit/s.exec(script);
-  if (!match) return undefined;
-  const input = JSON.parse(match[1]) as { limit?: number };
-  return input.limit;
 }
 
 function parseCommand(message: string): { stateId: string; script: string } | undefined {

@@ -1,5 +1,7 @@
 import {
   type Civ7AppUiSnapshotResult,
+  Civ7DirectControlError,
+  type Civ7DirectControlErrorCode,
   type Civ7MapSummaryResult,
   type Civ7RuntimeProbe,
   type Civ7SetupApplicationResult,
@@ -114,7 +116,8 @@ export const lifecycleSinglePlayerStartProcedure =
         Effect.flatMap((result) =>
           validateObservation(isValid, result, () => new InvalidMutationResultError())
         ),
-        Effect.mapError((cause) => classifyMutationFailure(step, classifyRejected, cause))
+        Effect.mapError((cause) => classifyMutationFailure(step, classifyRejected, cause)),
+        Effect.uninterruptible
       );
 
     const directLifecycle = yield* Effect.fromNullable(context.directLifecycle).pipe(
@@ -146,7 +149,8 @@ export const lifecycleSinglePlayerStartProcedure =
       Effect.flatMap((result) =>
         validateObservation(isAdmissionResult, result, () => new InvalidMutationResultError())
       ),
-      Effect.mapError(classifyAdmissionFailure)
+      Effect.mapError(classifyAdmissionFailure),
+      Effect.uninterruptible
     );
 
     const initialPhase = admission.initial.snapshot.phase;
@@ -783,7 +787,7 @@ function admittedRefusedSetupPhase(
 }
 
 function isExplicitVerificationFailure(cause: unknown): boolean {
-  return [
+  const verificationFailureCodes = [
     "setup-config-evidence-missing",
     "setup-config-load-failed",
     "setup-host-rejected",
@@ -791,18 +795,15 @@ function isExplicitVerificationFailure(cause: unknown): boolean {
     "setup-parameter-invalid",
     "setup-phase-refused",
     "setup-readback-mismatch",
-  ].some((code) => hasDirectControlCode(cause, code));
+  ] as const satisfies readonly Civ7DirectControlErrorCode[];
+  return verificationFailureCodes.some((code) => hasDirectControlCode(cause, code));
 }
 
-function hasDirectControlCode(cause: unknown, code: string): cause is object & { code: string } {
-  return (
-    cause !== null &&
-    typeof cause === "object" &&
-    "name" in cause &&
-    cause.name === "Civ7DirectControlError" &&
-    "code" in cause &&
-    cause.code === code
-  );
+function hasDirectControlCode(
+  cause: unknown,
+  code: Civ7DirectControlErrorCode
+): cause is Civ7DirectControlError {
+  return cause instanceof Civ7DirectControlError && cause.code === code;
 }
 
 function requireMatched<A, E>(effect: ReturnType<typeof pollUntil<A>>, onExhausted: () => E) {

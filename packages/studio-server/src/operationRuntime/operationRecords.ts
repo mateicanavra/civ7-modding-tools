@@ -13,12 +13,15 @@ import { Effect, type Scope } from "effect";
 import {
   dependencyUnavailable,
   operationBlocked,
+  preventStudioRuntimeFailureReplay,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
 import { removeRunDiagnosticsIndex } from "./diagnostics.js";
 import {
+  failurePhaseForRunInGame,
   type RunInGameInternalOperation,
+  runInGameLifecycleOwnsMutation,
   type SaveDeployInternalOperation,
   statusForRunInGamePhase,
 } from "./model.js";
@@ -39,8 +42,6 @@ const RUN_IN_GAME_RECORD_PHASES = new Set<RunInGameInternalOperation["phase"]>([
   "accepted",
   "materializing",
   "deploying",
-  "checking-civ7",
-  "preparing-setup",
   "starting-game",
   "collecting-evidence",
   "complete",
@@ -142,6 +143,18 @@ type TerminalRunOperationRecord = RunOperationRecordBase &
   }>;
 
 export type RunOperationRecord = RunningRunOperationRecord | TerminalRunOperationRecord;
+
+type AbandonedRunOperationRecord =
+  | Readonly<{
+      trust: "verified";
+      record: RunningRunOperationRecord;
+    }>
+  | Readonly<{
+      trust: "untrusted";
+      requestId: string;
+      diagnosticsId: string;
+      observedAt: string;
+    }>;
 
 /**
  * Acquires the single durable owner for Civ7-facing runtime writes.
@@ -252,13 +265,14 @@ export function attachRuntimeOwnershipLeaseDeployment(
 export function releaseRuntimeOwnershipLeaseForRecord(
   args: Readonly<{
     workspaceRoot?: string;
-    record: RunOperationRecord;
+    record: AbandonedRunOperationRecord;
   }>
 ): Effect.Effect<void, never> {
+  if (args.record.trust === "untrusted") return Effect.void;
   return releaseRuntimeOwnershipLease({
     workspaceRoot: args.workspaceRoot,
-    leaseId: args.record.leaseId,
-    requestId: args.record.requestId,
+    leaseId: args.record.record.leaseId,
+    requestId: args.record.record.requestId,
   });
 }
 
@@ -284,7 +298,7 @@ export function readAbandonedRunOperationRecords(
     workspaceRoot?: string;
     identity: StudioDaemonIdentity;
   }>
-): Effect.Effect<ReadonlyArray<RunOperationRecord>, never> {
+): Effect.Effect<ReadonlyArray<AbandonedRunOperationRecord>, never> {
   return Effect.tryPromise({
     try: async () => {
       const root = workspaceRoot(args.workspaceRoot);
@@ -294,22 +308,22 @@ export function readAbandonedRunOperationRecords(
         if (isNotFoundError(err)) return [];
         throw err;
       });
-      const records: RunOperationRecord[] = [];
+      const records: AbandonedRunOperationRecord[] = [];
       for (const entry of entries) {
         if (!entry.isDirectory() || !SAFE_RUN_REQUEST_ID.test(entry.name)) continue;
         const recordState = await readRunOperationRecordState(root, entry.name);
-        const record =
-          recordState.state === "valid"
-            ? recordState.record
-            : recordState.state === "corrupt"
-              ? corruptRecordForRequest(recordState.requestId, nowIsoFromSystem())
-              : undefined;
+        if (recordState.state === "corrupt") {
+          records.push(untrustedRecordForRequest(recordState.requestId, nowIsoFromSystem()));
+          continue;
+        }
+        if (recordState.state === "missing") continue;
+        const record = recordState.record;
         if (
-          record?.status === "running" &&
+          record.status === "running" &&
           !recordOwnedByIdentity(record, args.identity) &&
           !leaseMayKeepRecordAlive(root, activeLease, record)
         ) {
-          records.push(record);
+          records.push({ trust: "verified", record });
         }
       }
       return records;
@@ -454,31 +468,61 @@ export function acquireRuntimeDaemonHeartbeat(
 }
 
 export function operationFromAbandonedRecord(
-  record: RunOperationRecord,
+  abandoned: AbandonedRunOperationRecord,
   nowIso: string
 ): RunInGameInternalOperation {
+  if (abandoned.trust === "untrusted") {
+    const ownershipLost = preventStudioRuntimeFailureReplay(
+      operationBlocked({
+        message:
+          "Run in Game operation ownership was lost with an unreadable restart record; prior mutation state is unknown.",
+        activeRequestId: abandoned.requestId,
+        diagnostics: { code: "run-in-game-record-untrusted-after-restart" },
+      })
+    );
+    return {
+      kind: "run-in-game",
+      requestId: abandoned.requestId,
+      leaseId: `untrusted-record:${abandoned.requestId}`,
+      request: {},
+      phase: "uncertain",
+      status: "uncertain",
+      operationRevision: 0,
+      startedAt: abandoned.observedAt,
+      updatedAt: nowIso,
+      diagnosticsId: abandoned.diagnosticsId,
+      completedPhases: [],
+      failure: ownershipLost,
+    };
+  }
+  const record = abandoned.record;
+  const lifecycleOwnedMutation = runInGameLifecycleOwnsMutation(record.phase);
+  const ownershipLost = operationBlocked({
+    message: "Run in Game operation ownership was lost after Studio daemon restart.",
+    activeRequestId: record.requestId,
+    activePhase: record.phase,
+    diagnostics: {
+      code: "run-in-game-ownership-lost-after-restart",
+      previousDaemonId: record.daemonId,
+      leaseId: record.leaseId,
+    },
+  });
   return {
     kind: "run-in-game",
     requestId: record.requestId,
     leaseId: record.leaseId,
     request: {},
-    phase: "failed",
-    status: "failed",
+    phase: lifecycleOwnedMutation ? "uncertain" : "failed",
+    status: lifecycleOwnedMutation ? "uncertain" : "failed",
     operationRevision: record.operationRevision + 1,
     startedAt: record.createdAt,
     updatedAt: nowIso,
     diagnosticsId: record.diagnosticsId,
     completedPhases: [],
-    failure: operationBlocked({
-      message: "Run in Game operation ownership was lost after Studio daemon restart.",
-      activeRequestId: record.requestId,
-      activePhase: record.phase,
-      diagnostics: {
-        code: "run-in-game-ownership-lost-after-restart",
-        previousDaemonId: record.daemonId,
-        leaseId: record.leaseId,
-      },
-    }),
+    failedAtPhase: failurePhaseForRunInGame(record.phase),
+    failure: lifecycleOwnedMutation
+      ? preventStudioRuntimeFailureReplay(ownershipLost)
+      : ownershipLost,
   };
 }
 
@@ -618,19 +662,15 @@ function runOperationRecordPath(root: string, requestId: string): string {
   return jailedRunWorkspacePath(root, requestId, OPERATION_RECORD_FILE);
 }
 
-function corruptRecordForRequest(requestId: string, nowIso: string): RunOperationRecord {
+function untrustedRecordForRequest(
+  requestId: string,
+  observedAt: string
+): AbandonedRunOperationRecord {
   return {
-    recordType: "RunOperationRecord",
+    trust: "untrusted",
     requestId,
-    daemonId: "unknown-corrupt-record",
-    daemonStartedAt: nowIso,
-    leaseId: `corrupt-record:${requestId}`,
-    phase: "accepted",
-    status: "running",
-    operationRevision: 0,
     diagnosticsId: `run-diagnostics-corrupt-${requestId}`,
-    createdAt: nowIso,
-    updatedAt: nowIso,
+    observedAt,
   };
 }
 

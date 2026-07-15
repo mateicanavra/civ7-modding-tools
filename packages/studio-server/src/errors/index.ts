@@ -32,6 +32,7 @@ export {
   operationBlocked,
   operationExpired,
   operationNotFound,
+  preventStudioRuntimeFailureReplay,
   runtimeDisposed,
   STUDIO_DEPENDENCY_KINDS,
   STUDIO_FAILURE_REASON_CODES,

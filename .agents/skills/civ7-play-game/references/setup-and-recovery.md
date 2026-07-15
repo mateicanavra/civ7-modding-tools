@@ -98,9 +98,9 @@ Reporting honestly beats forcing a move. Quote the envelope; say what is blockin
 
 This skill does **not** launch games — the human does. If the human explicitly
 asks you to launch one, that path lives elsewhere:
-`runCiv7SinglePlayerFromSetup` (from `@civ7/direct-control`) and the cold-boot
-sequence are documented in the `civ7-operational-debugging` skill and the
-project memory on launching/capturing a live map. Bring that in deliberately;
+the `@civ7/control-orpc` `lifecycle.singlePlayer.start` capability and the
+cold-boot sequence are documented in the `civ7-operational-debugging` skill and
+the mapgen live verifier. Bring that in deliberately;
 keep this skill focused on playing an already-running game.
 
 [← Back to SKILL.md](../SKILL.md)

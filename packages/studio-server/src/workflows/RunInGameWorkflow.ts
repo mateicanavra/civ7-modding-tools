@@ -8,7 +8,7 @@ import {
   type StudioBoundedDiagnosticValue,
   verificationFailed,
 } from "../errors/index.js";
-import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
+import type { RunInGameFailurePhase } from "../operationRuntime/model.js";
 import type {
   RunInGameDeployment,
   RunInGameGeneratedMod,
@@ -198,33 +198,16 @@ function makeRunInGameWorkflow(
             ...deploymentEvidence(deployment),
           });
 
-          phase = "checking-civ7";
-          yield* workflow.transitions.transition({
+          phase = "starting-game";
+          const lifecycleAdmitted = yield* workflow.transitions.transition({
             phase,
-            materialization: deployment.materialization ?? generated.materialization,
             ...deploymentEvidence(deployment),
           });
-          yield* args.civ7.checkPlayable({
+          if (!lifecycleAdmitted) return;
+          const started = yield* args.civ7.startSinglePlayer({
             requestId: workflow.requestId,
             prepared: workflow.prepared,
             deployment,
-          });
-
-          phase = "preparing-setup";
-          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
-          const setup = yield* args.civ7.prepareSetup({
-            requestId: workflow.requestId,
-            prepared: workflow.prepared,
-            deployment,
-          });
-
-          phase = "starting-game";
-          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
-          const started = yield* args.civ7.startGame({
-            requestId: workflow.requestId,
-            prepared: workflow.prepared,
-            deployment,
-            setup,
           });
 
           phase = "collecting-evidence";
@@ -234,7 +217,6 @@ function makeRunInGameWorkflow(
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
-              setup,
               started,
             })
           );
@@ -243,7 +225,6 @@ function makeRunInGameWorkflow(
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
-              setup,
               started,
               log,
               signal,
@@ -254,7 +235,6 @@ function makeRunInGameWorkflow(
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
-              setup,
               started,
               log,
               observation,

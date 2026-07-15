@@ -1,11 +1,4 @@
-import type {
-  Civ7SavedGameConfigurationLoadResult,
-  Civ7SetupMapRowsResult,
-  Civ7SetupMapRowVisibilityResult,
-  Civ7SetupSnapshot,
-  Civ7SinglePlayerStartResult,
-  Civ7TargetModReconciliationResult,
-} from "@civ7/direct-control";
+import type { Civ7LifecycleSinglePlayerStartResult } from "@civ7/control-orpc";
 import type {
   Civ7LiveSnapshotOutput,
   Civ7LiveStatusOutput,
@@ -117,29 +110,7 @@ export type RunInGameDeployment = RunInGameDeploymentEvidence &
     deploy?: unknown;
   }>;
 
-export type RunInGameSetupPrepared = Readonly<{
-  kind: "run-in-game-prepared-setup";
-  requestId: string;
-  deploymentRequestId: string;
-  runArtifactId: string;
-  deployedModId: string;
-  targetModId: string;
-  launchMapScript: string;
-  seed: number;
-  mapSize: string;
-  playerCount?: number;
-  rowEvidence: Civ7SetupMapRowsResult;
-  rowVisibility: Civ7SetupMapRowVisibilityResult;
-  targetModReconciliation: Civ7TargetModReconciliationResult;
-  savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
-  setupSnapshot: Civ7SetupSnapshot;
-  softRefreshPerformed: boolean;
-}>;
-
-export type RunInGameStarted = Readonly<{
-  setup: RunInGameSetupPrepared;
-  start: Civ7SinglePlayerStartResult;
-}>;
+export type RunInGameStarted = Civ7LifecycleSinglePlayerStartResult;
 
 export type RunInGameLogEvidence = Readonly<{
   result?: unknown;
@@ -165,8 +136,7 @@ export type SetupRowReadback = Readonly<{
   mapScript: string;
   runArtifactId: string;
   deployedModId: string;
-  rowEvidence: unknown;
-  rowVisibility: unknown;
+  mapRowFiles: readonly string[];
 }>;
 
 export type LoadedGameReadback = Readonly<{

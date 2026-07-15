@@ -12,7 +12,6 @@ import {
 import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
-import { isSetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
 import { writeRunAttributionReport } from "./attributionReport.js";
 import type { RunInGameInternalOperation } from "./model.js";
 import { privateJson } from "./privateJson.js";
@@ -189,33 +188,17 @@ function unavailable(diagnosticsId: string): RunDiagnosticsLookupResult {
 function setupFailureSection(operation: RunInGameInternalOperation) {
   const diagnostics = operation.failure?.diagnostics;
   const setupFailureReason = diagnostics?.setupFailureReason ?? diagnostics?.code;
-  if (typeof setupFailureReason !== "string" || !isSetupFailureReason(setupFailureReason)) {
+  if (setupFailureReason !== "setup-map-row-mismatched") {
     return undefined;
   }
   return privateJson({
     requestId: operation.requestId,
     runArtifactId: operation.materialization?.runArtifactId,
     expectedGeneratedMapFile: diagnostics?.mapScript ?? diagnostics?.expectedMapScript,
-    setupPhase: operation.phase,
+    setupPhase: operation.failedAtPhase,
     setupFailureReason,
-    rowSample:
-      parseMaybeJson(diagnostics?.rowEvidence) ?? parseMaybeJson(diagnostics?.rowVisibility),
     observedMapScripts: diagnostics?.observedMapScripts,
-    activeTargetModSet: parseMaybeJson(diagnostics?.activeTargetModSet),
-    targetModReconciliation: parseMaybeJson(diagnostics?.targetModReconciliation),
-    activeTargetModSetReadbackLimitation: diagnostics?.activeTargetModSetReadbackLimitation,
-    directControlCode: diagnostics?.directControlCode ?? operation.failure?.directControlCode,
-    directControlDetails: parseMaybeJson(diagnostics?.directControlDetails),
   });
-}
-
-function parseMaybeJson(value: unknown): unknown {
-  if (typeof value !== "string") return value;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value;
-  }
 }
 
 function isNotFoundError(err: unknown): boolean {

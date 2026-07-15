@@ -5,6 +5,11 @@ import { readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import {
+  liveCiv7ControlOrpcDirectControlFacade,
+  liveCiv7ControlOrpcDirectLifecycleFacade,
+} from "@civ7/control-orpc/runtime";
 import {
   type Civ7DirectControlOptions,
   type Civ7SavedGameConfiguration,
@@ -16,10 +21,10 @@ import {
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   listCiv7SavedGameConfigurations,
-  runCiv7SinglePlayerFromSetup,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
+import { serializeVerifierError } from "./verifier-error";
 
 type LiveVerificationArgs = {
   host?: string;
@@ -30,10 +35,8 @@ type LiveVerificationArgs = {
   mapScript?: string;
   mapSize?: string;
   seed?: number;
-  gameSeed?: number;
   playerCount?: number;
   savedConfig?: string;
-  fromRunningGame: "reject" | "exit-to-shell";
   mutate: boolean;
   options: Record<string, Civ7SetupOptionValue>;
   help: boolean;
@@ -62,15 +65,14 @@ Read-only default:
 
 Mutating setup/start evidence:
   --mutate --map-script <file> --map-size <size> --seed <seed>
-  [--game-seed <seed>] [--player-count <n>]
+  [--player-count <n>]
   [--saved-config <name|fileName|path>]
-  [--from-running-game reject|exit-to-shell]
   [--option Key=value]
 
 Notes:
   Without --mutate this only checks LSQ health, setup snapshot, and optional
   map-row visibility. With --mutate it prepares and starts a disposable
-  single-player session through @civ7/direct-control.
+  single-player session through @civ7/control-orpc.
 
   --saved-config loads one of Civ7's saved game setups (.Civ7Cfg) before the
   map is applied, so the launched game uses that config's leader/civ/difficulty/
@@ -123,7 +125,6 @@ export const REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS = [
 
 function parseArgs(argv: string[]): LiveVerificationArgs {
   const args: LiveVerificationArgs = {
-    fromRunningGame: "reject",
     mutate: false,
     options: {},
     help: false,
@@ -169,23 +170,12 @@ function parseArgs(argv: string[]): LiveVerificationArgs {
       case "--seed":
         args.seed = parseInteger(value(), arg);
         break;
-      case "--game-seed":
-        args.gameSeed = parseInteger(value(), arg);
-        break;
       case "--player-count":
         args.playerCount = parseInteger(value(), arg);
         break;
       case "--saved-config":
         args.savedConfig = value();
         break;
-      case "--from-running-game": {
-        const mode = value();
-        if (mode !== "reject" && mode !== "exit-to-shell") {
-          throw new Error(`Invalid --from-running-game value: ${mode}`);
-        }
-        args.fromRunningGame = mode;
-        break;
-      }
       case "--mutate":
         args.mutate = true;
         break;
@@ -382,23 +372,6 @@ function markerId(marker: string): string {
     .toLowerCase();
 }
 
-function serializeError(error: unknown): Record<string, unknown> {
-  if (error instanceof Error) {
-    return {
-      name: error.name,
-      message: error.message,
-      code: "code" in error ? error.code : undefined,
-      details: "details" in error ? cloneForJson(error.details) : undefined,
-    };
-  }
-  return { message: String(error) };
-}
-
-function cloneForJson(value: unknown): unknown {
-  if (value === undefined) return undefined;
-  return JSON.parse(safeJson(value));
-}
-
 function safeJson(value: unknown): string {
   const seen = new WeakSet<object>();
   return JSON.stringify(
@@ -444,7 +417,7 @@ async function main(): Promise<number> {
     stages.push({ name: "health", ok: health.ok, health });
     if (!health.ok) {
       report.failureStage = "health";
-      report.error = serializeError(health.error);
+      report.error = serializeVerifierError(health.error);
       console.log(safeJson(report));
       return 2;
     }
@@ -532,29 +505,28 @@ async function main(): Promise<number> {
 
     const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
     const scriptingSnapshot = await snapshotFile(scriptingLogPath);
-    const run = await runCiv7SinglePlayerFromSetup(
-      {
-        mapScript: args.mapScript,
-        mapSize: args.mapSize,
-        seed: args.seed,
-        gameSeed: args.gameSeed,
-        playerCount: args.playerCount,
-        ...(savedConfigRef ? { savedConfig: savedConfigRef } : {}),
-        options: args.options,
-        fromRunningGame: args.fromRunningGame,
-        waitForTuner: true,
-        waitTimeoutMs: args.waitTimeoutMs,
-        pollIntervalMs: args.pollIntervalMs,
-      },
-      options
-    );
+    const correlationId = createCiv7ControlRequestId("studio-live");
+    const run = await createCiv7ControlOrpcServerClient({
+      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      directLifecycle: liveCiv7ControlOrpcDirectLifecycleFacade,
+      endpointDefaults: options,
+      correlation: { correlationId },
+    }).lifecycle.singlePlayer.start({
+      mapScript: args.mapScript,
+      mapSize: args.mapSize,
+      seed: args.seed,
+      playerCount: args.playerCount,
+      targetModId: targetModIdFromMapScript(args.mapScript),
+      ...(savedConfigRef ? { savedConfig: savedConfigRef } : {}),
+      gameOptions: args.options,
+      playerOptions: {},
+      activeGamePolicy: "exit-active-game",
+    });
     stages.push({
       name: "setup-start",
-      ok: run.verified,
-      prepareVerified: run.prepare.verified,
-      startVerified: run.start.verified,
-      mapSummary: run.start.mapSummary,
-      observations: run.start.observations.length,
+      ok: run.status === "started",
+      setup: run.evidence.setup,
+      runtime: run.evidence.runtime,
     });
     const logEvidence = await waitForFreshLogMarkers({
       logPath: scriptingLogPath,
@@ -572,17 +544,25 @@ async function main(): Promise<number> {
       observedAt: logEvidence.observedAt,
       matched: logEvidence.matched,
     });
-    report.ok = run.verified;
+    report.ok = run.status === "started";
     report.finishedAt = new Date().toISOString();
     console.log(safeJson(report));
-    return run.verified ? 0 : 3;
+    return run.status === "started" ? 0 : 3;
   } catch (error) {
     report.failureStage ??= "exception";
-    report.error = serializeError(error);
+    report.error = serializeVerifierError(error);
     report.finishedAt = new Date().toISOString();
     console.log(safeJson(report));
     return 1;
   }
+}
+
+function targetModIdFromMapScript(mapScript: string): string {
+  const end = mapScript.indexOf("}");
+  if (!mapScript.startsWith("{") || end <= 1) {
+    throw new Error(`Map script does not identify its owning mod: ${mapScript}`);
+  }
+  return mapScript.slice(1, end);
 }
 
 if (import.meta.main) {
@@ -591,7 +571,7 @@ if (import.meta.main) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(safeJson({ ok: false, error: serializeError(error) }));
+      console.error(safeJson({ ok: false, error: serializeVerifierError(error) }));
       process.exitCode = 1;
     });
 }

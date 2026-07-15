@@ -1,6 +1,8 @@
 import {
   type Civ7AppUiSnapshotResult,
   type Civ7CommandResult,
+  Civ7DirectControlError,
+  type Civ7DirectControlErrorCode,
   type Civ7MapSummaryResult,
   type Civ7RuntimeProbe,
   type Civ7SetupMapRowsResult,
@@ -133,6 +135,42 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     ] as const) {
       expect(harness.count(operation)).toBe(1);
     }
+  });
+
+  test("drains setup admission before abort stops lifecycle sequencing", async () => {
+    const entered = deferred<void>();
+    const admission =
+      deferred<Awaited<ReturnType<Civ7ControlOrpcDirectLifecycleFacade["admitSetupShell"]>>>();
+    const harness = makeHarness({
+      admitSetupShell: async () => {
+        entered.resolve();
+        return admission.promise;
+      },
+    });
+    const controller = new AbortController();
+    const pending = createCiv7ControlOrpcServerClient(harness.context).lifecycle.singlePlayer.start(
+      input,
+      { signal: controller.signal }
+    );
+    const outcome = pending.then(
+      () => "resolved" as const,
+      () => "rejected" as const
+    );
+    let settled = false;
+    void outcome.then(() => {
+      settled = true;
+    });
+
+    await entered.promise;
+    controller.abort();
+    await Promise.resolve();
+
+    expect(settled).toBe(false);
+    expect(harness.count("reconcileRequiredTargetMod")).toBe(0);
+
+    admission.resolve({ initial: setupSnapshot("shell"), transition: "shell" });
+    await expect(outcome).resolves.toBe("rejected");
+    expect(harness.count("reconcileRequiredTargetMod")).toBe(0);
   });
 
   test("converts player records once in numeric order at the apply boundary", async () => {
@@ -380,6 +418,27 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     ).rejects.toMatchObject({
       code: "LIFECYCLE_STATE_REFUSED",
       data: { initialPhase: phase, step: "admit-setup-phase" },
+    });
+    expect(harness.operations()).toEqual(["getSetupSnapshot", "admitSetupShell"]);
+  });
+
+  test("does not trust a forged direct-control refusal object", async () => {
+    const harness = makeHarness({
+      admitSetupShell: async () =>
+        Promise.reject({
+          name: "Civ7DirectControlError",
+          code: "setup-phase-refused",
+          details: { snapshot: { phase: "loading" } },
+        }),
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+        context: harness.context,
+      })
+    ).rejects.toMatchObject({
+      code: "LIFECYCLE_MUTATION_UNCERTAIN",
+      data: { step: "admit-setup-phase", detail: "object", noRepeat: true },
     });
     expect(harness.operations()).toEqual(["getSetupSnapshot", "admitSetupShell"]);
   });
@@ -929,12 +988,20 @@ function sequence<A>(first: A, ...rest: readonly A[]): () => Promise<A> {
   return async () => values[Math.min(index++, values.length - 1)]!;
 }
 
-function directControlFailure(code: string, details?: unknown) {
-  return {
-    name: "Civ7DirectControlError",
-    code,
+function deferred<T>() {
+  let resolve: (value: T | PromiseLike<T>) => void = () => undefined;
+  let reject: (reason?: unknown) => void = () => undefined;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
+function directControlFailure(code: Civ7DirectControlErrorCode, details?: unknown) {
+  return new Civ7DirectControlError(code, `direct-control/${code}`, {
     ...(details === undefined ? {} : { details }),
-  };
+  });
 }
 
 const state = { id: "app-ui", name: "AppUI" } as const;

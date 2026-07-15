@@ -563,8 +563,8 @@ describe("Run in Game exact authorship evidence identity", () => {
     const args = completeEvidenceArgs();
     const evidence = buildRunInGameExactAuthorshipEvidence({
       ...args,
-      setupSnapshot: setupSnapshot({ mapSeed: 43 }),
-      startMapSummary: mapSummary({ seed: 43 }),
+      lifecycleSetup: { ...args.lifecycleSetup, mapSeed: 43 },
+      lifecycleRuntime: { ...args.lifecycleRuntime, seed: 43 },
       logEvidence: {
         ...args.logEvidence!,
         seed: 43,
@@ -632,11 +632,8 @@ describe("Run in Game exact authorship evidence identity", () => {
     );
   });
 
-  it("uses setup config player count as exact-authorship readback", () => {
-    const evidence = buildRunInGameExactAuthorshipEvidence({
-      ...completeEvidenceArgs(),
-      setupSnapshot: setupSnapshot({ includePlayerCountParameter: false }),
-    });
+  it("uses canonical lifecycle player count as exact-authorship readback", () => {
+    const evidence = buildRunInGameExactAuthorshipEvidence(completeEvidenceArgs());
 
     expect(evidence.status).toBe("complete");
     expect(evidence.civSetup.playerCount).toBe(8);
@@ -685,9 +682,24 @@ function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorship
     generatedSourceScript: fileEvidence("generated/studio-current.ts", "generated-source-hash"),
     localModScript,
     deployedModScript,
-    rowEvidence: { rows: [{ file: mapScript }] },
-    setupSnapshot: setupSnapshot(),
-    startMapSummary: mapSummary(),
+    lifecycleSetup: {
+      mapScript,
+      mapSize: "MAPSIZE_STANDARD",
+      mapSeed: 42,
+      gameSeed: 42,
+      playerCount: 8,
+      targetModId: "mod-swooper-studio-run",
+      mapRowFiles: [mapScript],
+    },
+    lifecycleRuntime: {
+      seed: 42,
+      mapSize: "MAPSIZE_STANDARD",
+      width: 84,
+      height: 54,
+      plotCount: 4536,
+      turn: 1,
+      gameHash: 123456,
+    },
     logEvidence: logEvidence(),
     liveRuntimeSnapshot: {
       snapshotId: "live-runtime:abc",
@@ -724,43 +736,6 @@ function fileEvidence(path: string, sha256: string): RunInGameFileIdentity {
     sizeBytes: 100,
     mtimeMs: 1_780_704_000_000,
     mtimeIso: "2026-06-06T00:00:00.000Z",
-  };
-}
-
-function setupSnapshot(
-  overrides: { mapSeed?: number; includePlayerCountParameter?: boolean } = {}
-): unknown {
-  const parameters = [
-    { id: "Map", exists: true, value: mapScript },
-    { id: "MapSize", exists: true, value: "MAPSIZE_STANDARD" },
-    { id: "MapRandomSeed", exists: true, value: overrides.mapSeed ?? 42 },
-    { id: "GameRandomSeed", exists: true, value: 42 },
-  ];
-  if (overrides.includePlayerCountParameter !== false) {
-    parameters.push({ id: "PlayerCount", exists: true, value: 8 });
-  }
-  return {
-    setup: {
-      parameters,
-    },
-    config: {
-      playerCount: { ok: true, value: 8 },
-    },
-  };
-}
-
-function mapSummary(overrides: { seed?: number } = {}): unknown {
-  return {
-    map: {
-      randomSeed: { ok: true, value: overrides.seed ?? 42 },
-      width: { ok: true, value: 84 },
-      height: { ok: true, value: 54 },
-      plotCount: { ok: true, value: 4536 },
-    },
-    game: {
-      turn: { ok: true, value: 1 },
-      hash: { ok: true, value: 123456 },
-    },
   };
 }
 

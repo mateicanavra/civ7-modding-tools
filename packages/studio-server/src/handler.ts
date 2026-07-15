@@ -1,13 +1,20 @@
 import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "@civ7/control-orpc";
 import type { StudioEffectContract } from "@civ7/studio-contract";
-import { isDefinedError, onError, type Router } from "@orpc/server";
+import {
+  createRouterClient,
+  isDefinedError,
+  isLazy,
+  onError,
+  type Router,
+  type RouterClient,
+} from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import type { StudioServerContext } from "./context.js";
 import type { StudioContract } from "./contract/index.js";
 import { type LiveGameWatcherOptions, StudioLiveGameWatcher } from "./liveGame/watcher.js";
 import { type StudioDaemonIdentity, StudioOperationRuntime } from "./operationRuntime/index.js";
-import { createStudioRouter } from "./router/index.js";
+import { createStudioRouter, type StudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
 import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7TunerSession.js";
 
@@ -53,8 +60,15 @@ export interface StudioRpcHandle {
   readonly operationRuntime: {
     identity(): Promise<StudioDaemonIdentity>;
   };
+  readonly live: StudioLiveRuntimeReader;
   dispose(): Promise<void>;
 }
+
+/** Narrow in-process read surface over the exact Studio router and runtime. */
+export type StudioLiveRuntimeReader = Pick<
+  RouterClient<StudioRouter>["civ7"]["live"],
+  "status" | "snapshot"
+>;
 
 export interface StudioRpcHandlerOptions {
   liveGameWatch?: LiveGameWatcherOptions;
@@ -70,10 +84,11 @@ export function createStudioRpcHandler(
   // contains lazy nodes (no `lazy()` anywhere in the builder), so unwrap the
   // `civ7` node for the spread — the single-mount contract pin exercises both
   // merged halves at runtime.
-  const studioCiv7 = effectRouter.civ7 as Router<
-    StudioEffectContract["civ7"],
-    Record<never, never>
-  >;
+  const studioCiv7Node = effectRouter.civ7;
+  const studioCiv7 = Match.value(studioCiv7Node).pipe(
+    Match.when(isLazy, unexpectedLazyStudioNamespace),
+    Match.orElse((router) => router)
+  );
   // The unified router, typed against the unified contract with the control
   // procedures' initial context. The effect procedures' initial context is
   // `Record<never, never>` — contravariantly assignable (they ignore the
@@ -128,16 +143,20 @@ export function createStudioRpcHandler(
         sessionPromise = undefined;
         throw error;
       }));
+  const controlContext = async (): Promise<Civ7ControlOrpcContext> => ({
+    directControl: context.civ7Control.directControl,
+    // Studio's operation runtime is the sole setup/start admission owner.
+    // The merged router intentionally cannot acquire lifecycle mutation.
+    endpointDefaults: await controlEndpointDefaults(),
+  });
+  const localClient = createRouterClient(router, { context: controlContext });
 
   return {
     handle: async (request, options) => {
       await ensureLiveGameWatcher();
       return handler.handle(request, {
         prefix: options?.prefix ?? "/rpc",
-        context: {
-          directControl: context.civ7Control.directControl,
-          endpointDefaults: await controlEndpointDefaults(),
-        } satisfies Civ7ControlOrpcContext,
+        context: await controlContext(),
       });
     },
     tuner: {
@@ -151,8 +170,18 @@ export function createStudioRpcHandler(
           )
         ),
     },
+    live: {
+      status: (...args) =>
+        ensureLiveGameWatcher().then(() => localClient.civ7.live.status(...args)),
+      snapshot: (...args) =>
+        ensureLiveGameWatcher().then(() => localClient.civ7.live.snapshot(...args)),
+    },
     dispose: async () => {
       await runtime.dispose();
     },
   };
+}
+
+function unexpectedLazyStudioNamespace(): never {
+  throw new Error("The authored Studio router must not contain lazy namespaces");
 }

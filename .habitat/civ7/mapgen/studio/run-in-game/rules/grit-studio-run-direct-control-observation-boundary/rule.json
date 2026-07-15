@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "grit-studio-run-direct-control-observation-boundary",
-  "title": "Grit Studio Run Direct Control Observation Boundary",
+  "title": "Grit Studio Run Lifecycle Observation Boundary",
   "placement": {
     "niche": "civ7/mapgen/studio/run-in-game",
     "blueprint": "_self",
@@ -12,9 +12,9 @@
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "forbids": "Studio Run in Game runtime observation bypassing the observation port, Studio RPC live readback client, or private deployment/correlation evidence boundary",
-  "why": "Packet 12 makes runtime observation one private workflow boundary: after fresh log proof, the workflow asks the host observation port to correlate deployment, setup row, scripting log, and loaded-game readback, while the app observer reads loaded-game state through the Studio RPC live client backed by the direct-control service.",
-  "remediate": "Keep observeRunInGameRuntime as the workflow observation port, delegate app observation to observeRunInGameRuntimeThroughStudioRpc with prepared/deployment/setup/log/correlation inputs, read loaded-game status and snapshot through the Studio RPC live client, and store observation evidence only in private runtime diagnostics.",
+  "forbids": "Studio Run in Game runtime observation bypassing the observation port, canonical lifecycle evidence, the shared in-process Studio live reader, or private deployment/correlation evidence boundary",
+  "why": "Runtime observation is one private workflow boundary: after the package-owned lifecycle start and fresh log proof, the workflow asks the host observation port to correlate deployment, canonical lifecycle setup evidence, scripting-log proof, and loaded-game readback. The app observer reads loaded-game state through a narrow reader over the exact Studio router and shared runtime rather than sending HTTP to its own server.",
+  "remediate": "Keep observeRunInGameRuntime as the workflow observation port, pass prepared/deployment/started/log inputs, derive setup-row evidence from started.evidence.setup, read loaded-game status and snapshot through the shared in-process Studio live reader, and store observation evidence only in private runtime diagnostics.",
   "message": "Studio Run in Game runtime observation boundary drifted.",
   "pathCoverage": [
     {
@@ -24,7 +24,8 @@
         "packages/studio-server/src/ports/workflowTypes.ts",
         "packages/studio-server/src/workflows/RunInGameWorkflow.ts",
         "apps/mapgen-studio/src/server/studio/engines.ts",
-        "apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts"
+        "apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts",
+        "apps/mapgen-studio/src/server/daemon/daemon.ts"
       ]
     },
     {

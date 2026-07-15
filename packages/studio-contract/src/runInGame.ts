@@ -33,7 +33,6 @@ export const RUN_IN_GAME_PHASES = [
   "admitting-config",
   "generating-artifacts",
   "deploying",
-  "preparing-civ7",
   "starting-game",
   "observing-runtime",
   "completed",
@@ -49,7 +48,6 @@ export const runInGamePhase = Type.Union([
   Type.Literal("admitting-config"),
   Type.Literal("generating-artifacts"),
   Type.Literal("deploying"),
-  Type.Literal("preparing-civ7"),
   Type.Literal("starting-game"),
   Type.Literal("observing-runtime"),
   Type.Literal("completed"),
@@ -68,7 +66,6 @@ const runInGameRunningPhase = Type.Union([
   Type.Literal("admitting-config"),
   Type.Literal("generating-artifacts"),
   Type.Literal("deploying"),
-  Type.Literal("preparing-civ7"),
   Type.Literal("starting-game"),
   Type.Literal("observing-runtime"),
 ]);
@@ -137,12 +134,22 @@ export type RunInGameMaterializationStatus = Static<typeof materializationStatus
 export const setupOptionValue = Type.Union([Type.String(), Type.Number(), Type.Boolean()]);
 export type RunInGameSetupOptionValue = Static<typeof setupOptionValue>;
 
+const savedSetupSingleLine = Type.String({
+  minLength: 1,
+  maxLength: 512,
+  pattern: "^(?=.*\\S)[^\\r\\n\\0]+$",
+});
+
 export const savedSetupConfigRef = Type.Object(
   {
-    id: Type.String(),
-    displayName: Type.String(),
-    fileName: Type.String(),
-    path: Type.String(),
+    id: savedSetupSingleLine,
+    displayName: savedSetupSingleLine,
+    fileName: Type.String({
+      minLength: 9,
+      maxLength: 512,
+      pattern: "^[^/\\\\\\r\\n\\0]+\\.[Cc][Ii][Vv]7[Cc][Ff][Gg]$",
+    }),
+    path: savedSetupSingleLine,
   },
   { additionalProperties: false }
 );
@@ -336,10 +343,15 @@ export type RunInGameSetupConfigValidation =
   | Readonly<{
       ok: false;
       message: string;
-      diagnostics: Readonly<{
-        code: "run-in-game-map-script-invalid";
-        field: "setupConfig.mapScript";
-      }>;
+      diagnostics:
+        | Readonly<{
+            code: "run-in-game-map-script-invalid";
+            field: "setupConfig.mapScript";
+          }>
+        | Readonly<{
+            code: "run-in-game-saved-config-invalid";
+            field: "setupConfig.savedConfig";
+          }>;
     }>;
 
 export function normalizeRunInGameSetupConfig(value: unknown): RunInGameSetupConfig {
@@ -362,10 +374,20 @@ export function validateRunInGameSetupConfig(value: unknown): RunInGameSetupConf
     };
   }
   const savedConfig = normalizeSavedConfigRef(value.savedConfig);
+  if (!savedConfig.ok) {
+    return {
+      ok: false,
+      message: "Run in Game setupConfig.savedConfig must identify one Civ7Cfg file.",
+      diagnostics: {
+        code: "run-in-game-saved-config-invalid",
+        field: "setupConfig.savedConfig",
+      },
+    };
+  }
   return {
     ok: true,
     value: snapshotRunInGameSetupConfig({
-      ...(savedConfig === undefined ? {} : { savedConfig }),
+      ...(savedConfig.value === undefined ? {} : { savedConfig: savedConfig.value }),
       ...(mapScript.value === undefined ? {} : { mapScript: mapScript.value }),
       gameOptions: normalizeSetupOptions(value.gameOptions, RUN_IN_GAME_GAME_OPTION_ID_SET),
       playerOptions: normalizePlayerOptions(value.playerOptions),
@@ -384,23 +406,21 @@ function normalizeSetupMapScript(value: unknown): MapScriptNormalization {
   return { ok: true, value };
 }
 
-function normalizeSavedConfigRef(value: unknown): RunInGameSetupConfig["savedConfig"] | undefined {
-  if (!isRecord(value)) return undefined;
-  if (
-    typeof value.id !== "string" ||
-    typeof value.displayName !== "string" ||
-    typeof value.fileName !== "string" ||
-    typeof value.path !== "string" ||
-    value.fileName.length === 0 ||
-    value.path.length === 0
-  ) {
-    return undefined;
-  }
+type SavedConfigNormalization =
+  | Readonly<{ ok: true; value: RunInGameSetupConfig["savedConfig"] | undefined }>
+  | Readonly<{ ok: false }>;
+
+function normalizeSavedConfigRef(value: unknown): SavedConfigNormalization {
+  if (value === undefined) return { ok: true, value: undefined };
+  if (!Value.Check(savedSetupConfigRef, value)) return { ok: false };
   return {
-    id: value.id,
-    displayName: value.displayName,
-    fileName: value.fileName,
-    path: value.path,
+    ok: true,
+    value: {
+      id: value.id,
+      displayName: value.displayName,
+      fileName: value.fileName,
+      path: value.path,
+    },
   };
 }
 
@@ -744,9 +764,10 @@ export const status = oc
 // runInGame.cancel - explicit operation cancellation by requestId.
 // ---------------------------------------------------------------------------
 // HTTP disconnects and browser aborts are transport events, not cancellation.
-// This command is the only public cancellation surface: active operations
-// terminalize as `cancelled`; terminal operations return their existing public
-// status; unknown request ids map to the declared safe not-found error.
+// This command is the only public cancellation surface. Pre-mutation operations
+// terminalize as `cancelled`; once setup/start owns mutation, cancellation returns
+// the existing running status and observation settles it. Terminal operations
+// return their existing public status; unknown ids map to the safe not-found error.
 export const cancel = oc
   .errors(runInGameErrors)
   .input(requestIdInputSchema)

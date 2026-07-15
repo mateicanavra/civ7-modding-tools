@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createStudioRpcHandler } from "@civ7/studio-server";
+import { createStudioRpcHandler, type StudioLiveRuntimeReader } from "@civ7/studio-server";
 
 import { createStudioServerContext } from "../studio/context";
 import { createStudioOperationRuntimePorts } from "../studio/engines";
@@ -171,10 +171,10 @@ export function createStudioDaemonFetch(
 }
 
 export async function createStudioDaemon(args: StudioDaemonArgs) {
-  let selfRpcBaseUrl: string | undefined;
+  let liveRuntimeReader: StudioLiveRuntimeReader | undefined;
   const operationRuntime = createStudioOperationRuntimePorts({
     repoRoot: args.repoRoot,
-    selfRpcUrl: () => selfRpcBaseUrl,
+    liveRuntimeReader: () => liveRuntimeReader,
   });
   const context = createStudioServerContext({
     operationRuntime,
@@ -187,6 +187,7 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
   // polling read multiplexes over that socket instead of opening its own
   // (the churn that wedged the game).
   const studioRpc = createStudioRpcHandler(context, { liveGameWatch: {} });
+  liveRuntimeReader = studioRpc.live;
   const deps: StudioDaemonDeps = {
     studioRpc,
     health: async () => {
@@ -221,7 +222,6 @@ export async function createStudioDaemon(args: StudioDaemonArgs) {
         idleTimeout: 0,
         fetch,
       });
-      selfRpcBaseUrl = `http://${server.hostname}:${server.port}`;
       return server;
     },
   };

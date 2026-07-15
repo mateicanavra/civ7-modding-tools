@@ -37,7 +37,6 @@ const reasonCodeSchema = Type.Union([
   Type.Literal("rollback-failed"),
   Type.Literal("runtime-disposed"),
   Type.Literal("save-failed"),
-  Type.Literal("setup-row-unavailable"),
   Type.Literal("start-failed"),
   Type.Literal("start-game-failed"),
   Type.Literal("status-not-found"),
@@ -173,7 +172,6 @@ const failedOperationDataSchema = Type.Union([
       reason: Type.Union([
         Type.Literal("exact-authorship-mismatch"),
         Type.Literal("log-evidence-missing"),
-        Type.Literal("setup-row-unavailable"),
         Type.Literal("start-game-failed"),
         Type.Literal("timeout-uncertain"),
       ]),

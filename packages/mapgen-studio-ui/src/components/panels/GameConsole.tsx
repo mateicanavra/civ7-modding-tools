@@ -181,6 +181,10 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     runInGameStatus,
     runInGameCurrentRelation
   );
+  const runInGameRetryRefused =
+    (runInGameStatus?.status === "failed" || runInGameStatus?.status === "cancelled") &&
+    runInGameCurrentRelation !== "stale" &&
+    !runInGameStatus.recoveryActions.includes("retry-run");
   const liveSyncAvailable =
     liveRuntime?.status === "ok" &&
     liveGameStudioRelation === "stale" &&
@@ -409,7 +413,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           <TooltipTrigger asChild>
             <Button
               onClick={onRunInGame}
-              disabled={operationControlsDisabled || runInGameDisabled}
+              disabled={operationControlsDisabled || runInGameDisabled || runInGameRetryRefused}
               aria-label={runInGameTitle}
               className={isRunInGameRunning ? "shrink-0 opacity-70 cursor-wait" : "shrink-0"}
             >

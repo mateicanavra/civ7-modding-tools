@@ -53,6 +53,7 @@
     "typebox": "catalog:"
   },
   "devDependencies": {
+    "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
     "@civ7/types": "workspace:*",

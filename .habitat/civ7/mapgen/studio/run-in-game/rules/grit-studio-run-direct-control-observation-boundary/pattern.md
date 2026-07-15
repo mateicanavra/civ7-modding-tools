@@ -1,15 +1,17 @@
 ---
 level: error
 ---
-# Grit Studio Run Direct Control Observation Boundary
+# Grit Studio Run Lifecycle Observation Boundary
 
-Packet 12 makes runtime observation a private Run in Game workflow boundary.
-The workflow collects a fresh scripting-log proof, then asks the host
-observation port to correlate deployment evidence, setup row readback, scripting
-log proof, and loaded-game state. The app implementation reads loaded-game state
-through the Studio RPC live client; the concrete `/rpc` transport prefix remains
-behavior-tested endpoint proof. Runtime bytes, actual Civ7 state, and map
-contents are behavior/live proof, not source-topology assertions.
+Runtime observation is a private Run in Game workflow boundary. The workflow
+starts Civ7 through the package-owned lifecycle, collects fresh scripting-log
+proof, then asks the host observation port to correlate deployment evidence,
+canonical lifecycle setup evidence, and loaded-game state. The app
+implementation reads loaded-game state through a narrow in-process reader over
+the exact Studio router and shared runtime. The concrete `/rpc` transport prefix
+remains behavior-tested external endpoint proof. Runtime
+bytes, actual Civ7 state, and map contents are behavior/live proof, not
+source-topology assertions.
 
 ```grit
 language js(typescript)
@@ -29,7 +31,7 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/ports/RuntimeObservation\.ts$",
-    ! $body <: contains `setup: RunInGameSetupPrepared`
+    ! $body <: contains `started: RunInGameStarted`
   },
   program(statements=$body) where {
     $filename <: r".*packages/studio-server/src/ports/RuntimeObservation\.ts$",
@@ -85,10 +87,6 @@ or {
   },
   `$owner.observeRunInGameRuntime({ $args })` where {
     $filename <: r".*packages/studio-server/src/workflows/RunInGameWorkflow\.ts$",
-    ! $args <: contains `setup`
-  },
-  `$owner.observeRunInGameRuntime({ $args })` where {
-    $filename <: r".*packages/studio-server/src/workflows/RunInGameWorkflow\.ts$",
     ! $args <: contains `started`
   },
   `$owner.observeRunInGameRuntime({ $args })` where {
@@ -101,39 +99,55 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
-    ! $body <: contains `observeRunInGameRuntimeThroughStudioRpc({ $args })`
+    ! $body <: contains `observeRunInGameRuntimeThroughStudioLiveReader({ $args })`
   },
-  `observeRunInGameRuntimeThroughStudioRpc({ $args })` where {
+  `observeRunInGameRuntimeThroughStudioLiveReader({ $args })` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
     ! $args <: contains `prepared`
   },
-  `observeRunInGameRuntimeThroughStudioRpc({ $args })` where {
+  `observeRunInGameRuntimeThroughStudioLiveReader({ $args })` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
     ! $args <: contains `deployment`
   },
-  `observeRunInGameRuntimeThroughStudioRpc({ $args })` where {
+  `observeRunInGameRuntimeThroughStudioLiveReader({ $args })` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
-    ! $args <: contains `setup`
+    ! $args <: contains `started`
   },
-  `observeRunInGameRuntimeThroughStudioRpc({ $args })` where {
+  `observeRunInGameRuntimeThroughStudioLiveReader({ $args })` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
     ! $args <: contains `log`
   },
-  `observeRunInGameRuntimeThroughStudioRpc({ $args })` where {
+  `observeRunInGameRuntimeThroughStudioLiveReader({ $args })` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
-    ! $args <: contains `selfRpcUrl: $value`
+    ! $args <: contains `liveReader: $value`
   },
   program(statements=$body) where {
     $filename <: r".*apps/mapgen-studio/src/server/runInGame/runtimeObservation\.ts$",
-    ! $body <: contains `new RPCLink($args)`
+    $body <: contains `new RPCLink($args)`
   },
   program(statements=$body) where {
     $filename <: r".*apps/mapgen-studio/src/server/runInGame/runtimeObservation\.ts$",
-    ! $body <: contains `$client.civ7.live.status($args)`
+    $body <: contains `createORPCClient($args)`
   },
   program(statements=$body) where {
     $filename <: r".*apps/mapgen-studio/src/server/runInGame/runtimeObservation\.ts$",
-    ! $body <: contains `$client.civ7.live.snapshot($args)`
+    ! $body <: contains `$reader.status($args)`
+  },
+  program(statements=$body) where {
+    $filename <: r".*apps/mapgen-studio/src/server/runInGame/runtimeObservation\.ts$",
+    ! $body <: contains `$reader.snapshot($args)`
+  },
+  program(statements=$body) where {
+    $filename <: r".*apps/mapgen-studio/src/server/daemon/daemon\.ts$",
+    ! $body <: contains `liveRuntimeReader = studioRpc.live`
+  },
+  `assertSetupRowReadbackMatches({ $args })` where {
+    $filename <: r".*apps/mapgen-studio/src/server/runInGame/runtimeObservation\.ts$",
+    ! $args <: contains `mapRowFiles: args.started.evidence.setup.mapRowFiles`
+  },
+  `setupRow: { $fields }` where {
+    $filename <: r".*apps/mapgen-studio/src/server/runInGame/runtimeObservation\.ts$",
+    ! $fields <: contains `mapRowFiles: args.started.evidence.setup.mapRowFiles`
   },
   `import $imports from "@civ7/direct-control"` where {
     $filename <: r".*apps/mapgen-studio/src/server/runInGame/runtimeObservation\.ts$"
@@ -157,7 +171,7 @@ export type RuntimeObservation = Readonly<{
 
 // @filename: apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts
 import { getCiv7PlayableStatus } from "@civ7/direct-control";
-export async function observeRunInGameRuntimeThroughStudioRpc(args) {
+export async function observeRunInGameRuntimeThroughStudioLiveReader(args) {
   return getCiv7PlayableStatus();
 }
 ```
@@ -171,7 +185,6 @@ export type RuntimeObservation = Readonly<{
     args: Readonly<{
       prepared: RunInGamePreparedRequest;
       deployment: RunInGameDeployment;
-      setup: RunInGameSetupPrepared;
       started: RunInGameStarted;
       log: RunInGameLogEvidence;
     }>
@@ -188,22 +201,33 @@ export type RunInGameRuntimeObservation = Readonly<{
   loadedGame: LoadedGameReadback;
 }>;
 
-await ports.observeRunInGameRuntime({ prepared, deployment, setup, started, log });
+await ports.observeRunInGameRuntime({ prepared, deployment, started, log });
 
 // @filename: apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts
-await observeRunInGameRuntimeThroughStudioRpc({
+await observeRunInGameRuntimeThroughStudioLiveReader({
   prepared,
   deployment,
-  setup,
+  started,
   log,
-  selfRpcUrl: baseUrl,
+  liveReader,
 });
-export async function observeRunInGameRuntimeThroughStudioRpc(args) {
-  const liveClient = createORPCClient(
-    new RPCLink({ url: `${baseUrl.replace(/\/$/, "")}/rpc` })
-  );
-  await liveClient.civ7.live.status({}, { signal: args.signal });
-  await liveClient.civ7.live.snapshot({ width: 84, height: 54, maxPlots: 512 }, { signal: args.signal });
-  return { deploymentEvidence, scriptingLog, setupRow, loadedGame };
+export async function observeRunInGameRuntimeThroughStudioLiveReader(args) {
+  assertSetupRowReadbackMatches({
+    mapRowFiles: args.started.evidence.setup.mapRowFiles,
+  });
+  await args.liveReader.status({}, { signal: args.signal });
+  await args.liveReader.snapshot({ width: 84, height: 54, maxPlots: 512 }, { signal: args.signal });
+  return {
+    deploymentEvidence,
+    scriptingLog,
+    setupRow: {
+      mapRowFiles: args.started.evidence.setup.mapRowFiles,
+    },
+    loadedGame,
+  };
 }
+
+// @filename: apps/mapgen-studio/src/server/daemon/daemon.ts
+const studioRpc = createStudioRpcHandler(context, { liveGameWatch: {} });
+liveRuntimeReader = studioRpc.live;
 ```
