@@ -2,120 +2,87 @@
 
 ## Why
 
-The remediation is not complete until the actual user path succeeds: rendered
-Studio page, visible Run in Game click, saved Test of Time config with basic
-mods, Huge map, 10 players, generated setup row, started Civ7 game, and
-post-start readback for the generated content.
+The initiative closes on the real product path: a visible Studio Run in Game
+click carries one complete canonical config through generation, deployment,
+Civ7 setup/start, and request-correlated loaded-game observation.
 
-This packet owns the final live matrix and retained evidence chain after the
-prior remediation packets have repaired the inputs and runtime boundary.
+P19 and P20 established the stable generated mod and saved-config lifecycle.
+P21 owns the final three-row acceptance matrix after A.2 and A.3 reconverge on
+one frozen runtime-relevant tree.
 
 ## Authority
 
-- Direct user guidance requiring saved Test of Time basic-mods config, Huge map,
-  10 players, Swooper Earthlike, Latest Juicy, and Desert Mountains.
-- `real-user-path-remediation-proposal.md` required live scenario matrix.
-- `target-vocabulary.md` live verification contract.
-- `packet-authoring-contract.md` declared gate and review-lane rules.
-- All prior remediation packets in
-  `real-user-path-remediation-packet-index.md`.
+- The current `@civ7/studio-contract` Run in Game schema owns public input,
+  phases, status, and safe failure categories.
+- The parsed generation manifest owns request, artifact, canonical-config,
+  launch-envelope, and manifest identity; `RunCorrelation` is its derived
+  comparison contract.
+- `target-vocabulary.md` owns the accepted P21 rows and evidence class.
+- Existing behavior tests own controlled failure, recovery, freshness, and
+  redaction cases.
+
+## Required Live Rows
+
+Each row uses `ToT_BasicModsEnabled.Civ7Cfg`, seed `1538316415`,
+`MAPSIZE_HUGE`, 10 players, and balanced resources:
+
+1. `swooper-earthlike`
+2. `latest-juicy`
+3. `swooper-desert-mountains`
+
+Rows originate from the rendered control, run serially, and use the existing
+Studio operation and diagnostics records. They do not require a new harness.
 
 ## Requires
 
-- `foundation-orogeny-public-config-surface`.
-- `studio-run-terminal-adoption-invariant`.
-- `studio-run-browser-originated-contract`.
-- `studio-run-setup-failure-taxonomy`.
-- `studio-run-generated-map-mod-visibility`.
-- `studio-run-saved-config-modset-reconciliation`.
-- Running Studio server and reachable Civ7/direct-control environment.
+- P19 generated-map-mod visibility: closed.
+- P20 saved-config reconciliation: closed.
+- A.2 domain-operation work integrated.
+- A.3 static ownership closed for the integrated tree.
+- One frozen runtime-relevant Graphite tree and reachable Studio/Civ7 runtime.
 
-## Enables Parallel Work
+## Scope
 
-- None. This is the closure packet for the remediation train.
+- Correct P21 authority to the complete canonical-config boundary.
+- Require the stable `maps/studio-run.js` setup row while retaining
+  `runArtifactId` only as correlation identity.
+- Separate the three live success rows from deterministic behavior gates.
+- Retain exact public/private, generation/deployment, setup, runtime, and process
+  correlation for each live row.
+- Require recipe-owned nondegenerate/playability proof and stable Studio daemon
+  identity without adding another live mutation.
 
-## Affected Owners
+## Exclusions
 
-- live browser-originated harness
-- workstream evidence records
-- public `/rpc` endpoint checks
-- Civ7 direct-control and public live snapshot/status surfaces
-- final OpenSpec/Habitat/reviewer closure gates
-
-## Forbidden Owners
-
-- Endpoint-only rows as substitutes for browser-originated starts.
-- Handler-direct or fixture-only checks as closure evidence.
-- Runtime redesign hidden inside final matrix execution.
-- Public evidence records that expose private diagnostics or local paths.
-
-## Write Set
-
-Likely write set:
-
-- existing live harness/evidence utilities
-- `openspec/changes/studio-run-real-user-matrix-closure/workstream/**`
-- target vocabulary or packet index only if review discovers a legitimate
-  source-backed correction
+- Catalog or Editor launch-source variants.
+- Request-specific map script filenames.
+- Live failure injection, cancellation, ownership conflict, or repeat-run
+  ceremony.
+- Independent Tuner probes, automatic mutation replay, whole-app restart during
+  a normal row, or a new evidence framework.
+- Runtime redesign inside matrix execution.
 
 ## Consumer Impact
 
-This packet determines whether the user-facing Run in Game remediation is
-closed-passed or remains open. It records the durable chain needed for another
-operator to diagnose any failed row without leaking private detail into public
-UI state.
+P21 decides whether the rendered Run in Game product is closed. Endpoint-only
+starts, mocked transports, generated files alone, screenshots alone, or direct
+Tuner reads cannot substitute for the rendered-to-in-game chain.
 
 ## Stop Conditions
 
-- Any required scenario fails or remains unrun.
-- Civ7 or Studio endpoint runtime is unavailable.
-- Public status, diagnostics lookup, generated/deployed identity, setup row,
-  and post-start in-game readback cannot be connected for the same request id.
-- Any required review lane is incomplete or has undispositioned material
-  findings.
-
-## Before And After
-
-Before:
-
-- endpoint-originated rows exist, but not the required rendered-button matrix;
-- setup row readback and in-game readback are not retained as one chain for the
-  user's realistic scenario;
-- Swooper Earthlike, Latest Juicy, and Desert Mountains are not all closed
-  through the visible Studio path.
-
-After:
-
-- each required scenario has a retained browser-originated evidence row;
-- request id, diagnostics id, generated artifact id, deployment snapshot,
-  setup row readback, terminal public status, and in-game readback match;
-- the initiative can be closed only if all gates and reviewer lanes are green.
-
-## Behavior Verification
-
-The packet runs the final live matrix. It may add harness refinements needed to
-make the matrix repeatable, but it does not implement new runtime fixes unless
-the packet is re-scoped and reviewed.
-
-## Structural Enforcement
-
-Permanent positive assertion:
-
-- final closure evidence is browser-originated and in-game observed; endpoint
-  rows alone do not satisfy the final matrix.
-
-This is primarily an evidence contract and live gate. Do not add brittle code
-shape assertions for individual harness lines.
+- A.2/A.3 have not reconverged on the candidate tree.
+- A required config cannot complete through the rendered control.
+- Public status and explicit diagnostics cannot be tied to one request.
+- Stable setup-row, generated/deployed, log, or loaded-game evidence disagrees.
+- Civ7 process identity changes during an ordinary row.
+- A material reviewer finding remains open.
 
 ## Verification Gates
 
-- `bun run openspec -- validate studio-run-real-user-matrix-closure --strict`.
-- `bun run openspec:validate`.
-- `bun habitat classify` for the packet write set and every reported command.
-- `nx run mapgen-studio:test`.
-- contract/server/app/UI checks reported by Habitat and relevant Nx targets.
-- Live rendered-button matrix for Swooper Earthlike, Latest Juicy, and Swooper
-  Desert Mountains with `ToT_BasicModsEnabled.Civ7Cfg`, Huge map, 10 players,
-  balanced resources, and seed `1538316415`.
-- TypeScript refactoring, code quality/structure, library correctness,
-  testing-design, and Habitat/authority review lanes.
+- Strict P21 and full OpenSpec validation.
+- One Nx-owned check/test/build graph for the integrated product owners.
+- Habitat boundaries and current policy gates.
+- Existing deterministic recovery/failure/freshness/redaction tests.
+- Three serial rendered+Civ7 rows at the frozen runtime-relevant tree.
+- Fresh TypeScript/state-space, architecture/authority, and
+  product/runtime/library review roles.

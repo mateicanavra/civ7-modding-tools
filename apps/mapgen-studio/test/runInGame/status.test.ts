@@ -29,9 +29,6 @@ describe("Run in Game status helpers", () => {
       status: "failed",
       safeFailureCategory: "runtime-control",
       recoveryActions: ["restart-civ-process-and-retry", "copy-diagnostics"],
-      createdAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      terminalAt: "2026-06-01T00:00:01.000Z",
     };
 
     expect(runInGamePrimaryActionLabel(status, "current")).toBe("Run Unavailable");

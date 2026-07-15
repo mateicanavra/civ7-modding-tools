@@ -12,11 +12,16 @@ import {
   typeboxOutputSchemaFromContractProcedure,
   verificationFailed,
 } from "@civ7/studio-contract";
-import { canonicalValueDigest, readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
+import {
+  canonicalValueDigest,
+  readStudioRunGenerationManifest,
+  type StudioRunGenerationManifest,
+  type StudioRunGenerationManifestReference,
+} from "@civ7/studio-run-workspace";
 import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import type { StudioInputs } from "../src/context";
 import {
   makeStudioOperationRuntimeLayer,
@@ -2251,24 +2256,65 @@ describe("StudioOperationRuntime", () => {
     expectTypeboxValid(studioEventSchema, terminalEvent);
   });
 
-  test("blocks a second Run in Game while the runtime ownership lease is held", async () => {
+  test("keeps one runtime lease and gives sequential same-content runs fresh identity", async () => {
     const events: StudioEvent[] = [];
     const blocker = deferred<void>();
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-sequential-freshness-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const input = runInGameInput({ resources: "balanced" });
+    const generations: Array<
+      Readonly<{
+        reference: StudioRunGenerationManifestReference;
+        manifest: StudioRunGenerationManifest;
+        generatedModRoot: string;
+      }>
+    > = [];
+    const deployments: Array<Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>> =
+      [];
+    const startSinglePlayer = vi.fn<Civ7WorkflowControlApi["startSinglePlayer"]>(() =>
+      Effect.succeed(lifecycleStarted())
+    );
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        generateRunInGameMod: async ({ generationManifest }) => {
+          const manifest = await readStudioRunGenerationManifest(generationManifest.path);
+          const generatedModRoot = resolve(
+            dirname(generationManifest.path),
+            manifest.payload.workspace.generatedModRoot
+          );
+          generations.push({ reference: generationManifest, manifest, generatedModRoot });
+          const generated = generatedRunInGameMod();
+          return {
+            ...generated,
+            materialization: {
+              ...generated.materialization,
+              canonicalConfigDigest: manifest.payload.canonicalConfigDigest,
+              launchEnvelopeDigest: manifest.payload.launchEnvelopeDigest,
+              generationManifestDigest: manifest.generationManifestDigest,
+              runArtifactId: manifest.payload.runArtifactId,
+              generatedModRoot,
+              generatedModDigest: "sha256-same-content-generated-mod",
+            },
+          };
+        },
         deployRunInGame: async ({ requestId, generatedMod }) => {
           await blocker.promise;
-          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
+          const deployment = runInGameDeployment({
+            requestId,
+            materialization: generatedMod.materialization,
+          });
+          deployments.push(deployment);
+          return deployment;
         },
       },
+      civ7: { startSinglePlayer },
     });
 
     const service = await runtime.runPromise(StudioOperationRuntime);
-    const first = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-    await expect(
-      expectFailure(runtime, service.runInGameStart(runInGameInput()))
-    ).resolves.toMatchObject({
+    const first = await runtime.runPromise(service.runInGameStart(input));
+    await expect(expectFailure(runtime, service.runInGameStart(input))).resolves.toMatchObject({
       tag: "OperationBlocked",
       activeRequestId: first.requestId,
     });
@@ -2286,9 +2332,114 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe(true);
 
-    const repeatAfterComplete = await startRunInGameWhenLeaseReleased(runtime, service);
-    expect(repeatAfterComplete.requestId).not.toBe(first.requestId);
-    expect(repeatAfterComplete).toMatchObject({ status: "running" });
+    const repeat = await startRunInGameWhenLeaseReleased(runtime, service, input);
+    expect(repeat.requestId).not.toBe(first.requestId);
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: repeat.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
+
+    expect(generations).toHaveLength(2);
+    expect(deployments).toHaveLength(2);
+    expect(startSinglePlayer.mock.calls.map(([{ requestId }]) => requestId)).toEqual([
+      first.requestId,
+      repeat.requestId,
+    ]);
+    const [firstGeneration, repeatGeneration] = generations;
+    const [firstDeployment, repeatDeployment] = deployments;
+    if (!firstGeneration || !repeatGeneration || !firstDeployment || !repeatDeployment) {
+      throw new Error("Expected two complete same-content Run in Game observations");
+    }
+
+    for (const [accepted, generation, deployment] of [
+      [first, firstGeneration, firstDeployment],
+      [repeat, repeatGeneration, repeatDeployment],
+    ] as const) {
+      expect(generation.reference.path).toBe(
+        resolve(workspaceRoot, accepted.requestId, "generation-manifest.json")
+      );
+      expect(generation.manifest.payload).toMatchObject({
+        requestId: accepted.requestId,
+        workspace: {
+          requestRoot: `.mapgen-studio/run-in-game/${accepted.requestId}`,
+          generationManifestPath: "generation-manifest.json",
+          generatedModRoot: "generated-mod",
+        },
+        launchEnvelope: { worldSettings: { resources: "balanced" } },
+      });
+      expect(generation.generatedModRoot).toBe(
+        resolve(workspaceRoot, accepted.requestId, "generated-mod")
+      );
+      expect(generation.reference).toMatchObject({
+        generationManifestDigest: generation.manifest.generationManifestDigest,
+        runArtifactId: generation.manifest.payload.runArtifactId,
+        correlation: {
+          requestId: accepted.requestId,
+          runArtifactId: generation.manifest.payload.runArtifactId,
+          canonicalConfigDigest: generation.manifest.payload.canonicalConfigDigest,
+          launchEnvelopeDigest: generation.manifest.payload.launchEnvelopeDigest,
+          generationManifestDigest: generation.manifest.generationManifestDigest,
+        },
+      });
+      expect(generation.manifest.payload.launchEnvelopeDigest).toBe(
+        canonicalValueDigest(generation.manifest.payload.launchEnvelope)
+      );
+      expect(deployment).toMatchObject({
+        runDeployment: {
+          requestId: accepted.requestId,
+          deployedModId: "mod-swooper-studio-run",
+          generatedModRoot: generation.generatedModRoot,
+          targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+        },
+        deployedSnapshot: {
+          requestId: accepted.requestId,
+          deployedModId: "mod-swooper-studio-run",
+          targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+        },
+      });
+      const privateOperation = await readPrivateRunOperation(
+        runtime,
+        service,
+        accepted.diagnosticsId
+      );
+      expect(privateOperation).toMatchObject({
+        request: {
+          resources: "balanced",
+          launchEnvelopeDigest: generation.manifest.payload.launchEnvelopeDigest,
+        },
+        generationManifest: {
+          path: generation.reference.path,
+          generationManifestDigest: generation.manifest.generationManifestDigest,
+          runArtifactId: generation.manifest.payload.runArtifactId,
+        },
+        deploymentEvidence: {
+          runDeployment: { requestId: accepted.requestId },
+          deployedSnapshot: { requestId: accepted.requestId },
+        },
+      });
+    }
+
+    expect(firstGeneration.reference.path).not.toBe(repeatGeneration.reference.path);
+    expect(firstGeneration.manifest.payload.workspace.requestRoot).not.toBe(
+      repeatGeneration.manifest.payload.workspace.requestRoot
+    );
+    expect(firstGeneration.generatedModRoot).not.toBe(repeatGeneration.generatedModRoot);
+    expect(firstGeneration.manifest.payload.runArtifactId).not.toBe(
+      repeatGeneration.manifest.payload.runArtifactId
+    );
+    expect(firstGeneration.manifest.generationManifestDigest).not.toBe(
+      repeatGeneration.manifest.generationManifestDigest
+    );
+    expect(firstGeneration.manifest.payload.canonicalConfigDigest).toBe(
+      repeatGeneration.manifest.payload.canonicalConfigDigest
+    );
+    expect(firstGeneration.manifest.payload.launchEnvelopeDigest).toBe(
+      repeatGeneration.manifest.payload.launchEnvelopeDigest
+    );
   });
 
   test("starts a fresh same-content request after a failed terminal record", async () => {
@@ -4675,13 +4826,14 @@ async function readPublicRunStatusWithDiagnostics(
 
 async function startRunInGameWhenLeaseReleased(
   runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
-  service: StudioOperationRuntimeApi
+  service: StudioOperationRuntimeApi,
+  input: StudioInputs["runInGame"]["start"] = runInGameInput()
 ) {
   const deadline = Date.now() + 2_000;
   let lastError: unknown;
   do {
     try {
-      return await runtime.runPromise(service.runInGameStart(runInGameInput()));
+      return await runtime.runPromise(service.runInGameStart(input));
     } catch (err) {
       lastError = err;
       if (!String(err).includes("studio-runtime-ownership-lease-held")) throw err;

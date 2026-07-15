@@ -1,7 +1,7 @@
 # Verification Ledger
 
-Status: A.2 split base sealed; sibling creation next; A.2 implementation not
-begun; no product closure claim
+Status: P21 authority ready; deterministic proof repair next; A.2 sibling
+untouched; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -11,37 +11,29 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-14 EDT
-- Current phase: `a2-sibling-split`
-- Ratcheted foundation: current code, Habitat capabilities, RuleFixPreview, Nx
-  output ownership, R2/R4 authority, deterministic Grit failure selection, the
-  native Nx workspace graph, toolchain bedrock, lintEffect warning normalization,
-  and SA-14 graph ownership are sealed Graphite layers.
-- Current gate: final review passed and the exact split base is sealed.
-  One native Nx graph covered all 121 active
-  authorities: 119 local-runner rules in ten owner batches plus the exact
-  hygiene and boundaries leaves. Three executed enforced rules remain red with
-  five product diagnostics: Studio launch-source ownership, Studio operation
-  identity, and the Swooper run-manifest generator boundary. The docs portability
-  rule has one advisory finding; every other local rule and both graph leaves
-  passed. No selector, dependency, execution, or provider refusal occurred.
-  A.2 Authority, a live violation JSONL corpus, and domain source migration are
-  out of scope.
-- Cache integrity: every source-executed Habitat target now hashes the single Nx
-  `habitatRuntime` named input regardless of product owner. A current artifact
-  rule run populated and then replayed the same passing result from cache; the
-  prior 64 ms artifact result was stale cache evidence, not a Grit race.
-- Next action: create ordinary sibling Graphite children for A.2 and the
-  independent continuation.
-  Keep them parallel unless a real dependency requires moving the continuation's
-  first unique branch above the completed A.2 tip.
+- Last updated: 2026-07-15 EDT
+- Current phase: `p21-authority-ready`
+- Ratcheted foundation: the split base, native Nx/toolchain layers, G.1/G.2,
+  RuleFixPreview, A.3a, A.4, control-oRPC lifecycle and Studio adoption, Tuner
+  session/admission repair, P19 generated-mod visibility, and P20 saved-config
+  reconciliation are sealed Graphite layers.
+- Current gate: P21's corrected fixed three-row authority, deterministic owner
+  map, and single final-tree invalidation law passed fresh TypeScript,
+  architecture, and product review with zero P0-P3. Strict and full OpenSpec
+  validation pass all 370 items. Schema-valid adoption fixtures and sequential
+  same-content freshness/resources proof remain explicit deterministic work
+  before runtime readiness; no extra Civ7 row is admitted.
+- Next action: land that bounded deterministic proof repair before
+  source-independent A.3 static coverage. Keep the untouched A.2 sibling
+  parallel until code proves a dependency.
 - Graphite law: preserve coherent layers. No returned-stack protocol,
   replacement stack, full replay, or wholesale recut. Native Graphite operations
   handle only concrete branch dependencies.
 - A.2 owner after the split: the user's A.2 orchestrator owns Authority, the
   advisory census and deterministic classification, and six domain migrations.
   This DRA owns the independent closeout track and final product closure.
-- Blocked by: nothing external.
+- Blocked by: nothing external for the current authority/proof work; final live
+  execution waits for A.2/A.3 reconvergence and the frozen runtime tree.
 - Product state: the complete rendered browser/endpoint/Civ7 matrix remains
   open, so no product closure is claimed.
 
@@ -307,10 +299,10 @@ prerequisite without admitting dependent authority mutation.
 | 2 Semantic product tree | active; A.2 split base sealed and product semantic closure continues | no known accepted product defect or undecided semantic row at the product tree |
 | 3 Current-stack inspection | not started | coherent layers preserved; real dependencies identified |
 | 4 Targeted Graphite normalization | not started; may be unnecessary | only concretely required moves, splits, folds, or restacks complete |
-| 5 Change-unit closure | not started | P01-P20/tooling branches closed and P21 `runtime-ready` |
-| 6 Preliminary runtime | not started | P21 pre-archive full browser/Civ7 matrix green, reviewed, and closed |
-| 7 Record/archive | not started | packet/spec/archive state reconciled |
-| 8 Final runtime/merge | not started | post-archive full matrix green; accepted branches merged; current stack terminal |
+| 5 Change-unit closure | not started | P01-P20/tooling branches closed and P21 `authority-ready` |
+| 6 Integrated readiness | not started | A.2/A.3 reconverged, deterministic gates green, P21 runtime-ready |
+| 7 Record/archive | not started | completed packet/spec/archive state reconciled; P21 remains active |
+| 8 Final runtime/merge | not started | one final three-row P21 matrix green; accepted branches merged; current stack terminal |
 | 9 Habitat return | not started | closeout records current and zero-context continuation usable |
 
 ## Opening Verification Facts
@@ -322,7 +314,7 @@ prerequisite without admitting dependent authority mutation.
 | OpenSpec full validation | opening head | 371 passed, 0 failed during read-only corpus audit | artifact syntax/consistency only | rerun after planning edits and at every affected stage |
 | `git diff --check main..HEAD` | opening committed stack | failed | whitespace integrity only | disposition P10 retained logs and three baseline/spec EOF issues |
 | Package tests | opening planning pass | not run | no behavior claim | execute by packet and integrated gates |
-| Rendered browser/Civ7 matrix | opening planning pass | not validly closed | no product closure claim | run Stage 6 preliminary matrix and complete Stage 8 final matrix |
+| Rendered browser/Civ7 matrix | opening planning pass | not validly closed | no product closure claim | use P19/P20 as preliminary support; run P21's three rows once at Stage 8 final freeze |
 
 The opening `git diff --check` failures are concentrated in:
 
@@ -367,17 +359,17 @@ when late changes invalidated their evidence.
 
 | Evidence family | Opening issue | Current status | Re-entry gate |
 | --- | --- | --- | --- |
-| Original 14-packet live matrix | endpoint-centered and predates rendered-user failure | historical | branch-local review plus Stage 6 matrix |
-| P16 terminal adoption | predates late `6b6946fe10` adoption changes | invalidated for final head | focused tests, live reload/reconnect row, reviewers |
+| Original 14-packet live matrix | endpoint-centered and predates rendered-user failure | historical | branch-local review plus the three final Stage 8 rows |
+| P16 terminal adoption | predates late `6b6946fe10` adoption changes | invalidated for final head | focused terminal-adoption/reconnect tests and reviewers |
 | P17 browser admission | predates late config/request construction changes | invalidated for final head | rendered request capture and current-head public surface checks |
-| P18 setup taxonomy | predates late direct-control/setup changes | invalidated for final head | current setup behavior tests and live failure row |
+| P18 setup taxonomy | predates late direct-control/setup changes | invalidated for final head | current setup behavior tests and reviewers |
 | P20 July 9 runs | wrong declared seeds, endpoint provenance, local path retention, incomplete diagnostics | investigation-only | exact declared rendered rows |
-| P21 | no completed rows | absent | every packet-declared success/failure/recovery row |
+| P21 | no completed rows | absent | three final rendered success rows plus the mapped deterministic behavior owners |
 | Screenshots | supporting visual records | supporting only | never substitute for endpoint/setup/in-game evidence |
 | Fake direct-control tests | controlled behavior | behavior only | never substitute for live Studio/Civ7 |
 | Config-envelope cutover | changes config, source, manifest, persistence, status, diagnostics, and runtime identity contracts at `3f5ed12e8` | prior evidence for affected P01-P02 and P04-P20 surfaces is stale or invalidated | current-tree behavior/endpoint/browser/setup/in-game gates by affected packet |
 | Manifest parity replay | behavior tests passed at `b2367c50d`; no live final-surface comparison ran | bounded implementation evidence only | exact retained-manifest replay against the request-correlated live Civ7 run |
-| P21 after post-planning commits | no completed current-tree rows | absent | every declared success, failure, recovery, and freshness row at the frozen final tree |
+| P21 after post-planning commits | no completed current-tree rows | absent | three final rendered success rows and mapped deterministic owner tests at the frozen final tree |
 
 ## Required Review Register
 
@@ -407,29 +399,32 @@ Finding fields:
 
 No accepted P1/P2 may remain when its dependent gate closes.
 
-## Stage And Unit Gate Register
+## Historical Stage And Unit Gate Snapshot
 
-Detailed attempts live in `gate-register.jsonl`. This section indexes aggregate
-closure only; it never replaces the row-level command, preconditions, result,
-artifact, oracle, verdict, invalidation, and rerun records required by the
-workstream contract.
+`gate-register.jsonl` preserves prior detailed attempts and is reference only.
+Current gate evidence lives in the owning packet or semantic-unit record; the
+concise Live Control State and PR/Graphite facts carry only what affects the next
+action. This table indexes aggregate closure without reactivating the JSONL as a
+progress runtime.
 
 | Scope | Expected gate set | Current state | Row home |
 | --- | --- | --- | --- |
-| Planning document | classify-reported docs checks, OpenSpec validation, review lanes, clean Graphite commit | passed at the historical planning tree; topology receipt superseded by the recorded restack | `gate-register.jsonl` plus planning wave packets |
+| Planning document | classify-reported docs checks, OpenSpec validation, review lanes, clean Graphite commit | passed at the historical planning tree; topology receipt superseded by the recorded restack | historical planning records |
 | Stages 0-4 | historical recovery, semantic closure, and any concrete Graphite normalization | Stage 0 recovery closed; Stage 2 continues from the sealed split base; Stages 3-4 remain unnecessary unless a dependency earns them | existing records and native Graphite state |
-| Stage 5 packets | every packet-declared and classify-reported gate | not-run | packet evidence plus typed `gate-register.jsonl` cross-links |
-| Stage 5 cross-cutting units | Effect, config authority, lifecycle, daemon, transition/records | not-run | `gate-register.jsonl` |
-| Stages 6 and 8 | static, endpoint, browser, setup, in-game, review, and cleanup gates per checkpoint | not-run | `gate-register.jsonl` plus immutable runtime evidence |
-| Stages 7 and 9 | archive/promotion and final handoff/merge predicate gates | not-run | `gate-register.jsonl` plus PR/Graphite records |
+| Stage 5 packets | P01-P20 declared/classify-reported gates; P21 authority contract and fresh reviews only | not-run | owning packet evidence |
+| Stage 5 cross-cutting units | Effect, config authority, lifecycle, daemon, transition/records | not-run | owning semantic-unit records |
+| Stages 6 and 8 | Stage 6 deterministic readiness; Stage 8 final browser/setup/in-game rows and review | not-run | owning packet evidence plus existing operation/diagnostics artifacts |
+| Stages 7 and 9 | archive/promotion and final handoff/merge predicate gates | not-run | owning records plus PR/Graphite facts |
 
 A scope cannot promote while a declared gate lacks a row, is skipped, failed,
 stale, invalidated, or environment-unavailable. `not-applicable` closes only
 with a cited authority decision.
 
-## Cleanup Register
+## Historical Cleanup Snapshot
 
-Detailed resource rows live in `cleanup-register.jsonl`.
+`cleanup-register.jsonl` preserves earlier resource observations and is not a
+current queue. New cleanup facts belong to the owning unit or concise Live
+Control State when they affect the next action.
 
 | Resource class | Opening state | Terminal requirement |
 | --- | --- | --- |
@@ -457,55 +452,30 @@ database.
 | nine built-in configs | Packet A receipts, recipe-owned schemas/defaults, and config tests | complete-config admission locally closed-passed; final runtime evidence open | every config passes the shared boundary with no proxy, migration, or config-specific exception |
 | Effect diagnostics | `TOOL-EFFECT` source accounting and native Biome output | independent corpus open | every in-scope diagnostic dispositioned without hiding or elaborating disposable topology |
 | touched Habitat rules | authority manifests, cleanup rows, rule fixtures, and native Habitat output | per-unit; provider and A.2 rows open | every retained/retired rule has one authority owner and complete lifecycle evidence |
-| packet obligations | P01-P21 task/evidence records plus this ledger | P01-P18 historically checked with reopenings; P19 closed; P20-P21 open | every declared gate has current evidence at the required proof class |
+| packet obligations | P01-P21 task/evidence records plus this ledger | P01-P18 historically checked; P19-P20 closed; P21 authority corrected with final live rows open | every declared gate has current evidence at the required proof class |
 | control inputs | current frame/workstream plus historical opening-stack, gate, cleanup, and wave records | current through the sealed split base | current semantic claims agree before the dependent slice closes |
 
 ## Runtime Matrix Register
 
-The rows below are the planned Stage 1 amendment payload. Current P21 and
-`target-vocabulary.md` remain controlling until Stage 1 amends and validates
-them; no planned row is executable authority yet. Stage 1 replaces each
-`planned` owner with an exact accepted packet/spec anchor.
+`@civ7/studio-contract` owns public operation states,
+`@civ7/studio-run-workspace` owns the parsed manifest and derived
+`RunCorrelation` contract, and
+`target-vocabulary.md` defines the three accepted row shapes and evidence class.
+P21 owns their execution and retained results. P19 and P20 are preliminary
+support; they do not create a second mutable checkpoint.
 
-The aggregate register indexes checkpoint-specific attempts. It does not store
-one mutable state for both runs and does not replace packet or runtime evidence.
+| Row id | Authority | Final runtime state |
+| --- | --- | --- |
+| `success-earthlike` | P21 fixed tuple | pending A.2/A.3 and runtime freeze |
+| `success-latest-juicy` | P21 fixed tuple | pending A.2/A.3 and runtime freeze |
+| `success-desert-mountains` | P21 fixed tuple | pending A.2/A.3 and runtime freeze |
 
-| Row id | Authority state | Stage 6 preliminary | Stage 8 final freeze |
-| --- | --- | --- | --- |
-| `success-earthlike` | planned P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `success-latest-juicy` | planned P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `success-desert-mountains` | planned P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `repeat-freshness` | planned target-vocabulary/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `distinct-input` | planned target-vocabulary/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `editor-source` | planned decision plus P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `validation-failure` | planned target-vocabulary/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `ownership-conflict` | planned target-vocabulary/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `cancellation` | planned target-vocabulary/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `terminal-recovery` | planned remediation/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `generated-row-missing` | planned remediation/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `saved-config-mismatch` | planned remediation/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `save-deploy-status` | planned target-vocabulary/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-| `live-status-snapshot` | planned target-vocabulary/P21 amendment | pending attempt/evidence | pending attempt/evidence |
-
-For each checkpoint and row, the register materializes `checkpoint_id`,
-`row_id`, `attempt_id`, exact accepted authority anchor, state, source tree,
-runtime/environment fingerprints, immutable evidence path, gate-attempt ids,
-accepted-attempt id, and invalidation reason. Failed attempts remain linked.
-Stage 6 writes under
-`evidence/runtime/preliminary/<row-id>/<attempt-id>.md`; Stage 8 writes under
-`evidence/runtime/final-freeze/<row-id>/<attempt-id>.md`. Neither checkpoint nor
-later attempts overwrite another record.
-
-Matrix checkpoint promotion:
-
-| Checkpoint | State | Tree binding | Evidence home | Promotion rule |
-| --- | --- | --- | --- | --- |
-| Stage 6 preliminary P21 | pending | pending | `evidence/runtime/preliminary/` plus P21 evidence | closes P21 for archive only |
-| Stage 7 archive/promotion | pending | pending | gate register and archive diff records | runtime tree must remain unchanged; semantic spec diff recorded |
-| Stage 8 final freeze | pending | pending | `evidence/runtime/final-freeze/` | complete matrix rerun required |
-| submitted tip | pending | pending | PR checks plus gate register | runtime-relevant PR change reopens Stage 2 and matrix replay |
-| merged runtime baseline | pending | pending | merged-tree comparison record | relevant-tree equivalence or complete rerun |
-| Stage 9 closeout branch | pending | docs-only | final PR/Graphite record | runtime tree hash unchanged; docs checks/review only |
+Validation, ownership, cancellation, terminal adoption, row/config mismatch,
+freshness, route projection, and redaction are behavior-test gates. They are not
+live matrix rows. Each final success row records concise inputs and results in
+P21 and links the operation's existing private artifacts. Any runtime-relevant
+change invalidates all three rows so one accepted matrix always binds one exact
+tree. A record-only change reruns static validation only.
 
 ## Planning Document Review
 

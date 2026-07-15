@@ -1,120 +1,86 @@
 ## ADDED Requirements
 
-### Requirement: Final Matrix Uses Rendered User Path
+### Requirement: Final Matrix Uses The Canonical Config Product Path
 
-MapGen Studio SHALL close the Run in Game remediation only after the rendered
-browser path starts the requested generated content in Civ7 for every required
-scenario.
+MapGen Studio SHALL close Run in Game only after every required complete
+canonical config starts its generated content through the rendered control.
 
-#### Scenario: Swooper Earthlike launches from Studio
+#### Scenario: Swooper Earthlike completes
 
-- **WHEN** the rendered Studio page selects `ToT_BasicModsEnabled.Civ7Cfg`,
-  Swooper Earthlike, seed `1538316415`, `MAPSIZE_HUGE`, and 10 players
+- **WHEN** the rendered Studio selects `swooper-earthlike`,
+  `ToT_BasicModsEnabled.Civ7Cfg`, seed `1538316415`, `MAPSIZE_HUGE`,
+  10 players, and balanced resources
 - **AND** the user clicks Run in Game
-- **THEN** Civ7 starts the generated Studio-run content for that request
-- **AND** retained evidence connects public status, diagnostics lookup,
-  generated artifact, deployed snapshot, setup row, and post-start in-game
-  readback
-- **AND** retained evidence records setup readback for the exact admitted
-  `runArtifactId`, seed, `MAPSIZE_HUGE`, and 10 players
-- **AND** retained evidence records the rendered Run in Game click, its
-  browser-originated `runInGame.start` request with
-  `worldSettings.resources: balanced`, and the same request's generation
-  manifest retaining that value
-- **AND** Civ7 setup/readback does not establish a resulting resource
-  distribution
-- **AND** retained evidence records fresh scripting-log markers and `106x66`
-  live snapshot dimensions
+- **THEN** exactly one request completes in Civ7
+- **AND** retained evidence satisfies the exact per-row correlation contract
 
-#### Scenario: Latest Juicy launches from Studio
+#### Scenario: Latest Juicy completes
 
-- **WHEN** the rendered Studio page selects `ToT_BasicModsEnabled.Civ7Cfg`,
-  Latest Juicy, seed `1538316415`, `MAPSIZE_HUGE`, and 10 players
+- **WHEN** the same fixed tuple selects `latest-juicy`
 - **AND** the user clicks Run in Game
-- **THEN** Civ7 starts the generated Studio-run content for that request
-- **AND** retained evidence connects public status, diagnostics lookup,
-  generated artifact, deployed snapshot, setup row, and post-start in-game
-  readback
-- **AND** retained evidence records setup readback for the exact admitted
-  `runArtifactId`, seed, `MAPSIZE_HUGE`, and 10 players
-- **AND** retained evidence records the rendered Run in Game click, its
-  browser-originated `runInGame.start` request with
-  `worldSettings.resources: balanced`, and the same request's generation
-  manifest retaining that value
-- **AND** Civ7 setup/readback does not establish a resulting resource
-  distribution
-- **AND** retained evidence records fresh scripting-log markers and `106x66`
-  live snapshot dimensions
+- **THEN** exactly one request completes in Civ7
+- **AND** retained evidence satisfies the exact per-row correlation contract
 
-#### Scenario: Swooper Desert Mountains launches from Studio
+#### Scenario: Swooper Desert Mountains completes
 
-- **WHEN** the rendered Studio page selects `ToT_BasicModsEnabled.Civ7Cfg`,
-  Swooper Desert Mountains, seed `1538316415`, `MAPSIZE_HUGE`, and 10 players
+- **WHEN** the same fixed tuple selects `swooper-desert-mountains`
 - **AND** the user clicks Run in Game
-- **THEN** Civ7 starts the generated Studio-run content for that request
-- **AND** retained evidence connects public status, diagnostics lookup,
-  generated artifact, deployed snapshot, setup row, and post-start in-game
-  readback
-- **AND** retained evidence records setup readback for the exact admitted
-  `runArtifactId`, seed, `MAPSIZE_HUGE`, and 10 players
-- **AND** retained evidence records the rendered Run in Game click, its
-  browser-originated `runInGame.start` request with
-  `worldSettings.resources: balanced`, and the same request's generation
-  manifest retaining that value
-- **AND** Civ7 setup/readback does not establish a resulting resource
-  distribution
-- **AND** retained evidence records fresh scripting-log markers and `106x66`
-  live snapshot dimensions
+- **THEN** exactly one request completes in Civ7
+- **AND** retained evidence satisfies the exact per-row correlation contract
 
-#### Scenario: Prior generated row is visible
+### Requirement: Every Live Row Has One Exact Evidence Chain
 
-- **WHEN** setup row readback sees a generated Studio-run row for a prior
-  request instead of the exact admitted `runArtifactId`
-- **THEN** the final matrix row fails
-- **AND** private diagnostics record a generated row mismatch
+Each successful P21 row SHALL connect the rendered request to the exact
+generated and loaded content without exposing private diagnostics publicly.
 
-### Requirement: Final Matrix Includes Recovery And Freshness Rows
+#### Scenario: A required row reaches terminal success
 
-MapGen Studio SHALL run the required recovery and freshness checks before
-closing the real user path matrix.
+- **WHEN** a required rendered request reaches public phase `completed`
+- **THEN** one request id and diagnostics id identify the operation
+- **AND** a request-specific scripting marker matches every `RunCorrelation`
+  field from the parsed generation manifest
+- **AND** the setup row is
+  `{mod-swooper-studio-run}/maps/studio-run.js`
+- **AND** `runArtifactId` remains correlation identity rather than a filename
+- **AND** generated and deployed script identities and digests match
+- **AND** exact-authorship evidence has `status: "complete"` and
+  `unresolvedLinks: []`
+- **AND** the separate attribution report has `status: "complete"` and
+  `missingSections: []`
+- **AND** balanced resources agree in the admitted launch envelope and generation
+  manifest while setup readback proves seed, size, players, mods, and map row
+- **AND** setup evidence separately proves the stable row, target mod, seed,
+  size, and players
+- **AND** loaded-game evidence separately proves in-game state, `106x66`
+  dimensions, and turn at least 1
+- **AND** recipe-owned validation proves a nondegenerate playable result
+- **AND** the Civ7 application process is unchanged
+- **AND** pre/post `/healthz` retains the same `repoRoot`, `serverInstanceId`,
+  and `startedAt`
+- **AND** public status/current/event output contains no private diagnostics or
+  local paths
 
-#### Scenario: Missed terminal event or browser reload recovers
+### Requirement: Controlled Failure And Recovery Stay Deterministic
 
-- **WHEN** a browser-originated operation reaches daemon terminal state
-- **AND** the rendered browser misses the terminal event or reloads
-- **THEN** the UI adopts terminal state from `studio.operations.current`
-- **AND** does not replay `runInGame.start`
+P21 SHALL use executable behavior gates for controlled failure, recovery,
+freshness, and redaction instead of manufacturing additional live Civ7
+mutations.
 
-#### Scenario: Generated row is missing
+#### Scenario: A controlled non-success case is verified
 
-- **WHEN** the generated map row is absent during setup readback
-- **THEN** the operation terminalizes with a safe public runtime category
-- **AND** explicit diagnostics lookup records the specific setup failure reason
+- **WHEN** validation, ownership, cancellation, terminal adoption, row mismatch,
+  saved-config mismatch, freshness, or redaction behavior is checked
+- **THEN** its concrete Nx/test owner in `design.md` proves the closed contract
+- **AND** the case is not repeated as a live Civ7 mutation merely for evidence
 
-#### Scenario: Saved config omits generated mod
+### Requirement: Final Rows Bind To The Frozen Runtime Tree
 
-- **WHEN** a saved setup config omits or disables the generated Studio-run mod
-- **THEN** the operation terminalizes with safe public status
-- **AND** explicit diagnostics lookup records the generated-mod mod-set
-  mismatch without leaking private detail publicly
+The required live matrix SHALL run after A.2 and A.3 reconverge on the frozen
+runtime-relevant candidate.
 
-#### Scenario: Repeat run uses fresh runtime identities
+#### Scenario: Runtime-relevant source changes after a row
 
-- **WHEN** the same rendered scenario is run twice with deterministic inputs
-- **THEN** the second run has a fresh request id, workspace, generated artifact
-  identity, and deployment snapshot identity
-- **AND** deterministic source/config digests may match only where the same
-  input intentionally produces the same content
-
-#### Scenario: Endpoint-only rows exist
-
-- **WHEN** endpoint-originated checks pass
-- **THEN** they are recorded as supporting evidence only
-- **AND** do not satisfy the browser-originated final matrix
-
-#### Scenario: Live environment is unavailable
-
-- **WHEN** Civ7, Studio endpoint runtime, or required direct-control state is
-  unavailable
-- **THEN** the remediation remains open and blocked
-- **AND** the next external action is recorded in the workstream evidence
+- **WHEN** any runtime-relevant source, asset, lifecycle, contract, generation,
+  or dependency authority changes after a required row
+- **THEN** all three rows are invalidated and rerun against the new exact tree
+- **AND** record-only changes rerun only their static validation
