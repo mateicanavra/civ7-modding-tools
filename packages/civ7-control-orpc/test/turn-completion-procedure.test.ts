@@ -383,16 +383,7 @@ function turnCompletionBlockedResult(): Extract<
       hasSentTurnComplete: false,
       canEndTurn: false,
     }),
-    fallbackPreflight: {
-      notifications: [
-        {
-          isEndTurnBlocking: true,
-          typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-          decision: { category: "town-focus" },
-        },
-      ],
-    },
-  } as Extract<Civ7ControlOrpcTurnCompletionRequestResult, { sent: false }>;
+  };
 }
 
 function turnCompletionStatus(
@@ -411,12 +402,12 @@ function turnCompletionStatus(
     localPlayerId: 0,
     turn:
       options.turnOk === false
-        ? { ok: false, reason: "missing turn" }
+        ? { ok: false, error: "missing turn" }
         : { ok: true, value: options.turn },
     turnDate: { ok: true, value: options.turn === 12 ? "3990 BCE" : "3980 BCE" },
     hasSentTurnComplete:
       options.hasSentTurnCompleteOk === false
-        ? { ok: false, reason: "missing sent state" }
+        ? { ok: false, error: "missing sent state" }
         : { ok: true, value: options.hasSentTurnComplete },
     canEndTurn: { ok: true, value: options.canEndTurn ?? true },
     blocker: { ok: true, value: 0 },

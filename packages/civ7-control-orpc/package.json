@@ -53,6 +53,8 @@
     "dist"
   ],
   "scripts": {
+    "check:test": "tsc -p tsconfig.test.json --noEmit",
+    "check:tools": "tsc -p tsconfig.tools.json --noEmit",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "test": "vitest run --config vitest.config.ts"
   },

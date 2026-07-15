@@ -2,16 +2,17 @@ import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 import type {
   Civ7ControlOrpcFirstMeetResponseResult,
+  Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcPlayNotificationViewResult,
 } from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcRouter,
   Civ7FirstMeetResponseUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { playableStatusResult as playableStatusFixture } from "./support/playable-status";
 
 const firstMeetInput = {
   metPlayerId: 2,
@@ -370,21 +371,9 @@ function firstMeetResponseResult(
 }
 
 function playableStatusResult(playable: boolean): Civ7ControlOrpcPlayableStatusResult {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
+  return playableStatusFixture({
     playable,
     readiness: playable ? "tuner-ready" : "shell",
-    tuner: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "1", name: "Tuner", role: "tuner" },
-      health: {
-        evalOk: 2,
-        ready: playable,
-        globals: {},
-      },
-    },
-    errors: [],
-  };
+    tunerReady: playable,
+  });
 }

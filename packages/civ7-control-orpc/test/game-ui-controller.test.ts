@@ -815,7 +815,7 @@ describe("Civ7 game UI controller bootstrap", () => {
         mode: "assign-worker",
         playerId: 2,
         location: 2543,
-      })
+      } as unknown as never)
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(sendCalls).toEqual([]);
   });
@@ -3167,9 +3167,7 @@ describe("Civ7 game UI controller bootstrap", () => {
   });
 
   test("does not advertise game UI mutations without game-owned proof", async () => {
-    const target = gameUiNotificationTarget(notificationId, {
-      notificationExistsAfterDismiss: true,
-    });
+    const target = gameUiNotificationTarget(notificationId);
     target.Players = {
       maxPlayers: 8,
       getAliveIds: () => [0, 1],
@@ -3583,6 +3581,7 @@ function gameUiNotificationTarget(
   let unitCommandSent = false;
   let lastUnitCommandOperationType: string | null = null;
   let selectedCityCleared = false;
+  const readyCity = options.readyCity;
   const blocksTurnAdvancement = options.blocksTurnAdvancement ?? true;
   const notification = {
     Type: notificationId.type,
@@ -3809,7 +3808,7 @@ function gameUiNotificationTarget(
               if (!componentIdEqual(id, options.unitCommand?.unitId)) {
                 return null;
               }
-              const commandDestination = options.unitCommand?.destination ?? resettleTarget;
+              const commandDestination = options.unitCommand?.destination ?? { x: 22, y: 31 };
               const unitCommandLocation =
                 unitCommandSent &&
                 lastUnitCommandOperationType === "UNITCOMMAND_RESETTLE" &&
@@ -4032,40 +4031,20 @@ function gameUiNotificationTarget(
               sendRequest: (_playerId, _operationType, args) => {
                 const operationType = String(_operationType);
                 if (operationType === "ASSIGN_WORKER") {
-                  options.populationPlacement?.onAssignWorkerSend?.(args);
+                  options.populationPlacement?.onAssignWorkerSend?.(numericOperationArgs(args));
                   populationSent = true;
                 } else if (operationType === "CHOOSE_NARRATIVE_STORY_DIRECTION") {
-                  options.narrativeChoice?.onSend?.(
-                    _playerId,
-                    args as {
-                      TargetType: string;
-                      Target: { owner: number; id: number; type: number };
-                      Action: number;
-                    }
-                  );
+                  options.narrativeChoice?.onSend?.(_playerId, narrativeOperationArgs(args));
                   if (options.narrativeChoice?.clearBlockerOnSend === true) {
                     exists = false;
                   }
                 } else if (operationType === "RESPOND_DIPLOMATIC_ACTION") {
-                  options.diplomacyResponse?.onSend?.(
-                    _playerId,
-                    args as {
-                      ID: number;
-                      Type: number;
-                    }
-                  );
+                  options.diplomacyResponse?.onSend?.(_playerId, diplomacyOperationArgs(args));
                   if (options.diplomacyResponse?.clearBlockerOnSend === true) {
                     exists = false;
                   }
                 } else if (operationType === "RESPOND_DIPLOMATIC_FIRST_MEET") {
-                  options.firstMeetResponse?.onSend?.(
-                    _playerId,
-                    args as {
-                      Player1: number;
-                      Player2: number;
-                      Type: number;
-                    }
-                  );
+                  options.firstMeetResponse?.onSend?.(_playerId, firstMeetOperationArgs(args));
                   if (options.firstMeetResponse?.clearBlockerOnSend === true) {
                     exists = false;
                   }
@@ -4073,12 +4052,16 @@ function gameUiNotificationTarget(
                   operationType === "CHANGE_GOVERNMENT" ||
                   operationType === "CHOOSE_GOLDEN_AGE"
                 ) {
-                  options.governmentChoice?.onSend?.(_playerId, operationType, args);
+                  options.governmentChoice?.onSend?.(
+                    _playerId,
+                    operationType,
+                    numericOperationArgs(args)
+                  );
                 } else {
                   if (options.progressionRequest != null) {
-                    options.progressionRequest.onSend?.(operationType, args);
+                    options.progressionRequest.onSend?.(operationType, numericOperationArgs(args));
                   } else {
-                    options.progressionChoice?.onSend?.(operationType, args);
+                    options.progressionChoice?.onSend?.(operationType, numericOperationArgs(args));
                   }
                   progressionSent = true;
                   if (options.progressionChoice?.clearBlockerOnSend === true) {
@@ -4139,12 +4122,12 @@ function gameUiNotificationTarget(
     Players: {
       ...target.Players,
       Cities:
-        options.readyCity == null
+        readyCity == null
           ? target.Players?.Cities
           : {
               get: (playerId: number) => ({
                 getCityIds: () =>
-                  playerId === target.GameContext?.localPlayerID ? [options.readyCity?.cityId] : [],
+                  playerId === target.GameContext?.localPlayerID ? [readyCity.cityId] : [],
               }),
             },
       get: (playerId) =>
@@ -4242,4 +4225,69 @@ function componentKey(
   value: { owner: number; id: number; type?: number } | null | undefined
 ): string {
   return `${value?.owner}:${value?.id}:${value?.type ?? "none"}`;
+}
+
+function operationRecord(value: unknown): Readonly<Record<string, unknown>> {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Expected operation args object");
+  }
+  return Object.fromEntries(Object.entries(value));
+}
+
+function numericOperationArgs(value: unknown): Readonly<Record<string, number>> {
+  const out: Record<string, number> = {};
+  for (const [key, entry] of Object.entries(operationRecord(value))) {
+    if (typeof entry !== "number") throw new Error(`Expected numeric operation arg ${key}`);
+    out[key] = entry;
+  }
+  return out;
+}
+
+function narrativeOperationArgs(value: unknown): Readonly<{
+  TargetType: string;
+  Target: { owner: number; id: number; type: number };
+  Action: number;
+}> {
+  const args = operationRecord(value);
+  const target = operationRecord(args.Target);
+  return {
+    TargetType: stringOperationArg(args, "TargetType"),
+    Target: {
+      owner: numberOperationArg(target, "owner"),
+      id: numberOperationArg(target, "id"),
+      type: numberOperationArg(target, "type"),
+    },
+    Action: numberOperationArg(args, "Action"),
+  };
+}
+
+function diplomacyOperationArgs(value: unknown): Readonly<{ ID: number; Type: number }> {
+  const args = operationRecord(value);
+  return {
+    ID: numberOperationArg(args, "ID"),
+    Type: numberOperationArg(args, "Type"),
+  };
+}
+
+function firstMeetOperationArgs(
+  value: unknown
+): Readonly<{ Player1: number; Player2: number; Type: number }> {
+  const args = operationRecord(value);
+  return {
+    Player1: numberOperationArg(args, "Player1"),
+    Player2: numberOperationArg(args, "Player2"),
+    Type: numberOperationArg(args, "Type"),
+  };
+}
+
+function numberOperationArg(args: Readonly<Record<string, unknown>>, key: string): number {
+  const value = args[key];
+  if (typeof value !== "number") throw new Error(`Expected numeric operation arg ${key}`);
+  return value;
+}
+
+function stringOperationArg(args: Readonly<Record<string, unknown>>, key: string): string {
+  const value = args[key];
+  if (typeof value !== "string") throw new Error(`Expected string operation arg ${key}`);
+  return value;
 }

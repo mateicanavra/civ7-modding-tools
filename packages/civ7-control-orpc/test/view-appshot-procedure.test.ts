@@ -16,6 +16,7 @@ import {
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 // The procedure sleeps for real (Effect.sleep); pin settleMs to zero.
 const fastSettle = { settleMs: 0 } as const;
@@ -360,7 +361,7 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      directControl: {
+      directControl: directControlFacadeFixture({
         focusCiv7Camera: async (input) => {
           calls.push("cameraFocus");
           cameraInputs.push(input);
@@ -414,7 +415,7 @@ function fakeContext(
           if (options.captureError) throw options.captureError;
           return windowShotResult();
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     },
   };
 }

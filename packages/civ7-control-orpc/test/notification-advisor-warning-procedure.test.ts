@@ -230,7 +230,7 @@ function fakeContext(options: {
             options.result ??
             advisorWarningResult({
               playerId: input.playerId,
-              target: input.target,
+              target: { ...input.target, type: input.target.type ?? 0 },
               sent: true,
             })
           );
@@ -281,7 +281,7 @@ function validationResult(
   return {
     host: "127.0.0.1",
     port: 4318,
-    state: { id: "1", name: "Tuner", role: "tuner" },
+    state: { id: "1", name: "Tuner" },
     family: "player-operation",
     operationType: "VIEWED_ADVISOR_WARNING",
     enumValue: "VIEWED_ADVISOR_WARNING",

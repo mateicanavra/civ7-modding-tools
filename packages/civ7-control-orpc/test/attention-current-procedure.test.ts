@@ -1,18 +1,21 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
+import type {
+  Civ7ControlOrpcPlayableStatusResult,
+  Civ7ControlOrpcPlayNotificationViewResult,
+  Civ7ControlOrpcReadyCityViewResult,
+  Civ7ControlOrpcReadyUnitViewResult,
+  Civ7ControlOrpcTurnCompletionStatusResult,
+} from "../src/dependencies/direct-control";
 import {
   Civ7AttentionCurrentUnavailableError,
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcPlayableStatusResult,
-  type Civ7ControlOrpcPlayNotificationViewResult,
-  type Civ7ControlOrpcReadyCityViewResult,
-  type Civ7ControlOrpcReadyUnitViewResult,
   Civ7ControlOrpcRouter,
-  type Civ7ControlOrpcTurnCompletionStatusResult,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 describe("attention.current control-oRPC procedure", () => {
   test("composes playable status, notifications, and ready actors into a semantic attention view", async () => {
@@ -572,7 +575,7 @@ function fakeContext(options: FakeContextOptions): {
       port: 4318,
       timeoutMs: 1_000,
     },
-    directControl: {
+    directControl: directControlFacadeFixture({
       getCiv7PlayableStatus: async (endpointDefaults) => {
         calls.playableStatus.push(endpointDefaults);
         return options.playableStatus;
@@ -605,7 +608,7 @@ function fakeContext(options: FakeContextOptions): {
         calls.turnCompletion.push(endpointDefaults);
         return options.turnCompletion ?? turnCompletionStatusResult();
       },
-    },
+    }),
   };
 
   return { context, calls };

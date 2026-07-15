@@ -441,7 +441,7 @@ function operationRequestResult(
   const family = mode === "expand-city" ? "city-command" : "player-operation";
   const operationType = mode === "expand-city" ? "EXPAND" : "ASSIGN_WORKER";
   const target = mode === "expand-city" ? { cityId } : { playerId: 0 };
-  const args =
+  const args: Readonly<Record<string, number>> =
     mode === "expand-city" ? { X: destination.x, Y: destination.y } : { Location: 2543, Amount: 1 };
   const includePostcondition = options.includePostcondition ?? true;
 

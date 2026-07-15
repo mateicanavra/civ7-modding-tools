@@ -1,14 +1,13 @@
 import { describe, expect, test } from "vitest";
 import {
+  type Civ7ControllerContext,
   type Civ7IntelligenceBridgeGlobalTarget,
   installCiv7IntelligenceBridge,
 } from "../src/bridge/intelligence-bridge";
-import {
-  type Civ7ControlOrpcContext,
-  type Civ7ControlOrpcPlayableStatusResult,
-  type Civ7IntelligenceBridge,
-  createCiv7IntelligenceBridge,
-} from "../src/index";
+import type { Civ7ControlOrpcPlayableStatusResult } from "../src/dependencies/direct-control";
+import { type Civ7IntelligenceBridge, createCiv7IntelligenceBridge } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
+import { playableStatusResult } from "./support/playable-status";
 
 describe("Civ7IntelligenceBridge global adapter", () => {
   test("installs the native nested router client with fresh correlated context per call", async () => {
@@ -159,7 +158,7 @@ describe("Civ7IntelligenceBridge global adapter", () => {
 });
 
 function fakeContext(status: Civ7ControlOrpcPlayableStatusResult): {
-  context: Civ7ControlOrpcContext;
+  context: Civ7ControllerContext;
   calls: Array<unknown>;
   contextRequests: number;
 } {
@@ -168,12 +167,12 @@ function fakeContext(status: Civ7ControlOrpcPlayableStatusResult): {
     calls,
     contextRequests: 0,
     context: {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7PlayableStatus: async (options) => {
           calls.push(options);
           return status;
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
       endpointDefaults: { timeoutMs: 1_000 },
       controller: {
         supportedReadProcedures: [],
@@ -181,37 +180,4 @@ function fakeContext(status: Civ7ControlOrpcPlayableStatusResult): {
       },
     },
   };
-}
-
-function playableStatusResult(): Civ7ControlOrpcPlayableStatusResult {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    playable: true,
-    readiness: "tuner-ready",
-    appUi: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
-      snapshot: {
-        ui: {
-          inGame: { ok: true, value: true },
-          inShell: { ok: true, value: false },
-          inLoading: { ok: true, value: false },
-          canBeginGame: { ok: true, value: false },
-        },
-        currentState: "App UI",
-      },
-    },
-    tuner: {
-      ready: true,
-      health: {
-        ok: true,
-        host: "127.0.0.1",
-        port: 4318,
-        latencyMs: 1,
-      },
-    },
-    errors: [],
-  } as Civ7ControlOrpcPlayableStatusResult;
 }

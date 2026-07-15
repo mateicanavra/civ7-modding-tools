@@ -15,7 +15,9 @@ describe("control-oRPC procedure admission", () => {
         throw new Error(`${path.join(".")} is not an Effect procedure`);
       }
       const steps = effectDefinition.effectSteps;
-      expect(Array.isArray(steps), path.join(".")).toBe(true);
+      if (!Array.isArray(steps)) {
+        throw new Error(`${path.join(".")} has no Effect steps`);
+      }
       expect(effectDefinition.effectHandler, path.join(".")).toBeDefined();
       const admissionIndexes = steps.flatMap((step: unknown, index: number) =>
         isRecord(step) &&

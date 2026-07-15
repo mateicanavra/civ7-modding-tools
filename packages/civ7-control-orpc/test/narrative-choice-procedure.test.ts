@@ -7,11 +7,11 @@ import type {
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcRouter,
   Civ7NarrativeChoiceUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { playableStatusResult } from "./support/playable-status";
 
 const narrativeInput = {
   targetType: "DISCOVERY_STORY",
@@ -312,7 +312,7 @@ function fakeContext(
       directControl: {
         getCiv7PlayableStatus: async (endpointDefaults) => {
           calls.readiness.push(endpointDefaults);
-          return playableStatusResult(options.playable ?? true);
+          return playableStatusResult({ playable: options.playable ?? true });
         },
         getCiv7PlayNotificationView: async (endpointDefaults) => {
           calls.views.push(endpointDefaults);
@@ -373,36 +373,5 @@ function narrativeChoiceResult(
       classification,
       reason: `${classification} reason`,
     },
-  };
-}
-
-function playableStatusResult(playable: boolean): Civ7ControlOrpcPlayableStatusResult {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    playable,
-    readiness: playable ? "tuner-ready" : "shell",
-    appUi: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
-      snapshot: {
-        ui: {
-          inGame: { ok: true, value: playable },
-          inShell: { ok: true, value: !playable },
-          inLoading: { ok: true, value: false },
-          canBeginGame: { ok: true, value: false },
-        },
-        errors: [],
-      },
-    },
-    tuner: {
-      host: "127.0.0.1",
-      port: 4318,
-      ready: playable,
-      states: [],
-      errors: [],
-    },
-    errors: [],
   };
 }

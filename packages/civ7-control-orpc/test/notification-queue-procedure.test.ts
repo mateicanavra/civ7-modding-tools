@@ -1,14 +1,18 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
-import type { Civ7ControlOrpcPlayNotificationViewResult } from "../src/dependencies/direct-control";
+import type {
+  Civ7ControlOrpcNotificationDismissalResult,
+  Civ7ControlOrpcPlayNotificationViewResult,
+} from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcNotificationDismissalResult,
   Civ7ControlOrpcRouter,
   Civ7NotificationQueueUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
+import { playableStatusResult } from "./support/playable-status";
 import { standardSchemaAccepts } from "./support/standard-schema";
 
 const informationalId = { owner: 0, id: 113, type: 20 };
@@ -67,22 +71,24 @@ describe("notifications.queue control-oRPC procedures", () => {
   });
 
   test("does not use legacy cli hints as operation classification evidence", async () => {
+    const legacyQueueItem: Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number] &
+      Readonly<{ cli: string }> = {
+      ...queueItem({
+        notificationId: { owner: 0, id: 116, type: 20 },
+        category: "blocking-notification",
+        typeName: "NOTIFICATION_UNKNOWN_BLOCKER",
+        summary: "Unknown blocker",
+        operationFamily: undefined,
+        operationType: undefined,
+      }),
+      cli: "game play choose-tech --options --json",
+    };
     const fake = fakeContext({
       notificationView: {
         ...notificationView(),
         hud: {
           nextDecision: null,
-          decisionQueue: [
-            queueItem({
-              notificationId: { owner: 0, id: 116, type: 20 },
-              category: "blocking-notification",
-              typeName: "NOTIFICATION_UNKNOWN_BLOCKER",
-              summary: "Unknown blocker",
-              operationFamily: null,
-              operationType: null,
-              cli: "game play choose-tech --options --json",
-            }),
-          ],
+          decisionQueue: [legacyQueueItem],
         },
       },
     });
@@ -309,11 +315,8 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      directControl: {
-        getCiv7PlayableStatus: async () => ({
-          playable: true,
-          readiness: "tuner-ready",
-        }),
+      directControl: directControlFacadeFixture({
+        getCiv7PlayableStatus: async () => playableStatusResult(),
         getCiv7PlayNotificationView: async (input) => {
           calls.notifications.push(input);
           if (options.notificationViewError) throw options.notificationViewError;
@@ -328,20 +331,29 @@ function fakeContext(
             })
           );
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     },
   };
 }
 
 function notificationView(): Civ7ControlOrpcPlayNotificationViewResult {
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     turn: { ok: true, value: 7 },
     turnDate: { ok: true, value: "3800 BCE" },
+    hasSentTurnComplete: { ok: true, value: false },
     blocker: { ok: true, value: 2_091_697_919 },
     blockingNotificationId: { ok: true, value: unitLostId },
     canEndTurn: { ok: true, value: false },
-    limits: { requested: 50, returned: 3, truncated: false },
+    selectedUnitId: { ok: true, value: null },
+    selectedCityId: { ok: true, value: null },
+    firstReadyUnitId: { ok: true, value: null },
+    notifications: [],
+    decisions: [],
+    limits: { maxNotifications: 50, truncated: false },
     hud: {
       nextDecision: null,
       decisionQueue: [
@@ -369,12 +381,11 @@ function notificationView(): Civ7ControlOrpcPlayNotificationViewResult {
           summary: "Production Needed",
           operationFamily: "city-command",
           operationType: "BUILD",
-          requiredInputs: [{ name: "cityId", required: true }],
+          requiredInputs: [{ name: "cityId", source: "notification", required: true }],
         }),
       ],
     },
-    notes: [],
-  } as Civ7ControlOrpcPlayNotificationViewResult;
+  };
 }
 
 function queueItem(
@@ -389,12 +400,14 @@ function queueItem(
     message: "Wonder Completed",
     location: null,
     target: null,
+    player: null,
     operationFamily: "app-ui-action",
     operationType: "Game.Notifications.dismiss",
     requiredInputs: [],
-    cli: null,
+    commonActions: [],
+    notes: [],
     ...overrides,
-  } as Civ7ControlOrpcPlayNotificationViewResult["hud"]["decisionQueue"][number];
+  };
 }
 
 function notificationDismissalResult(

@@ -1,10 +1,10 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
+import type { Civ7ControlOrpcProductionChoiceResult } from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcProductionChoiceResult,
   Civ7ControlOrpcRouter,
   Civ7CorrelationIdInvalidError,
   Civ7MutationReadinessRequiredError,
